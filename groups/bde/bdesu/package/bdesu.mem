@@ -1,0 +1,6 @@
+bdesu_fdstreambuf
+bdesu_fileutil
+bdesu_memoryutil
+bdesu_pathutil
+bdesu_pipeutil
+bdesu_processutil

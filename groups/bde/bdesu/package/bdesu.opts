@@ -1,0 +1,6 @@
+*                      _       OPTS_FILE       = bdesu.opts
+
+!! windows-Windows_NT-amd64-*-cl	64	TESTDRIVER_BDEBUILD_CXXFLAGS = $(subst /O2,,$(BDEBUILD_CXXFLAGS))
+
+#-lsocket needed for bdesu_FileUtil::isRegularFile test
+unix-SunOS              _       MT_LDFLAGS     = -Bdynamic -lpthread -lsocket -Bstatic

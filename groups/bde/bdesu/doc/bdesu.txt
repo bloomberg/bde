@@ -1,0 +1,30 @@
+ bdesu.txt
+
+@PURPOSE: Provide portable access to low-level system functionality.
+
+@MNEMONIC: Basic Development Environment System Utilities (bdesu)
+
+@AUTHOR: Bill Chapman (bchapman2)
+
+@DESCRIPTION: The 'bdesu' package consists of utilities for providing
+ platform-independent access to low-level system functionality.
+
+/Component Synopsis
+/------------------
+..
+ 'bdesu_fdstreambuf' - Provide a stream buffer initialized with a file
+                       descriptor.
+
+ 'bdesu_fileutil'    - Provide a set of portable utilities for file system
+                       access.
+
+ 'bdesu_memoryutil'  - Provide a set of portable utilities for memory
+                       manipulation.
+
+ 'bdesu_pathutil'    - Provide portable file-path manipulation utilities.
+
+ 'bdesu_pipeutil'    - Provide basic portable named-pipe utilities.
+
+ 'bdesu_processutil' - Provide basic platform-independent utilities related to
+                       processes.
+..
