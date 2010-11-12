@@ -1,0 +1,24 @@
+# BCES overrides for default.opts
+
+*-                      _       OPTS_FILE       = bces.opts
+
+# Additional compile-time flags
+
+!! unix-SunOS-sparc-*-cc        _       SPARC_BCES_CXXFLAGS = -xarch=v8plus
+!! unix-SunOS-sparc-*-cc       64       SPARC_BCES_CXXFLAGS = -xarch=v8plus -xarch=v9
+!! unix-SunOS-sparc-*-cc-5.9    _       SPARC_BCES_CXXFLAGS = -m32 -xarch=sparc
+!! unix-SunOS-sparc-*-cc-5.9   64       SPARC_BCES_CXXFLAGS = -m64 -xarch=sparc
+
+unix-SunOS-sparc-*-cc           _       DEF_CXXFLAGS        = $(SPARC_BCES_CXXFLAGS)
+
+unix-SunOS-sparc-*-gcc          _       DEF_CXXFLAGS        = -mv8plus -Wa,-xarch=v8plus
+
+# Additional assembly language source file
+unix-AIX-*-*-xlc        _       EXTRA_BCES_SRCS = bces_atomicutilimpl_powerpc.ibm.s
+!! unix-AIX-*-*-xlc     64      EXTRA_BCES_SRCS = bces_atomicutilimpl_powerpc.ibm64.s
+# Additional assembly language object file
+unix-AIX-*-*-xlc        _       EXTRA_BCES_OBJS = bces_atomicutilimpl_powerpc.ibm.o
+!! unix-AIX-*-*-xlc     64      EXTRA_BCES_OBJS = bces_atomicutilimpl_powerpc.ibm64.o
+
+unix-HP_UX-*-*-acc      _       DEF_CXXFLAGS = +Ovolatile=__unordered
+unix-HP_UX-*-*-acc      64      DEF_CXXFLAGS = +Ovolatile=__unordered
