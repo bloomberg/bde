@@ -1,0 +1,117 @@
+ bcec.txt
+
+@PURPOSE: Provide containers that support concurrent (multi-thread) access.
+
+@MNEMONIC: Basic Concurrency Environment Containers (bcec)
+
+@AUTHOR David Laurance (dlauranc)
+
+@SEE_ALSO: bdec, bcemt
+
+@DESCRIPTION: The 'bcec' package provides a set of containers that allow
+ concurrent access and manipulation.  Components in this package are similar in
+ *intent* to the corresponding 'bdec' components, except that all operations
+ which change the internal state of the containers are guaranteed to be atomic
+ in the presence of multiple threads.
+
+ Support for true multi-threading causes some significant interface changes
+ when compared to the analogous 'bdec' components.  A thread-safe collection
+ cannot, in general, guarantee thread safety for its contained objects while
+ still allowing access to those objects.  So, for instance, a canonical
+ implementation of 'operator[]', yielding a reference to the contained object,
+ would violate thread safety.  Therefore, thread-safe collections will, in
+ general, return items *by* *value* rather than *by* *reference*.
+
+ In addition, thread-aware collection components must make policy decisions
+ regarding behavior of manipulators at the "edge conditions" when a collection
+ is empty or full.  In a multi-threading context, it is often reasonable for a
+ manipulator to block if it cannot complete a requested operation, and to wait
+ for the collection state to change.  For instance, when called for an empty
+ collection, 'bcec_Queue<T>::popFront()' will block and then wait until an
+ element is available to satisfy the request.
+
+ In general, components in 'bcec' support this blocking behavior where it
+ makes sense. Refer to the individual component documentation to understand how
+ this general principle is carried out in specific components.
+
+@COMPONENTS
+ bcec_queue:         Provides a thread-safe templatized queue, where the client
+                     supplies an element type as a template parameter.
+ bcec_timequeue:     Provides a thread-safe templatized queue maintained in
+                     time order, where the client supplies an element type as
+                     a template parameter.
+ bcec_objectcatalog: Provides a thread-safe templatized catalog of object
+                     supporting efficient insertion, removal and access, where
+                     the client supplies an element type as a template
+                     parameter.
+ bcec_objectpool:    Provides a thread-safe templatized pool of object
+                     supporting creation and destruction, where the client
+                     supplies an element type as a template parameter.
+
+/Component 'bcec_queue':
+/----------------------
+ This component provides an in-place, indexable, double-ended queue.  Clients
+ instantiate a template class, 'bcec_Queue<T>', where type 'T' is the data type
+ of elements that the queue will hold.  Type 'T' must be defined to be copyable
+ either by a copy constructor or by 'T::operator=()'; class 'bcec_Queue'
+ places no additional requirements on 'T'.
+
+/Component 'bcec_timequeue':
+/-------------------------
+ This component provides an in-place, indexable queue, managed in time order.
+ Clients instantiate a template class, 'bcec_TimeQueue<T>', where type 'T' is
+ the data type of elements that the queue will hold.  Type 'T' must be defined
+ to be copyable either by a copy constructor or by 'T::operator=()'; class
+ 'bcec_TimeQueue' places no additional requirements on 'T'.
+
+ When clients add elements to a 'bcec_TimeQueue', they provide both the element
+ 'T' to be added and a time value, of type 'bdet_TimeInterval'.  Elements can
+ be extracted individually in time order using the overloaded 'popFront()'
+ member functions; a block of elements can also be popped in a single
+ operation, 'popLE()', which pops all elements before a given time value.
+
+ The 'bcec_TimeQueue' is designed to support direct access to individual
+ queued elements based upon their 'Handle'.  This means that 'bcec_TimeQueue'
+ can support frequent additions and removals more efficiently than traditional
+ queue structures designed for sequential access.
+
+/Component 'bcec_objectcatalog':
+/-------------------------------
+ This component provides a thread-safe, indexable catalog of object.  Clients
+ instantiate a template class, 'bcec_ObjectCatalog<T>', where type 'T' is the
+ data type of elements that the catalog will hold.  Type 'T' must be defined to
+ be copyable either by a copy constructor or by 'T::operator=()'; class
+ 'bcec_ObjectCatalog' places no additional requirements on 'T'.
+
+ When clients add elements to a 'bcec_ObjectCatalog', the 'add' method returns
+ a handle which can be used to refer to the element until the element is
+ 'remove'd.  Addition is not guaranteed to succeed and the return vaslue must
+ be checked.  An element can be accessed through its handle by using the 'find'
+ function and passing a buffer for holding the value.  Passing a  null buffer
+ can be used for testing whether the handle is still valid (i.e., refers to an
+ element that has not yet been removed from the catalog).
+
+ The 'bcec_ObjectCatalog' is designed to support direct access to individual
+ queued elements based upon their 'Handle'.  This means that 'bcec_Catalog'
+ can support frequent additions and removals more efficiently than traditional
+ queue structures designed for sequential access.
+
+/Component 'bcec_pool':
+/----------------------
+
+ This component provides a thread-safe memory pool of objects from a
+ parameterized type 'T'.  Clients instantiate a 'bcec_ObjectPool<T>' where the
+ type 'T' has no requirements.  The pool owns the memory and objects it
+ contains.  An object pool manages creation of its objects via a user-installed
+ functor (given to the pool constructor), and provides automatic destruction of
+ its objects either upon the 'destroyObject' method, or upon the pool
+ destruction.  An object can be obtained from the pool by calling the
+ 'getObject' method, and can be released back to the pool for further use
+ within 'getObject' by calling the 'releaseObject' method.
+
+ An object pool is most useful when the objects are equivalent (i.e., any
+ object in the pool can be used to satisfy an object request) and object
+ creation is potentially expensive.  Pooling enables the object to be reused at
+ a later time without going through destruction and re-creation.  For instance,
+ the object constructor may get access to some resource (e.g., a connection)
+ and the resource may remain valid after several uses and thus can be reused.
