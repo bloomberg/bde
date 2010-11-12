@@ -1,0 +1,18 @@
+ bdec.txt
+
+@PURPOSE: Provide container classes.
+
+@MNEMONIC: Basic Development Environment Containers (bdec)
+
+@AUTHOR: Lea Fester (lfester)
+
+@DESCRIPTION: The 'bdec' package provides a variety of container classes that
+ are either more specialized than those provided by STL, or else offer
+ alternative performance characteristics.  Note that some of the containers
+ in this package have been *DEPRECATED* in favor of the equivalent STL type.
+ 'bdec' container classes include:
+..
+  1. A days-of-the-week set class.
+
+  2. Queue template classes.
+..
