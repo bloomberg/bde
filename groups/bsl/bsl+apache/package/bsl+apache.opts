@@ -1,0 +1,12 @@
+# Augment test procedure
+unix                    _       APACHE_TEST     = $(BSL_LOCN)/bsl+apache/test
+windows                 _       APACHE_TEST     = $(BSL_LOCN)\bsl+apache\test
+
+*			_	TEST_DEFINES	= -DTEST_RW_PEDANTIC=0
+*-*-*-*-gcc-*		_	TEST_DEFINES	= -include $(BSL_LOCN)/bsl+apache/rw/_defs.h
+
+unix			_	DEF_INCLUDE	= -DBSL_OVERRIDES_STD -I$(APACHE_TEST)/include -I$(APACHE_TEST)/src -I$(BSL_LOCN)/bsl+apache
+windows			_	DEF_INCLUDE	= /DBSL_OVERRIDES_STD -I$(APACHE_TEST)\include -I$(APACHE_TEST)\src -I$(BSL_LOCN)\bsl+apache
+*			_	TEST_RUNPREFIX	= 
+*			_	TEST_RUNSUFFIX  = 
+*-Linux			_	DEF_CXXFLAGS    = -D_RWSTD_LINUX_RELEASE=\"`uname -r`\"

@@ -1,0 +1,26 @@
+This directory contains a suite of tests that come with the Apache
+implementation of the C++ standard library (originally developed by
+Rogue Wave).  The directory structure has been modified to match the
+requirements of a Bloomberg non-conforming package.  To get the Apache
+STL and unpack it into this directory structure,
+
+1. Get the apache STL tar file from
+   http://stdcxx.apache.org/download.html AND
+2. Unpack it into this directory using ./unpack.pl stdcxx-*.tar.gz
+
+The unmodified sources from this test suite are in the
+/main/bb/unmodified-apache-stl branch in clearcase.  Updates from the apache
+site should be checked into the unmodified-apache-stl branch, then merged into
+the dev branch.
+
+The rw directory contains stubs for facilities used by the tests but not
+available in a normal STL.
+
+The tests were modified to turn off eliminate tests for Rogue Wave (RW)
+extensions and for bugs that we are not yet fixing.  The tests for RW
+extensions are turned off by preprocessor conditional directives querying
+TEST_RW_EXTENSIONS.  Tests that expose bugs in our implementation are
+turned off by preprocessor conditional directives querying macros that
+contain the word "DRQS".  Changes that work around bugs in the RW code
+are controlled by preprocessor conditional directives querying the macro
+RW_BUG.
