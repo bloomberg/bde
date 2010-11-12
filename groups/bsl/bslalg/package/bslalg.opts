@@ -1,0 +1,9 @@
+*                       _       OPTS_FILE       = bslalg.opts
+
+!! unix-SunOS-*-*-*     _       STL_CXXFLAGS    = -library=no%rwtools7
+!! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    = 
+!! *			_	STL_DEFINES	= -DBDE_NO_CPP_STDLIB
+!! *			_	STL_INCLUDE	= 
+
+!! unix-dgux-*-*-*	_	STL_CXXFLAGS	= $(STL_NATIVEINC)
+!! unix-dgux-*-*-*	_	STL_LDFLAGS     = $(STL_NATIVELIB)

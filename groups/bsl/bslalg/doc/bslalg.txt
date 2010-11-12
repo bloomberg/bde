@@ -1,0 +1,120 @@
+ bslalg.txt
+
+@PURPOSE: Provide algorithms and traits used by the BDE STL implementation.
+
+@MNEMONIC: Basic Standard Library ALgorithms (bslalg)
+
+@AUTHOR: Herve Bronnimann (hbronnim)
+
+@DESCRIPTION:  The 'bsl' library relies on several traits to identify
+ properties of types, such as whether they use a memory allocator to supply
+ memory resources, have a trivial default constructor, are POD types, etc.
+ This package provides distinct traits types used to tag user-defined (client)
+ types according to these properties and to select implementation of primitive
+ algorithms customized to these properties.
+
+ In addition to the various traits "tag" types, this package also provide
+ implementations of said primitive algorithms (used to implement STL containers
+ and other standard components in the 'bslstl' and 'bslstp' packages) that
+ take advantage of these traits.
+
+ This package group documentation is a stem.  It should be expanded with a
+ lesson in the usage of type traits.  For now, please consult the individual
+ component-level documentations.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bslalg' currently has 27 components having 8 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('bslalg_') are omitted from the full component
+ names for layout efficiency.
+..
+  Level 8:  arrayprimitives              constructorproxy
+
+  Level 7:  scalarprimitives
+
+  Level 6:  autoarraydestructor          autoarraymovedestructor
+            autoscalardestructor
+
+  Level 5:  arraydestructionprimitives   bitwiseeqpassthroughtrait
+            passthroughtrait             rangecompare
+            scalardestructionprimitives  selecttrait
+            typetraitsgroupstlordered    typetraitsgroupstlsequence
+            typetraitsgroupstlunordered
+
+  Level 4:  hastrait
+
+  Level 3:  typetraits
+
+  Level 2:  typetraitsgrouppod
+
+  Level 1:  typetraitbitwisecopyable     typetraitbitwiseequalitycomparable
+            typetraitbitwisemoveable     typetraithaspointersemantics
+            typetraithasstliterators     typetraithastrivialdefaultconstructor
+            typetraitnil                 typetraitpair
+            typetraitusesbslmaallocator
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bslalg'.  For the sake
+ of brevity, we sometimes blur the distinction between a component and the
+ primary types that the component provides.  We remind the reader that, in
+ general, the distinction between a component and a class is important.
+..
+  'bslalg_arraydestructionprimitives'   - primitives for destroying arrays.
+  'bslalg_arrayprimitives'              - customized and traits-aware
+                                          primitives for manipulating arrays of
+                                          parameterized types.
+  'bslalg_autoarraydestructor'          - scoped guard for destroying arrays.
+  'bslalg_autoarraymovedestructor'      - scoped guard for moving arrays back
+                                          into original location (bit-wise
+                                          moveable types only).
+  'bslalg_autoscalardestructor'         - primitives for destroying scalars.
+  'bslalg_bitwiseeqpassthroughtrait'    - bitwise equality traits
+                                          meta-computation.
+  'bslalg_constructorproxy'             - proxy for taking or eliding allocator
+                                          constructor arguments based on
+                                          'bslalg_TypeTraitUsesBslmaAllocator'
+                                          trait.
+  'bslalg_hastrait'                     - trait probing meta-computation.
+  'bslalg_passthroughtrait'             - traits meta-computation.
+  'bslalg_rangecompare'                 - primitives for array and range
+                                          comparisons.
+  'bslalg_scalardestructionprimitives'  - primitives for destroying scalars.
+  'bslalg_scalarprimitives'             - customized and traits-aware
+                                          primitives for manipulating scalars
+                                          of parameterized types.
+  'bslalg_selecttrait'                  - trait selection meta-computation.
+  'bslalg_typetraitbitwisecopyable'     - trait attached to bit-wise copyable
+                                          types (see component for definition).
+  'bslalg_typetraitbitwiseequalitycomparable'
+                                        - trait attached to bit-wise equality
+                                          comparable types.
+  'bslalg_typetraitbitwisemoveable'     - trait attached to bit-wise moveable
+                                          types (see component for definition).
+  'bslalg_typetraithaspointersemantics' - trait attached to types having
+                                          pointer semantics (see component for
+                                          definition).
+  'bslalg_typetraithasstliterators'     - trait attached to types having
+                                          STL iterators, 'begin/end', etc.
+  'bslalg_typetraithastrivialdefaultconstructor'
+                                        - trait attached to types having STL
+  'bslalg_typetraitnil'                 - nil trait for fallback.
+  'bslalg_typetraitpair'                - trait attached to pair-like types.
+  'bslalg_typetraits'                   - template meta-programming to attach
+                                          traits to type, sniff traits from
+                                          types, deduce implied traits, etc.
+  'bslalg_typetraitsgrouppod'           - traits group attached to POD types.
+  'bslalg_typetraitsgroupstlordered'    - traits group attached to STL ordered
+                                          containers ('set', 'map', etc.).
+  'bslalg_typetraitsgroupstlsequence'   - traits group attached to STL sequence
+                                          containers ('deque', 'list',
+                                          'vector', etc.).
+  'bslalg_typetraitsgroupstlunordered'  - traits group attached to STL
+                                          unordered containers ('hash_set',
+                                          'hash_map', etc.).
+  'bslalg_typetraitusesbslmaallocator'  - trait attached to types taking memory
+                                          allocator as the constructor last
+                                          arguments.
+..
