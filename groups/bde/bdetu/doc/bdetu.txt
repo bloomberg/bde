@@ -1,0 +1,13 @@
+ bdetu.txt
+
+@PURPOSE: Provide utilities for working with 'bdet' types.
+
+@MNEMONIC: Basic Development Environment 'bdeT' Utilities (bdetu)
+
+@AUTHOR: Lea Fester (lfester)
+
+@SEE_ALSO: bdet
+
+@DESCRIPTION: The 'bdetu' package provides utility functions for use with
+ 'bdet' types.  In this release, these are predominantly time-related
+ functions.
