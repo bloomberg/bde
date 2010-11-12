@@ -1,0 +1,13 @@
+    btescm.txt
+
+@PURPOSE: Provide versioning information for 'bte' library components.
+
+@MNEMONIC: Basic Transport Environment Source Control Management (btescm)
+
+@AUTHOR: Tom Marshall (tmarshal)
+
+@DESCRIPTION: The 'btescm' package is identical in design and purpose to the
+ 'bdescm' package, except that 'btescm' is incorporated into each 'bte'
+ component to provide uniform versioning information for that package group.
+ See the 'bdescm' package documentation for details.
+ 
