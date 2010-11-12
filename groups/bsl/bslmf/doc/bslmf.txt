@@ -1,0 +1,129 @@
+ bslmf.txt
+
+@PURPOSE: Provide meta-function versions of useful coding constructs.
+
+@MNEMONIC: Basic Standard Library Meta-Functions (bslmf)
+
+@AUTHOR: Herve Bronnimann (hbronnim)
+
+@DESCRIPTION: The 'bdemf' package provides meta-function equivalents of 
+ certain useful coding constructs.  A meta-function is a template-based,
+ compile-time construct that behaves like a (runtime) function in that it
+ "evaluates" arguments and does something different based on the input
+ it is passed (in the case of templates, the input it is instantiated with).
+ 'bslmf' provides metafunctions to evaluate (at compile time) constructs such
+ as the following: an if-statement equivalent, whether a (template) argument
+ is a fundamental type, whether an argument is an 'enum' type, whether two
+ arguments have the same type, and more.
+
+ The "return value" of that function is generally a compile-time constant under
+ the form of a nested 'enum' 'VALUE', or in some cases a nested 'Type', or
+ both.  For instance, in order to evaluate whether two types are the same, one
+ could write a meta-function predicate (evaluating to 0 or 1) as follows:
+..
+    template <class U, class U>
+    struct IsSame {
+        // This 'struct' provides a meta function parameterized by two types
+        // 'U' and 'V', that takes 'VALUE == 0' unless 'U' and 'V' are the same
+        // type, in which case it takes 'VALUE == 1'.
+
+        // PUBLIC TYPES
+        enum { VALUE = 0 };
+        typedef bslmf_MetaInt<VALUE>  Type;
+    };
+
+    // SPECIALIZATIONS
+    template <class T>
+    struct IsSame<T, T> {
+        // This specialization of the 'IsSame' meta function is parameterized
+        // by a single type 'T' and is selected if the two parameters of
+        // 'IsSame', 'U' and 'V', are both equal to 'T'.  It takes
+        // 'VALUE == 1'.
+
+        // PUBLIC TYPES
+        enum { VALUE = 1 };
+        typedef bslmf_MetaInt<VALUE>  Type;
+    };
+..
+ Note the use of a 'bslmf_MetaInt' nested type usually employed for function
+ dispatching.  See the 'bslmf_issame' component-level documentation for a more
+ thorough usage example.
+
+ Other meta-functions don't have a 'VALUE', but apply some type transformation
+ (e.g., removing top-level 'const' qualifiers, decaying array and function
+ types to pointer types).  Those usually have a nested 'Type'.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bslmf' currently has 25 components having 7 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('bslmf_') are omitted from the full component
+ names for layout efficiency.
+..
+  Level 7:  ispolymorphic
+
+  Level 6:  isclass
+
+  Level 5:  forwardingtype    isenum         memberfunctionpointertraits
+
+  Level 4:  if                isconvertible  switch
+
+  Level 3:  isfundamental     ispointer      ispointertomember
+            issame            nil            or
+
+  Level 2:  arraytopointer    isarray        functionpointertraits
+            metaint
+
+  Level 1:  anytype           assert         isbitwise
+            removecvq         tag            typelist
+            removereference
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bsls'.  For the sake
+ of brevity, we sometimes blur the distinction between a component and the
+ primary types that the component provides.  We remind the reader that, in
+ general, the distinction between a component and a class is important.
+..
+  'bslmf_anytype'           - a type convertible from any type.
+  'bslmf_arraytopointer'    - type transformation decaying arrays to pointers.
+  'bslmf_assert'            - compile-time assertion.
+  'bslmf_forwardingtype'    - type transformation 
+  'bslmf_functionpointertraits'
+                            - extracting return and argument types from a
+                              function type.
+  'bslmf_if'                - compile-time selection of types.
+  'bslmf_isarray'           - identifying array types.
+  'bslmf_isbitwise'         - identifying bitwise copyability and movability.
+  'bslmf_isclass'           - identifying class types.
+  'bslmf_isconvertible'     - determining if one type can be converted into
+                              another (without raising compiler errors if not).
+  'bslmf_isenum'            - identifying enumeration types.
+  'bslmf_isfundamental'     - identifying fundamental types.
+  'bslmf_ispointer'         - identifying pointer types.
+  'bslmf_ispointertomember' - identifying pointer-to-member types.
+  'bslmf_ispolymorphic'     - identifying polymorphic types.
+  'bslmf_issame'            - testing whether two types are the same.
+  'bslmf_memberfunctionpointertraits'
+                            - extracting class, return, and argument types from
+                              a member function type.
+  'bslmf_metaint'           - provide distinct types for each integral value.
+  'bslmf_nil'               - a type distinct from any other type, to indicate
+                              the absence of a type.
+  'bslmf_or'                - logical disjunction of meta-functions.
+  'bslmf_removecvq'         - removing top-level 'const' and 'volatile'
+                              qualifiers.
+  'bslmf_removereference'   - removing top-level '&'.
+  'bslmf_switch'            - compile-time selection of type based on integral
+                              value.
+  'bslmf_tag'               - provide distinct types for each integral value.
+  'bslmf_typelist'          - bundle several types into a single type.
+..
+
+@Usage Examples
+
+ This package provides disparate functionality close to the system layer.
+ There is no natural usage example for the entire package.  It is best to refer
+ to the usage example for each individual component.
+
