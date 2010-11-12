@@ -1,0 +1,20 @@
+ bdecs.txt
+
+@PURPOSE: Provide special-purpose container classes.
+
+@MNEMONIC: Basic Development Environment Containers Special-purpose (bdecs)
+
+@AUTHOR: Lea Fester (lfester)
+
+@SEE_ALSO: bdec, bdec2, bdeci
+
+@DESCRIPTION: The 'bdecs' package provides specialized container components.
+ These components include:
+..
+  1. Index clerks
+  2. Calendar caches
+..
+ Note that support for calendars, a very efficient container for performing
+ business date calculations, will be implemented soon.  Please contact BDE
+ Syndication (Tom Marshall and David Laurance) if you have any calendar and
+ date math needs.
