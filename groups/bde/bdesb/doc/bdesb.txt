@@ -1,0 +1,40 @@
+   bdesb.txt
+
+@PURPOSE: Provide concrete 'streambuf' implementations.
+
+@MNEMONIC: Basic Development Environment Stream Buffers (bdesb)
+
+@AUTHOR Tom Marshall (tmarshal)
+
+@SEE_ALSO: bdex
+
+@DESCRIPTION: The 'bdesb' package provides concrete implementations of the
+ 'std::streambuf' interface.  In particular, these implementations use either a
+ fixed-size user-supplied buffer or else manage a buffer obtained from a
+ user-supplied or default allocator.  Also, concrete implementations are
+ specialized to implement either the input ot the output portion of the
+ interface.  
+
+/Hierarchical Synopsis
+/---------------------
+ 'bdesb' currently has three components having one level of dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('bdesb_') are omitted from the full component
+ names for layout efficiency.
+..
+  Level 1: memoutstreambuf  fixedmemoutstreambuf  fixedmeminstreambuf
+..
+ 
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bdesb'.
+..
+  bdesb_fixedmeminstreambuf  - input streambuf using a client-supplied fixed
+                               buffer
+  bdesb_fixedmemoutstreambuf - output streambuf using a client-supplied fixed
+                               buffer
+  bdesb_memoutstreambuf      - output streambuf managing a dynamic buffer
+..
+ Each component implements a portion of the 'std::streambuf' interface, either
+ for input or for output.
+

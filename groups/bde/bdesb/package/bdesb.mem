@@ -1,0 +1,7 @@
+bdesb_fixedmeminstreambuf
+bdesb_fixedmeminput
+bdesb_fixedmemoutstreambuf
+bdesb_fixedmemoutput
+bdesb_memoutstreambuf
+bdesb_overflowmemoutput
+bdesb_overflowmemoutstreambuf
