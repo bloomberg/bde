@@ -1,0 +1,60 @@
+ bdempu.txt
+
+@PURPOSE: Provide parsing routines for 'bdem' types.
+
+@DEPRECATED: Use 'baexml' instead.
+
+@MNEMONIC: Basic Development Environment Message Parsing Utilities (bdempu)
+
+@AUTHOR: Lea Fester (lfester)
+
+@SEE_ALSO: bdem, bdepu, baexml
+
+@DESCRIPTION: The 'bdempu' package provides procedures that convert text
+ representations to 'bdem' objects (parsing utilities) and that convert objects
+ to equivalent text representations (generator utilities).
+
+ The 'bdem' package contains the components which define the types parsed by
+ procedures in this package.
+
+ 'bdempu' routines parse or generate the following types or entities:
+..
+    1.  The (type) words "CHAR", "SHORT", "INT", "INT64", "FLOAT", "DOUBLE",
+        "STRING", "DATETIME", "DATE", "TIME", "CHAR_ARRAY", "SHORT_ARRAY",
+        "INT_ARRAY", "INT64_ARRAY", "FLOAT_ARRAY", "DOUBLE_ARRAY",
+        "STRING_ARRAY", "DATETIME_ARRAY", "DATE_ARRAY", "TIME_ARRAY", "LIST",
+        and "TABLE".
+    2.  'bdem_List's and 'bdem_Table's (i.e., the containers).
+    3.  'bdem_Schema' (i.e., 'bdem' metadata).
+    4.  Constrained lists, constrained tables, and scopes (i.e., data along
+        with its constraining metadata).
+..
+ The (in-memory) 'bdem' objects are predominantly used for messaging.  Their
+ *textual equivalents* are predominantly used for configuration files, such as
+ the following:
+..
+  {
+     Schedule = {
+       [ Name  OpenPeriods ]
+
+       { "US"  { [ OpenDays Period ]
+                { 12345   { Start = 08:00:00.000 Finish = 16:15:00.000 }}}
+       }
+       { "BEAR_TEST" { [ OpenDays Period ]
+                { 12345   { Start = 08:00:00.000 Finish = 16:15:00.000 }}
+                { 6       { Start = 10:00:00.000 Finish = 14:00:00.000 }}}
+       }
+     }  // end Schedule
+     Connections = {
+       [ Name    Schedule      Description                   ClickAction ]
+       { "BEAR1" "US"          "Government Bond Prices"      "AECI" }
+       { "BEAR2" "BEAR_TEST"   "Mortgage Pool Prices"        "AECI" }
+       { "GMSC1" "Schedule-US" "Government Bond Prices"      "PWHO" }
+       { "GMSC2" "Schedule-US" "High-Grade Corp Bond Prices" "AECI" }
+       { "GMSC3" "Schedule-US" "High-Yield Corp Bond Prices" "AECI" }
+     }  // end Connections
+  }
+..
+ It is useful to note that the parsing routines do not provide client control
+ over handling internal whitespace; where no ambiguity is possible, they are
+ always whitespace-neutral.
