@@ -1,0 +1,63 @@
+ bdefi.txt
+
+@PURPOSE: [DEPRECATED] concrete representations for void function objects.
+
+@DEPRECATED: Use 'bdef_function' and 'bdef_bind' instead.
+
+@MNEMONIC: Basic Development Environment Functor Implementations (bdefi)
+
+@COMPONENTS:
+   bdefi_vfunc0: reference-counted functor representations with no arguments
+   bdefi_vfunc1: reference-counted functor representations with 1 argument
+   bdefi_vfunc2: reference-counted functor representations with 2 arguments
+   bdefi_vfunc3: reference-counted functor representations with 3 arguments
+   bdefi_vfunc4: reference-counted functor representations with 4 arguments
+   bdefi_vfunc5: reference-counted functor representations with 5 arguments
+   bdefi_vfunc6: reference-counted functor representations with 6 arguments
+
+@AUTHOR: David Laurance (dlauranc)
+
+@DESCRIPTION: THIS PACKAGE IS *DEPRECATED*.  This package defines a suite of
+ classes that implement the internal representations of the 'bdef_Vfunc*'
+ families of function objects (functors).  Each class implements the
+ 'execute()' method, whose signature characterizes the particular family of
+ functor representations.  Individual classes in each component support various
+ types of client functions, with varying types and numbers of arguments, and
+ bind those functions to 'bdef' functors.
+
+ Client functions may be free functions or member functions for some client
+ class. Member functions may be declared 'const' or non-'const'.  Different
+ classes in each component correspond to these various options, and a client
+ chooses a specific class that matches the client function signature through a
+ simple naming scheme.  For example, if a client wishes to create a 2-argument
+ functor, package 'bdefi_vfunc2' is used.  If the client function is a member
+ function, a class name beginning with 'bdefi_vfunc2M' will be chosen, and
+ then, if the client member function has 3 arguments, the class name will be
+ completed as 'bdefi_vfunc2M3'.
+
+ Clients may thus load a given 'bdefi' functor with their own free or member
+ function that requires more than the given number of arguments.  The
+ additional arguments are bound to specific pre-defined values by an
+ appropriate function in the 'bdefu' package.  See that package for additional
+ information.
+
+ The counter used by all classes defined in these components is atomic,
+ thereby providing thread-safe increment and decrement operations.  The classes
+ also provides static 'deleteObject' methods to allow clients to destroy the
+ object (when the count reaches '0') without any information about the details
+ of the 'bdefi_Vfunc*' object memory management scheme.  Note that the object
+ must be allocated dynamically using the same allocator supplied at
+ construction and that the allocator must remain valid through the life of the
+ object.  The 'deleteObject' method allows concrete classes derived from
+ 'bdefi_Vfunc*' to declare their destructors 'private' and limit object
+ instantiation to the heap.
+
+/USAGE
+/-----
+ Most clients will not use 'bdefr' or 'bdefi' classes directly; rather, they
+ will create 'bdef' functors, and populate them with utility functions from the
+ 'bdefu' package.  See the package documentation for package 'bdef' for
+ examples that illustrate this usage.
+
+ In order to understand in detail how the 'bdefi' components and classes work,
+ refer to the usage example in Component 'bdefi_vfunc2'.
