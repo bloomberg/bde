@@ -1,0 +1,21 @@
+ baescm.txt
+
+@PURPOSE: Provide versioning information for library components in 'bae'
+
+@MNEMONIC: Basic Application Environment Source Control Management (baescm)
+
+@AUTHOR Tom Marshall (tmarshal)
+ 
+@SEE_ALSO: bdescm
+
+@DESCRIPTION: This package is for use only by the BDE library.  Components in
+ the 'bae' package group include this component in order to generate versioning
+ information.  Developers use this versioning information to track releases of
+ individual components when diagnosing problems using the 'bae' library.
+
+ This component is only used within the 'bae' package group.  Each BDE package
+ group contains a similar component that provides the same functionality for
+ components in that package group.  Thus separate package groups can be
+ deployed independently from one another.
+
+ In normal usage, developers should not need to refer to this component.
