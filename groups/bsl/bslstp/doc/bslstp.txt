@@ -1,0 +1,77 @@
+ bslstp.txt
+
+@PURPOSE: Provide replacement classes (adopted from STLport) for STL.
+
+@MNEMONIC: Basic Standard Library STlPort types (bslstp)
+
+@AUTHOR: Arthur Chiu (achiu21)
+
+@DESCRIPTION: This package mainly provides replacement classes, adopted from
+ STLport, for STL constructs that required modification to (inter)operate with
+ BDE libraries.  In addition to STL replacement classes, this package also
+ provides helper components for the STL implementation classes.
+
+ In general, the components in this package conform to the STL interface.
+ However, the components (and hence the headers) are intended for private use
+ only.  Clients should use the standard headers directly (e.g., include
+ '<bsl_map.h>' instead of '<bslstp_map.h>').
+
+/Hierarchical Synopsis
+/---------------------
+ 'bslstp' currently has 15 components having 3 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('bslstp_') are omitted from the full component
+ names for layout efficiency.
+..
+  Level 3:  map                set                 hashmap
+            hashset
+
+  Level 2:  tree               hashtable           list
+            slist              sstream
+
+  Level 1:  queue              stack               slistbase
+            alloc              iterator            iosfwd
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bslstp'.  For the sake
+ of brevity, we sometimes blur the distinction between a component and the
+ primary types that the component provides.  We remind the reader that, in
+ general, the distinction between a component and a class is important.
+..
+  'bslstp_alloc'      - allocator-related traits and container base adapter
+
+  'bslstp_hashmap'    - SGI extension of a hash table and multi-hash table
+
+  'bslstp_hashset'    - SGI extension of a hash set and multi-hash set
+
+  'bslstp_hashtable'  - generic hash table used to implement 'hashmap' and
+                        'hashset'
+
+  'bslstp_iosfwd'     - forward declaration of stream classes that use
+                        'bsl::allocator'
+
+  'bslstp_iterator'   - iterator-related traits
+
+  'bslstp_list'       - conforming 'std::list' implementation
+
+  'bslstp_map'        - conforming 'std::map' and 'std::multimap'
+                        implementations
+
+  'bslstp_queue'      - conforming 'std::queue' implementation
+
+  'bslstp_set'        - conforming 'std::set' and 'std::multiset'
+                        implementations
+
+  'bslstp_slist'      - SGI extension of a singly-linked list
+
+  'bslstp_slistbase'  - helper class for implementation of 'slist'
+
+  'bslstp_sstream'    - conforming 'std::sstream' implementation
+
+  'bslstp_stack'      - conforming 'std::stack' implementation
+
+  'bslstp_tree'       - generic red black tree used to implement 'map' and
+                        'set'
+..

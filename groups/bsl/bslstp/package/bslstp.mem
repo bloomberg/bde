@@ -1,0 +1,15 @@
+bslstp_alloc
+bslstp_hashmap
+bslstp_hashset
+bslstp_hashtable
+bslstp_iosfwd
+bslstp_iterator
+bslstp_list
+bslstp_map
+bslstp_queue
+bslstp_set
+bslstp_slist
+bslstp_slistbase
+bslstp_sstream
+bslstp_stack
+bslstp_tree
