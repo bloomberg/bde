@@ -1,0 +1,33 @@
+ bdeu.txt
+
+@PURPOSE: Provide utilities classes and functions.
+
+@MNEMONIC: Basic Development Environment Utilities (bdeu)
+
+@AUTHOR: Lea Fester (lfester)
+
+@DESCRIPTION: The 'bdeu' package provides various utilities classes and
+ functions.
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bdeu'.
+..
+  'bdeu_bitstringutil' - Provide efficient operations on a sequence of bits.
+
+  'bdeu_chartype'      - Supply local-independent version of '<ctype.h>'
+                         functionality.
+
+  'bdeu_hashutil'      - Provide a utility of hash functions.
+
+  'bdeu_print'         - Provide platform-independent stream utilities.
+
+  'bdeu_printmethods'  - Provide methods for uniform printing of value-semantic
+                         types.
+
+  'bdeu_random'        - Provide a suite of procedures for random-number
+                         generation.
+
+  'bdeu_string'        - Provide utility functions on C-style and 'STL'
+                         strings.
+..
