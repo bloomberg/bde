@@ -1,0 +1,276 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:bdem="http://bloomberg.com/schemas/bdem"
+        xmlns:http="http://bloomberg.com/schemas/http"
+        targetNamespace="http://bloomberg.com/schemas/http"
+        elementFormDefault="qualified">
+
+<complexType name='HttpHost'>
+<sequence>
+    <element name='Name' type='string'/>
+    <element name='Port' type='int' minOccurs='0' maxOccurs='1'/>
+</sequence>
+</complexType>
+
+<complexType name='HttpContentType'>
+<sequence>
+    <element name='Type' type ='string'/>
+    <element name='SubType' type ='string'/>
+    <element name='Charset' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Boundary' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Id' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Name' type ='string' minOccurs='0' maxOccurs='1'/>
+</sequence>
+</complexType>
+
+<simpleType name='HttpMessageType'>
+  <restriction base='string'>
+    <enumeration value='baenet_Request'/>
+    <enumeration value='baenet_Response'/>
+  </restriction>
+</simpleType>
+
+<simpleType name='HttpRequestMethod'>
+  <restriction base='string'>
+    <enumeration value='BAENET_OPTIONS'>
+         <annotation><documentation>This is an OPTIONS request.</documentation></annotation>
+    </enumeration>
+    <enumeration value='BAENET_GET'>
+         <annotation><documentation>This is a GET request.</documentation></annotation>
+    </enumeration>
+    <enumeration value='BAENET_HEAD'>
+         <annotation><documentation>This is a HEAD request.</documentation></annotation>
+    </enumeration>
+    <enumeration value='BAENET_POST'>
+         <annotation><documentation>This is a POST request.</documentation></annotation>
+    </enumeration>
+    <enumeration value='BAENET_PUT'>
+         <annotation><documentation>This is a PUT request.</documentation></annotation>
+    </enumeration>
+    <enumeration value='BAENET_DELETE'>
+         <annotation><documentation>This is a DELETE request.</documentation></annotation>
+    </enumeration>
+    <enumeration value='BAENET_TRACE'>
+         <annotation><documentation>This is a TRACE request.</documentation></annotation>
+    </enumeration>
+    <enumeration value='BAENET_CONNECT'>
+         <annotation><documentation>This is a CONNECT request.</documentation></annotation>
+    </enumeration>
+  </restriction>
+</simpleType>
+
+<simpleType name='HttpStatusCode'>
+  <restriction base='string'>
+    <enumeration value='baenet_Continue' bdem:id='100'/>
+    <enumeration value='baenet_Switching Protocols' bdem:id='101'/>
+    <enumeration value='baenet_OK' bdem:id='200'/>
+    <enumeration value='baenet_Created' bdem:id='201'/>
+    <enumeration value='baenet_Accepted' bdem:id='202'/>
+    <enumeration value='baenet_Non-Authoritative Information' bdem:id='203'/>
+    <enumeration value='baenet_No Content' bdem:id='204'/>
+    <enumeration value='baenet_Reset Content' bdem:id='205'/>
+    <enumeration value='baenet_Partial Content' bdem:id='206'/>
+    <enumeration value='baenet_Multiple Choices' bdem:id='300'/>
+    <enumeration value='baenet_Moved Permanently' bdem:id='301'/>
+    <enumeration value='baenet_Found' bdem:id='302'/>
+    <enumeration value='baenet_See Other' bdem:id='303'/>
+    <enumeration value='baenet_Not Modified' bdem:id='304'/>
+    <enumeration value='baenet_Use Proxy' bdem:id='305'/>
+    <enumeration value='baenet_Temporary Redirect' bdem:id='307'/>
+    <enumeration value='baenet_Bad Request' bdem:id='400'/>
+    <enumeration value='baenet_Unauthorized' bdem:id='401'/>
+    <enumeration value='baenet_Payment Required' bdem:id='402'/>
+    <enumeration value='baenet_Forbidden' bdem:id='403'/>
+    <enumeration value='baenet_Not Found' bdem:id='404'/>
+    <enumeration value='baenet_Method Not Allowed' bdem:id='405'/>
+    <enumeration value='baenet_Not Acceptable' bdem:id='406'/>
+    <enumeration value='baenet_Proxy Authentication Required' bdem:id='407'/>
+    <enumeration value='baenet_Request Time-out' bdem:id='408'/>
+    <enumeration value='baenet_Conflict' bdem:id='409'/>
+    <enumeration value='baenet_Gone' bdem:id='410'/>
+    <enumeration value='baenet_Length Required' bdem:id='411'/>
+    <enumeration value='baenet_Precondition Failed' bdem:id='412'/>
+    <enumeration value='baenet_Request Entity Too Large' bdem:id='413'/>
+    <enumeration value='baenet_Request-URI Too Large' bdem:id='414'/>
+    <enumeration value='baenet_Unsupported Media Type' bdem:id='415'/>
+    <enumeration value='baenet_Requested range not satisfiable' bdem:id='416'/>
+    <enumeration value='baenet_Expectation Failed' bdem:id='417'/>
+    <enumeration value='baenet_Internal Server Error' bdem:id='500'/>
+    <enumeration value='baenet_Not Implemented' bdem:id='501'/>
+    <enumeration value='baenet_Bad Gateway' bdem:id='502'/>
+    <enumeration value='baenet_Service Unavailable' bdem:id='503'/>
+    <enumeration value='baenet_Gateway Time-out' bdem:id='504'/>
+    <enumeration value='baenet_HTTP Version not supported' bdem:id='505'/>
+  </restriction>
+</simpleType>
+
+<simpleType name='HttpStatusCodeCategory'>
+  <restriction base='string'>
+    <enumeration value='Informational' bdem:id='1'>
+         <annotation><documentation>The request was receivied, continuing process.</documentation></annotation>
+    </enumeration>
+    <enumeration value='Success' bdem:id='4'>
+         <annotation><documentation>The action was successfully received, understood, and accepted.</documentation></annotation>
+    </enumeration>
+    <enumeration value='Redirection' bdem:id='2'>
+         <annotation><documentation>Further action must be taken in order to complete the request.</documentation></annotation>
+    </enumeration>
+    <enumeration value='Client Error' bdem:id='0'>
+         <annotation><documentation>The request contains bad syntax or cannot be fulfilled.</documentation></annotation>
+    </enumeration>
+    <enumeration value='Server Error' bdem:id='3'>
+         <annotation><documentation>The server failed to fulfill an apparently valid request.</documentation></annotation>
+    </enumeration>
+    <enumeration value='Nonstandard' bdem:id='5'>
+         <annotation><documentation>The status code is non-standard.</documentation></annotation>
+    </enumeration>
+  </restriction>
+</simpleType>
+
+<simpleType name='HttpTransferEncoding'>
+  <restriction base='string'>
+    <enumeration value='baenet_identity'>
+         <annotation><documentation>identity encoding</documentation></annotation>
+    </enumeration>
+    <enumeration value='baenet_chunked'>
+         <annotation><documentation>chunked encoding</documentation></annotation>
+    </enumeration>
+  </restriction>
+</simpleType>
+
+<complexType name='HttpViaRecord'>
+<sequence>
+    <element name='ProtocolName' type='string' minOccurs='0' maxOccurs='1'/>
+    <element name='ProtocolVersion' type='string'/>
+    <element name='ViaHost' type='http:HttpHost'/>
+    <element name='Comment' type='string' minOccurs='0' maxOccurs='1'/>
+</sequence>
+</complexType>
+
+<complexType name='HttpRequestLine'>
+<sequence>
+    <element name='Method' type='http:HttpRequestMethod'/>
+    <element name='Request-URI' type='string'/>
+    <element name='MajorVersion' type='int' default='1'/>
+    <element name='MinorVersion' type='int' default='1'/>
+</sequence>
+</complexType>
+
+<complexType name='HttpStatusLine'>
+<sequence>
+    <element name='MajorVersion' type='int' default='1'/>
+    <element name='MinorVersion' type='int' default='1'/>
+    <element name='Status-Code' type='http:HttpStatusCode'/>
+    <element name='Reason-Phrase' type='string'/>
+</sequence>
+</complexType>
+
+<complexType name='HttpStartLine'>
+<choice>
+    <element name='requestLine' type='http:HttpRequestLine'/>
+    <element name='statusLine'  type='http:HttpStatusLine'/>
+</choice>
+</complexType>
+
+<!--
+<complexType name='HttpGeneralHeaderFields'>
+<sequence>
+    <element name='Cache-Control' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Connection' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Date' type ='dateTime' minOccurs='0' maxOccurs='1'/>
+    <element name='Pragma' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Trailer' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Transfer-Encoding' type ='HttpTransferEncoding' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Upgrade' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Via' type ='HttpViaRecord' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Warning' type ='string' minOccurs='0' maxOccurs='1'/>
+</sequence>
+</complexType>
+-->
+
+<complexType name='HttpBasicHeaderFields'>
+    <!-- This is a combination of HTTP General header fields and HTTP Entity
+         header fields -->
+   
+<sequence>
+    <!-- General header fields --> 
+    <element name='Cache-Control' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Connection' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Date' type ='dateTime' minOccurs='0' maxOccurs='1'/>
+    <element name='Pragma' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Trailer' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Transfer-Encoding' type ='http:HttpTransferEncoding' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Upgrade' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Via' type ='http:HttpViaRecord' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Warning' type ='string' minOccurs='0' maxOccurs='1'/>
+
+    <!-- Entity header fields -->
+    <element name='Allow' type ='http:HttpRequestMethod' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Content-Encoding' type ='string' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Content-Language' type ='string' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Content-Length' type ='int' minOccurs='0' maxOccurs='1'/>
+    <element name='Content-Location' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Content-MD5' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Content-Range' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Content-Type' type ='http:HttpContentType' minOccurs='0' maxOccurs='1'/>
+    <element name='Expires' type ='dateTime' minOccurs='0' maxOccurs='1'/>
+    <element name='Last-Modified' type ='dateTime' minOccurs='0' maxOccurs='1'/>
+</sequence>
+</complexType>
+
+<complexType name='HttpRequestHeaderFields'>
+<sequence>
+    <element name='Accept' type ='string' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Accept-Charset' type ='string' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Accept-Encoding' type ='string' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Accept-Language' type ='string' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Authorization' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Expect' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='From' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Host' type ='http:HttpHost' minOccurs='0' maxOccurs='1'/>
+    <element name='If-Match' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='If-Modified-Since' type ='dateTime' minOccurs='0' maxOccurs='1'/>
+    <element name='If-None-Match' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='If-Range' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='If-Unmodified-Since' type ='dateTime' minOccurs='0' maxOccurs='1'/>
+    <element name='Max-Forwards' type ='int' minOccurs='0' maxOccurs='1'/>
+    <element name='Proxy-Authorization' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Range' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Referer' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='TE' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='User-Agent' type ='string' minOccurs='0' maxOccurs='1'/>
+</sequence>
+</complexType>
+
+<complexType name='HttpResponseHeaderFields'>
+<sequence>
+    <element name='Accept-Ranges' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Age' type ='int' minOccurs='0' maxOccurs='1'/>
+    <element name='ETag' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Location' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Proxy-Authenticate' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Retry-After' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Server' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Vary' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='WWW-Authenticate' type ='string' minOccurs='0' maxOccurs='1'/>
+</sequence>
+</complexType>
+
+<!--
+<complexType name='HttpEntityHeaderFields'>
+<sequence>
+    <element name='Allow' type ='HttpRequestMethod' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Content-Encoding' type ='string' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Content-Language' type ='string' minOccurs='0' maxOccurs='unbounded'/>
+    <element name='Content-Length' type ='int' minOccurs='0' maxOccurs='1'/>
+    <element name='Content-Location' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Content-MD5' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Content-Range' type ='string' minOccurs='0' maxOccurs='1'/>
+    <element name='Content-Type' type ='HttpContentType' minOccurs='0' maxOccurs='1'/>
+    <element name='Expires' type ='dateTime' minOccurs='0' maxOccurs='1'/>
+    <element name='Last-Modified' type ='dateTime' minOccurs='0' maxOccurs='1'/>
+</sequence>
+</complexType>
+-->
+
+</schema>

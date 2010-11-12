@@ -1,0 +1,102 @@
+ baenet.txt
+
+@PURPOSE: Provide utilities components to perform HTTP communication.
+
+@MNEMONIC: Basic Application Environment NETwork protocols (baenet)
+
+@AUTHOR: Rohan Bhindwale (rbhindwa)
+
+@DESCRIPTION: The 'baenet' package provides several utility components to
+ communicate using the HTTP protocol.
+
+/Hierarchical Synopsis
+/---------------------
+ 'baenet' currently has 22 components having 5 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('baenet_') are omitted from the full component
+ names for layout efficiency.
+..
+  Level 5: httpmessagegenerator      httpmessageparser
+
+  Level 4: httprequestheader         httpresponseheader
+
+  Level 3: httpbasicheaderfields     httpparserutil
+           httpstartline
+
+  Level 2: httpentityprocessor       httprequestheaderfields
+           httprequestline           httpstatusline
+           httpviarecord
+
+  Level 1: httpcontenttype           httpextendedheaderfields
+           httpheader                httphost
+           httpmessagetype           httprequestmethod
+           httpresponseheaderfields  httpstatuscode
+           httpstatuscodecategory    httptransferencoding
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'baenet'.  For the sake
+ of brevity, we sometimes blur the distinction between a component and the
+ primary types that the component provides.  We remind the reader that, in
+ general, the distinction between a component and a class is important.
+..
+  'baenet_httpbasicheaderfields'    - value-semantic attribute class for
+                                      storing basic HTTP header fields
+
+  'baenet_httpcontenttype'          - value-semantic attribute class for
+                                      storing HTTP content type fields
+
+  'baenet_httpentityprocessor'      - protocol for processing HTTP entities
+
+  'baenet_httpextendedheaderfields' - value-semantic attribute class for
+                                      storing extended HTTP header fields
+
+  'baenet_httpheader'               - protocol for HTTP headers
+
+  'baenet_httphost'                 - value-semantic attribute class storing
+                                      the HTTP host information
+
+  'baenet_httpmessagegenerator'     - mechanism for generating HTTP messages
+
+  'baenet_httpmessageparser'        - mechanism for parsing HTTP messages
+
+  'baenet_httpmessagetype'          - namespace for storing HTTP message types
+
+  'baenet_httpparserutil'           - utility for parsing HTTP constructs
+
+  'baenet_httprequestheader'        - value-semantic attribute class storing
+                                      HTTP request fields
+
+  'baenet_httprequestheaderfields'  - value-semantic attribute class storing
+                                      HTTP request header fields
+
+  'baenet_httprequestline'          - value-semantic attribute class storing
+                                      HTTP request-line fields
+
+  'baenet_httprequestmethod'        - namespace for storing HTTP request
+                                      methods
+
+  'baenet_httpresponseheader'       - value-semantic attribute class storing
+                                      HTTP response fields
+
+  'baenet_httpresponseheaderfields' - value-semantic attribute class storing
+                                      HTTP response header fields
+
+  'baenet_httpstartline'            - value-semantic attribute class storing
+                                      HTTP start-line fields
+
+  'baenet_httpstatuscode'           - namespace for storing HTTP status codes
+
+  'baenet_httpstatuscodecategory'   - namespace for storing HTTP status code
+                                      categories
+
+  'baenet_httpstatusline'           - value-semantic attribute class storing
+                                      HTTP status-line fields
+
+  'baenet_httptransferencoding'     - namespace for storing HTTP transfer
+                                      encodings
+
+  'baenet_httpviarecord'            - value-semantic attribute class storing
+                                      HTTP via fields
+..

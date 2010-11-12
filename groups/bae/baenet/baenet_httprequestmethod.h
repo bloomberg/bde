@@ -1,0 +1,289 @@
+// baenet_httprequestmethod.h   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
+#ifndef INCLUDED_BAENET_HTTPREQUESTMETHOD
+#define INCLUDED_BAENET_HTTPREQUESTMETHOD
+
+#ifndef INCLUDED_BDES_IDENT
+#include <bdes_ident.h>
+#endif
+BDES_IDENT_RCSID(baenet_httprequestmethod_h,"$Id$ $CSID$ $CCId$")
+BDES_IDENT_PRAGMA_ONCE
+
+//@PURPOSE: Provide value-semantic attribute classes
+//
+//@AUTHOR: Rohan Bhindwale (rbhindwale@bloomberg.net)
+//
+//@SEE_ALSO: RFC 2616
+//
+//@DESCRIPTION:  This component provides an enumeration
+// 'baenet_HttpRequestMethod::Value' for all the possible HTTP request methods,
+// as defined in RFC 2616.
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_ATTRIBUTEINFO
+#include <bdeat_attributeinfo.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_ENUMERATORINFO
+#include <bdeat_enumeratorinfo.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_TYPETRAITS
+#include <bdeat_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BDEX_INSTREAMFUNCTIONS
+#include <bdex_instreamfunctions.h>
+#endif
+
+#ifndef INCLUDED_BDEX_OUTSTREAMFUNCTIONS
+#include <bdex_outstreamfunctions.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+
+#ifndef INCLUDED_BSL_OSTREAM
+#include <bsl_ostream.h>
+#endif
+
+#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+    // Note: on Windows -> WinNT.h:#define DELETE (0x00010000L)
+
+#if defined(DELETE)
+#pragma push_macro("DELETE")
+#undef DELETE
+#define MSVC_REQUEST_POP_MACRO_DELETE
+#endif
+
+#endif
+#endif
+
+namespace BloombergLP {
+
+
+                     // ==================================                     
+                     // class baenet_HttpRequestMethod                     
+                     // ==================================                     
+
+struct baenet_HttpRequestMethod {
+
+  public:
+    // TYPES
+    enum Value {
+        BAENET_CONNECT = 0
+            // This is a CONNECT request.
+      , BAENET_DELETE  = 1
+            // This is a DELETE request.
+      , BAENET_GET     = 2
+            // This is a GET request.
+      , BAENET_HEAD    = 3
+            // This is a HEAD request.
+      , BAENET_OPTIONS = 4
+            // This is an OPTIONS request.
+      , BAENET_POST    = 5
+            // This is a POST request.
+      , BAENET_PUT     = 6
+            // This is a PUT request.
+      , BAENET_TRACE   = 7
+            // This is a TRACE request.
+#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+      , CONNECT = BAENET_CONNECT
+      , DELETE  = BAENET_DELETE
+      , GET     = BAENET_GET
+      , HEAD    = BAENET_HEAD
+      , OPTIONS = BAENET_OPTIONS
+      , POST    = BAENET_POST
+      , PUT     = BAENET_PUT
+      , TRACE   = BAENET_TRACE
+#endif
+    };
+
+    enum {
+        BAENET_LENGTH = 8
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const char *toString(Value value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumeration 'value'.
+
+    static int fromString(Value        *result,
+                          const char   *string,
+                          int           stringLength);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string' of the specified 'stringLength'.  Return 0 on
+        // success, and a non-zero value with no effect on 'result' otherwise
+        // (i.e., 'string' does not match any enumerator).
+
+    static int fromString(Value              *result,
+                          const bsl::string&  string);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'string' does not match any
+        // enumerator).
+
+    static int fromInt(Value *result, int number);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'number'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'number' does not match any
+        // enumerator).
+
+    template <class STREAM>
+    static STREAM& bdexStreamIn(STREAM&  stream,
+                                Value&   value,
+                                int      version);
+        // Assign to the specified 'value' the value read from the specified
+        // input 'stream' using the specified 'version' format and return a
+        // reference to the modifiable 'stream'.  If 'stream' is initially
+        // invalid, this operation has no effect.  If 'stream' becomes invalid
+        // during this operation, the 'value' is valid, but its value is
+        // undefined.  If the specified 'version' is not supported, 'stream' is
+        // marked invalid, but 'value' is unaltered.  Note that no version is
+        // read from 'stream'.  (See the package-group-level documentation for
+        // more information on 'bdex' streaming of container types.)
+
+    static bsl::ostream& print(bsl::ostream& stream, Value value);
+        // Write to the specified 'stream' the string representation of
+        // the specified enumeration 'value'.  Return a reference to
+        // the modifiable 'stream'.
+
+    template <class STREAM>
+    static STREAM& bdexStreamOut(STREAM&  stream,
+                                 Value    value,
+                                 int      version);
+        // Write the specified 'value' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.  Optionally specify
+        // an explicit 'version' format; by default, the maximum supported
+        // version is written to 'stream' and used as the format.  If 'version'
+        // is specified, that format is used but *not* written to 'stream'.  If
+        // 'version' is not supported, 'stream' is left unmodified.  (See the
+        // package-group-level documentation for more information on 'bdex'
+        // streaming of container types).
+};
+
+// FREE OPERATORS
+inline
+bsl::ostream& operator<<(bsl::ostream&                   stream,
+                         baenet_HttpRequestMethod::Value rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+
+// TRAITS
+
+BDEAT_DECL_ENUMERATION_TRAITS(baenet_HttpRequestMethod)
+
+
+// ============================================================================
+//                         INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+
+                     // ----------------------------------                     
+                     // class baenet_HttpRequestMethod                     
+                     // ----------------------------------                     
+
+// CLASS METHODS
+inline
+int baenet_HttpRequestMethod::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1
+}
+
+inline
+int baenet_HttpRequestMethod::fromString(Value *result, const bsl::string& string)
+{
+    return fromString(result, string.c_str(), string.length());
+}
+
+inline
+bsl::ostream& baenet_HttpRequestMethod::print(bsl::ostream&      stream,
+                                 baenet_HttpRequestMethod::Value value)
+{
+    return stream << toString(value);
+}
+
+template <class STREAM>
+STREAM& baenet_HttpRequestMethod::bdexStreamIn(STREAM&             stream,
+                                   baenet_HttpRequestMethod::Value& value,
+                                   int                 version)
+{
+    switch(version) {
+      case 1: {
+        int readValue;
+        stream.getInt32(readValue);
+        if (stream) {
+            if (fromInt(&value, readValue)) {
+               stream.invalidate();   // bad value in stream
+            }
+        }
+      } break;
+      default: {
+        stream.invalidate();          // unrecognized version number
+      } break;
+    }
+    return stream;
+}
+
+template <class STREAM>
+STREAM& baenet_HttpRequestMethod::bdexStreamOut(STREAM&              stream,
+                                    baenet_HttpRequestMethod::Value value,
+                                    int                version)
+{
+    switch (version) {
+      case 1: {
+        stream.putInt32(value);  // Write the value as an int
+      } break;
+    }
+    return stream;
+}
+
+
+// FREE FUNCTIONS
+
+inline
+bsl::ostream& operator<<(
+        bsl::ostream& stream,
+        baenet_HttpRequestMethod::Value rhs)
+{
+    return baenet_HttpRequestMethod::print(stream, rhs);
+}
+
+}  // close namespace BloombergLP
+
+#if defined(MSVC_REQUEST_POP_MACRO_DELETE)
+#pragma pop_macro("DELETE")
+#undef MSVC_REQUEST_POP_MACRO_DELETE
+#endif
+
+#endif
+
+// GENERATED BY BLP_BAS_CODEGEN_3.4.4 Fri Feb 12 15:50:30 2010
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2010
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ------------------------------ END-OF-FILE ---------------------------------
