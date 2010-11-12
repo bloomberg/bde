@@ -1,0 +1,11 @@
+ bdea.txt
+
+@PURPOSE: Provide space-efficient array-related classes.
+
+@MNEMONIC: Basic Development Environment Array types (bdea)
+
+@AUTHOR: Herve Bronnimann (hbronnimann)
+
+@DESCRIPTION: This package contains a single component, 'bdea_bitarray'.
+ Please refer to the component-level documentation of 'bdea_bitarray' for an
+ overview of that component.
