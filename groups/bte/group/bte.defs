@@ -1,0 +1,23 @@
+# BTE external definitions
+
+*                       _       OPTS_FILE       = bte.defs
+
+#==============================================================================
+
+# External library dependencies for executables
+unix-SunOS              _       BTE_LDFLAGS     = -Bdynamic -lnsl -lsocket -Bstatic
+unix-AIX                _       BTE_LDFLAGS     = 
+unix-Linux              _       BTE_LDFLAGS     = 
+unix-dgux               _       BTE_LDFLAGS     = -lnsl -lsocket
+
+-- *                    _       BDE_ENDLDFLAGS  = $(BTE_LDFLAGS)
+
+# The following hack is needed on Solaris10. As of this version, the OS
+# no longer ships with ANY static libraries, including libc and libm. If
+# the last -Boption on a link line happens to be -Bstatic, the linker will
+# die searching for libc.a, which doesn't exist. This will ensure linking
+# with libc.so instead (on Solaris 10).
+
+unix-SunOS-*-5.10       _       BDE_ENDLDFLAGS  = -Bdynamic
+
+#==============================================================================

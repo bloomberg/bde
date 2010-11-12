@@ -1,0 +1,20 @@
+# BTE capabilities
+
+*                       _    OPTS_FILE = bte.cap
+*                       _    ASSET_OBJECT_NAME = libbte
+*                       _    ASSET_OBJECT_DESC = Bloomberg transport library
+*                       _    ASSET_DEPT_GROUP      = 101  # BDE
+*                       _    ASSET_CONTACT_PROG_1  = Andrei Basov
+*                       _    ASSET_CONTACT_PROG_2  = Guillaume Morin
+*                       _    ASSET_PRODUCTION_LOCN = /bbsrc/bte
+
+#==============================================================================
+
+# Build guaranteed if multithreaded on any platform
+!! *			mt	CAPABILITY = ALWAYS
+
+# Deny build on amd64 until EXTREME performance problems in btesos are ironed
+# out
+!! unix-SunOS-i386-5.10-cc-5.8	64	CAPABILITY = NEVER
+
+#==============================================================================

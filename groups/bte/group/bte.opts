@@ -1,0 +1,25 @@
+# BTE overrides for default.opts
+
+*                       _       OPTS_FILE        = bte.opts
+
+# Defines
+#unix                    _       STL_DEFINES    = -DBSL_LEGACY=0
+#windows                 _       STL_DEFINES    = /DBSL_LEGACY=0 /DFD_SETSIZE=256
+windows                 _       STL_DEFINES    = /DFD_SETSIZE=256
+
+#==============================================================================
+
+# Force tests to run serially
+!! *			_	ALLTEST_PARALLEL =  -s
+
+# Set up the log file
+#!! *                    _       ALLTEST = $(BDE_BINDIR)runt.pl --nofailure \
+#                                    -i 1 -p -L $(BTE_LOCN)/group/build.log
+
+!! unix-SunOS-i386-5.10-cc-5.8	_	RETRY =
+!! unix-SunOS-i386-5.10-cc-5.8	_	RETRY_ALLTEST =
+!! unix-SunOS-i386-5.10-cc-5.8	_	RETRY_ON_ALLTEST =
+!! unix-SunOS-i386-5.10-cc-5.8	_	RETRY_ON_EXIT =
+!! unix-SunOS-i386-5.10-cc-5.8	_	RETRY_ON_SIGNAL =
+
+#==============================================================================
