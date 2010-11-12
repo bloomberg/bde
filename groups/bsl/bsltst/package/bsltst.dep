@@ -1,0 +1,8 @@
+bslscm
+bsls
+bslalg
+bslma
+bslstp
+bsl+bslhdrs
+bsl+stdhdrs
+#bsl+sunworkarounds

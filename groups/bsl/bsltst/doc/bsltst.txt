@@ -1,0 +1,89 @@
+bsltst.txt
+
+@PURPOSE: Provide separate testing for bsl+stdhrs and bsl+bslhdrs packages
+
+@AUTHOR Bill Chapman (bchapman2)
+
+@MNEMONIC: Basic Standard Library TeSTs (bsltst)
+
+@DESCRIPTION: The 'bsltst' package provides 24 components, all of them for
+ testing the bsl+stdhdrs and bsl+bslhdrs packages.
+
+ Types of files:
+
+    - *.h files: empty, just provided so bde_build.pl will work
+    - *.cpp files: empty, just provided so bde_build.pl will work
+    - *.t.cpp files: do the actual testing.
+
+ Most of the testing in the *.t.cpp falls into a few categories:
+    - "Breathing tests", which verify that classes in different namespaces
+      (bsl, std, native_std) are or aren't the same type, as expected in the
+      individual case, and verify whether these types use the bslma_Allocator.
+    - "Storage and constructor tests" which verify, for containers, that the
+      memory allocator passed to the container at construction is propagated
+      to the elements stored in the container.  These tests also call each
+      c'tor the class supports to verify at least that the c'tor compiles
+      and hopefully that that c'tor propagates the memory allocator through
+      to elements stored in the container.
+    - "Manipulator / Accessor / Iterator tests", which are
+      stream-of-consciousness (as opposed to table-driven) tests of
+      manipulators, accessors, and iterators.  In some components this is
+      separated into "Basic" and "Advanced" tests.
+
+/CLASSES OF COMPONENTS IN THIS PACKAGE:
+/-------------------------------------
+
+bsltst_bsl_*:
+------------
+    Bsl mode.  These files are compiled in such a way that 'std' is
+    #define'd to 'bsl', so that bsl winds up substituting for std.  The std
+    namespace is still accessible as 'native_std'.  For containers, these
+    components do all 3 types of testing of the bsl version.  No testing
+    of the native_std version is done, this being the responsibility of the
+    platform vendor.
+
+    bsltst_bsl_deque        bsltst_bsl_list      bsltst_bsl_slist
+    bsltst_bsl_exception    bsltst_bsl_locale    bsltst_bsl_string
+    bsltst_bsl_hash_map     bsltst_bsl_map       bsltst_bsl_stringstream
+    bsltst_bsl_hash_set     bsltst_bsl_set       bsltst_bsl_vector
+
+bsltst_dual_*:
+-------------
+    Dual mode.  These files are compiled such that std is not redefined, so
+    that 'bsl' and 'std' refer to their two separate namespaces.  The std
+    namespace can also be accessed as 'native_std'.  These components
+    restrict themselves mostly to "Breathing tests" to verify things are
+    in the right namespace, and sometimes some perfunctory "storage and
+    constructor tests".  It is not necessary for these components to
+    do detailed "Storage and constructor tests" or "Manipulator / Accessor /
+    Iterator tests" since these would just be redundant with the testing
+    done by the corresponding bsl mode component.
+
+    bsltst_dual_deque       bsltst_dual_list     bsltst_dual_slist
+    bsltst_dual_exception   bsltst_dual_locale   bsltst_dual_string
+    bsltst_dual_hash_map    bsltst_dual_map      bsltst_dual_stringstream
+    bsltst_dual_hash_set    bsltst_dual_set      bsltst_dual_vector
+
+/MACROS CONSTROLLING TESTS:
+/-------------------------
+
+BSL_OVERRIDES_STD:
+-----------------
+If this macro is defined, the includes will #define 'std'
+to 'bsl', so that users referring to objects in the 'std::' namespace will
+really get objects in 'bsl::'.  The native std namespace will still be
+accessible as 'native_std::'.
+
+BSL_INCOMPLETE_INCLUDE:
+----------------------
+This macro is not interpreted by any of the include files, it is just used
+in bsltst_dual_*.t.cpp to turn off the direct inclusion of the native
+include file, such as "#include <map>" and verify that "#include <bsl_map.h>"
+gets both the native and bsl include files.  It is to be set (or not) in
+package/bsltst.opt.
+    The purpose of building the dual mode tests with BSL_INCOMPLETE_INCLUDE
+set is to verify that #including <bsl_{TYPE}.h> includes both the bsl and the
+std version of the object.  The purpose of building the dual mode tests with
+BSL_INCOMPLETE_INCLUDE not set is to verify that including both <bsl_{TYPE}.h>
+and <{TYPE}> will not result in their conflicting with each other in some
+destructive way.
