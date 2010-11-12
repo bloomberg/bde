@@ -1,0 +1,130 @@
+    bteso.txt
+
+@PURPOSE: Provide low-level support for sockets and event managers.
+
+@MNEMONIC: Basic Transport Environment SOcket (bteso)
+
+@AUTHOR: Herve Bronnimann
+
+@DESCRIPTION: The 'bteso' package provides relatively low-level support for
+sockets as well as a number of concrete event managers.
+
+/Hierarchy Synopsis
+/------------------
+ 'bteso' currently has 25 components having 6 levels of physical dependency.
+The table below shows the hierarchical ordering of the components.  The package
+prefix and underscore ('bteso_') are omitted from the full component names for
+layout efficiency. 
+..
+  Level 6: defaulteventmanager
+
+  Level 5: defaulteventmanager_wfmo       defaulteventmanager_select
+           inetstreamsocketfactory
+
+  Level 4: defaulteventmanager_devpoll    defaulteventmanager_poll
+           eventmanagertester             spinningeventmanager
+           streamsocket                   tcptimereventmanager
+
+  Level 3: defaulteventmanagerimpl   event                eventmanager
+           ioutil                    socketoptutil        socketimputil
+           timereventmanager 
+
+  Level 2: sockethandle
+
+  Level 1: eventtype       flag                  ipv4address        platform
+           resolveutil     streamsocketfactory   timemetrics
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bteso'.  For the sake
+of brevity, we sometimes blur the distinction between a component and the
+primary types that the component provides. We remind the reader that, in
+general, the distinction between a component and a class is important. 
+..
+  bteso_defaulteventmanager - Provide an interface for default event manager. 
+
+  bteso_defaulteventmanagerimpl - Declares (but does not define) the template
+        'bteso_defaulteventmanager<POLLING>', in order to allow specialization
+        in the devpoll, poll, and select packages.
+
+  bteso_defaulteventmanager_poll - Provide socket multiplexer implementation
+        using 'poll' in the form of a specialization of the default event
+        manager 'bteso_defaulteventmanager<bteso_Platform::POLL>'. 
+
+  bteso_defaulteventmanager_devpoll - Provide socket multiplexer implementation
+        using '/dev/poll' in the form of a specialization of the default event
+        manager 'bteso_defaulteventmanager<bteso_Platform::DEVPOLL>'. 
+
+  bteso_defaulteventmanager_select - Provide socket multiplexer implementation
+        using '/dev/poll' in the form of a specialization of the default event
+        manager 'bteso_defaulteventmanager<bteso_Platform::SELECT>'. 
+
+  bteso_defaulteventmanager_wfmo - Provide socket multiplexer implementation
+        using '/dev/poll' in the form of a specialization of the default event
+        manager 'bteso_defaulteventmanager<bteso_Platform::WFMO>.
+
+  bteso_event - Provide a hashable representation of an event on socket. This
+        class maintains both a socket handle and an event type, with accessors
+        and manipulators.
+
+  bteso_eventtype - Encode the four types ACCEPT, CONNECT, READ, and WRITE.
+
+  bteso_eventmanager - Define a protocol for a socket-event multiplexer, which
+        allows registering a callback to be invoked when a particular event
+        occurs on a particular socket.
+
+  bteso_eventmanagertester - Provide a test apparatus, suitable for use in the
+        test drivers of implementations derived from 'bteso_EventManager'. The
+        apparatus can perform both black-box and white-box testing via
+        user-programmable tests.
+
+  bteso_flag - Provide a namespace for enumerating all flags, such as blocking
+        modes, interrupt, shutdown types, and IO wait types.
+
+  bteso_inetstreamsocketfactory - Implement TCP-based stream sockets that
+        conform to the 'bteso_StreamSocket' protocol, together with a factory
+        to allocate and deallocate them. 
+
+  bteso_ioutil - Provide operations to set socket I/O modes. 
+
+  bteso_ipv4address - Provides a representation of an IPv4 address.
+
+  bteso_platform - Define a set of traits that identify and describe a
+        platform's socket properties (currently, BSD or Windows).
+
+  bteso_resolveutil - Provide a set of thread-safe resolution functions (based
+        on DNS and local databases) to map a name to an IPv4 address and a
+        service name to the port number.
+
+  bteso_sockethandle - Define a platform independent socket handle type.
+
+  bteso_socketimputil - Provide platform-independent operations on sockets.
+
+  bteso_socketoptutil - Provide operations to manipulate socket options.
+
+  bteso_spinningeventmanager - Provide a class template event manager that
+        spins multiple managers.
+
+  bteso_streamsocket - Define a protocol (asbtract interface) for stream-based
+        socket communications. Modeled by 'bteso_InetStreamSocket'
+
+  bteso_streamsocketfactory - Provide a protocol for a factory producing stream
+        sockets. Modeled by 'bteso_InetStreamSocketFactory'
+
+  bteso_tcptimereventmanager - Provide a concrete implementation of the
+        'bteso_timereventmanager' protocol for socket handles.
+
+  bteso_timemetrics - Provide an accumulator for time measurements of different
+        categories.
+
+  bteso_timereventmanager - Provide the interface for an event manager that
+        supports the registration of both timers and socket events, each along
+        with an associated 'bcef_Vfunc0' callback functor, which is invoked
+        when the corresponding timer expires or the socket event occurs.  ..
+..
+
+@Usage
+ The usage examples for the 'bteso' package are under construction.  Please see
+ the individual usage examples in the various components for now. 
+
