@@ -1,0 +1,363 @@
+// bsls_stopwatch.h                                                   -*-C++-*-
+#ifndef INCLUDED_BSLS_STOPWATCH
+#define INCLUDED_BSLS_STOPWATCH
+
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide access to user, system, and wall times of current process.
+//
+//@CLASSES:
+//   bsls_Stopwatch: accumulates user, system, wall times of current process
+//
+//@AUTHOR: Thomas Marshall (tmarshall), Alexander Evdokimov (aevdokimov1)
+//
+//@DESCRIPTION: This component provides a class, 'bsls_Stopwatch', that
+// implements real-time (system clock) interval timers for the system, user,
+// and wall times of the current process.  A 'bsls_Stopwatch' object can
+// accumulate the above values from multiple runs and always presents only the
+// final total (zero if never started or reset to the initial state).
+//
+///Accuracy and Precision
+///----------------------
+// A 'bsls_Stopwatch' object returns its elapsed time intervals in seconds as
+// 'double' values.  The precision is given by that of the 'bsls_TimeUtil'
+// component, and, as such, strives to be as high as possible.  Monotonic
+// behavior is platform-dependent, however, as are accuracy and useful
+// precision.  The user is advised to determine the actual performance on each
+// platform of interest.  In general, it is better to avoid stopping and
+// restarting the stopwatch too often (e.g., inside a loop).  It is better to
+// measure the overhead of the loop separately and subtract that time from the
+// over-all time interval.
+//
+///Usage
+///-----
+// The following snippets of code illustrate basic use of a 'bsls_Stopwatch'
+// object.  First we create a stopwatch and note that the accumulated times are
+// all initially 0.0:
+//..
+//  bsls_Stopwatch s;
+//  const double t0s = s.accumulatedSystemTime();  assert(0.0 == t0s);
+//  const double t0u = s.accumulatedUserTime();    assert(0.0 == t0u);
+//  const double t0w = s.accumulatedWallTime();    assert(0.0 == t0w);
+//..
+// Next we start the stopwatch such that it does not accumulate system or user
+// times.  Note that a stopwatch always accumulates wall time (i.e., as long as
+// it is in the RUNNING state):
+//..
+//  s.start();
+//  const double t1s = s.accumulatedSystemTime();  assert(0.0 == t1s);
+//  const double t1u = s.accumulatedUserTime();    assert(0.0 == t1u);
+//  const double t1w = s.accumulatedWallTime();    assert(0.0 <= t1w);
+//..
+// Now stop the stopwatch and restart it so as to accumulate system and user
+// times (i.e., by passing 'true' to the 'start' method):
+//..
+//  s.stop();
+//  const double t2s = s.accumulatedSystemTime();  assert(t1s == t2s);
+//  const double t2u = s.accumulatedUserTime();    assert(t1u == t2u);
+//  const double t2w = s.accumulatedWallTime();    assert(t1w <= t2w);
+//
+//  s.start(true);
+//  const double t3s = s.accumulatedSystemTime();  assert(t2s <= t3s);
+//  const double t3u = s.accumulatedUserTime();    assert(t2u <= t3u);
+//  const double t3w = s.accumulatedWallTime();    assert(t2w <= t3w);
+//..
+// Finally, we reset the stopwatch, which both puts it into the STOPPED state
+// and resets all accumulated times back to their initial state (i.e., 0.0):
+//..
+//  s.reset();
+//  const double t4s = s.accumulatedSystemTime();  assert(0.0 == t4s);
+//  const double t4u = s.accumulatedUserTime();    assert(0.0 == t4u);
+//  const double t4w = s.accumulatedWallTime();    assert(0.0 == t4w);
+//  const double t5s = s.accumulatedSystemTime();  assert(0.0 == t5s);
+//  const double t5u = s.accumulatedUserTime();    assert(0.0 == t5u);
+//  const double t5w = s.accumulatedWallTime();    assert(0.0 == t5w);
+//..
+
+#ifndef INCLUDED_BSLS_TIMEUTIL
+#include <bsls_timeutil.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+namespace BloombergLP {
+
+                            // ====================
+                            // class bsls_Stopwatch
+                            // ====================
+
+class bsls_Stopwatch {
+    // The 'class' provides an accumulator for the system, user, and wall times
+    // of the current process.  A stopwatch can be in either the STOPPED
+    // (initial) state or the RUNNING state.  It potentially tracks three
+    // values: the accumulated system time, the accumulated user time, and the
+    // accumulated wall time (all in seconds and all initially set to zero).
+    // Whether or not system and user times are accumulated is conditional on
+    // how the stopwatch is started (see the 'start' method).  While in the
+    // RUNNING state, a stopwatch accumulates the above values and it retains
+    // the values if put into the STOPPED state (unless 'reset' is called).
+    // The accumulated times can be accessed at any time and in either state
+    // (RUNNING or STOPPED).
+
+    // DATA
+    bsls_Types::Int64 d_startSystemTime;        // system time when
+                                                // started (nanoseconds)
+
+    bsls_Types::Int64 d_startUserTime;          // user time when
+                                                // started (nanoseconds)
+
+    bsls_Types::Int64 d_startWallTime;          // wall time when
+                                                // started (nanoseconds)
+
+    bsls_Types::Int64 d_accumulatedSystemTime;  // accumulated system
+                                                // time (nanoseconds)
+
+    bsls_Types::Int64 d_accumulatedUserTime;    // accumulated user time
+                                                // (nanoseconds)
+
+    bsls_Types::Int64 d_accumulatedWallTime;    // accumulated wall time
+                                                // (nanoseconds)
+
+    bool              d_isRunning;              // state flag ('true' if
+                                                // RUNNING, 'false' if
+                                                // STOPPED)
+
+    bool                     d_collectCpuTimesFlag;    // 'true' if cpu times
+                                                       // are being collected
+
+    // CLASS DATA
+    static const double      s_nanosecondsPerSecond;   // conversion factor
+                                                       // (for nanoseconds to
+                                                       // seconds)
+
+    // NOT IMPLEMENTED
+    bsls_Stopwatch(const bsls_Stopwatch&);
+    bsls_Stopwatch& operator=(const bsls_Stopwatch&);
+
+  private:
+    // PRIVATE MANIPULATORS
+    void updateTimes();
+        // Update the CPU times accumulated but this stopwatch.
+
+    // PRIVATE ACCESSORS
+    void accumulatedTimesRaw(bsls_Types::Int64 *systemTime,
+                             bsls_Types::Int64 *userTime,
+                             bsls_Types::Int64 *wallTime) const;
+        // Load into the specified 'systemTime', 'userTime', and 'wallTime' the
+        // values of the system time, user time, and wall time (in
+        // nanoseconds), respectively, as provided by 'bsls_TimeUtil'.
+
+  public:
+    // CREATORS
+    bsls_Stopwatch();
+        // Create a stopwatch in the STOPPED state having total accumulated
+        // system, user, and wall times all equal to 0.0.
+
+    //! ~bsls_Stopwatch();
+        // Destroy this stopwatch.  Note that this method's definition is
+        // compiler generated.
+
+    // MANIPULATORS
+    void reset();
+        // Place this stopwatch in the STOPPED state, unconditionally stopping
+        // the accumulation of elapsed times, and set the quiescent elapsed
+        // times to 0.0.
+
+    void start(bool collectCpuTimes = false);
+        // Place this stopwatch in the RUNNING state and begin accumulating
+        // elapsed times if this object was in the STOPPED state.  Optionally
+        // specify a 'collectCpuTimes' flag indicating whether CPU times should
+        // be collected.  If 'collectCpuTimes' is not specified, then CPU times
+        // are *not* collected.  Note that the instantaneous total elapsed
+        // times are available from the RUNNING state.  Also note that
+        // disabling collection of CPU times will result in fewer systems calls
+        // and faster measurements.
+
+    void stop();
+        // Place this stopwatch in the STOPPED state, unconditionally stopping
+        // the accumulation of elapsed times.  Note that the quiescent
+        // accumulated elapsed times are available while in the STOPPED state.
+
+    // ACCESSORS
+    double accumulatedSystemTime() const;
+        // Return the total (instantaneous and quiescent) elapsed system time
+        // (in seconds) accumulated by this stopwatch, or 0 if the collection
+        // of CPU times is disabled.
+
+    void accumulatedTimes(double *systemTime,
+                          double *userTime,
+                          double *wallTime) const;
+        // Load into the specified 'systemTime', 'userTime' and 'wallTime' the
+        // total (instantaneous and quiescent) elapsed system, user, and wall
+        // times (all in seconds) accumulated by this stopwatch.  Note that
+        // this method attempts to retrieve all of the values at the same time
+        // (atomically), if the underlying platform supports it.
+
+    double accumulatedUserTime() const;
+        // Return the total (instantaneous and quiescent) elapsed user time (in
+        // seconds) accumulated by this stopwatch, or 0 if the collection of
+        // CPU times is disabled.
+
+    double accumulatedWallTime() const;
+        // Return the total (instantaneous and quiescent) elapsed wall time (in
+        // seconds) accumulated by this stopwatch.
+
+    double elapsedTime() const;
+        // Return the total (instantaneous and quiescent) elapsed wall time (in
+        // seconds) accumulated by this stopwatch.  Note that this method is
+        // equivalent to 'accumulatedWallTime'.
+
+    bool isRunning() const;
+        // Return 'true' if this stopwatch is in the RUNNING state, and 'false'
+        // otherwise.
+};
+
+// ============================================================================
+//                          INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                            // --------------------
+                            // class bsls_Stopwatch
+                            // --------------------
+
+// PRIVATE ACCESSORS
+inline
+void bsls_Stopwatch::accumulatedTimesRaw(bsls_Types::Int64 *systemTime,
+                                         bsls_Types::Int64 *userTime,
+                                         bsls_Types::Int64 *wallTime) const
+{
+    bsls_TimeUtil::getProcessTimers(systemTime, userTime);
+    *wallTime = bsls_TimeUtil::getTimer();
+}
+
+// CREATORS
+inline
+bsls_Stopwatch::bsls_Stopwatch()
+: d_accumulatedSystemTime(0)
+, d_accumulatedUserTime(0)
+, d_accumulatedWallTime(0)
+, d_isRunning(false)
+, d_collectCpuTimesFlag(false)
+{
+    bsls_TimeUtil::initialize();
+}
+
+// MANIPULATORS
+inline
+void bsls_Stopwatch::reset()
+{
+    d_isRunning             = false;
+    d_accumulatedSystemTime = 0;
+    d_accumulatedUserTime   = 0;
+    d_accumulatedWallTime   = 0;
+}
+
+inline
+void bsls_Stopwatch::start(bool collectCpuTimes)
+{
+    if (!d_isRunning) {
+        d_collectCpuTimesFlag = collectCpuTimes;
+        if (d_collectCpuTimesFlag) {
+            accumulatedTimesRaw(&d_startSystemTime,
+                                &d_startUserTime,
+                                &d_startWallTime);
+        }
+        else {
+            d_startWallTime =  bsls_TimeUtil::getTimer();
+        }
+        d_isRunning = true;
+    }
+}
+
+inline
+void bsls_Stopwatch::stop()
+{
+    if (d_isRunning) {
+        if (d_collectCpuTimesFlag) {
+            updateTimes();
+        }
+        else {
+            d_accumulatedWallTime +=
+                                   bsls_TimeUtil::getTimer() - d_startWallTime;
+        }
+        d_isRunning = false;
+    }
+}
+
+// ACCESSORS
+inline
+double bsls_Stopwatch::accumulatedSystemTime() const
+{
+    if (!d_collectCpuTimesFlag) {
+        return 0.0;
+    }
+
+    if (d_isRunning) {
+        return (double)(d_accumulatedSystemTime
+                  + bsls_TimeUtil::getProcessSystemTimer() - d_startSystemTime)
+                                                      / s_nanosecondsPerSecond;
+    }
+    else {
+        return (double)d_accumulatedSystemTime / s_nanosecondsPerSecond;
+    }
+}
+
+inline
+double bsls_Stopwatch::accumulatedUserTime() const
+{
+    if (!d_collectCpuTimesFlag) {
+        return 0.0;
+    }
+
+    if (d_isRunning) {
+        return (double)(d_accumulatedUserTime
+                      + bsls_TimeUtil::getProcessUserTimer() - d_startUserTime)
+                                                      / s_nanosecondsPerSecond;
+    }
+    else {
+        return (double)d_accumulatedUserTime / s_nanosecondsPerSecond;
+    }
+}
+
+inline
+double bsls_Stopwatch::accumulatedWallTime() const
+{
+    if (d_isRunning) {
+        return (double)(d_accumulatedWallTime
+                                 + bsls_TimeUtil::getTimer() - d_startWallTime)
+                                                      / s_nanosecondsPerSecond;
+    }
+    else {
+        return (double)d_accumulatedWallTime / s_nanosecondsPerSecond;
+    }
+}
+
+inline
+double bsls_Stopwatch::elapsedTime() const
+{
+    return accumulatedWallTime();
+}
+
+inline
+bool bsls_Stopwatch::isRunning() const
+{
+    return d_isRunning;
+}
+
+}  // close namespace BloombergLP
+
+#endif
+
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2010
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------

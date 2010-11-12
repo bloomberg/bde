@@ -1,0 +1,557 @@
+// bsls_timeutil.cpp                                                  -*-C++-*-
+#include <bsls_timeutil.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
+
+#include <bsls_platform.h>     // BSLS_PLATFORM__OS_UNIX, etc.
+
+#if defined BSLS_PLATFORM__OS_UNIX
+    #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
+    #include <sys/time.h>  // gethrtime()
+    #include <sys/times.h> // struct tms, times()
+    #include <unistd.h>    // sysconf(), _SC_CLK_TCK
+#elif defined BSLS_PLATFORM__OS_WINDOWS
+    #include <windows.h>
+    #include <winbase.h>   // QueryPerformanceCounter(), GetProcessTimes()
+    #include <sys/timeb.h> // ftime(struct timeb *)
+#else
+    #error "Don't know how to get nanosecond time for this platform"
+#endif
+
+namespace BloombergLP {
+
+namespace {
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+struct UnixTimerUtil {
+    // Provides access to UNIX process user and system timers.
+
+  private:
+    // CLASS DATA
+    static bsls_Types::Int64       s_ticksPerSecond;
+    static const bsls_Types::Int64 s_nsecsPerSecond;
+
+  private:
+    // PRIVATE CLASS METHODS
+    static void systemProcessTimers(clock_t *systemTimer, clock_t *userTimer);
+        // Helper routine to be used by the public methods below: call the OS
+        // APIs and handle errors.
+
+  public:
+    // CLASS METHODS
+    static void initialize();
+        // Ensure all the fields are initialized (currently only the
+        // 's_ticksPerSecond' value above).
+
+    static bsls_Types::Int64 systemTimer();
+        // Return converted to nanoseconds current value of system time as
+        // returned by times() if the call succeeds, and zero otherwise.
+
+    static bsls_Types::Int64 userTimer();
+        // Return converted to nanoseconds current value of user time as
+        // returned by times() if the call succeeds, and zero otherwise.
+
+    static void processTimers(bsls_Types::Int64 *systemTimer,
+                              bsls_Types::Int64 *userTimer);
+        // Return converted to nanoseconds current values of system and user
+        // times as returned by times() if the call succeeds, and zero values
+        // otherwise
+};
+
+      bsls_Types::Int64 UnixTimerUtil::s_ticksPerSecond = -1;
+const bsls_Types::Int64 UnixTimerUtil::s_nsecsPerSecond =
+                                                            1000 * 1000 * 1000;
+
+inline
+void UnixTimerUtil::systemProcessTimers(clock_t *systemTimer,
+                                        clock_t *userTimer)
+{
+    struct tms processTimes;
+    if (-1 == ::times(&processTimes)) {
+        *systemTimer = 0;
+        *userTimer   = 0;
+        return;
+    }
+
+    *systemTimer = processTimes.tms_stime;
+    *userTimer   = processTimes.tms_utime;
+}
+
+inline
+void UnixTimerUtil::initialize()
+{
+    if (-1 == s_ticksPerSecond) {
+        s_ticksPerSecond = ::sysconf(_SC_CLK_TCK);
+
+        if (-1 == s_ticksPerSecond) {
+            s_ticksPerSecond = CLOCKS_PER_SEC;  // use compile-time value if
+                                                // failed to get at run-time
+        }
+    }
+}
+
+inline
+bsls_Types::Int64 UnixTimerUtil::systemTimer()
+{
+    initialize();
+
+    clock_t sTimer, dummy;
+    systemProcessTimers(&sTimer, &dummy);
+
+    return static_cast<bsls_Types::Int64>(sTimer)
+                                         * s_nsecsPerSecond / s_ticksPerSecond;
+}
+
+inline
+bsls_Types::Int64 UnixTimerUtil::userTimer()
+{
+    initialize();
+
+    clock_t dummy, uTimer;
+    systemProcessTimers(&dummy, &uTimer);
+
+    return static_cast<bsls_Types::Int64>(uTimer)
+                                         * s_nsecsPerSecond / s_ticksPerSecond;
+}
+
+inline
+void UnixTimerUtil::processTimers(bsls_Types::Int64 *systemTimer,
+                                  bsls_Types::Int64 *userTimer)
+{
+    initialize();
+
+    clock_t sTimer, uTimer;
+    systemProcessTimers(&sTimer, &uTimer);
+
+    *systemTimer = static_cast<bsls_Types::Int64>(sTimer)
+                                         * s_nsecsPerSecond / s_ticksPerSecond;
+    *userTimer   = static_cast<bsls_Types::Int64>(uTimer)
+                                         * s_nsecsPerSecond / s_ticksPerSecond;
+}
+#endif
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+struct WindowsTimerUtil {
+    // Provides access to Windows process user and system timers.
+
+  private:
+    // CLASS DATA
+    static bool              s_initRequired;
+
+    static bsls_Types::Int64 s_initialTime;     // initial time for the
+                                                // Windows hardware
+                                                // timer
+
+    static bsls_Types::Int64 s_timerFrequency;  // frequency of the
+                                                // Windows hardware
+                                                // timer
+
+    static const bsls_Types::Int64
+                             s_nsecsPerUnit;    // size in nanoseconds
+                                                // of one time unit used
+                                                // by GetProcessTimes()
+
+  private:
+    // PRIVATE CLASS METHODS
+    static void systemProcessTimers(PULARGE_INTEGER systemTimer,
+                                    PULARGE_INTEGER userTimer);
+        // Helper routine to be used by the public methods below: call the OS
+        // APIs and handle errors.
+
+  public:
+    // CLASS METHODS
+    static void initialize();
+        // Ensure all the fields are initialized (currently the 's_initialTime'
+        // and the 's_timerFrequency' values above).
+
+    static bsls_Types::Int64 systemTimer();
+        // Return converted to nanoseconds current value of kernel (system)
+        // time as returned by GetProcessTimes() if the call succeeds, and zero
+        // otherwise.
+
+    static bsls_Types::Int64 userTimer();
+        // Return converted to nanoseconds current value of user time as
+        // returned by GetProcessTimes() if the call succeeds, and zero
+        // otherwise.
+
+    static void processTimers(bsls_Types::Int64 *systemTimer,
+                              bsls_Types::Int64 *userTimer);
+        // Return converted to nanoseconds current value of kernel (system) and
+        // user times as returned by GetProcessTimes() if the call succeeds,
+        // and zero otherwise.
+
+    static bsls_Types::Int64 wallTimer();
+        // Return converted to nanoseconds current value of wall time as per
+        // Windows hardware timer, if available, uses ::ftime otherwise.
+};
+
+bool                    WindowsTimerUtil::s_initRequired   = true;
+bsls_Types::Int64       WindowsTimerUtil::s_initialTime    = -1;
+bsls_Types::Int64       WindowsTimerUtil::s_timerFrequency = -1;
+const bsls_Types::Int64 WindowsTimerUtil::s_nsecsPerUnit   = 100;
+
+inline
+void WindowsTimerUtil::systemProcessTimers(PULARGE_INTEGER systemTimer,
+                                           PULARGE_INTEGER userTimer)
+{
+    FILETIME crtnTm, exitTm, krnlTm, userTm;
+
+    if (!::GetProcessTimes(::GetCurrentProcess(),
+                           &crtnTm,
+                           &exitTm,
+                           &krnlTm,
+                           &userTm)) {
+        systemTimer->QuadPart = 0;
+        userTimer->QuadPart   = 0;
+        return;
+    }
+
+    systemTimer->LowPart  = krnlTm.dwLowDateTime;
+    systemTimer->HighPart = krnlTm.dwHighDateTime;
+    userTimer->LowPart    = userTm.dwLowDateTime;
+    userTimer->HighPart   = userTm.dwHighDateTime;
+}
+
+inline
+void WindowsTimerUtil::initialize()
+{
+    if (s_initRequired) {
+        LARGE_INTEGER t;
+        if (::QueryPerformanceCounter(&t)) {
+            s_initialTime = t.QuadPart;
+        }
+        else {
+            s_initialTime = 0;
+        }
+
+        LARGE_INTEGER f;
+        if (::QueryPerformanceFrequency(&f)) {
+            s_timerFrequency = f.QuadPart;
+        }
+        else {
+            s_timerFrequency = 0;
+        }
+
+        s_initRequired = false;
+    }
+}
+
+inline
+bsls_Types::Int64 WindowsTimerUtil::systemTimer()
+{
+    ULARGE_INTEGER sTimer, dummy;
+    systemProcessTimers(&sTimer, &dummy);
+
+    return sTimer.QuadPart * s_nsecsPerUnit;
+}
+
+inline
+bsls_Types::Int64 WindowsTimerUtil::userTimer()
+{
+    ULARGE_INTEGER dummy, uTimer;
+    systemProcessTimers(&dummy, &uTimer);
+
+    return uTimer.QuadPart * s_nsecsPerUnit;
+}
+
+inline
+void WindowsTimerUtil::processTimers(bsls_Types::Int64 *systemTimer,
+                                     bsls_Types::Int64 *userTimer)
+{
+    ULARGE_INTEGER sTimer, uTimer;
+    systemProcessTimers(&sTimer, &uTimer);
+
+    *systemTimer = static_cast<bsls_Types::Int64>(sTimer.QuadPart)
+                                                              * s_nsecsPerUnit;
+    *userTimer = static_cast<bsls_Types::Int64>(uTimer.QuadPart)
+                                                              * s_nsecsPerUnit;
+}
+
+inline
+bsls_Types::Int64 WindowsTimerUtil::wallTimer()
+{
+    initialize();
+
+    const bsls_Types::Int64 K = 1000;
+    const bsls_Types::Int64 M = 1000000;
+
+    if (0 != s_initialTime) {
+        LARGE_INTEGER t;
+        ::QueryPerformanceCounter(&t);
+        return (((t.QuadPart - s_initialTime) * M) / s_timerFrequency) * K;
+    }
+    else {
+        timeb t;
+        ::ftime(&t);
+
+        bsls_Types::Int64 t0;
+        t0 =
+           (static_cast<bsls_Types::Int64>(t.time) * K + t.millitm) * M;
+
+        return t0;
+    }
+}
+#endif
+
+}  // close unnamed namespace
+
+                            // --------------------
+                            // struct bsls_TimeUtil
+                            // --------------------
+
+// CLASS METHODS
+void bsls_TimeUtil::initialize()
+{
+#if defined BSLS_PLATFORM__OS_UNIX
+    UnixTimerUtil::initialize();
+#elif defined BSLS_PLATFORM__OS_WINDOWS
+    WindowsTimerUtil::initialize();
+#else
+    #error "Don't know how to get nanosecond time for this platform"
+#endif
+}
+
+bsls_Types::Int64
+bsls_TimeUtil::convertRawTime(bsls_TimeUtil::OpaqueNativeTime rawTime)
+{
+#if defined BSLS_PLATFORM__OS_SOLARIS
+
+    return rawTime.d_opaque;
+
+#elif defined BSLS_PLATFORM__OS_AIX
+
+    const bsls_Types::Int64 G = 1000000000;
+    time_base_to_time(&rawTime, TIMEBASE_SZ);
+    return (bsls_Types::Int64) rawTime.tb_high * G + rawTime.tb_low;
+
+#elif defined BSLS_PLATFORM__OS_HPUX
+
+    return rawTime.d_opaque;
+
+#elif defined BSLS_PLATFORM__OS_LINUX
+
+    const bsls_Types::Int64 G = 1000000000;
+    return ((bsls_Types::Int64) rawTime.tv_sec * G + rawTime.tv_nsec);
+
+#elif defined BSLS_PLATFORM__OS_UNIX
+
+    return ((bsls_Types::Int64) rawTime.tv_sec * M
+              + rawTime.tv_usec) * K;
+
+#elif defined BSLS_PLATFORM__OS_WINDOWS
+
+    return rawTime.d_opaque;
+
+#else
+    #error "Don't know how to get nanosecond time for this platform"
+#endif
+}
+
+bsls_Types::Int64 bsls_TimeUtil::getTimer()
+{
+    // Historical Note: Older Sun machines (e.g., sundev2 circa 2003) exhibited
+    // intermittent non-compliant (i.e., non-monotonic) behavior for function
+    // 'gethrtime'.  As of July 2004, no non-monotonic behavior has been seen
+    // on any Sun machine.  However, hp2 does exhibit a *different*
+    // non-monotonic behavior.  An Imp Note within the 'OS_HPUX' block
+    // describes the new problem.  The imp note in the next paragraph is no
+    // longer valid, but is retained for archival purposes, and as a historical
+    // caution.
+    //
+    // Archival Imp Note:
+    // This method is implemented with a workaround for the clock-sync-induced
+    // problem that, occasionally, calls to system-time functions will return
+    // a value that is grossly too large.  Subsequent return values are
+    // presumed correct, and it is also assumed that the probability of two
+    // successive bad return values is vanishingly small.  On the other hand,
+    // two successive *calls* may yield *the same* return value, and so a new
+    // return value may need to be explicitly confirmed.
+
+#if defined BSLS_PLATFORM__OS_SOLARIS
+
+    // 'gethrtime' has not been observed to fail on any 'sundev' machine.
+
+    return gethrtime();
+
+#elif defined BSLS_PLATFORM__OS_AIX
+
+    // Imp Note:
+    // 'read_wall_time' is very fast (<100 nsec), and guaranteed monotonic per
+    // http://publib.boulder.ibm.com/infocenter/systems doc.  (It has not been
+    // observed to be non-monotonic when tested to better than 3 parts in 10^10
+    // on ibm2.)  'time_base_to_time' is much slower (~1.2 usec).
+
+    const bsls_Types::Int64 G = 1000000000;
+    timebasestruct_t t;
+    read_wall_time(&t, TIMEBASE_SZ);
+    time_base_to_time(&t, TIMEBASE_SZ);
+
+    return (bsls_Types::Int64) t.tb_high * G + t.tb_low;
+
+#elif defined BSLS_PLATFORM__OS_HPUX
+
+    // The following Imp Note applies to behavior observed on 'hp2' in late
+    // July and early August of 2004.
+    //
+    // The call to 'gethrtime' takes about 100 nsecs (the mode difference
+    // between two successive return values).  About once in every 10^7 call
+    // pairs, the difference is negative; the distribution of negative values
+    // is bimodal, with (approximately equal) peaks at 0 and -90 nsec.  The
+    // maximum observed negative difference in 10^9 call pairs was -144 nsec.
+    //
+    // The algorithm implemented here defends against this behavior by
+    // returning the maximum of two successive calls to 'gethrtime'.
+
+    bsls_Types::Int64 t1 = (bsls_Types::Int64) gethrtime();
+    bsls_Types::Int64 t2 = (bsls_Types::Int64) gethrtime();
+    return t2 > t1 ? t2 : t1;
+
+#elif defined BSLS_PLATFORM__OS_LINUX
+
+    // The call to 'clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts)' has never
+    // been observed to be non-monotonic when tested at better than 1 parts in
+    // 10^9 on linxdev5, in a tight loop.  However, not all users will own the
+    // process, and for multi-processor systems the value returned may be
+    // meaningless.  Therefore, for the standard timer, the CLOCK_MONOTONIC
+    // clock is preferred.
+    //..
+    //         Clock ID            Performance (arbitrary but consistent test)
+    // ------------------------    -------------------------------------------
+    // CLOCK_PROCESS_CPUTIME_ID         ~0.8  usec
+    // CLOCK_THREAD_CPUTIME_ID          ~0.85 usec
+    // CLOCK_REALTIME                   ~1.8  usec
+    // CLOCK_MONOTONIC                  ~1.8  usec
+    //..
+
+    const bsls_Types::Int64 G = 1000000000;
+    timespec ts;
+
+    clock_gettime(CLOCK_MONOTONIC, &ts);  // significantly slower ~1.8 usec
+
+    return (bsls_Types::Int64) ts.tv_sec * G + ts.tv_nsec;
+
+#elif defined BSLS_PLATFORM__OS_UNIX
+
+    // A generic implementation having microsecond resolution is used.  There
+    // is no attempt to defend against possible non-monotonic behavior.  The
+    // imp would cause bsls_stopwatch to profile at ~1.40 usec on AIX when
+    // compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r.  Other
+    // implementations are left in place as comments for historical reference.
+
+    timeval tv;
+    gettimeofday(&tv, 0);
+    return = ((bsls_Types::Int64) tv.tv_sec * M + tv.tv_usec) * K;
+
+    // The below imp would cause bsls_stopwatch to profile at ~1.45 usec on AIX
+    // when compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r
+    //..
+    //  const bsls_Types::Int64 G = 1000000000;
+    //  timespec ts;
+    //  clock_gettime(CLOCK_REALTIME, &ts);
+    //  return = (bsls_Types::Int64) ts.tv_sec * G + ts.tv_nsec;
+    //..
+
+    // Historic workaround for non-monotonic clock behavior.
+    //..
+    //  const bsls_Types::Int64 K = 1000;
+    //  const bsls_Types::Int64 M = 1000000;
+    //  timeval t;
+    //  bsls_Types::Int64 t0, t1, t2;
+    //  gettimeofday(&t, 0);
+    //  t0 = ((bsls_Types::Int64) t.tv_sec * M + t.tv_usec) * K;
+    //  do {
+    //      gettimeofday(&t, 0);
+    //      t1 = ((bsls_Types::Int64) t.tv_sec * M + t.tv_usec) * K;
+    //  } while (t1 == t0);
+    //  do {
+    //      gettimeofday(&t, 0);
+    //      t2 = ((bsls_Types::Int64) t.tv_sec * M + t.tv_usec) * K;
+    //  } while (t2 == t1);
+    //  return t2 < t1 || t2 < t1 + 10 * M ? t2 : t1;
+    //..
+
+#elif defined BSLS_PLATFORM__OS_WINDOWS
+
+    return WindowsTimerUtil::wallTimer();
+
+#else
+    #error "Don't know how to get nanosecond time for this platform"
+#endif
+}
+
+void bsls_TimeUtil::getTimerRaw(bsls_TimeUtil::OpaqueNativeTime *timeValue)
+{
+#if defined BSLS_PLATFORM__OS_SOLARIS
+
+    timeValue->d_opaque = gethrtime();
+
+#elif defined BSLS_PLATFORM__OS_AIX
+
+    read_wall_time(timeValue, TIMEBASE_SZ);
+
+#elif defined BSLS_PLATFORM__OS_HPUX
+
+    timeValue->d_opaque = gethrtime();
+
+#elif defined BSLS_PLATFORM__OS_LINUX
+
+    clock_gettime(CLOCK_MONOTONIC, timeValue);
+
+#elif defined BSLS_PLATFORM__OS_UNIX
+
+    gettimeofday(timeValue, 0);
+
+#elif defined BSLS_PLATFORM__OS_WINDOWS
+
+    timeValue->d_opaque = WindowsTimerUtil::wallTimer();
+
+#else
+    #error "Don't know how to get nanosecond time for this platform"
+#endif
+}
+
+bsls_Types::Int64 bsls_TimeUtil::getProcessSystemTimer()
+{
+#if defined BSLS_PLATFORM__OS_UNIX
+    return UnixTimerUtil::systemTimer();
+#elif defined BSLS_PLATFORM__OS_WINDOWS
+    return WindowsTimerUtil::systemTimer();
+#else
+    #error "Don't know how to get nanosecond time for this platform"
+#endif
+}
+
+bsls_Types::Int64 bsls_TimeUtil::getProcessUserTimer()
+{
+#if defined BSLS_PLATFORM__OS_UNIX
+    return UnixTimerUtil::userTimer();
+#elif defined BSLS_PLATFORM__OS_WINDOWS
+    return WindowsTimerUtil::userTimer();
+#else
+    #error "Don't know how to get nanosecond time for this platform"
+#endif
+}
+
+void bsls_TimeUtil::getProcessTimers(bsls_Types::Int64 *systemTimer,
+                                     bsls_Types::Int64 *userTimer)
+{
+#if defined BSLS_PLATFORM__OS_UNIX
+    UnixTimerUtil::processTimers(systemTimer, userTimer);
+#elif defined BSLS_PLATFORM__OS_WINDOWS
+    WindowsTimerUtil::processTimers(systemTimer, userTimer);
+#else
+    #error "Don't know how to get nanosecond time for this platform"
+#endif
+}
+
+}  // close namespace BloombergLP
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2008
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------
