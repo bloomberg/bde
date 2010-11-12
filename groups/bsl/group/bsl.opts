@@ -1,0 +1,18 @@
+# BSL overrides for default.opts
+
+*-                      _       OPTS_FILE       = bsl.opts
+
+# Internal location of 'bsl+stdhdrs' directory, used by builds of BSL prior
+# to the group install stage
+#!! *			_	STL_INCLUDE	= -I$(BSL_LOCN)/bsl+stdhdrs/include/$(UPLID)/$(UFID)
+
+# Allow the C files in STLport to include the C++ headers
+*			_	BDE_CINCLUDE	= $(STL_INCLUDE)
+
+-- unix-SunOS-*-*-cc	_	AR_PACKAGE	= $(SET_TEMPLATE_CACHE_DIR)
+-- unix-SunOS-*-*-cc	_	AR_INSTALL	= $(SET_TEMPLATE_CACHE_DIR)
+# obsolete, use 64 'ufid' instead -- remove in future
+-- unix-SunOS-*-*-CC64	_	AR_PACKAGE	= $(SET_TEMPLATE_CACHE_DIR)
+-- unix-SunOS-*-*-CC64	_	AR_INSTALL	= $(SET_TEMPLATE_CACHE_DIR)
+
+windows			shr	STL_DEFINES	= /D_STLP_DESIGNATED_DLL

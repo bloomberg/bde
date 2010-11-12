@@ -1,0 +1,12 @@
+bsl+apache
+bsl+stdhdrs
+bsl+bslhdrs
+#bsl+sunworkarounds
+bslalg
+bslma
+bslmf
+bsls
+bslscm
+bslstl
+bslstp
+bsltst
