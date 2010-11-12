@@ -1,0 +1,218 @@
+ bdet.txt
+
+@PURPOSE: Provide value-semantic vocabulary types (including time types).
+
+@MNEMONIC: Basic Development Environment (vocabulary) Types (bdet)
+
+@AUTHOR Lea Fester (lfester)
+
+@DESCRIPTION: The 'bdet' package provides 6 components, all of them defining
+ a date- or time-related vocabulary type.  BDE uses the term "vocabulary type"
+ to denote C++-supported, *library-defined* constructs for representing common
+ types that otherwise would be multiply and incompatibly implemented by
+ various clients.
+
+ The types provided by 'bdet' are:
+..
+     1. bdet_Date, representing a particular day in some calendar.
+     2. bdet_Time, representing a particular moment within a day.
+     3. bdet_Datetime, representing a particular moment during a particular
+        day in some calendar.
+     4. bdet_TimeInterval, representing a time quantity of nanosecond 
+        granularity.
+     5. bdet_DatetimeInterval, representing a time quantity of millisecond
+        granularity.
+     6. bdet_DayOfWeek, an enumeration defining symbolic codes for the seven
+        days of the week.
+
+..
+/SUBSYSTEMS IN THIS PACKAGE:
+/--------------------------
+ There are no true subsystems in this package, but there are some component
+ interrelationships.  For example, the 'bdet_Datetime' is a composition of
+ a 'bdet_Date' and a 'bdet_Time'; creating the composite from the individual
+ components and retrieving the individual pieces from the composite is
+ enabled.  And both regression and advancement operations for 'bdet_Date', 
+ 'bdet_Time', and 'bdet_Datetime' accept 'bdet_DatetimeInterval's as 
+ specifiers of the amount of time by which to decrease or increase the given 
+ date/time/datetime.
+ 
+/INTERPLAY WITH OTHER PACKAGES:
+/-------------------------------
+ The library types defined in 'bdet' are found in the *interfaces* (as well as
+ implementations) of many 'bde' components, particularly in the 'bdem',
+ 'bdempu', and 'bdec' packages.
+ 
+@CLASSES:
+
+/'bdet_Date'
+/----------
+ 
+/Capsule Description
+/- - - - - - -
+ 'bdet_Date' provides a compact, efficient date representation that conforms
+ to Unix date semantics.  Objects of this class can represent any date 
+ between January 1, 0001 and December 31, 9999.
+
+ 'bdet_Date' supports the following functionality: comparisons, validation,
+ date arithmetic (e.g., regressing a date by 20 days to obtain a new date), 
+ data extraction and resetting (e.g., year() and setYearMonthDay()), and 
+ 'bdex'-streaming.  (For a full description of 'bdex'-streaming, see the 'bdex'
+ package documentation.)
+
+/Caveats
+/- - - -
+..
+ 1. Much of 'bdet_Date' is calendar-independent, but some of it is Julian-
+    calendar specific.  dayOfYear(), dayOfWeek(), and date arithmetic 
+    operations all require knowledge of how many days there are in a given
+    month, and so are calendar-specific.
+ 2. There is no constructor or assignment operator that accepts any string
+    equivalent.  I.e., this component provides no mechanism by which to 
+    obtain a date from a string.  Creating a date object from a string is
+    considered parsing, and date parsing functions can be found in various
+    components of the 'bdepu' package.
+..
+
+
+/'bdet_Time'
+/----------
+ 
+/Capsule Description
+/- - - - - - -
+ 'bdet_Time' provides a compact, efficient time representation capable of
+ expressing an instance of time on a 24-hour clock.
+
+ 'bdet_Time' supports the following functionality: comparisons, validation,
+ time arithmetic (e.g., advancing a time by 7 minutes to obtain a new time)
+ data extraction and resetting (e.g., millisecond() and setMinute()), and 
+ 'bdex'-streaming.  (For a full description of 'bdex'-streaming, see the 'bdex'
+ package documentation.)
+
+/Caveats
+/- - - -
+..
+ 1. There is no constructor or assignment operator that accepts any string
+    equivalent.  I.e., this component provides no mechanism by which to 
+    obtain a time from a string.  Creating a time object from a string is
+    considered parsing, and time parsing functions can be found in various
+    components of the 'bdepu' package.
+..
+
+
+/'bdet_DateTime'
+/-------
+ 
+/Capsule Description
+/- - - - - - -
+ 'bdet_Datetime' provides a compact, efficient representation of a specific
+ point in time, capturing a particular date and a particular moment in that
+ day.
+
+ 'bdet_Datetime' supports the following functionality: comparisons, 
+ validation, datetime arithmetic (e.g., regressing a datetime by 5 days and
+ 2 hours to obtain a new datetime), data extraction and resetting (e.g.,
+ minute() and setHour()), and 'bdex'-streaming.  (For a full description of 
+ 'bdex'-streaming, see the 'bdex' package documentation.)
+
+/Caveats
+/- - - -
+..
+ 1. 'bdet_Datetime' is coupled to the Julian calendar in the same manner as
+    'bdet_Date'.  See 'bdet_Date' caveats for more details.
+ 2. There is no constructor or assignment operator that accepts any string
+    equivalent.  I.e., this component provides no mechanism by which to 
+    obtain a datetime from a string.  Creating a datetime object from a 
+    string is considered parsing, and datetime parsing functions can be 
+    found in various components of the 'bdepu' package.
+..
+
+
+
+/'bdet_TimeInterval'
+/------------------
+ 
+/Capsule Description
+/- - - - - - -
+ A 'bdet_TimeInterval' is an object representing an amount of time, 
+ specifiable (and queryable) to the second, millisecond, microsecond,
+ and nanosecond granularity.
+
+ 'bdet_TimeInterval' supports the following functionality: comparisons,
+ time interval arithmetic (e.g., 'addMicroSeconds()'), data extraction and 
+ resetting (e.g., 'nanoseconds()' and 'setTotalNanoseconds()'), and 
+ 'bdex'-streaming.  (For a full description of 'bdex'-streaming, see the 'bdex'
+ package documentation.)
+
+/Caveats
+/- - - -
+..
+ 1. The word "interval" commonly refers to a span with specific endpoints,
+    as in the nomenclature "open interval" and "closed interval".  The
+    'bdet_TimeInterval' is not such an interval; it represents a pure
+    timespan, independent of placement along any time axis.  (In mathematical 
+    terms, the interval is a vector.)
+ 2. This component has only one "setter", providing less flexibility than
+    the similar 'bdet_DatetimeInterval'.
+ 3. Timeintervals can be both positive quantities and negative 
+    quantities.  They therefore indicate "direction" as well as "magnitude".
+..
+
+
+/'bdet_DateTimeInterval'
+/------------
+ 
+/Capsule Description
+/- - - - - - -
+ 'bdet_DatetimeInterval' is perhaps most easily understood as a variant of 
+ 'bdet_TimeInterval'.  Like the 'bdet_TimeInterval', the
+ 'bdet_DatetimeInterval' represents an amount of time -- but is specifiable
+ (and queryable) in coarser granularity: as number of days, hours, minutes, 
+ seconds, and milliseconds.
+ 
+ 'bdet_DateTimeInterval' supports the following functionality: comparisons,
+ timespan arithmetic (e.g., 'addSeconds()'), data extraction and resetting 
+ (e.g., 'minutes()' and 'setTotalMinutes()'), and 'bdex'-streaming.  (For a
+ full description of 'bdex'-streaming, see the 'bdex' package documentation.)
+
+/Caveats
+/- - -
+..
+ 1. The word "interval" commonly refers to a span with specific endpoints,
+    as in the nomenclature "open interval" and "closed interval".  The
+    'bdet_DatetimeInterval' is not such an interval; it represents a pure
+    timespan, independent of placement along any time axis.
+    (In mathematical terms, the interval is a vector.)
+ 2. The "setters" in this component *completely* reset the value of the 
+    object, rather than some portion of the object that might be implied by
+    the operation name.  For example, calling setTotalMinutes(300) will 
+    cause the target object to represent a time span of 300 minutes.  After 
+    such a call, hours() will return 5, seconds() will return 18000, and so 
+    on.  In other words, the *entire* value of the object has been replaced 
+    by 'setTotalMinutes()' (and similarly for all the 'setTotal*' functions).
+ 3. Datetimeintervals can be both positive quantities and negative 
+    quantities.  They therefore indicate "direction" as well as "magnitude".
+..
+
+
+/'bdet_DayOfWeek'
+/---------------
+ 
+/Capsule Description
+/- - - - - - -
+ The 'bdet_DayOfWeek' defines an enumeration representing the seven days of
+ the week in two convenient symbolic forms, a long form and a short form.  
+
+ 'bdet_DayOfWeek' support the following functionality: conversion of the
+ numeric code to the string symbol equivalent, and 'bdex'-streaming.  (For a
+ full description of 'bdex'-streaming, see the 'bdex' package documentation.)
+
+/Caveats
+/- - - -
+ None identified.
+
+
+
+
+
+
