@@ -1,0 +1,8 @@
+# Members of package baea
+baea_baemmetricreporteradapter
+baea_commandline
+baea_commandlineutil
+baea_controlmanager
+baea_metric
+baea_performancemonitor
+baea_pipecontrolchannel

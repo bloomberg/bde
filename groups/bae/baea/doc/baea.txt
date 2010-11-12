@@ -1,0 +1,48 @@
+ baea.txt
+
+@PURPOSE: Provide common application-level facilities.
+
+@MNEMONIC: Basic Application Environment Application services (baea)
+
+@AUTHOR: Stefano Pacifico (spacifico1)
+
+@SEE_ALSO: baem
+
+@DESCRIPTION: The 'baea' package provides support for an assortment of common
+ application-level services (e.g., command-line processing).  In particular,
+ 'baea' includes the following:
+ : o Classes for parsing, validating, and accessing the command-line arguments
+ :   of a program.
+ : o A mechanism for monitoring and reporting the observable performance of a
+ :   process.
+ : o Classes for (1) defining commands (as short strings), (2) passing these
+ :   commands through a pipe-channel to a running process, and (3) registering
+ :   callback functions to be invoked upon reception of such commands.
+ : o A metric reporting protocol and a value-semantic type to represent
+ :   metrics.  Note that the metric reporting facilities provided by 'baea'
+ :   have been !DEPRECATED! in lieu of 'baem'.
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'baea'.
+..
+  'baea_baemmetricreporteradapter' - [!DEPRECATED!] BAEM metric reporter
+                                     adapter
+
+  'baea_commandline'               - command line parsing, validation, and
+                                     access
+
+  'baea_commandlineutil'           - utility functions for operating on
+                                     command-line arguments
+
+  'baea_controlmanager'            - maps control messages to callbacks
+
+  'baea_metric'                    - [!DEPRECATED!] describe, gather, and
+                                     report metrics
+
+  'baea_performancemonitor'        - mechanism to collect performance measures
+                                     of a process
+
+  'baea_pipecontrolchannel'        - mechanism for reading control messages
+                                     from a named pipe
+..
