@@ -1,0 +1,11 @@
+# Options for package bcem.opts
+
+*                    _       OPTS_FILE       = bcem.opts
+
+!! *			_	ALLTEST_SERIAL   = -s
+!! unix-*		_	ALLTEST_PARALLEL = -j4
+!! windows		_	ALLTEST_PARALLEL = -s
+
+++ unix-SunOS-*-*-cc-5.2 _      DEF_CXXFLAGS    = -features=tmplife
+++ unix-SunOS-*-*-cc-5.5 _      DEF_CXXFLAGS    = -features=tmplife
+!! windows-Windows_NT-amd64-*-cl	64	TESTDRIVER_BDEBUILD_CXXFLAGS = $(subst /O2,,$(BDEBUILD_CXXFLAGS))

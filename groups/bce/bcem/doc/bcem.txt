@@ -1,0 +1,51 @@
+ bcem.txt
+
+@PURPOSE: Provide a single interface for messaging using the 'bdem' package.
+
+@MNEMONIC: Basic Concurrency Environment Messaging (bcem)
+
+@AUTHOR: Rohan Bhindwale (rbhindwa)
+
+@SEE ALSO: bdem, baexml
+
+@DESCRIPTION: The 'bcem' package provides a single interface for firm-wide
+ "messaging" using the components in the 'bdem' package.  Messaging in BDE
+ refers to the in-core marshaling of arbitrarily hierarchical, self-describing
+ data.  In conjunction with 'bdex' (see the 'bdex' package documentation), BER
+ (see the 'bdem' package documentation), and XML (see the 'baexml' package
+ documentation) externalization mechanisms, 'bcem' messaging provides fast,
+ efficient, and convenient conversion from the in-core representation to a
+ stream suitable for out-of-process transport (e.g., IPC, writing to a
+ database, etc.).
+
+/Hierarchical Synopsis
+/---------------------
+ 'bcem' currently has 2 components having 2 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('bcem_') are omitted from the full component
+ names for layout efficiency.
+..
+  Level 2: aggregateutil
+
+  Level 1: aggregate
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bcem'.  For the sake
+ of brevity, we sometimes blur the distinction between a component and the
+ primary types that the component provides.  We remind the reader that, in
+ general, the distinction between a component and a class is important.
+
+/bcem_aggregate
+/- - - - - - -
+ The 'bcem_aggregate' component provides an interface to bind a 'bdem'
+ aggregate ("data") object with a 'bdem' schema ("meta-data") object.  Once
+ constructed, clients can use 'bcem_Aggregate' objects to perform by-name (as
+ specified in the schema) access to the data.
+
+/bcem_aggregateutil
+/- - - - - - - - -
+ The 'bcem_aggregateutil' component provides utility functions to convert to
+ and from 'bcem_Aggregate' objects to various user-defined types that match
+ the structure of the 'bcem_Aggregate' object.
