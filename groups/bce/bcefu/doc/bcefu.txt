@@ -1,0 +1,62 @@
+ bcefu.txt
+
+@PURPOSE: Provide factory methods for populating void function objects.
+
+@DEPRECATED: Use 'bdef' and 'bcef' packages instead.
+
+@MNEMONIC: Basic Concurrency Environment Functor Utilities (bcefu)
+
+@COMPONENTS
+   bcefu_vfunc0: namespace for factory methods loading no-arg void functors
+   bcefu_vfunc1: namespace for factory methods loading 1-arg void functors
+   bcefu_vfunc2: namespace for factory methods loading 2-arg void functors
+   bcefu_vfunc3: namespace for factory methods loading 3-arg void functors
+   bcefu_vfunc4: namespace for factory methods loading 4-arg void functors
+   bcefu_vfunc5: namespace for factory methods loading 5-arg void functors
+   bcefu_vfunc6: namespace for factory methods loading 6-arg void functors
+
+@AUTHOR: John Lakos (jlakos)
+
+@DESCRIPTION: THIS PACKAGE IS *DEPRECATED*.  These components contain a suite
+ of template functions used to configure an existing function object (functor)
+ characterized by a function-call operator taking zero to nine arguments and
+ returning void.  Each component is used in conjunction with the corresponding
+ 'bcef' component.
+
+ Four families of populators are supported in each component.
+..
+   bcefu_Vfunc*::makeF:    Initialize the functor by embedding a function
+                           (or another functor) and any additional trailing
+                           arguments.
+
+   bcefu_Vfunc*::makeC:    Initialize the functor by embedding an object, one
+                           of that object's 'const' methods, and any
+                           additional trailing arguments for that method.
+
+   bcefu_Vfunc*::makeM:    Initialize the functor by embedding THE ADDRESS OF
+                           an object, one of that object's ('const' or
+                           non-'const') methods, and any additional trailing
+                           argments for that method.  Note that it is the
+                           client's responsibility to ensure that the object
+                           remains valid throughout the productive lifetime
+                           of a functor object configured in this way.
+
+   bcefu_Vfunc*::makeNull: Initialize the functor with an empty function.
+..
+ In each of the first three cases, the underlying procedure (i.e., function,
+ functor, or method) will have parameters matching those of the host
+ functor's function-call operator), and may also have additional parameters,
+ whose arguments are specified when the host functor is configured.  Currently,
+ underlying procedures with up to nine parameters are supported.
+
+ Note that the argument types are converted to match parameter types at
+ functor invocation (and not at initialization); This delayed conversion
+ allows for greater flexibility in chosing mandatory function parameter
+ types.  The conversion will take place every time the functor is invoked;
+ therefore, functors where argument types match exactly will operate more
+ efficiently.
+
+ Each function comes in two flavors: one that requires the user to specify a
+ memory allocator, and one that uses default operators 'new' and 'delete'.
+ In the version that requires an allocator, the address of the allocator is
+ the first argument specified.
