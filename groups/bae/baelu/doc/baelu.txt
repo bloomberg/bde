@@ -1,0 +1,42 @@
+   baelu.txt
+
+@PURPOSE: Provide non-primitive utilities for logging.
+
+@MNEMONIC: Basic Application Environment Logging Utilities (baelu)
+
+@AUTHOR Steven Breitstein (sbreitst)
+
+@SEE_ALSO: 
+
+@DESCRIPTION: The 'baelu' package provides non-primitive functionality of
+ general or specific utility to users of 'bael' logging.
+ 
+/What's New and What's Deprecated in the Latest Release
+/------------------------------------------------------
+ This package is new to the current release.
+ 
+/Hierarchical Synopsis
+/---------------------
+ 'baelu' currently has one components having one level of dependency.  The
+ table below shows the hierarchical ordering of the components.  The package
+ prefix and underscore ('baelu_') are omitted from the full component names for
+ layout efficiency.  The three-column layout is structured to guide the eye,
+ but has no particular significance.
+..
+Level
+-----
+
+  1   loggermanagerconfiguration
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bael'.
+..
+baelu_loggermanagerconfiguration - non-primitive utilities on
+                                   'bael_LoggerManagerConfiguration'.
+..
+
+/Usage
+/----
+ This section is under construction.
