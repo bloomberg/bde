@@ -1,0 +1,23 @@
+ bdec2.txt
+
+@PURPOSE: [DEPRECATED] Provide containers with 2 templatized parameters.
+
+@DEPRECATED: Clients should use STL containers as an alternative.
+
+@MNEMONIC: Basic Development Environment Containers with 2 parameters (bdec2)
+
+@AUTHOR Lea Fester (lfester)
+
+@SEE_ALSO: bdec
+
+@DESCRIPTION: The 'bdec2' package provides a variety of container classes 
+ more specialized than those provided by the STL.  In general 'bdec2'
+ containers are associative containers of two distinct types.  The 'bdec2'
+ containers include:
+..
+    1. A templated map, performing most typical map operations in constant
+       time with worst-case bounds of linear time.
+    2. A templated ordered map, which is a map whose keys are ordered.
+    3. A templated multimap, in which keys may map to more than one value,
+       and values need not be unique.
+..
