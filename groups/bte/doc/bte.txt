@@ -1,0 +1,96 @@
+ bte.txt
+
+@PURPOSE: Provide support, services, and frameworks for transport (IPC)
+
+@MNEMONIC: Basic Transport Environment (bte)
+
+@AUTHOR: Tom Marshall (tmarshal)
+
+@LAST_MODIFIED: August 2, 2004
+
+@DESCRIPTION: The 'bte' ("Basic Transport Environment") package group provides
+ a variety of concrete transport (IPC) mechanisms and services that conform to
+ a uniform set of pure abstract interfaces.  In addition, 'bte' supplies
+ low-level support for sockets and event managers, and a higher-level
+ multi-threaded transport framework that is similar in functionality to
+ 'ptdispatch'.  As of this release, there is no support in 'bte' for 'fstsend',
+ but we expect to add this functionality in the next release.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bte' depends upon the 'bce' and 'bde' package groups:
+..
+    Level 3:   bte
+
+    Level 2:   bce
+
+    Level 1:   bde
+.. 
+
+ 'bte' currently has has six packages forming five levels of dependency.  Note
+ that 'bte' contains the required source control package 'btescm' (as does
+ every package group, appropriately named).  See {BP BDE_SCM <GO>} for a
+ detailed specification for this package, and see the 'bde' package group
+ documentation for a brief description of the 'bdescm' package services, which
+ are identical in concept to 'btescm'.  'btescm' is not discussed any further
+ in this document.  The table below shows the hierarchical ordering of the
+ packages.
+..
+   Level 5: btemt
+
+   Level 4: btesos
+
+   Level 3: btesc    bteso
+
+   Level 2: btes
+
+   Level 1: btescm 
+..
+
+/Package Overview
+/----------------
+ The following provides an overview of the 'bte' packages.  The subsections are
+ still very brief.  See the respective Package Level documents for more details
+ and usage examples.
+
+/btemt
+/- - -
+ 'btemt' provides a multi-threaded framework that supports TCP/IPv4 transport.
+ In functionality, 'btemt' is similar to 'ptdispatch' except that there is no
+ support for 'fstsnd' at this time.
+ 
+/btes
+/- -
+ 'btes' provides "system level" services that are required by this transport
+ package group in a form that is portable across all suported platforms.
+ Currently, the package supplies objects and utilities to implement the Unix
+ 'iovec' ("scatter/gather") buffer structure in a platform-neutral form.
+
+/btesc
+/- - -
+ 'bteso' provides a suite of protocols (i.e., pure abstract interfaces)
+ abstracting the general behavior of communications "channels".  All
+ abstractions in this package consider stream-based (as opposed to
+ message-based) transport.  The three general abstractions are called
+ "channel", "channel allocator", and "allocator factory".  In our usage,
+ "allocator" and "factory" are synonymous; we use different words to avoid
+ repetition.  In simplest form, "channel" abstracts the concept of an endpoint
+ of a communication mechanism, providing appropriate "read" and "write"
+ methods, while a "channel allocator" dispenses channels as resources, and
+ hence abstracts the concepts of creating and destroying channels.  Finally, a
+ "(channel) allocator factory" is substantially a naming service that is
+ capable of dispensing channel allocators that will in turn dispense channels
+ that are appropriately connected of concrete event managers.  Each of the
+ above interfaces is available in blocking and non-blocking form, and with and
+ without support for timeouts.
+
+/bteso
+/- - -
+ 'bteso' provides relatively low-level support for sockets as well as a number
+ of concrete event managers.
+
+/btesos
+/- - -
+ 'btesos' provides concrete impementations of 'btesc' channels using TCP/IPv4
+ sockets.  Timed and untimed, and blocking and non-blocking versions of generic
+ channels, acceptors, and connectors are provided.
