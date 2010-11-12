@@ -1,0 +1,312 @@
+ bcema.h
+
+@PURPOSE: Provide thread-safe allocators and pools.
+
+@MNEMONIC: Basic Concurrency Environment Memory Allocators (bcema)
+
+@AUTHOR: David Laurance (dlauranc)
+
+@SEE_ALSO: bces, bcemt, bdema, bslma
+
+@DESCRIPTION: This package provides basic facilities for thread-safe
+ memory allocation, memory pooling, and reference sharing.
+
+ All components in this package allocate and deallocate memory via 'allocate()'
+ and 'deallocate()' requests rather than via calls to 'new' and 'delete'.  This
+ strategy is identical with that used in 'bdema'.  Components in 'bcema' are
+ designed to be compatible with 'bdema' components in all details *except*
+ that the 'bcema' components are thread safe and thread enabled.
+
+ Many components in package 'bcema' are based upon similar components in
+ 'bdema'.  For example, several components in 'bcema' implement the
+ 'bdema_allocator' protocol and are appropriate candidates for substitution
+ where a 'bdema_allocator' is needed but thread-safety is also required.  Other
+ components parallel their counterparts in 'bdema', providing thread safety
+ through use of atomic operations (from package 'bces') and the 'bcemt_Mutex'
+ (from package 'bcemt').
+
+/Hierarchical Synoposis
+/----------------------
+ 'bcema' currently has 9 components forming 2 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('bcema_') are omitted from the full component
+ names for layout efficiency.  Note that the three 'allocator' components are
+ deprecated.
+..
+   Level 2:  defaultdeleter    factorydeleter     pooledbufferchain
+
+   Level 1:  deleter           countedhandle      pool
+             allocator(*)      testallocator(*)   newdeleteallocator(*)
+
+   ----------
+   (*) Deprecated -- use equivalent 'bdema' components.
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bcema'.  Note that
+ deprecated components are not included in this synopsis.
+..
+  bcema_countedhandle      thread-safe, templatized, reference-counted handle
+                           (envelope) that manages shared ownership of an
+                           object (letter)
+  bcema_defaultdeleter     standard implementation of the 'bcema_Deleter'
+                           protocol, using a 'bcema_Allocator' to deallocate
+                           and delete the object belonging to a
+                           'bcema_CountedHandle'
+  bcema_deleter            templatized protocol used by 'bcema_CountedHandle'
+                           to manage object deletion
+  bcema_factorydeleter     implementation of the 'bcema_Deleter' protocol that
+                           supports an explicit templatized "factory" that
+                           provides a similar interface to 'bcema_Allocator',
+                           but need not be derived from it
+  bcema_pool               thread-safe allocation of uniform sized memory
+                           blocks
+  bcema_pooledbufferchain  variable-length chain of fixed-size buffers,
+                           allocated from a 'bcema_Pool'
+..
+
+@DEPRECATED: Components 'bcema_allocator', 'bcema_testallocator', and
+ 'bcema_newdeleteallocator' are no longer needed.  Analogous components
+ are available in the 'bde' package group and should be used instead.
+
+/Deleters and Factories
+/----------------------
+ The 'bcema_deleter' component provides a templatized protocol to manage
+ deletion of an object.  The protocol takes a single template parameter 'TYPE',
+ which is the type of object to be deleted, and provides two methods: First,
+ the constructor 'bcema_deleter<TYPE>::bcema_deleter' takes a single pointer
+ to an object, and second, 'bcema_deleter::deleteObject(TYPE*)' is invoked when
+ clients need to delete or deallocate the 'TYPE' object.
+
+ At first reading, the 'bcema_Deleter' protocol appears not to offer much.  It
+ does not manage the entire life cycle of an object, but only provides for its
+ deletion.  If a client created the object in question, of course the client
+ can delete the object.  But the 'bcema_Deleter' is provided to address
+ situations where life cycle management is deferred or delegated from one
+ program context to another, and the receiving program may not have knowledge
+ of how the object in question was created.  For example, if placement 'new'
+ was used for object creation, the specific concrete implementation of
+ 'bcema_Deleter' would need to invoke the object destructor explicitly, and not
+ call 'operator delete'.
+
+ To accomplish this goal, the program that creates the object also creates a
+ 'bcema_Deleter' that knows how to delete the object; when the object must be
+ deleted or deallocated, 'bcema_Deleter::deleteObject()' is called and deletion
+ happens appropriately.
+
+ 'bcema_Deleter's are used in conjunction with 'bcema_CountedHandles'; see the
+ section "Reference-Counted Shared Handles", below, for a discussion.
+
+/Default Deleters: Support for 'bcema_Allocator's
+/- - - - - - - - - - - - - - - - - - - - - - - -
+ 'bcema_Deleter<TYPE>' is a base-level protocol which provides no
+ implementation.  Different deleters, derived from 'bcema_Deleter<TYPE>', can
+ implement object deletion or deallocation in various ways.  Clients choose a
+ concrete type of deleter based upon their needs.
+
+ The "default" implementation of 'bcema_Deleter' is designed to interwork with
+ 'bcema_Allocator's.  This is class 'bcema_DefaultDeleter<TYPE>', found in
+ component 'bcema_defaultdeleter'.  For a given type 'myType', clients create
+ a default deleter as follows:
+..
+   void myFunc(bcema_Allocator *alloc_p)
+   {
+       bcema_DefaultDeleter<myType>  dt(alloc_p);
+..
+ This deleter can then be used for all objects of type 'myType' that were
+ allocated using the 'bcema_Allocator' pointed to by 'alloc_p'.
+
+/Factories and 'bcema_FactoryDeleter'
+/- - - - - - - - - - - - - - - - - -
+ Classes 'bcema_Pool<T>' and 'bcema_Allocator' can be viewed as "factories", in
+ that they manage creation and destruction of other objects.  In the case of
+ 'bcema_Pool<T>', an individual pool acts as a factory for objects that share
+ the same type, 'T'.  'bcema_Allocator', on the other hand, creates and
+ destroys objects of arbitrary type.
+
+ Both classes share a common interface.  Memory is allocated for an object with
+ member function 'allocate()'; clients typically use placement 'new' with the
+ 'allocate()' member function to create an object.  Objects created in this
+ way can then be deleted with the 'deleteObject(T*)' member function.
+
+ There is one significant difference between the two interfaces, in the member
+ function 'allocate()'.  Class 'bcema_Pool<T>' knows when it is created that it
+ will always allocate member in fixed-size chunks (of size 'sizeof(T)'),
+ whereas 'bcema_Allocator' and its derived classes allow for variable-size
+ allocations.  Therefore, 'bcema_Allocator::allocate()' takes a single integer
+ argument (giving the desired size), where 'bcema_Pool<T>' does not.
+..
+ -------------------------------------+--------------------------------------
+  bcema_Pool<myClass> fac;            | bcema_Allocator fac;
+  myClass *mc =                       | myClass *mc =
+     new (fac.allocate())             |    new (fac.allocate(sizeof(myClass)))
+     myClass;                         |    myClass;
+             .                        |                .
+             .                        |                .
+             .                        |                .
+  fac->deleteObject(mc);              | fac->deleteObject(mc);
+ -------------------------------------+--------------------------------------
+..
+ The 'bcema_Deleter' protocol does not rely on the 'allocate()' functionality
+ (with or without an argument), because it is concerned only with the end of an
+ object's life cycle.  We can therefore implement a 'bcema_FactoryDeleter' that
+ can treat either a 'bcema_Allocator' or a 'bcema_Pool<T>' as its factory:
+..
+ -------------------------------------+--------------------------------------
+  bcema_Pool<myClass> factory;        | bcema_NewDeleteAllocator factory;
+  bcema_FactoryDeleter<myClass,       | bcema_FactoryDeleter<myClass,
+                bcema_Pool<myClass> > |                      bcema_Allocator>
+      dt(&factory);                   |     dt(&factory);
+ -------------------------------------+--------------------------------------
+..
+ Clients create a deleter that matches a specific factory type, by
+ instantiating the 'bcema_FactoryDeleter' template class with the appropriate
+ 'FACTORY' type as the second template parameter.
+
+/Reference-Counted Shared Handles
+/--------------------------------
+ Component 'bcema_countedhandle' provides a generic (templatized)
+ reference-counting handle ("envelope") to support shared ownership.  Clients
+ specify the type of the owned object ("letter") through the first template
+ parameter 'INSTANCE'; any client-defined type with a public destructor can be
+ managed with a 'bcema_CountedHandle'.
+
+ 'bcema_CountedHandle' uses a second template parameter to specify a "factory",
+ that is, a class that manages object deletion for the 'INSTANCE' object.
+ Object deletion is accomplished through the 'FACTORY' member function
+ 'deleteObject(INSTANCE*)'; any factory class that supports this interface may
+ be used in a 'bcema_CountedHandle'.
+
+ When using other 'bce' and 'bde' components, the most common choices for
+ 'FACTORY' will be implementations of the 'bcema_Deleter' protocol.  See the
+ previous section, "Deleters and Factories", for details.  The 'bcema_Deleter'
+ protocol is designed to work with 'bcema_Allocator's; Clients would use it as
+ follows.  First, we create a client object to be shared.  Next, we create a
+ 'bcema_Deleter' that knows about the specific 'bcema_Allocator' used to create
+ the client object.  Finally, we create the counted handle object itself:
+..
+      // create a myClass object using the New/Delete allocator:
+      class  myClass {
+              // details omitted
+      };
+      bcema_Allocator *alloc_p = bcema_NewDeleteAllocator::singleton();
+          .
+          .
+          .
+      myClass *mc = new (alloc_p->allocate()) myClass; // placement new
+      // create a deleter to use as a factory
+      bcema_DefaultDeleter<myClass> dt(alloc_p);
+      // Create the Counted Handle
+      bcema_CountedHandle<myClass, bcema_DefaultDeleter<myClass> >
+          handle( mc, dt, alloc_p );
+..
+ Once the counted handle is created, it may be passed to other functions and
+ copied at will.  When copies are constructed, the 'bcema_CountedHandle' keeps
+ track of how many copies exist.  As the copies of the 'bcema_CountedHandle'
+ are destroyed, the total count is decremented, and when the last copy is
+ destroyed, that 'bcema_CountedHandle' object calls 'dt->deleteObject(mc)' to
+ delete the 'myClass' object.
+
+/Pools and Buffers
+/-----------------
+
+/Pools: 'bcema_pool'
+/- - - - - - - - - -
+ Component 'bcema_pool' provides a single templatized class, 'bcema_Pool<T>',
+ that supports rapid allocation and deallocation of instances of a single
+ object type.  'bcema_Pool<T>' overloads operators 'new' and 'delete' to
+ support allocation and deallocation of objects of type 'T'.  'bcema_Pool<T>'
+ may be constructed with a specific type of 'bcema_Allocator', thus allowing
+ client code to use idiomatic C++ 'new' expressions when allocating from a
+ 'bcema_Pool'.
+..
+
+      class  myObject {
+              // details omitted
+      };
+      bcema_Allocator *alloc_p = bcema_NewDeleteAllocator::singleton();
+      bcema_Pool      pool( sizeof(myObject), alloc_p );
+           .
+           .
+           .
+      myObject *obj_p = new(pool) myObject( ... );
+           .
+           .
+           .
+      obj_p->~myObject();
+      pool.deallocate(obj_p);
+
+..
+ Note, however, that while client code calls 'operator new' above, it *does*
+ *not* call 'operator delete'.  This usage of 'operator new' requires that the
+ object destructor and 'bcema_Pool::deallocate()' be called explicitly as
+ shown.
+
+ Class 'bcema_Pool<T>' is both thread safe and thread enabled.  Calls to
+ 'allocate()' and 'deallocate()' are protected by a 'bcemt_Mutex' object.  See
+ component 'bcemt_thread' for details.
+
+/Buffer Chains: 'bcema_pooledbufferchain'
+/- - - - - - - - - - - - - - - - - - - -
+ Component 'bcema_pooledbufferchain' builds upon 'bcema_pool' to provide a
+ variable-length, extendable buffer (class 'bcema_PooledBufferChain') made up
+ of fixed-length chunks that are allocated from a 'bcema_Pool'.  These "buffer
+ chains" are intended for applications that receive large, variable-sized
+ messages and must buffer these messages without knowing up-front how long a
+ given message will be.
+
+ Clients manage 'bcema_PooledBufferChain's indirectly, by creating and using a
+ 'bcema_PooledBufferFactory'.  The factory interface is simple: a client
+ creates the factory, providing the required buffer ("chunk") size and an
+ optional pointer to a 'bcema_Allocator' object.
+..
+
+      enum { BUFFER_SIZE = 128 };
+      bcema_Allocator *alloc_p = bcema_NewDeleteAllocator::singleton();
+
+      bcema_PooledBufferChainFactory factory(BUFFER_SIZE, alloc_p);
+
+..
+ When a buffer of some number of bytes is needed, the client calls the allocate
+ method.  Here, the request will allocate 4 buffers of 128 bytes each from the
+ 'bcema_Pool', and chain them together into a single 'bcema_PooledBufferChain'.
+..
+
+      int length_in_bytes = 500;
+      bcema_PooledBufferChain* pbc_p = factory.allocate(length_in_bytes);
+
+..
+ Since they are allocated from the factor, buffer chains must not be deleted
+ directly.  Instead, 'bcema_PooledBufferChainFactoy' implements the
+ 'bcema_Deleter' protocol; clients must delete buffer chains by calling
+ the 'deleteObject()' method as follows.
+..
+
+     factory.deleteObject(pbc_p);
+..
+ If the client program does not know the buffer length up front, the length may
+ be increased when needed.  In this example, the request will result in the
+ a total length of 600 bytes; since the buffer size was 128 bytes, this would
+ result in the 'bcema_PooledBufferChain' growing by 1 to a total of 5 buffers,
+ capable of holding up to 640 bytes.
+..
+      // need more
+      length_in_bytes += 100;
+      pbc_p->setLength(length_in_bytes);
+..
+ Clients can get 'const' or non-'const' access to individual bytes in the
+ buffer chain using member functions 'operator[]'.  However, since these member
+ functions return simple 'char *' byte pointers, clients must not rely upon
+ pointer arithmetic to step through the buffers.
+
+ 'bcema_PooledBufferChain' member functions providing multi-byte access to the
+ buffer chain include:
+..
+    pbc->replace(int offset, const char* source, int numBytes);
+    pbc->replace(int offset, const bcema_PooledBufferChain &source,
+                             int srcOffset, int numBytes);
+    pbc->copyOut(char* destBuffer, int destSize, int sourceOffset);
+..
+ See the class documentation for 'bcema_PooledBufferChain' for additional
+ details.
