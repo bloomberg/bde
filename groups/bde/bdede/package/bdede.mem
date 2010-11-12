@@ -1,0 +1,9 @@
+bdede_base64decoder
+bdede_base64encoder
+bdede_charconvertucs2
+bdede_charconvertutf16
+bdede_crc32
+bdede_md5
+bdede_quotedprintabledecoder
+bdede_quotedprintableencoder
+bdede_utf8util

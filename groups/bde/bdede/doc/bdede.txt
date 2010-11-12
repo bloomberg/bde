@@ -1,0 +1,154 @@
+ bdede.txt
+
+@PURPOSE: Mechanisms for standard encodings and hashings, e.g., base64, md5.
+
+@MNEMONIC: Basic Development Environment Data Encoder (bdede)
+
+@AUTHOR: Tom Marshall (tmarshal)
+
+@SEE_ALSO:
+
+@DESCRIPTION: The 'bdede' package provides mechanisms (typically in the form of
+ fully value-semantic objects) for performing various standard hashings of an
+ input dataset, for, e.g., basic encoding, check-sums, and cryptographic
+ hashes.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bdede' currently has six components forming two levels of dependency.
+ The table below shows the hierarchical ordering of the components.
+..
+  Level
+  -----
+  2.     bdede_base64decoder         bdede_quotedprintabledecoder
+
+  1.     bdede_base64encoder         bdede_quotedprintableencoder
+         bdede_crc32                 bdede_md5
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bdede
+..
+  bdede_base64decoder          - provides a mechanism for decoding a dataset
+                                 using the MIME Base64 representation
+  bdede_base64encoder          - provides a mechanism for encoding a dataset
+                                 using the MIME Base64 representation
+  bdede_crc32                  - provides a mechanism for computing the CRC-32
+                                 checksum of a dataset
+  bdede_md5                    - provides a mechanism for computing the MD5
+                                 hash of a dataset
+  bdede_quotedprintabledecoder - provides a mechanism for decoding a dataset
+                                 using the MIME Quoted-Printable representation
+  bdede_quotedprintableencoder - provides a mechanism for encoding a dataset
+                                 using the MIME Quoted-Printable representation
+..
+
+/Usage
+/-----
+ This section is under construction.
+
+/CRC-32 Example
+/- - - - - - -
+ The following snippets of code illustrate a typical use of the 'bdede_Crc32'
+ class.  Each function would typically execute in separate processes or
+ potentially on separate machines.  The 'senderExample' function below
+ demonstrates how a message sender can write a message and its CRC-32
+ checksum to a 'bdex' output stream.  Note that 'Out' may be a 'typedef'
+ of any class that implements the 'bdex_OutStream' protocol:
+..
+  void senderExample(Out& output)
+      // Write a message and its CRC-32 checksum to the specified 'output'
+      // stream.
+  {
+      // prepare a message
+      std::string message = "This is a test message.";
+
+      // generate a checksum for 'message'
+      bdede_Crc32 crc(message.data(), message.length());
+
+      // write the message to 'output'
+      output << message;
+
+      // write the checksum to 'output'
+      output << crc;
+  }
+..
+ The 'receiverExample' function below illustrates how a message receiver can
+ read a message and its CRC-32 checksum from a 'bdex' input stream, then
+ perform a local CRC-32 computation to verify that the message was received
+ intact.  Note that 'In' may be a 'typedef' of any class that implements the
+ 'bdex_InStream' protocol:
+..
+  void receiverExample(In& input)
+      // Read a message and its CRC-32 checksum from the specified 'input'
+      // stream, and verify the integrity of the message.
+  {
+      // read the message from 'input'
+      std::string message;
+      input >> message;
+
+      // read the checksum from 'input'
+      bdede_Crc32 crc;
+      input >> crc;
+
+      // locally compute the checksum of the received 'message'
+      bdede_Crc32 crcLocal;
+      crcLocal.update(message.data(), message.length());
+
+      // verify that the received and locally-computed checksums match
+      assert(crcLocal == crc);
+  }
+..
+
+/MD5 Example
+/- - - - - -
+ The following snippets of code illustrate a typical use of the 'bdede_Md5'
+ class.  Each function would typically execute in separate processes or
+ potentially on separate machines.  The 'senderExample' function below
+ demonstrates how a message sender can write a message and its MD5 hash to a
+ 'bdex' output stream.  Note that 'Out' may be a 'typedef' of any class that
+ implements the 'bdex_OutStream' protocol:
+..
+  void senderExample(Out& output)
+      // Write a message and its MD5 hash to the specified 'output' stream.
+  {
+      // prepare a message
+      std::string message = "This is a test message.";
+
+      // generate a hash for 'message'
+      bdede_Md5 hash(message.data(), message.length());
+
+      // write the message to 'output'
+      output << message;
+
+      // write the hash to 'output'
+      output << hash;
+  }
+..
+ The 'receiverExample' function below illustrates how a message receiver can
+ read a message and its MD5 hash from a 'bdex' input stream, then perform a
+ local MD5 computation to verify that the message was received intact.  Note
+ that 'In' may be a 'typedef' of any class that implements the
+ 'bdex_InStream' protocol:
+..
+  void receiverExample(In& input)
+      // Read a message and its MD5 hash from the specified 'input' stream,
+      // and verify the integrity of the message.
+  {
+      // read the message from 'input'
+      std::string message;
+      input >> message;
+
+      // read the hash from 'input'
+      bdede_Md5 hash;
+      input >> hash;
+
+      // locally compute the hash of the received 'message'
+      bdede_Md5 hashLocal;
+      hashLocal.update(message.data(), message.length());
+
+      // verify that the received and locally-computed hashes match
+      assert(hashLocal == hash);
+  }
+..
