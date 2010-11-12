@@ -1,0 +1,10 @@
+bdetst_iteratortest
+bdetst_stlcomplex
+bdetst_stlcontainers
+bdetst_stldeque
+bdetst_stlpair
+bdetst_stlstring
+bdetst_stlstringalloc
+bdetst_stlvector
+bdetst_stlvectoralloc
+bdetst_wcharmin
