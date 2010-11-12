@@ -1,0 +1,324 @@
+///LOGGING USAGE
+///-------------
+// The following code snippets show how to add logging to a multithreaded
+// consumer-producer application.  In this application, there are three
+// threads: the main thread, the producer thread, and the consumer thread.
+// Each thread will perform logging operations, and each thread will log to its
+// own category.
+//..
+//   // main.cpp
+//   #include <bael_log.h>
+//   #include <bael_administration.h>
+//
+//   struct my_WorkQueue {
+//       bcec_Queue<my_WorkItem> d_queue;// queue of work requests
+//       bcemt_CriticalSection   d_cs;   // protects the shared queue
+//       bcemt_Condition         d_cv;   // signals the existence of new work
+//   };
+//..
+// First, obtain and cache the current file name:
+//..
+//   BAEL_LOG_SET_FILENAME;
+//..
+// This statement must appear at file scope near the top of each .cpp file in
+// which logging is performed, because all other logging statements use an
+// equivalence of the __FILE__ construct that is defined by this macro.  (The
+// statement can also be added to the *body* of an inline function definition
+// in a header file, but may *not* appear at file scope in a header.)
+//
+// Next, we define the producer thread function:
+//..
+//   extern "C" void *producer(void *arg)
+//       // Receive commands from an external source, place them on
+//       // the shared 'my_WorkQueue' (the queue is passed as the
+//       // specified void pointer 'arg'), and return 'arg'.
+//   {
+//       my_WorkQueue *queue = (my_WorkQueue *)arg;
+//..
+// The producer thread will want to log to its own category, called "producer".
+// Categories must be initialized before they can be logged to.  The thread
+// therefore calls
+//..
+//       BAEL_LOG_SET_CATEGORY("producer");
+//..
+// which initializes the category.  If "producer" has not yet been defined,
+// this operation will create the new category (or return the default category
+// if there is not enough memory left to register a new category).  Note that
+// registered categories are accessible to subsequent logging operations *only*
+// within C++ scopes that can see symbols defined in the calling scope (e.g.,
+// nested scopes); in particular, such registered categories will *not* be
+// visible within the scope of a function called by the user after registering
+// the category.  Therefore, this operation needs to occur at the begining of
+// each scope that uses logging but cannot see symbols from the scope in which
+// 'BAEL_LOG_SET_CATEGORY' was called.  Note also that registering a category
+// in an inner scope will hide the category registered in an outer scope; there
+// is at most one active category in any one scope.
+//
+// At this point, a logging operation can be performed.  The logger supports
+// two different styles of message-logging: 'printf'-style logging, with a
+// "content plus format" string and appropriately matching trailing arguments
+// to substitute for the formatting characters; and 'ostream'-style logging,
+// wherein each portion of the message is "streamed" using 'operator<<'.  The
+// simplest 'printf' style usage is as follows:
+//..
+//       BAEL_LOG0_INFO("Producer started.");
+//..
+// 'BAEL_LOG0_INFO' logs a message with severity 'INFO', and to the category
+// "producer", since that is the category that was set above for this scope.
+// The "0" in "LOG0" indicates that there are no arguments following the
+// initial (format) string.  We can achieve the same log result using the
+// streaming syntax:
+//..
+//       BAEL_LOG_INFO << "Producer started." << BAEL_LOG_END;
+//..
+// Note that in this syntax 'BAEL_LOG_END' is written to the log stream to
+// terminate the log message.
+//
+// 'printf'-style logging requires using different macros for messages with
+// different numbers of arguments.  Suppose we are (simplistically) modeling a
+// data producer via a 'for' loop that generates 100 random numbers:
+//..
+//       for (int i = 0; i < 100; ++i) {
+//           my_WorkItem request;
+//           request.d_item = rand();
+//..
+// and we want to log the generated data.  We can create a message identifying
+// both 'i' and 'request.d_item' by calling
+//..
+//           BAEL_LOG2_DEBUG("Created item %d with value %d",
+//                                          i, request.d_item);
+//..
+// The "2" in "LOG2" above indicates that there are two arguments to the format
+// string; the "DEBUG" causes a log message of severity 'DEBUG' to be sent.
+//
+// Again, if we prefer, we can use the equivalent 'ostream' syntax:
+//..
+//           BAEL_LOG_DEBUG << "Created item " << i << " with value "
+//                          << request.d_item << BAEL_LOG_END;
+//..
+// The remainder of the loop is:
+//..
+//           queue->d_cs.lock();
+//           queue->d_queue.pushBack(request);
+//           queue->d_cs.unlock();
+//           queue->d_cv.signal();
+//       }
+//
+//       BAEL_LOG_INFO << "Producer finished." << BAEL_LOG_END;
+//
+//       return queue;
+//   }
+//..
+// Note that the streaming variant of logging does not change form with change
+// in the number of arguments, as it does in the function-call style.  From now
+// on, we will use only the stream based logging style.
+//
+// The implementation ensures that expressions in the logging macros are
+// evaluated only when a message is to be recorded.  In other words, messages
+// with a severity lower than the currently-logging threshhold cost almost
+// nothing at runtime.
+//
+// Next, we define the consumer thread function:
+//..
+//   extern "C" void *consumer(void *arg)
+//       // Consume the commands from the shared 'my_WorkQueue' (passed as
+//       // the specified void pointer 'arg') and return 0.  Note that this
+//       // function will continue processing commands until there are no
+//       // commands for at least one second.
+//   {
+//       enum { TIMED_OUT = -1 };
+//       my_WorkQueue *queue = (my_WorkQueue *)arg;
+//..
+// As before, we need to register the category that the thread logs to.
+//..
+//       BAEL_LOG_SET_CATEGORY("consumer");
+//..
+// As discussed above, the category "consumer" is only visible to scopes that
+// can see local variables defined within this scope.  The user must make sure
+// that every scope that needs "consumer" can see it.
+//
+// Now logging in this thread can be performed:
+//..
+//       BAEL_LOG_INFO << "Consumer started." << BAEL_LOG_END;
+//
+//       int finished = 0;
+//       while (!finished) {
+//           // Set the timeout to be one second from now.
+//           bdet_TimeInterval timeout = bdetu_SystemTime::now();
+//           timeout.addSeconds(1);
+//
+//           // Wait for work requests to be added to the queue.
+//           queue->d_cs.lock();
+//
+//           BAEL_LOG_DEBUG << "Obtained lock." << BAEL_LOG_END;
+//
+//           while (0 == queue->d_queue.length()) {
+//
+//               BAEL_LOG_DEBUG << "Queue is empty." << BAEL_LOG_END;
+//
+//               int status = queue->d_cv.timedWait(&queue->d_cs, timeout);
+//               if (TIMED_OUT == status) {
+//                   BAEL_LOG_WARN << "Consumer timed out." << BAEL_LOG_END;
+//                   break;
+//               }
+//           }
+//
+//           if (0 != queue->d_queue.length()) {
+//               // The condition variable was either signaled or timed out
+//               // and there are work requests in the queue.
+//
+//               my_WorkItem item = queue->d_queue.front();
+//
+//               queue->d_queue.popFront();
+//               queue->d_cs.unlock();
+//               BAEL_LOG_DEBUG << "Item content: " << item
+//                              << BAEL_LOG_END;
+//
+//               // Process the work requests.
+//               // ...
+//           }
+//           else {
+//               // The wait timed out and the queue was empty.  Unlock
+//               // the critical section and return.
+//
+//               queue->d_cs.unlock();
+//               BAEL_LOG_INFO << "No more items, finishing..."
+//                             << BAEL_LOG_END;
+//               finished = 1;
+//           }
+//       }
+//
+//       BAEL_LOG_INFO << "Consumer finished." << BAEL_LOG_END;
+//
+//       return 0;
+//   }
+//..
+// We now define the main program, where we initialize and configure the
+// logging framework.  This configuration applies for the duration of the
+// program.  Such initializations take place only once, and must be performed
+// before *any* logging operation in *any* thread.
+//..
+//   int main() {
+//..
+// Instantiate an observer that is appropriate for this process:
+//..
+//       bael_DefaultObserver myObserver;
+//..
+// Next, inform the logger manager of its observer.
+//..
+//       bael_LoggerManager::initSingleton(&myObserver);
+//..
+// This observer will receive all log records that are published.
+//
+// We then create three categories: "main", "producer", and "consumer", to be
+// used in, respectively, the main thread, the producer thread, and the
+// consumer thread.  Each category is created along with four threshold levels.
+// (In general, threshold levels govern how log records are recorded and
+// published, but their details are not important for this example; see the
+// 'bael_logger' component documentation.)
+//..
+//       // Create a category for the main thread.
+//       bael_Administration::setCategory(
+//                               "main",                // Category name
+//                               bael_Severity::INFO,   // Record level
+//                               bael_Severity::WARN,   // Pass level
+//                               bael_Severity::ERROR,  // Trigger level
+//                               bael_Severity::FATAL); // Trigger all level
+//
+//       // Create a category for the producer thread.
+//       bael_Administration::setCategory(
+//                               "producer",            // Category name
+//                               bael_Severity::INFO,   // Record level
+//                               bael_Severity::WARN,   // Pass level
+//                               bael_Severity::ERROR,  // Trigger level
+//                               bael_Severity::FATAL); // Trigger all level
+//
+//       // Create a category for the consumer thread.
+//       bael_Administration::setCategory(
+//                               "consumer",            // Category name
+//                               bael_Severity::DEBUG,  // Record level
+//                               bael_Severity::WARN,   // Pass level
+//                               bael_Severity::ERROR,  // Trigger level
+//                               bael_Severity::FATAL); // Trigger all level
+//..
+// Normally, values for these categories would be read in from a configuration
+// file at startup; we create them here manually for demonstration purpose
+// only.
+//
+// Application-wide logging initialization is now complete.
+//
+// To log to the "main" category within the 'main' thread, initialize the
+// "main" category in this scope:
+//..
+//       BAEL_LOG_SET_CATEGORY("main");
+//..
+// The main program is now ready to start logging.
+//..
+//       my_WorkQueue queue;
+//
+//       bcemt_ThreadUtil::Handle mainHandle;
+//       mainHandle = bcemt_ThreadUtil::attachForeignThread();
+//
+//       bcemt_Attribute attributes;
+//       attributes.setDetachedState(bcemt_Attribute::CREATE_JOINABLE);
+//
+//       BAEL_LOG_INFO << "main started." << BAEL_LOG_END;
+//
+//       bcemt_ThreadUtil::Handle producerHandle;
+//
+//       BAEL_LOG_INFO << "Creating producer thread." << BAEL_LOG_END;
+//       int status = bcemt_ThreadUtil::create(&producerHandle,
+//                                             attributes,
+//                                             &producer,
+//                                             &queue);
+//..
+// For this application, we have chosen to log a record with severity 'FATAL'
+// whenever a fatal event (one for which status is not 0) occurs:
+//..
+//       if (status){
+//           BAEL_LOG_FATAL << "Creating producer failed." << BAEL_LOG_END;
+//           exit(-1);
+//       }
+//..
+// In the call creating category "main", we specified 'bael_Severity::FATAL' as
+// the severity threshhold at which log messages would "trigger all".  That is,
+// a 'FATAL' message would cause publication not only of the current message,
+// but all the archival messages preceding it that had arrived since the
+// previous trigger, for all record buffers.  Our call above therefore causes
+// all messages in all buffers to be output.
+//
+// The code concludes as:
+//..
+//       bcemt_ThreadUtil::Handle consumerHandle;
+//       BAEL_LOG_INFO << "Creating consumer thread." << BAEL_LOG_END;
+//       status = bcemt_ThreadUtil::create(&consumerHandle,
+//                                         attributes,
+//                                         &consumer,
+//                                         &queue);
+//       if (status){
+//           BAEL_LOG_FATAL << "Creating consumer failed." << BAEL_LOG_END;
+//           exit(-1);
+//       }
+//
+//       assert(0 == bcemt_ThreadUtil::isEqual(consumerHandle,producerHandle));
+//       assert(0 == bcemt_ThreadUtil::isEqual(mainHandle, producerHandle));
+//       assert(0 == bcemt_ThreadUtil::isEqual(mainHandle, consumerHandle));
+//
+//
+//       BAEL_LOG_INFO << "Waiting for consumer thread to finish."
+//                     << BAEL_LOG_END;
+//
+//       status = bcemt_ThreadUtil::join(consumerHandle);
+//       assert(0 == status);
+//
+//       BAEL_LOG_INFO << "Waiting for producer thread to finish."
+//                     << BAEL_LOG_END;
+//
+//       void *retArg;
+//       status = bcemt_ThreadUtil::join(producerHandle, &retArg);
+//       assert(0 == status);
+//       assert((my_WorkQueue*)retArg == &queue);
+//
+//       return 0;
+//   }
+//..
