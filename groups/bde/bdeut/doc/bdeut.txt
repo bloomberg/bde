@@ -1,0 +1,40 @@
+ bdeut.txt
+
+@PURPOSE: Provide utility types.
+
+@MNEMONIC: Basic Development Environment Utility Types (bdeut)
+
+@AUTHOR: Stefano Pacifico (spacifico1)
+
+@DESCRIPTION: The 'bdeut' package provides many utility types such as
+ big-endian types, nullable types, utility types for tokenizing strings, and a
+ variant type.
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the public components in 'bdeut'.  For
+ the sake of brevity, we sometimes blur the distinction between a component and
+ the primary types that the component provides.
+..
+  'bdeut_bigendian'              - big-endian integer types
+
+  'bdeut_nullableallocatedvalue' - a template for nullable allocated
+                                   (out-of-place) values
+
+  'bdeut_nullablevalue'          - a template for nullable (in-place) values
+
+  'bdeut_nullinputiterator'      - a pure input iterator for an empty range
+
+  'bdeut_nulloutputiterator'     - a bit-bucket for functions that take output
+                                   iterators
+
+  'bdeut_stringref'              - reference to a 'const' string
+
+  'bdeut_strtokeniter'           - access to user-described tokens in
+                                   'const char *' strings
+
+  'bdeut_strtokenrefiter'        - access to user-described tokens via string
+                                   references
+
+  'bdeut_variant'                - a variant (discriminated 'union'-like) type
+..

@@ -1,0 +1,9 @@
+bdeut_bigendian
+bdeut_nullableallocatedvalue
+bdeut_nullablevalue
+bdeut_nullinputiterator
+bdeut_nulloutputiterator
+bdeut_stringref
+bdeut_strtokeniter
+bdeut_strtokenrefiter
+bdeut_variant
