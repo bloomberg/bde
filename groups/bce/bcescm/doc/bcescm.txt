@@ -1,0 +1,20 @@
+ bcescm.txt
+
+@PURPOSE: Provide versioning information for library components in 'bce'
+
+@MNEMONIC: Basic Concurrency Environment Source Control Management (bcescm)
+
+@AUTHOR David Laurance (dlauranc)
+ 
+@DESCRIPTION: This package is for use only by the BDE library.  Components in
+ the 'bce' package group include this component in order to generate versioning
+ information.  Developers use this versioning information to track releases of
+ individual components when diagnosing problems using the 'bce' library.
+
+ This component is only used within the 'bce' package group.  Each BDE package
+ group contains a similar component that provides the same functionality for
+ components in that package group.  This minor redundancy means that no
+ dependencies between package groups are introduced, and thus separate package
+ groups can be deployed independently from one another.
+
+ In normal usage, developers should not need to refer to this component.
