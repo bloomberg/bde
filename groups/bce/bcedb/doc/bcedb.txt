@@ -1,0 +1,51 @@
+ bcedb.txt
+
+@PURPOSE: [DEPRECATED] Provide database access using dynamic record structures.
+
+@DEPRECATED: Use 'bsidb2' instead.
+
+@MNEMONIC: Basic Concurrency Environment DataBase (bcedb)
+
+@AUTHOR: Wayne Barlow (wbarlow1)
+
+@SEE_ALSO: bsidb2, a_comdb2
+
+@DESCRIPTION: [!DEPRECATED!] The 'bcedb' package provides methods to access
+ and modify a database table using values held in record structures (or "tags")
+ that map to the schema of an associated table.  A 'bcedb_DtagDb' object
+ maintains a connection to a database and allows users to add, update, find,
+ delete, and query records in the database.  The underlying database must
+ conform to the 'bcedb_DtagFactory' protocol.  Note that an implementation of
+ that protocol for comdb2 can be found in the 'a_comdb2' adapter package.
+
+ Note that this package is !DEPRECATED!.  Clients should use the types defined
+ in 'bsidb2' instead.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bcedb' package currently has 4 components having 2 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.
+..
+  Level 2: bcedb_dtagdb        bcedb_incoretagfactory
+
+  Level 1: bcedb_dtagfactory   bcedb_interface
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bcedb'.  For the
+ sake of brevity, we sometimes blur the distinction between a component and
+ the primary types that the component provides.
+..
+  'bcedb_interface'        - pure protocol for a client to access a database
+
+  'bcedb_dtagfactory'      - pure protocol that must be defined for a database
+                             to be used by 'bcedb_DtagDb'
+
+  'bcedb_dtagdb'           - implementation of 'bcedb_Interface' for accessing
+                             a comdb2 database
+
+  'bcedb_incoretagfactory' - in-core implementation of 'bcedb_DtagFactory';
+                             used primarily for testing
+..
