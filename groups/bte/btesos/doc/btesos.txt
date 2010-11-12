@@ -1,0 +1,35 @@
+ btesos.txt
+
+@PURPOSE: Provide concrete TCP/IPv4 channels derived from 'btesc' protocols.
+
+@MNEMONIC: Basic Transport Environment SOcket-based Streams (btesos)
+
+@AUTHOR: Tom Marshall (tmarshal)
+
+@DESCRIPTION: The 'btesos' package provides concrete imlpementations of 'btesc'
+ channels using TCP/IPv4 sockets.  Timed and untimed, and blocking and
+ non-blocking versions of generic channels, acceptors, and connectors are
+ provided.
+
+/Component Synopsis
+/------------------
+ The following is a list of the components in 'btesos'.
+..
+  btesos_tcpcbchannel
+  btesos_tcptimedcbchannel
+  btesos_tcptimedcbacceptor
+  btesos_tcptimedcbconnector
+  btesos_tcpchannel
+  btesos_tcptimedchannel
+  btesos_tcptimedacceptor
+  btesos_tcptimedconnector
+
+  btesos_tcpcbacceptor
+  btesos_tcpcbconnector
+  btesos_tcpacceptor
+  btesos_tcpconnector
+..
+
+@Usage
+ The usage examples for the 'btesos' package are under construction.  Please
+ see the individual usage examples in the various components for now.
