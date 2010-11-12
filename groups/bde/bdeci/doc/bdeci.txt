@@ -1,0 +1,13 @@
+ bdeci.txt
+
+@PURPOSE: [DEPRECATED] Provide implementations for container classes.
+
+@DEPRECATED: Clients should use equivalent STL container types.
+
+@MENMONIC: Basic Development Environment Container Implementations (bdeci)
+
+@AUTHOR: Lea Fester (lfester)
+
+@SEE_ALSO: bdec, bdec2, bdecs
+
+@DESCRIPTION: The 'bdeci' package is *DEPRECATED* and should not be used.

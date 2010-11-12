@@ -1,0 +1,7 @@
+
+*                       _       OPTS_FILE       = bdeci.opts
+
+# Studio 11 v 2 bug compiling initializer for test case in bdeci_int64hashtable test driver
+-- unix-SunOS-sparc-5.10-cc-5.8	_	TESTDRIVER_BDEBUILD_CXXFLAGS = -O0
+
+
