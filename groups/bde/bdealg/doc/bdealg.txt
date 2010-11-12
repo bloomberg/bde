@@ -1,0 +1,13 @@
+ bdealg.txt
+
+@PURPOSE: [DEPRECATED] Provide algorithms used by the BDE STL implementation.
+
+@DEPRECATED: Use 'bslalg' instead.
+
+@MNEMONIC: Basic Development Environment ALGorithms (bdealg)
+
+@AUTHOR: Lea Fester (lfester)
+
+@SEE_ALSO: bslalg
+
+@DESCRIPTION: This package is *DEPRECATED* and should not be used.
