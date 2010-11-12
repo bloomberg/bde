@@ -1,0 +1,20 @@
+ bdemf.txt
+
+@PURPOSE: Provide meta-function versions of useful coding constructs.
+
+@DEPRECATED: Use 'bslmf' components instead.
+
+@MENMONIC: Basic Development Environment Meta-Functions (bdemf)
+
+@AUTHOR Lea Fester (lfester)
+
+@DESCRIPTION: The 'bdemf' package provides meta-function equivalents of 
+ certain useful coding constructs.  A meta-function is a template-based,
+ compile-time construct that behaves like a (runtime) function in that it
+ "evaluates" arguments and does something different based on the input
+ it is passed (in the case of templates, the input it is instantiated with).
+ 
+ 'bdemf' provides metafunctions to evaluate (at compile time) constructs such
+ as the following: an if-statement equivalent, whether a (template) argument
+ is a fundamental type, whether an argument is an 'enum' type, whether two
+ arguments have the same type, and more.
