@@ -1,0 +1,83 @@
+    btesc.txt
+
+@PURPOSE: Provide abstract interfaces for transport channels and factories.
+
+@MNEMONIC: Basic Transport Environment Stream-based Channels (btesc)
+
+@AUTHOR: Tom Marshall (tmarshal)
+
+@LAST_MODIFIED: May 2, 2004
+
+@DESCRIPTION: The 'btesc' package is designed to provide three parallel
+ "families" of protocol (i.e., pure abstract interface) for stream-based
+ transport: "channel", "channel allocator", and "(channel) allocator factory".
+ These three concepts -- clearly closely related -- provide the desired
+ factoring of functionality in the concrete objects that implement these
+ protocols.  Note that the allocator factories have not yet been released, but
+ because they are such a fundamental part of the conceptual factored design of
+ 'btesc' the allocator factories are included in the description in this
+ section.
+
+ A "channel" is the abstraction of a single endpoint of a communication
+ (transport) mechanism.  A channel object that supports various forms of "read"
+ and "write" methods, and very little additional functionality.  The intended
+ design analogy is to a telephone handset.  One can talk and listen, but
+ (almost) all details regarding the transport process itself have been
+ abstracted away.  Such matters are of no concern to a channel -- or, more
+ importantly, to a channel *user*.
+
+ A "channel allocator" is a dispenser of channel objects.  When a client
+ allocates a channel from a channel allocator, the allocator has seen to it
+ that the channel is properly configured and ready for use (whatever that might
+ mean in a specific implementation).  Still, the channel allocator only
+ dispenses one "kind" of channel, i.e., a connection to one specific entity.
+ Details of with whom one is communicating have been (profitably) abstracted
+ away.  These matters are not the concern of the channel allocator.
+
+ An "allocator factory" is a dispenser of channel allocator objects.  In BDE,
+ the terms "allocator" and "factory" are synonymous, but we use the two
+ different words for clarity and to avoid any unintentional humor that the
+ reduplicateive "allocator allocator" might evoke.  The initial "channel",
+ logically a part of the name of this entity, has also been omitted for brevity
+ and clarity.  An "allocator factory" is basically a naming service that
+ provides a channel allocator in response to a request for a connection to a
+ specific entity.
+
+ This factoring allows client designers using concrete objects derived from
+ 'btesc' protocols to provide clear and simple objects whose functionality is
+ well defined and easy to use at each level of the design.
+
+/Specific Functionality in the Protocol Contracts
+/------------------------------------------------
+ For each of the three entities described above, channels, channel allocators,
+ and allocator factories, there exist specific protocols to support blocking
+ and non-blocking objects, and objects that do and do not support timeout
+ capability.  To facilitate good design and usage in the concrete
+ implementations, each "timed" entity is derived from its "untimed"
+ counterpart. 
+
+/Component Synopsis
+/------------------
+ The following is a list of the components currently available for use.
+..
+  btesc_flag                    -- 'enum' component providing flags used as
+                                   control arguments to various methods in
+                                   'btesc'
+  btesc_cbchannel               -- untimed non-blocking channel protocol
+  btesc_cbchannelallocator      -- untimed non-blocking channel allocator
+                                   protocol
+  btesc_channel                 -- untimed blocking channel protocol
+  btesc_channelallocator        -- untimed blocking channel allocator protocol
+  btesc_timedcbchannel          -- timed non-blocking channel protocol
+  btesc_timedcbchannelallocator -- timed non-blocking channel allocator
+                                   protocol
+  btesc_timedchannel            -- timed blocking channel protocol
+  btesc_timedchannelallocator   -- timed blocking channel allocator protocol
+..
+
+@Usage
+ The usage examples for the 'btesc' package are under construction.  Please see
+ the individual usage examples in the various components for now.  In
+ particular, the Usage Example in 'btesc_timedcbchannelallocator' is especially
+ detailed.
+ 
