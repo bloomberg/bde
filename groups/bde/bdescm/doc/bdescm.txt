@@ -1,0 +1,40 @@
+ bdescm.txt
+
+@PURPOSE: Provide versioning information for BDE library components.
+
+@MNEMONIC: Basic Development Environment Source Control Management (bdescm)
+
+@AUTHOR Tom Marshall (tmarshal)
+
+@DESCRIPTION: This package provides versioning information that is incorporated
+ into every release of the 'bde' Package Group Library.  This versioning
+ information is in turn available to all clients of 'bde' both at run time and
+ by inspection of appropriate '.o' files.  See '{BP BDE_SCM<GO>}' for a
+ detailed specification of the BDE source control contract.  Note that, except
+ for the package name, this version functionality is repeated in every package
+ group within the BDE library suite.  This document therefore serves as
+ documentation for all 'XXXscm' packages within BDE.
+
+@Usage
+ The single component in 'bdescm' is 'bdescm_version', which provides the
+ 'struct' 'bdescm_Version'.  Every component in every package in 'bde' (except
+ for components in 'bdes' -- for technical dependency reasons) must depend on
+ 'bdescm_version' (via an explicit '#include' directive).  This makes the
+ static methods of 'bdescm_Version' available to all clients of 'bde'.
+
+ The methods provided by 'bdescm_Version' are:
+..
+  struct bdescm_Version {
+      static const char *d_ident;
+      static const char *d_what;
+
+      static const char *d_version;
+      static const char *d_dependencies;
+      static const char *d_buildInfo;
+      static const char *d_timestamp;
+      static const char *d_sourceControlInfo;
+
+      static const char *version();
+  };
+..
+ Again, see '{BP BDE_SCM<GO>}' for details.
