@@ -1,0 +1,12 @@
+ bde+pcre.txt
+
+@PURPOSE: Provide third-party Perl-compatible regular expressions (PCRE).
+
+@AUTHOR: Arthur Chiu (achiu21)
+
+@SEE_ALSO: bdepcre
+
+@DESCRIPTION: The 'bde+pcre' non-standard package contains the open-source
+ PCRE library that has been instrumented to accommodate 'bslma_Allocator *'.
+ 'bde+pcre' should *not* be used directly by client code.  It is intended to
+ be used (internally) *only* by 'bdepcre'.

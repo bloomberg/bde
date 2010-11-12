@@ -1,0 +1,548 @@
+PCRE version 5.0 13-Sep-2004
+
+/^\pC\pL\pM\pN\pP\pS\pZ</8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\PC/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\PL/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\PM/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\PN/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\PP/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\PS/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\PZ/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Cc}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Cf}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Cn}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Co}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Cs}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Ll}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Lm}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Lo}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Lt}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Lu}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Mc}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Me}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Mn}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Nd}+/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Nl}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{No}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Pc}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Pd}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Pe}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Pf}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Pi}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Po}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Ps}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Sc}+/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Sk}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Sm}+/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{So}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Zl}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Zp}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\p{Zs}/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/\p{Nd}+(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}+?(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}{2,}(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}{2,}?(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}*(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}*?(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}{2}(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}{2,3}(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}{2,3}?(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}?(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}??(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}*+(..)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}*+(...)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Nd}*+(....)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Lu}/8i
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{^Lu}/8i
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\P{Lu}/8i
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/(?<=A\p{Nd})XYZ/8
+Failed: support for \P, \p, and \X has not been compiled at offset 6
+
+/(?<!\pL)XYZ/8
+Failed: support for \P, \p, and \X has not been compiled at offset 5
+
+/[\p{L}]/D
+------------------------------------------------------------------
+  0  36 Bra 0
+  3     [Lp{}]
+ 36  36 Ket
+ 39     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+No options
+No first char
+No need char
+
+/[\p{^L}]/D
+------------------------------------------------------------------
+  0  36 Bra 0
+  3     [L^p{}]
+ 36  36 Ket
+ 39     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+No options
+No first char
+No need char
+
+/[\P{L}]/D
+------------------------------------------------------------------
+  0  36 Bra 0
+  3     [LP{}]
+ 36  36 Ket
+ 39     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+No options
+No first char
+No need char
+
+/[\P{^L}]/D
+------------------------------------------------------------------
+  0  36 Bra 0
+  3     [LP^{}]
+ 36  36 Ket
+ 39     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+No options
+No first char
+No need char
+
+/[abc\p{L}\x{0660}]/8D
+------------------------------------------------------------------
+  0  43 Bra 0
+  3     [La-cp{}\x{660}]
+ 43  43 Ket
+ 46     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+Options: utf8
+No first char
+No need char
+
+/[\p{Nd}]/8DM
+------------------------------------------------------------------
+  0  36 Bra 0
+  3     [Ndp{}]
+ 36  36 Ket
+ 39     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+Options: utf8
+No first char
+No need char
+    1234
+No match
+
+/[\p{Nd}+-]+/8DM
+------------------------------------------------------------------
+  0  37 Bra 0
+  3     [+\-Ndp{}]+
+ 37  37 Ket
+ 40     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+Partial matching not supported
+Options: utf8
+No first char
+No need char
+    1234
+No match
+    12-34
+ 0: -
+    12+\x{661}-34  
+ 0: +
+    ** Failers
+No match
+    abcd  
+ 0: d
+
+/[\P{Nd}]+/8
+    abcd
+ 0: d
+    ** Failers
+No match
+    1234
+No match
+
+/\D+/8
+    11111111111111111111111111111111111111111111111111111111111111111111111
+No match
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+ 0: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+     
+/\P{Nd}+/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/[\D]+/8
+    11111111111111111111111111111111111111111111111111111111111111111111111
+No match
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+ 0: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+/[\P{Nd}]+/8
+    11111111111111111111111111111111111111111111111111111111111111111111111
+No match
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+No match
+
+/[\D\P{Nd}]+/8
+    11111111111111111111111111111111111111111111111111111111111111111111111
+No match
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+ 0: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+/\pL/8
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\pL/8i
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Lu}/8 
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Lu}/8i
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Ll}/8 
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/\p{Ll}/8i 
+Failed: support for \P, \p, and \X has not been compiled at offset 1
+
+/^\x{c0}$/8i
+    \x{c0}
+ 0: \x{c0}
+    \x{e0} 
+No match
+
+/^\x{e0}$/8i
+    \x{c0}
+No match
+    \x{e0} 
+ 0: \x{e0}
+
+/A\x{391}\x{10427}\x{ff3a}\x{1fb0}/8
+    A\x{391}\x{10427}\x{ff3a}\x{1fb0}
+ 0: A\x{391}\x{10427}\x{ff3a}\x{1fb0}
+    ** Failers
+No match
+    a\x{391}\x{10427}\x{ff3a}\x{1fb0}   
+No match
+    A\x{3b1}\x{10427}\x{ff3a}\x{1fb0}
+No match
+    A\x{391}\x{1044F}\x{ff3a}\x{1fb0}
+No match
+    A\x{391}\x{10427}\x{ff5a}\x{1fb0}
+No match
+    A\x{391}\x{10427}\x{ff3a}\x{1fb8}
+No match
+
+/A\x{391}\x{10427}\x{ff3a}\x{1fb0}/8i
+    A\x{391}\x{10427}\x{ff3a}\x{1fb0}
+ 0: A\x{391}\x{10427}\x{ff3a}\x{1fb0}
+    a\x{391}\x{10427}\x{ff3a}\x{1fb0}   
+ 0: a\x{391}\x{10427}\x{ff3a}\x{1fb0}
+    A\x{3b1}\x{10427}\x{ff3a}\x{1fb0}
+No match
+    A\x{391}\x{1044F}\x{ff3a}\x{1fb0}
+No match
+    A\x{391}\x{10427}\x{ff5a}\x{1fb0}
+No match
+    A\x{391}\x{10427}\x{ff3a}\x{1fb8}
+No match
+
+/A\x{391}\x{10427}\x{ff3a}\x{1fb0}/8iD
+------------------------------------------------------------------
+  0  21 Bra 0
+  3  NC A\x{391}\x{10427}\x{ff3a}\x{1fb0}
+ 21  21 Ket
+ 24     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+Options: caseless utf8
+First char = 'A' (caseless)
+No need char
+
+/A\x{391}\x{10427}\x{ff3a}\x{1fb0}/8D
+------------------------------------------------------------------
+  0  21 Bra 0
+  3     A\x{391}\x{10427}\x{ff3a}\x{1fb0}
+ 21  21 Ket
+ 24     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+Options: utf8
+First char = 'A'
+Need char = 176
+
+/AB\x{1fb0}/8D
+------------------------------------------------------------------
+  0  11 Bra 0
+  3     AB\x{1fb0}
+ 11  11 Ket
+ 14     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+Options: utf8
+First char = 'A'
+Need char = 176
+
+/AB\x{1fb0}/8Di
+------------------------------------------------------------------
+  0  11 Bra 0
+  3  NC AB\x{1fb0}
+ 11  11 Ket
+ 14     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+Options: caseless utf8
+First char = 'A' (caseless)
+Need char = 'B' (caseless)
+
+/\x{391}+/8i
+    \x{391}\x{3b1}\x{3b1}\x{3b1}\x{391}
+ 0: \x{391}
+
+/\x{391}{3,5}(.)/8i
+    \x{391}\x{3b1}\x{3b1}\x{3b1}\x{391}X
+No match
+
+/\x{391}{3,5}?(.)/8i
+    \x{391}\x{3b1}\x{3b1}\x{3b1}\x{391}X
+No match
+
+/[\x{391}\x{ff3a}]/8i
+    \x{391}
+ 0: \x{391}
+    \x{ff3a}
+ 0: \x{ff3a}
+    \x{3b1}
+No match
+    \x{ff5a}   
+No match
+    
+/[\x{c0}\x{391}]/8i
+    \x{c0}
+ 0: \x{c0}
+    \x{e0} 
+No match
+
+/[\x{105}-\x{109}]/8iD
+------------------------------------------------------------------
+  0  13 Bra 0
+  3     [\x{105}-\x{109}]
+ 13  13 Ket
+ 16     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+Options: caseless utf8
+No first char
+No need char
+    \x{104}
+No match
+    \x{105}
+ 0: \x{105}
+    \x{109}  
+ 0: \x{109}
+    ** Failers
+No match
+    \x{100}
+No match
+    \x{10a} 
+No match
+    
+/[z-\x{100}]/8iD 
+------------------------------------------------------------------
+  0  44 Bra 0
+  3     [Zz-\x7fz-\x{100}]
+ 44  44 Ket
+ 47     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+Options: caseless utf8
+No first char
+No need char
+    Z
+ 0: Z
+    z
+ 0: z
+    \x{39c}
+No match
+    \x{178}
+No match
+    |
+ 0: |
+    \x{80}
+ 0: \x{80}
+    \x{ff}
+ 0: \x{ff}
+    \x{100}
+ 0: \x{100}
+    \x{101} 
+No match
+    ** Failers
+No match
+    \x{102}
+No match
+    Y
+No match
+    y           
+No match
+
+/[z-\x{100}]/8Di
+------------------------------------------------------------------
+  0  44 Bra 0
+  3     [Zz-\x7fz-\x{100}]
+ 44  44 Ket
+ 47     End
+------------------------------------------------------------------
+Capturing subpattern count = 0
+Options: caseless utf8
+No first char
+No need char
+
+/^\X/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^[\X]/8
+    X123
+ 0: X
+    *** Failers
+No match
+    AXYZ
+No match
+
+/^(\X*)C/8
+Failed: support for \P, \p, and \X has not been compiled at offset 3
+
+/^(\X*?)C/8
+Failed: support for \P, \p, and \X has not been compiled at offset 3
+
+/^(\X*)(.)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 3
+
+/^(\X*?)(.)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 3
+
+/^\X(.)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\X{2,3}(.)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/^\X{2,3}?(.)/8
+Failed: support for \P, \p, and \X has not been compiled at offset 2
+
+/ End of testinput6 /

@@ -1,0 +1,82 @@
+PCRE version 5.0 13-Sep-2004
+
+/^[\w]+/
+    *** Failers
+No match
+    École
+No match
+
+/^[\w]+/Lfr_FR
+** Failed to set locale "fr_FR"
+
+/^[\w]+/
+    *** Failers
+No match
+    École
+No match
+
+/^[\W]+/
+    École
+ 0: \xc9
+
+/^[\W]+/Lfr_FR
+** Failed to set locale "fr_FR"
+
+/[\b]/
+    \b
+ 0: \x08
+    *** Failers
+No match
+    a
+No match
+
+/[\b]/Lfr_FR
+** Failed to set locale "fr_FR"
+
+/^\w+/
+    *** Failers
+No match
+    École
+No match
+
+/^\w+/Lfr_FR
+** Failed to set locale "fr_FR"
+
+/(.+)\b(.+)/
+    École
+ 0: \xc9cole
+ 1: \xc9
+ 2: cole
+
+/(.+)\b(.+)/Lfr_FR
+** Failed to set locale "fr_FR"
+
+/École/i
+    École
+ 0: \xc9cole
+    *** Failers
+No match
+    école
+No match
+
+/École/iLfr_FR
+** Failed to set locale "fr_FR"
+
+/\w/IS
+Capturing subpattern count = 0
+No options
+No first char
+No need char
+Starting byte set: 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P 
+  Q R S T U V W X Y Z _ a b c d e f g h i j k l m n o p q r s t u v w x y z 
+
+/\w/ISLfr_FR
+** Failed to set locale "fr_FR"
+
+/^[\xc8-\xc9]/iLfr_FR
+** Failed to set locale "fr_FR"
+
+/^[\xc8-\xc9]/Lfr_FR
+** Failed to set locale "fr_FR"
+
+/ End of testinput3 /

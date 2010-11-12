@@ -1,0 +1,28 @@
+*		_	OPTS_FILE	= bde+pcre.opts
+
+*		_	DEF_CXXFLAGS	= -DSUPPORT_UTF8 -DPOSIX_MALLOC_THRESHOLD=10 -DNOPOSIX
+
+!! *		_	STL_INCLUDE	=
+
+# Don't install any header files.
+
+*		_	INSTALL_INC	=
+
+# Augment test procedure.
+
+unix		_	TEST_INCLUDE	= -I$(BDE_LOCN)/bde+pcre
+windows		_	TEST_INCLUDE	= -I$(BDE_LOCN)\bde+pcre
+
+# Sources used by every pcre test case executable.
+*		_	TEST_COMMON	= pcretest.cpp
+
+# Actual pcre test case source files.
+*		_	TEST_CASES	= \
+pcretest1.cpp \
+pcretest2.cpp \
+pcretest3.cpp \
+pcretest4.cpp \
+pcretest5.cpp \
+pcretest6.cpp
+
+#==============================================================================
