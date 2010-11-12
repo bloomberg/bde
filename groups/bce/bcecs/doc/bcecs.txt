@@ -1,0 +1,38 @@
+ bcecs.txt
+
+@PURPOSE: Provide thread-enabled, special-purpose containers.
+
+@MNEMONIC: Basic Concurrency Environment Containers Special-purpose (bcecs)
+
+@AUTHOR: Tom Marshall (tmarshal)
+
+@SEE_ALSO: bdecs
+
+@DESCRIPTION: The 'bcecs' package provides thread-enabled special-purpose
+ containers.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bcecs' currently has three components having 2 levels of dependency.  The
+ table below shows the hierarchical ordering of the components.  The package
+ prefix and underscore ('bcecs_') are omitted from the full component names for
+ layout efficiency.
+..
+  Level 2: bcecs_failover
+
+  Level 1: bcecs_callbackregistry   bcecs_roundrobin
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bcecs'.
+..
+  'bcecs_callbackregistry' - Provide a template for a registry of callbacks
+                             grouped by category.
+
+  'bcecs_failover'         - Provide a generic failover and basic
+                             load-balancing facility.
+
+  'bcecs_roundrobin'       - Provide a thread-safe, templatized, round-robin
+                             container.
+..
