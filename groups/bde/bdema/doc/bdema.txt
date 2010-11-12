@@ -1,0 +1,1061 @@
+ bdema.txt
+
+@PURPOSE: Provide allocators, pools, and other memory-management tools.
+
+@MNEMONIC: Basic Development Environment Memory Allocators (bdema)
+
+@AUTHOR: Lea Fester (lfester), Tom Marshall (tmarshal)
+
+@DESCRIPTION: The 'bdema' package provides an allocator protocol (i.e., a pure
+ abstract interface) and a variety of concrete allocators derived from this
+ protocol, as well as other memory-dispensing mechanisms and various guard
+ constructs to prevent loss in case of exceptions.  In addition, 'bdema' also
+ provides a mechanism for installing a "default allocator" that will then be
+ visible to all BDE and BDE-complient code throughout that process.  If this
+ mechanism is not invoked explicitly, then an allocator that uses global 'new'
+ and 'delete' is the BDE default allocator.  This topic is discussed in more
+ detail below. 
+
+@Component Overview:
+ This Overview section summarizes the components that are available in 'bdema'.
+ Subsequent sections provide more detail on component selection, performance,
+ and usage.
+
+/'bdema_allocationhint'
+/----------------------
+ 'bdema_allocationhint' defines an enumeration whose values provide indication
+ of optimal memory management strategy. 
+
+/'bdema_allocator'
+/-----------------
+ 'bdema_allocator' defines a protocol (i.e.,, an abstract base  class)
+ requiring the following interface: 'allocate()', for memory  allocation, and
+ 'deallocate()', for deallocation of individual allocated  memory blocks. 
+
+/'bdema_allocatorutil'
+/---------------------
+ 'bdema_allocatorutil' provides a namespace for a suite of static functions
+ that work with allocators.  Functions currently available provide mechanisms
+ for constructing and copy-constructing template-generated objects. 
+
+/'bdema_autodeallocator'
+/-----------------------
+ 'bdema_autodeallocator' provides a "scoped guard" mechanism that assumes
+ ownership responsibility for a block of memory obtained from an allocator
+ having a 'deallocate()' method; the memory is deallocated when the scoped
+ guard goes out of scope, unless the memory is explicitly released.  This
+ proctor mechanism is useful in guarding against memory leaks, e.g., when
+ additional allocations may throw an exception.
+
+/'bdema_autodeleter'
+/-------------------
+ 'bdema_autodeleter' provides a "scoped guard" mechanism that assumes ownership
+ of a set of objects *and* their allocated memory footprints; the guarded
+ memory *addresses* must be held in a contiguous sequence rooted at a reference
+ address.  The objects are destroyed and their memory footprints deallocated
+ when the guard goes out of scope unless the proctored objects are explicitly
+ released from management.  Instance methods allow for adding objects to and
+ removing objects from the sequence of managed objects.  This proctor mechanism
+ is useful in guarding against memory leaks, e.g., when additional allocations
+ may throw an exception.
+
+/'bdema_autodestructor'
+/----------------------
+ 'bdema_autodestructor' provides a "scoped guard" mechanism that assumes
+ ownership of a sequence of objects that reside on contiguous memory that is
+ *not* managed by the guard.  The objects are destroyed when the guard goes out
+ of scope unless the proctored objects are explicitly released from management.
+ Instance methods allow for adding objects to and removing objects from the
+ sequence of managed objects.  This proctor mechanism is useful in guarding
+ against memory leaks, e.g., when additional allocations may throw an
+ exception.
+ 
+/'bdema_autoreleaser'
+/--------------------
+ 'bdema_autoreleaser' provides a "scoped guard" mechanism that assumes
+ management of all of the memory allocated by a managed allocator (which
+ provids a 'release()' method).  The managed allocator's 'release' method is
+ called when the guard goes out of scope unless the *guard's* 'release' method
+ is called before the guard leaves scope.  This proctor mechanism is useful in
+ guarding against memory leaks, e.g., when additional allocations may throw an
+ exception.
+
+/'bdema_blocklist'
+/-----------------
+ 'bdema_blocklist' provides a manager that maintains memory allocated by an
+ underlying memory allocator on a list.  The list structure  enables
+ 'release()' of all still-allocated memory, i.e. provides enough  structure for
+ the component to access and deallocate all the underlying  blocks. 
+
+ *All* allocation and deallocation are done by the allocator passed in at
+ 'bdema_BlockList' construction, with (small) overhead added by the 
+ 'bdema_BlockList'; the advantage provided by a 'bdema_BlockList' is the 
+ 'release()' method.
+
+/'bdema_bufferallocator'
+/-----------------------
+ 'bdema_bufferallocator' defines a memory manager that allocates and
+ deallocates memory obtained from some underlying 'char' array (that is, a
+ buffer).  The array is provided by the client at 'bdema_BufferAllocator'
+ construction (along with its length), and cannot grow.  The client can
+ optionally specify a callback function to be invoked in case there is not
+ sufficient memory left in the buffer.  The callback's function is to obtain
+ the memory from some other source -- its return result is the value returned
+ to the client as the result of the client's 'allocate()' request. 
+
+/'bdema_chararray'
+/-----------------
+ 'bdema_chararray' exists to satisfy the physical design injunction against
+ cyclic dependency.  In particular, 'bdema_chararray' provides a dynamically
+ allocated character buffer that is aware of 'bdema' allocators, but does not
+ depend on various other services that higher-level components (e.g.,
+ 'std::vector') depend on.  Therefore, 'bdema_chararray' is useful to
+ components whose position in the physical hierarcy is below that of the
+ 'bde+stlport' package.  (See John Lakos, "Large-Scale C++ Software Design" for a discussion of physical dependency.) 
+
+/'bdema_countedhandle'
+/--------------------
+ 'bdema_countedhandle' provides a generic, reference-counted handle for
+ supporting shared ownership of items. 
+
+/'bdema_default'
+/---------------
+ 'bdema_default' provides a namespace in which to declare a default allocator
+ that can be used by any component requiring an allocator in cases where the
+ client does not supply one, and two functions relating to this default
+ allocator: a "setter", and a "getter". 
+
+/'bdema_defaultallocatorguard'
+/-----------------------------
+ 'bdema_defaultallocatorguard' provides a mechanism to enable safe, temporary
+ replacement of the default allocator.
+ 
+/'bdema_handle'
+/--------------
+ 'bdema_handle' provides a generic (templated) handle for accessing objects
+ produced by some factory.
+ 
+/'bdema_infrequentdeleteblocklist'
+/---------------------------------
+ 'bdema_infrequentdeleteblocklist' defines a block list (see 'bdema_BlockList')
+ that does not support deallocation of individual items (the 'deallocate()'
+ function does nothing). 
+
+/'bdema_managedallocator'
+/-----------------------
+ 'bdema_managedallocator' defines a protocol that extends the 'bdema_Allocator'
+ protocol with a 'release()' function.  'release()' indicates that all memory
+ allocated since the previous 'release()' call is to be deallocated. 
+
+/'bdema_multipool'
+/----------------
+ 'bdema_multipool' manages memory distributed among pools of varying sizes.
+ Each pool provides MAXIMUM-aligned, fixed-size memory blocks, so each pool is
+ sized to a multiple of the value  'bdes_Alignment::MAX_ALIGNMENT'.  The
+ smallest pool provides blocks exactly this size, and subsequent pools double
+ in size.  The client specifies how many pools are created; all allocation
+ requests for memory blocks larger than 'bdes_Alignment::MAX_ALIGNMENT' * (2 ^
+ (numberOfPools - 1)) are satisfied by a 'bdema_BlockList' allocator that is
+ also part of the multipool.  In other  words, "too large" requests do not come
+ from pooled memory -- they decay to  ordinary block-list allocation and
+ deallocation. 
+
+ Specifying a sufficient number of pools to accomodate large requests from 
+ pooled memory (which would essentially require n pools, for n = the 
+ base-2-log(largest object size)) could be somewhat wasteful, however, as 
+ many of the intermediate pools might never be used.  Whether this "waste" is
+ worthwhile depends on the lifespan of the allocator.
+
+/'bdema_multipoolallocator'
+/--------------------------
+ 'bdema_multipoolallocator' wraps a 'bdema_Allocator' interface around a
+ 'bdema_MultiPool'. 
+
+/'bdema_newdeleteallocator'
+/--------------------------
+ 'bdema_newdeleteallocator' provides a wrapper around 'operator new' and
+ 'operator delete' that adheres to the 'bdema_Allocator' protocol (i.e.,
+ provides an 'allocate()' function and a 'deallocate()' function). 
+
+/'bdema_placementnew'
+/--------------------
+ 'bdema_placementnew' provides a variant of placement new for use by low-level,
+ library components needing to avoid cyclic physical dependencies that would
+ result from using another placement new. 
+
+/'bdema_pool'
+/------------
+ 'bdema_pool' defines a construct that "pools" memory, i.e., maintains a list
+ of (fixed-size) available blocks so that allocation and deallocation (almost
+ always) require only the constant-time operations of  removing a block from
+ the list, or returning a block to the list.
+
+/'bdema_sequentialallocator'
+/---------------------------
+ 'bdema_sequentialallocator' wraps a 'bdema_Allocator' interface around a
+ 'bdema_SequentialPool'.
+
+/'bdema_sequentialpool'
+/----------------------
+ 'bdema_sequentialpool' provides a pool that allocates variable-sized memory
+ blocks either NATURAL alignment or MAXIMUM alignment. 
+
+/'bdema_strallocator'
+/-------------------
+ 'bdema_strallocator' wraps a 'bdema_Allocator' interface around a
+ 'bdema_StrPool'. 
+
+/'bdema_strpool'
+/---------------
+ 'bdema_strpool' provides a pool that allocates variable-sized memory blocks,
+ without the overhead of providing alignment. 
+
+/'bdema_testallocator'
+/---------------------
+ 'bdema_testallocator' provides an instrumented memory allocator drawing on
+ 'malloc'-provided memory, that can be exceedingly useful during development.
+
+/'bdema_testallocatorexception'
+/------------------------------
+ 'bdema_testallocatorexception' defines an exception object for use in testing
+ exceptions during memory allocations. 
+ 
+@Allocators and Other Memory-Dispensing Mechanisms 
+ An allocator is a memory manager that derives from the 'bdema_Allocator'
+ protocol and provides an 'allocate' method for obtaining memory, and a
+ 'deallocate' method for returning memory (to the allocator).  'bdema' also
+ provides many memory-dispensing mechanisms that also provide an 'allocate' and
+ a 'deallocate' method, but these memory managers are not properly referred to
+ as "allocators", since we reserve the term "allocator" for concrete memory
+ dispensers that actually derive from 'bdema_Allocator' and are therefore
+ usable anywhere that a 'bdema_Allocator*' is specified.  Objects that dispense
+ memory but that are not actually "allocators" are sometimes called "end-point
+ allocators", and may offer performance advantages to certain users.  Choosing
+ an allocation mechanisms is complex, and many factors will influence the
+ decision.  The discussions here are aimed at shedding light on this important
+ selection process.
+
+ Characteristics differentiating among 'bdema' memory-allocation objects *in*
+ *general* are:
+..
+    * Whether or not the object isA 'bdema_Allocator'.
+    * Whether or not the allocator supports memory reuse.
+    * Whether allocation requests consume the exact amount of memory requested,
+      an additive number of additional bytes, or a non-addative number of
+      additional bytes (e.g., the smallest power of two that can satisfy the
+      request).
+    * Whether or not the allocator supports multi-threading.
+..
+ All 'bdema' allocators are thread-safe but not thread-enabled (see the 'bcema'
+ package-level documentation for information on thread-enabled allocators).  
+ In BDE terminology, a class is thread-safe if distinct threads can safely
+ access *different* *instances* of that class simultaneously; a class is 
+ thread-enabled if distinct threads can safely access *the* *same* *instance*
+ of that class simultaneously.
+
+ The *BDE* allocators have two more differentiating properties.  First, whether
+ the allocator is intended to be part of a chain (or other grouping) of 
+ allocators, or is an "end-point" allocator.  The former kind support the 
+ 'bdema_Allocator' protocol.  "End-point" allocators, such as 'bdema_Pool', 
+ are designed for minimizing the runtime overhead of allocation and 
+ deallocation on a call-by-call basis.  This essentially corresponds to 
+ inlining the 'allocate' and 'deallocate' methods.
+
+ Supporting a common protocol (the 'bdema_Allocator' protocol) allows passing
+ conformant allocators to BDE (and other) objects requiring an allocator at 
+ construction.  Support of this common protocol also facilitates grouping the
+ memory used by an object into one allocator.  
+
+ The second differentiating property is whether the allocator is a "managed" or
+ "unmanaged" allocator.  Unmanaged allocators require every allocation to be
+ matched by a deallocation, similar to 'malloc' and 'free', or 'new' and 
+ 'delete'.  They also allow for simultaneous deallocation of all memory with
+ one call to 'release'.  This 'release' optimization can provide significant
+ performance improvements if the only system resource held by an object (and
+ all the objects it manages) is memory.
+
+ The BDE library uses allocators with all classes requiring dynamic memory 
+ allocation, allowing clients to fine-tune memory-related performance 
+ characteristics by replacing the established defaults with client-chosen
+ alternatives.  Because the protocol is public, clients can even write their 
+ own, customized implementations, and use those.  But none of these actions are
+ required.  BDE components all work with a (preset) default allocator, and 
+ clients without special requirements need never concern themselves with 
+ allocators.
+
+ Some other concerns regarding memory allocation are described next.  The
+ discussion here broadens beyond allocators (strictly speaking, subtypes of
+ 'bdema_Allocator') to include both allocators and the other memory managers,
+ i.e., the memory pools.
+
+/Alignment
+/---------
+ Alignment of an *address* in memory refers to the relative position of that
+ address with respect to specific (hardware-imposed) boundaries within the
+ memory space.  Any one address can be said to be on a one-byte boundary, a
+ two-byte boundary, a four-byte boundary, or an eight-byte boundary.  (Clearly,
+ this sequence can be extended, but, as of this writing, boundaries  beyond
+ eight-byte boundaries are not relevant for these discussions on any hardware
+ platform of interest.  In particular, "alignment" as we are using the term
+ here does not deal with page boundaries or other larger memory structures,
+ although these considerations are important elsewhere.)
+
+ In general, we also speak about the alignment of (the *first* *byte* of) an
+ entity (e.g., an 'int', a 'double', or a pointer) whose size is not
+ necessarily one byte.  As a practical matter, for each entity separately, some
+ alignments are "safe" and some are not.  By "not safe" we mean that, for most
+ platforms (e.g., all of our Unix machines), attempting to access an entity at
+ an address that is not safely aligned for that entitiy will cause a bus error,
+ crashing the program on the spot.  In the very best case, the access will
+ incur a performance penalty as the memory is shifted appropriately between its
+ initial address and its target address (e.g., a register).
+
+ The BDE memory managers provide three kinds of alignment: NATURAL, MAXIMAL,
+ and BYTE -- but note that BYTE alignment is also referred to as "no alignment"
+ or "none" in this document, since every address is aligned to *some* byte.
+ 
+ A C/C++ variable is "naturally aligned" if its size divides the numerical 
+ value of its address.  An address is "maximally aligned" if it can serve as
+ a naturally-aligned address no matter what type of object might be stored 
+ there.  That is, it meets the alignment requirements of the type with the 
+ maximally restrictive needs.
+
+ For example, on a platform where 'int' is 4 bytes, a variable such as  
+..
+     int index;
+..
+ is naturally aligned if the compiler assigns it an address such as
+..
+     0x00A3920
+..
+ because 4 divides 66984 (the decimal equivalent of A3920).  The variable would
+ not be naturally aligned were the compiler to place it at
+..
+     0x00A3921
+..
+ because 4 does not divide 66985.  An address whose numerical value is 
+ divisible by 8 is generally naturally aligned for any possible type, and so
+ meets the definition of MAXIMUM alignment.
+
+ Accessing data stored at an aligned address is *faster* on Intel platforms 
+ and *required* on almost all Unix platforms.  Reading (or writing) a C/C++ 
+ variable at an unaligned address will cause a Bus Error on these Unix 
+ platforms, and thus crash the program.
+
+ Normally, programmers needn't worry about alignment for dynamically allocated
+ memory.  The runtime system's 'new' (or 'malloc', for C) automatically return
+ memory blocks beginning at maximally-aligned addresses (the C++ standard
+ requires it of 'new').  The 'bdema_NewDeleteAllocator' does the same.  
+ Certain 'bdema' allocators and pools, however, return arbitrary addresses. 
+ IT IS THEREFORE UNSAFE TO USE THOSE ALLOCATORS for storing 'int's, 'double's,
+ 'struct's, and other non-'char' types.
+
+ A number of the 'bdema' memory managers *do* align.  They do so by:
+..
+     1. Inferring the needed alignment from the size of the request, and
+        returning a NATURALLY aligned address for it, or
+     2. Returning a chunk of memory aligned to an address that would serve as 
+        a properly-aligned address for a type with the largest possible
+        alignment needs, i.e. returning a MAXIMALLY aligned address.
+..
+ The cost of obtaining aligned addresses is twofold: an increase in the memory
+ used (allocators returning aligned addresses do so by skipping bytes that 
+ could otherwise be used, so as to return an appropriate address), and 
+ additional computation time to calculate the needed alignment and subsequent
+ offset.
+
+/Deallocation
+/------------
+ Some of the managers do not deallocate individual items.  (The 'deallocate'
+ function is almost always provided, but in these managers it performs no 
+ action.)  Such managers provide a 'release' function instead, which 
+ relinquishes *all* memory allocated by that manager since the previous
+ 'release' call.
+
+/Type and Origination
+/--------------------
+ Most managers provide variable-sized, untyped (i.e., 'void *') memory.  Only
+ the 'bdema_Pool' works with fixed-size chunks.
+
+ The different components manage memory in different ways, but they 
+ necessarily *obtain* the memory that they manage from one of the two usual 
+ sources: the heap or the stack.  The 'bdema_NewDeleteAllocator' is hard-coded
+ to obtain memory from the heap -- its underlying source is 'operator new'.  
+ The 'bdema_BufferAllocator' is the best-suited manager for working with stack 
+ memory -- its source is a client-supplied array, a 'char *' plus length 
+ indicator.  All the other memory managers must be passed a 'bdema_Allocator'-
+ derived type in their constructor, which they then use as the source of the
+ memory they will manage.
+
+ The managers are compared in the following tables:
+..
+                              PERFORMANCE CHARACTERISTICS
+
+
+               Memory Source     Allocation   Alignment     Out-of-memory
+                                 Cost OVER                     Handling
+                                 Underlying                   
+                                  Source                      
+            +-----------------+--------------+---------+----------------------+
+Block List  | Client-provided | O(1) node    | MAXIMAL |       None           |
+            |   allocator     | creation &   |         |                      |
+            |                 | insertion    |         |                      |
+            +-----------------+--------------+--------------------------------+
+Infrequent- | Client-provided | O(1) node    |   None  |       None           |
+Delete      |   allocator     | creation &   |         |                      |
+Block List  |                 | insertion    |         |                      |
+            +-----------------+--------------+---------+----------------------+
+
+            +-----------------+--------------+---------+----------------------+
+            |Infrequent-Delete|  negative*   |   None  |       None           |
+Pool        |   Block List    |              |         |                      |
+            +-----------------+--------------+---------+----------------------+
+Sequential  |Infrequent-Delete|  negative*   |NATURAL, |       None           |
+Pool        |  Block List     |              | MAXIMAL |                      |
+            +-----------------+--------------+---------+----------------------+
+String      |Infrequent-Delete|  negative*   |   None  |       None           |
+Pool        |  Block List     |              |         |                      |
+            +-----------------+--------------+---------+----------------------+
+Multi       |A set of Pools,  |  negative*   |MAXIMAL  |       None           |
+Pool        |and a Block List |              |         |                      |
+            +-----------------+--------------+---------+----------------------+
+
+            +-----------------+--------------+---------+----------------------+
+Buffer      | Client-provided |  vfn + O(1)  |NATURAL, | Client callback, or  |
+Allocator   | buffer (a 'char'|align. comp. &| MAXIMAL | return value 0 if no |
+            | pointer)        |cursor maint. |         | callback registered  |
+            +-----------------+--------------+---------+----------------------+
+Sequential  | Sequential Pool | 0 if inlined,|NATURAL  |       None           |
+Allocator   |                 |else vfn call+|         |                      |
+            +-----------------+--------------+---------+----------------------+
+String      | String Pool     | 0 if inlined,|   None  |       None           |
+Allocator   |                 |else vfn call+|         |                      |
+            +-----------------+--------------+---------+----------------------+
+Multipool   | Multi Pool      | 0 if inlined,|MAXIMAL  |       None           |
+Allocator   |                 |else vfn call+|         |                      |
+            +-----------------+--------------+---------+----------------------+
+NewDelete   | operator new    | 0 if inlined,|MAXIMAL  | Return value 0       |
+Allocator   |                 |else vfn call+|         |                      |
+            +-----------------+--------------+---------+----------------------+
+Test        | malloc          |     N/A      |   None  | Return value 0       |
+Allocator   |                 |              |         |                      |
+            +-----------------+--------------+---------+----------------------+
+..
+ * Pooling potentially speeds up allocation over the allocation done by
+ some underlying source, by (sub)allocating (and reclaiming) memory more 
+ quickly than the underlying source itself does.
+
+ + Calling 'allocate()' directly through an item of this (derived) type 
+ *will* result in an inlined function.  But calling through a base-class 
+ pointer, e.g.,
+..
+    bdema_SequentialAllocator sqa;
+    bdema_Allocator *allocPtr = &sqa;
+    allocPtr->allocate();
+..
+ will incur the overhead of a virtual function call.
+..
+                                     SEMANTICS
+
+                      Deallocation             Storage Facility
+                  +-----------------------+-------------------------+
+Block List        | Single and all items  | Untyped, varying sizes  |
+                  +-----------------------+-------------------------+
+Infrequent Delete | Single and all items  | Untyped, varying sizes  |
+Block List        |                       |                         |
+                  +-----------------------+-------------------------+
+                  +-----------------------+-------------------------+
+Pool              | Single and all items  | Untyped, fixed size     |
+                  +-----------------------+-------------------------+
+Sequential Pool   | All items only        | Untyped, varying sizes  |
+                  +-----------------------+-------------------------+
+String Pool       | All items only        | Untyped, varying sizes  |
+                  +-----------------------+-------------------------+
+Multi Pool        | Single and all items  | Untyped, varying sizes  |
+                  +-----------------------+-------------------------+
+
+                  +-----------------------+-------------------------+
+Buffered          | Single items only     | Untyped, varying sizes  |
+Allocator         |                       |                         |
+                  +-----------------------+-------------------------+
+Sequential        | All items only        | Untyped, varying sizes  |
+Allocator         |                       |                         |
+                  +-----------------------+-------------------------+
+String            | All items only        | Untyped, varying sizes  |
+Allocator         |                       |                         |
+                  +-----------------------+-------------------------+
+Multipool         | Single and all items  | Untyped, varying sizes  |
+Allocator         |                       |                         |
+                  +-----------------------+-------------------------+
+Newdelete         | Single items only     | Untyped, varying sizes  |
+Allocator         |                       |                         |
+                  +-----------------------+-------------------------+
+Test              | Single items only     | Untyped, varying sizes  |
+Allocator         |                       |                         |
+                  +-----------------------+-------------------------+
+..
+/The Default Allocator
+/---------------------
+ All object types in the BDE library needing dynamic memory require that an
+ allocator be passed to their constructor.  They take a 'bdema_Allocator *' 
+ argument, which defaults to the value of 'bdema_Default::defaultAllocator()'.
+ This value is set by BDE library code to be
+ 'bdema_NewDeleteAllocator::singleton()', but it can be changed:  
+ 'bdema_Default::setDefaultAllocator()' sets the value of the (global) default
+ allocator, and 'bdema_Default::allocator()' returns it.
+
+@INTERACTION WITH OTHER PACKAGES: All BDE library objects needing dynamic
+ memory require that an allocator be passed to their constructor, which 
+ defaults to the allocator currently installed as the default allocator.
+
+@USAGE EXAMPLES
+..
+    1. Using 'bdema_StrAllocator' for a multi-threaded 'grep'.
+    2. Using 'bdema_SequentialAllocator' for an ODBC/JDBC-like database driver.
+    3. Sketch use of 'bdema_BufferAllocator'.
+    4. Sketch use of 'bdema_MultiPoolAllocator'.
+..
+/USAGE EXAMPLE 1: 'bdema_StrAllocator' for a multi-threaded 'grep'
+/-----------------------------------------------------------------
+ Suppose we wanted to write a 'grep'-like procedure (i.e., a program that 
+ lets clients search for presence of some string in one or more files), 
+ possibly for use in a larger application.  Which memory manager would be best?
+
+ The answer depends on the program's memory use patterns.  These are mostly 
+ determined by the design (although for some programs or algorithms, the 
+ end-user input can significantly affect memory use).  We must determine our 
+ design in order to assess the required semantics and preferred performance 
+ characteristics.
+
+ In order to search a file, we need to read it into memory.  'grep' returns
+ the name of *each* file that contains a string matching the argument pattern,
+ so finding a match in one file does not eliminate the need to search the
+ other files -- i.e., there are no short-circuit evaluation possibilities, so
+ we should assume that we will need memory for each file of interest.
+
+ Assuming we have a multi-threaded operating system (or library thread 
+ support), we can speed up multi-file searches by searching each file with a 
+ separate thread.  This allows some threads to actively search an in-memory
+ buffer, while others are blocked waiting for disk reads.  
+
+ Using *more* than one thread per file is probably not advantageous, because 
+ unless our program runs on a multiprocessor machine, the overhead of splitting
+ a file into pieces and searching each piece with its own thread will have no
+ payback.  
+
+ So what kind of a memory manager do we want?
+
+ We must consider semantics first, because performance is secondary to 
+ correctness.  We need to read a sequence of characters (rather than numbers,
+ or structured data like dates).  Alignment is not needed, so is not worth 
+ paying for.
+
+ Individually deallocating memory chunks isn't necessary, because the threaded
+ design implies that we believe that our runtime environment has enough memory 
+ to support "concurrent" search of files, which is possible only if all the 
+ files are in memory simultaneously.  If we have enough memory to hold all 
+ desired files in memory simultaneously, there is no need to deallocate in the
+ middle of processing -- we can simultaneously deallocate all our buffers at 
+ the end, which will also increase speed. 
+
+ We do not need variable-sized buffers, because these would only complicate our
+ code.  (We are not concerned with fragmentation or over-allocation, because 
+ the memory will not be long-held.  As a result, the only buffer optimization 
+ we might consider doing would involve disk-sector size, which does not vary 
+ by file.)  All but one of the memory managers provide variable-sized buffers, 
+ though, so we are likely to have a manager with this capability.
+
+ In short, the most compatible manager is a string pool.  Because we can code 
+ so that there is no additional cost to doing so, we will adhere to the 
+ policy recommendation and use the wrapping allocator interface for it, a 
+ 'bdema_StringAllocator'.
+
+ (Due to the large amount of code, use of the allocator below is highlighted 
+ by surrounding asterisks.)
+..
+ #include "bdema_strallocator.h"
+ #include <vector>
+
+ using namespace BloombergLP;
+
+ bool grep(const char *file, const char *pattern, char *workspace);
+ void multiGrep(std::vector<const char *> *fileNames, const char *pattern);
+ enum { BUFFER_SIZE = 2056 };
+
+ int main(int  argc, 
+          char **argv) {
+
+     std::vector<const char *>allFiles;   
+                      // 'allFiles' will contain the list of files to search
+     allFiles.reserve(32);
+     // Code for stuffing filenames into the 'allFiles' vector not shown.
+
+     multiGrep(&allFiles, argv[1]);
+          // Upon return, the files still in vector 'allFiles' are those
+          // containing the argument string.  We could print out their names
+          // here, or in a different program, pass them on for further 
+          // processing. 
+
+     return 0;
+ }
+
+ void multiGrep(std::vector<const char *> *fileNames, 
+                const char                *pattern) {
+
+ /***************************************************************************/
+     bdema_StrAllocator memSource(bdema_Default::defaultAllocator());
+            /* The memory is managed by a string allocator, and originated
+               by the 'bdema_NewDeleteAllocator', which is the default 
+               allocator unless changed by client code. 
+
+               If we wanted to be certain of heap memory, we could say
+               memSource(bdema_NewDeleteAllocator::singleton());  instead.
+
+               (In a larger program, 'memSource' might not be a local variable
+               of the 'multiGrep' function.) */
+ /***************************************************************************/
+
+     std::vector<bool> doRemove(fileNames->size());
+
+
+     for(int i = 0; i < fileNames->size(); ++i) {
+
+        /*******************************************************************/
+         char *threadBuffer = static_cast<char *>
+                             (memSource.allocate(BUFFER_SIZE + 1));   
+               /* The allocators (as well as pools and block lists) all return
+                  'void *', so we must cast the return value to be the type
+                  we want.  We ask for one byte more than we intend to read
+                  from disk so that we can append a terminating 0, to ensure
+                  that the search procedure never reads beyond legitimate 
+                  memory. */
+        /*******************************************************************/
+
+
+         // The following line would be replaced by a threading API call
+         // that spawns a new thread, having it perform the identical 
+         // functionality  (i.e., calling the 'grep' procedure with the
+         // same arguments) as the current line does.
+
+         doRemove[i] = ! grep((*fileNames)[i], pattern, threadBuffer);
+     }
+
+     // A threading API call to have all the threads "join" would go here.
+
+    /*******************/
+     memSource.release();
+    /*******************/
+
+     for(int i = doRemove.size() - 1; i >= 0; i--) {
+         if(doRemove[i]) {
+             std::vector<const char *>::iterator it;
+             it = fileNames->begin() + i;
+             fileNames->erase(it);
+         }
+     }
+ }  // end multiGrep
+
+
+ bool grep(const char *file, 
+           const char *pattern, 
+           char       *localBuffer) {
+
+     FILE *fileHandle = fopen(file, "r");
+     int numBytesRead;
+
+     while(numBytesRead = fread(localBuffer, 1, BUFFER_SIZE, fileHandle)) {
+         localBuffer[numBytesRead] = 0;
+         if(strstr(localBuffer, pattern)) { 
+                 // 'strstr' is here for illustration purposes.  A more
+                 // sophisticated pattern-matching algorithm could easily be
+                 // substituted.
+
+                 // Note also that we are ignoring the possibility that the 
+                 // pattern string happens to occur exactly where the buffer
+                 // size breaks up the file.  A real grep would have to
+                 // handle this possibility.
+
+             fclose(fileHandle);
+             return true;
+         }
+     }
+
+     fclose(fileHandle);
+     return false;
+ } // end grep
+..
+
+/USAGE EXAMPLE 2: 'bdema_SequentialAllocator' for a database driver
+/------------------------------------------------------------------
+ ODBC/JDBC drivers are libraries providing standardized, language-appropriate
+ API's for accessing SQL databases.  The standardization allows programmers
+ using these drivers to access any vendor's SQL-based DBMS in the same way.  
+ Language-appropriate means that the provided API's conform better to how 
+ programmers typically work with data in C/C++ (or Java, respectively); they 
+ provide functions for reading the data as language-specific types, e.g., 
+ 'getInt()', 'getString()', and so on.
+
+ Suppose we wanted to write an ODBC/JDBC-like driver for legacy files, so that
+ application could access these data files with the same API used for accessing
+ DBMS-stored data.  Which memory manager would be best? 
+
+ ODBC drivers return C++ types, and initially this indicates use of a memory
+ manager that will provide properly-aligned addresses for storing those types.
+ This example will in fact use such a manager, illustrating alignment 
+ considerations.
+
+ But note that an alternative design would store the returned data in the
+ character-sequence form in which they are stored in the file, and convert them
+ to type-correct values *only* when the client *asks* for a particular item.
+ This kind of lazy evaluation would be more effective in scenarios where
+ clients read fields at most once (i.e., sometimes not at all).  In such a
+ design, a non-aligning manager would do.
+ 
+ We can't know in advance how long a client will want to hold onto a result 
+ set (the data returned from a SQL query).  But because we are implementing in
+ C++, the language provides a construct whose semantics correspond directly to
+ the notion of "no longer needing an object" -- i.e., a destructor.  If we 
+ make our result set a class, invocation of the destructor will serve as our
+ indication that the client no longer needs the result set contents.
+
+ There are two available aligning managers: the sequential pool (with its
+ wrapper, 'bdema_SequentialAllocator') and the multipool (with its wrapper, 
+ the 'bdema_MultiPoolAllocator').  We will use a separate memory manager for
+ each result set, allowing us to deallocate all memory at once in the 
+ destructor.  This design allows us to use the slightly more efficient 
+ 'bdema_SequentialAllocator'.
+
+ (Most ODBC/JDBC drivers provide separate classes representing a database
+ connection, an SQL statement, a query result set, and so on.  We simplify 
+ the example by defining one class, 'MyResultSet', that executes the query as 
+ well as returning the results; query execution in a real driver would 
+ typically belong to a 'Statement' class.
+
+ Note that the use of allocators in this example is similar to the use in the
+ previous example  -- allocation when needed, and the performance-enhancing
+ simultaneous 'release' when deallocating.  The intent in providing this 
+ example is not to show a different pattern, but to motivate use of aligning
+ allocators, as distinct from the unaligned one in Usage Example 1.)
+
+ As before, we highlight use of the allocator by surrounding its use with
+ asterisks.
+..
+#include "bdema_sequentialallocator.h"
+#include <bdem_elemtype.h>
+#include <vector>
+#include <string>
+
+using namespace BloombergLP;
+
+/* The following (de-facto struct) holds:
+        1. metadata defining a column, and
+        2. a container to hold column contents. */
+
+class Column {
+    std::string d_columnName;         // Name of the "column" in the query
+    bdem_ElemType::Type d_typeCode;   // C++ type for this column
+    std::vector<void *> d_items;      // Pointers to column data
+
+  friend class MyResultSet;
+};
+
+
+class MyResultSet {
+
+ /*****************************************/
+    // The memory source for storing database-retrieved items.
+    bdema_SequentialAllocator d_memSource;
+ /*****************************************/
+
+    std::vector<Column> d_columns;
+    int d_cursor;    // specifies the row being accessed
+
+
+    int findIndexForName(const char *columnName);
+
+  public:
+    MyResultSet(void);
+    ~MyResultSet(void);
+
+    bool fakeExecute(const char *sqlQuery);   // this simulates query execution
+    bool next(void);                          // move to the next row 
+
+    // ODBC "PROTOCOL" -- DATA EXTRACTION ROUTINES
+    int getInt(int *result, const char *columnName);
+    int getString(std::string *result, const char *columnName);
+    int getDouble(double *result, const char *columnName);
+};
+..
+ We simplify this example by only implementing data retrieval for three types.
+ (A real driver, of course, would define an API for each supported type.)  
+ Note also that the function signature style conforms to BDE design -- rather 
+ than returning the data as the *return* *result* of the function call, we 
+ return it by placing it into the variable whose address we are passed as the 
+ first function argument, the *output* parameter.  We reserve the return value
+ for indicating error status.
+
+ We further simplify the example by *simulating* query execution, so that the
+ example code can be extracted from this file and executed.  The simulation
+ involves including a (const) sequence of 'char's representing a data block as
+ it would come back from the read file, a block which our code then parses.
+ This simplification necessarily also involves hard-coding metadata that would
+ also be obtained by computation, such as how many records were returned.
+..
+enum { SUCCESS = 0, FAILURE = 1 };
+
+MyResultSet::MyResultSet(void) : 
+               /***********************************************************/
+                       d_memSource(bdema_Default::defaultAllocator()),
+               /***********************************************************/
+                       d_cursor(-1) {
+    d_columns.reserve(20);  // few queries request more than 20 columns
+}
+
+MyResultSet::~MyResultSet(void) {
+/******************************/
+    d_memSource.release();
+/******************************/
+}
+
+bool MyResultSet::fakeExecute(const char *sqlQuery) {
+
+    /* This block simulates a 'char' sequence that might be returned 
+       from the file.  It simulates a legacy file that stores the data 
+       as '@'-separated fields. 
+
+       The query being simulated appears in 'main', below.
+    */
+    char *fileData =
+    "Harold@Effective XML@0321150406@44.99@"
+    "Alexandrescu@Modern C++ Design@0201704315@42.99@"
+    "McLaughlin@Java & XML@0596001975@44.95@"
+    "Leung@Professional XML Development with Apache Tools@0764543555@39.99@"
+    "Rago@UNIX System V Network Programming@0201563185@47.50@";
+
+    const int numRows = 5;  // would be computed
+    const int numCols = 4;  // would be parsed from query
+   
+
+    // Set up 'MyResultSet' metadata
+    Column rsmd;
+    rsmd.d_columnName = "AUTHOR";
+    rsmd.d_typeCode = bdem_ElemType::STRING;
+    d_columns.push_back(rsmd);
+    rsmd.d_columnName = "TITLE";
+    rsmd.d_typeCode = bdem_ElemType::STRING;
+    d_columns.push_back(rsmd);
+    rsmd.d_columnName = "ISBN";
+    rsmd.d_typeCode = bdem_ElemType::INT;
+    d_columns.push_back(rsmd);
+    rsmd.d_columnName = "PRICE";
+    rsmd.d_typeCode = bdem_ElemType::DOUBLE;
+    d_columns.push_back(rsmd);
+
+    const char *endOfWord = fileData;
+    for(int i = 0; i < numRows; i++) {
+        for(int j = 0; j < numCols; ++j) {
+
+            // Find the start and end of next column's data
+            const char * startOfWord = endOfWord;
+            endOfWord = strchr(endOfWord, '@');
+
+
+            /* Because of our simulation, the "file-returned block"
+               is stored in const memory.  We can't replace the '@' signs
+               with the needed NULL directly in const memory, so we  make 
+               a copy of the parsed items instead.  
+               This extra copy would not be needed in a real driver.
+            */
+            char scratchSpace[100]; 
+            int hackLen = endOfWord - startOfWord;
+            strncpy(scratchSpace, startOfWord, hackLen);
+            scratchSpace[hackLen] = 0;
+
+
+
+            int *iMemBlock;             // define these outside the switch
+            double *dMemBlock;          //      to silence erroneous compiler
+            char *sMemBlock;            //      errors
+
+            // Extract the data, storing in allocated memory.
+            switch(d_columns[j].d_typeCode) {
+              case bdem_ElemType::INT:
+                                    /*****************************************/
+                iMemBlock = static_cast<int *>
+                                         (d_memSource.allocate(sizeof(int)));
+                                    /*****************************************/
+
+                *iMemBlock = atoi(scratchSpace);   // SAFE because aligned!
+                d_columns[j].d_items.push_back(iMemBlock);
+                break;
+              case bdem_ElemType::DOUBLE:
+                                    /*****************************************/
+                dMemBlock = static_cast<double *>
+                                      (d_memSource.allocate(sizeof(double)));
+                                    /*****************************************/
+                *dMemBlock = atof(scratchSpace);   // SAFE because aligned!
+                d_columns[j].d_items.push_back(dMemBlock);
+                break;
+              case bdem_ElemType::STRING:
+                int strLen = endOfWord - startOfWord;
+                                    /*****************************************/
+                sMemBlock = static_cast<char *>
+                                    (d_memSource.allocate(strLen + 1));
+                                    /*****************************************/
+
+                strncpy(sMemBlock, startOfWord, strLen);
+                sMemBlock[strLen] = 0;
+                d_columns[j].d_items.push_back(sMemBlock);
+                break;
+            } // end switch
+
+            ++endOfWord;
+        } // end inner (column) loop
+    } // end outer (row) loop
+    return true;
+}
+
+bool MyResultSet::next(void) {
+    if( ++d_cursor >= d_columns[0].d_items.size()) 
+              // all columns have the same number of items, 
+              // so it suffices to ask d_columns[0]
+        return false;
+
+    return true;
+}
+
+int MyResultSet::getInt(int *result, const char *columnName) { 
+    int index = findIndexForName(columnName);
+    if(-1 == index) {
+        return FAILURE;
+    }
+
+    *result = *(int *)(d_columns[index].d_items[d_cursor]);
+    return SUCCESS;
+}
+
+int MyResultSet::getString(std::string *result, const char *columnName) {
+    int index = findIndexForName(columnName);
+    if(-1 == index) {
+        return FAILURE;
+    }
+
+    *result = (char *)(d_columns[index].d_items[d_cursor]);
+    return SUCCESS;
+}
+
+int MyResultSet::getDouble(double *result, const char *columnName) { 
+    int index = findIndexForName(columnName);
+    if(-1 == index) {
+        return FAILURE;
+    }
+
+    *result = *(double *)(d_columns[index].d_items[d_cursor]);
+    return SUCCESS;
+}
+
+// Return the index in the 'd_columns' vector of the column
+// with the passed-in name.
+int MyResultSet::findIndexForName(const char *columnName) {
+    // In real life we might have used a std::map....
+    for(int i = 0; i < d_columns.size(); ++i) {
+        if(d_columns[i].d_columnName == columnName) {
+            return i;
+	}
+    }
+    return -1;
+}
+..
+ The 'main' procedure is then coded as expected:
+..
+using namespace BloombergLP;
+
+int main(int    argc, 
+         char **argv) {
+
+    MyResultSet rs;
+    rs.fakeExecute( "SELECT author, title, isbn, price 
+                     FROM <table list>
+                     WHERE <join criteria>");
+
+    // Walk through entire result set and print out entries.
+    std::string author;
+    std::string title;
+    int isbn;
+    double price;
+
+    while(rs.next()) {                  // position at the next row
+        rs.getString(&author, "AUTHOR");
+        rs.getString(&title, "TITLE");
+        rs.getInt(&isbn, "ISBN");
+        rs.getDouble(&price, "PRICE");
+
+        std::cout << "Author: " << author << std::endl;
+        std::cout << "Title: " << title << std::endl;
+        std::cout << "ISBN #: " << isbn << std::endl;
+        std::cout << "Price: " << price << std::endl << std::endl;
+    }
+
+    return 0;
+}
+..
+/USAGE EXAMPLE 3: Sketch use of 'bdema_BufferAllocator'
+/------------------------------------------------------
+ Clients can take advantage of the faster and cheaper memory originating
+ on the stack for use with objects (wanting allocators) that are used as 
+ *local* *variables* within some procedure.
+
+ For example, in Usage Example 1, we use the following local vector variable as
+ a means of knowing which files should be removed from the list of files 
+ possibly containing the search string.
+..
+     std::vector<bool> doRemove(fileNames->size());
+..
+ Suppose rather than 'bool' (for which vectors are optimized), we have as a
+ local variable 
+..
+     std::vector<LargeObject> someLocalVariable;
+..
+ Vectors accept allocators, too, which (along with other BDE components) use 
+ the default allocator when none is explicitly supplied.  For most 
+ applications, the default is heap-originated memory (i.e., the 
+ 'bdema_NewDeleteAllocator').
+
+ We can often speed up such local use by grabbing sufficient stack space and 
+ passing it in to the local object, wrapped in a 'bdema_BufferAllocator'.  
+
+The code above might look like
+..
+     char hugeLocalBuffer[5000];   // arbitrary constant, for simplification
+     std::vector<LargeObject> someLocalVariable(
+                                initSize,
+                                bdema_BufferAllocator(hugeLocalBuffer, 5000));
+..
+ The safest use passes the 'bdema_BufferAllocator' a "fallback" to use, should 
+ the stack space we grabbed prove insufficient.  The fallback must be a 
+ (pointer to a) function that accepts an 'int' (the requested number of bytes)
+ and returns a 'void *' (the presumed pointer to an allocated memory block).
+
+ We write a simple fallback function as follows:
+..
+     void *cheapNew(int numBytes) {
+         return new char[numBytes];
+     }
+..
+ and then redo the above code to pass this fallback to our buffer allocator:
+..
+     char hugeLocalBuffer[5000];
+     std::vector<LargeObject> someLocalVariable(
+                  initSize,
+                  bdema_BufferAllocator(hugeLocalBuffer, 5000, cheapNew));
+..
+
+/USAGE EXAMPLE 4: Sketch use of 'bdema_MultiPoolAllocator'
+/---------------------------------------------------------
+The 'bdema_MultiPoolAllocator' provides aligned memory, as does the 
+'bdema_SequentialAllocator', but at slightly greater cost.  The advantage of
+a 'bdema_MultiPoolAllocator' over a 'bdema_SequentialAllocator' is the ability
+to deallocate items individually, which can be preferable in high-memory-
+consumption scenarios.  A ticker data stream (or other data streams of 
+structured information) is one example.
+
