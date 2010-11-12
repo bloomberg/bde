@@ -1,0 +1,17 @@
+# Options for bae
+
+*                       _    OPTS_FILE = bae.cap
+*                       _    ASSET_OBJECT_NAME = libbae
+*                       _    ASSET_OBJECT_DESC = Bloomberg Application Environment
+*                       _    ASSET_DEPT_GROUP      = 101  # BDE
+*                       _    ASSET_CONTACT_PROG_1  = Andrei Basov
+*                       _    ASSET_CONTACT_PROG_2  = Ujjwal Bhoota
+*                       _    ASSET_PRODUCTION_LOCN = /bbsrc/bae
+
+#==============================================================================
+
+*                       _       CAPABILITY = NEVER
+!! *                    mt      CAPABILITY = ALWAYS
+
+#==============================================================================
+
