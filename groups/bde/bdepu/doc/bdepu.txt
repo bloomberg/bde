@@ -1,0 +1,59 @@
+ bdepu.txt
+
+@PURPOSE: Provide parsing routines for fundamental and other low-level types.
+
+@MNEMONIC: Basic Development Environmnent Parsing Utilities (bdepu)
+
+@AUTHOR: Lea Fester (lfester)
+
+@DESCRIPTION: The 'bdepu' package provides several sets of pure procedures
+ (i.e., utility functions) that convert text representations to objects of
+ fundamental or basic BDE types ("parser" utilities), and that convert objects
+ to text ("generator" utilities).  In addition, there are sets of lower-level
+ utilities whose main purpose is to facilitate the implementation of the
+ higher-level parsers.
+
+ 'bdepu' provides three general types of parsing routines for low-level types.
+ These include 'parse*' routines, which extract particular types from a
+ character sequence (or indicate inability to do so); 'generate*' routines,
+ which output character sequences representing the value of some low-level
+ type; and 'skip' routines, which bypass some character sequence within a
+ larger stream but do not return a corresponding token or value.
+
+ 'bdepu' routines parse, skip, or generate the following types or entities:
+..
+  1.  C/C++ identifiers.
+  2.  The special token NULL.
+  3.  Signed and unsigned integers.
+  4.  Client-supplied string.
+  5.  White space (including C- and C++-style comments).
+  6.  Characters (both single-quote delimited and "raw", or undelimited).
+  7.  'bdet_Date's, which are dates in YYYY/MM/DD format only.
+  8.  'bdet_DateTime' (same restriction applies to the date portion).
+  9.  Doubles.
+  10. Floats.
+  11. Int64 types, representing 64-bit integers.
+  12. Shorts
+  13. 'bdet_Time's, a time type.
+  14. Strings (both double-quote delimited and "raw", or undelimited).
+  15. Arrays of (most of) the above types.
+..
+
+ There are two or three "levels of service" for each of the parsing routines.
+ The most basic level of service looks for a precise match of the requested
+ item starting with the first character of the argument buffer.  The next level
+ can ignore leading whitespace and then look for a match.  The highest level of
+ service also ignores leading whitespace and will parse *either* a value of
+ the requested type, or the word NULL, in which case the returned item will
+ hold the (BDE-defined) canonical representation of NULL for that type.
+
+ Similar level of service distinctions apply to the generating routines. The
+ most basic output only a textual representation of an item's value.  Second-
+ level routines can indent output by a client-specified amount, and the highest
+ level of services writes a terminating end-of-string (i.e., '\n') after
+ outputting the item.
+
+ The procedures providing the lowest level of service are in BDE library
+ files 'bdepu_parserimputil.h' and 'bdepu_typesparserimputil.h'.  The second
+ level routines are in file 'bdepu_typesparser.h', and the highest level are
+ in 'bdepu_ntypesparser.h'.
