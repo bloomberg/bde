@@ -1,0 +1,30 @@
+ baedb.txt
+
+@PURPOSE: [DEPRECATED] Provide a protocol to access a Bloomberg user database.
+
+@DEPRECATED: Use 'bsiudb' instead.
+
+@MNEMONIC: Basic Application Environment DataBase (baedb)
+
+@AUTHOR: Shezan Baig (sbaig)
+
+@SEE_ALSO: bsiudb
+
+@DESCRIPTION: [!DEPRECATED!] This package contains two components:
+  (1) 'baedb_userdb', a base-level protocol for retrieving information from a
+ standard Bloomberg User Database, and (2) 'baedb_testuserdb', a test
+ implementation of that protocol.
+
+ Note that this package is !DEPRECATED!.  Clients should use the types defined
+ in 'bsiudb' instead.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'baedb' package currently has 2 components having 2 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.
+..
+  Level 2: baedb_testuserdb
+
+  Level 1: baedb_userdb
+..
