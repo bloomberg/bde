@@ -1,0 +1,359 @@
+ baem.txt
+
+@PURPOSE: Provide thread-safe collection and publishing of metrics.
+
+@MNEMONIC: Basic Application Environment Metrics (baem)
+
+@AUTHOR: Henry Verschell (hverschell)
+
+@DESCRIPTION: The 'baem' package provides facilities for recording and
+ publishing metric data.
+
+ A "metric", in the context of this package, is a measured event.  This
+ package does *not* define what constitutes an event or what the associated
+ measurement represents.  For example, a metric could record the elapsed time
+ of a function call (in which case the event is the function call, and the
+ measured value is the elapsed time), or a metric could record the number of
+ requests received by a service (in which case the event is the reception of
+ a request, and the measured value is 1).
+
+ This package provides components for collecting and aggregating measurement
+ values (see 'baem_metric' and 'baem_metrics').  Those aggregated metric
+ measurements are described by a metric record (see 'baem_metricrecord'),
+ which contains the identifier for the recorded metric, the number of times
+ the event occurred, as well as the minimum, maximum, and total of the measured
+ values.  This package provides a protocol for publishing metric records (see
+ 'baem_publisher') and an implementation of that protocol for publishing
+ records to a stream (see 'baem_streampublisher).  Finally this package
+ provides a 'baem_metricsmanager' component to coordinate the collection and
+ publication of metrics.
+
+/Getting Started
+/---------------
+ The following section presents a simple example of collecting
+ metrics.  We create a trivial application that reads lines of text from
+ standard input and counts the number of letters, words, and unique words in
+ each line.  The function 'processLine()' processes each line of text and
+ records metrics for the number of times 'processLine()' has been called, the
+ elapsed time for the calls to 'processLine()', the total character count, and
+ the total word count.
+
+ Before we can collect metrics we must first create a 'baem_MetricsManager'
+ object to manage their collection (and publication).  We use the
+ 'baem_DefaultMetricsManager', which is a singleton instance of the
+ 'baem_MetricsManager' class.  The default metrics manager is used by the
+ collection macros that we will use to collect metrics (see 'baem_metrics').
+ Note that the default metrics manager is intended to be created and
+ destroyed by the *owner* of 'main'.  A default metrics manager instance
+ should be created during the initialization of an application (while the
+ task has a single thread) and destroyed just prior to termination (when
+ there is, similarly, a single thread).
+..
+  int main(int argc, const char *argv[])
+  {
+..
+ We create a 'baem_DefaultMetricsManagerScopedGuard', which manages the
+ lifetime of the default metrics manager (singleton) instance.  At
+ construction, we provide the scoped guard an output stream ('stdout') to
+ which the 'baem_publisher' (created by the default metrics manager) will
+ publish metrics.
+..
+      baem_DefaultMetricsManagerScopedGuard managerGuard(std::cout);
+..
+ We create a 'baem_PublicationScheduler' to periodically publish the metrics
+ we have collected.  A 'baem_PublicationScheduler' invokes 'publish()' on the
+ supplied 'baem_MetricsManager' object according to the provided schedule.
+..
+      bcep_TimerEventScheduler eventScheduler;
+      baem_PublicationScheduler publicationScheduler(
+                                     baem_DefaultMetricsManager::instance(),
+                                     &eventScheduler);
+..
+ To begin periodically publishing metrics we 'start' the event scheduler
+ supplied to the 'baem_PublicationScheduler', and then set a simple schedule
+ to publish all collected metrics every 30 seconds.
+..
+      eventScheduler.start();
+      publicationScheduler.setDefaultSchedule(bdet_TimeInterval(30, 0));
+..
+ Finally we have our main "application" loop, which reads lines of text from
+ the standard input (until "exit" is provided as input) and calls
+ 'processLine()' for each line of input.
+..
+      while (true) {
+          enum { BUFFER_SIZE = 1024 };
+          char buffer[BUFFER_SIZE];
+          if (!std::cin.getline(buffer, BUFFER_SIZE)) {
+              break;
+          }
+          if (0 == std::strcmp(buffer, "exit")) {
+              break;
+          }
+          processLine(buffer);
+      }
+..
+ At the end of this lexical scope 'managerGuard' is destroyed, releasing the
+ default 'baem_MetricsManager' instance.
+..
+  }
+..
+ Next we define the 'processLine()' function.  The 'processLine()' function
+ "processes" a line of text, and collects several metrics related to the
+ function invocation.
+..
+  void processLine(const std::string& line)
+      // Process the specified 'line' of text and write to standard output the
+      // number of characters, words, and unique words in 'line'.
+  {
+..
+ Increment the count of the number of calls to 'processLine()' and use the
+ 'BAEM_METRICS_TIME_BLOCK' macro (see 'baem_metrics') to collect the
+ elapsed time of this function call.  Note that all the metrics recorded by
+ this function belong to the (arbitrarily chosen) category "Example".
+..
+      BAEM_METRICS_INCREMENT("Example", "processLineCount");
+      BAEM_METRICS_TIME_BLOCK("Example", "processLineElapsedTime");
+
+      int                   wordCount  = 0;
+      std::set<std::string> words;
+
+      std::string        word;
+      std::istringstream istream(line);
+      while (istream >> word) {
+          words.insert(word);
+          ++wordCount;
+      }
+
+      std::cout << "Characters: count: " << line.size()
+                << "\tWord count: " << wordCount
+                << "\tUnique word count: " << words.size() << std::endl;
+
+..
+ Once we've "processed" the 'line', update the character count and word
+ count metrics.
+..
+      BAEM_METRICS_UPDATE("Example", "characterCount", line.size());
+      BAEM_METRICS_UPDATE("Example", "wordCount", wordCount);
+  }
+..
+ We've now created our example application.  A typical session with this
+ application might look like (note that '>' indicates user input):
+..
+ >this contains 4 words
+   Characters: count: 21   Word count: 4   Unique word count: 4
+ >this sentence contains 5 words
+   Characters: count: 30   Word count: 5   Unique word count: 5
+..
+ Every 30 seconds metrics will be reported to standard output.  A typical
+ publication of metrics would look like:
+..
+ 17FEB2009_15:29:20.792+0000 4 Records
+   Elapsed Time: 30.0092s
+      Example.processLineCount [ count = 2, total = 2, min = 1, max = 1 ]
+      Example.processLineElapsedTime [ count = 2, total = 0.0007656,
+                                       min = 0.00022736, max = 0.00053824 ]
+      Example.characterCount [ count = 2, total = 51, min = 21, max = 30 ]
+      Example.wordCount [ count = 2, total = 9, min = 4, max = 5 ]
+..
+
+/Hierarchical Synopsis
+/---------------------
+ The 'baem' package currently has 17 components having 10 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The package prefix and underscore ('baem_') are omitted from
+ the full component names to simplify the layout.
+..
+  Level 10: stopwatchscopedguard
+
+  Level  9: integermetric            metric
+
+  Level  8: defaultmetricsmanager    publicationscheduler
+
+  Level  7: metricsmanager           streampublisher
+
+  Level  6: collectorrepository      publisher
+
+  Level  5: collector                integercollector    metricsample
+
+  Level  4: metricrecord             metricregistry
+
+  Level  3: metricid
+
+  Level  2: metricdescription
+
+  Level  1: category
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'baem'.  For the sake
+ of brevity, we sometimes blur the distinction between a component and the
+ primary types that the component provides.
+..
+  'baem_category' - a value used to categorize collected metrics.
+
+  'baem_collector' - a thread-safe mechanism for collecting aggregated
+        metric values.
+
+  'baem_collectorrepository' - a repository mechanism for 'baem_Collector'
+        and 'baem_Integer' collector objects.
+
+  'baem_defaultmetricsmanager' - provides a default (singleton) instance of
+        the 'baem_MetricsManager' object.
+
+  'baem_integercollector' - a thread-safe mechanism for collecting aggregated
+        integeral metric values.
+
+  'baem_integermetric' - provides macros and helper classes for recording
+        integral metric values.
+
+  'baem_metric' - provides macros and helper classes for recording metric
+        values.
+
+  'baem_metricdescription' - contains the name and category that describes a
+        metric.
+
+  'baem_metricid' - contains the address of a 'baem_MetricDescription'
+        object that identifies a metric.
+
+  'baem_metricrecord' - an aggregated record of the value of a metric over a
+        period of time; contains the identity of the metric, the count of
+        measured events, and the minimum, maximum, and total of the measured
+        event value.
+
+  'baem_metricregistry' - a registry of 'baem_MetricId' and 'baem_Category'
+        objects
+
+  'baem_metricsample' - a container for a sample of collected metric records.
+
+  'baem_metricsmanager' - a manager for collecting and publishing metric
+        data.
+
+  'baem_publicationscheduler' - a scheduling mechanism for periodically
+        publishing metrics.
+
+  'baem_publisher' - a protocol providing methods to publish metric values
+
+  'baem_stopwatchscopedguard' - provides a scoped guard class and macros to
+        simplify recording (to a metric) the elapsed time of a block of
+        code.
+
+  'baem_streampublisher' - an implementation of 'baem_Publisher' that
+        publishes metrics to a stream.
+..
+
+/Features Overview
+/-----------------
+ This section provides a brief summary of the features of the 'baem'
+ package - details can be found in the indicated components and later in this
+ document.
+..
+   * A protocol to provide pluggable publishing behavior.  Users can define
+        and register publishers with the metrics manager, which in turn
+        defines the behavior of the "publish" operation (see
+        'baem_publisher').
+
+   * A default (singleton) metrics manager instance (see
+        'baem_defaultmetricsmanager').
+
+   * Simple macros for recording metrics to the default (singleton) metrics
+        manager instance (see 'baem_metrics')
+
+   * Simple types for recording metrics (see 'baem_metric' and
+        'baem_integermetric')
+
+   * A guard helper class for recording the elapsed time of a block of code
+        to a metric (see 'baem_stopwatchscopedguard')
+
+   * The ability to enable and disable the collection and publication of
+        categories of metrics (see 'baem_metricsmanager' and
+        'baem_category')
+
+   * A scheduling mechanism for configuring the periodic publication of
+        metrics (see 'baem_publicationscheduler')
+..
+/Multi-Threading
+/---------------
+ The components provided by the 'baem' package were designed for use in
+ multi-threaded applications.  Metrics can be safely collected and published
+ simultaneously from multiple threads.  Nevertheless, not every individual
+ component in the 'baem' package is thread-safe.  See the individual
+ component documentation for more information.
+
+/Collecting Metrics
+/------------------
+ The 'baem' package defines several ways to collect metrics, as well as
+ allowing users to define their own collection mechanisms.
+
+ Choosing between 'baem_metric' and 'baem_integermetric':
+   The 'baem_metric' and 'baem_integermetric' components both define macros
+   and helper classes for recording metrics.  The mechanisms in
+   'baem_integermetric' are slightly more efficient for collecting integral
+   metric values, but are otherwise identical.
+
+ Choosing between metric collection macros and metric collection classes:
+   The macros and classes defined by the 'baem_metric', 'baem_integermetric'
+   and 'baem_metrics' components provide the same basic functionality.
+   Clients may find the 'baem_Metric' or 'baem_IntegerMetric' classes better
+   suited to collecting metrics associated with a particular instance of a
+   stateful object, while the 'BAEM_METRICS_*' macros are better suited
+   to collecting metrics associated with a particular code path (rather than an
+   object instance).  In most instances, however, choosing between the two
+   is a matter of taste.
+
+ Creating a user defined collection mechanism:
+   The 'baem' package allows users to define their own metric collection
+   mechanisms by registering a callback with a 'baem_MetricsManager' object.
+   User defined callbacks must match the
+   'baem_MetricsManager::MetricsCollectionCallback' function signature and
+   collect metrics for a *single* category.  Every time 'publish' is invoked
+   for a category, the metrics manager will invoke the registered collection
+   callbacks for that category, and publish the collected metrics.  See
+   'baem_metricsmanager' for more information.
+
+/Publishing Metrics
+/------------------
+ The 'baem_publisher' component defines a protocol for publishing metric
+ records.  Users can register publisher objects with a metrics manager.
+ Invoking 'publish()' on a metrics manager will collect metrics for the
+ set of categories supplied with the function call, and then publish the
+ metrics for each supplied category to publishers registered for that
+ category.
+
+ The 'baem_StreamPublisher' class implements the 'baem_Publisher' protocol
+ to provide a default publisher for publishing metrics to a stream.
+
+/Periodically Publishing Metrics
+/-------------------------------
+ Users can schedule the periodic publication of metrics using the
+ 'baem_publicationscheduler' component.  In the example presented above,
+ under "Getting Started", a 'baem_PublicationScheduler' object was
+ configured to publish all categories of metrics metrics every 30 seconds.
+
+ At construction, a 'baem_PublicationScheduler' object is provided the
+ addresses of a 'baem_MetricsManager' and a 'bcep_TimerEventScheduler'.
+ Users can call 'scheduleCategory()' to schedule an individual metric
+ category to be published repeatedly at a given interval, or call
+ 'setDefaultSchedule()' to schedule the publication of any category not
+ given an individual schedule.  At the end of a scheduled time interval, the
+ publication scheduler invokes the metrics manager's 'publish()' operation
+ with the set of categories to publish.  Note that, the publication
+ scheduler will combine categories that occur at the same frequency into a
+ single invocation of the metrics manager's 'publish' operation.
+
+/Disabling Metric Categories
+/---------------------------
+ Users can disable (and re-enable) a category of metrics by calling
+ 'baem_MetricsManager::setCategoryEnabled' method.  A disabled category will
+ not be published by the metrics manager.  In addition, the 'baem_metric',
+ 'baem_integermetric', 'baem_metrics', and 'baem_stopwatchscopedguard'
+ components will not collect metrics for disabled categories (minimizing the
+ performance cost of collecting metric for disabled categories).  Note that
+ when 'baem_MetricsManager::publish()' is called on a disabled category, the
+ metrics manager *will* invoke any user defined collection callbacks
+ registered for the disable category, but *will* *not* publish the collected
+ metrics.  Users defining their own metrics collection mechanism (using a
+ 'baem_MetricsManager::MetricsCollectionCallback') must (manually) test
+ whether a category is disabled if they wish to avoid collecting metrics for
+ a disabled category.
+
