@@ -1,0 +1,27 @@
+    btes.txt
+
+@PURPOSE: Provide transport-specific system level services.
+
+@MNEMONIC: Basic Transport Environment System-level services (btes)
+
+@AUTHOR: Tom Marshall (tmarshal)
+
+@DESCRIPTION: The 'btes' package provides "system level" services that are
+ required by this transport package group in a form that is portable across all
+ suported platforms.  Currently, the package supplies objects and utilities to
+ implement the Unix 'iovec' ("scatter/gather") buffer structure in a
+ platform-neutral form.
+
+/Component Synopsis
+/------------------
+ The following is a list of the components in 'btes'.
+..
+  btes_iovec
+  btes_iovecutil
+..
+
+@Usage
+ The usage examples for the 'btes' package are under construction.  Please
+ see the individual usage examples in the various components for now. 
+
+
