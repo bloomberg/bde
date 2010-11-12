@@ -1,0 +1,59 @@
+ bdefr.txt
+
+@PURPOSE: [DEPRECATED] reference-counted base class functor representation.
+
+@DEPRECATED: Use 'bdef_function' and 'bdef_bind' instead.
+
+@MNEMONIC: Basic Development Environment Functor Representation (bdefr)
+
+@COMPONENTS:
+   bdefr_vfunc0: Reference-counted functor representations for 'bdef_vfunc0'
+   bdefr_vfunc1: Reference-counted functor representations for 'bdef_vfunc1'
+   bdefr_vfunc2: Reference-counted functor representations for 'bdef_vfunc2'
+   bdefr_vfunc3: Reference-counted functor representations for 'bdef_vfunc3'
+   bdefr_vfunc4: Reference-counted functor representations for 'bdef_vfunc4'
+   bdefr_vfunc5: Reference-counted functor representations for 'bdef_vfunc5'
+   bdefr_vfunc6: Reference-counted functor representations for 'bdef_vfunc6'
+
+@AUTHOR: David Laurance (dlauranc)
+
+@DESCRIPTION: THIS PACKAGE IS *DEPRECATED*.  This package defines the common
+ (partially implemented) base classes for all internal representations of the
+ 'bdef_Vfunc*' families of function objects (functors).  These abstract base
+ classes declare the pure virtual 'execute' method, whose signature
+ characterizes this family of functor representations, while exploiting
+ structural inheritance to implement efficient (inline) count manipulators.
+ The counter is intended to reflect the number of 'bdef_Vfunc*' objects
+ (envelopes) or other partial owners that are currently using this functor
+ representation (letter) and is manipulated by each owner accordingly.
+
+ The counter used by these components is atomic, thereby providing thread-safe
+ increment and decrement operations.  The classes also provides static
+ 'deleteObject' methods to allow clients to destroy the object (when the count
+ reaches '0') without any information about the details of the 'bdefr_Vfunc*'
+ object memory management scheme.  Note that the object must be allocated
+ dynamically using the same allocator supplied at construction and that the
+ allocator must remain valid through the life of the object.  The
+ 'deleteObject' method allows concrete classes derived from 'bdefr_Vfunc*' to
+ declare their destructors 'private' and limit object instantiation to the
+ heap.
+
+ Each component in this package implements a single templatized functor base
+ class; the number at the end of the class name indicates the number of
+ arguments in the function's 'execute()' signature.
+
+ Note that clients may load a given 'bdefr' functor with their own free or
+ member function that requires more than the given number of arguments.  The
+ additional arguments are bound to specific pre-defined values by an
+ appropriate function in the 'bdefu' package.  See that package for additional
+ information.
+
+/USAGE
+/-----
+ Most clients will not use 'bdefr' or 'bdefi' classes directly; rather, they
+ will create 'bdef' functors, and populate them with utility functions from the
+ 'bdefu' package.  See the package documentation for package 'bdef' for
+ examples that illustrate this usage.
+
+ In order to understand in detail how the 'bdefr' components and classes work,
+ refer to the usage example in Component 'bdefr_vfunc2'.
