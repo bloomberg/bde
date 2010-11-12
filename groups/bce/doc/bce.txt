@@ -1,0 +1,156 @@
+ bce.txt
+
+@PURPOSE: Provide concurrency services and objects.
+
+@MNEMONIC: Basic Concurrency Environment (bce)
+ 
+@AUTHOR: David Laurance (dlauranc)
+
+@SEE_ALSO: bdema, bdef
+
+@DESCRIPTION: The 'bce' ("Basic Concurrency Environment") package group
+ provides services to support thread-safe programming in a way that is portable
+ across multiple operating systems and thread implementations.  Several
+ individual packages and components in this package group are designed to
+ parallel (and augment) similar components in the 'bde' package group.
+
+ Where 'bce' components have counterparts in 'bde', these thread-safe
+ components are interoperable with their counterparts in 'bde', with the
+ exception that 'bce' components can be used by client code in multiple
+ threads.   For example, 'bcema' allocators function similarly to their 'bdema'
+ counterparts, and can be used where 'bdema' allocators are required.
+
+ Additional components in 'bce' extend the basic functionality in 'bde' to
+ provide locking and synchronization mechanisms and thread pools.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bce' depends upon the 'bde' package group:
+..
+    Level 2:   bce
+
+    Level 1:   bde
+..
+
+ 'bce' currently has 11 packages forming 8 levels of physical dependency.  Note
+ that 'bce' also contains the required source control package 'bcescm' (as does
+ every package group, appropriately named).  See {BP BDE_SCM<GO>} for a
+ detailed specification for this package.
+
+ The table below shows the physical dependency hierarchy among the packages.
+ A brief description of each package is given in the following section.
+..
+ Level 8:  bcep
+
+ Level 7:                     bcefu
+
+ Level 6:            bcef               bcefi
+
+ Level 5:  bcedb              bcefr
+
+ Level 4:  bcec      bcema
+
+ Level 3:  bcemt
+
+ Level 2:  bces
+
+ Level 1:  bcescm
+..
+
+/Package Synopsis
+/----------------
+ The following is a brief synopsis of the content of each package in 'bce'.
+ A more detailed description can be found in the Package Overview section
+ immediately following this synopsis.  Capitalized letters indicate the
+ mnemonic for the package name suffix to the 'bce' package group name.
+..
+  'bcef'   - thread-safe signature-specific function objects (Functors)
+  'bcefi'  - *DEPRECATED* concrete representation imps for 'bcef' Functors
+  'bcefr'  - *DEPRECATED* reference-counted base class reps for Functors
+  'bcefu'  - *DEPRECATED* factory Utilities for populating 'bcef' Functors
+  'bcema'  - thread-safe memory allocation, handles, and proctors
+  'bcec'   - thread-enbled Containers giving concurrent access and manipulation
+  'bcep'   - dynamic Pool of threads, with scheduling and management functions
+  'bcemt'  - Multi-Threaded support for thread creation, synchronization, etc.
+  'bces'   - platform-neutral System  support for atomic operations, etc.
+  'bcesb'  - thread-safe input and output StreamBuf implementations
+  'bcescm' - introspective versioning (Source Control Management)
+..
+
+/Package Overview
+/----------------
+ The following provides a brief overview of the packages within the 'bce'
+ package group, arranged in alphabetical order.  The descriptions here are
+ still very brief; see the respective Package Level documents for more details
+ and usage examples.
+
+/bcec
+/- -
+ 'bcec' provides a variety of containers that allow concurrent access and
+ manipulation.  'bcec' is similar in *intent* to 'bdec', but with some
+ significant interface differences to support blocking operations in the
+ presence of multiple threads.
+
+/bcef
+/- -
+ 'bcef' provides a thread-safe implementation of the "envelope" components for
+ reference-counted function objects (functors) analogous to those in 'bdef'.
+ The 'bcef' functors are the basic types commonly used as callbacks in other
+ components that require thread safety.  See also 'bcefr', 'bcefi', and
+ 'bcefu'.
+
+/bcefi
+/- - -
+ This package is *DEPRECATED*.  'bcefi' provides the concrete implementations
+ ("letters") of reference-counted function object (functor).  See also 'bcef',
+ 'bcefr', and 'bcefu'.
+
+/bcefr
+/- - -
+ This package is *DEPRECATED*.  'bcefr' provides the abstract
+ (reference-counted) base classes for function object (functor) "letters".
+ See also 'bcef', 'bcefi', and 'bcefu'.
+
+/bcefu
+/- - -
+ This package is *DEPRECATED*.  'bcefu' provides utility components for
+ populating 'bcef' function objects (functors).  The 'bcefu' populator
+ mechanism is the primary interface that clients will typically use to generate
+ specific functors as needed, e.g., for callbacks in the signatures of other
+ components.
+
+/bcema
+/- - -
+ 'bcema' provides thread-safe memory allocation and related proctor and handle
+ objects.
+
+/bcemt
+/- - -
+ 'bcemt' provides  primitives that allow creation and management of threads, as
+ well as synchronization between threads (e.g., mutex, condition variable).
+
+/bcep
+/- -
+ 'bcep' provides a dynamic pool of threads, with an interface to schedule jobs
+ and manage their execution by distributing them across the pool.
+
+/bces
+/- -
+ 'bces' provides primitives to support atomic operations, that is, arithmetic
+ operations that are guaranteed to execute sequentially in a multi-threaded
+ environment.
+
+/bcesb
+/- - -
+ 'bcesb' provides thread-enabled implementations of the 'std::streambuf'
+ interface.  At present, only the input portion of a pooled-buffer-chain
+ concrete 'streambuf' is provided.
+
+/bcescm
+/- - -
+ 'bcescm' is a special source control management package containing a single
+ component, 'bcescm_version'.  This component is included by every other
+ component in 'bce', and provides versioning information for the package group.
+ Users may use the 'bcescm_version' facilities to query a particular 'bce'
+ library for its version information.  See {BP BDE_SCM <GO>} for a detailed
+ specification for this package.
