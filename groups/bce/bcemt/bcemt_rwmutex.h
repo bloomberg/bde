@@ -1,0 +1,271 @@
+// bcemt_rwmutex.h                                                    -*-C++-*-
+#ifndef INCLUDED_BCEMT_RWMUTEX
+#define INCLUDED_BCEMT_RWMUTEX
+
+#ifndef INCLUDED_BDES_IDENT
+#include <bdes_ident.h>
+#endif
+BDES_IDENT("$Id: $")
+
+//@PURPOSE: Provide a platform-independent RW mutex class.
+//
+//@AUTHOR: David Schumann (dschumann1)
+//
+//@CLASSES:
+//   bcemt_RWMutex: platform-independent wrapper of an RW mutex
+//
+//@SEE_ALSO: bcemt_readerwriterlock
+//
+//@DESCRIPTION: This component provides a class, 'bcemt_RWMutex', that defines
+// a platform-independent RW mutex.  An RW mutex provides for a shared "read"
+// lock that may be held simultaneously by any number of threads, and a "write"
+// lock that is exclusive (i.e., it may be held by only one thread at a time).
+// The "write" lock is also exclusive with the "read" lock, so that no threads
+// may hold a "read" lock while the "write" lock is held, and vice versa.
+//
+///Usage
+///-----
+// TBD
+
+#ifndef INCLUDED_BCESCM_VERSION
+#include <bcescm_version.h>
+#endif
+
+#ifndef INCLUDED_BCES_PLATFORM
+#include <bces_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#if defined(BCES_PLATFORM__WIN32_THREADS) || defined(BSLS_PLATFORM__OS_AIX)
+#ifndef INCLUDED_BCEMT_READERWRITERLOCK
+#include <bcemt_readerwriterlock.h>
+#endif
+#endif
+
+#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifndef INCLUDED_PTHREAD
+#include <pthread.h>
+#define INCLUDED_PTHREAD
+#endif
+#endif
+
+namespace BloombergLP {
+
+template <typename THREAD_POLICY>
+struct bcemt_RWMutexImpl;
+
+#ifdef BCES_PLATFORM__POSIX_THREADS
+
+                   // ======================================
+                   // struct bcemt_RWMutexImpl<PosixThreads>
+                   // ======================================
+
+template <>
+struct bcemt_RWMutexImpl<bces_Platform::PosixThreads> {
+    // This is a platform-specific implementation detail that is not intended
+    // for use outside of this component.  Use the 'bcemt_RWMutex' class
+    // instead.  This structure is a wrapper around a POSIX RW lock on Sun (on
+    // AIX the POSIX RW lock has poor performance and no writer guarantees).
+
+  private:
+    // DATA
+    pthread_rwlock_t d_lock;
+
+  public:
+    // CREATORS
+    bcemt_RWMutexImpl();
+    ~bcemt_RWMutexImpl();
+
+    // MANIPULATORS
+    void lockRead();
+    void lockWrite();
+    int tryLockRead();
+    int tryLockWrite();
+    void unlock();
+};
+
+#endif  // BCES_PLATFORM__POSIX_THREADS
+
+                             // ===================
+                             // class bcemt_RWMutex
+                             // ===================
+
+class bcemt_RWMutex {
+    // This class is a platform-independent interface to a reader-writer lock
+    // ("RW mutex").  Multiple readers can safely hold the lock simultaneously,
+    // whereas only one writer is allowed to hold the lock at a time.  This
+    // class uses the most efficient RW mutex implementation available for the
+    // current platform that provides a "writer bias."  A "writer bias" is a
+    // guarantee that writers will not be starved by having reader threads
+    // continuously acquiring the shared lock.
+
+    // DATA
+#if defined(BSLS_PLATFORM__OS_AIX) || defined(BCES_PLATFORM__WIN32_THREADS)
+    bcemt_ReaderWriterLock d_impl;
+#else
+    bcemt_RWMutexImpl<bces_Platform::ThreadPolicy> d_impl;
+#endif
+
+    // NOT IMPLEMENTED
+    bcemt_RWMutex(const bcemt_RWMutex&);
+    bcemt_RWMutex& operator=(const bcemt_RWMutex&);
+
+  public:
+    // CREATORS
+    bcemt_RWMutex();
+        // Create an RW mutex initialized to an unlocked state.
+
+    ~bcemt_RWMutex();
+        // Destroy this RW mutex.
+
+    // MANIPULATORS
+    void lockRead();
+        // Lock this RW mutex for reading.  If there are no pending or active
+        // write locks, the call will return immediately; otherwise, it will
+        // block until all write locks have been released.  Note that 'unlock'
+        // must be used to release the lock.
+
+    void lockWrite();
+        // Lock this RW mutex for writing.  The call will block until all
+        // active read locks, and all pending or active write locks, have been
+        // released.  When this RW mutex is locked for writing, all read and
+        // write lock attempts will either fail or block until the lock is
+        // released.  Note that 'unlock' must be used to release the lock.
+
+    int tryLockRead();
+        // Attempt to lock this RW mutex for reading.  Return 0 on success, and
+        // a non-zero value if this mutex is currently locked for writing, or
+        // if there are writers waiting for this lock.  Note that, if
+        // successful, 'unlock' must be used to release the lock.
+
+    int tryLockWrite();
+        // Attempt to lock this RW mutex for writing.  Return 0 on success, and
+        // a non-zero value if this mutex is already locked for reading or
+        // writing.  Note that, if successful, 'unlock' must be used to release
+        // the lock.
+
+    void unlock();
+        // Release the lock that the calling thread holds on this RW mutex,
+        // whether it is a lock for reading or writing.  The behavior is
+        // undefined unless the calling thread currently has a lock on this
+        // mutex.
+};
+
+#ifdef BCES_PLATFORM__POSIX_THREADS
+
+                          // ------------------------
+                          // struct bcemt_RWMutexImpl
+                          // ------------------------
+
+// CREATORS
+inline
+bcemt_RWMutexImpl<bces_Platform::PosixThreads>::bcemt_RWMutexImpl()
+{
+   pthread_rwlock_init(&d_lock, NULL);
+}
+
+inline
+bcemt_RWMutexImpl<bces_Platform::PosixThreads>::~bcemt_RWMutexImpl()
+{
+   pthread_rwlock_destroy(&d_lock);
+}
+
+// MANIPULATORS
+inline
+void
+bcemt_RWMutexImpl<bces_Platform::PosixThreads>::lockRead()
+{
+   pthread_rwlock_rdlock(&d_lock);
+}
+
+inline
+void
+bcemt_RWMutexImpl<bces_Platform::PosixThreads>::lockWrite()
+{
+   pthread_rwlock_wrlock(&d_lock);
+}
+
+inline
+int
+bcemt_RWMutexImpl<bces_Platform::PosixThreads>::tryLockRead()
+{
+   return pthread_rwlock_tryrdlock(&d_lock) ? 1 : 0;
+}
+
+inline
+int
+bcemt_RWMutexImpl<bces_Platform::PosixThreads>::tryLockWrite()
+{
+   return pthread_rwlock_trywrlock(&d_lock) ? 1 : 0;
+}
+
+inline
+void
+bcemt_RWMutexImpl<bces_Platform::PosixThreads>::unlock()
+{
+   pthread_rwlock_unlock(&d_lock);
+}
+
+#endif  // BCES_PLATFORM__POSIX_THREADS
+
+                             // -------------------
+                             // class bcemt_RWMutex
+                             // -------------------
+
+// CREATORS
+inline
+bcemt_RWMutex::bcemt_RWMutex()
+{
+}
+
+inline
+bcemt_RWMutex::~bcemt_RWMutex()
+{
+}
+
+// MANIPULATORS
+inline
+void bcemt_RWMutex::lockRead()
+{
+   d_impl.lockRead();
+}
+
+inline
+void bcemt_RWMutex::lockWrite()
+{
+   d_impl.lockWrite();
+}
+
+inline
+int bcemt_RWMutex::tryLockRead()
+{
+   return d_impl.tryLockRead();
+}
+
+inline
+int bcemt_RWMutex::tryLockWrite()
+{
+   return d_impl.tryLockWrite();
+}
+
+inline
+void bcemt_RWMutex::unlock()
+{
+   d_impl.unlock();
+}
+
+}  // close namespace BloombergLP
+
+#endif
+
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2007
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ------------------------------ END-OF-FILE ---------------------------------

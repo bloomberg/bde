@@ -1,0 +1,242 @@
+ bcemt.txt
+
+@PURPOSE: Support for multi-threading and thread-safe processes.
+
+@MNEMONIC: Basic Concurrency Environment Multi-Threading (bcemt)
+
+@AUTHOR: David Laurance (dlauranc), Herve Bronnimann (hbronnimann)
+
+@DESCRIPTION: The 'bcemt' package supports primitives that allow creation and
+ management of operating system threads.  Using the components in 'bcemt',
+ clients can write efficient, thread-safe code.
+
+ Thread creation and management of mutually exclusive locks (mutexes) are
+ supported in a way that should be familiar to developers with experience
+ programming in threads on any common computing platform.  In addition,
+ individual components such as 'bcemt_lockguard' and 'bcemt_barrier' manage
+ synchronization concerns through simple, idiomatic object interfaces that make
+ client code easy to read and understand.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bcemt' currently contains 14 packages forming 6 levels of physical dependency.
+ (Note: a package 'bcemt_recursiverwlock' formerly in 'bcemt' has been
+ deprecated.) The table below shows the hierarchical ordering of the
+ components.  The package prefix and underscore ('bcemt_') are omitted from the
+ full component names for layout efficiency.
+..
+  Level 6:   once
+
+  Level 5:   qlock
+
+  Level 4:   semaphore    timedsemaphore
+
+  Level 3:   barrier      readerwriterlock     meteredmutex
+
+  Level 2:   thread
+
+  Level 1:   threadimpl   threadimpl_pthread   threadimpl_win32
+             lockguard    readlockguard        writelockguard
+..
+
+/Component Synopsis
+/----------------
+ The following is a brief synopsis of the components in 'bcemt'.
+..
+  bcemt_thread              thread utilities and synchronization primitives,
+                            including Threads, Mutexes, and Condition variables
+
+  bcemt_barrier             a thread "barrier" that allows synchronization of
+                            multiple threads at a given point in a program
+
+  bcemt_lockguard           a class template that allows generic locking and
+                            unlocking of a threaded resource
+
+  bcemt_meteredmutex        a wrapper around the Mutex class that also keeps
+                            track of performance, for measuring contention and
+                            other metrics
+
+  bcemt_once                a mechanism for executing a segment of code only
+                            once per thread
+
+  bcemt_qlock               a lightweight mutual-exclusion mechanism suitable
+                            for use in static initialization
+
+  bcemt_readerwriterlock    a multiple-reader, single-writer lock
+
+  bcemt_readlockguard       a class template that allows generic locking and
+                            unlocking of a threaded resource
+
+  bcemt_semaphore           a semaphore synchronization primitive, not based on
+                            the OS primitive
+
+  bcemt_threadimpl          an abstract implementation class used to support
+                            bcemt_thread; concrete implementations of this
+                            class are supplied in 'bcemt_threadimpl_pthread'
+                            and 'bcemt_threadimpl_win32'.
+
+  bcemt_threadimpl_pthread  a concrete implementation of thread utilities,
+                            based upon the POSIX pthread library
+
+  bcemt_threadimpl_win32    a concrete implementation of thread utilities
+                            for Microsoft Windows
+
+  bcemt_timedsemaphore      a semaphore synchronization primitive, not based on
+                            the OS primitive, with time-out capabilities
+
+  bcemt_writelockguard      a class template that allows generic locking and
+                            unlocking of a threaded resource
+..
+/Thread Management
+/-----------------
+ Thread management is done via the utility class 'bcemt_ThreadUtil' in the
+ 'bcemt_thread' component.  This component presents a platform-independent
+ protocol whose operations nonetheless correspond closely to native operations
+ on platform-specific threads.  'bcemt_ThreadUtil' presents a procedural
+ interface -- that is, clients do not instantiate 'bcemt_ThreadUtil' objects,
+ and all methods of 'bcemt_ThreadUtil' are declared 'static'.
+
+ Clients create threads with the functions
+ 'bcemt_ThreadUtil::create(Handle*, ...)'.  On success, these functions yield a
+ 'bcemt_ThreadUtil::Handle' object that provides a lightweight handle for an
+ operating systems thread.  Similarly, clients destroy threads for which they
+ have a current 'Handle' with 'bcemt_ThreadUtil::terminate(Handle*)'.
+
+ 'bcemt_ThreadUtil' supports two 'create()' functions.  The first function
+ simply takes a pointer to a 'bcemt_ThreadUtil::Handle'; the second function
+ takes a 'bcemt_Attribute' object that defines component-specific and
+ platform-specific attributes of the created thread.  Platform-specific
+ attributes include scheduling policy and priority, and thread stack size.
+ See the 'bcemt_thread' component documentation for details.
+
+/Thread Synchronization
+/----------------------
+ The 'bcemt' package contains several components and classes that support
+ thread synchronization in a number of ways.
+
+/Basic Mutexes: 'bcemt_Mutex' and 'bcemt_RecursiveMutex'
+/- - - - - - - - - - - - - - - - - - - - - - - - - - -
+ At the lowest level, synchronization between threads is done with
+ 'bcemt_Mutex', a type defined in component 'bcemt_thread'.  Locks are acquired
+ with 'bcemt_Mutex::lock()' or 'bcemt_Mutex::tryLock()', and released with
+ 'bcemt_Mutex::unlock()'.  The 'bcemt' package provides several other
+ mechanisms for synchronization and communication, which suit specific
+ synchronization problems and allow more idiomatic C++ coding.
+
+ 'bcemt_RecursiveMutex' is similar to 'bcemt_Mutex', except that it can be
+ 'lock'ed multiple times *in* *a* *single* *thread*.  A corresponding number of
+ calls to 'unlock()' are required to unlock the mutex.  'bcemt_RecursiveMutex'
+ is also defined in component 'bcemt_thread'.
+
+/Inter-thread Condition Variables: 'bcemt_Condition'
+/- - - - - - - - - - - - - - - - - - - - - - - - -
+ The 'bcemt_Condition' class, defined in component 'bcemt_thread', implements
+ a "condition variable" that can be used by multiple threads to communicate
+ changes in the condition.  Multiple threads wait on the condition by calling
+ 'myCondition->wait(bcemt_Mutex*)', suspending their execution and waiting.
+ An individual thread then signals when the condition is met by calling either
+ 'myCondition->signal()' (waking up a single waiting thread) or
+ 'myCondition->broadcast()' (waking up all waiting threads).  Waits
+ with timeouts are supported through 'bcemt_Condition::timedWait()'.
+
+/Locking/Unlocking critical code
+/- - - - - - - - - - - - - - - -
+ Code in multiple threads can create a 'bcemt_Mutex' and call 'mutex->lock()'
+ and 'mutex->unlock()' to guarantee exclusive access to critical sections of
+ code.  A more idiomatic usage is provided by 'bcemt_LockGuard' and
+ 'bcemt_UnLockGuard'; objects of these types themselves lock and unlock a
+ 'bcemt_Mutex' when they are created or destroyed, allowing clients to manage
+ mutex locks in a way more transparent, safer way, and also making sure the
+ lock is released when an exception is thrown within the critical section.
+..
+     static void myThreadsafeFunction(myObject *obj, bcemt_Mutex *mutex)
+     {
+         // creating the LockGuard calls mutex->lock()
+         bcemt_LockGuard<bcemt_Mutext> guard(mutex);
+         if (someCondition) {
+             obj->someMethod();
+             return;
+             // LockGuard is destroyed; this calls mutex->unlock()
+         } else if (someOtherCondition) {
+             obj->someOtherMethod();
+             return;
+             // LockGuard is destroyed; this calls mutex->unlock()
+         }
+         obj->defaultMethod();
+         return;
+         // LockGuard is destroyed; this calls mutex->unlock()
+     }
+..
+
+/Thread-specific storage
+/- - - - - - - - - - - -
+ Thread-specific storage (also known as thread-local storage, or TLS) is a
+ mechanism for referring to a single variable (identified by its 'Key' in
+ 'bcemt_ThreadUtil', provided by the 'bcemt_thread' component) whose content
+ varies according to the thread it is observed in.  This is useful for status
+ variables such as 'errno', which is implemented by the system as a TLS, since
+ otherwise it would be impossible to use 'errno' values in a thread, not
+ knowing if another thread had modified it after the last system call in this
+ thread.
+
+/Synchronization of Multiple, Parallel Threads: 'bcemt_Barrier'
+/- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ The 'bcemt_barrier' component provides a single class, 'bcemt_Barrier', that
+ can be used to synchronize processing among multiple threads.  The
+ 'bcemt_Barrier' is created with a single argument specifying the number of
+ threads to synchronize.  Each individual thread then calls 'myBarrier->wait()'
+ when it reaches its synchronization point.  All waiting threads are blocked
+ until the required number of threads have called 'myBarrier->wait()'; once the
+ required number is reached, the threads are released and can continue
+ processing.
+
+/One Writer/Multiple Readers: 'bcemt_ReaderWriterLock'
+/- - - - - - - - - - - - - - - - - - - - - - - - - - -
+ Component 'bcemt_readerwriterlock' provides a single class,
+ 'bcemt_ReaderWriterLock', that supports multi-reader, single-writer locks.
+ Applications can use 'bcemt_ReaderWriterLock' to allow concurrent read access
+ from multiple threads to data that changes infrequently.  By calling
+ 'bcemt_ReaderWriterLock::lockRead()', reading threads are not blocked
+ until a writing thread requests a write lock (for instance, by calling
+ 'bcemt_ReaderWriterLock::lockWrite()').  While the write lock is in effect,
+ access is serialized and all threads that have called 'lockRead()' will wait
+ until the write lock is released with 'bcemt_ReaderWriterLock::unlockWrite()'.
+
+ Note that reader/writer locks also have their own guards, provided by
+ 'bcemt_readlockguard' and 'bcemt_writelockguard' components.
+
+/Recursive Write Locks: 'bcemt_RecursiveRWLock'
+/- - - - - - - - - - - - - - - - - - - - - - -
+ This component is *DEPRECATED*.  It can be emulated by a wrapper on a
+ 'bcemt_ReaderWriterLock' along with a thread-specific counter used to store
+ the number of recursive locks acquired by the current thread.
+
+/Static initialization
+/- - - - - - - - - - -
+ Initialization of a thread-specific static variable (such as a thread-local
+ singleton) can be achieved by using the 'bcemt_once' component.  The
+ 'bcemt_qlock' component ensures thread-safe static initialization of shared
+ resources by providing a light-weight, statically initializable lock.  Note
+ that the classic 'bcemt_Mutex' provided by the 'bcemt_thread' component cannot
+ safely be used in static initializations because some platforms (e.g., Windows
+ XP) do not have a native statically-initializable mutex type.
+
+/Implementation Classes and Components
+/-------------------------------------
+ The 'bcemt' package is supported on all Bloomberg platforms.  In order to
+ accomplish this, 'bcemt' provides platform-specific implementations of
+ thread primitives.  The following components provide platform-specific
+ implementations:
+..
+            Package          |  Purpose
+  +==========================+===========================================+
+  |         bcemt_threadimpl | Template declarations used by             |
+  |                          | component 'bcemt_thread'                  |
+  | bcemt_threadimpl_pthread | Template specialization for POSIX threads |
+  |   bcemt_threadimpl_win32 | Template specialization for MS-Windows    |
+  +--------------------------+-------------------------------------------+
+..
+
+ These components are visible and documented.  However, their intended use is
+ to support component 'bcemt_thread'.  Clients should not expect to use them
+ directly.
