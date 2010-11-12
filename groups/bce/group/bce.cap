@@ -1,0 +1,16 @@
+# BCE capabilities
+
+*                       _    OPTS_FILE = bce.cap
+*                       _    ASSET_OBJECT_NAME = libbce
+*                       _    ASSET_OBJECT_DESC = Bloomberg concurrency library
+*                       _    ASSET_DEPT_GROUP      = 101  # BDE
+*                       _    ASSET_CONTACT_PROG_1  = Andrei Basov
+*                       _    ASSET_CONTACT_PROG_2  = Ilougino Rocha
+*                       _    ASSET_PRODUCTION_LOCN = /bbsrc/bce
+
+#==============================================================================
+
+*                 	_       CAPABILITY = NEVER
+!! *			mt	CAPABILITY = ALWAYS
+
+#==============================================================================
