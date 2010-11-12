@@ -1,0 +1,9 @@
+bdeimp_bitwisecopy
+bdeimp_charhash
+bdeimp_dateutil
+bdeimp_duffsdevice
+bdeimp_fuzzy
+bdeimp_int64hash
+bdeimp_inthash
+bdeimp_strhash
+bdeimp_voidptrhash

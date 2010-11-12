@@ -1,0 +1,12 @@
+ bdeimp.txt
+
+@PURPOSE: Provide implementations needed by the BDE library.
+
+@MNEMONIC: Basic Development Environment IMPlementation (bdeimp)
+
+@AUTHOR Lea Fester (lfester)
+ 
+@DESCRIPTION: This package provides implementations needed by the BDE 
+ library, predominantly hash functions and other arithmetic computations.  It
+ is intended for use only by the BDE library.
+
