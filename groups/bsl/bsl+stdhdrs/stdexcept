@@ -1,0 +1,73 @@
+// stdexcept                                                          -*-C++-*-
+#ifndef INCLUDED_NATIVE_STDEXCEPT
+#define INCLUDED_NATIVE_STDEXCEPT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
+//
+//@SEE_ALSO: package bsl+stdhdrs
+//
+//@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
+//
+//@DESCRIPTION: Provide functionality of the corresponding C++ standard
+// header.  This file includes the compiler provided native standard header.
+// In addition, in 'bde-stl' mode (used by Bloomberg managed code, see
+// 'bsl+stdhdrs.txt' for more information) include the corresponding header in
+// 'bsl+bslhdrs' as well as 'bsl_stdhdrs_prologue.h' and
+// 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
+// places them in the 'std' namespace.
+
+#ifndef BSL_OVERRIDES_STD
+
+#   ifndef INCLUDED_BSL_STDHDRS_INCPATH
+#   include <bsl_stdhdrs_incpaths.h>
+#   endif
+
+#   include BSL_NATIVE_CPP_LIB_HEADER(stdexcept)
+
+#else // defined(BSL_OVERRIDES_STD)
+
+#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+#   include <bsl_stdhdrs_prologue.h>
+#   endif
+
+#   ifndef BSL_STDHDRS_RUN_EPILOGUE
+#   define BSL_STDHDRS_RUN_EPILOGUE
+#   define BSL_STDHDRS_EPILOGUE_RUN_BY_stdexcept
+#   endif
+
+#   ifndef INCLUDED_BSL_STDHDRS_INCPATH
+#   include <bsl_stdhdrs_incpaths.h>
+#   endif
+
+#   include BSL_NATIVE_CPP_LIB_HEADER(stdexcept)
+
+#   if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+        // Permit reliance on transitive includes within robo.
+#   include <cstdio>
+
+    // Note that there is a transitive include from <bsl_stdexcept.h> to
+    // <string>.  However, this causes breakage in the carefully crafted
+    // include graph from the native compiler.  Hence the inclusion is
+    // delayed till the epilogue.  Please see <bsl_stdhdrs_epilogue.h>
+    // for more details.
+#   ifndef BSL_INCLUDE_NATIVE_STRING
+#   define BSL_INCLUDE_NATIVE_STRING
+#   endif
+
+#   endif  // BSL_LEGACY
+
+#   include <bsl_stdexcept.h>
+
+#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_stdexcept
+#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_stdexcept
+#   include <bsl_stdhdrs_epilogue.h>
+#   endif
+
+#endif  // BSL_OVERRIDES_STD
+
+#endif  // INCLUDED_NATIVE_STDEXCEPT

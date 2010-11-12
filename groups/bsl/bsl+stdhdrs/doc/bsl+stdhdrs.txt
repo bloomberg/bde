@@ -1,0 +1,378 @@
+ bsl+stdhdrs.txt
+
+@PURPOSE: Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
+
+@AUTHOR: Arthur Chiu (achiu21)
+
+@LAST_MODIFIED: Mar 1, 2010
+
+@DESCRIPTION: The 'bsl+stdhdrs' package provides a compatibility layer for
+ BDE-STL mode used by Bloomberg-managed code.  This document describes the
+ contents of the 'bsl+stdhdrs' package, and also the design decisions and basic
+ structure of the hybrid bsl mechanism.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bsl+stdhdrs' is a non-standard package containing all C++ standard header
+ files and three additional headers used to facilitate the compatibility
+ layer logic:
+..
+  Level 2   : all standard C++ headers
+
+  Level 1(*): prologue.h     epilogue.h        incpaths.h
+..
+
+ (*) Note that the level-1 headers are abbreviated for clarity.  The full name
+ for the headers are 'bsl_stdhdrs_prologue.h', 'bsl_stdhdrs_epilogue.h' and
+ 'bsl_stdhdrs_incpaths.h' respectively.
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the headers in 'bsl+stdhdrs'.
+..
+  'bsl_stdhdrs_prologue' - provides the setup needed before including a native
+                           STL header.
+
+  'bsl_stdhdrs_epilogue' - provides the clean up needed after including a
+                           native STL header.
+
+  'bsl_stdhdrs_incpaths' - provides macros producing the relative path needed
+                           to access a native STL header.
+
+  *all other headers*    - provide corresponding C++ standard headers
+..
+
+/Supported Modes
+/---------------
+ In this document, different "modes" refer to the different meanings of
+ 'std::*' in source code.  Users can compile their code in two different modes:
+ Native-STL mode and BDE-STL mode.  In Native-STL mode, 'std::*' is resolved to
+ the standard libraries implemented by compiler vendors in the 'std' namespace.
+ In BDE-STL mode, 'std::*' is resolved to the standard libraries implemented by
+ Bloomberg in the 'bsl' namespace.
+
+ One of the two STL modes is selected at compile time via a pre-processor macro
+ definition: 'BSL_OVERRIDES_STD'.  The default is Native-STL mode, which is
+ selected when the macro is *not* defined.  When the macro is defined, BDE-STL
+ mode is selected.
+
+ The following sections provide more information on the two modes:
+
+/Native-STL mode
+/- - - - - - - -
+ In Native-STL mode, users that include standard headers, such as '<vector>',
+ '<algorithm>', '<string>', etc., will include the native (i.e., compiler
+ vendor supplied) implementation of the standard library in the 'std'
+ namespace.  Users that include Bloomberg-provided STL headers such as
+ '<bsl_vector.h>', '<bsl_algorithm.h>', '<bsl_string.h>', etc., will include
+ Bloomberg's implementation of the standard library in the 'bsl' namespace.
+
+ The 'bsl' namespace introduced in the 'bsl_*.h' headers makes available a full
+ implementation of the standard library.  Bloomberg provides its own
+ implementation for all containers, 'pair', and 'stringstream', while other
+ parts of the standard library (such as other streams, algorithms, locales) are
+ introduced to the 'bsl' namespace via aliases to the compiler's native
+ implementation.
+
+ Bloomberg currently provides its own implementation for eighteen class
+ templates:
+..
+  o vector    o pair(*)     o map             o hash_set (**)
+  o string    o set         o priority_queue  o hash_multimap (**)
+  o deque     o multiset    o bitset          o hash_multiset (**)
+  o list      o multimap    o stringstream
+  o queue     o stack       o hash_map (**)
+..
+
+ (*) Note that Bloomberg provides an implementation of 'pair', but not
+ 'make_pair'.  'bsl::make_pair' refers to the native compiler-supplied
+ implementation of 'make_pair'.  (The rationale of this design decision can be
+ found in the implementation file of 'bslstl_pair'.)
+
+ (**) Note that 'hash_map', 'hash_set', 'hash_multimap', 'hash_multiset' are
+ not part of the C++ standard library.
+
+/BDE-STL mode
+/- - - - - - -
+ In BDE-STL mode, the namespace 'std' is equivalent to 'bsl'.  Users explicitly
+ using 'std::' to qualify standard library components will still be using
+ Bloomberg's implementations for all containers, 'pair' and 'stringstream'.
+
+ Furthermore, including either the standard STL headers (e.g., '<vector>') or
+ the corresponding 'bsl_*.h' headers (e.g., 'bsl_vector.h') will pull in the
+ same implementation, which can be access via either 'std::' (e.g.,
+ 'std::vector') or 'bsl::' (e.g., 'bsl::vector').
+
+/Interoperability
+/----------------
+ When developing code for Bloomberg production, it is usually appropriate to
+ code and build in BDE-STL mode, so that all code can interoperate using the
+ enhanced BDE STL types.  In this case, BDE STL simply replaces native STL
+ entirely.
+
+ When developers need to compile and link against third-party software that
+ requires the use of compiler vendor supplied standard library implementation,
+ it might be necessary to interoperate with the native types directly, even
+ while taking advantage of BDE STL types elsewhere in the code.  In these
+ cases, Native-STL mode is appropriate.
+
+ The following diagram illustrates what needs to be done to compile against
+ source code and link against libraries that use the compiler vendor supplied
+ standard library implementation:
+..
+             .------------.                    .------------.
+             |            |   interoperate     |            |
+           .-------------.|  <------------>  .-------------.|
+           | third-party ||                  | Bloomberg   ||
+           |  libs & .h  |                   |  libs & .h  |
+           |_____________|                   |_____________|
+
+                 (a)                             (b)
+
+ (a) Libraries should already be compiled, headers should include standard STL
+     headers, and source code should use 'std::' when referring to the standard
+     library components.
+
+ (b) Libraries should be compiled in Native-STL mode, headers should include
+     Bloomberg's STL headers, and source code should use 'bsl::' when referring
+     to Bloomberg's implementation of standard library components.  If the
+     Bloomberg library needs to pass a standard library object to the
+     third-party library, the standard library object needs to be converted to
+     the compiler vendor supplied version first (e.g., 'bsl::vector' needs to
+     be converted to 'std::vector' first since these are different types under
+     Native-STL mode) before passing the object through.
+..
+
+ Note that the rest of this document is intended to explain the design and
+ record the reasons for design decisions made during the development of the
+ hybrid bsl mechanism.  Readers who are interested only in how to use this
+ mechanism can stop here.
+
+/Hierarchical structure of hybrid bsl mechanism
+/----------------------------------------------
+/bslstl
+/- - -
+ 'bslstl' contains Bloomberg's implementation of allocators, STL containers,
+ and some extensions adopted from STLport.
+
+/bslstp
+/- - -
+ 'bslstp' contains implementations for some container types adopted from
+ STLport 4.6.  These will eventually be deprecated and replaced by components
+ in 'bslstl'.
+
+/bsl+bslhdrs
+/- - - - - -
+ 'bsl+bslhdrs' contains all the 'bsl_*' headers (corresponding to standard STL
+ headers, e.g., '<bsl_string.h>' for '<string>').  When included, the files in
+ this directory inject native STL symbols from the 'std' namespace into the
+ 'bsl' namespace, or include the corresponding 'Bloomberg' type.
+
+/bsl+stdhdrs
+/- - - - - -
+ 'bsl+stdhdrs' contains all the headers used to intercept the inclusion of
+ standard STL headers.  This directory also contains auxiliary files that
+ implement pre-processor logic to support BDE-STL mode, such as
+ 'bsl_stdhdrs_prologue.h' and 'bsl_stdhdrs_epilogue.h'.
+
+ Note that when users compile under Native-STL mode, the headers in
+ 'bsl+stdhdrs' are not necessary (though no harm when included).
+
+/Understanding the files in 'bsl+stdhdrs'
+/----------------------------------------
+ The headers in 'bsl+stdhdrs' are intended to replace standard STL headers, and
+ contain complex preprocessor logic to support BDE-STL mode.  These headers
+ have evolved from what started as a simple set of headers.  For
+ example:
+..
+  // bsl+stdhdrs/iterator
+  // ...
+
+  #ifndef INCLUDED_ITERATOR
+  #define INCLUDED_ITERATOR
+
+  #ifdef std
+  #undef std
+  #endif
+
+  #ifndef INCLUDED_NATIVE_ITERATOR
+  #include <../native/iterator>
+  #define INCLUDED_NATIVE_ITERATOR
+  #endif
+
+  #ifdef BSL_OVERRIDES_STD
+  #define std bsl
+  #endif
+
+  #include <bsl_iterator.h>
+
+  #endif
+
+  ---------------------------------
+  // bsl+bslhdrs/bsl_iterator.h
+  // ...
+
+  #ifndef INCLUDED_BSL_ITERATOR
+  #define INCLUDED_BSL_ITERATOR
+
+  #ifndef INCLUDED_ITERATOR
+  #include <iterator>
+  #endif
+
+  namespace bsl {
+    using ...;  // put symbols in bsl
+  }
+
+  #include <bslstl_iterator.h>  // our implementation
+
+  #endif
+..
+ The '<iterator>' file above would first include the native compiler's
+ implementation of iterator using a relative path (to avoid including itself
+ again since direct inclusion of '<iterator>' is intercepted).  Then, it will
+ rely on '<bsl_iterator.h>' to inject the symbols (if any) defined in the 'std'
+ namespace in the native iterator into the 'bsl' namespace, and also include
+ BDE's implementation of iterator ('<bslstl_iterator.h>').  The file also
+ '#define's 'std' to 'bsl' such that when users type 'std::iterator', the
+ pre-processor will silently change the qualified name to 'bsl::iterator'.  The
+ '#define' must be done after the inclusion of the native header, since native
+ STL code must be able to refer to 'std' directly.  For the same reason, a
+ '#undef' of 'std' is necessary before the inclusion of the native
+ '<iterator>'.
+
+ The '<bsl_iterator.h>' file injects the symbols (if any) defined in the 'std'
+ namespace in the native iterator into the 'bsl' namespace.  Before the series
+ of 'using' directives, the native '<iterator>' must be included.  The
+ inclusion is done by directly including '<iterator>' (i.e., not using any
+ relative paths).  In Native-STL mode, the compiler-provided '<iterator>'
+ header is included.  In BDE-STL mode, the '<iterator>' provided in bsl+stdhdrs
+ is included, which will then bring in the compiler vendor supplied
+ '<iterator>'.  Then a series of 'using' directives inject needed symbols (if
+ any) defined in the 'std' namespace into the 'bsl' namespace.  Finally, BDE's
+ implementation of iterator ('<bslstl_iterator.h>') is included.
+
+ There are several problems with this approach.  First of all, simply including
+ our implementation directly after including the native header could introduce
+ cycles into the native STL's carefully crafted include graph.  The problem is
+ that we do not have access to the private implementation headers that the
+ compiler-provided STL implementation uses to eliminate these cycles.  An
+ include chain illustrating the breakage might be as follows (note that this
+ would happen only in BDE-STL mode):
+..
+  locale
+    bsl_locale.h
+      native_locale
+        string
+          bsl_string.h
+            native_string
+              bslstl_string.h
+                iterator
+                  bsl_iterator.h
+                    native_iterator
+                      native_ostream      // simplified, skipped bsl_* versions
+                        native_streambuf  // compilation error in this header
+                          native_locale
+..
+ At this point, it appears to 'native_streambuf' that 'locale' was already
+ included (due to include guards introduced when 'native_locale' is first
+ brought in), and may start using symbols that haven't been defined.
+
+ The compiler's 'string' header generally just includes the private
+ implementation file of iterator (e.g., 'rw_iterator' or 'iterator_base'),
+ which does not include 'ostream', hence eliminating this problem from the
+ compiler-provided standard library.  Since we don't have access to those
+ private implementation files, we cannot resolve the problem the same way.
+
+ The original solution was to add the following logic to the headers defined in
+ 'bsl+stdhdrs':
+..
+  #ifndef TOPLEVEL
+  #define TOPLEVEL
+  #define TOPLEVEL_BY_ITERATOR
+  #endif
+
+  // include native 'iterator', '#defines', etc.
+
+  #ifdef TOPLEVEL_BY_ITERATOR
+  #include <bsl_iterator.h>
+  #undef TOPLEVEL_BY_ITERATOR
+  #undef TOPLEVEL
+  #endif
+..
+ This approach ensures that our implementation file gets introduced only after
+ the native header finished including all other native header files it needed;
+ however, doing so would mean that none of our implementations will get pulled
+ in except for the one defined in the "top-level" file (e.g.,
+ '<bsl_iterator.h>'), which causes another problem: On the Sun compiler, after
+ a standard-named header is included once, it will never be included again.  To
+ see why this problem occurred, suppose we have the following includes in
+ BDE-STL mode:
+..
+  #include <iterator>
+  #include <string>
+..
+ Including '<iterator>' will include the native iterator, which in turn pulls
+ in the native string.  At the end of the include of '<iterator>',
+ 'bsl_iterator.h' will be included and the native symbols it includes will be
+ injected into the 'bsl' namespace via 'using' directives.  However, since only
+ our implementation file (corresponding to the top-level file, in this case,
+ 'bsl_iterator.h') is pulled in, 'bsl_string.h' will not be included, and
+ Bloomberg's string implementation will not be pulled in.
+
+ When a user includes '<string>', the Sun compiler will recognize that
+ '<string>' had already been included, and thus will skip the inclusion.
+ Because of this "optimization", Bloomberg's implementation of string will not
+ be included, and subsequent code using 'string' will fail to compile.
+
+ Since standard headers are given only ONE chance of being included, we have to
+ record all native headers that had been included and include our corresponding
+ implementations when inclusion of all native headers finish.  Hence, an
+ epilogue file ('bsl_stdhdrs_epilogue.h') was introduced to centralize the
+ preprocessor logic that accomplishes the above post processing step.
+
+ Note that the include order in the epilogue must be defined carefully.  Simple
+ alphabetical ordering is insufficient.  Even in the epilogue, we need to
+ ensure that all of the required Bloomberg implementations are included
+ whenever a native header is included.  Since including a 'bslstl_*.h' header
+ might result in inclusion of other native headers (e.g., including
+ '<bslstl_string.h>' might in turn include native '<memory>'), we need to order
+ the inclusions in the epilogue in reverse dependency order.  This constraint
+ means, for example, that if '<bslstl_string.h>' uses '<memory>' (which brings
+ in the definition for 'std::allocator'), then 'bslstl_allocator.h' must come
+ after 'bslstl_string.h' in the epilogue in order to bring in 'bsl::allocator'.
+ Otherwise, due to the include-standard-headers-once-only feature of the Sun
+ compiler, the following code will not work correctly:
+..
+  // bsl_stdhdrs_epilogue.h
+
+  #ifdef INCLUDED_NATIVE_MEMORY
+  #include <bslstl_allocator.h>
+  #endif
+
+  #ifdef INCLUDED_NATIVE_STRING
+  #include <bslstl_string.h>
+  #endif
+
+  ---------------------------------
+  // implementation file
+
+  #include <string>
+  #include <memory>
+..
+ When the compiler processes the inclusion of epilogue from the '<string>'
+ header, '<bslstl_allocator.h>' is not included since native '<memory>' has not
+ yet been included.  However, native '<memory>' is later included through
+ '<bslstl_string.h>', which means that '<bslstl_allocator.h>' will never be
+ pulled into the include graph because subsequent inclusions of '<memory>' will
+ be silently ignored by the Sun compiler.
+
+/Other Design Discussions
+/------------------------
+ o Some C header files are meant to be included multiple times, such as
+ 'time.h', 'math.h', etc.  These header files contain preprocessor logic that
+ brings in different section of the code depending on how the header is
+ included.  Therefore, the include guards in those files do not guard the
+ entire file.
+
+ o '.SUNWCCh' files are needed to override the native STL include files on Sun.
+ The file extension tells the Sun compiler that it is an STL header file.
