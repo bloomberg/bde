@@ -1,0 +1,33 @@
+   bcesb.txt
+
+@PURPOSE: Provide thread-enabled concrete 'streambuf' implementations.
+
+@MNEMONIC: Basic Concurrency Environment Stream Buffers (bcesb)
+
+@AUTHOR Tom Marshall (tmarshal)
+
+@SEE_ALSO: bdesb
+
+@DESCRIPTION: The 'bcesb' package provides concrete implementations of the
+ 'std::streambuf' interface.  In particular, these implementations are
+ thread-enabled.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bcesb' currently has one component having one level of dependency.  The table
+ below shows the hierarchical ordering of the components.  The package prefix
+ and underscore ('bcesb_') are omitted from the full component names for layout
+ efficiency.
+..
+  Level 1: pooledbufferchainstreambuf
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bcesb'.
+..
+ bcesb_pooledbufferchainstreambuf - pooled-buffer-chain (i.e., indexed sequence
+                                    of fixed-size buffers) implementing the
+                                    'streambuf' interface
+..
+
