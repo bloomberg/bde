@@ -1,0 +1,86 @@
+ bslstl.txt
+
+@PURPOSE: Provide replacement classes for STL constructs.
+
+@MNEMONIC: Basic Standard Library STL (bslstl)
+
+@AUTHOR: Herve Bronnimann (hbronnim), Arthur Chiu (achiu21)
+
+@DESCRIPTION: This package mainly provides replacement classes for STL
+ constructs that required substantial modification to (inter)operate with
+ BDE libraries.  In addition to STL replacement classes, this package also
+ provides helper components for the STL implementation classes.  Finally, SGI
+ extensions that are widely used within Bloomberg can also be found in this
+ package.
+
+ In general, the components in this package conform to the STL interface.
+ However, the components (and hence the headers) are intended for private use
+ only.  Clients should use the standard headers directly (e.g., include
+ '<bsl_vector.h>' instead of '<bslstl_vector.h>').
+
+/Hierarchical Synopsis
+/---------------------
+ 'bslstl' currently has 16 components having 4 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('bslstl_') are omitted from the full component
+ names for layout efficiency.
+..
+  Level 4:  string             deque               vector
+
+  Level 3:  containerbase
+
+  Level 2:  allocatorproxy     forwarditerator     bidirectionaliterator
+            randomaccessiterator
+
+  Level 1:  allocator          iterator            pair
+            util               bitset              hash
+            exfunctional       exalgorithm
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bslstl'.  For the sake
+ of brevity, we sometimes blur the distinction between a component and the
+ primary types that the component provides.  We remind the reader that, in
+ general, the distinction between a component and a class is important.
+..
+  'bslstl_allocator'      - standard memory allocator interface; conforming
+                            'std::allocator' implementation using
+                            'bslma_Allocator'
+
+  'bslstl_allocatorproxy' - proxy allocator for 'bslstl_containerbase'
+
+  'bslstl_bidirectionaliterator'
+                          - adapts an iterator to STL-compliant bidirectional
+                            iterator interface
+
+  'bslstl_bitset'         - conforming 'std::bitset' implementation
+
+  'bslstl_containerbase'  - common functionality for STL containers
+
+  'bslstl_deque'          - double-ended queue; conforming 'std::deque'
+                            implementation
+
+  'bslstl_exalgorithm'    - SGI extensions for commonly used algorithms
+
+  'bslstl_exfunctional'   - SGI extensions for commonly used functional classes
+
+  'bslstl_forwarditerator'- adapts an iterator to STL-compliant forward
+                            iterator interface
+
+  'bslstl_hash'           - hash functors for fundamental types
+
+  'bslstl_iterator'       - basic iterator traits, adaptors, and utilities
+
+  'bslstl_pair'           - conforming 'std::pair' implementation
+
+  'bslstl_randomaccessiterator'
+                          - adapts an iterator to STL-compliant random access
+                            iterator interface
+
+  'bslstl_string'         - conforming 'std::string' implementation
+
+  'bslstl_vector'         - conforming 'std::vector' implementation
+
+  'bslstl_util'           - utilities for STL functionality
+..
