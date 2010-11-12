@@ -1,0 +1,68 @@
+ bae.txt
+
+@PURPOSE: Provide application-level support services.
+
+@MNEMONIC: Basic Application Environment (bae)
+
+@AUTHOR: Tom Marshall (tmarshal)
+
+@DESCRIPTION: The 'bae' ("Basic Applications Environment") package group
+ contains at present one package (beyond the required 'baescm' source
+ management versioning package -- see 'bdescm' for a general discussion of
+ version control).  That package, 'bael', provides a logging toolkit suitable
+ for deployment in all production environments.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bae' depends upon the 'bce' and 'bde' package groups:
+..
+    Level 3:   bae
+
+    Level 2:   bce
+
+    Level 1:   bde
+..
+ 'bae' currently has has 2 packages forming 2 levels physical of dependency.
+ Note the required source control package 'baescm'.  The table below shows the
+ physical dependency hierarchy among the packages.
+..
+   Level  2: bael
+
+   Level  1: baescm
+..
+
+/Package Synopsis
+/----------------
+ The following is a brief synopsis of the content of each package in 'bae'.
+..
+    1. 'bael'   - Logging toolkit with standard and special-purpose (e.g.,
+                  "trace-back") features
+    2. 'baescm' - Introspective versioning information for each 'bae' release
+..
+
+/Package Overview
+/----------------
+ The following provides a brief overview of the 'bae' packages.  See the
+ respective Package Level documents for more details and usage examples.
+
+/bael
+/- -
+ 'bael' provides a logging toolkit that, in turn, provides administerable,
+ customizable logging facilities for libraries and applications.  The logging
+ toolkit is thread-enabled, and thus suitable for multi-threaded applications.
+ 'bael' provides the capability to log to an in-memory buffer or directly to an
+ "Observer" object that is itself user-customizable.  The logger understands
+ the concepts of logging to a "category" at a "severity level".  Specific
+ logger behavior (e.g., disabled logging or "publishing" the in-memory buffer)
+ is governed by various "threshold levels" for a given message severity level,
+ for each category.  These thresholds may be administered dynamically, i.e.,
+ while the process is running.
+
+/baescm
+/- - -
+ 'baescm' is a special source control management package containing a single
+ component, 'baescm_version'.  This component is included by every other
+ component in 'bae', and provides versioning information for the package group.
+ Users may use the 'baescm_version' facilities to query a particular 'bae'
+ library for its version information.  See {BP BDE_SCM <GO>} for a detailed
+ specification for the archetype 'bdescm' package.
