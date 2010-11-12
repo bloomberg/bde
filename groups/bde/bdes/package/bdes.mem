@@ -1,0 +1,11 @@
+bdes_alignment
+bdes_assert
+bdes_bitutil
+bdes_float
+bdes_ident
+bdes_int64
+bdes_objectbuffer
+bdes_platform
+bdes_platformutil
+bdes_stopwatch
+bdes_timeutil

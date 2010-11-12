@@ -1,0 +1,148 @@
+ bdes.txt
+
+@PURPOSE: Provide system-level utilities FOR BDE LIBRARY USE.
+
+@MNEMONIC: Basic Development Environment System-level utilities (bdes)
+
+@AUTHOR: Herve Bronnimann (hbronnim)
+
+@DESCRIPTION: The 'bdes' package provides a variety of system utilities
+ for use by the BDE library (many of which have been deprecated in favor of
+ equivalent 'bsls' components).  These utilities include:
+..
+  1. Bit utilities, such as finding a 1-bit or 0-bit at a particular
+     location, setting a 1-bit or 0-bit, and various mask operations.
+  2. Various buffer types with different alignment properties.
+  3. Uniform exception handling, even for non-exception build targets.
+  4. A platform-dependent 64-bit integer type.
+  5. Platform-identification routines.
+  6. A timer component, and access to system time facilities.
+..
+ Note that this list is not meant to be exhaustive.  The sections below provide
+ more information about the individual components.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bdes' currently has 17 components having 4 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('bdes_') are omitted from the full component
+ names for layout efficiency.
+..
+  Level 4: stopwatch
+
+  Level 3: platformutil
+
+  Level 2: bitutil      int64     objectbuffer   timeutil
+
+  Level 1: alignment    assert    platform
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bdes'.  For the sake
+ of brevity, we sometimes blur the distinction between a component and the
+ primary types that the component provides.  We remind the reader that, in
+ general, the distinction between a component and a class is important.
+..
+  'bdes_alignment'     - platform-specific alignment information.
+  'bdes_assert'        - macros and mechanisms for user-defined "asserts".
+  'bdes_bitutil'       - efficient bit-level operations on integers ('int').
+  'bdes_int64'         - platform-dependent 64-bit integer types.
+  'bdes_objectbuffer'  - raw buffer with size and alignment of user-specified
+                         parameterized type.
+  'bdes_platform'      - preprocessor support for platform identification.
+  'bdes_platformutil'  - Encapsulate platform-dependent operations behind
+                         a stable interface.
+  'bdes_stopwatch'     - a simple real-time interval timer.
+  'bdes_timeutil'      - a platform-neutral interface to system clocks.
+..
+
+@Component Overview:
+
+ This Overview section summarizes the components that are available in 'bdes'.
+
+/'bdes_alignment'
+/----------------
+ This component computes (at compile-time) platform-dependent alignment
+ information.  This component also provides a namespace for a suite of
+ compile-time constants and pure procedures that yield platform-dependent
+ alignment information for primitive and user-defined types, including the
+ maximum alignment for any type and the smallest fundamental type requiring
+ maximum alignment.  These functions, used in conjunction, are especially
+ useful for creating pools and allocators that rely on efficient alignment.
+
+/'bdes_assert'
+/-------------
+ This component provides a pair of "assert-like" macros to implement a
+ compile-time-selectable and run-time-configurable "defensive" or "safe" mode.
+ It also provides a suite of "assert-failure handler" methods suitable for
+ runtime loading into the macros, via also provided methods.  Users may supply
+ their own handler methods matching the proper signature.  To allow the user
+ more flexibility in changing handlers during program execution, this component
+ also provides a scoped guard that allows safe, temporary changing of the
+ failure handler in a limited scope.
+
+/'bdes_bitutil'
+/--------------
+ This component provides a suite of pure procedures supporting binary-digit
+ (bit) manipulation on the native integer ('int') type, such as finding a 1-bit
+ or 0-bit at a particular location (e.g., least-significant or most-significant
+ bit position), setting a 1-bit or 0-bit, and various mask operations.
+
+/'bdes_int64'
+/------------
+ This component provides platform-independent type names for both signed and
+ unsigned 64-bit integers.  For healthy platforms, the component simply
+ provides a BDE-standard 'typedef' for the non-standard native type name.  All
+ platforms currently supported are healthy regarding 64-bit integers.
+
+/'bdes_objectbuffer'
+/-------------------
+ This component provides a templated buffer type, 'bdes_ObjectBuffer', which is
+ compile-time sized and aligned to hold a specified object type.  Defining a
+ 'bdes_ObjectBuffer<T>' object does not cause the constructor for 'T' to be
+ called.  Similarly, destroying the object buffer does not call the destructor
+ for 'T'.  Typically, a 'bdes_ObjectBuffer' is used in situations where
+ efficient (e.g., stack-based) storage is required but where straightforward
+ initialization or destruction of an object is not possible.  It can also be
+ used to create a 'union' containing non-POD element types.
+
+/'bdes_platform'
+/---------------
+ This component defines preprocessor macros that identify and
+ describe platform-specific attributes (at compile time).  These attributes
+ consist of the types and versions of operating system, processor(s), and
+ compiler that comprise the platform.
+
+/'bdes_platformutil'
+/-------------------
+ This component provides a namespace for a collection of typedefs and pure
+ procedures that would otherwise have platform-dependent interfaces.  For
+ example, it defines the preferred fundamental types denoting signed and
+ unsigned 64-bit integers,  the preferred integral type denoting a number of
+ elements in allocators and containers, provides the capability of determining
+ whether a machine is big or little endian across all supported platforms, and
+ defines a set of macros replacing the standard 'htonl', 'htons', 'ntohl', and
+ 'ntohs' which do not require including any system header.
+
+/'bdes_stopwatch'
+/----------------
+ This component implements a real-time (system clock) interval timer.  A
+ 'bdes_Stopwatch' object can accumulate and return only one interval at a time,
+ but may be started and stopped repeatedly without being reset, so the elapsed
+ time "interval" accumulated by a single object may be from multiple,
+ discontinuous segments of time.  The non-negative total accumulated time (in
+ seconds) is available as a 'double' value.
+
+/'bdes_timeutil'
+/---------------
+ This component provides a set of platform-neutral pure procedures to access
+ real-time system clock functionality.  High-resolution time functions intended
+ for interval-timing return an interval in nanoseconds (1 nsec = 1E-9 sec) as a
+ 64-bit integer.
+
+@Usage Examples
+
+ This package provides disparate functionality close to the system layer.
+ There is no natural usage example for the entire package.  It is best to refer
+ to the usage example for each individual component.
