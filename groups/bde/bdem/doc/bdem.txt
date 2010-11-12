@@ -1,0 +1,1946 @@
+bdem.txt
+
+@PURPOSE: Provide compact, efficient, binary-format messaging capability.
+
+@MNEMONIC: Basic Development Environment Messaging (bdem)
+
+@AUTHOR: Lea Fester (lfester), Tom Marshall (tmarshal)
+
+@DESCRIPTION: The 'bdem' package provides the data structures, metadata
+ containers, and "negotiation" and other helper utility functions and objects
+ needed to support firm-wide "messaging".  Messaging in BDE refers to the
+ in-core marshalling of arbitrarily hierarchical, self-describing data.  In
+ conjunction with 'bdex' externalization (see the 'bdex' package
+ documentation), 'bdem' messaging provides fast, efficient, and convenient
+ conversion from the in-core representation to a byte stream suitable for
+ out-of-process transport (e.g., IPC, writing to a data base, etc.).  In
+ conjunction with the 'baexml' and 'bcem' packages (see the 'baexml' and
+ 'bcem' package documentation), 'bdem' data and metadata can also easily be
+ converted to and from XML representation.  Note that the 'bdempu' package
+ that was formerly used to convert 'bdem' data to and from text representation
+ has been deprecated.
+
+/Organization of this Document
+/-----------------------------
+ In the next two subsections we present the component dependency hierarchy
+ within 'bdem' and a very brief Component Synopsis.  We then present a "General
+ Discussion" section, which is itself subdivided into a number of topics,
+ providing a solid conceptual *and* practical foundation for using 'bdem'.
+ That section is followed by the usual "Usage Examples" section.  For reasons
+ both historical and practical, the Examples section is followed by two
+ appendices.  Appendix 1 presents a self-contained tutorial example (a complete
+ buildable 'main') that illustrates the central "client-server schema
+ negotiation" paradigm (and subsequent data transfer).  That tutorial predates
+ this document, and some material from the appendix has also been incorporated
+ elsewhere in this text.  Appendix 2 presents a "Component Reference Guide".
+ Since many of the components are factored "implementation details", and since,
+ in some sense, 'bdem' really is more than the sum of its parts, this reference
+ material is deferred until after the more holistic overview is presented.
+
+ Because 'bdem' is a large system with both many usage modes and many
+ interoperating components, we intentionally repeat information, usually in
+ increasing detail and specificity.  Because this document is large and draws
+ on existing documentation, we occasionally repeat information unintentionally,
+ for which we ask the reader's indulgence.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bdem' currently has 43 components having 14 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('bdem_') are omitted from the full component
+ names for layout efficiency.
+..
+   Level 14: bindingadapters
+
+   Level 13: binding
+
+   Level 12: aggregateutil      convert              datasizeutil
+             schemaaggregateutil
+
+   Level 11: aggregate
+
+   Level 10: choicearray        table
+
+   Level  9: choice             list
+
+   Level  8: choicearrayitem    row              schema
+
+   Level  7: elemattrlookup
+
+   Level  6: choiceimp          choicearrayimp       listimp          tableimp
+
+   Level  5: aggregateimp       berdecoderutil
+
+   Level  4: berencoderutil     berdecoder           choiceheader     rowdef
+
+   Level  3: elemref            idxoffsetmap         properties
+             berencoder
+
+   Level  2: descriptor         functiontemplates    berutil
+             selectbdemtype     selectbertag
+
+   Level  1: aggregateoption    bdemdecoderoptions   bdemencoderoptions
+             berconstants       berencoderoptions    berdecoderoptions
+             beruniversaltagnumber                   elemtype
+..
+ Note that all the aggregates at levels 8, 9, and 10, are intended to be
+ *peers* and could have been implemented with *no* physical dependencies on
+ each other.  For testing reasons, however, we have preferred to test the
+ 'bdem_choicearrayitem' and 'bdem_row', then rely on those to test the
+ 'bdem_choice' and 'bdem_list' components.  Once those are tested, they can be
+ used for testing 'bdem_choicearray' and 'bdem_table' more thoroughly, even
+ though those could also have been tested more simply in isolation.  Thus the
+ extra physical dependencies are induced by the test drivers only.
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bdem'.  For the sake
+ of brevity, we sometimes blur the distinction between a component and the
+ primary types that the component provides.  We remind the reader that, in
+ general, the distinction between a component and a class is important.
+..
+  'bdem_aggregate' - a convenience component that provides '#include'
+        directives for the row, list, and table headers.
+  'bdem_aggregateimp' - factored implementation component for memory management
+        for 'bdem_RowDef'-based constructs.
+  'bdem_aggregateoption' - enumeration of various memory management strategies.
+  'bdem_aggregateutil' - equality-comparators for the aggregate types in
+        'bdem'; uses fuzzy equality when comparing floating-point values.
+  'bdem_bdemdecoderoptions' - Options structure used as an argument to
+        'bdem_BdemDecoderUtil' methods.
+  'bdem_bdemdecoderutil' - reads a binary stream in the format used by 'bdem'
+        aggregate types and decodes it into an arbitrary self-describing data
+        structure that conforms to the 'bdeat_ArrayFunctions' or
+        'bdeat_ChoiceFunctions' interface.  (See 'bdeat_arrayfunctions' and
+        'bdeat_choicefunctions' component-level documentation).
+  'bdem_bdemencoderoptions' - Options structure used as an argument to
+        'bdem_BdemEncoderUtil' methods.
+  'bdem_bdemencoderutil' - takes any self-describing object that conforms to
+        the 'bdeat_ArrayFunctions' or 'bdeat_ChoiceFunctions' interface (See
+        'bdeat_arrayfunctions' and 'bdeat_choicefunctions' component-level
+        documentation), and encodes it into a binary stream format compatible
+        with that used by 'bdem' aggregate types.
+  'bdem_berconstants' - enumerations used in BER encoding and decoding.
+  'bdem_berdecoder' - reads a binary stream in BER format and decodes it into
+        an arbitrary self-describing data structure that conforms to the
+        'bdeat_ArrayFunctions' or 'bdeat_ChoiceFunctions' interface.  (See
+        'bdeat_arrayfunctions' and 'bdeat_choicefunctions' component-level
+        documentation).
+  'bdem_berdecoderoptions' - Options structure used as an argument to
+        'bdem_BerDecoder methods.
+  'bdem_berdecoderutil' - DEPRECATED.  Use bdem_berdecoder instead.
+  'bdem_berencoder' - takes any self-describing object that conforms to the
+        'bdeat_ArrayFunctions' or 'bdeat_ChoiceFunctions' interface (See
+        'bdeat_arrayfunctions' and 'bdeat_choicefunctions' component-level
+        documentation), and encodes it into the BER binary-stream format.
+  'bdem_berencoderoptions' - Options structure used as an argument to
+        'bdem_BerEncoder' methods.
+  'bdem_berencoderutil' - DEPRECATED.  Use bdem_berencoder, instead.
+  'bdem_beruniversaltagnumber' - enumeration of the set of 'BER' universal tag
+        numbers.
+  'bdem_berutil' - BER encoding and decoding of primitive data types.
+  'bdem_binding' - reference-semantic utility type binding an aggregate to
+        a record (metadata), enabling by-name access to data; also provides
+        "checked" versions to validate operations.
+  'bdem_choice' - an union-like aggregate type that holds a single object from
+        a specified list of types.
+  'bdem_choicearray' - an array of 'bdem_Choice' objects, all of which share
+        the same catalog of possible selection types.
+  'bdem_choicearrayimp' - factored implementation for 'bdem_choicearray'
+  'bdem_choicearrayitem' - an item within a 'bdem_choicearray'.  Like
+        'bdem_choice' but with a non-modifiable catalog of types.
+  'bdem_choiceheader' - factored implementation of 'bdem_choice' and
+        'bdem_choicearrayitem'.
+  'bdem_choiceimp' - factored implementation of 'bdem_choice'.
+  'bdem_convert' - runtime conversion of data types.
+  'bdem_datasizeutil' - utilities to calculate data size of aggregate objects.
+  'bdem_descriptor' - repository for pointers to some "canonical" operations.
+  'bdem_elemattrlookup' - provides indexed lookup of 'bdem_Descriptor's for
+        each 'bdem_ElemType' (including streaming descriptors).
+  'bdem_elemref' - reference-semantic proxy type for any one of the 32 'bdem'
+        data types; also provides "checked" versions to validate operations.
+  'bdem_elemtype' - enumeration of the 32 'bdem' data types.
+  'bdem_functiontemplates' - factored template definition of many of the
+        "canonical operations" needed internally by 'bdem' components.
+  'bdem_idxoffsetmap' - an implementation detail component mapping details of
+        'bdem' elements to memory (offset) positions; used by 'bdem_Row'.
+  'bdem_list' - heterogeneous collection of 'bdem' (data) elements.
+  'bdem_listimp' - a factored implementation component for 'bdem_List'.
+  'bdem_properties' - defines twenty pre-populated 'bdem_Descriptor's used by
+        other 'bdem' components.
+  'bdem_row' - memory management for heterogeneous message elements.
+  'bdem_rowdef' - factored implementation component for 'bdem_Row'.
+  'bdem_schema' - "metadata" container describing structure of a 'bdem_List'.
+  'bdem_schemaaggregateutil' - utilities for comparing 'bdem' metadata and data
+  'bdem_schemautil' - utilities comparing schemas or record definitions.
+  'bdem_selectbdemtype' - metafunctions to associate 'bdem_elemtype' values
+        with C++ types.
+  'bdem_selectbertag' - meta-function for selecting 'ber' tags.
+  'bdem_table' - a homogeneous array of heterogeneous rows (see 'bdem_row')
+  'bdem_tableimp' - a factored implementation component for 'bdem_Table'.
+..
+ A more complete description for each component is given in Appendix 2, in the
+ form of a "Component Reference Guide".
+
+@General Discussion
+ 'bdem' is a high performance, flexible "messaging system" providing data
+ structures, metadata, and utilities for composing arbitrary self-describing
+ "messages" (suitable for out-of-process transport), and for accessing and
+ manipulate incoming messages using the messages' self-description.  'bdem'
+ uses 'bdex' externalization to stream messages into and out of buffers that
+ can then be transported across processes.  Note that the actual transport or
+ IPC layer is *not* a part of 'bdem', but rather 'bdem' provides data
+ marshalling that is compatible with any mechanism that can "transport" a
+ 'char*' or a 'streambuf' (as generated by 'bdex').
+
+/Logical and Physical Message Types
+/----------------------------------
+
+ A 'bdem' "message" comprises both data and metadata.  Since 'bdem' metadata is
+ not aware of the C++ types of the 'bdem' data elements, but only of their
+ *logical* types, we will need to be familiar with both the logical and the
+ concrete message structure.  A minor complication arises because 'bdem'
+ messages are hierarchical, which means that at least some of the 'bdem'
+ elements can contain other 'bdem' elements, including themselves.  We refer to
+ such types as "non-leaf types".  In 'bdem', the (logical) 'LIST' and 'TABLE'
+ are the non-leaf types.  The complication is that we sometimes need to make
+ the distinction between, e.g., the logical 'LIST' and the concrete
+ 'bdem_List'.  Let's look at the logical types of a 'bdem' message.
+
+ Logically, a message is an arbitrary, possibly hierarchically-composed
+ sequence of data elements plus a description (type and name) for each element
+ in the hierarchy.  Because 'bdem' is designed for high performance, 'bdem'
+ data elements are limited to 32 (fixed) data types: fourteen scalar types,
+ fourteen array types of those 14 scalar types, and four non-leaf containers:
+ a "scalar" 'LIST' comprising one (logical) row, an "array" 'TABLE' comprising
+ zero or more (logical) rows, a "union" 'CHOICE' comprising a catalog of 'bdem'
+ types and a single value that is of one of the types from that type catalog
+ (or is unset), and an "array" 'CHOICE_ARRAY' comprising a catalog of 'bdem'
+ types and zero or more values of one of the types from that common type
+ catalog (or is unset).  Each 'bdem' container may itself hold one ore more
+ objects of any of the 32 'bdem' types, to an arbitrary hierarchical depth.
+ These 32 types are enumerated in the 'bdem_elemtype' component in the named
+ 'enum' 'bdem_ElemType::Type'; the enumerator name is exactly the "logical
+ type".  The 32 logical types and their actual C++ realizations are presented
+ in the following figure:
+..
+          Logical bdem Types as Enumerated in bdem_ElemType::Type
+
+                 .--- IS-LEAF-TYPE
+  +==============|============================================================+
+  | CATEGORY  |  v  | ENUMERATOR       | C++ TYPE                             |
+  +===========================================================================+
+  | SCALAR    | YES | BOOL             | bool                                 |
+  |           |     | CHAR             | char                                 |
+  |           |     | SHORT            | short                                |
+  |           |     | INT              | int                                  |
+  |           |     | INT64            | int64                                |
+  |           |     | FLOAT            | float                                |
+  |           |     | DOUBLE           | double                               |
+  |           |     | STRING           | std::string                          |
+  |           |     | DATETIME         | bdet_Datetime                        |
+  |           |     | DATETIMETZ       | bdet_DatetimeTz                      |
+  |           |     | DATE             | bdet_Date                            |
+  |           |     | DATETZ           | bdet_DateTz                          |
+  |           |     | TIME             | bdet_Time                            |
+  |           |     | TIMETZ           | bdet_TimeTz                          |
+  +---------------------------------------------------------------------------+
+  | ARRAY     | YES | BOOL_ARRAY       | std::vector<bool>                    |
+  |           |     | CHAR_ARRAY       | std::vector<char>                    |
+  |           |     | SHORT_ARRAY      | std::vector<short>                   |
+  |           |     | INT_ARRAY        | std::vector<int>                     |
+  |           |     | INT64_ARRAY      | std::vector<bdes_PlatformUtil::Int64>|
+  |           |     | FLOAT_ARRAY      | std::vector<float>                   |
+  |           |     | DOUBLE_ARRAY     | std::vector<double>                  |
+  |           |     | STRING_ARRAY     | std::vector<std::string>             |
+  |           |     | DATETIME_ARRAY   | std::vector<bdet_Datetime>           |
+  |           |     | DATETIMETZ_ARRAY | std::vector<bdet_DatetimeTz>         |
+  |           |     | DATE_ARRAY       | std::vector<bdet_Date>               |
+  |           |     | DATETZ_ARRAY     | std::vector<bdet_DateTz>             |
+  |           |     | TIME_ARRAY       | std::vector<bdet_Time>               |
+  |           |     | TIMETZ_ARRAY     | std::vector<bdet_TimeTz>             |
+  +-----------+---------------------------------------------------------------+
+  | AGGREGATE | NO  | LIST             | bdem_List                            |
+  |           |     | TABLE            | bdem_Table                           |
+  |           |     | CHOICE           | bdem_Choice                          |
+  |           |     | CHOICE_ARRAY     | bdem_ChoiceArray                     |
+  +-----------+---------------------------------------------------------------+
+  | PSUEDO-   | YES | VOID             | void                                 |
+  | TYPES     | NO  | ROW              | bdem_ROW                             |
+  | negative  |     | CHOICE_ARRAY_ITEM| bdem_ChoiceArrayItem                 |
+  +===========================================================================+
+..
+ Note that the enumerators in the above table are *not* in order of enumerated
+ (integer) values.  Also note that the three pseudo-types, 'VOID', 'ROW', and
+ 'CHOICE_ARRAY_ITEM' have negative enumeration values are not counted among the
+ 32 data types.
+
+/Terminology and Concepts
+/------------------------
+
+ This section presents an informal glossary and discussion of terms used
+ throughout 'bdem'.  In discussing the names of things, we will touch on a few
+ key concepts, but our focus is on terminology, to make the rest of this
+ document easier to read.
+
+ The main 'bdem' data (container) types, 'bdem_Row', 'bdem_List', and
+ 'bdem_Table', are referred to, respectively, as "row", "list", and, "table"
+ throughout BDE documentation.  They are also referred to collectively as "the
+ aggregate types" or just "aggregates".  For reasons that will be discussed
+ elsewhere, the list is the "preferred interface type".
+
+ The metadata types, 'bdem_Schema', 'bdem_RecordDef', and 'bdem_FieldDef', are
+ referred to, respectively, as "schema", "record", and "field", although the
+ more formal "record definition" and "field definition" are also used.
+ Occasionally, "schema" is used where "record" might be more appropriate (e.g.,
+ "schema negotiation").  This is because, although the record is the "logical
+ unit of metadata" (i.e., one record can completely describe the structure of
+ one list), a record cannot live outside of its containing schema.  Indeed,
+ records cannot be created or 'bdex' streamed by clients, except through the
+ schema interface.  See below for more on the structure of a schema.
+
+ 'bdem' also provides several "proxy types" that provide convenient access to
+ one or more 'bdem' "elements" (i.e., objects of one of the 32 "element types"
+ defined above).  These proxy types have "reference semantics" (defined below,
+ but loosely "like a C++ reference").  The 'bdem_elemref' component defines
+ four "element reference" types that can reference any *one* element.  The row,
+ described as an aggregate type above, is also considered a proxy type for a
+ given fixed sequence of elements; this is explained below.  The 'bdem_binding'
+ component defines 12 types of "binding" that are proxies for various
+ configurations of 'bdem' data types "bound to" metadata.
+
+ The following glossary lists all of the "colloquial" names for the 'bdem'
+ data, metadata, and proxy types.  Since types in BDE are generally clearly
+ named, most of the entries here follow a pretty obvious pattern.
+..
+                           bdem Types Glossary
+
+   Colloquial Name            bdem Type
+   ---------------            ---------
+   row                        bdem_Row
+   list                       bdem_List
+   table                      bdem_Table
+   aggregate                  bdem_Row, bdem_List, or bdem_Table
+   choice                     bdem_Choice
+   choice array               bdem_ChoiceArray
+
+   schema                     bdem_Schema
+   record                     bdem_RecordDef
+   field                      bdem_FieldDef
+
+   element reference          bdem_ElemRef
+   elemref                    bdem_ElemRef
+
+   binding                    any of the 12 types in bdem_binding
+   checked binding            any of the 6 "Checked" types in bdem_binding
+   Const binding [sic]        any of the 6 "Const" types in bdem_binding
+   row binding                bdem_RowBinding
+   table binding              bdem_TableBinding
+   column binding             bdem_ColumnBinding
+
+   Note: combinations of prefixes are also allowed for binding; see the text.
+..
+ Note that "Const", "checked", and one of {row, table, column}, or any
+ combination of the three (but in the listed order) can be used as prefixes to
+ "binding" with the obvious meaning ("column" refers to the collection of
+ elements in one column of a table).  Note also that the colloquial use of the
+ uppercase "C" in "Const" is to indicate a specific 'bdem_binding' type, and
+ *not* the C++ keyword 'const'.  E.g., a 'bdem_ConstRowBinding' can be 'const'
+ or non 'const', as can a 'bdem_RowBinding'.  The "checked" types perform a
+ fair amount of validation, which is not always consistent with the 'bdem'
+ performance mandate, and so both kinds of proxy are provided.
+
+ Although the above table does not mention it, the elemrefs also come in
+ "Const" and "checked" flavors, exactly analogous to the bindings.
+
+/Bird's Eye View of 'bdem' Functionality
+/---------------------------------------
+
+ Now that we have a grasp on the 'bdem' element types, and have been introduced
+ to some jargon, we can begin to look at 'bdem' functionality.  The material in
+ this section provides a quick overview, and almost all of it will be repeated
+ in more detail elsewhere.
+
+ 'bdem' functionality can be roughly divided into four categories: data
+ structures, metadata structures, proxy (reference) types, and utilities (i.e.,
+ pure procedures) that operate on the other three types.  The table below lists
+ the major types in 'bdem'.
+..
+  Data Types    Metadata Types   Proxy Types       Utility Structures
+  ----------    --------------   --------------    ------------------------
+  bdem_Row      bdem_Schema      "bdem_ElemRef"    bdem_SchemaUtil
+  bdem_List     bdem_RecordDef    bdem_Row         bdem_AggregateUtil
+  bdem_Table    bdem_FieldDef    "bdem_Binding"    bdem_SchemaAggregateUtil
+..
+ Note that 'bdem_Row' appears twice, once as a data type and once as a proxy
+ (reference) type; we'll explain why shortly.  Also, note that both
+ 'bdem_ElemRef' and 'bdem_Binding' are entered in quotation marks.  This is
+ because the 'bdem_elemref' component defines four "element reference" types
+ (one of which is indeed 'bdem_ElemRef') and 'bdem_binding' defines 12
+ "binding" types (*none* of which is actually named "bdem_Binding").  These are
+ discussed in more detail in the "Proxy Types" section below.
+
+ The *logical* row entity is an indexed container of heterogeneous types that
+ holds the data of a list or a table: a list has exactly one row, while a table
+ is an "array" of zero or more identically-structured rows.  Again, we are
+ speaking of "logical" rows.  The actual row object is very useful as a
+ reference semantic proxy for the contents of a list, or for one of the
+ (logical) rows of a table, but the row has a somewhat limited interface.  Once
+ constructed, a row cannot change its structure.  That is to say, it is not
+ possible to append a new element to a row, or to replace an existing row
+ element with an element of a different type.
+
+ All 'bdem' data types and proxy types can provide the (logical) type of their
+ elements, and can provide by-index access to their elements (except for
+ 'bdem_ElemRef', which only references one element).
+
+ The metadata provides an optional name for each element (via a
+ 'bdem_FieldDef') as well as a convenient container ('bdem_Schema') for holding
+ the complete structural description of a given 'bdem_Row' ('bdem_RecordDef').
+
+ In a nutshell: A schema is effectively an array of records, and a record is in
+ turn effectively an array of fields.  A field holds a (logical) element type
+ and optional element name, and, if the element type is 'LIST' or 'TABLE', an
+ optional reference to a record that describes the structure of that 'LIST' or
+ 'TABLE'.  The utilities in 'bdem_SchemaUtil' allow the user to compare
+ metadata for various levels of equivalence or containment (i.e., the superset
+ relationship).  These utilities are important for a usage pattern known as
+ "schema negotiation", which is described below, and illustrated in Appendix 1.
+
+ Clearly, a record can describe the full structure of a list; it can also
+ describe the full structure of a table *except* for the number of rows in the
+ table.  There are good reasons for this omission, and the table itself can
+ always be queried for its number of rows.  Moreover, this design choice has
+ the effect of promoting 'bdem_List' to the one preferred "message interface
+ type".  A moment's reflection might convince the reader that it is a *good*
+ thing to have just one standard interface type, at least from the perspective
+ of firm-wide interoperability.
+
+ It is the user's responsibility to coordinate the structure of a given data
+ type and the metadata that is supposed to describe the data.  The utilities in
+ 'bdem_SchemaAggregateUtil' allow the user to conveniently validate the
+ appropriate correspondence (or "conformance", which comes in several flavors
+ of exactness).
+
+ The proxy types have in common that they have "reference semantics" rather
+ than the more familiar "value semantics".  This concept is described in detail
+ below, but loosely speaking, instances of proxy types behave in many ways as
+ if they were C++ *references* to one or a collection of 'bdem' element
+ *objects*.  For example, a 'bdem_ElemRef' can provide modifiable access to its
+ "referenced element" whereby the user can change that element's value, but the
+ 'bdem_ElemRef' has no management responsibilities, and destroying the
+ reference instance has no effect on the element object.  Conversely, if the
+ referenced element is destroyed (or even if the 'bdem' data container that
+ owns the element is modified), the 'bdem_ElemRef' instance is rendered
+ useless.
+
+ 'bdem_Row' is considered a "proxy type" based on the way that it is *used*,
+ even though it actually does own its contained elements.  A row cannot exist
+ independently of a list or a table; the only way that a user can have access
+ to a row is via a (true C++) reference obtained from a list or a table
+ (perhaps via some intermediate object or function).  Moreover, a row instance
+ cannot change its structure.  If a user has a reference to "the" row from a
+ list, and then, e.g., appends an element to that list, the row reference is
+ forevermore invalid and useless.  Note that this is *not* because of the
+ properties of a C++ reference.  It *could* have been that the list would
+ modify its row "value", and the reference would still be good.  But a row
+ cannot change its structure; it is really a proxy for the *data* and specific
+ *structure* of one of the other aggregates when the row reference is issued.
+ This behavior is just like 'bdem_ElemRef' behavior, and motivates our
+ regarding the row as a proxy type.  In fact, because of the limited row
+ interface, two rows having different structures (i.e., different sequences of
+ elements) are considered to be different "logical types", since they can't
+ interact with each other except via individual element values that happen to
+ be of compatible types.
+
+ The 12 proxy types defined in 'bdem_binding' all have in common that they
+ "bind" metadata to 'bdem' data; e.g., a 'bdem_RowBinding' binds a row to a
+ record.  The most common purpose of a binding is to provide convenient by-name
+ access to data values in an aggregate type.  Bindings are not part of the
+ interface of any of the data or metadata types (as can be seen in the
+ Hierarchical synopsis).
+
+/Proxy Types
+/-----------
+
+ There are three "families" of proxy types in 'bdem', provided in three
+ separate components.  Each component was designed for a specific purpose, and
+ not just "to be a proxy type", and so other design considerations sometimes
+ compete with "pure" reference semantics.
+
+ As described above, row is first and foremost a factored implementation detail
+ of list and table, and appears in those interfaces (via C++ references) to
+ provide efficient data access.  A row has no public constructors of any kind,
+ and its "proxy" status is a consequence of the overall data structure design.
+
+ Elemrefs appear in the data structure interfaces, and are unique among the
+ proxy types in having been designed (and indeed named) as reference types.
+ They are also unique in that they reference a single data element.
+ Functionally and logically, the 'bdem_ElemRef' type can be thought of as the
+ "scalar proxy" akin to the "vector proxy" row.  Elemrefs do have public
+ constructors, but it is unlikely that the user will construct
+ one directly (except via the *copy* constructor); in this usage pattern as
+ well, the elemref shows its kinship to the row.  However, the suite of Const
+ and non-Const and checked and un-checked elemrefs has more interface
+ similarity with bindings than with rows, and it certainly is possible -- if
+ inconvenient -- to create an elemref "from scratch".
+
+ Bindings combine data and metadata for convenient data access, and their
+ "proxy" status is just a byproduct of good design.  Nevertheless, their
+ interfaces support reference semantics in just the same spirit as the
+ elemrefs.  Indeed, because of their convenient (and indeed numerous) public
+ constructors, bindings are perhaps the best example of a "free-standing
+ reference type".
+
+/Reference Semantics
+/- - - - - - - - - -
+ An element reference object provides (possibly modifiable) access to a
+ particular element within a 'bdem' container, using "reference semantics".
+ Reference semantics are analogous to the semantics of fundamental reference
+ types and, in particular, differ significantly from the more common (within
+ 'bde') value semantics.  An element reference object is bound to its
+ referenced element at (reference) construction, and cannot be modified
+ to refer to another element.  All "value-oriented" operations (e.g.,
+ 'operator==', 'makeUnset', 'replaceValue'), *except* for copy construction,
+ apply directly to the referenced *element*, and not to the reference object
+ itself, as conventional (value) semantics might suggest.  Note, however, that
+ since the conventional assignment operator might reasonably be expected to
+ assign both the type and the value, but that that behavior is impractical (or
+ even undesirable), 'operator=' has been suppressed from the (modifiable)
+ element references.
+
+ Please see 'bdem_elemref' and 'bdem_binding' component documentation for a
+ detailed explanation of *reference* *semantics*, and how it is implemented by
+ the classes 'bdemElemRef' and 'bdem_ConstElemRef', in particular.
+
+/Interaction with Other Packages
+/-------------------------------
+
+ 'bdem' types can be bdex-externalized and "unexternalized" in collaboration
+ with 'bdex' streams.
+
+ Canonical 'NULL' or "unset" values for the scalar 'bdem' element types are
+ defined in 'bdetu'.
+
+@Usage Examples
+ This section provides three examples.
+..
+     1. Writing a ticker data stream with 'bdem_List'.
+     2. Writing a ticker data stream with optional data using 'bdem_Schema'.
+     3. Writing a type-agnostic multiplexer with 'bdem_ElemRef'.
+..
+ See "Appendix 1: An Informal Lesson in the Use of the 'bdem' Messaging
+ Package" for a separate buildable example illustrating schema negotiation and
+ data transfer in a client-server setting.
+
+/Example 1: Implementing a ticker data stream with 'bdem_List'
+/------------------------------------------------------------
+ This example presents a highly simplified ticker data stream application,
+ for the purpose of showing basic population and extraction of data to and
+ from the BDE message type, a 'bdem_List'.
+
+ Suppose we have a Ticker struct, as follows:
+..
+ struct Ticker {
+     double        d_price;
+     bdet_Datetime d_timeStamp;
+     std::string   d_company;
+     char          d_symbol[7];
+ };
+..
+ In a classical producer/consumer application, a producer process would
+ generate Ticker values (e.g., by listening to exchange-provided feeds and
+ normalizing their data to the above 'Ticker' struct format).
+
+ The producer could then use BDE messaging to pack a message as follows:
+..
+ int tickerToList(bdem_List *result, Ticker& input) {
+    enum {SUCCESS = 0, FAILURE = 1 };
+
+    result->appendDouble(input.d_price);       // make price first list entry,
+    result->appendDatetime(input.d_timeStamp); // tstamp is second list entry,
+    result->appendString(input.d_company);     // then company...
+    result->appendString(input.d_symbol);      // and then symbol.
+
+    return SUCCESS;
+ }
+..
+ The following program simulates a 'Ticker' producer process by hard-coding a
+ single 'Ticker' structure, and then mimics "enqueuing" the message (as
+ might happen using messaging middleware) by setting a global pointer to
+ point to it.
+..
+ bdem_List *messageQueue;
+
+ void producer(void) {
+
+     // Create a tick
+     Ticker tick;
+     tick.d_price = 8.29;
+     tick.d_timeStamp.setDatetime(2004,4,28,15,33,02);
+     tick.d_company = "Tibco Software, Inc.";
+     std::strcpy(tick.d_symbol, "TIBX");
+
+     // Put it on the "message queue"
+     bdem_List *nextMsg = new bdem_List();
+     tickerToList(nextMsg, tick);
+     messageQueue = nextMsg;
+   }
+..
+ The consumer then (obtains and) unpacks the message.  There are two important
+ points to note about extracting values from lists:
+..
+  1. Access is by-index only, and so message receivers must know the
+     position of any field they will want to extract.
+  2. Clients must know the type of the field whose contents they want.  All
+     extraction interfaces are type-specific (e.g., 'theDate' for getting a
+     date, and so on), excepting the 'bdem_ElemRef', discussed in the next
+     example.
+..
+..
+ void consumer(void) {
+
+     // Get the "next message".  In real life, might be a middleware API call.
+     bdem_List *nextMsg = messageQueue;
+
+     // Unpack the tick.
+     Ticker tick;
+     tick.d_price = nextMsg->theDouble(0);
+     tick.d_timeStamp = nextMsg->theDatetime(1);
+     tick.d_company = nextMsg->theString(2);
+     std::strcpy(tick.d_symbol, nextMsg->theString(3).c_str());
+ }
+..
+
+/Example 2: A ticker data stream with optional data using 'bdem_Schema'
+/----------------------------------------------------------------------
+ Suppose that the producer and consumer procedures from the example above
+ decide to incorporate optional fields into the messages they exchange.  In
+ that case, of course, there must be some way for the consumer to determine
+ dynamically which fields are present within a particular message.
+
+ Conventional schemes in systems without metadata facility typically involve
+ making some initial portion of the message's data serve as metadata: the
+ initial portion is extracted and interpreted, after which the remainder of the
+ message is processed.
+
+ BDE messaging provides metadata facility, which can be used descriptively
+ for in-core items (in contrast to prescriptive use, available only while
+ parsing).  Use of 'bdem' metadata enables substitution of knowledge of a
+ field's type and position with knowledge of a moniker that identifies that
+ field.  For example, rather than knowing that a message contains a ticker
+ symbol of type 'std::string' at position 3 within a message, a recipient (by
+ agreement with the sender) can know that the string "TICKER_SYMBOL" will
+ identify the metadata for ticker symbols, and then query that metadata to
+ find out the type and the position within the message for that value.
+
+ This example works with a slightly modified 'Ticker' struct.
+..
+ struct Ticker {
+     double                   d_price;
+     bdet_Datetime            d_timeStamp;
+     std::string              d_company;
+     char                     d_symbol[7];
+     std::vector<std::string> d_headlines;    // NEW field
+ };
+..
+ The producer application now generates both message data (i.e., populates a
+ 'bdem_List') and message metadata (i.e., populates a 'bdem_Schema').  It uses
+ an upgraded version of 'tickerToList', so as to write the new field into the
+ message as well.
+..
+ bdem_List *messageQueue;
+ bdem_Schema *messageDesc;
+
+ int tickerToList(bdem_List *result, Ticker& input) {
+     enum { SUCCESS = 0, FAILURE = 1 };
+
+     result->appendDouble(input.d_price);
+     result->appendDatetime(input.d_timeStamp);
+     result->appendString(input.d_company);
+     result->appendString(input.d_symbol);
+     result->appendStringArray(input.d_headlines);  // NEW field added.
+
+     return SUCCESS;
+ }
+
+ void producerOpt(void){
+
+     // Create a tick
+     Ticker tick;
+     tick.d_price = 8.29;
+     tick.d_timeStamp.setDatetime(2004,4,28,15,33,02);
+     tick.d_company = "Tibco Software, Inc.";
+     std::strcpy(tick.d_symbol, "TIBX");
+     tick.d_headlines.push_back("Tibco moves into XML sphere");
+     tick.d_headlines.push_back("Tibco, Vitria announce B2B offerings");
+
+     // Put it in a 'bdem_List'
+     bdem_List *nextMsg = new bdem_List();
+     tickerToList(nextMsg, tick);
+
+     // And then create a 'bdem_Schema' describing the contents of the list
+     bdem_Schema *nextSchema = new bdem_Schema();
+     bdem_RecordDef *tickerDescription = nextSchema->createRecord(
+                                                           "TICKER_DESC");
+     tickerDescription->appendField(bdem_ElemType::DOUBLE, "TICKER_PRICE");
+     tickerDescription->appendField(bdem_ElemType::DATETIME,
+                                                           "TICKER_TIMESTAMP");
+     tickerDescription->appendField(bdem_ElemType::STRING, "TICKER_COMPANY");
+     tickerDescription->appendField(bdem_ElemType::STRING, "TICKER_SYMBOL");
+     tickerDescription->appendField(bdem_ElemType::STRING_ARRAY,
+                                                           "TICKER_HEADLINES");
+
+     // Put both items on the "message queue"
+     messageQueue = nextMsg;
+     messageDesc = nextSchema;
+ }
+..
+ The consumer procedure then uses the metadata to determine which fields the
+ message contains, and extracts them appropriately.
+..
+ void consumerOpt(void) {
+
+     // Get the record definition describing a tick
+     const bdem_RecordDef *tickerDescription;
+     if((tickerDescription = messageDesc->lookupRecord("TICKER_DESC")) == 0)
+         return;
+
+     Ticker tick;
+     int index;
+
+     // Did we get a price?
+     if((index = tickerDescription->fieldIndex("TICKER_PRICE")) >= 0) {
+         tick.d_price = messageQueue->theDouble(index);
+     }
+
+     // Did we get a timestamp?
+     if((index = tickerDescription->fieldIndex("TICKER_TIMESTAMP")) >= 0) {
+         tick.d_timeStamp = messageQueue->theDatetime(index);
+     }
+
+     // Did we get a company name?
+     if((index = tickerDescription->fieldIndex("TICKER_COMPANY")) >= 0) {
+         tick.d_company = messageQueue->theString(index);
+     }
+
+     // Did we get an exchange symbol?
+     if((index = tickerDescription->fieldIndex("TICKER_SYMBOL")) >= 0) {
+         std::strncpy(tick.d_symbol,
+                      messageQueue->theString(index).c_str(), 7);
+     }
+
+     // Did we get news headlines?
+     if((index = tickerDescription->fieldIndex("TICKER_HEADLINES")) >= 0) {
+         tick.d_headlines = messageQueue->theStringArray(index);
+     }
+
+     delete messageDesc;
+     delete messageQueue;
+
+     // Do something with the tick....
+ }
+..
+
+/Example 3: Writing a Type-Agnostic Multiplexer with 'bdem_ElemRef'
+/------------------------------------------------------------------------
+ This Usage Example is under construction.
+
+ A 'bdem_ElemRef' object serves as a reference type through which clients can
+ get or hold any one of the 32 'bdem_ElemType' types.  Effectively a handle,
+ it enables writing compact procedures for handling multiple types, procedures
+ that would otherwise have to explicitly address each of the 32 different
+ types, thereby greatly increasing code size.
+
+ This example demonstrates use of the 'bdem_ElemRef' in implementing code that
+ can sort arbitrary data sets, first sorting the items by type, and then by
+ value within each type.  The code uses 'bdem_ElemRef' to "unify" the type of
+ the disparate data (i.e., mask the true type of a value by referencing it
+ through a 'bdem_ElemRef') so that an existing sorting component, which expects
+ a single type, can be used.
+
+ To simplify the example, we allow input of 'double' and 'int' only.
+ Extending the mechanism to other types is completely straightforward.
+
+ The sorting class is defined as follows:
+..
+ class TypeSorter {
+
+     bdec_OrdSet<bdem_ElemRef> d_sorter;
+                    // The 'bdec_OrdSet' defines an ordered set, which accepts
+                    // elements and stores them in sorted order.  We use this
+                    // as our sorting implementation -- we will simply add our
+                    // elements to the set, and when we need them in order,
+                    // iterate over the set.
+
+     bdem_ElemRef *d_nextValue;
+     const bdem_ElemRef *d_result;
+                    // These two pointers are purely for implementation.
+
+   public:
+     void addDouble(double *dPtr);
+     void addInt(int *iPtr);
+                    // To add more types, add functions here like
+                    // 'addShort', 'addChar', etc.
+
+     friend
+     ostream& operator<<(ostream& theStream, TypeSorter& ts);
+                    // Write out the data in order.
+ };
+
+ ostream& operator<<(ostream& theStream, TypeSorter& ts);
+..
+ Each input value must be "wrapped" by a 'bdem_ElemRef'.  To do so, (i.e., to
+ create a new 'bdem_ElemRef'), we must have the 'bdem_Descriptor' for the type,
+ as well as the address storing the value.
+
+ There are predefined 'bdem_Descriptor's for the fundamental C++ types, in
+ component 'bdem_properties'.
+
+ The address storing the value to be sorted must remain valid for the life of
+ the 'bdem_ElemRef'.
+..
+ void TypeSorter::addDouble(double *dPtr) {
+     d_nextValue = new bdem_ElemRef(dPtr, &bdem_Properties::d_doubleAttr);
+     d_sorter.add(*di_nextValue);
+ }
+
+ void TypeSorter::addInt(int *iPtr) {
+     d_nextValue = new bdem_ElemRef(iPtr, &bdem_Properties::d_intAttr);
+     d_sorter.add(*di_nextValue);
+ }
+..
+ The challenge in obtaining a sorted representation is that the 'bdec_OrdSet'
+ must be told how elements are ordered relative to each other.  This is done
+ by providing an 'operator<' that accepts two items of the element type, and
+ determines whether one is less than the other.
+
+ Were we wanting only to sort by type (and leave elements of the same type
+ unsorted with respect to each other), the following would suffice:
+..
+ bool operator<(const bdem_ElemRef& lhs,
+                const bdem_ElemRef& rhs) {
+     return lhs.type() < rhs.type();
+ }
+..
+ This will sort elements in the order that their type code appears in
+ 'bdem_ElemType'.
+
+ To sort elements *within* each type, we need to be able to encode comparison
+ of items of the same type within our 'operator<'.  The 'bdem_Descriptor'
+ attached to each 'bdem_ElemRef' encodes many functions for operating on items
+ of the type described by that descriptor, but none of these capture "<".  To
+ properly fit our capability into this design, we would need to subclass
+ 'bdem_Descriptor' to add an 'operator<' encoding, and populate objects of this
+ extended class for every 'bdem_ElemType' type that we want to be able to sort.
+
+ That introduces a complexity beyond merit for this example, so instead, we
+ "hack" a solution here, and provide the correctly-designed solution at the
+ end of this file.  Interested readers should look there.
+..
+ bool operator<(const bdem_ElemRef& lhs,
+                const bdem_ElemRef& rhs) {
+     if (lhs.type() == rhs.type()) {
+         const bdem_Descriptor *desc = lhs.descriptor();
+
+         // Instead of properly extending the 'bdem_Descriptor' class to
+         // contain an equivalent for 'operator<', use the descriptor's size
+         // info to fall back on memcmp.  Obviously this bypasses semantic
+         // equality for bitwise equality.  But at least for the fundamental
+         // types, this is fine, as long as we have no negative numbers.
+
+         return (std::memcmp(lhs.data(), rhs.data(), desc->d_size) < 0);
+
+     }
+     return lhs.type() < rhs.type();
+ }
+..
+ The following code demonstrates the sort:
+..
+ int main(int argc, char **argv) {
+
+     TypeSorter ts;
+     double a = 5.4, b = 999.8475, c = 123.02;
+     int x = 23, y = 40000, z = 44;
+
+     ts.addDouble(&a);
+     ts.addInt(&x);
+     ts.addInt(&y);
+     ts.addDouble(&b);
+     ts.addInt(&z);
+     ts.addDouble(&c);
+
+     cout << ts << endl;
+ }
+..
+
+@Appendix 1: An Informal Lesson in the Use of the 'bdem' Messaging Package
+
+ This appendix presents the Informal Lesson named above, which is based on a
+ usage example originally written by Dan Glaser and expanded by Tom Marshall.
+ It is reproduced here in its entirety for convenience, even though some of the
+ descriptive material is used above, and the document is available on {BP BDE
+ <GO>} directly.
+
+/An Overview of 'bdem'
+/---------------------
+ The purpose of the 'bdem' package is to provide a high performance, flexible
+ messaging system.  By "messaging system", we mean the in-process data
+ structures, metadata, and utilities to perform the data marshalling needed
+ to get an arbitrary "message" ready for out-of-process transport, and to
+ reconstitute the data within a new process.
+
+ Of course, 'bdem' messaging can also be useful within a single process.
+ Indeed the 'bdem' data structures can be used effectively as "ordinary"
+ containers in some situations, although they have not been explicitly
+ optimized for that purpose.  In this lesson, however, we will focus on the
+ "canonical" messaging usage model -- although we will simulate the IPC
+ portion by simply "transporting" a data buffer from the "sender" block scope
+ to the "receiver" block scope via a buffer defined in an outer scope.
+
+ The primary classes and utility structures of 'bdem' are:
+..
+     Data Structures     Metadata Structures    Utility Structures
+     ---------------     -------------------    ------------------
+     'bdem_Row'          'bdem_Schema'          'bdem_SchemaUtil'
+     'bdem_List'         'bdem_RecordDef'       'bdem_AggregateUtil'
+     'bdem_Table'        'bdem_FieldDef'        'bdem_SchemaAggregateUtil'
+..
+ The metadata structures are all defined in the 'bdem_schema' component,
+ while each data structure 'class' and each utility 'struct' is defined in
+ its own component (whose name is the all-lowercase rendering of the type
+ name).  For historical reasons, the 'bdem_aggregate' component exists to
+ provide the three needed '#include' directives for row, list, and table.  We
+ use the term "aggregate" to mean any of the data structures; most typically,
+ "aggregate" is used to mean "either list or table", because these are the
+ two data structure types that the user most commonly interacts with.  It
+ will be very useful, for what follows, to become familiar with these
+ components.
+
+ Because the focus of 'bdem' is on messaging, and not on supplying completely
+ ubiquitous heterogeneous containers, 'bdem' limits itself to 32 types: fifteen
+ fundamental, STL, and 'bdet' scalar types, fifteen 'std::vector's of the
+ corresponding scalars, and two 'bdem' containers (list and table).  Each
+ 'bdem' container may contain any of the 32 'bdem' types.  The following table,
+ taken from the 'bdem_aggregate' header, describes these 32 types.
+..
+                 .--- IS-LEAF-NODE
+  +==============|============================================================+
+  | CATEGORY  |  v  | ENUMERATOR       | C++ TYPE                             |
+  +===========================================================================+
+  | SCALAR    | YES | BOOL             | bool                                 |
+  |           |     | CHAR             | char                                 |
+  |           |     | SHORT            | short                                |
+  |           |     | INT              | int                                  |
+  |           |     | INT64            | int64                                |
+  |           |     | FLOAT            | float                                |
+  |           |     | DOUBLE           | double                               |
+  |           |     | STRING           | std::string                          |
+  |           |     | DATETIME         | bdet_Datetime                        |
+  |           |     | DATETIMETZ       | bdet_DatetimeTz                      |
+  |           |     | DATE             | bdet_Date                            |
+  |           |     | DATETZ           | bdet_DateTz                          |
+  |           |     | TIME             | bdet_Time                            |
+  |           |     | TIMETZ           | bdet_TimeTz                          |
+  +---------------------------------------------------------------------------+
+  | ARRAY     | YES | BOOL_ARRAY       | std::vector<bool>                    |
+  |           |     | CHAR_ARRAY       | std::vector<char>                    |
+  |           |     | SHORT_ARRAY      | std::vector<short>                   |
+  |           |     | INT_ARRAY        | std::vector<int>                     |
+  |           |     | INT64_ARRAY      | std::vector<bdes_PlatformUtil::Int64>|
+  |           |     | FLOAT_ARRAY      | std::vector<float>                   |
+  |           |     | DOUBLE_ARRAY     | std::vector<double>                  |
+  |           |     | STRING_ARRAY     | std::vector<std::string>             |
+  |           |     | DATETIME_ARRAY   | std::vector<bdet_Datetime>           |
+  |           |     | DATETIMETZ_ARRAY | std::vector<bdet_DatetimeTz>         |
+  |           |     | DATE_ARRAY       | std::vector<bdet_Date>               |
+  |           |     | DATETZ_ARRAY     | std::vector<bdet_DateTz>             |
+  |           |     | TIME_ARRAY       | std::vector<bdet_Time>               |
+  |           |     | TIMETZ_ARRAY     | std::vector<bdet_TimeTz>             |
+  +-----------+---------------------------------------------------------------+
+  | AGGREGATE | NO  | LIST             | bdem_List                            |
+  |           |     | TABLE            | bdem_Table                           |
+  |           |     | CHOICE           | bdem_Choice                          |
+  |           |     | CHOICE_ARRAY     | bdem_ChoiceArray                     |
+  +===========================================================================+
+..
+ These 32 types are a compromise between the absolute minimum number of types
+ needed to express an arbitrary message and the convenience and performance
+ advantages of having "just the right type" when you need it.  In particular,
+ we do not support an "any" type as a tradeoff for performance.
+
+ The "first-class" 'bdem' data types are 'bdem_List' and 'bdem_Table'. A
+ 'bdem_List' represents a logical "record" (as in a database), and is
+ implemented essentially as exactly one 'bdem_Row'.  A 'bdem_Table' is
+ logically an array of zero or more records (of identical structure), and is
+ implemented more or less as an array of identically-structured 'bdem_Row'
+ objects.
+
+ 'bdem' obtains its flexibility in large part from its "metadata" structure,
+ the schema ('bdem_Schema').  Briefly, a schema is basically an array of
+ record definitions ('bdem_RecordDef'), each of which is in turn an array of
+ field definitions ('bdem_FieldDef').  A field definition simply enumerates
+ one of the 32 'bdem' types (as above); if the type is a list or a table, the
+ field definition may also optionally hold the address of a record definition
+ (within the same schema) that "constrains" the sequence of types held by the
+ list or table being "defined" by the field definition.  Each record
+ definition and each field definition optionally can be named.  These names
+ will turn out to be very useful for "schema negotiation" and subsequent data
+ access.  For convenience, we will use the terms "record definition" and
+ "record" interchangeably, and likewise "field definition" and "field".
+
+ Schemas, records, and fields do not know anything at all about the 'bdem'
+ data structures, except for the "coincidence" that they are aware of the
+ "labels" (i.e., the 'enum' values) for the 32 bdem types (as provided in the
+ 'bdem_elemtype' component).  Nevertheless, by a combination of policies and
+ utilities (all of which exist at a higher level in the physical design of
+ 'bde'), we can "bind" a metadata description to a 'bdem' data object.  The
+ rest of this lesson will focus on establishing this link between data and
+ metadata using the classes and utilities mentioned above.  Subsequent
+ lessons will use yet-higher-level components to simplify the operation.  But
+ again, here our focus is on understanding the basic usage models.
+
+/Using 'bdem'
+/------------
+ A schema can be used to define the format (i.e., the structure) of a message
+ that is in turn rendered as a list or a table.  Moreover, since records and
+ fields may (optionally) be named, the schema "format" can actually enable
+ by-name access of individual data elements within the list or table.  Using
+ a schema to define a message format in turn gives us two very convenient
+ advantages.  First, senders and receivers of messages can negotiate the
+ required and/or available message content, agree on a common format, and
+ upgrade their own schemas as needed independently of any actual data
+ transmission.  Second, a common service (such as a server or a logger) can
+ "publish" (i.e., generally make known) a stable, fixed data format.  Client
+ code can then be pre-configured to comply (or take their business elsewhere,
+ as appropriate).
+
+ In any scenario, if there is to be a reasonably large number of messages,
+ separating the format negotiation from the high-speed transport of raw data
+ gives extremely high performance while always reserving the right to change
+ format (or start obtaining similar data from a slightly different source) as
+ needed.
+
+/Two Usage Patterns (and Mixtures Thereof)
+/- - - - - - - - - - - - - - - - - - - - -
+ The above discussions about schema negotiations and "well-known" schemas
+ illustrate the basic 'bdem' concepts of separating data and metadata.  Now
+ it is time to get more specific about exactly how two participants agree on
+ what data will be transmitted.  There are two "pure" variations: either the
+ sender can agree to alter the transmitted-data format to provide exactly
+ the data that the receiver requires, or else the sender can transmit all of
+ its data in a known format, and the receiver can filter out what is needed.
+ Of course, a mixture is possible, whereby the actual transmission is
+ modified somewhat by the receiver's schema, but is not fully filtered to be
+ an exact match of that schema.  Deciding which of these "modes of operation"
+ will be employed in any given service is a policy decision that -- we hope
+ -- will be governed by considerations of efficiency and ease of use.
+
+/Schema Usage Details
+/- - - - - - - - - -
+ Whichever of the above usage patterns is adopted, the programmer(s) must
+ ultimately compare the two schemas to determine compatibility.  Here, we
+ encounter a detail.  The metadata describing the structure of a 'bdem_List'
+ or a 'bdem_Table' is actually a 'bdem_RecordDef'.  So when we talk of
+ "schemas", we are talking just a bit loosely.  A given record in a given
+ schema logically "binds" to a list or a table; other records in the schema
+ exist to provide the constraint definitions for *contained* lists and tables
+ within the *parent* (or top-level) aggregate.
+
+ With that knowledge, we are ready to look at the machinery to compare
+ schemas; that machinery is found in the 'bdem_schemautil' component.
+ Specifically, consider the following three methods from 'bdem_schemautil':
+..
+  static int areEquivalent(const bdem_RecordDef& r1,
+                           const bdem_RecordDef& r2);
+      // Return 1 if the specified 'r1' and 'r2' records are equivalent and 0
+      // otherwise.  Two records are equivalent if they have the same number
+      // of fields, and fields at corresponding index positions have the same
+      // element type, constraint, and name (or both fields are unnamed).
+      // Two constraints are considered "the same" if they indicate records
+      // in their respective schemas that are (recursively) equivalent with
+      // respect to their sequence of fields.  Note that neither the names
+      // nor the record indices of constraints are relevant for this
+      // comparison.
+
+  static int areStructurallyEquivalent(const bdem_RecordDef& r1,
+                                       const bdem_RecordDef& r2);
+      // Return 1 if the specified 'r1' and 'r2' records are structurally
+      // equivalent and 0 otherwise.  Two records are structurally equivalent
+      // if they have the same number of fields, and fields at the
+      // corresponding index positions have the same element type.
+      // Furthermore, for each field that has a constraint, the corresponding
+      // field must have a constraint that is (recursively) structurally
+      // equivalent to the corresponding constraint.  Note that this
+      // comparison is solely based on field indices; record and field names,
+      // and the names and indices of constraints are not relevant for this
+      // comparison.
+
+  static int areSymbolicallyEquivalent(const bdem_RecordDef& r1,
+                                       const bdem_RecordDef& r2);
+      // Return 1 if the specified 'r1' and 'r2' records are symbolically
+      // equivalent and 0 otherwise.  Two records are symbolically equivalent
+      // if their *named* fields are in a one-to-one correspondence, and
+      // fields having the same name have the same element type.
+      // Furthermore, for each named field that is constrained, the
+      // corresponding field must have a constraint that is (recursively)
+      // symbolically equivalent to the corresponding constraint.  Note that
+      // record names are not relevant for this comparison, nor are unnamed
+      // fields.
+..
+ Each method compares two records of a certain kind of "equivalence", but the
+ comparison criteria are somewhat different, and serve different purposes.
+ Each of the above methods also has a "isSuperset" counterpart that compares
+ for "containment" rather than "equivalence".  The "superset" methods are:
+..
+  static
+  int isSuperset(const bdem_RecordDef& super,
+                 const bdem_RecordDef& sub);
+  static
+  int isStructuralSuperset(const bdem_RecordDef& super,
+                           const bdem_RecordDef& sub);
+  static
+  int isSymbolicSuperset(const bdem_RecordDef& super,
+                         const bdem_RecordDef& sub);
+..
+ See the 'bdem_schemautil' component documentation for a full description of
+ how these methods can be used in schema negotiations.  For now, we note that
+ 'isStructuralSuperset' and 'isSymbolicSuperset' are the two most useful
+ methods for the common modes of schema negotiation.  The "structural" method
+ facilitates by-index data access (from the associated data structure), while
+ the "symbolic" method facilitates by-name access.  We will see how to use
+ the 'isSymbolicSuperset' method in the example below.
+
+/The Example
+/-----------
+ The code below will build and run on any platform supporting BDE.  We will
+ go through the program step by step, highlighting what we have discussed
+ above.
+
+ In the example in this Lesson, we will assume that the server (sender)
+ transmits a well-known schema and a fixed data set (as a 'bdem_List'), and
+ that the receiver must "unpack" the transmission in order to extract the
+ desired fields.
+..
+#include <bdem_schema.h>
+#include <bdem_aggregate.h>
+#include <bdex_byteoutstream.h>
+#include <bdex_byteinstream.h>
+#include <bdem_schemautil.h>
+
+int main() {
+    // In this example, the sender transmits "Std Equity Trade (Local)"
+    // messages, which the receiver uses to get the data it needs.  This
+    // system will work as long as the sender's schema (actually, the indicated
+    // record *within* the transmitted schema) is a "symbolic superset" of the
+    // receiver's schema.  It is the receiver's responsibility to extract the
+    // data from the messages that are being sent in a fixed format.
+
+    //-------------------------------------------------------------------------
+    // The 'transport' array of 'char' serves as our proxy for IPC in this
+    // single-process example.  'transport' is available as a "resource" to the
+    // two inner scopes labeled "Sender" and "Receiver" below.
+
+    char transport[10000];
+    int schemaLength;
+    int messageLength;
+    //-------------------------------------------------------------------------
+
+
+{ // *************************** Begin Sender Scope ***************************
+
+    // Create a 'bdem_Schema' to describe how the data is sent.
+    //
+    // This schema represents the data that is typically held by a
+    // "Std Equity Trade (Local)" message.  The schema provides definitions
+    // for a time, a security ID, a sale condition, a price, and a tick, which
+    // is a essentially an array of these values plus some additional
+    // information.  The message sent will be a tick.
+    //..
+    // RECORD "Std Time (GMT)" {
+    //   datetime "Datetime";
+    //   float "GMT Offset";
+    // }
+    //
+    // RECORD "Std Security ID" {
+    //   STRING "Security Identifier";
+    //   STRING "Security Identifier Type";
+    // }
+    //
+    // RECORD "Std Equity Sale Condition" {
+    //   STRING "Sale Condition";
+    //   STRING "Update Action";
+    // }
+    //
+    // RECORD "Std Price" {
+    //   FLOAT "Price";
+    //   STRING "Price Denominator";
+    // }
+    //
+    // RECORD "Std Equity Trade (Local)" {
+    //   STRING "Tick Type";
+    //   LIST<"Std Time (GMT)"> "Time";
+    //   INT "Sequence Number";
+    //   STRING "Source/Contributor";
+    //   STRING "Market Center";
+    //   LIST<"Std Security ID"> "Security Identifier";
+    //   LIST<"Std Equity Sale Condition"> "Sale Condition";
+    //   LIST<"Std Price"> "Trade Price";
+    //   INT "Trade Size";
+    //   STRING "Currency Code";
+    // }
+    //..
+
+    // Construct 'schema' to hold the "well-known schema" that will be
+    // "published" on demand.
+    bdem_Schema schema;
+
+    // Now, build up 'schema'.  This is tedious, but only needs to be done
+    // once.  In later lessons, we'll see how to generate this schema value
+    // from a text representation (e.g., from a config file).  Here, we define
+    // the schema one record at a time.
+
+    // First, create a record (within 'schema') named "Std Time (GMT)".  Note
+    // that 'createRecord' creates a new record, appends that record to the
+    // schema, and returns a pointer to the new, empty record.  We'll use this
+    // pointer to append fields to the record.
+    bdem_RecordDef *timePtr = schema.createRecord("Std Time (GMT)");
+
+    // Now, append named fields of types DATETIME and FLOAT
+    timePtr->appendField(bdem_ElemType::DATETIME, "Datetime");
+    timePtr->appendField(bdem_ElemType::FLOAT, "GMT Offset");
+
+
+
+    // Next create (and append to 'schema') the security ID record.
+    bdem_RecordDef *securityPtr = schema.createRecord("Std Security ID");
+
+    // ... and append the needed (named) STRING fields.
+    securityPtr->appendField(bdem_ElemType::STRING, "Security Identifier");
+    securityPtr->appendField(bdem_ElemType::STRING,
+                             "Security Identifier Type");
+
+
+    //  Next create the sale condition record of the schema.
+    bdem_RecordDef *equitySalePtr =
+        schema.createRecord("Std Equity Sale Condition");
+
+    // ... and append the  fields.
+    equitySalePtr->appendField(bdem_ElemType::STRING, "Sale Condition");
+    equitySalePtr->appendField(bdem_ElemType::STRING, "Update Action");
+
+
+    // Next create the price record of the schema.
+    bdem_RecordDef *pricePtr = schema.createRecord("Std Price");
+
+    // ... and append the  fields.
+    pricePtr->appendField(bdem_ElemType::FLOAT, "Price");
+    pricePtr->appendField(bdem_ElemType::STRING, "Price Denominator");
+
+
+    // Next create the tick record of the schema.
+    bdem_RecordDef *equityTradePtr
+        = schema.createRecord("Std Equity Trade (Local)");
+
+    // ... and append the  fields.
+    equityTradePtr->appendField(bdem_ElemType::STRING, "Tick Type");
+    equityTradePtr->appendField(bdem_ElemType::LIST, timePtr, "Time");
+    equityTradePtr->appendField(bdem_ElemType::INT, "Sequence Number");
+    equityTradePtr->appendField(bdem_ElemType::STRING, "Source/Contributor");
+    equityTradePtr->appendField(bdem_ElemType::STRING, "Market Center");
+    equityTradePtr->appendField(bdem_ElemType::LIST, securityPtr,
+                                "Security Identifier");
+    equityTradePtr->appendField(bdem_ElemType::LIST, equitySalePtr,
+                                "Sale Condition");
+    equityTradePtr->appendField(bdem_ElemType::LIST, pricePtr, "Trade Price");
+    equityTradePtr->appendField(bdem_ElemType::INT, "Trade Size");
+    equityTradePtr->appendField(bdem_ElemType::STRING, "Currency Code");
+
+
+    // Now 'schema' is complete.  Print 'schema' to 'stdout'...
+    cout << "Sender Schema:\n" << schema << endl;
+
+    // ... and send 'schema' to the receiver.
+
+    // First, create a 'bdex' output stream.
+    bdex_ByteOutStream outStream;
+
+    // Then stream out 'schema'
+    outStream << schema;
+
+    // Here, we will do a "pseudo-IPC" trick.  The 'bdex' part is all standard,
+    // but now we'll use the 'data()' method of the stream to 'memcpy' the
+    // byte-stream representation of 'schema' to our 'transport' buffer.  In a
+    // real app, we'd probably use some 'btesc' channel to send the same
+    // buffer via a TCP/IP socket.
+    std::memcpy(transport, outStream.data(), outStream.length());
+    schemaLength = outStream.length();
+
+
+    // Now that the schema is published, we need to create a 'bdem_List'
+    // holding the data that will be injected into a "Std Equity Trade (Local)"
+    // message.
+    //
+    // The representation of the data is as follows:
+    //
+    // Equity Trade {
+    //   Tick Type                      ET
+    //   Time {
+    //     datetime                     2002/11/20_9:30:00.000
+    //     GMT Offset                   -5
+    //   }
+    //   Sequence Number                1
+    //   Source/Contributor             NASDAQ
+    //   Market Center                  NASDAQ
+    //   Security Identifier {
+    //     Security Identifier          INTC
+    //     Security Identifier Type     EXCH
+    //   }
+    //   Sale Condition {
+    //     Sale Condition               aa
+    //     Update Action                None
+    //   }
+    //   Trade Price {
+    //     Price                        18.13
+    //     Price Denominator            2
+    //   }
+    //   Trade Size                     2000
+    //   Currency Code                  USD
+    // }
+
+
+    // We need to look up information in the schema just once; we calculate
+    // appropriately-named indices that may be used repeatedly in creating
+    // the specific lists (i.e., holding the current data values) that will
+    // be sent to Receivers on demand.  This preprocessing allows the overhead
+    // of each individual message sent to be minimal.
+
+    // Create a 'std::vector<bdem_ElemType::Type>' for the Std Time (GMT)
+    // record
+    std::vector<bdem_ElemType::Type> timeElemTypes;
+
+    // Get the appropriate record from 'schema'.
+    const bdem_RecordDef *timeRecord = schema.lookupRecord("Std Time (GMT)");
+
+    // Get the elemTypes from the record.
+    int timeRecordLength = timeRecord->length();
+    for (int i = 0; i < timeRecordLength; ++i) {
+        timeElemTypes.push_back(timeRecord->field(i).elemType());
+    }
+
+    // Store the needed indices.
+    const int datetimeIndex = timeRecord->fieldIndex("Datetime");
+    const int offsetIndex = timeRecord->fieldIndex("GMT Offset");
+
+
+    // Repeat this sequence for the Std Security ID record
+    std::vector<bdem_ElemType::Type> securityElemTypes;
+    const bdem_RecordDef *securityRecord
+        = schema.lookupRecord("Std Security ID");
+    int securityRecordLength = securityRecord->length();
+    for (int i = 0; i < securityRecordLength; ++i) {
+        securityElemTypes.push_back(securityRecord->field(i).elemType());
+    }
+
+    const int secIDIndex = securityRecord->fieldIndex("Security Identifier");
+    const int secIDTypeIndex
+        = securityRecord->fieldIndex("Security Identifier Type");
+
+
+    // Repeat this sequence for the Std Equity Sale record
+    std::vector<bdem_ElemType::Type> equitySaleElemTypes;
+    const bdem_RecordDef *equitySaleRecord
+        = schema.lookupRecord("Std Equity Sale Condition");
+    int equitySaleRecordLength = equitySaleRecord->length();
+    for (int i = 0; i < equitySaleRecordLength; ++i) {
+        equitySaleElemTypes.push_back(equitySaleRecord->field(i).elemType());
+    }
+
+    const int saleCondIndex = equitySaleRecord->fieldIndex("Sale Condition");
+    const int updateActionIndex
+        = equitySaleRecord->fieldIndex("Update Action");
+
+
+    // Repeat this sequence for the Std Price record
+    std::vector<bdem_ElemType::Type> priceElemTypes;
+    const bdem_RecordDef *priceRecord = schema.lookupRecord("Std Price");
+    int priceRecordLength = priceRecord->length();
+    for (int i = 0; i < priceRecordLength; ++i) {
+        priceElemTypes.push_back(priceRecord->field(i).elemType());
+    }
+
+    const int priceIndex = priceRecord->fieldIndex("Price");
+    const int priceDenomIndex = priceRecord->fieldIndex("Price Denominator");
+
+
+    // Repeat this sequence for the Std Equity Trade (Local) record
+    std::vector<bdem_ElemType::Type> equityTradeElemTypes;
+    const bdem_RecordDef *equityTradeRecord =
+        schema.lookupRecord("Std Equity Trade (Local)");
+    int equityTradeRecordLength = equityTradeRecord->length();
+    for (int i = 0; i < equityTradeRecordLength; ++i) {
+        equityTradeElemTypes.push_back(equityTradeRecord->field(i).elemType());
+    }
+
+    const int tickTypeIndex = equityTradeRecord->fieldIndex("Tick Type");
+    const int timeListIndex = equityTradeRecord->fieldIndex("Time");
+    const int seqNumIndex = equityTradeRecord->fieldIndex("Sequence Number");
+    const int sourceConIndex =
+        equityTradeRecord->fieldIndex("Source/Contributor");
+    const int marketCenterIndex =
+        equityTradeRecord->fieldIndex("Market Center");
+    const int securityListIndex =
+        equityTradeRecord->fieldIndex("Security Identifier");
+    const int saleCondListIndex =
+        equityTradeRecord->fieldIndex("Sale Condition");
+    const int tradePriceListIndex =
+        equityTradeRecord->fieldIndex("Trade Price");
+    const int tradeSizeIndex = equityTradeRecord->fieldIndex("Trade Size");
+    const int curCodeIndex = equityTradeRecord->fieldIndex("Currency Code");
+
+
+    // Now we can create and populate the list (data).  This sequence of code
+    // is repeated as needed to satisfy the demands of the clients (e.g., the
+    // data is refreshed, or specific details consistent with the format of
+    // the fixed schema are fetched on demand).  This creates the actual
+    // message sent.
+
+    // Create a list 'equityTradeList'.
+    bdem_List
+        equityTradeList((bdem_ElemType::Type *) &equityTradeElemTypes[0],
+                        equityTradeRecordLength);
+
+
+    // Populate some of the "additional" information.
+    equityTradeList.theString(tickTypeIndex) = "ET";
+
+    // Obtain a pointer to the time list and populate the list
+    bdem_List *timeListPtr = &equityTradeList.theList(timeListIndex);
+    timeListPtr->reset(&timeElemTypes[0], timeRecordLength);
+    bdet_Datetime dateTime;
+    dateTime.setYearMonthDay(2002, 11, 20);
+    dateTime.setTime(9, 30, 0, 0);
+    timeListPtr->theDatetime(datetimeIndex) = dateTime;
+    timeListPtr->theFloat(offsetIndex) = -5.0;
+
+
+    // Populate some of the "additional" information.
+    equityTradeList.theInt(seqNumIndex) = 1;
+    equityTradeList.theString(sourceConIndex) = "NASDAQ";
+    equityTradeList.theString(marketCenterIndex) = "NASDAQ";
+
+    // Obtain pointer to the security list and populate the list
+    bdem_List *securityListPtr = &equityTradeList.theList(securityListIndex);
+    securityListPtr->reset(&securityElemTypes[0], securityRecordLength);
+    securityListPtr->theString(secIDIndex) = "INTC";
+    securityListPtr->theString(secIDTypeIndex) = "EXCH";
+
+    // Obtain pointer to the sale condition list and populate the list.
+    bdem_List *equitySaleListPtr = &equityTradeList.theList(saleCondListIndex);
+    equitySaleListPtr->reset(&equitySaleElemTypes[0], equitySaleRecordLength);
+    equitySaleListPtr->theString(saleCondIndex) = "aa";
+    equitySaleListPtr->theString(updateActionIndex) = "None";
+
+    // Obtain pointer to the equity trade list and populate the list.
+    bdem_List *priceListPtr = &equityTradeList.theList(tradePriceListIndex);
+    priceListPtr->reset(&priceElemTypes[0], priceRecordLength);
+    priceListPtr->theFloat(priceIndex) = 18.13;
+    priceListPtr->theString(priceDenomIndex) = "2";
+
+    // Populate some of the "additional" information.
+    equityTradeList.theInt(tradeSizeIndex) = 2000;
+    equityTradeList.theString(curCodeIndex) = "USD";
+
+    // We now have a complete 'equityTradeList' ready to be sent to clients.
+
+    // First, print this message to 'stdout'.
+    cout << "Sender Message:\n" << equityTradeList << endl;
+
+    // Now, stream out the message.  We can reuse the 'bdex' output stream.
+    // First, clear the stream.
+    outStream.removeAll();
+
+    // Now, stream out the list.
+    outStream << equityTradeList;
+
+    // We here repeat the "pseudo-IPC" trick using the 'transport' buffer.
+    std::memcpy(transport + schemaLength,
+                outStream.data(), outStream.length());
+    messageLength = outStream.length();
+
+    // We are done with the sender.  In a real app, this would be in some loop
+    // where the indices from the schema are reused to populate a never-ending
+    // sequence of fresh lists.
+
+} // *************************** End Sender Scope *****************************
+
+
+                // +------------------------------------------+
+                // | This is the logical divider between the  |
+                // | pseudo-process of the "Sender" and the   |
+                // | pseudo-process of the "Receiver".        |
+                // +------------------------------------------+
+
+
+{ // ************************** Begin Receiver Scope **************************
+
+    // Create a bdem_schema to describe what data is needed by the receiver.
+    //
+    // This schema represents the data of a "Std Equity Tick", which is a
+    // subset of the data provided by a "Std Equity Trade (Local)" since "Std
+    // Equity Trade (Local)" is a specific type of "Std Equity Tick".
+    //..
+    // RECORD "Std Time (GMT)" {
+    //   DATETIME "Datetime";
+    //   FLOAT "GMT Offset";
+    // }
+    //
+    // RECORD "Std Security ID" {
+    //   STRING "Security Identifier";
+    //   STRING "Security Identifier Type";
+    // }
+    //
+    // RECORD "Std Equity Tick" {
+    //   STRING "Tick Type";
+    //   LIST<"Std Time (GMT)"> "Time";
+    //   INT "Sequence Number";
+    //   STRING "Source/Contributor";
+    //   STRING "Market Center";
+    //   LIST<"Std Security ID"> "Security Identifier";
+    // }
+    //..
+
+    // Create 'rSchema' to hold the Server's schema (which we'll read from our
+    // "pseudo-IPC" in the next section).
+    bdem_Schema rSchema;
+
+    // As before, we build up the schema one record at a time.
+
+    // First, create the "Std Time (GMT)" record.
+    bdem_RecordDef *timePtr = rSchema.createRecord("Std Time (GMT)");
+
+    // ... and append fields.
+    timePtr->appendField(bdem_ElemType::DATETIME, "Datetime");
+    timePtr->appendField(bdem_ElemType::FLOAT, "GMT Offset");
+
+    // Next create the security ID record.
+    bdem_RecordDef *securityPtr = rSchema.createRecord("Std Security ID");
+
+    // ... and append fields.
+    securityPtr->appendField(bdem_ElemType::STRING, "Security Identifier");
+    securityPtr->appendField(bdem_ElemType::STRING,
+                             "Security Identifier Type");
+
+    // Next create the equity tick record.
+    bdem_RecordDef *equityTickPtr = rSchema.createRecord("Std Equity Tick");
+
+    // ... and append fields.
+    equityTickPtr->appendField(bdem_ElemType::STRING, "Tick Type");
+    equityTickPtr->appendField(bdem_ElemType::LIST, timePtr, "Time");
+    equityTickPtr->appendField(bdem_ElemType::INT, "Sequence Number");
+    equityTickPtr->appendField(bdem_ElemType::STRING, "Source/Contributor");
+    equityTickPtr->appendField(bdem_ElemType::STRING, "Market Center");
+    equityTickPtr->appendField(bdem_ElemType::LIST, securityPtr,
+                               "Security Identifier");
+
+    // We are done (this is a shorter schema!)
+
+    // Print this schema to 'stdout'.
+    cout << "Receiver Schema:\n" << rSchema << endl;
+
+    // Now we are ready to receive the Server's schema to make sure that we
+    // can use it.
+
+    // Create a 'bdex' input stream from our pseudo-IPC 'transport' buffer.  In
+    // a real app, we'd use a buffer obtained from some 'btesc' channel or
+    // other appropriate source
+    bdex_ByteInStream inStream(transport, schemaLength + messageLength);
+
+    // Now, create an empty schema.
+    bdem_Schema sSchema;
+
+    // ... and stream in the value of the Sender's schema
+    inStream >> sSchema;
+
+
+
+    // Print the Server's schema to 'stdout'.
+    cout << "Sent Schema:\n" << sSchema << endl;
+
+
+    // Check that the last record in the Server's 'sSchema' is at least as
+    // expressive as the last record in our 'rSchema'.
+    const bdem_RecordDef *sRecord = &sSchema.record(sSchema.length() - 1);
+    if (!bdem_SchemaUtil::isSymbolicSuperset(*sRecord, *equityTickPtr)) {
+       // The sender schema does not satisfy the receiver's needs.
+        cout << "I can't use this schema.  I'm taking my business elsewhere!"
+             << endl;
+        return 1;
+    }
+
+
+    // We must look up the locations of the data in the sent schema once.
+    // This preprocessing allows the overhead of each individual message
+    // received to be minimal.
+
+    // Look up Std Time (GMT) record
+    const bdem_RecordDef *timeRecord = sSchema.lookupRecord("Std Time (GMT)");
+
+    // ... and store the needed indices.
+    const int datetimeIndex = timeRecord->fieldIndex("Datetime");
+    const int offsetIndex = timeRecord->fieldIndex("GMT Offset");
+
+
+
+    // Look up Std Security ID record
+    const bdem_RecordDef *securityRecord
+        = sSchema.lookupRecord("Std Security ID");
+
+    // ... and store the needed indices.
+    const int secIDIndex
+        = securityRecord->fieldIndex("Security Identifier");
+    const int secIDTypeIndex
+        = securityRecord->fieldIndex("Security Identifier Type");
+
+
+    // Look up Std Equity Sale record
+    const bdem_RecordDef *equitySaleRecord
+        = sSchema.lookupRecord("Std Equity Sale Condition");
+
+    // ... and store the needed indices.
+    const int saleCondIndex
+        = equitySaleRecord->fieldIndex("Sale Condition");
+    const int updateActionIndex
+        = equitySaleRecord->fieldIndex("Update Action");
+
+
+    // Look up Std Price record
+    const bdem_RecordDef *priceRecord = sSchema.lookupRecord("Std Price");
+
+    // ... and store the needed indices.
+    const int priceIndex = priceRecord->fieldIndex("Price");
+    const int priceDenomIndex = priceRecord->fieldIndex("Price Denominator");
+
+
+
+    // Look up Std Equity Trade (Local) record
+    const bdem_RecordDef *equityTradeRecord
+        = sSchema.lookupRecord("Std Equity Trade (Local)");
+
+    // ... and store the needed indices.
+    const int tickTypeIndex = equityTradeRecord->fieldIndex("Tick Type");
+    const int timeListIndex = equityTradeRecord->fieldIndex("Time");
+    const int seqNumIndex = equityTradeRecord->fieldIndex("Sequence Number");
+    const int sourceConIndex
+        = equityTradeRecord->fieldIndex("Source/Contributor");
+    const int marketCenterIndex
+        = equityTradeRecord->fieldIndex("Market Center");
+    const int securityListIndex
+        = equityTradeRecord->fieldIndex("Security Identifier");
+    const int saleCondListIndex
+        = equityTradeRecord->fieldIndex("Sale Condition");
+    const int tradePriceListIndex
+        = equityTradeRecord->fieldIndex("Trade Price");
+    const int tradeSizeIndex = equityTradeRecord->fieldIndex("Trade Size");
+    const int curCodeIndex = equityTradeRecord->fieldIndex("Currency Code");
+
+
+
+    // The following code is repeated for each message received.
+
+    // Create an empty list.
+    bdem_List rMessage;
+
+    // ... and stream in its value (using the existing 'bdex' stream in this
+    // case, or perhaps a newly created stream populated from a freshly read
+    // 'btesc' channel).
+    inStream >> rMessage;
+
+    // Print this message to 'stdout'.
+    cout << "Received Message:\n" << rMessage << endl;
+
+
+
+    // Process the message
+
+    // Note that the "someValN" variables are simply placeholders to indicate
+    // how to access the information in a message.  In a functioning program
+    // the message would either be used in the form that it came in or the
+    // values would be accessed in the manner shown below and used for some
+    // purpose.  Constructing an aggregate that perfectly matches the
+    // receiver's schema is possible and may produce a smaller aggregate than
+    // the message received, though this extra copying is often not necessary
+    // since the message provides a superset of the information described by
+    // the receiver schema and this information is easily accessible by the
+    // preprocessed index values.
+
+    // Use the pre-calculated indices to extract information from the message
+    // list.
+    std::string someval1 = rMessage.theString(tickTypeIndex);
+
+    // Obtain pointer to the time list and extract the list.
+    bdem_List *timeListPtr = &rMessage.theList(timeListIndex);
+    bdet_Datetime someval2 = timeListPtr->theDatetime(datetimeIndex);
+    float someval3 = timeListPtr->theFloat(offsetIndex);
+
+    // Extract some of the "additional" information.
+    int someval4 = rMessage.theInt(seqNumIndex);
+    std::string someval5 = rMessage.theString(sourceConIndex);
+    std::string someval6 = rMessage.theString(marketCenterIndex);
+
+    // Obtain pointer to the security list and extract the list.
+    bdem_List *securityListPtr = &rMessage.theList(securityListIndex);
+    std::string someval7 = securityListPtr->theString(secIDIndex);
+    std::string someval8 = securityListPtr->theString(secIDTypeIndex);
+
+    // Obtain pointer to the equity sale condition list and extract the list.
+    bdem_List *equitySaleListPtr = &rMessage.theList(saleCondListIndex);
+    std::string someval9 = equitySaleListPtr->theString(saleCondIndex);
+    std::string someval10 = equitySaleListPtr->theString(updateActionIndex);
+
+    // Obtain pointer to the price list and extract the list.
+    bdem_List *priceListPtr = &rMessage.theList(tradePriceListIndex);
+    float someval11 = priceListPtr->theFloat(priceIndex);
+    std::string someval12 = priceListPtr->theString(priceDenomIndex);
+
+    // Extract some of the "additional" information.
+    int someval13 = rMessage.theInt(tradeSizeIndex);
+    std::string someval14 = rMessage.theString(curCodeIndex);
+
+    // We are done.  In a real app, we'd do something useful with this data,
+    // but in this example, we've shown both sides of the data marshalling
+    // using 'bdem' and 'bdex'.  We have simulated a 'bteso' channel or other
+    // IPC by using an in-process 'transport' buffer, but otherwise, this code
+    // represents the basic steps in the process.  Higher-level components in
+    // 'bde' can make some of this work quite a bit easier for the programmer,
+    // but the basic concepts are exactly the same.
+
+} // *************************** End Receiver Scope ***************************
+
+return 0;
+
+} // end 'main'
+..
+
+@Appendix 2: Component Reference Guide
+ This section provides a reference summary of all of the components in 'bdem'.
+ Because of the specific design choices made in optimizing 'bdem' for both
+ performance and maintenance, many of the components described in this section
+ are not intended for direct client use, and can safely be ignored by most
+ users.
+
+/'bdem_aggregate'
+/----------------
+ 'bdem_aggregate' exists largely for historical and convenience purposes.  The
+ single header may be '#include'd by clients who wish to use the 'bdem' data
+ structures 'bdem_Row', 'bdem_List', and 'bdem_Table'; 'bdem_aggregate.h'
+ '#include's the headers 'bdem_row.h', 'bdem_list.h', and 'bdem_table.h'.
+
+/'bdem_aggregateimp'
+/-------------------
+ 'bdem_aggregateimp' collects the memory-management constructs needed by
+ 'bdem_List' and 'bdem_Table' into one structure.
+
+ This component is not intended for client use.
+
+/'bdem_aggregateoption'
+/----------------------
+ 'bdem_aggregateoption' defines an enumeration representing four memory
+ management strategies, providing a convenient indication of whether
+ containers and contained elements should share allocators and which memory-
+ use properties any additionally-created allocators should optimize for.
+
+ This component is not intended for client use.
+
+/'bdem_aggregateutil'
+/--------------------
+ 'bdem_aggregateutil' provides comparison utilities that enhance use of 'bdem'.
+
+ 'bdem_AggregateUtil' support the following functionality: equality
+ comparators for 'bdem_Row's, 'bdem_List's, and 'bdem_Table's, using
+ fuzzy-equality comparison for all contained floating-point data.
+
+/'bdem_descriptor'
+/----------------
+ 'bdem_descriptor' provides a convenient repository for storing pointers to
+ "canonical" operations operating on a particular type, and also size and
+ alignment information for that type.  The kinds of procedures whose
+ pointers are meant to be stored in a 'bdem_Descriptor' struct include a
+ default (no-arg) in-place constructor, an in-place copy constructor, a
+ destructor, an assignment operator, a function that can move an item of the
+ given type from one address to another, a function that can put an item
+ into some canonical "unset" state, a function that can detect whether an
+ item is in the "unset" state, and an equality comparator.
+
+/Caveats
+/- - - -
+ 1. The operations whose pointers are stored are *not* intended to do either
+    memory allocation or memory deallocation.  Where function signatures
+    include allocators, it is because these may need to be passed on (to
+    other procedures), rather than used directly.
+
+/'bdem_elemattrlookup'
+/---------------------
+ The 'bdem_elemattrlookup' component provides indexed access to pre-populated
+ bdem_Descriptors (including descriptors for streaming operations) for each
+ of the 32 'bdem_ElemType's.
+
+ 'bdem_ElemAttrLookup' supports the following functionality: finding a
+ pre-populated 'bdem_Descriptor' for one of the 'bdem_ElemType's.
+
+/'bdem_elemref'
+/--------------
+ 'bdem_elemref' defines a proxy type that can represent any item of
+ 'bdem_ElemType'.  The component  provides both a (logical) const and a
+ (logical) non-const variant, which provide const reference and non-const
+ reference semantics, respectively.
+
+ 'bdem_ElemRef' supports the following functionality: value information for
+ the referenced item, type information for the referenced item, and
+ streaming.
+
+/Caveats
+/- - - -
+ 1. As with C++ references, the meaningful lifetime of a 'bdem_ElemRef'
+ does not exceed that of the referenced item.
+
+/'bdem_elemtype'
+/---------------
+ 'bdem_elemtype' defines an enumeration representing the 32 valid BDE
+ message types.
+
+ 'bdem_ElemType' supports the following functionality: conversion of any
+ enumeration code to the string symbol equivalent, and streaming.
+
+/'bdem_functiontemplates'
+/------------------------
+ 'bdem_functiontemplates' effectively templatizes enough "canonical
+ operations" (such as copy construction, destruction, etc.) so that most of
+ the operations needed to populate a 'bdem_Descriptor' (for each
+ 'bdem_ElemType') can be obtained via simple template instantiation.
+
+ 'bdem_FunctionTemplates' supports the following functionality: provision of
+ a reasonable in-place, no-arg constructor, a copy constructor, a destructor,
+ an equality checker, and more, for existing 'bdem_ElemType's.
+
+/Caveats
+/- - - -
+ 1. This component is intended primarily as a factored implementation detail
+ within 'bdem'.  Clients needing to make direct use of this component should
+ read the component documentation carefully.
+
+/'bdem_idxoffsetmap'
+/-------------------
+ The 'bdem_IdxOffsetMap' object effectively maps an index and a type to an
+ offset; the index is the position within a sequence occupied by the item, and
+ the type is the element type of that item.  The corresponding offset is the
+ position in a contiguous-memory arrangement that an item of that type  *in the
+ sequence defined by the map* would occupy.
+
+ This component is not intended for client use.
+
+/'bdem_list'
+/-----------
+ 'bdem_list' provides 'bdem_List', an indexed, recursive container for
+ heterogeneous items of some 'bdem_ElemType'.  I.e., it can store any number of
+ varying  'bdem_ElemType'-typed items, including storing other 'bdem_List's as
+ contained elements.  Every BDE message is implemented as a 'bdem_List'.
+
+ 'bdem_List' supports the following functionality: appending items,
+ inserting items, type-specific item retrieval, type-deferred item
+ retrieval, item removal and replacement, swapping items, and list streaming.
+
+/Caveats
+/- - - -
+ 1. Clients using lists and schemas to do significant data access and
+ manipulation may find the list interface a bit cumbersome for certain
+ operations.  Consider using utility types in 'bdem_binding' along with the
+ 'bdem_schemaaggregateutil' utilities to enhance the list functionality.
+
+/'bdem_listimp'
+/--------------
+ 'bdem_listimp' is the body class that implements the 'bdem_List' (handle
+ class) functionality.
+
+ This component is not intended for client use.
+
+/'bdem_properties'
+/-----------------
+ 'bdem_properties' provides a namespace for twenty eight pre-populated
+ 'bdem_Descriptor's.
+
+ This component is not intended for client use.
+
+/'bdem_row'
+/----------
+ 'bdem_Row' is a proxy type for the contents of a 'bdem_List', or for the
+ contents of a 'bdem_Table' at some particular index.  Note that the 'bdem_Row'
+ object is logically the "array" analog of the "scalar" 'bdem_ElemRef' object.
+ Note also that a row *instance* cannot change its structure.
+
+ 'bdem_Row' provides the following functionality: replacing element *values*,
+ type-specific item retrieval, type-deferred item retrieval, and streaming.
+
+/Caveats
+/- - - -
+ 1. The most likely client use for rows will be in transferring data between
+ lists and tables, or between two tables.
+
+/'bdem_rowdef'
+/-------------
+ 'bdem_RowDef' contains the metadata defining the contents of a row.
+
+ 'bdem_RowDef' provides the following functionality: creating rows with
+ structure conforming to this row definition, removing elements from the row,
+ swapping two elements, determining whether two row definitions are
+ equivalent, assorted other queries, and streaming.
+
+ This component is not intended for client use.
+
+/'bdem_schema'
+/-------------
+ 'bdem_schema' provides (meta) data structures that can be used to to specify
+ the *structural* contents of a 'bdem_List' or 'bdem_Table' object.
+
+ 'bdem_schema' provides the following functionality: creating and retrieving
+ the records that define structural constraints for 'bdem_List's and
+ 'bdem_Table's, and streaming.
+
+/Caveats
+/- - - -
+ 1. The metadata in 'bdem_schema' is not capable of expressing information
+ about how many rows a 'bdem_Table' contains.
+
+/'bdem_schemautil'
+/-----------------
+ 'bdem_schemautil' provides pure procedures that compare two schemas or two
+ individual record definitions, to determine various specific definitions of
+ the "equivalence" and "superset" relationships between.
+
+ 'bdem_SchemaUtil' provides the following functionality: determination of
+ structural superset/subset relationships and of semantic superset/subset
+ relationships.
+
+/'bdem_table'
+/------------
+ 'bdem_table' defines 'bdem_Table', a self-describing array of (logical) row
+ types, that is, of identically-structured heterogeneous sequences of items of
+ some 'bdem_ElemType'.
+
+ 'bdem_Table' provides the following functionality: setting column type,
+ appending and inserting rows, swapping rows, removing rows, table
+ comparisons, and streaming.
+
+/Caveats
+/- - - -
+ 1. 'bdem_Schema' does not know how many rows (if any) a table has.  The user
+ must be careful to validate the existence of a row that is part of the access
+ path of a data element identified through a 'bdem_Schema' (or, more properly,
+ a 'bdem_RecordDef').
+
+/'bdem_tableimp'
+/-----------------
+ 'bdem_tableimp' provides the body class that implements the 'bdem_Table'
+ (handle class) functionality.
+
+ This component is not intended for client use.

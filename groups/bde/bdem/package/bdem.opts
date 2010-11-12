@@ -1,0 +1,7 @@
+*                       _       OPTS_FILE       = bdem.opts
+
+!! unix-SunOS-i386-*-cc	64	TESTDRIVER_BDEBUILD_CXXFLAGS = $(subst -g0,,$(BDEBUILD_CXXFLAGS))
+!! windows-Windows_NT-amd64-*-cl	64	TESTDRIVER_BDEBUILD_CXXFLAGS = $(subst /O2,,$(BDEBUILD_CXXFLAGS))
+
+
+!! unix-HP_UX-*-*-*     _       TEST_TIMEOUT    = 900

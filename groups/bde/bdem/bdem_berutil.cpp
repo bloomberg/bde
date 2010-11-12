@@ -1,0 +1,949 @@
+// bdem_berutil.cpp                  -*-C++-*-
+
+// IMPLEMENTATION NOTES:
+//
+// The IEEE 754 single precision floating point representation is:
+//
+// 31  30 - 23         22 - 0
+// +-+--------+----------------------+
+// |S|EEEEEEEE|MMMMMMMMMMMMMMMMMMMMMM|
+// +-+--------+----------------------+
+//
+// where
+//  S - sign bit (0 - positive, 1 for negative numbers)
+//  E - exponent bits (0 - 255)
+//  M - mantissa bits
+//
+// The value corresponding to a floating point number is calculated by the
+// following formulas
+//
+//  1. If 0 < E < 255, then V = (-1) ** S * 2 ** (E - bias) * (1.F),
+//       where 1.F is intended to represent the binary number created by
+//       prefixing F with an implicit leading 1 and a binary point. bias = 127.
+//  2. If E = 0, F is non-zero, then V = (-1) ** S * 2 ** (-bias + 1) * (0.F),
+//       where 0.F is called the denormalized value.
+//  3. If E = 255, F is non-zero, then V = NaN (not a number).
+//  4. If E = 255, F = 0 and S = 1, then V = -Infinity.
+//  5. If E = 255, F = 0 and S = 0, then V = Infinity.
+//  6. IF E =   0, F = 0 AND S = X, then V = 0.
+//
+// For double precision floating point numbers the representation is
+//
+// 63   62 - 52                          51 - 0
+// +-+-----------+----------------------------------------------------+
+// |S|EEEEEEEEEEE|MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM|
+// +-+-----------+----------------------------------------------------+
+//
+// where
+//  S - sign bit (0 - positive, 1 for negative numbers)
+//  E - exponent bits (0 - 2047)
+//  M - mantissa bits
+//
+// The value corresponding to a floating point number is calculated by the
+// following formulas
+//
+//  1. If 0 < E < 2047, then V = (-1) ** S * 2 ** (E - bias) * (1.F),
+//       where 1.F is intended to represent the binary number created by
+//       prefixing F with an implicit leading 1 and a binary point, and
+//       bias = 1023.
+//  2. If E = 0, F is non-zero, then V = (-1) ** S * 2 ** (-bias + 1) * (0.F),
+//       where 0.F is called the unnormalized value.
+//  3. If E = 2047, F is non-zero then V = NaN (not a number).
+//  4. If E = 2047, F = 0 and S = 1, then V = -Infinity.
+//  5. If E = 2047, F = 0 and S = 0, then V = Infinity.
+//  6. IF E =    0, F = 0 AND S = X, then V = 0.
+//
+// The general algorithm for streaming out real data in BER format:
+//
+// 1. Extract the mantissa, exponent and sign values from the floating point
+//    number, following the IEEE 754 representation.
+// 2. Check the values for special values like positive and negative infinity,
+//    and NaN value.  Numbers having exponent value zero are identified as
+//    denormalized numbers.
+// 3. Stream out the header information associated with that real value in the
+//    first octet.  Essentially this entails specifying the base used, a
+//    scaling factor for adjusting the position of the implicit decimal, sign,
+//    and the length of exponent octets.  If the number is a special value,
+//    then a specific format is used for the first octet.
+// 4. Normalize the mantissa value by prefixing the implicit 1 and positioning
+//    the implicit decimal point after the rightmost 1 bit.  Also adjust the
+//    exponent accordingly, that is decrement it for each right shift of the
+//    decimal point.  This provides the normalized mantissa and adjusted
+//    exponent values.  Note that for denormalized numbers the implicit leading
+//    1 is not prefixed to the mantissa.
+// 5. Stream out the exponent - bias value.
+// 6. Stream out the normalized mantissa value.
+//
+// Nothing needs to be done for negative numbers.  Only the sign will signify
+// that the number under consideration is negative.
+//
+// The general algorithm for streaming in real data in BER format:
+//
+// 1. Read the length and the first octet from the stream.
+// 2. The combination of the length and the first octet will identify if the
+//    value is one of zero, positive infinity, or negative infinity.  Extract
+//    the sign, base, scale factor, and the number of exponent octets from the
+//    first octet.
+// 3. Read the exponent from the stream.  Convert the exponent into base 2.
+//    Subtract the scale factor from the exponent.  Note that the scale factor
+//    needs to be subtracted as this amount will be accounted for later in the
+//    algorithm.
+// 4. Calculate the amount the mantissa should be left shifted to convert it
+//    into IEEE representation.  This varies depending on whether the number is
+//    being streamed in is a normalized/denormalized number.  The exponent of a
+//    denormalized will have an extremely low exponent value (less than -1022
+//    to be precise). If a number is denormalized, 'NUM_MANTISSA_BITS - shift'
+//    is added to the exponent and the mantissa shifted by the opposite amount.
+// 5. The bias value is added to the exponent to get its final value.
+// 6. Assemble the double value from the mantissa, exponent, and sign values.
+
+#include <bdem_berutil.h>
+
+#include <bslmf_assert.h>
+#include <bdepu_iso8601.h>
+#include <bsls_assert.h>
+#include <bdes_bitutil.h>
+#include <bsls_platformutil.h>
+#include <bdesb_fixedmemoutstreambuf.h>
+#include <bdet_date.h>
+#include <bdet_datetime.h>
+#include <bdet_datetimetz.h>
+#include <bdet_datetz.h>
+#include <bdet_time.h>
+#include <bdet_timetz.h>
+
+#ifdef BDE_FOR_TESTING_ONLY
+#include <bdesb_memoutstreambuf.h>               // for testing only
+#include <bdesb_fixedmeminstreambuf.h>           // for testing only
+#endif
+
+#include <cstring>
+
+namespace BloombergLP {
+
+namespace {
+
+BSLMF_ASSERT(sizeof(int)       == sizeof(float));
+BSLMF_ASSERT(sizeof(long long) == sizeof(double));
+
+const bsls_PlatformUtil::Uint64 DOUBLE_EXPONENT_MASK = 0x7ff0000000000000ULL;
+const bsls_PlatformUtil::Uint64 DOUBLE_MANTISSA_MASK = 0x000fffffffffffffULL;
+const bsls_PlatformUtil::Uint64
+                   DOUBLE_MANTISSA_IMPLICIT_ONE_MASK = 0x0010000000000000ULL;
+const bsls_PlatformUtil::Uint64 DOUBLE_SIGN_MASK     = 0x8000000000000000ULL;
+
+enum {
+    // These constants are used by the implementation of this component.
+
+    TAG_CLASS_MASK  = 0xC0,   // mask for tag class from first octet
+    TAG_TYPE_MASK   = 0x20,   // mask for tag type from first octet
+    TAG_NUMBER_MASK = 0x1f,   // mask for tag number from first octet
+
+    MAX_TAG_NUMBER_IN_ONE_OCTET        = 30,    // the maximum tag number if
+                                                // the tag has one octet
+                                               
+    NUM_VALUE_BITS_IN_TAG_OCTET        = 7,     // number of bits used for the
+                                                // tag number in multi-octet
+                                                // tags
+                                     
+    LONG_FORM_LENGTH_FLAG_MASK         = 0x80,  // mask that indicates a
+                                                // "long-form" length
+                                     
+    LONG_FORM_LENGTH_VALUE_MASK        = 0x7f,  // mask for value from
+                                                // "long-form" length
+
+    NUM_BITS_IN_ONE_TAG_OCTET          = 7,
+
+    MAX_TAG_NUMBER_OCTETS              = (sizeof(int) *
+                                              bdem_BerUtil_Imp::BITS_PER_OCTET)
+                                             / NUM_VALUE_BITS_IN_TAG_OCTET + 1,
+
+    REAL_BINARY_ENCODING               = 0x80,  // value that indicates that
+                                                // real encoding is used
+
+    DOUBLE_EXPONENT_SHIFT              = 52,
+    DOUBLE_OUTPUT_LENGTH               = 10,
+    DOUBLE_EXPONENT_MASK_FOR_TWO_BYTES = 0x7ff,
+    DOUBLE_NUM_EXPONENT_BITS           = 11,
+    DOUBLE_NUM_MANTISSA_BITS           = 52,
+    DOUBLE_NUM_EXPONENT_BYTES          = 2,
+    DOUBLE_NUM_MANTISSA_BYTES          = 7,
+    DOUBLE_BIAS                        = 1023,
+
+    CHAR_MSB_MASK                      = 0x80,
+    INT_MSB_MASK                       = 1 << (sizeof(int) *
+                                         bdem_BerUtil_Imp::BITS_PER_OCTET - 1),
+    SEVEN_BITS_MASK                    = 0x7f,
+
+    POSITIVE_INFINITY_ID               = 0x40,
+    NEGATIVE_INFINITY_ID               = 0x41,
+    NAN_ID                             = 0x42,
+
+    DOUBLE_INFINITY_EXPONENT_ID        = 0x7ff,
+
+    INFINITY_MANTISSA_ID               = 0,
+
+    BINARY_POSITIVE_NUMBER_ID          = 0x80,
+    BINARY_NEGATIVE_NUMBER_ID          = 0xc0,
+
+    REAL_SIGN_MASK                     = 0x40,
+    REAL_BASE_MASK                     = 0x20,
+    REAL_SCALE_FACTOR_MASK             = 0x0c,
+    REAL_EXPONENT_LENGTH_MASK          = 0x03,
+
+    BER_RESERVED_BASE                  = 3,
+    REAL_MULTIPLE_EXPONENT_OCTETS      = 4,
+
+    REAL_BASE_SHIFT                    = 4,
+    REAL_SCALE_FACTOR_SHIFT            = 2
+};
+
+// HELPER FUNCTIONS
+
+void assembleDouble(double    *value,
+                    long long  exponent,
+                    long long  mantissa,
+                    int        sign)
+    // Assemble the specified '*value' such that it has the specified
+    // 'exponent', specified 'mantissa', and specified 'sign' values.
+{
+    unsigned long long longLongValue;
+
+    longLongValue  = (unsigned long long) exponent << DOUBLE_EXPONENT_SHIFT;
+    longLongValue |= mantissa & DOUBLE_MANTISSA_MASK;
+
+    if (sign) {
+        longLongValue |= DOUBLE_SIGN_MASK;
+    }
+
+    *value = reinterpret_cast<double&>(longLongValue);
+}
+
+inline
+void parseDouble(int       *exponent,
+                 long long *mantissa,
+                 int       *sign,
+                 double     value)
+    // Parse the specified 'value' and populate the specified
+    // 'exponent', specified 'mantissa', and specified 'sign' values from their
+    // value of exponent, mantissa, and sign in 'value' respectively.
+{
+    unsigned long long longLongValue
+                                = reinterpret_cast<unsigned long long&>(value);
+
+    *sign     = longLongValue & DOUBLE_SIGN_MASK ? 1 : 0;
+    *exponent = (longLongValue & DOUBLE_EXPONENT_MASK) >>DOUBLE_EXPONENT_SHIFT;
+    *mantissa = longLongValue & DOUBLE_MANTISSA_MASK;
+}
+
+inline
+void normalizeMantissaAndAdjustExp(long long *mantissa,
+                                   int       *exponent,
+                                   bool       denormalized)
+    // Normalize the specified '*mantissa' value by prepending the implicit
+    // 1 and adjusting the implicit decimal point to after the right most 1
+    // bit.  Adjust the '*exponent' value accordingly.  Use the specified
+    // 'denormalized' to decide if the value is normalized or not.
+{
+    if (!denormalized) {
+        // If number is not denormalized then need to prefix with implicit one
+        *mantissa |= DOUBLE_MANTISSA_IMPLICIT_ONE_MASK;
+    }
+
+    int shift = bdes_BitUtil::find1AtSmallestIndex64(*mantissa);
+    *mantissa >>= shift;
+    *exponent -= (DOUBLE_NUM_MANTISSA_BITS - shift);
+
+    if (denormalized) {
+        *exponent += 1;
+    }
+}
+
+template <typename TYPE>
+inline
+int getValueUsingIso8601(bsl::streambuf *streamBuf,
+                         TYPE           *value,
+                         int             length)
+{
+    enum { FAILURE = -1 };
+
+    if (length <= 0) {
+        return FAILURE;
+    }
+
+    char localBuf[32];         // for common case where length < 32
+    bsl::vector<char> vecBuf;  // for length >= 32
+    char *buf;
+
+    if (length < 32) {
+        buf = localBuf;
+    }
+    else {
+        vecBuf.resize(length);
+        buf = &vecBuf[0];  // First byte of contiguous string
+    }
+
+    const int bytesConsumed = streamBuf->sgetn(buf, length);
+    if (bytesConsumed != length) {
+        return FAILURE;
+    }
+    
+    return bdepu_Iso8601::parse(value, buf, length);
+}
+
+template <typename TYPE>
+inline
+int putValueUsingIso8601(bsl::streambuf *streamBuf,
+                         const TYPE&     value)
+{
+    char buf[bdepu_Iso8601::BDEPU_MAX_DATETIME_STRLEN];
+    int len = bdepu_Iso8601::generate(buf, value, sizeof(buf));
+    return bdem_BerUtil_Imp::putStringValue(streamBuf, buf, len);
+}
+
+}  // close anonymous namespace
+
+                            // -------------------
+                            // struct bdem_BerUtil
+                            // -------------------
+
+int bdem_BerUtil::getIdentifierOctets(
+                            bsl::streambuf              *streamBuf,
+                            bdem_BerConstants::TagClass *tagClass,
+                            bdem_BerConstants::TagType  *tagType,
+                            int                         *tagNumber,
+                            int                         *accumNumBytesConsumed)
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    int nextOctet = streamBuf->sbumpc();
+
+    if (bsl::streambuf::traits_type::eof() == nextOctet) {
+        return FAILURE;                                               // RETURN
+    }
+
+    ++*accumNumBytesConsumed;
+
+    *tagClass = static_cast<bdem_BerConstants::TagClass>
+                                                  (nextOctet & TAG_CLASS_MASK);
+
+    *tagType = static_cast<bdem_BerConstants::TagType>
+                                                   (nextOctet & TAG_TYPE_MASK);
+
+    if (TAG_NUMBER_MASK != (nextOctet & TAG_NUMBER_MASK)) {
+        // The tag number fits in a single octet.
+
+        *tagNumber = nextOctet & TAG_NUMBER_MASK;
+        return SUCCESS;                                               // RETURN
+    }
+
+    *tagNumber = 0;
+
+    for (int i = 0; i < MAX_TAG_NUMBER_OCTETS; ++i) {
+        nextOctet = streamBuf->sbumpc();
+        if (bsl::streambuf::traits_type::eof() == nextOctet) {
+            return FAILURE;                                           // RETURN
+        }
+
+        ++*accumNumBytesConsumed;
+
+        *tagNumber <<= NUM_VALUE_BITS_IN_TAG_OCTET;
+        *tagNumber  |= nextOctet & SEVEN_BITS_MASK;
+
+        if (!(nextOctet & CHAR_MSB_MASK)) {
+            return SUCCESS;                                           // RETURN
+        }
+    }
+
+    return FAILURE;                                                   // RETURN
+}
+
+int bdem_BerUtil::putIdentifierOctets(bsl::streambuf              *streamBuf,
+                                      bdem_BerConstants::TagClass  tagClass,
+                                      bdem_BerConstants::TagType   tagType,
+                                      int                          tagNumber)
+    // Write the specified 'tag' to the specified 'streamBuf'.
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    if (tagNumber < 0) {
+        return FAILURE;                                               // RETURN
+    }
+
+    if (tagNumber <= MAX_TAG_NUMBER_IN_ONE_OCTET) {
+        unsigned char octet = static_cast<unsigned char>(tagClass
+                                                         | tagType
+                                                         | tagNumber);
+
+        return octet == streamBuf->sputc(octet) ? SUCCESS
+                                                : FAILURE;            // RETURN
+    }
+
+    // Send multiple identifier octets.
+
+    unsigned char firstOctet = static_cast<unsigned char>(tagClass
+                                                          | tagType
+                                                          | TAG_NUMBER_MASK);
+
+    if (firstOctet != streamBuf->sputc(firstOctet)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    // Find the number of octets required.
+
+    int numOctetsRequired = 0;
+
+    {
+        enum {
+            INT_NUM_BITS = sizeof(int) * bdem_BerUtil_Imp::BITS_PER_OCTET
+        };
+
+        int          shift = 0;
+        unsigned int mask  = SEVEN_BITS_MASK;
+
+        for (int i = 0; INT_NUM_BITS > shift; ++i) {
+            if (tagNumber & mask) {
+                numOctetsRequired = i + 1;
+            }
+
+            shift += NUM_VALUE_BITS_IN_TAG_OCTET;
+            mask <<= NUM_VALUE_BITS_IN_TAG_OCTET;
+        }
+    }
+
+    BSLS_ASSERT(numOctetsRequired <= MAX_TAG_NUMBER_OCTETS);
+
+    // Put all octets except the last one.
+
+    int          shift = (numOctetsRequired - 1) * NUM_VALUE_BITS_IN_TAG_OCTET;
+    unsigned int mask  = SEVEN_BITS_MASK << shift;
+
+    for (int i = 0; i < numOctetsRequired - 1; ++i) {
+        unsigned char nextOctet = (mask & tagNumber) >> shift | CHAR_MSB_MASK;
+
+        if (nextOctet != streamBuf->sputc(nextOctet)) {
+            return FAILURE;                                           // RETURN
+        }
+
+        shift -= NUM_VALUE_BITS_IN_TAG_OCTET;
+        mask   = SEVEN_BITS_MASK << shift;
+    }
+
+    // Put the final octet.
+
+    tagNumber &= SEVEN_BITS_MASK;
+
+    return tagNumber == streamBuf->sputc(tagNumber) ? SUCCESS
+                                                    : FAILURE;        // RETURN
+}
+
+                          // -----------------------
+                          // struct bdem_BerUtil_Imp
+                          // -----------------------
+
+int bdem_BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
+                                     double         *value,
+                                     int             length)
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    if (0 == length) {
+        *value = 0;
+        return SUCCESS;                                               // RETURN
+    }
+
+    int nextOctet = stream->sbumpc();
+
+    if (POSITIVE_INFINITY_ID == nextOctet) {
+        assembleDouble(value,
+                       DOUBLE_INFINITY_EXPONENT_ID,
+                       INFINITY_MANTISSA_ID,
+                       0);
+        return SUCCESS;                                               // RETURN
+    }
+    else if (NEGATIVE_INFINITY_ID == nextOctet) {
+        assembleDouble(value,
+                       DOUBLE_INFINITY_EXPONENT_ID,
+                       INFINITY_MANTISSA_ID,
+                       1);
+        return SUCCESS;                                               // RETURN
+    }
+    else if (NAN_ID == nextOctet) {
+       assembleDouble(value,
+                      DOUBLE_INFINITY_EXPONENT_ID,
+                      1,
+                      0);
+       return SUCCESS;                                                // RETURN
+
+    }
+
+    if (!(nextOctet & (unsigned  char) REAL_BINARY_ENCODING)) {
+        // Encoding is decimal, return as that is not handled currently.
+
+        return FAILURE;                                               // RETURN
+    }
+
+    int sign = nextOctet & REAL_SIGN_MASK ? 1 : 0;
+    int base = (nextOctet & REAL_BASE_MASK) >> REAL_BASE_SHIFT;
+    if (BER_RESERVED_BASE == base) {
+        // Base value is not supported.
+
+        return FAILURE;                                               // RETURN
+    }
+
+    base *= 8;
+
+    int scaleFactor = (nextOctet & REAL_SCALE_FACTOR_MASK)
+                                                    >> REAL_SCALE_FACTOR_SHIFT;
+    int expLength   = (nextOctet & REAL_EXPONENT_LENGTH_MASK) + 1;
+
+    if (REAL_MULTIPLE_EXPONENT_OCTETS == expLength) {
+        // Exponent length is encoded in the following octet.
+
+        expLength = stream->sbumpc();
+
+        if (bsl::streambuf::traits_type::eof() == expLength
+         || (unsigned) expLength > sizeof(long long)) {
+            // Exponent values that take greater than sizeof(long long) octets
+            // are not handled by this implementation.
+
+            return FAILURE;                                           // RETURN
+        }
+    }
+
+    long long exponent;
+    if (getIntegerValue(stream, &exponent, expLength)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    if (0 != base) {
+        // Convert exponent to base 2.
+
+        exponent *= 8 == base ? 3 : 4;
+    }
+    exponent -= scaleFactor;
+
+    long long mantissa = 0;
+    int       mantissaLength = length - expLength - 1;
+    if (getIntegerValue(stream, &mantissa, mantissaLength)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    int shift = bdes_BitUtil::find1AtLargestIndex64(mantissa);
+    if (FAILURE == shift) {
+        return FAILURE;                                               // RETURN
+    }
+    shift = 63 - shift; 
+
+    // Subtract the number of exponent bits and the sign bit.
+    shift            -= DOUBLE_NUM_EXPONENT_BITS + 1;
+    exponent         += DOUBLE_BIAS + DOUBLE_NUM_MANTISSA_BITS - shift - 1;
+
+    if (exponent > 0) { // Normal number
+        // Shift the mantissa left by shift amount, account for the implicit
+        // one, and then removing it.
+
+        mantissa <<= shift + 1;
+        mantissa &= ~DOUBLE_MANTISSA_IMPLICIT_ONE_MASK;
+    }
+    else {
+        // Denormalized number: shift mantissa only, no implicit one.
+
+        mantissa <<= exponent + shift;
+        exponent = 0;
+    }
+
+    *value = 0;
+    assembleDouble(value, exponent, mantissa, sign);
+    return SUCCESS;                                                   // RETURN
+}
+
+int bdem_BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
+                                      long long      *value,
+                                      int             length)
+{
+    // IMPLEMENTATION NOTE: This overload of the 'getIntegerValue' function
+    // template, for 'long long', is warranted solely for performance reasons:
+    // the template definition performs up to 8 shift operations (which on
+    // 32-bit SPARC are quite slow for 'long long').  This implementation
+    // breaks up the 'long long' into high- and low-order words to perform the
+    // shifts on 'int' instead of 'long long'.
+
+    enum { SUCCESS = 0, FAILURE = -1 };
+    static const int SIGN_BIT_MASK = 0x80;
+
+    if ((unsigned) length > sizeof(long long)) {
+        // Overflow.
+
+        return FAILURE;                                               // RETURN
+    }
+
+    int sign = (streamBuf->sgetc() & SIGN_BIT_MASK) ? -1 : 0;
+    unsigned int valueLo = sign;
+    unsigned int valueHi = sign;
+
+    // Decode high-order word.
+    for ( ; length > (int) sizeof(int); --length) {
+        int nextOctet = streamBuf->sbumpc();
+        if (bsl::streambuf::traits_type::eof() == nextOctet) {
+            return FAILURE;                                           // RETURN
+        }
+
+        valueHi <<= BITS_PER_OCTET;
+        valueHi |= (unsigned char) nextOctet;
+    }
+
+    // Decode low-order word.
+    for ( ; length > 0; --length) {
+        int nextOctet = streamBuf->sbumpc();
+        if (bsl::streambuf::traits_type::eof() == nextOctet) {
+            return FAILURE;                                           // RETURN
+        }
+
+        valueLo <<= BITS_PER_OCTET;
+        valueLo |= (unsigned char) nextOctet;
+    }
+
+    // Combine low and high word into a long word.
+#ifdef BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+    reinterpret_cast<unsigned int*>(value)[1] = valueLo;
+    reinterpret_cast<unsigned int*>(value)[0] = valueHi;
+#else
+    reinterpret_cast<unsigned int*>(value)[0] = valueLo;
+    reinterpret_cast<unsigned int*>(value)[1] = valueHi;
+#endif
+    return SUCCESS;                                                   // RETURN
+}
+
+int bdem_BerUtil_Imp::getLength(bsl::streambuf *streamBuf,
+                                int            *result,
+                                int            *accumNumBytesConsumed)
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    int nextOctet = streamBuf->sbumpc();
+    if (bsl::streambuf::traits_type::eof() == nextOctet) {
+        return FAILURE;                                               // RETURN
+    }
+
+    ++*accumNumBytesConsumed;
+
+    if (nextOctet == bdem_BerUtil_Imp::INDEFINITE_LENGTH_OCTET) {
+        *result = bdem_BerUtil_Imp::INDEFINITE_LENGTH;
+
+        return SUCCESS;
+    }
+
+    unsigned int numOctets = (unsigned int) nextOctet;
+
+    // Length has been transmitted in short form.
+    if (!(numOctets & LONG_FORM_LENGTH_FLAG_MASK)) {
+        *result = numOctets;
+        return SUCCESS;                                               // RETURN
+    }
+
+    // Length has been transmitted in long form.
+    numOctets &= LONG_FORM_LENGTH_VALUE_MASK;
+
+    if (numOctets > sizeof(int)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    *result = 0;
+    for (unsigned int i = 0; i < numOctets; ++i) {
+        nextOctet = streamBuf->sbumpc();
+        if (bsl::streambuf::traits_type::eof() == nextOctet) {
+            return FAILURE;                                           // RETURN
+        }
+
+        *result <<= bdem_BerUtil_Imp::BITS_PER_OCTET;
+        *result |=  nextOctet;
+    }
+
+    *accumNumBytesConsumed += numOctets;
+
+    return SUCCESS;                                                   // RETURN
+}
+
+int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
+                               bsl::string    *value,
+                               int             length)
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    if (0 == length) {
+        return SUCCESS;
+    }
+    else if (length < 0) {
+        return FAILURE;
+    }
+
+    value->resize(length);
+    // KLUDGE: The standard does not guarantee that the contents of a string
+    // are contiguous in memory.  For efficiency, we take advantage of the
+    // fact that our implementation (and almost every other implementation) is
+    // contiguous.  We assert this assumption here:
+    BSLS_ASSERT(&value[length-1] == &value[0] + length - 1);
+    
+    const int bytesConsumed = streamBuf->sgetn(&(*value)[0], length);
+
+    return length == bytesConsumed ? SUCCESS : FAILURE;
+}
+
+int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
+                               bdet_Date      *value,
+                               int             length)
+{
+    return getValueUsingIso8601(streamBuf, value, length);
+}
+
+int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
+                               bdet_Datetime  *value,
+                               int             length)
+{
+    return getValueUsingIso8601(streamBuf, value, length);
+}
+
+int bdem_BerUtil_Imp::getValue(bsl::streambuf  *streamBuf,
+                               bdet_DatetimeTz *value,
+                               int              length)
+{
+    return getValueUsingIso8601(streamBuf, value, length);
+}
+
+int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
+                               bdet_DateTz    *value,
+                               int             length)
+{
+    return getValueUsingIso8601(streamBuf, value, length);
+}
+
+int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
+                               bdet_Time      *value,
+                               int             length)
+{
+    return getValueUsingIso8601(streamBuf, value, length);
+}
+
+int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
+                               bdet_TimeTz    *value,
+                               int             length)
+{
+    return getValueUsingIso8601(streamBuf, value, length);
+}
+
+int bdem_BerUtil_Imp::numBytesToStream(int value)
+{
+    // This overload of 'numBytesToStream' is optimized for a 32-bit 'value'.
+
+    if (0 == value) {
+        return 1;                                                     // RETURN
+    }
+
+    int numBits;
+    if (value > 0) {
+        // For positive values, all but one 0 bits on the left are redundant.
+        // - 'find1AtLargestIndex' returns 0 .. 30 (since bit 31 is 0).
+        // - Add 1 to convert from an index to a count in range 1 .. 31.
+        // - Add 1 to preserve the sign bit, for a value in range 2 .. 32.
+
+        numBits = bdes_BitUtil::find1AtLargestIndex(value) + 2;
+    }
+    else {
+        // For negative values, all but one 1 bits on the left are redundant.
+        // - 'find1AtLargestIndex' returns 0 .. 30 (since bit 31 is 0).
+        // - Add 1 to convert from an index to a count in range 1 .. 31.
+        // - Add 1 to preserve the sign bit, for a value in range 2 .. 32.
+
+        numBits = bdes_BitUtil::find0AtLargestIndex(value) + 2;
+    }
+
+    // Round up to correct number of bytes:
+    return (numBits + BITS_PER_OCTET - 1) / BITS_PER_OCTET;           // RETURN
+}
+
+int bdem_BerUtil_Imp::numBytesToStream(long long value)
+{
+    // This overload of 'numBytesToStream' is optimized for a 64-bit 'value'.
+
+    if (0 == value) {
+        return 1;                                                     // RETURN
+    }
+
+    int numBits;
+    if (value > 0) {
+        // For positive values, all but one 0 bits on the left are redundant.
+        // - 'find1AtLargestIndex64' returns 0 .. 62 (since bit 63 is 0).
+        // - Add 1 to convert from an index to a count in range 1 .. 63.
+        // - Add 1 to preserve the sign bit, for a value in range 2 .. 64.
+
+        numBits = bdes_BitUtil::find1AtLargestIndex64(value) + 2;
+    }
+    else {
+        // For negative values, all but one 1 bits on the left are redundant.
+        // - 'find1AtLargestIndex64' returns 0 .. 62 (since bit 63 is 0).
+        // - Add 1 to convert from an index to a count in range 1 .. 63.
+        // - Add 1 to preserve the sign bit, for a value in range 2 .. 64.
+
+        numBits = bdes_BitUtil::find0AtLargestIndex64(value) + 2;
+    }
+
+    // Round up to correct number of bytes:
+    return (numBits + BITS_PER_OCTET - 1) / BITS_PER_OCTET;           // RETURN
+}
+
+int bdem_BerUtil_Imp::putDoubleValue(bsl::streambuf *stream, double value)
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    // If 0 == value, put out length = 0 and return.
+    if (0.0 == value) {
+        return 0 == stream->sputc(0) ? SUCCESS : FAILURE;             // RETURN
+    }
+
+    // Else parse double value.
+    int       exponent, sign;
+    long long mantissa;
+
+    parseDouble(&exponent, &mantissa, &sign, value);
+
+    // Check for special cases +/- infinity and NaN.
+    if (DOUBLE_INFINITY_EXPONENT_ID == exponent) {
+        if (INFINITY_MANTISSA_ID == mantissa) {
+            char signOctet = sign
+                           ? NEGATIVE_INFINITY_ID
+                           : POSITIVE_INFINITY_ID;
+
+            return (1         == stream->sputc(1)
+                && signOctet == stream->sputc(signOctet))
+                 ? SUCCESS
+                 : FAILURE;                                           // RETURN
+        }
+        else {
+            // For NaN use bit pattern 0x42.
+           char NaN = NAN_ID;
+           
+           return (1        == stream->sputc(1)
+               && NaN       == stream->sputc(NaN))
+                ? SUCCESS
+                : FAILURE;                                            // RETURN
+        }
+    }
+
+    bool denormalized = 0 == exponent ? true : false;
+
+    // Normalize the mantissa, get its actual value and adjust the exponent
+    // accordingly.
+    normalizeMantissaAndAdjustExp(&mantissa, &exponent, denormalized);
+
+    exponent -= DOUBLE_BIAS;
+
+    int expLength = numBytesToStream(exponent);
+    int manLength = numBytesToStream(mantissa);
+
+    // Put out the length = expLength + manLength + 1.
+    char totalLength = expLength + manLength + 1;
+    if (totalLength != stream->sputc(totalLength)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    unsigned char firstOctet = sign
+                             ? BINARY_NEGATIVE_NUMBER_ID
+                             : BINARY_POSITIVE_NUMBER_ID;
+
+    if (2 == expLength) {
+        // Two exponent octets will be sent out.
+
+        firstOctet |= 1;
+    }
+
+    if (firstOctet != stream->sputc(firstOctet)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    // Put out the exponent and mantissa
+    return putIntegerGivenLength(stream, exponent, expLength)
+        || putIntegerGivenLength(stream, mantissa, manLength)
+         ? FAILURE : SUCCESS;                                         // RETURN
+}
+
+int bdem_BerUtil_Imp::putLength(bsl::streambuf *streamBuf, int length)
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    if (length < 0) {
+        return FAILURE;                                               // RETURN
+    }
+
+    if (length <= 127) {
+        return length == streamBuf->sputc(length) ? SUCCESS
+                                                  : FAILURE;          // RETURN
+    }
+
+    // length > 127
+    int numOctets = sizeof(int);
+    for (unsigned int mask = ~((unsigned int) -1 >> BITS_PER_OCTET);
+         !(length & mask);
+         mask >>= BITS_PER_OCTET) {
+        --numOctets;
+    }
+
+    unsigned char lengthOctet = numOctets | LONG_FORM_LENGTH_FLAG_MASK;
+    if (lengthOctet != streamBuf->sputc(lengthOctet)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    return putIntegerGivenLength(streamBuf, length, numOctets);       // RETURN
+}
+
+int bdem_BerUtil_Imp::putValue(bsl::streambuf   *streamBuf,
+                               const bdet_Date&  value)
+{
+    return putValueUsingIso8601(streamBuf, value);
+}
+
+int bdem_BerUtil_Imp::putValue(bsl::streambuf       *streamBuf,
+                               const bdet_Datetime&  value)
+{
+    return putValueUsingIso8601(streamBuf, value);
+}
+
+int bdem_BerUtil_Imp::putValue(bsl::streambuf         *streamBuf,
+                               const bdet_DatetimeTz&  value)
+{
+    return putValueUsingIso8601(streamBuf, value);
+}
+
+int bdem_BerUtil_Imp::putValue(bsl::streambuf     *streamBuf,
+                               const bdet_DateTz&  value)
+{
+    return putValueUsingIso8601(streamBuf, value);
+}
+
+int bdem_BerUtil_Imp::putValue(bsl::streambuf   *streamBuf,
+                               const bdet_Time&  value)
+{
+    return putValueUsingIso8601(streamBuf, value);
+}
+
+int bdem_BerUtil_Imp::putValue(bsl::streambuf     *streamBuf,
+                               const bdet_TimeTz&  value)
+{
+    return putValueUsingIso8601(streamBuf, value);
+}
+
+}  // close namespace BloombergLP
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2007
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------
+
+
+#ifndef lint
+static char RCSid_bdem_berutil_cpp[] = "$Id: $";
+#endif
