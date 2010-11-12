@@ -1,0 +1,25 @@
+# baexml.mem
+baexml_base64parser
+baexml_configschema
+baexml_datautil
+baexml_decoder
+baexml_decoderoptions
+baexml_element
+baexml_elementattribute
+baexml_encoderoptions
+baexml_encoder
+baexml_encodingstyle
+baexml_errorinfo
+baexml_formatter
+baexml_hexparser
+baexml_listparser
+baexml_minireader
+baexml_namespaceregistry
+baexml_prefixstack
+baexml_reader
+baexml_schemagenerator
+baexml_schemaparser
+baexml_typesparserutil
+baexml_typesprintutil
+baexml_util
+baexml_validatingreader

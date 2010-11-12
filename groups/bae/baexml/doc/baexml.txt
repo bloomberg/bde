@@ -1,0 +1,103 @@
+ baexml.txt
+
+@PURPOSE: Provide utility components for using XML and XSD.
+
+@MNEMONIC: Basic Application Environment XML (baexml)
+
+@AUTHOR: Rohan Bhindwale (rbhindwa)
+
+@SEE ALSO: a_xercesc, a_xml2
+
+@DESCRIPTION: The 'baexml' package provides utilities for working with XML and
+ XSD.  Clients can use the components provided by 'baexml' for parsing and
+ printing fundamental types, XML schema, and XML data documents.
+
+/Hierarchical Synopsis
+/---------------------
+ 'baexml' currently has 24 components having 8 levels of physical dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('baexml_') are omitted from the full component
+ names for layout efficiency.
+..
+  Level 8: datautil            encoder
+
+  Level 7: decoder
+
+  Level 6: schemaparser
+
+  Level 5: minireader          schemagenerator  validatingreader
+
+  Level 4: formatter           reader           typesparserutil
+
+  Level 3: elementattribute    typesprintutil
+
+  Level 2: encoderoptions      prefixstack
+
+  Level 1: base64parser        configschema     decoderoptions
+           element             encodingstyle    errorinfo
+           hexparser           listparser       namespaceregistry
+           util
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'baexml'.  For the sake
+ of brevity, we sometimes blur the distinction between a component and the
+ primary types that the component provides.  We remind the reader that, in
+ general, the distinction between a component and a class is important.
+..
+  'baexml_base64parser'      - a push parser for Base64 types
+
+  'baexml_configschema'      - in-core representation of an XSD schema
+
+  'baexml_datautil'          - utility to construct a 'bcem_Aggregate' from XML
+                               data and XML schema documents
+
+  'baexml_decoder'           - utility for unexternalizing data from XML format
+                               into C++ objects
+
+  'baexml_decoderoptions'    - value-semantic type storing XML decoding options
+
+  'baexml_element'           - a 'bcema_Blob'-based XML element container
+
+  'baexml_elementattribute'  - type storing the properties of an attribute in
+                               an XML element tag
+
+  'baexml_encoder'           - utility for externalizing data in XML format
+
+  'baexml_encoderoptions'    - value-semantic type storing XML encoding options
+
+  'baexml_encodingstyle'     - namespace for storing various XML encoding
+                               styles
+
+  'baexml_errorinfo'         - type storing common error information for
+                               various XML components
+
+  'baexml_formatter'         - utility for writing formatted XML
+
+  'baexml_hexparser'         - push parser for hex types
+
+  'baexml_listparser'        - push parser for lists
+
+  'baexml_minireader'        - light-weight implementation of 'baexml_Reader'
+                               protocol
+
+  'baexml_namespaceregistry' - registry of available XML namespaces
+
+  'baexml_prefixstack'       - stack of namespace prefix and id pairs
+
+  'baexml_reader'            - reader protocol for parsing XML documents
+
+  'baexml_schemagenerator'   - an XML schema (XSD) generating utility
+
+  'baexml_schemaparser'      - an XML schema (XSD) parser that populates a
+                               'bdem_Schema' object
+
+  'baexml_typesparserutil'   - utility for parsing types in the XML format
+
+  'baexml_typesprintutil'    - utility for printing types in the XML format
+
+  'baexml_util'              - a suite of common XML utilities
+
+  'baexml_validatingreader'  - reader protocol for parsing and validating XML
+..

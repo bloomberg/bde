@@ -1,0 +1,214 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='baexml'
+           elementFormDefault='qualified'>
+
+  <!-- NOTE: Do not run bas_codegen.pl directly on this file.
+       Instead, run baexml_generateoptions.pl.  The latter script will
+       massage the output so that the classes are prefixed with 'baexml_'
+       instead of being put into a 'baexml' namespace.
+  -->
+
+  <xs:annotation>
+    <xs:documentation>
+      Structures that control the XML encoding and decoding process
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:simpleType name='EncodingStyle' bdem:preserveEnumOrder='1'>
+    <xs:annotation>
+      <xs:documentation>
+        Enumeration of encoding style (COMPACT or PRETTY).
+
+        This struct is generated using baexml_generateoptions.pl
+
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base='xs:string'>
+      <xs:enumeration value='BAEXML_COMPACT'/>
+      <xs:enumeration value='BAEXML_PRETTY'/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name='EncoderOptions'>
+    <xs:annotation>
+      <xs:documentation>
+        Options for performing XML encodings.
+        Encoding style is either COMPACT or PRETTY.  If encoding style is
+        COMPACT, no whitespace will be added between elements.  If encoding
+        style is 'PRETTY', then the 'InitialIndentLevel', 'SpacesPerLevel',
+        and 'WrapColumn' parameters are used to specify the formatting of
+        the output.  Note that 'InitialIndentLevel', 'SpacesPerLevel', and
+        'WrapColumn' are ignored when 'EncodingStyle' is COMPACT (this is
+        the default).
+
+        This class is generated using baexml_generateoptions.pl
+
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name='ObjectNamespace' type='xs:string'
+            minOccurs='0' maxOccurs='1'
+            bdem:isNullable='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            namespace where object is defined
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='SchemaLocation' type='xs:string'
+            minOccurs='0' maxOccurs='1'
+            bdem:isNullable='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>location of the schema</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='Tag' type='xs:string'
+            minOccurs='0' maxOccurs='1'
+            bdem:isNullable='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>tag for top level</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='FormattingMode' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='0'
+            bdem:cppdefault='bdeat_FormattingMode::DEFAULT'
+            bdem:cpptype='int'
+            bdem:allocatesMemory='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>Formatting mode</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='InitialIndentLevel' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>initial indentation level</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='SpacesPerLevel' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='4'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            spaces per level of indentation
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='WrapColumn' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='80'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            number of characters to wrap text
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='MaxDecimalTotalDigits' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='18'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            Maximum total digits of the decimal value that should be
+            displayed
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='MaxDecimalFractionDigits' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='18'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            Maximum fractional digits of the decimal value that should be
+            displayed
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='SignificantDoubleDigits' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='18'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            The number of significant digits that must be displayed for the
+            double value.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='EncodingStyle'
+                  type='EncodingStyle'
+                  minOccurs='0'
+                  default='BAEXML_COMPACT'
+                  bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            encoding style (see component-level doc)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='AllowControlCharacters' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='false'
+            bdem:allocatesMemory='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            Allow control characters to be encoded.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='DecoderOptions'>
+    <xs:annotation>
+      <xs:documentation>
+        Options for controlling the XML decoding process.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name='MaxDepth' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='32'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>maximum recursion depth</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='FormattingMode' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='0'
+            bdem:cppdefault='bdeat_FormattingMode::DEFAULT'
+            bdem:cpptype='int'
+            bdem:allocatesMemory='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>Formatting mode</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='SkipUnknownElements' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='true'
+            bdem:allocatesMemory='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            Option to skip unknown elements
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
