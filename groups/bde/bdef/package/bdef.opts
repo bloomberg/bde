@@ -1,0 +1,14 @@
+*                       _       OPTS_FILE       = bdef.opts
+
+!! unix-SunOS-*-*-*     _       STL_CXXFLAGS    = -library=no%rwtools7
+!! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    = 
+
+!! *			_	RETRY_TIMEOUT	= 4800
+!! *			_	TEST_TIMEOUT	= 4800
+
+!! unix-dgux-*-*-*	_	STL_CXXFLAGS	= $(STL_NATIVEINC)
+!! unix-dgux-*-*-*	_	STL_LDFLAGS     = $(STL_NATIVELIB)
+
+!! unix-SunOS-i386-*-cc	64	TESTDRIVER_BDEBUILD_CXXFLAGS = $(subst -g0,,$(BDEBUILD_CXXFLAGS))
+!! windows-Windows_NT-amd64-*-cl	64	TESTDRIVER_BDEBUILD_CXXFLAGS = $(subst /O2,,$(BDEBUILD_CXXFLAGS))
+
