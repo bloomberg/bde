@@ -1,0 +1,1276 @@
+ bdex.txt
+
+@PURPOSE: Define externalization protocols and provide implementations.
+
+@MNEMONIC: Basic Development Environment eXternalization (bdex)
+
+@AUTHOR Tom Marshall (tmarshal)
+
+@SEE_ALSO:
+
+@DESCRIPTION: The 'bdex' package defines (via documentation) a protocol for
+ externalization (i.e., for an "out stream") and a protocol for
+ "unexternalization" (i.e., for an "in stream"), and provides several concrete
+ implementations of each kind of stream, including streams for testing.  In
+ general, concrete streams must be used in matched pairs, as described in more
+ detail below.
+
+ 'bdex' also provides an input stream protocol class and an output stream
+ protocol class, and a pair of parameterized concrete streams that implement
+ the respective interfaces, which provide support for 'bdex' streaming of
+ polymorphic types.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bdex' currently has 22 components having seven levels of dependency.
+ The table below shows the hierarchical ordering of the components.  The
+ package prefix and underscore ('bdex_') are omitted from the full component
+ names for layout efficiency.
+..
+  Level
+    7:  instreamadapter         outstreamadapter
+        testinstream
+
+    6:  byteinstream            testoutstream
+        byteinstreamraw
+        testinstreamformatter
+
+    5:  byteinstreamformatter   byteoutstream           testoutstreamformatter
+                                byteoutstreamraw
+
+    4:  instream                outstream               byteoutstreamformatter
+
+    3:  instreammethods         outstreammethods
+
+    2:  instreamfunctions       outstreamfunctions      testinstreamexception
+
+    1:  bytestreamimputil       versionfunctions        fieldcode
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bdex'.
+..
+  bdex_byteinstream            - primary production input stream
+  bdex_byteinstreamformatter   - production input formatter; extracts formatted
+                                 data from any 'std::streambuf'
+  bdex_byteinstreamraw         - input stream using user-supplieds buffer
+  bdex_byteoutstream           - primary production output stream
+  bdex_byteoutstreamformatter  - production output formatter; formats data to
+                                 any 'std::streambuf'
+                                 data from any 'std::streambuf'
+  bdex_byteoutstreamraw        - output stream using user-supplieds buffer
+  bdex_bytestreamimputil       - utilities to put/get fundamental and array
+                                 values to/from a character buffer
+  bdex_fieldcode               - enumeration of fundamental streamable types
+  bdex_instream                - abstract interface defining the 'bdex' input
+                                 contract; also contains templated 'operator>>'
+  bdex_instreamadapter         - parameterized input stream capable of
+                                 streaming polymorphic types.
+  bdex_instreamfunctions       - templated validator/wrapper for the
+                                 'bdexStreamIn' method required of
+                                 'bdex'-compliant components.
+  bdex_instreammethods         - templated validator/wrapper for the
+                                 'bdexStreamIn' method required of
+                                 'bdex'-compliant components; will be
+                                 deprecated in favor of
+                                 'bdex_instreamfunctions'.
+  bdex_outstream               - abstract interface defining the 'bdex' output
+                                 contract; also contains templated 'operator<<'
+  bdex_outstreamadapter        - parameterized output stream capable of
+                                 streaming polymorphic types.
+  bdex_outstreamfunctions      - templated validator/wrapper for the
+                                 'bdexStreamOut' method required of
+                                 'bdex'-compliant components.
+  bdex_outstreammethods        - templated validator/wrapper for the
+                                 'bdexStreamOut' method required of
+                                 'bdex'-compliant components; will be
+                                 deprecated in favor of
+                                 'bdex_outstreamfunctions'.
+  bdex_testinstream            - instrumented input stream, primarily for
+                                 testing
+  bdex_testinstreamexception   - exception object, primarily for testing
+  bdex_testinstreamformatter   - standard BDE test input formatter; extracts
+                                 test-format data from any 'std::streambuf'
+  bdex_testoutstream           - instrumented output stream, primarily for
+                                 testing
+  bdex_testoutstreamformatter  - standard BDE test output formatter; writes
+                                 data in test-format to any 'std::streambuf'
+  bdex_versionfunctions        - templated validator/wrapper for the
+                                 'maxSupportedBdexVersion' method required of
+                                 'bdex'-compliant components.
+..
+ Components providing concrete streams define classes whose names are the
+ appropriate mixed-case spellings of the component names.  For example,
+ 'bdex_byteinstream' provides the 'bdex_ByteInStream' object, a concrete input
+ stream.
+
+/Externalization
+/---------------
+ Externalization is the process of creating another representation for an
+ in-memory object (also referred to as an "in-core" object) that can be, but
+ need not be, stored external to processor memory.  Often this is done by
+ streaming the object as a sequence (or array) of bytes, sometimes called
+ "flattening" the object, because of the one-dimensional structure of a
+ sequence or array.  Such flattening allows easy externalization of the object,
+ since a byte sequence can be written to a disk file without further
+ modification.  It is similarly the native *format* for other externalization
+ *mechanisms*, such as OS sockets, and in conjunction with these can be used to
+ stream the object outside of processor memory.  Other externalizations include
+ storing the relevant data members among various tables and fields of a
+ relational database.
+
+ The 'bdex' streams provide better support for externalization than 'iostream'
+ objects, because 'bdex' specifies a canonical, optimized representation for
+ fundamental types and provides component authors the tools to externalize any
+ in-core object.  The protocol standards are platform-neutral, and all
+ implementations in this package are compliant: they have been tested on 32-bit
+ and 64-bit Sun UltraSPARCs; on Wintel machines; on Data General AViiON Pentium
+ Pros; and on 32-bit and 64-bit IBM computers.
+
+/Supported Types
+/---------------
+ The supported types and required content are listed in the table below.
+ All of the fundamental types in the table may be streamed as scalar values or
+ as homogeneous arrays.  'std::string' is streamed as a logical scalar string.
+ Note that 'Int64' and 'Uint64' denote 'bdes_PlatformUtil::Int64' and
+ 'bdes_PlatformUtil::Uint64', respectively, which in turn are 'typedef' names
+ for the signed and unsigned 64-bit integer types, respectively, on the host
+ platform.
+..
+  C++ TYPE          REQUIRED CONTENT OF ANY PLATFORM NEUTRAL FORMAT
+  --------------    -----------------------------------------------
+  Int64             least significant 64 bits (signed)
+  Uint64            least significant 64 bits (unsigned)
+  int               least significant 32 bits (signed)
+  unsigned int      least significant 32 bits (unsigned)
+  short             least significant 16 bits (signed)
+  unsigned short    least significant 16 bits (unsigned)
+  char              least significant  8 bits (platform dependent)
+  signed char       least significant  8 bits (signed)
+  unsigned char     least significant  8 bits (unsigned)
+  double            IEEE standard 8-byte floating-point value
+  float             IEEE standard 4-byte floating-point value
+
+  std::string       BDE implementation of the STL string class
+..
+ 'bdex' also supports compact streaming of integer types.  In particular,
+ 64-bit integers can be streamed as 40-, 48-, 56-, or 64-bit values, and 32-bit
+ integers can be streamed as 24- or 32-bit values, at the user's discretion.
+ In all cases, the least significant bytes of the fundamental integer type are
+ written to the stream.  Therefore, outputting a signed value may not preserve
+ the sign of the original value; it is the user's responsibility to choose
+ output methods appropriate to the data.  On input, however, the non-standard
+ bit patterns are sign-extended, so that correctly-written values will always
+ be correctly read.
+
+@The 'bdex' Protocols
+ The 'bdex' protocol is primarily a "documentation-only" protocol whereby
+ 'bdex'-compliant value-semantic types and streams each adhere to a published
+ documentation standard (this document) in order to interoperate correctly.
+ The protocol specifies what components that wish to support 'bdex' streaming
+ must provide (three specifically-named methods), and what services the
+ component can expect from all compliant streams (various "put" and "get"
+ methods).  In addition, 'bdex' also supplies two abstract interfaces,
+ 'bdex_InStream' and 'bdex_OutStream', that serve both as base classes and as
+ the "documentation protocols" for input and output streams, respectively.
+
+/Requirements for a 'bdex'-Compliant Class to be Streamable
+/----------------------------------------------------------
+ In this section we give a brief synopsis of the required member functions for
+ a class in order to be 'bdex'-streamable.  See the "Using 'bdex' with Your Own
+ Class" section below for implementation details.
+
+ The required signatures and typical documentation (some behavioral details may
+ be implementation-specific) of the three required methods for a
+ 'bdex'-compliant class are as follows.
+..
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    // MANIPULATORS
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation or if 'version' is not supported, this object is
+        // unaltered.  Note that no version is read from 'stream'.  See the
+        // 'bdex' package-level documentation for more information on 'bdex'
+        // streaming of value-semantic types and containers.
+
+    // ACCESSORS
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write this value to the specified output 'stream' using the
+        // specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+..
+
+/Requirements for a 'bdex'-Compliant Stream
+/------------------------------------------
+
+ Clients can rely on 'bdex'-compliant output and input streams to provide a
+ full set of "put" and "get" methods, respectively.  These methods are
+ described in detail in Appendix I and Appendix II, respectively.  Each 'bdex'
+ compliant stream must also provide the appropriate templatized 'operator<<' or
+ 'operator>>', implemented to cooperate with 'bdex' compliant value-semantic
+ components.  These operators are also described in the Appendices below.
+
+/Template Magic Makes it All Work
+/--------------------------------
+
+/Streaming Polymorphic Types
+/---------------------------
+
+@Two Aspects of 'bdex' "Usage"
+ Broadly speaking, there are two distinct aspects to "using" 'bdex'.  One is
+ using the 'bdex' facilities already incorporated into BDE components, and the
+ other is incorporating 'bdex' into new components (whether in the BDE library
+ or not).  We expect that the former will be the more common mode for typical
+ users, but we will document both modes.
+
+ In truth, there is a third mode of 'bdex' usage: writing a new concrete
+ stream.  This task will most likely be done by the BDE team itself -- and
+ clients are encouraged to ask for specific stream needs.  Future documentation
+ will address this more advanced aspect of 'bdex' usage.  Clients are free to
+ write special-purpose 'bdex'-compliant streams at need.  See the stream
+ protocols in Appendix I and Appendix II below.
+
+/Using 'bdex' with Existing BDE Components
+/-----------------------------------------
+ All BDE value semantic types (as part of the definition of being "value
+ semantic") support 'bdex' externalization.  That is to say, their "values" can
+ be uniquely represented as a sequence of 'bdex' primitive externalizations.
+ Hence, these values can be restored in any other process -- and indeed in any
+ other language -- that correctly implements the corresponding
+ unexternalization functionality.  Therefore, any user of, e.g., 'bdet_Date'
+ can expect to generate one or more date values in-core, externalize those
+ values, and restore (i.e., unexternalize) the same values locally or remotely,
+ all with minimal effort.  'bdex' externalization is especially important when
+ using 'bdem' messaging; see the 'bdem' package-level documentation and
+ especially the "BDEM Lesson 1" Tutorial Usage Example on {BP BDED <GO>} for
+ examples of using 'bdex' with other BDE code.
+
+ Using 'bdex' with existing BDE components is easy, and the steps can be
+ summarized as follows:
+..
+   To externalize an existing BDE object value:
+     1) Create a 'bdex' "out stream" object.
+     2) Use 'operator<<' to externalize the value to the stream.
+
+   To unexternalize (i.e., initialize) a BDE object from an out stream buffer:
+     1) Use the buffer to create an "in stream" object.
+     2) Use 'operator>>' to stream the value into the BDE object.
+..
+ We'll go through the details, but that's about all that there is to do.
+ First, we'll just say a bit more about choosing a stream from among the
+ existing 'bdex' streams.
+
+/Selection of Streams
+/- - - - - - - - - -
+ Several kinds of 'bdex'-compliant streams already exist, and many more are
+ possible.  At present, there are three pairs of concrete streams in 'bdex':
+..
+   Out Stream               In Stream              Informal Designation
+   ---------------------    ------------------     --------------------
+   bdex_ByteOutStream       bdex_ByteInStream      "Production Streams"
+   bdex_ByteOutStreamRaw    bdex_ByteInStreamRaw   "Raw Streams"
+   bdex_TestOutStream       bdex_TestInStream      "Test Streams"
+..
+ The informal designations are used throughout this document, and are commonly
+ used in spoken language by the BDE team.
+
+ In general, the concrete "inStreams" and "outStreams" must be used in matched
+ pairs.  For example, the user should not expect correct behavior if an object
+ is externalized to a 'bdex_TestOutStream' and then unexternalized from a
+ seemingly-appropriately-constructed 'bdex_ByteInStream'.  Each pair of streams
+ is designed with different aims in mind, and so their exact formats may vary.
+
+ The production and raw streams are, however, intended to interoperate; they
+ all use the same format.  The raw streams have in common that they do not
+ manage or own the buffers that they use, but rather just copy pointers to
+ user-supplied buffers on construction.  The ramifications of this design
+ choice are rather different for input and output streams (see the specific
+ Usage Warning sections in the 'bdex_byteoutstreamraw' and
+ 'bdex_byteoutstreamraw' component documentation -- the raw out-stream is
+ *very* dangerous, while the raw in-stream is only mildly so).  Therefore the
+ user may wish to "mix and match" streams, depending upon that user's specific
+ needs and risk tolerances.  Consult the component documentation carefully
+ before choosing a raw stream.
+
+ The typical user will probably be content to use the production streams for
+ most purposes.  We will assume that the production stream is the "correct"
+ choice without further explicit discussion in most usage examples.  See the
+ individual stream component documentation for specific details about using
+ other streams.
+
+/Using 'bdex' to Externalize a 'bdet_Date' Value
+/- - - - - - - - - - - - - - - - - - - - - - - -
+ The following snippet of code, as simple as it appears, is really all that one
+ needs to use 'bdex' under many practical circumstances.  First, create a
+ 'bdet_Date' value 'birthday' (see the 'bdet_date' component documentation for
+ details).
+..
+     bdet_Date birthday(2004, 4, 30);
+..
+ Next, create a 'bdex_ByteOutStream' object 'outStream'.  The default
+ constructor is adequate much of the time.
+..
+     bdex_ByteOutStream outStream;
+..
+ Then, stream 'birthday' to 'outStream' using the overloaded 'operator<<'
+ defined in 'bdex_ByteOutStream'.
+..
+     outStream << birthday;
+..
+ That's it.  The value of 'birthday' is now in the stream.  To send this value
+ anywhere at all that understands the 'bdex_ByteOutStream' format, simply
+ extract the data buffer from 'outStream' (as a 'char*') and send that buffer
+ (along with its length) to wherever it needs to go via your favorite transport
+ mechanism (see, e.g., the 'bte' package group documentation for various
+ transport mechanisms).  The 'data' and 'length' methods make this extraction
+ straightforward.
+..
+     const char *buffer;
+     int         bufferLength;
+
+     buffer       = outStream.data();
+     bufferLength = outStream.length();
+
+     // Transport 'buffer' and 'bufferLength' as desired.
+..
+ If we assume that 'buffer' and 'bufferLength' have been transported into the
+ scope implicitly used below, then the following code will initialize a
+ 'bdet_Date' object with the value of 'birthday' above.  First, create a
+ default 'bdet_Date' object 'yourBirthday' and use 'buffer' and 'bufferLength'
+ to initialize a 'bdex_ByteInStream' object 'inStream'.
+..
+     const char *buffer;        // Assumed initialized by transport code
+     int         bufferLength;  // Assumed initialized by transport code
+
+     bdet_Date   yourBirthday;  // This will be initialized by 'bdex'.
+
+     bdex_ByteInStream inStream(buffer, bufferLength);
+..
+ Now use 'operator>>' and 'inStream' to set the value of 'yourBirthday'.
+..
+     inStream >> yourBirthday;
+..
+ We're done; 'yourBirthday' is ready to use.
+
+/Using 'bdex' with Your Own Class
+/--------------------------------
+ We will show a very brief example of a fictitious 'm_myapp_MyPoint' class
+ whose intended purpose is to hold a pair of 'int' values representing a point
+ in a two-dimensional rectilinear coordinate space.  We will first define the
+ class without 'bdex' support and then add that support.  Note that, in this
+ example, most of the required documentation and some required methods and free
+ operators are omitted for ease of viewing.  See, e.g., the 'bdet_date'
+ component for a real example of how to implement 'bdex' functionality in a
+ proper value-semantic object.
+
+ A simple implementation of 'm_myapp_MyPoint' might be:
+..
+ class m_myapp_MyPoint {
+     int d_x;
+     int d_y;
+
+   public:
+     // CREATORS
+     m_myapp_MyPoint() : d_x(0), d_y(0) { }
+     m_myapp_MyPoint(int x, int y) : d_x(y), d_y(y) { }
+     m_myapp_MyPoint(const m_myapp_MyPoint& original)
+       : d_x(original.d_x), d_y(original.d_y) { }
+     ~m_myapp_MyPoint() { }
+
+     // MANIPULATORS
+     m_myapp_MyPoint& operator=(const m_myapp_MyPoint& rhs)
+         { d_x = rhs.d_x;  d_y = rhs.d_y; }
+     void setX(int x) { d_x = x; }
+     void setY(int y) { d_y = y; }
+
+     // ACCESSORS
+     int x() const { return d_x; }
+     int y() const { return d_y; }
+ };
+..
+ Putting other design decisions to one side for this discussion, we may ask:
+ How would we incorporate 'bdex' streaming into such a class?  We observe that
+ the actual data footprint of such a point class is two 'int' values.  If
+ 'bdex' succeeds in externalizing these two 'int' values (and preserving their
+ order), then the task is accomplished.
+
+ 'bdex' expects a compliant class to provide three methods, a class method, a
+ manipulator, and an accessor, with the following names, signatures, and
+ contracts:
+..
+    // CLASS METHODS
+     static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.
+
+    // MANIPULATORS
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation or if 'version' is not supported, this object is
+        // unaltered.  Note that no version is read from 'stream'.  See the
+        // 'bdex' package-level documentation for more information on 'bdex'
+        // streaming of value-semantic types and containers.
+
+    // ACCESSORS
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write this value to the specified output 'stream' using the
+        // specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+..
+ The above function-level documentation should make the purpose of each method
+ clear, and we will show the implementations for 'm_myapp_MyPoint' soon, but
+ first let's just say a few words about "version".  In a nutshell, the version
+ is set to 1 in the initial release of the component, and in the best of all
+ worlds, the version stays 1 forever.  If, however, for some reason the
+ developer wishes to alter the 'bdex' streaming contract (e.g., for some
+ performance reasons), the explicit version maintains backward compatibility.
+
+ Adding the above methods to the 'm_myapp_MyPoint' is straightforward:
+..
+ class m_myapp_MyPoint {
+     int d_x;
+     int d_y;
+
+   public:
+     // CLASS METHODS
+     static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.
+
+     // CREATORS
+     m_myapp_MyPoint() : d_x(0), d_y(0) { }
+     m_myapp_MyPoint(int x, int y) : d_x(y), d_y(y) { }
+     m_myapp_MyPoint(const m_myapp_MyPoint& original)
+       : d_x(original.d_x), d_y(original.d_y) { }
+     ~m_myapp_MyPoint() { }
+
+     // MANIPULATORS
+     m_myapp_MyPoint& operator=(const m_myapp_MyPoint& rhs)
+         { d_x = rhs.d_x;  d_y = rhs.d_y; }
+     void setX(int x) { d_x = x; }
+     void setY(int y) { d_y = y; }
+
+     template <class STREAM>
+     STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If the
+        // specified 'version' is not supported, 'stream' is marked invalid,
+        // but this object is unaltered.  Note that no version is read from
+        // 'stream'.
+
+     // ACCESSORS
+     int x() const { return d_x; }
+     int y() const { return d_y; }
+
+     template <class STREAM>
+     STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write this value to the specified output 'stream' and return a
+        // reference to the modifiable 'stream'.  Optionally specify an
+        // explicit 'version' format; by default, the maximum supported version
+        // is written to 'stream' and used as the format.  If 'version' is
+        // specified, that format is used but *not* written to 'stream'.  If
+        // 'version' is not supported, 'stream' is left unmodified.
+ };
+..
+ The implementations of the new 'bdex'-required methods might be as follows.
+ The 'maxSupportedBdexVersion' method simply returns the value 1.
+..
+    inline
+    int m_myapp_MyPoint::maxSupportedBdexVersion()
+    {
+        return 1;
+    }
+..
+ The 'bdexStreamOut' method is an accessor (i.e., a 'const' instance method),
+ and is therefore a bit simpler, so we'll show that one first.  Anyway, it's a
+ bit more logical to see the output format before implementing the input
+ format.  The method is a template method parameterized by 'STREAM', and the
+ "protocol" is that 'STREAM' must be compatible with the 'bdex' contract.  We
+ can therefore safely assume that the 'stream' object has the required methods.
+ See the "The bdex Protocols" section above for the contracts.  The heart of
+ the method is the two sequential calls to 'putInt32', which externalize the x
+ and y coordinates of the point value, in that order.  These two lines are all
+ the "new" code that the developer must understand and implement.  Except for
+ changing the class name from our 'm_myapp_MyPoint' example, the rest of the
+ code can be copied into the new component implementation directly.  Note that
+ this template method is declared 'inline' and implemented in the header of the
+ component defining 'm_myapp_MyClass'.
+..
+    template <class STREAM>
+    inline
+    STREAM& m_myapp_MyPoint::bdexStreamOut(STREAM& stream, int version) const
+    {
+        switch (version) {
+          case 1: { // Implementation-specific code goes here
+            stream.putInt32(d_x);
+            stream.putInt32(d_y);
+          } break;
+        }
+        return stream;
+    }
+..
+ Having implemented 'bdexStreamOut', implementing 'bdexStreamIn' is extremely
+ straightforward, involving an 'inline' template member function whose body can
+ be safely copied from this example or from any appropriate BDE component.
+ Note that the two sequential calls to 'getInt32' must match, in both method
+ selection and data member order, the 'put' methods used in the 'bdexStreamOut'
+ method.
+..
+    template <class STREAM>
+    inline
+    STREAM& m_myapp_MyPoint::bdexStreamIn(STREAM& stream, int version)
+    {
+        if (stream) {
+            switch (version) {// switch on the schema version (starting with 1)
+              case 1: { // Implementation-specific code goes here
+                  stream.getInt32(d_x);
+                  stream.getInt32(d_y);
+              if (!stream) {
+                  return stream;
+              }
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+..
+ The above implementation is sufficient for our point class, and with a very
+ few additional considerations, illustrates the general recipe for
+ incorporating 'bdex' streaming into a class that has an externalizable value.
+
+ Very briefly, we will mention two considerations that may be important when
+ implementing a type that is more complicated than our simple point class.  An
+ excellent real-world tutorial can be found by reviewing the various 'bdex'
+ implementations of more complicated BDE value-semantic types.
+
+ For our first consideration, notice that, for our simple point class, any
+ pattern of bits within the two 'int' data members represents a valid value.
+ Since our BDE contract requires the state of an object to be valid in the face
+ of a stream error (e.g., and exception being thrown during streaming in), the
+ manipulator method 'bdexStreamIn' must validate the input data, set the
+ object to some valid state in the case of an error, and invalidate the stream
+ before returning.  See the 'bdet_date' implementation, for which not all bit
+ patterns are valid, for an example of this case.
+
+ The second consideration is that if the new type being implemented has as a
+ data member a type that is already 'bdex' compliant, the new implementation
+ would use the data member's 'bdex' methods rather than the stream's methods
+ directly.  This is important for encapsulation.  See, e.g., 'bdem_list' for an
+ example of "sub-contracting" existing 'bdex' functionality in the
+ implementation of the container object's 'bdex' functionality.
+
+@Appendix I: The 'bdex_OutStream' Protocol
+ In this section we present the function documentation of 'bdex_OutStream',
+ which serves as the actual base class for 'bdex_OutStreamAdapter', and also
+ serves as the "documentation protocol" for all 'bdex'-compliant output
+ streams.
+..
+    // MANIPULATORS
+    virtual void invalidate() = 0;
+        // Put this output stream in an invalid state.  This function has no
+        // effect if this stream is already invalid.  Note that this function
+        // should be called whenever a write operation to this stream fails.
+
+    virtual bdex_OutStream& putLength(int length) = 0;
+        // Format the specified non-negative 'length' to this output stream and
+        // return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putVersion(int version) = 0;
+        // Format the specified non-negative 'version' to this output stream
+        // and return a reference to this modifiable stream.
+
+                        // *** scalar integer values ***
+
+    virtual bdex_OutStream& putInt64(bdes_PlatformUtil::Int64 value) = 0;
+        // Format the least significant 64 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putUint64(bdes_PlatformUtil::Int64 value) = 0;
+        // Format the least significant 64 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putInt56(bdes_PlatformUtil::Int64 value) = 0;
+        // Format the least significant 56 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putUint56(bdes_PlatformUtil::Int64 value) = 0;
+        // Format the least significant 56 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putInt48(bdes_PlatformUtil::Int64 value) = 0;
+        // Format the least significant 48 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putUint48(bdes_PlatformUtil::Int64 value) = 0;
+        // Format the least significant 48 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putInt40(bdes_PlatformUtil::Int64 value) = 0;
+        // Format the least significant 40 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putUint40(bdes_PlatformUtil::Int64 value) = 0;
+        // Format the least significant 40 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putInt32(int value) = 0;
+        // Format the least significant 32 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putUint32(unsigned int value) = 0;
+        // Format the least significant 32 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putInt24(int value) = 0;
+        // Format the least significant 24 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putUint24(int value) = 0;
+        // Format the least significant 24 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putInt16(int value) = 0;
+        // Format the least significant 16 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putUint16(int value) = 0;
+        // Format the least significant 16 bits of the specified 'value' to
+        // this output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putInt8(int value) = 0;
+        // Format the least significant 8 bits of the specified 'value' to this
+        // output stream and return a reference to this modifiable stream.
+
+    virtual bdex_OutStream& putUint8(int value) = 0;
+        // Format the least significant 8 bits of the specified 'value' to this
+        // output stream and return a reference to this modifiable stream.
+
+                        // *** scalar floating-point values ***
+
+    virtual bdex_OutStream& putFloat64(double value) = 0;
+        // Format the most significant 64 bits in the specified 'value' to this
+        // output stream and return a reference to this modifiable stream.
+        // Note that, for non-IEEE-conforming platforms, the "most significant
+        // 64 bits" of 'value' might not be contiguous, and that this operation
+        // may be lossy.
+
+    virtual bdex_OutStream& putFloat32(float value) = 0;
+        // Format the most significant 32 bits in the specified 'value' to this
+        // output stream and return a reference to this modifiable stream.
+        // Note that, for non-IEEE-conforming platforms, the "most significant
+        // 32 bits" of 'value' might not be contiguous, and that this operation
+        // may be lossy.
+
+                        // *** string values ***
+
+    virtual bdex_OutStream& putString(const std::string& value) = 0;
+        // Format the specified 'value' to this output stream and return a
+        // reference to this modifiable stream.
+
+                        // *** arrays of integer values ***
+
+    virtual bdex_OutStream&
+    putArrayInt64(const bdes_PlatformUtil::Int64 *array, int count) = 0;
+        // Format as an atomic sequence the least significant 64 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream&
+    putArrayUint64(const bdes_PlatformUtil::Uint64 *array, int count) = 0;
+        // Format as an atomic sequence the least significant 64 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream&
+    putArrayInt56(const bdes_PlatformUtil::Int64 *array, int count) = 0;
+        // Format as an atomic sequence the least significant 56 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream&
+    putArrayUint56(const bdes_PlatformUtil::Uint64 *array, int count) = 0;
+        // Format as an atomic sequence the least significant 56 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream&
+    putArrayInt48(const bdes_PlatformUtil::Int64 *array, int count) = 0;
+        // Format as an atomic sequence the least significant 48 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream&
+    putArrayUint48(const bdes_PlatformUtil::Uint64 *array, int count) = 0;
+        // Format as an atomic sequence the least significant 48 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream&
+    putArrayInt40(const bdes_PlatformUtil::Int64 *array, int count) = 0;
+        // Format as an atomic sequence the least significant 40 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream&
+    putArrayUint40(const bdes_PlatformUtil::Uint64 *array, int count) = 0;
+        // Format as an atomic sequence the least significant 40 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream& putArrayInt32(const int *array, int count) = 0;
+        // Format as an atomic sequence the least significant 32 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual
+    bdex_OutStream& putArrayUint32(const unsigned int *array, int count) = 0;
+        // Format as an atomic sequence the least significant 32 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream& putArrayInt24(const int *array, int count) = 0;
+        // Format as an atomic sequence the least significant 24 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual
+    bdex_OutStream& putArrayUint24(const unsigned int *array, int count) = 0;
+        // Format as an atomic sequence the least significant 24 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream& putArrayInt16(const short *array, int count) = 0;
+        // Format as an atomic sequence the least significant 16 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual
+    bdex_OutStream& putArrayUint16(const unsigned short *array, int count) = 0;
+        // Format as an atomic sequence the least significant 16 bits of each
+        // of the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream& putArrayInt8(const char *array, int count) = 0;
+    virtual bdex_OutStream& putArrayInt8(const signed char *array,
+                                         int                count) = 0;
+        // Format as an atomic sequence the least significant 8 bits of each of
+        // the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+    virtual bdex_OutStream& putArrayUint8(const char *array, int count) = 0;
+    virtual bdex_OutStream& putArrayUint8(const unsigned char *array,
+                                          int                  count) = 0;
+        // Format as an atomic sequence the least significant 8 bits of each of
+        // the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.
+
+                        // *** arrayed floating-point values ***
+
+    virtual bdex_OutStream& putArrayFloat64(const double *array,int count) = 0;
+        // Format as an atomic sequence the most significant 64 bits in each of
+        // the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.  Note that, for
+        // non-IEEE-conforming platforms, the "most significant 64 bits" might
+        // not be contiguous, and that this operation may be lossy.
+
+    virtual bdex_OutStream& putArrayFloat32(const float *array, int count) = 0;
+        // Format as an atomic sequence the most significant 32 bits in each of
+        // the specified 'count' leading entries in the specified 'array' to
+        // this output stream and return a reference to this modifiable stream.
+        // The behavior is undefined unless 0 <= count.  Note that, for
+        // non-IEEE-conforming platforms, the "most significant 4 bytes" might
+        // not be contiguous, and that this operation may be lossy.
+
+    virtual void removeAll() = 0;
+        // Remove all content in this stream.
+
+    virtual void reserveCapacity(int newCapacity) = 0;
+        // Set the internal buffer size of this stream to be at least the
+        // specified 'newCapacity'.
+
+    // ACCESSORS
+    virtual operator const void *() const = 0;
+        // Return a non-zero value if this stream is valid, and 0 otherwise.
+        // An invalid stream is a stream for which an output operation was
+        // detected to have failed.
+
+    virtual const char *data() const = 0;
+        // Return the address of the contiguous, non-modifiable internal memory
+        // buffer of this stream.  The address will remain valid as long as
+        // this stream is not destroyed or modified.  The behavior of accessing
+        // elements outside the range [ data() .. data() + (length() - 1) ] is
+        // undefined.
+
+    virtual int length() const = 0;
+        // Return the number of bytes in this stream.
+..
+ In addition, the protocol also requires the definition of the template
+ 'operator<<' taking a stream and a 'bdex'-compliant parameter 'OBJECT'
+..
+// FREE OPERATORS
+template <class OBJECT>
+inline
+bdex_OutStream& operator<<(bdex_OutStream& stream, const OBJECT& object);
+    // Write to the specified output 'stream', using the 'putVersion' method of
+    // this component, the most current version number supported by 'OBJECT'
+    // and format the value of the specified 'object' to 'stream' using the
+    // 'bdex' compliant 'OBJECT::bdexStreamOut' method in the
+    // 'OBJECT::maxSupportedBdexVersion' format.  Return a reference to the
+    // modifiable 'stream'.  Note that specializations for the supported
+    // fundamental (scalar) types and for 'std::string' are also provided, in
+    // which case this operator calls the appropriate 'put' method from this
+    // component.
+..
+
+@Appendix II: The 'bdex_InStream' Protocol
+ In this section we present the function documentation of 'bdex_InStream',
+ which serves as the actual base class for 'bdex_InStreamAdapter', and also
+ serves as the "documentation protocol" for all 'bdex'-compliant input streams.
+..
+    // MANIPULATORS
+    virtual bdex_InStream& getLength(int& length) = 0;
+        // Consume a length value from this input stream, place that value in
+        // the specified 'length', and return a reference to this modifiable
+        // stream.  If this stream is initially invalid, this operation has no
+        // effect.  If this function otherwise fails to extract a valid value,
+        // this stream is marked invalid and the value of 'length' is
+        // undefined.
+
+    virtual bdex_InStream& getVersion(int& version) = 0;
+        // Consume a version value from this input stream, place that value in
+        // the specified 'version', and return a reference to this modifiable
+        // stream.  If this stream is initially invalid, this operation has no
+        // effect.  If this function otherwise fails to extract a valid value,
+        // this stream is marked invalid and the value of 'version' is
+        // undefined.
+
+                        // *** scalar integer values ***
+
+    virtual bdex_InStream& getInt64(bdes_PlatformUtil::Int64& variable) = 0;
+        // Consume a 64-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getUint64(bdes_PlatformUtil::Uint64& variable) = 0;
+        // Consume a 64-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getInt56(bdes_PlatformUtil::Int64& variable) = 0;
+        // Consume a 56-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getUint56(bdes_PlatformUtil::Uint64& variable) = 0;
+        // Consume a 56-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getInt48(bdes_PlatformUtil::Int64& variable) = 0;
+        // Consume a 48-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getUint48(bdes_PlatformUtil::Uint64& variable) = 0;
+        // Consume a 48-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getInt40(bdes_PlatformUtil::Int64& variable) = 0;
+        // Consume a 40-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getUint40(bdes_PlatformUtil::Uint64& variable) = 0;
+        // Consume a 40-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getInt32(int& variable) = 0;
+        // Consume a 32-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getUint32(unsigned int& variable) = 0;
+        // Consume a 32-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getInt24(int& variable) = 0;
+        // Consume a 24-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getUint24(unsigned int& variable) = 0;
+        // Consume a 24-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getInt16(short& variable) = 0;
+        // Consume a 16-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getUint16(unsigned short& variable) = 0;
+        // Consume a 16-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getInt8(char& variable) = 0;
+    virtual bdex_InStream& getInt8(signed char& variable) = 0;
+        // Consume an 8-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getUint8(char& variable) = 0;
+    virtual bdex_InStream& getUint8(unsigned char& variable) = 0;
+        // Consume an 8-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+                        // *** scalar floating-point values ***
+
+    virtual bdex_InStream& getFloat64(double& variable) = 0;
+        // Consume a 64-bit floating-point value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.  Note that, for non-conforming
+        // platforms, this operation may be lossy.
+
+    virtual bdex_InStream& getFloat32(float& variable) = 0;
+        // Consume a 32-bit floating-point value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.  Note that, for non-conforming
+        // platforms, this operation may be lossy.
+
+                        // *** string values ***
+
+    virtual bdex_InStream& getString(std::string& value) = 0;
+        // Consume a string from this input stream, place that value in the
+        // specified 'value', and return a reference to this modifiable stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of 'variable' is undefined.
+
+                        // *** arrays of integer values ***
+
+    virtual bdex_InStream&
+    getArrayInt64(bdes_PlatformUtil::Int64 *array, int length) = 0;
+        // Consume a 64-bit signed integer array of the specified 'length' from
+        // this input stream, place that value in the specified 'array', and
+        // return a reference to this modifiable stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid array of the required 'length',
+        // this stream is marked invalid and the value of 'array' is undefined.
+        // The behavior is undefined unless 0 <= length.
+
+    virtual
+    bdex_InStream& getArrayUint64(bdes_PlatformUtil::Uint64 *array,
+                                  int                        length) = 0;
+        // Consume a 64-bit unsigned integer array of the specified 'length'
+        // from this input stream, place that value in the specified 'array',
+        // and return a reference to this modifiable stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid array of the required 'length',
+        // this stream is marked invalid and the value of 'array' is undefined.
+        // The behavior is undefined unless 0 <= length.
+
+    virtual bdex_InStream&
+    getArrayInt56(bdes_PlatformUtil::Int64 *array, int length) = 0;
+        // Consume a 56-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getArrayUint56(bdes_PlatformUtil::Uint64 *array,
+                                          int                        length)=0;
+        // Consume a 56-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream&
+    getArrayInt48(bdes_PlatformUtil::Int64 *array, int length) = 0;
+        // Consume a 48-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getArrayUint48(bdes_PlatformUtil::Uint64 *array,
+                                          int                        length)=0;
+        // Consume a 48-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream&
+    getArrayInt40(bdes_PlatformUtil::Int64 *array, int length) = 0;
+        // Consume a 40-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getArrayUint40(bdes_PlatformUtil::Uint64 *array,
+                                          int                        length)=0;
+        // Consume a 40-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getArrayInt32(int *array, int length) = 0;
+        // Consume a 32-bit signed integer array of the specified 'length' from
+        // this input stream, place that value in the specified 'array', and
+        // return a reference to this modifiable stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid array of the required 'length',
+        // this stream is marked invalid and the value of 'array' is undefined.
+        // The behavior is undefined unless 0 <= length.
+
+    virtual bdex_InStream& getArrayUint32(unsigned int *array, int length) = 0;
+        // Consume a 32-bit unsigned integer array of the specified 'length'
+        // from this input stream, place that value in the specified 'array',
+        // and return a reference to this modifiable stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid array of the required 'length',
+        // this stream is marked invalid and the value of 'array' is undefined.
+        // The behavior is undefined unless 0 <= length.
+
+    virtual bdex_InStream& getArrayInt24(int *array, int length) = 0;
+        // Consume a 24-bit signed integer value from this input stream, place
+        // that value in the specified 'variable', and return a reference to
+        // this modifiable stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getArrayUint24(unsigned int *array, int length) = 0;
+        // Consume a 24-bit unsigned integer value from this input stream,
+        // place that value in the specified 'variable', and return a reference
+        // to this modifiable stream.  If this stream is initially invalid,
+        // this operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of 'variable' is undefined.
+
+    virtual bdex_InStream& getArrayInt16(short *array, int length) = 0;
+        // Consume a 16-bit signed integer array of the specified 'length' from
+        // this input stream, place that value in the specified 'array', and
+        // return a reference to this modifiable stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid array of the required 'length',
+        // this stream is marked invalid and the value of 'array' is undefined.
+        // The behavior is undefined unless 0 <= length.
+
+    virtual bdex_InStream& getArrayUint16(unsigned short *array,
+                                          int             length) = 0;
+        // Consume a 16-bit unsigned integer array of the specified 'length'
+        // from this input stream, place that value in the specified 'array',
+        // and return a reference to this modifiable stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid array of the required 'length',
+        // this stream is marked invalid and the value of 'array' is undefined.
+        // The behavior is undefined unless 0 <= length.
+
+    virtual bdex_InStream& getArrayInt8(char *array, int length) = 0;
+    virtual bdex_InStream& getArrayInt8(signed char *array, int length) = 0;
+        // Consume an 8-bit signed integer array of the specified 'length' from
+        // this input stream, place that value in the specified 'array', and
+        // return a reference to this modifiable stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid array of the required 'length',
+        // this stream is marked invalid and the value of 'array' is undefined.
+        // The behavior is undefined unless 0 <= length.
+
+    virtual bdex_InStream& getArrayUint8(char *array, int length) = 0;
+    virtual bdex_InStream& getArrayUint8(unsigned char *array, int length) = 0;
+        // Consume an 8-bit unsigned integer array of the specified 'length'
+        // from this input stream, place that value in the specified 'array',
+        // and return a reference to this modifiable stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid array of the required 'length',
+        // this stream is marked invalid and the value of 'array' is undefined.
+        // The behavior is undefined unless 0 <= length.
+
+                        // *** arrays of floating-point values ***
+
+    virtual bdex_InStream& getArrayFloat64(double *array, int count) = 0;
+        // Consume a 64-bit floating-point array of the specified 'length' from
+        // this input stream, place that value in the specified 'array', and
+        // return a reference to this modifiable stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid array of the required 'length',
+        // this stream is marked invalid and the value of 'array' is undefined.
+        // The behavior is undefined unless 0 <= length.  Note that for
+        // non-conforming platforms, this operation may be lossy.
+
+    virtual bdex_InStream& getArrayFloat32(float *array, int length) = 0;
+        // Consume a 32-bit floating-point array of the specified 'length' from
+        // this input stream, place that value in the specified 'array', and
+        // return a reference to this modifiable stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid array of the required 'length',
+        // this stream is marked invalid and the value of 'array' is undefined.
+        // The behavior is undefined unless 0 <= length.  Note that for
+        // non-conforming platforms, this operation may be lossy.
+
+    virtual void invalidate() = 0;
+        // Put this input stream in an invalid state.  This function has no
+        // effect if this stream is already invalid.  Note that this function
+        // should be called whenever a value extracted from this stream is
+        // determined to be invalid, inconsistent, or otherwise incorrect.
+
+    // ACCESSORS
+    virtual operator const void *() const = 0;
+        // Return a non-zero value if this stream is valid, and 0 otherwise.
+        // An invalid stream denotes a stream in which insufficient or invalid
+        // data was detected during an extraction operation.  Note that an
+        // empty stream will be valid unless an extraction attempt or explicit
+        // invalidation causes it to be otherwise.
+
+    virtual int isEmpty() const = 0;
+        // Return 1 if this stream is empty, and 0 otherwise.  The behavior is
+        // undefined unless this stream is valid (i.e., would convert to a
+        // non-zero value via the 'operator const void *()' member).  Note that
+        // this function enables higher-level components to verify that, after
+        // successfully reading all expected data, no data remains.
+
+    virtual int length() const = 0;
+        // Return the total number of bytes stored in this stream.
+
+    virtual int cursor() const = 0;
+        // Return the index of the next byte to be extracted from this stream.
+        // The behavior is undefined unless this stream is valid.
+..
+ In addition, the protocol also requires the definition of the template
+ 'operator>>' taking a stream and a 'bdex'-compliant parameter 'OBJECT'
+..
+// FREE OPERATORS
+
+template <typename OBJECT>
+inline
+bdex_InStream& operator>>(bdex_InStream& stream, OBJECT& object);
+    // Read from the specified 'stream', using the 'getVersion' method of this
+    // component, a 'bdex' version and assign to the specified 'bdex'-compliant
+    // 'object' the value read from 'stream' using 'OBJECT's 'bdex' version
+    // format as read from 'stream'.  Return a reference to the modifiable
+    // 'stream'.  If 'stream' is initially invalid, this operation has no
+    // effect.  If 'stream' becomes invalid during this operation, 'object' is
+    // valid, but its value is undefined.  If the read in version is not
+    // supported by 'object', 'stream' is marked invalid, but 'object' is
+    // unaltered.  The behavior is undefined unless the data in 'stream' was
+    // written by a 'bdex_ByteOutStream' object.  (See the 'bdex' package-level
+    // documentation for more information on 'bdex' streaming of container
+    // types.) Note that specializations for the supported fundamental (scalar)
+    // types and for 'std::string' are also provided, in which case this
+    // operator calls the appropriate 'get' method from this component.
+..
