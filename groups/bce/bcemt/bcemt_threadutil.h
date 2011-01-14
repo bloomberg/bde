@@ -378,37 +378,49 @@ struct bcemt_ThreadUtil {
 
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
-    static int createKey(Key *key, Destructor destructor);
-        // Load into the specified 'key' an identifier that can be used to
-        // store (via 'setSpecific'), and retrieve (via 'getSpecific'), a
-        // single thread-specific pointer value in the calling thread, and
-        // specify a 'destructor' used to reclaim any resources associated with
-        // 'key' when the thread terminates.  Return 0 on success, and a
-        // non-zero value otherwise.  Note that 'destructor' is invoked an
-        // *unspecified* amount of time after the thread has terminated.
+    static int createKey(Key *key, Destructor threadKeyCleanupFunction);
+        // Load into the specified 'key' a new process-wide identifier that can
+        // be used to store (via 'setSpecific') and retrieve (via
+        // 'getSpecific') a pointer value local to each thread, and associate
+        // with the new key the specified 'threadKeyCleanupFunction' that may
+        // typically be used to cleanup resources associated with the key at
+        // thread termination.  Return 0 on success, and a non-zero value
+        // otherwise.  'threadKeyCleanupFunction' will be called by each
+        // thread, if 'threadKeyCleanupFunction' is non-zero and the value
+        // associated with 'key' for that thread is non-zero, with the
+        // associated value as an argument, after the function passed to
+        // 'create' has returned and before the thread terminates.  Note that
+        // multiple keys can be defined, and this can result in multiple thread
+        // key cleanup functions being called for a given thread.
 
     static int deleteKey(Key& key);
-        // Delete the specified thread-specific 'key' from the calling thread,
-        // and disassociate from the thread the destructor supplied when 'key'
-        // was created (see 'createKey').  Return 0 on success, and a non-zero
-        // value otherwise.   The behavior is undefined unless 'key' was
-        // obtained from a successful call to 'createKey' and has not already
-        // been deleted.  Note that deleting a key does not delete any data
-        // that is currently associated with that key in the calling thread, or
-        // any other thread.
+        // Delete the specified 'key' from the calling process, and
+        // disassociate all threads from the thread key cleanup function
+        // supplied when 'key' was created (see 'createKey').  Return 0 on
+        // success, and a non-zero value otherwise.  The behavior is undefined
+        // unless 'key' was obtained from a successful call to 'createKey' and
+        // has not already been deleted.  Note that deleting a key does not
+        // delete any data pointed at by the pointer values associated with
+        // that key in any thread.
 
     static void *getSpecific(const Key& key);
-        // Return the value associated with the specified thread-specific
-        // 'key'.  If the key is not valid within the current thread, a value
-        // of zero is returned, which is indistinguishable from a valid key
-        // with a 0 value.  The behavior is undefined unless 'key' was obtained
-        // from a successful call to 'createKey'.
+        // Return the thread-local value associated with the specified 'key'.
+        // A 'key' is shared among all threads and the value associated with
+        // 'key' for each thread is 0 until it is set by that thread using
+        // 'setSpecific'.  The behavior is undefined if 'key' was not obtained
+        // from a successful call to 'createKey', if 'key' has been deleted, or
+        // if this method is called inside a thread key cleanup function
+        // associated with any key by 'createKey'.
 
     static int setSpecific(const Key& key, const void *value);
-        // Associate the specified non-modifiable 'value' with the specified
-        // thread-specific 'key'.  Return 0 on success, and a non-zero value
-        // otherwise.  The behavior is undefined unless 'key' was obtained
-        // from a successful call to 'createKey'.
+        // Associate the specified thread-local 'value' with the specified
+        // process-wide 'key'.  Return 0 on success, and a non-zero value
+        // otherwise.  The value associated with a thread for a given key is 0
+        // until it has been set by that thread using 'setSpecific'.  The
+        // behavior is undefined if 'key' was not obtained from a successful
+        // call to 'createKey', if 'key' has been deleted, or if this method is
+        // called inside a thread key cleanup function associated with any key
+        // by 'createKey'.
 };
 
 // ===========================================================================
@@ -547,10 +559,11 @@ bool bcemt_ThreadUtil::isEqualId(const bcemt_ThreadUtil::Id& lhs,
 }
 
 inline
-int bcemt_ThreadUtil::createKey(bcemt_ThreadUtil::Key        *key,
-                                bcemt_ThreadUtil::Destructor  destructor)
+int bcemt_ThreadUtil::createKey(
+                        bcemt_ThreadUtil::Key        *key,
+                        bcemt_ThreadUtil::Destructor  threadKeyCleanupFunction)
 {
-    return Imp::createKey(key, destructor);
+    return Imp::createKey(key, threadKeyCleanupFunction);
 }
 
 inline
