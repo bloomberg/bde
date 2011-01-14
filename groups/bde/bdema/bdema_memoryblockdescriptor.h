@@ -172,7 +172,8 @@ bdema_MemoryBlockDescriptor::bdema_MemoryBlockDescriptor(void      *address,
 : d_address_p(address)
 , d_size(size)
 {
-    BSLS_ASSERT_SAFE((address && 0 <= size) || (!address && 0 == size));
+    BSLS_ASSERT_SAFE(0 <= size);
+    BSLS_ASSERT_SAFE(address || 0 == size);
 }
 
 inline
@@ -198,7 +199,8 @@ inline
 void bdema_MemoryBlockDescriptor::setAddressAndSize(void      *address,
                                                     size_type  size)
 {
-    BSLS_ASSERT_SAFE((address && 0 <= size) || (!address && 0 == size));
+    BSLS_ASSERT_SAFE(0 <= size);
+    BSLS_ASSERT_SAFE(address || 0 == size);
 
     d_address_p = address;
     d_size      = size;

@@ -1204,7 +1204,7 @@ bdema_ManagedPtrDeleter::deleter() const
 template <typename TYPE>
 inline
 void
-bdema_ManagedPtrNilDeleter<TYPE>::deleter(TYPE *object, void *)
+bdema_ManagedPtrNilDeleter<TYPE>::deleter(TYPE *, void *)
 {
     // DO NOTHING
 }

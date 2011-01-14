@@ -461,7 +461,7 @@ void *bdema_BufferManager::allocate(bsls_PlatformUtil::size_type size)
     return bdema_BufferImpUtil::allocateFromBuffer(&d_cursor,
                                                    d_buffer_p,
                                                    d_bufferSize,
-                                                   size,
+                                                   static_cast<int>(size),
                                                    d_alignmentStrategy);
 }
 

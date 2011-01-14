@@ -33,7 +33,6 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
 
 //==========================================================================
 //                              TEST PLAN
@@ -174,15 +173,20 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
 //                      REDEFINED GLOBAL OPERATOR NEW
 //--------------------------------------------------------------------------
 
-static int globalVeryVerbose = 0;
+// In optimize mode, the HPUX compiler fails to take into account that
+// '*.allocate' can possibly call 'new' and '*.deallocate' can call 'delete'
+// and fails to save relevant statics to RAM.  Declare these to be 'volatile'
+// to ensure the compiler saves their values to RAM.
 
-static int globalNewCalledCount = 0;
-static int globalNewCalledCountIsEnabled = 0;
-static int globalNewCalledLastArg = 0;
+static volatile int   globalVeryVerbose = 0;
 
-static  int  globalDeleteCalledCount = 0;
-static  int  globalDeleteCalledCountIsEnabled = 0;
-static void *globalDeleteCalledLastArg = 0;
+static volatile int   globalNewCalledCount = 0;
+static volatile int   globalNewCalledCountIsEnabled = 0;
+static volatile int   globalNewCalledLastArg = 0;
+
+static volatile int   globalDeleteCalledCount = 0;
+static volatile int   globalDeleteCalledCountIsEnabled = 0;
+static volatile void *globalDeleteCalledLastArg = 0;
 
 #ifdef BDE_BUILD_TARGET_EXC
 void *operator new(size_t size) throw(std::bad_alloc)

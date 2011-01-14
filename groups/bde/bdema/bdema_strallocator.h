@@ -361,7 +361,7 @@ bdema_StrAllocator::bdema_StrAllocator(bslma_Allocator *basicAllocator)
 inline
 void *bdema_StrAllocator::allocate(size_type numBytes)
 {
-    return d_strPool.allocate(numBytes);
+    return d_strPool.allocate(static_cast<int>(numBytes));
 }
 
 inline
@@ -378,7 +378,7 @@ void bdema_StrAllocator::release()
 inline
 void bdema_StrAllocator::reserveCapacity(size_type numBytes)
 {
-    d_strPool.reserveCapacity(numBytes);
+    d_strPool.reserveCapacity(static_cast<int>(numBytes));
 }
 
 }  // close namespace BloombergLP
