@@ -1,4 +1,4 @@
-// bdede_md5.h                   -*-C++-*-
+// bdede_md5.h                                                        -*-C++-*-
 #ifndef INCLUDED_BDEDE_MD5
 #define INCLUDED_BDEDE_MD5
 
@@ -105,7 +105,11 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#include <bsls_platformutil.h>  // @DEPRECATED
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTRING
@@ -115,7 +119,6 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
-
 
 namespace BloombergLP {
 
@@ -140,16 +143,16 @@ class bdede_Md5 {
     // is supported in all cases.
 
     // DATA
-    unsigned int             d_state[4];    // state array storing the digest
+    unsigned int      d_state[4];    // state array storing the digest
 
-    bsls_PlatformUtil::Int64 d_length;      // length of the message
+    bsls_Types::Int64 d_length;      // length of the message
 
-    unsigned char            d_buffer[64];  // buffer for storing remaining
-                                            // part of message that is not yet
-                                            // incorporated into 'd_state'
+    unsigned char     d_buffer[64];  // buffer for storing remaining part of
+                                     // message that is not yet incorporated
+                                     // into 'd_state'
 
     // FRIENDS
-    friend bool operator==(const bdede_Md5& lhs, const bdede_Md5& rhs);
+    friend bool operator==(const bdede_Md5&, const bdede_Md5&);
 
   public:
     // TYPES
@@ -182,9 +185,10 @@ class bdede_Md5 {
         // Destroy this MD5 digest.
 
     // MANIPULATORS
-    bdede_Md5& operator=(const bdede_Md5& rhs);
+    // !bdede_Md5& operator=(const bdede_Md5& rhs);
         // Assign to this MD5 digest the value of the specified 'rhs' MD5
-        // digest and return a reference to this modifiable MD5 digest.
+        // digest and return a reference to this modifiable MD5 digest.  Note
+        // that this method's definition is compiler generated.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -263,6 +267,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bdede_Md5& digest);
 //                        INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
+                            // ---------------
+                            // class bdede_Md5
+                            // ---------------
+
 // CLASS METHODS
 inline
 int bdede_Md5::maxSupportedBdexVersion()
@@ -276,9 +284,9 @@ STREAM& bdede_Md5::bdexStreamIn(STREAM& stream, int version)
 {
     switch (version) {
       case 1: {
-        unsigned int             state[4];
-        unsigned char            buf[64];
-        bsls_PlatformUtil::Int64 length;
+        unsigned int      state[4];
+        unsigned char     buf[64];
+        bsls_Types::Int64 length;
 
         // first the state
         for (int i = 0; i < 4; i++) {

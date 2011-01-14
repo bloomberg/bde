@@ -2657,7 +2657,7 @@ int main(int argc, char**argv)
 
                 int                   d_expectedResult; // expected result
             } DATA[] = {
-// v-------------------^
+// v------------^
    //L#  output           input                            size #c   #b  result
    //--  -----            ------                           ---- --   --  ------
    { L_, "",              {                            0 }, 255, 1,  1,   OK },
@@ -2725,7 +2725,7 @@ int main(int argc, char**argv)
    { L_, U8_0ffff U8_00800 U8_007ff U8_000ff "\x7f\x20\x01",
                           { 0xffff, 0x800, 0X7ff, 0Xff, 0X7f,
                             0x20, 0x1,                 0 }, 255, 8, 14,   OK },
-// ^--------v
+// ^------------v
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2957,7 +2957,7 @@ int main(int argc, char**argv)
 
                 int                   d_expectedResult; // expected result
             } DATA[] = {
-// v-------------------^
+// v------------^
    //L#  input             output                               size #c  result
    //--  -----             ------                               ---- --  ------
    { L_, "",               {                               0 },   0, 0, OBTS },
@@ -3158,7 +3158,7 @@ int main(int argc, char**argv)
 
    { L_,   "\xef\xbf \xef\xbf",
                            { '?', ' ', '?',                0 },   4, 4, BADC },
-// ^--------v
+// ^------------v
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;

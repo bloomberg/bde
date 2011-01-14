@@ -630,7 +630,7 @@ int bdede_Base64Decoder::convert(OUTPUT_ITERATOR  out,
 
     while (8 <= d_bitsInStack && numEmitted != maxNumOut) {
         d_bitsInStack -= 8;
-        *out = (d_stack >> d_bitsInStack) & 0xff;
+        *out = static_cast<char>((d_stack >> d_bitsInStack) & 0xff);
         ++out;
         ++numEmitted;
     }
@@ -654,7 +654,8 @@ int bdede_Base64Decoder::convert(OUTPUT_ITERATOR  out,
                 d_bitsInStack += 6;
                 if (8 <= d_bitsInStack && numEmitted != maxNumOut) {
                     d_bitsInStack -= 8;
-                    *out = (d_stack >> d_bitsInStack) & 0xff;
+                    *out = static_cast<char>(
+                                            (d_stack >> d_bitsInStack) & 0xff);
                     ++out;
                     ++numEmitted;
                 }
@@ -752,7 +753,7 @@ int bdede_Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
     int numEmitted = 0;
     while (8 <= d_bitsInStack && numEmitted != maxNumOut) {
         d_bitsInStack -= 8;
-        *out = (d_stack >> d_bitsInStack) & 0xff;
+        *out = static_cast<char>((d_stack >> d_bitsInStack) & 0xff);
         ++out;
         ++numEmitted;
     }

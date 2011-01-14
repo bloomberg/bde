@@ -721,7 +721,7 @@ int bdede_QuotedPrintableEncoder::maxLineLength() const
 inline
 int bdede_QuotedPrintableEncoder::numOutputPending() const
 {
-    return d_outBuf.size();
+    return static_cast<int>(d_outBuf.size());
 }
 
 inline

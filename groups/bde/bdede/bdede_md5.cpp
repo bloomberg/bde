@@ -375,9 +375,9 @@ static void append(unsigned int *state, const unsigned char *data)
     bsl::memset(xArray, 0, sizeof(xArray));
 }
 
-static void padLengthToBuffer(unsigned int             *state,
-                              unsigned char            *buffer,
-                              bsls_PlatformUtil::Int64  length)
+static void padLengthToBuffer(unsigned int      *state,
+                              unsigned char     *buffer,
+                              bsls_Types::Int64  length)
 {
     // The same as 'int inUse = length % BYTEBLOCKSIZE;'
     int inUse = length & 0x3f;
@@ -493,19 +493,6 @@ bdede_Md5::~bdede_Md5()
 }
 
 // MANIPULATORS
-bdede_Md5& bdede_Md5::operator=(const bdede_Md5& rhs)
-{
-    if (this != &rhs) {
-        d_state[0] = rhs.d_state[0];
-        d_state[1] = rhs.d_state[1];
-        d_state[2] = rhs.d_state[2];
-        d_state[3] = rhs.d_state[3];
-        d_length = rhs.d_length;
-        bsl::memcpy(d_buffer, rhs.d_buffer, sizeof(d_buffer));
-    }
-    return *this;
-}
-
 void bdede_Md5::update(const void *data, int length)
 {
     BSLS_ASSERT(0 <= length);
