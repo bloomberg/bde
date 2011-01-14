@@ -411,7 +411,7 @@ int baecs_MappingManager::mapCount() const
 inline
 int baecs_MappingManager::numPriorityLevels() const
 {
-    return d_unusedPages.size();
+    return static_cast<int>(d_unusedPages.size());
 }
 
 }  // close namespace BloombergLP
