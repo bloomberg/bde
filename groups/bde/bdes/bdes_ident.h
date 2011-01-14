@@ -1,61 +1,74 @@
-// bdes_ident.h                                                       -*-C++-*-
+/* bdes_ident.h                                                      -*-C-*- */
 #ifndef INCLUDED_BDES_IDENT
 #define INCLUDED_BDES_IDENT
 
-//@PURPOSE: Provide macros for inserting SCM Ids into source files.
-//
-//@CLASSES:
-//
-//@AUTHOR: Anthony Comerico (acomeric)
-//
-//@DESCRIPTION: The purpose of this component is to provide macros for
-// inserting SCM Ids into source files.
-//
-///Usage
-///-----
-// Include 'bdes_ident.h' and use the 'BDES_IDENT' macro or the
-// 'BDES_IDENT_RCSID' macro.  For header files, this should be done directly
-// after the include guards, e.g., in 'bdes_somefile.h':
-//..
-//  // bdes_somefile.h            -*-C++-*-
-//  #ifndef INCLUDED_BDES_SOMEFILE
-//  #define INCLUDED_BDES_SOMEFILE
-//
-//  #ifndef INCLUDED_BDES_IDENT
-//  #include <bdes_ident.h>
-//  #endif
-//  BDES_IDENT("$Id: $")
-//
-//  //@PURPOSE: Provide an example of 'bdes_ident.h' usage.
-//
-//  // ...
-//
-//  #endif // INCLUDED_BDES_SOMEFILE
-//..
-// For 'cpp' files, the following pattern should be used:
-//..
-//  // bdes_somefile.cpp          -*-C++-*-
-//  #include <bdes_somefile.h>
-//
-//  #include <bdes_ident.h>
-//  BDES_IDENT_RCSID(bdes_somefile_cpp,"$Id$ $CSID$")
-//
-//  // ... other includes ...
-//..
+/*@PURPOSE: Provide macros for inserting SCM Ids into source files.
+ *
+ *@CLASSES:
+ *
+ *@AUTHOR: Anthony Comerico (acomeric)
+ *
+ *@DESCRIPTION: The purpose of this component is to provide macros for
+ * inserting SCM Ids into source files.
+ *
+ * Usage
+ * -----
+ * Include 'bdes_ident.h' and use the 'BDES_IDENT' macro or the
+ * 'BDES_IDENT_RCSID' macro.  For header files, this should be done directly
+ * after the include guards, e.g., in 'bdes_somefile.h':
+ *..
+ *  // bdes_somefile.h            -*-C++-*-
+ *  #ifndef INCLUDED_BDES_SOMEFILE
+ *  #define INCLUDED_BDES_SOMEFILE
+ *
+ *  #ifndef INCLUDED_BDES_IDENT
+ *  #include <bdes_ident.h>
+ *  #endif
+ *  BDES_IDENT("$Id: $")
+ *
+ *  //@PURPOSE: Provide an example of 'bdes_ident.h' usage.
+ *
+ *  // ...
+ *
+ *  #endif // INCLUDED_BDES_SOMEFILE
+ *..
+ * For 'cpp' files, the following pattern should be used:
+ *..
+ *  // bdes_somefile.cpp          -*-C++-*-
+ *  #include <bdes_somefile.h>
+ *
+ *  #include <bdes_ident.h>
+ *  BDES_IDENT_RCSID(bdes_somefile_cpp,"$Id$ $CSID$")
+ *
+ *  // ... other includes ...
+ *..
+ * For 'c' files, the following pattern should be used (with C comments if
+ * the 'c' compiler doesn't support C++ comments, which are used here to avoid
+ * nesting):
+ *..
+ *  // bdes_somefile.c          -*-C-*-
+ *  #include <bdes_somefile.h>
+ *
+ *  #include <bdes_ident.h>
+ *  BDES_IDENT_RCSID(bdes_somefile_c,"$Id$ $CSID$")
+ *
+ *  // ... other includes ...
+ *..
+ */
 
+/* Include 'bslscm_version.h' only if included from 'C++' code. */
+#ifdef __cplusplus
 #ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>  // required by 'bdes'
+#include <bslscm_version.h>  /* required by 'bdes' */
 #endif
+#endif /* __cplusplus */
 
 #ifdef BDES_IDENT_OFF
-
 
 #define BDES_IDENT(str)
 #define BDES_IDENT_RCSID(tag,str)
 
-
 #else /* !BDES_IDENT_OFF */
-
 
 /* BDES_IDENT() - insert string into .comment binary segment (if supported)*/
 
@@ -86,12 +99,10 @@
 #define BDES_IDENT(str)
 #endif
 
-
 /* multi-level indirection to force macro expansion before concatenation */
 /* (order of concatenation/macro expansion unspecified in ANSI standard) */
 #define BDES_IDENT_JOIN2(x,y) x ## y
 #define BDES_IDENT_JOIN(x,y) BDES_IDENT_JOIN2(x,y)
-
 
 /* BDES_IDENT_RCSID() - insert ident str (specific to platform/compiler) */
 
@@ -99,7 +110,7 @@
   #if !defined(_AIX)
     #define BDES_IDENT_RCSID(tag,str) BDES_IDENT(str)
   #else /* _AIX */
-    // (XXX: look into further if we ever use gcc to build prod tasks on AIX)
+    /* TBD: look further into if we ever use gcc to build prod tasks on AIX */
     #ifndef lint
     #define BDES_IDENT_RCSID(tag,str) \
       static char BDES_IDENT_JOIN(ident_,tag)[] __attribute__((__unused__)) \
@@ -156,7 +167,6 @@
 
 #endif /* !BDES_IDENT_OFF */
 
-
 #if defined(__GNUC__)
   #define BDES_IDENT_PRAGMA_ONCE _Pragma("once")
 #elif defined(__SUNPRO_C) || defined(__SUNPRO_CC)
@@ -178,16 +188,13 @@
 #endif
 BDES_IDENT_PRAGMA_ONCE
 
+#endif /* INCLUDED_BDES_IDENT */
 
-
-
-#endif // INCLUDED_BDES_IDENT
-
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+/* ---------------------------------------------------------------------------
+ * NOTICE:
+ *      Copyright (C) Bloomberg L.P., 2007
+ *      All Rights Reserved.
+ *      Property of Bloomberg L.P. (BLP)
+ *      This software is made available solely pursuant to the
+ *      terms of a BLP license agreement which governs its use.
+ * ----------------------------- END-OF-FILE --------------------------------*/
