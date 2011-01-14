@@ -97,8 +97,9 @@ static void aSsErT(int c, const char *s, int i) {
 
 namespace TestCase1 {
 
-const int TESTSIZE = 100000000;  // test size used for timing
-int global;  // uninitialized on purpose to prevent compiler optimization
+const int TESTSIZE = 10000000;  // test size used for timing
+int global;                     // uninitialized on purpose to prevent compiler
+                                // optimization
 
 }  // close namespace TestCase1
 

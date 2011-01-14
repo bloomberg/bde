@@ -37,17 +37,23 @@ void bsls_Stopwatch::accumulatedTimes(double *systemTime,
         bsls_Types::Int64 rawWallTime;
         accumulatedTimesRaw(&rawSystemTime, &rawUserTime, &rawWallTime);
 
-        *systemTime = (d_accumulatedSystemTime + rawSystemTime
-                                 - d_startSystemTime) / s_nanosecondsPerSecond;
-        *userTime   = (d_accumulatedUserTime   + rawUserTime
-                                 - d_startUserTime)   / s_nanosecondsPerSecond;
-        *wallTime   = (d_accumulatedWallTime   + rawWallTime
-                                 - d_startWallTime)   / s_nanosecondsPerSecond;
+        *systemTime = static_cast<double>(
+                   d_accumulatedSystemTime + rawSystemTime - d_startSystemTime)
+                                                      / s_nanosecondsPerSecond;
+        *userTime   = static_cast<double>(
+                   d_accumulatedUserTime   + rawUserTime   - d_startUserTime)
+                                                      / s_nanosecondsPerSecond;
+        *wallTime   = static_cast<double>(
+                   d_accumulatedWallTime   + rawWallTime   - d_startWallTime)
+                                                      / s_nanosecondsPerSecond;
     }
     else {
-        *systemTime = d_accumulatedSystemTime / s_nanosecondsPerSecond;
-        *userTime   = d_accumulatedUserTime   / s_nanosecondsPerSecond;
-        *wallTime   = d_accumulatedWallTime   / s_nanosecondsPerSecond;
+        *systemTime = static_cast<double>(d_accumulatedSystemTime)
+                                                      / s_nanosecondsPerSecond;
+        *userTime   = static_cast<double>(d_accumulatedUserTime)
+                                                      / s_nanosecondsPerSecond;
+        *wallTime   = static_cast<double>(d_accumulatedWallTime)
+                                                      / s_nanosecondsPerSecond;
     }
 }
 

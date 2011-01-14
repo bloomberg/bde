@@ -18,8 +18,18 @@ BSLS_IDENT("$Id: $")
 #include <signal.h>
 #endif
 
+#ifdef BSLS_PLATFORM__OS_UNIX
+#include <unistd.h>    // 'sleep'
+#endif
+
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-#include <crtdbg.h>  // _CrtSetReportMode, to suppress pop-ups
+#include <crtdbg.h>    // '_CrtSetReportMode', to suppress pop-ups
+
+typedef unsigned long DWORD;
+
+extern "C" {
+    __declspec(dllimport) void __stdcall Sleep(DWORD dwMilliseconds);
+};
 #endif
 
 #ifdef BSLS_ASSERT_NORETURN
@@ -30,7 +40,7 @@ BSLS_IDENT("$Id: $")
 // access to conforming C++0x compilers.
 //# define BSLS_ASSERT_NORETURN [[noreturn]]
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#ifdef BSLS_PLATFORM__CMP_MSVC
 #   define BSLS_ASSERT_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERT_NORETURN
@@ -48,7 +58,8 @@ namespace BloombergLP {
 // TBD: find out whether 'stderr' goes to 'act.log'.
 #endif
 
-static void printError(const char *text, const char *file, int line)
+static
+void printError(const char *text, const char *file, int line)
     // Print a formatted error message to 'stderr' using the specified
     // expression 'text', 'file' name, and 'line' number.  If either
     // 'text' or 'file' is empty ("") or null (0), replace it with some
@@ -108,7 +119,9 @@ bsls_Assert::Handler bsls_Assert::failureHandler()
 
                        // Macro Dispatcher Method
 
+#ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
 BSLS_ASSERT_NORETURN
+#endif
 void bsls_Assert::invokeHandler(const char *text, const char *file, int line)
 {
     s_handler(text, file, line);
@@ -155,12 +168,22 @@ void bsls_Assert::failAbort(const char *text, const char *file, int line)
 }
 
 BSLS_ASSERT_NORETURN
-void bsls_Assert::failSpin(const char *text, const char *file, int line)
+void bsls_Assert::failSleep(const char *text, const char *file, int line)
 {
     printError(text, file, line);
 
-    while (true) {
-        ;
+    volatile int sleepDuration = 1;
+
+    while (1 == sleepDuration) {
+
+#if defined(BSLS_PLATFORM__OS_UNIX)
+        sleep(sleepDuration);
+#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+        Sleep(sleepDuration * 1000);  // milliseconds
+#else
+        #error "Do not know how to sleep on this platform."
+#endif
+
     }
 }
 
@@ -189,6 +212,8 @@ void bsls_Assert::failThrow(const char *text, const char *file, int line)
 
     failAbort(text, file, line);
 }
+
+#undef BSLS_ASSERT_NORETURN
 
                     // ------------------------------------
                     // class bsls_AssertFailureHandlerGuard

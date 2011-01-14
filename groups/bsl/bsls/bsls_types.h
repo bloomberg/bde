@@ -104,7 +104,7 @@ struct bsls_Types{
     typedef unsigned __int64 Uint64;
 #else
     typedef          long long Int64;
-    typedef unsigned long long Uint64 ;
+    typedef unsigned long long Uint64;
 #endif
         // The aliases 'Int64' and 'Uint64' stand for the appropriate types
         // that define signed and unsigned 64-bit integers, respectively, for

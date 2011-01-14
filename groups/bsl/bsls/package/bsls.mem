@@ -4,6 +4,7 @@ bsls_alignmentimp
 bsls_alignmenttotype
 bsls_alignmentutil
 bsls_alignedbuffer
+bsls_annotation
 bsls_assert
 bsls_blockgrowth
 bsls_buildtarget
@@ -20,13 +21,3 @@ bsls_platformutil
 bsls_stopwatch
 bsls_timeutil
 bsls_types
-
-# bsls_logicerror is still needed since there are code in robo that still use
-# it.  They cannot change their code to catch 'std::logic_error' first, since
-# 'bsls_Assert' still throws 'bsls_LogicError' at this moment.  The plan is to
-# ask clients to catch two exception types ('bsls_LogicError' and
-# 'std::logic_error'), so that when hybrid bsl is released (BDE 2.0), their
-# code will switch over to catching 'std::logic_error' automatically.
-# 'bsls_LogicError' can be removed afterwards.
-
-bsls_logicerror

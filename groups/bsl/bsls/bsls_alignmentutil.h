@@ -188,8 +188,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_CLIMITS
+#include <climits>           // 'INT_MAX'
+#define INCLUDED_CLIMITS
+#endif
+
 #ifndef INCLUDED_CSTDDEF
-#include <cstddef>      // for std::size_t
+#include <cstddef>           // 'std::size_t'
 #define INCLUDED_CSTDDEF
 #endif
 
@@ -292,7 +297,8 @@ struct bsls_AlignmentUtil {
     static int roundUpToMaximalAlignment(int size);
         // Return the specified 'size' (in bytes) rounded up to the smallest
         // integral multiple of the maximum alignment.  The behavior is
-        // undefined unless '0 <= size'.
+        // undefined unless '0 <= size' and
+        // 'size <= INT_MAX - BSLS_MAX_ALIGNMENT + 1'.
 };
 
 // ============================================================================
@@ -383,8 +389,9 @@ int bsls_AlignmentUtil::calculateAlignmentOffset(const void *address,
     //                  ((reinterpret_cast<std::size_t>(address - 1)) & mask));
     //..
 
-    return (alignment - reinterpret_cast<std::size_t>(address))
-         & (alignment - 1);
+    return static_cast<int>(
+                           (alignment - reinterpret_cast<std::size_t>(address))
+                         & (alignment - 1));
 }
 
 inline
@@ -408,8 +415,11 @@ bool bsls_AlignmentUtil::is8ByteAligned(const void *address)
 inline
 int bsls_AlignmentUtil::roundUpToMaximalAlignment(int size)
 {
-    return ((size + BSLS_MAX_ALIGNMENT - 1) / BSLS_MAX_ALIGNMENT) *
-                                                            BSLS_MAX_ALIGNMENT;
+    BSLS_ASSERT_SAFE(0 <= size);
+    BSLS_ASSERT_SAFE(     size <= INT_MAX - BSLS_MAX_ALIGNMENT + 1);
+
+    return ((size + BSLS_MAX_ALIGNMENT - 1) / BSLS_MAX_ALIGNMENT)
+                                                          * BSLS_MAX_ALIGNMENT;
 }
 
 }  // close namespace BloombergLP

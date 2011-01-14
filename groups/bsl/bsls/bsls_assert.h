@@ -56,7 +56,7 @@ BSLS_IDENT("$Id: $")
 // the program behaves identically.  Hence, (2) !each! !boolean-valued!
 // !assert! !argument! !must! !have! !no! !side-effects!.  Finally,
 // (3) !assertions! !do! !not! !affect! !binary! !compatibility!; hence,
-// translation units with different assertion modes (but not necessarily build
+// translation units with different assertion levels (but not necessarily build
 // targets) can safely be combined into a single program (see "Build Modes"
 // and "Assertions in Header Files" below).  Note that the build target
 // 'BDE_BUILD_TARGET_SAFE_2' does permit binary incompatibility for
@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // in an undefined state, and the goal of the assertion (if enabled) is to
 // report the precise location and nature of the defect *quickly* and *loudly*.
 // Assertions are enabled at compile time by the presence or absence of
-// relevant *build* *targets* and *assertion-mode* *flags* (see "Build Modes"
+// relevant *build* *targets* and *assertion-level* *flags* (see "Build Modes"
 // below).  When enabled, each of the three flavors of (BSLS) "ASSERT" macros
 // provided in this component does the same thing: Each macro tests the
 // predicate expression 'X', and, if '!(X)' is 'true', invokes the currently
@@ -114,8 +114,8 @@ BSLS_IDENT("$Id: $")
 // the 'BSLS_ASSERT_OPT' macro, which instantiates even in "opt mode", where
 // runtime performance is presumed to be at a premium.
 //
-///Build Modes (Build Targets and Assertion-Mode Flags)
-///----------------------------------------------------
+///Build Modes (Build Targets and Assertion-Level Flags)
+///-----------------------------------------------------
 // The *build* *mode* for this component defines the amount of defensive
 // checking that will be incorporated (at compile time) into the translation
 // unit.  For example, "safe mode" implies that all three of the (BSL) "ASSERT"
@@ -130,11 +130,11 @@ BSLS_IDENT("$Id: $")
 // compatibility.
 //
 // A particular build mode is implied by the relevant (BDE) build targets and
-// (BSLS) assertion-mode flags (i.e., preprocessor macros) that are defined
+// (BSLS) assertion-level flags (i.e., preprocessor macros) that are defined
 // at compilation (preprocessing) time -- e.g., by supplying one or more '-D'
 // options, each followed immediately by the relevant macro name on the (Unix)
 // command line.  The presence (or absence) of definitions for the following
-// build targets and (subsequently) assertion-mode flags determine the build
+// build targets and (subsequently) assertion-level flags determine the build
 // mode, and therefore whether the bodies of each of the three "ASSERT" macros
 // (see previous section) are compiled into the translation unit.
 //
@@ -151,10 +151,10 @@ BSLS_IDENT("$Id: $")
 //..
 // *Any* of the 8 possible combinations of the three build targets, e.g.,
 // 'BDE_BUILD_TARGET_DBG' and 'BDE_BUILD_TARGET_SAFE_2', may be defined.  By
-// contrast, the four (BSLS) assertion-mode flags, shown below (e.g.,
-// 'BSLS_ASSERT_DISABLE_ASSERT_OPT'), are specific to this component.
+// contrast, the four (BSLS) assertion-level flags, shown below (e.g.,
+// 'BSLS_ASSERT_LEVEL_NONE'), are specific to this component.
 //
-// The following table shows the four mutually exclusive (BSLS) assertion-mode
+// The following table shows the four mutually exclusive (BSLS) assertion-level
 // flags.  (Note that, by default, the 'BSLS_ASSERT_SAFE' macro is disabled,
 // and the 'BSLS_ASSERT_OPT' macro is enabled; the 'BSLS_ASSERT' macro is
 // endable or disabled, depending on whether the 'BDE_BUILD_TARGET_DBG' flag is
@@ -162,16 +162,16 @@ BSLS_IDENT("$Id: $")
 // 'BSLS_ASSERT_SAFE' and explicitly disable 'BSLS_ASSERT' and
 // 'BSLS_ASSERT_OPT'.)
 //..
-//                        (BSLS) Assertion-Mode Flags
+//                        (BSLS) Assertion-Level Flags
 //                       ------------------------------
-//                   (1) BSLS_ASSERT_ENABLE_ASSERT_SAFE
-//                   (2) BSLS_ASSERT_ENABLE_ASSERT
-//                   (3) BSLS_ASSERT_DISABLE_ASSERT
-//                   (4) BSLS_ASSERT_DISABLE_ASSERT_OPT
+//                   (1) BSLS_ASSERT_LEVEL_ASSERT_SAFE
+//                   (2) BSLS_ASSERT_LEVEL_ASSERT
+//                   (3) BSLS_ASSERT_LEVEL_ASSERT_OPT
+//                   (4) BSLS_ASSERT_LEVEL_NONE
 //..
 // At most *one* of the above flags may be defined during the translation of
 // any component that includes 'bsls_assert.h', or that component will fail to
-// compile (producing a useful diagnostic message).  If an assertion-mode flag
+// compile (producing a useful diagnostic message).  If an assertion-level flag
 // is defined, it overrides the default instantiation behavior for every
 // combination of build-target definitions.  Note, however, that the precise
 // behavior of each of the three (BSLS) "ASSERT" macros, when enabled, depends
@@ -180,13 +180,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Build Targets Only
 ///- - - - - - - - -
-// If no assertion-mode flags are defined (see "Assertion-Mode Flags" below),
+// If no assertion-level flags are defined (see "Assertion-Level Flags" below),
 // the presence or absence of the definitions of the three relevant build
 // targets control the build mode, and, therefore, which of the (BSLS) "ASSERT"
 // macros will be active (i.e., will instantiate):
 //..
 //  ===========================================================================
-//   "ASSERT" Macro Instantiation Assuming NO Assertion-Mode Flags are Defined
+//   "ASSERT" Macro Instantiation Assuming NO Assertion-Level Flags are Defined
 //  ===========================================================================
 //  --- BDE_BUILD_TARGET ----   ------------ BSLS "ASSERT" MACRO --------------
 //    (A)      (B)      (C)            I.            II.            III.
@@ -211,44 +211,44 @@ BSLS_IDENT("$Id: $")
 // 'BSLS_ASSERT_OPT', instantiate (regardless of whether or not
 // 'BDE_BUILD_TARGET_DBG' happens to be defined).
 //
-///Assertion-Mode Flags
-///- - - - - - - - - -
+///Assertion-Level Flags
+///- - - - - - - - - - -
 // With respect to the instantiation of the three (BSLS) "ASSERT" macros, if
-// any one of the four assertion-mode flags is defined, all definitions of
+// any one of the four assertion-level flags is defined, all definitions of
 // *build* *targets* are ignored, and that flag alone controls which (BSLS)
-// "ASSERT" macros will instantiate.  (Multiple assertion-mode flag definitions
-// are reported as errors at compile time for every translation unit that
-// includes 'bsls_assert.h'.)  The following table indicates the effect of
-// defining each of the four mutually exclusive (BSLS) assertion-mode flags on
-// the instantiation of each of the four (BSLS) "ASSERT" macros:
+// "ASSERT" macros will instantiate.  (Multiple assertion-level flag
+// definitions are reported as errors at compile time for every translation
+// unit that includes 'bsls_assert.h'.)  The following table indicates the
+// effect of defining each of the four mutually exclusive (BSLS) assertion-
+// level flags on the instantiation of each of the four (BSLS) "ASSERT" macros:
 //..
-//  ==========================================================================
-//  "ASSERT" Macro Instantiation Assuming *ONE* Assertion-Mode Flag is Defined
-//  ==========================================================================
-//    BSLS Assertion-Mode Flag |~~~~~~~~~~~ BSLS "ASSERT" MACROS ~~~~~~~~~~~~|
+//  ===========================================================================
+//  "ASSERT" Macro Instantiation Assuming *ONE* Assertion-Level Flag is Defined
+//  ===========================================================================
+//   BSLS Assertion-Level Flag |~~~~~~~~~~~~ BSLS "ASSERT" MACROS ~~~~~~~~~~~~|
 //                                    I.              II.            III.
 //         BSLS_ASSERT_...     BSLS_ASSERT_SAFE  BSLS_ASSERT   BSLS_ASSERT_OPT
 //      ---------------------  ----------------  ------------  ---------------
-//  (1) ...ENABLE_ASSERT_SAFE    INSTANTIATES    INSTANTIATES    INSTANTIATES
-//  (2) ...ENABLE_ASSERT                         INSTANTIATES    INSTANTIATES
-//  (3) ...DISABLE_ASSERT                                        INSTANTIATES
-//  (4) ...DISABLE_ASSERT_OPT
+//  (1) ..._LEVEL_ASSERT_SAFE    INSTANTIATES    INSTANTIATES    INSTANTIATES
+//  (2) ..._LEVEL_ASSERT                         INSTANTIATES    INSTANTIATES
+//  (3) ..._LEVEL_ASSERT_OPT                                     INSTANTIATES
+//  (4) ..._LEVEL_NONE
 //
 //  ==========================================================================
 //..
-// As the table above illustrates, if the 'BSLS_ASSERT_ENABLE_ASSERT_SAFE'
-// assertion-mode flag is defined, then all three macros, 'BSLS_ASSERT_SAFE',
+// As the table above illustrates, if the 'BSLS_ASSERT_LEVEL_ASSERT_SAFE'
+// assertion-level flag is defined, then all three macros, 'BSLS_ASSERT_SAFE',
 // 'BSLS_ASSERT', and 'BSLS_ASSERT_OPT', instantiate.  If instead the
-// 'BSLS_ASSERT_ENABLE_ASSERT' is defined, then only 'BSLS_ASSERT' and
-// 'BSLS_ASSERT_OPT' instantiate.  Otherwise, if 'BSLS_ASSERT_DISABLE_ASSERT'
-// is the only assertion-mode flag defined, then just 'BSLS_ASSERT_OPT'
-// instantiates.  Finally, if the 'BSLS_ASSERT_DISABLE_ASSERT_OPT' flag is the
-// one defined then none of the three "ASSERT" macros will instantiate.
+// 'BSLS_ASSERT_LEVEL_ASSERT' flag is defined, then only 'BSLS_ASSERT' and
+// 'BSLS_ASSERT_OPT' instantiate.  Otherwise, if 'BSLS_ASSERT_LEVEL_ASSERT_OPT'
+// is the only assertion-level flag defined, then just 'BSLS_ASSERT_OPT'
+// instantiates.  Finally, if the 'BSLS_ASSERT_LEVEL_NONE' flag is the one
+// defined then none of the three "ASSERT" macros will instantiate.
 //
 ///Runtime-Configurable Assertion-Failure Behavior
 ///-----------------------------------------------
 // In addition to the three (BSLS) "ASSERT" macros, 'BSLS_ASSERT',
-// 'BSLS_ASSERT_SAFE', and BSLS_ASSERT_OPT, this component provides (1) an
+// 'BSLS_ASSERT_SAFE', and 'BSLS_ASSERT_OPT', this component provides (1) an
 // 'invokeHandler' method used (primarily) to implement these three "ASSERT"
 // macros and enable their runtime configuration, (2) administration methods to
 // configure, at runtime, the behavior resulting from an assertion failure
@@ -290,7 +290,7 @@ BSLS_IDENT("$Id: $")
 // object or function within a program, these definitions *must* be identical
 // or else the program is *ill-formed*.  Unfortunately, definitions in header
 // files may not be identical across object ('.o') files if the build targets
-// or assertion-mode flags defined during translation (preprocessing) are not
+// or assertion-level flags defined during translation (preprocessing) are not
 // the same.
 //
 // For example, consider an 'inline' function that sets the width of a 'Square'
@@ -318,7 +318,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // We can build the 'our_square' component in "safe mode" -- e.g., by
-// incorporating '-DBSLS_ASSERT_ENABLE_ASSERT_SAFE' on the (Unix) command line.
+// incorporating '-DBSLS_ASSERT_LEVEL_ASSERT_SAFE' on the (Unix) command line.
 // Notice, however, that building client software against a version of
 // 'our_square.o' compiled in "safe mode" does *not* ensure that all of the
 // 'BSLS_ASSERT_SAFE' macros will be active (will instantiate); instead, the
@@ -344,7 +344,7 @@ BSLS_IDENT("$Id: $")
 // Each different translation unit that invokes 'reserveCapacity' potentially
 // generates another instantiation of this function template.  Those
 // translation units that are compiled in "debug mode" (or "safe mode") --
-// e.g., with 'BSLS_ASSERT_ENABLE_ASSERT' (or 'BSLS_ASSERT_ENABLE_ASSERT_SAFE')
+// e.g., with 'BSLS_ASSERT_LEVEL_ASSERT' (or 'BSLS_ASSERT_LEVEL_ASSERT_SAFE')
 // defined -- will incorporate code corresponding to each use of the
 // 'BSLS_ASSERT' macro therein; the rest will not.  Which one of these template
 // instantiations the linker uses in the final program is undefined and highly
@@ -352,7 +352,7 @@ BSLS_IDENT("$Id: $")
 //
 // The bottom line is that, unless clients of a library are compiled with (at
 // least) the same level of assertion enabling as the library itself, not all
-// of the library's defensive checking (for the assertion level for which the
+// of the library's defensive checking (for the assertion-level for which the
 // library was compiled) will necessarily be incorporated into the client code.
 // Similarly, compiling a client in a higher-level of defensive checking (e.g.,
 // "safe mode") than the library was compiled (e.g., "debug mode") may result
@@ -374,11 +374,11 @@ BSLS_IDENT("$Id: $")
 //: o 'BDE_BUILD_TARGET_DBG'
 //: o 'BDE_BUILD_TARGET_SAFE'
 //: o 'BDE_BUILD_TARGET_SAFE_2'
-// and four (mutually exclusive) component-specific *assertion* *modes*
-//: o 'BSLS_ASSERT_ENABLE_ASSERT_SAFE'
-//: o 'BSLS_ASSERT_ENABLE_ASSERT'
-//: o 'BSLS_ASSERT_DISABLE_ASSERT'
-//: o 'BSLS_ASSERT_DISABLE_ASSERT_OPT'
+// and four (mutually exclusive) component-specific *assertion* *levels*
+//: o 'BSLS_ASSERT_LEVEL_ASSERT_SAFE'
+//: o 'BSLS_ASSERT_LEVEL_ASSERT'
+//: o 'BSLS_ASSERT_LEVEL_ASSERT_OPT'
+//: o 'BSLS_ASSERT_LEVEL_NONE'
 // that can be defined (externally) by the build environment to affect which
 // of the three *assert* *macros*
 //: 1 'BSLS_ASSERT_SAFE(boolean-valued expression)'
@@ -624,24 +624,25 @@ BSLS_IDENT("$Id: $")
 //      assert(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
 //..
 // Next, we install a new assertion-failure handler function,
-// 'bsls_Assert::failSpin', from the suite of "off-the-shelf" handlers provided
-// as 'static' methods of 'bsls_Assert':
+// 'bsls_Assert::failSleep', from the suite of "off-the-shelf" handlers
+// provided as 'static' methods of 'bsls_Assert':
 //..
-//      bsls_Assert::setFailureHandler(&bsls_Assert::failSpin);
+//      bsls_Assert::setFailureHandler(&bsls_Assert::failSleep);
 //..
-// Observe that 'bsls_Assert::failSpin' is the new, currently-installed
+// Observe that 'bsls_Assert::failSleep' is the new, currently-installed
 // assertion-failure handler:
 //..
-//      assert(&bsls_Assert::failSpin == bsls_Assert::failureHandler());
+//      assert(&bsls_Assert::failSleep == bsls_Assert::failureHandler());
 //..
 // Note that if we were to explicitly invoke the current assertion-failure
 // handler as follows:
 //..
 //      bsls_Assert::invokeHandler("message", "file", 27);  // This will hang!
 //..
-// the program will hang since 'bsls_Assert::failSpin' spins forever.  Thus,
-// this assertion-failure handler is useful for hanging a process so that a
-// debugger may be attached to it.
+// the program will hang since 'bsls_Assert::failSleep' repeatedly sleeps for
+// a period of time within an infinite loop.  Thus, this assertion-failure
+// handler is useful for hanging a process so that a debugger may be attached
+// to it.
 //
 // We may now decide to disable the 'setFailureHandler' method using the
 // 'bsls_Assert::lockAssertAdministration()' method to ensure that no one else
@@ -657,7 +658,7 @@ BSLS_IDENT("$Id: $")
 //
 //      assert(&bsls_Assert::failAbort != bsls_Assert::failureHandler());
 //
-//      assert(&bsls_Assert::failSpin  == bsls_Assert::failureHandler());
+//      assert(&bsls_Assert::failSleep == bsls_Assert::failureHandler());
 //  }
 //..
 //
@@ -667,11 +668,11 @@ BSLS_IDENT("$Id: $")
 // assertion-failure handler function.  The only requirements are that the
 // function have the same prototype (i.e., the same respective parameter and
 // return types) as the 'bsls_Assert::Handle' 'typedef', and that the function
-// not return (i.e., it must 'abort', 'exit', 'terminate', 'throw', or hang).
-// To illustrate, we will create a 'static' method at file scope that conforms
-// to the required structure (notice the explicit use of 'std::printf' from
-// '<cstdio>' instead of 'std::cout' from '<iostream>' to avoid interaction
-// with the C++ memory allocation layer):
+// should not return (i.e., it must 'abort', 'exit', 'terminate', 'throw', or
+// hang).  To illustrate, we will create a 'static' method at file scope that
+// conforms to the required structure (notice the explicit use of 'std::printf'
+// from '<cstdio>' instead of 'std::cout' from '<iostream>' to avoid
+// interaction with the C++ memory allocation layer):
 //..
 //  static bool globalEnableOurPrintingFlag = true;
 //
@@ -1133,7 +1134,7 @@ BSLS_IDENT("$Id: $")
 //      // Handle case where the invariants have been violated.
 //
 //  #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-//      // Note that if 'BSLS_ASSERT_DISABLE_ASSERT_OPT' has been set, this
+//      // Note that if 'BSLS_ASSERT_LEVEL_NONE' has been set, this
 //      // code -- along with all 'BSLS_ASSERT_OPT' macros -- will not
 //      // instantiate, enabling us to verify that the combined runtime
 //      // overhead of all such (redundant) defensive code is at worst
@@ -1183,8 +1184,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-namespace BloombergLP {
-
                     // =================================
                     // (BSLS) "ASSERT" Macro Definitions
                     // =================================
@@ -1199,11 +1198,14 @@ namespace BloombergLP {
                // Factored Implementation for Internal Use Only
                // =============================================
 
-#define BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED !(                           \
-    defined(BSLS_ASSERT_ENABLE_ASSERT_SAFE) ||                               \
-    defined(BSLS_ASSERT_ENABLE_ASSERT     ) ||                               \
-    defined(BSLS_ASSERT_DISABLE_ASSERT    ) ||                               \
-    defined(BSLS_ASSERT_DISABLE_ASSERT_OPT)  )                               \
+#if !(defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) ||                              \
+      defined(BSLS_ASSERT_LEVEL_ASSERT) ||                                   \
+      defined(BSLS_ASSERT_LEVEL_ASSERT_OPT) ||                               \
+      defined(BSLS_ASSERT_LEVEL_NONE))                               
+    #define BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED 1
+#else
+    #define BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED 0
+#endif
 
 #define BSLS_ASSERT_ASSERT(X) do {                                           \
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                   \
@@ -1218,7 +1220,7 @@ namespace BloombergLP {
 
 // Determine if 'BSLS_ASSERT_SAFE' should be active.
 
-#if defined(BSLS_ASSERT_ENABLE_ASSERT_SAFE)                                  \
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE)                                   \
     || BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED && (                          \
            defined(BDE_BUILD_TARGET_SAFE_2) ||                               \
            defined(BDE_BUILD_TARGET_SAFE)         )
@@ -1240,8 +1242,8 @@ namespace BloombergLP {
 
 // Determine if 'BSLS_ASSERT' should be active.
 
-#if defined(BSLS_ASSERT_ENABLE_ASSERT_SAFE) ||                               \
-    defined(BSLS_ASSERT_ENABLE_ASSERT)                                       \
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) ||                                \
+    defined(BSLS_ASSERT_LEVEL_ASSERT)                                        \
     || BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED && (                          \
            defined(BDE_BUILD_TARGET_SAFE_2) ||                               \
            defined(BDE_BUILD_TARGET_SAFE)   ||                               \
@@ -1264,7 +1266,7 @@ namespace BloombergLP {
 
 // Determine if 'BSLS_ASSERT_OPT' should be active.
 
-#if !defined(BSLS_ASSERT_DISABLE_ASSERT_OPT)
+#if !defined(BSLS_ASSERT_LEVEL_NONE)
     #define BSLS_ASSERT_OPT_IS_ACTIVE   // also usable directly in client code
 #endif
 
@@ -1289,6 +1291,12 @@ namespace BloombergLP {
 #else
 #   define BSLS_ASSERT_NORETURN
 #endif
+
+// A nested include guard is needed to support the test driver implementation.
+#ifndef INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
+#define INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
+
+namespace BloombergLP {
 
 // FORWARD DECLARATIONS
 
@@ -1353,15 +1361,23 @@ class bsls_Assert {
 
                       // Dispatcher Method (called from within macros)
 
+#ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
     BSLS_ASSERT_NORETURN
+#endif
     static void invokeHandler(const char *text, const char *file, int line);
         // Invoke the currently installed assertion-failure handler function
         // with the specified expression 'text', 'file' name, and 'line' number
-        // as its arguments.  The behavior is undefined unless the currently
-        // installed assertion-failure handler function does not return (i.e.,
-        // it must 'abort', 'exit', 'terminate', 'throw', or hang).  Note that
-        // this function is intended for use by the (BSLS) "ASSERT" macros, but
-        // may also be called by clients directly as needed.
+        // as its arguments.  The behavior is undefined unless the macro
+        // 'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is not defined, or
+        // the currently installed assertion-failure handler function does not
+        // return (i.e., it must 'abort', 'exit', 'terminate', 'throw', or
+        // hang).  Note that this function is intended for use by the (BSLS)
+        // "ASSERT" macros, but may also be called by clients directly as
+        // needed.  Also note that the configuration macro
+        // 'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is intended to
+        // support static analysis tools, which require an annotation to see
+        // that a failed "ASSERT" prevents further execution of a function with
+        // "bad" values.
 
                       // Standard Assertion-Failure Handlers
 
@@ -1375,12 +1391,12 @@ class bsls_Assert {
         // initially the currently installed one by default.
 
     BSLS_ASSERT_NORETURN
-    static void failSpin(const char *text, const char *file, int line);
+    static void failSleep(const char *text, const char *file, int line);
         // Use the specified expression 'text', 'file' name, and 'line' number
         // to generate a helpful output message and then, after printing this
-        // message to 'stderr', spin forever.  Note that this handler function
-        // is useful for hanging a process so that a debugger may be attached
-        // to it.
+        // message to 'stderr', sleep within an infinite loop.  Note that this
+        // handler function is useful for hanging a process so that a debugger
+        // may be attached to it.
 
     BSLS_ASSERT_NORETURN
     static void failThrow(const char *text, const char *file, int line);
@@ -1390,8 +1406,6 @@ class bsls_Assert {
         // an appropriate message to 'stderr' and abort the program (similar
         // to 'failAbort').
 };
-
-#undef BSLS_ASSERT_NORETURN
 
                     // ====================================
                     // class bsls_AssertFailureHandlerGuard
@@ -1407,7 +1421,7 @@ class bsls_AssertFailureHandlerGuard {
     // class is unaffected by the ('static')
     // 'bsls_Assert::lockAssertAdministration' method (i.e., the temporary
     // replacement will occur, regardless of whether that method has been
-    // invoked.
+    // invoked.)
 
     // DATA
     bsls_Assert::Handler d_original;  // original (restored at destruction)
@@ -1467,53 +1481,62 @@ typedef bsls_AssertFailureHandlerGuard bdes_AssertFailureHandlerGuard;
 
 }  // close namespace BloombergLP
 
+#endif // deeper include guard
+
+// ========================================================
+// UNDEFINE THE LOCALLY-SCOPED IMPLEMENTATION DETAIL MACROS
+// ========================================================
+
+#undef BSLS_ASSERT_NORETURN
+#undef BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED
+
 // =========================================
 // IMPLEMENTATION USING THE C++ PREPROCESSOR
 // =========================================
 // At most one of the following build options may be set during the compilation
 // of any component that includes 'bsls_assert.h':
 //..
-//  BSLS_ASSERT_ENABLE_ASSERT_SAFE
-//  BSLS_ASSERT_ENABLE_ASSERT
-//  BSLS_ASSERT_DISABLE_ASSERT
-//  BSLS_ASSERT_DISABLE_ASSERT_OPT
+//  BSLS_ASSERT_LEVEL_ASSERT_SAFE
+//  BSLS_ASSERT_LEVEL_ASSERT
+//  BSLS_ASSERT_LEVEL_ASSERT_OPT
+//  BSLS_ASSERT_LEVEL_NONE
 //..
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_ASSERT_ENABLE_ASSERT_SAFE) && \
-    defined(BSLS_ASSERT_ENABLE_ASSERT)
-#error incompatible BSLS_ASSERT modes: \
-..._ENABLE_ASSERT_SAFE and ..._ENABLE_ASSERT
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) && \
+    defined(BSLS_ASSERT_LEVEL_ASSERT)
+#error incompatible BSLS_ASSERT levels: \
+..._LEVEL_ASSERT_SAFE and ..._LEVEL_ASSERT
 #endif
 
-#if defined(BSLS_ASSERT_ENABLE_ASSERT_SAFE) && \
-    defined(BSLS_ASSERT_DISABLE_ASSERT)
-#error incompatible BSLS_ASSERT modes: \
-..._ENABLE_ASSERT_SAFE and ..._DISABLE_ASSERT
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) && \
+    defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)
+#error incompatible BSLS_ASSERT levels: \
+..._LEVEL_ASSERT_SAFE and ..._LEVEL_ASSERT_OPT
 #endif
 
-#if defined(BSLS_ASSERT_ENABLE_ASSERT_SAFE) && \
-    defined(BSLS_ASSERT_DISABLE_ASSERT_OPT)
-#error incompatible BSLS_ASSERT modes: \
-..._ENABLE_ASSERT_SAFE and ..._DISABLE_ASSERT_OPT
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) && \
+    defined(BSLS_ASSERT_LEVEL_NONE)
+#error incompatible BSLS_ASSERT levels: \
+..._LEVEL_ASSERT_SAFE and ..._LEVEL_NONE
 #endif
 
-#if defined(BSLS_ASSERT_ENABLE_ASSERT) && \
-    defined(BSLS_ASSERT_DISABLE_ASSERT)
-#error incompatible BSLS_ASSERT modes: \
-..._ENABLE_ASSERT and ..._DISABLE_ASSERT
+#if defined(BSLS_ASSERT_LEVEL_ASSERT) && \
+    defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)
+#error incompatible BSLS_ASSERT levels: \
+..._LEVEL_ASSERT and ..._LEVEL_ASSERT_OPT
 #endif
 
-#if defined(BSLS_ASSERT_ENABLE_ASSERT) && \
-    defined(BSLS_ASSERT_DISABLE_ASSERT_OPT)
-#error incompatible BSLS_ASSERT modes: \
-..._ENABLE_ASSERT and ..._DISABLE_ASSERT_OPT
+#if defined(BSLS_ASSERT_LEVEL_ASSERT) && \
+    defined(BSLS_ASSERT_LEVEL_NONE)
+#error incompatible BSLS_ASSERT levels: \
+..._LEVEL_ASSERT and ..._LEVEL_NONE
 #endif
 
-#if defined(BSLS_ASSERT_DISABLE_ASSERT) && \
-    defined(BSLS_ASSERT_DISABLE_ASSERT_OPT)
-#error incompatible BSLS_ASSERT modes: \
-..._DISABLE_ASSERT and ..._DISABLE_ASSERT_OPT
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_OPT) && \
+    defined(BSLS_ASSERT_LEVEL_NONE)
+#error incompatible BSLS_ASSERT levels: \
+..._LEVEL_ASSERT_OPT and ..._LEVEL_NONE
 #endif
 
 #endif

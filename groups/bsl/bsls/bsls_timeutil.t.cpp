@@ -1,20 +1,24 @@
-// bsls_timeutil.t.cpp          -*-C++-*-
+// bsls_timeutil.t.cpp                                                -*-C++-*-
 
 #include <bsls_timeutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#if defined BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM__OS_UNIX
     #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
     #include <sys/time.h>  // 'gethrtime()'
     #include <unistd.h>    // 'sleep'
-#if defined BSLS_PLATFORM__OS_SOLARIS   // Solaris OR late SunOS!
+#ifdef BSLS_PLATFORM__OS_SOLARIS   // Solaris OR late SunOS!
     #include <limits.h>    // 'CLK_TCK', for Sun (on FreeBSD, in <sys/time.h>)
 #endif
 #endif
 
-#if defined BSLS_PLATFORM__OS_WINDOWS
-    #include <windows.h>   // Sleep
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+typedef unsigned long DWORD;
+
+extern "C" {
+    __declspec(dllimport) void __stdcall Sleep(DWORD dwMilliseconds);
+};
 #endif
 
 #include <cstdio>                   // printf()

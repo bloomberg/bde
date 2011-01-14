@@ -429,7 +429,7 @@ bsls_ByteOrder__Util_sparc_swap_16(const unsigned short *x)
             // constraint is the only way to tell the compiler we are reading
             // the value of '*x' and not just 'x'.
 
-    return y;
+    return static_cast<unsigned short>(y);
 }
 
 inline
