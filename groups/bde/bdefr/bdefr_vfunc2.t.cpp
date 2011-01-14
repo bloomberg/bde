@@ -41,7 +41,7 @@ using namespace bsl;  // automatically added by script
 // destructor are called.
 //
 // We use the following abbreviations:
-//  'bA'      for 'bdema_Allcoator'
+//  'bA'      for 'bslma_Allocator'
 //  'c_A1'    for 'const A1'
 //  'c_A1-N   for 'const A1, const A2, ... ,  const AN'
 //  'c_A1-N&' for 'const A1&, const A2&, ... , const AN&'
