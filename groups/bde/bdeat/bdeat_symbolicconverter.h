@@ -775,7 +775,7 @@ int bdeat_SymbolicConverter_Imp::convert(LHS_TYPE                   *lhs,
 {
     enum { BDEAT_SUCCESS = 0, BDEAT_FAILURE = -4 };
 
-    int size = bdeat_ArrayFunctions::size(rhs);
+    const int size = static_cast<int>(bdeat_ArrayFunctions::size(rhs));
 
     bdeat_ArrayFunctions::resize(lhs, size);
 
@@ -802,7 +802,9 @@ int bdeat_SymbolicConverter_Imp::convert(LHS_TYPE                         *lhs,
 
     bdeat_EnumFunctions::toString(&str, rhs);
 
-    return bdeat_EnumFunctions::fromString(lhs, str.data(), str.length());
+    return bdeat_EnumFunctions::fromString(lhs,
+                                           str.data(),
+                                           static_cast<int>(str.length()));
 }
 
 template <typename LHS_TYPE, typename RHS_TYPE>

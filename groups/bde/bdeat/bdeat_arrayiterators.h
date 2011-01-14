@@ -278,7 +278,7 @@ inline
 bdeat_ArrayIterators::BackInsertIterator<TYPE>&
 bdeat_ArrayIterators::BackInsertIterator<TYPE>::operator=(const ELEM_TYPE& obj)
 {
-    int length = bdeat_ArrayFunctions::size(*d_array);
+    const int length = static_cast<int>(bdeat_ArrayFunctions::size(*d_array));
     bdeat_ArrayFunctions::resize(d_array, length + 1);
     ValueSetter<ELEM_TYPE> setter(&obj);
     bdeat_ArrayFunctions::manipulateElement(d_array, setter, length);
