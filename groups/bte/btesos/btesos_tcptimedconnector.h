@@ -373,23 +373,27 @@ class btesos_TcpTimedConnector : public btesc_TimedChannelAllocator {
 //-----------------------------------------------------------------------------
 
 inline
-void btesos_TcpTimedConnector::setPeer(const bteso_IPv4Address& endpoint) {
+void btesos_TcpTimedConnector::setPeer(const bteso_IPv4Address& endpoint)
+{
     d_peerAddress = endpoint;
 }
 
 inline
-void btesos_TcpTimedConnector::invalidate() {
+void btesos_TcpTimedConnector::invalidate()
+{
     d_isInvalidFlag = 1;
-}  // close namespace BloombergLP
+}
 
 inline
-const bteso_IPv4Address& btesos_TcpTimedConnector::peer() const {
+const bteso_IPv4Address& btesos_TcpTimedConnector::peer() const
+{
     return d_peerAddress;
 }
 
 inline
-int btesos_TcpTimedConnector::numChannels() const {
-    return d_channels.size();
+int btesos_TcpTimedConnector::numChannels() const
+{
+    return static_cast<int>(d_channels.size());
 }
 
 inline

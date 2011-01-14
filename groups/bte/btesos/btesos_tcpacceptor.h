@@ -329,29 +329,33 @@ class btesos_TcpAcceptor : public btesc_ChannelAllocator {
 //-----------------------------------------------------------------------------
 
 inline
-const bteso_IPv4Address& btesos_TcpAcceptor::address() const {
+const bteso_IPv4Address& btesos_TcpAcceptor::address() const
+{
     return d_serverAddress;
 }
 
 inline
-const bteso_StreamSocket<bteso_IPv4Address> *btesos_TcpAcceptor::socket()
-                                                                       const {
+const bteso_StreamSocket<bteso_IPv4Address> *btesos_TcpAcceptor::socket() const
+{
     return d_serverSocket_p;
 }
 
 inline
-void btesos_TcpAcceptor::invalidate() {
+void btesos_TcpAcceptor::invalidate()
+{
     d_isInvalidFlag = 1;
 }
 
 inline
-int btesos_TcpAcceptor::isInvalid() const {
+int btesos_TcpAcceptor::isInvalid() const
+{
     return d_isInvalidFlag;
 }
 
 inline
-int btesos_TcpAcceptor::numChannels() const {
-    return d_channels.size();
+int btesos_TcpAcceptor::numChannels() const
+{
+    return static_cast<int>(d_channels.size());
 }
 
 }  // close namespace BloombergLP

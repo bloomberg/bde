@@ -784,7 +784,7 @@ const bteso_IPv4Address& btesos_TcpTimedCbConnector::peer() const
 inline
 int btesos_TcpTimedCbConnector::numChannels() const
 {
-    return d_channels.size();
+    return static_cast<int>(d_channels.size());
 }
 
 }  // close namespace BloombergLP

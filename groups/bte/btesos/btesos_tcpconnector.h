@@ -329,7 +329,7 @@ const bteso_IPv4Address& btesos_TcpConnector::peer() const
 inline
 int btesos_TcpConnector::numChannels() const
 {
-    return d_channels.size();
+    return static_cast<int>(d_channels.size());
 }
 
 inline

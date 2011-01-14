@@ -691,18 +691,21 @@ class btesos_TcpCbConnector : public btesc_CbChannelAllocator {
 //-----------------------------------------------------------------------------
 
 inline
-void btesos_TcpCbConnector::setPeer(const bteso_IPv4Address& endpoint) {
+void btesos_TcpCbConnector::setPeer(const bteso_IPv4Address& endpoint)
+{
     d_peerAddress = endpoint;
 }
 
 inline
-const bteso_IPv4Address& btesos_TcpCbConnector::peer() const {
+const bteso_IPv4Address& btesos_TcpCbConnector::peer() const
+{
     return d_peerAddress;
 }
 
 inline
-int btesos_TcpCbConnector::numChannels() const {
-    return d_channels.size();
+int btesos_TcpCbConnector::numChannels() const
+{
+    return static_cast<int>(d_channels.size());
 }
 
 }  // close namespace BloombergLP

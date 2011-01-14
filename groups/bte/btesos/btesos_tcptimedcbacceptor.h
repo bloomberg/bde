@@ -665,13 +665,15 @@ class btesos_TcpTimedCbAcceptor : public btesc_TimedCbChannelAllocator {
 //-----------------------------------------------------------------------------
 
 inline
-const bteso_IPv4Address& btesos_TcpTimedCbAcceptor::address() const {
+const bteso_IPv4Address& btesos_TcpTimedCbAcceptor::address() const
+{
     return d_serverAddress;
 }
 
 inline
-int btesos_TcpTimedCbAcceptor::numChannels() const {
-    return d_channels.size();
+int btesos_TcpTimedCbAcceptor::numChannels() const
+{
+    return static_cast<int>(d_channels.size());
 }
 
 }  // close namespace BloombergLP
