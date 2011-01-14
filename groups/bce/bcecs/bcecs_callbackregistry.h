@@ -861,7 +861,7 @@ int bcecs_CallbackRegistry<EVENT,
     typename CategoryRegistryType::const_iterator it =
         d_registry.find(category);
     if (it != d_registry.end()) {
-        num = it->second.size();
+        num = static_cast<int>(it->second.size());
     }
     d_registryLock.unlock();
     return num;
@@ -881,7 +881,7 @@ int bcecs_CallbackRegistry<EVENT,
                            CATEGORY_COMPARATOR,
                            CALLBACK_COMPARATOR>::totalNumCategories() const
 {
-    return d_registry.size();
+    return static_cast<int>(d_registry.size());
 }
 
 template <
@@ -904,7 +904,7 @@ int bcecs_CallbackRegistry<EVENT,
     for (typename CategoryRegistryType::const_iterator it = d_registry.begin();
          it != d_registry.end(); ++it)
     {
-        num += it->second.size();
+        num += static_cast<int>(it->second.size());
     }
     d_registryLock.unlock();
     return num;
