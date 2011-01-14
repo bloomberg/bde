@@ -59,6 +59,7 @@ using namespace bsl;  // automatically added by script
 // [13] bdet_Date operator--(int);
 // [14] bdet_Date& operator+=(int numDays);
 // [14] bdet_Date& operator-=(int numDays);
+// [20] int addDaysIfValid(int numDays);
 // [ 2] void setYearMonthDay(int year, int month, int day);
 // [17] int setYearMonthDayIfValid(int year, int month, int day);
 // [18] void setYearDay(int year, int dayOfYear);
@@ -72,6 +73,7 @@ using namespace bsl;  // automatically added by script
 // [ 4] int year() const;
 // [18] int dayOfYear() const;
 // [16] bdet_DayOfWeek::Day dayOfWeek() const;
+// [19] void getYearDay(int *year, int *dayOfYear) const;
 // [ 8] bsl::ostream& print(bsl::ostream& stream, int lvl, int sp) const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 //
@@ -91,7 +93,7 @@ using namespace bsl;  // automatically added by script
 // [ 1] BREATHING TEST
 // [-1] PERFORMANCE: 'getYearMonthDay'
 // [-2] PERFORMANCE: 'month()'
-// [19] USAGE EXAMPLE
+// [21] USAGE EXAMPLE
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -161,10 +163,10 @@ typedef bdex_TestOutStream Out;
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int  test = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose = argc > 2;
+    bool veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
