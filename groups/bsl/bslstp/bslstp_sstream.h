@@ -64,6 +64,10 @@
 #include <bslalg_passthroughtrait.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -485,7 +489,7 @@ basic_stringbuf<_CharT, _Traits, _Alloc>::pbackfail(int_type __c)
       }
       else if (_M_mode & std::ios_base::out) {
         this->gbump(-1);
-        *this->gptr() = __c;
+        *this->gptr() = _Traits::to_char_type(__c);
         return __c;
       }
       else
@@ -1173,6 +1177,18 @@ basic_stringstream<_CharT, _Traits, _Alloc>::~basic_stringstream()
 {}
 
 }  // close namespace bsl
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+extern template class bsl::basic_stringbuf<char>;
+extern template class bsl::basic_istringstream<char>;
+extern template class bsl::basic_ostringstream<char>;
+extern template class bsl::basic_stringstream<char>;
+
+extern template class bsl::basic_stringbuf<wchar_t>;
+extern template class bsl::basic_istringstream<wchar_t>;
+extern template class bsl::basic_ostringstream<wchar_t>;
+extern template class bsl::basic_stringstream<wchar_t>;
+#endif
 
 //# undef __BSB_int_type__
 //# undef __BSB_pos_type__

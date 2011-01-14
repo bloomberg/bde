@@ -367,7 +367,11 @@ public:
     size_type __result = bsl::distance(begin(), end());
     return __result;
   }
-  size_type max_size() const { return size_type(-1); }
+
+  // Modified by Pablo Halpern
+  //size_type max_size() const { return size_type(-1); }
+  size_type max_size() const
+    { return this->_M_node.allocator().max_size() - 1; }
 
   reference front() { return *begin(); }
   const_reference front() const { return *begin(); }
