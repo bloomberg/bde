@@ -26,7 +26,7 @@ using namespace bsl;  // automatically added by script
 // allocator, specified at construction is invoked at deallocation.
 //
 // We use the following abbreviations:
-//  'bA'   for 'bdema_Allcoator'
+//  'bA'   for 'bslma_Allocator'
 //  'A1-N'    for 'A1, A2, ... , AN'
 //  'D1-N'    for 'D1, D2, ... , DN'
 //  'c_A1'    for 'const A1'
