@@ -161,8 +161,7 @@ struct baexml_EncodingStyle {
 
 // FREE OPERATORS
 inline
-bsl::ostream& operator<<(bsl::ostream&               stream,
-                         baexml_EncodingStyle::Value rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, baexml_EncodingStyle::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -188,7 +187,9 @@ int baexml_EncodingStyle::maxSupportedBdexVersion()
 inline
 int baexml_EncodingStyle::fromString(Value *result, const bsl::string& string)
 {
-    return fromString(result, string.c_str(), string.length());
+    return fromString(result,
+                      string.c_str(),
+                      static_cast<int>(string.length()));
 }
 
 inline

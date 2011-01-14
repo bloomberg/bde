@@ -1517,10 +1517,10 @@ class baexml_Decoder_ParseSequenceSimpleContent {
     // Parse simple content.
 
     // DATA
-    //const bsl::string         *d_chars_p;     // content characters
-    const char                *d_chars_p;     // content characters
-    bsl::size_t                d_len;
-    baexml_Decoder            *d_decoder;  // error logger (held)
+    //const bsl::string *d_chars_p;  // content characters
+    const char          *d_chars_p;  // content characters
+    bsl::size_t          d_len;
+    baexml_Decoder      *d_decoder;  // error logger (held)
 
     // NOT IMPLEMENTED
     baexml_Decoder_ParseSequenceSimpleContent(
@@ -1555,9 +1555,9 @@ class baexml_Decoder_ParseSequenceSubElement {
     // This is similar to 'baexml_Decoder_ParseObject'.
 
     // DATA
-    baexml_Decoder  *d_decoder;         // held, not owned
-    const char      *d_elementName_p;   // held, not owned
-    bsl::size_t      d_lenName;
+    baexml_Decoder *d_decoder;        // held, not owned
+    const char     *d_elementName_p;  // held, not owned
+    bsl::size_t     d_lenName;
 
     // NOT IMPLEMENTED
     baexml_Decoder_ParseSequenceSubElement(
@@ -1593,12 +1593,12 @@ class baexml_Decoder_ParseAttribute {
     // Parse an attribute.
 
     // DATA
-    baexml_Decoder        *d_decoder;      // error logger (held)
-    bool                   d_failed;       // set to true if parsing failed
+    baexml_Decoder *d_decoder;     // error logger (held)
+    bool            d_failed;      // set to true if parsing failed
 
-    const char             *d_name_p;      // attribute name (held)
-    const char             *d_value_p;     // attribute value (held)
-    bsl::size_t             d_value_length;
+    const char     *d_name_p;      // attribute name (held)
+    const char     *d_value_p;     // attribute value (held)
+    bsl::size_t     d_value_length;
 
   public:
     // IMPLEMENTATION MANIPULATORS
@@ -1651,8 +1651,8 @@ class baexml_Decoder_ParseObject {
     struct CanBeRepetitionOnly   { };
 
     // DATA
-    baexml_Decoder *d_decoder;         // held, not owned
-    const char     *d_elementName_p;   // held, not owned
+    baexml_Decoder *d_decoder;        // held, not owned
+    const char     *d_elementName_p;  // held, not owned
     bsl::size_t     d_lenName;
 
     // NOT IMPLEMENTED
@@ -2281,7 +2281,7 @@ int baexml_Decoder_ChoiceContext<TYPE>::parseSubElement(
 {
     enum { BAEXML_FAILURE = -1 };
 
-    bsl::size_t lenName = bsl::strlen(elementName);
+    const int lenName = static_cast<int>(bsl::strlen(elementName));
 
     if (d_isSelectionMade
      && (!d_selectionIsRepeatable || d_selectionName != elementName))
@@ -2508,10 +2508,9 @@ int baexml_Decoder_SequenceContext<TYPE>::addCharacters(
         return BAEXML_SUCCESS;
     }
 
-    baexml_Decoder_ParseSequenceSimpleContent parseSimpleContent(
-                                                decoder,
-                                                chars,
-                                                length);
+    baexml_Decoder_ParseSequenceSimpleContent parseSimpleContent(decoder,
+                                                                 chars,
+                                                                 length);
 
     return bdeat_SequenceFunctions::manipulateAttribute(
                                             d_object_p,
@@ -2521,19 +2520,16 @@ int baexml_Decoder_SequenceContext<TYPE>::addCharacters(
 
 template <typename TYPE>
 int baexml_Decoder_SequenceContext<TYPE>::parseAttribute(
-                                                    const char  *name,
-                                                    const char  *value,
-                                                    bsl::size_t  lenValue,
-                                          baexml_Decoder *decoder)
+                                                      const char     *name,
+                                                      const char     *value,
+                                                      bsl::size_t     lenValue,
+                                                      baexml_Decoder *decoder)
 {
     enum { BAEXML_SUCCESS = 0, ATTRIBUTE_IGNORED = 0, BAEXML_FAILURE = -1 };
 
-    bsl::size_t lenName = bsl::strlen(name);
+    const int lenName = static_cast<int>(bsl::strlen(name));
 
-    baexml_Decoder_ParseAttribute visitor(decoder,
-                                       name,
-                                       value,
-                                       lenValue);
+    baexml_Decoder_ParseAttribute visitor(decoder, name, value, lenValue);
 
     if (0 != bdeat_SequenceFunctions::manipulateAttribute(d_object_p,
                                                           visitor,
@@ -2555,7 +2551,7 @@ int baexml_Decoder_SequenceContext<TYPE>::parseSubElement(
 {
     enum { BAEXML_FAILURE = -1 };
 
-    bsl::size_t lenName = bsl::strlen(elementName);
+    const int lenName = static_cast<int>(bsl::strlen(elementName));
 
     if (decoder->options()->skipUnknownElements()
      && false == bdeat_SequenceFunctions::hasAttribute(*d_object_p,
@@ -2565,10 +2561,9 @@ int baexml_Decoder_SequenceContext<TYPE>::parseSubElement(
         return unknownElement.beginParse(decoder);
     }
 
-    baexml_Decoder_ParseSequenceSubElement visitor(
-                                                decoder,
-                                                elementName,
-                                                lenName);
+    baexml_Decoder_ParseSequenceSubElement visitor(decoder,
+                                                   elementName,
+                                                   lenName);
 
     return bdeat_SequenceFunctions::manipulateAttribute(d_object_p,
                                                         visitor,
@@ -2625,7 +2620,7 @@ int baexml_Decoder_SimpleContext<TYPE>::addCharacters(const char     *chars,
 
     if (0 != baexml_TypesParserUtil::parse(d_object_p,
                                            begin,
-                                           end - begin,
+                                           static_cast<int>(end - begin),
                                            d_formattingMode)) {
         BAEXML_DECODER_LOG_ERROR(decoder)
                     << "Unable to parse \""
@@ -2935,7 +2930,7 @@ int baexml_Decoder_ParseSequenceSimpleContent::operator()(
 
     if (0 != baexml_TypesParserUtil::parse(object,
                                            begin,
-                                           end - begin,
+                                           static_cast<int>(end - begin),
                                            info.formattingMode())) {
         BAEXML_DECODER_LOG_ERROR(d_decoder)
                << "Unable to parse \""
@@ -3058,7 +3053,7 @@ int baexml_Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
 
     if (0 != baexml_TypesParserUtil::parse(object,
                                            d_value_p,
-                                           d_value_length,
+                                           static_cast<int>(d_value_length),
                                            formattingMode)) {
         BAEXML_DECODER_LOG_ERROR(d_decoder)
                    << "Unable to parse \""
@@ -3164,17 +3159,19 @@ int baexml_Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
 
     if (formattingMode & bdeat_FormattingMode::BDEAT_UNTAGGED) {
         if (d_decoder->options()->skipUnknownElements()
-         && false == bdeat_SequenceFunctions::hasAttribute(*object,
-                                                           d_elementName_p,
-                                                           d_lenName)) {
+         && false == bdeat_SequenceFunctions::hasAttribute(
+                                                *object,
+                                                d_elementName_p,
+                                                static_cast<int>(d_lenName))) {
             baexml_Decoder_UnknownElementContext unknownElement;
             return unknownElement.beginParse(d_decoder);
         }
 
-        return bdeat_SequenceFunctions::manipulateAttribute(object,
-                                                            *this,
-                                                            d_elementName_p,
-                                                            d_lenName);
+        return bdeat_SequenceFunctions::manipulateAttribute(
+                                                  object,
+                                                  *this,
+                                                  d_elementName_p,
+                                                  static_cast<int>(d_lenName));
     }
 
     typedef typename
@@ -3197,17 +3194,17 @@ int baexml_Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
     if (isUntagged) {
         if (d_decoder->options()->skipUnknownElements()
          && false == bdeat_ChoiceFunctions::hasSelection(
-                                                  *object,
-                                                  d_elementName_p,
-                                                  d_lenName)) {
+                                                *object,
+                                                d_elementName_p,
+                                                static_cast<int>(d_lenName))) {
             baexml_Decoder_UnknownElementContext unknownElement;
             return unknownElement.beginParse(d_decoder);
         }
 
         if (0 != bdeat_ChoiceFunctions::makeSelection(
-                                                  object,
-                                                  d_elementName_p,
-                                                  d_lenName)) {
+                                                object,
+                                                d_elementName_p,
+                                                static_cast<int>(d_lenName))) {
             BAEXML_DECODER_LOG_ERROR(d_decoder)
                                               << "Unable to make selection: \""
                                               << d_elementName_p
@@ -3339,7 +3336,7 @@ int baexml_Decoder_ParseObject::executeArrayRepetitionImp(TYPE *object,
 
     baexml_Decoder_ParseObject_executeProxy proxy = { this, formattingMode };
 
-    int i = bdeat_ArrayFunctions::size(*object);
+    const int i = static_cast<int>(bdeat_ArrayFunctions::size(*object));
 
     bdeat_ArrayFunctions::resize(object, i + 1);
 

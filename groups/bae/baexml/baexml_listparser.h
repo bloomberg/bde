@@ -243,7 +243,7 @@ int baexml_ListParser<TYPE>::appendElement(const char *data, int dataLength)
 
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
-    int i = bdeat_ArrayFunctions::size(*d_object_p);
+    const int i = static_cast<int>(bdeat_ArrayFunctions::size(*d_object_p));
 
     bdeat_ArrayFunctions::resize(d_object_p, i + 1);
 
@@ -278,7 +278,7 @@ int baexml_ListParser<bcem_Aggregate>::appendElement(const char *data,
 
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
-    int i = bdeat_ArrayFunctions::size(*d_object_p);
+    const int i = static_cast<int>(bdeat_ArrayFunctions::size(*d_object_p));
 
     bdeat_ArrayFunctions::resize(d_object_p, i + 1);
 
@@ -331,7 +331,8 @@ int baexml_ListParser<TYPE>::endParse()
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     if (!d_characters.empty()) {
-        if (0 != appendElement(d_characters.data(), d_characters.length())) {
+        if (0 != appendElement(d_characters.data(),
+                               static_cast<int>(d_characters.length()))) {
             return BAEXML_FAILURE;
         }
     }
@@ -357,8 +358,9 @@ int baexml_ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
 
         if (bdeu_CharType::isSpace(character)) {
             if (!d_characters.empty()) {
-                if (0 != appendElement(d_characters.data(),
-                                       d_characters.length())) {
+                if (0 != appendElement(
+                                    d_characters.data(),
+                                    static_cast<int>(d_characters.length()))) {
                     return BAEXML_FAILURE;
                 }
 

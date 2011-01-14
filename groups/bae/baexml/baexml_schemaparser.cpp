@@ -1,4 +1,4 @@
-// baexml_schemaparser.cpp                  -*-C++-*-
+// baexml_schemaparser.cpp                                            -*-C++-*-
 #include <baexml_schemaparser.h>
 
 #include <bdes_ident.h>
@@ -79,7 +79,7 @@ int parseDefaultValue(bdem_ElemRef elemRef, const bsl::string& defaultValue)
     int status = BAEXML_FAILURE;
 
     const char *cStrValue = defaultValue.c_str();
-    const int len = defaultValue.size();
+    const int   len       = static_cast<int>(defaultValue.size());
 
     switch (elemRef.type()) {
       case bdem_ElemType::BDEM_CHAR: {
@@ -201,7 +201,7 @@ struct XMLTypeDescriptor {
     // PUBLIC MEMBER DATA
     TypeId              d_xmlName;         // name of built-in XML schema type
     bdem_ElemType::Type d_bdemType;        // 'bdem' equivalent type
-    unsigned int        d_maxValue;        // max value or length
+    bsls_Types::Uint64  d_maxValue;        // max value or length
     int                 d_formattingMode;  // bdeat_FormattingMode enum value
 
     // CREATORS
@@ -575,7 +575,7 @@ class SchemaType {
     const XMLTypeDescriptor *d_xmlTypeDescriptor; // Description of this type
     bool                     d_isList;          // true if a sequence type
     bool                     d_isChoice;        // true if a choice type
-    unsigned int             d_maxValue;        // max value constraint
+    bsls_Types::Uint64       d_maxValue;        // max value constraint
     FieldVector              d_fields;          // list of nested fields
     bdem_RecordDef          *d_bdemRecord;      // generated bdem record
                                                 // (held, not owned).
@@ -621,7 +621,7 @@ class SchemaType {
     void setXmlTypeDescriptor(const XMLTypeDescriptor *desc);
     void setIsList(bool isList = true);
     void setIsChoice(bool isChoice = true);
-    void setMaxValue(unsigned int maxValue);
+    void setMaxValue(bsls_Types::Uint64 maxValue);
     void addField(const bsl::string& name, SchemaElement *element);
     void setBdemRecord(bdem_RecordDef *record);
     void addEnumeration(const bsl::string& value, int id);
@@ -638,7 +638,7 @@ class SchemaType {
     bool isList() const;
     bool isChoice() const;
     bdem_ElemType::Type bdemType() const;
-    unsigned int maxValue() const;
+    bsls_Types::Uint64 maxValue() const;
     bdem_RecordDef *bdemRecord() const;
     bool isDefined() const;
     bdem_EnumerationDef *bdemEnumeration() const;
@@ -799,7 +799,7 @@ void SchemaType::setBdemEnumeration(bdem_EnumerationDef *enumeration)
 }
 
 inline
-void SchemaType::setMaxValue(unsigned int maxValue)
+void SchemaType::setMaxValue(bsls_Types::Uint64 maxValue)
 {
     d_maxValue = maxValue;
 }
@@ -900,7 +900,7 @@ bdem_RecordDef *SchemaType::bdemRecord() const
 }
 
 inline
-unsigned int SchemaType::maxValue() const
+bsls_Types::Uint64 SchemaType::maxValue() const
 {
     // Traverse list of base types.  Return first non-zero d_maxValue.
     const SchemaType *scan = this;
@@ -1704,7 +1704,7 @@ int SchemaContentHandler::currentXsTag() const
         return XSTAG_NULL;
     }
     else {
-        return d_descriptorStack.back() - DESCRIPTOR_TABLE;
+        return static_cast<int>(d_descriptorStack.back() - DESCRIPTOR_TABLE);
     }
 }
 
@@ -1715,7 +1715,8 @@ int SchemaContentHandler::parentXsTag() const
         return XSTAG_NULL;
     }
 
-    return d_descriptorStack[d_descriptorStack.size() - 2] - DESCRIPTOR_TABLE;
+    return static_cast<int>(
+           d_descriptorStack[d_descriptorStack.size() - 2] - DESCRIPTOR_TABLE);
 }
 
 // PRIVATE MANIPULATORS
@@ -1789,7 +1790,8 @@ bool SchemaContentHandler::getQnameAttribute(
         *attributeSymbol = QualifiedSymbol(defNsId, attrValueStr);
     }
     else {
-        bdeut_StringRef prefix(attrValueStr, colon - attrValueStr);
+        bdeut_StringRef prefix(attrValueStr,
+                               static_cast<int>(colon - attrValueStr));
         bdeut_StringRef localName(colon + 1);
 
         int nsId = info->getNamespaceIdByPrefix(prefix);
@@ -1821,7 +1823,7 @@ QualifiedSymbol SchemaContentHandler::generateLocalSymbol()
     int i = d_anonymousTypeCounter++;  BSLS_ASSERT(100000 > i);
 
     while (0 != i) {
-        *lastDigit = '0' + i % 10;
+        *lastDigit = static_cast<char>('0' + i % 10);
         i /= 10;
         --lastDigit;
     }
@@ -2448,7 +2450,7 @@ int SchemaContentHandler::startElementDef(int)
 
     const char *minOccursStr = lookupAttribute(NULL_NSID, "minOccurs");
     if (minOccursStr) {
-        int minOccurs = bsl::strtol(minOccursStr, 0, 10);
+        int minOccurs = static_cast<int>(bsl::strtol(minOccursStr, 0, 10));
         d_verboseStream << "   Setting minOccurs to " << minOccurs
                         << bsl::endl;
         newElement->setMinOccurs(minOccurs);
@@ -2458,7 +2460,7 @@ int SchemaContentHandler::startElementDef(int)
     if (maxOccursStr) {
         int maxOccurs = INT_MAX;
         if (0 != bsl::strcmp("unbounded", maxOccursStr)) {
-            maxOccurs = bsl::strtol(maxOccursStr, 0, 10);
+            maxOccurs = static_cast<int>(bsl::strtol(maxOccursStr, 0, 10));
         }
         // set max of existing and new value
         if (maxOccurs > newElement->maxOccurs()) {
@@ -2504,7 +2506,7 @@ int SchemaContentHandler::startElementDef(int)
     const char *idStr = lookupAttribute(NSID_BDEM, "id");
     if (idStr) {
         d_verboseStream << "   Setting id to " << idStr << bsl::endl;
-        newElement->setId(bsl::strtol(idStr, 0, 10));
+        newElement->setId(static_cast<int>(bsl::strtol(idStr, 0, 10)));
     }
 
     if (! isTopLevel) {
@@ -2632,7 +2634,7 @@ int SchemaContentHandler::startAttrDef(int)
     const char *idStr = lookupAttribute(NSID_BDEM, "id");
     if (idStr) {
         d_verboseStream << "   Setting id to " << idStr << bsl::endl;
-        newAttribute->setId(bsl::strtol(idStr, 0, 10));
+        newAttribute->setId(static_cast<int>(bsl::strtol(idStr, 0, 10)));
     }
 
     if (name.isEmpty()) {
@@ -2690,7 +2692,7 @@ int SchemaContentHandler::startEnumerationDef(int)
     const char *idStr = lookupAttribute(NSID_BDEM, "id");
     int id = bdetu_Unset<int>::unsetValue();
     if (idStr) {
-        id = bsl::strtol(idStr, 0, 10);
+        id = static_cast<int>(bsl::strtol(idStr, 0, 10));
     }
 
     thisType->addEnumeration(value, id);
@@ -2789,7 +2791,7 @@ int SchemaContentHandler::startRecordDef(int currXsTag)
 
     const char *minOccursStr = lookupAttribute(NULL_NSID, "minOccurs");
     if (minOccursStr) {
-        minOccurs = bsl::strtol(minOccursStr, 0, 10);
+        minOccurs = static_cast<int>(bsl::strtol(minOccursStr, 0, 10));
         d_verboseStream << "   Setting minOccurs to " << minOccurs
                         << bsl::endl;
     }
@@ -2798,7 +2800,7 @@ int SchemaContentHandler::startRecordDef(int currXsTag)
     if (maxOccursStr) {
         maxOccurs = INT_MAX;
         if (0 != bsl::strcmp("unbounded", maxOccursStr)) {
-            maxOccurs = bsl::strtol(maxOccursStr, 0, 10);
+            maxOccurs = static_cast<int>(bsl::strtol(maxOccursStr, 0, 10));
         }
         d_verboseStream << "   Setting maxOccurs to " << maxOccurs
                         << bsl::endl;
@@ -3277,7 +3279,7 @@ SchemaContentHandler::dispatchEndElement()
     }
     else {
         const SchemaElementDescriptor *tagInfo = d_descriptorStack.back();
-        int tag = tagInfo - DESCRIPTOR_TABLE;
+        int tag = static_cast<int>(tagInfo - DESCRIPTOR_TABLE);
         (this->*(tagInfo->d_endFunction))(tag);
     }
 
@@ -3348,7 +3350,7 @@ SchemaContentHandler::dispatchStartElement()
 
     // Perform error checking that '<mid>' is a legitimate child of the
     // current tag.
-    int tag = mid - DESCRIPTOR_TABLE;
+    int tag = static_cast<int>(mid - DESCRIPTOR_TABLE);
     const SchemaElementDescriptor *parent = (d_descriptorStack.empty()       ?
                                              &DESCRIPTOR_TABLE[ XSTAG_NULL ] :
                                              d_descriptorStack.back());

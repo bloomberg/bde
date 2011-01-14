@@ -887,10 +887,11 @@ baexml_MiniReader::rebasePointer(const char* ptr,
     return ptr;
 }
 
-inline int
+inline
+int
 baexml_MiniReader::getCurrentPosition() const
 {
-    return d_streamOffset + (d_scanPtr - d_startPtr);
+    return static_cast<int>(d_streamOffset + (d_scanPtr - d_startPtr));
 }
 
 inline int
