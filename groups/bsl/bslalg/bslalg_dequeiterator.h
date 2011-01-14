@@ -553,9 +553,10 @@ bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator-(
         return d_value_p - rhs.d_value_p;
     }
     else {
-        int numFullBlocks = this->d_blockPtr_p - rhs.d_blockPtr_p - 1;
+        const int numFullBlocks = static_cast<int>(
+                                    this->d_blockPtr_p - rhs.d_blockPtr_p - 1);
         return (numFullBlocks * BLOCK_LENGTH +
-                rhs.remainingInBlock() + this->offsetInBlock());
+                               rhs.remainingInBlock() + this->offsetInBlock());
     }
 }
 

@@ -215,7 +215,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
         // The three tests above make sure all eight bytes of value are
         // identical.
 
-        std::memset(begin, value, numElements * sizeof value);
+        std::memset(begin,
+                    static_cast<int>(value),
+                    numElements * sizeof value);
     }
     else {
         *begin = value;
@@ -324,7 +326,7 @@ void bslalg_ArrayPrimitives_Imp::bitwiseSwapRanges(char *begin,
                                                    char *middle,
                                                    char *end)
 {
-    int numBytes = middle - begin;
+    int numBytes = static_cast<int>(middle - begin);
     BSLS_ASSERT(numBytes == end - middle);
 
     union {
