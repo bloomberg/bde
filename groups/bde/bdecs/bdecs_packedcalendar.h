@@ -693,6 +693,12 @@ class bdecs_PackedCalendar {
         // Assign to this calendar the value of the specified 'rhs' calendar,
         // and return a reference to this modifiable calendar.
 
+    void swap(bdecs_PackedCalendar& other);
+        // Swap the value of this object with the value of the specified
+        // 'other' object.  This method provides the no-throw guarantee.  The
+        // behavior is undefined if the two objects being swapped have
+        // non-equal allocators.
+
     void setValidRange(const bdet_Date& firstDate,
                        const bdet_Date& lastDate);
         // Set the range of this calendar using the specified 'firstDate' and
@@ -843,6 +849,10 @@ class bdecs_PackedCalendar {
         //  *other = tmp;
         //..
         // except that this method is guaranteed never to throw.
+        //
+        // DEPRECATED: Use the 'swap' member function taking a reference
+        // or the 'swap' free function taking two arguments of type
+        // 'bdecs_PackedCalendar&'.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -1196,6 +1206,12 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
                          const bdecs_PackedCalendar& calendar);
     // Write the value of the specified 'calendar' to the specified output
     // 'stream', and return a reference to the modifiable 'stream'.
+
+// FREE FUNCTIONS
+void swap(bdecs_PackedCalendar& a, bdecs_PackedCalendar& b);
+    // Swap the values of the specified 'a' and 'b' objects.  This method
+    // provides the no-throw guarantee.  The behavior is undefined if the two
+    // objects being swapped have non-equal allocators.
 
                  // ============================================
                  // class bdecs_PackedCalendar_IteratorDateProxy
@@ -2029,8 +2045,8 @@ inline
 bdecs_PackedCalendar::CodesIterator
 bdecs_PackedCalendar::beginHolidayCodes(const OffsetsIterator& iter)
 {
-    const int indexOffset = iter - d_holidayOffsets.begin();
-    const int codeOffset = d_holidayCodesIndex[indexOffset];
+    const int indexOffset = static_cast<int>(iter - d_holidayOffsets.begin());
+    const int codeOffset  = d_holidayCodesIndex[indexOffset];
     return d_holidayCodes.begin() + codeOffset;
 }
 
@@ -2043,8 +2059,8 @@ bdecs_PackedCalendar::endHolidayCodes(const OffsetsIterator& iter)
     const OffsetsSizeType endIndexOffset = iter - d_holidayOffsets.begin() + 1;
 
     const int iterIndex = endIndexOffset == d_holidayCodesIndex.size()
-                        ? d_holidayCodes.size()
-                        : d_holidayCodesIndex[endIndexOffset];
+                          ? static_cast<int>(d_holidayCodes.size())
+                          : d_holidayCodesIndex[endIndexOffset];
     return d_holidayCodes.begin() + iterIndex;
 }
 
@@ -2053,7 +2069,7 @@ inline
 bdecs_PackedCalendar::CodesConstIterator
 bdecs_PackedCalendar::beginHolidayCodes(const OffsetsConstIterator& iter) const
 {
-    const int indexOffset = iter - d_holidayOffsets.begin();
+    const int indexOffset = static_cast<int>(iter - d_holidayOffsets.begin());
     const int codeOffset  = d_holidayCodesIndex[indexOffset];
     return d_holidayCodes.begin() + codeOffset;
 }
@@ -2067,8 +2083,8 @@ bdecs_PackedCalendar::endHolidayCodes(const OffsetsConstIterator& iter) const
     const OffsetsSizeType endIndexOffset = iter - d_holidayOffsets.begin() + 1;
 
     const int iterIndex = endIndexOffset == d_holidayCodesIndex.size()
-                        ? d_holidayCodes.size()
-                        : d_holidayCodesIndex[endIndexOffset];
+                          ? static_cast<int>(d_holidayCodes.size())
+                          : d_holidayCodesIndex[endIndexOffset];
     return d_holidayCodes.begin() + iterIndex;
 }
 
@@ -2226,10 +2242,10 @@ STREAM& bdecs_PackedCalendar::bdexStreamIn(STREAM& stream, int version)
             }
             BSLS_ASSERT_SAFE(it == end);
 
-            swap(&inCal); // This cannot throw any exceptions.
+            swap(inCal);  // This cannot throw.
           } break;
           default: {
-               stream.invalidate();
+            stream.invalidate();
           }
         }
     }
@@ -2258,8 +2274,8 @@ STREAM& bdecs_PackedCalendar::bdexStreamOut(STREAM& stream, int version) const
           d_lastDate.bdexStreamOut(stream, 1);
           d_weekendDays.bdexStreamOut(stream, 1);
 
-          stream.putLength(d_holidayOffsets.size());
-          stream.putLength(d_holidayCodes.size());
+          stream.putLength(static_cast<int>(d_holidayOffsets.size()));
+          stream.putLength(static_cast<int>(d_holidayCodes.size()));
 
           for (OffsetsSizeType i = 0; i < d_holidayOffsets.size(); ++i) {
               stream.putInt32(d_holidayOffsets[i]);
@@ -2437,13 +2453,13 @@ int bdecs_PackedCalendar::numBusinessDays() const
 inline
 int bdecs_PackedCalendar::numHolidayCodesTotal() const
 {
-    return d_holidayCodes.size();
+    return static_cast<int>(d_holidayCodes.size());
 }
 
 inline
 int bdecs_PackedCalendar::numHolidays() const
 {
-    return d_holidayOffsets.size();
+    return static_cast<int>(d_holidayOffsets.size());
 }
 
 inline
@@ -2555,6 +2571,13 @@ inline
 const bdec_DayOfWeekSet& bdecs_PackedCalendar::weekendDays() const
 {
     return d_weekendDays;
+}
+
+// FREE FUNCTIONS
+inline
+void swap(bdecs_PackedCalendar& a, bdecs_PackedCalendar& b)
+{
+    a.swap(b);
 }
 
 // Backwards Compatibility Types

@@ -49,16 +49,6 @@ bdecs_IdxClerk::areInvariantsPreserved(const bsl::vector<int>& unusedStack,
     return true;
 }
 
-// MANIPULATORS
-bdecs_IdxClerk& bdecs_IdxClerk::operator=(const bdecs_IdxClerk& rhs)
-{
-    if (this != &rhs) {
-        d_unusedStack  = rhs.d_unusedStack;
-        d_nextNewIndex = rhs.d_nextNewIndex;
-    }
-    return *this;
-}
-
 // ACCESSORS
 bool bdecs_IdxClerk::isInUse(int index) const
 {

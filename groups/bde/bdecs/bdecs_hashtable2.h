@@ -1087,7 +1087,7 @@ void bdecs_HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
     *chainLength  = 0;
     *removedIndex = -1;
 
-    unsigned int capacity = d_buckets.size();
+    unsigned int capacity = static_cast<unsigned int>(d_buckets.size());
 
     bsls_Types::Int64 bucketIndex = d_hashFunctor1.object()(key) % capacity;
 
@@ -1605,7 +1605,7 @@ unsigned int bdecs_HashTable2DefaultHash1::operator()(
                                                  const ConstCharPtr& key) const
 {
     const char *keyData   = key;
-    int         keyLength = bsl::strlen(key);
+    int         keyLength = static_cast<int>(bsl::strlen(key));
 
     return bdeu_HashUtil::hash1(keyData, keyLength);
 }
@@ -1615,7 +1615,7 @@ unsigned int bdecs_HashTable2DefaultHash1::operator()(
                                                   const bsl::string& key) const
 {
     const char *keyData   = key.data();
-    int         keyLength = key.length();
+    int         keyLength = static_cast<int>(key.length());
 
     return bdeu_HashUtil::hash1(keyData, keyLength);
 }
@@ -1639,7 +1639,7 @@ unsigned int bdecs_HashTable2DefaultHash2::operator()(
                                                  const ConstCharPtr& key) const
 {
     const char *keyData   = key;
-    int         keyLength = bsl::strlen(key);
+    int         keyLength = static_cast<int>(bsl::strlen(key));
 
     return bdeu_HashUtil::hash2(keyData, keyLength);
 }
@@ -1649,7 +1649,7 @@ unsigned int bdecs_HashTable2DefaultHash2::operator()(
                                                   const bsl::string& key) const
 {
     const char *keyData   = key.data();
-    int         keyLength = key.length();
+    int         keyLength = static_cast<int>(key.length());
 
     return bdeu_HashUtil::hash2(keyData, keyLength);
 }

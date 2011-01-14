@@ -12,6 +12,7 @@ BDES_IDENT_RCSID(bdecs_calendar_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 #include <bsl_ostream.h>
+#include <bsl_algorithm.h>
 
 namespace BloombergLP {
 
@@ -94,25 +95,26 @@ bdecs_Calendar::~bdecs_Calendar()
 // MANIPULATORS
 bdecs_Calendar& bdecs_Calendar::operator=(const bdecs_Calendar& rhs)
 {
-    if (&rhs != this) {
-        d_nonBusinessDays.reserveCapacity(rhs.d_nonBusinessDays.length());
-        d_packedCalendar  = rhs.d_packedCalendar;
-        d_nonBusinessDays = rhs.d_nonBusinessDays;
-    }
+    bdecs_Calendar(rhs, d_allocator_p).swap(*this);
     return *this;
 }
 
 bdecs_Calendar& bdecs_Calendar::operator=(const bdecs_PackedCalendar& rhs)
 {
-    // Make sure the calendar will be in a consistent state in case an
-    // exception is thrown.
-
-    d_nonBusinessDays.reserveCapacity(rhs.length());
-
-    d_packedCalendar = rhs;
-    synchronizeCache();
-
+    bdecs_Calendar(rhs, d_allocator_p).swap(*this);
     return *this;
+}
+
+void bdecs_Calendar::swap(bdecs_Calendar& other)
+{
+    // 'swap' is undefined for objects with non-equal allocators
+    BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
+
+    using bsl::swap;
+    using BloombergLP::swap;  // gcc 3.4 needs some help with finding 'swap'
+
+    swap(d_packedCalendar, other.d_packedCalendar);
+    swap(d_nonBusinessDays, other.d_nonBusinessDays);
 }
 
 void bdecs_Calendar::addDay(const bdet_Date& date)
@@ -222,13 +224,7 @@ void bdecs_Calendar::removeHoliday(const bdet_Date& date)
 
 void bdecs_Calendar::swap(bdecs_Calendar *other)
 {
-    bdea_BitArray tmp(d_nonBusinessDays, d_allocator_p);
-    d_nonBusinessDays.reserveCapacity(other->d_nonBusinessDays.length());
-    other->d_nonBusinessDays.reserveCapacity(d_nonBusinessDays.length());
-
-    d_nonBusinessDays = other->d_nonBusinessDays;
-    other->d_nonBusinessDays = tmp;
-    d_packedCalendar.swap(&other->d_packedCalendar);
+    this->swap(*other);
 }
 
 // ACCESSORS

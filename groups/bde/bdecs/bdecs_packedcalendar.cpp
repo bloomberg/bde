@@ -514,19 +514,22 @@ bdecs_PackedCalendar::~bdecs_PackedCalendar()
 bdecs_PackedCalendar&
 bdecs_PackedCalendar::operator=(const bdecs_PackedCalendar& rhs)
 {
-    if (&rhs != this) {
-        d_holidayOffsets.reserve(rhs.d_holidayOffsets.size());
-        d_holidayCodesIndex.reserve(rhs.d_holidayCodesIndex.size());
-        d_holidayCodes.reserve(rhs.d_holidayCodes.size());
-
-        d_firstDate         = rhs.d_firstDate;
-        d_lastDate          = rhs.d_lastDate;
-        d_weekendDays       = rhs.d_weekendDays;
-        d_holidayOffsets    = rhs.d_holidayOffsets;
-        d_holidayCodesIndex = rhs.d_holidayCodesIndex;
-        d_holidayCodes      = rhs.d_holidayCodes;
-    }
+    bdecs_PackedCalendar(rhs, d_allocator_p).swap(*this);
     return *this;
+}
+
+void bdecs_PackedCalendar::swap(bdecs_PackedCalendar& other)
+{
+    // 'swap' is undefined for objects with non-equal allocators
+    BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
+
+    using bsl::swap;
+    swap(d_firstDate, other.d_firstDate);
+    swap(d_lastDate, other.d_lastDate);
+    swap(d_weekendDays, other.d_weekendDays);
+    swap(d_holidayOffsets, other.d_holidayOffsets);
+    swap(d_holidayCodesIndex, other.d_holidayCodesIndex);
+    swap(d_holidayCodes, other.d_holidayCodes);
 }
 
 void bdecs_PackedCalendar::addDay(const bdet_Date& date)
@@ -824,23 +827,7 @@ void bdecs_PackedCalendar::setValidRange(const bdet_Date& firstDate,
 
 void bdecs_PackedCalendar::swap(bdecs_PackedCalendar *other)
 {
-    // If 'this' and 'rhs' use the same allocator, this method will not throw.
-
-    bdet_Date tempDate(d_firstDate);
-    d_firstDate = other->d_firstDate;
-    other->d_firstDate = tempDate;
-
-    tempDate = d_lastDate;
-    d_lastDate = other->d_lastDate;
-    other->d_lastDate = tempDate;
-
-    bdec_DayOfWeekSet tempSet(d_weekendDays);
-    d_weekendDays = other->d_weekendDays;
-    other->d_weekendDays = tempSet;
-
-    d_holidayOffsets.swap(other->d_holidayOffsets);
-    d_holidayCodesIndex.swap(other->d_holidayCodesIndex);
-    d_holidayCodes.swap(other->d_holidayCodes);
+    this->swap(*other);
 }
 
 // ACCESSORS

@@ -511,6 +511,12 @@ class bdecs_Calendar {
        // Assign to this calendar the value of the specified 'rhs' calendar,
        // and return a reference to this modifiable calendar.
 
+    void swap(bdecs_Calendar& other);
+        // Swap the value of this object with the value of the specified
+        // 'other' object.  This method provides the no-throw guarantee.  The
+        // behavior is undefined if the two objects being swapped have
+        // non-equal allocators.
+
     void addDay(const bdet_Date& date);
         // Extend the valid range (if necessary) to include the specified
         // 'date' value.
@@ -638,6 +644,10 @@ class bdecs_Calendar {
         //  *other = tmp;
         //..
         // except that this method is guaranteed never to throw.
+        //
+        // DEPRECATED: Use the 'swap' member function taking a reference
+        // argument or the 'swap' free function taking two arguments of type
+        // 'bdecs_Calendar&'.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -1005,6 +1015,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bdecs_Calendar& calendar);
     // Write the value of the specified 'calendar' to the specified output
     // 'stream', and return a reference to the modifiable 'stream'.
 
+// FREE FUNCTIONS
+void swap(bdecs_Calendar& a, bdecs_Calendar& b);
+    // Swap the values of the specified 'a' and 'b' objects.  This method
+    // provides the no-throw guarantee.  The behavior is undefined if the two
+    // objects being swapped have non-equal allocators.
+
                     // =========================================
                     // class bdecs_Calendar_BusinessDayConstIter
                     // =========================================
@@ -1218,7 +1234,7 @@ STREAM& bdecs_Calendar::bdexStreamIn(STREAM& stream, int version)
 
             // At this point, no exceptions can be thrown.
 
-            d_packedCalendar.swap(&inCal);
+            d_packedCalendar.swap(inCal);
             synchronizeCache();
           } break;
           default: {
@@ -1564,6 +1580,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bdecs_Calendar& calendar)
 {
     calendar.print(stream, 0, -1);
     return stream;
+}
+
+// FREE FUNCTIONS
+inline
+void swap(bdecs_Calendar& a, bdecs_Calendar& b)
+{
+    a.swap(b);
 }
 
                     // -----------------------------------------

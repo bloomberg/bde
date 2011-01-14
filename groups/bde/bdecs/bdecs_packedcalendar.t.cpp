@@ -96,6 +96,8 @@ using bsl::flush;
 // [19] void removeHolidayCode(const bdet_Date& date, int holidayCode);
 // [ 2] void removeAll();
 // [22] void swap(bdecs_PackedCalendar *rhs);
+// [22] void swap(bdecs_PackedCalendar& other);
+// [22] void swap(bdecs_PackedCalendar& lhs, bdecs_PackedCalendar& rhs);
 // [10] template <class STREAM> STREAM& bdexStreamIn(STREAM& s, int version);
 //
 // ACCESSORS
@@ -1205,7 +1207,9 @@ DEFINE_TEST_CASE(22) {
         //      - Array-Based Implementation Technique
         //
         // Testing:
-        //      void swap(bdecs_PackedCalendar *)
+        //      void swap(bdecs_PackedCalendar *);
+        //      void swap(bdecs_PackedCalendar&);
+        //      void swap(bdecs_PackedCalendar&, bdecs_PackedCalendar&);
         // --------------------------------------------------------------------
 
         bslma_TestAllocator testAllocator(veryVeryVerbose);
@@ -1232,8 +1236,29 @@ DEFINE_TEST_CASE(22) {
                 gg(&mY, SPECS[j]);
                 const Obj YY(mY);
 
+                // 'swap' taking pointer (DEPRECATED)
                 BEGIN_EXCEPTION_SAFE_TEST {
                     mX.swap(&mY);
+                } END_EXCEPTION_SAFE_TEST(X == XX && Y == YY);
+
+                LOOP2_ASSERT(i, j, X == YY && Y == XX);
+
+                // 'swap' taking reference
+                mX = XX;
+                mY = YY;
+
+                BEGIN_EXCEPTION_SAFE_TEST {
+                    mX.swap(mY);
+                } END_EXCEPTION_SAFE_TEST(X == XX && Y == YY);
+
+                LOOP2_ASSERT(i, j, X == YY && Y == XX);
+
+                // 'swap' free function
+                mX = XX;
+                mY = YY;
+
+                BEGIN_EXCEPTION_SAFE_TEST {
+                    swap(mX, mY);
                 } END_EXCEPTION_SAFE_TEST(X == XX && Y == YY);
 
                 LOOP2_ASSERT(i, j, X == YY && Y == XX);

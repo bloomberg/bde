@@ -98,6 +98,8 @@ using bsl::flush;
 // [19] void removeHolidayCode(const bdet_Date& date, int holidayCode);
 // [ 2] void removeAll();
 // [22] void swap(bdecs_Calendar *rhs);
+// [22] void swap(bdecs_Calendar& other);
+// [22] void swap(bdecs_Calendar& lhs, bdecs_Calendar& rhs);
 // [10] template <class STREAM> STREAM& bdexStreamIn(STREAM& s, int version);
 //
 // ACCESSORS
@@ -967,7 +969,9 @@ int main(int argc, char *argv[])
         //   exception is thrown.
         //
         // Testing:
-        //   void swap(bdecs_Calendar *)
+        //   void swap(bdecs_Calendar *);
+        //   void swap(bdecs_Calendar&);
+        //   void swap(bdecs_Calendar&, bdecs_Calendar&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1004,8 +1008,33 @@ int main(int argc, char *argv[])
                 gg(&mY, SPEC_J);
                 const Obj YY(mY);
 
+                // 'swap' taking pointer (DEPRECATED)
                 BEGIN_EXCEPTION_SAFE_TEST {
                     mX.swap(&mY);
+                } END_EXCEPTION_SAFE_TEST(   isEqualWithCache(X, XX)
+                                          && isEqualWithCache(Y, YY));
+
+                LOOP2_ASSERT(i, j, isEqualWithCache(X, YY));
+                LOOP2_ASSERT(i, j, isEqualWithCache(Y, XX));
+
+                // 'swap' taking reference
+                mX = XX;
+                mY = YY;
+
+                BEGIN_EXCEPTION_SAFE_TEST {
+                    mX.swap(mY);
+                } END_EXCEPTION_SAFE_TEST(   isEqualWithCache(X, XX)
+                                          && isEqualWithCache(Y, YY));
+
+                LOOP2_ASSERT(i, j, isEqualWithCache(X, YY));
+                LOOP2_ASSERT(i, j, isEqualWithCache(Y, XX));
+
+                // 'swap' free function
+                mX = XX;
+                mY = YY;
+
+                BEGIN_EXCEPTION_SAFE_TEST {
+                    swap(mX, mY);
                 } END_EXCEPTION_SAFE_TEST(   isEqualWithCache(X, XX)
                                           && isEqualWithCache(Y, YY));
 
@@ -3326,41 +3355,6 @@ int main(int argc, char *argv[])
                     int defaultBlocks = da.numBlocksTotal();
                     int testBlocks = testAllocator.numBlocksTotal();
                     mY = YY;
-                    defaultBlocks = da.numBlocksTotal() - defaultBlocks;
-
-                    // Verify 'mY' still uses the default allocator to obtain
-                    // memory and the test allocator used by 'YY' is not used,
-                    // thus proving the allocator value of 'mY' is unaffected
-                    // by the assignment.
-
-                    LOOP3_ASSERT(i, blocks, defaultBlocks,
-                                                      blocks == defaultBlocks);
-                    LOOP3_ASSERT(i, testBlocks, testAllocator.numBlocksTotal(),
-                                 testBlocks == testAllocator.numBlocksTotal());
-                }
-
-                // Replicate for 'operator=(const bdecs_PackedCalendar&)'
-                {
-                    // Compute the number of blocks needed for this
-                    // assignment.
-
-                    Obj mX(&testAllocator);
-                    gg(&mX, SPECS[i]);
-                    int blocks = testAllocator.numBlocksTotal();
-                    mX = YY;
-                    blocks = testAllocator.numBlocksTotal() - blocks;
-
-                    // Assign 'YY', which uses a test allocator, to 'mY', which
-                    // uses the default allocator.  The allocator value of 'mY'
-                    // should not be affected.
-
-                    bslma_TestAllocator da; // default allocator
-                    const bslma_DefaultAllocatorGuard DAG(&da);
-                    Obj mY;
-                    gg(&mY, SPECS[i]);
-                    int defaultBlocks = da.numBlocksTotal();
-                    int testBlocks = testAllocator.numBlocksTotal();
-                    mY = YY.packedCalendar();
                     defaultBlocks = da.numBlocksTotal() - defaultBlocks;
 
                     // Verify 'mY' still uses the default allocator to obtain

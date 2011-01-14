@@ -291,9 +291,10 @@ class bdecs_IdxClerk {
         // Destroy this index clerk.
 
     // MANIPULATORS
-    bdecs_IdxClerk& operator=(const bdecs_IdxClerk& rhs);
+    // !bdecs_IdxClerk& operator=(const bdecs_IdxClerk& rhs);
         // Assign to this index clerk the value of the specified 'rhs' index
-        // clerk.
+        // clerk, and return a reference to this modifiable index clerk.  Note
+        // that this method's definition is compiler generated.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -581,7 +582,7 @@ STREAM& bdecs_IdxClerk::bdexStreamOut(STREAM& stream, int version) const
 inline
 int bdecs_IdxClerk::numCommissionedIndices() const
 {
-    return d_nextNewIndex - d_unusedStack.size();
+    return d_nextNewIndex - static_cast<int>(d_unusedStack.size());
 }
 
 inline
@@ -599,7 +600,7 @@ bdecs_IdxClerkIter bdecs_IdxClerk::end() const
 inline
 int bdecs_IdxClerk::numDecommissionedIndices() const
 {
-    return d_unusedStack.size();
+    return static_cast<int>(d_unusedStack.size());
 }
 
 inline
