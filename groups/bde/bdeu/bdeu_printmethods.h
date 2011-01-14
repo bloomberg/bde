@@ -708,7 +708,7 @@ bdeu_PrintMethods::print(bsl::ostream&                   stream,
 
     stream << "\"";
 
-    const int len = object.size();
+    const int len = static_cast<int>(object.size());
 
     if (0 < len) {
         bdeu_Print::printString(stream, &object[0], len, false);

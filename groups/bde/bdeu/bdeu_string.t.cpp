@@ -2,6 +2,7 @@
 
 #include <bdeu_string.h>
 
+#include <bslma_testallocator.h>
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
@@ -104,6 +105,93 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'copy'
+        //
+        // Concerns:
+        //  That the 3 'copy' methods work as specified in the doc.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'copy'\n"
+                               "==============\n";
+
+        bslma_TestAllocator ta;
+
+        {
+            static const struct {
+                const char *string;
+                int         clipLen;
+                const char *clippedResult;
+            } DATA[] = {
+                { "",         0, "" },
+                { "arf arf",  7, "arf arf" },
+                { "arf arf",  0, "" },
+                { "arf arf",  5, "arf a" },
+                { "arf\0arf", 7, "arf\0arf" },
+            };
+
+            enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
+
+            for (int i = 0; i < DATA_LEN; ++i) {
+                const char *STRING         = DATA[i].string;
+                const int CLIP_LEN         = DATA[i].clipLen;
+                const char *CLIPPED_RESULT = DATA[i].clippedResult;
+
+                char *result = bdeu_String::copy(STRING, &ta);
+
+                ASSERT(result != STRING);
+                ASSERT(!bsl::strcmp(result, STRING));
+
+                ta.deallocate(result);
+
+                result = bdeu_String::copy(STRING, CLIP_LEN, &ta);
+
+                ASSERT(result != STRING);
+                ASSERT(!bsl::strcmp(result, CLIPPED_RESULT));
+                int minLength = bsl::min((int) CLIP_LEN,
+                                         (int) bsl::strlen(STRING));
+                ASSERT(minLength == (int) bsl::strlen(result));
+                ASSERT(0 == memcmp(result, STRING, CLIP_LEN));
+                ASSERT(0 == result[CLIP_LEN]);
+
+                ta.deallocate(result);
+            }
+        }
+
+        {
+            static const struct {
+                const char *string;
+                int         len;
+            } DATA[] = {
+                { "", 0 },
+                { "arf arf", 7 },
+                { "arf\0arf", 7 },
+            };
+
+            enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
+
+            for (int i = 0; i < DATA_LEN; ++i) {
+                const char *STRING = DATA[i].string;
+                const int   LEN    = DATA[i].len;
+
+                bsl::string s;
+                s.resize(LEN);
+                for (int j = 0; j < LEN; ++j) {
+                    s[j] = STRING[j];
+                }
+                const bsl::string& S = s;
+
+                char *result = bdeu_String::copy(S, &ta);
+
+                ASSERT(0 == bsl::memcmp(result, STRING, LEN));
+                ASSERT(!bsl::strcmp(result, STRING));
+                ASSERT(0 == result[LEN]);
+
+                ta.deallocate(result);
+            }
+        }
+      }  break;
       case 10: {
         // --------------------------------------------------------------------
         // TESTING 'skipLeadingTrailing'
@@ -595,10 +683,10 @@ int main(int argc, char *argv[]) {
                 // Call 'toFixedLength' with various lengths for both source
                 // and destination string.
 
-                for (unsigned destLen = 0;
-                     destLen < sizeof(destBuf);
+                for (int destLen = 0;
+                     destLen < (int) sizeof(destBuf);
                      ++destLen) {
-                    for (unsigned srcLen = 0; srcLen < LEN; ++srcLen) {
+                    for (int srcLen = 0; srcLen < LEN; ++srcLen) {
                         bsl::memset(destBuf, 0, sizeof(destBuf));
                         Util::toFixedLength(destBuf, destLen, SRC, srcLen,
                                             PADCHAR);
@@ -1127,10 +1215,10 @@ int main(int argc, char *argv[]) {
                                          Util::lowerCaseCmp(string1, string2));
 
                 char nonNullString1[64], nonNullString2[64];
-                unsigned int length1 = string1.size();
-                LOOP2_ASSERT(nb, i, length1 < sizeof(nonNullString1));
-                unsigned int length2 = string2.size();
-                LOOP2_ASSERT(nb, i, length2 < sizeof(nonNullString2));
+                int length1 = string1.size();
+                LOOP2_ASSERT(nb, i, length1 < (int) sizeof(nonNullString1));
+                int length2 = string2.size();
+                LOOP2_ASSERT(nb, i, length2 < (int) sizeof(nonNullString2));
 
                 bsl::memset(nonNullString1, 'Z', sizeof(nonNullString1));
                 bsl::memset(nonNullString2, 'Y', sizeof(nonNullString2));
@@ -1332,10 +1420,10 @@ int main(int argc, char *argv[]) {
                 // Concern 2
 
                 char nonNullString1[64], nonNullString2[64];
-                unsigned int length1 = string1.size();
-                LOOP2_ASSERT(i, j, length1 < sizeof(nonNullString1));
-                unsigned int length2 = string2.size();
-                LOOP2_ASSERT(i, j, length2 < sizeof(nonNullString2));
+                int length1 = string1.size();
+                LOOP2_ASSERT(i, j, length1 < (int) sizeof(nonNullString1));
+                int length2 = string2.size();
+                LOOP2_ASSERT(i, j, length2 < (int) sizeof(nonNullString2));
 
                 bsl::memset(nonNullString1, 'Z', sizeof(nonNullString1));
                 bsl::memset(nonNullString2, 'Y', sizeof(nonNullString2));

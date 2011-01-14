@@ -77,6 +77,22 @@ bool bdeu_String::areEqualCaseless(const char *lhsString,
     return true;
 }
 
+char *bdeu_String::copy(const char      *string,
+                        int              length,
+                        bslma_Allocator *basicAllocator)
+{
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(basicAllocator);
+
+    char *newString =
+                reinterpret_cast<char *>(basicAllocator->allocate(length + 1));
+    bsl::memcpy(newString, string, length);
+    newString[length] = 0;
+
+    return newString;
+}
+
 int bdeu_String::lowerCaseCmp(const char *lhsString, const char *rhsString)
 {
     BSLS_ASSERT(lhsString);

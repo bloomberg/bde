@@ -286,12 +286,14 @@ void Move<OPER, ALIGNEDOPER>::left(int       *dstBitstring,
     }
     BSLS_ASSERT(BITS_PER_INT > numBits);
 
-    // Move residual bits.
+    // Move residual bits, if any.
 
-    Oper<OPER>::operBits(&dstBitstring[dstIdx],
-                         dstPos,
-                         srcBitstring[srcIdx],
-                         numBits);
+    if (numBits) {
+        Oper<OPER>::operBits(&dstBitstring[dstIdx],
+                             dstPos,
+                             srcBitstring[srcIdx],
+                             numBits);
+    }
 }
 
 template <void OPER(int *, int, int, int), void ALIGNEDOPER(int *, int)>
@@ -370,6 +372,10 @@ void Move<OPER, ALIGNEDOPER>::right(int       *dstBitstring,
         }
     }
     BSLS_ASSERT(BITS_PER_INT > numBits);
+
+    if (0 == numBits) {
+        return;                                                       // RETURN
+    }
 
     // Move residual bits.
 
