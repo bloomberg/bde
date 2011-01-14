@@ -37,13 +37,9 @@ using namespace bsl;  // automatically added by script
 // [ 1] virtual int lookupUserNumberByUUID(...) const = 0;
 // [ 1] virtual int lookupUUIDByLogin(...) const = 0;
 // [ 1] virtual int lookupUUIDByUserNumber(...) const = 0;
-// [ 1] virtual int verifyPasswordByLogin(...) const = 0;
-// [ 1] virtual int verifyPasswordByUserNumber(...) const = 0;
-// [ 1] virtual int verifyPasswordByUUID(...) const = 0;
 //-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 // [ 2] USAGE EXAMPLE: streamUserInfoFromUserNumber(...);
-// [ 3] USAGE EXAMPLE: verifyPasswordForUserNumber(...);
 //=============================================================================
 
 //=============================================================================
@@ -93,9 +89,6 @@ class my_UserDb : public baedb_UserDb {
                             // 10 lookupUserNumberByUUID(...);
                             // 11 lookupUUIDByLogin(...);
                             // 12 lookupUUIDByUserNumber(...);
-                            // 13 verifyPasswordByLogin(...);
-                            // 14 verifyPasswordByUserNumber(...);
-                            // 15 verifyPasswordByUUID(...);
 
     string  d_name;         // last value of name passed
     int     d_uuid;         // last value of uuid passed
@@ -283,43 +276,6 @@ class my_UserDb : public baedb_UserDb {
         return 0;
     }
 
-    virtual int verifyPasswordByLogin(const char *password,
-                                      int         passwordLen,
-                                      const char *login,
-                                      int         loginLen) const
-        // Dummy implementation of protocol method.
-    {
-        my_UserDb *const tmp = const_cast<my_UserDb *>(this);
-        tmp->d_login = string(login, loginLen);
-        tmp->d_password = string(password, passwordLen);
-        tmp->d_fun = 13;
-        return 0;
-    }
-
-    virtual int verifyPasswordByUserNumber(const char *password,
-                                           int         passwordLen,
-                                           int         userNumber) const
-        // Dummy implementation of protocol method.
-    {
-        my_UserDb *const tmp = const_cast<my_UserDb *>(this);
-        tmp->d_userNumber = userNumber;
-        tmp->d_password = string(password, passwordLen);
-        tmp->d_fun = 14;
-        return 0;
-    }
-
-    virtual int verifyPasswordByUUID(const char *password,
-                                     int         passwordLen,
-                                     int         uuid) const
-        // Dummy implementation of protocol method.
-    {
-        my_UserDb *const tmp = const_cast<my_UserDb *>(this);
-        tmp->d_uuid = uuid;
-        tmp->d_password = string(password, passwordLen);
-        tmp->d_fun = 15;
-        return 0;
-    }
-
     // non-virtual functions for testing
     int         fun()        const { return d_fun; }
     const char *name()       const { return d_name.data(); }
@@ -385,34 +341,6 @@ void streamUserInfoFromUserNumber(const baedb_UserDb& userDb,
     }
 }
 
-// The following 'verifyPasswordForUserNumber' function illustrates how to
-// verify whether a given password is valid for a given User Number:
-
-void verifyPasswordForUserNumber(const baedb_UserDb& userDb,
-                                 int                 userNumber,
-                                 const bsl::string&  password,
-                                 bsl::ostream&       output)
-    // Verify that the specified 'password' is valid for the specified
-    // 'userNumber' in the specified 'userDb', and print the results to the
-    // specified 'output' stream.
-{
-    int retCode = userDb.verifyPasswordByUserNumber(password.data(),
-                                                    password.length(),
-                                                    userNumber);
-    if (baedb_UserDb::SUCCESS == retCode) {
-        output << "Password is valid." << bsl::endl;
-    }
-    else if (baedb_UserDb::NOT_FOUND == retCode) {
-        output << "User does not exist." << bsl::endl;
-    }
-    else if (baedb_UserDb::INVALID_PASSWORD == retCode) {
-        output << "Password is invalid." << bsl::endl;
-    }
-    else {
-        output << "Undefined verification error." << bsl::endl;
-    }
-}
-
 //=============================================================================
 //                      MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -426,43 +354,6 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 2
-        //   This will test the fourth usage example in the header file.
-        //
-        // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link and run on all platforms as shown.
-        //
-        // Plan:
-        //   Test the code provided in the component header file.  Create an
-        //   instance of 'my_UserDb' and invoke the functions under test by
-        //   passing the 'my_UserDb' object to the function.
-        //
-        // Testing:
-        //   USAGE EXAMPLE: verifyPasswordForUserNumber(...);
-        //---------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING USAGE EXAMPLE 2"
-                          << "\n=======================" << endl;
-
-        const int SIZE = 128;
-
-        char buf[SIZE];
-        memset(buf, 0, sizeof(buf));
-        ostrstream outbuf(buf, sizeof(buf));
-
-        my_UserDb mX;  const baedb_UserDb& X = mX;
-        const bsl::string  password("testpass1");
-
-        verifyPasswordForUserNumber(X, 9876543, password, outbuf);
-
-        if (veryVerbose) {
-            cout << outbuf.str();
-        }
-
-        if (verbose) cout << "\nEnd of Usage Example 2 Test." << endl;
-      } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
@@ -527,9 +418,6 @@ int main(int argc, char *argv[])
         //   virtual int lookupUserNumberByUUID(...) const = 0;
         //   virtual int lookupUUIDByLogin(...) const = 0;
         //   virtual int lookupUUIDByUserNumber(...) const = 0;
-        //   virtual int verifyPasswordByLogin(...) const = 0;
-        //   virtual int verifyPasswordByUserNumber(...) const = 0;
-        //   virtual int verifyPasswordByUUID(...) const = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nPROTOCOL TEST"
@@ -662,36 +550,10 @@ int main(int argc, char *argv[])
             ASSERT(mX.uuid() == olduuid);
             ASSERT(0 == uuid);
 
-            login = "input10";
-            password =  "input11";
-            X.verifyPasswordByLogin(password.data(), password.length(),
-                                    login.data(),    login.length());
-            ASSERT(mX.fun() == 13);
-            ASSERT(mX.login() == login);
-            ASSERT(mX.password() == password);
-
-            password = "input12";
-            userNumber = 3210;
-            X.verifyPasswordByUserNumber(password.data(),
-                                         password.length(),
-                                         userNumber);
-            ASSERT(mX.fun() == 14);
-            ASSERT(mX.userNumber() == userNumber);
-            ASSERT(mX.password() == password);
-
-            password = "input13";
-            uuid = 2109;
-            X.verifyPasswordByUUID(password.data(), password.length(), uuid);
-            ASSERT(mX.fun() == 15);
-            ASSERT(mX.uuid() == uuid);
-            ASSERT(mX.password() == password);
-
             X.lookupFirmNameByFirmNumber(&firmName, firmNumber);
             ASSERT(mX.fun() == 16);
             ASSERT(mX.firmNumber() == firmNumber);
             ASSERT(firmName == "");
-
-
         }
 
         if (verbose) cout << "\nTesting destructor." << endl;

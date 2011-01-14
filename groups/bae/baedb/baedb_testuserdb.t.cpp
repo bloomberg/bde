@@ -72,9 +72,6 @@ using namespace bsl;  // automatically added by script
 //    o virtual int lookupUUIDByLogin(...) const;
 //    o virtual int lookupUUIDByUserNumber(...) const;
 //    o int numRecords() const;
-//    o virtual int verifyPasswordByLogin(...) const;
-//    o virtual int verifyPasswordByUserNumber(...) const;
-//    o virtual int verifyPasswordByUUID(...) const;
 //    o const bdem_List& view() const;
 //
 //-----------------------------------------------------------------------------
@@ -116,9 +113,6 @@ using namespace bsl;  // automatically added by script
 // [ 4] virtual int lookupUUIDByUserNumber(...) const;
 // [ 4] int numRecords() const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream) const;
-// [ 4] virtual int verifyPasswordByLogin(...) const;
-// [ 4] virtual int verifyPasswordByUserNumber(...) const;
-// [ 4] virtual int verifyPasswordByUUID(...) const;
 // [ 4] const bdem_List& view() const;
 //
 // FREE OPERATORS
@@ -314,18 +308,6 @@ void verifyRecords(const baedb_TestUserDb *userDb)
     retCode = userDb->lookupLoginByUUID(&login, uuid);
     ASSERT(baedb_UserDb::SUCCESS == retCode);
     ASSERT("login0"              == login);
-
-    const char *password0 = "password0";
-    const char *password1 = "password1";
-
-    retCode = userDb->verifyPasswordByUUID(password0,
-                                           strlen(password0),
-                                           uuid);
-    ASSERT(baedb_UserDb::SUCCESS == retCode);
-    retCode = userDb->verifyPasswordByUUID(password1,
-                                           strlen(password1),
-                                           uuid);
-    ASSERT(baedb_UserDb::INVALID_PASSWORD == retCode);
 }
 
 // The 'baedb_TestUserDb' class also provides 'addRecord' and 'remove' methods
@@ -4031,9 +4013,6 @@ int main(int argc, char *argv[])
         //   virtual int lookupUUIDByLogin(...) const;
         //   virtual int lookupUUIDByUserNumber(...) const;
         //   int numRecords() const;
-        //   virtual int verifyPasswordByLogin(...) const;
-        //   virtual int verifyPasswordByUserNumber(...) const;
-        //   virtual int verifyPasswordByUUID(...) const;
         //   const bdem_List& view() const;
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Basic Accessors"
@@ -4355,40 +4334,6 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, FIRM_NUMBER,   firmNumber,
                                        FIRM_NUMBER == firmNumber);
                 }
-
-                if (veryVerbose) cout << "\td. Testing password verification."
-                                      << endl;
-                {
-                    for (int j = 0; j < NUM_DATA; ++j) {
-                        const int    J_LINE     = DATA[j].d_lineNum;
-                        const string J_PASSWORD = DATA[j].d_password;
-
-                        const int expectedResult
-                                              = (PASSWORD == J_PASSWORD) ?
-                                                baedb_UserDb::SUCCESS    :
-                                                baedb_UserDb::INVALID_PASSWORD;
-
-                        retCode = X.verifyPasswordByUUID(J_PASSWORD.data(),
-                                                         J_PASSWORD.length(),
-                                                         UUID);
-                        LOOP4_ASSERT(LINE, J_LINE, expectedResult,   retCode,
-                                                   expectedResult == retCode);
-
-                        retCode = X.verifyPasswordByUserNumber(
-                                                          J_PASSWORD.data(),
-                                                          J_PASSWORD.length(),
-                                                          USER_NUMBER);
-                        LOOP4_ASSERT(LINE, J_LINE, expectedResult,   retCode,
-                                                   expectedResult == retCode);
-
-                        retCode = X.verifyPasswordByLogin(J_PASSWORD.data(),
-                                                          J_PASSWORD.length(),
-                                                          LOGIN.data(),
-                                                          LOGIN.length());
-                        LOOP4_ASSERT(LINE, J_LINE, expectedResult,   retCode,
-                                                   expectedResult == retCode);
-                    }
-                }
             }
         }
 
@@ -4546,30 +4491,6 @@ int main(int argc, char *argv[])
                              RV_LOGIN == retCode);
                 LOOP3_ASSERT(LINE, firmNumber,   initFirmNumber,
                                    firmNumber == initFirmNumber);
-
-                const char *UUID_PASSWD       = "uuid_passwd";
-                const char *USERNUMBER_PASSWD = "usernumber_passwd";
-                const char *LOGIN_PASSWD      = "login_passwd";
-
-                retCode = X.verifyPasswordByUUID(UUID_PASSWD,
-                                                 strlen(UUID_PASSWD),
-                                                 UUID);
-                LOOP2_ASSERT(LINE, retCode,
-                             RV == retCode);
-
-                retCode = X.verifyPasswordByUserNumber(
-                                                    USERNUMBER_PASSWD,
-                                                    strlen(USERNUMBER_PASSWD),
-                                                    USER_NUMBER);
-                LOOP2_ASSERT(LINE, retCode,
-                             RV == retCode);
-
-                retCode = X.verifyPasswordByLogin(LOGIN_PASSWD,
-                                                  strlen(LOGIN_PASSWD),
-                                                  LOGIN,
-                                                  strlen(LOGIN));
-                LOOP2_ASSERT(LINE,       retCode,
-                             RV_LOGIN == retCode);
             }
         }
 

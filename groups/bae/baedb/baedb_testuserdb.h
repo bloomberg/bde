@@ -55,9 +55,6 @@ BDES_IDENT("$Id: $")
 //                                      lookupUserNumberByUUID
 //                                      lookupUUIDByLogin
 //                                      lookupUUIDByUserNumber
-//                                      verifyPasswordByLogin
-//                                      verifyPasswordByUserNumber
-//                                      verifyPasswordByUUID
 //..
 // The 'baedb_TestUserDb' class simulates a Bloomberg User Database and is
 // suitable for use in a test environment.
@@ -176,18 +173,6 @@ BDES_IDENT("$Id: $")
 //      retCode = userDb->lookupLoginByUUID(&login, uuid);
 //      assert(baedb_UserDb::SUCCESS == retCode);
 //      assert("login0"              == login);
-//
-//      const char *password0 = "password0";
-//      const char *password1 = "password1";
-//
-//      retCode = userDb->verifyPasswordByUUID(password0,
-//                                             strlen(password0),
-//                                             uuid);
-//      ASSERT(baedb_UserDb::SUCCESS == retCode);
-//      retCode = userDb->verifyPasswordByUUID(password1,
-//                                             strlen(password1),
-//                                             uuid);
-//      ASSERT(baedb_UserDb::INVALID_PASSWORD == retCode);
 //  }
 //..
 // The 'baedb_TestUserDb' class also provides 'addRecord' and 'remove' methods
@@ -683,38 +668,6 @@ class baedb_TestUserDb : public baedb_UserDb {
         // negative, suppress all indentation AND format the entire output on
         // one line.  If 'stream' is not valid on entry, this operation has no
         // effect.
-
-    virtual int verifyPasswordByLogin(const char *password,
-                                      int         passwordLength,
-                                      const char *login,
-                                      int         loginLength) const;
-        // Verify that the specified 'password' of the specified
-        // 'passwordLength' is valid for the user having the specified 'login'
-        // of the specified 'loginLength'.  Return 0 on success, -1 if 'login'
-        // is not in this database, and a more negative value otherwise.  The
-        // behavior is undefined unless 0 <= loginLength and
-        // 0 <= passwordLength.  Note that neither 'login' nor 'password' need
-        // be null-terminated.
-
-    virtual int verifyPasswordByUserNumber(const char *password,
-                                           int         passwordLength,
-                                           int         userNumber) const;
-        // Verify that the specified 'password' of the specified
-        // 'passwordLength' is valid for the user having the specified
-        // 'userNumber'.  Return 0 on success, -1 if 'userNumber' is not in
-        // this database, and a more negative value otherwise.  The behavior is
-        // undefined unless 0 < userNumber and 0 <= passwordLength.  Note that
-        // 'password' need not be null-terminated.
-
-    virtual int verifyPasswordByUUID(const char *password,
-                                     int         passwordLength,
-                                     int         uuid) const;
-        // Verify that the specified 'password' of the specified
-        // 'passwordLength' is valid for the user having the specified 'uuid'.
-        // Return 0 on success, -1 if 'uuid' is not in this database, and a
-        // more negative value otherwise.  The behavior is undefined unless
-        // 0 < uuid and 0 <= passwordLength.  Note that 'password' need not be
-        // null-terminated.
 
     const bdem_List& view() const;
         // Return a reference to the non-modifiable user database managed by

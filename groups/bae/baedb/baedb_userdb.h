@@ -1,4 +1,4 @@
-// baedb_userdb.h               -*-C++-*-
+// baedb_userdb.h                                                     -*-C++-*-
 #ifndef INCLUDED_BAEDB_USERDB
 #define INCLUDED_BAEDB_USERDB
 
@@ -9,7 +9,7 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol to access fields in a Bloomberg User Database.
 //
-//@DEPRECATED: Use 'bsiudb_phondb' instead.
+//@DEPRECATED: Use 'bsiudb_userdb' instead.
 //
 //@CLASSES:
 //    baedb_UserDb: Bloomberg User Database query protocol
@@ -38,10 +38,7 @@ BDES_IDENT("$Id: $")
 // component provides several retrieval ("lookup") methods, which, given a
 // value for a unique key, return one of the other fields in the corresponding
 // database record (e.g., 'lookupUserNameByLogin', 'lookupUUIDByUserNumber',
-// etc.).  Although the password field may not be retrieved, 'baedb_UserDb'
-// does provide three methods for password verification; given a user password,
-// it can be verified against a given User Number, UUID, or Login ID (e.g.,
-// 'verifyPasswordByUserNumber').
+// etc.).
 //
 // This component has been deprecated, clients should instead use
 // 'bsiudb_userdb'.
@@ -64,7 +61,7 @@ BDES_IDENT("$Id: $")
 //..
 //  * SUCCESS          =  0   // method was successful
 //  * NOT_FOUND        = -1   // database record was not found
-//  * INVALID_PASSWORD = -2   // password is invalid
+//  * INVALID_LOGIN    = -2,  // login is invalid
 //..
 ///Usage
 ///-----
@@ -123,34 +120,6 @@ BDES_IDENT("$Id: $")
 //      }
 //  }
 //..
-// The following 'verifyPasswordForUserNumber' function illustrates how to
-// verify whether a given password is valid for a given User Number:
-//..
-//  void verifyPasswordForUserNumber(const baedb_UserDb& userDb,
-//                                   int                 userNumber,
-//                                   const bsl::string&  password,
-//                                   bsl::ostream&       output)
-//      // Verify that the specified 'password' is valid for the specified
-//      // 'userNumber' in the specified 'userDb', and print the results to the
-//      // specified 'output' stream.
-//  {
-//      int retCode = userDb.verifyPasswordByUserNumber(password.data(),
-//                                                      password.length(),
-//                                                      userNumber);
-//      if (baedb_UserDb::SUCCESS == retCode) {
-//          output << "Password is valid." << bsl::endl;
-//      }
-//      else if (baedb_UserDb::NOT_FOUND == retCode) {
-//          output << "User does not exist." << bsl::endl;
-//      }
-//      else if (baedb_UserDb::INVALID_PASSWORD == retCode) {
-//          output << "Password is invalid." << bsl::endl;
-//      }
-//      else {
-//          output << "Undefined verification error." << bsl::endl;
-//      }
-//  }
-//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -170,9 +139,8 @@ namespace BloombergLP {
 class baedb_UserDb {
     // [!DEPRECATED!] This class provides a protocol (or pure interface) for
     // retrieving information from a standard Bloomberg User Database in which
-    // User Number, UUID, and Login ID are each primary keys.  Methods are also
-    // provided to perform password verification.  All accessors in this
-    // protocol return an integer status value to indicate success (0) or
+    // User Number, UUID, and Login ID are each primary keys.  All accessors in
+    // this protocol return an integer status value to indicate success (0) or
     // failure (a negative value).
     //
     // This classs has been deprecated, clients should instead use the types
@@ -189,8 +157,7 @@ class baedb_UserDb {
 
         SUCCESS          =  0,  // method was successful
         NOT_FOUND        = -1,  // database record was not found
-        INVALID_LOGIN    = -2,  // login is invalid
-        INVALID_PASSWORD = -3   // password is invalid
+        INVALID_LOGIN    = -2   // login is invalid
     };
 
   public:
@@ -310,38 +277,6 @@ class baedb_UserDb {
         // not in this database, and a more negative value otherwise.  'uuid'
         // is not modified by an unsuccessful call.  The behavior is undefined
         // unless 0 < userNumber.
-
-    virtual int verifyPasswordByLogin(const char *password,
-                                      int         passwordLength,
-                                      const char *login,
-                                      int         loginLength) const = 0;
-        // Verify that the specified 'password' of the specified
-        // 'passwordLength' is valid for the user having the specified 'login'
-        // of the specified 'loginLength'.  Return 0 on success, -1 if 'login'
-        // is not in this database, and a more negative value otherwise.  The
-        // behavior is undefined unless 0 <= loginLength and
-        // 0 <= passwordLength.  Note that neither 'login' nor 'password' need
-        // be null-terminated.
-
-    virtual int verifyPasswordByUserNumber(const char *password,
-                                           int         passwordLength,
-                                           int         userNumber) const = 0;
-        // Verify that the specified 'password' of the specified
-        // 'passwordLength' is valid for the user having the specified
-        // 'userNumber'.  Return 0 on success, -1 if 'userNumber' is not in
-        // this database, and a more negative value otherwise.  The behavior is
-        // undefined unless 0 < userNumber and 0 <= passwordLength.  Note that
-        // 'password' need not be null-terminated.
-
-    virtual int verifyPasswordByUUID(const char *password,
-                                     int         passwordLength,
-                                     int         uuid) const = 0;
-        // Verify that the specified 'password' of the specified
-        // 'passwordLength' is valid for the user having the specified 'uuid'.
-        // Return 0 on success, -1 if 'uuid' is not in this database, and a
-        // more negative value otherwise.  The behavior is undefined unless
-        // 0 < uuid and 0 <= passwordLength.  Note that 'password' need not be
-        // null-terminated.
 };
 
 }  // close namespace BloombergLP
