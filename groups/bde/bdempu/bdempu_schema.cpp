@@ -288,8 +288,8 @@ void bdempu_Schema::generateRecordDef(bsl::vector<char>  *buffer,
         }
 
         const int len = bsl::strlen(asciiElemType);
-        for (int i = 0; i < len; ++i) {
-            buffer->push_back(asciiElemType[i]);
+        for (int j = 0; j < len; ++j) {
+            buffer->push_back(asciiElemType[j]);
         }
 
         const bdem_RecordDef *constraint = fldDef->recordConstraint();
@@ -313,9 +313,9 @@ void bdempu_Schema::generateRecordDef(bsl::vector<char>  *buffer,
                 buffer->push_back('"');
             }
 
-            const int len = bsl::strlen(fldName);
-            for (int i = 0; i < len; ++i) {
-                buffer->push_back(fldName[i]);
+            const int lenFldName = bsl::strlen(fldName);
+            for (int j = 0; j < lenFldName; ++j) {
+                buffer->push_back(fldName[j]);
             }
 
             if (hasNonIdentifierCharacters) {
