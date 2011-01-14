@@ -918,7 +918,7 @@ int main(int argc, char *argv[])
         //   - Use 'bslma_TestAllocator' to verify initial memory request size.
         //   - Write out the requested-initial-capacity number of bytes,
         //      and verify that no reallocation is done.
-        //   - Install a 'bslma_TestAllocator' in 'bdema_DefaultAllocator' to
+        //   - Install a 'bslma_TestAllocator' in 'bslma_DefaultAllocator' to
         //      verify that 'bslma_Default::defaultAllocator()' is used by
         //      default.
         //   - Allow the destructor to execute and verify (from TestAllocator)

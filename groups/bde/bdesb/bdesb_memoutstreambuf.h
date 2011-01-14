@@ -170,7 +170,7 @@ namespace BloombergLP {
 
 class bdesb_MemOutStreamBuf : public bsl::streambuf {
     // This 'class' implements the output functionality of the
-    // 'basic_streambuf' protocol, using a user-supplied or default 'bdema'
+    // 'basic_streambuf' protocol, using a user-supplied or default 'bslma'
     // allocator to supply memory.
 
     // PRIVATE CONSTANTS
