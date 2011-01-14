@@ -734,8 +734,9 @@ class btemt_ChannelOutStreamBuf : public bsl::streambuf {
 inline
 int btemt_ChannelOutStreamBuf::calculatePutPosition() const
 {
-    int bufferSize = d_bufferChain_p->bufferSize();
-    return d_putBufferIndex * bufferSize + (pptr() - pbase());
+    const int bufferSize = d_bufferChain_p->bufferSize();
+    return static_cast<int>(
+                           d_putBufferIndex * bufferSize + (pptr() - pbase()));
 }
 
 // MANIPULATORS

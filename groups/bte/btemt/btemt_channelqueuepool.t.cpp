@@ -262,7 +262,7 @@ using namespace bsl;  // automatically added by script
             cb = bdef_BindUtil::bindA( &ta
                                      , &parseMessages2
                                      , _1, _2, _3, _4
-                                     , sizeof(int));
+                                     , static_cast<int>(sizeof(int)));
         } else if (3 == version) {
             cb = btemt_ChannelQueuePool::ParseMessagesCallback(
                         &parseMessages3, &ta);
@@ -620,14 +620,14 @@ void testUsageExample(bteso_IPv4Address serverAddress,
 
     for (int i = 0; i < NUM_THREADS; ++i) {
         bdef_Function<void (*)()> invokeWriteMessages(
-                bdef_BindUtil::bindA(&ta,
-                                     &writeMessages,
-                                     &outgoing,
-                                     channelIds[i],
-                                     numMessages,
-                                     MSG_LENGTH + 2 * i,
-                                     payloadHash(channelIds[i]),
-                                     &ta));
+            bdef_BindUtil::bindA(&ta,
+                                 &writeMessages,
+                                 &outgoing,
+                                 channelIds[i],
+                                 numMessages,
+                                 MSG_LENGTH + 2 * i,
+                                 static_cast<char>(payloadHash(channelIds[i])),
+                                 &ta));
 
         ASSERT(0 == bcemt_ThreadUtil::create(&handle[i], invokeWriteMessages));
     }

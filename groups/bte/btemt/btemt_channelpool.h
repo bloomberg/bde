@@ -577,6 +577,10 @@ BDES_IDENT("$Id: $")
 #include <bcemt_thread.h>
 #endif
 
+#ifndef INCLUDED_BCES_ATOMICTYPES
+#include <bces_atomictypes.h>
+#endif
+
 #ifndef INCLUDED_BCES_ATOMICUTIL
 #include <bces_atomicutil.h>
 #endif
@@ -2114,7 +2118,7 @@ int btemt_ChannelPool::numChannels() const
 inline
 int btemt_ChannelPool::numThreads() const
 {
-    return d_startFlag ? d_managers.size() : 0;
+    return d_startFlag ? static_cast<int>(d_managers.size()) : 0;
 }
 
                  // ----------------------------------

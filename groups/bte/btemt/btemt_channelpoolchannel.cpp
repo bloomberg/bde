@@ -405,12 +405,14 @@ void btemt_ChannelPoolChannel::dataCb(int                  *numConsumed,
             }
 
             bcema_Blob blob(d_blobBufferFactory_p);
-            btemt_MessageUtil::assignData(
-                &blob, *currentMsg, entry.d_numBytesNeeded);
+            btemt_MessageUtil::assignData(&blob,
+                                          *currentMsg,
+                                          currentMsg->data()->length());
+            nConsumed = blob.length();
             {
                 bcemt_LockGuardUnlock<bcemt_Mutex> guard(&d_mutex);
                 callback(BTEMT_SUCCESS, &nNeeded, &blob, d_channelId);
-                nConsumed = entry.d_numBytesNeeded - blob.length();
+                nConsumed -= blob.length();
             }
         }
         else {
@@ -524,7 +526,7 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
         // Note: 'd_closed' may be set by a read callback within the loop, in
         // which case do not process further callbacks and exit the loop.
 
-        ReadQueueEntry& entry        = d_readQueue.front();
+        ReadQueueEntry& entry = d_readQueue.front();
 
         if (btemt_AsyncChannel::BTEMT_SUCCESS != entry.d_progress) {
             removeTopReadEntry(true);
@@ -560,9 +562,11 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
             }
 
             btemt_DataMsg dataMsg;
-            btemt_MessageUtil::assignData(
-                &dataMsg, *currentBlob, entry.d_numBytesNeeded, 
-                d_bufferChainFactory_p, d_spAllocator_p);
+            btemt_MessageUtil::assignData(&dataMsg,
+                                          *currentBlob,
+                                          currentBlob->length(),
+                                          d_bufferChainFactory_p,
+                                          d_spAllocator_p);
             dataMsg.setChannelId(d_channelId);
             {
                 bcemt_LockGuardUnlock<bcemt_Mutex> guard(&d_mutex);
