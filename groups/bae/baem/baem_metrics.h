@@ -1,4 +1,4 @@
-// baem_metrics.h              -*-C++-*-
+// baem_metrics.h                                                     -*-C++-*-
 #ifndef INCLUDED_BAEM_METRICS
 #define INCLUDED_BAEM_METRICS
 
@@ -420,7 +420,7 @@ BDES_IDENT("$Id: $")
 // Note that we do not use the '*_DYNAMIC_*' variants of the
 // 'BAEM_METRICS_UPDATE' or 'BAEM_METRICS_INCREMENT' macros because the
 // category and metric names are constant across all applications of the macro
-// at a  particular instantiation point (the 'DYNAMIC' variants look up the
+// at a particular instantiation point (the 'DYNAMIC' variants look up the
 // category and metric name on each application, which would incur unnecessary
 // runtime overhead).
 //..
@@ -453,10 +453,9 @@ BDES_IDENT("$Id: $")
 // associated with processing the event.  The system calls used (via
 // 'bsls_Stopwatch') to record the elapsed time may be relatively expensive,
 // so we use 'BAEM_METRICS_IF_CATEGORY_ENABLED' to ensure we perform those
-// operations only if metrics collection is enabled.  Finally, we  use
-// 'BAEM_METRICS_UPDATE3' to update the three metrics, which is (slightly)
-// more efficient than updating each metric individually using
-// 'BAEM_METRIC_UPDATE'.
+// operations only if metrics collection is enabled.  Finally, we use
+// 'BAEM_METRICS_UPDATE3' to update the three metrics, which is (slightly) more
+// efficient than updating each metric individually using 'BAEM_METRIC_UPDATE'.
 //..
 //  int processEvent2(int eventId, const bsl::string& eventMessage)
 //      // Process the event described by the specified 'eventId' and
@@ -558,6 +557,8 @@ BDES_IDENT("$Id: $")
    static baem_CategoryHolder holder = { false, 0, 0 };                       \
    static baem_Collector *collector1 = 0;                                     \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
@@ -573,6 +574,9 @@ BDES_IDENT("$Id: $")
    static baem_Collector *collector1 = 0;                                     \
    static baem_Collector *collector2 = 0;                                     \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
@@ -597,6 +601,10 @@ BDES_IDENT("$Id: $")
    static baem_Collector *collector2 = 0;                                     \
    static baem_Collector *collector3 = 0;                                     \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        collector3 = Helper::getCollector(CATEGORY, METRIC3);                  \
@@ -626,6 +634,11 @@ BDES_IDENT("$Id: $")
    static baem_Collector *collector3 = 0;                                     \
    static baem_Collector *collector4 = 0;                                     \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        collector3 = Helper::getCollector(CATEGORY, METRIC3);                  \
@@ -660,6 +673,12 @@ BDES_IDENT("$Id: $")
    static baem_Collector *collector4 = 0;                                     \
    static baem_Collector *collector5 = 0;                                     \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC5, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        collector3 = Helper::getCollector(CATEGORY, METRIC3);                  \
@@ -699,6 +718,14 @@ BDES_IDENT("$Id: $")
    static baem_Collector *collector5 = 0;                                     \
    static baem_Collector *collector6 = 0;                                     \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY, Helper::TYPE_CATEGORY,                  \
+                            __FILE__, __LINE__);                              \
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC5, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC6, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        collector3 = Helper::getCollector(CATEGORY, METRIC3);                  \
@@ -724,6 +751,8 @@ BDES_IDENT("$Id: $")
    static baem_CategoryHolder holder = { false, 0, 0 };                       \
    static baem_Collector *collector1 = 0;                                     \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC, Helper::TYPE_METRIC, __FILE__, __LINE__); \
        collector1 = Helper::getCollector(CATEGORY, METRIC);                   \
        Helper::setPublicationType(collector1->metricId(), PREFERRED_TYPE);    \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
@@ -756,6 +785,8 @@ BDES_IDENT("$Id: $")
    static baem_CategoryHolder holder = { false, 0, 0 };                       \
    static baem_IntegerCollector *collector1 = 0;                              \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
@@ -775,6 +806,9 @@ BDES_IDENT("$Id: $")
    static baem_IntegerCollector *collector1 = 0;                              \
    static baem_IntegerCollector *collector2 = 0;                              \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
@@ -799,6 +833,10 @@ BDES_IDENT("$Id: $")
    static baem_IntegerCollector *collector2 = 0;                              \
    static baem_IntegerCollector *collector3 = 0;                              \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        collector3 = Helper::getIntegerCollector(CATEGORY, METRIC3);           \
@@ -828,6 +866,11 @@ BDES_IDENT("$Id: $")
    static baem_IntegerCollector *collector3 = 0;                              \
    static baem_IntegerCollector *collector4 = 0;                              \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        collector3 = Helper::getIntegerCollector(CATEGORY, METRIC3);           \
@@ -862,6 +905,12 @@ BDES_IDENT("$Id: $")
    static baem_IntegerCollector *collector4 = 0;                              \
    static baem_IntegerCollector *collector5 = 0;                              \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC5, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        collector3 = Helper::getIntegerCollector(CATEGORY, METRIC3);           \
@@ -901,6 +950,13 @@ BDES_IDENT("$Id: $")
    static baem_IntegerCollector *collector5 = 0;                              \
    static baem_IntegerCollector *collector6 = 0;                              \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC5, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC6, Helper::TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        collector3 = Helper::getIntegerCollector(CATEGORY, METRIC3);           \
@@ -929,6 +985,8 @@ do {                                                                          \
    static baem_CategoryHolder holder = { false, 0, 0 };                       \
    static baem_IntegerCollector *collector1 = 0;                              \
    if (0 == holder.category() && baem_DefaultMetricsManager::instance()) {    \
+       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC, Helper::TYPE_METRIC, __FILE__, __LINE__); \
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC);            \
        Helper::setPublicationType(collector1->metricId(), PREFERRED_TYPE);    \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
@@ -945,6 +1003,7 @@ do {                                                                          \
              baem_DefaultMetricsManager::instance()->collectorRepository();   \
         baem_IntegerCollector *collector =                                    \
                repository.getDefaultIntegerCollector((CATEGORY), (METRIC));   \
+        typedef baem_Metrics_Helper Helper;                                   \
         if (collector->metricId().category()->enabled()) {                    \
             collector->update((VALUE));                                       \
         }                                                                     \
@@ -1073,7 +1132,7 @@ do {                                                                          \
                                              VARIABLE_NAME)                   \
     BloombergLP::baem_Collector *VARIABLE_NAME = 0;                           \
     if (BloombergLP::baem_DefaultMetricsManager::instance()) {                \
-       using namespace BloombergLP;                                           \
+        using namespace BloombergLP;                                          \
         baem_CollectorRepository& repository =                                \
              baem_DefaultMetricsManager::instance()->collectorRepository();   \
         VARIABLE_NAME = repository.getDefaultCollector((CATEGORY),            \
@@ -1125,6 +1184,15 @@ struct baem_Metrics_Helper {
     // This type is an implementation detail and *must* *not* be used
     // (directly) by clients outside of this component.
 
+    // TYPES
+    enum NameType {
+        // Enumeration indicating the type of identifier supplied to
+        // 'logEmptyName'.
+
+        TYPE_CATEGORY = 0,
+        TYPE_METRIC   = 1
+    };
+
     // CLASS METHODS
     static void initializeCategoryHolder(baem_CategoryHolder *holder,
                                          const char          *category);
@@ -1153,6 +1221,16 @@ struct baem_Metrics_Helper {
         // 'id' to the specified 'type'.  The behavior is undefined unless the
         // 'baem' metrics manager singleton is valid, and 'id' is a valid
         // identifier supplied by the singleton metrics manager.
+
+    static void logEmptyName(const char *name,
+                             NameType    type,
+                             const char *file,
+                             int         line);
+        // If the specified 'name' is empty or contains only whitespace, then
+        // log a warning message indicating whether 'name' is a category or a
+        // metric, depending on the specified 'type', and the location at which
+        // this function is called, indicated by the specified 'file' and
+        // 'line'; otherwise, do nothing.
 };
 
 // ===========================================================================

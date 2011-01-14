@@ -662,7 +662,7 @@ baem_MetricSample::const_iterator baem_MetricSample::end() const
 inline
 int baem_MetricSample::numGroups() const
 {
-    return d_records.size();
+    return static_cast<int>(d_records.size());
 }
 
 inline

@@ -1,4 +1,4 @@
-// baem_metrics.t.cpp  -*-C++-*-
+// baem_metrics.t.cpp                                                 -*-C++-*-
 #include <baem_metrics.h>
 
 #include <baem_metricregistry.h>
@@ -21,6 +21,12 @@
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+
+#include <bael_observer.h>
+#include <bael_defaultobserver.h>
+#include <bael_log.h>
+#include <bael_loggermanager.h>
+#include <bael_severity.h>
 
 using namespace BloombergLP;
 
@@ -78,7 +84,12 @@ using bsl::flush;
 // [14] CONCURRENCY TEST: STANDARD INT MACROS
 // [15] CONCURRENCY TEST: DYNAMIC INT MACROS
 // [16] CONCURRENCY TEST: THREAD_LOCAL INT MACROS
-// [17] USAGE EXAMPLE
+// [17] void baem_Metrics_Helper::logEmptyName(NameType    type,
+//                                             const char *name,
+//                                             const char *file,
+//                                             int         line);
+// [18] WARNING LOG TEST: ALL MACROS
+// [19] USAGE EXAMPLE
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -233,6 +244,34 @@ bool baemMetricsIfCategoryEnabledTest(const char *category)
         return true;
     }
     return false;
+}
+
+class MessageObserver : public bael_Observer {
+        // Custom observer to verify logged message.
+
+public:
+    MessageObserver() : d_message() {}
+
+    virtual ~MessageObserver() {}
+
+    virtual void publish(const bael_Record& record, const bael_Context&);
+        // This function is called when a message is logged.  It will store the
+        // message so that it can be retrieved and verified.  Any new messages
+        // are concatenated to the message stored in the class.
+
+    const bsl::string& getLastMessage() { return d_message; }
+        // Retrieve the messages that was logged.
+
+    void clearMessage() {d_message = "";}
+        // Clear the message stored in the class.
+
+private:
+    bsl::string d_message;
+};
+
+void MessageObserver::publish(const bael_Record& record, const bael_Context&) {
+    const bael_RecordAttributes& fixedFields = record.fixedFields();
+    d_message += fixedFields.message();
 }
 
 // ------------------- case 11 StandardMacroConcurrencyTest -----------------
@@ -1267,7 +1306,7 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -1323,6 +1362,236 @@ int main(int argc, char *argv[])
 // call 'baem_DefaultMetricsManager::release()'.
 
     }
+    } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // Testing:
+        //    MACROS using 'logEmptyName'.
+        //
+        // Concerns:
+        //    That all macros using 'logEmptyName' is producing a warning
+        //    message if the 'CATEGORY' or 'METRIC' parameters are empty
+        //    strings.
+        //
+        // Plan:
+        //    Invoke 'BAEM_METRICS_UPDATE' with an empty string as parameter
+        //    and verify that the expected warning message is logged.  Also
+        //    verify that a warning message is not issued if all the parameters
+        //    are non-empty.  Invoke 'BAEM_METRICS_UPDATEn' with an empty
+        //    string for parameter 'METRICn' and verify that a warning message
+        //    is logged.  Invoke 'BAEM_METRICS_INT_UPDATE' with non-empty
+        //    parameters and verify that no warning is issued.  Invoke
+        //    'BAEM_METRICS_INT_UPDATE' again with empty parameters, and verify
+        //    that a warning message is logged.  Perform the same test on
+        //    'BAEM_METRICS_INT_UPDATEn' as with 'BAEM_METRICS_UPDATE'.
+        //
+        // Testing:
+        //    BAEM_METRICS_UPDATE(CATEGORY, NAME, VALUE)
+        //    BAEM_METRICS_UPDATE2(CATEGORY, METRIC1, VALUE1, ...)
+        //    BAEM_METRICS_UPDATE3(CATEGORY, METRIC1, VALUE1, ...)
+        //    BAEM_METRICS_UPDATE4(CATEGORY, METRIC1, VALUE1, ...)
+        //    BAEM_METRICS_UPDATE5(CATEGORY, METRIC1, VALUE1, ...)
+        //    BAEM_METRICS_UPDATE6(CATEGORY, METRIC1, VALUE1, ...)
+        //    BAEM_METRICS_INT_UPDATE(CATEGORY, NAME, VALUE
+        //    BAEM_METRICS_INT_UPDATE2(CATEGORY, METRIC1, VALUE1, ...)
+        //    BAEM_METRICS_INT_UPDATE3(CATEGORY, METRIC1, VALUE1, ...)
+        //    BAEM_METRICS_INT_UPDATE4(CATEGORY, METRIC1, VALUE1, ...)
+        //    BAEM_METRICS_INT_UPDATE5(CATEGORY, METRIC1, VALUE1, ...)
+        //    BAEM_METRICS_INT_UPDATE6(CATEGORY, METRIC1, VALUE1, ...)
+        //
+        // --------------------------------------------------------------------
+
+        MessageObserver observer;
+        bael_LoggerManagerConfiguration configuration;
+        bael_LoggerManager& manager =
+                bael_LoggerManager::initSingleton(&observer, configuration);
+
+        manager.setDefaultThresholdLevels(bael_Severity::BAEL_OFF,
+                                          bael_Severity::BAEL_WARN,
+                                          bael_Severity::BAEL_OFF,
+                                          bael_Severity::BAEL_OFF);
+
+        if (verbose) cout << endl <<
+            "Test BAEM_METRICS_UPDATE warning messages" << endl;
+
+        bcema_TestAllocator defaultAllocator;
+        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bcema_TestAllocator testAllocator;
+
+        baem_DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
+        baem_MetricsManager& mgr = *DefaultManager::instance();
+        Registry&   registry   = mgr.metricRegistry();
+        Repository& repository = mgr.collectorRepository();
+
+        observer.clearMessage();
+
+        // Get the line number of the next line.  Must be followed by the
+        // BAEM_METRICS_UPDATE for the ASSERT to work correctly.
+
+        const int line_number = L_ + 1;
+        BAEM_METRICS_UPDATE(" ", "A", 0.0);
+
+        // Construct expected warning message.
+
+        bsl::stringstream message;
+        message << "Empty category \" \" added at " << __FILE__ << ":"
+            << line_number;
+
+        ASSERT(observer.getLastMessage() == message.str());
+
+        // Just check whether a warning message is created for the rest of the
+        // test case.
+
+        observer.clearMessage();
+        BAEM_METRICS_UPDATE("A", "B", 0.0);
+        ASSERT(observer.getLastMessage() == "");
+
+        observer.clearMessage();
+        BAEM_METRICS_UPDATE("", "B", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_UPDATE("A", "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_UPDATE2("A", "B", 0.0, "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_UPDATE3("A", "B", 0.0, "C", 0.0, "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_UPDATE4("A", "B", 0.0, "C", 0.0, "D", 0.0, "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_UPDATE5("A", "B", 0.0, "C", 0.0, "D", 0.0, "E", 0.0,
+                "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_UPDATE6("A", "B", 0.0, "C", 0.0, "D", 0.0, "E", 0.0,
+                "F", 0.0, "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        // Test BAEM_METRICS_INT_UPDATE
+
+        if (verbose) cout << endl <<
+            "Test BAEM_METRICS_INT_UPDATE warning messages" << endl;
+
+        observer.clearMessage();
+        BAEM_METRICS_INT_UPDATE("A", "B", 0.0);
+        ASSERT(observer.getLastMessage() == "");
+
+        observer.clearMessage();
+        BAEM_METRICS_INT_UPDATE("", "B", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_INT_UPDATE("A", "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_INT_UPDATE2("A", "B", 0.0, "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_INT_UPDATE3("A", "B", 0.0, "C", 0.0, "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_INT_UPDATE4("A", "B", 0.0, "C", 0.0, "D", 0.0, "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_INT_UPDATE5("A", "B", 0.0, "C", 0.0, "D", 0.0, "E", 0.0,
+                "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+        observer.clearMessage();
+        BAEM_METRICS_INT_UPDATE6("A", "B", 0.0, "C", 0.0, "D", 0.0, "E", 0.0,
+                "F", 0.0, "", 0.0);
+        ASSERT(observer.getLastMessage() != "");
+
+    } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // Testing:
+        //    Warning messages created by 'logEmptyName'.
+        //
+        // Concerns:
+        //    That 'logEmptyName' is detecting an empty name correctly and
+        //    logging the correct warning message.
+        //
+        // Plan:
+        //    Specify a set of objects containing the name, type and whether or
+        //    not a warning is expected.  For each object in the set, invoke
+        //   'logEmptyName' against the object and verify that expected the
+        //   warning message is received.
+        //
+        // Testing:
+        //    void baem_Metrics_Helper::logEmptyName(NameType    type,
+        //                                           const char *name,
+        //                                           const char *file,
+        //                                           int         line);
+        //
+        // --------------------------------------------------------------------
+
+        MessageObserver observer;
+        bael_LoggerManagerConfiguration configuration;
+        bael_LoggerManager& manager =
+                bael_LoggerManager::initSingleton(&observer, configuration);
+
+        manager.setDefaultThresholdLevels(bael_Severity::BAEL_OFF,
+                                          bael_Severity::BAEL_WARN,
+                                          bael_Severity::BAEL_OFF,
+                                          bael_Severity::BAEL_OFF);
+
+        if (verbose) cout << endl
+            << "Test logEmptyName" << endl
+            << "=================" << endl;
+
+
+        struct {
+            const char                          *d_name;
+            const baem_Metrics_Helper::NameType  d_type;
+            const bool                           d_expect_warning;
+        } NAME_TEST[] = {
+            {"",   baem_Metrics_Helper::TYPE_CATEGORY, true},
+            {" ",  baem_Metrics_Helper::TYPE_METRIC,   true},
+            {"  ", baem_Metrics_Helper::TYPE_METRIC,   true},
+            {"A",  baem_Metrics_Helper::TYPE_METRIC,   false}
+        };
+
+        const int NUM_NAME = sizeof(NAME_TEST)/sizeof(*NAME_TEST);
+        static const char *type_string[] = {
+            "category",
+            "metric",
+        };
+
+        for (int i = 0; i < NUM_NAME; ++i) {
+
+            typedef baem_Metrics_Helper Helper;
+            const int line_number = L_;
+            observer.clearMessage();
+            Helper::logEmptyName(NAME_TEST[i].d_name, NAME_TEST[i].d_type,
+                            __FILE__, line_number);
+            if (NAME_TEST[i].d_expect_warning) {
+
+                // Construct expected warning message.
+
+                bsl::stringstream message;
+                message << "Empty " << type_string[NAME_TEST[i].d_type]
+                    << " \"" << NAME_TEST[i].d_name <<  "\" added at "
+                    << __FILE__ << ":" << line_number;
+
+                ASSERT(observer.getLastMessage() == message.str());
+            } else {
+                ASSERT(observer.getLastMessage() == "");
+            }
+        }
 
     } break;
       case 16: {
