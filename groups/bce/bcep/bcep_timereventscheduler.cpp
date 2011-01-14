@@ -53,6 +53,7 @@ extern "C" void *bcep_TimerEventSchedulerDispatcherThread(void *scheduler)
 void bcep_TimerEventSchedulerDispatcher::dispatchEvents(
                                            bcep_TimerEventScheduler *scheduler)
 {
+    BSLS_ASSERT(0 != scheduler);
     typedef bcep_TimerEventScheduler::ClockDataPtr ClockDataPtr;
     typedef bcec_TimeQueueItem<ClockDataPtr>       PendingClockItem;
 
