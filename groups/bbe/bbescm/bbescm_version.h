@@ -1,12 +1,11 @@
-// bbescm_version.h                 -*-C++-*-
+// bbescm_version.h                                                   -*-C++-*-
 #ifndef INCLUDED_BBESCM_VERSION
 #define INCLUDED_BBESCM_VERSION
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
-BDES_IDENT_RCSID(bbescm_version_h,"$Id$ $CSID$")
-BDES_IDENT_PRAGMA_ONCE
+BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide source control management (versioning) information.
 //
