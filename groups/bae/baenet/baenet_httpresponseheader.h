@@ -425,7 +425,7 @@ int baenet_HttpResponseHeader::accessFields(ACCESSOR& accessor) const
                             itf != d_extendedFields.endFields();
                           ++itf) {
         const char *fieldName       = itf->first.data();
-        const int   fieldNameLength = itf->first.length();
+        const int   fieldNameLength = static_cast<int>(itf->first.length());
 
         for (ConstFieldValueIterator itv  = itf->second.begin();
                                      itv != itf->second.end();

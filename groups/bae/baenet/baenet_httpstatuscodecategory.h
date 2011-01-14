@@ -194,7 +194,9 @@ int baenet_HttpStatusCodeCategory::maxSupportedBdexVersion()
 inline
 int baenet_HttpStatusCodeCategory::fromString(Value *result, const bsl::string& string)
 {
-    return fromString(result, string.c_str(), string.length());
+    return fromString(result,
+                      string.c_str(),
+                      static_cast<int>(string.length()));
 }
 
 inline

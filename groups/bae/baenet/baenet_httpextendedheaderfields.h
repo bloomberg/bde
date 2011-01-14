@@ -537,7 +537,7 @@ baenet_HttpExtendedHeaderFields::findField(const bsl::string& fieldName) const
 inline
 int baenet_HttpExtendedHeaderFields::numFields() const
 {
-    return d_fieldMap.size();
+    return static_cast<int>(d_fieldMap.size());
 }
 
 inline

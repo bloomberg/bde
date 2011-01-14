@@ -389,7 +389,8 @@ int baenet_HttpMessageGenerator::startEntity(
     d_messageDataCallback = messageDataCallback;
     BSLS_ASSERT_SAFE(d_messageDataCallback);
 
-    int numTransferEncodings = header.basicFields().transferEncoding().size();
+    const int numTransferEncodings = static_cast<int>(
+                               header.basicFields().transferEncoding().size());
 
     if (2 <= numTransferEncodings) {
         return BAENET_FAILURE;
@@ -440,7 +441,7 @@ int baenet_HttpMessageGenerator_GenerateField::executeImp(
 {
     enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
 
-    int size = bdeat_ArrayFunctions::size(object);
+    const int size = static_cast<int>(bdeat_ArrayFunctions::size(object));
 
     if (0 == size) {
         return BAENET_SUCCESS;  // common case

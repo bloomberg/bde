@@ -407,7 +407,7 @@ int baenet_HttpParserUtilAddField::appendElementToArray(
                                                 TYPE                   *object,
                                                 const bdeut_StringRef&  str)
 {
-    int i = bdeat_ArrayFunctions::size(*object);
+    const int i = static_cast<int>(bdeat_ArrayFunctions::size(*object));
 
     bdeat_ArrayFunctions::resize(object, i + 1);
 
