@@ -1,12 +1,7 @@
-# Options for package bcedb.opts
+# bcem overides for bce.opts
 
-*                    _       OPTS_FILE       = bcedb.opts
-
-!! *                         _  ALLTEST = $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -r -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
-!! unix-SunOS-*-*-gcc-4.3.2  _  ALLTEST = LD_LIBRARY_PATH=/opt/swt/install/gcc-4.3.2/lib:$(LD_LIBRARY_PATH) $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -r -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
-!! unix-SunOS-*-*-gcc-4.3.2  64 ALLTEST = LD_LIBRARY_PATH=/opt/swt/install/gcc-4.3.2/lib/sparcv9:$(LD_LIBRARY_PATH) $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -r -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
-
-!! *			_	ALLTEST_SERIAL   = -s
+!! *			_	ALLTEST		= $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -r -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
+!! *			_	ALLTEST_SERIAL  = -s
 !! unix-*		_	ALLTEST_PARALLEL = -j4
 !! windows		_	ALLTEST_PARALLEL = -s
 

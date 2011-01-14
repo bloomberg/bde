@@ -1,15 +1,15 @@
-// bcedb_incoredtagfactory.t.cpp  -*-C++-*-
+// bcedb_dtagfactory.t.cpp  -*-C++-*-
 #include <bcedb_incoredtagfactory.h>
-
 #include <bcema_sharedptr.h>
+#include <bdema_testallocator.h>
+#include <bdema_allocator.h>
 #include <bdem_schema.h>
 #include <bdem_schemautil.h>
-#include <bslma_testallocator.h>
 
-#include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <sstream>
 
 using namespace BloombergLP;
 
@@ -30,8 +30,8 @@ static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
+        std::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << std::endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
@@ -42,28 +42,29 @@ static void aSsErT(int c, const char *s, int i)
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
+    if (!(X)) { std::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); }}
 
 #define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
+    if (!(X)) { std::cout << #I << ": " << I << "\t"  \
                           << #J << ": " << J << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
 
 #define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
+   if (!(X)) { std::cout << #I << ": " << I << "\t" \
                          << #J << ": " << J << "\t" \
                          << #K << ": " << K << "\n";\
                aSsErT(1, #X, __LINE__); } }
 
+
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
+#define P(X) std::cout << #X " = " << (X) << std::endl;
                                               // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
+#define Q(X) std::cout << "<| " #X " |>" << std::endl;
                                               // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
+#define P_(X) std::cout << #X " = " << (X) << ", " << std::flush;
                                               // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define NL "\n"
@@ -72,15 +73,14 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+
 static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
 static const struct {
-    double      d_spoon;
-    int         d_fork;
-    const char *d_knife;
+    double spoon; int fork; const char *knife;
 } DINNER_TABLE_DATA[] = {
     { 0.199371337890625     ,    100  ,    "@=3-0N*P."          },
     { 0.035064697265625     ,    99   ,    "`u9/0~Z$7"          },
@@ -114,23 +114,22 @@ static const struct {
     { 0.579010009765625     ,    71   ,    "+5q7e/Y:"           }
 };
 
-const int DINNER_TABLE_LEN =
-                          sizeof DINNER_TABLE_DATA / sizeof *DINNER_TABLE_DATA;
+static const int DINNER_TABLE_LEN =
+    sizeof(DINNER_TABLE_DATA) / sizeof(DINNER_TABLE_DATA[0]);
 
 //=============================================================================
-//                           SET UP FOR USAGE EXAMPLE
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
-
 static void usageTest()
 {
     // Create a TestAllocator to profile memory usage, and
     // create a bad allocator to ensure custom allocator is always used.
-    bslma_TestAllocator allocator;
-    // AlwaysFailAllocator badAllocator;
+    bdema_TestAllocator allocator;
+    //AlwaysFailAllocator badAllocator;
 
     int rc;
 
-    //bslma_Default::setDefaultAllocatorRaw(&badAllocator);
+    //bdema_Default::setDefaultAllocatorRaw(&badAllocator);
 
     // Create the shared pointer and schema object:
     bcema_SharedPtr<bdem_Schema> schema;
@@ -139,81 +138,75 @@ static void usageTest()
     // Table records can be unnamed, as can all but the top-level
     // ``database'' records:
     bdem_RecordDef *dinnerTable = schema->createRecord();
-    dinnerTable->appendField(bdem_ElemType::BDEM_DOUBLE, "spoon");
-    dinnerTable->appendField(bdem_ElemType::BDEM_INT,    "fork");
-    dinnerTable->appendField(bdem_ElemType::BDEM_STRING, "knife");
+    dinnerTable->appendField(bdem_ElemType::DOUBLE, "spoon");
+    dinnerTable->appendField(bdem_ElemType::INT,    "fork");
+    dinnerTable->appendField(bdem_ElemType::STRING, "knife");
 
     // Next, we create two keys (indexes) on the dinner table:
     bdem_RecordDef *dinnerKey1 = schema->createRecord();
-    dinnerKey1->appendField(bdem_ElemType::BDEM_STRING,  "knife");
+    dinnerKey1->appendField(bdem_ElemType::STRING,  "knife");
 
     bdem_RecordDef *dinnerKey2 = schema->createRecord();
-    dinnerKey2->appendField(bdem_ElemType::BDEM_INT,     "fork");
-    dinnerKey2->appendField(bdem_ElemType::BDEM_DOUBLE,  "spoon");
+    dinnerKey2->appendField(bdem_ElemType::INT,     "fork");
+    dinnerKey2->appendField(bdem_ElemType::DOUBLE,  "spoon");
 
-    // Next, we create a record to contain the table definition (the record
+    // Next, we create a record to contain the table definition (the record 
     // definition referred to by 'dinnerTable', created above) and all of
     // its keys (the record definition referred to by 'dinnerKey1' and
-    // 'dinnerKey2').  The names of the fields in this record will be used
+    // 'dinnerKey2'). The names of the fields in this record will be used
     // to look up keys by name through the interface of these classes.
     // IMPORTANTLY, the table definition goes at field index 0:
 
     bdem_RecordDef *dinnerTblInfo = schema->createRecord();
-    dinnerTblInfo->appendField(bdem_ElemType::BDEM_TABLE, dinnerTable,
-                               "table");
-    dinnerTblInfo->appendField(bdem_ElemType::BDEM_LIST, dinnerKey1,
-                               "knife_key");
-    dinnerTblInfo->appendField(bdem_ElemType::BDEM_LIST, dinnerKey2,
-                               "spork_key");
+    dinnerTblInfo->appendField(bdem_ElemType::TABLE, dinnerTable, "table");
+    dinnerTblInfo->appendField(bdem_ElemType::LIST, dinnerKey1, "knife_key");
+    dinnerTblInfo->appendField(bdem_ElemType::LIST, dinnerKey2, "spork_key");
 
-    // Now we are ready to create the database record.  The name of this
+    // Now we are ready to create the database record. The name of this
     // record will be used to look up the database by the createDb() method
     // of this factory class, and the names of the constrained list fields in
     // this record will be used to look up table names by the createBinding()
     // method:
 
     bdem_RecordDef *db1 = schema->createRecord("diningRoomDB");
-    db1->appendField(bdem_ElemType::BDEM_LIST, dinnerTblInfo, "dinner");
+    db1->appendField(bdem_ElemType::LIST, dinnerTblInfo, "dinner");
 
     // Of course, a database can have more than one table, and the factory
-    // is capable of creating more than one database.  So we will add another
-    // database containing two tables to this schema.  For simplicity, these
+    // is capable of creating more than one database. So we will add another
+    // database containing two tables to this schema. For simplicity, these
     // two tables will only have one key each:
 
     bdem_RecordDef *coffeeTable = schema->createRecord();
-    coffeeTable->appendField(bdem_ElemType::BDEM_INT,    "saucer");
-    coffeeTable->appendField(bdem_ElemType::BDEM_DOUBLE, "cup");
-    coffeeTable->appendField(bdem_ElemType::BDEM_STRING, "magazine");
+    coffeeTable->appendField(bdem_ElemType::INT,    "saucer");
+    coffeeTable->appendField(bdem_ElemType::DOUBLE, "cup");
+    coffeeTable->appendField(bdem_ElemType::STRING, "magazine");
 
     bdem_RecordDef *coffeeKey = schema->createRecord();
-    coffeeKey->appendField(bdem_ElemType::BDEM_STRING,   "magazine");
+    coffeeKey->appendField(bdem_ElemType::STRING,   "magazine");
 
     bdem_RecordDef *coffeeTblInfo = schema->createRecord();
-    coffeeTblInfo->appendField(bdem_ElemType::BDEM_TABLE, coffeeTable,
-                               "table");
-    coffeeTblInfo->appendField(bdem_ElemType::BDEM_LIST, coffeeKey, "magkey");
+    coffeeTblInfo->appendField(bdem_ElemType::TABLE, coffeeTable, "table");
+    coffeeTblInfo->appendField(bdem_ElemType::LIST, coffeeKey, "magkey");
 
     bdem_RecordDef *pokerTable = schema->createRecord();
-    pokerTable->appendField(bdem_ElemType::BDEM_STRING,  "winner");
-    pokerTable->appendField(bdem_ElemType::BDEM_INT,     "cards");
-    pokerTable->appendField(bdem_ElemType::BDEM_DOUBLE,  "cash");
+    pokerTable->appendField(bdem_ElemType::STRING,  "winner");
+    pokerTable->appendField(bdem_ElemType::INT,     "cards");
+    pokerTable->appendField(bdem_ElemType::DOUBLE,  "cash");
 
     bdem_RecordDef *pokerKey = schema->createRecord();
-    pokerTable->appendField(bdem_ElemType::BDEM_INT,     "cards");
+    pokerTable->appendField(bdem_ElemType::INT,     "cards");
 
     bdem_RecordDef *pokerTblInfo = schema->createRecord();
-    pokerTblInfo->appendField(bdem_ElemType::BDEM_TABLE, pokerTable, "table");
-    pokerTblInfo->appendField(bdem_ElemType::BDEM_LIST, pokerKey, "cardkey");
+    pokerTblInfo->appendField(bdem_ElemType::TABLE, pokerTable, "table");
+    pokerTblInfo->appendField(bdem_ElemType::LIST, pokerKey, "cardkey");
 
     bdem_RecordDef *db2 = schema->createRecord("livingRoomDB");
-    db2->appendField(bdem_ElemType::BDEM_LIST, coffeeTblInfo, "coffee");
-    db2->appendField(bdem_ElemType::BDEM_LIST, pokerTblInfo, "poker");
+    db2->appendField(bdem_ElemType::LIST, coffeeTblInfo, "coffee");
+    db2->appendField(bdem_ElemType::LIST, pokerTblInfo, "poker");
 
     bdem_RecordDef *top = schema->createRecord("toplevel");
-    top->appendField(bdem_ElemType::BDEM_LIST, db2, "livingRoomDB");
-    top->appendField(bdem_ElemType::BDEM_LIST, db1, "diningRoomDB");
-
-    if (veryVerbose) P(*schema);
+    top->appendField(bdem_ElemType::LIST, db2, "livingRoomDB");
+    top->appendField(bdem_ElemType::LIST, db1, "diningRoomDB");
 
     // We can now use the Factory and other classes in this component:
 
@@ -228,7 +221,7 @@ static void usageTest()
 
     // test getDbTables()
 
-    bsl::vector<bsl::string> dbTables1(&allocator);
+    std::vector<std::string> dbTables1(&allocator);
 
     dbHandle1->getDbTables(&dbTables1);
     ASSERT(dbTables1.size() == 2);
@@ -249,13 +242,13 @@ static void usageTest()
     bdem_Schema tagInfo(&allocator);
 
     dbHandle2->appendOnDiskTagInfo(&tagInfo, "dinner");
-    ASSERT(tagInfo.numRecords() == 1);
-    ASSERT(!bsl::strcmp(tagInfo.recordName(0), "dinner"));
+    ASSERT(tagInfo.length() == 1);
+    ASSERT(!std::strcmp(tagInfo.recordName(0), "dinner"));
     ASSERT(bdem_SchemaUtil::areEquivalent(tagInfo.record(0), *dinnerTable));
 
     dbHandle1->appendOnDiskTagInfo(&tagInfo, "poker");
-    ASSERT(tagInfo.numRecords() == 2);
-    ASSERT(!bsl::strcmp(tagInfo.recordName(1), "poker"));
+    ASSERT(tagInfo.length() == 2);
+    ASSERT(!std::strcmp(tagInfo.recordName(1), "poker"));
     ASSERT(bdem_SchemaUtil::areEquivalent(tagInfo.record(1), *pokerTable));
 
     // test getDbKeys()
@@ -263,15 +256,15 @@ static void usageTest()
     bdem_Schema tableKeys(&allocator);
 
     dbHandle2->getDbKeys(&tableKeys, "dinner");
-    ASSERT(tableKeys.numRecords() == 2);
-    ASSERT(!bsl::strcmp(tableKeys.recordName(0), "knife_key"));
+    ASSERT(tableKeys.length() == 2);
+    ASSERT(!std::strcmp(tableKeys.recordName(0), "knife_key"));
     ASSERT(bdem_SchemaUtil::areEquivalent(tableKeys.record(0), *dinnerKey1));
-    ASSERT(!bsl::strcmp(tableKeys.recordName(1), "spork_key"));
+    ASSERT(!std::strcmp(tableKeys.recordName(1), "spork_key"));
     ASSERT(bdem_SchemaUtil::areEquivalent(tableKeys.record(1), *dinnerKey2));
 
     dbHandle1->getDbKeys(&tableKeys, "coffee");
-    ASSERT(tableKeys.numRecords() == 1);
-    ASSERT(!bsl::strcmp(tableKeys.recordName(0), "magkey"));
+    ASSERT(tableKeys.length() == 1);
+    ASSERT(!std::strcmp(tableKeys.recordName(0), "magkey"));
     ASSERT(bdem_SchemaUtil::areEquivalent(tableKeys.record(0), *coffeeKey));
 
     // test createBinding()
@@ -303,10 +296,10 @@ static void usageTest()
 
     rc = dinnerBinding1->updateData(dinnerBound2);
     ASSERT(0 == rc);
-    ASSERT(dinnerBound1.recordDef().numFields() == 3);
+    ASSERT(dinnerBound1.recordDef().length() == 3);
     ASSERT(dinnerBound1.field("knife").asString() == "just testing");
     ASSERT(dinnerBound1.field("fork").asInt() == 42);
-    ASSERT(dinnerBound1.field("spoon").asElemRef().isNull());
+    ASSERT(dinnerBound1.field("spoon").isNull());
 
     // test createControl()
 
@@ -316,9 +309,9 @@ static void usageTest()
     // test addRecordToDb() ... repeatedly
 
     for (int i = 0; i < DINNER_TABLE_LEN; ++i) {
-        dinnerBound1.setField("spoon", DINNER_TABLE_DATA[i].d_spoon);
-        dinnerBound1.setField("fork",  DINNER_TABLE_DATA[i].d_fork );
-        dinnerBound1.setField("knife", DINNER_TABLE_DATA[i].d_knife);
+        dinnerBound1.setField("spoon", DINNER_TABLE_DATA[i].spoon);
+        dinnerBound1.setField("fork",  DINNER_TABLE_DATA[i].fork );
+        dinnerBound1.setField("knife", DINNER_TABLE_DATA[i].knife);
 
         rc = dinnerCtrl1->addRecordToDb();
         LOOP_ASSERT(i, 0 == rc);
@@ -326,7 +319,8 @@ static void usageTest()
 
     // test findRecordInDb()
 
-    bcedb_DtagBindingType *dinnerBinding2 = dbHandle2->createBinding("dinner");
+    bcedb_DtagBindingType *dinnerBinding2 = 
+        dbHandle2->createBinding("dinner");
     ASSERT(dinnerBinding2);
 
     dinnerBound2.setField("knife", "Ojj#odO8l+ct");
@@ -350,7 +344,7 @@ static void usageTest()
     ASSERT(bcedb_DtagControlType::FIND_STATUS_NONE == find_rc);
 
     // test destroyBinding()
-
+    
     dbHandle2->destroyBinding(dinnerBinding2);
 
     dinnerBinding2 = dbHandle2->createBinding("dinner");
@@ -402,24 +396,20 @@ static void usageTest()
     dinnerBound2.setField("knife", "Hello");
     dinnerBound1.setField("knife", "avm6IuC!");
 
-    find_rc = dinnerCtrl2->findRangeInDb(dinnerBinding1,
-                                         "knife_key", "knife:5");
+    find_rc = dinnerCtrl2->findRangeInDb(dinnerBinding1, 
+            "knife_key", "knife:5");
     ASSERT(bcedb_DtagControlType::FIND_STATUS_ONE == find_rc);
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
-
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    int test = argc > 1 ? std::atoi(argv[1]) : 0;
+    verbose = (argc > 2);
+    veryVerbose = (argc > 3);
+    veryVeryVerbose = (argc > 4);
+    veryVeryVeryVerbose = (argc > 5);
 
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
+    std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
@@ -428,22 +418,22 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "Usage Example Test" << bsl::endl
-                      << "==================" << bsl::endl;
+            std::cout << "Usage Example Test" << std::endl
+                      << "==================" << std::endl;
         }
-
+        
         usageTest();
 
       } break;
       default: {
-        bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
+        std::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << std::endl;
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        bsl::cerr << "Error, non-zero test status = " << testStatus << "."
-                  << bsl::endl;
+        std::cerr << "Error, non-zero test status = " << testStatus << "."
+                  << std::endl;
     }
     return testStatus;
 }
@@ -456,3 +446,4 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ------------------------------ END-OF-FILE ---------------------------------
+

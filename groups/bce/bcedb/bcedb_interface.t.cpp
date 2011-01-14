@@ -1,9 +1,9 @@
 // bcedb_interface.t.cpp  -*-C++-*-
 #include <bcedb_interface.h>
 
-#include <bsl_cstdlib.h>
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
 
 using namespace BloombergLP;
 
@@ -24,8 +24,8 @@ static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
+        std::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << std::endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
@@ -36,16 +36,16 @@ static void aSsErT(int c, const char *s, int i)
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
+    if (!(X)) { std::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); }}
 
 #define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
+    if (!(X)) { std::cout << #I << ": " << I << "\t"  \
                           << #J << ": " << J << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
 
 #define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
+   if (!(X)) { std::cout << #I << ": " << I << "\t" \
                          << #J << ": " << J << "\t" \
                          << #K << ": " << K << "\n";\
                aSsErT(1, #X, __LINE__); } }
@@ -54,11 +54,11 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
+#define P(X) std::cout << #X " = " << (X) << std::endl;
                                               // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
+#define Q(X) std::cout << "<| " #X " |>" << std::endl;
                                               // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
+#define P_(X) std::cout << #X " = " << (X) << ", " << std::flush;
                                               // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define NL "\n"
@@ -79,13 +79,13 @@ static int veryVeryVeryVerbose = 0;
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int test = argc > 1 ? std::atoi(argv[1]) : 0;
     verbose = (argc > 2);
     veryVerbose = (argc > 3);
     veryVeryVerbose = (argc > 4);
     veryVeryVeryVerbose = (argc > 5);
 
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
+    std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
@@ -94,20 +94,20 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "Basic Test" << bsl::endl
-                      << "==========" << bsl::endl;
+            std::cout << "Basic Test" << std::endl
+                      << "==========" << std::endl;
         }
 
       } break;
       default: {
-        bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
+        std::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << std::endl;
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        bsl::cerr << "Error, non-zero test status = " << testStatus << "."
-                  << bsl::endl;
+        std::cerr << "Error, non-zero test status = " << testStatus << "."
+                  << std::endl;
     }
     return testStatus;
 }
@@ -120,3 +120,4 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ------------------------------ END-OF-FILE ---------------------------------
+
