@@ -12,7 +12,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   bdeut_StrTokenIter: token iterator for a non-modifiable string
 //
-//@SEE_ALSO: bdeut_stringref
+//@SEE_ALSO: bdeut_stringref, bdeut_strtokenrefiter
 //
 //@AUTHOR: John Lakos (jlakos)
 //
@@ -22,6 +22,13 @@ BDES_IDENT("$Id: $")
 // non-null characters in one or both of two delimiter sets: *soft* and *hard*.
 // In iterating through the input string, the iterator also keeps track of, and
 // provides access to, the delimiters.
+//
+// Note that the 'bdeut_strtokenrefiter' component provides a more efficient
+// means for tokenizing strings, and its use should be preferred over this
+// component.  In choosing between the two 'bdeut' tokenizing components, note
+// that the 'operator()', 'delimiter', and 'previousDelimiter' accessors of
+// 'bdeut_StrTokenRefIter' return 'bdeut_StringRef' and those of
+// 'bdeut_StrTokenIter' return 'const char *'.
 //
 ///Definitions
 ///-----------
@@ -317,7 +324,9 @@ class bslma_Allocator;
 
 class bdeut_StrTokenIter {
     // Provide read-only sequential access to the user-described tokens in a
-    // 'const char *' string.
+    // 'const char *' string.  Note that the 'bdeut_StrTokenRefIter' class
+    // provides a more efficient means for tokenizing a string via
+    // 'bdeut_StringRef', and its use should be preferred over this class.
 
     enum { BDEUT_TABLE_SIZE = 256 };
 

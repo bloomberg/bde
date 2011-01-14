@@ -130,6 +130,10 @@ BDES_IDENT("$Id: $")
 
 #endif
 
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>
+#endif
+
 namespace BloombergLP {
 
 struct bdeut_NullableAllocatedValue_Traits
@@ -190,6 +194,13 @@ class bdeut_NullableAllocatedValue {
 
     TYPE& operator=(const TYPE& rhs);
         // Assign to this object the value of the specified 'rhs' object.
+
+    void swap(bdeut_NullableAllocatedValue& other);
+        // Swap the value of this object with the value of the specified
+        // 'other' object.  This method provides the no-throw guarantee if the
+        // 'TYPE' template parameter has a no-throw 'swap' and the result of
+        // the 'isNull' method for the two objects being swapped is the same.
+        // The behavior is undefined if the objects have non-equal allocators.
 
     TYPE& makeValue(const TYPE& rhs);
         // Assign the specified 'rhs' value to this nullable object (i.e., make
@@ -271,6 +282,16 @@ template <typename TYPE>
 bsl::ostream& operator<<(bsl::ostream&                             stream,
                          const bdeut_NullableAllocatedValue<TYPE>& rhs);
     // Print the specified 'rhs' to the specified 'stream' in a single line.
+
+// FREE FUNCTIONS
+template <typename TYPE>
+void swap(bdeut_NullableAllocatedValue<TYPE>& a,
+          bdeut_NullableAllocatedValue<TYPE>& b);
+    // Swap the values of the specified 'a' and 'b' objects.  This method
+    // provides the no-throw guarantee if the 'TYPE' template parameter has a
+    // no-throw 'swap' and the result of the 'isNull' method for the two
+    // objects being swapped is the same.  The behavior is undefined if the
+    // objects have non-equal allocators.
 
 // ---  Anything below this line is implementation specific.  Do not use.  ----
 
@@ -355,13 +376,58 @@ bdeut_NullableAllocatedValue<TYPE>
 
 template <typename TYPE>
 inline
+void
+bdeut_NullableAllocatedValue<TYPE>
+::swap(bdeut_NullableAllocatedValue& other)
+{
+    // 'swap' is undefined for non-equal allocators.
+
+    BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
+
+    // same 'isNull' flags
+
+    if (isNull() && other.isNull()) {
+        // nothing to do for empty objects
+        return;                                                       // RETURN
+    }
+
+    if (!isNull() && !other.isNull()) {
+        // swap typed values
+        using bsl::swap;
+
+        swap(this->value(), other.value());
+        return;                                                       // RETURN
+    }
+
+    // different 'isNull' flags
+
+    bdeut_NullableAllocatedValue *nullObj;
+    bdeut_NullableAllocatedValue *nonNullObj;
+
+    if (isNull()) {
+        nullObj    = this;
+        nonNullObj = &other;
+    }
+    else {
+        nullObj    = &other;
+        nonNullObj = this;
+    }
+
+    // copy-construct and reset
+    nullObj->makeValue(nonNullObj->value()); // this can throw, and then 'swap'
+                                             // is only strongly exception-safe
+    nonNullObj->reset();
+}
+
+template <typename TYPE>
+inline
 TYPE&
 bdeut_NullableAllocatedValue<TYPE>
 ::makeValue(const TYPE& rhs)
 {
     if (d_value_p) {
         *d_value_p = rhs;
-        return *d_value_p;
+        return *d_value_p;                                           // RETURN
     }
 
     TYPE *value = reinterpret_cast<TYPE*>(
@@ -381,6 +447,16 @@ bdeut_NullableAllocatedValue<TYPE>
 ::makeValue()
 {
     reset();
+
+    // Note that this alternative implementation instead of 'reset()' provides
+    // stronger exception-safety, but it breaks some client code that uses
+    // bdeut_NullableAllocatedValue with a non-value-semantic TYPE.
+    //..
+    // if (d_value_p) {
+    //     *d_value_p = TYPE(d_allocator_p);
+    //     return *d_value_p;                                         // RETURN
+    // }
+    //..
 
     TYPE *value = reinterpret_cast<TYPE*>(
                                         d_allocator_p->allocate(sizeof(TYPE)));
@@ -537,6 +613,15 @@ bsl::ostream& operator<<(bsl::ostream&                             stream,
                          const bdeut_NullableAllocatedValue<TYPE>& rhs)
 {
     return rhs.print(stream, 0, -1);
+}
+
+// FREE FUNCTIONS
+template <typename TYPE>
+inline
+void swap(bdeut_NullableAllocatedValue<TYPE>& a,
+          bdeut_NullableAllocatedValue<TYPE>& b)
+{
+    a.swap(b);
 }
 
 }  // close namespace BloombergLP

@@ -115,6 +115,10 @@ BDES_IDENT("$Id: $")
 
 #endif  // BSLS_PLATFORM__CMP_IBM
 
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>
+#endif
+
 namespace BloombergLP {
 
 class bslma_Allocator;
@@ -267,6 +271,14 @@ class bdeut_NullableValue {
         // this operator for a 'BDE_OTHER_TYPE' that is incompatible with the
         // underlying 'TYPE' will fail to compile.
 
+    void swap(bdeut_NullableValue& other);
+        // Swap the value of this object with the value of the specified
+        // 'other' object.  This method provides the no-throw guarantee if the
+        // 'TYPE' template parameter has a no-throw 'swap' and the result of
+        // the 'isNull' method for the two objects being swapped is the same.
+        // The behavior is undefined if the objects have non-equal allocators
+        // for a 'TYPE' that requires an allocator.
+
     TYPE& makeValue(const TYPE& value);
         // Assign to this nullable object the specified (non-null) 'value' of
         // parameterized 'TYPE'.  Return a reference to the modifiable
@@ -372,6 +384,16 @@ bsl::ostream& operator<<(bsl::ostream&                    stream,
     // human-readable, single-line format, and return a reference to the
     // modifiable 'stream'.
 
+// FREE FUNCTIONS
+template <typename TYPE>
+void swap(bdeut_NullableValue<TYPE>& a, bdeut_NullableValue<TYPE>& b);
+    // Swap the values of the specified 'a' and 'b' objects.  This method
+    // provides the no-throw guarantee if the 'TYPE' template parameter has a
+    // no-throw 'swap' and the result of the 'isNull' method for the two
+    // objects being swapped is the same.  The behavior is undefined if the
+    // objects have non-equal allocators for a 'TYPE' that requires an
+    // allocator.
+
 // ----------------------------------------------------------------------------
 // ---  Anything below this line is implementation specific.  Do not use.  ----
 // ----------------------------------------------------------------------------
@@ -473,6 +495,13 @@ class bdeut_NullableValue_WithAllocator {
         // this object will be set to null; otherwise, this object will be set
         // to have the same value (of parameterized 'TYPE') as that of 'rhs'.
 
+    void swap(bdeut_NullableValue_WithAllocator& other);
+        // Swap the value of this object with the value of the specified
+        // 'other' object.  This method provides the no-throw guarantee if the
+        // 'TYPE' template parameter has a no-throw 'swap' and the result of
+        // the 'isNull' method for the two objects being swapped is the same.
+        // The behavior is undefined if the objects have non-equal allocators.
+
     void makeValue(const TYPE& value);
         // Set the value of this object to be that of the specified 'value' of
         // parameterized 'TYPE'.
@@ -544,6 +573,12 @@ class bdeut_NullableValue_WithoutAllocator {
         // return a reference to this modifiable object.  If 'rhs' is null,
         // this object will be set to null; otherwise, this object will be set
         // to have the same value (of parameterized 'TYPE') as that of 'rhs'.
+
+    void swap(bdeut_NullableValue_WithoutAllocator& other);
+        // Swap the value of this object with the value of the specified
+        // 'other' object.  This method provides the no-throw guarantee if the
+        // 'TYPE' template parameter has a no-throw 'swap' and the result of
+        // the 'isNull' method for the two objects being swapped is the same.
 
     void makeValue(const TYPE& value);
         // Set the value of this object to be that of the specified 'value' of
@@ -707,6 +742,13 @@ bdeut_NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
 
 template <typename TYPE>
 inline
+void bdeut_NullableValue<TYPE>::swap(bdeut_NullableValue<TYPE>& other)
+{
+    d_imp.swap(other.d_imp);
+}
+
+template <typename TYPE>
+inline
 TYPE& bdeut_NullableValue<TYPE>::makeValue(const TYPE& value)
 {
     d_imp.makeValue(value);
@@ -857,6 +899,14 @@ bsl::ostream& operator<<(bsl::ostream&                    stream,
     return rhs.print(stream, 0, -1);
 }
 
+// FREE FUNCTIONS
+template <typename TYPE>
+inline
+void swap(bdeut_NullableValue<TYPE>& a, bdeut_NullableValue<TYPE>& b)
+{
+    a.swap(b);
+}
+
                // ---------------------------------------------
                // class bdeut_NullableValue_WithAllocator<TYPE>
                // ---------------------------------------------
@@ -908,6 +958,48 @@ bdeut_NullableValue_WithAllocator<TYPE>::operator=(
 }
 
 template <typename TYPE>
+void bdeut_NullableValue_WithAllocator<TYPE>::swap(
+                                      bdeut_NullableValue_WithAllocator& other)
+{
+    // 'swap' is undefined for non-equal allocators.
+
+    BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
+
+    // same 'isNull' flags
+
+    if (isNull() && other.isNull()) {
+        return;                                                       // RETURN
+    }
+
+    if (!isNull() && !other.isNull()) {
+        // swap typed values
+        using bsl::swap;
+
+        swap(this->value(), other.value());
+        return;                                                       // RETURN
+    }
+
+    // different 'isNull' flags
+
+    bdeut_NullableValue_WithAllocator *nullObj;
+    bdeut_NullableValue_WithAllocator *nonNullObj;
+
+    if (isNull()) {
+        nullObj    = this;
+        nonNullObj = &other;
+    }
+    else {
+        nullObj    = &other;
+        nonNullObj = this;
+    }
+
+    // copy-construct and reset
+    nullObj->makeValue(nonNullObj->value()); // this can throw, and then 'swap'
+                                             // is only strongly exception-safe
+    nonNullObj->reset();
+}
+
+template <typename TYPE>
 void bdeut_NullableValue_WithAllocator<TYPE>::makeValue(const TYPE& value)
 {
     if (d_isNull) {
@@ -941,6 +1033,19 @@ void bdeut_NullableValue_WithAllocator<TYPE>::makeValue()
 
     new (d_buffer.buffer()) TYPE(d_allocator_p);
     d_isNull = false;
+
+    // Note that this alternative implementation provides stronger
+    // exception-safety, but it breaks some client code that uses
+    // bdeut_NullableValue with a non-value-semantic TYPE.
+    //..
+    // if (d_isNull) {
+    //     new (d_buffer.buffer()) TYPE(d_allocator_p);
+    //     d_isNull = false;
+    // }
+    // else {
+    //     d_buffer.object() = TYPE(d_allocator_p);
+    // }
+    //..
 }
 
 template <typename TYPE>
@@ -1029,6 +1134,44 @@ bdeut_NullableValue_WithoutAllocator<TYPE>::operator=(
 }
 
 template <typename TYPE>
+void bdeut_NullableValue_WithoutAllocator<TYPE>::swap(
+                                   bdeut_NullableValue_WithoutAllocator& other)
+{
+    // same 'isNull' flags
+
+    if (isNull() && other.isNull()) {
+        return;                                                       // RETURN
+    }
+
+    if (!isNull() && !other.isNull()) {
+        // swap typed values
+        using bsl::swap;
+
+        swap(this->value(), other.value());
+        return;                                                       // RETURN
+    }
+
+    // different 'isNull' flags
+
+    bdeut_NullableValue_WithoutAllocator *nullObj;
+    bdeut_NullableValue_WithoutAllocator *nonNullObj;
+
+    if (isNull()) {
+        nullObj    = this;
+        nonNullObj = &other;
+    }
+    else {
+        nullObj    = &other;
+        nonNullObj = this;
+    }
+
+    // copy-construct and reset
+    nullObj->makeValue(nonNullObj->value()); // this can throw, and then 'swap'
+                                             // is only strongly exception-safe
+    nonNullObj->reset();
+}
+
+template <typename TYPE>
 void bdeut_NullableValue_WithoutAllocator<TYPE>::makeValue(const TYPE& value)
 {
     if (d_isNull) {
@@ -1062,6 +1205,18 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::makeValue()
 
     new (d_buffer.buffer()) TYPE();
     d_isNull = false;
+
+    // Note that this alternative implementation provides stronger
+    // exception-safety, but it breaks some client code that uses
+    // bdeut_NullableValue with a non-value-semantic TYPE.
+    //..
+    // if (d_isNull) {
+    //     new (d_buffer.buffer()) TYPE();
+    //     d_isNull = false;
+    // }
+    // else {
+    //     d_buffer.object() = TYPE();
+    // }
 }
 
 template <typename TYPE>

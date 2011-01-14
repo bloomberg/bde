@@ -2455,6 +2455,8 @@ int main(int argc, char *argv[])
                 ASSERT(-1 == retCode);
 
                 mX.swap(mY);
+                swap(mX, mY);  // try the free function as well
+                mY.swap(mX);
 
                 switch (X.typeIndex()) {
                   case UNSET: {

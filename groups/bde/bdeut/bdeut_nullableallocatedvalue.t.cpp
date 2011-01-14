@@ -150,8 +150,37 @@ void addValueAtEnd(LinkedListNode *node, int value)
 }  // close namespace UsageExample
 
 //=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
+
+struct Swappable {
+    int d_value;
+    static int d_swap_called;
+
+    static void swap_reset() {
+        d_swap_called = 0;
+    }
+
+    static int swap_called() {
+        return d_swap_called;
+    }
+
+    Swappable(int v)
+        : d_value(v)
+    {}
+
+    bool operator==(const Swappable& rhs) const {
+        return d_value == rhs.d_value;
+    }
+};
+
+int Swappable::d_swap_called = 0;
+
+void swap(Swappable& lhs, Swappable& rhs) {
+    ++Swappable::d_swap_called;
+
+    bsl::swap(lhs.d_value, rhs.d_value);
+}
 
 //=============================================================================
 //            GENERATOR FUNCTIONS 'g', 'gg' and 'ggg' FOR TESTING
@@ -184,7 +213,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         // Concerns:
@@ -213,6 +242,76 @@ int main(int argc, char *argv[])
         ASSERT(53 == node.d_next.value().d_next.value().d_value);
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING SWAP METHOD
+        //
+        // Concerns:
+        //   1. swap for two null objects is a no-op,
+        //   2. swap for null and non-null moves the value from one object to
+        //      another without calling swap for the value type,
+        //   3. swap for two non-null objects calls swap for the value type.
+        //
+        // Plan:
+        //   Create a value type class, 'Swappable', with a swap method
+        //   instrumented to track swap calls.  Instantiate
+        //   bdeut_NullableAllocatedValue with that type and execute operations
+        //   needed to verify the concerns.
+        //
+        // Testing:
+        //   void swap(bdeut_NullableAllocatedValue<TYPE>& other);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Swap Method"
+                          << "\n==================="
+                          << endl;
+
+        using bsl::swap;
+
+        {
+            // swap for two null objects is a no-op
+            bdeut_NullableAllocatedValue<Swappable> nullObj1;
+            bdeut_NullableAllocatedValue<Swappable> nullObj2;
+
+            Swappable::swap_reset();
+            swap(nullObj1, nullObj2);
+
+            ASSERT(!Swappable::swap_called());
+            ASSERT(nullObj1.isNull());
+            ASSERT(nullObj2.isNull());
+        }
+
+        {
+            // swap for null and non-null moves the value from one object to
+            // another without calling swap for the value type.
+            bdeut_NullableAllocatedValue<Swappable> nonNullObj(Swappable(10));
+            bdeut_NullableAllocatedValue<Swappable> nonNullObjCopy(nonNullObj);
+            bdeut_NullableAllocatedValue<Swappable> nullObj;
+
+            Swappable::swap_reset();
+            swap(nonNullObj, nullObj);
+
+            ASSERT(!Swappable::swap_called());
+            ASSERT(nonNullObjCopy == nullObj);
+            ASSERT(nonNullObj.isNull());
+        }
+
+        {
+            // swap for two non-null objects calls swap for the value type.
+            bdeut_NullableAllocatedValue<Swappable> obj1(Swappable(10));
+            bdeut_NullableAllocatedValue<Swappable> obj2(Swappable(20));
+
+            bdeut_NullableAllocatedValue<Swappable> obj1Copy(obj1);
+            bdeut_NullableAllocatedValue<Swappable> obj2Copy(obj2);
+
+            Swappable::swap_reset();
+            swap(obj1, obj2);
+
+            ASSERT(Swappable::swap_called());
+            ASSERT(obj1 == obj2Copy);
+            ASSERT(obj2 == obj1Copy);
+        }
       } break;
       case 8: {
         typedef bdex_TestInStream  In;

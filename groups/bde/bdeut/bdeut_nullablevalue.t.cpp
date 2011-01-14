@@ -45,6 +45,7 @@ using bsl::atoi;
 // [12] operator=(const bdeut_NullableValue<OTHER_TYPE>& rhs);
 // [10] operator=(const TYPE& rhs);
 // [12] operator=(const OTHER_TYPE& rhs);
+// [13] void swap(bdeut_NullableValue<TYPE>& other);
 // [ 3] TYPE& makeValue(const TYPE& value);
 // [12] TYPE& makeValue(const OTHER_TYPE& value);
 // [10] TYPE& makeValue();
@@ -66,7 +67,7 @@ using bsl::atoi;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [13] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
@@ -170,6 +171,35 @@ bool operator==(const Recipient& lhs, const Recipient& rhs)
     return lhs.d_msgType == rhs.d_msgType;
 }
 
+struct Swappable {
+    int d_value;
+    static int d_swap_called;
+
+    static void swap_reset() {
+        d_swap_called = 0;
+    }
+
+    static int swap_called() {
+        return d_swap_called;
+    }
+
+    Swappable(int v)
+        : d_value(v)
+    {}
+
+    bool operator==(const Swappable& rhs) const {
+        return d_value == rhs.d_value;
+    }
+};
+
+int Swappable::d_swap_called = 0;
+
+void swap(Swappable& lhs, Swappable& rhs) {
+    ++Swappable::d_swap_called;
+
+    bsl::swap(lhs.d_value, rhs.d_value);
+}
+
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -208,7 +238,7 @@ int main(int argc, char *argv[])
     bslma_TestAllocator *ALLOC = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -241,6 +271,76 @@ int main(int argc, char *argv[])
 //..
 
       } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING SWAP METHOD
+        //
+        // Concerns:
+        //   1. swap for two null objects is a no-op,
+        //   2. swap for null and non-null moves the value from one object to
+        //      another without calling swap for the value type,
+        //   3. swap for two non-null objects calls swap for the value type.
+        //
+        // Plan:
+        //   Create a value type class, 'Swappable', with a swap method
+        //   instrumented to track swap calls.  Instantiate bdeut_NullableValue
+        //   with that type and execute operations needed to verify the
+        //   concerns.
+        //
+        // Testing:
+        //   void swap(bdeut_NullableValue<TYPE>& other);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Swap Method"
+                          << "\n==================="
+                          << endl;
+
+        using bsl::swap;
+
+        {
+            // swap for two null objects is a no-op
+            bdeut_NullableValue<Swappable> nullObj1;
+            bdeut_NullableValue<Swappable> nullObj2;
+
+            Swappable::swap_reset();
+            swap(nullObj1, nullObj2);
+
+            ASSERT(!Swappable::swap_called());
+            ASSERT(nullObj1.isNull());
+            ASSERT(nullObj2.isNull());
+        }
+
+        {
+            // swap for null and non-null moves the value from one object to
+            // another without calling swap for the value type.
+            bdeut_NullableValue<Swappable> nonNullObj(Swappable(10));
+            bdeut_NullableValue<Swappable> nonNullObjCopy(nonNullObj);
+            bdeut_NullableValue<Swappable> nullObj;
+
+            Swappable::swap_reset();
+            swap(nonNullObj, nullObj);
+
+            ASSERT(!Swappable::swap_called());
+            ASSERT(nonNullObjCopy == nullObj);
+            ASSERT(nonNullObj.isNull());
+        }
+
+        {
+            // swap for two non-null objects calls swap for the value type.
+            bdeut_NullableValue<Swappable> obj1(Swappable(10));
+            bdeut_NullableValue<Swappable> obj2(Swappable(20));
+
+            bdeut_NullableValue<Swappable> obj1Copy(obj1);
+            bdeut_NullableValue<Swappable> obj2Copy(obj2);
+
+            Swappable::swap_reset();
+            swap(obj1, obj2);
+
+            ASSERT(Swappable::swap_called());
+            ASSERT(obj1 == obj2Copy);
+            ASSERT(obj2 == obj1Copy);
+        }
+      } break;
       case 12: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION ASSIGNMENT OPERATIONS
@@ -272,6 +372,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         if (verbose) cout << "\nUsing 'int' and 'double." << endl;
+
         {
             typedef int    ValueType1;
             typedef double ValueType2;
@@ -321,6 +422,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nUsing 'double' and 'int." << endl;
+
         {
             typedef double ValueType1;
             typedef int    ValueType2;
@@ -372,6 +474,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                 << "\nUsing 'bsl::string' and 'char *' + ALLOC." << endl;
+
         {
             typedef const char *ValueType1;
             typedef bsl::string ValueType2;
@@ -424,6 +527,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                 << "\nUsing 'Recipient' and 'MessageType'." << endl;
+
         {
             typedef MessageType ValueType1;
             typedef Recipient   ValueType2;
@@ -476,6 +580,7 @@ int main(int argc, char *argv[])
 #ifdef SOMETHING_ELSE_THAT_SHOULD_NOT_WORK
         if (verbose) cout
                 << "\nUsing 'bsl::string' and 'int'." << endl;
+
         {
             typedef int         ValueType1;
             typedef bsl::string ValueType2;
@@ -553,6 +658,7 @@ int main(int argc, char *argv[])
                           << "\n===============================" << endl;
 
         if (verbose) cout << "\nUsing 'int' and 'double." << endl;
+
         {
             typedef int                            ValueType1;
             typedef double                         ValueType2;
@@ -570,6 +676,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nUsing 'double' and 'int'." << endl;
+
         {
             typedef double                          ValueType1;
             typedef int                             ValueType2;
@@ -588,6 +695,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                 << "\nUsing 'bsl::string' and 'char *' + ALLOC." << endl;
+
         {
             typedef char *                          ValueType1;
             typedef bsl::string                     ValueType2;
@@ -611,6 +719,7 @@ int main(int argc, char *argv[])
 #ifdef SOMETHING_THAT_SHOULD_NOT_WORK
 
         if (verbose) cout << "\nUsing 'bsl::string' and 'int'." << endl;
+
         {
             typedef int                             ValueType1;
             typedef bsl::string                     ValueType2;
@@ -652,6 +761,7 @@ int main(int argc, char *argv[])
                           << "\n=================================" << endl;
 
         if (verbose) cout << "\nUsing 'bdeut_NullableValue<int>." << endl;
+
         {
             typedef int                            ValueType;
             typedef bdeut_NullableValue<ValueType> Obj;
@@ -681,6 +791,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing bdeut_NullableValue<bsl::string>."
                           << endl;
+
         {
             typedef bsl::string                    ValueType;
             typedef bdeut_NullableValue<ValueType> Obj;
@@ -731,6 +842,7 @@ int main(int argc, char *argv[])
                           << "\n==========================" << endl;
 
         if (verbose) cout << "\nUsing 'bdeut_NullableValue<int>." << endl;
+
         {
             typedef int                            ValueType;
             typedef bdeut_NullableValue<ValueType> Obj;
@@ -747,6 +859,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing bdeut_NullableValue<bsl::string>."
                           << endl;
+
         {
             typedef bsl::string                    ValueType;
             typedef bdeut_NullableValue<ValueType> Obj;
@@ -916,6 +1029,7 @@ int main(int argc, char *argv[])
                           << "\n========================" << endl;
 
         if (verbose) cout << "\nUsing 'bdeut_NullableValue<int>." << endl;
+
         {
             typedef int                            ValueType;
             typedef bdeut_NullableValue<ValueType> Obj;
@@ -951,6 +1065,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing bdeut_NullableValue<bsl::string>."
                           << endl;
+
         {
             typedef bsl::string                    ValueType;
             typedef bdeut_NullableValue<ValueType> Obj;
@@ -1186,11 +1301,13 @@ int main(int argc, char *argv[])
         typedef bdeut_NullableValue<ValueType> Obj;
 
         if (verbose) cout << "\nTesting 'print' Method." << endl;
+
         {
             // TBD:
         }
 
         if (verbose) cout << "\nTesting Output (<<) Operator." << endl;
+
         {
             const ValueType VALUE1          = 123;
             const char      NULL_RESULT[]   = "NULL";
@@ -1253,6 +1370,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         if (verbose) cout << "\nUsing 'bdeut_NullableValue<int>'." << endl;
+
         {
             typedef int                            ValueType;
             typedef bdeut_NullableValue<ValueType> Obj;
@@ -1260,6 +1378,7 @@ int main(int argc, char *argv[])
             ASSERT(sizeof(ValueType) == sizeof(Obj::ValueType));
 
             if (veryVerbose) cout << "\tTesting default constructor." << endl;
+
             {
                 Obj mX;  const Obj& X = mX;
                 if (veryVeryVerbose) { T_ T_ P(X) };
@@ -1267,6 +1386,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) cout << "\tTesting 'makeValue'." << endl;
+
             {
                 Obj mX;  const Obj& X = mX;
 
@@ -1277,6 +1397,7 @@ int main(int argc, char *argv[])
                 ASSERT(!X.isNull());
                 LOOP_ASSERT(X.value(), VALUE1 == X.value());
             }
+
             {
                 Obj mX;  const Obj& X = mX;
 
@@ -1293,6 +1414,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'bdeut_NullableValue<bsl::string>'."
                           << endl;
+
         {
             typedef bsl::string                    ValueType;
             typedef bdeut_NullableValue<ValueType> Obj;
@@ -1300,6 +1422,7 @@ int main(int argc, char *argv[])
             ASSERT(sizeof(ValueType) == sizeof(Obj::ValueType));
 
             if (veryVerbose) cout << "\tTesting default constructor." << endl;
+
             {
                 Obj mX(ALLOC);  const Obj& X = mX;
                 if (veryVeryVerbose) { T_ T_ P(X) };
@@ -1307,6 +1430,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) cout << "\tTesting 'makeValue'." << endl;
+
             {
                 Obj mX(ALLOC);  const Obj& X = mX;
 
@@ -1317,6 +1441,7 @@ int main(int argc, char *argv[])
                 ASSERT(!X.isNull());
                 LOOP_ASSERT(X.value(), VALUE1 == X.value());
             }
+
             {
                 Obj mX(ALLOC);  const Obj& X = mX;
 

@@ -694,6 +694,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -728,10 +732,10 @@ class bdeut_VariantImp;
 
 template <class VISITOR>
 struct bdeut_Variant_ReturnValueHelper {
-    // This struct is a component-private meta-function.  Do not use.
-    // This meta-function checks whether the parameterized type 'VISITOR'
-    // has the member type 'Type' defined using "SFINAE" - substitution failure
-    // is not an error.
+    // This struct is a component-private meta-function.  Do *not* use.  This
+    // meta-function checks whether the parameterized 'VISITOR' type has the
+    // member 'Type' defined using "SFINAE" - substitution failure is not an
+    // error.
 
     template <typename T> static bslmf_MetaInt<1> match(
                                                       typename T::ResultType*);
@@ -1720,12 +1724,12 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // Destroy the current type held by this variant, and assign to this
         // variant the default unset value.
 
-    void swap(bdeut_VariantImp& rhs);
-        // Swap the value of this variant with the value of the specified 'rhs'
-        // variant.  This method is *exception* *neutral*; the method itself
-        // does not throw an exception, but will propagate any exceptions
-        // thrown by the currently installed default allocator or copy
-        // constructors of the types held by this variant and 'rhs'.
+    void swap(bdeut_VariantImp& other);
+        // Swap the value of this object with the value of the specified
+        // 'other' object.  This method provides the no-throw guarantee if the
+        // 'TYPE' template parameter has a no-throw 'swap' and the two variant
+        // objects being swapped have the same type.  Otherwise it provides the
+        // basic guarantee.
 
     template <class TYPE>
     TYPE& the();
@@ -2103,6 +2107,14 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
     // Write the specified 'rhs' variant object to the specified output
     // 'stream' in a one-line (human-readable) format, and return a reference
     // to the modifiable 'stream'.
+
+// FREE FUNCTIONS
+template <typename TYPES>
+void swap(bdeut_VariantImp<TYPES>& a, bdeut_VariantImp<TYPES>& b);
+    // Swap the values of the specified 'a' and 'b' objects.  This method
+    // provides the no-throw guarantee if the 'TYPE' template parameter has a
+    // no-throw 'swap' and the two variant objects being swapped has the same
+    // type.  Otherwise it provides the basic guarantee.
 
                        // ========================
                        // class bdeut_Variant<...>
@@ -4839,7 +4851,6 @@ operator=(const bdeut_Variant19& rhs)
     return *this;
 }
 
-
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
                // ===========================================
@@ -5027,6 +5038,36 @@ struct bdeut_Variant_AssignVisitor {
     void operator() (const TYPE& value)
     {
         *reinterpret_cast<TYPE *>(d_buffer_p) = value;
+    }
+};
+
+                    // ================================
+                    // struct bdeut_Variant_SwapVisitor
+                    // ================================
+
+struct bdeut_Variant_SwapVisitor {
+    // This visitor swaps the variant object data that it holds with another
+    // variant object data of parameterize 'TYPE'.  It requires that the two
+    // variant objects being swapped contain data of the same type, and use the
+    // same allocator.
+
+    // PUBLIC DATA
+    void *d_buffer_p;
+
+    // CREATORS
+    bdeut_Variant_SwapVisitor(void *buffer)
+    : d_buffer_p(buffer)
+    {
+        BSLS_ASSERT_SAFE(d_buffer_p);
+    }
+
+    // MANIPULATORS
+    template <typename TYPE>
+    inline
+    void operator() (TYPE& value)
+    {
+        using bsl::swap;
+        swap(*reinterpret_cast<TYPE *>(d_buffer_p), value);
     }
 };
 
@@ -5861,7 +5902,7 @@ bdeut_VariantImp<TYPES>::bdeut_VariantImp(
 {
     if (this->d_type) {
         bdeut_Variant_CopyConstructVisitor visitor(&this->d_value,
-                                                      this->getAllocator());
+                                                   this->getAllocator());
         original.apply(visitor);
     }
 }
@@ -5898,8 +5939,8 @@ bdeut_VariantImp<TYPES>::operator=(const bdeut_VariantImp& rhs)
             reset();
             if (rhs.d_type) {
                 bdeut_Variant_CopyConstructVisitor copyConstructor(
-                                                     &this->d_value,
-                                                     this->getAllocator());
+                                                         &this->d_value,
+                                                         this->getAllocator());
                 rhs.apply(copyConstructor);
                 this->d_type = rhs.d_type;
             }
@@ -6312,41 +6353,32 @@ void bdeut_VariantImp<TYPES>::reset()
 }
 
 template <class TYPES>
-void bdeut_VariantImp<TYPES>::swap(bdeut_VariantImp<TYPES>& rhs)
+void bdeut_VariantImp<TYPES>::swap(bdeut_VariantImp<TYPES>& other)
 {
     if (!this->d_type) {
-        if (!rhs.d_type) {
+        if (!other.d_type) {
             return;                                                   // RETURN
         }
-        *this = rhs;
-        rhs.reset();
+        *this = other;
+        other.reset();
     }
-    else if (!rhs.d_type) {
-        rhs = *this;
+    else if (!other.d_type) {
+        other = *this;
         this->reset();
     }
     else {
-        bdeut_VariantImp<TYPES> tmp(*this);
-        if (this->d_type == rhs.d_type) {
-            bdeut_Variant_AssignVisitor assigner(&this->d_value);
-            rhs.apply(assigner);
+        if (this->d_type         == other.d_type
+         && this->getAllocator() == other.getAllocator()) {
+            // Same types and same allocators, so use a visitor that calls
+            // 'swap'.
 
-            assigner.d_buffer_p = &rhs.d_value;
-            tmp.apply(assigner);
+            bdeut_Variant_SwapVisitor swapper(&this->d_value);
+            other.apply(swapper);
         }
         else {
-            reset();
-            bdeut_Variant_CopyConstructVisitor copyConstructor(
-                                                         &this->d_value,
-                                                         this->getAllocator());
-            rhs.apply(copyConstructor);
-            this->d_type = rhs.d_type;
+            // Different types and/or allocators, so swap via assignment.
 
-            rhs.reset();
-            copyConstructor.d_buffer_p    = &rhs.d_value;
-            copyConstructor.d_allocator_p = rhs.getAllocator();
-            tmp.apply(copyConstructor);
-            rhs.d_type = tmp.d_type;
+            bsl::swap(*this, other);
         }
     }
 }
@@ -6553,6 +6585,14 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
                          const bdeut_VariantImp<TYPES>& rhs)
 {
     return rhs.print(stream, 0, -1);
+}
+
+// FREE FUNCTIONS
+template <typename TYPES>
+inline
+void swap(bdeut_VariantImp<TYPES>& a, bdeut_VariantImp<TYPES>& b)
+{
+    a.swap(b);
 }
 
 }  // close namespace BloombergLP
