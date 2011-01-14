@@ -2038,7 +2038,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
     BSLS_ASSERT_SAFE(outPosition + outNumChars <= length());
     BSLS_ASSERT_SAFE(length() + numChars - outNumChars <= max_size());
 
-    const difference_type displacement = numChars - outNumChars;
+    const difference_type displacement =
+                          static_cast<difference_type>(numChars - outNumChars);
 
     size_type  newLength  = this->d_length + displacement;
     size_type  newStorage = this->d_capacity;
@@ -2178,7 +2179,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
     BSLS_ASSERT_SAFE(outPosition + outNumChars <= length());
     BSLS_ASSERT_SAFE(length() + numChars - outNumChars <= max_size());
 
-    difference_type displacement = numChars - outNumChars;
+    difference_type displacement =
+                          static_cast<difference_type>(numChars - outNumChars);
 
     size_type  newLength  = this->d_length + displacement;
     size_type  newStorage = this->d_capacity;

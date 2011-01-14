@@ -92,19 +92,14 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_ALGORITHM
 #endif
 
-#ifndef INCLUDED_IOSFWD
-#include <iosfwd>
-#define INCLUDED_IOSFWD
-#endif
-
-#ifndef INCLUDED_STRING
-#include <string>
-#define INCLUDED_STRING
-#endif
-
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
 #define INCLUDED_CSTDDEF
+#endif
+
+#ifndef INCLUDED_IOSFWD
+#include <iosfwd>
+#define INCLUDED_IOSFWD
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -112,6 +107,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_STDEXCEPT
 #include <stdexcept>
 #define INCLUDED_STDEXCEPT
+#endif
+
+#ifndef INCLUDED_STRING
+#include <string>
+#define INCLUDED_STRING
 #endif
 
 #endif
@@ -617,11 +617,27 @@ bitset<N>::bitset()
 }
 
 template <std::size_t N>
-inline
 bitset<N>::bitset(unsigned long val)
 {
+    enum {
+        BSLSTL_INTS_IN_LONG = sizeof(unsigned long) / sizeof(int)
+    };
+
     std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
-    d_data[0] = val;
+
+    if (1 == BSLSTL_INTS_IN_LONG) {
+        d_data[0] = static_cast<unsigned int>(val);
+    }
+    else {
+        const unsigned int numInts = (unsigned int) BSLSTL_INTS_IN_LONG
+                                                    < (unsigned int) BITSETSIZE
+                                     ? (unsigned int) BSLSTL_INTS_IN_LONG
+                                     : (unsigned int) BITSETSIZE;
+
+        for (unsigned int i = 0; i < numInts; ++i) {
+            d_data[i] = static_cast<unsigned int>(val >> (BITSPERINT * i));
+        }
+    }
 }
 
 template <std::size_t N>
@@ -864,7 +880,8 @@ typename bitset<N>::reference bitset<N>::operator[](std::size_t pos)
 
     const std::size_t shift  = pos / BITSPERINT;
     const std::size_t offset = pos % BITSPERINT;
-    return typename bitset<N>::reference(&d_data[shift], offset);
+    return typename bitset<N>::reference(&d_data[shift],
+                                         static_cast<unsigned int>(offset));
 }
 
 // ACCESSORS

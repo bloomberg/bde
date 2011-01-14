@@ -5150,11 +5150,10 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     //
     // TBD When a new vector object Y is created from an old vector object
     //      X, then the standard states that Y should get its allocator by
-    //      copying X's allocator (23.1, Point 8).  The STLport vector
-    //      implementation does not follow this rule for bslma_Allocator
-    //      based allocators.  To verify this behavior for non
-    //      bslma_Allocator, should test, copy constructor using one
-    //      and verify standard is followed.
+    //      copying X's allocator (23.1, Point 8).  Our vector implementation
+    //      does not follow this rule for 'bslma_Allocator'-based allocators.
+    //      To verify this behavior for non-'bslma_Allocator', should test
+    //      copy constructor using one and verify standard is followed.
     // --------------------------------------------------------------------
 
     if (verbose) printf("\nALLOCATOR TEST"
@@ -5215,7 +5214,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
     //         even when the lhs and rhs are identically the same object.
     //   5.  The assignment operator must be neutral with respect to memory
     //       allocation exceptions.
-    //   6.  The copy constructor's internal functionality varies
+    //   6.  The assignment's internal functionality varies
     //       according to which bitwise copy/move trait is applied.
     //
     // Plan:
@@ -5270,6 +5269,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
             "A",
             "BC",
             "CDE",
+            "DEA",  // Try equal-size assignment of different values.
             "DEAB",
             "CBAEDCBA",
             "EDCBAEDCB",
@@ -5292,7 +5292,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                     P(U_SPEC);
                 }
 
-                LOOP_ASSERT(U_SPEC, uOldLen < (int)uLen);
+                LOOP_ASSERT(U_SPEC, uOldLen <= (int)uLen);
                 uOldLen = uLen;
 
                 const Obj UU = g(U_SPEC);  // control
@@ -5347,8 +5347,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                     mU = V; // test assignment here
 
                     ASSERT((numCopyCtorCalls - NUM_CTOR) <= (int)V.size());
-                    ASSERT((numDestructorCalls - NUM_DTOR) <=
-                                                 (int)(V.size() + OLD_LENGTH));
+                    ASSERT((numDestructorCalls - NUM_DTOR) <= OLD_LENGTH);
 
                     LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
                     LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
@@ -7663,10 +7662,10 @@ int main(int argc, char *argv[])
         TestDriver<T>::testCase12();
 
         if (verbose) printf("\n... with 'BitwiseMoveableTestType'.\n");
-        TestDriver<BMT>::testCase15();
+        TestDriver<BMT>::testCase12();
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
-        TestDriver<BCT>::testCase15();
+        TestDriver<BCT>::testCase12();
 
         if (verbose) printf("\nTesting Initial-Range Constructor"
                             "\n=================================\n");

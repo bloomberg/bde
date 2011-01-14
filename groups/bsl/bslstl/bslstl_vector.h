@@ -385,8 +385,8 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     // PRIVATE MANIPULATORS
     template <class INPUT_ITER>
     void privateInsertDispatch(const_iterator                   position,
-                               INPUT_ITER                       first,
-                               INPUT_ITER                       last,
+                               INPUT_ITER                       count,
+                               INPUT_ITER                       value,
                                BloombergLP::bslstl_UtilIterator,
                                int);
         // Match integral type for 'INPUT_ITER'.
@@ -1543,15 +1543,17 @@ template <class INPUT_ITER>
 inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
                                      const_iterator                   position,
-                                     INPUT_ITER                       first,
-                                     INPUT_ITER                       last,
+                                     INPUT_ITER                       count,
+                                     INPUT_ITER                       value,
                                      BloombergLP::bslstl_UtilIterator,
                                      int)
 {
-    // First and last are integral types that just happen to be the same.
-    // They are not iterators, so we call 'insert(position, n, value)'.
+    // 'count' and 'value' are integral types that just happen to be the same.
+    // They are not iterators, so we call 'insert(position, count, value)'.
 
-    this->insert(position, static_cast<size_type>(first), last);
+    this->insert(position,
+                 static_cast<size_type>(count),
+                 static_cast<VALUE_TYPE>(value));
 }
 
 template <typename VALUE_TYPE, class ALLOCATOR>
@@ -2100,11 +2102,12 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator position,
     BSLS_ASSERT_SAFE(position      <= this->end());
 
     // If 'first' and 'last' are integral, then they are not iterators and we
-    // should call 'insert(position, n, value)'.  We can assume that any
-    // fundamental type passed to this function is integral or else
-    // compilations errors will result.  The extra argument 0, is to avoid an
-    // overloading ambiguity: in case 'first' is an integral type, it would be
-    // convertible both to 'bslstl_UtilIterator' and 'bslmf_AnyType', but the 0
+    // should call 'insert(position, first, last)', where 'first' is actually
+    // a misnamed count, and 'last' is a misnamed value.  We can assume that
+    // any fundamental type passed to this function is integral or else
+    // compilation errors will result.  The extra argument, 0, is to avoid an
+    // overloading ambiguity: In case 'first' is an integral type, it would be
+    // convertible both to 'bslstl_UtilIterator' and 'bslmf_AnyType'; but the 0
     // will be an exact match to 'int', so the overload with
     // 'bslstl_UtilIterator' will be preferred.
 

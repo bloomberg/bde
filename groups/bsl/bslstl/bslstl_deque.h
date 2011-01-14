@@ -1395,7 +1395,8 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateInit(size_type numElements)
     // of an odd number of unused elements, slight preference is given to
     // 'push_back' over 'push_front'.
 
-    int offset = (BLOCK_LENGTH - 1 - numElements % BLOCK_LENGTH) / 2;
+    const int offset = static_cast<int>(
+                          (BLOCK_LENGTH - 1 - numElements % BLOCK_LENGTH) / 2);
 
     // Initialize the begin and end iterators.
 
