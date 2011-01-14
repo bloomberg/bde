@@ -1,4 +1,4 @@
-// bdepu_ntypesparser.h       -*-C++-*-
+// bdepu_ntypesparser.h                                               -*-C++-*-
 #ifndef INCLUDED_BDEPU_NTYPESPARSER
 #define INCLUDED_BDEPU_NTYPESPARSER
 
@@ -427,11 +427,15 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSL_CCTYPE
-#include <bsl_cctype.h>        // for 'isspace()'
+#include <bsl_cctype.h>        // 'isspace'
+#endif
+
+#ifndef INCLUDED_BSL_CSTDLIB
+#include <bsl_cstdlib.h>       // 'bsl::size_t'
 #endif
 
 #ifndef INCLUDED_BSL_CSTRING
-#include <bsl_cstring.h>        // for 'strlen()'
+#include <bsl_cstring.h>       // 'strlen'
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -441,7 +445,6 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
-
 
 namespace BloombergLP {
 
@@ -2367,8 +2370,9 @@ int bdepu_NTypesParser::parseDelimitedString(const char  **endPos,
 inline
 void bdepu_NTypesParser::stripNull(bsl::vector<char> *buffer)
 {
-    const int lastCharIndex = buffer->size() - 1;
-    if (lastCharIndex >= 0 && '\0' == (*buffer)[lastCharIndex]) {
+    const bsl::size_t bufferLen = buffer->size();
+
+    if (bufferLen && '\0' == (*buffer)[bufferLen - 1]) {
         buffer->pop_back();
     }
 }
