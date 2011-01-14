@@ -427,7 +427,7 @@ int bcema_FixedPool::objectSize() const
 inline
 int bcema_FixedPool::poolSize() const
 {
-    return d_nodes.size();
+    return static_cast<int>(d_nodes.size());
 }
 
 }  // close namespace BloombergLP

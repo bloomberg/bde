@@ -1,10 +1,8 @@
-// bcema_blobutil.cpp              -*-C++-*-
-#include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
-
-
-
+// bcema_blobutil.cpp                                                 -*-C++-*-
 #include <bcema_blobutil.h>
+
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(bcema_blobutil_cpp,"$Id$ $CSID$")
 
 #include <bslma_allocator.h>
 #include <bslma_deallocatorproctor.h>
@@ -12,7 +10,9 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bdeu_print.h>
 
-#include <ctype.h>
+#include <bsl_algorithm.h>
+
+#include <bsl_c_ctype.h>
 #include <bsl_iostream.h>
 
 namespace BloombergLP {
@@ -200,7 +200,7 @@ void bcema_BlobUtil::append(bcema_Blob *dest,
 
         BSLS_ASSERT(0 <= numBytesToCopy);
 
-        std::memcpy(buffer.data() + writePosition,
+        bsl::memcpy(buffer.data() + writePosition,
                     source + offset + numBytesCopied,
                     numBytesToCopy);
 
@@ -315,7 +315,7 @@ bsl::ostream& bcema_BlobUtil::asciiDump(bsl::ostream&     stream,
 
         const bcema_BlobBuffer& buffer = source.buffer(i);
 
-        int bytesToWrite = (numBytesRemaining < buffer.size())
+        int bytesToWrite = numBytesRemaining < buffer.size()
                            ? numBytesRemaining
                            : buffer.size();
 
@@ -383,12 +383,12 @@ bsl::ostream& bcema_BlobUtil::hexDump(bsl::ostream&     stream,
         const bcema_BlobBuffer& buffer = source.buffer(bufferIndex);
 
         int startingIndex     = 0 == numBytesCopied
-                              ? offset - previousBuffersLength
-                              : 0;
+                                ? offset - previousBuffersLength
+                                : 0;
 
         int numBytesAvailable = bufferIndex == source.numDataBuffers() - 1
-                              ? source.lastDataBufferLength()
-                              : buffer.size() - startingIndex;
+                                ? source.lastDataBufferLength()
+                                : buffer.size() - startingIndex;
 
         int numBytesToDump    = bsl::min(numBytesAvailable, numBytesLeft);
 
@@ -414,79 +414,125 @@ bsl::ostream& bcema_BlobUtil::hexDump(bsl::ostream&     stream,
     return bdeu_Print::hexDump(stream, buffers, numBufferInfo);
 }
 
-int bcema_BlobUtil::compare(const bcema_Blob& b1, const bcema_Blob& b2)
+int bcema_BlobUtil::compare(const bcema_Blob& a, const bcema_Blob& b)
 {
-    int b1l = b1.length();
-    int b2l = b2.length();
-    int bl = bsl::min(b2l, b1l);
+    // Upon entry, establish 'lhs' and 'rhs' as aliases for 'a' and 'b',
+    // respectively.  The logic of this function is such that the blob with the
+    // smaller current blob buffer is on the left-hand side of comparison
+    // operations.  Consequently, using 'lhs' and 'rhs' in place of 'a' and 'b'
+    // enhances the clarity of the algorithm.
 
+    const bcema_Blob& lhs = a;
+    const bcema_Blob& rhs = b;
 
-    // Initialize the loop with the correct indices and pointers.
-    // This can use some optimization.
+    const int lhsLen = lhs.length();
+    const int rhsLen = rhs.length();
+    const int minLen = bsl::min(lhsLen, rhsLen);
 
-    // We need to know which of the first buffers are larger
-    int b1bl = b1.buffer(0).size();
-    int b2bl = b2.buffer(0).size();
+    if (0 == minLen) {
+        return lhsLen - rhsLen;                                       // RETURN
+    }
 
-    bool isB1Smaller = b1bl < b2bl;
+    const bcema_BlobBuffer& lhsBlobBuffer = lhs.buffer(0);
+    const bcema_BlobBuffer& rhsBlobBuffer = rhs.buffer(0);
 
-    // Keep track of the size
-    int ssz = isB1Smaller ? b1bl : b2bl;
-    int bsz = isB1Smaller ? b2bl : b1bl;
+    // Keep track of the size of the blob buffers and store the smaller blob
+    // buffer in the 'lhs' blob buffer.
 
+    bool isLhsBufSmaller = lhsBlobBuffer.size() < rhsBlobBuffer.size();
 
-    // Keep track of the pointers to the data
-    const char *sptr = isB1Smaller ? b1.buffer(0).data()
-                                   : b2.buffer(0).data();
-    const char *bptr = isB1Smaller ? b2.buffer(0).data()
-                                   : b1.buffer(0).data();
+    int lhsBufSize;
+    int rhsBufSize;
 
-    // Keep track of which blobs
-    const bcema_Blob *sb = isB1Smaller ? &b1 : &b2;
-    const bcema_Blob *bb = isB1Smaller ? &b2 : &b1;
+    const char *lhsPtr;
+    const char *rhsPtr;
 
-    // Keep track of what buffer we're on.
-    int si = 0;
-    int bi = 0;
+    const bcema_Blob *lhsBlob;
+    const bcema_Blob *rhsBlob;
 
-    // This will do an extra iteration when the 2 sections being compared are
-    // the same length.  This was a quick implementation that should be
-    // optimized.
-    for (int i = 0; i < bl; ) {
-        // Only compare to the end of the blob length
-        if (ssz > bl - i)
-           ssz = bl - i;
+    if (isLhsBufSmaller) {
+        lhsBufSize = lhsBlobBuffer.size();
+        lhsPtr     = lhsBlobBuffer.data();
+        lhsBlob    = &lhs;
 
-        int rc = std::memcmp((const void *)sptr, (const void *)bptr, ssz);
-        if (rc != 0) {
-            return isB1Smaller ? rc : -rc;
+        rhsBufSize = rhsBlobBuffer.size();
+        rhsPtr     = rhsBlobBuffer.data();
+        rhsBlob    = &rhs;
+    }
+    else {
+        lhsBufSize = rhsBlobBuffer.size();
+        lhsPtr     = rhsBlobBuffer.data();
+        lhsBlob    = &rhs;
+
+        rhsBufSize = lhsBlobBuffer.size();
+        rhsPtr     = lhsBlobBuffer.data();
+        rhsBlob    = &lhs;
+    }
+
+    // Keep track of which buffer we are comparing.
+
+    int lhsBufIdx = 0;
+    int rhsBufIdx = 0;
+
+    int numBytesRemaining = minLen;
+
+    while (numBytesRemaining > 0) {
+        const int numBytesToCompare = bsl::min(lhsBufSize, numBytesRemaining);
+
+        // Note this code can tolerate the case where '0 == lhsBufSize'.  We
+        // just DROP through and increment to the next buffer.  Note that when
+        // the two buffers are the same size, an iteration is made where
+        // '0 == lhsBufSize' holds because we only advance one of the two
+        // buffers in each iteration of the loop.
+
+        const int rc = bsl::memcmp(static_cast<const void *>(lhsPtr),
+                                   static_cast<const void *>(rhsPtr),
+                                   numBytesToCompare);
+
+        if (rc) {
+            return isLhsBufSmaller ? rc : -rc;
         }
-        i += ssz;
-        bsz -= ssz;
-        ++si;
-        int newsz = sb->buffer(si).size();
-        if (bsz >= newsz) {     // The old buffer is still bigger
-            bptr = bptr + ssz;
-            sptr = sb->buffer(si).data();
-            ssz = newsz;
-        } else {                // The new buffer will be bigger
-            // Swap the small and big buffers
-            isB1Smaller = !isB1Smaller;
-            const bcema_Blob *tmp = sb;
-            sb = bb;
-            bb = tmp;
 
-            int tmpi = si;
-            si = bi;
-            bi = tmpi;
+        numBytesRemaining -= numBytesToCompare;
 
-            sptr = bptr + ssz;
-            ssz  = bsz;
-            bsz  = newsz;
-            bptr = bb->buffer(bi).data();
+        if (0 == numBytesRemaining) {
+            break;
+        }
+
+        rhsBufSize -= numBytesToCompare;
+
+        ++lhsBufIdx;  // advance to next 'lhs' blob buffer
+        BSLS_ASSERT(lhsBufIdx < lhsBlob->numDataBuffers());
+
+        const bcema_BlobBuffer& nextLhsBlobBuffer = lhsBlob->buffer(lhsBufIdx);
+        const int               nextLhsBufSize    = nextLhsBlobBuffer.size();
+        if (rhsBufSize >= nextLhsBufSize) {
+            // The next 'lhs' blob buffer is still the smaller buffer.
+
+            lhsBufSize = nextLhsBufSize;
+            lhsPtr     = nextLhsBlobBuffer.data();
+
+            rhsPtr     = rhsPtr + numBytesToCompare;
+        } else {
+            // The new 'lhs' blob buffer is larger than the 'rhs' blob buffer,
+            // so swap them so that the smaller buffer is on the left.
+
+            isLhsBufSmaller = !isLhsBufSmaller;
+
+            lhsBufSize = rhsBufSize;
+            lhsPtr     = rhsPtr + numBytesToCompare;
+
+            rhsBufSize = nextLhsBufSize;
+            rhsPtr     = nextLhsBlobBuffer.data();
+
+            bsl::swap(lhsBlob,   rhsBlob);
+            bsl::swap(lhsBufIdx, rhsBufIdx);
         }
     }
-    return b1l - b2l;  // everything is the same, only the lengths differ
+
+    // Everything is the same, only the lengths may differ.
+
+    return lhsLen - rhsLen;
 }
 
 }  // close namespace BloombergLP

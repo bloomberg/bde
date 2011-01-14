@@ -1,10 +1,8 @@
-// bcema_blob.cpp -*-C++-*-
-#include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
-
-
-
+// bcema_blob.cpp                                                     -*-C++-*-
 #include <bcema_blob.h>
+
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(bcema_blob_cpp,"$Id$ $CSID$")
 
 #include <bdeu_print.h>
 
@@ -23,6 +21,9 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace {
+
+typedef bsl::vector<bcema_BlobBuffer>::iterator       BlobBufferIterator;
+typedef bsl::vector<bcema_BlobBuffer>::const_iterator BlobBufferConstIterator;
 
                        // ==============================
                        // class InvalidBlobBufferFactory
@@ -56,7 +57,7 @@ class InvalidBlobBufferFactory : private bcema_BlobBufferFactory {
 
     virtual void allocate(bcema_BlobBuffer *)
     {
-        BSLS_ASSERT(!"Invalid Blob Buffer Factory Used!");
+        BSLS_ASSERT_OPT(!"Invalid Blob Buffer Factory Used!");
     }
 };
 
@@ -124,19 +125,28 @@ int bcema_Blob::assertInvariants() const
     BSLS_ASSERT(d_preDataIndexLength <= d_dataLength);
 
     int preDataLength = 0;
-    bsl::vector<bcema_BlobBuffer>::const_iterator it;
-    for (it = d_buffers.begin(); it != d_buffers.end(); ++it) {
-        if (preDataLength + it->size() >= d_dataLength) {
+    BlobBufferConstIterator dataIter;
+    for (dataIter = d_buffers.begin();
+         dataIter != d_buffers.end();
+         ++dataIter) {
+        if (preDataLength + dataIter->size() >= d_dataLength) {
             break;
         }
-        preDataLength += it->size();
+        preDataLength += dataIter->size();
     }
     BSLS_ASSERT(preDataLength == d_preDataIndexLength);
+    BSLS_ASSERT(dataIter - d_buffers.begin() == d_dataIndex);
+
+    int totalSize = preDataLength;
+    for (BlobBufferConstIterator it = dataIter; it != d_buffers.end(); ++it) {
+        totalSize += it->size();
+    }
+    BSLS_ASSERT(totalSize == d_totalSize);
 
     if (0 < d_dataLength) {
-        BSLS_ASSERT(it != d_buffers.end());
-        BSLS_ASSERT(d_dataIndex == it - d_buffers.begin());
-        BSLS_ASSERT(d_dataIndex < (int) d_buffers.size());
+        BSLS_ASSERT(d_buffers.end() != dataIter);
+        BSLS_ASSERT(d_dataIndex == dataIter - d_buffers.begin());
+        BSLS_ASSERT(d_dataIndex < static_cast<int>(d_buffers.size()));
         BSLS_ASSERT(0 < d_dataLength - d_preDataIndexLength);
         BSLS_ASSERT(d_dataLength - d_preDataIndexLength <=
                                                 d_buffers[d_dataIndex].size());
@@ -154,6 +164,67 @@ int bcema_Blob::assertInvariants() const
     return 0;
 }
 
+// PRIVATE MANIPULATORS
+void bcema_Blob::slowSetLength(int length)
+{
+    BSLS_ASSERT(0 <= length);
+
+    if (0 == length) {
+        d_dataIndex          = 0;
+        d_dataLength         = 0;
+        d_preDataIndexLength = 0;
+        return;                                                       // RETURN
+    }
+
+    // Grow if needed.
+
+    bcema_BlobBuffer buf;
+    while (length > d_totalSize) {
+        d_bufferFactory_p->allocate(&buf);
+        appendBuffer(buf);
+    }
+
+    if (1 == d_buffers.size()) {
+        // This is a corner case.  We are not crossing any buffer boundaries
+        // because we have only one buffer.  The rest of the code assumes that
+        // 'd_dataIndex' will need to change.
+
+        d_dataLength = length;
+        return;                                                       // RETURN
+    }
+
+    if (length > d_dataLength) {
+        // Move 'd_dataLength' to the beginning of the next buffer.
+
+        d_dataLength = d_preDataIndexLength + d_buffers[d_dataIndex].size();
+        BSLS_ASSERT(d_dataLength < length);
+
+        int left = length - d_dataLength;
+        do {
+            d_preDataIndexLength += d_buffers[d_dataIndex].size();
+            ++d_dataIndex;
+
+            d_dataLength += bsl::min(left, d_buffers[d_dataIndex].size());
+            left -= d_buffers[d_dataIndex].size();
+        } while (left > 0);
+        return;                                                       // RETURN
+    }
+
+    // We are decreasing the length.
+
+    BSLS_ASSERT(d_preDataIndexLength >= length);
+    int left = d_preDataIndexLength - length;
+    d_dataLength = d_preDataIndexLength;
+
+    do {
+        --d_dataIndex;
+        d_preDataIndexLength -= d_buffers[d_dataIndex].size();
+
+        d_dataLength -= bsl::min(left, d_buffers[d_dataIndex].size());
+        left -= d_buffers[d_dataIndex].size();
+    } while (left >= 0);
+}
+
 // CREATORS
 bcema_Blob::bcema_Blob(bslma_Allocator *basicAllocator)
 : d_buffers(basicAllocator)
@@ -163,7 +234,7 @@ bcema_Blob::bcema_Blob(bslma_Allocator *basicAllocator)
 , d_preDataIndexLength(0)
 , d_bufferFactory_p(InvalidBlobBufferFactory::factory(0))
 {
-    // BSLS_ASSERT(0 == assertInvariants());
+    BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
 bcema_Blob::bcema_Blob(bcema_BlobBufferFactory *factory,
@@ -175,7 +246,7 @@ bcema_Blob::bcema_Blob(bcema_BlobBufferFactory *factory,
 , d_preDataIndexLength(0)
 , d_bufferFactory_p(InvalidBlobBufferFactory::factory(factory))
 {
-    // BSLS_ASSERT(0 == assertInvariants());
+    BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
 bcema_Blob::bcema_Blob(const bcema_BlobBuffer  *buffers,
@@ -189,12 +260,12 @@ bcema_Blob::bcema_Blob(const bcema_BlobBuffer  *buffers,
 , d_preDataIndexLength(0)
 , d_bufferFactory_p(InvalidBlobBufferFactory::factory(factory))
 {
-    for (bsl::vector<bcema_BlobBuffer>::const_iterator it = d_buffers.begin();
+    for (BlobBufferConstIterator it = d_buffers.begin();
          it != d_buffers.end(); ++it) {
         BSLS_ASSERT(0 <= it->size());
         d_totalSize += it->size();
     }
-    // BSLS_ASSERT(0 == assertInvariants());
+    BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
 bcema_Blob::bcema_Blob(const bcema_Blob&        original,
@@ -207,7 +278,7 @@ bcema_Blob::bcema_Blob(const bcema_Blob&        original,
 , d_preDataIndexLength(original.d_preDataIndexLength)
 , d_bufferFactory_p(InvalidBlobBufferFactory::factory(factory))
 {
-    // BSLS_ASSERT(0 == assertInvariants());
+    BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
 bcema_Blob::bcema_Blob(const bcema_Blob&  original,
@@ -219,18 +290,18 @@ bcema_Blob::bcema_Blob(const bcema_Blob&  original,
 , d_preDataIndexLength(original.d_preDataIndexLength)
 , d_bufferFactory_p(InvalidBlobBufferFactory::factory(0))
 {
-    // BSLS_ASSERT(0 == assertInvariants());
+    BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
 bcema_Blob::~bcema_Blob()
 {
-    // BSLS_ASSERT(0 == assertInvariants());
+    BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
 // MANIPULATORS
 bcema_Blob& bcema_Blob::operator=(const bcema_Blob& rhs)
 {
-    // BSLS_ASSERT(0 == assertInvariants());
+    // BSLS_ASSERT_SAFE(0 == assertInvariants());
 
     d_buffers.reserve(rhs.numBuffers());
 
@@ -244,46 +315,55 @@ bcema_Blob& bcema_Blob::operator=(const bcema_Blob& rhs)
 
 void bcema_Blob::appendBuffer(const bcema_BlobBuffer& buffer)
 {
-    // BSLS_ASSERT(0 == assertInvariants());
+    // BSLS_ASSERT_SAFE(0 == assertInvariants());
+
     d_buffers.push_back(buffer);
     d_totalSize += buffer.size();
 }
 
 void bcema_Blob::appendDataBuffer(const bcema_BlobBuffer& buffer)
 {
-    // BSLS_ASSERT(0 == assertInvariants());
+    // BSLS_ASSERT_SAFE(0 == assertInvariants());
+
     const int bufferSize    = buffer.size();
     const int oldDataLength = d_dataLength;
     d_totalSize  += bufferSize;
     d_dataLength += bufferSize;
     if (bufferSize != d_dataLength) {
+        // This blob previously had one or more data buffers.
+
         ++d_dataIndex;
         if (d_totalSize == d_dataLength) {
-            // Fast path.  We have only data buffers in the blob and they're
+            // Fast path.  We have only data buffers in the blob and they are
             // all full.
 
             d_preDataIndexLength = oldDataLength;
-            d_buffers.push_back(buffer);
-            return;
+            d_buffers.push_back(buffer);  // TBD can 'throw'
+            return;                                                   // RETURN
         }
         d_buffers.insert(d_buffers.begin() + d_dataIndex, buffer);
         d_buffers[d_dataIndex - 1].setSize(oldDataLength -
                                            d_preDataIndexLength);
         d_preDataIndexLength = oldDataLength;
-        return;
+        return;                                                       // RETURN
     }
-    d_buffers.insert(d_buffers.begin(), buffer);
+    d_buffers.insert(d_buffers.begin(), buffer);  // TBD can 'throw'
 }
 
 void bcema_Blob::insertBuffer(int index, const bcema_BlobBuffer& buffer)
 {
-    // BSLS_ASSERT(0 == assertInvariants());
-    BSLS_ASSERT(index <= (int) d_buffers.size());
-    int bufferSize = buffer.size();
+    // BSLS_ASSERT_SAFE(0 == assertInvariants());
+
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(     index <= static_cast<int>(d_buffers.size()));
+
+    const int bufferSize = buffer.size();
     d_buffers.insert(d_buffers.begin() + index, buffer);
     d_totalSize += bufferSize;
     if (0 != d_dataLength && index <= d_dataIndex) {
-        d_dataLength += bufferSize;
+        // Newly-inserted buffer is a data buffer.
+
+        d_dataLength         += bufferSize;
         d_preDataIndexLength += bufferSize;
         ++d_dataIndex;
     }
@@ -291,21 +371,23 @@ void bcema_Blob::insertBuffer(int index, const bcema_BlobBuffer& buffer)
 
 void bcema_Blob::prependDataBuffer(const bcema_BlobBuffer& buffer)
 {
-    // BSLS_ASSERT(0 == assertInvariants());
-    int bufferSize = buffer.size();
+    // BSLS_ASSERT_SAFE(0 == assertInvariants());
+
+    const int bufferSize = buffer.size();
     BSLS_ASSERT(0 < bufferSize);
     d_buffers.insert(d_buffers.begin(), buffer);
     if (0 != d_dataLength) {
         ++d_dataIndex;
         d_preDataIndexLength += bufferSize;
     }
-    d_totalSize += bufferSize;
+    d_totalSize  += bufferSize;
     d_dataLength += bufferSize;
 }
 
 void bcema_Blob::removeAll()
 {
-    // BSLS_ASSERT(0 == assertInvariants());
+    // BSLS_ASSERT_SAFE(0 == assertInvariants());
+
     d_buffers.clear();
     d_totalSize  = 0;
     d_dataLength = 0;
@@ -315,8 +397,10 @@ void bcema_Blob::removeAll()
 
 void bcema_Blob::removeBuffer(int index)
 {
-    BSLS_ASSERT(index < (int) d_buffers.size());
-    // BSLS_ASSERT(0 == assertInvariants());
+    // BSLS_ASSERT_SAFE(0 == assertInvariants());
+
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(     index < static_cast<int>(d_buffers.size()));
 
     d_totalSize -= d_buffers[index].size();
     if (d_dataIndex == index) {
@@ -340,67 +424,26 @@ void bcema_Blob::removeBuffer(int index)
     d_buffers.erase(d_buffers.begin() + index);
 }
 
-void bcema_Blob::slowSetLength(int length)
+void bcema_Blob::setLength(int length)
 {
-    if (0 == length) {
-        d_dataIndex          = 0;
-        d_dataLength         = 0;
-        d_preDataIndexLength = 0;
-        return;
-    }
+    BSLS_ASSERT(0 <= length);
 
-    // Grow if needed.
-
-    bcema_BlobBuffer buf;
-    while (length > d_totalSize) {
-        d_bufferFactory_p->allocate(&buf);
-        appendBuffer(buf);
-    }
-
-    if (1 == d_buffers.size()) {
-        // This is a bit of a corner case.  We are not crossing any buffer
-        // boundaries because we had no buffer.  The rest of the code assume
-        // that that d_dataIndex will need to change.
+    if (d_totalSize
+     && d_preDataIndexLength + d_buffers[d_dataIndex].size() >= length
+     && d_preDataIndexLength < length) {
+        // We are not crossing any buffer boundaries.
 
         d_dataLength = length;
         return;
     }
 
-    if (length > d_dataLength) {
-        // Move 'd_dataLength' to the beginning of the next buffer.
-
-        d_dataLength = d_preDataIndexLength + d_buffers[d_dataIndex].size();
-        BSLS_ASSERT(d_dataLength < length);
-
-        int left = length - d_dataLength;
-        do {
-            d_preDataIndexLength += d_buffers[d_dataIndex].size();
-            ++d_dataIndex;
-
-            d_dataLength += bsl::min(left, d_buffers[d_dataIndex].size());
-            left -= d_buffers[d_dataIndex].size();
-        } while (left > 0);
-        return;
-    }
-
-    // We are decreasing the length.
-
-    BSLS_ASSERT(d_preDataIndexLength >= length);
-    int left = d_preDataIndexLength - length;
-    d_dataLength = d_preDataIndexLength;
-
-    do {
-        --d_dataIndex;
-        d_preDataIndexLength -= d_buffers[d_dataIndex].size();
-
-        d_dataLength -= bsl::min(left, d_buffers[d_dataIndex].size());
-        left -= d_buffers[d_dataIndex].size();
-    } while (left >= 0);
+    return slowSetLength(length);
 }
 
 void bcema_Blob::swapBufferRaw(int index, bcema_BlobBuffer *srcBuffer)
 {
-    BSLS_ASSERT(0 <= index && index < numBuffers());
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(     index < numBuffers());
     BSLS_ASSERT(srcBuffer->size() == buffer(index).size());
 
     d_buffers[index].buffer().swap(srcBuffer->buffer());
@@ -420,12 +463,11 @@ void bcema_Blob::moveBuffers(bcema_Blob *srcBlob)
 {
     d_buffers.resize(srcBlob->d_buffers.size());
 
-    bsl::vector<bcema_BlobBuffer>::iterator thisIt = d_buffers.begin();
-    bsl::vector<bcema_BlobBuffer>::iterator srcIt  =
-                                                   srcBlob->d_buffers.begin();
-    for ( ; srcIt != srcBlob->d_buffers.end(); ++srcIt, ++thisIt) {
-        thisIt->buffer().swap(srcIt->buffer());
-        thisIt->setSize(srcIt->size());
+    BlobBufferIterator dstIter = d_buffers.begin();
+    BlobBufferIterator srcIter = srcBlob->d_buffers.begin();
+    for (; srcIter != srcBlob->d_buffers.end(); ++srcIter, ++dstIter) {
+        dstIter->buffer().swap(srcIter->buffer());
+        dstIter->setSize(srcIter->size());
     }
     d_totalSize          = srcBlob->d_totalSize;
     d_dataLength         = srcBlob->d_dataLength;
@@ -443,28 +485,27 @@ void bcema_Blob::moveDataBuffers(bcema_Blob *srcBlob)
         return;                                                       // RETURN
     }
 
-    const int numSrcDataBuffers = srcBlob->d_dataIndex + 1;
+    const int numSrcDataBuffers = srcBlob->numDataBuffers();
+
     d_buffers.resize(numSrcDataBuffers);
 
-    bsl::vector<bcema_BlobBuffer>::iterator thisIt = d_buffers.begin();
-    bsl::vector<bcema_BlobBuffer>::iterator srcIt  =
-                                                    srcBlob->d_buffers.begin();
+    BlobBufferIterator dstIter = d_buffers.begin();
+    BlobBufferIterator srcIter = srcBlob->d_buffers.begin();
 
-    for (int i = 0; i < numSrcDataBuffers; ++i) {
-        thisIt->buffer().swap(srcIt->buffer());
-        thisIt->setSize(srcIt->size());
-        ++srcIt;
-        ++thisIt;
+    for (int i = 0; i < numSrcDataBuffers; ++i, ++srcIter, ++dstIter) {
+        dstIter->buffer().swap(srcIter->buffer());
+        dstIter->setSize(srcIter->size());
     }
 
     d_dataIndex          = srcBlob->d_dataIndex;
-    d_totalSize          = srcBlob->d_preDataIndexLength +
-                                                 d_buffers[d_dataIndex].size();
     d_dataLength         = srcBlob->d_dataLength;
     d_preDataIndexLength = srcBlob->d_preDataIndexLength;
+    d_totalSize          = d_preDataIndexLength
+                                               + d_buffers[d_dataIndex].size();
 
     srcBlob->d_buffers.erase(srcBlob->d_buffers.begin(),
                              srcBlob->d_buffers.begin() + numSrcDataBuffers);
+
     srcBlob->d_dataIndex           = 0;
     srcBlob->d_dataLength          = 0;
     srcBlob->d_preDataIndexLength  = 0;
@@ -477,45 +518,40 @@ void bcema_Blob::moveAndAppendDataBuffers(bcema_Blob *srcBlob)
         return;                                                       // RETURN
     }
 
-    if (0 == this->length()) {
-        return moveDataBuffers(srcBlob);                              // RETURN
-    }
-
-    trimLastDataBuffer();
+    trimLastDataBuffer();  // Note that this call may update 'd_totalSize'.
 
     const int numSrcDataBuffers = srcBlob->numDataBuffers();
     const int numDstDataBuffers = numDataBuffers();
-    const int numRemaining      = d_buffers.size() - numDstDataBuffers;
-    const int numAdditional     = numSrcDataBuffers > numRemaining
-                                ? numSrcDataBuffers - numRemaining
-                                : 0;
 
-    d_buffers.resize(d_buffers.size() + numAdditional);
+    reserveBufferCapacity(d_buffers.size() + numSrcDataBuffers);
 
-    bsl::vector<bcema_BlobBuffer>::iterator thisIt =
-                                         d_buffers.begin() + numDstDataBuffers;
-    bsl::vector<bcema_BlobBuffer>::iterator srcIt  =
-                                                    srcBlob->d_buffers.begin();
+    BlobBufferIterator dstIter = d_buffers.begin() + numDstDataBuffers;
+    BlobBufferIterator srcIter = srcBlob->d_buffers.begin();
 
-    for (int i = 0; i < numSrcDataBuffers; ++i) {
-        thisIt->buffer().swap(srcIt->buffer());
-        thisIt->setSize(srcIt->size());
-        ++srcIt;
-        ++thisIt;
+    d_buffers.insert(dstIter, numSrcDataBuffers, bcema_BlobBuffer());
+
+    for (int i = 0; i < numSrcDataBuffers; ++i, ++srcIter, ++dstIter) {
+        dstIter->buffer().swap(srcIter->buffer());
+        dstIter->setSize(srcIter->size());
     }
 
-    d_dataIndex           = d_dataIndex + numSrcDataBuffers;
-    d_totalSize           = d_dataLength + srcBlob->d_preDataIndexLength +
-                                                 d_buffers[d_dataIndex].size();
+    const int totalSizeAdded = srcBlob->d_preDataIndexLength +
+                              srcBlob->d_buffers[numSrcDataBuffers - 1].size();
+
+    d_dataIndex          = 0 == length()
+                           ? numSrcDataBuffers - 1
+                           : d_dataIndex + numSrcDataBuffers;
     d_preDataIndexLength  = d_dataLength + srcBlob->d_preDataIndexLength;
     d_dataLength         += srcBlob->d_dataLength;
+    d_totalSize          += totalSizeAdded;
 
     srcBlob->d_buffers.erase(srcBlob->d_buffers.begin(),
                              srcBlob->d_buffers.begin() + numSrcDataBuffers);
+
     srcBlob->d_dataIndex           = 0;
     srcBlob->d_dataLength          = 0;
     srcBlob->d_preDataIndexLength  = 0;
-    srcBlob->d_totalSize          -= d_totalSize;
+    srcBlob->d_totalSize          -= totalSizeAdded;
 }
 
 // FREE OPERATORS

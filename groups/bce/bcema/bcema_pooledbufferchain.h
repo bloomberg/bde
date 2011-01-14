@@ -293,7 +293,7 @@ class bcema_PooledBufferChainFactory :
 inline
 int bcema_PooledBufferChain::bufferSize() const
 {
-    return d_pool_p->blockSize() - sizeof(char *);
+    return static_cast<int>(d_pool_p->blockSize() - sizeof(char *));
 }
 
 // CREATORS
@@ -352,8 +352,8 @@ inline
 bcema_PooledBufferChainFactory::bcema_PooledBufferChainFactory(
                                                int              bufferSize,
                                                bslma_Allocator *basicAllocator)
-: d_bufferPool(bufferSize + sizeof(char *), basicAllocator)
-, d_pcbPool(sizeof(bcema_PooledBufferChain), basicAllocator)
+: d_bufferPool(static_cast<int>(bufferSize + sizeof(char *)), basicAllocator)
+, d_pcbPool(static_cast<int>(sizeof(bcema_PooledBufferChain)), basicAllocator)
 {
 }
 
@@ -371,7 +371,7 @@ bcema_PooledBufferChain *bcema_PooledBufferChainFactory::allocate(int length)
 inline
 int bcema_PooledBufferChainFactory::bufferSize() const
 {
-    return d_bufferPool.blockSize() - sizeof(char *);
+    return static_cast<int>(d_bufferPool.blockSize() - sizeof(char *));
 }
 
 }  // close namespace BloombergLP

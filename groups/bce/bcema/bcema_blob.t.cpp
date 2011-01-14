@@ -1,4 +1,4 @@
-// bcema_blob.t.cpp -*-C++-*-
+// bcema_blob.t.cpp                                                   -*-C++-*-
 #include <bcema_blob.h>
 
 #include <bdetu_datetime.h>                     // for testing only
@@ -6,7 +6,6 @@
 #include <bdex_byteoutstreamraw.h>              // for testing only
 #include <bdex_bytestreamimputil.h>             // for testing only
 
-#include <bslma_bufferallocator.h>              // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -18,9 +17,9 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#include <cctype>      // isdigit() isupper() islower()
-#include <cstdlib>     // atoi()
-#include <cstring>
+#include <bsl_cctype.h>      // isdigit() isupper() islower()
+#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstring.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -138,51 +137,6 @@ void aSsErT(int c, const char *s, int i) // not static, to use it in template
        aSsErT(1, #X, __LINE__); } }
 
 //=============================================================================
-//                  STANDARD BDEMA EXCEPTION TEST MACROS
-//-----------------------------------------------------------------------------
-
-#ifdef BDE_BUILD_TARGET_EXC
-#define BEGIN_BDEMA_EXCEPTION_TEST {                                       \
-    {                                                                      \
-        static int firstTime = 1;                                          \
-        if (veryVerbose && firstTime) cout <<                              \
-            "\t\tBDEMA EXCEPTION TEST -- (ENABLED) --" << endl;            \
-        firstTime = 0;                                                     \
-    }                                                                      \
-    if (veryVeryVerbose) cout <<                                           \
-        "\t\tBegin bdema exception test." << endl;                         \
-    int bdemaExceptionCounter = 0;                                         \
-    testAllocator.setAllocationLimit(bdemaExceptionCounter);               \
-    do {                                                                   \
-        try {
-
-#define END_BDEMA_EXCEPTION_TEST                                           \
-        } catch (bslma_TestAllocatorException& e) {                        \
-            if (veryVeryVerbose) cout << endl << "\t*** BDEMA_EXCEPTION: " \
-                << "alloc limit = " << bdemaExceptionCounter << ", "       \
-                << "last alloc size = " << e.numBytes() << " ***" << endl; \
-            testAllocator.setAllocationLimit(++bdemaExceptionCounter);     \
-            continue;                                                      \
-        }                                                                  \
-        testAllocator.setAllocationLimit(-1);                              \
-        break;                                                             \
-    } while (1);                                                           \
-    if (veryVeryVerbose) cout <<                                           \
-        "\t\tEnd bdema exception test." << endl;                           \
-}
-#else
-#define BEGIN_BDEMA_EXCEPTION_TEST                                         \
-{                                                                          \
-    static int firstTime = 1;                                              \
-    if (verbose && firstTime) { cout <<                                    \
-        "\t\tBDEMA EXCEPTION TEST -- (NOT ENABLED) --" << endl;            \
-        firstTime = 0;                                                     \
-    }                                                                      \
-}
-#define END_BDEMA_EXCEPTION_TEST
-#endif
-
-//=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -197,7 +151,7 @@ void aSsErT(int c, const char *s, int i) // not static, to use it in template
 
 static int numUnknownFactoryHandlerInvocations = 0;
 
-class UnknownFactoryException : public std::exception {
+class UnknownFactoryException : public bsl::exception {
     const char *d_what;
   public:
     UnknownFactoryException(const char *s) : d_what(s) {}
@@ -218,7 +172,7 @@ void checkNoAliasedBlobBuffers(const bcema_Blob& blob)
         // Fill in forward order with increasing values, with jump in between
         // buffers.
         char filler = 0;
-        for (size_t i = 0; i < blob.numBuffers(); ++i) {
+        for (int i = 0; i < blob.numBuffers(); ++i) {
             for (int j = 0; j < blob.buffer(i).size(); ++j) {
                 blob.buffer(i).data()[j] = ++filler;
             }
@@ -226,7 +180,7 @@ void checkNoAliasedBlobBuffers(const bcema_Blob& blob)
         }
         // Compare in forward order.
         filler = 0;
-        for (size_t i = 0; i < blob.numBuffers(); ++i) {
+        for (int i = 0; i < blob.numBuffers(); ++i) {
             for (int j = 0; j < blob.buffer(i).size(); ++j) {
                 ASSERT(blob.buffer(i).data()[j] == ++filler);
             }
@@ -240,13 +194,94 @@ void checkBlobBuffers(const bcema_Blob& blob)
     // be aliased.
 {
     char filler = 0;
-    for (size_t i = 0; i < blob.numBuffers(); ++i, ++filler) {
+    for (int i = 0; i < blob.numBuffers(); ++i, ++filler) {
         // Fill in forward order with increasing values, and check result.
-        std::memset(blob.buffer(i).data(), filler, blob.buffer(i).size());
+        bsl::memset(blob.buffer(i).data(), filler, blob.buffer(i).size());
         for (int j = 0; j < blob.buffer(i).size(); ++j) {
             ASSERT(blob.buffer(i).data()[j] == filler);
         }
     }
+}
+
+bool checkTotalSize(const bcema_Blob& blob)
+    // check d_totalSize is accurate and sane
+{
+    int total = 0;
+    for (int i = 0; i < blob.numBuffers(); ++i) {
+        total += blob.buffer(i).size();
+    }
+
+    LOOP2_ASSERT(blob.totalSize(), total, blob.totalSize() == total);
+    return blob.totalSize() == total;
+}
+
+void loadBlob(bcema_Blob *blob, bsl::string& dataString)
+{
+    const char *data = dataString.data();
+    const int NUM_DATA_BUFFERS = blob->numDataBuffers();
+    const int DATA_LENGTH      = blob->length();
+
+    ASSERT((int) dataString.length() == DATA_LENGTH);
+
+    int bufferIdx = 0;
+    int dataCharIdx = 0;
+
+    for ( ; bufferIdx < NUM_DATA_BUFFERS; ++bufferIdx) {
+        const bcema_BlobBuffer& buffer = blob->buffer(bufferIdx);
+        for (char *pc = buffer.data(), *end = pc + buffer.size();
+                  pc < end && dataCharIdx < DATA_LENGTH; ++pc, ++dataCharIdx) {
+            *pc = data[dataCharIdx];
+        }
+    }
+}
+
+void blobToStr(bsl::string * str, const bcema_Blob& blob) {
+    const int NUM_PRE_DATA_BUFFERS = blob.numDataBuffers() - 1;
+    const int DATA_LENGTH          = blob.length();
+
+    if (0 == DATA_LENGTH) {
+        return;                                                       // RETURN
+    }
+
+    str->reserve(DATA_LENGTH);
+
+    int bufferIdx = 0;
+
+    for ( ; bufferIdx < NUM_PRE_DATA_BUFFERS; ++bufferIdx) {
+        const bcema_BlobBuffer& buffer = blob.buffer(bufferIdx);
+        str->append(buffer.data(), buffer.size());
+    }
+
+    const bcema_BlobBuffer& buffer = blob.buffer(bufferIdx);
+    int toAppend = DATA_LENGTH - str->length();
+    ASSERT(toAppend <= buffer.size());
+    str->append(buffer.data(), toAppend);
+}
+
+bool checkBlob(const bcema_Blob& blob, const bsl::string& dataString)
+{
+    if (blob.length() != (int) dataString.length()) {
+        return false;
+    }
+
+    const char *data = dataString.data();
+    const int NUM_DATA_BUFFERS = blob.numDataBuffers();
+    const int DATA_LENGTH      = blob.length();
+
+    int bufferIdx = 0;
+    int dataCharIdx = 0;
+
+    for ( ; bufferIdx < NUM_DATA_BUFFERS; ++bufferIdx) {
+        const bcema_BlobBuffer& buffer = blob.buffer(bufferIdx);
+        for (char *pc = buffer.data(), *end = pc + buffer.size();
+                  pc < end && dataCharIdx < DATA_LENGTH; ++pc, ++dataCharIdx) {
+            if (*pc != data[dataCharIdx]) {
+                return false;
+            }
+        }
+    }
+
+    return false;
 }
 
 void populateBuffersWithData(bcema_Blob *blob, int numBuffers, char value)
@@ -257,7 +292,7 @@ void populateBuffersWithData(bcema_Blob *blob, int numBuffers, char value)
         return;
     }
     for (int i = 0; i < numBuffers; ++i) {
-        std::memset(blob->buffer(i).data(), value, blob->buffer(i).size());
+        bsl::memset(blob->buffer(i).data(), value, blob->buffer(i).size());
     }
 }
 
@@ -309,7 +344,7 @@ class TestBlobBufferFactory : public bcema_BlobBufferFactory
     // or ratio 2, starting with a size specified at construction.
 
     bslma_Allocator *d_allocator_p;
-    std::size_t      d_currentBufferSize;
+    bsl::size_t      d_currentBufferSize;
     bool             d_growFlag;
 
     private:
@@ -320,7 +355,7 @@ class TestBlobBufferFactory : public bcema_BlobBufferFactory
     public:
     // CREATORS
     explicit TestBlobBufferFactory(bslma_Allocator *allocator,
-                                   std::size_t      currentBufferSize = 4,
+                                   bsl::size_t      currentBufferSize = 4,
                                    bool             growFlag = true);
     ~TestBlobBufferFactory();
 
@@ -329,12 +364,12 @@ class TestBlobBufferFactory : public bcema_BlobBufferFactory
     void setGrowFlag(bool growFlag);
 
     // ACCESSORS
-    std::size_t currentBufferSize() const;
+    bsl::size_t currentBufferSize() const;
     bool growFlag() const;
 };
 
 TestBlobBufferFactory::TestBlobBufferFactory(bslma_Allocator *allocator,
-                                             std::size_t      currentBufSize,
+                                             bsl::size_t      currentBufSize,
                                              bool             growFlag)
 : d_allocator_p(allocator)
 , d_currentBufferSize(currentBufSize)
@@ -364,7 +399,7 @@ void TestBlobBufferFactory::setGrowFlag(bool growFlag)
     d_growFlag = growFlag;
 }
 
-std::size_t TestBlobBufferFactory::currentBufferSize() const
+bsl::size_t TestBlobBufferFactory::currentBufferSize() const
 {
     return d_currentBufferSize;
 }
@@ -396,8 +431,8 @@ class SimpleBlobBufferFactory : public bcema_BlobBufferFactory
     // This factory creates blob buffers of a fixed size specified at
     // construction.  It is part of the usage example.
 
+    bsl::size_t      d_bufferSize;
     bslma_Allocator *d_allocator_p;
-    std::size_t      d_bufferSize;
 
     private:
     // not implemented
@@ -450,17 +485,19 @@ void  usageExample() {
     ASSERT(0    == blob.totalSize());
 
     blob.setLength(512);
-    ASSERT(512  == blob.length());
+    ASSERT( 512 == blob.length());
     ASSERT(1024 == blob.totalSize());
 //..
 // Users need to access buffers directly in order to read/write data.
 //..
     char data[] = "12345678901234567890"; // 20 bytes
     ASSERT(0 != blob.numBuffers());
-    ASSERT(sizeof(data) <= blob.buffer(0).size());
-    std::memcpy(blob.buffer(0).data(), data, sizeof(data));
+    ASSERT((int) sizeof(data) <= blob.buffer(0).size());
+    bsl::memcpy(blob.buffer(0).data(), data, sizeof(data));
 
     blob.setLength(sizeof(data));
+    ASSERT(sizeof data == blob.length());
+    ASSERT(       1024 == blob.totalSize());
 //..
 // A 'bcema_BlobBuffer' can easily be re-assigned from one blob to another with
 // no copy.  In that case, the memory held by the buffer will be returned to
@@ -471,15 +508,21 @@ void  usageExample() {
 // result in undefined behavior.
 //..
     bcema_Blob dest;
+    ASSERT(   0 == dest.length());
+    ASSERT(   0 == dest.totalSize());
 
     ASSERT(0 != blob.numBuffers());
     dest.appendBuffer(blob.buffer(0));
+    ASSERT(   0 == dest.length());
+    ASSERT(1024 == dest.totalSize());
 //..
 // Note that at this point, the logical length (returned by 'length') of this
 // object has not changed.  'setLength' must be called explicitly by the user
 // if the logical length of the 'bcema_Blob' should be changed:
 //..
-   dest.setLength(dest.buffer(0).size());
+    dest.setLength(dest.buffer(0).size());
+    ASSERT(1024 == dest.length());
+    ASSERT(1024 == dest.totalSize());
 //..
 // Sharing only a part of a buffer is also possible through shared pointer
 // aliasing.  In the following example, a buffer that contains only bytes 11-16
@@ -560,10 +603,10 @@ void prependProlog(bcema_Blob          *blob,
     fa.allocate(&prologBuffer);
 
     bdex_ByteStreamImpUtil::putInt32(prologBuffer.data(), prologLength);
-    std::memcpy(prologBuffer.data() + sizeof(int),
+    bsl::memcpy(prologBuffer.data() + sizeof(int),
                 prolog.c_str(),
                 prologLength);
-    ASSERT(prologBuffer.size() == prologLength + sizeof(int));
+    ASSERT(prologBuffer.size() == prologLength + (int) sizeof(int));
 
     blob->prependDataBuffer(prologBuffer);
 }
@@ -690,9 +733,9 @@ void usageExample2()
         "trailer"
     };
     const int MSG_SIZES[] = {
-        std::strlen(MSG[0]),
-        std::strlen(MSG[1]),
-        std::strlen(MSG[2])
+        bsl::strlen(MSG[0]),
+        bsl::strlen(MSG[1]),
+        bsl::strlen(MSG[2])
     };
     const int NUM_MSG_BUFFERS = sizeof MSG / sizeof *MSG;
     const int MSG_LENGTH      = MSG_SIZES[0] + MSG_SIZES[1] + MSG_SIZES[2];
@@ -701,7 +744,7 @@ void usageExample2()
     NullDeleter deleter;
     composeMessage(&blob,
                    PROLOG,
-                   (char * const *)MSG,
+                   const_cast<char * const *>(MSG),
                    (const int *)MSG_SIZES,
                    NUM_MSG_BUFFERS,
                    &deleter, &ta);
@@ -724,7 +767,7 @@ void usageExample2()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
@@ -784,7 +827,7 @@ int main(int argc, char *argv[])
         bslma_TestAllocator ta(veryVeryVerbose);
 
         bslma_TestAllocator& testAllocator = ta;
-        BEGIN_BDEMA_EXCEPTION_TEST
+        BEGIN_BSLMA_EXCEPTION_TEST
         {
             typedef bcema_Blob Obj;
             const int BUFFER_SIZE = 4;
@@ -821,6 +864,10 @@ int main(int argc, char *argv[])
             }
             checkBlobBuffers(X);
 
+#ifdef BDE_BUILD_TARGET_SAFE
+            break;
+#endif
+
             mX.appendDataBuffer(X.buffer(0));
             ASSERT(3 * BUFFER_SIZE - 1 == X.length());
             ASSERT(3 * BUFFER_SIZE - 1 == X.totalSize());
@@ -835,12 +882,12 @@ int main(int argc, char *argv[])
             }
             checkBlobBuffers(X);
         }
-        ASSERT(0 <  ta.numAllocation());
+        ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
-        ASSERT(0 == defaultAlloc.numAllocation());
+        ASSERT(0 == defaultAlloc.numAllocations());
 
-        END_BDEMA_EXCEPTION_TEST
+        END_BSLMA_EXCEPTION_TEST
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -863,15 +910,18 @@ int main(int argc, char *argv[])
                           << "=========================================="
                           << endl;
 
+        bsl::string data1 = "abcdefghijklmnopqrstuvwzyz";
+        bsl::string data2 = "01234567890`~!@#$%^&*()_-+";
+
         typedef bcema_Blob Obj;
         bslma_TestAllocator defaultAlloc(veryVeryVerbose);
         bslma_DefaultAllocatorGuard guard(&defaultAlloc);
         bslma_TestAllocator ta(veryVeryVerbose);
 
         bslma_TestAllocator& testAllocator = ta;
-        for (int bufferSize1 = 1; bufferSize1 <= 10; bufferSize1 +=2) {
-        for (int numBuffers1 = 0; numBuffers1 <= 5; ++numBuffers1) {
-        for (int dataLength1 = 1;
+        for (int bufferSize1 = 1; bufferSize1 <= 6; bufferSize1 += 2) {
+        for (int numBuffers1 = 0; numBuffers1 <= 3; ++numBuffers1) {
+        for (int dataLength1 = 0;
              dataLength1 <= bufferSize1 * numBuffers1;
              ++dataLength1) {
             const int BUFFER_SIZE1             = bufferSize1;
@@ -881,8 +931,10 @@ int main(int argc, char *argv[])
             const int NUM_DATA_BUFFERS1        =
                                                (dataLength1 + BUFFER_SIZE1 - 1)
                                                                 / BUFFER_SIZE1;
-            const int LAST_DATA_BUFFER_LENGTH1 =
-                       DATA_LENGTH1 - ((NUM_DATA_BUFFERS1 - 1) * BUFFER_SIZE1);
+            const int LAST_DATA_BUFFER_LENGTH1
+                = 0 == DATA_LENGTH1
+                ? 0
+                : DATA_LENGTH1 - ((NUM_DATA_BUFFERS1 - 1) * BUFFER_SIZE1);
 
             if (veryVerbose) {
                 T_(); P_(BUFFER_SIZE1); P_(NUM_BUFFERS1); P_(DATA_LENGTH1);
@@ -895,15 +947,20 @@ int main(int argc, char *argv[])
             mX.setLength(TOTAL_SIZE1);  // set up capacity
             mX.setLength(DATA_LENGTH1);
 
+            bsl::string data1Substr(data1, &ta);
+            data1Substr.resize(DATA_LENGTH1);
+
+            loadBlob(&mX, data1Substr);
+
             ASSERT(TOTAL_SIZE1              == X.totalSize());
             ASSERT(DATA_LENGTH1             == X.length());
             ASSERT(NUM_BUFFERS1             == X.numBuffers());
             ASSERT(NUM_DATA_BUFFERS1        == X.numDataBuffers());
             ASSERT(LAST_DATA_BUFFER_LENGTH1 == X.lastDataBufferLength());
 
-        for (int bufferSize2 = 1; bufferSize2 <= 10; bufferSize2 +=2) {
-        for (int numBuffers2 = 0; numBuffers2 <= 5; ++numBuffers2) {
-        for (int dataLength2 = 1;
+        for (int bufferSize2 = 1; bufferSize2 <= 6; bufferSize2 += 2) {
+        for (int numBuffers2 = 0; numBuffers2 <= 3; ++numBuffers2) {
+        for (int dataLength2 = 0;
              dataLength2 <= bufferSize2 * numBuffers2;
              ++dataLength2) {
             const int BUFFER_SIZE2             = bufferSize2;
@@ -913,8 +970,15 @@ int main(int argc, char *argv[])
             const int NUM_DATA_BUFFERS2        =
                                                (dataLength2 + BUFFER_SIZE2 - 1)
                                                                 / BUFFER_SIZE2;
-            const int LAST_DATA_BUFFER_LENGTH2 =
-                       DATA_LENGTH2 - ((NUM_DATA_BUFFERS2 - 1) * BUFFER_SIZE2);
+            const int LAST_DATA_BUFFER_LENGTH2
+                = 0 == DATA_LENGTH2
+                ? 0
+                : DATA_LENGTH2 - ((NUM_DATA_BUFFERS2 - 1) * BUFFER_SIZE2);
+
+            const int APPEND_LAST_DATA_BUFFER_LENGTH
+                = 0 == LAST_DATA_BUFFER_LENGTH1
+                ? LAST_DATA_BUFFER_LENGTH2
+                : LAST_DATA_BUFFER_LENGTH1;
 
             if (veryVerbose) {
                 T_(); P_(BUFFER_SIZE2); P_(NUM_BUFFERS2); P_(DATA_LENGTH2);
@@ -930,6 +994,14 @@ int main(int argc, char *argv[])
             mZ2.setLength(TOTAL_SIZE2);  // set up capacity
             mZ2.setLength(DATA_LENGTH2);
 
+            bsl::string data2Substr(data2, &ta);
+            data2Substr.resize(DATA_LENGTH2);
+            bsl::string EXP_DATA(data2Substr, &ta);
+            EXP_DATA += data1Substr;
+
+            loadBlob(&mZ1, data2Substr);
+            loadBlob(&mZ2, data2Substr);
+
             ASSERT(TOTAL_SIZE2              == Z1.totalSize());
             ASSERT(DATA_LENGTH2             == Z1.length());
             ASSERT(NUM_BUFFERS2             == Z1.numBuffers());
@@ -943,7 +1015,7 @@ int main(int argc, char *argv[])
             ASSERT(LAST_DATA_BUFFER_LENGTH2 == Z2.lastDataBufferLength());
 
             Obj mY1(X, &fa1, &ta); const Obj& Y1 = mY1;
-            Obj mY2(X, &fa1, &ta); const Obj& Y2 = mY1;
+            Obj mY2(X, &fa1, &ta); const Obj& Y2 = mY2;
 
             ASSERT(TOTAL_SIZE1              == Y1.totalSize());
             ASSERT(DATA_LENGTH1             == Y1.length());
@@ -960,55 +1032,92 @@ int main(int argc, char *argv[])
             ASSERT(X  == Y1);
             ASSERT(X  == Y2);
             ASSERT(Y1 == Y2);
-            ASSERT(X  != Z1);
-            ASSERT(Y1 != Z1);
-            ASSERT(Y2 != Z1);
-            ASSERT(X  != Z2);
-            ASSERT(Y1 != Z2);
-            ASSERT(Y2 != Z2);
+            if (DATA_LENGTH1 > 0 || DATA_LENGTH2 > 0) {
+                ASSERT(X  != Z1);
+                ASSERT(Y1 != Z1);
+                ASSERT(Y2 != Z1);
+                ASSERT(X  != Z2);
+                ASSERT(Y1 != Z2);
+                ASSERT(Y2 != Z2);
+            }
+
+            const int TOTAL_TOTAL1 = Z1.totalSize() + Y1.totalSize();
+            const int TOTAL_TOTAL2 = Z2.totalSize() + Y2.totalSize();
 
             mZ1.moveDataBuffers(&mY1);
             mZ2.moveAndAppendDataBuffers(&mY2);
 
+            if (veryVerbose) {
+                P_(BUFFER_SIZE1) P_(NUM_BUFFERS1) P_(DATA_LENGTH1)
+                    P_(TOTAL_SIZE1) P_(NUM_DATA_BUFFERS1)
+                    P_(Y2.lastDataBufferLength())
+                P_(BUFFER_SIZE2) P_(NUM_BUFFERS2) P_(DATA_LENGTH2)
+                P_(TOTAL_SIZE2) P_(NUM_DATA_BUFFERS2)
+                    P_(Z2.lastDataBufferLength())
+            }
+
             ASSERT(NUM_BUFFERS1 - NUM_DATA_BUFFERS1 == Y1.numBuffers());
             ASSERT(Y1.numBuffers() * BUFFER_SIZE1   == Y1.totalSize());
+            ASSERT(checkTotalSize(Y1));
             ASSERT(0                             == Y1.length());
             ASSERT(0                             == Y1.numDataBuffers());
             ASSERT(0                             == Y1.lastDataBufferLength());
 
             ASSERT(NUM_BUFFERS1 - NUM_DATA_BUFFERS1 == Y2.numBuffers());
+            ASSERT(checkTotalSize(Y2));
             ASSERT(Y2.numBuffers() * BUFFER_SIZE1   == Y2.totalSize());
             ASSERT(0                             == Y2.length());
             ASSERT(0                             == Y2.numDataBuffers());
             ASSERT(0                             == Y2.lastDataBufferLength());
 
-            ASSERT(NUM_DATA_BUFFERS1 * BUFFER_SIZE1 == Z1.totalSize());
+            bsl::string z1Data(&ta);
+            blobToStr(&z1Data, Z1);
+            ASSERT(checkTotalSize(Z1));
             ASSERT(DATA_LENGTH1                  == Z1.length());
-            ASSERT(NUM_DATA_BUFFERS1             == Z1.numBuffers());
-            ASSERT(NUM_DATA_BUFFERS1             == Z1.numDataBuffers());
-            ASSERT(LAST_DATA_BUFFER_LENGTH1      == Z1.lastDataBufferLength());
+            if (0 == Z1.length()) {
+                LOOP2_ASSERT(NUM_DATA_BUFFERS1, Z1.numBuffers(),
+                         NUM_BUFFERS2 + NUM_DATA_BUFFERS1 == Z1.numBuffers());
+            }
+            else {
+                LOOP2_ASSERT(NUM_DATA_BUFFERS1, Z1.numBuffers(),
+                             NUM_DATA_BUFFERS1 == Z1.numBuffers());
+            }
 
-            const int EXP_NUM_BUFFERS = std::max(
+            LOOP2_ASSERT(NUM_DATA_BUFFERS1, Z1.numDataBuffers(),
+                         NUM_DATA_BUFFERS1 == Z1.numDataBuffers());
+            LOOP4_ASSERT(DATA_LENGTH1, DATA_LENGTH2,
+                           LAST_DATA_BUFFER_LENGTH1, Z1.lastDataBufferLength(),
+                        LAST_DATA_BUFFER_LENGTH1 == Z1.lastDataBufferLength());
+            LOOP2_ASSERT(data1Substr, z1Data, data1Substr == z1Data);
+
+            const int EXP_NUM_BUFFERS = bsl::max(
                                         NUM_BUFFERS2,
-                                        NUM_DATA_BUFFERS1 + NUM_DATA_BUFFERS2);
+                                        NUM_DATA_BUFFERS1 + NUM_BUFFERS2);
+            bsl::string z2Data(&ta);
+            blobToStr(&z2Data, Z2);
 
-            ASSERT(DATA_LENGTH2
-                 + NUM_DATA_BUFFERS1 * BUFFER_SIZE1      == Z2.totalSize());
+            ASSERT(checkTotalSize(Z2));
             ASSERT(DATA_LENGTH1 + DATA_LENGTH2           == Z2.length());
-            ASSERT(EXP_NUM_BUFFERS                       == Z2.numBuffers());
-            ASSERT(NUM_DATA_BUFFERS1 + NUM_DATA_BUFFERS2
+            LOOP2_ASSERT(EXP_NUM_BUFFERS, Z2.numBuffers(),
+                         EXP_NUM_BUFFERS == Z2.numBuffers());
+            LOOP2_ASSERT(NUM_DATA_BUFFERS1 + NUM_DATA_BUFFERS2,
+                         Z2.numDataBuffers(),
+                         NUM_DATA_BUFFERS1 + NUM_DATA_BUFFERS2
                                                        == Z2.numDataBuffers());
-            ASSERT(LAST_DATA_BUFFER_LENGTH1 == Z2.lastDataBufferLength());
+            LOOP4_ASSERT(DATA_LENGTH1, DATA_LENGTH2,
+                           LAST_DATA_BUFFER_LENGTH1, Z2.lastDataBufferLength(),
+                  APPEND_LAST_DATA_BUFFER_LENGTH == Z2.lastDataBufferLength());
+            LOOP2_ASSERT(EXP_DATA, z2Data, EXP_DATA == z2Data);
         }
         }
         }
         }
         }
         }
-        ASSERT(0 <  ta.numAllocation());
+        ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
-        ASSERT(0 == defaultAlloc.numAllocation());
+        ASSERT(0 == defaultAlloc.numAllocations());
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1040,7 +1149,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator ta(veryVeryVerbose);
 
             bslma_TestAllocator& testAllocator = ta;
-            BEGIN_BDEMA_EXCEPTION_TEST
+            BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE     = bufferSize;
                 const int LENGTH          = dataLength;
@@ -1067,7 +1176,7 @@ int main(int argc, char *argv[])
                     ASSERT(BUFFER_SIZE == src.size());
 
                     const char srcChar = 'A' + i;
-                    std::memset(src.data(), srcChar, src.size());
+                    bsl::memset(src.data(), srcChar, src.size());
                     ASSERT(compareBlobBufferData(src, srcChar));
 
                     const char dstChar = 'Z';
@@ -1085,12 +1194,12 @@ int main(int argc, char *argv[])
                     ASSERT(compareBlobBufferData(src, dstChar));
                 }
             }
-            ASSERT(0 <  ta.numAllocation());
+            ASSERT(0 <  ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
             ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocation());
+            ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BDEMA_EXCEPTION_TEST
+            END_BSLMA_EXCEPTION_TEST
         }
       } break;
       case 9: {
@@ -1117,7 +1226,7 @@ int main(int argc, char *argv[])
         bslma_TestAllocator ta(veryVeryVerbose);
 
         bslma_TestAllocator& testAllocator = ta;
-        BEGIN_BDEMA_EXCEPTION_TEST {
+        BEGIN_BSLMA_EXCEPTION_TEST {
         for (int bufferSize = 1; bufferSize < 20; bufferSize +=2) {
         for (int numBuffers = 0; numBuffers < 10; ++numBuffers) {
             const int BUFFER_SIZE = bufferSize;
@@ -1171,11 +1280,11 @@ int main(int argc, char *argv[])
             ASSERT(NUM_BUFFERS * BUFFER_SIZE == Z.length());
         }
         }
-        ASSERT(0 <  ta.numAllocation());
+        ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
-        ASSERT(0 == defaultAlloc.numAllocation());
-        } END_BDEMA_EXCEPTION_TEST
+        ASSERT(0 == defaultAlloc.numAllocations());
+        } END_BSLMA_EXCEPTION_TEST
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1221,7 +1330,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator ta(veryVeryVerbose);
 
             bslma_TestAllocator& testAllocator = ta;
-            BEGIN_BDEMA_EXCEPTION_TEST
+            BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1293,13 +1402,17 @@ int main(int argc, char *argv[])
 
                 checkNoAliasedBlobBuffers(X);
             }
-            ASSERT(0 <  ta.numAllocation());
+            ASSERT(0 <  ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
             ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocation());
+            ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BDEMA_EXCEPTION_TEST
+            END_BSLMA_EXCEPTION_TEST
         }
+
+#ifdef  BDE_BUILD_TARGET_SAFE
+        break;
+#endif
 
         if (verbose) cout << "\nTesting 'appendDataBuffer'" << endl;
 
@@ -1314,7 +1427,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator ta(veryVeryVerbose);
 
             bslma_TestAllocator& testAllocator = ta;
-            BEGIN_BDEMA_EXCEPTION_TEST
+            BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1363,12 +1476,12 @@ int main(int argc, char *argv[])
 
                 checkNoAliasedBlobBuffers(X);
             }
-            ASSERT(0 <  ta.numAllocation());
+            ASSERT(0 <  ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
             ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocation());
+            ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BDEMA_EXCEPTION_TEST
+            END_BSLMA_EXCEPTION_TEST
         }
 
       } break;
@@ -1417,7 +1530,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator ta(veryVeryVerbose);
 
             bslma_TestAllocator& testAllocator = ta;
-            BEGIN_BDEMA_EXCEPTION_TEST
+            BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1476,12 +1589,12 @@ int main(int argc, char *argv[])
 
                 checkNoAliasedBlobBuffers(X);
             }
-            ASSERT(0 <  ta.numAllocation());
+            ASSERT(0 <  ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
             ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocation());
+            ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BDEMA_EXCEPTION_TEST
+            END_BSLMA_EXCEPTION_TEST
         }
 
         if (verbose) cout << "\nTesting 'removeAll'" << endl;
@@ -1496,7 +1609,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator ta(veryVeryVerbose);
 
             bslma_TestAllocator& testAllocator = ta;
-            BEGIN_BDEMA_EXCEPTION_TEST
+            BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1532,12 +1645,12 @@ int main(int argc, char *argv[])
                 ASSERT(0 == X.numDataBuffers());
                 ASSERT(0 == X.lastDataBufferLength());
             }
-            ASSERT(0 == dataLength || 0 <  ta.numAllocation());
+            ASSERT(0 == dataLength || 0 <  ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
             ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocation());
+            ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BDEMA_EXCEPTION_TEST
+            END_BSLMA_EXCEPTION_TEST
         }
 
       } break;
@@ -1583,7 +1696,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator ta(veryVeryVerbose);
 
             bslma_TestAllocator& testAllocator = ta;
-            BEGIN_BDEMA_EXCEPTION_TEST
+            BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1627,12 +1740,12 @@ int main(int argc, char *argv[])
 
                 checkNoAliasedBlobBuffers(X);
             }
-            ASSERT(0 <  ta.numAllocation());
+            ASSERT(0 <  ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
             ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocation());
+            ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BDEMA_EXCEPTION_TEST
+            END_BSLMA_EXCEPTION_TEST
         }
 
       } break;
@@ -1684,7 +1797,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator ta(veryVeryVerbose);
 
             bslma_TestAllocator& testAllocator = ta;
-            BEGIN_BDEMA_EXCEPTION_TEST
+            BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1744,12 +1857,12 @@ int main(int argc, char *argv[])
 
                 checkNoAliasedBlobBuffers(X);
             }
-            ASSERT(0 <  ta.numAllocation());
+            ASSERT(0 <  ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
             ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocation());
+            ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BDEMA_EXCEPTION_TEST
+            END_BSLMA_EXCEPTION_TEST
         }
 
       } break;
@@ -1847,7 +1960,7 @@ int main(int argc, char *argv[])
                     P(X.buffer(X.numDataBuffers()-1).size());
                 }
             }
-            ASSERT(0 == numBuffers || 0 <  ta.numAllocation());
+            ASSERT(0 == numBuffers || 0 <  ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
             ASSERT(0 == ta.numMismatches());
         }
@@ -1913,7 +2026,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator ta(veryVeryVerbose);
 
             bslma_TestAllocator& testAllocator = ta;
-            BEGIN_BDEMA_EXCEPTION_TEST
+            BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE     = bufferSize;
                 const int LENGTH          = dataLength;
@@ -1998,12 +2111,12 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            ASSERT(0 <  ta.numAllocation());
+            ASSERT(0 <  ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
             ASSERT(0 == ta.numMismatches());
-            ASSERT(0 == defaultAlloc.numAllocation());
+            ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BDEMA_EXCEPTION_TEST
+            END_BSLMA_EXCEPTION_TEST
         }
 
         if (verbose) cout << "\nTesting blob with different buffer sizes.\n";
@@ -2024,7 +2137,7 @@ int main(int argc, char *argv[])
                 ASSERT(2 == X.buffer(1).size());
                 ASSERT(4 == X.buffer(2).size());
             }
-            ASSERT(0 <  ta.numAllocation());
+            ASSERT(0 <  ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
             ASSERT(0 == ta.numMismatches());
         }
@@ -2098,14 +2211,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.length());
             ASSERT(0 == X.numBuffers());
         }
-        ASSERT(0 == ta.numAllocation());
+        ASSERT(0 == ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
-        ASSERT(0 == defaultAlloc.numAllocation());
+        ASSERT(0 == defaultAlloc.numAllocations());
 #endif
 
         if (verbose) cout << "\nTesting creating blob with factory.\n";
-        BEGIN_BDEMA_EXCEPTION_TEST
+        BEGIN_BSLMA_EXCEPTION_TEST
         {
             bsls_AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
@@ -2176,15 +2289,15 @@ int main(int argc, char *argv[])
             ASSERT(BUFFER_SIZE * 2 == Z2.totalSize());
             ASSERT(2               == Z2.numBuffers());
         }
-        ASSERT(0 <  ta.numAllocation());
+        ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
-        ASSERT(0 == defaultAlloc.numAllocation());
-        END_BDEMA_EXCEPTION_TEST
+        ASSERT(0 == defaultAlloc.numAllocations());
+        END_BSLMA_EXCEPTION_TEST
 
 #if 0
         if (verbose) cout << "\nTesting creating blob importing buffers.\n";
-        BEGIN_BDEMA_EXCEPTION_TEST
+        BEGIN_BSLMA_EXCEPTION_TEST
         {
             bsls_AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
@@ -2229,16 +2342,16 @@ int main(int argc, char *argv[])
             ASSERT(TOTAL_SIZE  == X.totalSize());
             ASSERT(NUM_BUFFERS == X.numBuffers());
         }
-        ASSERT(0 <  ta.numAllocation());
+        ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
-        ASSERT(0 == defaultAlloc.numAllocation());
-        END_BDEMA_EXCEPTION_TEST
+        ASSERT(0 == defaultAlloc.numAllocations());
+        END_BSLMA_EXCEPTION_TEST
 #endif
 
         if (verbose)
            cout << "\nTesting creating blob with factory importing buffers.\n";
-        BEGIN_BDEMA_EXCEPTION_TEST
+        BEGIN_BSLMA_EXCEPTION_TEST
         {
             bsls_AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
@@ -2280,11 +2393,11 @@ int main(int argc, char *argv[])
             ASSERT(TOTAL_SIZE + BUFFER_SIZE == X.totalSize());
             ASSERT(NUM_BUFFERS + 1          == X.numBuffers());
         }
-        ASSERT(0 <  ta.numAllocation());
+        ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
-        ASSERT(0 == defaultAlloc.numAllocation());
-        END_BDEMA_EXCEPTION_TEST
+        ASSERT(0 == defaultAlloc.numAllocations());
+        END_BSLMA_EXCEPTION_TEST
 
       } break;
       case 1: {
@@ -2786,7 +2899,7 @@ int main(int argc, char *argv[])
             ASSERT(8   == X.numBuffers());
             checkNoAliasedBlobBuffers(X);
         }
-        ASSERT(0 <  ta.numAllocation());
+        ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
 

@@ -17,3 +17,4 @@ bcema_protectablesequentialallocator
 bcema_sharedptr
 bcema_testallocator
 bcema_threadenabledallocatoradapter
+bcema_weakptr

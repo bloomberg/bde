@@ -7,14 +7,13 @@
 #include <bslma_testallocator.h>
 #include <bdex_byteoutstreamformatter.h>
 
-#include <cstdlib>     // atoi()
+#include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
-#include <cstring>     // memcpy()
+#include <bsl_cstring.h>     // memcpy()
 #include <bsl_strstream.h>
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
-using namespace std;
 using namespace bsl;  // automatically added by script
 
 
@@ -204,7 +203,7 @@ void copyStringToBlob(bcema_Blob *dest, const bsl::string& str)
     while (numBytesRemaining) {
         bcema_BlobBuffer buffer = dest->buffer(bufferIndex);
         int numBytesToCopy = bsl::min(numBytesRemaining, buffer.size());
-        std::memcpy(buffer.data(), data, numBytesToCopy);
+        bsl::memcpy(buffer.data(), data, numBytesToCopy);
         data += numBytesToCopy;
         numBytesRemaining -= numBytesToCopy;
         ++bufferIndex;
@@ -328,7 +327,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'erase' Function"
                           << "\n=========================" << endl;
 
-        const std::string STR  = "HelloWorld";
+        const bsl::string STR  = "HelloWorld";
         const int         SIZE = STR.size();
         for (int bufferSize = 1; bufferSize < 10; ++bufferSize) {
             BlobBufferFactory factory(bufferSize);
@@ -336,8 +335,8 @@ int main(int argc, char *argv[]) {
             for (int offset = 0; offset < SIZE; ++offset) {
                 for (int length = 0; length <= SIZE - offset; ++length) {
 
-                    std::string sstr = STR;
-                    std::string estr = STR;
+                    bsl::string sstr = STR;
+                    bsl::string estr = STR;
                     estr.erase(offset, length);
 
                     bcema_Blob exp(&factory);
@@ -437,7 +436,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        ASSERT(0 <  allocator.numAllocation());
+        ASSERT(0 <  allocator.numAllocations());
         ASSERT(0 == allocator.numBlocksInUse());
 
       } break;
@@ -614,6 +613,173 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'compare' Function"
                           << "\n=========================" << endl;
 
+        const struct {
+            int         d_line;
+            const char *d_lhs;
+            const char *d_rhs;
+            const int   d_retValue;
+        } DATA[] = {
+            // Line   LHS         RHS          retValue
+            // ----   ---         ---          -------- 
+            {   L_,   "",         "",                 0 },
+
+            {   L_,   "a",        "",                 1 },
+            {   L_,   " ",        "",                 1 },
+            {   L_,   "A",        "",                 1 },
+            {   L_,   "a",        "b",               -1 },
+            {   L_,   "a",        "A",                1 },
+            {   L_,   "a",        "a",                0 },
+            {   L_,   "A",        "A",                0 },
+
+            {   L_,   "ab",       "",                 1 },
+            {   L_,   "AB",       "",                 1 },
+            {   L_,   "ab",       "a",                1 },
+            {   L_,   "ab",       "b",               -1 },
+            {   L_,   "ab",       "AB",               1 },
+            {   L_,   "ZY",       "YZ",               1 },
+            {   L_,   "XU",       "X",                1 },
+            {   L_,   "XU",       "W",                1 },
+            {   L_,   "ab",       "ab",               0 },
+            {   L_,   "AB",       "AB",               0 },
+
+            {   L_,   "abc",      "",                 1 },
+            {   L_,   "XYZ",      "",                 1 },
+            {   L_,   "abc",      "a",                1 },
+            {   L_,   "abc",      "b",               -1 },
+            {   L_,   "abc",      "ab",               1 },
+            {   L_,   "abc",      "ba",              -1 },
+            {   L_,   "XYZ",      "Y",               -1 },
+            {   L_,   "XYZ",      "W",                1 },
+            {   L_,   "XYZ",      "XY",               1 },
+            {   L_,   "XYZ",      "YZ",              -1 },
+            {   L_,   "abc",      "abc",              0 },
+            {   L_,   "XYZ",      "XYZ",              0 },
+
+            {   L_,   "abcde",    "",                 1 },
+            {   L_,   "VWXYZ",    "",                 1 },
+            {   L_,   "abcde",    "a",                1 },
+            {   L_,   "abcde",    "b",               -1 },
+            {   L_,   "abcde",    "ab",               1 },
+            {   L_,   "abcde",    "ba",              -1 },
+            {   L_,   "abcde",    "abc",              1 },
+            {   L_,   "abcde",    "abce",            -1 },
+            //                        ^
+            {   L_,   "abcde",    "abcd",             1 },
+            {   L_,   "abcde",    "abcdf",           -1 },
+            //                         ^
+            {   L_,   "abcde",    "abcde",            0 },
+            {   L_,   "VWXYZ",    "VWXYZ",            0 },
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdefghijklmnopqrstuvwxyz",   0 },
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "Abcdefghijklmnopqrstuvwxyz",   1 },
+            //         ^
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "aBcdefghijklmnopqrstuvwxyz",   1 },
+            //          ^
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abCdefghijklmnopqrstuvwxyz",   1 },
+            //           ^
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcDefghijklmnopqrstuvwxyz",   1 },
+            //            ^
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdEfghijklmnopqrstuvwxyz",   1 },
+            //             ^
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdeFghijklmnopqrstuvwxyz",   1 },
+            //              ^
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdefghijklmnopqrstuvwXyz",   1 },
+            //                                ^
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdefghijklmnopqrstuvwxYz",   1 },
+            //                                 ^
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdefghijklmnopqrstuvwxyZ",   1 },
+            //                                  ^
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+            //                             ^^^^^^
+                      "abcdefghijklmnopqrst",         1 },
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+            //                              ^^^^^
+                      "abcdefghijklmnopqrstu",        1 },
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+            //                               ^^^^
+                      "abcdefghijklmnopqrstuv",       1 },
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+            //                                ^^^
+                      "abcdefghijklmnopqrstuvw",      1 },
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+            //                                 ^^
+                      "abcdefghijklmnopqrstuvwx",     1 },
+
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+            //                                  ^
+                      "abcdefghijklmnopqrstuvwxy",    1 },
+         };
+        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE = DATA[i].d_line;
+            const char *LHS  = DATA[i].d_lhs;
+            const int   LLEN = bsl::strlen(LHS);
+            const char *RHS  = DATA[i].d_rhs;
+            const int   RLEN = bsl::strlen(RHS);
+            const int   RV   = DATA[i].d_retValue;
+
+            for (int size1 = 1; size1 < 10; ++size1) {
+                for (int size2 = 5; size2 < 20; ++size2) {
+                    BlobBufferFactory fa(size1), fb(size2);
+
+                    bcema_Blob mX(&fa); const bcema_Blob& X = mX;
+                    bcema_Blob mY(&fb); const bcema_Blob& Y = mY;
+
+                    mX.setLength(LLEN);
+                    mY.setLength(RLEN);
+
+                    copyStringToBlob(&mX, LHS);
+                    copyStringToBlob(&mY, RHS);
+
+                    if (veryVerbose) {
+                        P_(LINE) P_(LHS) P_(RHS) P_(RV)
+                        P_(size1) P(size2)
+                    }
+
+                    const int rv1 = bcema_BlobUtil::compare(X, Y);
+                    const int rv2 = bcema_BlobUtil::compare(Y, X);
+                    if (RV > 0) {
+                        LOOP4_ASSERT(size1, size2, RV, rv1, rv1 > 0);
+                        LOOP4_ASSERT(size1, size2, RV, rv1, rv2 < 0);
+                    }
+                    else if (RV < 0) {
+                        LOOP4_ASSERT(size1, size2, RV, rv1, rv1 < 0);
+                        LOOP4_ASSERT(size1, size2, RV, rv1, rv2 > 0);
+                    }
+                    else {
+                        LOOP4_ASSERT(size1, size2, RV, rv1, 0 == rv1);
+                        LOOP4_ASSERT(size1, size2, RV, rv1, 0 == rv2);
+                    }
+                }
+            }
+        }
+
+        // PREVIOUS TEST CASE
         for (int bufferSize = 1; bufferSize < 10; ++bufferSize) {
             for (int bufferSize2 = 5; bufferSize2 < 20; ++bufferSize2) {
                 const char *TEST_STR = "abcdefghijklmnopqrstuvwxyz";
@@ -628,8 +794,8 @@ int main(int argc, char *argv[]) {
                 bcema_Blob b1(&factory);
                 bcema_Blob b2(&factory2);
 
-                b1.setLength(strlen(TEST_STR) + 1);
-                b2.setLength(strlen(TEST_STR) + 1);
+                b1.setLength(strlen(TEST_STR));
+                b2.setLength(strlen(TEST_STR));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR);
@@ -641,14 +807,11 @@ int main(int argc, char *argv[]) {
                              0 == bcema_BlobUtil::compare(b2, b1));
 
                 // Test first char diff
-                b1.setLength(strlen(TEST_STR) + 1);
-                b2.setLength(strlen(TEST_STR2) + 1);
+                b1.setLength(strlen(TEST_STR));
+                b2.setLength(strlen(TEST_STR2));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR2);
-
-                LOOP2_ASSERT(bufferSize, bufferSize2,
-                             0 != bcema_BlobUtil::compare(b1, b2));
 
                 LOOP2_ASSERT(bufferSize, bufferSize2,
                              0 < bcema_BlobUtil::compare(b1, b2));
@@ -656,14 +819,11 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(bufferSize2, bufferSize,
                              0 > bcema_BlobUtil::compare(b2, b1));
 
-                b1.setLength(strlen(TEST_STR2) + 1);
-                b2.setLength(strlen(TEST_STR) + 1);
+                b1.setLength(strlen(TEST_STR2));
+                b2.setLength(strlen(TEST_STR));
 
                 copyStringToBlob(&b1, TEST_STR2);
                 copyStringToBlob(&b2, TEST_STR);
-
-                LOOP2_ASSERT(bufferSize, bufferSize2,
-                             0 != bcema_BlobUtil::compare(b1, b2));
 
                 LOOP2_ASSERT(bufferSize, bufferSize2,
                              0 > bcema_BlobUtil::compare(b1, b2));
@@ -672,14 +832,11 @@ int main(int argc, char *argv[]) {
                              0 < bcema_BlobUtil::compare(b2, b1));
 
                 // Test last char diff
-                b1.setLength(strlen(TEST_STR) + 1);
-                b2.setLength(strlen(TEST_STR3) + 1);
+                b1.setLength(strlen(TEST_STR));
+                b2.setLength(strlen(TEST_STR3));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR3);
-
-                LOOP2_ASSERT(bufferSize, bufferSize2,
-                             0 != bcema_BlobUtil::compare(b1, b2));
 
                 LOOP2_ASSERT(bufferSize, bufferSize2,
                              0 < bcema_BlobUtil::compare(b1, b2));
@@ -687,14 +844,11 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(bufferSize2, bufferSize,
                              0 > bcema_BlobUtil::compare(b2, b1));
 
-                b1.setLength(strlen(TEST_STR3) + 1);
-                b2.setLength(strlen(TEST_STR) + 1);
+                b1.setLength(strlen(TEST_STR3));
+                b2.setLength(strlen(TEST_STR));
 
                 copyStringToBlob(&b1, TEST_STR3);
                 copyStringToBlob(&b2, TEST_STR);
-
-                LOOP2_ASSERT(bufferSize, bufferSize2,
-                             0 != bcema_BlobUtil::compare(b1, b2));
 
                 LOOP2_ASSERT(bufferSize, bufferSize2,
                              0 > bcema_BlobUtil::compare(b1, b2));
@@ -703,14 +857,11 @@ int main(int argc, char *argv[]) {
                              0 < bcema_BlobUtil::compare(b2, b1));
 
                 // Test 1 char diff in length
-                b1.setLength(strlen(TEST_STR) + 1);
-                b2.setLength(strlen(TEST_STR4) + 1);
+                b1.setLength(strlen(TEST_STR));
+                b2.setLength(strlen(TEST_STR4));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR4);
-
-                LOOP2_ASSERT(bufferSize, bufferSize2,
-                             0 != bcema_BlobUtil::compare(b1, b2));
 
                 LOOP2_ASSERT(bufferSize, bufferSize2,
                              0 > bcema_BlobUtil::compare(b1, b2));
@@ -718,14 +869,11 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(bufferSize2, bufferSize,
                              0 < bcema_BlobUtil::compare(b2, b1));
 
-                b1.setLength(strlen(TEST_STR4) + 1);
-                b2.setLength(strlen(TEST_STR) + 1);
+                b1.setLength(strlen(TEST_STR4));
+                b2.setLength(strlen(TEST_STR));
 
                 copyStringToBlob(&b1, TEST_STR4);
                 copyStringToBlob(&b2, TEST_STR);
-
-                LOOP2_ASSERT(bufferSize, bufferSize2,
-                             0 != bcema_BlobUtil::compare(b1, b2));
 
                 LOOP2_ASSERT(bufferSize, bufferSize2,
                              0 < bcema_BlobUtil::compare(b1, b2));
@@ -820,7 +968,7 @@ int main(int argc, char *argv[]) {
                 copyStringToBlob(&dest1,  DEST);
                 copyStringToBlob(&dest2,  DEST);
                 copyStringToBlob(&dest4,  DEST);
-                dest3.sputn(DEST, std::strlen(DEST));
+                dest3.sputn(DEST, bsl::strlen(DEST));
                 copyStringToBlob(&source, SOURCE);
 
                 if (veryVeryVerbose) {

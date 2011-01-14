@@ -1,15 +1,12 @@
-// bcema_defaultdeleter.cpp          -*-C++-*-
-#include <bcema_defaultdeleter.h>
+// bcema_weakptr.cpp                                                  -*-C++-*-
+#include <bcema_weakptr.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bcema_defaultdeleter_cpp,"$Id$ $CSID$")
-
-#include <bcema_testallocator.h>    // for testing only
-#include <bcema_sharedptr.h>        // for testing only
+BDES_IDENT_RCSID(bcema_weakptr_cpp,"$Id$ $CSID$")
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

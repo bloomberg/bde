@@ -127,7 +127,7 @@ static void aSsErT(int c, const char *s, int i) {
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
 //                    STANDARD BDE LOOP-ASSERT TEST MACROS
@@ -176,7 +176,7 @@ class MyInplaceTestObject;
 class MyTestObjectFactory;
 class MyTestDeleter;
 class MyAllocTestDeleter;
-class MyTestVfunc0;
+class MyTestFunctor;
 
 void myTestFunctor(MyTestObject *);
 
@@ -618,11 +618,11 @@ class MyAllocTestDeleter {
 };
 
                              // ==================
-                             // class MyTestVfunc0
+                             // class MyTestFunctor
                              // ==================
 
-class MyTestVfunc0 {
-    // This class implements a 'bcef_Vfunc0' which does nothing.
+class MyTestFunctor {
+    // This class implements a 'bcef_Function' which does nothing.
 
   public:
     void operator()() {}
@@ -4332,6 +4332,29 @@ struct PerformanceTester
    }
 };
 
+template <typename T>
+class ManagedPtrTestDeleter {
+
+    T* d_providedObj;
+
+public:
+    ManagedPtrTestDeleter() : d_providedObj(0) {}
+
+    void deleteObject(T* obj) {
+        ASSERT((int)(0 == d_providedObj));
+        d_providedObj = obj;
+    }
+
+    T* providedObj() {
+        return d_providedObj;
+    }
+
+    void reset() {
+        d_providedObj = 0;
+    }
+};
+
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -4351,6 +4374,45 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+    case 20: {
+        // TESTING constructing from ManagedPtr
+        // 
+        // Concerns: 
+        //   1) When constructing from a managed-ptr, the original deleter 
+        //      specified in the managed-ptr is used to destroy the object
+        //
+        //   2) When constructing from an aliased managed-ptr, the original
+        //      deleter is supplied the correct address
+        //
+        // Testing:
+        //   bcema_SharedPtr(bdema_ManagedPtr<OT> & original);
+
+        ManagedPtrTestDeleter<int> deleter;
+
+        int obj1, obj2;
+
+        bcema_SharedPtr<int> outerSp;
+        {
+            bdema_ManagedPtr<int> mp1 (&obj1, &deleter);
+            
+            bcema_SharedPtr<int> sp1 (mp1);
+            sp1.clear();
+            
+            // check non-aliased managed-ptr assignment
+            ASSERT(&obj1 == deleter.providedObj());
+            
+            deleter.reset();
+            mp1.load(&obj2, &deleter);
+            
+            bdema_ManagedPtr<int> mp2 (mp1, &obj1);
+            bcema_SharedPtr<int> sp2 (mp2);
+            outerSp = sp2;
+        }
+        outerSp.clear();
+        // check aliased managed-ptr assignment
+        ASSERT(&obj2 == deleter.providedObj());
+      } break;        
+
       case 19: {
         // --------------------------------------------------------------------
         // TESTING bcema_SharedPtr_RepImpl
@@ -4382,27 +4444,30 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n" << endl;
 
         {
-            bslma_TestAllocator *t = 0;
-            int *x                 = 0;
-            int count              = 0;
+            bslma_Allocator     *da = bslma_Default::allocator();
+            bslma_TestAllocator *t  = 0;
+            int *x                  = 0;
+            int count               = 0;
 
-            bcema_SharedPtr_RepImpl<int, bslma_TestAllocator*> impl(x, t, t,
+            bcema_SharedPtr_RepImpl<int, bslma_TestAllocator*> *implPtr =
+              new (*da) bcema_SharedPtr_RepImpl<int, bslma_TestAllocator*>(x,
+                                                                           t,
+                                                                           t,
         bslmf_MetaInt<bcema_SharedPtr_DeleterTypeEnum::BCEMA_ALLOCATOR_PTR>());
+            bcema_SharedPtr_RepImpl<int, bslma_TestAllocator*>&impl = *implPtr;
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
 
-            impl.incrementRefs();
+            impl.acquireRef();
             LOOP_ASSERT(impl.numReferences(), 2 == impl.numReferences());
 
-            impl.incrementRefs();
+            impl.acquireRef();
             LOOP_ASSERT(impl.numReferences(), 3 == impl.numReferences());
 
-            count = impl.decrementRefs();
+            impl.releaseRef();
             LOOP_ASSERT(impl.numReferences(), 2 == impl.numReferences());
-            LOOP_ASSERT(count,                2 == count);
 
-            count = impl.decrementRefs();
+            impl.releaseRef();
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
-            LOOP_ASSERT(count,                1 == count);
 
             impl.incrementRefs(1);
             LOOP_ASSERT(impl.numReferences(), 2 == impl.numReferences());
@@ -4410,13 +4475,11 @@ int main(int argc, char *argv[])
             impl.incrementRefs(1);
             LOOP_ASSERT(impl.numReferences(), 3 == impl.numReferences());
 
-            count = impl.decrementRefs(1);
+            impl.releaseRef();
             LOOP_ASSERT(impl.numReferences(), 2 == impl.numReferences());
-            LOOP_ASSERT(count,                2 == count);
 
-            count = impl.decrementRefs(1);
+            impl.releaseRef();
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
-            LOOP_ASSERT(count,                1 == count);
 
             impl.incrementRefs(2);
             LOOP_ASSERT(impl.numReferences(), 3 == impl.numReferences());
@@ -4424,13 +4487,13 @@ int main(int argc, char *argv[])
             impl.incrementRefs(2);
             LOOP_ASSERT(impl.numReferences(), 5 == impl.numReferences());
 
-            count = impl.decrementRefs(2);
+            impl.releaseRef();
+            impl.releaseRef();
             LOOP_ASSERT(impl.numReferences(), 3 == impl.numReferences());
-            LOOP_ASSERT(count,                3 == count);
 
-            count = impl.decrementRefs(2);
+            impl.releaseRef();
+            impl.releaseRef();
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
-            LOOP_ASSERT(count,                1 == count);
 
             impl.incrementRefs(3);
             LOOP_ASSERT(impl.numReferences(), 4 == impl.numReferences());
@@ -4438,13 +4501,17 @@ int main(int argc, char *argv[])
             impl.incrementRefs(3);
             LOOP_ASSERT(impl.numReferences(), 7 == impl.numReferences());
 
-            count = impl.decrementRefs(3);
+            impl.releaseRef();
+            impl.releaseRef();
+            impl.releaseRef();
             LOOP_ASSERT(impl.numReferences(), 4 == impl.numReferences());
-            LOOP_ASSERT(count,                4 == count);
 
-            count = impl.decrementRefs(3);
+            impl.releaseRef();
+            impl.releaseRef();
+            impl.releaseRef();
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
-            LOOP_ASSERT(count,                1 == count);
+
+            da->deallocate(implPtr);
         }
       } break;
       case 18: {
@@ -4567,7 +4634,7 @@ int main(int argc, char *argv[])
             ASSERT(r.first != r.second->originalPtr());
             ASSERT(v1 == r.second->originalPtr());
 
-            r.second->decrementRefs();
+            r.second->releaseRef();
             x1.clear();
 
             ASSERT(0 == ta.numBytesInUse());
@@ -4938,9 +5005,9 @@ int main(int argc, char *argv[])
                  << "Concern: Shared ptr in-place in 'bdef_Function'" << endl
                  << "===============================================" << endl;
 
-        typedef bcema_SharedPtr<MyTestVfunc0>  SharedVfunc0;
+        typedef bcema_SharedPtr<MyTestFunctor>  SharedFunctor;
 
-        ASSERT(1 == bdef_FunctionUtil::IsInplace<SharedVfunc0>::VALUE);
+        ASSERT(1 == bdef_FunctionUtil::IsInplace<SharedFunctor>::VALUE);
 
       } break;
       case 13: {

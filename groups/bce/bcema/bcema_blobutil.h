@@ -1,4 +1,4 @@
-// bcema_blobutil.h   -*-C++-*-
+// bcema_blobutil.h                                                   -*-C++-*-
 #ifndef INCLUDED_BCEMA_BLOBUTIL
 #define INCLUDED_BCEMA_BLOBUTIL
 
@@ -32,23 +32,23 @@ BDES_IDENT("$Id: $")
 // 'hexDump' output into xxd compatible hexdump.  Run the script with a file
 // containing the 'hexDump' output as the first argument.
 //..
-//#!/usr/bin/perl -w
+//  #!/usr/bin/perl -w
 //
-//use strict;
+//  use strict;
 //
-//my $num = 0;
-//while (<>) {
-//    next if (!$_);
-//    my $str = $_;
-//    next if !($str =~ s/^[^:]*?:\s*//);
-//    my $h = sprintf("%08X",$num);
-//    $str =~ s/(\S{4})([\S\W]{4})\s?([\S\W]{4})([\S\W]{4})\s?([\S\W]{4})?
+//  my $num = 0;
+//  while (<>) {
+//      next if (!$_);
+//      my $str = $_;
+//      next if !($str =~ s/^[^:]*?:\s*//);
+//      my $h = sprintf("%08X",$num);
+//      $str =~ s/(\S{4})([\S\W]{4})\s?([\S\W]{4})([\S\W]{4})\s?([\S\W]{4})?
 //            ([\S\W]{4})?\s?([\S\W]{4})?([\S\W]{4})?/$1 $2 $3 $4 $5 $6 $7 $8/;
-//    $str =~ s/\s \|([^|]+)\|.*$/ $1/;
-//    print "$h: ";
-//    print $str;
-//    $num = $num + 16;
-//}
+//      $str =~ s/\s \|([^|]+)\|.*$/ $1/;
+//      print "$h: ";
+//      print $str;
+//      $num = $num + 16;
+//  }
 //..
 
 #ifndef INCLUDED_BCESCM_VERSION
@@ -71,26 +71,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_algorithm.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_CSTRING
-#include <cstring>          // for 'memcpy'
-#define INCLUDED_CSTRING
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BDES_ASSERT
-#include <bdes_assert.h>
-#endif
-
-#ifndef INCLUDED_IOSFWD
-#include <iosfwd>
-#define INCLUDED_IOSFWD
-#endif
-
 #endif
 
 namespace BloombergLP {
@@ -169,29 +155,31 @@ struct bcema_BlobUtil {
     static bsl::ostream& asciiDump(bsl::ostream&     stream,
                                    const bcema_Blob& source);
         // Write to the specified 'ostream' an ascii dump of the specified
-        // 'source' and return a reference to the modifiable 'stream'.
+        // 'source', and return a reference to the modifiable 'stream'.
 
     static bsl::ostream& hexDump(bsl::ostream&     stream,
                                  const bcema_Blob& source);
         // Write to the specified 'ostream' a hexdump of the specified
-        // 'source' and return a reference to the modifiable 'stream'.
+        // 'source', and return a reference to the modifiable 'stream'.
 
     static bsl::ostream& hexDump(bsl::ostream&     stream,
                                  const bcema_Blob& source,
                                  int               offset,
                                  int               length);
         // Write to the specified 'ostream' a hexdump of the specified 'length'
-        // bytes of the specified 'source' starting at the specified 'offset'
+        // bytes of the specified 'source' starting at the specified 'offset',
         // and return a reference to the modifiable 'stream'.
 
     template <typename STREAM>
     static STREAM& read(STREAM& stream, bcema_Blob *dest, int numBytes);
         // Read the specified 'numBytes' from the specified 'stream' and load
-        // it into the specified 'dest'.
+        // it into the specified 'dest', and return a reference to the
+        // modifiable 'stream'.
 
     template <typename STREAM>
     static STREAM& write(STREAM& stream, const bcema_Blob& source);
-        // Write the specified 'source' to the specified 'stream'.
+        // Write the specified 'source' to the specified 'stream', and return a
+        // reference to the modifiable 'stream'.
 
     template <typename STREAM>
     static int write(STREAM&           stream,
@@ -204,13 +192,13 @@ struct bcema_BlobUtil {
         // this function will fail (immediately) if the length of 'source' is
         // less than 'numBytes'; or if there is any error writing to 'stream'.
 
-    static int compare(const bcema_Blob& blob1, const bcema_Blob& blob2);
-        // Compare the data from 'blob1' to the data in 'blob2'.  Return
-        // 0 if blob1 and blob2 are logically equivalent -- i.e. the length
-        // and bytes contained in the blob are the same.  The blobs
-        // 'totalSize()' is not a factor in logical equivalence.  Return
-        // a negative integer if 'blob1' is less than 'blob2' and a
-        // positive integer if 'blob1' is greater than 'blob2.
+    static int compare(const bcema_Blob& a, const bcema_Blob& b);
+        // Compare, lexicographically, the data (data length and character data
+        // values at each index position) stored by the specified 'a' and 'b'
+        // blobs.  Return 0 if the data stored by 'a' is lexicographically
+        // equal to the data stored by 'b', a negative value if 'a' is
+        // lexicographically less than 'b', and a positive value if 'a' is
+        // lexicographically greater than 'b'.
 
     // ---------- DEPRECATED FUNCTIONS ------------- //
 
@@ -249,11 +237,10 @@ struct bcema_BlobUtilAsciiDumper {
 };
 
 // FREE OPERATORS
-inline
 bsl::ostream& operator<<(bsl::ostream&                    stream,
                          const bcema_BlobUtilAsciiDumper& rhs);
-    // Ascii dump the blob referenced by the specified 'rhs' to the specified
-    // 'stream'.
+    // Ascii-dump the blob referenced by the specified 'rhs' to the specified
+    // 'stream', and return a reference to the modifiable 'stream'.
 
                        // ==============================
                        // struct bcema_BlobUtilHexDumper
@@ -279,11 +266,10 @@ struct bcema_BlobUtilHexDumper {
 };
 
 // FREE OPERATORS
-inline
 bsl::ostream& operator<<(bsl::ostream&                  stream,
                          const bcema_BlobUtilHexDumper& rhs);
-    // Hex dump the blob referenced by the specified 'rhs' to the specified
-    // 'stream'.
+    // Hex-dump the blob referenced by the specified 'rhs' to the specified
+    // 'stream', and return a reference to the modifiable 'stream'.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -347,7 +333,7 @@ void bcema_BlobUtil::append(bcema_Blob *dest,
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                      lastBuf.size() - offsetInBuf >= length)) {
             dest->setLength(dest->length() + length);
-            std::memcpy(lastBuf.buffer().ptr() + offsetInBuf, source, length);
+            bsl::memcpy(lastBuf.buffer().ptr() + offsetInBuf, source, length);
             return;
         }
     }

@@ -1,4 +1,4 @@
-// bcema_blob.h   -*-C++-*-
+// bcema_blob.h                                                       -*-C++-*-
 #ifndef INCLUDED_BCEMA_BLOB
 #define INCLUDED_BCEMA_BLOB
 
@@ -6,7 +6,6 @@
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
-
 
 //@PURPOSE: Provide an indexed set of buffers from multiple sources.
 //
@@ -19,13 +18,13 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Guillaume Morin (gmorin1), Herve Bronnimann (hbronnimann)
 //
-//@DESCRIPTION: This component implements an indexed sequence 'bcema_Blob' of
+//@DESCRIPTION: This component provides an indexed sequence ('bcema_Blob') of
 // 'bcema_BlobBuffer' objects allocated from potentially multiple
-// 'bcema_BlobBufferFactory'.  A 'bcema_BlobBuffer' is a simple in-core value
-// object owning a shared pointer to a memory buffer.  Therefore the lifetime
-// of the underlying memory is determined by shared ownership between the blob
-// buffer, the blob(s) that may contain it, and any other entities that may
-// share ownership of the memory buffer.
+// 'bcema_BlobBufferFactory' objects.  A 'bcema_BlobBuffer' is a simple in-core
+// value object owning a shared pointer to a memory buffer.  Therefore, the
+// lifetime of the underlying memory is determined by shared ownership between
+// the blob buffer, the blob(s) that may contain it, and any other entities
+// that may share ownership of the memory buffer.
 //
 // Logically, a 'bcema_Blob' can be thought of as a sequence of bytes (although
 // not contiguous).  Each buffer in a blob contributes its own size to the
@@ -35,10 +34,10 @@ BDES_IDENT("$Id: $")
 // the 'setLength' method.  Note that the data length never exceeds the total
 // size.  When setting the length to a value greater than the total size, the
 // latter is increased automatically by adding buffers created from a factory
-// passed at construction; if no factory was passed at construction, a run-time
-// error is issued.
+// passed at construction; the behavior is undefined if no factory was supplied
+// at construction.
 //
-// The blob also maintains its data length during certain operations (e.g.,
+// The blob also updates its data length during certain operations (e.g.,
 // insertion/removal of buffers containing some data bytes), as well as several
 // attributes driven by the data length.  The first bytes numbered by the data
 // length belong to the data buffers.  Note that all data buffers, except
@@ -51,7 +50,7 @@ BDES_IDENT("$Id: $")
 //
 // Buffers which do not contain data are referred to as capacity buffers.  The
 // total size of a blob does not decrease when setting the length to a
-// value smaller than the current length.  Instead, any data buffer than no
+// value smaller than the current length.  Instead, any data buffer that no
 // longer contains data after the call to 'setLength' becomes a capacity
 // buffer, and may become a data buffer again later if setting length past its
 // prefix size.
@@ -81,15 +80,15 @@ BDES_IDENT("$Id: $")
 ///A Simple Blob Buffer Factory
 /// - - - - - - - - - - - - - -
 // Classes that implement the 'bcema_BlobBufferFactory' protocol are used to
-// allocate 'bcema_BlobBuffer'.  A simple implementation follows:
+// allocate 'bcema_BlobBuffer' objects.  A simple implementation follows:
 //..
-//  class SimpleBlobBufferFactory : public bcema_BlobBufferFactory
-//  {
-//      bslma_Allocator *d_allocator_p;
+//  class SimpleBlobBufferFactory : public bcema_BlobBufferFactory {
+//      // DATA
 //      bsl::size_t      d_bufferSize;
+//      bslma_Allocator *d_allocator_p;
 //
 //      private:
-//      // not implemented
+//      // NOT IMPLEMENTED
 //      SimpleBlobBufferFactory(const SimpleBlobBufferFactory&);
 //      SimpleBlobBufferFactory& operator=(const SimpleBlobBufferFactory&);
 //
@@ -131,28 +130,31 @@ BDES_IDENT("$Id: $")
 ///Simple Blob Usage
 ///- - - - - - - - -
 // Blobs can be created just by passing a factory that is responsible to
-// allocate the 'bcema_BlobBuffer'.  The following simple program illustrate
+// allocate the 'bcema_BlobBuffer'.  The following simple program illustrates
 // how.
 //..
-//  int main() {
+//  int main()
+//  {
 //      SimpleBlobBufferFactory myFactory(1024);
 //
 //      bcema_Blob blob(&myFactory);
-//      assert(0    == blob.length());
-//      assert(0    == blob.totalSize());
+//      BSLS_ASSERT(0    == blob.length());
+//      BSLS_ASSERT(0    == blob.totalSize());
 //
 //      blob.setLength(512);
-//      assert(512  == blob.length());
-//      assert(1024 == blob.totalSize());
+//      BSLS_ASSERT( 512 == blob.length());
+//      BSLS_ASSERT(1024 == blob.totalSize());
 //..
 // Users need to access buffers directly in order to read/write data.
 //..
 //      char data[] = "12345678901234567890"; // 20 bytes
-//      assert(0 != blob.numBuffers());
-//      assert(sizeof(data) <= blob.buffer(0).size());
-//      bsl::memcpy(blob.buffer(0).data(), data, sizeof(data));
+//      BSLS_ASSERT(0 != blob.numBuffers());
+//      BSLS_ASSERT(sizeof data <= blob.buffer(0).size());
+//      bsl::memcpy(blob.buffer(0).data(), data, sizeof data);
 //
-//      blob.setLength(sizeof(data));
+//      blob.setLength(sizeof data);
+//      BSLS_ASSERT(sizeof data == blob.length());
+//      BSLS_ASSERT(       1024 == blob.totalSize());
 //..
 // A 'bcema_BlobBuffer' can easily be re-assigned from one blob to another with
 // no copy.  In that case, the memory held by the buffer will be returned to
@@ -163,22 +165,28 @@ BDES_IDENT("$Id: $")
 // result in undefined behavior.
 //..
 //      bcema_Blob dest;
+//      BSLS_ASSERT(   0 == dest.length());
+//      BSLS_ASSERT(   0 == dest.totalSize());
 //
-//      assert(0 != blob.numBuffers());
+//      BSLS_ASSERT(0 != blob.numBuffers());
 //      dest.appendBuffer(blob.buffer(0));
+//      BSLS_ASSERT(   0 == dest.length());
+//      BSLS_ASSERT(1024 == dest.totalSize());
 //..
 // Note that at this point, the logical length (returned by 'length') of this
 // object has not changed.  'setLength' must be called explicitly by the user
-// if the logical length of the 'bcema_Blob' should be changed:
+// if the logical length of the 'bcema_Blob' must be changed:
 //..
 //      dest.setLength(dest.buffer(0).size());
+//      BSLS_ASSERT(1024 == dest.length());
+//      BSLS_ASSERT(1024 == dest.totalSize());
 //..
 // Sharing only a part of a buffer is also possible through shared pointer
 // aliasing.  In the following example, a buffer that contains only bytes 11-16
 // from the first buffer of 'blob' will be appended to 'blob'.
 //..
-//      assert(0 != blob.numBuffers());
-//      assert(16 <= blob.buffer(0).size());
+//      BSLS_ASSERT(0 != blob.numBuffers());
+//      BSLS_ASSERT(16 <= blob.buffer(0).size());
 //
 //      bcema_SharedPtr<char> shptr(blob.buffer(0).buffer(),
 //                                  blob.buffer(0).data() + 10);
@@ -243,7 +251,7 @@ BDES_IDENT("$Id: $")
 //                     const bsl::string&  prolog,
 //                     bslma_Allocator    *allocator)
 //  {
-//      assert(blob);
+//      BSLS_ASSERT(blob);
 //
 //      int prologLength = prolog.length();
 //      SimpleBlobBufferFactory fa(prologLength + sizeof(int));
@@ -254,13 +262,13 @@ BDES_IDENT("$Id: $")
 //      bsl::memcpy(prologBuffer.data() + sizeof(int),
 //                  prolog.c_str(),
 //                  prologLength);
-//      assert(prologBuffer.size() == prologLength + sizeof(int));
+//      BSLS_ASSERT(prologBuffer.size() == prologLength + sizeof(int));
 //
 //      blob->prependDataBuffer(prologBuffer);
 //  }
 //..
 // Note that the length of 'blob' in the above implementation is automatically
-// and always incremented by the 'prologBuffer.size()'.  Consider instead:
+// incremented by 'prologBuffer.size()'.  Consider instead:
 //..
 //      blob->insertBuffer(0, prologBuffer);
 //..
@@ -268,7 +276,7 @@ BDES_IDENT("$Id: $")
 // will almost always adjust the length properly *except* if the length of
 // 'blob' is 0 before the insertion (i.e., the message has an empty payload).
 // In that case, the resulting 'blob' will still be empty after
-// 'prependProlog', which depending on the intention of the programmer, could
+// 'prependProlog', which, depending on the intention of the programmer, could
 // be intended (avoid sending empty messages) or could be (most likely) a
 // mistake.
 //
@@ -283,9 +291,9 @@ BDES_IDENT("$Id: $")
 //                      const DELETER&      deleter,
 //                      bslma_Allocator    *allocator)
 //  {
-//      assert(blob);
-//      assert(vectors);
-//      assert(0 <= numVectors);
+//      BSLS_ASSERT(blob);
+//      BSLS_ASSERT(vectors);
+//      BSLS_ASSERT(0 <= numVectors);
 //
 //      blob->removeAll();
 //      prependProlog(blob, prolog, allocator);
@@ -304,13 +312,13 @@ BDES_IDENT("$Id: $")
 //
 // Timestamping a message is done by creating a buffer holding a timestamp, and
 // inserting it after the prolog and before the payload of the message.  Note
-// that in usual messages, timestamps would be part of the prolog itself, so
-// this is a somewhat constrained example for exposition only.
+// that in typical messages, timestamps would be part of the prolog itself, so
+// this is a somewhat contrived example for exposition only.
 //..
 //  int timestampMessage(bcema_Blob *blob, bslma_Allocator *allocator)
 //  {
-//      assert(blob);
-//      assert(0 < blob->numDataBuffers());
+//      BSLS_ASSERT(blob);
+//      BSLS_ASSERT(0 < blob->numDataBuffers());
 //
 //      bcema_BlobBuffer buffer;
 //      bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT();
@@ -321,15 +329,15 @@ BDES_IDENT("$Id: $")
 //
 //      bdex_ByteOutStreamRaw bdexStream(timestampBuffer.data(), 128);
 //      now.bdexStreamOut(bdexStream, 1);
-//      assert(bdexStream);  // is valid (i.e., did not overflow 128 bytes)
+//      BSLS_ASSERT(bdexStream);  // is valid, i.e., did not overflow 128 bytes
 //      timestampBuffer.setSize(bdexStream.length());
 //..
 // Now that we have fabricated the buffer holding the current data and time, we
-// must insert it into the blob after the first buffer (i.e., before the
-// buffered at the index 1).  Note however that the payload could be empty, a
-// condition tested by the fact that there is only one data buffer in 'blob'.
-// In that case, it would be a mistake to use 'insertBuffer' since it would not
-// modify the length of the blob.
+// must insert it into the blob after the first buffer (i.e., before the buffer
+// at index 1).  Note however that the payload could be empty, a condition
+// tested by the fact that there is only one data buffer in 'blob'.  In that
+// case, it would be a mistake to use 'insertBuffer' since it would not modify
+// the length of the blob.
 //..
 //      if (1 < blob->numDataBuffers()) {
 //          blob->insertBuffer(1, timestampBuffer);
@@ -340,7 +348,7 @@ BDES_IDENT("$Id: $")
 //      return bdexStream.length();
 //  }
 //..
-// Note that the call to 'appendDataBuffer' takes also care of the possibility
+// Note that the call to 'appendDataBuffer' also takes care of the possibility
 // that the first buffer of 'blob' may not be full to capacity (if the length
 // of the blob was smaller than the buffer size, only the first
 // 'blob->length()' bytes would contain prolog data).  In that case, that
@@ -359,6 +367,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
 #include <bslalg_passthroughtrait.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
+#include <bslalg_typetraitbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -398,14 +410,14 @@ class bcema_BlobBuffer {
 
     // DATA
     bcema_SharedPtr<char> d_buffer;  // shared buffer
-    int                   d_size;    // buffer size
+    int                   d_size;    // buffer size (in bytes)
 
     // FRIENDS
-    friend bool operator==(const bcema_BlobBuffer& lhs,
-                           const bcema_BlobBuffer& rhs);
+    friend bool operator==(const bcema_BlobBuffer&,
+                           const bcema_BlobBuffer&);
 
-    friend bool operator!=(const bcema_BlobBuffer& lhs,
-                           const bcema_BlobBuffer& rhs);
+    friend bool operator!=(const bcema_BlobBuffer&,
+                           const bcema_BlobBuffer&);
 
   public:
     // TRAITS
@@ -414,7 +426,7 @@ class bcema_BlobBuffer {
     // CREATORS
     bcema_BlobBuffer();
         // Create a blob buffer representing a null buffer.  Note that the
-        // 'size()' and 'data()' methods of a default-constructed blob buffer
+        // 'size' and 'data' methods of a default-constructed blob buffer both
         // return 0.
 
     bcema_BlobBuffer(const bcema_SharedPtr<char>& buffer, int size);
@@ -441,12 +453,13 @@ class bcema_BlobBuffer {
         // of the specified 'size'.
 
     bcema_SharedPtr<char>& buffer();
-        // Return a reference of the shared pointer to the buffer represented
-        // by this object.
+        // Return a reference to the shared pointer to the modifiable buffer
+        // represented by this object.
 
     void setSize(int size);
-        // Set the size of this buffer to the specified 'size'.  The behavior
-        // is undefined unless '0 < size'.
+        // Set the size of this blob buffer to the specified 'size'.  The
+        // behavior is undefined unless '0 < size' and the capacity of the
+        // buffer returned by the 'buffer' method is at least 'size' bytes.
 
     // ACCESSORS
     const bcema_SharedPtr<char>& buffer() const;
@@ -463,9 +476,10 @@ class bcema_BlobBuffer {
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object as an hexadecimal dump on the specified 'stream'.
-        // Note that the 'level' and 'spacesPerLevel' arguments are specified
-        // for interface compatibility only and are effectively ignored.
+        // Format this object as a hexadecimal dump on the specified 'stream',
+        // and return a reference to the modifiable 'stream'.  Note that the
+        // specified 'level' and 'spacesPerLevel' arguments are specified for
+        // interface compatibility only and are effectively ignored.
 };
 
 // FREE OPERATORS
@@ -476,8 +490,8 @@ bool operator==(const bcema_BlobBuffer& lhs, const bcema_BlobBuffer& rhs);
 
 bool operator!=(const bcema_BlobBuffer& lhs, const bcema_BlobBuffer& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' blob buffers do not have
-    // the same value, and 'false' otherwise.  Two blob buffers have the same
-    // value if they represent the same buffer of the same size.
+    // the same value, and 'false' otherwise.  Two blob buffers do not have the
+    // same value if they do not represent the same buffer of the same size.
 
 bsl::ostream& operator<<(bsl::ostream& stream, const bcema_BlobBuffer& rhs);
     // Format the specified 'rhs' blob buffer to the specified output 'stream',
@@ -519,26 +533,29 @@ class bcema_Blob {
                                  bslalg_TypeTraitBitwiseMoveable> NestedTraits;
 
     // DATA
-    bsl::vector<bcema_BlobBuffer>  d_buffers;             // buffer collection
+    bsl::vector<bcema_BlobBuffer>  d_buffers;             // buffer sequence
 
     int                            d_totalSize;           // capacity of blob
+                                                          // (in bytes)
 
-    int                            d_dataLength;          // user-managed data
-                                                          // length
+    int                            d_dataLength;          // length (in bytes)
+                                                          // of user-managed
+                                                          // data
 
     int                            d_dataIndex;           // index of the last
-                                                          // buffer of data
+                                                          // data buffer
 
     int                            d_preDataIndexLength;  // sum of the lengths
-                                                          // of all buffers
-                                                          // excluding the last
+                                                          // of all data
+                                                          // buffers, excluding
+                                                          // the last one
 
     bcema_BlobBufferFactory       *d_bufferFactory_p;     // factory used to
                                                           // grow blob (held)
 
     // FRIENDS
-    friend bool operator==(const bcema_Blob& lhs, const bcema_Blob& rhs);
-    friend bool operator!=(const bcema_Blob& lhs, const bcema_Blob& rhs);
+    friend bool operator==(const bcema_Blob&, const bcema_Blob&);
+    friend bool operator!=(const bcema_Blob&, const bcema_Blob&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -547,7 +564,7 @@ class bcema_Blob {
 
     // PRIVATE ACCESSORS
     int assertInvariants() const;
-        // Assert this object's invariants and return 0 on success.
+        // Assert the invariants of this object and return 0 on success.
 
   public:
     // TRAITS
@@ -606,49 +623,46 @@ class bcema_Blob {
 
     void appendBuffer(const bcema_BlobBuffer& buffer);
         // Append the specified 'buffer' after the last buffer of this blob.
-        // Note that the length of this blob is always unchanged.  This
-        // operation is equivalent to 'insert(numBuffers(), buffer)' but its
-        // implementation is more efficient.
+        // The length of this blob is uneffected.  Note that this operation is
+        // equivalent to 'insert(numBuffers(), buffer)', but is more efficient.
 
     void appendDataBuffer(const bcema_BlobBuffer& buffer);
         // Append the specified 'buffer' after the last *data* buffer of this
-        // blob and after trimming that buffer if necessary.  Note that
-        // the length of this blob is always incremented by the size of
-        // 'buffer'.  The behavior is undefined unless '0 < buffer.size()'.
-        // Otherwise, this operation is equivalent to:
+        // blob; the last data buffer is trimmed, if necessary.  The length of
+        // this blob is incremented by the size of 'buffer'.  The behavior is
+        // undefined unless '0 < buffer.size()'.  Note that this operation is
+        // equivalent to:
         //..
         //  const int n = blob.length();
         //  blob.trimLastDataBuffer();
         //  blob.insert(numDataBuffers(), buffer);
         //  blob.setLength(n + buffer.size());
         //..
-        // but its implementation is more efficient.
+        // but is more efficient.
 
     void insertBuffer(int index, const bcema_BlobBuffer& buffer);
-        // Insert the specified 'buffer' at the specified 'index' in this blob,
-        // and increment the length of this blob by the size of 'buffer' if
-        // 'buffer' is inserted *before* the logical end of this blob.  Buffers
-        // at 'index' and higher positions (if any) are shifted backward by one
-        // position.  Note that the length of this blob is _unchanged_ if
-        // inserting *exactly* at the end of the data (e.g., into an empty
-        // blob) or if inserting after the end of the blob (i.e., for
-        // capacity).  In that case, the blob length must be changed explicitly
-        // by a call to 'setLength', or if inserting at the beginning of the
-        // blob by using a call to 'prependBuffer' instead.  The behavior is
-        // undefined unless '0 <= index <= numBuffers()'.
+        // Insert the specified 'buffer' at the specified 'index' in this blob.
+        // Increment the length of this blob by the size of 'buffer' if
+        // 'buffer' is inserted *before* the logical end of this blob.  The
+        // length of this blob is _unchanged_ if inserting at a position
+        // following all data buffers (e.g., inserting into an empty blob or
+        // inserting a buffer to increase capacity); in that case, the blob
+        // length must be changed by an explicit call to 'setLength'.  Buffers
+        // at 'index' and higher positions (if any) are shifted up by one
+        // index position.  The behavior is undefined unless
+        // '0 <= index <= numBuffers()'.
 
     void prependDataBuffer(const bcema_BlobBuffer& buffer);
         // Insert the specified 'buffer' before the beginning of this blob.
-        // Note that unlike 'insertBuffer', the length of this blob is always
-        // incremented by the length of the prepended buffer.  The behavior is
-        // undefined unless '0 < buffer.size()'.  Otherwise, this operation is
-        // equivalent to:
+        // The length of this blob is incremented by the length of the
+        // prepended buffer.  The behavior is undefined unless
+        // '0 < buffer.size()'.  Note that this operation is equivalent to:
         //..
         //  const int n = blob.length();
         //  blob.insert(0, buffer);
         //  blob.setLength(n + buffer.size());
         //..
-        // but its implementation is more efficient.
+        // but is more efficient.
 
     void removeAll();
         // Remove all blob buffers from this blob, and set its length to 0.
@@ -656,19 +670,20 @@ class bcema_Blob {
     void removeBuffer(int index);
         // Remove the buffer at the specified 'index' from this blob, and
         // decrement the length of this blob by the size of 'buffer' if the
-        // 'index' buffer contains data bytes (i.e., if the first byte of
+        // buffer at 'index' contains data bytes (i.e., if the first byte of
         // 'buffer' occurs before the logical end of this blob).  Buffers at
-        // positions higher than 'index' (if any) are shifted forward by one
+        // positions higher than 'index' (if any) are shifted down by one index
         // position.  The behavior is undefined unless
         // '0 <= index < numBuffers()'.
 
     void reserveBufferCapacity(int numBuffers);
         // Allocate sufficient capacity to store at least the specified
-        // 'numBuffers' buffers.  Note that this method does not change the
-        // length of this blob or add any buffers to it.
+        // 'numBuffers' buffers.  The behavior is undefined unless
+        // '0 <= numBuffers'.  Note that this method does not change the length
+        // of this blob or add any buffers to it.
 
     void setLength(int length);
-        // Set the length of this blob to the specified 'length' and if
+        // Set the length of this blob to the specified 'length' and, if
         // 'length' is greater than its total size, grow this blob by appending
         // buffers allocated using this object's underlying
         // 'bcema_BlobBufferFactory'.  The behavior is undefined if 'length' is
@@ -683,8 +698,8 @@ class bcema_Blob {
         // the buffer swap the state of this object remains unchanged.
 
     void trimLastDataBuffer();
-        // Set the length of the last data buffer to 'lastDataBufferLength()'.
-        // If there are no data buffers or if the last data buffer is full
+        // Set the size of the last data buffer to 'lastDataBufferLength()'.
+        // If there are no data buffers, or if the last data buffer is full
         // (i.e., its size is 'lastDataBufferLength()'), then this method has
         // no effect.  Note that the length of the blob is unchanged, and that
         // capacity buffers (i.e., of indices 'numDataBuffers()' and higher)
@@ -712,7 +727,7 @@ class bcema_Blob {
     const bcema_BlobBuffer& buffer(int index) const;
         // Return a reference to the non-modifiable blob buffer at the
         // specified 'index' in this blob.  The behavior is undefined unless
-        // '0 <= index < numBuffers()'
+        // '0 <= index < numBuffers()'.
 
     int lastDataBufferLength() const;
         // Return the length of the last blob buffer in this blob, or 0 if this
@@ -740,8 +755,8 @@ bool operator==(const bcema_Blob& lhs, const bcema_Blob& rhs);
 
 bool operator!=(const bcema_Blob& lhs, const bcema_Blob& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' blobs do not have the
-    // same value, and 'false' otherwise.  Two blobs have the same value if
-    // they hold the same buffers, and have the same length.
+    // same value, and 'false' otherwise.  Two blobs do not have the same value
+    // if they do not hold the same buffers, or do not have the same length.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -789,6 +804,7 @@ inline
 void bcema_BlobBuffer::setSize(int size)
 {
     BSLS_ASSERT_SAFE(0 < size);
+
     d_size = size;
 }
 
@@ -834,29 +850,18 @@ bool operator!=(const bcema_BlobBuffer& lhs, const bcema_BlobBuffer& rhs)
 inline
 void bcema_Blob::reserveBufferCapacity(int numBuffers)
 {
+    BSLS_ASSERT_SAFE(0 <= numBuffers);
+
     d_buffers.reserve(numBuffers);
-}
-
-inline
-void bcema_Blob::setLength(int length)
-{
-    if (d_totalSize
-     && d_preDataIndexLength + d_buffers[d_dataIndex].size() >= length
-     && d_preDataIndexLength < length) {
-        // We are not crossing any buffer boundaries.
-
-        d_dataLength = length;
-        return;
-    }
-
-    return slowSetLength(length);
 }
 
 // ACCESSORS
 inline
 const bcema_BlobBuffer& bcema_Blob::buffer(int index) const
 {
-    BSLS_ASSERT_SAFE(index < (int) d_buffers.size());
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < static_cast<int>(d_buffers.size()));
+
     return d_buffers[index];
 }
 
@@ -875,13 +880,13 @@ int bcema_Blob::length() const
 inline
 int bcema_Blob::numBuffers() const
 {
-    return (int)d_buffers.size();
+    return static_cast<int>(d_buffers.size());
 }
 
 inline
 int bcema_Blob::numDataBuffers() const
 {
-    return d_dataLength != 0 ? d_dataIndex + 1: 0;
+    return d_dataLength != 0 ? d_dataIndex + 1 : 0;
 }
 
 inline
