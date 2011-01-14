@@ -479,8 +479,9 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
                    // =========================================
 // ACCESSORS
 inline
-int bteso_DefaultEventManager_SelectRaw::numEvents() const {
-    return d_events.size();
+int bteso_DefaultEventManager_SelectRaw::numEvents() const
+{
+    return static_cast<int>(d_events.size());
 }
 
 inline

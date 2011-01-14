@@ -1457,8 +1457,8 @@ int bteso_SocketImpUtil_Imp<ADDRESS>::readFrom(
     bteso_SocketImpUtil_Address<ADDRESS> address;
     bteso_SocketImpUtil_Util::ADDRLEN_T siLen = sizeof address.d_address;
 
-    rc = ::recvfrom(socket, (char *) buffer, numBytes,
-                  0, (sockaddr *) &address.d_address, &siLen);
+    rc = static_cast<int>(::recvfrom(socket, (char *) buffer, numBytes, 0,
+                                     (sockaddr *)&address.d_address, &siLen));
     if (rc >= 0) {
         address.fromSocketAddress(fromAddress);
         return rc;
@@ -1483,9 +1483,9 @@ int bteso_SocketImpUtil_Imp<ADDRESS>::writeTo(
     bteso_SocketImpUtil_Address<ADDRESS> sockAddress(toAddress);
 
     if (!numBytes) return 0;
-    rc = ::sendto(socket, (char *) buffer, numBytes,
-                  0, (sockaddr *) &sockAddress.d_address,
-                  sizeof sockAddress.d_address);
+    rc = static_cast<int>(::sendto(socket, (char *) buffer, numBytes, 0,
+                                   (sockaddr *)&sockAddress.d_address,
+                                   sizeof sockAddress.d_address));
     int errorNumber = rc >= 0 ? 0 : bteso_SocketImpUtil_Util::getErrorCode();
     if (errorNumber && errorCode)
         *errorCode = errorNumber;
@@ -1519,7 +1519,7 @@ int bteso_SocketImpUtil_Imp<ADDRESS>::writevTo(
     msg.msg_iov = (::iovec*)ovec;
     msg.msg_iovlen = numBuffs;
 
-    rc = ::sendmsg(socket, &msg, 0);
+    rc = static_cast<int>(::sendmsg(socket, &msg, 0));
 
     int errorNumber = rc >= 0 ? 0 : bteso_SocketImpUtil_Util::getErrorCode();
     if (errorNumber && errorCode)

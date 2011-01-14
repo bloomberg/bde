@@ -172,7 +172,7 @@ class bteso_TimeMetrics {
 inline
 int bteso_TimeMetrics::numCategories() const
 {
-    return d_categoryTimes.size();
+    return static_cast<int>(d_categoryTimes.size());
 }
 
 }  // close namespace BloombergLP
