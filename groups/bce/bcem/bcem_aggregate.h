@@ -2822,7 +2822,7 @@ int bcem_Aggregate::assignToNillableScalarArray(
         return BCEM_ERR_NON_CONFORMANT;                               // RETURN
     }
 
-    const int length = value.size();
+    const int length = static_cast<int>(value.size());
     this->resize(length);
     if (0 == length) {
         return 0;                                                     // RETURN

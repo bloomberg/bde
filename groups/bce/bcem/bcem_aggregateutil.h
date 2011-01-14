@@ -1833,14 +1833,14 @@ int bcem_AggregateUtil::toAggregateImp(
         const bsl::vector<TYPE>&  source,
         bslmf_MetaInt<BCEM_COMPLEX>)
 {
-    bsl::size_t    size  = source.size();
+    int            size  = static_cast<int>(source.size());
     bcem_Aggregate field = destination->fieldById(fieldId);
     int            rc    = 0;
 
     field.removeAllItems();
     field.resize(size);
 
-    for (bsl::size_t i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         bcem_Aggregate fieldElement = field[i];
         if (0 != (rc = source[i].toAggregate(&fieldElement))) {
             return rc;
@@ -1859,13 +1859,13 @@ int bcem_AggregateUtil::toAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bsl::size_t    size  = source.size();
+    int            size  = static_cast<int>(source.size());
     bcem_Aggregate field = destination->fieldById(fieldId);
 
     field.removeAllItems();
     field.resize(size);
 
-    for (bsl::size_t i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         bcem_Aggregate fieldElement = field[i];
         int rc = setValue(fieldElement, Wrapper::toString(source[i]));
         if (0 != rc) {
@@ -1896,14 +1896,14 @@ int bcem_AggregateUtil::toAggregateImp(
         const bsl::vector <bdeut_NullableValue<TYPE> >&  source,
         bslmf_MetaInt<BCEM_COMPLEX>)
 {
-    bsl::size_t    size  = source.size();
+    int            size  = static_cast<int>(source.size());
     bcem_Aggregate field = destination->fieldById(fieldId);
     int            rc    = 0;
 
     field.removeAllItems();
     field.resize(size);
 
-    for (bsl::size_t i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         bcem_Aggregate fieldElement = field[i];
         if (source[i].isNull()) {
             fieldElement.makeNull();
@@ -1928,13 +1928,13 @@ int bcem_AggregateUtil::toAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bsl::size_t    size  = source.size();
+    int            size  = static_cast<int>(source.size());
     bcem_Aggregate field = destination->fieldById(fieldId);
 
     field.removeAllItems();
     field.resize(size);
 
-    for (bsl::size_t i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         bcem_Aggregate fieldElement = field[i];
         if (source[i].isNull()) {
             fieldElement.makeNull();
@@ -1971,14 +1971,14 @@ int bcem_AggregateUtil::toAggregateImp(
         const bsl::vector<bdeut_NullableAllocatedValue<TYPE> >&  source,
         bslmf_MetaInt<BCEM_COMPLEX>)
 {
-    bsl::size_t    size  = source.size();
+    int            size  = static_cast<int>(source.size());
     bcem_Aggregate field = destination->fieldById(fieldId);
     int            rc    = 0;
 
     field.removeAllItems();
     field.resize(size);
 
-    for (bsl::size_t i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         bcem_Aggregate fieldElement = field[i];
         if (source[i].isNull()) {
             fieldElement.makeNull();
@@ -2003,13 +2003,13 @@ int bcem_AggregateUtil::toAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bsl::size_t    size  = source.size();
+    int            size  = static_cast<int>(source.size());
     bcem_Aggregate field = destination->fieldById(fieldId);
 
     field.removeAllItems();
     field.resize(size);
 
-    for (bsl::size_t i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         bcem_Aggregate fieldElement = field[i];
         if (source[i].isNull()) {
             fieldElement.makeNull();
