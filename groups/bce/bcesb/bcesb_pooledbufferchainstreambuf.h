@@ -253,14 +253,16 @@ inline
 int bcesb_PooledBufferChainStreamBuf::calcGetPosition() const
 {
     const int bufferSize = d_pooledBufferChain_p->bufferSize();
-    return d_getBufferIndex * bufferSize + (gptr() - eback());
+    return static_cast<int>(
+                           d_getBufferIndex * bufferSize + (gptr() - eback()));
 }
 
 inline
 int bcesb_PooledBufferChainStreamBuf::calcPutPosition() const
 {
     const int bufferSize = d_pooledBufferChain_p->bufferSize();
-    return d_putBufferIndex * bufferSize + (pptr() - pbase());
+    return static_cast<int>(
+                           d_putBufferIndex * bufferSize + (pptr() - pbase()));
 }
 
 // CREATORS
