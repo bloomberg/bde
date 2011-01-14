@@ -56,6 +56,7 @@ using namespace bsl;  // automatically added by script
 // [ 7] bdea_BitArray(const bdea_BitArray& original, *ba = 0);
 // [ 2] ~bdea_BitArray();
 // [ 9] bdea_BitArray& operator=(const bdea_BitArray& rhs);
+// [ 9] void swap(bdea_BitArray& other);
 // [27] bdea_BitArray& operator&=(const bdea_BitArray& rhs);
 // [27] bdea_BitArray& operator|=(const bdea_BitArray& rhs);
 // [27] bdea_BitArray& operator^=(const bdea_BitArray& rhs);
@@ -2101,7 +2102,6 @@ int main(int argc, char *argv[])
                         const Obj& Y = mY;       gg(&mY, SPEC);
                         LOOP_ASSERT(SPEC, X == Y);
 
-                        const int BB = testAllocator.numBlocksTotal();
                         const int B = testAllocator.numBlocksInUse();
 
                         int i;
@@ -2140,9 +2140,7 @@ int main(int argc, char *argv[])
                             LOOP_ASSERT(SPEC, 0 == Y[i]);
                         }
 
-                        const int AA = testAllocator.numBlocksTotal();
                         const int A = testAllocator.numBlocksInUse();
-                        ASSERT(BB == AA);
                         ASSERT(B  == A);
                     }
 
@@ -2156,7 +2154,6 @@ int main(int argc, char *argv[])
                         mY = NX;
                         LOOP_ASSERT(SPEC, NX == Y);
 
-                        const int BB = testAllocator.numBlocksTotal();
                         const int B = testAllocator.numBlocksInUse();
 
                         int i;
@@ -2196,9 +2193,7 @@ int main(int argc, char *argv[])
                             LOOP_ASSERT(SPEC, 0 == Y[i]);
                         }
 
-                        const int AA = testAllocator.numBlocksTotal();
                         const int A = testAllocator.numBlocksInUse();
-                        ASSERT(BB == AA);
                         ASSERT(B  == A);
                     }
                 }
@@ -2274,7 +2269,6 @@ int main(int argc, char *argv[])
                         const Obj& Y = mY;       gg(&mY, SPEC);
                         LOOP_ASSERT(SPEC, X == Y);
 
-                        const int BB = testAllocator.numBlocksTotal();
                         const int B = testAllocator.numBlocksInUse();
 
                         int i;
@@ -2304,9 +2298,7 @@ int main(int argc, char *argv[])
                         }
                         LOOP_ASSERT(SPEC, NX == Y);
 
-                        const int AA = testAllocator.numBlocksTotal();
                         const int A = testAllocator.numBlocksInUse();
-                        ASSERT(BB == AA);
                         ASSERT(B  == A);
                     }
                 }
@@ -2379,7 +2371,6 @@ int main(int argc, char *argv[])
                         const Obj& Y = mY;       gg(&mY, SPEC);
                         LOOP_ASSERT(SPEC, X == Y);
 
-                        const int BB = testAllocator.numBlocksTotal();
                         const int B = testAllocator.numBlocksInUse();
 
                         int i;
@@ -2418,9 +2409,7 @@ int main(int argc, char *argv[])
                             LOOP_ASSERT(SPEC, 1 == Y[i]);
                         }
 
-                        const int AA = testAllocator.numBlocksTotal();
                         const int A = testAllocator.numBlocksInUse();
-                        ASSERT(BB == AA);
                         ASSERT(B  == A);
                     }
 
@@ -2434,7 +2423,6 @@ int main(int argc, char *argv[])
                         mY = NX;
                         LOOP_ASSERT(SPEC, NX == Y);
 
-                        const int BB = testAllocator.numBlocksTotal();
                         const int B = testAllocator.numBlocksInUse();
 
                         int i;
@@ -2474,9 +2462,7 @@ int main(int argc, char *argv[])
                             LOOP_ASSERT(SPEC, 1 == Y[i]);
                         }
 
-                        const int AA = testAllocator.numBlocksTotal();
                         const int A = testAllocator.numBlocksInUse();
-                        ASSERT(BB == AA);
                         ASSERT(B  == A);
                     }
                 }
@@ -2968,7 +2954,7 @@ int main(int argc, char *argv[])
                         Obj mZ(&testAllocator);  stretchRemoveAll(&mZ, N);
                         const Obj& Z = mZ;       gg(&mZ, SPEC);
                         LOOP2_ASSERT(SPEC, N, X == Y);
-                        const int BB = testAllocator.numBlocksTotal();
+
                         const int B = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) { cout << "\t\t"; P_(N); P(Y); }
@@ -2985,9 +2971,7 @@ int main(int argc, char *argv[])
                         mY.toggleAll();
                         LOOP_ASSERT(ti, X == Y);
 
-                        const int AA = testAllocator.numBlocksTotal();
                         const int A = testAllocator.numBlocksInUse();
-                        ASSERT(BB == AA);
                         ASSERT(B  == A);
                     }
                 }
@@ -6722,7 +6706,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR:
+        // TESTING ASSIGNMENT OPERATOR AND SWAP METHOD:
         // We have the following concerns:
         //   1.  The value represented by any object can be assigned to any
         //         other object regardless of how either value is represented
@@ -6731,9 +6715,16 @@ int main(int argc, char *argv[])
         //   3.  'rhs' going out of scope has no effect on the value of 'lhs'
         //       after the assignment.
         //   4.  Aliasing (x = x): The assignment operator must always work --
-        //         even when the lhs and rhs are identically the same object.
+        //       even when the lhs and rhs are identically the same object.
         //   5.  The assignment operator must be neutral with respect to memory
         //       allocation exceptions.
+        //   6.  Swapping objects with different content should work: empty
+        //       with empty, empty with non-empty and non-empty with non-empty.
+        //   7.  Swapping two objects should not involve memory allocation
+        //       (because it's no-throw).
+        //   8.  Free function 'swap' and member function 'swap' must do the
+        //       same thing.
+        //
         // Plan:
         //   Specify a set S of unique object values with substantial and
         //   varied differences, ordered by increasing length.  For each value
@@ -6755,6 +6746,9 @@ int main(int argc, char *argv[])
         //   that X == y before and after the assignment, again within
         //   the bdema exception testing apparatus.
         //
+        //   To address concerns 6-8, create objects with needed properties,
+        //   apply 'swap' to them and check the correctness of the result.
+        //
         // Testing:
         //   bdea_BitArray& operator=(const bdea_BitArray& rhs);
         // --------------------------------------------------------------------
@@ -6766,6 +6760,7 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nAssign cross product of values with varied representations."
                           << endl;
+        
         {
             static const char *SPECS[] = {
                 "",      "0",      "01",     "011",    "0110",   "01100",
@@ -6857,6 +6852,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nTesting self assignment (Aliasing)." << endl;
+
         {
             static const char *SPECS[] = {
                 "",      "0",      "01",     "011",    "0110",   "01100",
@@ -6911,6 +6907,67 @@ int main(int argc, char *argv[])
 
                   } END_BSLMA_EXCEPTION_TEST
                 }
+            }
+        }
+
+        if (verbose) {
+            cout << "Testing 'swap' method\n"
+                 << "=====================\n";
+        }
+
+        {
+            if (veryVerbose) {
+                cout << "General 'swap'piness\n";
+            }
+
+            {
+                const char *specs[] = { "", "1001" };
+                const int specSize = sizeof(specs) / sizeof(*specs);
+
+                for (int i = 0; i < specSize; ++i) {
+                    for (int j = 0; j < specSize; ++j) {
+                        Obj X1(g(specs[i])), X2(X1);
+                        Obj Y1(g(specs[j])), Y2(Y1);
+
+                        X1.swap(Y1);
+
+                        LOOP3_ASSERT(specs[i], i, j, X1 == Y2);
+                        LOOP3_ASSERT(specs[j], i, j, X2 == Y1);
+                    }
+                }
+            }
+
+            if (veryVerbose) {
+                cout << "'swap' shouldn't allocate memory\n";
+            }
+
+            {
+                Obj X1(g("11"), &testAllocator);
+                Obj Y1(g("10"), &testAllocator);
+                int blocksTotalBefore = testAllocator.numBlocksTotal();
+                int blocksInUseBefore = testAllocator.numBlocksInUse();
+
+                X1.swap(Y1);
+
+                ASSERT(testAllocator.numBlocksTotal() == blocksTotalBefore);
+                ASSERT(testAllocator.numBlocksInUse() == blocksInUseBefore);
+            }
+
+            if (veryVerbose) {
+                cout << "'swap' method and free function are equivalent\n";
+            }
+
+            {
+                using bsl::swap;
+
+                Obj X1(g("01")), X2(X1);
+                Obj Y1(g("10")), Y2(Y1);
+
+                X1.swap(Y1);
+                swap(X2, Y2);
+
+                ASSERT(X1 == X2);
+                ASSERT(Y1 == Y2);
             }
         }
       } break;

@@ -125,20 +125,10 @@ bdea_BitArray::~bdea_BitArray()
 // MANIPULATORS
 bdea_BitArray& bdea_BitArray::operator=(const bdea_BitArray& rhs)
 {
-    if (this != &rhs) {
+    // The allocator used by the temporary copy must be the same as the
+    // allocator of this object.
 
-        // Zero out 'd_length' for exception safety.  Otherwise, if the
-        // assignment to 'd_array' throws, 'd_array' will be left with zero
-        // size and the destructor of this object may assert.
-
-        d_length = 0;
-        d_array  = rhs.d_array;
-        d_length = rhs.d_length;
-        if (0 == d_length) {
-            d_array.reserve(1);
-        }
-    }
-
+    bdea_BitArray(rhs, allocator()).swap(*this);
     return *this;
 }
 
@@ -318,6 +308,23 @@ void bdea_BitArray::orEqual(int                  dstIndex,
                                 srcArray.d_array.begin(),
                                 srcIndex,
                                 numBits);
+}
+
+void bdea_BitArray::swap(bdea_BitArray& other)
+{
+    // 'swap' is undefined for objects with non-equal allocators.
+
+    BSLS_ASSERT(allocator() == other.allocator());
+
+    using bsl::swap;
+
+    swap(d_array, other.d_array);
+
+    // We cannot use the 'swap' found by ADL to swap lengths because there is
+    // a member 'swap' with two parameters of the same type as that found by
+    // ADL.
+
+    bsl::swap(d_length, other.d_length);
 }
 
 void bdea_BitArray::swap(int index1, int index2)

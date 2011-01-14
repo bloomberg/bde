@@ -500,6 +500,10 @@ class bdea_BitArray {
         // Return the size of the integer array required to store the specified
         // 'numBits'.  The behavior is undefined unless '0 <= numBits'.
 
+    // PRIVATE ACCESSORS
+    bslma_Allocator *allocator() const;
+        // Return the allocator with which this object was constructed.
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdea_BitArray,
@@ -882,6 +886,12 @@ class bdea_BitArray {
         // object is unaltered.  Note that no version is read from 'stream'.
         // See the 'bdex' package-level documentation for more information on
         // 'bdex' streaming of value-semantic types and containers.
+
+    void swap(bdea_BitArray& other);
+        // Swap the value of this object with the value of the specified
+        // 'other' object.  This method provides the no-throw guarantee.  The
+        // behavior is undefined if the two objects being swapped have
+        // non-equal allocators.
 
     void swap(int index1, int index2);
         // Efficiently exchange the values of the bits at the specified
@@ -1304,6 +1314,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bdea_BitArray& rhs);
     // 'stream' in a single-line format, and return a reference to the
     // modifiable 'stream'.
 
+// FREE FUNCTIONS
+void swap(bdea_BitArray& a, bdea_BitArray& b);
+    // Swap the values of the specified 'a' and 'b' objects.  This method
+    // provides the no-throw guarantee.  The behavior is undefined if the two
+    // objects being swapped have non-equal allocators.
+
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -1319,6 +1335,13 @@ int bdea_BitArray::arraySize(int numBits)
     BSLS_ASSERT_SAFE(0 <= numBits);
 
     return (numBits + BDEA_BITS_PER_INT - 1) / BDEA_BITS_PER_INT;
+}
+
+// PRIVATE ACCESSORS
+inline
+bslma_Allocator *bdea_BitArray::allocator() const
+{
+    return d_array.get_allocator().mechanism();
 }
 
 // CLASS METHODS
@@ -1590,7 +1613,7 @@ STREAM& bdea_BitArray::bdexStreamOut(STREAM& stream, int version) const
     switch (version) {
       case 1: {
         stream.putLength(d_length);
-        const int len = d_array.size();
+        const int len = static_cast<int>(d_array.size());
         if (4 == sizeof(int)) {
             const int lenmm = len - 1;
             for (int i = 0; i < lenmm; i += 2) {
@@ -1753,6 +1776,13 @@ inline
 bsl::ostream& operator<<(bsl::ostream& stream, const bdea_BitArray& rhs)
 {
     return rhs.print(stream, 0, -1);
+}
+
+// FREE FUNCTIONS
+inline
+void swap(bdea_BitArray& a, bdea_BitArray& b)
+{
+    a.swap(b);
 }
 
 }  // close namespace BloombergLP
