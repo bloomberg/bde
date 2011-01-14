@@ -1286,7 +1286,7 @@ int bdex_TestInStream::length() const
 inline
 int bdex_TestInStream::cursor() const
 {
-    return d_length - d_streambuf.length();
+    return d_length - static_cast<int>(d_streambuf.length());
 }
 
 inline

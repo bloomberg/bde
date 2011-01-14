@@ -1286,7 +1286,7 @@ int bdex_ByteInStreamRaw::length() const
 inline
 int bdex_ByteInStreamRaw::cursor() const
 {
-    return d_size - d_streambuf.length();
+    return d_size - static_cast<int>(d_streambuf.length());
 }
 
 // FREE OPERATORS

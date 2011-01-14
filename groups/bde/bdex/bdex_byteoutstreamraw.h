@@ -971,7 +971,7 @@ const char *bdex_ByteOutStreamRaw::data() const
 inline
 int bdex_ByteOutStreamRaw::length() const
 {
-    return d_streambuf.length();
+    return static_cast<int>(d_streambuf.length());
 }
 
 // FREE OPERATORS

@@ -690,7 +690,7 @@ namespace bdex_OutStreamFunctions {
         // stream.  Note that 'value' is truncated to 4 bytes (if necessary)
         // before being written.
     {
-        return stream.putInt32(value);
+        return stream.putInt32(static_cast<int>(value));
     }
 
     // This specialization implements 'streamOut' for 'unsigned long'.
@@ -704,7 +704,7 @@ namespace bdex_OutStreamFunctions {
         // stream.  Note that 'value' is truncated to 4 bytes (if necessary)
         // before being written.
     {
-        return stream.putUint32(value);
+        return stream.putUint32(static_cast<unsigned int>(value));
     }
 
     // This specialization implements 'streamOut' for

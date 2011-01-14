@@ -607,7 +607,7 @@ class bdex_ByteOutStream {
 bsl::ostream& operator<<(bsl::ostream&             stream,
                          const bdex_ByteOutStream& object);
     // Write the specified 'object' to the specified output 'stream' in some
-    // reasonable (multi-line) format, and return a reference to 'stream'
+    // reasonable (multi-line) format, and return a reference to 'stream'.
 
 // TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 

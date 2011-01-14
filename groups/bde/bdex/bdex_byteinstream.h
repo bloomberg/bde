@@ -999,7 +999,7 @@ class bdex_ByteInStream {
 bsl::ostream& operator<<(bsl::ostream&            stream,
                          const bdex_ByteInStream& object);
     // Write the specified 'object' to the specified output 'stream' in some
-    // reasonable (multi-line) format, and return a reference to 'stream'
+    // reasonable (multi-line) format, and return a reference to 'stream'.
 
 // TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
@@ -1460,7 +1460,7 @@ int bdex_ByteInStream::length() const
 inline
 int bdex_ByteInStream::cursor() const
 {
-    return d_length - d_streambuf.length();
+    return d_length - static_cast<int>(d_streambuf.length());
 }
 
 // FREE OPERATORS
