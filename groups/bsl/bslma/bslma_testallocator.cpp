@@ -99,7 +99,7 @@ static void formatBlock(void *address, int length)
     // output will have a maximum of 16 bytes per line, where each line starts
     // with the address of that 16-byte chunk.
 {
-    unsigned char *addr    = (unsigned char *) address;
+    unsigned char *addr    = reinterpret_cast<unsigned char *>(address);
     unsigned char *endAddr = addr + length;
 
     for (int i = 0; addr < endAddr; ++i) {
@@ -107,7 +107,7 @@ static void formatBlock(void *address, int length)
             if (i) {
                 std::printf("\n");
             }
-            std::printf("%p:\t", (void *) addr);
+            std::printf("%p:\t", static_cast<void *>(addr));
         }
         else {
             std::printf("  ");
@@ -136,38 +136,51 @@ static void formatInvalidMemoryBlock(Align               *address,
 {
     unsigned int   magicNumber = address->d_object.d_magicNumber;
     size_type      numBytes    = address->d_object.d_bytes;
-    unsigned char *payload     = (unsigned char *) (address + 1);
+    unsigned char *payload     =
+                                reinterpret_cast<unsigned char *>(address + 1);
 
     if (ALLOCATED_MEMORY != magicNumber)  {
         if (DEALLOCATED_MEMORY == magicNumber)  {
             std::printf("*** Deallocating previously deallocated memory at"
-                                               " %p. ***\n", (void *) payload);
+                        " %p. ***\n",
+                        static_cast<void *>(payload));
         }
         else {
             std::printf("*** Invalid magic number 0x%08x at address %p. ***\n",
-                                                magicNumber, (void *) payload);
+                        magicNumber,
+                        static_cast<void *>(payload));
         }
     }
     else if (numBytes <= 0) {
 #ifdef BSLS_PLATFORM__CPU_64_BIT
         std::printf("*** Invalid (non-positive) byte count %lld at address"
-                                    " %p. *** \n", numBytes, (void *) payload);
+                    " %p. *** \n",
+                    static_cast<bsls_Types::Int64>(numBytes),
+                    static_cast<void *>(payload));
 #else
         std::printf("*** Invalid (non-positive) byte count %d at address"
-                                    " %p. *** \n", numBytes, (void *) payload);
+                    " %p. *** \n",
+                    numBytes,
+                    static_cast<void *>(payload));
 #endif
     }
     else if (allocator != address->d_object.d_id_p) {
         std::printf("*** Freeing segment at %p from wrong allocator. ***\n",
-                                                             (void *) payload);
+                    static_cast<void *>(payload));
     }
     else if (underrunBy) {
 #ifdef BSLS_PLATFORM__CPU_64_BIT
         std::printf("*** Memory corrupted at %d bytes before %lld byte"
-              " segment at %p. ***\n", underrunBy, numBytes, (void *) payload);
+                    " segment at %p. ***\n",
+                    underrunBy,
+                    static_cast<bsls_Types::Int64>(numBytes),
+                    static_cast<void *>(payload));
 #else
         std::printf("*** Memory corrupted at %d bytes before %d byte"
-              " segment at %p. ***\n", underrunBy, numBytes, (void *) payload);
+                    " segment at %p. ***\n",
+                    underrunBy,
+                    numBytes,
+                    static_cast<void *>(payload));
 #endif
 
         std::printf("Pad area before user segment:\n");
@@ -176,10 +189,16 @@ static void formatInvalidMemoryBlock(Align               *address,
     else if (overrunBy) {
 #ifdef BSLS_PLATFORM__CPU_64_BIT
         std::printf("*** Memory corrupted at %d bytes after %lld byte"
-              " segment at %p. ***\n", overrunBy,  numBytes, (void *) payload);
+                    " segment at %p. ***\n",
+                    overrunBy,
+                    static_cast<bsls_Types::Int64>(numBytes),
+                    static_cast<void *>(payload));
 #else
         std::printf("*** Memory corrupted at %d bytes after %d byte"
-              " segment at %p. ***\n", overrunBy,  numBytes, (void *) payload);
+                    " segment at %p. ***\n",
+                    overrunBy,
+                    numBytes,
+                    static_cast<void *>(payload));
 #endif
 
         std::printf("Pad area after user segment:\n");
@@ -187,7 +206,7 @@ static void formatInvalidMemoryBlock(Align               *address,
     }
 
     std::printf("Header:\n");
-    formatBlock(address, sizeof(*address));
+    formatBlock(address, sizeof *address );
     std::printf("User segment:\n");
     formatBlock(payload, 64);
 }
@@ -475,7 +494,7 @@ void *bslma_TestAllocator::allocate(size_type size)
     if (0 <= d_allocationLimit) {
         --d_allocationLimit;
         if (0 > d_allocationLimit) {
-            throw bslma_TestAllocatorException(size);
+            throw bslma_TestAllocatorException(static_cast<int>(size));
         }
     }
 #endif
@@ -485,7 +504,7 @@ void *bslma_TestAllocator::allocate(size_type size)
         if (!d_quietFlag) {
 #ifdef BSLS_PLATFORM__CPU_64_BIT
             std::printf("*** Invalid (negative) allocation size %lld ***\n",
-                        (long long) size);
+                        static_cast<bsls_Types::Int64>(size));
 #else
             std::printf("*** Invalid (negative) allocation size %d ***\n",
                         size);
@@ -503,8 +522,8 @@ void *bslma_TestAllocator::allocate(size_type size)
         return 0;                                                     // RETURN
     }
 
-    Align *align = (Align *)d_allocator_p->allocate(sizeof(Align) + size +
-                                                                 PADDING_SIZE);
+    Align *align = (Align *)d_allocator_p->allocate(
+                                          sizeof(Align) + size + PADDING_SIZE);
     if (! align) {
         // We cannot satisfy this request.  Throw 'std::bad_alloc'.
 
@@ -562,7 +581,7 @@ void *bslma_TestAllocator::allocate(size_type size)
 #ifdef BSLS_PLATFORM__CPU_64_BIT
         std::printf(" [%lld]: Allocated %lld byte%sat %p.\n",
                     allocationIndex,
-                    bsls_Types::Int64(size),
+                    static_cast<bsls_Types::Int64>(size),
                     1 == size ? " " : "s ",
                     address);
 #else
@@ -642,7 +661,7 @@ void bslma_TestAllocator::deallocate(void *address)
 
         for (Uchar *pc = pcBegin; pcEnd <= pc; --pc) {
             if (PADDED_MEMORY != *pc) {
-                underrunBy = pcBegin + 1 - pc;
+                underrunBy = static_cast<int>(pcBegin + 1 - pc);
                 break;
             }
         }
@@ -654,7 +673,7 @@ void bslma_TestAllocator::deallocate(void *address)
             pcEnd = tail + PADDING_SIZE;
             for (Uchar *pc = pcBegin; pc < pcEnd; ++pc) {
                 if (PADDED_MEMORY != *pc) {
-                    overrunBy = pc + 1 - pcBegin;
+                    overrunBy = static_cast<int>(pc + 1 - pcBegin);
                     break;
                 }
             }
@@ -717,7 +736,7 @@ void bslma_TestAllocator::deallocate(void *address)
 #ifdef BSLS_PLATFORM__CPU_64_BIT
         std::printf(" [%lld]: Deallocated %lld byte%sat %p.\n",
                     allocationIndex,
-                    bsls_Types::Int64(size),
+                    static_cast<bsls_Types::Int64>(size),
                     1 == size ? " " : "s ",
                     address);
 #else
@@ -730,7 +749,7 @@ void bslma_TestAllocator::deallocate(void *address)
         std::fflush(stdout);
     }
 
-    std::memset(address, (int) SCRIBBLED_MEMORY, size);
+    std::memset(address, static_cast<int>(SCRIBBLED_MEMORY), size);
     d_allocator_p->deallocate(align);
 }
 
@@ -739,10 +758,10 @@ int bslma_TestAllocator::status() const
 {
     enum { BSLMA_MEMORY_LEAK = -1, BSLMA_SUCCESS = 0 };
 
-    bsls_Types::Int64 errors = d_numMismatches + d_numBoundsErrors;
+    bsls_Types::Int64 numErrors = d_numMismatches + d_numBoundsErrors;
 
-    if (errors > 0) {
-        return errors;
+    if (numErrors > 0) {
+        return static_cast<int>(numErrors);
     }
     else if (d_numBlocksInUse || d_numBytesInUse) {
         return BSLMA_MEMORY_LEAK;

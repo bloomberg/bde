@@ -41,7 +41,7 @@ void *allocateFromBufferImp(int  *cursor,
                                                               alignment);
 
     if (*cursor + offset + size > bufSize) { // insufficient space
-        return (void *) 0;
+        return static_cast<void *>(0);
     }
 
     void *result = &buffer[*cursor + offset];
@@ -61,12 +61,17 @@ void *bslma_BufferAllocator::allocateFromBuffer(int               *cursor,
     BSLS_ASSERT(0 <= bufSize);
     BSLS_ASSERT(0 <= size);
 
-    return (0 >= size)
-           ? (void *) 0
-           : allocateFromBufferImp(cursor, buffer, bufSize, size,
-                         (strategy == NATURAL_ALIGNMENT)
-                         ? bsls_AlignmentUtil::calculateAlignmentFromSize(size)
-                         : bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+    return 0 >= size
+           ? static_cast<void *>(0)
+           : allocateFromBufferImp(
+                              cursor,
+                              buffer,
+                              bufSize,
+                              static_cast<int>(size),
+                              strategy == NATURAL_ALIGNMENT
+                              ? bsls_AlignmentUtil::calculateAlignmentFromSize(
+                                                        static_cast<int>(size))
+                              : bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
 void *bslma_BufferAllocator::allocateFromBuffer(int       *cursor,
@@ -82,9 +87,13 @@ void *bslma_BufferAllocator::allocateFromBuffer(int       *cursor,
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(alignment <= bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
-    return (0 >= size)
-           ? (void *) 0
-           : allocateFromBufferImp(cursor, buffer, bufSize, size, alignment);
+    return 0 >= size
+           ? static_cast<void *>(0)
+           : allocateFromBufferImp(cursor,
+                                   buffer,
+                                   bufSize,
+                                   static_cast<int>(size),
+                                   alignment);
 }
 
 bslma_BufferAllocator::~bslma_BufferAllocator()
@@ -96,29 +105,30 @@ void *bslma_BufferAllocator::allocate(size_type size)
     BSLS_ASSERT(0 <= size);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
-        return (void *)0;
+        return static_cast<void *>(0);
     }
 
     void *result;
     if (d_strategy == NATURAL_ALIGNMENT) {
         result = allocateFromBufferImp(
-                         &d_cursor,
-                         d_buffer_p,
-                         d_bufferSize,
-                         size,
-                         bsls_AlignmentUtil::calculateAlignmentFromSize(size));
+                           &d_cursor,
+                           d_buffer_p,
+                           d_bufferSize,
+                           size,
+                           bsls_AlignmentUtil::calculateAlignmentFromSize(
+                                                      static_cast<int>(size)));
     } else { // default is MAXIMUM_ALIGNMENT
         result = allocateFromBufferImp(&d_cursor,
                                        d_buffer_p,
                                        d_bufferSize,
-                                       size,
+                                       static_cast<int>(size),
                                        bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
     }
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
         return result;
     }
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(d_allocCallback)) {
-        return (*d_allocCallback)(size);
+        return (*d_allocCallback)(static_cast<int>(size));
     }
 
     // Throw 'std::bad_alloc' if cannot satisfy request.
@@ -142,12 +152,13 @@ void bslma_BufferAllocator::print() const
                 "cursor position     = %d\n"
                 "allocation function = %p\n"
                 "alignment strategy  = %s\n",
-                (void *) d_buffer_p,
+                static_cast<void *>(d_buffer_p),
                 d_bufferSize,
                 d_cursor,
                 u.d_p,
-                (bslma_BufferAllocator::MAXIMUM_ALIGNMENT == d_strategy ?
-                 "MAXIMUM_ALIGNMENT" : "NATURAL_ALIGNMENT"));
+                bslma_BufferAllocator::MAXIMUM_ALIGNMENT == d_strategy
+                ? "MAXIMUM_ALIGNMENT"
+                : "NATURAL_ALIGNMENT");
 
     std::fflush(stdout);
 }

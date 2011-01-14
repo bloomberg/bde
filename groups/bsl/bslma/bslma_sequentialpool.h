@@ -747,7 +747,7 @@ void operator delete(void *address, BloombergLP::bslma_SequentialPool& pool);
 inline
 void *operator new(std::size_t size, BloombergLP::bslma_SequentialPool& pool)
 {
-    return pool.allocate(size);
+    return pool.allocate(static_cast<int>(size));
 }
 
 inline

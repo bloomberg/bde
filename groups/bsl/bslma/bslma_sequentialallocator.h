@@ -589,7 +589,7 @@ bslma_SequentialAllocator::bslma_SequentialAllocator(
 inline
 void *bslma_SequentialAllocator::allocate(size_type numBytes)
 {
-    return d_sequentialPool.allocate(numBytes);
+    return d_sequentialPool.allocate(static_cast<int>(numBytes));
 }
 
 inline

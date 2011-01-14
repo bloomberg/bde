@@ -330,6 +330,10 @@ class bslma_BufferAllocator : public bslma_Allocator {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+                        // ---------------------------
+                        // class bslma_BufferAllocator
+                        // ---------------------------
+
 // CREATORS
 inline
 bslma_BufferAllocator::bslma_BufferAllocator(char          *buffer,
@@ -338,7 +342,7 @@ bslma_BufferAllocator::bslma_BufferAllocator(char          *buffer,
 : d_strategy(MAXIMUM_ALIGNMENT)
 , d_cursor(0)
 , d_buffer_p(buffer)
-, d_bufferSize(bufSize)
+, d_bufferSize(static_cast<int>(bufSize))
 , d_allocCallback(allocCallback)
 {
 }
@@ -351,7 +355,7 @@ bslma_BufferAllocator::bslma_BufferAllocator(char              *buffer,
 : d_strategy(strategy)
 , d_cursor(0)
 , d_buffer_p(buffer)
-, d_bufferSize(bufSize)
+, d_bufferSize(static_cast<int>(bufSize))
 , d_allocCallback(allocCallback)
 {
 }

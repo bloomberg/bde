@@ -23,6 +23,7 @@ using namespace std;
 //==========================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
+
 static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
@@ -33,7 +34,50 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+
+//=============================================================================
+//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//-----------------------------------------------------------------------------
+
+#define LOOP_ASSERT(I,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+
+#define LOOP2_ASSERT(I,J,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
+              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+
+#define LOOP3_ASSERT(I,J,K,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
+              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+
+#define LOOP4_ASSERT(I,J,K,L,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
+       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
+       aSsErT(1, #X, __LINE__); } }
+
+#define LOOP5_ASSERT(I,J,K,L,M,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
+       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
+       #M << ": " << M << "\n"; \
+       aSsErT(1, #X, __LINE__); } }
+
+#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
+       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
+       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
+       aSsErT(1, #X, __LINE__); } }
+
+//=============================================================================
+//                  SEMI-STANDARD TEST OUTPUT MACROS
+//-----------------------------------------------------------------------------
+
+#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
+#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
+#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
+#define L_ __LINE__                           // current Line number
+#define T_()  cout << '\t' << flush;          // Print tab w/o newline
+#define PP(X) (cout << #X " = " << (X) << endl, 0) // Print name and
+                                                   // value, then return false.
 
 //==========================================================================
 //                              TEST PLAN
@@ -244,13 +288,18 @@ static void aSsErT(int c, const char *s, int i)
 
 static int globalVeryVerbose = 0;
 
-static int globalNewCalledCount = 0;
-static int globalNewCalledCountIsEnabled = 0;
-static int globalNewCalledLastArg = 0;
+// In optimize mode, the HPUX compiler fails to take into account that
+// '*.allocate' can possibly call 'new' and '*.deallocate' can call 'delete'
+// and fails to save relevant statics to RAM.  Declare these to be 'volatile'
+// to ensure the compiler saves their values to RAM.
 
-static  int  globalDeleteCalledCount = 0;
-static  int  globalDeleteCalledCountIsEnabled = 0;
-static void *globalDeleteCalledLastArg = 0;
+static volatile int   globalNewCalledCount = 0;
+static volatile int   globalNewCalledCountIsEnabled = 0;
+static volatile int   globalNewCalledLastArg = 0;
+
+static volatile int   globalDeleteCalledCount = 0;
+static volatile int   globalDeleteCalledCountIsEnabled = 0;
+static volatile void *globalDeleteCalledLastArg = 0;
 
 #ifdef BDE_BUILD_TARGET_EXC
 void *operator new(size_t size) throw(std::bad_alloc)
