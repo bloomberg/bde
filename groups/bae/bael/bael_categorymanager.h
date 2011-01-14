@@ -917,7 +917,7 @@ inline
 int bael_CategoryManager::length() const
 {
     bcemt_ReadLockGuard<bcemt_ReaderWriterLock> guard(&d_registryLock);
-    const int length = d_categories.size();
+    const int length = static_cast<int>(d_categories.size());
     return length;
 }
 

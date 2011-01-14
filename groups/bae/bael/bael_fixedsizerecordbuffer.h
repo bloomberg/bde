@@ -336,7 +336,7 @@ inline
 int bael_FixedSizeRecordBuffer::length() const
 {
     bcemt_LockGuard<bcemt_RecursiveMutex> guard(&d_mutex);
-    return d_deque.size();
+    return static_cast<int>(d_deque.size());
 }
 
 }  // close namespace BloombergLP

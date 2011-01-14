@@ -37,24 +37,28 @@ BDES_IDENT("$Id: $")
 // lexical scope where the C++ stream-based and 'printf'-style macros are used:
 //..
 //  BAEL_LOG_SET_CATEGORY(CATEGORY)
-//      Set the category for logging to the specified 'CATEGORY' (assumed to
-//      be of type convertible to 'const char *').  Note that this macro must
-//      be used at block scope and can be used at most once in any given block
-//      (or else a compiler diagnostic will result).  Also note that this macro
-//      invokes the 'bael_Log::setCategory' method to retrieve the address of
-//      an appropriate category structure for its scope.  (See the function-
-//      level documentation of 'bael_Log::setCategory' for more information.)
-//      Also note that the category is set only on the *first* invocation of
-//      this macro in a code block; subsequent invocations will use a cached
-//      address of the category.
+//      Set the category for logging to the specified 'CATEGORY' (assumed to be
+//      of type convertible to 'const char *').  On the *first* invocation of
+//      this macro in a code block, the 'bael_Log::setCategory' method is
+//      invoked to retrieve the address of an appropriate category structure
+//      for its scope; subsequent invocations will use a cached address of the
+//      category.  (See the function-level documentation of
+//      'bael_Log::setCategory' for more information.)  Note that this macro
+//      must be used at block scope, and can be used at most once in any given
+//      block (or else a compiler diagnostic will result).
 //
 //  BAEL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)
-//      Set, *on each invocation*, the category for logging to the specified
-//      'CATEGORY'.  This macro is identical to 'BAEL_LOG_SET_CATEGORY' in
-//      scoping, parameter, and use of the 'bael_Log::setCategory' method.
-//      However, the address returned from 'bael_Log::setCategory' is not
-//      cached for subsequent calls.  Use this macro to create categories that
-//      depend on run-time values (e.g., LUW or uuid).
+//      Set, *on EACH invocation*, the category for logging to the specified
+//      'CATEGORY' (assumed to be of type convertible to 'const char *').  On
+//      *EVERY* invocation of this macro in a code block, the
+//      'bael_Log::setCategory' method is invoked to retrieve the address of an
+//      appropriate category structure for its scope; the address returned from
+//      'bael_Log::setCategory' is *NOT* cached for subsequent calls.  (See the
+//      function-level documentation of 'bael_Log::setCategory' for more
+//      information.)  Note that this macro should be used to create categories
+//      that depend on *RUN-TIME* values only (e.g., LUW or UUID).  Also note
+//      that this macro must be used at block scope and can be used at most
+//      once in any given block (or else a compiler diagnostic will result).
 //..
 // Note that there can be at most one use of either 'BAEL_LOG_SET_CATEGORY' or
 // 'BAEL_LOG_SET_DYNAMIC_CATEGORY' in any given block (or else a compiler
@@ -332,23 +336,27 @@ BDES_IDENT("$Id: $")
 // each time it is invoked (unlike 'BAEL_LOG_SET_CATEGORY', which sets a
 // category only on the first invocation and uses the cached address of the
 // category on subsequent invocations).  The category name in the following
-// 'dynamicLogger' function is a combination of a static prefix, indicating a
-// domain, and the (dynamic) 'securityId' argument:
+// 'processSecurity' function is a combination of a static prefix and the
+// (dynamic) 'exchange' argument:
 //..
-//  void dynamicLogger(const char *securityId)
+//  void processSecurity(const char *security, const char *exchange)
 //  {
-//      bsl::string categoryName("EQUITY.NASD:");
-//      categoryName.append(securityId);
+//      bsl::string categoryName("EXCHANGE:");
+//      categoryName.append(exchange);
 //
 //      BAEL_LOG_SET_DYNAMIC_CATEGORY(categoryName.c_str());
 //
-//      // Now log to a dynamic category having prefix "EQUITY.NASD:".
+//      BAEL_LOG_TRACE << "processing: " << security << BAEL_LOG_END;
+//
+//      // ...
 //  }
 //..
-// Along with the added flexibility provided by dynamic categories comes the
-// additional overhead of computing and setting a category on each invocation.
-// Consequently, dynamic categories should be used sparingly in most
-// applications.
+// Now logging can be controlled independently for each 'exchange'.
+//
+// *WARNING*: Along with the added flexibility provided by dynamic categories
+// comes the additional overhead of computing and setting a category on each
+// invocation.  Consequently, dynamic categories should be used *SPARINGLY* in
+// most applications.
 //
 ///Example 5: Rule-Based Logging
 ///- - - - - - - - - - - - - - -

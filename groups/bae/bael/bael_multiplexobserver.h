@@ -232,7 +232,7 @@ inline
 int bael_MultiplexObserver::numRegisteredObservers() const
 {
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_rwMutex);
-    return d_observerSet.size();
+    return static_cast<int>(d_observerSet.size());
 }
 
 }  // close namespace BloombergLP

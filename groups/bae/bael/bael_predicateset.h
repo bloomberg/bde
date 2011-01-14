@@ -294,7 +294,7 @@ int bael_PredicateSet::addPredicate(const bael_Predicate& value)
 inline
 int bael_PredicateSet::removePredicate(const bael_Predicate& value)
 {
-    return d_predicateSet.erase(value);
+    return static_cast<int>(d_predicateSet.erase(value));
 }
 
 inline
@@ -344,7 +344,7 @@ STREAM& bael_PredicateSet::bdexStreamIn(STREAM& stream, int version)
 inline
 int bael_PredicateSet::numPredicates() const
 {
-    return d_predicateSet.size();
+    return static_cast<int>(d_predicateSet.size());
 }
 
 inline

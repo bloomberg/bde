@@ -397,7 +397,7 @@ const bael_Rule *bael_RuleSet::getRuleById(int id) const
 inline
 int bael_RuleSet::numRules() const
 {
-    return d_ruleHashtable.size();
+    return static_cast<int>(d_ruleHashtable.size());
 }
 
 inline

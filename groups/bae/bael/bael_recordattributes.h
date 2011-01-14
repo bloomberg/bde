@@ -643,11 +643,11 @@ STREAM& bael_RecordAttributes::bdexStreamOut(STREAM& stream, int version) const
 
         stream.putInt32(d_severity);
 
-        int len = d_messageStreamBuf.length();
+        const int len = static_cast<int>(d_messageStreamBuf.length());
         const char *data = d_messageStreamBuf.data();
 
         stream.putInt32(len);
-        for (int i=0; i < len; ++i) {
+        for (int i = 0; i < len; ++i) {
             stream.putInt8(data[i]);
         }
 

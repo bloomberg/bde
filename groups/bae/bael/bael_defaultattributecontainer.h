@@ -299,7 +299,7 @@ void bael_DefaultAttributeContainer::removeAllAttributes()
 inline
 int bael_DefaultAttributeContainer::numAttributes() const
 {
-    return d_attributeSet.size();
+    return static_cast<int>(d_attributeSet.size());
 }
 
 inline
