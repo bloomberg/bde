@@ -683,7 +683,7 @@ int
 baea_PerformanceMonitor::numRegisteredPids() const
 {
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_mapGuard);
-    return d_pidMap.size();
+    return static_cast<int>(d_pidMap.size());
 }
 
 }  // close namespace BloombergLP
