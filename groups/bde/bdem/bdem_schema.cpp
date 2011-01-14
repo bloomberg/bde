@@ -12,6 +12,7 @@ BDES_IDENT_RCSID(bdem_schema_cpp,"$Id$ $CSID$")
 #include <bdetu_unset.h>
 
 #include <bdeu_print.h>
+#include <bdeu_string.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -130,20 +131,6 @@ class AutoRemoveAll {
 };
 
 }  // close unnamed namespace
-
-// STATIC HELPER FUNCTIONS
-static
-char *copyName(const char *name, bslma_Allocator *basicAllocator)
-{
-    BSLS_ASSERT(name);
-    BSLS_ASSERT(basicAllocator);
-
-    const int len = bsl::strlen(name) + 1;
-    char *newName = (char *)basicAllocator->allocate(len);
-    bsl::memcpy(newName, name, len);
-
-    return newName;
-}
 
                         // -----------------
                         // class bdem_Schema
@@ -469,7 +456,7 @@ bdem_RecordDef *bdem_Schema::createRecord(const char                 *name,
     d_recordDefs.push_back(0);
     d_recordDefs.pop_back();
 
-    char *recordName = name ? copyName(name, &d_writeOnceAlloc) : 0;
+    char *recordName = name ? bdeu_String::copy(name, &d_writeOnceAlloc) : 0;
 
     AutoEraseName nameProctor;
     if (recordName) {
@@ -509,7 +496,8 @@ bdem_EnumerationDef *bdem_Schema::createEnumeration(const char *name)
     d_enumDefs.push_back(0);
     d_enumDefs.pop_back();
 
-    char *enumerationName = name ? copyName(name, &d_writeOnceAlloc) : 0;
+    char *enumerationName = name ? bdeu_String::copy(name, &d_writeOnceAlloc)
+                                 : 0;
 
     AutoEraseName nameProctor;
     if (enumerationName) {

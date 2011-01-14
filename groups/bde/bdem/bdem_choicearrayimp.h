@@ -745,10 +745,11 @@ void bdem_ChoiceArrayImp::removeItems(int dstIndex, int numItems)
 
     d_headers.erase(d_headers.begin() + dstIndex,
                     d_headers.begin() + dstIndex + numItems);
-    bdeu_BitstringUtil::removeAndFill0(&d_nullBits.front(),
-                                       d_headers.size() + numItems,
-                                       dstIndex,
-                                       numItems);
+    bdeu_BitstringUtil::removeAndFill0(
+                                 &d_nullBits.front(),
+                                 static_cast<int>(d_headers.size()) + numItems,
+                                 dstIndex,
+                                 numItems);
 }
 
 inline
@@ -759,7 +760,7 @@ void bdem_ChoiceArrayImp::removeItem(int dstIndex)
 
     d_headers.erase(d_headers.begin() + dstIndex);
     bdeu_BitstringUtil::removeAndFill0(&d_nullBits.front(),
-                                       d_headers.size() + 1,
+                                       static_cast<int>(d_headers.size()) + 1,
                                        dstIndex,
                                        1);
 }
@@ -821,7 +822,8 @@ bdem_ChoiceArrayImp::bdexStreamIn(
         const int arraySize = (numItems + BDEM_BITS_PER_INT - 1)
                                                            / BDEM_BITS_PER_INT;
         d_nullBits.resize(arraySize);
-        stream.getArrayInt32(&d_nullBits.front(), d_nullBits.size());
+        stream.getArrayInt32(&d_nullBits.front(),
+                             static_cast<int>(d_nullBits.size()));
         if (!stream) {
             return stream;                                            // RETURN
         }
@@ -956,7 +958,7 @@ bdem_ChoiceArrayImp::bdexStreamOut(
     switch (version) {  // Switch on the version (starting with 1).
       case 3: {
         const DescriptorCatalog *catalogPtr = catalog();
-        const int numSelections = catalogPtr->size();
+        const int numSelections = static_cast<int>(catalogPtr->size());
         stream.putLength(numSelections);
 
         // Although a choice array with an empty types catalog *can* contain
@@ -976,7 +978,7 @@ bdem_ChoiceArrayImp::bdexStreamOut(
                             1);
         }
 
-        int numItems = d_headers.size();
+        int numItems = static_cast<int>(d_headers.size());
         stream.putLength(numItems);
         if (0 == numItems) {
             return stream;                                            // RETURN
@@ -1014,7 +1016,7 @@ bdem_ChoiceArrayImp::bdexStreamOut(
       // as the list components.
       case 1: {
         const DescriptorCatalog *catalogPtr = catalog();
-        const int numSelections = catalogPtr->size();
+        const int numSelections = static_cast<int>(catalogPtr->size());
         stream.putLength(numSelections);
 
         // Although a choice array with an empty types catalog *can* contain
@@ -1034,7 +1036,7 @@ bdem_ChoiceArrayImp::bdexStreamOut(
                             1);
         }
 
-        const int numItems = d_headers.size();
+        const int numItems = static_cast<int>(d_headers.size());
         stream.putLength(numItems);
 
         for (int i = 0; i < numItems; ++i) {

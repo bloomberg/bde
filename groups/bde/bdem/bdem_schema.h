@@ -1295,7 +1295,8 @@ STREAM& bdem_Schema::bdexStreamOutEnumerationDef(
         // not.  This allows a length of 1 (empty string), to be distinguished
         // from a length of 0 (null string).
 
-        const int len = bsl::strlen(enumerationDef.enumerationName()) + 1;
+        const int len = static_cast<int>(
+                            bsl::strlen(enumerationDef.enumerationName())) + 1;
         stream.putLength(len);
         stream.putArrayInt8(enumerationDef.enumerationName(), len - 1);
     }
@@ -1309,7 +1310,7 @@ STREAM& bdem_Schema::bdexStreamOutEnumerationDef(
     for (bdem_EnumerationDefIterator i = enumerationDef.begin();
                                            i != enumerationDef.end();
          ++i) {
-        const int nameLen = bsl::strlen(i.name()) + 1;
+        const int nameLen = static_cast<int>(bsl::strlen(i.name())) + 1;
         stream.putLength(nameLen);
         stream.putArrayInt8(i.name(), nameLen - 1);
         stream.putInt32(i.id());
@@ -1343,7 +1344,8 @@ STREAM& bdem_Schema::bdexStreamOutRecordDef(
             // not.   This allows a length of 1 (empty string), to be
             // distinguished from a length of 0 (null string).
 
-            int len = bsl::strlen(recordDef.recordName()) + 1;
+            const int len = static_cast<int>(
+                                      bsl::strlen(recordDef.recordName())) + 1;
             stream.putLength(len);
             stream.putArrayInt8(recordDef.recordName(), len - 1);
         }
@@ -1361,7 +1363,7 @@ STREAM& bdem_Schema::bdexStreamOutRecordDef(
 
             const char *name = fieldDef.fieldName();
             if (name) {
-                int len = bsl::strlen(name) + 1;
+                const int len = static_cast<int>(bsl::strlen(name)) + 1;
                 stream.putLength(len);
                 stream.putArrayInt8(name, len - 1);
             }

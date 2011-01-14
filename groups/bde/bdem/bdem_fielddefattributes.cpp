@@ -8,6 +8,7 @@ BDES_IDENT_RCSID(bdem_fielddefattributes_cpp,"$Id$ $CSID$")
 #include <bdem_elemattrlookup.h>
 
 #include <bdeat_formattingmode.h>
+#include <bdeimp_bitwisecopy.h>
 #include <bdeu_print.h>
 
 #include <bslma_allocator.h>
@@ -148,63 +149,7 @@ bdem_FieldDefAttributes::~bdem_FieldDefAttributes()
 bdem_FieldDefAttributes& bdem_FieldDefAttributes::operator=(
                                             const bdem_FieldDefAttributes& rhs)
 {
-    if (this == &rhs) {
-        return *this;                                                 // RETURN
-    }
-
-    // Note that 'defaultValueDescriptor' converts from array type to scalar,
-    // and from aggregate to 'VOID'.
-    const bdem_Descriptor *lhsDefDesc = defaultValueDescriptor(d_elemType);
-    const bdem_Descriptor *rhsDefDesc = defaultValueDescriptor(rhs.d_elemType);
-
-    // Assignment and copy construction of 'STRING' default values are the only
-    // operations that can throw.  Note that 'd_elemType' is assigned *after*
-    // the default value is assigned to avoid creating a field def attributes
-    // object of type 'STRING' that has an unconstructed default value.
-
-    if (lhsDefDesc == rhsDefDesc) {
-        // Exception safety:
-        // If 'assign' throws, 'lhs' will be left unchanged.
-
-        lhsDefDesc->assign(&d_defaultValue, &rhs.d_defaultValue);
-    }
-    else if (bdem_ElemType::BDEM_STRING == rhs.d_elemType) {
-        // Exception safety (non-'STRING' = 'STRING'):
-        // 'copyConstruct' can throw, while also possibly corrupting
-        // 'd_defaultValue' in the process (i.e., if it were passed as the
-        // first argument to 'copyConstruct' as in the 'else' clause below).
-        // For example, 'd_datetime' may be left in a state that is not valid
-        // for a 'bdet_Datetime' object.  So the 'STRING' default value is
-        // constructed in a temporary, and then copied into 'd_defaultValue' if
-        // no exception is thrown.
-
-        bsls_ObjectBuffer<bsl::string> tmp;
-
-        rhsDefDesc->copyConstruct(&tmp,
-                                  &rhs.d_defaultValue,
-                                  bdem_AggregateOption::BDEM_PASS_THROUGH,
-                                  d_allocator_p);
-
-        lhsDefDesc->destroy(&d_defaultValue);
-
-        bsl::memcpy(&d_defaultValue, tmp.buffer(), sizeof(bsl::string));
-    }
-    else {
-        // Exception safety ('STRING' = non-'STRING'):
-        // 'copyConstruct' cannot throw.
-
-        lhsDefDesc->destroy(&d_defaultValue);
-
-        rhsDefDesc->copyConstruct(&d_defaultValue,
-                                  &rhs.d_defaultValue,
-                                  bdem_AggregateOption::BDEM_PASS_THROUGH,
-                                  d_allocator_p);
-    }
-
-    d_elemType       = rhs.d_elemType;
-    d_flags          = rhs.d_flags;
-    d_formattingMode = rhs.d_formattingMode;
-
+    bdem_FieldDefAttributes(rhs, d_allocator_p).swap(*this);
     return *this;
 }
 
@@ -234,6 +179,15 @@ void bdem_FieldDefAttributes::reset(bdem_ElemType::Type type,
     BSLS_ASSERT(type < (int)bdem_ElemType::BDEM_NUM_TYPES);
 
     *this = bdem_FieldDefAttributes(type, nullabilityFlag, formattingMode);
+}
+
+void bdem_FieldDefAttributes::swap(bdem_FieldDefAttributes& other)
+{
+    // 'swap' is undefined for non-equal allocators.
+
+    BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
+
+    bdeimp_BitwiseCopy<bdem_FieldDefAttributes>::swap(this, &other);
 }
 
 // ACCESSORS

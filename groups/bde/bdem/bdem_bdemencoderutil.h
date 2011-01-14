@@ -1207,10 +1207,10 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
            && !d_stream_p->putUint32(
                           bdem_BdemEncoderUtil_Constants::BDEM_FIRST_BIT_MASK))
          || !d_stream_p->putString("")) {
-            return BDEM_FAILURE;                                           // RETURN
+            return BDEM_FAILURE;                                      // RETURN
         }
 
-        return BDEM_SUCCESS;                                               // RETURN
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     bdem_BdemEncoderUtil_BindEncodeSelection<STREAM> encodeSelection(this);
@@ -1350,12 +1350,12 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
-    const int numRows = bdeat_ArrayFunctions::size(value);
+    const int numRows = static_cast<int>(bdeat_ArrayFunctions::size(value));
 
     if (!d_stream_p->putLength(1)
      || !d_stream_p->putInt8(bdem_ElemType::BDEM_LIST)
      || !d_stream_p->putLength(numRows)) {
-        return BDEM_FAILURE;                                               // RETURN
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     bdem_BdemEncoderUtil_NewLevelGuard newLevelGuard(&d_level);
@@ -1407,7 +1407,7 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
         if (0 != bdeat_ArrayFunctions::accessElement(value,
                                                      encodeValuesMemFn,
                                                      i)) {
-            return BDEM_FAILURE;                                           // RETURN
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
@@ -1422,7 +1422,7 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
-    const int numRows = bdeat_ArrayFunctions::size(value);
+    const int numRows = static_cast<int>(bdeat_ArrayFunctions::size(value));
 
     // If there are no rows, then there is no Sequence object to traverse for
     // type information.  Put out [0, 0] representing an empty table with no
@@ -1431,9 +1431,9 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
 
     if (0 == numRows) {
         if (!d_stream_p->putLength(0) || !d_stream_p->putLength(0)) {
-            return BDEM_FAILURE;                                           // RETURN
+            return BDEM_FAILURE;                                      // RETURN
         }
-        return BDEM_SUCCESS;                                               // RETURN
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     // Encode type information.
@@ -1451,7 +1451,7 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
                                                  encodeElemTypesMemFn,
                                                  0)
      || !d_stream_p->putLength(numRows)) {
-        return BDEM_FAILURE;                                               // RETURN
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     // Encode elements.
@@ -1462,7 +1462,7 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
         if (0 != bdeat_ArrayFunctions::accessElement(value,
                                                      encodeAttributesMemFn,
                                                      i)) {
-            return BDEM_FAILURE;                                           // RETURN
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
@@ -1477,15 +1477,15 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
-    const int length = bdeat_ArrayFunctions::size(value);
+    const int length = static_cast<int>(bdeat_ArrayFunctions::size(value));
 
-    if (!d_stream_p->putLength(value.size())) {
-        return BDEM_FAILURE;                                               // RETURN
+    if (!d_stream_p->putLength(static_cast<int>(value.size()))) {
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     for (int i = 0; i < length; ++i) {
         if (0 != bdeat_ArrayFunctions::accessElement(value, *this, i)) {
-            return BDEM_FAILURE;                                           // RETURN
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 

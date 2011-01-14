@@ -146,17 +146,19 @@ class bdem_BerEncoderOptions {
         // Create an object of type 'bdem_BerEncoderOptions' having the
         // default value.
 
-    bdem_BerEncoderOptions(const bdem_BerEncoderOptions& original);
+    //! bdem_BerEncoderOptions(const bdem_BerEncoderOptions& original);
         // Create an object of type 'bdem_BerEncoderOptions' having the
-        // value of the specified 'original' object.
+        // value of the specified 'original' object.  Note that this method's
+        // definition is compiler generated.
 
-    // ~bdem_BerEncoderOptions();
-        // Destroy this object.  Note that this trivial destructor is generated
-        // by the compiler.
+    //! ~bdem_BerEncoderOptions();
+        // Destroy this object.  Note that this method's definition is compiler
+        // generated.
 
     // MANIPULATORS
-    bdem_BerEncoderOptions& operator=(const bdem_BerEncoderOptions& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
+    //! bdem_BerEncoderOptions& operator=(const bdem_BerEncoderOptions& rhs);
+        // Assign to this object the value of the specified 'rhs' object.  Note
+        // that this method's definition is compiler generated.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -321,26 +323,7 @@ bdem_BerEncoderOptions::bdem_BerEncoderOptions()
 {
 }
 
-inline
-bdem_BerEncoderOptions::bdem_BerEncoderOptions(
-                                        const bdem_BerEncoderOptions& original)
-: d_traceLevel(original.d_traceLevel)
-, d_bdeVersionConformance(original.d_bdeVersionConformance)
-{
-}
-
 // MANIPULATORS
-inline
-bdem_BerEncoderOptions&
-bdem_BerEncoderOptions::operator=(const bdem_BerEncoderOptions& rhs)
-{
-    if (this != &rhs) {
-        d_traceLevel = rhs.d_traceLevel;
-        d_bdeVersionConformance = rhs.d_bdeVersionConformance;
-    }
-    return *this;
-}
-
 template <class STREAM>
 inline
 STREAM& bdem_BerEncoderOptions::bdexStreamIn(STREAM& stream, int version)

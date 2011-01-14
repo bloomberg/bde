@@ -338,25 +338,29 @@ if (veryVerbose) {
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'bdem_FieldDefAttributes' ASSIGNMENT OPERATOR
+        // TESTING 'bdem_FieldDefAttributes' COPY-ASSIGNMENT OPERATOR AND SWAP
         //
         // Concerns:
         //   We are concerned that any field def attributes value can be
-        //   assigned to any other field def attributes value.
+        //   assigned to any other field def attributes value, and that 'swap'
+        //   also works for objects with those attribute values.
         //
         // Plan:
         //   Define a set S of varied field def attributes test values.  For
         //   each (u, v) in S x S, verify that u = v produces the expected
-        //   results.  Exception neutrality is tested; this is relevant to
-        //   'BDEM_STRING' default values.
+        //   results.  Then verify that calling 'swap' produces the expected
+        //   result as well.  Exception neutrality is tested; this is relevant
+        //   to 'BDEM_STRING' default values.
         //
         // Testing:
-        //   bdem_FieldSpec& operator=(const bdem_FieldSpec& rhs);
+        //   bdem_FieldDefAttributes& operator=(
+        //                                 const bdem_FieldDefAttributes& rhs);
+        //   void swap(bdem_FieldDefAttributes& other);
         // --------------------------------------------------------------------
 
         if (verbose)
-            bsl::cout << "\nTesting 'bdem_FieldSpec' Assignment Operator"
-                      << "\n============================================"
+            bsl::cout << "\nTesting 'bdem_FieldSpec::operator=' and 'swap'"
+                      << "\n=============================================="
                       << bsl::endl;
 
         {
@@ -436,6 +440,21 @@ if (veryVerbose) {
 
                     LOOP2_ASSERT(ILINE, JLINE,          1 == (F == G));
                     LOOP2_ASSERT(ILINE, JLINE,          0 == (F != G));
+
+                    LOOP2_ASSERT(ILINE, JLINE,  fgAreSame == (F == W));
+                    LOOP2_ASSERT(ILINE, JLINE, !fgAreSame == (F != W));
+
+                    // test the 'swap' method
+                    // before: Fj, Gj, Wi (Fj means F corresponds to JLINE)
+                    // after : Fi, Gj, Wj
+
+                    swap(mF, mW);
+
+                    LOOP2_ASSERT(ILINE, JLINE,          1 == (W == G));
+                    LOOP2_ASSERT(ILINE, JLINE,          0 == (W != G));
+
+                    LOOP2_ASSERT(ILINE, JLINE,  fgAreSame == (F == G));
+                    LOOP2_ASSERT(ILINE, JLINE, !fgAreSame == (F != G));
 
                     LOOP2_ASSERT(ILINE, JLINE,  fgAreSame == (F == W));
                     LOOP2_ASSERT(ILINE, JLINE, !fgAreSame == (F != W));

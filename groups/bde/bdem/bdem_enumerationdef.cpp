@@ -7,6 +7,7 @@ BDES_IDENT_RCSID(bdem_enumerationdef_cpp,"$Id$ $CSID$")
 #include <bdema_sequentialallocator.h>
 #include <bdetu_unset.h>
 #include <bdeu_print.h>
+#include <bdeu_string.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -70,20 +71,6 @@ class AutoEraseEntry {
 };
 
 }  // close unnamed namespace
-
-// STATIC HELPER FUNCTIONS
-static
-char *copyName(const char *name, bslma_Allocator *basicAllocator)
-{
-    BSLS_ASSERT(name);
-    BSLS_ASSERT(basicAllocator);
-
-    const int len = bsl::strlen(name) + 1;
-    char *newName = (char *)basicAllocator->allocate(len);
-    bsl::memcpy(newName, name, len);
-
-    return newName;
-}
 
                      // -------------------------
                      // class bdem_EnumerationDef
@@ -181,7 +168,7 @@ int bdem_EnumerationDef::addEnumerator(const char *name, int id)
     }
 
     // Make a private, permanent copy of the enumerator name.
-    name = copyName(name, writeOnceAllocator());
+    name = bdeu_String::copy(name, writeOnceAllocator());
 
     // Insert the (id, name) pair into 'd_enumByIdMap'.  If insert fails,
     // return an error value.

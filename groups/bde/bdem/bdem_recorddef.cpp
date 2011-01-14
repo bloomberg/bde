@@ -11,6 +11,7 @@ BDES_IDENT_RCSID(bdem_recorddef_cpp,"$Id$ $CSID$")
 
 #include <bdema_sequentialallocator.h>
 #include <bdeu_print.h>
+#include <bdeu_string.h>
 
 #include <bsls_assert.h>
 
@@ -121,19 +122,6 @@ class AutoEraseName {
 
 }  // close unnamed namespace
 
-// STATIC HELPER FUNCTIONS
-static
-char *copyName(const char *name, bslma_Allocator *basicAllocator)
-{
-    BSLS_ASSERT(name);
-    BSLS_ASSERT(basicAllocator);
-
-    const int len = bsl::strlen(name) + 1;
-    char *newName = (char *)basicAllocator->allocate(len);
-    bsl::memcpy(newName, name, len);
-    return newName;
-}
-
                       // --------------------
                       // class bdem_RecordDef
                       // --------------------
@@ -179,7 +167,7 @@ bdem_RecordDef::append(const bdem_FieldDefAttributes&  attributes,
     d_fieldDefs.push_back(0);
     d_fieldDefs.pop_back();
 
-    char *fieldName = name ? copyName(name, writeOnceAllocator()) : 0;
+    char *fieldName = name ? bdeu_String::copy(name, writeOnceAllocator()) : 0;
 
     AutoEraseName nameProctor;
 

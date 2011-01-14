@@ -393,13 +393,13 @@ inline
 int bdem_BerUtil::getEndOfContentOctets(bsl::streambuf *streamBuf,
                                         int            *accumNumBytesConsumed)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     *accumNumBytesConsumed += 2;
 
     return 0 == streamBuf->sbumpc() && 0 == streamBuf->sbumpc()
-         ? SUCCESS
-         : FAILURE;
+         ? BDEM_SUCCESS
+         : BDEM_FAILURE;
 }
 
 inline
@@ -427,43 +427,43 @@ int bdem_BerUtil::getValue(bsl::streambuf *streamBuf,
                            TYPE           *value,
                            int            *accumNumBytesConsumed)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     int length;
     if (bdem_BerUtil_Imp::getLength(streamBuf, &length, accumNumBytesConsumed))
     {
-        return FAILURE;
+        return BDEM_FAILURE;
     }
 
     if (getValue(streamBuf, value, length)) {
-        return FAILURE;
+        return BDEM_FAILURE;
     }
 
     *accumNumBytesConsumed += length;
-    return SUCCESS;
+    return BDEM_SUCCESS;
 }
 
 inline
 int bdem_BerUtil::putEndOfContentOctets(bsl::streambuf *streamBuf)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     return 0 == streamBuf->sputc(0) && 0 == streamBuf->sputc(0)
-         ? SUCCESS
-         : FAILURE;
+         ? BDEM_SUCCESS
+         : BDEM_FAILURE;
 }
 
 inline
 int bdem_BerUtil::putIndefiniteLengthOctet(bsl::streambuf *streamBuf)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     // "extra" unsigned char cast needed to suppress warning on Windows
     return bdem_BerUtil_Imp::INDEFINITE_LENGTH_OCTET
                == streamBuf->sputc(static_cast<char>(
                   (unsigned char)(bdem_BerUtil_Imp::INDEFINITE_LENGTH_OCTET)))
-               ? SUCCESS
-               : FAILURE;
+               ? BDEM_SUCCESS
+               : BDEM_FAILURE;
 }
 
 inline
@@ -489,7 +489,7 @@ int bdem_BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
                                       TYPE           *value,
                                       int             length)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     enum { SIGN_BIT_MASK = 0x80 };
 
@@ -502,7 +502,7 @@ int bdem_BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
         // Remove the leading zero byte.
         if (0 != streamBuf->sbumpc()) {
             // First byte was not zero.  Fail.
-            return FAILURE;                                           // RETURN
+            return BDEM_FAILURE;                                      // RETURN
         }
 
         --length;
@@ -510,7 +510,7 @@ int bdem_BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
 
     if ((unsigned) length > sizeof(TYPE)) {
         // Overflow
-        return FAILURE;                                               // RETURN
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     *value = (TYPE)(streamBuf->sgetc() & SIGN_BIT_MASK ? -1 : 0);
@@ -518,14 +518,14 @@ int bdem_BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
     for (int i = 0; i < length; ++i) {
         int nextOctet = streamBuf->sbumpc();
         if (bsl::streambuf::traits_type::eof() == nextOctet) {
-            return FAILURE;                                           // RETURN
+            return BDEM_FAILURE;                                      // RETURN
         }
 
         *value = (TYPE)(*value << BITS_PER_OCTET);
         *value = (TYPE)(*value | (unsigned char)nextOctet);
     }
 
-    return SUCCESS;
+    return BDEM_SUCCESS;
 }
 
 template <typename TYPE>
@@ -542,20 +542,20 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bool           *value,
                                int             length)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     if (1 != length) {
-        return FAILURE;                                           // RETURN
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     int intValue = streamBuf->sbumpc();
     if (bsl::streambuf::traits_type::eof() == intValue) {
-        return FAILURE;                                           // RETURN
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     *value = 0 != intValue;
 
-    return SUCCESS;
+    return BDEM_SUCCESS;
 }
 
 inline
@@ -563,19 +563,19 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                char           *value,
                                int             length)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     if (1 != length) {
-        return FAILURE;                                           // RETURN
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     int valueOctet = streamBuf->sbumpc();
     if (bsl::streambuf::traits_type::eof() == valueOctet) {
-        return FAILURE;                                           // RETURN
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     *value = (char) valueOctet;
-    return SUCCESS;
+    return BDEM_SUCCESS;
 }
 
 inline
@@ -583,14 +583,14 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                unsigned char  *value,
                                int             length)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     short temp;
     if (bdem_BerUtil_Imp::getIntegerValue(streamBuf, &temp, length)) {
-        return FAILURE;
+        return BDEM_FAILURE;
     }
     *value = (unsigned char) temp;
-    return SUCCESS;
+    return BDEM_SUCCESS;
 }
 
 inline
@@ -606,14 +606,14 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                float          *value,
                                int             length)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     double dvalue;
     if (bdem_BerUtil_Imp::getDoubleValue(streamBuf, &dvalue, length)) {
-        return FAILURE;
+        return BDEM_FAILURE;
     }
     *value = (float) dvalue;
-    return SUCCESS;
+    return BDEM_SUCCESS;
 }
 
 inline
@@ -669,10 +669,10 @@ int bdem_BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
                                             TYPE            value,
                                             int             length)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     if (length <= 0) {
-        return FAILURE;                                               // RETURN
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     static const bool isUnsigned = (TYPE(-1) > TYPE(0));
@@ -684,25 +684,25 @@ int bdem_BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
         // unsigned and the high bit (normally the sign bit) is set.  In this
         // case, a leading zero octet is emitted.
         if (! (value & SGN_BIT)) {
-            return FAILURE;
+            return BDEM_FAILURE;
         }
 
         if (0 != streamBuf->sputc(0)) {
-            return FAILURE;
+            return BDEM_FAILURE;
         }
 
         --length;
     }
 
     if ((unsigned) length > sizeof(TYPE)) {
-        return FAILURE;                                               // RETURN
+        return BDEM_FAILURE;                                          // RETURN
     }
 
 #if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
     return length == streamBuf->sputn((char *) &value + sizeof(TYPE) - length,
                                       length)
-         ? SUCCESS
-         : FAILURE;
+         ? BDEM_SUCCESS
+         : BDEM_FAILURE;
 
 #else
 
@@ -710,11 +710,11 @@ int bdem_BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
     for ( ; length > 0; --length) {
         unsigned char c = *--dst;
         if (c != streamBuf->sputc(c)) {
-            return FAILURE;                                           // RETURN
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
-    return SUCCESS;
+    return BDEM_SUCCESS;
 
 #endif
 }
@@ -724,12 +724,12 @@ inline
 int bdem_BerUtil_Imp::putIntegerValue(bsl::streambuf *streamBuf,
                                       TYPE            value)
 {
-    enum { FAILURE = -1 };
+    enum { BDEM_FAILURE = -1 };
 
     typedef bsl::streambuf::char_type char_type;
     const int length = numBytesToStream(value);
     if (length != streamBuf->sputc((char_type)length)) {
-        return FAILURE;                                               // RETURN
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return putIntegerGivenLength(streamBuf, value, length);
@@ -740,12 +740,12 @@ int bdem_BerUtil_Imp::putStringValue(bsl::streambuf *streamBuf,
                                      const char     *value,
                                      int             valueLength)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     return bdem_BerUtil_Imp::putLength(streamBuf, valueLength)
         || valueLength != streamBuf->sputn(value, valueLength)
-         ? FAILURE
-         : SUCCESS;
+         ? BDEM_FAILURE
+         : BDEM_SUCCESS;
 }
 
 template <typename TYPE>
@@ -758,25 +758,25 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, const TYPE& value)
 inline
 int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, bool value)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     typedef bsl::streambuf::char_type char_type;
 
     return 1 == streamBuf->sputc(1)
         && (int)value == streamBuf->sputc((char_type)(value ? 1 : 0))
-         ? SUCCESS
-         : FAILURE;
+         ? BDEM_SUCCESS
+         : BDEM_FAILURE;
 }
 
 inline
 int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, char value)
 {
-    enum { SUCCESS = 0, FAILURE = -1 };
+    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     return 1 == streamBuf->sputc(1)
         && (unsigned char) value == streamBuf->sputc(value)
-         ? SUCCESS
-         : FAILURE;
+         ? BDEM_SUCCESS
+         : BDEM_FAILURE;
 }
 
 inline
@@ -807,7 +807,9 @@ inline
 int bdem_BerUtil_Imp::putValue(bsl::streambuf     *streamBuf,
                                const bsl::string&  value)
 {
-    return putStringValue(streamBuf, value.data(), value.length());
+    return putStringValue(streamBuf,
+                          value.data(),
+                          static_cast<int>(value.length()));
 }
 
 }  // close namespace BloombergLP

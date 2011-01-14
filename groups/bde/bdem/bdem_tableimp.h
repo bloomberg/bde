@@ -728,7 +728,10 @@ inline
 void bdem_TableImp::makeAllNull()
 {
     makeRowsNull(0, numRows());
-    bdeu_BitstringUtil::set(&d_nullBits.front(), 0, true, d_rows.size());
+    bdeu_BitstringUtil::set(&d_nullBits.front(),
+                            0,
+                            true,
+                            static_cast<int>(d_rows.size()));
 }
 
 inline
@@ -827,7 +830,8 @@ STREAM& bdem_TableImp::bdexStreamInImp(
         const int arraySize = (numRows + BDEM_BITS_PER_INT - 1)
                                                            / BDEM_BITS_PER_INT;
         d_nullBits.resize(arraySize);
-        stream.getArrayInt32(&d_nullBits.front(), d_nullBits.size());
+        stream.getArrayInt32(&d_nullBits.front(),
+                             static_cast<int>(d_nullBits.size()));
         if (!stream) {
             return stream;                                            // RETURN
         }

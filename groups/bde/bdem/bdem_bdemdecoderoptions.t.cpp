@@ -1,12 +1,7 @@
 // bdem_bdemdecoderoptions.t.cpp   -*-C++-*-
-
-#ifndef lint
-static char RCSid_bdem_bdemdecoderoptions_t_cpp[] = "$Id: $ $CCId: $  $CSID:  $  $SCMId:  $";
-#endif
-
 #include <bdem_bdemdecoderoptions.h>
 
-#include <cstdlib>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -85,7 +80,7 @@ static int veryVeryVeryVerbose = 0;
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     verbose = (argc > 2);
     veryVerbose = (argc > 3);
     veryVeryVerbose = (argc > 4);
@@ -127,4 +122,3 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ------------------------------ END-OF-FILE ---------------------------------
-

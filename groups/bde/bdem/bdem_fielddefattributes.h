@@ -147,6 +147,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_objectbuffer.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -188,23 +192,27 @@ class bdem_FieldDefAttributes {
     union DefaultValue {
         // Union capable of holding an object of any 'bdem' element type that
         // can have a default value.
+        //
+        // Note that all of the member types must be bitwise movable.  The
+        // implementation of 'swap' depends on that trait to swap the object
+        // buffer content without the knowledge of the concrete type of object
+        // stored in the buffer.
 
-        typedef bsls_PlatformUtil::Int64 Int64;  // abbreviation
-
-        bsls_ObjectBuffer<bool>            d_bool;
-        bsls_ObjectBuffer<char>            d_char;
-        bsls_ObjectBuffer<short>           d_short;
-        bsls_ObjectBuffer<int>             d_int;
-        bsls_ObjectBuffer<Int64>           d_int64;
-        bsls_ObjectBuffer<float>           d_float;
-        bsls_ObjectBuffer<double>          d_double;
-        bsls_ObjectBuffer<bsl::string>     d_string;
-        bsls_ObjectBuffer<bdet_Datetime>   d_datetime;
-        bsls_ObjectBuffer<bdet_DatetimeTz> d_datetimeTz;
-        bsls_ObjectBuffer<bdet_Date>       d_date;
-        bsls_ObjectBuffer<bdet_DateTz>     d_dateTz;
-        bsls_ObjectBuffer<bdet_Time>       d_time;
-        bsls_ObjectBuffer<bdet_TimeTz>     d_timeTz;
+        // DATA
+        bsls_ObjectBuffer<bool>              d_bool;
+        bsls_ObjectBuffer<char>              d_char;
+        bsls_ObjectBuffer<short>             d_short;
+        bsls_ObjectBuffer<int>               d_int;
+        bsls_ObjectBuffer<bsls_Types::Int64> d_int64;
+        bsls_ObjectBuffer<float>             d_float;
+        bsls_ObjectBuffer<double>            d_double;
+        bsls_ObjectBuffer<bsl::string>       d_string;
+        bsls_ObjectBuffer<bdet_Datetime>     d_datetime;
+        bsls_ObjectBuffer<bdet_DatetimeTz>   d_datetimeTz;
+        bsls_ObjectBuffer<bdet_Date>         d_date;
+        bsls_ObjectBuffer<bdet_DateTz>       d_dateTz;
+        bsls_ObjectBuffer<bdet_Time>         d_time;
+        bsls_ObjectBuffer<bdet_TimeTz>       d_timeTz;
     };
 
     enum Flags {
@@ -229,8 +237,9 @@ class bdem_FieldDefAttributes {
                                             // owned)
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdem_FieldDefAttributes,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS2(bdem_FieldDefAttributes,
+                                  bslalg_TypeTraitBitwiseMoveable,
+                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -314,6 +323,12 @@ class bdem_FieldDefAttributes {
         // value is used to determine how a field described by these
         // attributes should be written to text.
 
+    void swap(bdem_FieldDefAttributes& other);
+        // Swap the value of this object with the value of the specified
+        // 'other' object.  This method provides the no-throw guarantee.  The
+        // behavior is undefined if the two objects being swapped have
+        // non-equal allocators.
+
     // ACCESSORS
     bdem_ConstElemRef defaultValue() const;
         // Return a 'bdem' const-element reference to the default value
@@ -386,6 +401,12 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
                          const bdem_FieldDefAttributes& attributes);
     // Write the specified 'attributes' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
+
+// FREE FUNCTIONS
+void swap(bdem_FieldDefAttributes& a, bdem_FieldDefAttributes& b);
+    // Swap the values of the specified 'a' and 'b' objects.  This method
+    // provides the no-throw guarantee.  The behavior is undefined if the two
+    // objects being swapped have non-equal allocators.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -460,6 +481,13 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
                          const bdem_FieldDefAttributes& attributes)
 {
     return attributes.print(stream, 0, -1);
+}
+
+// FREE FUNCTIONS
+inline
+void swap(bdem_FieldDefAttributes& a, bdem_FieldDefAttributes& b)
+{
+    a.swap(b);
 }
 
 }  // close namespace BloombergLP

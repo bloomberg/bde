@@ -69,12 +69,12 @@ class bdem_BerDecoderOptions {
   private:
     int   d_maxDepth;
         // maximum recursion depth
-    bool  d_skipUnknownElements;
-        // Option to skip unknown elements
     int   d_traceLevel;
         // trace (verbosity) level
     int   d_maxSequenceSize;
         // maximum sequence size
+    bool  d_skipUnknownElements;
+        // Option to skip unknown elements
 
   public:
     // TYPES
@@ -148,17 +148,19 @@ class bdem_BerDecoderOptions {
         // Create an object of type 'bdem_BerDecoderOptions' having the default
         // value.
 
-    bdem_BerDecoderOptions(const bdem_BerDecoderOptions& original);
+    //! bdem_BerDecoderOptions(const bdem_BerDecoderOptions& original);
         // Create an object of type 'bdem_BerDecoderOptions' having the value
-        // of the specified 'original' object.
+        // of the specified 'original' object.  Note that this method's
+        // definition is compiler generated.
 
-    // ~bdem_BerDecoderOptions();
-        // Destroy this object.  Note that this trivial destructor is generated
-        // by the compiler.
+    //! ~bdem_BerDecoderOptions();
+        // Destroy this object.  Note that this method's definition is compiler
+        // generated.
 
     // MANIPULATORS
-    bdem_BerDecoderOptions& operator=(const bdem_BerDecoderOptions& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
+    //! bdem_BerDecoderOptions& operator=(const bdem_BerDecoderOptions& rhs);
+        // Assign to this object the value of the specified 'rhs' object.  Note
+        // that this method's definition is compiler generated.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -335,36 +337,13 @@ int bdem_BerDecoderOptions::maxSupportedBdexVersion()
 inline
 bdem_BerDecoderOptions::bdem_BerDecoderOptions()
 : d_maxDepth(DEFAULT_MAX_DEPTH)
-, d_skipUnknownElements(DEFAULT_SKIP_UNKNOWN_ELEMENTS)
 , d_traceLevel(DEFAULT_TRACE_LEVEL)
 , d_maxSequenceSize(DEFAULT_MAX_SEQUENCE_SIZE)
-{
-}
-
-inline
-bdem_BerDecoderOptions::bdem_BerDecoderOptions(
-                                        const bdem_BerDecoderOptions& original)
-: d_maxDepth(original.d_maxDepth)
-, d_skipUnknownElements(original.d_skipUnknownElements)
-, d_traceLevel(original.d_traceLevel)
-, d_maxSequenceSize(original.d_maxSequenceSize)
+, d_skipUnknownElements(DEFAULT_SKIP_UNKNOWN_ELEMENTS)
 {
 }
 
 // MANIPULATORS
-inline
-bdem_BerDecoderOptions&
-bdem_BerDecoderOptions::operator=(const bdem_BerDecoderOptions& rhs)
-{
-    if (this != &rhs) {
-        d_maxDepth = rhs.d_maxDepth;
-        d_skipUnknownElements = rhs.d_skipUnknownElements;
-        d_traceLevel = rhs.d_traceLevel;
-        d_maxSequenceSize = rhs.d_maxSequenceSize;
-    }
-    return *this;
-}
-
 template <class STREAM>
 inline
 STREAM& bdem_BerDecoderOptions::bdexStreamIn(STREAM& stream, int version)
@@ -389,9 +368,9 @@ inline
 void bdem_BerDecoderOptions::reset()
 {
     d_maxDepth = DEFAULT_MAX_DEPTH;
-    d_skipUnknownElements = DEFAULT_SKIP_UNKNOWN_ELEMENTS;
     d_traceLevel = DEFAULT_TRACE_LEVEL;
     d_maxSequenceSize = DEFAULT_MAX_SEQUENCE_SIZE;
+    d_skipUnknownElements = DEFAULT_SKIP_UNKNOWN_ELEMENTS;
 }
 
 template <class MANIPULATOR>

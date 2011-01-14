@@ -379,10 +379,6 @@ void assembleDouble(double *value, int sign, int exponent, long long mantissa)
 #ifndef INCLUDED_TEST_MESSAGES
 #define INCLUDED_TEST_MESSAGES
 
-#ifndef lint
-static char RCSId_test_messages_h[] = "$Id: $";
-#endif
-
 //@PURPOSE: TODO: Provide purpose
 //
 //@CLASSES:
@@ -7865,10 +7861,6 @@ bsl::ostream& test::operator<<(
 // ------------------------------ END-OF-FILE ---------------------------------
 
 // test_messages.cpp   -*-C++-*-
-
-#ifndef lint
-static char RCSid_test_messages_cpp[] = "$Id: $";
-#endif
 
 // #include <test_messages.h>
 #include <bdet_datetimetz.h>

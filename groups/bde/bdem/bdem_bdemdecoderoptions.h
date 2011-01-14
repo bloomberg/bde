@@ -1,4 +1,4 @@
-// bdem_bdemdecoderoptions.h   -*-C++-*-
+// bdem_bdemdecoderoptions.h   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
 #ifndef INCLUDED_BDEM_BDEMDECODEROPTIONS
 #define INCLUDED_BDEM_BDEMDECODEROPTIONS
 
@@ -7,16 +7,21 @@
 #endif
 BDES_IDENT("$Id: $")
 
-
-//@PURPOSE: TODO: Provide purpose
+//@PURPOSE: Provide value-semantic attribute classes
+//
+//@DEPRECATED: Do not use.
 //
 //@CLASSES:
-// bdem_BdemDecoderOptions: TODO: Provide purpose
+// bdem_BdemDecoderOptions:
 //
-//@AUTHOR: Alexander Libman (alibman1@bloomberg.net)
+//@AUTHOR: Rohan Bhindwale (rbhindwale@bloomberg.net)
 //
 //@DESCRIPTION:
-// Schema of options records for bdem codecs 
+// Schema of options records for bdem codecs
+
+#ifndef INCLUDED_BDESCM_VERSION
+#include <bdescm_version.h>
+#endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
@@ -54,73 +59,47 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BDEALG_TYPETRAITS
-#include <bdealg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDES_ASSERT
-#include <bdes_assert.h>
-#endif
-
-#ifndef INCLUDED_IOSFWD
-#include <iosfwd>
-#define INCLUDED_IOSFWD
-#endif
-
-#endif
-
 namespace BloombergLP {
 
 
-                    // ===================================                     
-                    // class bdem_BdemDecoderOptions                     
-                    // ===================================                     
+                    // ===================================
+                    // class bdem_BdemDecoderOptions
+                    // ===================================
 
 class bdem_BdemDecoderOptions {
     // BDEM decoding options
 
   private:
     int  d_bdemVersion;
-        // BDEM version
+        // BDEM decoding version
     int  d_maxDepth;
         // maximum recursion depth
 
   public:
     // TYPES
     enum {
-        NUM_ATTRIBUTES = 2 // the number of attributes in this class
+        NUM_ATTRIBUTES = 2
     };
 
     enum {
         ATTRIBUTE_INDEX_BDEM_VERSION = 0,
-            // index for "BdemVersion" attribute
         ATTRIBUTE_INDEX_MAX_DEPTH = 1
-            // index for "MaxDepth" attribute
     };
 
     enum {
         ATTRIBUTE_ID_BDEM_VERSION = 0,
-            // id for "BdemVersion" attribute
         ATTRIBUTE_ID_MAX_DEPTH = 1
-            // id for "MaxDepth" attribute
     };
-
 
   public:
     // CONSTANTS
     static const char CLASS_NAME[];
-        // the name of this class (i.e., "bdem_BdemDecoderOptions")
 
     static const int DEFAULT_BDEM_VERSION;
-        // default value of "BdemVersion" attribute
 
     static const int DEFAULT_MAX_DEPTH;
-        // default value of "MaxDepth" attribute
 
     static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
-        // attribute information for each attribute
 
   public:
     // CLASS METHODS
@@ -150,8 +129,9 @@ class bdem_BdemDecoderOptions {
         // Create an object of type 'bdem_BdemDecoderOptions' having the
         // value of the specified 'original' object.
 
-    ~bdem_BdemDecoderOptions();
-        // Destroy this object.
+    // ~bdem_BdemDecoderOptions();
+        // Destroy this object.  Note that this trivial destructor is generated
+        // by the compiler.
 
     // MANIPULATORS
     bdem_BdemDecoderOptions& operator=(const bdem_BdemDecoderOptions& rhs);
@@ -257,10 +237,10 @@ class bdem_BdemDecoderOptions {
                         const char *name,
                         int         nameLength) const;
         // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified 
+        // of this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name'identifies an attribute of this
+        // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
     const int& bdemVersion() const;
@@ -274,20 +254,23 @@ class bdem_BdemDecoderOptions {
 
 // FREE OPERATORS
 inline
-bool operator==(const bdem_BdemDecoderOptions& lhs, const bdem_BdemDecoderOptions& rhs);
+bool operator==(const bdem_BdemDecoderOptions& lhs,
+                const bdem_BdemDecoderOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
     // the same value, and 'false' otherwise.  Two attribute objects have the
     // same value if each respective attribute has the same value.
 
 inline
-bool operator!=(const bdem_BdemDecoderOptions& lhs, const bdem_BdemDecoderOptions& rhs);
+bool operator!=(const bdem_BdemDecoderOptions& lhs,
+                const bdem_BdemDecoderOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
     // have the same value, and 'false' otherwise.  Two attribute objects do
     // not have the same value if one or more respective attributes differ in
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const bdem_BdemDecoderOptions& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream,
+                         const bdem_BdemDecoderOptions& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -301,9 +284,9 @@ BDEAT_DECL_SEQUENCE_TRAITS(bdem_BdemDecoderOptions)
 // ============================================================================
 
 
-                    // -----------------------------------                     
-                    // class bdem_BdemDecoderOptions                     
-                    // -----------------------------------                     
+                    // -----------------------------------
+                    // class bdem_BdemDecoderOptions
+                    // -----------------------------------
 
 // CLASS METHODS
 inline
@@ -321,14 +304,10 @@ bdem_BdemDecoderOptions::bdem_BdemDecoderOptions()
 }
 
 inline
-bdem_BdemDecoderOptions::bdem_BdemDecoderOptions(const bdem_BdemDecoderOptions& original)
+bdem_BdemDecoderOptions::bdem_BdemDecoderOptions(
+                                       const bdem_BdemDecoderOptions& original)
 : d_bdemVersion(original.d_bdemVersion)
 , d_maxDepth(original.d_maxDepth)
-{
-}
-
-inline
-bdem_BdemDecoderOptions::~bdem_BdemDecoderOptions()
 {
 }
 
@@ -349,7 +328,7 @@ inline
 STREAM& bdem_BdemDecoderOptions::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
+        switch (version) {
           case 1: {
             bdex_InStreamFunctions::streamIn(stream, d_bdemVersion, 1);
             bdex_InStreamFunctions::streamIn(stream, d_maxDepth, 1);
@@ -375,14 +354,16 @@ int bdem_BdemDecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_bdemVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
+    ret = manipulator(&d_bdemVersion,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
     if (ret) {
-        return ret;                                                   // RETURN
+        return ret;
     }
 
-    ret = manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+    ret = manipulator(&d_maxDepth,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
-        return ret;                                                   // RETURN
+        return ret;
     }
 
     return ret;
@@ -390,18 +371,19 @@ int bdem_BdemDecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 
 template <class MANIPULATOR>
 inline
-int bdem_BdemDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
+int bdem_BdemDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator,
+                                                 int id)
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_BDEM_VERSION: {
-        return manipulator(&d_bdemVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
-                                                                      // RETURN
+        return manipulator(&d_bdemVersion,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
       } break;
       case ATTRIBUTE_ID_MAX_DEPTH: {
-        return manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
-                                                                      // RETURN
+        return manipulator(&d_maxDepth,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
       } break;
       default:
         return NOT_FOUND;
@@ -420,7 +402,7 @@ int bdem_BdemDecoderOptions::manipulateAttribute(
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                             // RETURN
+        return NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -441,7 +423,8 @@ void bdem_BdemDecoderOptions::setMaxDepth(int value)
 // ACCESSORS
 template <class STREAM>
 inline
-STREAM& bdem_BdemDecoderOptions::bdexStreamOut(STREAM& stream, int version) const
+STREAM& bdem_BdemDecoderOptions::bdexStreamOut(STREAM& stream,
+                                               int version) const
 {
     switch (version) {
       case 1: {
@@ -458,14 +441,16 @@ int bdem_BdemDecoderOptions::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_bdemVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
+    ret = accessor(d_bdemVersion,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
     if (ret) {
-        return ret;                                                   // RETURN
+        return ret;
     }
 
-    ret = accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+    ret = accessor(d_maxDepth,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
-        return ret;                                                   // RETURN
+        return ret;
     }
 
     return ret;
@@ -479,12 +464,12 @@ int bdem_BdemDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 
     switch (id) {
       case ATTRIBUTE_ID_BDEM_VERSION: {
-        return accessor(d_bdemVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
-                                                                      // RETURN
+        return accessor(d_bdemVersion,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
       } break;
       case ATTRIBUTE_ID_MAX_DEPTH: {
-        return accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
-                                                                      // RETURN
+        return accessor(d_maxDepth,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
       } break;
       default:
         return NOT_FOUND;
@@ -503,7 +488,7 @@ int bdem_BdemDecoderOptions::accessAttribute(
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;                                              // RETURN
+       return NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -529,7 +514,7 @@ bool operator==(
         const bdem_BdemDecoderOptions& lhs,
         const bdem_BdemDecoderOptions& rhs)
 {
-    return  lhs.bdemVersion() == rhs.bdemVersion() 
+    return  lhs.bdemVersion() == rhs.bdemVersion()
          && lhs.maxDepth() == rhs.maxDepth();
 }
 
@@ -538,7 +523,7 @@ bool operator!=(
         const bdem_BdemDecoderOptions& lhs,
         const bdem_BdemDecoderOptions& rhs)
 {
-    return  lhs.bdemVersion() != rhs.bdemVersion() 
+    return  lhs.bdemVersion() != rhs.bdemVersion()
          || lhs.maxDepth() != rhs.maxDepth();
 }
 
@@ -550,13 +535,13 @@ bsl::ostream& operator<<(
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close namespace BloombergLP
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_2.1.6 Mon May 21 16:02:42 2007
+// GENERATED BY BLP_BAS_CODEGEN_3.0.19 Thu Jul 31 13:45:53 2008
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2008
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

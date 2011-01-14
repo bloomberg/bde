@@ -813,7 +813,7 @@ bdem_ChoiceImp::bdexStreamOutImp(
       // version as the list components.
       case 1: {
         const DescriptorCatalog *catalog = d_header.catalog();
-        const int numSelections = catalog->size();
+        const int numSelections = static_cast<int>(catalog->size());
         stream.putLength(numSelections);
 
         if (0 == numSelections) {

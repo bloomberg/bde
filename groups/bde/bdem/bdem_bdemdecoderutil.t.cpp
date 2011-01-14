@@ -36,8 +36,7 @@
 #define __STDC_LIMIT_MACROS 1
 #endif
 
-#include <bsl_c_stdio.h>       // 'snprintf'
-
+#include <bsl_cctype.h>
 #include <bsl_climits.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -45,6 +44,8 @@
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 #include <bsl_string.h>
+
+#include <bsl_c_stdio.h>       // 'snprintf'
 
 using namespace BloombergLP;
 
@@ -380,7 +381,7 @@ STREAM& CustomizedString::bdexStreamIn(STREAM& stream, int version)
 {
     bsl::string temp;
 
-    bdex_InStreamFunctions::streamIn(stream, temp, version);
+    streamIn(stream, temp, version);
 
     if (!stream) {
         return stream;
@@ -418,7 +419,7 @@ int CustomizedString::fromString(const bsl::string& value)
 template <class STREAM>
 STREAM& CustomizedString::bdexStreamOut(STREAM& stream, int version) const
 {
-    return bdex_OutStreamFunctions::streamOut(stream, d_value, version);
+    return streamOut(stream, d_value, version);
 }
 
 inline
@@ -881,12 +882,12 @@ STREAM& MyChoice::bdexStreamIn(STREAM& stream, int version)
             switch (selectionId) {
               case SELECTION_ID_SELECTION1: {
                 makeSelection1();
-                bdex_InStreamFunctions::streamIn(
+                streamIn(
                     stream, d_selection1.object(), 1);
               } break;
               case SELECTION_ID_SELECTION2: {
                 makeSelection2();
-                bdex_InStreamFunctions::streamIn(
+                streamIn(
                     stream, d_selection2.object(), 1);
               } break;
               case SELECTION_ID_UNDEFINED: {
@@ -975,11 +976,11 @@ STREAM& MyChoice::bdexStreamOut(STREAM& stream, int version) const
             stream.putInt16(d_selectionId);
             switch (d_selectionId) {
               case SELECTION_ID_SELECTION1: {
-                bdex_OutStreamFunctions::streamOut(
+                streamOut(
                     stream, d_selection1.object(), 1);
               } break;
               case SELECTION_ID_SELECTION2: {
-                bdex_OutStreamFunctions::streamOut(
+                streamOut(
                     stream, d_selection2.object(), 1);
               } break;
               default:
@@ -1409,8 +1410,7 @@ STREAM& MyEnumeration::bdexStreamOut(STREAM&              stream,
     }
     return stream;
 }
-}  // close namespace test;
-namespace bdex_InStreamFunctions {
+
 template <typename STREAM>
 inline
 STREAM& streamIn(STREAM&                              stream,
@@ -1419,15 +1419,13 @@ STREAM& streamIn(STREAM&                              stream,
 {
     return test::MyEnumeration::bdexStreamIn(stream, value, version);
 }
-}  // close namespace bdex_InStreamFunctions;
-namespace bdex_VersionFunctions {
+
 inline
 int maxSupportedVersion(test::MyEnumeration::Value)
 {
     return test::MyEnumeration::maxSupportedBdexVersion();
 }
-}  // close namespace bdex_VersionFunctions;
-namespace bdex_OutStreamFunctions {
+
 template <typename STREAM>
 inline
 STREAM& streamOut(STREAM& stream,
@@ -1436,7 +1434,9 @@ STREAM& streamOut(STREAM& stream,
 {
     return test::MyEnumeration::bdexStreamOut(stream, value, version);
 }
-}  // close namespace bdex_OutStreamFunctions;
+
+}  // close namespace test;
+
 // TRAITS
 BDEAT_DECL_ENUMERATION_TRAITS(test::MyEnumeration)
 // FREE OPERATORS
@@ -1800,9 +1800,9 @@ STREAM& MySequence::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {  // Switch on the schema version (starting with 1).
           case 1: {
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute1, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute2, 1);
           } break;
           default: {
@@ -1886,8 +1886,8 @@ STREAM& MySequence::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {
       case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute1, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute2, 1);
+        streamOut(stream, d_attribute1, 1);
+        streamOut(stream, d_attribute2, 1);
       } break;
     }
     return stream;
@@ -2457,11 +2457,11 @@ STREAM& MySequenceWithNullables::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {  // Switch on the schema version (starting with 1).
           case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_attribute1, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_attribute2, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_attribute3, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_attribute4, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_attribute5, 1);
+            streamIn(stream, d_attribute1, 1);
+            streamIn(stream, d_attribute2, 1);
+            streamIn(stream, d_attribute3, 1);
+            streamIn(stream, d_attribute4, 1);
+            streamIn(stream, d_attribute5, 1);
           } break;
           default: {
             stream.invalidate();
@@ -2596,11 +2596,11 @@ STREAM& MySequenceWithNullables::bdexStreamOut(STREAM& stream,
 {
     switch (version) {
       case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute1, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute2, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute3, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute4, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute5, 1);
+        streamOut(stream, d_attribute1, 1);
+        streamOut(stream, d_attribute2, 1);
+        streamOut(stream, d_attribute3, 1);
+        streamOut(stream, d_attribute4, 1);
+        streamOut(stream, d_attribute5, 1);
       } break;
     }
     return stream;
@@ -2755,14 +2755,13 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 //      terms of a BLP license agreement which governs its use.
 // ------------------------------ END-OF-FILE ---------------------------------
 // test_mysequencewithnullables.cpp   -*-C++-*-
-#include <bdeut_nullablevalue.h>
-#include <bsl_string.h>
-#include <bsl_vector.h>
+
 #include <bdeat_formattingmode.h>
 #include <bdeu_print.h>
 #include <bdeu_printmethods.h>
-#include <bdeu_chartype.h>
-#include <bsl_ostream.h>
+#include <bdeut_nullablevalue.h>
+
+#include <bsl_cctype.h>
 #include <bsl_iomanip.h>
 namespace BloombergLP {
 namespace test {
@@ -3207,7 +3206,7 @@ STREAM& MySequenceWithNullablesContainer::bdexStreamIn(STREAM& stream,
     if (stream) {
         switch (version) {  // Switch on the schema version (starting with 1).
           case 1: {
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_contained, 1);
           } break;
           default: {
@@ -3280,7 +3279,7 @@ STREAM& MySequenceWithNullablesContainer::bdexStreamOut(STREAM& stream,
 {
     switch (version) {
       case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_contained, 1);
+        streamOut(stream, d_contained, 1);
       } break;
     }
     return stream;
@@ -4276,85 +4275,85 @@ STREAM& MySequenceWithManyNullables::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {  // Switch on the schema version (starting with 1).
           case 1: {
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute01, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute02, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute03, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute04, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute05, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute06, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute07, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute08, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute09, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute10, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute11, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute12, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute13, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute14, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute15, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute16, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute17, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute18, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute19, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute20, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute21, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute22, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute23, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute24, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute25, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute26, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute27, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute28, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute29, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute30, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute31, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute32, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute33, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute34, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute35, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute36, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute37, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute38, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute39, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_attribute40, 1);
           } break;
           default: {
@@ -5048,46 +5047,46 @@ STREAM& MySequenceWithManyNullables::bdexStreamOut(STREAM& stream,
 {
     switch (version) {
       case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute01, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute02, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute03, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute04, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute05, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute06, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute07, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute08, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute09, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute10, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute11, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute12, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute13, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute14, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute15, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute16, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute17, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute18, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute19, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute20, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute21, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute22, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute23, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute24, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute25, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute26, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute27, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute28, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute29, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute30, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute31, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute32, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute33, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute34, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute35, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute36, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute37, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute38, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute39, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute40, 1);
+        streamOut(stream, d_attribute01, 1);
+        streamOut(stream, d_attribute02, 1);
+        streamOut(stream, d_attribute03, 1);
+        streamOut(stream, d_attribute04, 1);
+        streamOut(stream, d_attribute05, 1);
+        streamOut(stream, d_attribute06, 1);
+        streamOut(stream, d_attribute07, 1);
+        streamOut(stream, d_attribute08, 1);
+        streamOut(stream, d_attribute09, 1);
+        streamOut(stream, d_attribute10, 1);
+        streamOut(stream, d_attribute11, 1);
+        streamOut(stream, d_attribute12, 1);
+        streamOut(stream, d_attribute13, 1);
+        streamOut(stream, d_attribute14, 1);
+        streamOut(stream, d_attribute15, 1);
+        streamOut(stream, d_attribute16, 1);
+        streamOut(stream, d_attribute17, 1);
+        streamOut(stream, d_attribute18, 1);
+        streamOut(stream, d_attribute19, 1);
+        streamOut(stream, d_attribute20, 1);
+        streamOut(stream, d_attribute21, 1);
+        streamOut(stream, d_attribute22, 1);
+        streamOut(stream, d_attribute23, 1);
+        streamOut(stream, d_attribute24, 1);
+        streamOut(stream, d_attribute25, 1);
+        streamOut(stream, d_attribute26, 1);
+        streamOut(stream, d_attribute27, 1);
+        streamOut(stream, d_attribute28, 1);
+        streamOut(stream, d_attribute29, 1);
+        streamOut(stream, d_attribute30, 1);
+        streamOut(stream, d_attribute31, 1);
+        streamOut(stream, d_attribute32, 1);
+        streamOut(stream, d_attribute33, 1);
+        streamOut(stream, d_attribute34, 1);
+        streamOut(stream, d_attribute35, 1);
+        streamOut(stream, d_attribute36, 1);
+        streamOut(stream, d_attribute37, 1);
+        streamOut(stream, d_attribute38, 1);
+        streamOut(stream, d_attribute39, 1);
+        streamOut(stream, d_attribute40, 1);
       } break;
     }
     return stream;
@@ -6364,7 +6363,7 @@ const bdeat_AttributeInfo *MySequenceWithManyNullables::lookupAttributeInfo(
                         }
                     } break;
                     case '4': {
-                        if (bdeu_CharType::toUpper(name[10])=='0') {
+                        if (bsl::toupper(name[10])=='0') {
                             return &ATTRIBUTE_INFO_ARRAY[
                                               ATTRIBUTE_INDEX_ATTRIBUTE40];
                         }
@@ -7110,11 +7109,11 @@ STREAM& Address::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {  // Switch on the schema version (starting with 1).
           case 1: {
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_street, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_city, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_state, 1);
           } break;
           default: {
@@ -7211,9 +7210,9 @@ STREAM& Address::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {
       case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_street, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_city, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_state, 1);
+        streamOut(stream, d_street, 1);
+        streamOut(stream, d_city, 1);
+        streamOut(stream, d_state, 1);
       } break;
     }
     return stream;
@@ -7778,13 +7777,13 @@ STREAM& Employee::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {  // Switch on the schema version (starting with 1).
           case 1: {
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_name, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_homeAddress, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_age, 1);
-            bdex_InStreamFunctions::streamIn(
+            streamIn(
                   stream, d_dateJoined, 1);
           } break;
           default: {
@@ -7897,10 +7896,10 @@ STREAM& Employee::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {
       case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_name, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_homeAddress, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_age, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_dateJoined, 1);
+        streamOut(stream, d_name, 1);
+        streamOut(stream, d_homeAddress, 1);
+        streamOut(stream, d_age, 1);
+        streamOut(stream, d_dateJoined, 1);
       } break;
     }
     return stream;
@@ -8645,6 +8644,11 @@ int TestValueFunctions::loadTestValue(bdet_Datetime *object, int index)
         return FAILURE;                                               // RETURN
     }
     object->setDate(date);
+    bdet_Time time;
+    if (loadTestValue(&time, index)) {
+        return FAILURE;                                               // RETURN
+    }
+    object->setTime(time);
     return SUCCESS;
 }
 inline
