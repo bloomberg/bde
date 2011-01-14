@@ -23,18 +23,18 @@ BSLS_IDENT("$Id: $")
 // compile-time, it produces no executable code, and it can be used safely in
 // header files.
 //..
-//     BSLMF_ASSERT(sizeof(int) >= sizeof(char));   // OK
-//     BSLMF_ASSERT(sizeof(double) < sizeof(char)); // COMPILE ERROR!
+//  BSLMF_ASSERT(sizeof(int) >= sizeof(char));    // OK
+//  BSLMF_ASSERT(sizeof(double) < sizeof(char));  // COMPILE ERROR!
 //..
 // The second line will result in a compile error with a message stating that
 // the type 'BSLMF_COMPILE_TIME_ASSERTION_FAILURE' is incomplete, usually
 // preceded by the file and line number where the macro was used.  The
 // following errata is typical of most compilers:
 //..
-//     $ CC -g myfile.cpp
-//     "myfile.cpp", line 86: Error: The type
-//     "BSLMF_COMPILE_TIME_ASSERTION_FAILURE<0>" is incomplete.
-//     1 Error(s) detected.
+//  $ CC -g myfile.cpp
+//  "myfile.cpp", line 86: Error: The type
+//  "BSLMF_COMPILE_TIME_ASSERTION_FAILURE<0>" is incomplete.
+//  1 Error(s) detected.
 //..
 // If the macro argument if true, the macro will generate an innocuous
 // 'typedef' with a name that is the concatenation of the symbol
@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 // in the file where the macro was called).  For example, the first line from
 // the example above might result in the following statement:
 //..
-//    typedef bslmf_AssertTest<1> bslmf_Assert_85;
+//  typedef bslmf_AssertTest<1> bslmf_Assert_85;
 //..
 // Note that these generated typedefs are implementation details of the
 // compile-time checking facility and are not intended to be used directly
@@ -93,9 +93,18 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#define BSLMF_ASSERT(BSLMF_CONSTANT_EXPRESSION) \
+    static_assert((BSLMF_CONSTANT_EXPRESSION), #BSLMF_CONSTANT_EXPRESSION)
+#else
 
 namespace BloombergLP {
 
@@ -107,26 +116,25 @@ namespace BloombergLP {
 #define BSLMF_ASSERT__CAT_IMP1(X, Y) BSLMF_ASSERT__CAT_IMP2(X, Y)
 #define BSLMF_ASSERT__CAT_IMP2(X, Y) X##Y
 
-                             // ==============
+                             // =============
                              // Support types
-                             // ==============
+                             // =============
 
-template<int INTEGER>
+template <int INTEGER>
 struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE;
     // Declared but not defined.  If assert macro references this type, then
     // compilation will fail (assert failure).
 
-template<>
-struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE<1>
-{
+template <>
+struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE<1> {
     // Specialization for value 1 (true).  Referencing this specialization
     // will allow compilation to succeed (assert succeeded).
 
     enum { VALUE = 1 };
 };
 
-template<int INTEGER> struct bslmf_AssertTest
-{
+template <int INTEGER>
+struct bslmf_AssertTest {
     // Instantiating this type involves instantiating its template parameter.
     // This dummy type is just used to force instantiation of a meta-function
     // used as its argument.
@@ -154,6 +162,8 @@ typedef BloombergLP::bslmf_AssertTest< \
 #endif
 
 }  // close namespace BloombergLP
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 
 #endif
 

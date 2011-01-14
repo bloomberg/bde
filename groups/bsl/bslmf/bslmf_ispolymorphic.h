@@ -115,12 +115,20 @@ struct bslmf_IsPolymorphic_ClassImp {
 
     struct IsPoly : public NONCV_TYPE {
         IsPoly();
+#ifdef BDE_BUILD_TARGET_EXC
+        virtual ~IsPoly() throw();
+#else
         virtual ~IsPoly();
+#endif
         char dummy[256];
     };
     struct MaybePoly : public NONCV_TYPE {
         MaybePoly();
+#ifdef BDE_BUILD_TARGET_EXC
+        ~MaybePoly() throw();
+#else
         ~MaybePoly();
+#endif
         char dummy[256];
     };
     enum { VALUE = sizeof(IsPoly) == sizeof(MaybePoly) };
