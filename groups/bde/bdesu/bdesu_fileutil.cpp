@@ -1,4 +1,4 @@
-// bdesu_fileutil.cpp -*-C++-*-
+// bdesu_fileutil.cpp                                                 -*-C++-*-
 #include <bdesu_fileutil.h>
 
 #include <bdes_ident.h>
@@ -54,10 +54,9 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 
 namespace {
-   // Scope private methods used by these utilities in an unnamed namespace
+   // Scope private methods used by these utilities in an unnamed namespace.
 
-void pushBackWrapper(bsl::vector<bsl::string> *vector,
-                     const char               *item)
+void pushBackWrapper(bsl::vector<bsl::string> *vector, const char *item)
 {
     vector->push_back(item);
 }
@@ -67,8 +66,9 @@ inline
 void invokeFindClose(HANDLE* handle, void*)
 {
    // Provides a function signature which can be used as a
-   // bdema_ManagedPtr deleter (i.e., we need to define a second argument
-   // of type void* which will be ignored)
+   // 'bdema_ManagedPtr' deleter (i.e., we need to define a second argument
+   // of type 'void *', which will be ignored).
+
    FindClose(*handle);
 }
 
@@ -94,9 +94,10 @@ int removeFile(const char *path)
 // unix-specific helper functions
 
 extern "C" {
-    // Need a special typedef because some compilers put the 'extern'
+    // Need a special 'typedef' because some compilers put the 'extern'
     // into the function type itself...but provide no way to declare
     // a function pointer of extern type local to a function.
+
     typedef int(*StatFuncType)(const char*, struct stat*);
 }
 
@@ -117,34 +118,29 @@ int fcntl_lock(int fd, int cmd, int type)
 inline
 void invokeGlobFree(glob_t *pglob, void*)
 {
-    // Provides a function signature which can be used as a
-    // 'bdema_ManagedPtr' deleter (i.e., we need to define a second argument
-    // of type void* which will be ignored)
     globfree(pglob);
 }
 
 inline
 void invokeCloseDir(DIR *dir, void*)
 {
-    // Provides a function signature which can be used as a
-    // 'bdema_ManagedPtr' deleter (i.e., we need to define a second argument
-    // of type void* which will be ignored)
     closedir(dir);
 }
 
 inline
 bool isDotOrDots (const char *path)
-{
     // Return 'true' if the specified 'path' is "." or ".." or ends in
-    // "/." or "/..".
-    int length = bsl::strlen(path);
+    // "/." or "/..", and 'false' otherwise.
+{
 
-    return  (length >= 2 && '/' == path[length-2] &&
-                            '.' == path[length-1]) ||
+    const int length = bsl::strlen(path);
 
-            (length >= 3 && '/' == path[length-3] &&
-                            '.' == path[length-2] &&
-                            '.' == path[length-1]) ||
+    return  (length >= 2 && '/' == path[length - 2] &&
+                            '.' == path[length - 1]) ||
+
+            (length >= 3 && '/' == path[length - 3] &&
+                            '.' == path[length - 2] &&
+                            '.' == path[length - 1]) ||
 
             (length == 1 && '.' == path[0]) ||
 
@@ -187,22 +183,22 @@ bdesu_FileUtil::open(const char *pathName,
                      bool        isReadWrite,
                      bool        isExisting)
 {
-    DWORD accessMode = GENERIC_READ | (isReadWrite?  GENERIC_WRITE:  0);
-    DWORD creationInfo = isExisting?  OPEN_EXISTING:  CREATE_ALWAYS;
+    DWORD accessMode   = GENERIC_READ | (isReadWrite ? GENERIC_WRITE : 0);
+    DWORD creationInfo = isExisting ? OPEN_EXISTING : CREATE_ALWAYS;
 
     return CreateFile(pathName,
-        accessMode,
-        FILE_SHARE_READ,       // share for reading??
-        NULL,                  // default security
-        creationInfo,          // existing file only
-        FILE_ATTRIBUTE_NORMAL, // normal file
-        NULL);                 // no attr
+                      accessMode,
+                      FILE_SHARE_READ,       // share for reading??
+                      NULL,                  // default security
+                      creationInfo,          // existing file only
+                      FILE_ATTRIBUTE_NORMAL, // normal file
+                      NULL);                 // no attr
 
 }
 
 int bdesu_FileUtil::close(FileDescriptor fd)
 {
-    return CloseHandle(fd)? 0: -1;
+    return CloseHandle(fd) ? 0 : -1;
 }
 
 int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
@@ -320,10 +316,11 @@ int bdesu_FileUtil::unmap(void *addr,
 
 int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
 {
-   // The meaning of the 'sync' flag (cause this function to be
-   // synchronous vs asynchronous) does not appear to be supported by
-   // FlushViewOfFile
-    return FlushViewOfFile(addr, numBytes)? 0: -1;
+    // The meaning of the 'sync' flag (cause this function to be
+    // synchronous vs. asynchronous) does not appear to be supported by
+    // 'FlushViewOfFile'.
+
+    return FlushViewOfFile(addr, numBytes) ? 0 : -1;
 }
 
 int bdesu_FileUtil::lock(FileDescriptor fd,
@@ -334,8 +331,7 @@ int bdesu_FileUtil::lock(FileDescriptor fd,
     return !LockFileEx(fd, lockWrite ? LOCKFILE_EXCLUSIVE_LOCK
                                      : 0, 0, 1, 0, &overlapped);
 }
-int bdesu_FileUtil::tryLock(FileDescriptor fd,
-                            bool           lockWrite)
+int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
 {
     OVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(overlapped));
@@ -579,25 +575,28 @@ bdesu_FileUtil::open(const char *pathName,
                      bool        isReadWrite,
                      bool        isExisting)
 {
-    int oflag = (isReadWrite)?  O_RDWR:  O_RDONLY;
+    const int oflag = isReadWrite ? O_RDWR : O_RDONLY;
 
     if (isExisting) {
 #ifdef BSLS_PLATFORM__OS_FREEBSD
-        return ::open(pathName, oflag);
+        return ::open(  pathName, oflag);
 #elif defined(BSLS_PLATFORM__OS_HPUX)
-        // In 64-bit mode, HPUX defines 'open64' to be 'open', which triggers a
-        // lookup failure here (since this class has members named open).
+        // In 64-bit mode, HP-UX defines 'open64' to be 'open', which triggers
+        // a lookup failure here (since this class has members named 'open').
         return ::open64(pathName, oflag);
 #else
-        return open64(pathName, oflag);
+        return open64(  pathName, oflag);
 #endif
     }
 
 #ifdef BSLS_PLATFORM__OS_FREEBSD
-    return ::open(pathName, oflag | O_CREAT | O_TRUNC,
+    return ::open(  pathName, oflag | O_CREAT | O_TRUNC,
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+#elif defined(BSLS_PLATFORM__OS_HPUX)
+    return ::open64(pathName, oflag | O_CREAT | O_TRUNC,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 #else
-    return open64(pathName, oflag | O_CREAT | O_TRUNC,
+    return open64(  pathName, oflag | O_CREAT | O_TRUNC,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 #endif
 }

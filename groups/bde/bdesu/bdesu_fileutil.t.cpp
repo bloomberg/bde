@@ -93,12 +93,14 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-inline bool isBackslash (char t)
+inline
+bool isBackslash (char t)
 {
    return t == '\\';
 }
 
-inline bool isForwardSlash (char t)
+inline
+bool isForwardSlash (char t)
 {
    return t == '/';
 }
@@ -153,6 +155,7 @@ bsl::string tempFileName()
 #endif
 
     // Test Invariant:
+
     BSLS_ASSERT(!result.empty());
     return result;
 }
@@ -175,11 +178,11 @@ void getFilesWithinTimeframe(bsl::vector<bsl::string> *vector,
     int ret = bdesu_FileUtil::getLastModificationTime(&datetime, item);
 
     if (ret) {
-        return;                                                   // RETURN
+        return;                                                       // RETURN
     }
 
     if (datetime < start || datetime > end) {
-        return;                                                   // RETURN
+        return;                                                       // RETURN
     }
 
     vector->push_back(item);
@@ -236,10 +239,14 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting Usage Example 2"
                           << "\n=======================" << endl;
 
+        // make sure there isn't an unfortunately named file in the way
+
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-        bsl::string logPath = "temp\\logs2\\";
+        bdesu_FileUtil::remove("temp.2", true);
+        bsl::string logPath =  "temp.2\\logs2\\";
 #else
-        bsl::string logPath = "tmp/logs2/";
+        bdesu_FileUtil::remove("tmp.2",  true);
+        bsl::string logPath =  "tmp.2/logs2/";
 #endif
 
         ASSERT(0 == bdesu_FileUtil::createDirectories(logPath.c_str(), true));
@@ -312,10 +319,14 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting Usage Example 1"
                           << "\n=======================" << endl;
 
+        // make sure there isn't an unfortunately named file in the way
+
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-        bsl::string logPath = "temp\\logs";
+        bdesu_FileUtil::remove("temp.1");
+        bsl::string logPath =  "temp.1\\logs";
 #else
-        bsl::string logPath = "tmp/logs";
+        bdesu_FileUtil::remove("tmp.1");
+        bsl::string logPath =  "tmp.1/logs";
 #endif
 
         bsl::string oldPath(logPath), newPath(logPath);
@@ -343,7 +354,7 @@ int main(int argc, char *argv[]) {
            bdesu_PathUtil::popLeaf(whichDirectory);
         }
 
-        /*
+#if 0
         // file i/o
 
         // create a new file
@@ -377,9 +388,10 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == rc);
         delete[] buf;
         bdesu_FileUtil::close(fd);
-        */
+#endif
 
         // NOT IN USAGE EXAMPLE: CLEAN UP
+
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
       } break;
@@ -467,6 +479,7 @@ int main(int argc, char *argv[]) {
         bdesu_FileUtil::close(fd);
 
         // Concern 1
+
         {
             if (veryVerbose) cout << "\n1. Normal file" << endl;
 
@@ -485,6 +498,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Concern 2
+
         {
             if (veryVerbose) cout << "\n2. Normal directory" << endl;
 
@@ -528,6 +542,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Concern 3
+
         {
             if (veryVerbose) cout << "\n4. Relative Path" << endl;
 
@@ -562,6 +577,7 @@ int main(int argc, char *argv[]) {
 #ifndef BSLS_PLATFORM__OS_WINDOWS
         // Concern 4
         // No symbolic links on windows.
+
         {
             if (veryVerbose) cout << "\n5. Symbolic Links" << endl;
             system("ln -s /bb/data/tmp/getFileSizeTest.txt testLink");
@@ -585,10 +601,12 @@ int main(int argc, char *argv[]) {
 #endif
 
         // Concert 5
+
         {
             if (veryVerbose) cout << "\n6. Non existent file" << endl;
 
             // Use a random name.
+
             bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize("acasdf");
 
             ASSERT(-1 == off);
@@ -599,6 +617,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Clean up the tmp file.
+
         bdesu_FileUtil::remove(fileName);
 
       } break;
@@ -661,12 +680,14 @@ int main(int argc, char *argv[]) {
 
         for (int i = MAXSUFFIX; i >= 0; --i) {
             // Create the file - place index into it.
+
             f = bdesu_FileUtil::open(tmpFile, true, false);
             LOOP_ASSERT(tmpFile, f != bdesu_FileUtil::INVALID_FD);
             ASSERT(sizeof(int) == bdesu_FileUtil::write(f, &i, sizeof(int)));
             ASSERT(0 == bdesu_FileUtil::close(f));
 
             // Roll the file(s).
+
             ASSERT(0 == bdesu_FileUtil::rollFileChain(tmpFile, MAXSUFFIX));
         }
         ASSERT(0 != bdesu_FileUtil::remove(tmpFile)); // does not exist
@@ -692,12 +713,15 @@ int main(int argc, char *argv[]) {
 
         for (int i = MAXSUFFIX; i >= 0; --i) {
             // Create the file - place index into it.
+
             ASSERT(0 == bdesu_FileUtil::createDirectories(tmpFile, true));
             f = bdesu_FileUtil::open(tmpFile+SEP+"file", true, false);
             ASSERT(f != bdesu_FileUtil::INVALID_FD);
             ASSERT(sizeof(int) == bdesu_FileUtil::write(f, &i, sizeof(int)));
             ASSERT(0 == bdesu_FileUtil::close(f));
+
             // Roll the file(s).
+
             ASSERT(0 == bdesu_FileUtil::rollFileChain(tmpFile, MAXSUFFIX));
         }
         ASSERT(0 != bdesu_FileUtil::remove(tmpFile, true)); // does not exist
@@ -733,14 +757,14 @@ int main(int argc, char *argv[]) {
                           << endl;
 
         struct Parameters {
-           const char* good;
-           const char* badNoExist;
-           const char* badWrongType;
+            const char* good;
+            const char* badNoExist;
+            const char* badWrongType;
         };
 
         struct ParametersByType {
-           Parameters regular;
-           Parameters directory;
+            Parameters regular;
+            Parameters directory;
         } parameters = {
 #ifdef BSLS_PLATFORM__OS_WINDOWS
             { "case4\\file", "case4\\file2", "case4\\dir" },
@@ -781,7 +805,9 @@ int main(int argc, char *argv[]) {
         bdesu_PathUtil::popLeaf(&link);
         bdesu_PathUtil::appendRaw(&link, "link_rg");
         int rc = symlink(absolute.c_str(), link.c_str());
+
         // test invariant:
+
         ASSERT(0 == rc);
 
         ASSERT(false == bdesu_FileUtil::isRegularFile(link.c_str()));
@@ -791,7 +817,9 @@ int main(int argc, char *argv[]) {
         bdesu_PathUtil::popLeaf(&link2);
         bdesu_PathUtil::appendRaw(&link2, "link_rg2");
         rc = symlink(link.c_str(), link2.c_str());
+
         // test invariant:
+
         ASSERT(0 == rc);
 
         ASSERT(false == bdesu_FileUtil::isRegularFile(link2));
@@ -803,7 +831,9 @@ int main(int argc, char *argv[]) {
         bdesu_PathUtil::popLeaf(&absolute);
         bdesu_PathUtil::appendRaw(&absolute, r.badWrongType);
         rc = symlink(absolute.c_str(), link.c_str());
+
         // test invariant:
+
         ASSERT(0 == rc);
 
         ASSERT(false == bdesu_FileUtil::isRegularFile(link));
@@ -815,7 +845,9 @@ int main(int argc, char *argv[]) {
         bdesu_PathUtil::popLeaf(&absolute);
         bdesu_PathUtil::appendRaw(&absolute, r.badNoExist);
         rc = symlink(absolute.c_str(), link.c_str());
+
         // test invariant:
+
         ASSERT(0 == rc);
 
         ASSERT(false == bdesu_FileUtil::isRegularFile(link));
@@ -827,7 +859,9 @@ int main(int argc, char *argv[]) {
         bdesu_PathUtil::popLeaf(&absolute);
         bdesu_PathUtil::appendRaw(&absolute, d.good);
         rc = symlink(absolute.c_str(), link.c_str());
+
         // test invariant:
+
         ASSERT(0 == rc);
 
         ASSERT(false == bdesu_FileUtil::isDirectory(link));
@@ -838,7 +872,9 @@ int main(int argc, char *argv[]) {
         bdesu_PathUtil::popLeaf(&link2);
         bdesu_PathUtil::appendRaw(&link2, "link_dg2");
         rc = symlink(link.c_str(), link2.c_str());
+
         // test invariant:
+
         ASSERT(0 == rc);
 
         ASSERT(false == bdesu_FileUtil::isDirectory(link2));
@@ -867,6 +903,7 @@ int main(int argc, char *argv[]) {
             sprintf(address.sun_path, filename.c_str());
 
             // Add one to account for the null terminator for the filename.
+
             const int ADDR_LEN = sizeof(address.sun_family) + 
                                  filename.size() +
                                  1;
@@ -881,7 +918,9 @@ int main(int argc, char *argv[]) {
             bdesu_FileUtil::remove(filename);
         }
 #endif  // BSLS_PLATFORM__OS_WINDOWS (unix domain socket)
+
         //clean up
+
         ASSERT(0 == bdesu_FileUtil::remove("case4", true));
       } break;
       case 2: {
@@ -912,35 +951,36 @@ int main(int argc, char *argv[]) {
         // The string literal "futc3/b???/*d*" seems to confuse the
         // Sun compiler, which complains about the character sequence "\*".
         // So let's hardcode it.
+
         const char tripleQMarkLiteral[] = {'f','u','t','c','3','/','b',
                                            '?','?','?','/','*','d','*', 0};
 
         struct Parameters {
-           const char* pattern;
-           const char* result;
+            const char* pattern;
+            const char* result;
         } parameters[] = {
-           {"", ""},
-           {"futc3/*/*foo*", ""},
-           {"futc3/*/*d*", "futc3/alpha/abc.def:futc3/alpha/abcd:"
-                           "futc3/beta/abc.def:futc3/beta/abcd"},
-           {tripleQMarkLiteral, "futc3/beta/abc.def:futc3/beta/abcd"},
-           {"futc3/*b*", "futc3/beta"},
+            {"", ""},
+            {"futc3/*/*foo*", ""},
+            {"futc3/*/*d*", "futc3/alpha/abc.def:futc3/alpha/abcd:"
+                            "futc3/beta/abc.def:futc3/beta/abcd"},
+            {tripleQMarkLiteral, "futc3/beta/abc.def:futc3/beta/abcd"},
+            {"futc3/*b*", "futc3/beta"},
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-           {"futc3/*b*/*.?", "futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
-           {"futc?/*b*/*.?", "futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
-           {"futc?/*/abcd.*", "futc3/alpha/abcd:futc3/beta/abcd"},
-           {"futc?/*b*/*.*", "futc3/beta/abc.def:futc3/beta/abc.zzz:"
+            {"futc3/*b*/*.?","futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
+            {"futc?/*b*/*.?","futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
+            {"futc?/*/abcd.*","futc3/alpha/abcd:futc3/beta/abcd"},
+            {"futc?/*b*/*.*","futc3/beta/abc.def:futc3/beta/abc.zzz:"
                              "futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
-           {"futc3*/*/*.?",
-              "futc3/alpha/abcd:futc3/alpha/zy.z:futc3/alpha/zyx:"
-              "futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"}
+            {"futc3*/*/*.?",
+               "futc3/alpha/abcd:futc3/alpha/zy.z:futc3/alpha/zyx:"
+               "futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"}
 #else
-           {"futc3/*b*/*.?", "futc3/beta/zy.z"},
-           {"futc?/*b*/*.?", "futc3/beta/zy.z"},
-           {"futc?/*/abcd.*", ""},
-           {"futc?/*b*/*.*",
+            {"futc3/*b*/*.?", "futc3/beta/zy.z"},
+            {"futc?/*b*/*.?", "futc3/beta/zy.z"},
+            {"futc?/*/abcd.*", ""},
+            {"futc?/*b*/*.*",
                       "futc3/beta/abc.def:futc3/beta/abc.zzz:futc3/beta/zy.z"},
-           {"futc3*/*/*.?", "futc3/alpha/zy.z:futc3/beta/zy.z"}
+            {"futc3*/*/*.?", "futc3/alpha/zy.z:futc3/beta/zy.z"}
 #endif
         };
 
@@ -1017,9 +1057,11 @@ int main(int argc, char *argv[]) {
                           << "\n==========================" << endl;
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-        bsl::string logPath = "temp2\\logs";
+        bdesu_FileUtil::remove("temp2", true);
+        bsl::string logPath =  "temp2\\logs";
 #else
-        bsl::string logPath = "tmp2/logs";
+        bdesu_FileUtil::remove("tmp2", true);
+        bsl::string logPath =  "tmp2/logs";
 #endif
 
         bsl::string oldPath(logPath), newPath(logPath);
@@ -1081,7 +1123,9 @@ int main(int argc, char *argv[]) {
             if (isOld) {
                 struct utimbuf timeInfo;
                 timeInfo.actime = timeInfo.modtime = threeDaysAgo.seconds();
+
                 //test invariant:
+
                 ASSERT(0 == utime(logPath.c_str(), &timeInfo));
             }
 #endif
@@ -1111,6 +1155,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Now validate
+
         bdesu_PathUtil::appendRaw(&logPath, "*");
         bdesu_PathUtil::appendRaw(&logPath, "*o*.log");
         bdesu_FileUtil::findMatchingPaths(&logFiles, logPath.c_str());
@@ -1124,6 +1169,7 @@ int main(int argc, char *argv[]) {
         bdesu_PathUtil::popLeaf(&logPath);
 
         // Clean up
+
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
       } break;
@@ -1144,28 +1190,29 @@ int main(int argc, char *argv[]) {
         // However, this function had been tested on windows by creating the
         // large file through cygwin.
 
-            // Create a 5 GB file.
-            if (veryVerbose) cout << "\n3. Large File" << endl;
+        // Create a 5 GB file.
 
-            system("dd if=/dev/zero of=/bb/data/tmp/fiveGBFile "
-                   "bs=1024000 count=5000");
+        if (veryVerbose) cout << "\n3. Large File" << endl;
 
-            string fileName("/bb/data/tmp/fiveGBFile");
+        system("dd if=/dev/zero of=/bb/data/tmp/fiveGBFile "
+               "bs=1024000 count=5000");
 
-            bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(fileName);
-            ASSERT(5120000000LL == off);
+        string fileName("/bb/data/tmp/fiveGBFile");
 
-            bdesu_FileUtil::Offset off2 = bdesu_FileUtil::getFileSize(
-                                                             fileName.c_str());
-            ASSERT(5120000000LL == off2);
+        bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(fileName);
+        ASSERT(5120000000LL == off);
 
-            if (veryVerbose) {
-                cout << "Expected 5120000000LL" << endl;
-                cout << "Actual ";
-                P_(off) P(off2)
-            }
+        bdesu_FileUtil::Offset off2 = bdesu_FileUtil::getFileSize(
+                                                         fileName.c_str());
+        ASSERT(5120000000LL == off2);
 
-            bdesu_FileUtil::remove(fileName);
+        if (veryVerbose) {
+            cout << "Expected 5120000000LL" << endl;
+            cout << "Actual ";
+            P_(off) P(off2)
+        }
+
+        bdesu_FileUtil::remove(fileName);
 #endif
       } break;
       case -2: {
@@ -1187,7 +1234,8 @@ int main(int argc, char *argv[]) {
           ASSERT(i == buf);
         }
         ASSERT(0 == bdesu_FileUtil::unmap(p, pageSize));
-        /*
+
+#if 0
         bdesu_FileUtil::FileDescriptor fd =
                        bdesu_FileUtil::open("/bb/data/tmp/blahblah.tmp", 1, 0);
         int pageSize = bdesu_FileUtil::pageSize();
@@ -1205,7 +1253,7 @@ int main(int argc, char *argv[]) {
                 bdesu_FileUtil::unmap(fm, pageSize);
             }
         }
-        */
+#endif
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
