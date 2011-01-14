@@ -943,6 +943,7 @@ int main(int argc, char *argv[])
 
         Pool pool(StringCreator(),StringReseter(),20);
         ASSERT(pool.numObjects()==0);
+        ASSERT(pool.numAvailableObjects()==0);
         bcema_SharedPtr<bsl::string> sharedStr = pool.getObject();
         ASSERT(pool.numObjects()==20);
         ASSERT(pool.numAvailableObjects()==19);

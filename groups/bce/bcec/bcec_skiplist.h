@@ -1731,9 +1731,11 @@ void bcec_SkipList<KEY, DATA>::initialize()
 
     // We can't use address 0, because it generates a warning with gcc.
 
-    const int offsetofPtrs = (char *)&(((Node *)1)->d_ptrs) - (char *)1;
+    const int offsetofPtrs = static_cast<int>(
+                                   (char *)&(((Node *)1)->d_ptrs) - (char *)1);
     for (int i = 0; i < BCEC_MAX_NUM_LEVELS; ++i) {
-        int nodeSize = offsetofPtrs + (i + 1)*sizeof(typename Node::Ptrs);
+        int nodeSize = static_cast<int>(
+                           offsetofPtrs + (i + 1)*sizeof(typename Node::Ptrs));
         nodeSize = (nodeSize + bsls_AlignmentFromType<Node>::VALUE - 1) &
                                     ~(bsls_AlignmentFromType<Node>::VALUE - 1);
         nodeSizes[i] = nodeSize;

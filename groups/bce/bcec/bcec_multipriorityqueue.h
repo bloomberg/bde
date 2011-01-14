@@ -1064,7 +1064,7 @@ template <typename TYPE>
 inline
 int bcec_MultipriorityQueue<TYPE>::numPriorities() const
 {
-    return d_heads.size();
+    return static_cast<int>(d_heads.size());
 }
 
 template <typename TYPE>

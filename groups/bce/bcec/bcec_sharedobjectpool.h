@@ -1,4 +1,4 @@
-// bcec_sharedobjectpool.h   -*-C++-*-
+// bcec_sharedobjectpool.h                                            -*-C++-*-
 #ifndef INCLUDED_BCEC_SHAREDOBJECTPOOL
 #define INCLUDED_BCEC_SHAREDOBJECTPOOL
 
@@ -7,12 +7,12 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE:  Provide a thread-safe pool of shared objects
+//@PURPOSE: Provide a thread-safe pool of shared objects.
 //
 //@CLASSES:
-//           bcec_SharedObjectPool: thread-enabled container of shared objects
+//  bcec_SharedObjectPool: thread-enabled container of shared objects
 //
-//@SEE_ALSO:  bcema_SharedPtr
+//@SEE_ALSO: bcema_sharedptr
 //
 //@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
 //
@@ -26,7 +26,7 @@ BDES_IDENT("$Id: $")
 // this component also tends to improve performance by reducing "cache
 // misses."
 //
-///Object construction and destruction
+///Object Construction and Destruction
 ///-----------------------------------
 // The object pool owns the memory required to store the pooled objects and
 // the shared-pointer representations, and manages the construction,
@@ -72,7 +72,7 @@ BDES_IDENT("$Id: $")
 // correctly passes its allocator argument through to the constructor of
 // 'TYPE' if 'TYPE' uses allocator.
 //
-///Exception safety
+///Exception-Safety
 ///----------------
 // There are two potential sources of exceptions in this component: memory
 // allocation and object construction.  The object pool is exception-neutral
@@ -81,7 +81,7 @@ BDES_IDENT("$Id: $")
 // the pool is in a valid unmodified state (i.e., identical to prior the call
 // to 'getObject').  No other method of 'bcec_SharedObjectPool' can throw.
 //
-///Pool replenishment policy
+///Pool Replenishment Policy
 ///-------------------------
 // The 'growBy' parameter can be specified in the pool's constructor
 // to instruct the pool how it is to increase its capacity each time
@@ -95,8 +95,8 @@ BDES_IDENT("$Id: $")
 // implementation-defined default will be chosen.  The behavior is undefined
 // if growBy is 0.
 //
-///Usage Example
-///-------------
+///Usage
+///-----
 // This component is intended to improve the efficiency of code which
 // provides shared pointers to pooled objects.  As an example, consider
 // a class which maintains a pool of 'bcema_Blob' objects and provides shared
@@ -213,12 +213,12 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
-#ifndef INCLUDED_BCEMA_SHAREDPTR
-#include <bcema_sharedptr.h>
-#endif
-
 #ifndef INCLUDED_BCEC_OBJECTPOOL
 #include <bcec_objectpool.h>
+#endif
+
+#ifndef INCLUDED_BCEMA_SHAREDPTR
+#include <bcema_sharedptr.h>
 #endif
 
 #ifndef INCLUDED_BDEF_BIND
@@ -267,12 +267,13 @@ class bcec_SharedObjectPool_Rep: public bcema_SharedPtrRep {
     // DATA
     bslalg_ConstructorProxy<RESETTER> d_objectResetter;
 
-    PoolType                         *d_pool_p; // object pool (held)
-    bsls_ObjectBuffer<TYPE>           d_instance; // area for embedded instance
+    PoolType                         *d_pool_p;   // object pool (held)
+    bsls_ObjectBuffer<TYPE>           d_instance; // area for embedded
+                                                  // instance
 
     // NOT IMPLEMENTED
-    bcec_SharedObjectPool_Rep(const bcec_SharedObjectPool_Rep& original);
-    bcec_SharedObjectPool_Rep& operator=(const bcec_SharedObjectPool_Rep& rhs);
+    bcec_SharedObjectPool_Rep(const bcec_SharedObjectPool_Rep&);
+    bcec_SharedObjectPool_Rep& operator=(const bcec_SharedObjectPool_Rep&);
 
   public:
     // CREATORS
@@ -294,12 +295,18 @@ class bcec_SharedObjectPool_Rep: public bcema_SharedPtrRep {
         // 'TYPE'.
 
     // MANIPULATORS
-    virtual void release();
+    virtual void disposeRep();
         // Release this representation object.  This method is invoked when the
-        // number of references reaches zero (i.e., when a call to
-        // 'decrementRefs' returns zero) to dispose of this representation
-        // object.  This virtual override will return the object, and
-        // this representation, to the associated pool.
+        // number of weak references and the number of strong references reach
+        // zero.  This virtual override will return the object, and this
+        // representation, to the associated pool.
+
+    virtual void disposeObject();
+        // Release the object being managed by this representation.  This
+        // method is invoked when the number of strong references reaches
+        // zero.  Note that if there are any weak references to the shared
+        // object then this function does nothing, including not destroying
+        // the object or returning it to the pool.
 
     void reset();
         // Invoke the object resetter specified at construction on the
@@ -340,8 +347,8 @@ class bcec_SharedObjectPool {
 
   private:
     // NOT IMPLEMENTED
-    bcec_SharedObjectPool(const bcec_SharedObjectPool& original);
-    bcec_SharedObjectPool& operator=(const bcec_SharedObjectPool& rhs);
+    bcec_SharedObjectPool(const bcec_SharedObjectPool&);
+    bcec_SharedObjectPool& operator=(const bcec_SharedObjectPool&);
 
     void constructRepObject(void *mem, bslma_Allocator* alloc);
         // Initializes a newly constructed bcec_SharedObjectPool_Rep object
@@ -476,9 +483,16 @@ void bcec_SharedObjectPool_Rep<TYPE, RESETTER>::reset()
 
 template <class TYPE, class RESETTER>
 inline
-void bcec_SharedObjectPool_Rep<TYPE, RESETTER>::release()
+void bcec_SharedObjectPool_Rep<TYPE, RESETTER>::disposeRep()
 {
     d_pool_p->releaseObject(this);
+}
+
+template <class TYPE, class RESETTER>
+inline
+void bcec_SharedObjectPool_Rep<TYPE, RESETTER>::disposeObject()
+{
+    // No-op
 }
 
 // ACCESSORS
@@ -509,7 +523,7 @@ void bcec_SharedObjectPool<TYPE, CREATOR, RESETTER>::constructRepObject(
                                    d_objectResetter,
                                    &d_pool,
                                    alloc);
-    r->decrementRefs();
+    r->resetCountsRaw(0, 0);
 }
 
 // CREATORS
@@ -600,7 +614,7 @@ bcec_SharedObjectPool<TYPE, CREATOR, RESETTER>::getObject()
 {
     RepType *rep = d_pool.getObject();
     bcema_SharedPtrRep *genericRep = rep;
-    genericRep->incrementRefs();
+    genericRep->resetCountsRaw(1, 0);
 
     return bcema_SharedPtr<TYPE>(rep->ptr(), genericRep);
 }

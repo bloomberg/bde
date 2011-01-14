@@ -1070,7 +1070,7 @@ bcec_TimeQueue<DATA>::~bcec_TimeQueue()
     removeAll();
     if (!d_nodeArray.empty()) {
         Node **data = &d_nodeArray.front();
-        const int numNodes = d_nodeArray.size();
+        const int numNodes = static_cast<int>(d_nodeArray.size());
         for (int i = 0; i < numNodes; ++i) {
             d_allocator_p->deleteObjectRaw(data[i]);
         }
@@ -1118,7 +1118,8 @@ typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
 
         node = new (*d_allocator_p) Node;
         d_nodeArray.push_back(node);
-        node->d_index = d_nodeArray.size() | d_indexIterationInc;
+        node->d_index =
+                    static_cast<int>(d_nodeArray.size()) | d_indexIterationInc;
     }
     node->d_time = time;
     node->d_key  = key;

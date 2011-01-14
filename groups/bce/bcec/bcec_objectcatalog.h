@@ -592,7 +592,7 @@ int bcec_ObjectCatalog<TYPE>::add(const TYPE& object)
         // Destruction of this proctor will deallocate node.
 
         d_nodes.push_back(node);
-        node->d_handle = d_nodes.size() - 1;
+        node->d_handle = static_cast<int>(d_nodes.size()) - 1;
         proctor.manageNode(node, false);
         // Destruction of this proctor will put node back onto the free list,
         // which is now OK since the 'push_back' succeeded without throwing.
