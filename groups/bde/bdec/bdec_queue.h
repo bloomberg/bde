@@ -269,9 +269,8 @@ class bdec_Queue {
 
         unsigned int d_i;
 
-         // CREATORS
-        InitialCapacity(unsigned int i) : d_i(i) { }
-
+        // CREATORS
+        explicit InitialCapacity(unsigned int i) : d_i(i) { }
         ~InitialCapacity() { }
     };
 
@@ -810,14 +809,16 @@ int bdec_Queue<T>::memcpyCircular(T       *dstArray,
         int dstLen = dstSize - dst;
 
         if (dstLen >= lenSrcA) {  // can copy everything from srcA
-              // TBD efficiency
+            // TBD efficiency
+
             for (int i = 0; i < lenSrcA; ++i) {
                 new (&dstArray[dst + i]) T(srcArray[srcA + i]);
             }
             dst += lenSrcA;
         }
         else {  // can copy only part of srcA without changing dst
-              // TBD efficiency
+            // TBD efficiency
+
             for (int i = 0; i < dstLen; ++i) {
                 new (&dstArray[dst + i]) T(srcArray[srcA + i]);
             }
@@ -829,12 +830,14 @@ int bdec_Queue<T>::memcpyCircular(T       *dstArray,
             // 'memcpy' down two lines may cause the program to compile, but
             // not execute properly.
 
-              // TBD efficiency
+            // TBD efficiency
+
             for (int i = 0; i < lenSrcA; ++i) {
                 new (&dstArray[i]) T(srcArray[srcA + i]);
             }
             dstLen = dst;  // max numElements that can be copied to index 0
             dst = lenSrcA;
+
             // TBD doc above assert(lenSrcA <= dstLen - BDEC_EXTRA_CAPACITY);
         }
     }
@@ -850,14 +853,16 @@ int bdec_Queue<T>::memcpyCircular(T       *dstArray,
         int dstLen = dstSize - dst;
 
         if (dstLen >= lenSrcA) {  // can copy everything from srcA
-              // TBD efficiency
+            // TBD efficiency
+
             for (int i = 0; i < lenSrcA; ++i) {
                 new (&dstArray[dst + i]) T(srcArray[srcA + i]);
             }
             dst += lenSrcA;
         }
         else {  // can copy only part of srcA without changing dst
-              // TBD efficiency
+            // TBD efficiency
+
             for (int i = 0; i < dstLen; ++i) {
                 new (&dstArray[dst + i]) T(srcArray[srcA + i]);
             }
@@ -869,12 +874,14 @@ int bdec_Queue<T>::memcpyCircular(T       *dstArray,
             // 'memcpy' down two lines may cause the program to compile, but
             // not execute properly.
 
-              // TBD efficiency
+            // TBD efficiency
+
             for (int i = 0; i < lenSrcA; ++i) {
                 new (&dstArray[i]) T(srcArray[srcA + i]);
             }
             dstLen = dst;  // max numElements that can be copied to index 0
             dst = lenSrcA;
+
             // TBD
             // doc above assert(
             // lenSrcA + lenSrcB <= dstLen - BDEC_EXTRA_CAPACITY);
@@ -882,7 +889,8 @@ int bdec_Queue<T>::memcpyCircular(T       *dstArray,
         dstLen -= lenSrcA;
 
         if (dstLen >= lenSrcB) {  // can copy everything from srcB
-             // TBD efficiency
+            // TBD efficiency
+
             for (int i = 0; i < lenSrcB; ++i) {
                 new (&dstArray[dst + i]) T(srcArray[i]);
             }
@@ -891,12 +899,15 @@ int bdec_Queue<T>::memcpyCircular(T       *dstArray,
         else {  // can copy only part of srcB without changing dst
             // NOTE: could not have had insufficient room for srcA
             // TBD efficiency
+
             for (int i = 0; i < dstLen; ++i) {
                 new (&dstArray[dst + i]) T(srcArray[i]);
             }
             lenSrcB -= dstLen;
             dst = lenSrcB;
-             // TBD efficiency
+
+            // TBD efficiency
+
             for (int i = 0; i < lenSrcB; ++i) {
                 new (&dstArray[i]) T(srcArray[dstLen + i]);
             }
@@ -918,14 +929,17 @@ void bdec_Queue<T>::memShiftLeft(T   *array,
     if (srcIndex > dstIndex) {
         int numMove = size - srcIndex;
         if (numMove >= numElements) {
-             // TBD efficiency
+            // TBD efficiency
+
             for (int i = 0; i < numElements; ++i) {
                 new (&array[dstIndex + i]) T(array[srcIndex + i]);
                 array[srcIndex + i].~T();
             }
-            return;
+            return;                                                   // RETURN
         }
+
         // TBD efficiency
+
         for (int i = 0; i < numMove; ++i) {
             new (&array[dstIndex + i]) T(array[srcIndex + i]);
             array[srcIndex + i].~T();
@@ -935,7 +949,7 @@ void bdec_Queue<T>::memShiftLeft(T   *array,
         srcIndex = 0;
     }
     else if (srcIndex == dstIndex) {
-        return;
+        return;                                                       // RETURN
     }
 
     // Move the elements of the source that will just precede the array end.
@@ -943,13 +957,16 @@ void bdec_Queue<T>::memShiftLeft(T   *array,
     int numMove = size - dstIndex;
     if (numMove >= numElements) {
         // TBD efficiency
+
         for (int i = numElements - 1; i >= 0; --i) {
             new (&array[dstIndex + i]) T(array[srcIndex + i]);
             array[srcIndex + i].~T();
         }
-        return;
+
+        return;                                                       // RETURN
     }
     // TBD efficiency
+
     for (int i = numMove - 1; i >= 0; --i) {
         new (&array[dstIndex + i]) T(array[srcIndex + i]);
         array[srcIndex + i].~T();
@@ -960,6 +977,7 @@ void bdec_Queue<T>::memShiftLeft(T   *array,
     // Move the elements of the source that are around the array end.
 
     // TBD efficiency
+
     for (int i = 0; i < numElements; ++i) {
         new (&array[i]) T(array[srcIndex + i]);
         array[srcIndex + i].~T();
@@ -974,7 +992,7 @@ void bdec_Queue<T>::memShiftRight(T   *array,
                                   int  numElements)
 {
     if (dstIndex == srcIndex) {
-        return;
+        return;                                                       // RETURN
     }
 
     {
@@ -985,6 +1003,7 @@ void bdec_Queue<T>::memShiftRight(T   *array,
         if (numMove > size) {
             numMove -= size;
             // TBD efficiency
+
             for (int i = numMove - 1; i >= 0; --i) {
                 new (&array[(dstIndex + numElements - numMove) % size + i])
                                                                    T(array[i]);
@@ -1001,6 +1020,7 @@ void bdec_Queue<T>::memShiftRight(T   *array,
         if (numMove > size) {
             numMove -= size;
             // TBD efficiency
+
             for (int i = 0; i < numMove; ++i) {
                 new (&array[i])
                        T(array[(srcIndex + numElements - numMove) % size + i]);
@@ -1015,6 +1035,7 @@ void bdec_Queue<T>::memShiftRight(T   *array,
 
     if (dstIndex < srcIndex) {
         // TBD efficiency
+
         for (int i = 0; i < numElements; ++i) {
             new (&array[dstIndex + i]) T(array[srcIndex + i]);
             array[srcIndex + i].~T();
@@ -1022,6 +1043,7 @@ void bdec_Queue<T>::memShiftRight(T   *array,
     }
     else {
         // TBD efficiency
+
         for (int i = numElements - 1; i >= 0; --i) {
             new (&array[dstIndex + i]) T(array[srcIndex + i]);
             array[srcIndex + i].~T();
@@ -1071,6 +1093,7 @@ int bdec_Queue<T>::increaseSizeImp(T               **addrArray,
     copyData(array, back, newSize, *front, *addrArray, size, oldFront, *back);
 
     // TBD efficiency
+
     for (int i = (oldFront + 1) % size; i != oldBack; i = (i + 1) % size) {
         (*addrArray)[i].~T();
     }
@@ -1131,6 +1154,7 @@ bdec_Queue<T>::bdec_Queue(unsigned int     initialLength,
     // initialize the array values
     // TBD efficiency
     // TBD exception neutrality
+
     for (int i = 0; i < d_back; ++i) {
         new (d_array_p + i) T();
     }
@@ -1149,6 +1173,7 @@ bdec_Queue<T>::bdec_Queue(int              initialLength,
 
     // TBD efficiency
     // TBD exception neutrality
+
     for (int i = 0; i < d_back; ++i) {
         new (d_array_p + i) T(initialValue);
     }
@@ -1175,7 +1200,9 @@ bdec_Queue<T>::bdec_Queue(const T         *srcArray,
     d_size = calculateSufficientSize(numElements, BDEC_INITIAL_SIZE);
     d_front = d_size - 1;
     d_array_p = (T *)d_allocator_p->allocate(d_size * sizeof *d_array_p);
+
     // TBD efficiency
+
     for (int i = 0; i < numElements; ++i) {
         new (&d_array_p[i]) T(srcArray[i]);
     }
@@ -1203,6 +1230,7 @@ template <class T>
 bdec_Queue<T>::~bdec_Queue()
 {
     // TBD efficiency
+
     for (int i = (d_front + 1) % d_size; i != d_back; i = (i + 1) % d_size) {
         d_array_p[i].~T();
     }
@@ -1222,6 +1250,7 @@ bdec_Queue<T>& bdec_Queue<T>::operator=(const bdec_Queue<T>& rhs)
                      (T *)d_allocator_p->allocate(newSize * sizeof *d_array_p);
 
             // TBD efficiency
+
             for (int i = (d_front + 1) % d_size; i != d_back;
                                                         i = (i + 1) % d_size) {
                 d_array_p[i].~T();
@@ -1233,6 +1262,7 @@ bdec_Queue<T>& bdec_Queue<T>::operator=(const bdec_Queue<T>& rhs)
         }
         else {
             // TBD efficiency
+
             for (int i = (d_front + 1) % d_size; i != d_back;
                                                         i = (i + 1) % d_size) {
                 d_array_p[i].~T();
@@ -1333,6 +1363,7 @@ void bdec_Queue<T>::insert(int dstIndex, const T& itemTmp)
 
     if (d_size < newSize) {
         // resize, makes move easy
+
         T *array = (T *)d_allocator_p->allocate(newSize * sizeof *d_array_p);
 
         // COMMIT
@@ -1340,6 +1371,7 @@ void bdec_Queue<T>::insert(int dstIndex, const T& itemTmp)
         const int start = d_front + 1;
 
         // NOTE: newSize >= size + 1 so '% newSize' is not needed in next line.
+
         memcpyCircular(array,
                        newSize,
                        start,           // no '% newSize'
@@ -1356,6 +1388,7 @@ void bdec_Queue<T>::insert(int dstIndex, const T& itemTmp)
                        originalLength - dstIndex);
 
         // TBD efficiency
+
         for (int i = (d_front + 1) % d_size; i != d_back;
                                                         i = (i + 1) % d_size) {
             d_array_p[i].~T();
@@ -1421,6 +1454,7 @@ void bdec_Queue<T>::insert(int                  dstIndex,
 
     if (d_size < newSize) {
         // resize, makes move easy
+
         T *array = (T *)d_allocator_p->allocate(newSize * sizeof *d_array_p);
 
         // COMMIT
@@ -1429,6 +1463,7 @@ void bdec_Queue<T>::insert(int                  dstIndex,
         const int startIndex = start + dstIndex;
 
         // NOTE: newSize >= size + 1 so '% newSize' is not needed in next line.
+
         memcpyCircular(array,
                        newSize,
                        start,           // no '% newSize'
@@ -1452,9 +1487,10 @@ void bdec_Queue<T>::insert(int                  dstIndex,
                        numElements);
 
         // TBD efficiency
+
         for (int i = (d_front + 1) % d_size; i != d_back;
                                                         i = (i + 1) % d_size) {
-                d_array_p[i].~T();
+            d_array_p[i].~T();
         }
 
         d_allocator_p->deallocate(d_array_p);
@@ -1673,6 +1709,7 @@ template <class T>
 void bdec_Queue<T>::remove(int index, int numElements)
 {
     // TBD efficiency
+
     for (int i = 0; i < numElements; ++i) {
         d_array_p[(index + d_front + 1 + i) % d_size].~T();
     };
@@ -1707,7 +1744,9 @@ template <class T>
 void bdec_Queue<T>::removeAll(bsl::vector<T> *buffer)
 {
     d_front = (d_front + 1) % d_size;
+
     // TBD efficiency
+
     if (buffer) {
         while (d_back != d_front) {
             buffer->push_back(d_array_p[d_front]);
@@ -1729,6 +1768,7 @@ void bdec_Queue<T>::replace(int dstIndex, const T& itemTmp)
     T item(itemTmp);  // TBD hack for aliased case
 
     // TBD efficiency
+
     d_array_p[(d_front + 1 + dstIndex) % d_size].~T();
     new (&d_array_p[(d_front + 1 + dstIndex) % d_size]) T(item);
 }
@@ -1740,6 +1780,7 @@ void bdec_Queue<T>::replace(int                     dstIndex,
                                int                  numElements)
 {
     // TBD need placement new
+
     if (this != &srcQueue || srcIndex + numElements <= dstIndex ||
                           dstIndex + numElements <= srcIndex) {  // not aliased
         memcpyCircular(d_array_p,
@@ -1826,16 +1867,20 @@ void bdec_Queue<T>::setLength(int newLength)
     if (newLength > oldLength) {
         if (oldBack < d_back) {
             // TBD efficiency
+
             for (int i = 0; i < d_back - oldBack; ++i) {
                 new (d_array_p + oldBack + i) T();
             }
         }
         else {
             // TBD efficiency
+
             for (int i = 0; i < d_size - oldBack; ++i) {
                 new (d_array_p + oldBack + i) T();
             }
+
             // TBD efficiency
+
             for (int i = 0; i < d_back; ++i) {
                 new (d_array_p + i) T();
             }
@@ -1862,16 +1907,19 @@ void bdec_Queue<T>::setLength(int newLength, const T& initialValue)
     if (newLength > oldLength) {
         if (oldBack < d_back) {
             // TBD efficiency
+
             for (int i = 0; i < d_back - oldBack; ++i) {
                 new (d_array_p + oldBack + i) T(initialValue);
             }
         }
         else {
             // TBD efficiency
+
             for (int i = 0; i < d_size - oldBack; ++i) {
                 new (d_array_p + oldBack + i) T(initialValue);
             }
             // TBD efficiency
+
             for (int i = 0; i < d_back; ++i) {
                 new (d_array_p + i) T(initialValue);
             }
@@ -1901,10 +1949,11 @@ STREAM& bdec_Queue<T>::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         // TBD switch on version
+
         int newLength;
         stream.getLength(newLength);
         if (!stream) {
-            return stream;
+            return stream;                                            // RETURN
         }
 
         int newSize = calculateSufficientSize(newLength, d_size);
@@ -1929,15 +1978,15 @@ template <class T>
 void bdec_Queue<T>::swap(int index1, int index2)
 {
     if (index1 != index2) {
-       const int tmp = d_front + 1;
-       const int i1 = (tmp + index1) % d_size;
-       const int i2 = (tmp + index2) % d_size;
+        const int tmp = d_front + 1;
+        const int i1 = (tmp + index1) % d_size;
+        const int i2 = (tmp + index2) % d_size;
 
-       T temp(d_array_p[i1]);
-       d_array_p[i1].~T();
-       new (d_array_p + i1) T(d_array_p[i2]);
-       d_array_p[i2].~T();
-       new (d_array_p + i2) T(temp);
+        T temp(d_array_p[i1]);
+        d_array_p[i1].~T();
+        new (d_array_p + i1) T(d_array_p[i2]);
+        d_array_p[i2].~T();
+        new (d_array_p + i2) T(temp);
     }
 }
 
@@ -2008,6 +2057,7 @@ template <class STREAM>
 STREAM& bdec_Queue<T>::bdexStreamOut(STREAM& stream, int version) const
 {
     // TBD switch on version
+
     const int len = length();
     stream.putLength(len);
     for (int i = 0; i < len; ++i) {
@@ -2022,13 +2072,14 @@ bool operator==(const bdec_Queue<T>& lhs, const bdec_Queue<T>& rhs)
 {
     const int len = lhs.length();
     if (rhs.length() != len) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     // Lengths are equal.
+
     for (int i = 0; i < len; ++i) {
         if (!(lhs[i] == rhs[i])) {
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
     return 1;

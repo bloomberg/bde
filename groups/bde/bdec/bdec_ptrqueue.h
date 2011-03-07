@@ -1,4 +1,4 @@
-// bdec_ptrqueue.h              -*-C++-*-
+// bdec_ptrqueue.h                                                    -*-C++-*-
 #ifndef INCLUDED_BDEC_PTRQUEUE
 #define INCLUDED_BDEC_PTRQUEUE
 
@@ -241,9 +241,13 @@ public:
         //..
         // defines an instance 'x' with an initial capacity of 8 elements, but
         // with a logical length of 0 elements.
+
+        // DATA
         unsigned int d_i;
+
+        // CREATORS
+        explicit InitialCapacity(unsigned int i) : d_i(i) { }
         ~InitialCapacity() { }
-        InitialCapacity(unsigned int i) : d_i(i) { }
     };
 
     // CREATORS
