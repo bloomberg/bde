@@ -28,6 +28,9 @@ namespace BloombergLP {
 
 int bdesu_MemoryUtil::protect(void *address, int numBytes, int mode)
 {
+    BSLS_ASSERT(address);
+    BSLS_ASSERT(0 <= numBytes);
+
     // Separate read/write/exec access bits do not map to modes available in
     // Windows (there is no write-only mode).  So in certain cases, extra
     // permissions are granted.
@@ -61,11 +64,15 @@ int bdesu_MemoryUtil::pageSize()
 
 void *bdesu_MemoryUtil::allocate(int numBytes)
 {
+    BSLS_ASSERT(0 <= numBytes);
+
     return VirtualAlloc(NULL, numBytes, MEM_COMMIT, PAGE_READWRITE);
 }
 
 int bdesu_MemoryUtil::deallocate(void *address)
 {
+    BSLS_ASSERT(address);
+
     return VirtualFree(address, 0, MEM_RELEASE) ? 0 : -1;
 }
 
@@ -80,6 +87,9 @@ int bdesu_MemoryUtil::pageSize()
 
 int bdesu_MemoryUtil::protect(void *address, int numBytes, int mode)
 {
+    BSLS_ASSERT(address);
+    BSLS_ASSERT(0 <= numBytes);
+
     int protect = 0;
 
     if (mode & BDESU_ACCESS_READ) {
@@ -99,11 +109,15 @@ int bdesu_MemoryUtil::protect(void *address, int numBytes, int mode)
 
 void *bdesu_MemoryUtil::allocate(int numBytes)
 {
+    BSLS_ASSERT(0 <= numBytes);
+
     return ::valloc(numBytes);
 }
 
 int bdesu_MemoryUtil::deallocate(void *address)
 {
+    BSLS_ASSERT(address);
+
     ::free(address);
     return 0;
 }

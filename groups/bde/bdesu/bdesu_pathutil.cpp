@@ -1,4 +1,4 @@
-// bdesu_pathutil.cpp   -*-C++-*-
+// bdesu_pathutil.cpp                                                 -*-C++-*-
 #include <bdesu_pathutil.h>
 
 #include <bsls_assert.h>
@@ -12,23 +12,26 @@
 
 namespace BloombergLP {
 
-namespace {
-    // Scopes private helper methods and data
-
+// LOCAL CONSTANTS
 const char SEPARATOR =
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-'\\'
+    '\\'
 #else
-'/'
+    '/'
 #endif
     ;
 
-void parse (size_t* rootEnd, const char* path, int length = -1)
+// STATIC HELPER FUNCTIONS
+static
+void parse(size_t *rootEnd, const char *path, int length = -1)
 {
-   if (0 > length) {
-      length = bsl::strlen(path);
-   }
-   *rootEnd = 0;
+    BSLS_ASSERT(rootEnd);
+    BSLS_ASSERT(path);
+
+    if (0 > length) {
+        length = bsl::strlen(path);
+    }
+    *rootEnd = 0;
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     // Windows paths come in three flavors: local (LFS), UNC, and Long
@@ -49,21 +52,22 @@ void parse (size_t* rootEnd, const char* path, int length = -1)
 #define UNCW_PREFIXLEN 4
 #define UNCW_UNCPREFIX UNCW_PREFIX "UNC\\"
 #define UNCW_UNCPREFIXLEN (UNCW_PREFIXLEN + 4)
-   int rootNameEnd = 0;
+    int rootNameEnd = 0;
 
     if (2 <= length && bsl::isalpha(static_cast<unsigned char>(path[0]))
                                                            && ':' == path[1]) {
        // LFS.  Root name ends after the ':'.
        *rootEnd = rootNameEnd = 2;
     }
-    else if (4 <= length && SEPARATOR == path[0] &&
-             SEPARATOR == path[1] && '?' != path[2]) {
+    else if (4 <= length && SEPARATOR == path[0]
+          && SEPARATOR == path[1] && '?' != path[2]) {
        //UNC (we require 4 because the hostname must be nonempty and there
        //must then be another separator; then at least a nonempty
        //share directory).  Root name ends after the separator that follows
        //the hostname; root directory ends after the separator that follows
        //the share name.
-       const char* rootNameEndPtr = bsl::find(path + 3, path + length,
+       const char *rootNameEndPtr = bsl::find(path + 3,
+                                              path + length,
                                               SEPARATOR);
 
        if (rootNameEndPtr != path + length) {
@@ -71,16 +75,16 @@ void parse (size_t* rootEnd, const char* path, int length = -1)
        }
        rootNameEnd = (size_t)(rootNameEndPtr - path);
 
-       const char* rootEndPtr = bsl::find(path + rootNameEnd,
-                                           path + length,
-                                           SEPARATOR);
+       const char *rootEndPtr = bsl::find(path + rootNameEnd,
+                                          path + length,
+                                          SEPARATOR);
        if (rootEndPtr != path + length) {
           ++rootEndPtr;
        }
        *rootEnd = (size_t)(rootEndPtr - path);
     }
-    else if (UNCW_PREFIXLEN < length &&
-             0 == strncmp(path, UNCW_PREFIX, UNCW_PREFIXLEN)) {
+    else if (UNCW_PREFIXLEN < length
+          && 0 == strncmp(path, UNCW_PREFIX, UNCW_PREFIXLEN)) {
        //LUNC.  Now determine whether it is LFS or UNC
        if (UNCW_PREFIXLEN+2 <= length
            && bsl::isalpha(static_cast<unsigned char>(path[UNCW_PREFIXLEN]))
@@ -88,10 +92,10 @@ void parse (size_t* rootEnd, const char* path, int length = -1)
           //LFS.
           *rootEnd = rootNameEnd = UNCW_PREFIXLEN+2;
        }
-       else if (UNCW_UNCPREFIXLEN < length &&
-                0 == strncmp(path, UNCW_UNCPREFIX, UNCW_UNCPREFIXLEN)) {
+       else if (UNCW_UNCPREFIXLEN < length
+             && 0 == strncmp(path, UNCW_UNCPREFIX, UNCW_UNCPREFIXLEN)) {
           //UNC.
-          const char* rootNameEndPtr =
+          const char *rootNameEndPtr =
              bsl::find(path + UNCW_UNCPREFIXLEN, path + length, SEPARATOR);
 
           if (rootNameEndPtr != path + length) {
@@ -99,7 +103,7 @@ void parse (size_t* rootEnd, const char* path, int length = -1)
           }
           rootNameEnd = (unsigned)(rootNameEndPtr - path);
 
-          const char* rootEndPtr = bsl::find(path + rootNameEnd,
+          const char *rootEndPtr = bsl::find(path + rootNameEnd,
                                              path + length,
                                              SEPARATOR);
           if (rootEndPtr != path + length) {
@@ -110,30 +114,33 @@ void parse (size_t* rootEnd, const char* path, int length = -1)
     }
 #endif
 
-    while((int) *rootEnd < length &&
-          path[*rootEnd] == SEPARATOR) {
+    while ((int) *rootEnd < length && SEPARATOR == path[*rootEnd]) {
         ++*rootEnd;
     }
 }
 
-inline
-void parse (int* rootEnd, const char* path, int length = -1)
+static
+void parse(int *rootEnd, const char *path, int length = -1)
 {
+    BSLS_ASSERT(rootEnd);
+    BSLS_ASSERT(path);
+
     size_t rootEndOffset;
     parse(&rootEndOffset, path, length);
     BSLS_ASSERT(INT_MAX > rootEndOffset);
     *rootEnd = rootEndOffset;
 }
 
-const char *leafDelimiter(const char *path,
-                          int rootEnd,
-                          int length=-1)
+static
+const char *leafDelimiter(const char *path, int rootEnd, int length = -1)
 {
+    BSLS_ASSERT(path);
+
     if (0 > length) {
         length = bsl::strlen(path);
     }
 
-    while (0 < length && SEPARATOR == path[length-1]) {
+    while (0 < length && SEPARATOR == path[length - 1]) {
         --length;
     }
 
@@ -145,18 +152,22 @@ const char *leafDelimiter(const char *path,
     return position;
 }
 
-inline
-const char *leafDelimiter(const bsl::string &path,
-                          int rootEnd)
+static inline
+const char *leafDelimiter(const bsl::string &path, int rootEnd)
 {
     return leafDelimiter(path.c_str(), rootEnd, path.length());
 }
 
-} // close unnamed namespace
+                              // =====================
+                              // struct bdesu_PathUtil
+                              // =====================
 
-int bdesu_PathUtil::appendIfValid(bsl::string *path,
-                                  const bdeut_StringRef& origFilename)
+// CLASS METHODS
+int bdesu_PathUtil::appendIfValid(bsl::string            *path,
+                                  const bdeut_StringRef&  origFilename)
 {
+    BSLS_ASSERT(path);
+
     bdeut_StringRef filename = origFilename;
     int filenameLength = filename.length();
 
@@ -183,9 +194,8 @@ int bdesu_PathUtil::appendIfValid(bsl::string *path,
     int pathRootEnd;
     parse(&pathRootEnd, path->c_str(), path->length());
 
-    while (!path->empty() && SEPARATOR == (*path)[path->length()-1] &&
-           pathRootEnd < (int) path->length())
-    {
+    while (!path->empty() && SEPARATOR == (*path)[path->length()-1]
+        && pathRootEnd < (int) path->length()) {
         path->erase(path->length()-1);
     }
 
@@ -194,10 +204,13 @@ int bdesu_PathUtil::appendIfValid(bsl::string *path,
 }
 
 void bdesu_PathUtil::appendRaw(bsl::string *path,
-                               const char *filename,
-                               int length,
-                               int rootEnd)
+                               const char  *filename,
+                               int          length,
+                               int          rootEnd)
 {
+    BSLS_ASSERT(path);
+    BSLS_ASSERT(filename);
+
     if (0 > length) {
         length = bsl::strlen(filename);
     }
@@ -206,8 +219,8 @@ void bdesu_PathUtil::appendRaw(bsl::string *path,
         if (0 > rootEnd) {
             parse(&rootEnd, path->c_str(), path->length());
         }
-        if (hasLeaf(path->c_str(), rootEnd) ||
-            (rootEnd > 0 && (*path)[rootEnd-1] != SEPARATOR)) {
+        if (hasLeaf(path->c_str(), rootEnd)
+         || (rootEnd > 0 && (*path)[rootEnd-1] != SEPARATOR)) {
             path->push_back(SEPARATOR);
         }
         path->append(filename, length);
@@ -216,6 +229,8 @@ void bdesu_PathUtil::appendRaw(bsl::string *path,
 
 int bdesu_PathUtil::popLeaf(bsl::string *path, int rootEnd)
 {
+    BSLS_ASSERT(path);
+
     if (0 > rootEnd) {
         parse(&rootEnd, path->c_str(), path->length());
     }
@@ -228,10 +243,12 @@ int bdesu_PathUtil::popLeaf(bsl::string *path, int rootEnd)
     return 0;
 }
 
-int bdesu_PathUtil::getLeaf(bsl::string *filename,
-                            const bdeut_StringRef& path,
-                            int rootEnd)
+int bdesu_PathUtil::getLeaf(bsl::string            *filename,
+                            const bdeut_StringRef&  path,
+                            int                     rootEnd)
 {
+    BSLS_ASSERT(filename);
+
     int length = path.length();
 
     if (0 > rootEnd) {
@@ -242,25 +259,25 @@ int bdesu_PathUtil::getLeaf(bsl::string *filename,
         return -1;
     }
     filename->clear();
-    const char *lastSeparator = leafDelimiter(path.data(),
-                                              rootEnd, length);
+    const char *lastSeparator = leafDelimiter(path.data(), rootEnd, length);
     BSLS_ASSERT(lastSeparator != path.data() + length);
 
     while (0 < length && SEPARATOR == path[length-1]) {
         --length;
     }
 
-    filename->append(*lastSeparator == SEPARATOR
-                            ? lastSeparator+1
-                            : lastSeparator,
+    filename->append(*lastSeparator == SEPARATOR ? lastSeparator + 1
+                                                 : lastSeparator,
                      path.data() + length);
     return 0;
 }
 
-int bdesu_PathUtil::getDirname(bsl::string *filename,
-                               const bdeut_StringRef& path,
-                               int rootEnd)
+int bdesu_PathUtil::getDirname(bsl::string            *filename,
+                               const bdeut_StringRef&  path,
+                               int                     rootEnd)
 {
+    BSLS_ASSERT(filename);
+
     if (0 > rootEnd) {
         parse(&rootEnd, path.data(), path.length());
     }
@@ -280,10 +297,12 @@ int bdesu_PathUtil::getDirname(bsl::string *filename,
     return 0;
 }
 
-int bdesu_PathUtil::getRoot(bsl::string *root,
-                            const bdeut_StringRef& path,
-                            int rootEnd)
+int bdesu_PathUtil::getRoot(bsl::string            *root,
+                            const bdeut_StringRef&  path,
+                            int                     rootEnd)
 {
+    BSLS_ASSERT(root);
+
     if (0 > rootEnd) {
         parse(&rootEnd, path.data(), path.length());
     }
@@ -312,7 +331,7 @@ bool bdesu_PathUtil::isRelative(const bdeut_StringRef& path, int rootEnd)
         parse(&rootEnd, path.data(), path.length());
     }
 
-    return rootEnd == 0;
+    return 0 == rootEnd;
 }
 
 int bdesu_PathUtil::getRootEnd(const bdeut_StringRef& path)
@@ -322,8 +341,7 @@ int bdesu_PathUtil::getRootEnd(const bdeut_StringRef& path)
     return result;
 }
 
-bool bdesu_PathUtil::hasLeaf(const bdeut_StringRef& path,
-                             int rootEnd)
+bool bdesu_PathUtil::hasLeaf(const bdeut_StringRef& path, int rootEnd)
 {
     int length = path.length();
     if (0 > rootEnd) {

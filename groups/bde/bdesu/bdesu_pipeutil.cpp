@@ -4,11 +4,11 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdesu_pipeutil_cpp,"$Id$ $CSID$")
 
-#include <bsls_platform.h>
-#include <bdesu_pathutil.h>
 #include <bdesu_fileutil.h>
+#include <bdesu_pathutil.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 #define WIN32_LEAN_AND_MEAN
@@ -29,23 +29,27 @@ BDES_IDENT_RCSID(bdesu_pipeutil_cpp,"$Id$ $CSID$")
 #include <bsl_cctype.h>
 #include <bsl_algorithm.h>
 
-
 namespace BloombergLP {
 
-namespace {
-    // Scope private utilities used by this component
+// STATIC HELPER FUNCTIONS
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 
+static
 void getPipeDir(bsl::string *dir)
 {
+    BSLS_ASSERT(dir);
+
     dir->assign("\\\\.\\pipe\\");
 }
 
-#else // UNIX-specific private utilities
+#else  // non-Windows
 
+static
 void getPipeDir(bsl::string *dir)
 {
+    BSLS_ASSERT(dir);
+
     char *tmpdir = bsl::getenv("TMPDIR");
     if (0 != tmpdir) {
         dir->assign(tmpdir);
@@ -58,7 +62,29 @@ void getPipeDir(bsl::string *dir)
 
 #endif
 
-} //close unnamed namespace
+                              // ---------------------
+                              // struct bdesu_PipeUtil
+                              // ---------------------
+
+// CLASS METHODS
+int
+bdesu_PipeUtil::makeCanonicalName(bsl::string           *pipeName,
+                                  const bdeut_StringRef& baseName)
+{
+    BSLS_ASSERT(pipeName);
+
+    getPipeDir(pipeName);
+
+    int rc = bdesu_PathUtil::appendIfValid(pipeName, baseName);
+    if (0 != rc) {
+        return rc;
+    }
+
+    bsl::string::iterator where = pipeName->end() - baseName.length();
+
+    bsl::transform(where, pipeName->end(), where, (int(*)(int))bsl::tolower);
+    return 0;
+}
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 
@@ -137,26 +163,6 @@ bdesu_PipeUtil::isOpenForReading(const bdeut_StringRef& pipeName)
 }
 
 #endif
-
-// Platform-independent implementation
-
-int
-bdesu_PipeUtil::makeCanonicalName(bsl::string           *pipeName,
-                                  const bdeut_StringRef& baseName)
-{
-    getPipeDir(pipeName);
-
-    int rc = bdesu_PathUtil::appendIfValid(pipeName, baseName);
-    if (0 != rc) {
-        return rc;
-    }
-
-    bsl::string::iterator where = pipeName->end() - baseName.length();
-
-    bsl::transform(where, pipeName->end(), where, (int(*)(int))bsl::tolower);
-    return 0;
-}
-
 
 }  // close namespace BloombergLP
 

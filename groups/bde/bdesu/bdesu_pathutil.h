@@ -1,4 +1,4 @@
-// bdesu_pathutil.h    -*-C++-*-
+// bdesu_pathutil.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDESU_PATHUTIL
 #define INCLUDED_BDESU_PATHUTIL
 
@@ -43,46 +43,44 @@ BDES_IDENT("$Id: $")
 // optional argument delimiting the "root"; if this argument is specified,
 // parsing is skipped.
 //
-///Usage Example
-///-------------
+///Usage
+///-----
 // We start with strings representing an absolute native path and a relative
 // native path, respectively:
 //..
 //  #ifdef BSLS_PLATFORM__OS_WINDOWS
-//   bsl::string tempPath  = "c:\\windows\\temp";
-//   bsl::string otherPath = "22jan08\\log.txt";
+//      bsl::string tempPath  = "c:\\windows\\temp";
+//      bsl::string otherPath = "22jan08\\log.txt";
 //  #else
-//   bsl::string tempPath  = "/var/tmp";
-//   bsl::string otherPath = "22jan08/log.txt";
+//      bsl::string tempPath  = "/var/tmp";
+//      bsl::string otherPath = "22jan08/log.txt";
 //  #endif
-//
 //..
 // 'tempPath' is an absolute path, since it has a root.  It also has a leaf
 // element ("temp"):
 //..
-//   assert(false == bdesu_PathUtil::isRelative(tempPath));
-//   assert(true  == bdesu_PathUtil::isAbsolute(tempPath));
-//   assert(true  == bdesu_PathUtil::hasLeaf(tempPath));
+//  assert(false == bdesu_PathUtil::isRelative(tempPath));
+//  assert(true  == bdesu_PathUtil::isAbsolute(tempPath));
+//  assert(true  == bdesu_PathUtil::hasLeaf(tempPath));
 //..
 // We can add filenames to the path one at a time, or we can add another path
 // if is relative.  We can also remove filenames from the end of the path
 // one at a time:
 //..
-//   bdesu_PathUtil::appendRaw(&tempPath, "myApp");
-//   bdesu_PathUtil::appendRaw(&tempPath, "logs");
-//   assert(true == bdesu_PathUtil::isRelative(otherPath));
-//   assert(0 == bdesu_PathUtil::appendIfValid(&tempPath, otherPath));
-//   assert(true == bdesu_PathUtil::hasLeaf(tempPath));
-//   bdesu_PathUtil::popLeaf(tempPath);
-//   bdesu_PathUtil::appendRaw(&tempPath, "log2.txt");
+//  bdesu_PathUtil::appendRaw(&tempPath, "myApp");
+//  bdesu_PathUtil::appendRaw(&tempPath, "logs");
+//  assert(true == bdesu_PathUtil::isRelative(otherPath));
+//  assert(0 == bdesu_PathUtil::appendIfValid(&tempPath, otherPath));
+//  assert(true == bdesu_PathUtil::hasLeaf(tempPath));
+//  bdesu_PathUtil::popLeaf(tempPath);
+//  bdesu_PathUtil::appendRaw(&tempPath, "log2.txt");
 //
-//   #ifdef BSLS_PLATFORM__OS_WINDOWS
-//   assert("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" ==
-//          tempPath);
-//   #else
-//   assert("/var/tmp/myApp/logs/22jan08/log2.txt" ==
-//          tempPath);
-//   #endif
+//  #ifdef BSLS_PLATFORM__OS_WINDOWS
+//      assert("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" ==
+//                                                                   tempPath);
+//  #else
+//      assert("/var/tmp/myApp/logs/22jan08/log2.txt" == tempPath);
+//  #endif
 //..
 // A relative path may be appended to any other path, even itself.  An absolute
 // path may not be appended to any path, or undefined behavior will result:
@@ -105,21 +103,26 @@ BDES_IDENT("$Id: $")
 #include <bdeut_stringref.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
-
 
 namespace BloombergLP {
 
                               // =====================
                               // struct bdesu_PathUtil
                               // =====================
+
 struct bdesu_PathUtil {
     // This struct contains utility methods for platform-independent
     // manipulation of filesystem paths.  No method of this struct provides
     // any filesystem operations.
 
+    // CLASS METHODS
     static int appendIfValid(bsl::string            *path,
                              const bdeut_StringRef&  filename);
       // Append the specified 'filename' to the end of the specified 'path'
@@ -141,8 +144,7 @@ struct bdesu_PathUtil {
       // is also undefined if 'filename' points to any part of 'path' (i.e.,
       // 'filename' may not be an alias for 'path').
 
-    static int popLeaf(bsl::string *path,
-                       int          rootEnd = -1);
+    static int popLeaf(bsl::string *path, int rootEnd = -1);
       // Remove from 'path' the rightmost filename following the root; that
       // is, remove the leaf element.  If the optionally specified 'rootEnd'
       // offset is non-negative, it is taken as the position in 'path' of the
@@ -188,22 +190,19 @@ struct bdesu_PathUtil {
        // relative.  Note that the meaning of the root part is
        // platform-dependent.
 
-    static bool isAbsolute(const bdeut_StringRef& path,
-                           int                    rootEnd = -1);
+    static bool isAbsolute(const bdeut_StringRef& path, int rootEnd = -1);
        // Return 'true' if the specified 'path' is absolute (has a root),
        // and 'false' otherwise.  If the optionally specified 'rootEnd' offset
        // is non-negative, it is taken as the position in 'path' of the
        // character following the root.
 
-    static bool isRelative(const bdeut_StringRef& path,
-                           int                    rootEnd = -1);
+    static bool isRelative(const bdeut_StringRef& path, int rootEnd = -1);
        // Return 'true' if the specified 'path' is relative (lacks a root),
        // and 'false' otherwise.  If the optionally specified 'rootEnd' offset
        // is non-negative, it is taken as the position in 'path' of the
        // character following the root.
 
-    static bool hasLeaf(const bdeut_StringRef& path,
-                        int                    rootEnd = -1);
+    static bool hasLeaf(const bdeut_StringRef& path, int rootEnd = -1);
        // Return 'true' if the specified path has a filename following the
        // root, and 'false' otherwise.  If the optionally specified 'rootEnd'
        // offset is non-negative, it is taken as the position in 'path' of
@@ -212,7 +211,6 @@ struct bdesu_PathUtil {
     static int getRootEnd(const bdeut_StringRef& path);
        // Return the 0-based position in 'path' of the character following
        // the root.  Note that a return value of 0 indicates a relative path.
-
 };
 
 // ============================================================================
@@ -223,15 +221,18 @@ struct bdesu_PathUtil {
                            // class bdesu_PathUtil
                            // --------------------
 
+// CLASS METHODS
 inline
-int bdesu_PathUtil::getBasename(bsl::string *leaf,
-                                const bdeut_StringRef& path,
-                                int rootEnd)
+int bdesu_PathUtil::getBasename(bsl::string            *leaf,
+                                const bdeut_StringRef&  path,
+                                int                     rootEnd)
 {
+    BSLS_ASSERT_SAFE(leaf);
+
     return getLeaf(leaf, path, rootEnd);
 }
 
-}  //close namespace BloombergLP
+}  // close namespace BloombergLP
 
 #endif
 

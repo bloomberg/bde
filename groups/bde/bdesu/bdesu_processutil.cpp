@@ -1,4 +1,4 @@
-// bdesu_processutil.cpp                 -*-C++-*-
+// bdesu_processutil.cpp                                              -*-C++-*-
 #include <bdesu_processutil.h>
 
 #include <bdes_ident.h>
@@ -7,6 +7,7 @@ BDES_IDENT_RCSID(bdesu_processutil_cpp,"$Id$ $CSID$")
 #include <bdesb_memoutstreambuf.h>
 #include <bdesu_fdstreambuf.h>
 
+#include <bsls_assert.h>
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
@@ -46,6 +47,8 @@ int bdesu_ProcessUtil::getProcessId() {
 
 int bdesu_ProcessUtil::getProcessName(bsl::string *result)
 {
+    BSLS_ASSERT(result);
+
     result->clear();
 
 #if defined BSLS_PLATFORM__OS_WINDOWS

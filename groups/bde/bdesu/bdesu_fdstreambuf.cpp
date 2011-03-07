@@ -1,4 +1,4 @@
-// bdesu_fdstreambuf.cpp -*-C++-*-
+// bdesu_fdstreambuf.cpp                                              -*-C++-*-
 #include <bdesu_fdstreambuf.h>
 
 #include <bdes_ident.h>
@@ -22,7 +22,6 @@ BDES_IDENT_RCSID(bdesu_fdstreambuf_cpp,"$Id$ $CSID$")
 #include <bdesu_memoryutil.h>
 
 #include <bslma_allocator.h>
-#include <bslma_deallocatorguard.h>
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
@@ -161,7 +160,7 @@ int bdesu_FdStreamBuf_FileHandler::reset(
 
 int bdesu_FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
 {
-    BSLS_ASSERT_OPT(numBytes >= 0);
+    BSLS_ASSERT_OPT(0 <= numBytes);
 
 #ifdef BSLS_PLATFORM__OS_UNIX
     return FileUtil::read(d_fileId, buffer, numBytes);                // RETURN
@@ -242,9 +241,11 @@ int bdesu_FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
 }
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-int bdesu_FdStreamBuf_FileHandler::windowsWriteText(const char* buffer,
+int bdesu_FdStreamBuf_FileHandler::windowsWriteText(const char *buffer,
                                                     int         numChars)
 {
+    BSLS_ASSERT(0 <= numChars);
+
     // This method in only called for a Windows text file, '\n's are
     // translated to '\r\n's.
 
@@ -310,7 +311,7 @@ int bdesu_FdStreamBuf_FileHandler::windowsWriteText(const char* buffer,
 
 int bdesu_FdStreamBuf_FileHandler::write(const char *buffer, int numBytes)
 {
-    BSLS_ASSERT_OPT(numBytes >= 0);
+    BSLS_ASSERT_OPT(0 <= numBytes);
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     if (d_peekBufferFlag) {
@@ -389,6 +390,8 @@ bsl::streampos bdesu_FdStreamBuf_FileHandler::seek(
 void *bdesu_FdStreamBuf_FileHandler::mmap(bsl::streamoff offset,
                                           bsl::streamoff len)
 {
+    BSLS_ASSERT(0 <= len);
+
     void *ret;
 
     d_peekBufferFlag = false;
@@ -425,6 +428,7 @@ void bdesu_FdStreamBuf_FileHandler::unmap(void *base, bsl::streamoff len)
     // 'base' must have been previously mmapped with length 'len'.
 
     BSLS_ASSERT(base);
+    BSLS_ASSERT(0 <= len);
 
     FileUtil::unmap(base, len);
 }
@@ -480,10 +484,7 @@ bdesu_FdStreamBuf::bdesu_FdStreamBuf(
 , d_mmapLen(0)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
-    reset(fileDescriptor,
-          writableFlag,
-          willCloseOnResetFlag,
-          binaryModeFlag);
+    reset(fileDescriptor, writableFlag, willCloseOnResetFlag, binaryModeFlag);
 }
 
 bdesu_FdStreamBuf::~bdesu_FdStreamBuf()
@@ -668,6 +669,8 @@ int bdesu_FdStreamBuf::outputError()
 
 int bdesu_FdStreamBuf::allocateBuffer(char *buffer, int numBytes)
 {
+    BSLS_ASSERT(0 <= numBytes);
+
     // 'overflow' needs the buffer to be at least 1 byte long, and we also need
     // to be able to read at least a byte at a time.
 
@@ -891,7 +894,7 @@ bdesu_FdStreamBuf::pbackfail(int_type c)
 
         // Are we in the putback buffer already?
 
-        char* pBackEnd = d_pBackBuf + BDESU_PBACK_BUF_SIZE;
+        char *pBackEnd = d_pBackBuf + BDESU_PBACK_BUF_SIZE;
         if (BDESU_INPUT_PUTBACK_MODE == d_mode) {
             // We're already in putback mode.  Do we have more room in the
             // putback buffer?
@@ -1111,6 +1114,8 @@ void bdesu_FdStreamBuf::imbue(const bsl::locale& locale)
 bsl::streamsize bdesu_FdStreamBuf::xsgetn(char            *buffer,
                                           bsl::streamsize  numBytes)
 {
+    BSLS_ASSERT(0 <= numBytes);
+
     if (0 == buffer) {
         return 0;                                                     // RETURN
     }
@@ -1144,6 +1149,8 @@ bsl::streamsize bdesu_FdStreamBuf::xsgetn(char            *buffer,
 bsl::streamsize bdesu_FdStreamBuf::xsputn(const char      *buffer,
                                           bsl::streamsize  numBytes)
 {
+    BSLS_ASSERT(0 <= numBytes);
+
     if (0 == buffer) {
         return 0;                                                     // RETURN
     }

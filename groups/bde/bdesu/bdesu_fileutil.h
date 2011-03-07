@@ -131,6 +131,10 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -516,17 +520,17 @@ int bdesu_FileUtil::createDirectories(const bsl::string& path,
 
 inline
 void bdesu_FileUtil::visitPaths(
-        const bsl::string&                              pattern,
-        const bdef_Function<void(*)(const char *path)>& visitor)
+                       const bsl::string&                              pattern,
+                       const bdef_Function<void(*)(const char *path)>& visitor)
 {
     return visitPaths(pattern.c_str(), visitor);
 }
 
 inline
 bdesu_FileUtil::FileDescriptor bdesu_FileUtil::open(
-        const bsl::string& path,
-        bool               isWritable,
-        bool               isExisting)
+                                                 const bsl::string& path,
+                                                 bool               isWritable,
+                                                 bool               isExisting)
 {
     return open(path.c_str(), isWritable, isExisting);
 }
@@ -553,6 +557,8 @@ inline
 int bdesu_FileUtil::getLastModificationTime(bdet_Datetime      *time,
                                             const bsl::string&  path)
 {
+    BSLS_ASSERT_SAFE(time);
+
     return getLastModificationTime(time, path.c_str());
 }
 

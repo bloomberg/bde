@@ -1053,9 +1053,11 @@ inline
 bsl::streamoff
 bdesu_FdStreamBuf_FileHandler::getOffset(char *first, char *last) const
 {
-    return (d_openModeFlags & bsl::ios_base::binary)
-                                ? last - first
-                                : bsl::count(first, last, '\n') + last - first;
+    BSLS_ASSERT_SAFE(first <= last);
+
+    return d_openModeFlags & bsl::ios_base::binary
+           ? last - first
+           : bsl::count(first, last, '\n') + last - first;
 }
 
 inline
@@ -1120,7 +1122,7 @@ bdesu_FdStreamBuf::seekReturn(pos_type position)
 {
     if (BDESU_INPUT_MODE == d_mode || BDESU_INPUT_PUTBACK_MODE == d_mode) {
         if (0 != exitInputMode(false)) {
-            return (pos_type) -1;    // error                         // RETURN
+            return (pos_type)-1;    // error                          // RETURN
         }
     }
     setg(0, 0, 0);
@@ -1133,11 +1135,11 @@ bdesu_FdStreamBuf::seekReturn(pos_type position)
 
 // MANIPULATORS
 inline
-int bdesu_FdStreamBuf::reset(bdesu_FileUtil::FileDescriptor
-                                                          fileDescriptor,
-                                    bool                  writableFlag,
-                                    bool                  willCloseOnResetFlag,
-                                    bool                  binaryModeFlag)
+int
+bdesu_FdStreamBuf::reset(bdesu_FileUtil::FileDescriptor fileDescriptor,
+                         bool                           writableFlag,
+                         bool                           willCloseOnResetFlag,
+                         bool                           binaryModeFlag)
 {
     bool ok = 0 == flush();
 
