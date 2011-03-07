@@ -17,9 +17,9 @@ BDES_IDENT_RCSID(baenet_httpstatuscode_cpp,"$Id$ $CSID$ $CCId$")
 
 namespace BloombergLP {
 
-                      // -------------------------------                       
-                      // class baenet_HttpStatusCode                       
-                      // -------------------------------                       
+                      // -------------------------------
+                      // class baenet_HttpStatusCode
+                      // -------------------------------
 
 // CONSTANTS
 
@@ -326,7 +326,6 @@ baenet_HttpStatusCode::fromString(baenet_HttpStatusCode::Value *result,
                                   const char                   *string,
                                   int                           stringLength)
 {
-    
     switch(stringLength) {
         case 2: {
             if ((string[0]|0x20)=='o'
@@ -1208,7 +1207,7 @@ baenet_HttpStatusCode::fromString(baenet_HttpStatusCode::Value *result,
             }
         } break;
     }
-    
+
     return -1;
 }
 
@@ -1335,9 +1334,14 @@ const char *baenet_HttpStatusCode::toString(baenet_HttpStatusCode::Value value)
       case BAENET_HTTP_VERSION_NOT_SUPPORTED: {
         return "HTTP Version not supported";
       } break;
+      default: {
+        // NOTE: IF THIS COMPONENT IS REGENERATED, THE FOLLOWING *MUST* BE
+        // REINSTATED (SEE DRQS 23241856).
+
+        return "(* Custom HTTP Status Code *)";
+      } break;
     }
 
-    BSLS_ASSERT(!"invalid enumerator");
     return 0;
 }
 
