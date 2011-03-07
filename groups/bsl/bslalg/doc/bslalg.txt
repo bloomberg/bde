@@ -24,35 +24,38 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bslalg' currently has 27 components having 8 levels of physical dependency.
+ 'bslalg' currently has 30 components having 9 levels of physical dependency.
  The table below shows the hierarchical ordering of the components.  The
  package prefix and underscore ('bslalg_') are omitted from the full component
  names for layout efficiency.
 ..
+  Level 9:  dequeprimitives
+
   Level 8:  arrayprimitives              constructorproxy
 
   Level 7:  scalarprimitives
 
   Level 6:  autoarraydestructor          autoarraymovedestructor
-            autoscalardestructor
-
-  Level 5:  arraydestructionprimitives   bitwiseeqpassthroughtrait
-            passthroughtrait             rangecompare
-            scalardestructionprimitives  selecttrait
+            autoscalardestructor         rangecompare
             typetraitsgroupstlordered    typetraitsgroupstlsequence
             typetraitsgroupstlunordered
 
-  Level 4:  hastrait
+  Level 5:  arraydestructionprimitives   bitwiseeqpassthroughtrait
+            passthroughtrait             scalardestructionprimitives
+            selecttrait
+
+  Level 4:  dequeiterator                hastrait
 
   Level 3:  typetraits
 
   Level 2:  typetraitsgrouppod
 
-  Level 1:  typetraitbitwisecopyable     typetraitbitwiseequalitycomparable
-            typetraitbitwisemoveable     typetraithaspointersemantics
-            typetraithasstliterators     typetraithastrivialdefaultconstructor
-            typetraitnil                 typetraitpair
-            typetraitusesbslmaallocator
+  Level 1:  dequeimputil                           typetraitbitwisecopyable     
+            typetraitbitwiseequalitycomparable     typetraitbitwisemoveable     
+            typetraithaspointersemantics           typetraithasstliterators     
+            typetraithastrivialdefaultconstructor  typetraitnil                 
+            typetraitpair                          typetraitusesbslmaallocator
+            
 ..
 
 /Component Synopsis
@@ -77,6 +80,12 @@
                                           constructor arguments based on
                                           'bslalg_TypeTraitUsesBslmaAllocator'
                                           trait.
+  'bslalg_dequeimputil'                 - basic parameters and primitive data
+                                          structures to implement 'bsl::deque'.
+  'bslalg_dequeiterator'                - primitive data structures for
+                                          implementing 'bsl::deque' iterators.
+  'bslalg_dequeprimitives'              - primitive algorithms that operate on
+                                          deques.
   'bslalg_hastrait'                     - trait probing meta-computation.
   'bslalg_passthroughtrait'             - traits meta-computation.
   'bslalg_rangecompare'                 - primitives for array and range
