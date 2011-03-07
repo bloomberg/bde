@@ -969,7 +969,7 @@ struct RandomAccessIter
 
     difference_type operator- (const RandomAccessIter &rhs) const { 
         RW_ASSERT (cur_ != 0 && rhs.cur_ != 0);
-        return cur_ - rhs.cur_;
+        return static_cast<difference_type>(cur_ - rhs.cur_);
     }
 
     bool operator== (const RandomAccessIter &rhs) const {

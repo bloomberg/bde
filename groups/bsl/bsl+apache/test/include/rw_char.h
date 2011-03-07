@@ -162,8 +162,8 @@ public:
     }
 
     ~UserInt () {
-        RW_ASSERT (ptr_ == &i_);            // verify *this is valid
-        RW_ASSERT (-1 <= i_ == i_ < 257);   // i may be invalid
+        RW_ASSERT (ptr_ == &i_);                // verify *this is valid
+        RW_ASSERT ((-1 <= i_) == (i_ < 257));   // i may be invalid
 
         i_   = _RWSTD_INT_MIN;   // invalidate
         ptr_ = &ptr_;            // invalidate
