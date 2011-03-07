@@ -1,4 +1,4 @@
-// bdepu_parserimputil.h       -*-C++-*-
+// bdepu_parserimputil.h                                              -*-C++-*-
 #ifndef INCLUDED_BDEPU_PARSERIMPUTIL
 #define INCLUDED_BDEPU_PARSERIMPUTIL
 
@@ -209,6 +209,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEU_CHARTYPE
 #include <bdeu_chartype.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
@@ -484,6 +488,9 @@ int bdepu_ParserImpUtil::skipRequiredCaselessToken(const char **endPos,
                                                    const char  *inputString,
                                                    char         token)
 {
+    BSLS_ASSERT_SAFE(endPos);
+    BSLS_ASSERT_SAFE(inputString);
+
     enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = 1 };
 
     int result = BDEPU_FAILURE;
@@ -501,6 +508,9 @@ int bdepu_ParserImpUtil::skipRequiredToken(const char **endPos,
                                            const char  *inputString,
                                            char         token)
 {
+    BSLS_ASSERT_SAFE(endPos);
+    BSLS_ASSERT_SAFE(inputString);
+
     enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = 1 };
 
     int result = BDEPU_FAILURE;
@@ -514,10 +524,13 @@ int bdepu_ParserImpUtil::skipRequiredToken(const char **endPos,
 }
 
 inline
-void bdepu_ParserImpUtil::generateIndentation(bsl::vector<char> *buffer,
-                                              int               level,
-                                              int               spacesPerLevel)
+void bdepu_ParserImpUtil::generateIndentation(
+                                             bsl::vector<char> *buffer,
+                                             int                level,
+                                             int                spacesPerLevel)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     buffer->resize(buffer->size() + level * spacesPerLevel, ' ');
 }
 

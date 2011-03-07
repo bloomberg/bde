@@ -1,4 +1,4 @@
-// bdepu_typesparserimputil.h       -*-C++-*-
+// bdepu_typesparserimputil.h                                         -*-C++-*-
 #ifndef INCLUDED_BDEPU_TYPESPARSERIMPUTIL
 #define INCLUDED_BDEPU_TYPESPARSERIMPUTIL
 
@@ -288,6 +288,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDET_TIMETZ
 #include <bdet_timetz.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
@@ -1145,6 +1149,10 @@ int bdepu_TypesParserImpUtil::parseQuotedString(const char  **endPos,
                                                 bsl::string  *result,
                                                 const char   *inputString)
 {
+    BSLS_ASSERT_SAFE(endPos);
+    BSLS_ASSERT_SAFE(result);
+    BSLS_ASSERT_SAFE(inputString);
+
     return bdepu_TypesParserImpUtil::parseDelimitedString(endPos,
                                                           result,
                                                           inputString,
@@ -1157,6 +1165,10 @@ int bdepu_TypesParserImpUtil::parseString(const char  **endPos,
                                           bsl::string  *result,
                                           const char   *inputString)
 {
+    BSLS_ASSERT_SAFE(endPos);
+    BSLS_ASSERT_SAFE(result);
+    BSLS_ASSERT_SAFE(inputString);
+
     if (*inputString == '\"') {
         return parseQuotedString(endPos, result, inputString);
     }
@@ -1170,6 +1182,9 @@ int bdepu_TypesParserImpUtil::generateShort(char  *buffer,
                                             short  value,
                                             int    length)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     return generateInt(buffer, value, length);
 }
 
@@ -1179,12 +1194,20 @@ int bdepu_TypesParserImpUtil::generateShort(char  *buffer,
                                             int    length,
                                             int    base)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_ASSERT_SAFE(2 <= base);
+    BSLS_ASSERT_SAFE(     base <= 36);
+
+
     return generateInt(buffer, value, length, base);
 }
 
 inline
 int bdepu_TypesParserImpUtil::generateShortRaw(char *buffer, short value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     return generateIntRaw(buffer, value);
 }
 
@@ -1193,6 +1216,10 @@ int bdepu_TypesParserImpUtil::generateShortRaw(char  *buffer,
                                                short  value,
                                                int    base)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(2 <= base);
+    BSLS_ASSERT_SAFE(     base <= 36);
+
     return generateIntRaw(buffer, value, base);
 }
 
@@ -1200,6 +1227,8 @@ inline
 void bdepu_TypesParserImpUtil::generateChar(bsl::vector<char> *buffer,
                                             char               value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     buffer->push_back('\'');
     generateCharRaw(buffer, value);
     buffer->push_back('\'');
@@ -1210,6 +1239,10 @@ void bdepu_TypesParserImpUtil::generateShort(bsl::vector<char> *buffer,
                                              short              value,
                                              int                base)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(2 <= base);
+    BSLS_ASSERT_SAFE(     base <= 36);
+
     generateInt(buffer, value, base);
 }
 
@@ -1217,6 +1250,8 @@ inline
 void bdepu_TypesParserImpUtil::generateString(bsl::vector<char>  *buffer,
                                               const bsl::string&  value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     generateString(buffer, value.data());
 }
 
@@ -1224,6 +1259,8 @@ inline
 void bdepu_TypesParserImpUtil::generateDatetime(bsl::vector<char>    *buffer,
                                                 const bdet_Datetime&  value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     generateDate(buffer, value.date());
     buffer->push_back(' ');
     generateTime(buffer, value.time());
@@ -1234,6 +1271,8 @@ void bdepu_TypesParserImpUtil::generateDatetimeTz(
                                                 bsl::vector<char>      *buffer,
                                                 const bdet_DatetimeTz&  value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     generateDatetime(buffer, value.localDatetime());
     generateTz(buffer, value.offset());
 }
@@ -1242,6 +1281,8 @@ inline
 void bdepu_TypesParserImpUtil::generateDateTz(bsl::vector<char>  *buffer,
                                               const bdet_DateTz&  value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     generateDate(buffer, value.localDate());
     generateTz(buffer, value.offset());
 }
@@ -1250,6 +1291,8 @@ inline
 void bdepu_TypesParserImpUtil::generateTimeTz(bsl::vector<char>  *buffer,
                                               const bdet_TimeTz&  value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     generateTime(buffer, value.localTime());
     generateTz(buffer, value.offset());
 }

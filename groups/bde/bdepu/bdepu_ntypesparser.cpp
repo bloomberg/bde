@@ -24,6 +24,10 @@ int bdepu_NTypesParser::parseChar(const char **endPos,
                                   char        *result,
                                   const char  *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<char>::unsetValue();
@@ -37,6 +41,10 @@ int bdepu_NTypesParser::parseDate(const char **endPos,
                                   bdet_Date   *result,
                                   const char  *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<bdet_Date>::unsetValue();
@@ -50,6 +58,10 @@ int bdepu_NTypesParser::parseDatetime(const char    **endPos,
                                       bdet_Datetime  *result,
                                       const char     *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<bdet_Datetime>::unsetValue();
@@ -65,6 +77,10 @@ int bdepu_NTypesParser::parseDatetimeTz(const char      **endPos,
                                         bdet_DatetimeTz  *result,
                                         const char       *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<bdet_DatetimeTz>::unsetValue();
@@ -80,6 +96,10 @@ int bdepu_NTypesParser::parseDateTz(const char  **endPos,
                                     bdet_DateTz  *result,
                                     const char   *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<bdet_DateTz>::unsetValue();
@@ -93,6 +113,10 @@ int bdepu_NTypesParser::parseDouble(const char **endPos,
                                     double      *result,
                                     const char  *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<double>::unsetValue();
@@ -106,6 +130,10 @@ int bdepu_NTypesParser::parseFloat(const char **endPos,
                                    float       *result,
                                    const char  *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<float>::unsetValue();
@@ -120,6 +148,12 @@ int bdepu_NTypesParser::parseInt(const char **endPos,
                                  const char  *inputString,
                                  int          base)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<int>::unsetValue();
@@ -137,6 +171,12 @@ int bdepu_NTypesParser::parseInt64(const char               **endPos,
                                    const char                *inputString,
                                    int                        base)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
@@ -154,6 +194,12 @@ int bdepu_NTypesParser::parseShort(const char **endPos,
                                    const char  *inputString,
                                    int          base)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<short>::unsetValue();
@@ -170,6 +216,10 @@ int bdepu_NTypesParser::parseString(const char  **endPos,
                                     bsl::string  *result,
                                     const char   *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<bsl::string>::unsetValue();
@@ -183,6 +233,10 @@ int bdepu_NTypesParser::parseQuotedString(const char  **endPos,
                                           bsl::string  *result,
                                           const char   *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<bsl::string>::unsetValue();
@@ -198,6 +252,10 @@ int bdepu_NTypesParser::parseUnquotedString(const char  **endPos,
                                             bsl::string  *result,
                                             const char   *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<bsl::string>::unsetValue();
@@ -213,6 +271,10 @@ int bdepu_NTypesParser::parseSpaceDelimitedString(const char  **endPos,
                                                   bsl::string  *result,
                                                   const char   *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<bsl::string>::unsetValue();
@@ -228,6 +290,10 @@ int bdepu_NTypesParser::parseTime(const char **endPos,
                                   bdet_Time   *result,
                                   const char  *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<bdet_Time>::unsetValue();
@@ -241,6 +307,10 @@ int bdepu_NTypesParser::parseTimeTz(const char  **endPos,
                                     bdet_TimeTz  *result,
                                     const char   *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdetu_Unset<bdet_TimeTz>::unsetValue();
@@ -317,6 +387,8 @@ void bdepu_NTypesParser::generateCharRaw(bsl::vector<char> *buffer,
                                          int                level,
                                          int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -336,6 +408,8 @@ void bdepu_NTypesParser::generateShortRaw(bsl::vector<char> *buffer,
                                           int                level,
                                           int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -355,6 +429,8 @@ void bdepu_NTypesParser::generateIntRaw(bsl::vector<char> *buffer,
                                         int                level,
                                         int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -375,6 +451,8 @@ void bdepu_NTypesParser::generateInt64Raw(
                                       int                       level,
                                       int                       spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -394,6 +472,8 @@ void bdepu_NTypesParser::generateFloatRaw(bsl::vector<char> *buffer,
                                           int                level,
                                           int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -413,6 +493,8 @@ void bdepu_NTypesParser::generateDoubleRaw(bsl::vector<char> *buffer,
                                            int                level,
                                            int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -432,6 +514,9 @@ void bdepu_NTypesParser::generateStringRaw(bsl::vector<char> *buffer,
                                            int                level,
                                            int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(value);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -451,6 +536,8 @@ void bdepu_NTypesParser::generateDateRaw(bsl::vector<char> *buffer,
                                          int                level,
                                          int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -470,6 +557,8 @@ void bdepu_NTypesParser::generateDateTzRaw(bsl::vector<char>  *buffer,
                                            int                 level,
                                            int                 spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -489,6 +578,8 @@ void bdepu_NTypesParser::generateTimeRaw(bsl::vector<char> *buffer,
                                          int                level,
                                          int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -508,6 +599,8 @@ void bdepu_NTypesParser::generateTimeTzRaw(bsl::vector<char>  *buffer,
                                            int                 level,
                                            int                 spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -528,6 +621,8 @@ void bdepu_NTypesParser::generateDatetimeRaw(
                                           int                   level,
                                           int                   spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -548,6 +643,8 @@ void bdepu_NTypesParser::generateDatetimeTzRaw(
                                         int                     level,
                                         int                     spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     if (level > 0) {
         bdepu_ParserImpUtil::generateIndentation(buffer,
                                                  level,
@@ -625,6 +722,8 @@ void bdepu_NTypesParser::generateChar(bsl::vector<char> *buffer,
                                       int                level,
                                       int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateCharRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -635,6 +734,8 @@ void bdepu_NTypesParser::generateInt(bsl::vector<char> *buffer,
                                      int                level,
                                      int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateIntRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -646,6 +747,8 @@ void bdepu_NTypesParser::generateInt64(
                                       int                       level,
                                       int                       spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateInt64Raw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -656,6 +759,8 @@ void bdepu_NTypesParser::generateFloat(bsl::vector<char> *buffer,
                                        int                level,
                                        int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateFloatRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -666,6 +771,8 @@ void bdepu_NTypesParser::generateDouble(bsl::vector<char> *buffer,
                                         int                level,
                                         int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateDoubleRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -676,6 +783,9 @@ void bdepu_NTypesParser::generateString(bsl::vector<char> *buffer,
                                         int                level,
                                         int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(value);
+
     stripNull(buffer);
     generateStringRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -686,6 +796,8 @@ void bdepu_NTypesParser::generateDate(bsl::vector<char> *buffer,
                                       int                level,
                                       int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateDateRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -696,6 +808,8 @@ void bdepu_NTypesParser::generateDateTz(bsl::vector<char>  *buffer,
                                         int                 level,
                                         int                 spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateDateTzRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -706,6 +820,8 @@ void bdepu_NTypesParser::generateTime(bsl::vector<char> *buffer,
                                       int                level,
                                       int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateTimeRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -716,6 +832,8 @@ void bdepu_NTypesParser::generateTimeTz(bsl::vector<char>  *buffer,
                                         int                 level,
                                         int                 spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateTimeTzRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -726,6 +844,8 @@ void bdepu_NTypesParser::generateDatetime(bsl::vector<char>    *buffer,
                                           int                   level,
                                           int                   spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateDatetimeRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -737,6 +857,8 @@ void bdepu_NTypesParser::generateDatetimeTz(
                                         int                     level,
                                         int                     spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateDatetimeTzRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -748,6 +870,8 @@ void bdepu_NTypesParser::generateCharArray(
                                       int                       level,
                                       int                       spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateCharArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -758,6 +882,8 @@ void bdepu_NTypesParser::generateShort(bsl::vector<char> *buffer,
                                        int                level,
                                        int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateShortRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -769,6 +895,8 @@ void bdepu_NTypesParser::generateShortArray(
                                      int                        level,
                                      int                        spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateShortArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -780,6 +908,8 @@ void bdepu_NTypesParser::generateIntArray(
                                        int                      level,
                                        int                      spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateIntArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -791,6 +921,8 @@ void bdepu_NTypesParser::generateInt64Array(
                   int                                           level,
                   int                                           spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateInt64ArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -802,6 +934,8 @@ void bdepu_NTypesParser::generateFloatArray(
                                      int                        level,
                                      int                        spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateFloatArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -813,6 +947,8 @@ void bdepu_NTypesParser::generateDoubleArray(
                                     int                         level,
                                     int                         spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateDoubleArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -824,6 +960,8 @@ void bdepu_NTypesParser::generateStringArray(
                                int                              level,
                                int                              spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateStringArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -835,6 +973,8 @@ void bdepu_NTypesParser::generateDateArray(
                                  int                            level,
                                  int                            spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateDateArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -846,6 +986,8 @@ void bdepu_NTypesParser::generateDateTzArray(
                                int                              level,
                                int                              spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateDateTzArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -857,6 +999,8 @@ void bdepu_NTypesParser::generateTimeArray(
                                  int                            level,
                                  int                            spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateTimeArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -868,6 +1012,8 @@ void bdepu_NTypesParser::generateTimeTzArray(
                                int                              level,
                                int                              spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateTimeTzArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -879,6 +1025,8 @@ void bdepu_NTypesParser::generateDatetimeArray(
                             int                                level,
                             int                                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateDatetimeArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');
@@ -890,6 +1038,8 @@ void bdepu_NTypesParser::generateDatetimeTzArray(
                           int                                  level,
                           int                                  spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+
     stripNull(buffer);
     generateDatetimeTzArrayRaw(buffer, value, level, spacesPerLevel);
     buffer->push_back('\0');

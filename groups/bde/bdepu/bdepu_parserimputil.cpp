@@ -1,4 +1,4 @@
-// bdepu_parserimputil.cpp    -*-C++-*-
+// bdepu_parserimputil.cpp                                            -*-C++-*-
 #include <bdepu_parserimputil.h>
 
 #include <bdes_ident.h>
@@ -85,7 +85,8 @@ bool bdepu_ParserImpUtil::isIdentifier(const bsl::string& inString)
     bsl::string::const_iterator endStr = inString.end();
     for (bsl::string::const_iterator i = inString.begin(); i != endStr; ++i) {
         char nextChar = *i;
-        if (!(isalnum(static_cast<unsigned char>(nextChar)) || nextChar == '_')) {
+        if (!(isalnum(static_cast<unsigned char>(nextChar))
+         || '_' == nextChar)) {
             return false;                                             // RETURN
         }
     }
@@ -221,6 +222,9 @@ int bdepu_ParserImpUtil::parseIdentifier(const char  **endPos,
 int bdepu_ParserImpUtil::parseNull(const char **endPos,
                                    const char  *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(inputString);
+
     if ('N' != bdeu_CharType::toUpper(*(*endPos = inputString++))) {
         return BDEPU_FAILURE;
     }
@@ -248,7 +252,7 @@ int bdepu_ParserImpUtil::parseSignedInteger(
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(inputString);
     BSLS_ASSERT(2 <= base);
-    BSLS_ASSERT(base <= 36);
+    BSLS_ASSERT(     base <= 36);
     BSLS_ASSERT(minValue <= 0);
     BSLS_ASSERT(maxValue >= 0);
 
@@ -286,9 +290,10 @@ int bdepu_ParserImpUtil::parseUnsignedInteger(
                                  const bsls_PlatformUtil::Uint64   maxValue)
 {
     BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
     BSLS_ASSERT(inputString);
     BSLS_ASSERT(2 <= base);
-    BSLS_ASSERT(base <= 36);
+    BSLS_ASSERT(     base <= 36);
 
     const bsls_PlatformUtil::Uint64 maxCheck = maxValue / base;
     const char *start = inputString;
@@ -330,9 +335,10 @@ int bdepu_ParserImpUtil::parseUnsignedInteger(
                                 int                               maxNumDigits)
 {
     BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
     BSLS_ASSERT(inputString);
     BSLS_ASSERT(2 <= base);
-    BSLS_ASSERT(base <= 36);
+    BSLS_ASSERT(     base <= 36);
     BSLS_ASSERT(0 <= maxNumDigits);
 
     const bsls_PlatformUtil::Uint64 maxCheck = maxValue / base;
@@ -372,6 +378,10 @@ int bdepu_ParserImpUtil::skipRequiredCaselessToken(const char **endPos,
                                                    const char  *inputString,
                                                    const char  *token)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(inputString);
+    BSLS_ASSERT(token);
+
     *endPos = inputString;
     while ('\0' != *token
         && bdeu_CharType::toUpper(*token) == bdeu_CharType::toUpper(**endPos))
@@ -387,6 +397,10 @@ int bdepu_ParserImpUtil::skipRequiredToken(const char **endPos,
                                            const char  *inputString,
                                            const char  *token)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(inputString);
+    BSLS_ASSERT(token);
+
     *endPos = inputString;
     while ('\0' != *token && *token == **endPos) {
         ++*endPos;
@@ -459,6 +473,9 @@ void bdepu_ParserImpUtil::generateIdentifier(bsl::vector<char> *buffer,
                                              int                level,
                                              int                spacesPerLevel)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(value);
+
     if (level > 0) {
         generateIndentation(buffer, level, spacesPerLevel);
     }
@@ -471,6 +488,8 @@ void bdepu_ParserImpUtil::generateIdentifier(bsl::vector<char> *buffer,
 
 void bdepu_ParserImpUtil::generateNull(bsl::vector<char> *buffer)
 {
+    BSLS_ASSERT(buffer);
+
     buffer->reserve(buffer->size() + 4);
     buffer->push_back('N');
     buffer->push_back('U');

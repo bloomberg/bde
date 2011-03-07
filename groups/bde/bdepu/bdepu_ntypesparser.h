@@ -59,6 +59,7 @@ BDES_IDENT("$Id: $")
 ///DEFINITION OF SYMBOLS USED IN REGULAR EXPRESSION DESCRIPTIONS
 ///-------------------------------------------------------------
 //
+//..
 // The following grammar is used to specify regular expressions:
 //   .     A period (.) is a one-character RE (regular expression) that matches
 //         any character except new-line.
@@ -108,6 +109,7 @@ BDES_IDENT("$Id: $")
 //         enclosed in parentheses.  For example, (a*(cb+)*)$0.  By necessity,
 //         all the above defined symbols are special.  They must, therefore,
 //         be escaped with a \ (backslash) to be used as themselves.
+//..
 //
 ///DEFINITION OF TERMS USED IN REGULAR EXPRESSION DESCRIPTIONS
 ///-----------------------------------------------------------
@@ -422,6 +424,10 @@ BDES_IDENT("$Id: $")
 #include <bdet_timetz.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
@@ -454,7 +460,7 @@ namespace BloombergLP {
 
 struct bdepu_NTypesParser {
     // This struct provides a namespace for a suite of stateless procedures
-    // that perform low-level parsing functionality of  several vocabulary
+    // that perform low-level parsing functionality of several vocabulary
     // types and arrays of these types.  This parsing framework recognizes
     // stream-based languages that ignore C- and C++-style comments and
     // whitespace between tokens.  In particular, every parsing function in
@@ -641,7 +647,7 @@ struct bdepu_NTypesParser {
         //..
         // A parse failure can occur for the following reasons:
         //   1. The opening or closing double-quote ('"') character is missing.
-        //   2. One of the characters in the string is invalid i.e. :
+        //   2. One of the characters in the string is invalid i.e.:
         //      a. If the char is an <OCTAL_ESCAPE_SEQUENCE>, then
         //         1. the numeric part of the value of the sequence must have
         //            no more than three digits.
@@ -673,7 +679,7 @@ struct bdepu_NTypesParser {
         //..
         // A parse failure can occur for the following reasons:
         //   1. If either delimiter is missing.
-        //   2. If one of the characters in the string is invalid i.e. :
+        //   2. If one of the characters in the string is invalid i.e.:
         //      a. If the char is an <OCTAL_ESCAPE_SEQUENCE>, then
         //         1. the numeric part of the value of the sequence must have
         //            no more than three digits.
@@ -703,7 +709,7 @@ struct bdepu_NTypesParser {
         // A parse failure can occur for the following reasons:
         //   1. If the opening or closing double-quote ('"') character is
         //      missing.
-        //   2. If one of the characters in the string is invalid i.e. :
+        //   2. If one of the characters in the string is invalid i.e.:
         //      a. If the char is an <OCTAL_ESCAPE_SEQUENCE>, then
         //         1. the numeric part of the value of the sequence must have
         //            no more than three digits.
@@ -732,7 +738,7 @@ struct bdepu_NTypesParser {
         //..
         // A parse failure can occur for the following reasons:
         //   1. A double-quote ('"') character is found inside the string.
-        //   2. If one of the characters in the string is invalid i.e. :
+        //   2. If one of the characters in the string is invalid i.e.:
         //      a. If the char is an <OCTAL_ESCAPE_SEQUENCE>, then
         //         1. the numeric part of the value of the sequence must have
         //            no more than three digits.
@@ -2355,6 +2361,10 @@ int bdepu_NTypesParser::parseDelimitedString(const char  **endPos,
                                              char          leftDelimiter,
                                              char          rightDelimiter)
 {
+    BSLS_ASSERT_SAFE(endPos);
+    BSLS_ASSERT_SAFE(result);
+    BSLS_ASSERT_SAFE(inputString);
+
     return bdepu_TypesParserImpUtil::parseDelimitedString(endPos,
                                                           result,
                                                           inputString,
@@ -2370,6 +2380,8 @@ int bdepu_NTypesParser::parseDelimitedString(const char  **endPos,
 inline
 void bdepu_NTypesParser::stripNull(bsl::vector<char> *buffer)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     const bsl::size_t bufferLen = buffer->size();
 
     if (bufferLen && '\0' == (*buffer)[bufferLen - 1]) {

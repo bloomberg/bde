@@ -111,6 +111,12 @@ int parseRealAsDecimal(const char                **endPos,
     // 'decExp' are unchanged if a parse failure occurs.  The behavior is
     // undefined if any argument is 0.
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(decSign);
+    BSLS_ASSERT(decFrac);
+    BSLS_ASSERT(decExp);
+    BSLS_ASSERT(inputString);
+
     int sign = ('-' == *inputString) ? 1 : 0;
     inputString += ('+' == *inputString || '-' == *inputString);
 
@@ -216,6 +222,9 @@ char *generateIntDecimalHelper(char *buffer, INTEGER value, int length)
     // NOT null-terminated, and must be sufficiently big to accommodate any
     // possible value of the parameterized 'INTEGER' type.
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= length);
+
     buffer += length;
     if (0 < value) {
         for (; 0 != value; value /= 10) {
@@ -244,6 +253,11 @@ char *generateIntHelper(char *buffer, INTEGER value, int length, int base)
     // NOT null-terminated, and must be sufficiently big to accommodate any
     // possible value of the parameterized 'INTEGER' type.
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
     buffer += length;
     if (0 < value) {
         for (; 0 != value; value /= base) {
@@ -271,6 +285,11 @@ int copyBuf(char *dest, int destLen, const char *src, int srcLen)
     // terminator.  If 'srcLen >= destLen', then copy only 'destLen' bytes
     // and add do not add a null terminator.
 {
+    BSLS_ASSERT(dest);
+    BSLS_ASSERT(0 <= destLen);
+    BSLS_ASSERT(src);
+    BSLS_ASSERT(0 <= srcLen);
+
     if (destLen > srcLen) {
         bsl::memcpy(dest, src, srcLen);
         dest[srcLen] = '\0';
@@ -287,6 +306,10 @@ int copyBufRaw(char *dest, const char *src, int srcLen)
     // 'srcLen' into the specified 'dest' buffer having more than 'srcLen'.
     // Do not add a null terminator.
 {
+    BSLS_ASSERT(dest);
+    BSLS_ASSERT(src);
+    BSLS_ASSERT(0 <= srcLen);
+
     bsl::memcpy(dest, src, srcLen);
     return srcLen;
 }
@@ -299,6 +322,10 @@ void generateIntHelper(bsl::vector<char> *buffer,
     // forming the representation of the specified 'value' in the specified
     // 'base'.
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
     enum { BUF_LEN = bdepu_TypesParserImpUtil::BDEPU_MAX_INT64_STRLEN };
     char tempBuf[BUF_LEN];
 
@@ -352,6 +379,10 @@ int bdepu_TypesParserImpUtil::parseChar(const char **endPos,
                                         char        *result,
                                         const char  *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     if (bdepu_ParserImpUtil::skipRequiredToken(endPos, inputString, '\'')) {
         return BDEPU_FAILURE;
     }
@@ -379,6 +410,10 @@ int bdepu_TypesParserImpUtil::parseCharRaw(const char **endPos,
                                            char        *result,
                                            const char  *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     int rv;
 
     switch (bdepu_EscapeChar::escapeCodes()[(unsigned char)*inputString]) {
@@ -427,6 +462,11 @@ int bdepu_TypesParserImpUtil::parseCharRaw(const char **endPos,
                                            const char  *inputString,
                                            int         *flags)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+    BSLS_ASSERT(flags);
+
     int rv;
 
     switch (bdepu_EscapeChar::escapeCodes()[(unsigned char)*inputString]) {
@@ -560,6 +600,10 @@ int bdepu_TypesParserImpUtil::parseDatetime(const char    **endPos,
                                             bdet_Datetime  *result,
                                             const char     *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdet_Date resultDate;
     bdet_Time resultTime;
 
@@ -584,6 +628,10 @@ int bdepu_TypesParserImpUtil::parseDatetimeTz(const char      **endPos,
                                               bdet_DatetimeTz  *result,
                                               const char       *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdet_Datetime resultDatetime;
 
     if (parseDatetime(endPos, &resultDatetime, inputString)) {
@@ -605,6 +653,10 @@ int bdepu_TypesParserImpUtil::parseDateTz(const char  **endPos,
                                           bdet_DateTz  *result,
                                           const char   *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdet_Date resultDate;
 
     if (parseDate(endPos, &resultDate, inputString)) {
@@ -705,7 +757,7 @@ int bdepu_TypesParserImpUtil::parseInt(const char **endPos,
     BSLS_ASSERT(result);
     BSLS_ASSERT(inputString);
     BSLS_ASSERT(2 <= base);
-    BSLS_ASSERT(base <= 36);
+    BSLS_ASSERT(     base <= 36);
 
     Int64 res = *result;
     int rv = bdepu_ParserImpUtil::parseSignedInteger(endPos,
@@ -728,7 +780,7 @@ int bdepu_TypesParserImpUtil::parseInt64(
     BSLS_ASSERT(result);
     BSLS_ASSERT(inputString);
     BSLS_ASSERT(2 <= base);
-    BSLS_ASSERT(base <= 36);
+    BSLS_ASSERT(     base <= 36);
 
     Int64 res = *result;
     int rv = bdepu_ParserImpUtil::parseSignedInteger(
@@ -751,7 +803,7 @@ int bdepu_TypesParserImpUtil::parseShort(const char **endPos,
     BSLS_ASSERT(result);
     BSLS_ASSERT(inputString);
     BSLS_ASSERT(2 <= base);
-    BSLS_ASSERT(base <= 36);
+    BSLS_ASSERT(     base <= 36);
 
     Int64 res = *result;
     int rv = bdepu_ParserImpUtil::parseSignedInteger(endPos,
@@ -990,6 +1042,10 @@ int bdepu_TypesParserImpUtil::parseTimeTz(const char  **endPos,
                                           bdet_TimeTz  *result,
                                           const char   *inputString)
 {
+    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(inputString);
+
     bdet_Time resultTime;
 
     if (parseTime(endPos, &resultTime, inputString)) {
@@ -1088,6 +1144,9 @@ int bdepu_TypesParserImpUtil::generateLongDouble(char        *buffer,
                                                  long double  value,
                                                  int          length)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= length);
+
     enum { BUF_LEN = BDEPU_MAX_LONGDOUBLE_STRLEN10 };
     char tempBuf[BUF_LEN];
 
@@ -1104,6 +1163,9 @@ int bdepu_TypesParserImpUtil::generateDouble(char   *buffer,
                                              double  value,
                                              int     length)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= length);
+
     enum { BUF_LEN = BDEPU_MAX_DOUBLE_STRLEN10 };
     char tempBuf[BUF_LEN];
     const int strLen = bsl::sprintf(tempBuf, "%.6g", value);
@@ -1114,6 +1176,9 @@ int bdepu_TypesParserImpUtil::generateFloat(char  *buffer,
                                             float  value,
                                             int    length)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= length);
+
     enum { BUF_LEN = BDEPU_MAX_FLOAT_STRLEN10 };
     char tempBuf[BUF_LEN];
     const int strLen = bsl::sprintf(tempBuf, "%.6g", (double)value);
@@ -1124,6 +1189,9 @@ int bdepu_TypesParserImpUtil::generateInt64(char                     *buffer,
                                             bsls_PlatformUtil::Int64  value,
                                             int                       length)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= length);
+
     enum { BUF_LEN = BDEPU_MAX_INT64_STRLEN10 };
     char tempBuf[BUF_LEN];
     char *strBegin = generateIntDecimalHelper<Uint64>(tempBuf, value, BUF_LEN);
@@ -1136,6 +1204,11 @@ int bdepu_TypesParserImpUtil::generateInt64(char                     *buffer,
                                             int                       length,
                                             int                       base)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
     enum { BUF_LEN = BDEPU_MAX_INT64_STRLEN };
     char tempBuf[BUF_LEN];
     char *strBegin = generateIntHelper<Uint64>(tempBuf,
@@ -1148,6 +1221,9 @@ int bdepu_TypesParserImpUtil::generateInt64(char                     *buffer,
 
 int bdepu_TypesParserImpUtil::generateInt(char *buffer, int value, int length)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= length);
+
     enum { BUF_LEN = BDEPU_MAX_INT_STRLEN10 };
     char tempBuf[BUF_LEN];
     char *strBegin = generateIntDecimalHelper<unsigned>(tempBuf,
@@ -1162,6 +1238,11 @@ int bdepu_TypesParserImpUtil::generateInt(char *buffer,
                                           int   length,
                                           int   base)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
     enum { BUF_LEN = BDEPU_MAX_INT_STRLEN };
     char tempBuf[BUF_LEN];
     char *strBegin;
@@ -1180,18 +1261,24 @@ int bdepu_TypesParserImpUtil::generateInt(char *buffer,
 int bdepu_TypesParserImpUtil::generateLongDoubleRaw(char        *buffer,
                                                     long double  value)
 {
+    BSLS_ASSERT(buffer);
+
     // Outputs the null terminator anyway.
     return bsl::sprintf(buffer, "%.6Lg", value);
 }
 
 int bdepu_TypesParserImpUtil::generateDoubleRaw(char *buffer, double value)
 {
+    BSLS_ASSERT(buffer);
+
     // Outputs the null terminator anyway.
     return bsl::sprintf(buffer, "%.6g", value);
 }
 
 int bdepu_TypesParserImpUtil::generateFloatRaw(char *buffer, float value)
 {
+    BSLS_ASSERT(buffer);
+
     // Outputs the null terminator anyway.
     return bsl::sprintf(buffer, "%.6g", (double)value);
 }
@@ -1200,6 +1287,8 @@ int bdepu_TypesParserImpUtil::generateInt64Raw(
                                               char                     *buffer,
                                               bsls_PlatformUtil::Int64  value)
 {
+    BSLS_ASSERT(buffer);
+
     enum { BUF_LEN = BDEPU_MAX_INT64_STRLEN10 };
     char tempBuf[BUF_LEN];
     char *strBegin = generateIntDecimalHelper<Uint64>(tempBuf, value, BUF_LEN);
@@ -1212,6 +1301,10 @@ int bdepu_TypesParserImpUtil::generateInt64Raw(
                                               bsls_PlatformUtil::Int64  value,
                                               int                       base)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
     enum { BUF_LEN = BDEPU_MAX_INT64_STRLEN };
     char tempBuf[BUF_LEN];
     char *strBegin;
@@ -1231,6 +1324,8 @@ int bdepu_TypesParserImpUtil::generateInt64Raw(
 
 int bdepu_TypesParserImpUtil::generateIntRaw(char *buffer, int value)
 {
+    BSLS_ASSERT(buffer);
+
     enum { BUF_LEN = BDEPU_MAX_INT_STRLEN10 };
     char tempBuf[BUF_LEN];
     char *strBegin;
@@ -1243,6 +1338,10 @@ int bdepu_TypesParserImpUtil::generateIntRaw(char *buffer, int value)
 
 int bdepu_TypesParserImpUtil::generateIntRaw(char *buffer, int value, int base)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
     enum { BUF_LEN = BDEPU_MAX_INT_STRLEN };
     char tempBuf[BUF_LEN];
     char *strBegin;
@@ -1263,6 +1362,8 @@ int bdepu_TypesParserImpUtil::generateIntRaw(char *buffer, int value, int base)
 void bdepu_TypesParserImpUtil::generateCharRaw(bsl::vector<char> *buffer,
                                                char               value)
 {
+    BSLS_ASSERT(buffer);
+
     // Relevant values of 'enum' used to populate 's_charTypes'
     const int HEX   = 12;
     const int PRINT = 13;
@@ -1289,6 +1390,8 @@ void bdepu_TypesParserImpUtil::generateCharRaw(bsl::vector<char> *buffer,
 void bdepu_TypesParserImpUtil::generateDate(bsl::vector<char> *buffer,
                                             const bdet_Date&   value)
 {
+    BSLS_ASSERT(buffer);
+
     int year, month, day;
     value.getYearMonthDay(&year, &month, &day);
     int len = buffer->size();
@@ -1308,6 +1411,8 @@ void bdepu_TypesParserImpUtil::generateDate(bsl::vector<char> *buffer,
 void bdepu_TypesParserImpUtil::generateDouble(bsl::vector<char> *buffer,
                                               double             value)
 {
+    BSLS_ASSERT(buffer);
+
     // Problem: even with "%.6g" formatter, some outputs are completely wrong,
     // e.g. (on Solaris + SunPRO compiler, from test driver, with float):
     //..
@@ -1406,6 +1511,8 @@ void bdepu_TypesParserImpUtil::generateDouble(bsl::vector<char> *buffer,
 void bdepu_TypesParserImpUtil::generateFloat(bsl::vector<char> *buffer,
                                              float              value)
 {
+    BSLS_ASSERT(buffer);
+
     // Problem: even with "%.6g" formatter, some outputs are completely wrong,
     // e.g. (on Solaris + SunPRO compiler, from test driver, with float):
     //..
@@ -1503,6 +1610,10 @@ void bdepu_TypesParserImpUtil::generateInt64(bsl::vector<char>        *buffer,
                                              bsls_PlatformUtil::Int64  value,
                                              int                       base)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
     generateIntHelper<Uint64>(buffer, value, base);
 }
 
@@ -1510,12 +1621,19 @@ void bdepu_TypesParserImpUtil::generateInt(bsl::vector<char> *buffer,
                                            int                value,
                                            int                base)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
     generateIntHelper<unsigned>(buffer, value, base);
 }
 
 void bdepu_TypesParserImpUtil::generateString(bsl::vector<char> *buffer,
                                               const char        *value)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(value);
+
     // Does string need quotes?
     int quote = ('\0' == *value || ']' == *value ||
                       ('/' == *value && ('/' == value[1] || '*' == value[1])));
@@ -1550,6 +1668,8 @@ void bdepu_TypesParserImpUtil::generateString(bsl::vector<char> *buffer,
 void bdepu_TypesParserImpUtil::generateTime(bsl::vector<char> *buffer,
                                             const bdet_Time&   value)
 {
+    BSLS_ASSERT(buffer);
+
     int hour, minute, second, millisecond;
     value.getTime(&hour, &minute, &second, &millisecond);
     int len = buffer->size();
@@ -1571,6 +1691,8 @@ void bdepu_TypesParserImpUtil::generateTime(bsl::vector<char> *buffer,
 void bdepu_TypesParserImpUtil::generateTz(bsl::vector<char> *buffer,
                                           int                offset)
 {
+    BSLS_ASSERT(buffer);
+
     int len = buffer->size();
 
     buffer->resize(len + 5);

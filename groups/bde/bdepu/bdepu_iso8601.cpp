@@ -21,7 +21,7 @@ BDES_IDENT_RCSID(bdepu_iso8601_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-// HELPER FUNCTIONS
+// STATIC HELPER FUNCTIONS
 
 static
 int parseUint(const char **nextPos,
@@ -29,6 +29,11 @@ int parseUint(const char **nextPos,
               const char  *begin,
               const char  *end)
 {
+    BSLS_ASSERT(nextPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(end);
+
     static const int maxDigits = 15;
 
     // Stop parsing at 'maxDigits'.
@@ -62,6 +67,12 @@ int parseDate(int         *year,
               const char **begin,
               const char  *end)
 {
+    BSLS_ASSERT(year);
+    BSLS_ASSERT(month);
+    BSLS_ASSERT(day);
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(end);
+
     enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
 
     const char *p = *begin;
@@ -107,6 +118,13 @@ int parseTime(int         *hour,
               const char **begin,
               const char  *end)
 {
+    BSLS_ASSERT(hour);
+    BSLS_ASSERT(minute);
+    BSLS_ASSERT(second);
+    BSLS_ASSERT(millisecond);
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(end);
+
     enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
 
     const char *p = *begin;
@@ -198,6 +216,10 @@ int parseTimezoneOffset(int         *minuteOffset,
                         const char **begin,
                         const char  *end)
 {
+    BSLS_ASSERT(minuteOffset);
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(end);
+
     enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
 
     const char *p = *begin;
@@ -257,6 +279,9 @@ char *generateInt(char *buffer, int val, int len)
     // 'val', left-padded with zeros to the specified 'len' and return
     // 'buffer + len'.  The buffer is NOT null-terminated.
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= len);
+
     buffer += len;
     for (char *p = buffer; len != 0; --len) {
         *--p = '0' + val % 10;
@@ -273,6 +298,9 @@ char *generateInt(char *buffer, int val, int len, char separator)
     // the specified 'separator' character then return 'buffer + len + 1'.
     // The buffer is NOT null-terminated.
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= len);
+
     buffer = generateInt(buffer, val, len);
     *buffer++ = separator;
     return buffer;
@@ -286,6 +314,11 @@ int copyBuf(char *dest, int destLen, const char *src, int srcLen)
     // terminator.  If 'srcLen >= destLen', then copy only 'destLen' bytes
     // and add do not add a null terminator.
 {
+    BSLS_ASSERT(dest);
+    BSLS_ASSERT(0 <= destLen);
+    BSLS_ASSERT(src);
+    BSLS_ASSERT(0 <= srcLen);
+
     if (destLen > srcLen) {
         bsl::memcpy(dest, src, srcLen);
         dest[srcLen] = '\0';
@@ -307,6 +340,9 @@ int bdepu_Iso8601::generate(char             *buffer,
                             const bdet_Date&  object,
                             int               bufLen)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= bufLen);
+
     char outBuf[BDEPU_DATE_STRLEN];
     int  outLen = generateRaw(outBuf, object);
     BSLS_ASSERT(outLen == sizeof(outBuf));
@@ -317,6 +353,9 @@ int bdepu_Iso8601::generate(char                 *buffer,
                             const bdet_Datetime&  object,
                             int                   bufLen)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= bufLen);
+
     char outBuf[BDEPU_DATETIME_STRLEN];
     int  outLen = generateRaw(outBuf, object);
     BSLS_ASSERT(outLen == sizeof(outBuf));
@@ -327,6 +366,9 @@ int bdepu_Iso8601::generate(char                   *buffer,
                             const bdet_DatetimeTz&  object,
                             int                     bufLen)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= bufLen);
+
     char outBuf[BDEPU_DATETIMETZ_STRLEN];
     int  outLen = generateRaw(outBuf, object);
     BSLS_ASSERT(outLen == sizeof(outBuf));
@@ -337,6 +379,9 @@ int bdepu_Iso8601::generate(char               *buffer,
                             const bdet_DateTz&  object,
                             int                 bufLen)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= bufLen);
+
     char outBuf[BDEPU_DATETZ_STRLEN];
     int  outLen = generateRaw(outBuf, object);
     BSLS_ASSERT(outLen == sizeof(outBuf));
@@ -347,6 +392,9 @@ int bdepu_Iso8601::generate(char             *buffer,
                             const bdet_Time&  object,
                             int               bufLen)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= bufLen);
+
     char outBuf[BDEPU_TIME_STRLEN];
     int  outLen = generateRaw(outBuf, object);
     BSLS_ASSERT(outLen == sizeof(outBuf));
@@ -357,6 +405,9 @@ int bdepu_Iso8601::generate(char               *buffer,
                             const bdet_TimeTz&  object,
                             int                 bufLen)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= bufLen);
+
     char outBuf[BDEPU_TIMETZ_STRLEN];
     int  outLen = generateRaw(outBuf, object);
     BSLS_ASSERT(outLen == sizeof(outBuf));
@@ -366,6 +417,8 @@ int bdepu_Iso8601::generate(char               *buffer,
 int bdepu_Iso8601::generateRaw(char             *buffer,
                                const bdet_Date&  object)
 {
+    BSLS_ASSERT(buffer);
+
     char *outp = buffer;
     outp = generateInt(outp, object.year() , 4, '-');
     outp = generateInt(outp, object.month(), 2, '-');
@@ -377,6 +430,8 @@ int bdepu_Iso8601::generateRaw(char             *buffer,
 int bdepu_Iso8601::generateRaw(char                 *buffer,
                                const bdet_Datetime&  object)
 {
+    BSLS_ASSERT(buffer);
+
     char *outp = buffer;
     outp = generateInt(outp, object.year()       , 4, '-');
     outp = generateInt(outp, object.month()      , 2, '-');
@@ -392,6 +447,8 @@ int bdepu_Iso8601::generateRaw(char                 *buffer,
 int bdepu_Iso8601::generateRaw(char                   *buffer,
                                const bdet_DatetimeTz&  object)
 {
+    BSLS_ASSERT(buffer);
+
     int  timezoneOffset = object.offset();
     char timezoneSign;
 
@@ -425,6 +482,8 @@ int bdepu_Iso8601::generateRaw(char                   *buffer,
 int bdepu_Iso8601::generateRaw(char               *buffer,
                                const bdet_DateTz&  object)
 {
+    BSLS_ASSERT(buffer);
+
     int  timezoneOffset = object.offset();
     char timezoneSign;
 
@@ -454,6 +513,8 @@ int bdepu_Iso8601::generateRaw(char               *buffer,
 int bdepu_Iso8601::generateRaw(char             *buffer,
                                const bdet_Time&  object)
 {
+    BSLS_ASSERT(buffer);
+
     char *outp = buffer;
     outp = generateInt(outp, object.hour()       , 2, ':');
     outp = generateInt(outp, object.minute()     , 2, ':');
@@ -466,6 +527,8 @@ int bdepu_Iso8601::generateRaw(char             *buffer,
 int bdepu_Iso8601::generateRaw(char               *buffer,
                                const bdet_TimeTz&  object)
 {
+    BSLS_ASSERT(buffer);
+
     char *outp = buffer;
     int  timezoneOffset = object.offset();
     char timezoneSign;
@@ -499,6 +562,10 @@ int bdepu_Iso8601::parse(bdet_Date  *result,
                          const char *input,
                          int         inputLength)
 {
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(input);
+    BSLS_ASSERT(0 <= inputLength);
+
     enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
 
     // Sample XML date: "2005-01-31".
@@ -538,6 +605,10 @@ int bdepu_Iso8601::parse(bdet_Datetime *result,
                          const char    *input,
                          int            inputLength)
 {
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(input);
+    BSLS_ASSERT(0 <= inputLength);
+
     enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
 
     // Sample XML datetime: "2005-01-31T08:59:59.999".
@@ -609,6 +680,10 @@ int bdepu_Iso8601::parse(bdet_DatetimeTz *result,
                          const char      *input,
                          int              inputLength)
 {
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(input);
+    BSLS_ASSERT(0 <= inputLength);
+
     enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
 
     // Sample XML datetime: "2005-01-31T08:59:59.999".
@@ -679,6 +754,10 @@ int bdepu_Iso8601::parse(bdet_DateTz *result,
                          const char  *input,
                          int          inputLength)
 {
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(input);
+    BSLS_ASSERT(0 <= inputLength);
+
     enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
 
     // Sample XML datetime: "2005-01-31".
@@ -723,6 +802,10 @@ int bdepu_Iso8601::parse(bdet_Time  *result,
                          const char *input,
                          int         inputLength)
 {
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(input);
+    BSLS_ASSERT(0 <= inputLength);
+
     enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
 
     // Sample XML time: "08:59:59.999".
@@ -780,6 +863,10 @@ int bdepu_Iso8601::parse(bdet_TimeTz *result,
                          const char  *input,
                          int          inputLength)
 {
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(input);
+    BSLS_ASSERT(0 <= inputLength);
+
     enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
 
     // Sample XML time: "08:59:59.999".
