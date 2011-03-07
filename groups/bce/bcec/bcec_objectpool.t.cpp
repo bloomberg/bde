@@ -487,7 +487,8 @@ void case13Processor(bcec_ObjectPool<Case13Type> *mX,
 namespace BCEC_OBJECTPOOL_TEST_CASE_12
 {
 
-const char *DEFAULT_STRING_INIT = "A default string";
+const char *DEFAULT_STRING_INIT = "A default string, which is larger than what can fit "
+                                  "into the string short buffer";
 
 static void badCreateString(void *address)
     // Create a 'str::string' object at the specified 'address' in an initial

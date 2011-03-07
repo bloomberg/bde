@@ -1,7 +1,3 @@
 # Options for package bcec
 
 *                    _       OPTS_FILE       = bcec.opts
-
-!! *                         _  ALLTEST = $(BDE_BINDIR)runt.pl -t 500
-!! unix-SunOS-*-*-gcc-4.3.2  _  ALLTEST = LD_LIBRARY_PATH=/opt/swt/install/gcc-4.3.2/lib:$(LD_LIBRARY_PATH) $(RETRY_ALLTEST) $(BDE_BINDIR)runt.pl -t 500
-!! unix-SunOS-*-*-gcc-4.3.2  64 ALLTEST = LD_LIBRARY_PATH=/opt/swt/install/gcc-4.3.2/lib/sparcv9:$(LD_LIBRARY_PATH) $(RETRY_ALLTEST) $(BDE_BINDIR)runt.pl -t 500

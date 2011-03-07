@@ -35,7 +35,7 @@ BDES_IDENT("$Id: $")
 // by key or by position).  There is an implementation-defined maximum number
 // of references (whether by 'PairHandle' or 'Pair' pointer) to any single
 // association element in the list, not less than
-// '2^bcec_SkipList_ControlWord::BCEC_NUM_REFERENCE_BITS - 1'.  The behavior of
+// '2^bcec_SkipList_Control::BCEC_NUM_REFERENCE_BITS - 1'.  The behavior of
 // this component is undefined if more than that number of references are
 // simultaneously acquired for a single element.  Note that in addition to
 // 'addPairReferenceRaw', member functions of 'bcec_SkipList' such as 'front',
@@ -374,23 +374,24 @@ template <class KEY, class DATA>
 bool operator!=(const bcec_SkipList<KEY, DATA>& lhs,
                 const bcec_SkipList<KEY, DATA>& rhs);
 
-                    // =====================================
-                    // local class bcec_SkipList_ControlWord
-                    // =====================================
+                    // =================================
+                    // local class bcec_SkipList_Control
+                    // =================================
 
-struct bcec_SkipList_ControlWord {
-    // This component-private structure stores the "control word" of
+struct bcec_SkipList_Control {
+    // This component-private structure stores the "control word" and level of
     // a list node.
 
     // TYPES
     enum {
-        BCEC_NUM_REFERENCE_BITS = 12  // minimum; implementation may have more
+        BCEC_NUM_REFERENCE_BITS = 20  // minimum; implementation may have more
     };
 
     // DATA
-    bces_AtomicInt  d_cw;   // control word; holds the level, reference count,
-                            // release flag, and acquire count for a node in
-                            // the list
+    bces_AtomicInt d_cw;   // control word; reference count, release flag, and
+                           // acquire count for a node in the list
+
+    unsigned char  d_level;
 
     // MANIPULATORS
     void init(int level);
@@ -421,8 +422,8 @@ struct bcec_SkipList_Node {
     // This component-private structure is a node in the SkipList.
 
     // TYPES
-    typedef bcec_SkipList_ControlWord      Control;
-    typedef bcec_SkipList_Node<KEY, DATA>  Node;
+    typedef bcec_SkipList_Control         Control;
+    typedef bcec_SkipList_Node<KEY, DATA> Node;
 
     struct Ptrs {
         Node *d_next_p;
@@ -430,14 +431,14 @@ struct bcec_SkipList_Node {
     };
 
     // DATA
-    Control d_control;    // must be first!
+    Control        d_control;    // must be first!
 
-    DATA    d_data;
+    DATA           d_data;
 
-    KEY     d_key;
+    KEY            d_key;
 
-    Ptrs    d_ptrs[1];    // Must be last; each node has space for
-                          // extra Ptrs allocated based on its level.
+    Ptrs           d_ptrs[1];    // Must be last; each node has space for
+                                 // extra Ptrs allocated based on its level.
 
     // MANIPULATORS
     void initControlWord(int level);
@@ -459,7 +460,9 @@ class bcec_SkipList_RandomLevelGenerator {
 
     // PRIVATE TYPES
     enum {
-        BCEC_MAX_LEVEL = 31,
+        BCEC_MAX_LEVEL = 31,         // Also defined in SkipList
+                                     // and PoolManager
+
         BCEC_SEED      = 0x12b9b0a1  // arbitrary
     };
 
@@ -668,11 +671,11 @@ class bcec_SkipListPairHandle {
     const KEY& key() const;
           // Return a reference to the non-modifiable "key" value of the pair
           // referred to by this object.  The behavior is undefined unless
-          // 'isValid()' is 'true'.
+          // 'isValid' returns 'true'.
 
     DATA& data() const;
           // Return a reference to the "data" value of the pair referred to by
-          // this object.  The behavior is undefined unless 'isValid()' is
+          // this object.  The behavior is undefined unless 'isValid' returns
           //  'true'.
 
     operator const Pair*() const;
@@ -714,7 +717,8 @@ class bcec_SkipList {
   private:
     // PRIVATE CONSTANTS
     enum {
-        BCEC_MAX_NUM_LEVELS = 32,
+        BCEC_MAX_NUM_LEVELS = 32,       // Also defined in
+                                        // RandomLevelGenerator and PoolManager
         BCEC_MAX_LEVEL      = 31
     };
 

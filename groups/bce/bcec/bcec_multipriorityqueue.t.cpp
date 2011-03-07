@@ -1219,7 +1219,6 @@ int main(int argc, char *argv[])
                 const bsl::string meow("meow", &taString);
 
                 const int stringMemoryUse = taString.numBytesInUse();
-                ASSERT(0 < stringMemoryUse);
 
                 for (int i = 0; 10 > i; ++i) {
                     mX.pushBack(woof, 0);
@@ -1240,7 +1239,7 @@ int main(int argc, char *argv[])
                     mX.popFront(&s);
                     ASSERT(meow == s);
 
-                    ASSERT(stringMemoryUse < taString.numBytesInUse());
+                    ASSERT(stringMemoryUse <= taString.numBytesInUse());
                 }
                 ASSERT(14 == X.length());
 

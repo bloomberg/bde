@@ -1,13 +1,14 @@
-// bcec_skiplist.cpp             -*-C++-*-
+// bcec_skiplist.cpp                                                  -*-C++-*-
 #include <bcec_skiplist.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcec_skiplist_cpp,"$Id$ $CSID$")
 
-#include <bdeu_random.h>
-#include <bslma_allocator.h>
 #include <bdema_infrequentdeleteblocklist.h>
+#include <bdeu_random.h>
 
+#include <bslma_allocator.h>
+#include <bslmf_assert.h>
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
@@ -15,84 +16,88 @@ BDES_IDENT_RCSID(bcec_skiplist_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace {
-    enum {
-          LEVEL_NUM_BITS = 5
-        , LEVEL_MASK = (1 << LEVEL_NUM_BITS) - 1
+enum {
+      REF_COUNT_NUM_BITS = bcec_SkipList_Control::BCEC_NUM_REFERENCE_BITS
+    , REF_COUNT_INC = 1
+    , MAX_REF_COUNT = (1 << REF_COUNT_NUM_BITS) - 1
+    , REF_COUNT_MASK = MAX_REF_COUNT
 
-        , REF_COUNT_NUM_BITS =
-                             bcec_SkipList_ControlWord::BCEC_NUM_REFERENCE_BITS
-        , REF_COUNT_OFFSET = LEVEL_NUM_BITS
-        , REF_COUNT_INC = 1 << REF_COUNT_OFFSET
-        , MAX_REF_COUNT = (1 << REF_COUNT_NUM_BITS) - 1
-        , REF_COUNT_MASK = MAX_REF_COUNT << REF_COUNT_OFFSET
+    , RELEASE_FLAG_NUM_BITS = 1
+    , RELEASE_FLAG_OFFSET = REF_COUNT_NUM_BITS
+    , RELEASE_FLAG_MASK = 1 << RELEASE_FLAG_OFFSET
 
-        , RELEASE_FLAG_NUM_BITS = 1
-        , RELEASE_FLAG_OFFSET = REF_COUNT_OFFSET + REF_COUNT_NUM_BITS
-        , RELEASE_FLAG_MASK = 1 << RELEASE_FLAG_OFFSET
+    , ACQUIRE_COUNT_NUM_BITS = 7
+    , ACQUIRE_COUNT_OFFSET = RELEASE_FLAG_OFFSET + RELEASE_FLAG_NUM_BITS
+    , ACQUIRE_COUNT_INC = 1 << ACQUIRE_COUNT_OFFSET
+    , MAX_ACQUIRE_COUNT = (1 << ACQUIRE_COUNT_NUM_BITS) - 1
+    , ACQUIRE_COUNT_MASK = MAX_ACQUIRE_COUNT << ACQUIRE_COUNT_OFFSET
 
-        , ACQUIRE_COUNT_NUM_BITS = 7
-        , ACQUIRE_COUNT_OFFSET = RELEASE_FLAG_OFFSET + RELEASE_FLAG_NUM_BITS
-        , ACQUIRE_COUNT_INC = 1 << ACQUIRE_COUNT_OFFSET
-        , MAX_ACQUIRE_COUNT = (1 << REF_COUNT_NUM_BITS) - 1
-        , ACQUIRE_COUNT_MASK = MAX_ACQUIRE_COUNT << ACQUIRE_COUNT_OFFSET
+      // The value of this is asserted below as a sanity-check.  If
+      // the number of bits is changed, the assertion will need to change.
+    , RESERVED_NUM_BITS = 32 - ACQUIRE_COUNT_NUM_BITS -
+                               RELEASE_FLAG_NUM_BITS -
+                               REF_COUNT_NUM_BITS
+};
 
-        , RESERVED_NUM_BITS = 32 - ACQUIRE_COUNT_NUM_BITS -
-                                   RELEASE_FLAG_NUM_BITS -
-                                   REF_COUNT_NUM_BITS -
-                                   LEVEL_NUM_BITS
-    };
-}
+                         // ===========================
+                         // class bcec_SkipList_Control
+                         // ===========================
 
-                             // ===============================
-                             // class bcec_SkipList_ControlWord
-                             // ===============================
-
-void bcec_SkipList_ControlWord::init(int level)
+// MANIPULATORS
+void bcec_SkipList_Control::init(int level)
 {
-    new (&d_cw) bces_AtomicInt(level);
+    BSLS_ASSERT(level <= 31);  // BCEC_MAX_LEVEL
+
+    d_level = level;
+    d_cw    = 0;
 }
 
-int bcec_SkipList_ControlWord::level() const
-{
-    return d_cw & LEVEL_MASK;
-}
-
-int bcec_SkipList_ControlWord::incrementRefCount()
+int bcec_SkipList_Control::incrementRefCount()
 {
     int oldBits = d_cw;
     BSLS_ASSERT((oldBits & REF_COUNT_MASK) != REF_COUNT_MASK);
+
     int newBits = oldBits + REF_COUNT_INC;
     int result;
 
     while (oldBits != (result = d_cw.testAndSwap(oldBits, newBits))) {
         oldBits = result;
         BSLS_ASSERT((oldBits & REF_COUNT_MASK) != REF_COUNT_MASK);
+
         newBits = oldBits + REF_COUNT_INC;
     }
 
-    return (newBits & REF_COUNT_MASK) >> REF_COUNT_OFFSET;
+    return newBits & REF_COUNT_MASK;
 }
 
-int bcec_SkipList_ControlWord::decrementRefCount()
+int bcec_SkipList_Control::decrementRefCount()
 {
     int oldBits = d_cw;
     BSLS_ASSERT(oldBits & REF_COUNT_MASK);
+
     int newBits = oldBits - REF_COUNT_INC;
     int result;
 
     while (oldBits != (result = d_cw.testAndSwap(oldBits, newBits))) {
         oldBits = result;
         BSLS_ASSERT(oldBits & REF_COUNT_MASK);
+
         newBits = oldBits - REF_COUNT_INC;
     }
 
-    return (newBits & REF_COUNT_MASK) >> REF_COUNT_OFFSET;
+    return newBits & REF_COUNT_MASK;
+}
+
+// ACCESSORS
+int bcec_SkipList_Control::level() const
+{
+    return d_level;
 }
 
                      // ========================================
                      // class bcec_SkipList_RandomLevelGenerator
                      // ========================================
+
 bcec_SkipList_RandomLevelGenerator::bcec_SkipList_RandomLevelGenerator()
 : d_seed(BCEC_SEED), d_randomBits(1)
 {
@@ -115,6 +120,7 @@ int bcec_SkipList_RandomLevelGenerator::randomLevel()
             randomBits = bdeu_Random::generate15(&seed);
             d_seed.relaxedStore(seed);
             BSLS_ASSERT((randomBits >> 15) == 0);
+
             randomBits |= (1 << 14); // Set the sentinel bit.
         }
 
@@ -132,10 +138,10 @@ int bcec_SkipList_RandomLevelGenerator::randomLevel()
                              // ============================
                              // class bcec_SkipList_PoolNode
                              // ============================
-struct bcec_SkipList_PoolNode
-{
-    typedef bcec_SkipList_ControlWord     Control;
-    typedef bcec_SkipList_PoolNode        Node;
+
+struct bcec_SkipList_PoolNode {
+    typedef bcec_SkipList_Control  Control;
+    typedef bcec_SkipList_PoolNode Node;
 
     Control         d_control; // must be first!
     Node *volatile  d_next_p;
@@ -144,22 +150,21 @@ struct bcec_SkipList_PoolNode
                              // ========================
                              // class bcec_SkipList_Pool
                              // ========================
-struct bcec_SkipList_Pool
-{
+
+struct bcec_SkipList_Pool {
     typedef bcec_SkipList_PoolNode Node;
 
-    bces_AtomicPointer<Node>  d_freeList;
-    int                       d_objectSize;
-    int                       d_numObjects;
-    int                       d_level;
+    bces_AtomicPointer<Node> d_freeList;
+    int                      d_objectSize;
+    int                      d_numObjects;
+    int                      d_level;
 };
 
                              // ===============================
                              // class bcec_SkipList_PoolManager
                              // ===============================
 
-class bcec_SkipList_PoolManager
-{
+class bcec_SkipList_PoolManager {
     enum {
         MAX_POOLS = 32
       , INITIAL_NUM_OBJECTS = -1  // default 'numObjects' value
@@ -341,10 +346,12 @@ bcec_SkipList_PoolManager::bcec_SkipList_PoolManager(
     BSLS_ASSERT(numPools > 0);
     BSLS_ASSERT(numPools <= MAX_POOLS);
 
-    for (int i=0; i<numPools; ++i) {
+    // sanity-check
+    BSLMF_ASSERT(4 == RESERVED_NUM_BITS);
+
+    for (int i = 0; i < numPools; ++i) {
         initPool(&d_pools[i], i, objectSizes[i]);
     }
-
 }
 
 inline

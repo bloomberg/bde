@@ -164,34 +164,41 @@ static const double DECI_SEC      = 0.1;
 static const int MICRO_SEC_IN_SEC = 100000;
                                          // number of micro seconds in a second
 
+static const int MICRO_DECI_SEC =    10000;
+                                       // number of micro seconds in .1 seconds
+
 //=============================================================================
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
 
 class MyBarrier {
-   // This class is a fast 2-thread barrier implemented with semaphores.  Since
-   // it can only coordinate two threads, it can use much simpler primitives
-   // than the real Barrier component.
+    // This class is a fast 2-thread barrier implemented with semaphores.
+    // Since it can only coordinate two threads, it can use much simpler
+    // primitives than the real Barrier component.
 
-   bcemt_Semaphore d_entryGate;
-   bcemt_Semaphore d_exitGate;
-   bces_AtomicInt  d_threadWaiting;
+    bcemt_Semaphore d_entryGate;
+    bcemt_Semaphore d_exitGate;
+    bces_AtomicInt  d_threadWaiting;
 
-public:
+  public:
 
-   MyBarrier() : d_threadWaiting(0) {}
+    MyBarrier() : d_threadWaiting(0)
+        // c'tor
+    {}
 
-   void wait() {
-      if (0 == d_threadWaiting.testAndSwap(0, 1)) {
-         d_entryGate.wait();
-         d_threadWaiting = 0;
-         d_exitGate.post();
-      }
-      else {
-         d_entryGate.post();
-         d_exitGate.wait();
-      }
-   }
+    void wait() {
+        // wait until the other thread has reach the 'MyBarrier'
+
+        if (0 == d_threadWaiting.testAndSwap(0, 1)) {
+            d_entryGate.wait();
+            d_threadWaiting = 0;
+            d_exitGate.post();
+        }
+        else {
+            d_entryGate.post();
+            d_exitGate.wait();
+        }
+    }
 };
 
 //=============================================================================
@@ -213,7 +220,7 @@ myData  data2;
 bool pairFoundFlag = false;
 
 void myWork()
-// Take two elements from the queue atomically
+    // Take two elements from the queue atomically
 {
     queueMutex.lock();
     if (2 <= rawQueue.length()) {
@@ -230,7 +237,7 @@ void myWork()
     }
 }
 
-} // namespace BCEC_QUEUE_USE_OF_BDEC_QUEUE_INTERFACE
+}  // close namespace BCEC_QUEUE_USE_OF_BDEC_QUEUE_INTERFACE
 //=============================================================================
 //          USAGE example 1 from header (with assert replaced with ASSERT)
 //-----------------------------------------------------------------------------
@@ -317,7 +324,7 @@ void myProducer(int numThreads)
     }
 }
 
-} // namespace BCEC_QUEUE_USAGE_EXAMPLE_1
+}  // close namespace BCEC_QUEUE_USAGE_EXAMPLE_1
 //=============================================================================
 //          USAGE example 2 from header (with assert replaced with ASSERT)
 //-----------------------------------------------------------------------------
@@ -377,7 +384,7 @@ void *myWorkerThread(void *v_worker_p)
     return v_worker_p;
 }
 
-}  // namespace BCEC_QUEUE_USAGE_EXAMPLE_2
+}  // close namespace BCEC_QUEUE_USAGE_EXAMPLE_2
 
 //=============================================================================
 //          TEST CASE 12
@@ -391,12 +398,17 @@ class TestPopFront {
     Element  d_maxVecSizeAt;
 
   public:
-    TestPopFront(Obj *mX) {
+    explicit
+    TestPopFront(Obj *mX)
+        // c'tor
+    {
         d_mX = mX;
         d_maxVecSize = 0;
         d_maxVecSizeAt = 0;
     }
-    void operator()() {
+    void operator()()
+        //
+    {
         int expectedVal = 0;
         Element e;
         vector<Element> v;
@@ -436,12 +448,18 @@ class TestPopBack {
     Element  d_maxVecSizeAt;
 
   public:
-    TestPopBack(Obj *mX) {
+    explicit
+    TestPopBack(Obj *mX)
+        // c'tor
+    {
         d_mX = mX;
         d_maxVecSize = 0;
         d_maxVecSizeAt = 0;
     }
-    void operator()() {
+
+    void operator()()
+        //
+    {
         int expectedVal = 0;
         Element e;
         vector<Element> v;
@@ -475,7 +493,7 @@ class TestPopBack {
     }
 };
 
-}  //  namespace BCEC_QUEUE_TEST_CASE_12
+}  // close namespace BCEC_QUEUE_TEST_CASE_12
 
 //=============================================================================
 //          TEST CASE 11
@@ -503,19 +521,27 @@ class TestClass13 {      // this class is a functor passed to thread::create
         INVALID_VAL = 46
     };
 
-    TestClass13(Obj *queue, bcemt_Barrier *barrier) {
+    TestClass13(Obj *queue, bcemt_Barrier *barrier)
+        // c'tor
+    {
         d_queue = queue;
         d_barrier = barrier;
         s_pushCount = 0;
 
         // have everything time out 2 seconds after thread object creation
+
         d_timeout = bdetu_SystemTime::now() + bdet_TimeInterval(4.0);
     }
-    ~TestClass13() {
+
+    ~TestClass13()
         // make sure we did not wait until timeout
+    {
         ASSERT(bdetu_SystemTime::now() < d_timeout);
     }
-    void operator()() {         // thread function
+
+    void operator()()
+        // thread function
+    {
         int sts;
 
         for (int i = 0; 6 > i; ++i) {
@@ -562,22 +588,34 @@ class TestClass12 {      // this class is a functor passed to thread::create
         VALID_VAL = 45,
         TERMINATE = 46
     };
-    TestClass12(Obj *queue, bcemt_Barrier *barrier) {
+    TestClass12(Obj *queue, bcemt_Barrier *barrier)
+        // c'tor
+    {
         d_queue = queue;
         d_barrier = barrier;
 
         // have everything time out 4 seconds after thread object creation
+
         d_timeout = bdetu_SystemTime::now() + bdet_TimeInterval(4.0);
     }
-    ~TestClass12() {
+    ~TestClass12()
         // make sure we did not wait until timeout
+    {
         ASSERT(bdetu_SystemTime::now() < d_timeout);
     }
-    void operator()() {         // thread function
+
+    void operator()()
+        // thread function
+    {
         Element e;
         int sts;
 
         for (bool back = false; true; back = !back) {
+            ASSERT((sts = d_barrier->timedWait(d_timeout), !sts));
+            if (sts) {
+                bcemt_ThreadUtil::exit((void *) 2);
+            }
+
             if (back) {
                 ASSERT((sts = d_queue->timedPopBack(&e, d_timeout), !sts));
             }
@@ -594,7 +632,8 @@ class TestClass12 {      // this class is a functor passed to thread::create
 
             ASSERT(VALID_VAL == e);
 
-            ASSERT((sts = d_barrier->timedWait(d_timeout), !sts));
+            sts = d_barrier->timedWait(d_timeout);
+            ASSERT(!sts);
             if (sts) {
                 bcemt_ThreadUtil::exit((void *) 2);
             }
@@ -628,6 +667,7 @@ class TestClass6 {
     , d_stage(0)
     , d_toBePopped(value)
     , d_toBePushed(value)
+        // c'tor
     {
     }
 
@@ -637,17 +677,20 @@ class TestClass6 {
         d_barrier_p->wait();
 
         // Stage 1: verify that 'pushBack' blocks on mutex in main thread
+
         d_stage = 1;
         d_queue_p->pushBack(1.); // blocks
         ASSERT(1. == d_queue_p->popFront()); // empty queue, does not block
         d_barrier_p->wait();
 
         // Stage 2: verify that 'popFront' blocks on empty queue in main thread
+
         d_stage = 2;
         ASSERT(d_toBePopped == d_queue_p->popFront()); // blocks
         d_barrier_p->wait();
 
         // Stage 3: verify that 'pushBack' blocks on full queue in main thread
+
         d_stage = 3;
         d_barrier_p->wait(); // until the queue is filled to the high-water
                              // mark
@@ -656,7 +699,9 @@ class TestClass6 {
     }
 
     // ACCESSORS
-    int stage() const { return d_stage; }
+    int stage() const
+        //
+    { return d_stage; }
 };
 
 extern "C"
@@ -668,7 +713,7 @@ void *test6(void *arg)
     return 0;
 }
 
-} // namespace BCEC_QUEUE_TEST_CASE_6
+}  // close namespace BCEC_QUEUE_TEST_CASE_6
 //=============================================================================
 //          TEST CASE 5
 //-----------------------------------------------------------------------------
@@ -696,11 +741,13 @@ class TestClass5back {
     , d_timeoutFlag(0)
     , d_waitingFlag(1)
     , d_toBeInserted(value)
+        //
     {
     }
 
     // MANIPULATORS
     void callback()
+        //
     {
         d_waitingFlag = 1;
 
@@ -720,8 +767,12 @@ class TestClass5back {
     }
 
     // ACCESSORS
-    int timeOutFlag() const { return d_timeoutFlag; }
-    int waitingFlag() const { return d_waitingFlag; }
+    int timeOutFlag() const
+        //
+    { return d_timeoutFlag; }
+    int waitingFlag() const
+        //
+    { return d_waitingFlag; }
 };
 
 class TestClass5front {
@@ -746,11 +797,13 @@ class TestClass5front {
     , d_timeoutFlag(0)
     , d_waitingFlag(1)
     , d_toBeInserted(value)
+        //
     {
     }
 
     // MANIPULATORS
     void callback()
+        //
     {
         d_waitingFlag = 1;
 
@@ -792,7 +845,7 @@ void *test5front(void *arg)
     return 0;
 }
 
-} // namespace BCEC_QUEUE_TEST_CASE_5
+}  // close namespace BCEC_QUEUE_TEST_CASE_5
 //=============================================================================
 //          TEST CASE 4
 //-----------------------------------------------------------------------------
@@ -812,11 +865,13 @@ class TestClass4back {
     : d_queue_p(queue)
     , d_waitingFlag(0)
     , d_toBeInserted(value)
+        //
     {
     }
 
     // MANIPULATORS
     void callback()
+        //
     {
         d_waitingFlag = 1;
         d_queue_p->pushBack(d_toBeInserted);
@@ -824,7 +879,9 @@ class TestClass4back {
     }
 
     // ACCESSORS
-    int waitingFlag() {
+    int waitingFlag()
+        //
+    {
         return d_waitingFlag;
     }
 };
@@ -843,11 +900,13 @@ class TestClass4front {
     : d_queue_p(queue)
     , d_waitingFlag(0)
     , d_toBeInserted(value)
+        // c'tor
     {
     }
 
     // MANIPULATORS
     void callback()
+        //
     {
         d_waitingFlag = 1;
         d_queue_p->pushFront(d_toBeInserted);
@@ -856,6 +915,7 @@ class TestClass4front {
 
     // ACCESSORS
     int waitingFlag()
+        //
     {
         return d_waitingFlag;
     }
@@ -879,14 +939,13 @@ void *test4front(void *arg)
     return 0;
 }
 
-} // namespace BCEC_QUEUE_TEST_CASE_4
+}  // close namespace BCEC_QUEUE_TEST_CASE_4
 //=============================================================================
 //          TEST CASE 3
 //-----------------------------------------------------------------------------
 namespace BCEC_QUEUE_TEST_CASE_3 {
 
 class TestClass3back {
-
     // DATA
     bcec_Queue<Element> *d_queue_p;
     MyBarrier       *d_barrier_p;
@@ -907,11 +966,13 @@ class TestClass3back {
     , d_timeoutFlag(0)
     , d_waitingFlag(1)
     , d_expected(val)
+        // c'tor
     {
     }
 
     // MANIPULATORS
     void callback()
+        //
     {
         Element result;
 
@@ -961,11 +1022,13 @@ class TestClass3front {
     , d_timeoutFlag(0)
     , d_waitingFlag(1)
     , d_expected(value)
+        //
     {
     }
 
     // MANIPULATORS
     void callback()
+        //
     {
         Element result;
 
@@ -1000,7 +1063,9 @@ struct TestStruct3 {
     bcec_Queue<Element> *d_queue_p;
     bdet_TimeInterval    d_timeout;
 
-    void operator()() {
+    void operator()()
+        //
+    {
         Element result;
 
         d_queue_p->removeAll();
@@ -1021,7 +1086,7 @@ struct TestStruct3 {
     }
 };
 
-} // namespace BCEC_QUEUE_TEST_CASE_3
+}  // close namespace BCEC_QUEUE_TEST_CASE_3
 
 extern "C" {
     void *test3back(void *arg)
@@ -1060,11 +1125,13 @@ class TestClass2back {
     : d_queue_p(queue)
     , d_waitingFlag(0)
     , d_expected(value)
+        // c'tor
     {
     }
 
     // MANIPULATORS
     void callback()
+        // manipulate the flags and pop from the queue back
     {
         d_waitingFlag = 1;
         ASSERT(d_expected == d_queue_p->popBack());
@@ -1072,11 +1139,14 @@ class TestClass2back {
     }
 
     // ACCESSORS
-    int waitingFlag() { return d_waitingFlag; }
+    int waitingFlag()
+        // reveal waiting flag
+    {
+        return d_waitingFlag;
+    }
 };
 
 class TestClass2front {
-
     // DATA
     bcec_Queue<Element> *d_queue_p;
     bces_AtomicInt       d_waitingFlag;
@@ -1089,11 +1159,13 @@ class TestClass2front {
     : d_queue_p(queue)
     , d_waitingFlag(0)
     , d_expected(value)
+        // c'tor
     {
     }
 
     // MANIPULATORS
     void callback()
+        // manipulate the flags and pop from the queue front
     {
         d_waitingFlag = 1;
         ASSERT(d_expected == d_queue_p->popFront());
@@ -1101,7 +1173,11 @@ class TestClass2front {
     }
 
     // ACCESSORS
-    int waitingFlag() { return d_waitingFlag; }
+    int waitingFlag()
+        // reveal waiting flag
+    {
+        return d_waitingFlag;
+    }
 };
 
 extern "C"
@@ -1122,7 +1198,7 @@ void *test2front(void *arg)
     return 0;
 }
 
-} // namespace BCEC_QUEUE_TEST_CASE_2
+}  // close namespace BCEC_QUEUE_TEST_CASE_2
 
 //=============================================================================
 //          TEST CASE 2
@@ -1135,7 +1211,9 @@ struct Producer {
     bcec_Queue<int>    *d_queue;
     int                 d_iterations;
 
-    void operator()() const {
+    void operator()() const
+        //
+    {
         for (int i = 0; i < d_iterations; ++i) {
             d_queue->pushBack(i);
         }
@@ -1153,7 +1231,9 @@ struct Producer {
 struct Consumer {
     bcec_Queue<int>    *d_queue;
 
-    void operator()() const {
+    void operator()() const
+        //
+    {
         int terminatorsFound = 0;
         int val;
         do {
@@ -1171,7 +1251,7 @@ struct Consumer {
     }
 };
 
-} // namespace BCEC_QUEUE_TEST_CASE_MINUS_1
+}  // close namespace BCEC_QUEUE_TEST_CASE_MINUS_1
 
 //=============================================================================
 //         SEQUENCE CONSTRAINT TEST
@@ -1271,7 +1351,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     tg.joinAll();
 }
-}
+}  // close namespace seqtst
 
 namespace seqtst2 {
 
@@ -1369,7 +1449,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     tg.joinAll();
 }
-}
+}  // close namespace seqtst2
 
 namespace seqtst3 {
 
@@ -1467,7 +1547,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     tg.joinAll();
 }
-}
+}  // close namespace seqtst3
 
 //=============================================================================
 //         ZERO PTR TEST
@@ -1544,7 +1624,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 
     tg.joinAll();
 }
-}
+}  // close namespace zerotst
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -1568,6 +1648,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // TESTING sequence constraints using 'backwards'
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "sequence constraint test 'backwars'" << endl
                           << "===================================" << endl;
@@ -1589,6 +1670,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // TESTING sequence constraints using popFront(TYPE*)
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "sequence constraint test using popFront(TYPE*)"
                           << endl
@@ -1662,6 +1744,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // TESTING queue of zero ptr
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "zero ptr test" << endl
                           << "========================" << endl;
@@ -1683,6 +1766,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // TESTING sequence constraints
         // ---------------------------------------------------------
+
         if (verbose) cout << endl
                           << "sequence constraint test" << endl
                           << "========================" << endl;
@@ -1716,6 +1800,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE example
         // --------------------------------------------------------------------
+
         using namespace BCEC_QUEUE_USAGE_EXAMPLE_1;
 
         if (verbose) cout << endl
@@ -1747,6 +1832,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE example
         // --------------------------------------------------------------------
+
         using namespace BCEC_QUEUE_USAGE_EXAMPLE_2;
 
         if (verbose) cout << endl
@@ -1759,13 +1845,13 @@ int main(int argc, char *argv[])
             ASSERT(0 < NTHREADS && NTHREADS <= MAX_CONSUMER_THREADS);
             bcemt_ThreadUtil::Handle workerHandles[MAX_CONSUMER_THREADS];
 
-            my_WorkerData wdata;
-            wdata.d_queue_p = &queue;
+            my_WorkerData wdata[NTHREADS];
             for (int i=0; i < NTHREADS; ++i) {
-                wdata.d_workerId = i;
+                wdata[i].d_workerId = i;
+                wdata[i].d_queue_p = &queue;
                 bcemt_ThreadUtil::create(&workerHandles[i],
                                          myWorkerThread,
-                                         &wdata);
+                                         &wdata[i]);
             }
             int n_Stop = 0;
             while (n_Stop < NTHREADS) {
@@ -1947,8 +2033,13 @@ int main(int argc, char *argv[])
         vector<Element> v;
         bcemt_ThreadUtil::Handle handle;
         bcemt_Barrier barrier(2);
+
+        // Note microSleeps on Solaris can arbitrarily take as long as 2 sec,
+        // so have a pessimistic timeout time -- normally this will take MUCH
+        // less than 9 seconds.
+
         bdet_TimeInterval timeout = bdetu_SystemTime::now() +
-                                                        bdet_TimeInterval(4.0);
+                                                        bdet_TimeInterval(9.0);
 
         ASSERT(bdetu_SystemTime::now() < timeout);
 
@@ -1961,23 +2052,7 @@ int main(int argc, char *argv[])
         mX.pushFront(e);
         mX.pushBack(e);
 
-        ASSERT(1 <= mX.queue().length());
-        ASSERT(2 >= mX.queue().length());
-
-        ASSERT(!barrier.timedWait(timeout));
-
-        ASSERT(0 <= mX.queue().length());
-        ASSERT(1 >= mX.queue().length());
-
-        mX.pushBack(e);
-        mX.pushBack(e);
-        mX.pushBack(e);
-        mX.pushBack(e);
-
-        ASSERT(!barrier.timedWait(timeout));
-
-        ASSERT(3 <= mX.queue().length());
-        ASSERT(4 >= mX.queue().length());
+        ASSERT(2 == mX.queue().length());
 
         ASSERT(!barrier.timedWait(timeout));
         ASSERT(!barrier.timedWait(timeout));
@@ -1986,28 +2061,29 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.queue().length());
 
-        for (int i = 0; i < 5; ++i) {
-            bcemt_ThreadUtil::yield();
-            bcemt_ThreadUtil::microSleep(10*1000);        // 10 mSec
-            mX.pushBack(e);
+        for (int i = 0; i < 4; ++i) {
+            enum { SLEEP_TIME = 10 * 1000 };        // 10 mSec
+
             ASSERT(!barrier.timedWait(timeout));
-            ASSERT(0 == mX.queue().length());
-        }
-        for (int i = 0; i < 5; ++i) {
             bcemt_ThreadUtil::yield();
-            bcemt_ThreadUtil::microSleep(10*1000);        // 10 mSec
-            mX.pushFront(e);
+            bcemt_ThreadUtil::microSleep(SLEEP_TIME);
+            ASSERT(0 == mX.queue().length());
+
+            mX.pushBack(e);
+            ASSERT(1 >= mX.queue().length());
+
             ASSERT(!barrier.timedWait(timeout));
             ASSERT(0 == mX.queue().length());
         }
 
         e = TestClass12::TERMINATE;
         mX.pushFront(e);
+        ASSERT(!barrier.timedWait(timeout));
 
         {
             void *sts;
             bcemt_ThreadUtil::join(handle, &sts);
-            LOOP_ASSERT((long) sts, !sts);
+            LOOP_ASSERT(sts, !sts);
         }
 
         ASSERT(bdetu_SystemTime::now() < timeout);
@@ -2175,6 +2251,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE use of the 'bdec_Queue' interface
         // --------------------------------------------------------------------
+
         using namespace BCEC_QUEUE_USE_OF_BDEC_QUEUE_INTERFACE;
 
         {
@@ -2277,19 +2354,20 @@ int main(int argc, char *argv[])
         //   bcemt_Condition& notFullCondition();
         //   bdec_Queue<T>& queue();
         // --------------------------------------------------------------------
+
         using namespace BCEC_QUEUE_TEST_CASE_6;
 
         if (verbose)
-            cout << endl
-   // -----------^
-   << "TESTING 'mutex', 'notEmptyCondition', 'notFullCondition' and 'queue'\n"
-   << "====================================================================\n";
-   // -----------v
+            cout << endl <<
+              "\nTESTING 'mutex', 'notEmptyCondition', 'notFullCondition'"
+                                                              " and 'queue'\n"
+                "========================================================"
+                                                              "============\n";
 
         bcema_TestAllocator ta(veryVeryVeryVerbose);
         {
             const int HIGH_WATER_MARK = 2;
-            const int T = 1 * DECI_SEC * MICRO_SEC_IN_SEC; // in microseconds
+            const int T = 1 * MICRO_DECI_SEC;
             bdet_TimeInterval T4(2 * DECI_SEC);
 
             Element VA = 1.2;
@@ -2320,7 +2398,9 @@ int main(int argc, char *argv[])
                     bcemt_ThreadUtil::yield();
                     bcemt_ThreadUtil::microSleep(10 * 1000);
                 }
+
                 // either testObj.stage() has changed or we have waited 10 sec
+
                 ASSERT(1 == testObj.stage());
             }
 
@@ -2422,6 +2502,7 @@ int main(int argc, char *argv[])
         //   void timedPushBack(const T& item);
         //   void timedPushFront(const T& item);
         // --------------------------------------------------------------------
+
         using namespace BCEC_QUEUE_TEST_CASE_5;
 
         if (verbose)
@@ -2443,7 +2524,7 @@ int main(int argc, char *argv[])
         };
 
         const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-        const int T = 1 * DECI_SEC * MICRO_SEC_IN_SEC; // in microseconds
+        const int T = 1 * MICRO_DECI_SEC; // in microseconds
         bdet_TimeInterval T4(4 * DECI_SEC);            // .4s
         bdet_TimeInterval T10(10 * DECI_SEC);          // 1s
 
@@ -2628,6 +2709,7 @@ int main(int argc, char *argv[])
         //   void pushFront(const T& item);
         //   void forcePushFront(const T& item);
         // --------------------------------------------------------------------
+
         using namespace BCEC_QUEUE_TEST_CASE_4;
 
         if (verbose) cout << endl
@@ -2650,7 +2732,7 @@ int main(int argc, char *argv[])
         };
 
         const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-        const int T = 1 * DECI_SEC * MICRO_SEC_IN_SEC; // in microseconds
+        const int T = 1 * MICRO_DECI_SEC; // in microseconds
 
         const Element VA = 1.2;
         const Element VB = -5.7;
@@ -2788,6 +2870,7 @@ int main(int argc, char *argv[])
         //   int timedPopBack(T *buffer, const bdet_TimeInterval& timeout);
         //   int timedPopFront(T *buffer, const bdet_TimeInterval& timeout);
         // --------------------------------------------------------------------
+
         using namespace BCEC_QUEUE_TEST_CASE_3;
 
         if (verbose) cout
@@ -2798,7 +2881,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith 'timedPopBack'" << endl;
         bcema_TestAllocator ta(veryVeryVeryVerbose);
         {
-            const int T = 1 * DECI_SEC * MICRO_SEC_IN_SEC; // in microseconds
+            const int T = 1 * MICRO_DECI_SEC; // in microseconds
             bdet_TimeInterval T4(4 * DECI_SEC);            // .4s
             bdet_TimeInterval T10(10 * DECI_SEC);          // 1s
 
@@ -2850,7 +2933,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWith 'timedPopFront'" << endl;
         {
-            const int T = 1 * DECI_SEC * MICRO_SEC_IN_SEC; // in microseconds
+            const int T = 1 * MICRO_DECI_SEC; // in microseconds
             bdet_TimeInterval T4(4 * DECI_SEC);   // .4s
             bdet_TimeInterval T10(10 * DECI_SEC); // 1s
 
@@ -2933,6 +3016,7 @@ int main(int argc, char *argv[])
         //   T popBack();
         //   T popFront();
         // --------------------------------------------------------------------
+
         using namespace BCEC_QUEUE_TEST_CASE_2;
 
         if (verbose) cout << endl
@@ -2942,7 +3026,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith 'popBack'" << endl;
         bcema_TestAllocator ta(veryVeryVeryVerbose);
         {
-            const int T = 1 * DECI_SEC * MICRO_SEC_IN_SEC; // in microseconds
+            const int T = 1 * MICRO_DECI_SEC; // in microseconds
             Obj x(&ta);
 
             Element VA = 1.2;
@@ -2976,7 +3060,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWith 'popFront'" << endl;
         {
-            const int T = 1 * DECI_SEC * MICRO_SEC_IN_SEC; // in microseconds
+            const int T = 1 * MICRO_DECI_SEC; // in microseconds
             Obj x(&ta);
 
             Element VA = 1.2;
@@ -3321,6 +3405,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Perform a benchmark analogous to bcec_FixedQueue test case -4.
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl
                           << "STRESS TEST -2" << endl
                           << "==============" << endl;
@@ -3349,6 +3434,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Perform a benchmark analogous to bcec_FixedQueue test case -5.
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl
                           << "STRESS TEST -3" << endl
                           << "==============" << endl;
