@@ -1,4 +1,4 @@
-// baea_commandline.t.cpp      -*-C++-*-
+// baea_commandline.t.cpp                                             -*-C++-*-
 
 #include <baea_commandline.h>
 
@@ -5840,7 +5840,6 @@ int main(int argc, const char *argv[])  {
             const void            *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value;
             const bdem_Descriptor *DESCTOR =
                                     bdem_ElemAttrLookup::lookupTable()[ETYPE];
-            bdem_ConstElemRef      DEFAULT_VALUE(ADDRESS, DESCTOR);
 
             Obj mX(OTYPE);  const Obj& X = mX;      // TEST HERE
 
@@ -5851,6 +5850,8 @@ int main(int argc, const char *argv[])  {
             LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
 
             if (OTYPE != OccurrenceInfo::BAEA_REQUIRED && ADDRESS) {
+                bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
+
                 mX.setDefaultValue(DEFAULT_VALUE);  // AND HERE
 
                 if (veryVerbose) {
@@ -5882,7 +5883,6 @@ int main(int argc, const char *argv[])  {
             const void            *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value;
             const bdem_Descriptor *DESCTOR =
                                     bdem_ElemAttrLookup::lookupTable()[ETYPE];
-            bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
 
             const int NUM_BYTES = defaultAllocator.numBytesInUse();
             const int NUM_ALLOC = defaultAllocator.numAllocations();
@@ -5896,6 +5896,8 @@ int main(int argc, const char *argv[])  {
                 LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
 
                 if (OTYPE != OccurrenceInfo::BAEA_REQUIRED && ADDRESS) {
+                    bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
+
                     mX.setDefaultValue(DEFAULT_VALUE);
 
                     if (veryVerbose) {
@@ -5931,7 +5933,6 @@ int main(int argc, const char *argv[])  {
             const void            *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value;
             const bdem_Descriptor *DESCTOR =
                                     bdem_ElemAttrLookup::lookupTable()[ETYPE];
-            bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
 
             BEGIN_BSLMA_EXCEPTION_TEST {
                 Obj mX(OTYPE, &testAllocator);  const Obj& X = mX;
@@ -5940,6 +5941,8 @@ int main(int argc, const char *argv[])  {
                 LOOP2_ASSERT(LINE1, LINE2, OTYPE == X.occurrenceType());
 
                 if (OTYPE != OccurrenceInfo::BAEA_REQUIRED && ADDRESS) {
+                    bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
+
                     mX.setDefaultValue(DEFAULT_VALUE);
 
                     LOOP2_ASSERT(LINE1, LINE2,
@@ -5971,7 +5974,6 @@ int main(int argc, const char *argv[])  {
             const void            *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value;
             const bdem_Descriptor *DESCTOR =
                                     bdem_ElemAttrLookup::lookupTable()[ETYPE];
-            bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
@@ -5983,6 +5985,8 @@ int main(int argc, const char *argv[])  {
                    (OTYPE == OccurrenceInfo::BAEA_REQUIRED) == X.isRequired());
 
             if (OTYPE != OccurrenceInfo::BAEA_REQUIRED && ADDRESS) {
+                bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
+
                 mX.setDefaultValue(DEFAULT_VALUE);
 
                 LOOP2_ASSERT(LINE1, LINE2, X.hasDefaultValue());
@@ -6022,11 +6026,12 @@ int main(int argc, const char *argv[])  {
             const void            *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value;
             const bdem_Descriptor *DESCTOR =
                                     bdem_ElemAttrLookup::lookupTable()[ETYPE];
-            bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
             if (OTYPE != OccurrenceInfo::BAEA_REQUIRED && ADDRESS) {
+                bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
+
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
 
@@ -6071,11 +6076,12 @@ int main(int argc, const char *argv[])  {
             const void            *ADDRESS1 = OPTION_DEFAULT_VALUES[j].d_value;
             const bdem_Descriptor *DESCTOR1 =
                                     bdem_ElemAttrLookup::lookupTable()[ETYPE2];
-            bdem_ConstElemRef DEFAULT_VALUE1(ADDRESS1, DESCTOR1);
 
             Obj mX(OTYPE1);  const Obj& X = mX;
 
             if (OTYPE1 != OccurrenceInfo::BAEA_REQUIRED && ADDRESS1) {
+                bdem_ConstElemRef DEFAULT_VALUE1(ADDRESS1, DESCTOR1);
+
                 mX.setDefaultValue(DEFAULT_VALUE1);
             }
 
@@ -6089,11 +6095,12 @@ int main(int argc, const char *argv[])  {
                 const void *ADDRESS2 = OPTION_DEFAULT_VALUES[l].d_value;
                 const bdem_Descriptor *DESCTOR2 =
                                     bdem_ElemAttrLookup::lookupTable()[ETYPE4];
-                bdem_ConstElemRef DEFAULT_VALUE2(ADDRESS2, DESCTOR2);
 
                 Obj mY(OTYPE3);  const Obj& Y = mY;
 
                 if (OTYPE3 != OccurrenceInfo::BAEA_REQUIRED && ADDRESS2) {
+                    bdem_ConstElemRef DEFAULT_VALUE2(ADDRESS2, DESCTOR2);
+
                     mY.setDefaultValue(DEFAULT_VALUE2);
                 }
 
@@ -6129,11 +6136,12 @@ int main(int argc, const char *argv[])  {
             const void            *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value;
             const bdem_Descriptor *DESCTOR =
                                     bdem_ElemAttrLookup::lookupTable()[ETYPE];
-            bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
             if (OTYPE != OccurrenceInfo::BAEA_REQUIRED && ADDRESS) {
+                bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
+
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
 
@@ -6156,11 +6164,12 @@ int main(int argc, const char *argv[])  {
             const void            *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value;
             const bdem_Descriptor *DESCTOR =
                                      bdem_ElemAttrLookup::lookupTable()[ETYPE];
-            bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
             if (OTYPE != OccurrenceInfo::BAEA_REQUIRED && ADDRESS) {
+                bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
+
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
 
@@ -6190,11 +6199,12 @@ int main(int argc, const char *argv[])  {
             const void            *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value;
             const bdem_Descriptor *DESCTOR =
                                      bdem_ElemAttrLookup::lookupTable()[ETYPE];
-            bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
             if (OTYPE != OccurrenceInfo::BAEA_REQUIRED && ADDRESS) {
+                bdem_ConstElemRef DEFAULT_VALUE(ADDRESS, DESCTOR);
+
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
 
@@ -6230,11 +6240,12 @@ int main(int argc, const char *argv[])  {
             const void            *ADDRESS1 = OPTION_DEFAULT_VALUES[j].d_value;
             const bdem_Descriptor *DESCTOR1 =
                                     bdem_ElemAttrLookup::lookupTable()[ETYPE2];
-            bdem_ConstElemRef DEFAULT_VALUE1(ADDRESS1, DESCTOR1);
 
             Obj mX(OTYPE1);  const Obj& X = mX;
 
             if (OTYPE1 != OccurrenceInfo::BAEA_REQUIRED && ADDRESS1) {
+                bdem_ConstElemRef DEFAULT_VALUE1(ADDRESS1, DESCTOR1);
+
                 mX.setDefaultValue(DEFAULT_VALUE1);
             }
 
@@ -6248,11 +6259,12 @@ int main(int argc, const char *argv[])  {
                 const void *ADDRESS2 = OPTION_DEFAULT_VALUES[l].d_value;
                 const bdem_Descriptor *DESCTOR2 =
                                     bdem_ElemAttrLookup::lookupTable()[ETYPE4];
-                bdem_ConstElemRef DEFAULT_VALUE2(ADDRESS2, DESCTOR2);
 
                 Obj mY(OTYPE3, &testAllocator);  const Obj& Y = mY;
 
                 if (OTYPE3 != OccurrenceInfo::BAEA_REQUIRED && ADDRESS2) {
+                    bdem_ConstElemRef DEFAULT_VALUE2(ADDRESS2, DESCTOR2);
+
                     mY.setDefaultValue(DEFAULT_VALUE2);
                 }
 

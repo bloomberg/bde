@@ -890,7 +890,6 @@ int main(int argc, char *argv[])
 
             ASSERT("The calling thread is unblocked.");
         }
-        ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
       case 3: {
@@ -935,7 +934,6 @@ int main(int argc, char *argv[])
             channel.shutdown();
             channel.stop();
         }
-        ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
       case 2: {
@@ -1001,7 +999,6 @@ int main(int argc, char *argv[])
             channel.shutdown();
             channel.stop();
         }
-        ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
       case 1: {
@@ -1045,7 +1042,6 @@ int main(int argc, char *argv[])
             channel.shutdown();
             channel.stop();
         }
-        ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
       default: {

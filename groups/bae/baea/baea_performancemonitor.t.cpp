@@ -14,6 +14,7 @@
 #include <bcemt_thread.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_stdexcept.h>
@@ -94,11 +95,34 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-const char LOG_CATEGORY[] = "PACKAGEGROUP.COMPONENT.TEST";
+const char LOG_CATEGORY[] = "BAEA.PERFORMANCEMONITOR.TEST";
 
 //=============================================================================
 //                        HELPER FUNCTIONS AND CLASSES
 //-----------------------------------------------------------------------------
+
+#define INITIALIZE_LOGGER() \
+    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;\
+\
+    bael_DefaultObserver               observer(&bsl::cout); \
+    bael_LoggerManagerConfiguration    configuration; \
+    bael_LoggerManager::initSingleton(\
+            &observer, \
+            configuration, \
+            &bslma_NewDeleteAllocator::singleton());\
+\
+    bael_Severity::Level passthrough = bael_Severity::BAEL_OFF;\
+\
+    if (verbose) passthrough         = bael_Severity::BAEL_WARN;\
+    if (veryVerbose) passthrough     = bael_Severity::BAEL_INFO;\
+    if (veryVeryVerbose) passthrough = bael_Severity::BAEL_TRACE;\
+\
+    bael_LoggerManager::singleton().setDefaultThresholdLevels(\
+                                       bael_Severity::BAEL_OFF,\
+                                       passthrough,\
+                                       bael_Severity::BAEL_OFF,\
+                                       bael_Severity::BAEL_OFF)
+
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -113,55 +137,10 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = (argc > 5);
     int verbosity = 1 + verbose + veryVerbose
                   + veryVeryVerbose + veryVeryVeryVerbose;
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
-
-    bael_DefaultObserver               observer(&bsl::cout);
-    bael_LoggerManagerConfiguration    configuration;
-    bael_LoggerManager::initSingleton(&observer,
-                                      configuration,
-                                      &bslma_NewDeleteAllocator::singleton());
-
-    bael_Severity::Level passthrough = bael_Severity::BAEL_OFF;
-
-    if (verbose) passthrough         = bael_Severity::BAEL_WARN;
-    if (veryVerbose) passthrough     = bael_Severity::BAEL_INFO;
-    if (veryVeryVerbose) passthrough = bael_Severity::BAEL_TRACE;
-
-    bael_LoggerManager::singleton().setDefaultThresholdLevels(
-                                       bael_Severity::BAEL_OFF,
-                                       passthrough,
-                                       bael_Severity::BAEL_OFF,
-                                       bael_Severity::BAEL_OFF);
-
-    BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
     switch (test) {
       case 0: // Zero is always the leading case.
-      case 2: {
-        // --------------------------------------------------------------------
-        // TESTING PRIMARY MANIPULATORS
-        //
-        // TBD: add more tests
-        //
-        // Tests:
-        //   numRegisteredPids()
-        // --------------------------------------------------------------------
-        bcep_TimerEventScheduler scheduler;
-        baea_PerformanceMonitor perfmon(&scheduler, 1.0);
-
-        // TEST numRegisteredPids()
-        ASSERT(0 == perfmon.numRegisteredPids());
-
-        ASSERT(0 == perfmon.registerPid(0, "mytask"));
-        ASSERT(1 == perfmon.numRegisteredPids());
-
-        ASSERT(0 == perfmon.registerPid(1, "mytask2"));
-        ASSERT(2 == perfmon.numRegisteredPids());
-
-        ASSERT(0 == perfmon.unregisterPid(1));
-        ASSERT(1 == perfmon.numRegisteredPids());
-      }  break;
-      case 1: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -207,8 +186,11 @@ int main(int argc, char *argv[])
                                                        ++it)
                 {
                     const baea_PerformanceMonitor::Statistics& stats = *it;
-                    bsl::cout << "Pid = " << stats.pid() << ":\n";
-                    stats.print(bsl::cout);
+
+                    if (veryVerbose) {
+                        bsl::cout << "Pid = " << stats.pid() << ":\n";
+                        stats.print(bsl::cout);
+                    }
                 }
             }
 
@@ -217,6 +199,178 @@ int main(int argc, char *argv[])
         ASSERT(0  < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'numRegisteredPids'
+        //
+        // Tests:
+        //   numRegisteredPids()
+        // --------------------------------------------------------------------
+        bcep_TimerEventScheduler scheduler;
+        baea_PerformanceMonitor perfmon(&scheduler, 1.0);
+
+        ASSERT(0 == perfmon.numRegisteredPids());
+
+        ASSERT(0 == perfmon.registerPid(0, "mytask"));
+        ASSERT(1 == perfmon.numRegisteredPids());
+
+        ASSERT(0 == perfmon.registerPid(1, "mytask2"));
+        ASSERT(2 == perfmon.numRegisteredPids());
+
+        ASSERT(0 == perfmon.unregisterPid(1));
+        ASSERT(1 == perfmon.numRegisteredPids());
+
+        ASSERT(0 == perfmon.unregisterPid(0));
+        ASSERT(0 == perfmon.numRegisteredPids());
+      }  break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "Breathing Test"
+                 << endl
+                 << "==============="
+                 << endl;
+        }
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+        {
+            {
+                baea_PerformanceMonitor perfmon(&ta);
+                int                     rc;
+
+                rc = perfmon.registerPid(0, "mytask");
+                ASSERT(0 == rc);
+
+                for (int i = 0; i < 6; ++i) {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+
+                    perfmon.collect();
+
+                    for (baea_PerformanceMonitor::ConstIterator
+                                                        it  = perfmon.begin();
+                                                        it != perfmon.end();
+                                                      ++it)
+                    {
+                        const baea_PerformanceMonitor::Statistics& stats = *it;
+
+                        if (veryVerbose) {
+                            bsl::cout << "Pid = " << stats.pid() << ":\n";
+                            stats.print(bsl::cout);
+                        }
+                    }
+                }
+            }
+
+            {
+                bcep_TimerEventScheduler scheduler;
+                scheduler.start();
+
+                baea_PerformanceMonitor perfmon(&scheduler, 1.0, &ta);
+                int                     rc;
+
+                rc = perfmon.registerPid(0, "mytask");
+                ASSERT(0 == rc);
+
+                for (int i = 0; i < 6; ++i) {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    for (baea_PerformanceMonitor::ConstIterator
+                                                        it  = perfmon.begin();
+                                                        it != perfmon.end();
+                                                      ++it)
+                    {
+                        const baea_PerformanceMonitor::Statistics& stats = *it;
+
+                        if (veryVerbose) {
+                            bsl::cout << "Pid = " << stats.pid() << ":\n";
+                            stats.print(bsl::cout);
+                        }
+                    }
+                }
+
+                scheduler.stop();
+            }
+        }
+        ASSERT(0  < ta.numAllocations());
+        ASSERT(0 == ta.numBytesInUse());
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // TESTING RESIDENT SIZE
+        //
+        // Tests:
+        //   numRegisteredPids()
+        // --------------------------------------------------------------------
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        bslma_Default::setDefaultAllocator(&ta);
+        bslma_Default::setGlobalAllocator(&ta);
+
+        {
+            INITIALIZE_LOGGER();
+            
+            baea_PerformanceMonitor  perfmon(&ta);
+            int                      rc;
+            double                   residentSize;
+            bsls_PlatformUtil::Int64 numBytesInUse;
+            bsl::deque<char>         buffer(&ta);
+            int                      bufferSize;
+
+            baea_PerformanceMonitor::Measure residentSizeMeasure =
+                                  baea_PerformanceMonitor::BAEA_RESIDENT_SIZE;
+
+            perfmon.registerPid(0, "test");
+
+            bufferSize = 1024;
+
+            for (int i = 0; i < 21; ++i) {
+                buffer.resize(bufferSize);
+
+                perfmon.collect();
+
+                residentSize = 
+                    perfmon.begin()->latestValue(residentSizeMeasure);
+
+                std::cout << "--" 
+                          << std::endl;
+
+                std::cout << "BufferSize    = "
+                          << std::setprecision(8)
+                          << bufferSize
+                          << " (" 
+                          << std::setprecision(8)
+                          << (((double)(bufferSize)) / (1024 * 1024)) 
+                          << " MB)"
+                          << std::endl; 
+
+                std::cout << "NumBytesInUse = " 
+                          << std::setprecision(8)
+                          << ta.numBytesInUse() 
+                          << " (" 
+                          << std::setprecision(8)
+                          << (((double)(ta.numBytesInUse())) / (1024 * 1024)) 
+                          << " MB)"
+                          << std::endl;
+
+                std::cout << "ResidentSize  = " 
+                          << std::setprecision(8) 
+                          << residentSize * 1024 * 1024
+                          << " (" 
+                          << std::setprecision(8)
+                          << (((double)(residentSize))) 
+                          << " MB)"
+                          << std::endl;
+
+                bufferSize *= 2;
+            }
+        }
+        ASSERT(0  < ta.numAllocation());
+        ASSERT(0 == ta.numBytesInUse());
+
+      }  break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
         testStatus = -1;

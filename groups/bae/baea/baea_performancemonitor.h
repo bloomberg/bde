@@ -1,4 +1,4 @@
-// baea_performancemonitor.h   -*-C++-*-
+// baea_performancemonitor.h                                          -*-C++-*-
 #ifndef INCLUDED_BAEA_PERFORMANCEMONITOR
 #define INCLUDED_BAEA_PERFORMANCEMONITOR
 
@@ -8,14 +8,14 @@
 //          baea_PerformanceMonitor::Statistics: performance stats
 //          baea_PerformanceMonitor::ConstIterator:: stats iteration
 //
-//@AUTHOR:  Matthew Millett (mmillett2@bloomberg.net)
+//@AUTHOR: Matthew Millett (mmillett2)
 //
-//@DESCRIPTION:
-// This component provides an application developer the means to collect and
-// report performance statistics for an arbitrary number of processes running
-// on the local machine.  The following table describes the measures collecting
-// by this component.  Note that all the collected measures are specific to the
-// monitored process and do not refer to any system-wide measurement.
+//@DESCRIPTION: This component provides an application developer the means to
+// collect and report performance statistics for an arbitrary number of
+// processes running on the local machine.  The following table describes the
+// measures collecting by this component.  Note that all the collected measures
+// are specific to the monitored process and do not refer to any system-wide
+// measurement.
 //..
 // Measure           Identifier           Description
 // -------           ----------           -----------
@@ -60,42 +60,40 @@
 // -------------
 // This class is completely thread safe.
 //
-// Usage Example
-// -------------
+// Usage
+// -----
 // The following example shows how to monitor the currently executing process
 // and produce a formatted report of the collected measures after a certain
 // interval.
 //..
-//    // Instantiate a scheduler used by the performance monitor to schedule
-//    // collection events.
-//    bcep_TimerEventScheduler scheduler;
-//    scheduler.start();
+//  // Instantiate a scheduler used by the performance monitor to schedule
+//  // collection events.
+//  bcep_TimerEventScheduler scheduler;
+//  scheduler.start();
 //
-//    // Create the performance monitor, monitoring the current process and
-//    // auto-collecting statistics every second.
-//    baea_PerformanceMonitor perfmon(&scheduler, 1.0);
+//  // Create the performance monitor, monitoring the current process and
+//  // auto-collecting statistics every second.
+//  baea_PerformanceMonitor perfmon(&scheduler, 1.0);
 //
-//    // Assume the existence of three pids, 1000, 1001, and 1002, running on
-//    // the local machine.
-//    perfmon.registerPid(1000, "task1");
-//    perfmon.registerPid(1001, "task2");
-//    perfmon.registerPid(1003, "task3");
+//  // Assume the existence of three pids, 1000, 1001, and 1002, running on
+//  // the local machine.
+//  perfmon.registerPid(1000, "task1");
+//  perfmon.registerPid(1001, "task2");
+//  perfmon.registerPid(1003, "task3");
 //
-//    // Print a formatted report of the performance statistics collected for
-//    // each pid every 10 seconds for one minute.
-//    for (int i = 0; i < 6; ++i) {
-//        bcemt_ThreadUtil::microSleep(0, 10);
+//  // Print a formatted report of the performance statistics collected for
+//  // each pid every 10 seconds for one minute.
+//  for (int i = 0; i < 6; ++i) {
+//      bcemt_ThreadUtil::microSleep(0, 10);
 //
-//        for (baea_PerformanceMonitor::ConstIterator it  = perfmon.begin();
-//                                                    it != perfmon.end();
-//                                                  ++it)
-//        {
-//            const baea_PerformanceMonitor::Statistics& stats = *it;
-//            bsl::cout << "Pid = " << stats.pid() << ":\n";
-//            stats.print(bsl::cout);
-//        }
-//
-//    }
+//      for (baea_PerformanceMonitor::ConstIterator it  = perfmon.begin();
+//                                                  it != perfmon.end();
+//                                                ++it) {
+//          const baea_PerformanceMonitor::Statistics& stats = *it;
+//          bsl::cout << "Pid = " << stats.pid() << ":\n";
+//          stats.print(bsl::cout);
+//      }
+//  }
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -166,7 +164,7 @@ class baea_PerformanceMonitor {
     // Provides a mechanism to collect performance statistics for an arbitrary
     // number of processes running on the local machine.
 
-public:
+  public:
     // FRIENDS
     class Statistics;
     friend class Statistics;
@@ -176,7 +174,7 @@ public:
     friend class ConstIterator;
         // Grant visibility of private types to 'ConstIterator'.
 
-private:
+  private:
     // PRIVATE TYPES
 
     // Defines a type alias for the operating system type discovered by the
@@ -222,8 +220,7 @@ typedef bsls_Platform::OsHpUx OsType;
         // statistics and associated platform-specific collector
         // implementation.
 
-    // INSTANCE DATA
-
+    // DATA
     PidMap                            d_pidMap;      // map of pid stats
 
     double                            d_interval;    // collection interval
@@ -239,6 +236,7 @@ typedef bsls_Platform::OsHpUx OsType;
 
     bslma_Allocator                  *d_allocator_p; // supplies memory (held)
 
+  private:
     // NOT IMPLEMENTED
     baea_PerformanceMonitor(const baea_PerformanceMonitor&);
     baea_PerformanceMonitor& operator=(const baea_PerformanceMonitor&);
@@ -307,6 +305,7 @@ typedef bsls_Platform::OsHpUx OsType;
         mutable bcemt_RWMutex
                          d_guard;                 // serialize write access
 
+    private:
         // NOT IMPLEMENTED
         Statistics(const Statistics&);
         Statistics& operator=(const Statistics&);
@@ -319,18 +318,6 @@ typedef bsls_Platform::OsHpUx OsType;
             // 0, the currently installed default allocator is used.
 
         // MANIPULATORS
-        void print(bsl::ostream& os) const;
-            // Print all collected statistics to the specified 'os' stream.
-
-        void print(bsl::ostream& os, Measure measure) const;
-            // Print the specified 'measure' to the specified 'os' stream.
-
-        void print(bsl::ostream& os, const char *measureIdentifier) const;
-            // Print the specified 'measureDescription' to the specified 'os'
-            // stream.  The value of measureIdentifier should be a string
-            // literal corresponding to the desired measure enumerator, e.g.,
-            // 'BAEA_CPU_TIME'.
-
         void reset();
             // Reset the min, max, and average values collected for each
             // measure.
@@ -363,6 +350,18 @@ typedef bsls_Platform::OsHpUx OsType;
 
         const bdet_Datetime& startupTime() const;
             // Return the startup time in Coordinated Universal Time.
+
+        void print(bsl::ostream& os) const;
+            // Print all collected statistics to the specified 'os' stream.
+
+        void print(bsl::ostream& os, Measure measure) const;
+            // Print the specified 'measure' to the specified 'os' stream.
+
+        void print(bsl::ostream& os, const char *measureIdentifier) const;
+            // Print the specified 'measureDescription' to the specified 'os'
+            // stream.  The value of measureIdentifier should be a string
+            // literal corresponding to the desired measure enumerator, e.g.,
+            // 'BAEA_CPU_TIME'.
     };
 
     class ConstIterator {
@@ -380,15 +379,13 @@ typedef bsls_Platform::OsHpUx OsType;
         bcemt_RWMutex          *d_mapGuard_p;  // serialize access to the map
 
         // PRIVATE CREATORS
-
         explicit ConstIterator(PidMap::const_iterator  it,
                                bcemt_RWMutex          *mutex);
             // Create an instance of this class that wraps the specified 'it'
             // iterator protected by the specified 'mutex'.
 
-    public:
+      public:
         // TYPES
-
         typedef bsl::forward_iterator_tag iterator_category;
             // Defines a type alias for the tag type that represents the
             // iterator concept this class models.
@@ -410,20 +407,10 @@ typedef bsls_Platform::OsHpUx OsType;
             // type.
 
         // CREATORS
-
         ConstIterator();
             // Create an instance of this class having an invalid value.
 
-        // OPERATORS
-
-        reference operator*() const;
-            // Return a reference to the non-modifiable value type of this
-            // iterator.
-
-        pointer operator->() const;
-            // Return a reference to the non-modifiable value type of this
-            // iterator.
-
+        // MANIPULATORS
         ConstIterator& operator++();
             // Advance this iterator to refer to the next collection of
             // statistics for a monitored pid and return a reference to the
@@ -435,6 +422,15 @@ typedef bsls_Platform::OsHpUx OsType;
             // statistics for a monitored pid and return the iterator pointing
             // to the previous modifiable value type.  The behavior of this
             // function is undefined unless this iterator is dereferencible.
+
+        // ACCESSORS
+        reference operator*() const;
+            // Return a reference to the non-modifiable value type of this
+            // iterator.
+
+        pointer operator->() const;
+            // Return a reference to the non-modifiable value type of this
+            // iterator.
 
         bool operator==(const ConstIterator& rhs) const;
             // Return 'true' if the specified 'rhs' iterator points to the
@@ -452,24 +448,29 @@ typedef bsls_Platform::OsHpUx OsType;
     };
 
     // CREATORS
+    explicit
+    baea_PerformanceMonitor(bslma_Allocator *basicAllocator = 0);
+        // Create an instance of this class to collect performance statistics
+        // on demand (via the 'collect' method).  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
-    // Create an instance of this class that uses the specified 'scheduler' to
-    // automatically collect performance statistics every specified 'interval'
-    // (specified in seconds).  Optionally specify a 'basicAllocator' used to
-    // supply memory.  If 'basicAllocator' is 0, the currently installed
-    // default allocator is used.  Note that a non-positive 'interval' value
-    // indicates that performance statistics should *not* be automatically
-    // collected--in this situation is the user is responsible for manually
-    // calling the 'collect' function.
     baea_PerformanceMonitor(bcep_TimerEventScheduler *scheduler,
                             double                    interval,
                             bslma_Allocator          *basicAllocator = 0);
+        // Create an instance of this class that uses the specified 'scheduler'
+        // to automatically collect performance statistics every specified
+        // 'interval' (specified in seconds).  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  Note that a
+        // non-positive 'interval' value indicates that performance statistics
+        // should *not* be automatically collected--in this case the user is
+        // responsible for manually calling the 'collect' function.
 
-    // Destroy this object.
     ~baea_PerformanceMonitor();
+        // Destroy this object.
 
     // MANIPULATORS
-
     int registerPid(int pid, const bsl::string& description);
         // Register the specified process 'pid' having the specified
         // user-defined 'description' with this performance monitor.  After
@@ -489,10 +490,11 @@ typedef bsls_Platform::OsHpUx OsType;
     void setCollectionInterval(double interval);
         // Set the specified time 'interval', in seconds, after which
         // statistics for each registered pid are automatically collected.
-        // Note that a non-positive 'interval' value indicates that
-        // performance statistics should not be automatically collected--in
-        // this situation is the user is responsible for manually calling the
-        // 'collect' function.
+        // The behavior is undefined unless a scheduler was supplied at
+        // the construction of this performance monitor.  Note that a
+        // non-positive 'interval' value indicates that performance statistics
+        // should not be automatically collected--in this case the user is
+        // responsible for manually calling the 'collect' function.
 
     void collect();
         // Collect performance statistics for each registered pid.
@@ -502,7 +504,6 @@ typedef bsls_Platform::OsHpUx OsType;
         // measure for each monitored process.
 
     // ACCESSORS
-
     ConstIterator begin() const;
         // Return an iterator positioned at the first set of collected
         // performance statistics.
@@ -529,6 +530,7 @@ typedef bsls_Platform::OsHpUx OsType;
               // class baea_PerformanceMonitor::ConstIterator
               // --------------------------------------------
 
+// CREATORS
 inline
 baea_PerformanceMonitor::ConstIterator::ConstIterator()
 : d_it()
@@ -544,6 +546,7 @@ baea_PerformanceMonitor::ConstIterator::ConstIterator(
 {
 }
 
+// ACCESSORS
 inline
 baea_PerformanceMonitor::ConstIterator::reference
 baea_PerformanceMonitor::ConstIterator::operator*() const
@@ -558,6 +561,7 @@ baea_PerformanceMonitor::ConstIterator::operator->() const
     return d_it->second.first.ptr();
 }
 
+// MANIPULATORS
 inline
 baea_PerformanceMonitor::ConstIterator&
 baea_PerformanceMonitor::ConstIterator::operator++()
@@ -576,28 +580,31 @@ baea_PerformanceMonitor::ConstIterator::operator++(int)
     return temp;
 }
 
+// ACCESSORS
 inline
 bool baea_PerformanceMonitor::ConstIterator::operator==(
                        const baea_PerformanceMonitor::ConstIterator& rhs) const
 {
-    return (d_it == rhs.d_it);
+    return d_it == rhs.d_it;
 }
 
 inline
 bool baea_PerformanceMonitor::ConstIterator::operator!=(
                        const baea_PerformanceMonitor::ConstIterator& rhs) const
 {
-    return (d_it != rhs.d_it);
+    return d_it != rhs.d_it;
 }
 
               // -----------------------------------------
               // class baea_PerformanceMonitor::Statistics
               // -----------------------------------------
 
+// ACCESSORS
 inline
 double baea_PerformanceMonitor::Statistics::latestValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < BAEA_NUM_MEASURES);
+
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_guard);
     return d_lstData[measure];
 }
@@ -606,6 +613,7 @@ inline
 double baea_PerformanceMonitor::Statistics::minValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < BAEA_NUM_MEASURES);
+
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_guard);
     return d_minData[measure];
 }
@@ -614,6 +622,7 @@ inline
 double baea_PerformanceMonitor::Statistics::maxValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < BAEA_NUM_MEASURES);
+
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_guard);
     return d_maxData[measure];
 }
@@ -622,6 +631,7 @@ inline
 double baea_PerformanceMonitor::Statistics::avgValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < BAEA_NUM_MEASURES);
+
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_guard);
     return d_totData[measure] / d_numSamples;
 }
@@ -654,6 +664,7 @@ const bdet_Datetime& baea_PerformanceMonitor::Statistics::startupTime() const
                    // class baea_PerformanceMonitor
                    // -----------------------------
 
+// ACCESSORS
 inline
 baea_PerformanceMonitor::ConstIterator
 baea_PerformanceMonitor::begin() const
@@ -690,11 +701,11 @@ baea_PerformanceMonitor::numRegisteredPids() const
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2007, 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ------------------------------ END-OF-FILE ---------------------------------

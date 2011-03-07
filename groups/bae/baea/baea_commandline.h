@@ -1,4 +1,4 @@
-// baea_commandline.h            -*-C++-*-
+// baea_commandline.h                                                 -*-C++-*-
 #ifndef INCLUDED_BAEA_COMMANDLINE
 #define INCLUDED_BAEA_COMMANDLINE
 
@@ -629,8 +629,8 @@ BDES_IDENT("$Id: $")
 //      // "insertionSort", and "shellSort"; otherwise, output to 'stream' an
 //      // appropriate error message and return 'false'.
 //  {
-//      if ("quickSort" == algo || "insertionSort" == algo
-//       || "shellSort" == algo) {
+//      if ("quickSort" == *algo || "insertionSort" == *algo
+//       || "shellSort" == *algo) {
 //          return true;
 //      }
 //      stream << "Error: sorting algorithm must be either "
@@ -750,7 +750,7 @@ BDES_IDENT("$Id: $")
 //  $ mysort -ainsertionSort f1 f2 f3 -riu -o myofile outputFile
 //  $ mysort --algorithm insertionSort --outputfile myofile f1 f2 f3 --uniq
 //..
-// will all produce the same output in file "myofile".
+// will all produce the same output on 'stdout'.
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>

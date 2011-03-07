@@ -202,9 +202,8 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
         // '/proc/<pid>/stat' virtual file for the specified 'pid'.  Return 0
         // on success or a non-zero value otherwise.
 
-public:
+  public:
     // CREATORS
-
     Collector(bslma_Allocator *basicAllocator = 0);
         // Create an instance of this class.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -480,9 +479,8 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd> {
         // '/proc/<pid>/status' virtual file for the specified 'pid'.  Return 0
         // on success or a non-zero value otherwise.
 
-public:
+  public:
     // CREATORS
-
     Collector(bslma_Allocator *basicAllocator = 0);
         // Create an instance of this class.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -693,9 +691,8 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix> {
     // 'Collector' template requires a constructor accepting a single
     // 'bslma_Allocator' argument.
 
-public:
+  public:
     // CREATORS
-
     Collector(bslma_Allocator *basicAllocator = 0);
         // Create an instance of this class.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -820,8 +817,8 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
     numThreads = psinfo.pr_nlwp;
 
     stats->d_lstData[BAEA_NUM_THREADS]   = (double) numThreads;
-    stats->d_lstData[BAEA_RESIDENT_SIZE] = (double) psinfo.pr_rssize
-                                           / (1024 * 1024);
+    stats->d_lstData[BAEA_RESIDENT_SIZE] = (double) psinfo.pr_rssize // in Kb
+                                           / 1024;
 
     close(fd);
 
@@ -869,8 +866,8 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
     numThreads = psinfo.pst_nlwps;
 
     stats->d_lstData[BAEA_NUM_THREADS]   = (double) numThreads;
-    stats->d_lstData[BAEA_RESIDENT_SIZE] = (double) psinfo.pst_rssize
-                                           / (1024 * 1024);
+    stats->d_lstData[BAEA_RESIDENT_SIZE] = (double) psinfo.pst_rssize // in Kb
+                                           / 1024;
 
     // TBD -- only seconds resolution??
     cpuTimeU = bdet_TimeInterval((double)psinfo.pst_utime, 0).
@@ -1001,9 +998,8 @@ struct baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows> {
         // specified process 'name' and 'instanceIndex'.  Return 0 on success
         // or a non-zero value otherwise.
 
-public:
+  public:
     // CREATORS
-
     Collector(bslma_Allocator *basicAllocator = 0);
         // Create an instance of this class.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -1385,9 +1381,8 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::collect(
 #endif
 
 // CREATORS
-
 baea_PerformanceMonitor::Statistics::Statistics(
-                                               bslma_Allocator *basicAllocator)
+        bslma_Allocator *basicAllocator)
 : d_pid(0)
 , d_description(basicAllocator)
 , d_startTimeUtc()
@@ -1497,9 +1492,20 @@ void baea_PerformanceMonitor::Statistics::reset()
 }
 
 baea_PerformanceMonitor::baea_PerformanceMonitor(
-                                      bcep_TimerEventScheduler *scheduler,
-                                      double                    interval,
-                                      bslma_Allocator          *basicAllocator)
+        bslma_Allocator *basicAllocator)
+: d_pidMap(basicAllocator)
+, d_interval(0)
+, d_scheduler_p(0)
+, d_clock(bcep_TimerEventScheduler::Handle(INVALID_TIMER_HANDLE))
+, d_mapGuard()
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
+{
+}
+
+baea_PerformanceMonitor::baea_PerformanceMonitor(
+        bcep_TimerEventScheduler *scheduler,
+        double                    interval,
+        bslma_Allocator          *basicAllocator)
 : d_pidMap(basicAllocator)
 , d_interval(interval)
 , d_scheduler_p(scheduler)
@@ -1508,6 +1514,8 @@ baea_PerformanceMonitor::baea_PerformanceMonitor(
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
     if (interval > 0.0) {
+        BSLS_ASSERT(d_scheduler_p);
+
         d_clock = d_scheduler_p->startClock(
                          bdet_TimeInterval(interval),
                          bdef_BindUtil::bind(&baea_PerformanceMonitor::collect,
@@ -1522,6 +1530,8 @@ baea_PerformanceMonitor::~baea_PerformanceMonitor()
     BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
     if (d_clock != INVALID_TIMER_HANDLE) {
+        BSLS_ASSERT(d_scheduler_p);
+
         d_scheduler_p->cancelClock(d_clock, true);
     }
 
@@ -1534,7 +1544,7 @@ baea_PerformanceMonitor::~baea_PerformanceMonitor()
     }
 }
 
-// METHODS
+// MANIPULATORS
 
 int baea_PerformanceMonitor::registerPid(int                pid,
                                          const bsl::string& description)
@@ -1572,6 +1582,8 @@ int baea_PerformanceMonitor::unregisterPid(int pid)
 
 void baea_PerformanceMonitor::setCollectionInterval(double interval)
 {
+    BSLS_ASSERT(d_scheduler_p);
+
     BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
     bcemt_WriteLockGuard<bcemt_RWMutex> guard(&d_mapGuard);
@@ -1629,11 +1641,11 @@ void baea_PerformanceMonitor::resetStatistics()
 
 }  // close namespace BloombergLP
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2007, 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ------------------------------ END-OF-FILE ---------------------------------
