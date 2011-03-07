@@ -1,6 +1,6 @@
  bslma.txt
 
-@PURPOSE: Provide allocators, pools, and other memory-management tools.
+@PURPOSE: Provide allocators, guards, and other memory-management tools.
 
 @MNEMONIC: Basic Standard Library Memory Allocators (bslma)
 
@@ -14,32 +14,60 @@
  visible to all BDE and BDE-compliant code throughout that process.  If this
  mechanism is not invoked explicitly, then an allocator that uses global 'new'
  and 'delete' is the BDE default allocator.  This topic is discussed in more
- detail below. 
+ detail below.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslma' package currently has 19 components having 6 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The package prefix and underscore ('bslma_') are omitted from
+ the full component names to simplify the layout.
+..
+  Level  6: autorawdeleter           destructorproctor
+
+  Level  5: autodeallocator          autodestructor           deallocatorguard
+            deallocatorproctor       defaultallocatorguard    destructorguard
+            rawdeleterguard          rawdeleterproctor
+
+  Level  4: default                  testallocator
+
+  Level  3: bufferallocator          mallocfreeallocator      managedallocator
+            newdeleteallocator       testallocatorexception
+
+  Level  2: allocator
+
+  Level  1: deleterhelper
+..
 
 /Component Synopsis
 /------------------
 ..
-  'bslma_allocator'                 - memory allocator protocol.
-  'bslma_autodeallocator'           - scoped guard for deallocating memory.
-  'bslma_autodestructor'            - scoped guard for deallocating memory.
-  'bslma_bufferallocator'           - memory manager from supplied buffer.
-  'bslma_default'                   - default memory allocator manager.
-  'bslma_defaultallocatorguard'     - scoped guard for default allocator.
-  'bslma_infrequentdeleteblocklist' - 
-  'bslma_managedallocator'          - memory allocator protocol with 'release'.
-  'bslma_newdeleteallocator'        - default allocator implementation, using
-                                      the '::new' and '::delete' operators.
-  'bslma_placementnew'              - placement new syntax with 'bslma'
-                                      allocators.
-  'bslma_sequentialallocator'       - sequential allocator implementation,
-                                      using underlying allocator memory but
-                                      never deallocating (until destruction).
-  'bslma_sequentialpool'            - pool for memory blocks used by the
-                                      sequential allocator.
-  'bslma_testallocator'             - test allocator, for memory leak and
-                                      buffer under- and over-run detection.
-  'bslma_testallocatorexception'    - exception type thrown by the standard
-                                      'bslma' exception testing.
+  'bslma_allocator'               - memory allocator protocol.
+  'bslma_autodeallocator'         - scoped guard for deallocating memory.
+  'bslma_autodestructor'          - scoped guard for deallocating memory.
+  'bslma_autorawdeleter'          - range proctor to manage a sequence objects.
+  'bslma_bufferallocator'         - DEPRECATED use
+                                    'bdema_bufferedsequentialallocator' instead
+  'bslma_deallocatorguard'        - guard to unconditionally manage a block of
+                                    memory.
+  'bslma_deallocatorproctor'      - proctor to conditionally manage a block of
+                                    memory.
+  'bslma_default'                 - default memory allocator manager.
+  'bslma_defaultallocatorguard'   - scoped guard for default allocator.
+  'bslma_deleterhelper'           - functions to delete objects.
+  'bslma_destructorguard'         - guard to unconditionally manage an object.
+  'bslma_destructorproctor'       - proctor to conditionally manage an object.
+  'bslma_mallocfreeallocator'     - malloc/free adaptor to 'bslma_Allocator'
+                                    protocol.
+  'bslma_managedallocator'        - memory allocator protocol with 'release'.
+  'bslma_newdeleteallocator'      - default allocator implementation, using the
+                                    '::new' and '::delete' operators.
+  'bslma_rawdeleterguard'         - guard to unconditionally manage an object.
+  'bslma_rawdeleterproctor'       - proctor to conditionally manage an object.
+  'bslma_testallocator'           - test allocator, for memory leak and
+                                    buffer under- and over-run detection.
+  'bslma_testallocatorexception'  - exception type thrown by the standard
+                                    'bslma' exception testing.
 ..
 
 @Component Overview:
@@ -49,15 +77,15 @@
 
 /'bslma_allocator'
 /-----------------
- 'bslma_allocator' defines a protocol (i.e.,, an abstract base  class)
- requiring the following interface: 'allocate()', for memory  allocation, and
- 'deallocate()', for deallocation of individual allocated  memory blocks. 
+ 'bslma_allocator' defines a protocol (i.e., an abstract base class) requiring
+ the following interface: 'allocate' for memory allocation, and 'deallocate',
+ for deallocation of individual allocated  memory blocks.
 
 /'bslma_autodeallocator'
 /-----------------------
  'bslma_autodeallocator' provides a "scoped guard" mechanism that assumes
  ownership responsibility for a block of memory obtained from an allocator
- having a 'deallocate()' method; the memory is deallocated when the scoped
+ having a 'deallocate' method; the memory is deallocated when the scoped
  guard goes out of scope, unless the memory is explicitly released.  This
  proctor mechanism is useful in guarding against memory leaks, e.g., when
  additional allocations may throw an exception.
@@ -72,63 +100,103 @@
  sequence of managed objects.  This proctor mechanism is useful in guarding
  against memory leaks, e.g., when additional allocations may throw an
  exception.
- 
-/'bslma_bufferallocator'
-/-----------------------
- 'bslma_bufferallocator' defines a memory manager that allocates and
- deallocates memory obtained from some underlying 'char' array (that is, a
- buffer).  The array is provided by the client at 'bslma_BufferAllocator'
- construction (along with its length), and cannot grow.  The client can
- optionally specify a callback function to be invoked in case there is not
- sufficient memory left in the buffer.  The callback's function is to obtain
- the memory from some other source -- its return result is the value returned
- to the client as the result of the client's 'allocate()' request. 
+
+/'bslma_autorawdeleter'
+/----------------------
+ 'bslma_autorawdeleter' provides a range proctor class template to manage a
+ sequence of (otherwise-unmanaged) objects of parameterized 'TYPE' supplied at
+ construction.  If not explicitly released, the sequence of managed objects are
+ deleted automatically when the range proctor goes out of scope by iterating
+ over each object, first calling the (managed) object's destructor, and then
+ freeing its memory footprint by invoking the 'deallocate' method of an
+ allocator (or pool) of parameterized 'ALLOCATOR' type also supplied at
+ construction.
+
+/'bslma_deallocatorguard'
+/------------------------
+ 'bslma_deallocatorguard' provides a guard class template to unconditionally
+ manage a block of (otherwise-unmanaged) memory.  The managed memory is
+ deallocated automatically when the guard object goes out of scope using the
+ 'deallocate' method of the parameterized 'ALLOCATOR' (allocator or pool)
+ supplied at construction.
+
+/'bslma_deallocatorproctor'
+/--------------------------
+ 'bslma_deallocatorproctor' provides a proctor class template to conditionally
+ manage a block of (otherwise-unmanaged) memory.  If not explicitly released,
+ the managed memory is deallocated automatically when the proctor object goes
+ out of scope by freeing the memory using the parameterized 'ALLOCATOR'
+ (allocator or pool) supplied at construction.
 
 /'bslma_default'
 /---------------
  'bslma_default' provides a namespace in which to declare a default allocator
  that can be used by any component requiring an allocator in cases where the
  client does not supply one, and two functions relating to this default
- allocator: a "setter", and a "getter". 
+ allocator: a "setter", and a "getter".
 
 /'bslma_defaultallocatorguard'
 /-----------------------------
  'bslma_defaultallocatorguard' provides a mechanism to enable safe, temporary
  replacement of the default allocator.
- 
-/'bslma_infrequentdeleteblocklist'
-/---------------------------------
- 'bslma_infrequentdeleteblocklist' defines a block list (see 'bslma_BlockList')
- that does not support deallocation of individual items (the 'deallocate()'
- function does nothing). 
+
+/'bslma_deleterhelper'
+/---------------------
+ 'bslma_deleterhelper' provides non-primitive procedures used to delete objects
+ of parameterized 'TYPE' by first calling the destructor of the object, and
+ then freeing the memory footprint of the object using a parameterized
+ 'ALLOCATOR' (allocator or pool) provided as a second argument.
+
+/'bslma_destructorguard'
+/-----------------------
+ 'bslma_destructorguard' provides a guard class template to unconditionally
+ manage an (otherwise-unmanaged) object of parameterized 'TYPE' supplied at
+ construction.  The managed object is destroyed automatically when the guard
+ object goes out of scope by calling the (managed) object's destructor.
+
+/'bslma_destructorproctor'
+/-------------------------
+ 'bslma_destructorproctor' provides a proctor class template to conditionally
+ manage an (otherwise-unmanaged) object of parameterized 'TYPE' supplied at
+ construction.  If not explicitly released, the managed object is destroyed
+ automatically when the proctor object goes out of scope by calling the
+ object's destructor.
+
+/'bslma_mallocfreeallocator'
+/---------------------------
+ 'bslma_mallocfreeallocator' provides a wrapper around 'std::malloc' and
+ 'std::free' that adheres to the 'bslma_Allocator' protocol (i.e., provides
+ 'allocate' and 'deallocate' functions).
 
 /'bslma_managedallocator'
-/-----------------------
+/------------------------
  'bslma_managedallocator' defines a protocol that extends the 'bslma_Allocator'
- protocol with a 'release()' function.  'release()' indicates that all memory
- allocated since the previous 'release()' call is to be deallocated. 
+ protocol with a 'release' function.  'release' indicates that all memory
+ allocated since the previous 'release' call is to be deallocated.
 
 /'bslma_newdeleteallocator'
 /--------------------------
  'bslma_newdeleteallocator' provides a wrapper around 'operator new' and
  'operator delete' that adheres to the 'bslma_Allocator' protocol (i.e.,
- provides an 'allocate()' function and a 'deallocate()' function). 
+ provides an 'allocate' function and a 'deallocate' function).
 
-/'bslma_placementnew'
-/--------------------
- 'bslma_placementnew' provides a variant of placement new for use by low-level,
- library components needing to avoid cyclic physical dependencies that would
- result from using another placement new. 
+/'bslma_rawdeleterguard'
+/-----------------------
+ 'bslma_rawdeleterguard' provides a guard class template to unconditionally
+ manage an (otherwise-unmanaged) object of parameterized 'TYPE' supplied at
+ construction.  The managed object is deleted automatically when the guard
+ object goes out of scope by first calling the (managed) object's destructor,
+ and then freeing the memory using the parameterized 'ALLOCATOR' (allocator or
+ pool) also supplied at construction.
 
-/'bslma_sequentialallocator'
-/---------------------------
- 'bslma_sequentialallocator' wraps a 'bslma_Allocator' interface around a
- 'bslma_SequentialPool'.
-
-/'bslma_sequentialpool'
-/----------------------
- 'bslma_sequentialpool' provides a pool that allocates variable-sized memory
- blocks either NATURAL alignment or MAXIMUM alignment. 
+/'bslma_rawdeleterproctor'
+/-------------------------
+ 'bslma_rawdeleterproctor' provides a proctor class template to conditionally
+ manage an (otherwise-unmanaged) object of parameterized 'TYPE' supplied at
+ construction.  If not explicitly released, the managed object is deleted
+ automatically when the proctor object goes out of scope by first calling the
+ (managed) object's destructor, and then freeing the memory using the
+ parameterized 'ALLOCATOR' (allocator or pool) also supplied at construction.
 
 /'bslma_testallocator'
 /---------------------
@@ -138,9 +206,9 @@
 /'bslma_testallocatorexception'
 /------------------------------
  'bslma_testallocatorexception' defines an exception object for use in testing
- exceptions during memory allocations. 
- 
-@Allocators and Other Memory-Dispensing Mechanisms 
+ exceptions during memory allocations.
+
+@Allocators and Other Memory-Dispensing Mechanisms
  An allocator is a memory manager that derives from the 'bslma_Allocator'
  protocol and provides an 'allocate' method for obtaining memory, and a
  'deallocate' method for returning memory (to the allocator).  'bslma' also
@@ -167,40 +235,40 @@
     * Whether or not the allocator supports multi-threading.
 ..
  All 'bslma' allocators are thread-safe but not thread-enabled (see the 'bcema'
- package-level documentation for information on thread-enabled allocators).  
+ package-level documentation for information on thread-enabled allocators).
  In BDE terminology, a class is thread-safe if distinct threads can safely
- access *different* *instances* of that class simultaneously; a class is 
+ access *different* *instances* of that class simultaneously; a class is
  thread-enabled if distinct threads can safely access *the* *same* *instance*
  of that class simultaneously.
 
  The *BDE* allocators have two more differentiating properties.  First, whether
- the allocator is intended to be part of a chain (or other grouping) of 
- allocators, or is an "end-point" allocator.  The former kind support the 
- 'bslma_Allocator' protocol.  "End-point" allocators, such as 'bslma_Pool', 
- are designed for minimizing the runtime overhead of allocation and 
- deallocation on a call-by-call basis.  This essentially corresponds to 
+ the allocator is intended to be part of a chain (or other grouping) of
+ allocators, or is an "end-point" allocator.  The former kind support the
+ 'bslma_Allocator' protocol.  "End-point" allocators, such as 'bslma_Pool',
+ are designed for minimizing the runtime overhead of allocation and
+ deallocation on a call-by-call basis.  This essentially corresponds to
  inlining the 'allocate' and 'deallocate' methods.
 
  Supporting a common protocol (the 'bslma_Allocator' protocol) allows passing
- conformant allocators to BDE (and other) objects requiring an allocator at 
+ conformant allocators to BDE (and other) objects requiring an allocator at
  construction.  Support of this common protocol also facilitates grouping the
- memory used by an object into one allocator.  
+ memory used by an object into one allocator.
 
  The second differentiating property is whether the allocator is a "managed" or
  "unmanaged" allocator.  Unmanaged allocators require every allocation to be
- matched by a deallocation, similar to 'malloc' and 'free', or 'new' and 
+ matched by a deallocation, similar to 'malloc' and 'free', or 'new' and
  'delete'.  They also allow for simultaneous deallocation of all memory with
  one call to 'release'.  This 'release' optimization can provide significant
  performance improvements if the only system resource held by an object (and
  all the objects it manages) is memory.
 
- The BDE library uses allocators with all classes requiring dynamic memory 
- allocation, allowing clients to fine-tune memory-related performance 
+ The BDE library uses allocators with all classes requiring dynamic memory
+ allocation, allowing clients to fine-tune memory-related performance
  characteristics by replacing the established defaults with client-chosen
- alternatives.  Because the protocol is public, clients can even write their 
+ alternatives.  Because the protocol is public, clients can even write their
  own, customized implementations, and use those.  But none of these actions are
- required.  BDE components all work with a (preset) default allocator, and 
- clients without special requirements need never concern themselves with 
+ required.  BDE components all work with a (preset) default allocator, and
+ clients without special requirements need never concern themselves with
  allocators.
 
  Some other concerns regarding memory allocation are described next.  The
@@ -233,14 +301,14 @@
  The BDE memory managers provide three kinds of alignment: NATURAL, MAXIMAL,
  and BYTE -- but note that BYTE alignment is also referred to as "no alignment"
  or "none" in this document, since every address is aligned to *some* byte.
- 
- A C/C++ variable is "naturally aligned" if its size divides the numerical 
+
+ A C/C++ variable is "naturally aligned" if its size divides the numerical
  value of its address.  An address is "maximally aligned" if it can serve as
- a naturally-aligned address no matter what type of object might be stored 
- there.  That is, it meets the alignment requirements of the type with the 
+ a naturally-aligned address no matter what type of object might be stored
+ there.  That is, it meets the alignment requirements of the type with the
  maximally restrictive needs.
 
- For example, on a platform where 'int' is 4 bytes, a variable such as  
+ For example, on a platform where 'int' is 4 bytes, a variable such as
 ..
      int index;
 ..
@@ -253,20 +321,20 @@
 ..
      0x00A3921
 ..
- because 4 does not divide 66985.  An address whose numerical value is 
+ because 4 does not divide 66985.  An address whose numerical value is
  divisible by 8 is generally naturally aligned for any possible type, and so
  meets the definition of MAXIMUM alignment.
 
- Accessing data stored at an aligned address is *faster* on Intel platforms 
- and *required* on almost all Unix platforms.  Reading (or writing) a C/C++ 
- variable at an unaligned address will cause a Bus Error on these Unix 
+ Accessing data stored at an aligned address is *faster* on Intel platforms
+ and *required* on almost all Unix platforms.  Reading (or writing) a C/C++
+ variable at an unaligned address will cause a Bus Error on these Unix
  platforms, and thus crash the program.
 
  Normally, programmers needn't worry about alignment for dynamically allocated
  memory.  The runtime system's 'new' (or 'malloc', for C) automatically return
  memory blocks beginning at maximally-aligned addresses (the C++ standard
- requires it of 'new').  The 'bslma_NewDeleteAllocator' does the same.  
- Certain 'bslma' allocators and pools, however, return arbitrary addresses. 
+ requires it of 'new').  The 'bslma_NewDeleteAllocator' does the same.
+ Certain 'bslma' allocators and pools, however, return arbitrary addresses.
  IT IS THEREFORE UNSAFE TO USE THOSE ALLOCATORS for storing 'int's, 'double's,
  'struct's, and other non-'char' types.
 
@@ -274,21 +342,21 @@
 ..
      1. Inferring the needed alignment from the size of the request, and
         returning a NATURALLY aligned address for it, or
-     2. Returning a chunk of memory aligned to an address that would serve as 
+     2. Returning a chunk of memory aligned to an address that would serve as
         a properly-aligned address for a type with the largest possible
-        alignment needs, i.e. returning a MAXIMALLY aligned address.
+        alignment needs, i.e., returning a MAXIMALLY aligned address.
 ..
  The cost of obtaining aligned addresses is twofold: an increase in the memory
- used (allocators returning aligned addresses do so by skipping bytes that 
- could otherwise be used, so as to return an appropriate address), and 
+ used (allocators returning aligned addresses do so by skipping bytes that
+ could otherwise be used, so as to return an appropriate address), and
  additional computation time to calculate the needed alignment and subsequent
  offset.
 
 /Deallocation
 /------------
  Some of the managers do not deallocate individual items.  (The 'deallocate'
- function is almost always provided, but in these managers it performs no 
- action.)  Such managers provide a 'release' function instead, which 
+ function is almost always provided, but in these managers it performs no
+ action.)  Such managers provide a 'release' function instead, which
  relinquishes *all* memory allocated by that manager since the previous
  'release' call.
 
@@ -297,12 +365,12 @@
  Most managers provide variable-sized, untyped (i.e., 'void *') memory.  Only
  the 'bslma_Pool' works with fixed-size chunks.
 
- The different components manage memory in different ways, but they 
- necessarily *obtain* the memory that they manage from one of the two usual 
+ The different components manage memory in different ways, but they
+ necessarily *obtain* the memory that they manage from one of the two usual
  sources: the heap or the stack.  The 'bslma_NewDeleteAllocator' is hard-coded
- to obtain memory from the heap -- its underlying source is 'operator new'.  
- The 'bslma_BufferAllocator' is the best-suited manager for working with stack 
- memory -- its source is a client-supplied array, a 'char *' plus length 
+ to obtain memory from the heap -- its underlying source is 'operator new'.
+ The 'bslma_BufferAllocator' is the best-suited manager for working with stack
+ memory -- its source is a client-supplied array, a 'char *' plus length
  indicator.  All the other memory managers must be passed a 'bslma_Allocator'-
  derived type in their constructor, which they then use as the source of the
  memory they will manage.
@@ -311,11 +379,10 @@
 ..
                               PERFORMANCE CHARACTERISTICS
 
-
                Memory Source     Allocation   Alignment     Out-of-memory
                                  Cost OVER                     Handling
-                                 Underlying                   
-                                  Source                      
+                                 Underlying
+                                  Source
             +-----------------+--------------+---------+----------------------+
 Infrequent- | Client-provided | O(1) node    |   None  |       None           |
 Delete      |   allocator     | creation &   |         |                      |
@@ -343,11 +410,11 @@ Allocator   |                 |              |         |                      |
             +-----------------+--------------+---------+----------------------+
 ..
  * Pooling potentially speeds up allocation over the allocation done by
- some underlying source, by (sub)allocating (and reclaiming) memory more 
+ some underlying source, by (sub)allocating (and reclaiming) memory more
  quickly than the underlying source itself does.
 
- + Calling 'allocate()' directly through an item of this (derived) type 
- *will* result in an inlined function.  But calling through a base-class 
+ + Calling 'allocate' directly through an item of this (derived) type
+ *will* result in an inlined function.  But calling through a base-class
  pointer, e.g.,
 ..
     bslma_SequentialAllocator sqa;
@@ -384,15 +451,15 @@ Allocator         |                       |                         |
 /The Default Allocator
 /---------------------
  All object types in the BDE library needing dynamic memory require that an
- allocator be passed to their constructor.  They take a 'bslma_Allocator *' 
+ allocator be passed to their constructor.  They take a 'bslma_Allocator *'
  argument, which defaults to the value of 'bslma_Default::defaultAllocator()'.
  This value is set by BDE library code to be
- 'bslma_NewDeleteAllocator::singleton()', but it can be changed:  
- 'bslma_Default::setDefaultAllocator()' sets the value of the (global) default
- allocator, and 'bslma_Default::allocator()' returns it.
+ 'bslma_NewDeleteAllocator::singleton()', but it can be changed:
+ 'bslma_Default::setDefaultAllocator' sets the value of the (global) default
+ allocator, and 'bslma_Default::allocator' returns it.
 
 @INTERACTION WITH OTHER PACKAGES: All BDE library objects needing dynamic
- memory require that an allocator be passed to their constructor, which 
+ memory require that an allocator be passed to their constructor, which
  defaults to the allocator currently installed as the default allocator.
 
 @USAGE EXAMPLES
@@ -405,19 +472,19 @@ Allocator         |                       |                         |
 /------------------------------------------------------------------
  ODBC/JDBC drivers are libraries providing standardized, language-appropriate
  API's for accessing SQL databases.  The standardization allows programmers
- using these drivers to access any vendor's SQL-based DBMS in the same way.  
- Language-appropriate means that the provided API's conform better to how 
- programmers typically work with data in C/C++ (or Java, respectively); they 
- provide functions for reading the data as language-specific types, e.g., 
- 'getInt()', 'getString()', and so on.
+ using these drivers to access any vendor's SQL-based DBMS in the same way.
+ Language-appropriate means that the provided API's conform better to how
+ programmers typically work with data in C/C++ (or Java, respectively); they
+ provide functions for reading the data as language-specific types, e.g.,
+ 'getInt', 'getString', and so on.
 
  Suppose we wanted to write an ODBC/JDBC-like driver for legacy files, so that
  application could access these data files with the same API used for accessing
- DBMS-stored data.  Which memory manager would be best? 
+ DBMS-stored data.  Which memory manager would be best?
 
  ODBC drivers return C++ types, and initially this indicates use of a memory
  manager that will provide properly-aligned addresses for storing those types.
- This example will in fact use such a manager, illustrating alignment 
+ This example will in fact use such a manager, illustrating alignment
  considerations.
 
  But note that an alternative design would store the returned data in the
@@ -426,55 +493,54 @@ Allocator         |                       |                         |
  This kind of lazy evaluation would be more effective in scenarios where
  clients read fields at most once (i.e., sometimes not at all).  In such a
  design, a non-aligning manager would do.
- 
- We can't know in advance how long a client will want to hold onto a result 
+
+ We can't know in advance how long a client will want to hold onto a result
  set (the data returned from a SQL query).  But because we are implementing in
  C++, the language provides a construct whose semantics correspond directly to
- the notion of "no longer needing an object" -- i.e., a destructor.  If we 
+ the notion of "no longer needing an object" -- i.e., a destructor.  If we
  make our result set a class, invocation of the destructor will serve as our
  indication that the client no longer needs the result set contents.
 
  There are two available aligning managers: the sequential pool (with its
- wrapper, 'bslma_SequentialAllocator') and the multipool (with its wrapper, 
+ wrapper, 'bslma_SequentialAllocator') and the multipool (with its wrapper,
  the 'bslma_MultiPoolAllocator').  We will use a separate memory manager for
- each result set, allowing us to deallocate all memory at once in the 
- destructor.  This design allows us to use the slightly more efficient 
+ each result set, allowing us to deallocate all memory at once in the
+ destructor.  This design allows us to use the slightly more efficient
  'bslma_SequentialAllocator'.
 
  (Most ODBC/JDBC drivers provide separate classes representing a database
- connection, an SQL statement, a query result set, and so on.  We simplify 
- the example by defining one class, 'MyResultSet', that executes the query as 
- well as returning the results; query execution in a real driver would 
+ connection, an SQL statement, a query result set, and so on.  We simplify
+ the example by defining one class, 'MyResultSet', that executes the query as
+ well as returning the results; query execution in a real driver would
  typically belong to a 'Statement' class.
 
  Note that the use of allocators in this example is similar to the use in the
  previous example  -- allocation when needed, and the performance-enhancing
- simultaneous 'release' when deallocating.  The intent in providing this 
+ simultaneous 'release' when deallocating.  The intent in providing this
  example is not to show a different pattern, but to motivate use of aligning
  allocators, as distinct from the unaligned one in Usage Example 1.)
 
  As before, we highlight use of the allocator by surrounding its use with
  asterisks.
 ..
-#include "bslma_sequentialallocator.h"
+#include <bslma_sequentialallocator.h>
 #include <bdem_elemtype.h>
 #include <vector>
 #include <string>
 
 using namespace BloombergLP;
 
-/* The following (de-facto struct) holds:
-        1. metadata defining a column, and
-        2. a container to hold column contents. */
+// The following (de-facto struct) holds:
+//      1. metadata defining a column, and
+//      2. a container to hold column contents.
 
 class Column {
     std::string d_columnName;         // Name of the "column" in the query
     bdem_ElemType::Type d_typeCode;   // C++ type for this column
     std::vector<void *> d_items;      // Pointers to column data
 
-  friend class MyResultSet;
+    friend class MyResultSet;
 };
-
 
 class MyResultSet {
 
@@ -486,7 +552,6 @@ class MyResultSet {
     std::vector<Column> d_columns;
     int d_cursor;    // specifies the row being accessed
 
-
     int findIndexForName(const char *columnName);
 
   public:
@@ -494,7 +559,7 @@ class MyResultSet {
     ~MyResultSet(void);
 
     bool fakeExecute(const char *sqlQuery);   // this simulates query execution
-    bool next(void);                          // move to the next row 
+    bool next(void);                          // move to the next row
 
     // ODBC "PROTOCOL" -- DATA EXTRACTION ROUTINES
     int getInt(int *result, const char *columnName);
@@ -503,10 +568,10 @@ class MyResultSet {
 };
 ..
  We simplify this example by only implementing data retrieval for three types.
- (A real driver, of course, would define an API for each supported type.)  
- Note also that the function signature style conforms to BDE design -- rather 
- than returning the data as the *return* *result* of the function call, we 
- return it by placing it into the variable whose address we are passed as the 
+ (A real driver, of course, would define an API for each supported type.)
+ Note also that the function signature style conforms to BDE design -- rather
+ than returning the data as the *return* *result* of the function call, we
+ return it by placing it into the variable whose address we are passed as the
  first function argument, the *output* parameter.  We reserve the return value
  for indicating error status.
 
@@ -519,25 +584,27 @@ class MyResultSet {
 ..
 enum { SUCCESS = 0, FAILURE = 1 };
 
-MyResultSet::MyResultSet(void) : 
-               /***********************************************************/
-                       d_memSource(bslma_Default::defaultAllocator()),
-               /***********************************************************/
-                       d_cursor(-1) {
+MyResultSet::MyResultSet(void)
+  /********************************************/
+: d_memSource(bslma_Default::defaultAllocator())
+  /********************************************/
+, d_cursor(-1)
+{
     d_columns.reserve(20);  // few queries request more than 20 columns
 }
 
-MyResultSet::~MyResultSet(void) {
-/******************************/
+MyResultSet::~MyResultSet(void)
+{
+    /*******************/
     d_memSource.release();
-/******************************/
+    /*******************/
 }
 
-bool MyResultSet::fakeExecute(const char *sqlQuery) {
-
-    /* This block simulates a 'char' sequence that might be returned 
-       from the file.  It simulates a legacy file that stores the data 
-       as '@'-separated fields. 
+bool MyResultSet::fakeExecute(const char *sqlQuery)
+{
+    /* This block simulates a 'char' sequence that might be returned
+       from the file.  It simulates a legacy file that stores the data
+       as '@'-separated fields.
 
        The query being simulated appears in 'main', below.
     */
@@ -550,7 +617,6 @@ bool MyResultSet::fakeExecute(const char *sqlQuery) {
 
     const int numRows = 5;  // would be computed
     const int numCols = 4;  // would be parsed from query
-   
 
     // Set up 'MyResultSet' metadata
     Column rsmd;
@@ -568,33 +634,30 @@ bool MyResultSet::fakeExecute(const char *sqlQuery) {
     d_columns.push_back(rsmd);
 
     const char *endOfWord = fileData;
-    for(int i = 0; i < numRows; i++) {
-        for(int j = 0; j < numCols; ++j) {
+    for (int i = 0; i < numRows; i++) {
+        for (int j = 0; j < numCols; ++j) {
 
             // Find the start and end of next column's data
             const char * startOfWord = endOfWord;
             endOfWord = strchr(endOfWord, '@');
 
-
             /* Because of our simulation, the "file-returned block"
                is stored in const memory.  We can't replace the '@' signs
-               with the needed NULL directly in const memory, so we  make 
-               a copy of the parsed items instead.  
+               with the needed NULL directly in const memory, so we  make
+               a copy of the parsed items instead.
                This extra copy would not be needed in a real driver.
             */
-            char scratchSpace[100]; 
+            char scratchSpace[100];
             int hackLen = endOfWord - startOfWord;
             strncpy(scratchSpace, startOfWord, hackLen);
             scratchSpace[hackLen] = 0;
-
-
 
             int *iMemBlock;             // define these outside the switch
             double *dMemBlock;          //      to silence erroneous compiler
             char *sMemBlock;            //      errors
 
             // Extract the data, storing in allocated memory.
-            switch(d_columns[j].d_typeCode) {
+            switch (d_columns[j].d_typeCode) {
               case bdem_ElemType::INT:
                                     /*****************************************/
                 iMemBlock = static_cast<int *>
@@ -631,18 +694,22 @@ bool MyResultSet::fakeExecute(const char *sqlQuery) {
     return true;
 }
 
-bool MyResultSet::next(void) {
-    if( ++d_cursor >= d_columns[0].d_items.size()) 
-              // all columns have the same number of items, 
-              // so it suffices to ask d_columns[0]
+bool MyResultSet::next(void)
+{
+    if (++d_cursor >= d_columns[0].d_items.size()) {
+        // All columns have the same number of items, so it suffices to
+        // ask about 'd_columns[0]'.
+
         return false;
+    }
 
     return true;
 }
 
-int MyResultSet::getInt(int *result, const char *columnName) { 
+int MyResultSet::getInt(int *result, const char *columnName)
+{
     int index = findIndexForName(columnName);
-    if(-1 == index) {
+    if (-1 == index) {
         return FAILURE;
     }
 
@@ -650,9 +717,10 @@ int MyResultSet::getInt(int *result, const char *columnName) {
     return SUCCESS;
 }
 
-int MyResultSet::getString(std::string *result, const char *columnName) {
+int MyResultSet::getString(std::string *result, const char *columnName)
+{
     int index = findIndexForName(columnName);
-    if(-1 == index) {
+    if (-1 == index) {
         return FAILURE;
     }
 
@@ -660,9 +728,10 @@ int MyResultSet::getString(std::string *result, const char *columnName) {
     return SUCCESS;
 }
 
-int MyResultSet::getDouble(double *result, const char *columnName) { 
+int MyResultSet::getDouble(double *result, const char *columnName)
+{
     int index = findIndexForName(columnName);
-    if(-1 == index) {
+    if (-1 == index) {
         return FAILURE;
     }
 
@@ -672,12 +741,13 @@ int MyResultSet::getDouble(double *result, const char *columnName) {
 
 // Return the index in the 'd_columns' vector of the column
 // with the passed-in name.
-int MyResultSet::findIndexForName(const char *columnName) {
-    // In real life we might have used a std::map....
-    for(int i = 0; i < d_columns.size(); ++i) {
-        if(d_columns[i].d_columnName == columnName) {
+int MyResultSet::findIndexForName(const char *columnName)
+{
+    // In production code, we might have used an 'std::map'.
+    for (int i = 0; i < d_columns.size(); ++i) {
+        if (d_columns[i].d_columnName == columnName) {
             return i;
-	}
+        }
     }
     return -1;
 }
@@ -686,13 +756,12 @@ int MyResultSet::findIndexForName(const char *columnName) {
 ..
 using namespace BloombergLP;
 
-int main(int    argc, 
-         char **argv) {
-
+int main(int argc, char **argv)
+{
     MyResultSet rs;
-    rs.fakeExecute( "SELECT author, title, isbn, price 
-                     FROM <table list>
-                     WHERE <join criteria>");
+    rs.fakeExecute("SELECT author, title, isbn, price
+                    FROM <table list>
+                    WHERE <join criteria>");
 
     // Walk through entire result set and print out entries.
     std::string author;
@@ -700,7 +769,7 @@ int main(int    argc,
     int isbn;
     double price;
 
-    while(rs.next()) {                  // position at the next row
+    while (rs.next()) {                  // position at the next row
         rs.getString(&author, "AUTHOR");
         rs.getString(&title, "TITLE");
         rs.getInt(&isbn, "ISBN");
@@ -718,27 +787,27 @@ int main(int    argc,
 /USAGE EXAMPLE 2: Sketch use of 'bslma_BufferAllocator'
 /------------------------------------------------------
  Clients can take advantage of the faster and cheaper memory originating
- on the stack for use with objects (wanting allocators) that are used as 
+ on the stack for use with objects (wanting allocators) that are used as
  *local* *variables* within some procedure.
 
  For example, in Usage Example 1, we use the following local vector variable as
- a means of knowing which files should be removed from the list of files 
+ a means of knowing which files should be removed from the list of files
  possibly containing the search string.
 ..
      std::vector<bool> doRemove(fileNames->size());
 ..
  Suppose rather than 'bool' (for which vectors are optimized), we have as a
- local variable 
+ local variable
 ..
      std::vector<LargeObject> someLocalVariable;
 ..
- Vectors accept allocators, too, which (along with other BDE components) use 
- the default allocator when none is explicitly supplied.  For most 
- applications, the default is heap-originated memory (i.e., the 
+ Vectors accept allocators, too, which (along with other BDE components) use
+ the default allocator when none is explicitly supplied.  For most
+ applications, the default is heap-originated memory (i.e., the
  'bslma_NewDeleteAllocator').
 
- We can often speed up such local use by grabbing sufficient stack space and 
- passing it in to the local object, wrapped in a 'bslma_BufferAllocator'.  
+ We can often speed up such local use by grabbing sufficient stack space and
+ passing it in to the local object, wrapped in a 'bslma_BufferAllocator'.
 
 The code above might look like
 ..
@@ -747,14 +816,15 @@ The code above might look like
                                 initSize,
                                 bslma_BufferAllocator(hugeLocalBuffer, 5000));
 ..
- The safest use passes the 'bslma_BufferAllocator' a "fallback" to use, should 
- the stack space we grabbed prove insufficient.  The fallback must be a 
+ The safest use passes the 'bslma_BufferAllocator' a "fallback" to use, should
+ the stack space we grabbed prove insufficient.  The fallback must be a
  (pointer to a) function that accepts an 'int' (the requested number of bytes)
  and returns a 'void *' (the presumed pointer to an allocated memory block).
 
  We write a simple fallback function as follows:
 ..
-     void *cheapNew(int numBytes) {
+     void *cheapNew(int numBytes)
+     {
          return new char[numBytes];
      }
 ..
@@ -762,7 +832,7 @@ The code above might look like
 ..
      char hugeLocalBuffer[5000];
      std::vector<LargeObject> someLocalVariable(
-                  initSize,
-                  bslma_BufferAllocator(hugeLocalBuffer, 5000, cheapNew));
+                       initSize,
+                       bslma_BufferAllocator(hugeLocalBuffer, 5000, cheapNew));
 ..
 

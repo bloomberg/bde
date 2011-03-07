@@ -1,11 +1,13 @@
-// bslma_testallocatorexception.t.cpp -*-C++-*-
+// bslma_testallocatorexception.t.cpp                                 -*-C++-*-
 
 #include <bslma_testallocatorexception.h>
-#include <bslma_allocator.h>              // for test purpose only
+
+#include <bslma_allocator.h>
 
 #include <cstring>     // memset()
 #include <cstdlib>     // atoi()
 #include <iostream>
+
 using namespace BloombergLP;
 using namespace std;
 
@@ -69,7 +71,8 @@ class my_Allocator : public bslma_Allocator {
     int d_allocationLimit;
     // ...
 
-  private: // not implemented.
+  private:
+    // NOT IMPLEMENTED
     my_Allocator(const my_Allocator&);
     my_Allocator& operator=(const my_Allocator&);
 
@@ -78,13 +81,16 @@ class my_Allocator : public bslma_Allocator {
     my_Allocator() : d_allocationLimit(-1) {}
     ~my_Allocator() {}
     void *allocate(size_type size);
-    inline void deallocate(void *address) { free(address); }
-    inline void setAllocationLimit(int limit) { d_allocationLimit = limit; }
-    inline int allocationLimit() const { return d_allocationLimit; }
+    void deallocate(void *address) { free(address); }
+    void setAllocationLimit(int limit) { d_allocationLimit = limit; }
+    int allocationLimit() const { return d_allocationLimit; }
     // ...
 };
 
-inline void *my_Allocator::allocate(size_type size)
+// my_allocator.cpp
+//  #include <my_allocator.h>
+
+void *my_Allocator::allocate(size_type size)
 {
 #ifdef BDE_BUILD_TARGET_EXC
     if (0 <= d_allocationLimit) {
@@ -94,7 +100,7 @@ inline void *my_Allocator::allocate(size_type size)
         }
     }
 #endif
-    return (void *) malloc(size);
+    return (void *)malloc(size);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

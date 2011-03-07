@@ -64,10 +64,10 @@ BSLS_IDENT("$Id: $")
 // behavior, almost certainly corrupting the C Standard Library's runtime
 // memory manager.
 //
-// Memory dispensed from a 'bdem_TestAllocator' is marked such that attempting
+// Memory dispensed from a 'bslma_TestAllocator' is marked such that attempting
 // to deallocate previously unallocated (or already deallocated) memory will
 // (with high probability) be flagged as an error (unless quiet mode is set for
-// the purpose of testing the test allocator itself).  A 'bdema_TestAllocator'
+// the purpose of testing the test allocator itself).  A 'bslma_TestAllocator'
 // also supports a buffer overrun / underrun feature -- each allocation has
 // "pads", areas of extra memory before and after the segment which are
 // initialized to a particular value and checked upon deallocation to see if

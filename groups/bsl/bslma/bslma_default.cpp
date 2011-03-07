@@ -5,6 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslma_allocator.h>            // for testing only
+#include <bsls_assert.h>
 
 namespace BloombergLP {
 

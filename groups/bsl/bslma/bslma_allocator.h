@@ -408,13 +408,13 @@ class bslma_Allocator {
     // 'operator new'.
 
   public:
-    // PUBLIC TYPES  // TBD
-    typedef bsls_Types::size_type size_type;  // TBD
-        // Alias for an unsigned integer type capable of representing the
-        // number of bytes in this platform's virtual address space.
+    // PUBLIC TYPES
+    typedef bsls_Types::size_type size_type;  // TBD change to unsigned?
+        // Alias for a signed integral type capable of representing the number
+        // of bytes in this platform's virtual address space.
 
-    // CLASS METHODS  // TBD
-    static void throwBadAlloc();  // TBD
+    // CLASS METHODS
+    static void throwBadAlloc();  // TBD does this belong here?
         // Throw 'std::bad_alloc' if exceptions are enabled or abort the
         // program otherwise.  Derived classes and helper functions will
         // typically call this function when they are unable to satisfy an
@@ -464,29 +464,6 @@ class bslma_Allocator {
         // originally dispensed by this allocator, and has not already been
         // deallocated.
 };
-
-// ============================================================================
-//                      INLINE AND TEMPLATE FUNCTION DEFINITIONS
-// ============================================================================
-
-                        // ---------------------
-                        // class bslma_Allocator
-                        // ---------------------
-
-// MANIPULATORS
-template <class TYPE>
-inline
-void bslma_Allocator::deleteObject(const TYPE *object)
-{
-    bslma_DeleterHelper::deleteObject(object, this);
-}
-
-template <class TYPE>
-inline
-void bslma_Allocator::deleteObjectRaw(const TYPE *object)
-{
-    bslma_DeleterHelper::deleteObjectRaw(object, this);
-}
 
 }  // close namespace BloombergLP
 
@@ -568,6 +545,33 @@ void *operator new(std::size_t                   size,
 void operator delete(void                         *address,
                      BloombergLP::bslma_Allocator *basicAllocator);
     // Note that this operator is intentionally declared, but not defined.
+
+// ============================================================================
+//                      INLINE AND TEMPLATE FUNCTION DEFINITIONS
+// ============================================================================
+
+namespace BloombergLP {
+
+                        // ---------------------
+                        // class bslma_Allocator
+                        // ---------------------
+
+// MANIPULATORS
+template <class TYPE>
+inline
+void bslma_Allocator::deleteObject(const TYPE *object)
+{
+    bslma_DeleterHelper::deleteObject(object, this);
+}
+
+template <class TYPE>
+inline
+void bslma_Allocator::deleteObjectRaw(const TYPE *object)
+{
+    bslma_DeleterHelper::deleteObjectRaw(object, this);
+}
+
+}  // close namespace BloombergLP
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS

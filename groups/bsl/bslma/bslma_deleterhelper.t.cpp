@@ -1,8 +1,10 @@
-// bslma_deleterhelper.t.cpp  -*-C++-*-
+// bslma_deleterhelper.t.cpp                                          -*-C++-*-
 
 #include <bslma_deleterhelper.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 
 #include <cstdlib>     // atoi()
 #include <iostream>
@@ -82,6 +84,9 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_() cout << "\t" << flush;             // Print tab w/o newline
 
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -125,18 +130,18 @@ class my_NewDeleteAllocator {
     int getCount() const            { return d_count; }
 };
 
-static int globalObjectStatus = 0;    // global flag set by test-object d'tors
-static int class3ObjectCount = 0;     // Count set by my_Class3 c'tor/d'tor
+static int globalObjectStatus = 0;  // global flag set by test-object d'tors
+static int class3ObjectCount  = 0;  // count set by 'my_Class3' c'tor/d'tor
 
 class my_Class1 {
   public:
-    my_Class1() { globalObjectStatus = 1; }
+    my_Class1()  { globalObjectStatus = 1; }
     ~my_Class1() { globalObjectStatus = 0; }
 };
 
 class my_Class2 {
   public:
-    my_Class2() { globalObjectStatus = 1; }
+    my_Class2()          { globalObjectStatus = 1; }
     virtual ~my_Class2() { globalObjectStatus = 0; }
 };
 
@@ -432,6 +437,21 @@ int main(int argc, char *argv[])
             ASSERT(0 == leftBaseObjectCount);
             ASSERT(0 == virtualBaseObjectCount);
         }
+        {
+            if (verbose) cout << "\tNegative testing" << endl;
+
+            bsls_AssertFailureHandlerGuard guard(
+                                             &bsls_AssertTest::failTestDriver);
+
+            my_NewDeleteAllocator a;
+            my_NewDeleteAllocator *null = 0;
+
+            my_Class1 *pC1 = (my_Class1 *) a.allocate(sizeof(my_Class1));
+            new(pC1) my_Class1;
+
+            ASSERT_SAFE_FAIL(Obj::deleteObject(pC1, null));
+            ASSERT_SAFE_PASS(Obj::deleteObject(pC1, &a));
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -552,6 +572,22 @@ int main(int argc, char *argv[])
             ASSERT(0 == leftBaseObjectCount);
             ASSERT(0 == virtualBaseObjectCount);
         }
+        {
+            if (verbose) cout << "\tNegative testing" << endl;
+
+            bsls_AssertFailureHandlerGuard guard(
+                                             &bsls_AssertTest::failTestDriver);
+
+            my_NewDeleteAllocator a;
+            my_NewDeleteAllocator *null = 0;
+
+            my_Class1 *pC1 = (my_Class1 *) a.allocate(sizeof(my_Class1));
+            new(pC1) my_Class1;
+
+            ASSERT_SAFE_FAIL(Obj::deleteObjectRaw(pC1, null));
+            ASSERT_SAFE_PASS(Obj::deleteObjectRaw(pC1, &a));
+        }
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

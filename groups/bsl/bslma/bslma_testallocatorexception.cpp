@@ -1,10 +1,8 @@
-// bslma_testallocatorexception.cpp             -*-C++-*-
+// bslma_testallocatorexception.cpp                                   -*-C++-*-
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
-
-#include <bslma_allocator.h>
 
 // ---------------------------------------------------------------------------
 // NOTICE:

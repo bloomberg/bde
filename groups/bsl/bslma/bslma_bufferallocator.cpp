@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslmf_assert.h>
 #include <bsls_alignment.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -12,6 +13,27 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <cstdio>
 
 namespace BloombergLP {
+
+// STATIC HELPER FUNCTIONS
+static
+bool isPowerOfTwo(int alignment)
+    // Return 'true' if the specified 'alignment' is a power of 2 no greater
+    // than 256, and 'false' otherwise.  Note that this implementation is
+    // limited to small powers of 2 as its purpose is to detect valid memory
+    // alignment values.
+{
+    static const int VALUES[]   = { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
+           const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+    BSLMF_ASSERT((256 >= bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT));
+
+    for (int i = 0; i != NUM_VALUES; ++i) {
+        if (VALUES[i] == alignment) {
+            return true;
+        }
+    }
+    return false;
+}
 
 static
 void *allocateFromBufferImp(int  *cursor,
@@ -36,6 +58,7 @@ void *allocateFromBufferImp(int  *cursor,
     BSLS_ASSERT(0 < size);
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(alignment <= bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+    BSLS_ASSERT_SAFE(isPowerOfTwo(alignment));
 
     int offset = bsls_AlignmentUtil::calculateAlignmentOffset(buffer + *cursor,
                                                               alignment);
@@ -50,6 +73,11 @@ void *allocateFromBufferImp(int  *cursor,
     return result;
 }
 
+                        // ---------------------------
+                        // class bslma_BufferAllocator
+                        // ---------------------------
+
+// CLASS METHODS
 void *bslma_BufferAllocator::allocateFromBuffer(int               *cursor,
                                                 char              *buffer,
                                                 size_type          bufSize,
@@ -86,6 +114,7 @@ void *bslma_BufferAllocator::allocateFromBuffer(int       *cursor,
     BSLS_ASSERT(0 <= size);
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(alignment <= bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+    BSLS_ASSERT_SAFE(isPowerOfTwo(alignment));
 
     return 0 >= size
            ? static_cast<void *>(0)
@@ -96,10 +125,12 @@ void *bslma_BufferAllocator::allocateFromBuffer(int       *cursor,
                                    alignment);
 }
 
+// CREATORS
 bslma_BufferAllocator::~bslma_BufferAllocator()
 {
 }
 
+// MANIPULATORS
 void *bslma_BufferAllocator::allocate(size_type size)
 {
     BSLS_ASSERT(0 <= size);
@@ -136,6 +167,7 @@ void *bslma_BufferAllocator::allocate(size_type size)
     return result;
 }
 
+// ACCESSORS
 void bslma_BufferAllocator::print() const
 {
     union {

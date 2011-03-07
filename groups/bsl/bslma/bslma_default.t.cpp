@@ -6,6 +6,8 @@
 #include <bslma_newdeleteallocator.h>
 
 #include <bsls_alignedbuffer.h>          // for testing only
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -73,6 +75,9 @@ static void aSsErT(int c, const char *s, int i) {
 #define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
 #define L_ __LINE__                     // current Line number
 #define T_ printf("\t");                // Print a tab (w/o newline)
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1006,6 +1011,13 @@ int main(int argc, char *argv[])
         ASSERT(U == Obj::defaultAllocator());
         ASSERT(0 != Obj::setDefaultAllocator(V));
 
+        if (verbose) printf("\nNegative testing\n");
+
+        bsls_AssertFailureHandlerGuard guard(&bsls_AssertTest::failTestDriver);
+
+        ASSERT_FAIL(Obj::setDefaultAllocator(0));
+        ASSERT_PASS(Obj::setDefaultAllocator(U));
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1052,6 +1064,13 @@ int main(int argc, char *argv[])
 
         Obj::setDefaultAllocatorRaw(NDA);
         ASSERT(NDA == Obj::defaultAllocator());
+
+        if (verbose) printf("\nNegative testing\n");
+
+        bsls_AssertFailureHandlerGuard guard(&bsls_AssertTest::failTestDriver);
+
+        ASSERT_FAIL(Obj::setDefaultAllocatorRaw(0));
+        ASSERT_PASS(Obj::setDefaultAllocatorRaw(U));
 
       } break;
       case 1: {

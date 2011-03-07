@@ -10,7 +10,6 @@
 #include <cstdlib>     // atoi(), rand()
 #include <cstring>     // memcpy(), strlen()
 #include <iostream>
-#include <vector>
 
 using namespace BloombergLP;
 using namespace std;

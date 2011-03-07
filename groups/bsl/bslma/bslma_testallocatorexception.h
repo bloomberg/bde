@@ -35,7 +35,8 @@ BSLS_IDENT("$Id: $")
 //      int d_allocationLimit;
 //      // ...
 //
-//    private: // not implemented.
+//    private:
+//      // NOT IMPLEMENTED
 //      my_Allocator(const my_Allocator&);
 //      my_Allocator& operator=(const my_Allocator&);
 //
@@ -45,13 +46,16 @@ BSLS_IDENT("$Id: $")
 //      ~my_Allocator() {}
 //
 //      void *allocate(int size);
-//      inline void deallocate(void *address) { free(address); }
-//      inline void setAllocationLimit(int limit){ d_allocationLimit = limit; }
-//      inline int allocationLimit() const { return d_allocationLimit; }
+//      void deallocate(void *address) { free(address); }
+//      void setAllocationLimit(int limit){ d_allocationLimit = limit; }
+//      int allocationLimit() const { return d_allocationLimit; }
 //      // ...
 //  };
 //
-//  inline void *my_Allocator::allocate(int size)
+//  // my_allocator.cpp
+//  #include <my_allocator.h>
+//
+//  void *my_Allocator::allocate(int size)
 //  {
 //  #ifdef BDE_BUILD_TARGET_EXC
 //      if (0 <= d_allocationLimit) {
@@ -61,9 +65,8 @@ BSLS_IDENT("$Id: $")
 //          }
 //      }
 //  #endif
-//      return (void *) malloc(size);
+//      return (void *)malloc(size);
 //  }
-//
 //..
 // Note that the macro 'BDE_BUILD_TARGET_EXC' is defined at compile-time to
 // indicate whether exceptions are enabled.  In the above code, if exceptions
@@ -201,6 +204,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
                         // ==================================
@@ -211,12 +218,20 @@ class bslma_TestAllocatorException {
     // This class defines an exception object for memory allocation operations.
     // Objects of this class contain information about an allocation request.
 
+  public:
+    // PUBLIC TYPES
+    typedef bslma_Allocator::size_type size_type;
+        // Alias for the type used by the 'bslma_Allocator' protocol to request
+        // a memory allocation of a given size.
+
+  private:
     // DATA
-    int d_numBytes;  // number of bytes requested in an allocation operation
+    size_type d_numBytes;  // number of bytes requested in an allocation
+                           // operation
 
   public:
     // CREATORS
-    bslma_TestAllocatorException(int numBytes);
+    bslma_TestAllocatorException(size_type numBytes);
         // Create an exception object initialized with the specified 'numBytes'
         // that indicates an allocation request size.
 
@@ -225,7 +240,7 @@ class bslma_TestAllocatorException {
         // generated.
 
     // ACCESSORS
-    int numBytes() const;
+    size_type numBytes() const;
         // Return the number of bytes (supplied at construction) that indicates
         // an allocation request size.
 };
@@ -240,14 +255,15 @@ class bslma_TestAllocatorException {
 
 // CREATORS
 inline
-bslma_TestAllocatorException::bslma_TestAllocatorException(int numBytes)
+bslma_TestAllocatorException::bslma_TestAllocatorException(size_type numBytes)
 : d_numBytes(numBytes)
 {
 }
 
 // ACCESSORS
 inline
-int bslma_TestAllocatorException::numBytes() const
+bslma_TestAllocatorException::size_type
+bslma_TestAllocatorException::numBytes() const
 {
     return d_numBytes;
 }
