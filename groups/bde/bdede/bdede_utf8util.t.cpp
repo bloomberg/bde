@@ -1,10 +1,7 @@
-// bdede_utf8util.t.cpp       -*-C++-*-
+// bdede_utf8util.t.cpp                                               -*-C++-*-
 #include <bdede_utf8util.h>
 
-#include <bsl_string.h>
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_string.h>
@@ -16,17 +13,29 @@ using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
+using bsl::flush;
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//
+// TBD
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+// CLASS METHODS
+// [ 6] static bool isValid(const char *s);
+// [ 6] static bool isValid(const char *s, int len);
+// [ 6] static bool isValid(const char **err, const char *s);
+// [ 6] static bool isValid(const char **err, const char *s, int len);
+// [ 6] static int numCharactersIfValid(**err, const char *s);
+// [ 6] static int numCharactersIfValid(**err, const char *s, int len);
+// [ 5] static int numCharactersRaw(const char *s);
+// [ 5] static int numCharactersRaw(const char *s, int len);
+// [ 5] static int numCharacters(const char *s);
+// [ 5] static int numCharacters(const char *s, int len);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 7] USAGE EXAMPLE
 // [-1] random number generator
 // [-2] 'utf8Encode', 'decode'
 
@@ -34,10 +43,9 @@ using bsl::endl;
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-namespace {
+static int testStatus = 0;
 
-int testStatus = 0;
-
+static
 void aSsErT(int c, const char *s, int i)
 {
     if (c) {
@@ -46,8 +54,6 @@ void aSsErT(int c, const char *s, int i)
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-
-}  // close unnamed namespace
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
@@ -89,7 +95,7 @@ void aSsErT(int c, const char *s, int i)
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline
+#define T_  cout << '\t' << flush;            // Print tab w/o newline
 #define PP(X) (cout << #X " = " << (X) << endl, 0) // Print name and
                                                    // value, then return false.
 
@@ -97,22 +103,14 @@ void aSsErT(int c, const char *s, int i)
 //              GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace {
-
 typedef bdede_Utf8Util Obj;
 
-// Have the default allocator be of different type than the allocator usually
-// used -- then we can put breakpoints in bslma_TestAllocator code to find
-// unintentional uses of the default allocator.
+static int verbose;
+static int veryVerbose;
+static int veryVeryVerbose;
+static int veryVeryVeryVerbose;
 
-bslma_TestAllocator taDefault;
-bslma_TestAllocator ta;
-
-int verbose;
-int veryVerbose;
-int veryVeryVerbose;
-int veryVeryVeryVerbose;
-
+static
 bsl::string code8(int b)
 {
     bsl::string ret;
@@ -124,6 +122,7 @@ bsl::string code8(int b)
     return ret;
 }
 
+static
 bsl::string code16(int b)
 {
     ASSERT(0 == (b & ~0x7ff));
@@ -136,6 +135,7 @@ bsl::string code16(int b)
     return (char *) buf;
 }
 
+static
 bsl::string code24(int b)
 {
     ASSERT(0 == (b & ~0xffff));
@@ -149,6 +149,7 @@ bsl::string code24(int b)
     return (char *) buf;
 }
 
+static
 bsl::string code32(int b)
 {
     ASSERT((unsigned) b <= 0x10ffff);
@@ -163,6 +164,7 @@ bsl::string code32(int b)
     return (char *) buf;
 }
 
+static
 bsl::string utf8Encode(int b)
 {
     ASSERT((unsigned) b <= 0x10ffff);
@@ -180,6 +182,7 @@ bsl::string utf8Encode(int b)
     return code32(b);
 }
 
+static
 bsl::string codeLongZero()
 {
     unsigned char buf[3];
@@ -190,6 +193,7 @@ bsl::string codeLongZero()
     return (char *) buf;
 }
 
+static
 bsl::string codeBOM()
 {
     unsigned char buf[4];
@@ -204,6 +208,7 @@ bsl::string codeBOM()
 // note these decoders all assume they can look as far as they want down
 // the stream of chars without provoking a segfault.
 
+static
 int decode8(const char *pc)
 {
     ASSERT(!(~0x7f & *pc));
@@ -211,6 +216,7 @@ int decode8(const char *pc)
     return *pc;
 }
 
+static
 int decode16(const char *pc)
 {
     ASSERT(0xc0 == (*pc & 0xe0) && 0x80 == (pc[1] & 0xc0));
@@ -218,6 +224,7 @@ int decode16(const char *pc)
     return ((0x1f & *pc) << 6) | (0x3f & pc[1]);
 }
 
+static
 int decode24(const char *pc)
 {
     ASSERT(0xe0 == (*pc & 0xf0) && 0x80 == (pc[1] & 0xc0) &&
@@ -226,6 +233,7 @@ int decode24(const char *pc)
     return ((0xf & *pc) << 12) | ((0x3f & pc[1]) << 6) | (0x3f & pc[2]);
 }
 
+static
 int decode32(const char *pc)
 {
     ASSERT(0xf0 == (*pc & 0xf8) && 0x80 == (pc[1] & 0xc0) &&
@@ -235,6 +243,7 @@ int decode32(const char *pc)
            ((0x3f & pc[2]) <<  6) |  (0x3f & pc[3]);
 }
 
+static
 int decode(const char **pc)
 {
     int ret;
@@ -261,7 +270,9 @@ int decode(const char **pc)
     return ret;
 }
 
-bsls_PlatformUtil::Int64 randAccum = 0;
+static
+bsls_Types::Int64 randAccum = 0;
+
 int randNum()
     // MMIX Linear Congruential Generator algorithm by Donald Knuth
 {
@@ -269,11 +280,13 @@ int randNum()
     return randAccum >> 32;
 }
 
+static
 int randVal()
 {
     return (randNum() >> 9) & 0x1fffff;
 }
 
+static
 int randVal8(bool never0 = false)
 {
     int ret;
@@ -284,6 +297,7 @@ int randVal8(bool never0 = false)
     return ret;
 }
 
+static
 int randVal16()
 {
     int ret;
@@ -294,6 +308,7 @@ int randVal16()
     return ret;
 }
 
+static
 int randVal24(bool neverSurrogates = false)
 {
     int ret;
@@ -305,6 +320,7 @@ int randVal24(bool neverSurrogates = false)
     return ret;
 }
 
+static
 int randVal32()
 {
     int ret;
@@ -315,6 +331,7 @@ int randVal32()
     return ret;
 }
 
+static
 int randValue(bool strict = false, bool never0 = false)
 {
     int type = randVal();
@@ -337,6 +354,7 @@ int randValue(bool strict = false, bool never0 = false)
     return 0;
 }
 
+static
 bsl::string randEncode(bool strict = false, bool modifiedUtf8 = false)
 {
     int type = randVal();
@@ -360,6 +378,7 @@ bsl::string randEncode(bool strict = false, bool modifiedUtf8 = false)
     return "";
 }
 
+static
 bool allValid(bsl::string& str)
 {
     bool a = Obj::isValid(str.c_str());
@@ -368,6 +387,7 @@ bool allValid(bsl::string& str)
     return a;
 }
 
+static
 int allNumChars(bsl::string& str)
 {
     int len = Obj::numCharacters(str.data(), str.length());
@@ -376,6 +396,7 @@ int allNumChars(bsl::string& str)
     return len;
 }
 
+static
 bsl::string clone(const char *pc, int length)
 {
     bsl::string ret;
@@ -384,7 +405,34 @@ bsl::string clone(const char *pc, int length)
     return ret;
 }
 
-} // close unnamed namespace
+// Some useful multi-octet characters:
+
+    // The 2 lowest 2-octet characters.
+    #define U8_00080  "\xc2\x80"
+    #define U8_00081  "\xc2\x81"
+
+    // A traditional "interesting" character, 0xff.
+    #define U8_000ff  "\xc3\xbf"
+
+    // The 2 highest 2-octet characters.
+    #define U8_007fe  "\xdf\xbe"
+    #define U8_007ff  "\xdf\xbf"
+
+    // The 2 lowest 3-octet characters.
+    #define U8_00800  "\xe0\xa0\x80"
+    #define U8_00801  "\xe0\xa0\x81"
+
+    // The 2 highest 3-octet characters.
+    #define U8_0fffe  "\xef\xbf\xbe"
+    #define U8_0ffff  "\xef\xbf\xbf"
+
+    // The 2 lowest 4-octet characters.
+    #define U8_10000  "\xf0\x90\x80\x80"
+    #define U8_10001  "\xf0\x90\x80\x81"
+
+    // The 2 highest 4-octet characters.
+    #define U8_10fffe "\xf4\x8f\xbf\xbe"
+    #define U8_10ffff "\xf4\x8f\xbf\xbf"
 
 //=============================================================================
 //                             Usage Example
@@ -392,84 +440,90 @@ bsl::string clone(const char *pc, int length)
 
 namespace USAGE {
 
-void utf8Cat8(bsl::string *str, int b)
-    // Concatenate the utf8-encoded value of the specified 'b' in 1 byte
-    // to the end of the specified 'str'.
-{
-    ASSERT(0 == (b & ~0x7f));
+///Usage
+///-----
+// For our usage example we will define some functions that can encode UTF-8,
+// use them to build some strings, and observe how the functions defined in
+// this class perform on them.
+//..
+    void utf8AppendOneByte(bsl::string *string, int value)
+        // Append the specified 1-byte UTF-8-encoded 'value' to the end of the
+        // specified 'string'.
+    {
+        ASSERT(0 == (value & ~0x7f));
 
-    *str += (char) b;
-}
-
-void utf8Cat16(bsl::string *str, int b)
-    // Concatenate the utf8-encoded value of the specified 'b' in 2 bytes
-    // to the end of the specified 'str'.
-{
-    ASSERT(0 == (b & ~0x7ff));
-
-    unsigned char buf[3];
-    buf[0] = ((b & 0x7c0) >> 6) | 0xc0;
-    buf[1] =  (b &  0x3f)       | 0x80;
-    buf[2] = 0;
-
-    *str += (char *) buf;
-}
-
-void utf8Cat24(bsl::string *str, int b)
-    // Concatenate the utf8-encoded value of the specified 'b' in 3 bytes
-    // to the end of the specified 'str'.
-{
-    ASSERT(0 == (b & ~0xffff));
-
-    unsigned char buf[4];
-    buf[0] = ((b & 0xf000) >> 12) | 0xe0;
-    buf[1] = ((b &  0xfc0) >>  6) | 0x80;
-    buf[2] =  (b &   0x3f)        | 0x80;
-    buf[3] = 0;
-
-    *str += (char *) buf;
-}
-
-void utf8Cat32(bsl::string *str, int b)
-    // Concatenate the utf8-encoded value of the specified 'b' in 4 bytes
-    // to the end of the specified 'str'.
-{
-    ASSERT((unsigned) b <= 0x10ffff);
-
-    unsigned char buf[5];
-    buf[0] = ((b & 0x1c0000) >> 18) | 0xf0;
-    buf[1] = ((b &  0x3f000) >> 12) | 0x80;
-    buf[2] = ((b &    0xfc0) >>  6) | 0x80;
-    buf[3] =  (b &     0x3f)        | 0x80;
-    buf[4] = 0;
-
-    *str += (char *) buf;
-}
-
-void utf8Cat(bsl::string *str, int b)
-    // Concatenate the utf8-encoded value of the specified 'b' in the
-    // minimum needed number of bytes to the end of the specified 'str'.
-{
-    ASSERT((unsigned) b <= 0x10ffff);
-
-    if (b <= 0x7f) {
-        utf8Cat8(str, b);
-        return;                                                       // RETURN
-    }
-    if (b <= 0x7ff) {
-        utf8Cat16(str, b);
-        return;                                                       // RETURN
-    }
-    if (b <= 0xffff) {
-        utf8Cat24(str, b);
-        return;                                                       // RETURN
+        *string += (char)value;
     }
 
-    utf8Cat32(str, b);
-}
+    void utf8AppendTwoBytes(bsl::string *string, int value)
+        // Append the specified 2-byte UTF-8-encoded 'value' to the end of the
+        // specified 'string'.
+    {
+        ASSERT(0 == (value & ~0x7ff));
+
+        unsigned char buf[3];
+        buf[0] = ((value & 0x7c0) >> 6) | 0xc0;
+        buf[1] =  (value &  0x3f)       | 0x80;
+        buf[2] = 0;
+
+        *string += (char *)buf;
+    }
+
+    void utf8AppendThreeBytes(bsl::string *string, int value)
+        // Append the specified 3-byte UTF-8-encoded 'value' to the end of the
+        // specified 'string'.
+    {
+        ASSERT(0 == (value & ~0xffff));
+
+        unsigned char buf[4];
+        buf[0] = ((value & 0xf000) >> 12) | 0xe0;
+        buf[1] = ((value &  0xfc0) >>  6) | 0x80;
+        buf[2] =  (value &   0x3f)        | 0x80;
+        buf[3] = 0;
+
+        *string += (char *)buf;
+    }
+
+    void utf8AppendFourBytes(bsl::string *string, int value)
+        // Append the specified 4-byte UTF-8-encoded 'value' to the end of the
+        // specified 'string'.
+    {
+        ASSERT((unsigned)value <= 0x10ffff);
+
+        unsigned char buf[5];
+        buf[0] = ((value & 0x1c0000) >> 18) | 0xf0;
+        buf[1] = ((value &  0x3f000) >> 12) | 0x80;
+        buf[2] = ((value &    0xfc0) >>  6) | 0x80;
+        buf[3] =  (value &     0x3f)        | 0x80;
+        buf[4] = 0;
+
+        *string += (char *)buf;
+    }
+
+    void utf8Append(bsl::string *string, int value)
+        // Append the specified UTF-8-encoded 'value' in the minimum number of
+        // bytes to the end of the specified 'string'.
+    {
+        ASSERT((unsigned)value <= 0x10ffff);
+
+        if (value <= 0x7f) {
+            utf8AppendOneByte(string, value);
+            return;                                                   // RETURN
+        }
+        if (value <= 0x7ff) {
+            utf8AppendTwoBytes(string, value);
+            return;                                                   // RETURN
+        }
+        if (value <= 0xffff) {
+            utf8AppendThreeBytes(string, value);
+            return;                                                   // RETURN
+        }
+
+        utf8AppendFourBytes(string, value);
+    }
+//..
 
 }  // close namespace USAGE
-
 
 //=============================================================================
 //                      HELPER DEFINITIONS FOR TEST 4
@@ -524,7 +578,7 @@ bsl::string codeRandBenign()
     return utf8Encode(val);
 }
 
-} // namespace BDEDE_UTF8UTIL_CASE_4
+}  // close namespace BDEDE_UTF8UTIL_CASE_4
 
 //=============================================================================
 //                      HELPER DEFINITIONS FOR TEST 2
@@ -543,7 +597,7 @@ bsl::string makeString(const char *pc, int len)
 
 #define STR(testId)  makeString(encode ## testId, sizeof(encode ## testId))
 
-} // close namespace BDEDE_UTF8UTIL_CASE_2
+}  // close namespace BDEDE_UTF8UTIL_CASE_2
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -558,13 +612,165 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
-    bslma_DefaultAllocatorGuard guard(&taDefault);
-    ASSERT(&taDefault == bslma_Default::defaultAllocator());
-
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
+    static const struct {
+        int         d_lineNum;    // source line number
+
+        const char *d_utf8_p;     // UTF-8 input string
+
+        int         d_numBytes;   // length of spec (in bytes), not
+                                  // including null-terminator
+
+        int         d_numChars;   // number of UTF-8 characters (-1 if invalid)
+
+        int         d_errOffset;  // byte offset to first invalid character;
+                                  // -1 if valid
+
+        int         d_isValid;    // 1 if valid UTF-8; 0 otherwise
+    } DATA[] = {
+        //L#  input                          #b  #c  eo  result
+        //--  -----                          --  --  --  ------
+        { L_, "",                             0,  0, -1,   1   },
+        { L_, " ",                            1,  1, -1,   1   },
+
+        { L_, "H",                            1,  1, -1,   1   },
+        { L_, "He",                           2,  2, -1,   1   },
+        { L_, "Hel",                          3,  3, -1,   1   },
+        { L_, "Hell",                         4,  4, -1,   1   },
+        { L_, "Hello",                        5,  5, -1,   1   },
+
+        // Check the boundary between 1-octet and 2-octet characters.
+        { L_, "\x7f",                         1,  1, -1,   1   },
+        { L_, U8_00080,                       2,  1, -1,   1   },
+
+        // Check the boundary between 2-octet and 3-octet characters.
+        { L_, U8_007ff,                       2,  1, -1,   1   },
+        { L_, U8_00800,                       3,  1, -1,   1   },
+
+        // Check the maximal 3-octet character.
+        { L_, U8_0ffff,                       3,  1, -1,   1   },
+
+        // Make sure 4-octet characters are handled correctly.
+        { L_, U8_10000,                       4,  1, -1,   1   },
+        { L_, U8_10000 " ",                   5,  2, -1,   1   },
+        { L_, " " U8_10001 " ",               6,  3, -1,   1   },
+        { L_, U8_10fffe,                      4,  1, -1,   1   },
+        { L_, U8_10fffe " ",                  5,  2, -1,   1   },
+        { L_, " " U8_10ffff " ",              6,  3, -1,   1   },
+
+        // Make sure partial 4-octet characters are handled correctly (with
+        // a single error).
+        { L_, "\xf0",                         1, -1,  0,   0   },
+        { L_, "\xf0\x80",                     2, -1,  0,   0   },
+        { L_, "\xf0\x80\x80",                 3, -1,  0,   0   },
+        { L_, "\xf0 ",                        2, -1,  0,   0   },
+        { L_, "\xf0\x80 ",                    3, -1,  0,   0   },
+        { L_, "\xf0\x80\x80 ",                4, -1,  0,   0   },
+
+        // Make sure the "illegal" UTF-8 octets are handled correctly:
+        //   o The octet values C0, C1, F5 to FF never appear.
+        { L_, "\xc0",                         1, -1,  0,   0   },
+        { L_, "\xc1",                         1, -1,  0,   0   },
+        { L_, "\xf5",                         1, -1,  0,   0   },
+        { L_, "\xf6",                         1, -1,  0,   0   },
+        { L_, "\xf7",                         1, -1,  0,   0   },
+        { L_, "\xf8",                         1, -1,  0,   0   },
+        { L_, "\xf9",                         1, -1,  0,   0   },
+        { L_, "\xfa",                         1, -1,  0,   0   },
+        { L_, "\xfb",                         1, -1,  0,   0   },
+        { L_, "\xfc",                         1, -1,  0,   0   },
+        { L_, "\xfd",                         1, -1,  0,   0   },
+        { L_, "\xfe",                         1, -1,  0,   0   },
+        { L_, "\xff",                         1, -1,  0,   0   },
+
+        // Make sure that the "illegal" UTF-8 octets are handled correctly
+        // mid-string:
+        //   o The octet values C0, C1, F5 to FF never appear.
+        { L_, " \xc0 ",                       3, -1,  1,   0   },
+        { L_, " \xc1 ",                       3, -1,  1,   0   },
+        { L_, " \xf5 ",                       3, -1,  1,   0   },
+        { L_, " \xf6 ",                       3, -1,  1,   0   },
+        { L_, " \xf7 ",                       3, -1,  1,   0   },
+        { L_, " \xf8 ",                       3, -1,  1,   0   },
+        { L_, " \xf9 ",                       3, -1,  1,   0   },
+        { L_, " \xfa ",                       3, -1,  1,   0   },
+        { L_, " \xfb ",                       3, -1,  1,   0   },
+        { L_, " \xfc ",                       3, -1,  1,   0   },
+        { L_, " \xfd ",                       3, -1,  1,   0   },
+        { L_, " \xfe ",                       3, -1,  1,   0   },
+        { L_, " \xff ",                       3, -1,  1,   0   },
+
+        { L_, U8_00080,                       2,  1, -1,   1   },
+        { L_, "\xc2",                         1, -1,  0,   0   },
+        { L_, U8_00080 " ",                   3,  2, -1,   1   },
+        { L_, U8_000ff,                       2,  1, -1,   1   },
+        { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
+                                             13,  7, -1,   1   },
+
+        { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 "\xef",
+                                             12, -1, 10,   0   },
+
+        { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 "\xef\xbf",
+                                             12, -1, 10,   0   },
+
+        { L_, U8_0ffff U8_00800 U8_007ff U8_000ff "\x7f\x20\x01",
+                                             13,  7, -1,   1   },
+
+        // Make sure illegal overlong encodings are not accepted.  These
+        // characters are mathematically correctly encoded, but since there
+        // are equivalent 1-octet encodings, the UTF-8 standard disallows
+        // them.
+        { L_, "\xc0\x81",                     2, -1,  0,   0   },
+        { L_, "\xc0\xbf",                     2, -1,  0,   0   },
+        { L_, "\xc1\x81",                     2, -1,  0,   0   },
+        { L_, "\xc1\xbf",                     2, -1,  0,   0   },
+
+        // Corrupted 2-octet character:
+        { L_, "\xc2",                         1, -1,  0,   0   },
+        { L_, " \xc2",                        2, -1,  1,   0   },
+        { L_, "\xc2 ",                        2, -1,  0,   0   },
+        { L_, "\xc2\xc2 ",                    3, -1,  0,   0   },
+        { L_, "\xc2 \xc2",                    3, -1,  0,   0   },
+
+        // Corrupted 2-octet character followed by a valid character:
+        { L_, "\xc2" U8_00080,                3, -1,  0,   0   },
+        { L_, "\xc2" U8_00080,                3, -1,  0,   0   },
+
+        // Corrupted 2-octet character followed by an invalid character:
+        { L_, "\xc2\xff",                     2, -1,  0,   0   },
+        { L_, "\xc2\xff",                     2, -1,  0,   0   },
+
+        // 3-octet characters corrupted after octet 1:
+        { L_, "\xef",                         1, -1,  0,   0   },
+        { L_, " \xef",                        2, -1,  1,   0   },
+        { L_, "\xef ",                        2, -1,  0,   0   },
+        { L_, "\xef\xef ",                    3, -1,  0,   0   },
+        { L_, "\xef \xef",                    3, -1,  0,   0   },
+        { L_, "\xef" U8_00080,                3, -1,  0,   0   },
+
+        // 3-octet characters corrupted after octet 2:
+        { L_, "\xef\xbf",                     2, -1,  0,   0   },
+        { L_, "\xef\xbf",                     2, -1,  0,   0   },
+        { L_, " \xef\xbf@",                   4, -1,  1,   0   },
+        { L_, " \xef\xbf@",                   4, -1,  1,   0   },
+        { L_, "\xef\xbf ",                    3, -1,  0,   0   },
+        { L_, "\xef\xbf ",                    3, -1,  0,   0   },
+        { L_, "\xef\xbf" U8_00080,            4, -1,  0,   0   },
+        { L_, "\xef\xbf" U8_00080,            4, -1,  0,   0   },
+        { L_, "\xef\xbf" U8_00080 " ",        5, -1,  0,   0   },
+        { L_, "\xef\xbf" U8_00080 " ",        5, -1,  0,   0   },
+        { L_, "\xef\xbf" U8_00080 " ",        5, -1,  0,   0   },
+        { L_, "\xef\xbf\xef\xbf ",            5, -1,  0,   0   },
+        { L_, "\xef\xbf\xef\xbf ",            5, -1,  0,   0   },
+        { L_, "\xef\xbf \xef\xbf",            5, -1,  0,   0   },
+        { L_, "\xef\xbf \xef\xbf",            4, -1,  0,   0   },
+        { L_, "\xef\xbf \xef\xbf",            4, -1,  0,   0   },
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -578,62 +784,262 @@ int main(int argc, char *argv[])
 
         using namespace USAGE;
 
-        if (verbose) cout << "USAGE EXAMPLE\n"
-                             "=============\n";
+        if (verbose) cout << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
 
-        // In this usage example, we will encode some utf8 strings and
-        // demonstrate which ones are valid and which ones are not.
+//..
+// In this usage example, we will encode some UTF-8 strings and demonstrate
+// which ones are valid and which ones are not.
+//
+// First, we build an unquestionably valid UTF-8 string:
+//..
+    bsl::string string;
+    utf8Append(&string, 0xff00);
+    utf8Append(&string, 0x856);
+    utf8Append(&string, 'a');
+    utf8Append(&string, 0x1008aa);
+    utf8Append(&string, 0xfff);
+    utf8Append(&string, 'w');
+    utf8Append(&string, 0x1abcd);
+    utf8Append(&string, '.');
+    utf8Append(&string, '\n');
+//..
+// Next we check its validity and measure its length:
+//..
+    ASSERT(true == bdede_Utf8Util::isValid(string.data(), string.length()));
+    ASSERT(true == bdede_Utf8Util::isValid(string.c_str()));
 
-        // First, let's build an unquestionably valid UTF-8 string:
+    ASSERT(   9 == bdede_Utf8Util::numCharactersRaw(string.data(),
+                                                    string.length()));
+    ASSERT(   9 == bdede_Utf8Util::numCharactersRaw(string.c_str()));
+//..
+// Next we encode a lone surrogate value, which is not allowed:
+//..
+    bsl::string stringWithSurrogate = string;
+    utf8Append(&stringWithSurrogate, 0xd8ab);
+//..
+    ASSERT(false == bdede_Utf8Util::isValid(stringWithSurrogate.data(),
+                                            stringWithSurrogate.length()));
+    ASSERT(false == bdede_Utf8Util::isValid(stringWithSurrogate.c_str()));
+//..
+// We cannot use 'numCharactersRaw' to count the characters in
+// 'stringWithSurrogate', since the behavior of that method is undefined unless
+// the string is valid.  Instead, the 'numCharactersIfValid' method can be used
+// on strings whose validity we are uncertain of:
+//..
+    const char *invalidPosition = 0;
 
-        bsl::string str;
-        utf8Cat(&str, 0xff00);
-        utf8Cat(&str, 0x856);
-        utf8Cat(&str, 'a');
-        utf8Cat(&str, 0x1008aa);
-        utf8Cat(&str, 0xfff);
-        utf8Cat(&str, 'w');
-        utf8Cat(&str, 0x1abcd);
-        utf8Cat(&str, '.');
-        utf8Cat(&str, '\n');
+    ASSERT(-1 == bdede_Utf8Util::numCharactersIfValid(
+                                                &invalidPosition,
+                                                stringWithSurrogate.data(),
+                                                stringWithSurrogate.length()));
+    ASSERT(invalidPosition == stringWithSurrogate.data() + string.length());
 
-        // Check its validity and measure its length.
+    invalidPosition = 0;  // reset
 
-        ASSERT(true == bdede_Utf8Util::isValid(str.data(), str.length()));
-        ASSERT(true == bdede_Utf8Util::isValid(str.c_str()));
+    ASSERT(-1 == bdede_Utf8Util::numCharactersIfValid(
+                                                &invalidPosition,
+                                                stringWithSurrogate.c_str()));
+    ASSERT(invalidPosition == stringWithSurrogate.data() + string.length());
+//..
+// Next we encode 0, which is allowed.  However, note that we cannot use any
+// interfaces that take a null-terminated string for this case:
+//..
+    bsl::string stringWithNull = string;
+    utf8AppendOneByte(&stringWithNull, 0);
+//..
+    ASSERT(true == bdede_Utf8Util::isValid(stringWithNull.data(),
+                                           stringWithNull.length()));
 
-        ASSERT(9 == bdede_Utf8Util::numCharacters(str.data(), str.length()));
-        ASSERT(9 == bdede_Utf8Util::numCharacters(str.c_str()));
+    ASSERT(  10 == bdede_Utf8Util::numCharactersRaw(stringWithNull.data(),
+                                                    stringWithNull.length()));
+//..
+// Finally, we encode '0x61' ('a') as an overlong value using 2 bytes, which is
+// not valid UTF-8 (since 'a' can be "encoded" in 1 byte):
+//..
+    bsl::string stringWithOverlong = string;
+    utf8AppendTwoBytes(&stringWithOverlong, 'a');
 
-        // Encode lone surrogate value, which is not allowed.
+    ASSERT(false == bdede_Utf8Util::isValid(stringWithOverlong.data(),
+                                            stringWithOverlong.length()));
+    ASSERT(false == bdede_Utf8Util::isValid(stringWithOverlong.c_str()));
+//..
 
-        bsl::string m3Str = str;
-        utf8Cat(&m3Str, 0xd8ab);
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'isValid' AND 'numCharactersIfValid'
+        //
+        // Concerns:
+        //   The methods under test produce the expected results on both
+        //   valid and invalid character strings.
+        //
+        // Plan:
+        //   Use the table-driven approach to verify correct behavior on
+        //   various valid and invalid character strings.
+        //
+        // Testing:
+        //   static bool isValid(const char *s);
+        //   static bool isValid(const char *s, int len);
+        //   static bool isValid(const char **err, const char *s);
+        //   static bool isValid(const char **err, const char *s, int len);
+        //   static int numCharactersIfValid(**err, const char *s);
+        //   static int numCharactersIfValid(**err, const char *s, int len);
+        // --------------------------------------------------------------------
 
-        ASSERT(false == bdede_Utf8Util::isValid(m3Str.data(), m3Str.length()));
-        ASSERT(false == bdede_Utf8Util::isValid(m3Str.c_str()));
+        if (verbose) cout << "TESTING 'isValid', 'numCharactersIfValid'"
+                          << endl
+                          << "========================================="
+                          << endl;
 
-        // We can't measure the length, the behavior of 'numCharacters' is
-        // undefined for an invalid string.
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE     = DATA[ti].d_lineNum;
+            const char *UTF8     = DATA[ti].d_utf8_p;
+            const int   NUMBYTES = DATA[ti].d_numBytes;
+            const int   NUMCHARS = DATA[ti].d_numChars;
+            const int   ERROFF   = DATA[ti].d_errOffset;
+            const int   VALID    = DATA[ti].d_isValid;
 
-        // Encode 0, which is allowed.  We can't use the zero terminated
-        // string interfaces for this one.
+            if (veryVerbose) {
+                T_; P_(ti);
+                P_(UTF8); P_(NUMBYTES); P_(NUMCHARS); P_(ERROFF); P(VALID);
+            }
 
-        bsl::string zStr = str;
-        utf8Cat8(&zStr, 0);
+            LOOP_ASSERT(LINE, VALID == Obj::isValid(UTF8));
+            LOOP_ASSERT(LINE, VALID == Obj::isValid(UTF8, NUMBYTES));
+            LOOP_ASSERT(LINE, VALID == Obj::isValid(UTF8, NUMBYTES + 1));
 
-        ASSERT(true == bdede_Utf8Util::isValid(zStr.data(), zStr.length()));
+            const char *ERRSTR = 0;
 
-        ASSERT(10 == bdede_Utf8Util::numCharacters(zStr.data(),zStr.length()));
+            ERRSTR = 0;
+            LOOP_ASSERT(LINE, VALID == Obj::isValid(&ERRSTR, UTF8));
 
-        // Encode an overlong value - 0x61 == 'a' encoded over 2 bytes,
-        // which is not allowed.
+            if (VALID) {
+                LOOP_ASSERT(LINE, 0      == ERRSTR);
+            }
+            else {
+                LOOP_ASSERT(LINE, ERROFF == ERRSTR - UTF8);
+            }
 
-        bsl::string oStr = str;
-        utf8Cat16(&oStr, 'a');
+            ERRSTR = 0;
+            LOOP_ASSERT(LINE, VALID == Obj::isValid(&ERRSTR, UTF8, NUMBYTES));
 
-        ASSERT(false == bdede_Utf8Util::isValid(oStr.data(), oStr.length()));
-        ASSERT(false == bdede_Utf8Util::isValid(oStr.c_str()));
+            if (VALID) {
+                LOOP_ASSERT(LINE, 0      == ERRSTR);
+            }
+            else {
+                LOOP_ASSERT(LINE, ERROFF == ERRSTR - UTF8);
+            }
+
+            ERRSTR = 0;
+            LOOP_ASSERT(LINE, VALID == Obj::isValid(&ERRSTR,
+                                                    UTF8,
+                                                    NUMBYTES + 1));
+
+            if (VALID) {
+                LOOP_ASSERT(LINE, 0      == ERRSTR);
+            }
+            else {
+                LOOP_ASSERT(LINE, ERROFF == ERRSTR - UTF8);
+            }
+
+            ERRSTR = 0;
+            LOOP_ASSERT(LINE, NUMCHARS == Obj::numCharactersIfValid(&ERRSTR,
+                                                                    UTF8));
+
+            if (VALID) {
+                LOOP_ASSERT(LINE, 0      == ERRSTR);
+            }
+            else {
+                LOOP_ASSERT(LINE, ERROFF == ERRSTR - UTF8);
+            }
+
+            ERRSTR = 0;
+            LOOP_ASSERT(LINE, NUMCHARS == Obj::numCharactersIfValid(&ERRSTR,
+                                                                    UTF8,
+                                                                    NUMBYTES));
+
+            if (VALID) {
+                LOOP_ASSERT(LINE, 0      == ERRSTR);
+            }
+            else {
+                LOOP_ASSERT(LINE, ERROFF == ERRSTR - UTF8);
+            }
+
+            ERRSTR = 0;
+            if (VALID) {
+                LOOP_ASSERT(LINE, NUMCHARS + 1 ==
+                                      Obj::numCharactersIfValid(&ERRSTR,
+                                                                UTF8,
+                                                                NUMBYTES + 1));
+                LOOP_ASSERT(LINE, 0 == ERRSTR);
+            }
+            else {
+                LOOP_ASSERT(LINE, -1 ==
+                                      Obj::numCharactersIfValid(&ERRSTR,
+                                                                UTF8,
+                                                                NUMBYTES + 1));
+                LOOP_ASSERT(LINE, ERROFF == ERRSTR - UTF8);
+            }
+        }
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING 'numCharactersRaw'
+        //
+        // Concerns:
+        //   The methods under test produce the expected results on both
+        //   valid and invalid character strings.
+        //
+        // Plan:
+        //   Use the table-driven approach to verify correct behavior on
+        //   various valid and invalid character strings.
+        //
+        // Testing:
+        //   static int numCharactersRaw(const char *s);
+        //   static int numCharactersRaw(const char *s, int len);
+        //   static int numCharacters(const char *s);
+        //   static int numCharacters(const char *s, int len);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'numCharactersRaw'" << endl
+                          << "==========================" << endl;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE     = DATA[ti].d_lineNum;
+            const char *UTF8     = DATA[ti].d_utf8_p;
+            const int   NUMBYTES = DATA[ti].d_numBytes;
+            const int   NUMCHARS = DATA[ti].d_numChars;
+            const int   VALID    = DATA[ti].d_isValid;
+
+            if (!VALID) continue;
+
+            if (veryVerbose) {
+                T_; P_(ti); P_(UTF8); P_(NUMBYTES); P_(NUMCHARS); P(VALID);
+            }
+
+            LOOP_ASSERT(LINE,
+                        NUMCHARS     == Obj::numCharactersRaw(UTF8));
+
+            LOOP_ASSERT(LINE,
+                        NUMCHARS     == Obj::numCharactersRaw(UTF8,
+                                                              NUMBYTES));
+            LOOP_ASSERT(LINE,
+                        NUMCHARS + 1 == Obj::numCharactersRaw(UTF8,
+                                                              NUMBYTES + 1));
+
+            // DEPRECATED
+            LOOP_ASSERT(LINE,
+                        NUMCHARS     == Obj::numCharacters(UTF8));
+
+            LOOP_ASSERT(LINE,
+                        NUMCHARS     == Obj::numCharacters(UTF8, NUMBYTES));
+            LOOP_ASSERT(LINE,
+                        NUMCHARS + 1 == Obj::numCharacters(UTF8,
+                                                           NUMBYTES + 1));
+        }
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -649,8 +1055,8 @@ int main(int argc, char *argv[])
         //   them properly.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING SURROGATES\n"
-                             "==================\n";
+        if (verbose) cout << "TESTING SURROGATES" << endl
+                          << "==================" << endl;
 
         using namespace BDEDE_UTF8UTIL_CASE_4;
 
@@ -708,8 +1114,8 @@ int main(int argc, char *argv[])
         //   byte orders, they should be rejected.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING BYTE-ORDER MARK\n"
-                             "=======================\n";
+        if (verbose) cout << "TESTING BYTE-ORDER MARK" << endl
+                          << "=======================" << endl;
 
         using namespace BDEDE_UTF8UTIL_CASE_2;
 
@@ -807,8 +1213,8 @@ int main(int argc, char *argv[])
         //   than zero, blatantly invalid values, and short values.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TABLE-DRIVEN ENCODING / DECODING TEST\n"
-                             "=====================================\n";
+        if (verbose) cout << "TABLE-DRIVEN ENCODING / DECODING TEST" << endl
+                          << "=====================================" << endl;
 
         using namespace BDEDE_UTF8UTIL_CASE_2;
 
@@ -1166,8 +1572,8 @@ int main(int argc, char *argv[])
         //   designed.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Breathing test\n"
-                             "==============\n";
+        if (verbose) cout << "Breathing Test" << endl
+                          << "==============" << endl;
 
         randAccum = 0;
         bsl::string str;
@@ -1428,7 +1834,7 @@ int main(int argc, char *argv[])
                 ASSERT((i <= 10 ? i : 10) == Obj::numCharacters(c.c_str()));
             }
         }
-      }  break;
+      } break;
       case -1: {
         // --------------------------------------------------------------------
         // RANDOM NUMBER GENERATORS TEST
@@ -1521,21 +1927,21 @@ int main(int argc, char *argv[])
             if (j > highest) highest = j;
         }
         cout << "highest randVal32: " << highest << endl;
-      }  break;
+      } break;
       case -2: {
         // --------------------------------------------------------------------
-        // Test Apparatuses Test
+        // VERIFY TEST APPARATUS
         //
         // Concerns:
-        //   Test apparatuses works properly.
+        //   The test apparatus works properly.
         //
         // Plan:
         //   Test the various test functions and verify that they work as
-        //   designed.
+        //   expected.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Test Apparatuses Test\n"
-                             "=====================\n";
+        if (verbose) cout << "Verify Test Apparatus" << endl
+                          << "=====================" << endl;
 
         cout << "Encode / Decode cycle\n";
 
@@ -1628,7 +2034,7 @@ int main(int argc, char *argv[])
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
-    }  // switch (test)
+    }
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
