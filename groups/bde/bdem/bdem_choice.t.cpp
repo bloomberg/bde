@@ -1606,7 +1606,7 @@ int main(int argc, char *argv[])
             Obj mX(&alloc); const Obj& X = mX;                                \
             mX.addSelection(EType::ETYPE);                                    \
                                                                               \
-            mX.selection().makeNull();  ASSERT(mX.selection().isNull());      \
+            ASSERT(!mX.selection().isBound());                                \
             mX.makeSelection(0);                                              \
             mX.theModifiable ## TYPE() = A ## NUM;                            \
             ASSERT(A ## NUM == X.the ## TYPE());                              \
@@ -1709,7 +1709,7 @@ int main(int argc, char *argv[])
 
                 { L_,       "ABCDEFGHIJKLMNOPQRSTWXYZabcd" },
             };
-            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE  = DATA[i].d_line;
@@ -1726,8 +1726,10 @@ int main(int argc, char *argv[])
                   const CERef VAL_B = getConstERefB(S);
                   const CERef VAL_N = getConstERefN(S);
 
-                  mX.selection().makeNull();
-                  LOOP_ASSERT(LINE, mX.selection().isNull());
+                  if (mX.selection().isBound()) {
+                      mX.selection().makeNull();
+                      LOOP_ASSERT(LINE, mX.selection().isNull());
+                  }
 
                   set(&mX, VAL_A, j, S);
                   ASSERT(mX.selection().isNonNull());
@@ -1934,7 +1936,7 @@ int main(int argc, char *argv[])
 
                 { L_,       "ABCDEFGHIJKLMNOPQRSTWXYZabcd" },
             };
-            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE  = DATA[i].d_line;
@@ -2049,7 +2051,7 @@ int main(int argc, char *argv[])
             { L_,       "FDLALAabADSF" },
             { L_,       "ABCDEFGHIJKLMNOPQRSTWXYZabcd" },
         };
-        static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         const Obj EMPTY;
 
@@ -2251,7 +2253,7 @@ int main(int argc, char *argv[])
 
             { L_,       "ABCDEFGHIJKLMNOPQRSTWXYZabcd" },
         };
-        static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (veryVerbose) { bsl::cout << "Construct objects with default "
                                      << "allocation strategy" << bsl::endl; }
@@ -2339,7 +2341,7 @@ int main(int argc, char *argv[])
               EType::Type TYPE  = getElemType(S);
               CERef       VAL_A = getConstERefA(S);
               CERef       VAL_B = getConstERefB(S);
-              CERef       VAL_VOID = CERef(&Prop::d_voidAttr, 0);
+              CERef       VAL_VOID = CERef(0, &Prop::d_voidAttr);
 
               mA.makeSelection(j).replaceValue(VAL_A);
               mB.makeSelection(j).replaceValue(VAL_A);
@@ -2558,7 +2560,7 @@ int main(int argc, char *argv[])
                 EType::Type TYPE  = getElemType(S);
                 CERef       VAL_A = getConstERefA(S);
                 CERef       VAL_B = getConstERefB(S);
-                CERef       VAL_VOID = CERef(&Prop::d_voidAttr, 0);
+                CERef       VAL_VOID = CERef(0, &Prop::d_voidAttr);
 
                 mA.makeSelection(j).replaceValue(VAL_A);
                 mB.makeSelection(j).replaceValue(VAL_A);
@@ -2781,7 +2783,7 @@ int main(int argc, char *argv[])
 
             { L_,       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef" },
         };
-        static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (veryVerbose) { bsl::cout << "Adding selections to a empty obj"
                                      << bsl::endl; }
@@ -2939,7 +2941,7 @@ int main(int argc, char *argv[])
             { L_,       "efQDEFG"                        },
             { L_,       "ABCDEFGHIJKLMNOPQRSTWXYZabcdef" },
         };
-        static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int VERSION = 1; VERSION <= MAX_VERSION; ++VERSION) {
             for (int i1 = 0; i1 < NUM_DATA; ++i1) {
@@ -2982,10 +2984,10 @@ int main(int argc, char *argv[])
                         Obj mC(&tmpAlloc);  const Obj& C = mC;
                         Obj mD(&tmpAlloc);  const Obj& D = mD;
 
-                        LOOP_ASSERT(LINE1, A.selection().isNull());
-                        LOOP_ASSERT(LINE1, B.selection().isNull());
-                        LOOP_ASSERT(LINE1, C.selection().isNull());
-                        LOOP_ASSERT(LINE1, D.selection().isNull());
+                        LOOP_ASSERT(LINE1, !A.selection().isBound());
+                        LOOP_ASSERT(LINE1, !B.selection().isBound());
+                        LOOP_ASSERT(LINE1, !C.selection().isBound());
+                        LOOP_ASSERT(LINE1, !D.selection().isBound());
 
                         LOOP_ASSERT(LINE1, X != A);
                         LOOP_ASSERT(LINE1, X != B);
@@ -3291,7 +3293,7 @@ int main(int argc, char *argv[])
             { L_,       "efQDEFG" },
             { L_,       "ABCDEFGHIJKLMNOPQRSTWXYZabcdef" },
         };
-        static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i1 = 0; i1 < NUM_DATA; ++i1) {
             const int   LINE1  = DATA[i1].d_line;
@@ -3314,13 +3316,15 @@ int main(int argc, char *argv[])
 
                 mX.makeSelection(j1).replaceValue(C1_A);
                 mY.makeSelection(j1).replaceValue(C1_A);
-                mN.selection().makeNull();
+                if (mN.selection().isBound()) {
+                    mN.selection().makeNull();
+                }
 
                 const ChoiceArrayItem& I  = X.item();
                 const ChoiceArrayItem& IN = N.item();
 
-                ASSERT(N.selection().isNull());
-                ASSERT(IN.selection().isNull());
+                ASSERT(!N.selection().isBound());
+                ASSERT(!IN.selection().isBound());
 
                 // Assign a constructed obj to an empty obj
                 {
@@ -3616,7 +3620,7 @@ int main(int argc, char *argv[])
 
             { L_,       "ABCDEFGHIJKLMNOPQRSTWXYZabcd" },
         };
-        static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (veryVerbose) { bsl::cout << "Copy construct empty objects"
                                      << bsl::endl; }
@@ -4061,7 +4065,7 @@ int main(int argc, char *argv[])
 
             { L_,       "ABCDEFGHIJKLMNOPQRSTWXYZabcd" },
         };
-        static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i1 = 0; i1 < NUM_DATA; ++i1) {
             const int   LINE1  = DATA[i1].d_line;
@@ -4252,7 +4256,9 @@ int main(int argc, char *argv[])
                 "{ Selection Types: [ ] { VOID NULL } }";
 
             Obj mX; const Obj& X = mX;
-            mX.selection().makeNull();
+            if (mX.selection().isBound()) {
+                mX.selection().makeNull();
+            }
 
             bsl::ostringstream os1, os2, os3, os4, os5;
             X.print(os1, 1, 4);
@@ -5146,7 +5152,7 @@ int main(int argc, char *argv[])
                 "CHOICE_ARRAY NULL } }",
             },
         };
-        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE      = DATA[i].d_line;
@@ -5355,7 +5361,7 @@ int main(int argc, char *argv[])
 
             { L_,       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef" },
         };
-        static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         {
           for (int i = 0; i < NUM_DATA; ++i) {

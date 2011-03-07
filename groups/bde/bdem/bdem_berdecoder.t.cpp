@@ -10093,7 +10093,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -10110,6 +10110,44 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING functions related to skipped elements
+        //   This test exercises functions that apply to skipped elements.
+        //
+        // Concerns:
+        //   a. The setNumUnknownElementsSkipped sets the number of skipped
+        //      elements correctly.
+        //   b. The numUnknownElementsSkipped returns the number of skipped
+        //      elements correctly.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   void setNumUnknownElementsSKipped(int value);
+        //   int numUnknownElementsSkipped() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nFUNCTIONS related to skipped elements"
+                          << "\n=====================================" << endl;
+
+        if (verbose) cout << "\nTesting setting and getting num skipped elems."
+                          << endl;
+        {
+            bdem_BerDecoder mX; const bdem_BerDecoder& X = mX;
+            ASSERT(0 == X.numUnknownElementsSkipped());
+
+            const int DATA[] = { 0, 1, 5, 100, 2000 };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int NUM_SKIPPED_ELEMS = DATA[i];
+                mX.setNumUnknownElementsSkipped(NUM_SKIPPED_ELEMS);
+                LOOP3_ASSERT(i, NUM_SKIPPED_ELEMS,
+                           X.numUnknownElementsSkipped(),
+                           NUM_SKIPPED_ELEMS == X.numUnknownElementsSkipped());
+            }
+        }
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -11019,9 +11057,9 @@ int main(int argc, char *argv[])
         static const struct {
             int         d_line;
             const char *d_nokalvaData;
-            bool        d_hasUnknownElements;
+            int         d_numUnknownElements;
         } DATA[] = {
-            //Line Nokalva Data                                     Has Unknown
+            //Line Nokalva Data                                     Num Unknown
             //==== ============                                     ===========
 
             // Definite length:
@@ -11077,6 +11115,7 @@ int main(int argc, char *argv[])
         {
             const int   LINE         = DATA[i].d_line;
             const char* NOKALVA_DATA = DATA[i].d_nokalvaData;
+            const int   NUM_UNKNOWN  = DATA[i].d_numUnknownElements;
 
             bsl::vector<char> nokalvaData = loadFromHex(NOKALVA_DATA);
             const char *berData = &nokalvaData[0];
@@ -11086,8 +11125,13 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut != valueFromNokalva);
             bdesb_FixedMemInStreamBuf isb(berData, berDataLen);
+            decoder.setNumUnknownElementsSkipped(0);
             int ret = decoder.decode(&isb, &valueFromNokalva);
             printDiagnostic(decoder);
+            LOOP3_ASSERT(LINE,
+                         NUM_UNKNOWN,
+                         decoder.numUnknownElementsSkipped(),
+                         NUM_UNKNOWN == decoder.numUnknownElementsSkipped());
 
             LOOP_ASSERT(LINE, 0 == ret);
             LOOP_ASSERT(LINE, berDataLen == isb.pubseekoff(0, bsl::ios::cur));
@@ -11100,7 +11144,7 @@ int main(int argc, char *argv[])
         {
             const int   LINE         = DATA[i].d_line;
             const char* NOKALVA_DATA = DATA[i].d_nokalvaData;
-            const bool  HAS_UNKNOWN  = DATA[i].d_hasUnknownElements;
+            const int   NUM_UNKNOWN  = DATA[i].d_numUnknownElements;
 
             bsl::vector<char> nokalvaData = loadFromHex(NOKALVA_DATA);
             const char *berData = &nokalvaData[0];
@@ -11121,8 +11165,10 @@ int main(int argc, char *argv[])
             int ret = decoder2.decode(&isb, &valueFromNokalva);
             printDiagnostic(decoder2);
 
-            if (HAS_UNKNOWN) {
+            if (NUM_UNKNOWN) {
                 LOOP_ASSERT(LINE, 0 != ret);
+                LOOP_ASSERT(LINE,
+                          NUM_UNKNOWN == decoder2.numUnknownElementsSkipped());
             }
             else {
                 LOOP_ASSERT(LINE,

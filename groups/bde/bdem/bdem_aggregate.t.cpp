@@ -14981,7 +14981,7 @@ DEFINE_TEST_CASE(12) {
             mR[0].theModifiableStringArray().push_back(XG);
             ASSERT(T2.numRows() == 1 && T2.numColumns() == 1);
             const int NUM_BIG   = testAllocator.numBytesInUse();
-            ASSERT(NUM_BIG > NUM_SMALL);
+            ASSERT(NUM_BIG >= NUM_SMALL);
             for (int i = 0; i < 10; ++i) {
                 if (veryVerbose) {
                     int IN_USE = testAllocator.numBytesInUse();
@@ -15529,7 +15529,7 @@ DEFINE_TEST_CASE(11) {
             L2.theModifiableStringArray(0).push_back(XG);
             ASSERT (L2.length() == 1);
             numBig   = ta.numBytesInUse();
-            ASSERT(numBig > numSmall);
+            ASSERT(numBig >= numSmall);
             for (int j = 0; j < 10; ++j) {
                 if (veryVerbose) {
                     int IN_USE = ta.numBytesInUse();
@@ -15674,7 +15674,7 @@ DEFINE_TEST_CASE(11) {
                                                  L2.theStringArray(0).begin());
                 LOOP_ASSERT(i, L2.theStringArray(0).size() == 0);
 
-                LOOP_ASSERT(i, NUM_BYTES > testAllocator.numBytesInUse());
+                LOOP_ASSERT(i, NUM_BYTES >= testAllocator.numBytesInUse());
                 L2.theModifiableStringArray(0).push_back(XG);  // "long" string
                 LOOP_ASSERT(i, L2.theStringArray(0).size() == 1);
                 LOOP_ASSERT(i, NUM_BYTES == testAllocator.numBytesInUse());
@@ -15742,7 +15742,7 @@ DEFINE_TEST_CASE(11) {
             numSmall = testAllocator.numBytesInUse();
             L2.theModifiableStringArray(0).push_back(XG);   // "long" string
             numBig   = testAllocator.numBytesInUse();
-            ASSERT(numBig > numSmall);
+            ASSERT(numBig >= numSmall);
 
             for (int j = 0; j < 10; ++j) {
                 if (veryVerbose) {

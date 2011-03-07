@@ -1,4 +1,4 @@
-// bdem_elemref.t.cpp            -*-C++-*-
+// bdem_elemref.t.cpp                                                 -*-C++-*-
 
 #include <bdem_elemref.h>
 
@@ -7,13 +7,14 @@
 
 #include <bdeimp_bitwisecopy.h>
 
+#include <bdetu_unset.h>
+
 #include <bslma_allocator.h>
 
-#include <bdetu_unset.h>
 #include <bsls_alignmentfromtype.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_exception.h>
 #include <bsl_iostream.h>
@@ -110,7 +111,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] const char& theChar() const;
 // [ 3] const short& theShort() const;
 // [ 3] const int& theInt() const;
-// [ 3] const bsls_PlatformUtil::Int64& theInt64() const;
+// [ 3] const bsls_Types::Int64& theInt64() const;
 // [ 3] const float& theFloat() const;
 // [ 3] const double& theDouble() const;
 // [ 3] const bsl::string& theString() const;
@@ -124,7 +125,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] const vector<char>& theCharArray() const;
 // [ 3] const vector<short>& theShortArray() const;
 // [ 3] const vector<int>& theIntArray() const;
-// [ 3] const vector<bsls_PlatformUtil::Int64>& theInt64Array() const;
+// [ 3] const vector<bsls_Types::Int64>& theInt64Array() const;
 // [ 3] const vector<float>& theFloatArray() const;
 // [ 3] const vector<double>& theDoubleArray() const;
 // [ 3] const vector<bsl::string>& theStringArray() const;
@@ -168,7 +169,7 @@ using namespace bsl;  // automatically added by script
 // [ 4] theModifiableChar(char value) const;
 // [ 4] theModifiableShort(short value) const;
 // [ 4] theModifiableInt(int value) const;
-// [ 4] theModifiableInt64(bsls_PlatformUtil::Int64 value) const;
+// [ 4] theModifiableInt64(bsls_Types::Int64 value) const;
 // [ 4] theModifiableFloat(float value) const;
 // [ 4] theModifiableDouble(double value) const;
 // [ 4] theModifiableString(const bsl::string& value) const;
@@ -183,7 +184,7 @@ using namespace bsl;  // automatically added by script
 // [ 4] theModifiableShortArray(const bsl::vector<short>& value) const;
 // [ 4] theModifiableIntArray(const bsl::vector<int>& value) const;
 // [ 4] theModifiableInt64Array(
-//               const bsl::vector<bsls_PlatformUtil::Int64>& value) const;
+//               const bsl::vector<bsls_Types::Int64>& value) const;
 // [ 4] theModifiableFloatArray(const bsl::vector<float>& value) const;
 // [ 4] theModifiableDoubleArray(const bsl::vector<double>& value) const;
 // [ 4] theModifiableStringArray(const bsl::vector<bsl::string>& value) const;
@@ -205,7 +206,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] const char& theChar() const;
 // [ 3] const short& theShort() const;
 // [ 3] const int& theInt() const;
-// [ 3] const bsls_PlatformUtil::Int64& theInt64() const;
+// [ 3] const bsls_Types::Int64& theInt64() const;
 // [ 3] const float& theFloat() const;
 // [ 3] const double& theDouble() const;
 // [ 3] const bsl::string& theString() const;
@@ -219,7 +220,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] const vector<char>& theCharArray() const;
 // [ 3] const vector<short>& theShortArray() const;
 // [ 3] const vector<int>& theIntArray() const;
-// [ 3] const vector<bsls_PlatformUtil::Int64>& theInt64Array() const;
+// [ 3] const vector<bsls_Types::Int64>& theInt64Array() const;
 // [ 3] const vector<float>& theFloatArray() const;
 // [ 3] const vector<double>& theDoubleArray() const;
 // [ 3] const vector<bsl::string>& theStringArray() const;
@@ -240,7 +241,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] char& theModifiableChar() const;
 // [ 3] short& theModifiableShort() const;
 // [ 3] int& theModifiableInt() const;
-// [ 3] bsls_PlatformUtil::Int64& theModifiableInt64() const;
+// [ 3] bsls_Types::Int64& theModifiableInt64() const;
 // [ 3] float& theModifiableFloat() const;
 // [ 3] double& theModifiableDouble() const;
 // [ 3] bsl::string& theModifiableString() const;
@@ -254,7 +255,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] vector<char>& theModifiableCharArray() const;
 // [ 3] vector<short>& theModifiableShortArray() const;
 // [ 3] vector<int>& theModifiableIntArray() const;
-// [ 3] vector<bsls_PlatformUtil::Int64>& theModifiableInt64Array() const;
+// [ 3] vector<bsls_Types::Int64>& theModifiableInt64Array() const;
 // [ 3] vector<float>& theModifiableFloatArray() const;
 // [ 3] vector<double>& theModifiableDoubleArray() const;
 // [ 3] vector<bsl::string>& theModifiableStringArray() const;
@@ -332,11 +333,11 @@ void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdem_ElemType            ET;
-typedef bdem_ElemRef             ERef;
-typedef bdem_ConstElemRef        CERef;
+typedef bdem_ElemType     ET;
+typedef bdem_ElemRef      ERef;
+typedef bdem_ConstElemRef CERef;
 
-typedef bsls_PlatformUtil::Int64 Int64; // abbreviation
+typedef bsls_Types::Int64 Int64; // abbreviation
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1028,16 +1029,16 @@ struct ELEMREFS {
 };
 
 ELEMREFS UNBOUND  = {
-    bdem_ConstElemRef(0, 0),
-    bdem_ConstElemRef(0, 0),
-         bdem_ElemRef(0, 0),
-         bdem_ElemRef(0, 0)
+    bdem_ConstElemRef(0, &voidDescriptor),
+    bdem_ConstElemRef(0, &voidDescriptor),
+         bdem_ElemRef(0, &voidDescriptor),
+         bdem_ElemRef(0, &voidDescriptor)
 };
 ELEMREFS UNBOUNDN  = {
-    bdem_ConstElemRef(0, 0, &dataNullBits, 1),
-    bdem_ConstElemRef(0, 0, &dataNullBits, 1),
-         bdem_ElemRef(0, 0, &dataNullBits, 1),
-         bdem_ElemRef(0, 0, &dataNullBits, 1)
+    bdem_ConstElemRef(0, &voidDescriptor, &dataNullBits, 1),
+    bdem_ConstElemRef(0, &voidDescriptor, &dataNullBits, 1),
+         bdem_ElemRef(0, &voidDescriptor, &dataNullBits, 1),
+         bdem_ElemRef(0, &voidDescriptor, &dataNullBits, 1)
 };
 
 ELEMREFS NA  = {
@@ -1355,27 +1356,6 @@ bool referenceSameData(const bdem_ConstElemRef& ref1,
         && ref1.isNull()     == ref2.isNull();
 }
 
-                        // ----------------------
-                        // TEST CALLBACK FUNCTION
-                        // ----------------------
-
-#ifdef BDE_BUILD_TARGET_EXC
-static int globalTestCallback_flag;
-
-static void testCallback(void)
-{
-    ++globalTestCallback_flag;
-    throw bsl::exception();
-}
-
-#define CBRESET globalTestCallback_flag = 0;
-#define CBFLAG  globalTestCallback_flag
-#else
-static void testCallback(void)
-{
-}
-#endif
-
 //=============================================================================
 //                           SET UP FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -1430,7 +1410,6 @@ static void testCallback(void)
                     *static_cast<const int *>(sequenceData[i])) return true;
               } break;
               case bdem_ElemType::BDEM_INT64: {
-                typedef bsls_PlatformUtil::Int64 Int64;
                 if (*static_cast<const Int64 *>(dataValue) ==
                     *static_cast<const Int64 *>(sequenceData[i])) return true;
               } break;
@@ -3163,19 +3142,19 @@ int main(int argc, char *argv[])
         const bdem_ElemRef      UER  = bdem_ElemRef::unboundElemRef();
               bdem_ElemRef      uer  = bdem_ElemRef::unboundElemRef();
 
-        ASSERT(0 == UCER.isBound());
+        ASSERT(   0 == UCER.isBound());
         ASSERT(UCER == UNBOUND.d_cCER);
         ASSERT(UCER == UNBOUNDN.d_cCER);
 
-        ASSERT(0 == ucer.isBound());
+        ASSERT(   0 == ucer.isBound());
         ASSERT(ucer == UNBOUND.d_CER);
         ASSERT(ucer == UNBOUNDN.d_CER);
 
-        ASSERT(0 == UER.isBound());
+        ASSERT(   0 == UER.isBound());
         ASSERT(UER == UNBOUND.d_cER);
         ASSERT(UER == UNBOUNDN.d_cER);
 
-        ASSERT(0 == uer.isBound());
+        ASSERT(   0 == uer.isBound());
         ASSERT(UCER == UNBOUND.d_ER);
         ASSERT(UCER == UNBOUNDN.d_ER);
 
@@ -3201,7 +3180,7 @@ int main(int argc, char *argv[])
         // char& theModifiableChar() const;
         // short& theModifiableShort() const;
         // int& theModifiableInt() const;
-        // bsls_PlatformUtil::Int64& theModifiableInt64() const;
+        // bsls_Types::Int64& theModifiableInt64() const;
         // float& theModifiableFloat() const;
         // double& theModifiableDouble() const;
         // bsl::string& theModifiableString() const;
@@ -3215,8 +3194,7 @@ int main(int argc, char *argv[])
         // bsl::vector<char>& theModifiableCharArray() const;
         // bsl::vector<short>& theModifiableShortArray() const;
         // bsl::vector<int>& theModifiableIntArray() const;
-        // bsl::vector<bsls_PlatformUtil::Int64>&
-        //                                   theModifiableInt64Array() const;
+        // bsl::vector<bsls_Types::Int64>& theModifiableInt64Array() const;
         // bsl::vector<float>& theModifiableFloatArray() const;
         // bsl::vector<double>& theModifiableDoubleArray() const;
         // bsl::vector<bsl::string>& theModifiableStringArray() const;
@@ -3372,7 +3350,7 @@ int main(int argc, char *argv[])
         //   const char& theChar() const;
         //   const short& theShort() const;
         //   const int& theInt() const;
-        //   const bsls_PlatformUtil::Int64& theInt64() const;
+        //   const bsls_Types::Int64& theInt64() const;
         //   const float& theFloat() const;
         //   const double& theDouble() const;
         //   const bsl::string& theString() const;
@@ -3386,7 +3364,7 @@ int main(int argc, char *argv[])
         //   const vector<char>& theCharArray() const;
         //   const vector<short>& theShortArray() const;
         //   const vector<int>& theIntArray() const;
-        //   const vector<bsls_PlatformUtil::Int64>& theInt64Array() const;
+        //   const vector<bsls_Types::Int64>& theInt64Array() const;
         //   const vector<float>& theFloatArray() const;
         //   const vector<double>& theDoubleArray() const;
         //   const vector<bsl::string>& theStringArray() const;
@@ -3409,7 +3387,7 @@ int main(int argc, char *argv[])
         //   const char& theChar() const;
         //   const short& theShort() const;
         //   const int& theInt() const;
-        //   const bsls_PlatformUtil::Int64& theInt64() const;
+        //   const bsls_Types::Int64& theInt64() const;
         //   const float& theFloat() const;
         //   const double& theDouble() const;
         //   const bsl::string& theString() const;
@@ -3423,7 +3401,7 @@ int main(int argc, char *argv[])
         //   const vector<char>& theCharArray() const;
         //   const vector<short>& theShortArray() const;
         //   const vector<int>& theIntArray() const;
-        //   const vector<bsls_PlatformUtil::Int64>& theInt64Array() const;
+        //   const vector<bsls_Types::Int64>& theInt64Array() const;
         //   const vector<float>& theFloatArray() const;
         //   const vector<double>& theDoubleArray() const;
         //   const vector<bsl::string>& theStringArray() const;
@@ -3444,7 +3422,7 @@ int main(int argc, char *argv[])
         //   char& theModifiableChar() const;
         //   short& theModifiableShort() const;
         //   int& theModifiableInt() const;
-        //   bsls_PlatformUtil::Int64& theModifiableInt64() const;
+        //   bsls_Types::Int64& theModifiableInt64() const;
         //   float& theModifiableFloat() const;
         //   double& theModifiableDouble() const;
         //   bsl::string& theModifiableString() const;
@@ -3458,7 +3436,7 @@ int main(int argc, char *argv[])
         //   vector<char>& theModifiableCharArray() const;
         //   vector<short>& theModifiableShortArray() const;
         //   vector<int>& theModifiableIntArray() const;
-        //   vector<bsls_PlatformUtil::Int64>& theModifiableInt64Array() const;
+        //   vector<bsls_Types::Int64>& theModifiableInt64Array() const;
         //   vector<float>& theModifiableFloatArray() const;
         //   vector<double>& theModifiableDoubleArray() const;
         //   vector<bdet_Datetime>& theModifiableDatetimeArray() const;
@@ -3478,27 +3456,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "ELEMENT ACCESSORS" << endl
                                   << "=================" << endl;
 
-        const bdem_Descriptor *A = reinterpret_cast<bdem_Descriptor*>(0xbad);
-
               void *d1 = reinterpret_cast<void *>(0x1);
         const void *D1 = d1;
 
               void *d2 = reinterpret_cast<void *>(0x2);
         const void *D2 = d2;
-
-        if (veryVerbose) { P_(A) P_(D1) P(D2) };
-
-              bdem_ConstElemRef cer1(d1, A);
-        const bdem_ConstElemRef CER1(d1, A);
-
-              bdem_ConstElemRef cer2(d2, A);
-        const bdem_ConstElemRef CER2(d2, A);
-
-              bdem_ElemRef er1(d1, A);
-        const bdem_ElemRef ER1(d1, A);
-
-              bdem_ElemRef er2(d2, A);
-        const bdem_ElemRef ER2(d2, A);
 
         int tIdx = -3;  // help ensure all types are covered
 
@@ -3506,6 +3468,20 @@ int main(int argc, char *argv[])
             "\nVerify type, value, and 'const'-ness for each type.\n";
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &choiceArrayItemDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdem_ChoiceArrayItem Type; Type *rp; const Type *crp;
             crp = &cer1.theChoiceArrayItem();         ASSERT(D1 == crp);
             crp = &CER1.theChoiceArrayItem();         ASSERT(D1 == crp);
@@ -3520,6 +3496,20 @@ int main(int argc, char *argv[])
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl;
         tIdx += 2;
         {
+            const bdem_Descriptor *A = &rowDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdem_Row Type; Type *rp; const Type *crp;
             crp = &cer1.theRow();              ASSERT(D1 == crp);
             crp = &CER1.theRow();              ASSERT(D1 == crp);
@@ -3533,6 +3523,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &charDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef char Type; Type *rp; const Type *crp;
             crp = &cer1.theChar();              ASSERT(D1 == crp);
             crp = &CER1.theChar();              ASSERT(D1 == crp);
@@ -3546,6 +3550,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &shortDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef short Type; Type *rp; const Type *crp;
             crp = &cer1.theShort();             ASSERT(D1 == crp);
             crp = &CER1.theShort();             ASSERT(D1 == crp);
@@ -3559,6 +3577,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &intDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef int Type; Type *rp; const Type *crp;
             crp = &cer1.theInt();               ASSERT(D1 == crp);
             crp = &CER1.theInt();               ASSERT(D1 == crp);
@@ -3572,6 +3604,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &int64Descriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef Int64 Type; Type *rp; const Type *crp;
             crp = &cer1.theInt64();             ASSERT(D1 == crp);
             crp = &CER1.theInt64();             ASSERT(D1 == crp);
@@ -3585,6 +3631,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &floatDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef float Type; Type *rp; const Type *crp;
             crp = &cer1.theFloat();             ASSERT(D1 == crp);
             crp = &CER1.theFloat();             ASSERT(D1 == crp);
@@ -3598,6 +3658,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &doubleDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef double Type; Type *rp; const Type *crp;
             crp = &cer1.theDouble();            ASSERT(D1 == crp);
             crp = &CER1.theDouble();            ASSERT(D1 == crp);
@@ -3611,6 +3685,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &stringDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bsl::string Type; Type *rp; const Type *crp;
             crp = &cer1.theString();            ASSERT(D1 == crp);
             crp = &CER1.theString();            ASSERT(D1 == crp);
@@ -3624,6 +3712,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &datetimeDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdet_Datetime Type; Type *rp; const Type *crp;
             crp = &cer1.theDatetime();            ASSERT(D1 == crp);
             crp = &CER1.theDatetime();            ASSERT(D1 == crp);
@@ -3637,6 +3739,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &dateDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdet_Date Type; Type *rp; const Type *crp;
             crp = &cer1.theDate();              ASSERT(D1 == crp);
             crp = &CER1.theDate();              ASSERT(D1 == crp);
@@ -3650,6 +3766,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &timeDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdet_Time Type; Type *rp; const Type *crp;
             crp = &cer1.theTime();              ASSERT(D1 == crp);
             crp = &CER1.theTime();              ASSERT(D1 == crp);
@@ -3663,6 +3793,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &charArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<char> Type; Type *rp; const Type *crp;
             crp = &cer1.theCharArray();         ASSERT(D1 == crp);
             crp = &CER1.theCharArray();         ASSERT(D1 == crp);
@@ -3676,6 +3820,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &shortArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<short> Type; Type *rp; const Type *crp;
             crp = &cer1.theShortArray();        ASSERT(D1 == crp);
             crp = &CER1.theShortArray();        ASSERT(D1 == crp);
@@ -3689,6 +3847,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &intArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<int> Type; Type *rp; const Type *crp;
             crp = &cer1.theIntArray();          ASSERT(D1 == crp);
             crp = &CER1.theIntArray();          ASSERT(D1 == crp);
@@ -3702,6 +3874,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &int64ArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<Int64> Type; Type *rp; const Type *crp;
             crp = &cer1.theInt64Array();        ASSERT(D1 == crp);
             crp = &CER1.theInt64Array();        ASSERT(D1 == crp);
@@ -3715,6 +3901,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &floatArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<float> Type; Type *rp; const Type *crp;
             crp = &cer1.theFloatArray();        ASSERT(D1 == crp);
             crp = &CER1.theFloatArray();        ASSERT(D1 == crp);
@@ -3728,6 +3928,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &doubleArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<double> Type; Type *rp; const Type *crp;
             crp = &cer1.theDoubleArray();       ASSERT(D1 == crp);
             crp = &CER1.theDoubleArray();       ASSERT(D1 == crp);
@@ -3741,6 +3955,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &stringArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<bsl::string> Type; Type *rp; const Type *crp;
             crp = &cer1.theStringArray();       ASSERT(D1 == crp);
             crp = &CER1.theStringArray();       ASSERT(D1 == crp);
@@ -3754,6 +3982,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &datetimeArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<bdet_Datetime> Type; Type *rp; const Type *crp;
             crp = &cer1.theDatetimeArray();     ASSERT(D1 == crp);
             crp = &CER1.theDatetimeArray();     ASSERT(D1 == crp);
@@ -3767,6 +4009,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &dateArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<bdet_Date> Type; Type *rp; const Type *crp;
             crp = &cer1.theDateArray();         ASSERT(D1 == crp);
             crp = &CER1.theDateArray();         ASSERT(D1 == crp);
@@ -3780,6 +4036,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &timeArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<bdet_Time> Type; Type *rp; const Type *crp;
             crp = &cer1.theTimeArray();         ASSERT(D1 == crp);
             crp = &CER1.theTimeArray();         ASSERT(D1 == crp);
@@ -3793,6 +4063,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &listDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdem_List Type; Type *rp; const Type *crp;
             crp = &cer1.theList();              ASSERT(D1 == crp);
             crp = &CER1.theList();              ASSERT(D1 == crp);
@@ -3806,6 +4090,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &tableDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdem_Table Type; Type *rp; const Type *crp;
             crp = &cer1.theTable();             ASSERT(D1 == crp);
             crp = &CER1.theTable();             ASSERT(D1 == crp);
@@ -3819,6 +4117,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &boolDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bool Type; Type *rp; const Type *crp;
             crp = &cer1.theBool();              ASSERT(D1 == crp);
             crp = &CER1.theBool();              ASSERT(D1 == crp);
@@ -3832,6 +4144,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &datetimeTzDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdet_DatetimeTz Type; Type *rp; const Type *crp;
             crp = &cer1.theDatetimeTz();          ASSERT(D1 == crp);
             crp = &CER1.theDatetimeTz();          ASSERT(D1 == crp);
@@ -3845,6 +4171,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &dateTzDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdet_DateTz Type; Type *rp; const Type *crp;
             crp = &cer1.theDateTz();              ASSERT(D1 == crp);
             crp = &CER1.theDateTz();              ASSERT(D1 == crp);
@@ -3858,6 +4198,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &timeTzDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdet_TimeTz Type; Type *rp; const Type *crp;
             crp = &cer1.theTimeTz();              ASSERT(D1 == crp);
             crp = &CER1.theTimeTz();              ASSERT(D1 == crp);
@@ -3871,6 +4225,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &boolArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<bool> Type; Type *rp; const Type *crp;
             crp = &cer1.theBoolArray();         ASSERT(D1 == crp);
             crp = &CER1.theBoolArray();         ASSERT(D1 == crp);
@@ -3884,6 +4252,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &datetimeTzArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<bdet_DatetimeTz> Type; Type *rp; const Type *crp;
             crp = &cer1.theDatetimeTzArray();     ASSERT(D1 == crp);
             crp = &CER1.theDatetimeTzArray();     ASSERT(D1 == crp);
@@ -3897,6 +4279,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &dateTzArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<bdet_DateTz> Type; Type *rp; const Type *crp;
             crp = &cer1.theDateTzArray();         ASSERT(D1 == crp);
             crp = &CER1.theDateTzArray();         ASSERT(D1 == crp);
@@ -3910,6 +4306,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &timeTzArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef vector<bdet_TimeTz> Type; Type *rp; const Type *crp;
             crp = &cer1.theTimeTzArray();         ASSERT(D1 == crp);
             crp = &CER1.theTimeTzArray();         ASSERT(D1 == crp);
@@ -3923,6 +4333,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &choiceDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdem_Choice Type; Type *rp; const Type *crp;
             crp = &cer1.theChoice();              ASSERT(D1 == crp);
             crp = &CER1.theChoice();              ASSERT(D1 == crp);
@@ -3936,6 +4360,20 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << '\t' << (bdem_ElemType::Type)tIdx << endl; ++tIdx;
         {
+            const bdem_Descriptor *A = &choiceArrayDescriptor;
+
+                  bdem_ConstElemRef cer1(d1, A);
+            const bdem_ConstElemRef CER1(d1, A);
+
+                  bdem_ConstElemRef cer2(d2, A);
+            const bdem_ConstElemRef CER2(d2, A);
+
+                  bdem_ElemRef er1(d1, A);
+            const bdem_ElemRef ER1(d1, A);
+
+                  bdem_ElemRef er2(d2, A);
+            const bdem_ElemRef ER2(d2, A);
+
             typedef bdem_ChoiceArray Type; Type *rp; const Type *crp;
             crp = &cer1.theChoiceArray();         ASSERT(D1 == crp);
             crp = &CER1.theChoiceArray();         ASSERT(D1 == crp);

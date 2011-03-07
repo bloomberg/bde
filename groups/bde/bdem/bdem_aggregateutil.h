@@ -212,7 +212,6 @@ BDES_IDENT("$Id: $")
 //   priceTypes.push_back(bdem_ElemType::BDEM_DOUBLE);  // price
 //   priceTypes.push_back(bdem_ElemType::BDEM_DOUBLE);  // yield to maturity
 //   priceTypes.push_back(bdem_ElemType::BDEM_DOUBLE);  // coupon
-//   priceTypes.push_back(bdem_ElemType::BDEM_INT);     // payment frequency
 //   priceTypes.push_back(bdem_ElemType::BDEM_DATE);    // maturity date
 //
 //   const bsl::string CUSIP = "SL2S6Q3Y";

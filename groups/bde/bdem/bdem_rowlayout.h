@@ -352,7 +352,7 @@ class bdem_RowLayout {
         // with a logical length of 0 elements.
 
         int d_i;
-        InitialCapacity(int i) : d_i(i) { }
+        explicit InitialCapacity(int i) : d_i(i) { }
         ~InitialCapacity() { }
     };
 

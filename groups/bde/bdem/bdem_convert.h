@@ -1,4 +1,4 @@
-// bdem_convert.h                  -*-C++-*-
+// bdem_convert.h                                                     -*-C++-*-
 #ifndef INCLUDED_BDEM_CONVERT
 #define INCLUDED_BDEM_CONVERT
 
@@ -245,7 +245,6 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
 #endif
-
 
 namespace BloombergLP {
 
@@ -991,6 +990,8 @@ template <typename TESTTYPE>
 inline
 void bdem_Convert::setUnset(TESTTYPE *value, const TrueType&)
 {
+    BSLS_ASSERT_SAFE(value);
+
     bdetu_Unset<TESTTYPE>::makeUnset(value);
 }
 
@@ -1014,11 +1015,12 @@ int bdem_Convert::doConvert(DSTTYPE *, const SRCTYPE&, const NoConversion&)
 }
 
 template <typename SRCTYPE>
-inline
 int bdem_Convert::doConvert(bsl::string    *dstAddr,
                             const SRCTYPE&  srcValue,
                             const StringFromOstreamable&)
 {
+    BSLS_ASSERT(dstAddr);
+
     // Format 'srcValue' using 'ostream'.
     bsl::ostringstream stream;
     bdeu_PrintMethods::print(stream, srcValue, 0, -1);
@@ -1032,6 +1034,8 @@ int bdem_Convert::doConvert(DSTTYPE            *dstAddr,
                             const bsl::string&  srcValue,
                             const AnyFromString&)
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     return bdem_Convert::fromString(dstAddr, srcValue.c_str());
 }
 
@@ -1041,6 +1045,8 @@ int bdem_Convert::doConvert(DSTTYPE    *dstAddr,
                             const char *srcValue,
                             const AnyFromString&)
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     return bdem_Convert::fromString(dstAddr, srcValue);
 }
 
@@ -1050,6 +1056,8 @@ int bdem_Convert::doConvert(DSTTYPE                  *dstAddr,
                             const bdem_ConstElemRef&  srcValue,
                             const AnyFromElemRef&)
 {
+    BSLS_ASSERT_SAFE(dstAddr || bdem_ElemType::BDEM_VOID == srcValue.type());
+
     return bdem_Convert::fromBdemType(dstAddr,
                                       srcValue.data(), srcValue.type());
 }
@@ -1060,6 +1068,8 @@ int bdem_Convert::doConvert(DSTTYPE        *dstAddr,
                             const SRCTYPE&  srcValue,
                             const IsConvertible&)
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     // Cast to avoid warnings about (e.g.) 'float' -> 'int' and
     // 'int' -> 'float' conversions.
     *dstAddr = static_cast<DSTTYPE>(srcValue);
@@ -1072,6 +1082,8 @@ int bdem_Convert::doConvert(INTEGRALTYPE *dstAddr,
                             FLOATINGTYPE  srcValue,
                             const IntegralFromFloating&)
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     // Cast to avoid warnings about (e.g.) 'float' -> 'int' conversions.
     *dstAddr = static_cast<INTEGRALTYPE>(srcValue);
     return 0;
@@ -1083,6 +1095,8 @@ int bdem_Convert::doConvert(BDETTZTYPE           *dstAddr,
                             const BDETNONTZTYPE&  srcValue,
                             const BdetTzFromBdetNonTz&)
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     return bdem_Convert::convert(dstAddr, srcValue);
 }
 
@@ -1091,8 +1105,13 @@ int bdem_Convert::doConvert(bdem_ElemRef   *dstAddr,
                             const SRCTYPE&  srcValue,
                             const ElemRefFromAny&)
 {
-    const bool                isDstNull = dstAddr->isNull();
+    BSLS_ASSERT(dstAddr);
+
+    const bool                isDstNull = dstAddr->isBound()
+                                       && dstAddr->isNull();
     const bdem_ElemType::Type dstType   = dstAddr->type();
+
+    // 'dstType' is 'bdem_ElemType::BDEM_VOID' if '*dstAddr' is unbound.
 
     void *dstData;
 
@@ -1232,6 +1251,8 @@ inline
 int bdem_Convert::constConvert(DSTTYPE *dstAddr,
                                SRCTYPE  (&srcValue)[SRCARRAYSIZE])
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     SRCTYPE *const srcPointer = &srcValue[0];
     return bdem_Convert::constConvert(dstAddr, srcPointer);
 }
@@ -1240,6 +1261,8 @@ template <typename SRCTYPE, typename DSTTYPE>
 inline
 int bdem_Convert::nonconstConvert(DSTTYPE *dstAddr, SRCTYPE& srcValue)
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     // Call 'convert' (not 'constConvert') to ensure that all of the overloads
     // are honored.
 
@@ -1252,6 +1275,8 @@ inline
 int bdem_Convert::nonconstConvert(DSTTYPE *dstAddr,
                                   SRCTYPE  (&srcValue)[SRCARRAYSIZE])
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     // Call 'convert' (not 'constConvert') to ensure that all of the overloads
     // are honored.
 
@@ -1266,6 +1291,8 @@ int bdem_Convert::nonconstConvert(DSTTYPE *dstAddr,
 template <typename SRCTYPE, typename DSTTYPE>
 int bdem_Convert::constConvert(DSTTYPE *dstAddr, SRCTYPE& srcValue)
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     typedef typename bslmf_RemoveCvq<SRCTYPE>::Type ncvqFromType;
 
     typedef typename ConversionCategory<ncvqFromType, DSTTYPE>::Type Category;
@@ -1299,6 +1326,8 @@ template <typename SRCTYPE, typename DSTTYPE>
 inline
 int bdem_Convert::convert(DSTTYPE *dstAddr, const SRCTYPE& srcValue)
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     return bdem_Convert::constConvert(dstAddr, srcValue);
 }
 
@@ -1308,6 +1337,8 @@ template <typename SRCTYPE, typename DSTTYPE>
 inline
 int bdem_Convert::convert(DSTTYPE *dstAddr, SRCTYPE& srcValue)
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     return bdem_Convert::nonconstConvert(dstAddr, srcValue);
 }
 
@@ -1323,6 +1354,8 @@ int bdem_Convert::convert(const DSTTYPE *, const SRCTYPE&)
 inline
 int bdem_Convert::convert(bool *dstAddr, const char *srcValue)
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     return bdem_Convert::fromString(dstAddr, srcValue);
 }
 
@@ -1341,6 +1374,8 @@ int bdem_Convert::convert(bdem_ConstElemRef *, const bdem_ElemRef&)
 inline
 int bdem_Convert::convert(bsl::string *dstAddr, bool srcValue)
 {
+    BSLS_ASSERT_SAFE(dstAddr);
+
     return bdem_Convert::convert(dstAddr, int(srcValue));
 }
 
@@ -1349,6 +1384,8 @@ int bdem_Convert::doToBdemType(void                *dstAddr,
                                bdem_ElemType::Type  dstType,
                                SRCTYPE&             srcValue)
 {
+    BSLS_ASSERT(dstAddr || bdem_ElemType::BDEM_VOID == dstType);
+
     int result;
 
     switch (dstType) {
@@ -1483,6 +1520,8 @@ int bdem_Convert::doToBdemType(void                *dstAddr,
                                bdem_ElemType::Type  dstType,
                                SRCTYPE              (&srcValue)[SRCARRAYSIZE])
 {
+    BSLS_ASSERT_SAFE(dstAddr || bdem_ElemType::BDEM_VOID == dstType);
+
     SRCTYPE *const srcPointer = &srcValue[0];
     return bdem_Convert::doToBdemType(dstAddr, dstType, srcPointer);
 }
@@ -1495,6 +1534,8 @@ int bdem_Convert::toBdemType(void                *dstAddr,
                              bdem_ElemType::Type  dstType,
                              const SRCTYPE&       srcValue)
 {
+    BSLS_ASSERT_SAFE(dstAddr || bdem_ElemType::BDEM_VOID == dstType);
+
     return bdem_Convert::doToBdemType(dstAddr, dstType, srcValue);
 }
 
@@ -1503,6 +1544,8 @@ int bdem_Convert::toBdemType(void                     *dstAddr,
                              bdem_ElemType::Type       dstType,
                              const bdem_ConstElemRef&  srcValue)
 {
+    BSLS_ASSERT_SAFE(dstAddr || bdem_ElemType::BDEM_VOID == dstType);
+
     return bdem_Convert::convertBdemTypes(dstAddr, dstType,
                                           srcValue.data(), srcValue.type());
 }
@@ -1519,6 +1562,8 @@ int bdem_Convert::fromBdemType(DSTTYPE             *dstAddr,
                                const void          *srcAddr,
                                bdem_ElemType::Type  srcType)
 {
+    BSLS_ASSERT(srcAddr || bdem_ElemType::BDEM_VOID == srcType);
+
     int result;
 
     switch (srcType) {

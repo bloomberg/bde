@@ -250,8 +250,9 @@ class bdem_RowData {
         // Return 'true' if the element values of this row data are the same as
         // the corresponding element values of the specified 'rhs' row data,
         // and 'false' otherwise.  The behavior is undefined unless this row
-        // data and 'rhs' have the same number of elements, and corresponding
-        // elements at each index position have the same type.
+        // data and 'rhs' hold row layouts, they have the same number of
+        // elements, and corresponding elements at each index position have the
+        // same type.
 
   private:
     // NOT IMPLEMENTED
@@ -340,10 +341,11 @@ class bdem_RowData {
     bdem_RowData& operator=(const bdem_RowData& rhs);
         // Assign to this row data the element values in the specified 'rhs'
         // row data, and return a reference to this modifiable row data.  The
-        // behavior is undefined unless this row data and 'rhs' have the same
-        // number of elements, and corresponding elements at each index
-        // position have the same type.  Note that after the assignment, both
-        // objects will have the same sequence of elements (types and values).
+        // behavior is undefined unless this row data and 'rhs' hold row
+        // layouts, they have the same number of elements, and corresponding
+        // elements at each index position have the same type.  Note that after
+        // the assignment, both objects will have the same sequence of elements
+        // (types and values).
 
     void *elemData(int index);
         // Return the address of the modifiable element value at the specified
@@ -430,9 +432,10 @@ class bdem_RowData {
         // 'bdetu_unset').
 
     void makeAllNull();
-        // Set the value of each element in this row data to null.  Note that,
-        // if accessed, the values will be the corresponding unset values for
-        // the respective element types (see 'bdetu_unset').
+        // Set the value of each element in this row data to null.  The
+        // behavior is undefined unless this row data holds a row layout.  Note
+        // that, if accessed, the values will be the corresponding unset values
+        // for the respective element types (see 'bdetu_unset').
 
     void removeElement(int index);
         // Remove from this row data the element at the specified 'index'.  The
@@ -463,7 +466,8 @@ class bdem_RowData {
         // 'BDEM_PASS_THROUGH', then destructors of individually contained
         // elements are not invoked.  The memory used by those elements will be
         // released efficiently (all at once) when the managed memory allocator
-        // that was supplied at construction is destroyed.
+        // that was supplied at construction is destroyed.  This method has no
+        // effect if this row data does not currently hold a row layout.
 
     void reset(const bdem_RowLayout *rowLayout);
         // Reset this row data object to have the sequence of element types
@@ -516,7 +520,7 @@ class bdem_RowData {
         // the no-throw guarantee).  The client must swap the corresponding
         // entries in the row layout held by this object immediately before
         // calling this method.  The behavior is undefined unless
-        // '0 <= index1 < length()' and '0 <= index2 <= length()'.
+        // '0 <= index1 < length()' and '0 <= index2 < length()'.
 
     template <class STREAM>
     STREAM& bdexStreamInImp(
@@ -562,14 +566,14 @@ class bdem_RowData {
         // specified 'startIndex' in this row data are non-null, and 'false'
         // otherwise.  The behavior is undefined unless
         // '0 <= startIndex < length()', '0 <= numElements', and
-        // 'startIndex + numElements < length()'.
+        // 'startIndex + numElements <= length()'.
 
     bool isAnyInRangeNull(int startIndex, int numElements) const;
         // Return 'true' if any of the specified 'numElements' beginning at the
         // specified 'startIndex' in this row data are null, and 'false'
         // otherwise.  The behavior is undefined unless
         // '0 <= startIndex < length()', '0 <= numElements', and
-        // 'startIndex + numElements < length()'.
+        // 'startIndex + numElements <= length()'.
 
     bool isNull(int index) const;
         // Return 'true' if the element at the specified 'index' in this row
@@ -577,11 +581,12 @@ class bdem_RowData {
         // unless '0 <= index < length()'.
 
     int length() const;
-        // Return the number of elements stored by this row data.
+        // Return the number of elements stored by this row data.  The behavior
+        // is undefined unless this row data holds a row layout.
 
     const bdem_RowLayout *rowLayout() const;
         // Return the address of the non-modifiable row layout held by this row
-        // data.
+        // data, or 0 if this object does not currently hold a row layout.
 
     template <class STREAM>
     STREAM& bdexStreamOutImp(
@@ -615,7 +620,8 @@ class bdem_RowData {
         // flag indicating whether type names are output prior to each element
         // in the row.  If 'elementLabels' is not specified, type names are
         // output.  If 'stream' is not valid on entry, this operation has no
-        // effect.
+        // effect.  The behavior is undefined unless this row data holds a row
+        // layout.
 };
 
 // FREE OPERATORS
@@ -623,14 +629,16 @@ bool operator==(const bdem_RowData& lhs, const bdem_RowData& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' row data objects have the
     // same value, and 'false' otherwise.  Two row data objects have the same
     // value if they have the same number of elements, and corresponding
-    // elements at each index position have the same type and value.
+    // elements at each index position have the same type and value.  The
+    // behavior is undefined unless 'lhs' and 'rhs' hold row layouts.
 
 bool operator!=(const bdem_RowData& lhs, const bdem_RowData& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' row data objects do not
     // have the same value, and 'false' otherwise.  Two row data objects do not
     // have the same value if they do not have the same number of elements, or
     // there are corresponding elements at some index position that do not have
-    // the same type or value.
+    // the same type or value.  The behavior is undefined unless 'lhs' and
+    // 'rhs' hold row layouts.
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -639,6 +647,25 @@ bool operator!=(const bdem_RowData& lhs, const bdem_RowData& rhs);
                         // ------------------
                         // class bdem_RowData
                         // ------------------
+
+                        // -----------------
+                        // Level-0 Functions
+                        // -----------------
+
+// ACCESSORS
+inline
+int bdem_RowData::length() const
+{
+    BSLS_ASSERT_SAFE(d_rowLayout_p);
+
+    return d_rowLayout_p->length();
+}
+
+inline
+const bdem_RowLayout *bdem_RowData::rowLayout() const
+{
+    return d_rowLayout_p;
+}
 
 // CLASS METHODS
 inline
@@ -651,8 +678,9 @@ int bdem_RowData::maxSupportedBdexVersion()
 inline
 void *bdem_RowData::elemData(int index)
 {
+    BSLS_ASSERT_SAFE(rowLayout());
     BSLS_ASSERT_SAFE(0 <= index);
-    BSLS_ASSERT_SAFE(index < length());
+    BSLS_ASSERT_SAFE(     index < length());
 
     bdeu_BitstringUtil::set(d_nullnessBitsArray_p,
                             index,
@@ -669,6 +697,8 @@ bdem_RowData::bdexStreamInImp(
                          const bdem_DescriptorStreamIn<STREAM> *strmAttrLookup,
                          const bdem_Descriptor *const          *attrLookup)
 {
+    BSLS_ASSERT(rowLayout());
+
     switch (version) {  // Switch on the schema version (starting with 1).
       case 3: {
         const int len = length();
@@ -799,33 +829,20 @@ bdem_RowData::bdexStreamInImp(
 inline
 const void *bdem_RowData::elemData(int index) const
 {
-    BSLS_ASSERT_SAFE(d_rowLayout_p);
+    BSLS_ASSERT_SAFE(rowLayout());
     BSLS_ASSERT_SAFE(0 <= index);
-    BSLS_ASSERT_SAFE(index < d_rowLayout_p->length());
+    BSLS_ASSERT_SAFE(     index < length());
 
     return (const void *)
                      ((char *) d_rowData_p + (*d_rowLayout_p)[index].offset());
 }
 
 inline
-int bdem_RowData::length() const
-{
-    BSLS_ASSERT_SAFE(d_rowLayout_p);
-
-    return d_rowLayout_p->length();
-}
-
-inline
-const bdem_RowLayout *bdem_RowData::rowLayout() const
-{
-    return d_rowLayout_p;
-}
-
-inline
 bool bdem_RowData::isNull(int index) const
 {
+    BSLS_ASSERT_SAFE(rowLayout());
     BSLS_ASSERT_SAFE(0 <= index);
-    BSLS_ASSERT_SAFE(index < length());
+    BSLS_ASSERT_SAFE(     index < length());
 
     return bdeu_BitstringUtil::get(d_nullnessBitsArray_p, index);
 }
@@ -837,6 +854,8 @@ bdem_RowData::bdexStreamOutImp(
                   int                                     version,
                   const bdem_DescriptorStreamOut<STREAM> *strmAttrLookup) const
 {
+    BSLS_ASSERT(rowLayout());
+
     switch (version) {  // Switch on the schema version (starting with 1).
       case 3: {
         const int len = length();

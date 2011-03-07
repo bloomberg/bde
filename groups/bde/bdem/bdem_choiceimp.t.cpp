@@ -1014,40 +1014,37 @@ int main(int argc, char *argv[])
                   LOOP_ASSERT(i, X3 == Z);
               }
               {
-                  //create and populate mX1 and mX2
+                  // create and populate 'mX1' and 'mX2'
                   Obj mX1((bdem_ElemType::Type*)catSt, cat.size(),
                           my_descriptorLookupTable, PASSTH, &tAlloc);
                   const Obj &X1 = mX1;
-                  LOOP_ASSERT(i, X1.selection().isNull());
-
-                  mX1.selection().makeNull();
-                  LOOP_ASSERT(i, X1.selection().isNull());
+                  LOOP_ASSERT(i, !X1.selection().isBound());
 
                   Obj mX2(mX1, PASSTH, &tAlloc); const Obj &X2 = mX2;
                   Obj mX3(mX1, PASSTH, &tAlloc); const Obj &X3 = mX3;
-                  LOOP_ASSERT(i, X2.selection().isNull());
-                  LOOP_ASSERT(i, X3.selection().isNull());
+                  LOOP_ASSERT(i, !X2.selection().isBound());
+                  LOOP_ASSERT(i, !X3.selection().isBound());
 
-                  //create the control arrays
-                  Obj mY; const Obj &Y=mY;
+                  // create the control arrays
+                  Obj mY; const Obj &Y = mY;
                   Obj mZ((bdem_ElemType::Type*)catSt,cat.size(),
                          my_descriptorLookupTable,PASSTH,&tAlloc);
-                  const Obj &Z=mZ;
+                  const Obj &Z = mZ;
 
-                  //reset
+                  // reset
                   mX1.reset();
                   mX2.clear();
                   mX3.reset((bdem_ElemType::Type*)catSt,cat.size(),
                             my_descriptorLookupTable);
 
-                  //compare
-                  LOOP_ASSERT(i, X1==Y);
-                  LOOP_ASSERT(i, X2==Y);
-                  LOOP_ASSERT(i, X3==Z);
+                  // compare
+                  LOOP_ASSERT(i, X1 == Y);
+                  LOOP_ASSERT(i, X2 == Y);
+                  LOOP_ASSERT(i, X3 == Z);
 
-                  LOOP_ASSERT(i, !X1.selection().isNonNull());
-                  LOOP_ASSERT(i, !X2.selection().isNonNull());
-                  LOOP_ASSERT(i, !X3.selection().isNonNull());
+                  LOOP_ASSERT(i, !X1.selection().isBound());
+                  LOOP_ASSERT(i, !X2.selection().isBound());
+                  LOOP_ASSERT(i, !X3.selection().isBound());
               }
           }
         }
@@ -1159,7 +1156,7 @@ int main(int argc, char *argv[])
                                           (cat.size()>0) ? &cat.front() : NULL;
 
               {
-                  //create and populate mX1 and mX2
+                  // create and populate mX1 and mX2
                   Obj mX1((bdem_ElemType::Type*) catSt, cat.size(),
                           my_descriptorLookupTable, PASSTH, &tAlloc);
                   const Obj &X1 = mX1;
@@ -1167,58 +1164,55 @@ int main(int argc, char *argv[])
                   Obj mX2(mX1, PASSTH, &tAlloc); const Obj &X2 = mX2;
                   Obj mX3(mX1, PASSTH, &tAlloc); const Obj &X3 = mX3;
 
-                  //create the control arrays
+                  // create the control arrays
                   Obj mY; const Obj &Y = mY;
                   Obj mZ((bdem_ElemType::Type*)catSt, cat.size(),
                          my_descriptorLookupTable, PASSTH, &tAlloc);
                   const Obj &Z = mZ;
 
-                  //reset
+                  // reset
                   mX1.reset();
                   mX2.clear();
                   mX3.reset((bdem_ElemType::Type*)catSt, cat.size(),
                             my_descriptorLookupTable);
 
-                  //compare
+                  // compare
                   LOOP_ASSERT(i, X1 == Y);
                   LOOP_ASSERT(i, X2 == Y);
                   LOOP_ASSERT(i, X3 == Z);
               }
               {
-                  //create and populate mX1 and mX2
+                  // create and populate mX1 and mX2
                   Obj mX1((bdem_ElemType::Type*)catSt, cat.size(),
                           my_descriptorLookupTable, PASSTH, &tAlloc);
                   const Obj &X1 = mX1;
-                  LOOP_ASSERT(i, X1.selection().isNull());
-
-                  mX1.selection().makeNull();
-                  LOOP_ASSERT(i, X1.selection().isNull());
+                  LOOP_ASSERT(i, !X1.selection().isBound());
 
                   Obj mX2(mX1, PASSTH, &tAlloc); const Obj &X2 = mX2;
                   Obj mX3(mX1, PASSTH, &tAlloc); const Obj &X3 = mX3;
-                  LOOP_ASSERT(i, X2.selection().isNull());
-                  LOOP_ASSERT(i, X3.selection().isNull());
+                  LOOP_ASSERT(i, !X2.selection().isBound());
+                  LOOP_ASSERT(i, !X3.selection().isBound());
 
-                  //create the control arrays
-                  Obj mY; const Obj &Y=mY;
+                  // create the control arrays
+                  Obj mY; const Obj &Y = mY;
                   Obj mZ((bdem_ElemType::Type*)catSt,cat.size(),
                          my_descriptorLookupTable,PASSTH,&tAlloc);
-                  const Obj &Z=mZ;
+                  const Obj &Z = mZ;
 
-                  //reset
+                  // reset
                   mX1.reset();
                   mX2.clear();
                   mX3.reset((bdem_ElemType::Type*)catSt,cat.size(),
                             my_descriptorLookupTable);
 
-                  //compare
-                  LOOP_ASSERT(i, X1==Y);
-                  LOOP_ASSERT(i, X2==Y);
-                  LOOP_ASSERT(i, X3==Z);
+                  // compare
+                  LOOP_ASSERT(i, X1 == Y);
+                  LOOP_ASSERT(i, X2 == Y);
+                  LOOP_ASSERT(i, X3 == Z);
 
-                  LOOP_ASSERT(i, !X1.selection().isNonNull());
-                  LOOP_ASSERT(i, !X2.selection().isNonNull());
-                  LOOP_ASSERT(i, !X3.selection().isNonNull());
+                  LOOP_ASSERT(i, !X1.selection().isBound());
+                  LOOP_ASSERT(i, !X2.selection().isBound());
+                  LOOP_ASSERT(i, !X3.selection().isBound());
               }
           }
         }
@@ -2117,17 +2111,15 @@ int main(int argc, char *argv[])
 
                 ASSERT( X == A);
                 ASSERT(-1 == A.selector());
-                ASSERT( 1 == X.selection().isNull());
-                ASSERT( 1 == A.selection().isNull());
-
-                mX.selection().makeNull();
+                ASSERT(     !X.selection().isBound());
+                ASSERT(     !A.selection().isBound());
 
                 Obj mB(X); const Obj& B = mB;
 
                 ASSERT( X == B);
                 ASSERT(-1 == B.selector());
-                ASSERT( 1 == X.selection().isNull());
-                ASSERT( 1 == B.selection().isNull());
+                ASSERT(     !X.selection().isBound());
+                ASSERT(     !B.selection().isBound());
             }
 
             if (veryVerbose) bsl::cout << "\tWith alloc mode" << bsl::endl;
@@ -2142,17 +2134,15 @@ int main(int argc, char *argv[])
 
                 ASSERT( X == A);
                 ASSERT(-1 == A.selector());
-                ASSERT( 1 == X.selection().isNull());
-                ASSERT( 1 == A.selection().isNull());
-
-                mX.selection().makeNull();
+                ASSERT(     !X.selection().isBound());
+                ASSERT(     !A.selection().isBound());
 
                 Obj mB(X, AggOption::BDEM_WRITE_ONCE); const Obj& B = mB;
 
                 ASSERT( X == B);
                 ASSERT(-1 == B.selector());
-                ASSERT( 1 == X.selection().isNull());
-                ASSERT( 1 == B.selection().isNull());
+                ASSERT(     !X.selection().isBound());
+                ASSERT(     !B.selection().isBound());
             }
         }
 
@@ -2344,36 +2334,16 @@ int main(int argc, char *argv[])
                         mY.makeSelection(j2);
 
                         if (i1 == i2 && j1 == j2) {
-                            // This assumes that each spec is unique
+                            // This assumes that each spec is unique.
 
                             LOOP2_ASSERT(LINE1, LINE2,    X == Y);
                             LOOP2_ASSERT(LINE1, LINE2,  !(X != Y));
 
-                            // Some perturbation
+                            // some perturbation
                             mX.makeSelection(-1);
 
                             LOOP4_ASSERT(LINE1, LINE2, X, Y,  !(X == Y));
                             LOOP4_ASSERT(LINE1, LINE2, X, Y,    X != Y);
-
-                            mY.makeSelection(-1);
-
-                            LOOP4_ASSERT(LINE1, LINE2, X, Y,    X == Y);
-                            LOOP4_ASSERT(LINE1, LINE2, X, Y,  !(X != Y));
-
-                            mX.selection().makeNull();
-
-                            LOOP4_ASSERT(LINE1, LINE2, X, Y,    X == Y);
-                            LOOP4_ASSERT(LINE1, LINE2, X, Y,  !(X != Y));
-
-                            mY.selection().makeNull();
-
-                            LOOP4_ASSERT(LINE1, LINE2, X, Y,    X == Y);
-                            LOOP4_ASSERT(LINE1, LINE2, X, Y,  !(X != Y));
-
-                            mX.makeSelection(-1);
-
-                            LOOP4_ASSERT(LINE1, LINE2, X, Y,    X == Y);
-                            LOOP4_ASSERT(LINE1, LINE2, X, Y,  !(X != Y));
 
                             mY.makeSelection(-1);
 
@@ -2554,7 +2524,6 @@ int main(int argc, char *argv[])
 
             Obj mX(C1, PASSTH);
             const Obj& X = mX;
-            mX.selection().makeNull();
 
             bsl::ostringstream os1, os2, os3, os4, os5;
             X.print(os1, 1, 4);
@@ -3669,7 +3638,7 @@ int main(int argc, char *argv[])
             Obj mX(&alloc); const Obj& X = mX;
             ASSERT(0  == X.numSelections());
             ASSERT(-1 == X.selector());
-            ASSERT(X.selection().isNull());
+            ASSERT(!X.selection().isBound());
             if (veryVerbose) { bsl::cout << "\tX:" << bsl::endl;
                                X.print(bsl::cout, 1, 4); }
 
@@ -3680,7 +3649,7 @@ int main(int argc, char *argv[])
             mX.addSelection(&my_SmallStringDescriptor);
             ASSERT(1  == X.numSelections());
             ASSERT(-1 == X.selector());
-            ASSERT(X.selection().isNull());
+            ASSERT(!X.selection().isBound());
             ASSERT(my_ElemTypes::MY_SMALL_STRING == X.selectionType(0));
             mX.makeSelection(0);
             ASSERT(X.selection().isNull());
@@ -3788,7 +3757,7 @@ int main(int argc, char *argv[])
             Obj mZ(&alloc); Obj& Z = mZ;
             ASSERT(0  == Z.numSelections());
             ASSERT(-1 == Z.selector());
-            ASSERT(Z.selection().isNull());
+            ASSERT(!Z.selection().isBound());
             if (veryVerbose) {
                 bsl::cout << "\tZ:" << bsl::endl;
                 Z.print(bsl::cout, 1, 4);

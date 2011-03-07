@@ -1,4 +1,4 @@
-// bdem_rowdata.t.cpp                                               -*-C++-*-
+// bdem_rowdata.t.cpp                                                 -*-C++-*-
 
 #include <bdem_rowdata.h>
 
@@ -2084,7 +2084,7 @@ int main(int argc, char *argv[])
 
                // Line          Spec
                // ----          ----
-            {      L_,          ""                                     },
+            {      L_,          ""                                      },
 
             // One element
             {      L_,          "A1"                                    },
@@ -2094,47 +2094,47 @@ int main(int argc, char *argv[])
             {      L_,          "O1"                                    },
             {      L_,          "Q2"                                    },
             {      L_,          "R1"                                    },
-//             {      L_,          "U2"                                    },
-//             {      L_,          "V1"                                    },
+//          {      L_,          "U2"                                    },
+//          {      L_,          "V1"                                    },
             {      L_,          "W2"                                    },
             {      L_,          "b1"                                    },
-//             {      L_,          "e2"                                    },
-//             {      L_,          "f1"                                    },
-            {      L_,          "Bu",                                  },
-            {      L_,          "Bn",                                  },
-            {      L_,          "Dn",                                  },
+//          {      L_,          "e2"                                    },
+//          {      L_,          "f1"                                    },
+            {      L_,          "Bu",                                   },
+            {      L_,          "Bn",                                   },
+            {      L_,          "Dn",                                   },
 
             // Two elements
-            {      L_,          "A1B2"                                   },
-            {      L_,          "CuD1"                                   },
-            {      L_,          "E2Fn"                                   },
-            {      L_,          "G1H1"                                   },
-            {      L_,          "O2Mu"                                   },
-            {      L_,          "QuPu"                                   },
-            {      L_,          "RnSn"                                   },
-            {      L_,          "Wucn"                                   },
-            {      L_,          "anbn"                                   },
+            {      L_,          "A1B2"                                  },
+            {      L_,          "CuD1"                                  },
+            {      L_,          "E2Fn"                                  },
+            {      L_,          "G1H1"                                  },
+            {      L_,          "O2Mu"                                  },
+            {      L_,          "QuPu"                                  },
+            {      L_,          "RnSn"                                  },
+            {      L_,          "Wucn"                                  },
+            {      L_,          "anbn"                                  },
             {      L_,          "AnB1"                                  },
             {      L_,          "C2Du"                                  },
             {      L_,          "C1Dn"                                  },
-            {      L_,          "aubu"                                 },
-            {      L_,          "anbn"                                 },
+            {      L_,          "aubu"                                  },
+            {      L_,          "anbn"                                  },
 
             // Three elements
-            {      L_,          "A1B2an"                                  },
-            {      L_,          "C2D1du"                                  },
-            {      L_,          "EuFnA1"                                  },
-            {      L_,          "G1H2Fn"                                  },
-            {      L_,          "O2M2Wu"                                  },
-            {      L_,          "Q1P1Qn"                                  },
-            {      L_,          "R2S2Ju"                                  },
-            {      L_,          "W1cuAu"                                  },
-            {      L_,          "a2bnDn"                                  },
-            {      L_,          "aub1D2"                                 },
-            {      L_,          "anb1D2"                                 },
+            {      L_,          "A1B2an"                                },
+            {      L_,          "C2D1du"                                },
+            {      L_,          "EuFnA1"                                },
+            {      L_,          "G1H2Fn"                                },
+            {      L_,          "O2M2Wu"                                },
+            {      L_,          "Q1P1Qn"                                },
+            {      L_,          "R2S2Ju"                                },
+            {      L_,          "W1cuAu"                                },
+            {      L_,          "a2bnDn"                                },
+            {      L_,          "aub1D2"                                },
+            {      L_,          "anb1D2"                                },
 
             {      L_,        "A1BuCnD2EuFnG1H2InJuKuLnM1N2OnPuQ1"
-                              "R2SnTuWuXnYnZ1a2b1cndn"       },
+                              "R2SnTuWuXnYnZ1a2b1cndn"                  },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3639,14 +3639,14 @@ int main(int argc, char *argv[])
             << "\nTesting 'bdem_RowData(option, ba)' ctor" << endl;
 
         {
-            TestAllocator ta, da;
-            bslma_DefaultAllocatorGuard dag(&da);
-
             for (int i = 0; i < 4; ++i) {
-                AggOption::AllocationStrategy strategy =
-                                             (AggOption::AllocationStrategy) i;
+                TestAllocator ta, da;
+                bslma_DefaultAllocatorGuard dag(&da);
 
-                Obj mX(strategy, &ta); const Obj &X = mX;
+                AggOption::AllocationStrategy strategy =
+                                              (AggOption::AllocationStrategy)i;
+
+                Obj mX(strategy, &ta);  const Obj &X = mX;
 
                 LOOP_ASSERT(i, 0 == X.rowLayout());
                 LOOP_ASSERT(i, 0 == da.numBlocksInUse());
@@ -3654,19 +3654,22 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, 0 == ta.numBlocksInUse());
                 LOOP_ASSERT(i, 0 == ta.numBytesInUse());
             }
-            {
-                for (int i = 0; i < 4; ++i) {
-                    AggOption::AllocationStrategy strategy =
-                                             (AggOption::AllocationStrategy) i;
+        }
 
-                    Obj mX(strategy); const Obj &X = mX;
+        {
 
-                    LOOP_ASSERT(i, 0 == X.rowLayout());
-                    LOOP_ASSERT(i, 0 == da.numBlocksInUse());
-                    LOOP_ASSERT(i, 0 == da.numBytesInUse());
-                    LOOP_ASSERT(i, 0 == ta.numBlocksInUse());
-                    LOOP_ASSERT(i, 0 == ta.numBytesInUse());
-                }
+            for (int i = 0; i < 4; ++i) {
+                TestAllocator da;
+                bslma_DefaultAllocatorGuard dag(&da);
+
+                AggOption::AllocationStrategy strategy =
+                                              (AggOption::AllocationStrategy)i;
+
+                Obj mX(strategy);  const Obj &X = mX;
+
+                LOOP_ASSERT(i, 0 == X.rowLayout());
+                LOOP_ASSERT(i, 0 == da.numBlocksInUse());
+                LOOP_ASSERT(i, 0 == da.numBytesInUse());
             }
         }
 
@@ -3680,7 +3683,7 @@ int main(int argc, char *argv[])
             } DATA[] = {
              // Line     DescriptorSpec
              // ====     ==============
-                { L_,       "" },
+                { L_,       ""  },
                 { L_,       "A" },
                 { L_,       "B" },
                 { L_,       "C" },

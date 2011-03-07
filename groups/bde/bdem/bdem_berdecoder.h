@@ -284,6 +284,11 @@ class bdem_BerDecoder {
     ErrorSeverity                    d_severity;     // error severity level
     bsl::streambuf                  *d_streamBuf;    // held, not owned
     int                              d_currentDepth; // current Depth
+
+    int                              d_numUnknownElementsSkipped;
+                                                     // number of unknown
+                                                     // elements skipped
+
     bdem_BerDecoder_Node            *d_topNode;      // last node
 
     // NOT IMPLEMENTED
@@ -332,6 +337,11 @@ class bdem_BerDecoder {
         // Return 0 on success, and a non-zero value otherwise.  Note that
         // 'stream' will be invalidated if the decoding fails.
 
+    void setNumUnknownElementsSkipped(int value);
+        // Set the number of unknown elements skipped by the decoder during
+        // the current decoding operation to the specified 'value'.  The
+        // behavior is undefined unless '0 <= value'.
+
     // ACCESSORS
     const bdem_BerDecoderOptions *decoderOptions() const;
         // Return pointer to the BER decoder options.
@@ -339,6 +349,11 @@ class bdem_BerDecoder {
     bool maxDepthExceeded() const;
        // Return 'true' if the maximum depth level is exceeded and 'false'
        // otherwise.
+
+    int numUnknownElementsSkipped() const;
+        // Return the number of unknown elements that were skipped during the
+        // previous decoding operation.  Note that unknown elements are skipped
+        // only if 'true == options()->skipUnknownElements()'.
 
     ErrorSeverity  errorSeverity() const;
         // Return the severity of the most severe log or error message
@@ -655,36 +670,6 @@ int bdem_BerDecoder::MemOutStream::length() const
                          // class bdem_BerDecoder
                          // ---------------------
 
-// ACCESSORS
-inline
-const bdem_BerDecoderOptions *bdem_BerDecoder::decoderOptions() const
-{
-    return d_options;
-}
-
-inline
-bdem_BerDecoder::ErrorSeverity
-bdem_BerDecoder::errorSeverity() const
-{
-    return d_severity;
-}
-
-inline
-bdeut_StringRef bdem_BerDecoder::loggedMessages() const
-{
-    if (d_logStream) {
-        return bdeut_StringRef(d_logStream->data(), d_logStream->length());
-    }
-
-    return bdeut_StringRef();
-}
-
-inline
-bool bdem_BerDecoder::maxDepthExceeded() const
-{
-    return d_currentDepth > d_options->maxDepth();
-}
-
 // MANIPULATORS
 inline
 bsl::ostream& bdem_BerDecoder::logStream()
@@ -719,6 +704,7 @@ int bdem_BerDecoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
 
     d_currentDepth = 0;
     d_severity = BDEM_BER_SUCCESS;
+    d_numUnknownElementsSkipped = 0;
 
     if (d_logStream != 0) {
         d_logStream->reset();
@@ -745,6 +731,50 @@ int bdem_BerDecoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
 
     d_streamBuf = 0;
     return rc;
+}
+
+inline
+void bdem_BerDecoder::setNumUnknownElementsSkipped(int value)
+{
+    BSLS_ASSERT_SAFE(0 <= value);
+
+    d_numUnknownElementsSkipped = value;
+}
+
+// ACCESSORS
+inline
+const bdem_BerDecoderOptions *bdem_BerDecoder::decoderOptions() const
+{
+    return d_options;
+}
+
+inline
+bdem_BerDecoder::ErrorSeverity
+bdem_BerDecoder::errorSeverity() const
+{
+    return d_severity;
+}
+
+inline
+bdeut_StringRef bdem_BerDecoder::loggedMessages() const
+{
+    if (d_logStream) {
+        return bdeut_StringRef(d_logStream->data(), d_logStream->length());
+    }
+
+    return bdeut_StringRef();
+}
+
+inline
+bool bdem_BerDecoder::maxDepthExceeded() const
+{
+    return d_currentDepth > d_options->maxDepth();
+}
+
+inline
+int bdem_BerDecoder::numUnknownElementsSkipped() const
+{
+    return d_numUnknownElementsSkipped;
 }
 
                          // --------------------------
@@ -1110,6 +1140,8 @@ bdem_BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::Sequence)
         }
         else {
             rc = innerNode.skipField();
+            d_decoder->setNumUnknownElementsSkipped(
+                                   d_decoder->numUnknownElementsSkipped() + 1);
         }
 
         if (rc != bdem_BerDecoder::BDEM_BER_SUCCESS) {
@@ -1172,6 +1204,8 @@ int bdem_BerDecoder_Node::decodeChoice(TYPE *variable)
     }
     else {
         rc = innerNode.skipField();
+        d_decoder->setNumUnknownElementsSkipped(
+                                   d_decoder->numUnknownElementsSkipped() + 1);
     }
 
     if (rc != bdem_BerDecoder::BDEM_BER_SUCCESS) {

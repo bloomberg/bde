@@ -252,9 +252,9 @@ BDES_IDENT("$Id: $")
 //..
 // We observe that these two rows, each of length 4, are initially identical:
 //..
-//  BSLS_ASSERT(4    == row1.length());
-//  BSLS_ASSERT(4    == row2.length());
-//  BSLS_ASSERT(row1 == row2);
+//  assert(4    == row1.length());
+//  assert(4    == row2.length());
+//  assert(row1 == row2);
 //..
 // Each element of both rows has been initialized to its null value.  Printing
 // either row, say, 'row1':
@@ -270,16 +270,14 @@ BDES_IDENT("$Id: $")
 // identifies a reference to the specific element directly:
 //..
 //  double& doubleRef           = row1.theModifiableDouble(0);
-//  doubleRef                   = 2.5;
-//                                   BSLS_ASSERT(    2.5 == row1.theDouble(0));
-//  row1.theModifiableInt(1)    = 34;
-//                                   BSLS_ASSERT(     34 == row1.theInt(1));
+//  doubleRef                   = 2.5;    assert(    2.5 == row1.theDouble(0));
+//  row1.theModifiableInt(1)    = 34;     assert(     34 == row1.theInt(1));
 //  row1.theModifiableString(2) = "hello";
-//                                   BSLS_ASSERT("hello" == row1.theString(2));
+//                                        assert("hello" == row1.theString(2));
 //..
 // Note that the two rows still have the same length, but not the same value:
 //..
-//  BSLS_ASSERT(row1.length() == row2.length());  BSLS_ASSERT(row1 != row2);
+//  assert(row1.length() == row2.length());  assert(row1 != row2);
 //..
 // The second style of access returns a 'bdem_ElemRef' by value.  This "proxy"
 // can then be used to access the element:
@@ -295,7 +293,7 @@ BDES_IDENT("$Id: $")
 //..
 // Note that 'row1' again has the same value as 'row2':
 //..
-//  BSLS_ASSERT(row1.length() == row2.length());  BSLS_ASSERT(row1 == row2);
+//  assert(row1.length() == row2.length());  assert(row1 == row2);
 //..
 // which when printed:
 //..

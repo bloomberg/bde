@@ -190,7 +190,7 @@ bdem_RowData_AutoDtor::~bdem_RowData_AutoDtor()
 
         for (int i = d_startIndex; i < endIndex; ++i) {
             const bdem_RowLayoutEntry& entry = (*d_rowLayout_p)[i];
-            entry.attributes()->destroy((char *) d_rowData_p + entry.offset());
+            entry.attributes()->destroy((char *)d_rowData_p + entry.offset());
         }
     }
 }
@@ -244,7 +244,7 @@ void bdem_RowData::constructData(void                 *dstRowData,
         const bdem_Descriptor      *descriptor = entry.attributes();
         const int                   offset     = entry.offset();
         void                       *elemData   =
-                                        (void *)((char *) dstRowData + offset);
+                                        (void *)((char *)dstRowData + offset);
 
         descriptor->unsetConstruct(elemData,
                                    d_allocationStrategy,
@@ -265,7 +265,8 @@ void bdem_RowData::constructData(void                 *dstRowData,
     BSLS_ASSERT(rowLayout);
     BSLS_ASSERT(0 <= startIndex);
     BSLS_ASSERT(0 <= numElements);
-    BSLS_ASSERT(numElements == rowLayout->length());
+    BSLS_ASSERT(     numElements == rowLayout->length());
+    BSLS_ASSERT(srcRowData.rowLayout());
     BSLS_ASSERT(startIndex + numElements <= srcRowData.length());
 
     bdem_RowData_AutoDtor elementsProctor(dstRowData, rowLayout, 0, 0);
@@ -274,7 +275,7 @@ void bdem_RowData::constructData(void                 *dstRowData,
         const bdem_Descriptor      *dstDescriptor = dstEntry.attributes();
         const int                   dstOffset     = dstEntry.offset();
         void                       *dstData       =
-                                     (void *)((char *) dstRowData + dstOffset);
+                                     (void *)((char *)dstRowData + dstOffset);
 
         dstDescriptor->copyConstruct(dstData,
                                      srcRowData.elemData(startIndex + i),
@@ -320,7 +321,7 @@ void bdem_RowData::init(const bdem_RowLayout *rowLayout)
     }
 
     d_rowData_p             = newData;
-    d_nullnessBitsArray_p   = (int *) newBitsArray;
+    d_nullnessBitsArray_p   = (int *)newBitsArray;
     d_dataSize              = newDataSize;
     d_nullnessBitsArraySize = newBitsSize;
     d_rowLayout_p           = rowLayout;
@@ -339,7 +340,8 @@ void bdem_RowData::init(const bdem_RowLayout *rowLayout,
     BSLS_ASSERT(rowLayout);
     BSLS_ASSERT(0 <= startIndex);
     BSLS_ASSERT(0 <= numElements);
-    BSLS_ASSERT(numElements == rowLayout->length());
+    BSLS_ASSERT(     numElements == rowLayout->length());
+    BSLS_ASSERT(srcRowData.rowLayout());
     BSLS_ASSERT(startIndex + numElements <= srcRowData.length());
 
     int newBitsSize = calculateNullnessBitsArraySize(rowLayout->length());
@@ -372,7 +374,7 @@ void bdem_RowData::init(const bdem_RowLayout *rowLayout,
     }
 
     d_rowData_p             = newData;
-    d_nullnessBitsArray_p   = (int *) newBitsArray;
+    d_nullnessBitsArray_p   = (int *)newBitsArray;
     d_dataSize              = newDataSize;
     d_nullnessBitsArraySize = newBitsSize;
     d_rowLayout_p           = rowLayout;
@@ -417,15 +419,15 @@ void bdem_RowData::resize(int numElements, int dataSize)
             nullnessBitsSize *= GROWTH_FACTOR;
         }
 
-        int *newNullnessBitsArray = (int *) d_allocator_p->allocate(
+        int *newNullnessBitsArray = (int *)d_allocator_p->allocate(
                                                              nullnessBitsSize);
-        bsl::memcpy((char *) newNullnessBitsArray,
-                    (char *) d_nullnessBitsArray_p,
+        bsl::memcpy((char *)newNullnessBitsArray,
+                    (char *)d_nullnessBitsArray_p,
                     d_nullnessBitsArraySize);
 
         // Set all the new nullness bits to 0.
 
-        bsl::memset((char *) newNullnessBitsArray + d_nullnessBitsArraySize,
+        bsl::memset((char *)newNullnessBitsArray + d_nullnessBitsArraySize,
                     0,
                     nullnessBitsSize - d_nullnessBitsArraySize);
 
@@ -439,6 +441,9 @@ void bdem_RowData::resize(int numElements, int dataSize)
 // PRIVATE ACCESSORS
 bool bdem_RowData::isDataEqual(const bdem_RowData& rhs) const
 {
+    BSLS_ASSERT(rowLayout());
+    BSLS_ASSERT(rhs.rowLayout());
+
     const int len = length();
 
     if (!bdeu_BitstringUtil::areEqual(d_nullnessBitsArray_p,
@@ -508,6 +513,7 @@ bdem_RowData::bdem_RowData(
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(rowLayout);
+    BSLS_ASSERT(other.rowLayout());
     BSLS_ASSERT_SAFE(rowLayout->areElemTypesEqual(*other.rowLayout()));
 
     init(rowLayout, other, 0, rowLayout->length());
@@ -531,7 +537,8 @@ bdem_RowData::bdem_RowData(
     BSLS_ASSERT(rowLayout);
     BSLS_ASSERT(0 <= startIndex);
     BSLS_ASSERT(0 <= numElements);
-    BSLS_ASSERT(numElements == rowLayout->length());
+    BSLS_ASSERT(     numElements == rowLayout->length());
+    BSLS_ASSERT(other.rowLayout());
     BSLS_ASSERT(startIndex + numElements <= other.length());
 
     init(rowLayout, other, startIndex, numElements);
@@ -549,6 +556,8 @@ bdem_RowData::~bdem_RowData()
 // MANIPULATORS
 bdem_RowData& bdem_RowData::operator=(const bdem_RowData& rhs)
 {
+    BSLS_ASSERT(rowLayout());
+    BSLS_ASSERT(rhs.rowLayout());
     BSLS_ASSERT_SAFE(rowLayout()->areElemTypesEqual(*rhs.rowLayout()));
 
     if (&rhs != this) {
@@ -565,11 +574,12 @@ bdem_RowData& bdem_RowData::operator=(const bdem_RowData& rhs)
 
 bdem_ElemRef bdem_RowData::elemRef(int index)
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(     index < length());
 
     const bdem_RowLayoutEntry& e = (*d_rowLayout_p)[index];
-    return bdem_ElemRef((void *)((char *) d_rowData_p + e.offset()),
+    return bdem_ElemRef((void *)((char *)d_rowData_p + e.offset()),
                         e.attributes(),
                         d_nullnessBitsArray_p + (index / BDEM_BITS_PER_INT),
                         index % BDEM_BITS_PER_INT);
@@ -577,6 +587,7 @@ bdem_ElemRef bdem_RowData::elemRef(int index)
 
 void *bdem_RowData::insertElement(int dstIndex, const void *value)
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= dstIndex);
     BSLS_ASSERT(     dstIndex <= length());
     BSLS_ASSERT(value);
@@ -584,20 +595,20 @@ void *bdem_RowData::insertElement(int dstIndex, const void *value)
     // This function assumes that the types have already been added to
     // 'd_rowLayout_p'.
 
-    const int newLength      = d_rowLayout_p->length();
+    const int newLength      = length();
     const int newTotalOffset = d_rowLayout_p->totalOffset();
 
-    if ((char *) d_rowData_p <= (const char *) value
-     && (const char *) value < (char *) d_rowData_p + d_dataSize) {
+    if ((char *)d_rowData_p <= (const char *)value
+     && (const char *)value < (char *)d_rowData_p + d_dataSize) {
         // Value being inserted is within this row (i.e., we are inserting a
         // second copy).  Remember the value's offset within the row, resize
         // the row, and then reconstruct the value pointer from the new row
         // pointer and the offset.
 
         const int valueOffset =
-                 static_cast<int>((const char *) value - (char *) d_rowData_p);
+                 static_cast<int>((const char *)value - (char *)d_rowData_p);
         resize(newLength, newTotalOffset);
-        value = (const void *)((char *) d_rowData_p + valueOffset);
+        value = (const void *)((char *)d_rowData_p + valueOffset);
     }
     else {
         resize(newLength, newTotalOffset);
@@ -622,13 +633,14 @@ void *bdem_RowData::insertElement(int dstIndex, const void *value)
 
 void *bdem_RowData::insertElementRaw(int dstIndex)
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= dstIndex);
     BSLS_ASSERT(     dstIndex <= length());
 
     // This function assumes that the types have already been added to
     // 'd_rowLayout_p'.
 
-    const int newLength      = d_rowLayout_p->length();
+    const int newLength      = length();
     const int newTotalOffset = d_rowLayout_p->totalOffset();
 
     resize(newLength, newTotalOffset);
@@ -648,16 +660,18 @@ void bdem_RowData::insertElements(int                 dstIndex,
                                   int                 srcIndex,
                                   int                 numElements)
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= dstIndex);
     BSLS_ASSERT(     dstIndex <= length());
     BSLS_ASSERT(0 <= srcIndex);
     BSLS_ASSERT(0 <= numElements);
+    BSLS_ASSERT(srcRowData.rowLayout());
     BSLS_ASSERT(srcIndex + numElements <= srcRowData.length());
 
     // This function assumes that the types have already been added to
     // 'd_rowLayout_p'.
 
-    const int newLength      = d_rowLayout_p->length();
+    const int newLength      = length();
     const int newTotalOffset = d_rowLayout_p->totalOffset();
 
     resize(newLength, newTotalOffset);
@@ -671,9 +685,9 @@ void bdem_RowData::insertElements(int                 dstIndex,
         BSLS_ASSERT(srcEntry.attributes()->d_elemEnum ==
                                             dstEntry.attributes()->d_elemEnum);
 
-        void *dstElemData = (void *)((char *) d_rowData_p + dstEntry.offset());
+        void *dstElemData = (void *)((char *)d_rowData_p + dstEntry.offset());
         void *srcElemData =
-                 (void *)((char *) srcRowData.d_rowData_p + srcEntry.offset());
+                  (void *)((char *)srcRowData.d_rowData_p + srcEntry.offset());
 
         dstEntry.attributes()->copyConstruct(dstElemData,
                                              srcElemData,
@@ -697,19 +711,20 @@ void bdem_RowData::insertElements(int                 dstIndex,
 
 void *bdem_RowData::insertNullElement(int dstIndex)
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= dstIndex);
     BSLS_ASSERT(     dstIndex <= length());
 
     // This function assumes that the types have already been added to
     // 'd_rowLayout_p'.
 
-    const int newLength      = d_rowLayout_p->length();
+    const int newLength      = length();
     const int newTotalOffset = d_rowLayout_p->totalOffset();
 
     resize(newLength, newTotalOffset);
 
     void *data =
-          (void *)((char *) d_rowData_p + (*d_rowLayout_p)[dstIndex].offset());
+           (void *)((char *)d_rowData_p + (*d_rowLayout_p)[dstIndex].offset());
 
     (*d_rowLayout_p)[dstIndex].attributes()->unsetConstruct(
                                                           data,
@@ -726,6 +741,7 @@ void *bdem_RowData::insertNullElement(int dstIndex)
 
 void bdem_RowData::insertNullElements(int dstIndex, int numElements)
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= dstIndex);
     BSLS_ASSERT(     dstIndex <= length());
     BSLS_ASSERT(0 <= numElements);
@@ -733,7 +749,7 @@ void bdem_RowData::insertNullElements(int dstIndex, int numElements)
     // This function assumes that the types have already been added to
     // 'd_rowLayout_p'.
 
-    const int newLength      = d_rowLayout_p->length();
+    const int newLength      = length();
     const int newTotalOffset = d_rowLayout_p->totalOffset();
 
     resize(newLength, newTotalOffset);
@@ -746,7 +762,7 @@ void bdem_RowData::insertNullElements(int dstIndex, int numElements)
     for (int i = 0; i < numElements; ++i) {
         const bdem_RowLayoutEntry&  entry    = (*d_rowLayout_p)[dstIndex + i];
         void                       *elemData =
-                               (void *)((char *) d_rowData_p + entry.offset());
+                                (void *)((char *)d_rowData_p + entry.offset());
 
         entry.attributes()->unsetConstruct(elemData,
                                            d_allocationStrategy,
@@ -764,6 +780,7 @@ void bdem_RowData::insertNullElements(int dstIndex, int numElements)
 
 void bdem_RowData::makeNull(int index)
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(     index < length());
 
@@ -772,6 +789,8 @@ void bdem_RowData::makeNull(int index)
 
 void bdem_RowData::makeAllNull()
 {
+    BSLS_ASSERT(rowLayout());
+
     const int len = length();
     for (int i = 0; i < len; ++i) {
         const bdem_RowLayoutEntry& e = (*d_rowLayout_p)[i];
@@ -783,6 +802,7 @@ void bdem_RowData::makeAllNull()
 
 void bdem_RowData::removeElement(int index)
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(     index < length());
 
@@ -800,6 +820,7 @@ void bdem_RowData::removeElement(int index)
 
 void bdem_RowData::removeElements(int startIndex, int numElements)
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= startIndex);
     BSLS_ASSERT(0 <= numElements);
     BSLS_ASSERT(startIndex + numElements <= length());
@@ -824,7 +845,9 @@ void bdem_RowData::removeElements(int startIndex, int numElements)
 
 void bdem_RowData::replaceValues(const bdem_RowData& other)
 {
-    BSLS_ASSERT(d_rowLayout_p->areElemTypesEqual(*other.rowLayout()));
+    BSLS_ASSERT(rowLayout());
+    BSLS_ASSERT(other.rowLayout());
+    BSLS_ASSERT_SAFE(rowLayout()->areElemTypesEqual(*other.rowLayout()));
 
     const int len = length();
     for (int i = 0; i < len; ++i) {
@@ -844,13 +867,13 @@ void bdem_RowData::reset()
     if (d_rowLayout_p) {
        if (!(bdem_AggregateOption::BDEM_NODESTRUCT_FLAG
                                                      & d_allocationStrategy)) {
-            const int numElements = d_rowLayout_p->length();
+            const int numElements = length();
             for (int i = 0; i < numElements; ++i) {
                 const bdem_RowLayoutEntry&  entry      = (*d_rowLayout_p)[i];
                 const bdem_Descriptor      *descriptor = entry.attributes();
                 const int                   offset     = entry.offset();
                 void                       *elemData   =
-                                       (void *)((char *) d_rowData_p + offset);
+                                        (void *)((char *)d_rowData_p + offset);
                 descriptor->destroy(elemData);
             }
         }
@@ -871,6 +894,7 @@ void bdem_RowData::reset(const bdem_RowLayout *rowLayout,
                          const bdem_RowData&   srcRowData)
 {
     BSLS_ASSERT(rowLayout);
+    BSLS_ASSERT(srcRowData.rowLayout());
     BSLS_ASSERT_SAFE(rowLayout->areElemTypesEqual(*srcRowData.rowLayout()));
 
     reset();
@@ -880,6 +904,7 @@ void bdem_RowData::reset(const bdem_RowLayout *rowLayout,
 
 void bdem_RowData::setValue(int index, const void *value)
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(     index < length());
     BSLS_ASSERT(value);
@@ -901,6 +926,7 @@ void bdem_RowData::swap(bdem_RowData& other)
 
 void bdem_RowData::swapElements(int index1, int index2)
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= index1);
     BSLS_ASSERT(     index1 < length());
     BSLS_ASSERT(0 <= index2);
@@ -919,12 +945,13 @@ void bdem_RowData::swapElements(int index1, int index2)
 // ACCESSORS
 bdem_ConstElemRef bdem_RowData::elemRef(int index) const
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(     index < length());
 
     const bdem_RowLayoutEntry& e = (*d_rowLayout_p)[index];
     return bdem_ConstElemRef(
-                           (void *)((char *) d_rowData_p + e.offset()),
+                           (void *)((char *)d_rowData_p + e.offset()),
                            e.attributes(),
                            d_nullnessBitsArray_p + (index / BDEM_BITS_PER_INT),
                            index % BDEM_BITS_PER_INT);
@@ -932,6 +959,7 @@ bdem_ConstElemRef bdem_RowData::elemRef(int index) const
 
 bool bdem_RowData::isAnyInRangeNonNull(int startIndex, int numElements) const
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= startIndex);
     BSLS_ASSERT(0 <= numElements);
     BSLS_ASSERT(startIndex + numElements <= length());
@@ -945,6 +973,7 @@ bool bdem_RowData::isAnyInRangeNonNull(int startIndex, int numElements) const
 
 bool bdem_RowData::isAnyInRangeNull(int startIndex, int numElements) const
 {
+    BSLS_ASSERT(rowLayout());
     BSLS_ASSERT(0 <= startIndex);
     BSLS_ASSERT(0 <= numElements);
     BSLS_ASSERT(startIndex + numElements <= length());
@@ -961,6 +990,8 @@ bsl::ostream& bdem_RowData::printRow(bsl::ostream& stream,
                                      int           spacesPerLevel,
                                      bool          columnLabels) const
 {
+    BSLS_ASSERT(rowLayout());
+
     int nestedLevel, nestedSpacesPerLevel;
 
     bdeu_Print::indent(stream, level, spacesPerLevel);
@@ -988,7 +1019,7 @@ bsl::ostream& bdem_RowData::printRow(bsl::ostream& stream,
     }
 
     const int   len  = length();
-    const char *data = (char *) d_rowData_p;
+    const char *data = (char *)d_rowData_p;
 
     for (int index = 0; index < len; ++index) {
         const bdem_RowLayoutEntry&  e            = (*d_rowLayout_p)[index];
@@ -1030,6 +1061,9 @@ bsl::ostream& bdem_RowData::printRow(bsl::ostream& stream,
 // FREE OPERATORS
 bool operator==(const bdem_RowData& lhs, const bdem_RowData& rhs)
 {
+    BSLS_ASSERT(lhs.rowLayout());
+    BSLS_ASSERT(rhs.rowLayout());
+
     return lhs.rowLayout()->areElemTypesEqual(*rhs.rowLayout())
         && lhs.isDataEqual(rhs);
 }

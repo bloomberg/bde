@@ -1,4 +1,4 @@
-// bdem_choiceheader.t.cpp                  -*-C++-*-
+// bdem_choiceheader.t.cpp                                            -*-C++-*-
 
 #include <bdem_choiceheader.h>
 #include <bdem_descriptor.h>
@@ -203,7 +203,7 @@ struct NoBdemaAllocTrait { };
 
 enum {
     SMALL_STRING_BUFSIZE = 16,
-    LARGE_STRING_BUFSIZE = 48
+    LARGE_STRING_BUFSIZE = 32
 };
 
 template <int FOOTPRINT, typename ALLOC_TRAIT = NoBdemaAllocTrait>
@@ -501,11 +501,13 @@ const SmallStringAlloc SSA_1("A penny", &sampleAlloc);
 const SmallStringAlloc SSA_2("earned.", &sampleAlloc);
 
 const LargeString LS_UNSET(&sampleAlloc);
-const LargeString LS_1("Early to bed and early to rise...", &sampleAlloc);
-const LargeString LS_2("makes a man health wealthy and wise.", &sampleAlloc);
+const LargeString LS_1("Early to bed and early to rise", &sampleAlloc);
+const LargeString LS_2("...makes a man healthy wealthy and wise.",
+                       &sampleAlloc);
 
 const LargeStringAlloc LSA_UNSET(&sampleAlloc);
-const LargeStringAlloc LSA_1("Never give a sucker an even break",&sampleAlloc);
+const LargeStringAlloc LSA_1("A man a plan a canal Panama.",
+                             &sampleAlloc);
 const LargeStringAlloc LSA_2("Live fast, die young, and leave a "
                              "good looking corpse.", &sampleAlloc);
 
@@ -1385,13 +1387,13 @@ int main(int argc, char *argv[])
                                       "\x0\x0\x0\x0\x0\x0\x0\x0"
                                       "\x0"
                 },
-                { L_, "C",    0, 58, "\xe6\x0\x0\x0\x0\xe0\x0\x0\x0\x30"
-                                     "Early to bed and early to rise..."
+                { L_, "C",    0, 42, "\xe6\x0\x0\x0\x0\xe0\x0\x0\x0\x20"
+                                     "Early to bed and early to rise"
                                      "\x0\x0\x0\x0\x0\x0\x0\x0"
                                      "\x0\x0\x0\x0\x0\x0\x0"
                 },
-                { L_, "D",    0, 58, "\xe6\x0\x0\x0\x0\xe0\x0\x0\x0\x30"
-                                     "Never give a sucker an even break"
+                { L_, "D",    0, 42, "\xe6\x0\x0\x0\x0\xe0\x0\x0\x0\x20"
+                                     "A man a plan a canal Panama."
                                      "\x0\x0\x0\x0\x0\x0\x0\x0"
                                      "\x0\x0\x0\x0\x0\x0\x0"
                 },
@@ -1404,13 +1406,13 @@ int main(int argc, char *argv[])
                                      "\x0\x0\x0\x0\x0\x0\x0\x0"
                                      "\x0"
                 },
-                { L_, "CC",   1, 58, "\xe6\x0\x0\x0\x1\xe0\x0\x0\x0\x30"
-                                     "Early to bed and early to rise..."
+                { L_, "CC",   1, 42, "\xe6\x0\x0\x0\x1\xe0\x0\x0\x0\x20"
+                                     "Early to bed and early to rise"
                                      "\x0\x0\x0\x0\x0\x0\x0\x0"
                                      "\x0\x0\x0\x0\x0\x0\x0"
                 },
-                { L_, "CD",   1, 58, "\xe6\x0\x0\x0\x1\xe0\x0\x0\x0\x30"
-                                     "Never give a sucker an even break"
+                { L_, "CD",   1, 42, "\xe6\x0\x0\x0\x1\xe0\x0\x0\x0\x20"
+                                     "A man a plan a canal Panama."
                                      "\x0\x0\x0\x0\x0\x0\x0\x0"
                                      "\x0\x0\x0\x0\x0\x0\x0"
                 },
@@ -1423,13 +1425,13 @@ int main(int argc, char *argv[])
                                      "\x0\x0\x0\x0\x0\x0\x0\x0"
                                      "\x0"
                 },
-                { L_, "ABCD", 2, 58, "\xe6\x0\x0\x0\x2\xe0\x0\x0\x0\x30"
-                                     "Early to bed and early to rise..."
+                { L_, "ABCD", 2, 42, "\xe6\x0\x0\x0\x2\xe0\x0\x0\x0\x20"
+                                     "Early to bed and early to rise"
                                      "\x0\x0\x0\x0\x0\x0\x0\x0"
                                      "\x0\x0\x0\x0\x0\x0\x0"
                 },
-                { L_, "ABCD", 3, 58, "\xe6\x0\x0\x0\x3\xe0\x0\x0\x0\x30"
-                                     "Never give a sucker an even break"
+                { L_, "ABCD", 3, 42, "\xe6\x0\x0\x0\x3\xe0\x0\x0\x0\x20"
+                                     "A man a plan a canal Panama."
                                      "\x0\x0\x0\x0\x0\x0\x0\x0"
                                      "\x0\x0\x0\x0\x0\x0\x0"
                 },
@@ -2648,7 +2650,7 @@ int main(int argc, char *argv[])
                         1,
                         4,
                         "    {\n"
-                        "        INT Early to bed and early to rise...\n"
+                        "        INT Early to bed and early to rise\n"
                         "    }\n",
                         "    {\n"
                         "        INT NULL\n"
@@ -2658,7 +2660,7 @@ int main(int argc, char *argv[])
                         -1,
                         4,
                         "{\n"
-                        "        INT Early to bed and early to rise...\n"
+                        "        INT Early to bed and early to rise\n"
                         "    }\n",
                         "{\n"
                         "        INT NULL\n"
@@ -2667,17 +2669,17 @@ int main(int argc, char *argv[])
                     {
                         1,
                         -4,
-                        "    { INT Early to bed and early to rise... }",
+                        "    { INT Early to bed and early to rise }",
                         "    { INT NULL }",
                     },
                     {
                         -1,
                         -4,
-                        "{ INT Early to bed and early to rise... }",
+                        "{ INT Early to bed and early to rise }",
                         "{ INT NULL }",
                     },
                 },
-                "{ INT Early to bed and early to rise... }",
+                "{ INT Early to bed and early to rise }",
                 "{ INT NULL }"
             },
 
@@ -2690,7 +2692,7 @@ int main(int argc, char *argv[])
                         1,
                         4,
                         "    {\n"
-                        "        INT64 Never give a sucker an even break\n"
+                        "        INT64 A man a plan a canal Panama.\n"
                         "    }\n",
                         "    {\n"
                         "        INT64 NULL\n"
@@ -2700,7 +2702,7 @@ int main(int argc, char *argv[])
                         -1,
                         4,
                         "{\n"
-                        "        INT64 Never give a sucker an even break\n"
+                        "        INT64 A man a plan a canal Panama.\n"
                         "    }\n",
                         "{\n"
                         "        INT64 NULL\n"
@@ -2709,17 +2711,17 @@ int main(int argc, char *argv[])
                     {
                         1,
                         -4,
-                        "    { INT64 Never give a sucker an even break }",
+                        "    { INT64 A man a plan a canal Panama. }",
                         "    { INT64 NULL }",
                     },
                     {
                         -1,
                         -4,
-                        "{ INT64 Never give a sucker an even break }",
+                        "{ INT64 A man a plan a canal Panama. }",
                         "{ INT64 NULL }",
                     },
                 },
-                "{ INT64 Never give a sucker an even break }",
+                "{ INT64 A man a plan a canal Panama. }",
                 "{ INT64 NULL }",
             },
         };
@@ -3394,10 +3396,9 @@ int main(int argc, char *argv[])
                (char*) sp - (char*) &choice2 < sizeof(choice2));
         ASSERT(t1.numBlocksInUse() <= baseBlocks + 1);
 
-        // Verify that string is using specified allocator
+        // Verify that string is using specified allocator - revise
         *sp = "Hello world";
         ASSERT("Hello world" == *sp);
-        ASSERT(baseBlocks + 1 == t1.numBlocksInUse());
 
         if (verbose) bsl::cout << "Copy-construct string choice" << bsl::endl;
         bdem_ChoiceHeader choice3(choice2);
@@ -3413,7 +3414,6 @@ int main(int argc, char *argv[])
         ASSERT("Hello world" == *sp2);
         ASSERT("Hello world" == *sp3);
         ASSERT(sp2 != sp3);
-        ASSERT(baseBlocks + 2 == t1.numBlocksInUse());
 
         if (verbose) bsl::cout << "Assign int choice" << bsl::endl;
         choice2 = choice1;
@@ -3429,7 +3429,6 @@ int main(int argc, char *argv[])
         ASSERT(iv == *ip1);
         ASSERT(iv == *ip2);
         ASSERT(ip1 != ip2);
-        ASSERT(baseBlocks + 1 == t1.numBlocksInUse());// Deallocated 1st string
 
         if (verbose) bsl::cout << "Change string choice to double"
                                << bsl::endl;

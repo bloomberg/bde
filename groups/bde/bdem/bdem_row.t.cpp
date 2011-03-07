@@ -637,7 +637,7 @@ if (verbose)
 
                 bdex_TestInStream in(out.data(), out.length());
 
-                bdem_RowLayout mRD2(S, NDA);
+                bdem_RowLayout mRD2(bdem_RowLayout::InitialCapacity(0), NDA);
                 bdem_RowData   header2(
                                       &mRD2,
                                       bdem_AggregateOption::BDEM_PASS_THROUGH);

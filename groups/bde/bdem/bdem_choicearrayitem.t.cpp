@@ -1,4 +1,4 @@
-// bdem_choicearrayitem.t.cpp                  -*-C++-*-
+// bdem_choicearrayitem.t.cpp                                         -*-C++-*-
 
 #include <bdem_choicearrayitem.h>
 
@@ -1700,7 +1700,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE1, -1 == X.selector());
                 LOOP_ASSERT(LINE1, EType::BDEM_VOID == X.selectionType());
                 LOOP_ASSERT(LINE1, EType::BDEM_VOID == X.selectionType(-1));
-                LOOP_ASSERT(LINE1, X.selection().isNull());
+                LOOP_ASSERT(LINE1, !X.selection().isBound());
                 LOOP_ASSERT(LINE1, X == Y);
             }
         }
@@ -2236,7 +2236,7 @@ int main(int argc, char *argv[])
         } DATA[] = {
           // Line       DescriptorSpec
           // ====       ==============
-            { L_,       "" },
+            { L_,       ""  },
             { L_,       "A" },
             { L_,       "B" },
             { L_,       "C" },
@@ -2332,7 +2332,12 @@ int main(int argc, char *argv[])
 
                       bdem_ElemRef XELEM = X.makeSelection(j - 1);
                       LOOP2_ASSERT(JLINE, JSPEC, isUnset(XELEM));
-                      LOOP2_ASSERT(JLINE, JSPEC, XELEM.isNull());
+                      if (j - 1 >= 0) {
+                          LOOP2_ASSERT(JLINE, JSPEC, XELEM.isNull());
+                      }
+                      else {
+                          LOOP2_ASSERT(JLINE, JSPEC, !XELEM.isBound());
+                      }
                       LOOP2_ASSERT(JLINE, JSPEC, JTYPE == XELEM.type());
                       LOOP2_ASSERT(JLINE, JSPEC, JDESC == XELEM.descriptor());
                       if (XELEM.type() != EType::BDEM_VOID) {
@@ -2350,11 +2355,16 @@ int main(int argc, char *argv[])
                       if (EType::BDEM_VOID == KTYPE) {
                           bdem_ElemRef AELEM = X.makeSelection(k - 1);
                           LOOP2_ASSERT(KLINE, KSPEC, isUnset(AELEM));
-                          LOOP2_ASSERT(KLINE, KSPEC, XELEM.isNull());
+                          if (j - 1 >= 0) {
+                              LOOP2_ASSERT(KLINE, KSPEC, XELEM.isNull());
+                          }
+                          else {
+                              LOOP2_ASSERT(KLINE, KSPEC, !XELEM.isBound());
+                          }
                           LOOP2_ASSERT(KLINE, KSPEC, KTYPE == AELEM.type());
                           LOOP2_ASSERT(KLINE, KSPEC,
                                        KDESC == AELEM.descriptor());
-                          continue;                                  //CONTINUE
+                          continue;                                 // CONTINUE
                       }
 
                       const void *VAL_A  = getValueA(*KSPEC);
@@ -3700,7 +3710,6 @@ int main(int argc, char *argv[])
           DescCatalog catalog(&t1);
           CHead mXCH(&catalog);
           Obj &X = reinterpret_cast<Obj&>(mXCH);
-          X.selection().makeNull();
 
           bsl::ostringstream os1, os2, os3, os4, os5;
           X.print(os1, 1, 4);
@@ -4596,9 +4605,9 @@ int main(int argc, char *argv[])
 
         {
           for (int j = 0; j < NUM_DATA; ++j) {
-            const int   LINE  = DATA[j].d_line;
-            const char *SPEC  = DATA[j].d_catalogSpec;
-            const int   LEN   = bsl::strlen(SPEC);
+            const int   LINE = DATA[j].d_line;
+            const char *SPEC = DATA[j].d_catalogSpec;
+            const int   LEN  = bsl::strlen(SPEC);
 
             bslma_TestAllocator alloc(veryVeryVerbose);
             DescCatalog catalog(&alloc);  ggCatalog(SPEC, catalog);
@@ -4606,30 +4615,15 @@ int main(int argc, char *argv[])
             CHead mXCH(&catalog);
             Obj &X = reinterpret_cast<Obj&>(mXCH);
 
-            if (veryVerbose) {
-              P(X);
-            }
+            if (veryVerbose) { P(X); }
 
-            LOOP_ASSERT(j, catalog.size() == X.numSelections());
-            LOOP_ASSERT(j, -1             == X.selector());
-            LOOP_ASSERT(j, EType::BDEM_VOID    == X.selectionType());
-            LOOP_ASSERT(j, EType::BDEM_VOID    == X.selectionType(-1));
-            LOOP_ASSERT(j, true                == X.selection().isNull());
-            LOOP_ASSERT(j, false               == X.selection().isNonNull());
+            LOOP_ASSERT(j, catalog.size()   == X.numSelections());
+            LOOP_ASSERT(j, -1               == X.selector());
+            LOOP_ASSERT(j, EType::BDEM_VOID == X.selectionType());
+            LOOP_ASSERT(j, EType::BDEM_VOID == X.selectionType(-1));
+            LOOP_ASSERT(j, false            == X.selection().isBound());
             for (int i = 0; i < X.numSelections(); ++i) {
-              ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
-            }
-
-            X.selection().makeNull();
-
-            LOOP_ASSERT(j, catalog.size() == X.numSelections());
-            LOOP_ASSERT(j, -1             == X.selector());
-            LOOP_ASSERT(j, EType::BDEM_VOID    == X.selectionType());
-            LOOP_ASSERT(j, EType::BDEM_VOID    == X.selectionType(-1));
-            LOOP_ASSERT(j, true           == X.selection().isNull());
-            LOOP_ASSERT(j, false          == X.selection().isNonNull());
-            for (int i = 0; i < X.numSelections(); ++i) {
-              ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
+                ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
             }
 
             for (int k = 0; k < LEN; ++k) {
@@ -4641,16 +4635,13 @@ int main(int argc, char *argv[])
               const void *VAL_B  = getValueB(S);
               const void *VAL_N  = getValueN(S);
 
-              const bdem_ElemRef      EREF_A(const_cast<void *>(VAL_A),
-                                             DESC);
+              const bdem_ElemRef      EREF_A(const_cast<void *>(VAL_A), DESC);
               const bdem_ConstElemRef CEREF_A(VAL_A, DESC);
 
-              const bdem_ElemRef      EREF_B(const_cast<void *>(VAL_B),
-                                             DESC);
+              const bdem_ElemRef      EREF_B(const_cast<void *>(VAL_B), DESC);
               const bdem_ConstElemRef CEREF_B(VAL_B, DESC);
 
-              const bdem_ElemRef      EREF_N(const_cast<void *>(VAL_N),
-                                             DESC);
+              const bdem_ElemRef      EREF_N(const_cast<void *>(VAL_N), DESC);
               const bdem_ConstElemRef CEREF_N(VAL_N, DESC);
 
               int nullBits = 1;
@@ -4675,7 +4666,7 @@ int main(int argc, char *argv[])
               LOOP_ASSERT(S, false    == X.selection().isNull());
               LOOP_ASSERT(S, true     == X.selection().isNonNull());
               for (int i = 0; i < X.numSelections(); ++i) {
-                ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
+                  ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
               }
 
               bsl::vector<EType::Type> vA;
@@ -4683,7 +4674,7 @@ int main(int argc, char *argv[])
               int vASize = vA.size();
               LOOP_ASSERT(S, catalog.size() == vASize);
               for(int i = 0; i < vASize; ++i) {
-                LOOP_ASSERT(S, vA[i] == catalog[i]->d_elemEnum);
+                  LOOP_ASSERT(S, vA[i] == catalog[i]->d_elemEnum);
               }
 
               X.selection().makeNull();
@@ -4698,15 +4689,15 @@ int main(int argc, char *argv[])
               LOOP_ASSERT(S, true     == X.selection().isNull());
               LOOP_ASSERT(S, false    == X.selection().isNonNull());
               for (int i = 0; i < X.numSelections(); ++i) {
-                ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
+                  ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
               }
 
               vA.clear();
               X.selectionTypes(&vA);
               vASize = vA.size();
               LOOP_ASSERT(S, catalog.size() == vASize);
-              for(int i = 0; i < vASize; ++i) {
-                LOOP_ASSERT(S, vA[i] == catalog[i]->d_elemEnum);
+              for (int i = 0; i < vASize; ++i) {
+                  LOOP_ASSERT(S, vA[i] == catalog[i]->d_elemEnum);
               }
 
               X.makeSelection(k).replaceValue(CEREF_A);
@@ -4721,15 +4712,15 @@ int main(int argc, char *argv[])
               LOOP_ASSERT(S, false    == X.selection().isNull());
               LOOP_ASSERT(S, true     == X.selection().isNonNull());
               for (int i = 0; i < X.numSelections(); ++i) {
-                ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
+                  ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
               }
 
               vA.clear();
               X.selectionTypes(&vA);
               vASize = vA.size();
               LOOP_ASSERT(S, catalog.size() == vASize);
-              for(int i = 0; i < vASize; ++i) {
-                LOOP_ASSERT(S, vA[i] == catalog[i]->d_elemEnum);
+              for (int i = 0; i < vASize; ++i) {
+                  LOOP_ASSERT(S, vA[i] == catalog[i]->d_elemEnum);
               }
 
               X.makeSelection(k).replaceValue(CEREF_B);
@@ -4744,7 +4735,7 @@ int main(int argc, char *argv[])
               LOOP_ASSERT(S, false    == X.selection().isNull());
               LOOP_ASSERT(S, true     == X.selection().isNonNull());
               for (int i = 0; i < X.numSelections(); ++i) {
-                ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
+                  ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
               }
 
               bsl::vector<EType::Type> vB;
@@ -4752,7 +4743,7 @@ int main(int argc, char *argv[])
               int vBSize = vB.size();
               LOOP_ASSERT(S, catalog.size() == vBSize);
               for(int i = 0; i < vBSize; ++i) {
-                LOOP_ASSERT(S, vB[i] == catalog[i]->d_elemEnum);
+                  LOOP_ASSERT(S, vB[i] == catalog[i]->d_elemEnum);
               }
 
               X.selection().makeNull();
@@ -4767,7 +4758,7 @@ int main(int argc, char *argv[])
               LOOP_ASSERT(S, true     == X.selection().isNull());
               LOOP_ASSERT(S, false    == X.selection().isNonNull());
               for (int i = 0; i < X.numSelections(); ++i) {
-                ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
+                  ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
               }
 
               vB.clear();
@@ -4775,7 +4766,7 @@ int main(int argc, char *argv[])
               vBSize = vB.size();
               LOOP_ASSERT(S, catalog.size() == vBSize);
               for(int i = 0; i < vBSize; ++i) {
-                LOOP_ASSERT(S, vB[i] == catalog[i]->d_elemEnum);
+                  LOOP_ASSERT(S, vB[i] == catalog[i]->d_elemEnum);
               }
 
               X.makeSelection(k).replaceValue(CEREF_B);
@@ -4790,7 +4781,7 @@ int main(int argc, char *argv[])
               LOOP_ASSERT(S, false    == X.selection().isNull());
               LOOP_ASSERT(S, true     == X.selection().isNonNull());
               for (int i = 0; i < X.numSelections(); ++i) {
-                ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
+                  ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
               }
 
               vB.clear();
@@ -4798,7 +4789,7 @@ int main(int argc, char *argv[])
               vBSize = vB.size();
               LOOP_ASSERT(S, catalog.size() == vBSize);
               for(int i = 0; i < vBSize; ++i) {
-                LOOP_ASSERT(S, vB[i] == catalog[i]->d_elemEnum);
+                  LOOP_ASSERT(S, vB[i] == catalog[i]->d_elemEnum);
               }
 
               X.makeSelection(k).replaceValue(CEREF_N);
@@ -4813,7 +4804,7 @@ int main(int argc, char *argv[])
               LOOP_ASSERT(S, false    == X.selection().isNull());
               LOOP_ASSERT(S, true     == X.selection().isNonNull());
               for (int i = 0; i < X.numSelections(); ++i) {
-                ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
+                  ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
               }
 
               bsl::vector<EType::Type> vN;
@@ -4821,7 +4812,7 @@ int main(int argc, char *argv[])
               int vNSize = vN.size();
               LOOP_ASSERT(S, catalog.size() == vNSize);
               for(int i = 0; i < vNSize; ++i) {
-                LOOP_ASSERT(S, vN[i] == catalog[i]->d_elemEnum);
+                  LOOP_ASSERT(S, vN[i] == catalog[i]->d_elemEnum);
               }
 
               X.selection().makeNull();
@@ -4836,7 +4827,7 @@ int main(int argc, char *argv[])
               LOOP_ASSERT(S, true     == X.selection().isNull());
               LOOP_ASSERT(S, false    == X.selection().isNonNull());
               for (int i = 0; i < X.numSelections(); ++i) {
-                ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
+                  ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
               }
 
               vN.clear();
@@ -4844,7 +4835,7 @@ int main(int argc, char *argv[])
               vNSize = vN.size();
               LOOP_ASSERT(S, catalog.size() == vNSize);
               for(int i = 0; i < vNSize; ++i) {
-                LOOP_ASSERT(S, vN[i] == catalog[i]->d_elemEnum);
+                  LOOP_ASSERT(S, vN[i] == catalog[i]->d_elemEnum);
               }
 
               X.makeSelection(k).replaceValue(CEREF_N);
@@ -4859,7 +4850,7 @@ int main(int argc, char *argv[])
               LOOP_ASSERT(S, false    == X.selection().isNull());
               LOOP_ASSERT(S, true     == X.selection().isNonNull());
               for (int i = 0; i < X.numSelections(); ++i) {
-                ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
+                  ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
               }
 
               vN.clear();
@@ -4867,7 +4858,7 @@ int main(int argc, char *argv[])
               vNSize = vN.size();
               LOOP_ASSERT(S, catalog.size() == vNSize);
               for(int i = 0; i < vNSize; ++i) {
-                LOOP_ASSERT(S, vN[i] == catalog[i]->d_elemEnum);
+                  LOOP_ASSERT(S, vN[i] == catalog[i]->d_elemEnum);
               }
             }
           }
@@ -5281,7 +5272,6 @@ int main(int argc, char *argv[])
 
         ASSERT("Hello world" == sp);
         ASSERT("Hello world" == X.theString());
-        ASSERT(baseBlocks + 1 == t1.numBlocksInUse());
         ASSERT(STR_IDX == X.selector());
         ASSERT(EType::BDEM_STRING == X.selectionType());
         ASSERT(EType::BDEM_STRING == X.selectionType(STR_IDX));

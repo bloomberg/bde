@@ -382,6 +382,10 @@ BDES_IDENT("$Id: $")
 #include <bdem_elemtype.h>
 #endif
 
+#ifndef INCLUDED_BDEM_PROPERTIES
+#include <bdem_properties.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -480,17 +484,20 @@ class bdem_ConstElemRef {
     // CLASS METHODS
     static bdem_ConstElemRef unboundElemRef();
         // Return a reference that is not bound to any 'bdem' element.  Note
-        // that an unbound reference may be used only to invoke the 'isBound'
-        // method and with the equality operators.
+        // that an unbound reference may be used only to invoke a selected set
+        // of accessors (see the function-level documentation for details), and
+        // with the equality and streaming operators.  Also note that the
+        // 'type' method returns 'bdem_ElemType::BDEM_VOID' for an unbound
+        // reference.
 
     // CREATORS
     bdem_ConstElemRef(const void *data, const bdem_Descriptor *descriptor);
         // Create a reference to the specified non-modifiable and non-nullable
         // 'data' element that is characterized by the specified non-modifiable
         // 'descriptor'.  The behavior is undefined unless the type of 'data'
-        // corresponds to 'descriptor', or else both 'data' and 'descriptor'
-        // are null (indicating an unbound reference).  Note that if the
-        // referenced element is contained within a 'bdem_List' or
+        // corresponds to 'descriptor', or else 'descriptor' corresponds to
+        // 'bdem_ElemType::BDEM_VOID' (indicating an unbound reference).  Note
+        // that if the referenced element is contained within a 'bdem_List' or
         // 'bdem_Table', then the behavior of this reference is undefined if it
         // is used after a modification of the number or types of the elements
         // in the container.
@@ -504,8 +511,9 @@ class bdem_ConstElemRef {
         // 'descriptor' and whose nullness bit is at the specified 0-based
         // 'nullnessBitOffset' in the specified 'nullnessWord' (indexed from
         // least-significant bit to most-significant bit).  The behavior is
-        // undefined unless the type of 'data' corresponds to 'descriptor',
-        // 'nullnessWord' is non-null, and
+        // undefined unless the type of 'data' corresponds to 'descriptor' or
+        // else 'descriptor' corresponds to 'bdem_ElemType::BDEM_VOID'
+        // (indicating an unbound reference), 'nullnessWord' is non-null, and
         // '0 <= nullnessBitOffset < sizeof(int) * 8'.  Note that if the
         // referenced element is contained within a 'bdem_List' or
         // 'bdem_Table', then the behavior of this reference is undefined if it
@@ -568,18 +576,18 @@ class bdem_ConstElemRef {
         // object.
 
     bdem_ElemType::Type type() const;
-        // Return the type of the 'bdem' element referenced by this object.
-        // The behavior is undefined unless this reference is bound.
+        // Return the type of the 'bdem' element referenced by this object, or
+        // 'bdem_ElemType::BDEM_VOID' if this reference is unbound.
 
     const bdem_Descriptor *descriptor() const;
         // Return the address of the non-modifiable type-specific attributes of
-        // this object.  The behavior is undefined unless this reference is
-        // bound.
+        // this object.  Note that if this reference is unbound, the descriptor
+        // for 'bdem_ElemType::BDEM_VOID' is returned.
 
     const void *data() const;
         // Return the address of the non-modifiable 'bdem' element referenced
-        // by this object.  The nullness of the element is not affected.  The
-        // behavior is undefined unless this reference is bound.
+        // by this object, or 0 if this reference is unbound.  The nullness of
+        // the element is not affected.
 
     bool isBound() const;
         // Return 'true' if this element reference refers to a (possibly
@@ -587,18 +595,21 @@ class bdem_ConstElemRef {
 
     bool isNull() const;
         // Return 'true' if the element referenced by this object is null, and
-        // 'false' otherwise.  Note that if 'false == isNullable()', 'false' is
+        // 'false' otherwise.  The behavior is undefined unless this reference
+        // is bound.  Note that if 'false == isNullable()', 'false' is
         // returned.
 
     bool isNonNull() const;
         // Return 'true' if the element referenced by this object is non-null,
-        // and 'false' otherwise.  Note that if 'false == isNullable()', 'true'
-        // is returned.
+        // and 'false' otherwise.  The behavior is undefined unless this
+        // reference is bound.  Note that if 'false == isNullable()', 'true' is
+        // returned.
 
     bool isNullable() const;
         // Return 'true' if the element referenced by this object is nullable,
         // and 'false' otherwise.  An element is nullable if a 'nullnessWord'
-        // and 'nullnessBitOffset' were provided at construction.
+        // and 'nullnessBitOffset' were provided at construction.  The behavior
+        // is undefined unless this reference is bound.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
@@ -610,7 +621,7 @@ class bdem_ConstElemRef {
         // non-negative number of spaces per indentation level for this and all
         // of its nested objects.  Making 'level' negative suppresses
         // indentation for the first line only.  If 'stream' is valid, then the
-        // behavior is undefined unless this reference is bound and the
+        // behavior is undefined unless this reference is unbound, or the
         // descriptor type of the referenced element corresponds to the actual
         // type of the referenced element.  Note that if 'stream' is not valid,
         // then this operation has no effect.
@@ -641,7 +652,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bdem_ConstElemRef& rhs);
     // Format the element referenced by the specified 'rhs' element reference
     // to the specified output 'stream' in some reasonable (multi-line) format.
     // If 'stream' is valid, then the behavior is undefined unless 'rhs' is
-    // bound and the descriptor type and the actual type of the element
+    // unbound, or the descriptor type and the actual type of the element
     // referenced by 'rhs' correspond.  Note that if 'stream' is not valid,
     // then this operation has no effect.
 
@@ -678,28 +689,31 @@ class bdem_ElemRef : public bdem_ConstElemRef {
     void setNullnessBit() const;
         // Set the nullness bit corresponding to the element referenced by this
         // object to 1 if 'isNullable()' is 'true'.  This method has no effect
-        // if 'isNullable()' is 'false'.
+        // if 'isNullable()' is 'false', or if this reference is unbound.
 
     void clearNullnessBit() const;
         // Set the nullness bit corresponding to the element referenced by this
         // object to 0 if 'isNullable()' is 'true'.  This method has no effect
-        // if 'isNullable()' is 'false'.
+        // if 'isNullable()' is 'false', or if this reference is unbound.
 
   public:
     // CLASS METHODS
     static bdem_ElemRef unboundElemRef();
         // Return a reference that is not bound to any 'bdem' element.  Note
-        // that an unbound reference may be used only to invoke the 'isBound'
-        // method and with the equality operators.
+        // that an unbound reference may be used only to invoke a selected set
+        // of accessors (see the function-level documentation for details), and
+        // with the equality and streaming operators.  Also note that the
+        // 'type' method returns 'bdem_ElemType::BDEM_VOID' for an unbound
+        // reference.
 
     // CREATORS
     bdem_ElemRef(void *data, const bdem_Descriptor *descriptor);
         // Create a reference to the specified modifiable and non-nullable
         // 'data' element that is characterized by the specified non-modifiable
         // 'descriptor'.  The behavior is undefined unless the type of 'data'
-        // corresponds to 'descriptor', or else both 'data' and 'descriptor'
-        // are null (indicating an unbound reference).  Note that if the
-        // referenced element is contained within a 'bdem_List' or
+        // corresponds to 'descriptor', or else 'descriptor' corresponds to
+        // 'bdem_ElemType::BDEM_VOID' (indicating an unbound reference).  Note
+        // that if the referenced element is contained within a 'bdem_List' or
         // 'bdem_Table', then the behavior of this reference is undefined if it
         // is used after a modification of the number or types of the elements
         // in the container.
@@ -713,8 +727,9 @@ class bdem_ElemRef : public bdem_ConstElemRef {
         // 'descriptor' and whose nullness bit is at the specified 0-based
         // 'nullnessBitOffset' in the specified 'nullnessWord' (indexed from
         // least-significant bit to most-significant bit).  The behavior is
-        // undefined unless the type of 'data' corresponds to 'descriptor',
-        // 'nullnessWord' is non-null, and
+        // undefined unless the type of 'data' corresponds to 'descriptor' or
+        // else 'descriptor' corresponds to 'bdem_ElemType::BDEM_VOID'
+        // (indicating an unbound reference), 'nullnessWord' is non-null, and
         // '0 <= nullnessBitOffset < sizeof(int) * 8'.  Note that if the
         // referenced element is contained within a 'bdem_List' or
         // 'bdem_Table', then the behavior of this reference is undefined if it
@@ -799,15 +814,15 @@ class bdem_ElemRef : public bdem_ConstElemRef {
 
     void *data() const;
         // Return the address of the modifiable 'bdem' element referenced by
-        // this object.  If the referenced element is null, it is made non-null
-        // before returning, but its value is not otherwise modified.  The
-        // behavior is undefined unless this reference is bound.
+        // this object, or 0 if this reference is unbound.  If the referenced
+        // element is null, it is made non-null before returning, but its value
+        // is not otherwise modified.
 
     void *dataRaw() const;
         // Return the address of the modifiable 'bdem' element referenced by
-        // this object.  The nullness of the element is not affected.  The
-        // behavior is undefined unless this reference is bound.  Note that
-        // this method should *NOT* be called; it is for *internal* use only.
+        // this object, or 0 if this reference is unbound.  The nullness of the
+        // element is not affected.  Note that this method should *NOT* be
+        // called; it is for *internal* use only.
 };
 
 // ============================================================================
@@ -818,11 +833,28 @@ class bdem_ElemRef : public bdem_ConstElemRef {
                         // class bdem_ConstElemRef
                         // -----------------------
 
+                        // -----------------
+                        // Level-0 Functions
+                        // -----------------
+
+// ACCESSORS
+inline
+bool bdem_ConstElemRef::isBound() const
+{
+    BSLS_ASSERT_SAFE(d_descriptor_p);
+
+    // TBD the check that 'd_descriptor_p' is non-null is there for
+    // backward compatibility (e.g., 'bdem_ConstElemRef(0, 0)').
+
+    return d_descriptor_p
+        && bdem_ElemType::BDEM_VOID != d_descriptor_p->d_elemEnum;
+}
+
 // CLASS METHODS
 inline
 bdem_ConstElemRef bdem_ConstElemRef::unboundElemRef()
 {
-    return bdem_ConstElemRef(0, 0);
+    return bdem_ConstElemRef(0, &bdem_Properties::d_voidAttr);
 }
 
 // CREATORS
@@ -834,6 +866,9 @@ bdem_ConstElemRef::bdem_ConstElemRef(const void            *data,
 , d_constNullnessWord_p(0)
 , d_nullnessBitOffset(0)
 {
+    BSLS_ASSERT_SAFE(descriptor
+                  && (data
+                   || bdem_ElemType::BDEM_VOID == d_descriptor_p->d_elemEnum));
 }
 
 inline
@@ -846,6 +881,9 @@ bdem_ConstElemRef::bdem_ConstElemRef(const void            *data,
 , d_constNullnessWord_p(nullnessWord)
 , d_nullnessBitOffset(nullnessBitOffset)
 {
+    BSLS_ASSERT_SAFE(descriptor
+                  && (data
+                   || bdem_ElemType::BDEM_VOID == d_descriptor_p->d_elemEnum));
     BSLS_ASSERT_SAFE(nullnessWord);
     BSLS_ASSERT_SAFE((unsigned)nullnessBitOffset < sizeof(int) * 8);
 }
@@ -863,138 +901,218 @@ bdem_ConstElemRef::bdem_ConstElemRef(const bdem_ConstElemRef& original)
 inline
 const bool& bdem_ConstElemRef::theBool() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL == d_descriptor_p->d_elemEnum);
+
     return *(const bool *)d_constData_p;
 }
 
 inline
 const char& bdem_ConstElemRef::theChar() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR == d_descriptor_p->d_elemEnum);
+
     return *(const char *)d_constData_p;
 }
 
 inline
 const short& bdem_ConstElemRef::theShort() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT == d_descriptor_p->d_elemEnum);
+
     return *(const short *)d_constData_p;
 }
 
 inline
 const int& bdem_ConstElemRef::theInt() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT == d_descriptor_p->d_elemEnum);
+
     return *(const int *)d_constData_p;
 }
 
 inline
 const bsls_Types::Int64& bdem_ConstElemRef::theInt64() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == d_descriptor_p->d_elemEnum);
+
     return *(const bsls_Types::Int64 *)d_constData_p;
 }
 
 inline
 const float& bdem_ConstElemRef::theFloat() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT == d_descriptor_p->d_elemEnum);
+
     return *(const float *)d_constData_p;
 }
 
 inline
 const double& bdem_ConstElemRef::theDouble() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE == d_descriptor_p->d_elemEnum);
+
     return *(const double *)d_constData_p;
 }
 
 inline
 const bsl::string& bdem_ConstElemRef::theString() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::string *)d_constData_p;
 }
 
 inline
 const bdet_Datetime& bdem_ConstElemRef::theDatetime() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                   bdem_ElemType::BDEM_DATETIME == d_descriptor_p->d_elemEnum);
+
     return *(const bdet_Datetime *)d_constData_p;
 }
 
 inline
 const bdet_DatetimeTz& bdem_ConstElemRef::theDatetimeTz() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_DATETIMETZ == d_descriptor_p->d_elemEnum);
+
     return *(const bdet_DatetimeTz *)d_constData_p;
 }
 
 inline
 const bdet_Date& bdem_ConstElemRef::theDate() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE == d_descriptor_p->d_elemEnum);
+
     return *(const bdet_Date *)d_constData_p;
 }
 
 inline
 const bdet_DateTz& bdem_ConstElemRef::theDateTz() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ == d_descriptor_p->d_elemEnum);
+
     return *(const bdet_DateTz *)d_constData_p;
 }
 
 inline
 const bdet_Time& bdem_ConstElemRef::theTime() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME == d_descriptor_p->d_elemEnum);
+
     return *(const bdet_Time *)d_constData_p;
 }
 
 inline
 const bdet_TimeTz& bdem_ConstElemRef::theTimeTz() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ == d_descriptor_p->d_elemEnum);
+
     return *(const bdet_TimeTz *)d_constData_p;
 }
 
 inline
 const bsl::vector<bool>& bdem_ConstElemRef::theBoolArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_BOOL_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<bool> *)d_constData_p;
 }
 
 inline
 const bsl::vector<char>& bdem_ConstElemRef::theCharArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_CHAR_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<char> *)d_constData_p;
 }
 
 inline
 const bsl::vector<short>& bdem_ConstElemRef::theShortArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                bdem_ElemType::BDEM_SHORT_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<short> *)d_constData_p;
 }
 
 inline
 const bsl::vector<int>& bdem_ConstElemRef::theIntArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                  bdem_ElemType::BDEM_INT_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<int> *)d_constData_p;
 }
 
 inline
 const bsl::vector<bsls_Types::Int64>& bdem_ConstElemRef::theInt64Array() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                bdem_ElemType::BDEM_INT64_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<bsls_Types::Int64> *)d_constData_p;
 }
 
 inline
 const bsl::vector<float>& bdem_ConstElemRef::theFloatArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                bdem_ElemType::BDEM_FLOAT_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<float> *)d_constData_p;
 }
 
 inline
 const bsl::vector<double>& bdem_ConstElemRef::theDoubleArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+               bdem_ElemType::BDEM_DOUBLE_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<double> *)d_constData_p;
 }
 
 inline
 const bsl::vector<bsl::string>& bdem_ConstElemRef::theStringArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+               bdem_ElemType::BDEM_STRING_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<bsl::string> *)d_constData_p;
 }
 
 inline
 const bsl::vector<bdet_Datetime>& bdem_ConstElemRef::theDatetimeArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+             bdem_ElemType::BDEM_DATETIME_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<bdet_Datetime> *)d_constData_p;
 }
 
@@ -1002,78 +1120,122 @@ inline
 const bsl::vector<bdet_DatetimeTz>&
 bdem_ConstElemRef::theDatetimeTzArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+           bdem_ElemType::BDEM_DATETIMETZ_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<bdet_DatetimeTz> *)d_constData_p;
 }
 
 inline
 const bsl::vector<bdet_Date>& bdem_ConstElemRef::theDateArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_DATE_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<bdet_Date> *)d_constData_p;
 }
 
 inline
 const bsl::vector<bdet_DateTz>& bdem_ConstElemRef::theDateTzArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+               bdem_ElemType::BDEM_DATETZ_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<bdet_DateTz> *)d_constData_p;
 }
 
 inline
 const bsl::vector<bdet_Time>& bdem_ConstElemRef::theTimeArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_TIME_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<bdet_Time> *)d_constData_p;
 }
 
 inline
 const bsl::vector<bdet_TimeTz>& bdem_ConstElemRef::theTimeTzArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+               bdem_ElemType::BDEM_TIMETZ_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bsl::vector<bdet_TimeTz> *)d_constData_p;
 }
 
 inline
 const bdem_Row& bdem_ConstElemRef::theRow() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_ROW == d_descriptor_p->d_elemEnum);
+
     return *(const bdem_Row *)d_constData_p;
 }
 
 inline
 const bdem_List& bdem_ConstElemRef::theList() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == d_descriptor_p->d_elemEnum);
+
     return *(const bdem_List *)d_constData_p;
 }
 
 inline
 const bdem_Table& bdem_ConstElemRef::theTable() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == d_descriptor_p->d_elemEnum);
+
     return *(const bdem_Table *)d_constData_p;
 }
 
 inline
 const bdem_ChoiceArrayItem& bdem_ConstElemRef::theChoiceArrayItem() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+          bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM == d_descriptor_p->d_elemEnum);
+
     return *(const bdem_ChoiceArrayItem *)d_constData_p;
 }
 
 inline
 const bdem_Choice& bdem_ConstElemRef::theChoice() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == d_descriptor_p->d_elemEnum);
+
     return *(const bdem_Choice *)d_constData_p;
 }
 
 inline
 const bdem_ChoiceArray& bdem_ConstElemRef::theChoiceArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+               bdem_ElemType::BDEM_CHOICE_ARRAY == d_descriptor_p->d_elemEnum);
+
     return *(const bdem_ChoiceArray *)d_constData_p;
 }
 
 inline
 bdem_ElemType::Type bdem_ConstElemRef::type() const
 {
+    BSLS_ASSERT_SAFE(d_descriptor_p);
+
     return (bdem_ElemType::Type)d_descriptor_p->d_elemEnum;
 }
 
 inline
 const bdem_Descriptor *bdem_ConstElemRef::descriptor() const
 {
+    BSLS_ASSERT_SAFE(d_descriptor_p);
+
     return d_descriptor_p;
 }
 
@@ -1084,14 +1246,10 @@ const void *bdem_ConstElemRef::data() const
 }
 
 inline
-bool bdem_ConstElemRef::isBound() const
-{
-    return 0 != d_constData_p;
-}
-
-inline
 bool bdem_ConstElemRef::isNull() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+
     if (!d_constNullnessWord_p) {
         return false;
     }
@@ -1102,12 +1260,16 @@ bool bdem_ConstElemRef::isNull() const
 inline
 bool bdem_ConstElemRef::isNonNull() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+
     return !isNull();
 }
 
 inline
 bool bdem_ConstElemRef::isNullable() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+
     return 0 != d_constNullnessWord_p;
 }
 
@@ -1141,7 +1303,6 @@ void bdem_ElemRef::setNullnessBit() const
 inline
 void bdem_ElemRef::clearNullnessBit() const
 {
-
     if (d_constNullnessWord_p) {
         *d_nullnessWord_p &= ~(1 << d_nullnessBitOffset);
     }
@@ -1151,13 +1312,12 @@ void bdem_ElemRef::clearNullnessBit() const
 inline
 bdem_ElemRef bdem_ElemRef::unboundElemRef()
 {
-    return bdem_ElemRef(0, 0);
+    return bdem_ElemRef(0, &bdem_Properties::d_voidAttr);
 }
 
 // CREATORS
 inline
-bdem_ElemRef::bdem_ElemRef(void                  *data,
-                           const bdem_Descriptor *descriptor)
+bdem_ElemRef::bdem_ElemRef(void *data, const bdem_Descriptor *descriptor)
 : bdem_ConstElemRef(data, descriptor)
 {
 }
@@ -1181,6 +1341,8 @@ bdem_ElemRef::bdem_ElemRef(const bdem_ElemRef& original)
 inline
 void bdem_ElemRef::makeNull() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+
     if (isNullable()) {
         setNullnessBit();
     }
@@ -1190,6 +1352,9 @@ void bdem_ElemRef::makeNull() const
 inline
 bool& bdem_ElemRef::theModifiableBool() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bool *)d_data_p;
 }
@@ -1197,6 +1362,9 @@ bool& bdem_ElemRef::theModifiableBool() const
 inline
 char& bdem_ElemRef::theModifiableChar() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(char *)d_data_p;
 }
@@ -1204,6 +1372,9 @@ char& bdem_ElemRef::theModifiableChar() const
 inline
 short& bdem_ElemRef::theModifiableShort() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(short *)d_data_p;
 }
@@ -1211,6 +1382,9 @@ short& bdem_ElemRef::theModifiableShort() const
 inline
 int& bdem_ElemRef::theModifiableInt() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(int *)d_data_p;
 }
@@ -1218,6 +1392,9 @@ int& bdem_ElemRef::theModifiableInt() const
 inline
 bsls_Types::Int64& bdem_ElemRef::theModifiableInt64() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsls_Types::Int64 *)d_data_p;
 }
@@ -1225,6 +1402,9 @@ bsls_Types::Int64& bdem_ElemRef::theModifiableInt64() const
 inline
 float& bdem_ElemRef::theModifiableFloat() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(float *)d_data_p;
 }
@@ -1232,6 +1412,9 @@ float& bdem_ElemRef::theModifiableFloat() const
 inline
 double& bdem_ElemRef::theModifiableDouble() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(double *)d_data_p;
 }
@@ -1239,6 +1422,9 @@ double& bdem_ElemRef::theModifiableDouble() const
 inline
 bsl::string& bdem_ElemRef::theModifiableString() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::string *)d_data_p;
 }
@@ -1246,6 +1432,10 @@ bsl::string& bdem_ElemRef::theModifiableString() const
 inline
 bdet_Datetime& bdem_ElemRef::theModifiableDatetime() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                   bdem_ElemType::BDEM_DATETIME == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdet_Datetime *)d_data_p;
 }
@@ -1253,6 +1443,10 @@ bdet_Datetime& bdem_ElemRef::theModifiableDatetime() const
 inline
 bdet_DatetimeTz& bdem_ElemRef::theModifiableDatetimeTz() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_DATETIMETZ == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdet_DatetimeTz *)d_data_p;
 }
@@ -1260,6 +1454,9 @@ bdet_DatetimeTz& bdem_ElemRef::theModifiableDatetimeTz() const
 inline
 bdet_Date& bdem_ElemRef::theModifiableDate() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdet_Date *)d_data_p;
 }
@@ -1267,6 +1464,9 @@ bdet_Date& bdem_ElemRef::theModifiableDate() const
 inline
 bdet_DateTz& bdem_ElemRef::theModifiableDateTz() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdet_DateTz *)d_data_p;
 }
@@ -1274,6 +1474,9 @@ bdet_DateTz& bdem_ElemRef::theModifiableDateTz() const
 inline
 bdet_Time& bdem_ElemRef::theModifiableTime() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdet_Time *)d_data_p;
 }
@@ -1281,6 +1484,9 @@ bdet_Time& bdem_ElemRef::theModifiableTime() const
 inline
 bdet_TimeTz& bdem_ElemRef::theModifiableTimeTz() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdet_TimeTz *)d_data_p;
 }
@@ -1288,6 +1494,10 @@ bdet_TimeTz& bdem_ElemRef::theModifiableTimeTz() const
 inline
 bsl::vector<bool>& bdem_ElemRef::theModifiableBoolArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_BOOL_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<bool> *)d_data_p;
 }
@@ -1295,6 +1505,10 @@ bsl::vector<bool>& bdem_ElemRef::theModifiableBoolArray() const
 inline
 bsl::vector<char>& bdem_ElemRef::theModifiableCharArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_CHAR_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<char> *)d_data_p;
 }
@@ -1302,6 +1516,10 @@ bsl::vector<char>& bdem_ElemRef::theModifiableCharArray() const
 inline
 bsl::vector<short>& bdem_ElemRef::theModifiableShortArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                bdem_ElemType::BDEM_SHORT_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<short> *)d_data_p;
 }
@@ -1309,6 +1527,10 @@ bsl::vector<short>& bdem_ElemRef::theModifiableShortArray() const
 inline
 bsl::vector<int>& bdem_ElemRef::theModifiableIntArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                  bdem_ElemType::BDEM_INT_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<int> *)d_data_p;
 }
@@ -1316,6 +1538,10 @@ bsl::vector<int>& bdem_ElemRef::theModifiableIntArray() const
 inline
 bsl::vector<bsls_Types::Int64>& bdem_ElemRef::theModifiableInt64Array() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                bdem_ElemType::BDEM_INT64_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<bsls_Types::Int64> *)d_data_p;
 }
@@ -1323,6 +1549,10 @@ bsl::vector<bsls_Types::Int64>& bdem_ElemRef::theModifiableInt64Array() const
 inline
 bsl::vector<float>& bdem_ElemRef::theModifiableFloatArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                bdem_ElemType::BDEM_FLOAT_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<float> *)d_data_p;
 }
@@ -1330,6 +1560,10 @@ bsl::vector<float>& bdem_ElemRef::theModifiableFloatArray() const
 inline
 bsl::vector<double>& bdem_ElemRef::theModifiableDoubleArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+               bdem_ElemType::BDEM_DOUBLE_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<double> *)d_data_p;
 }
@@ -1337,6 +1571,10 @@ bsl::vector<double>& bdem_ElemRef::theModifiableDoubleArray() const
 inline
 bsl::vector<bsl::string>& bdem_ElemRef::theModifiableStringArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+               bdem_ElemType::BDEM_STRING_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<bsl::string> *)d_data_p;
 }
@@ -1344,6 +1582,10 @@ bsl::vector<bsl::string>& bdem_ElemRef::theModifiableStringArray() const
 inline
 bsl::vector<bdet_Datetime>& bdem_ElemRef::theModifiableDatetimeArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+             bdem_ElemType::BDEM_DATETIME_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<bdet_Datetime> *)d_data_p;
 }
@@ -1352,6 +1594,10 @@ inline
 bsl::vector<bdet_DatetimeTz>&
                              bdem_ElemRef::theModifiableDatetimeTzArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+           bdem_ElemType::BDEM_DATETIMETZ_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<bdet_DatetimeTz> *)d_data_p;
 }
@@ -1359,6 +1605,10 @@ bsl::vector<bdet_DatetimeTz>&
 inline
 bsl::vector<bdet_Date>& bdem_ElemRef::theModifiableDateArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_DATE_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<bdet_Date> *)d_data_p;
 }
@@ -1366,6 +1616,10 @@ bsl::vector<bdet_Date>& bdem_ElemRef::theModifiableDateArray() const
 inline
 bsl::vector<bdet_DateTz>& bdem_ElemRef::theModifiableDateTzArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+               bdem_ElemType::BDEM_DATETZ_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<bdet_DateTz> *)d_data_p;
 }
@@ -1373,6 +1627,10 @@ bsl::vector<bdet_DateTz>& bdem_ElemRef::theModifiableDateTzArray() const
 inline
 bsl::vector<bdet_Time>& bdem_ElemRef::theModifiableTimeArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_TIME_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<bdet_Time> *)d_data_p;
 }
@@ -1380,6 +1638,10 @@ bsl::vector<bdet_Time>& bdem_ElemRef::theModifiableTimeArray() const
 inline
 bsl::vector<bdet_TimeTz>& bdem_ElemRef::theModifiableTimeTzArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+               bdem_ElemType::BDEM_TIMETZ_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bsl::vector<bdet_TimeTz> *)d_data_p;
 }
@@ -1387,6 +1649,9 @@ bsl::vector<bdet_TimeTz>& bdem_ElemRef::theModifiableTimeTzArray() const
 inline
 bdem_Row& bdem_ElemRef::theModifiableRow() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_ROW == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdem_Row *)d_data_p;
 }
@@ -1394,6 +1659,9 @@ bdem_Row& bdem_ElemRef::theModifiableRow() const
 inline
 bdem_List& bdem_ElemRef::theModifiableList() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdem_List *)d_data_p;
 }
@@ -1401,6 +1669,9 @@ bdem_List& bdem_ElemRef::theModifiableList() const
 inline
 bdem_Table& bdem_ElemRef::theModifiableTable() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdem_Table *)d_data_p;
 }
@@ -1408,6 +1679,10 @@ bdem_Table& bdem_ElemRef::theModifiableTable() const
 inline
 bdem_ChoiceArrayItem& bdem_ElemRef::theModifiableChoiceArrayItem() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+          bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdem_ChoiceArrayItem *)d_data_p;
 }
@@ -1415,6 +1690,9 @@ bdem_ChoiceArrayItem& bdem_ElemRef::theModifiableChoiceArrayItem() const
 inline
 bdem_Choice& bdem_ElemRef::theModifiableChoice() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdem_Choice *)d_data_p;
 }
@@ -1422,6 +1700,10 @@ bdem_Choice& bdem_ElemRef::theModifiableChoice() const
 inline
 bdem_ChoiceArray& bdem_ElemRef::theModifiableChoiceArray() const
 {
+    BSLS_ASSERT_SAFE(isBound());
+    BSLS_ASSERT_SAFE(
+               bdem_ElemType::BDEM_CHOICE_ARRAY == d_descriptor_p->d_elemEnum);
+
     clearNullnessBit();
     return *(bdem_ChoiceArray *)d_data_p;
 }

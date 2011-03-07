@@ -1,4 +1,4 @@
-// bdem_convert.t.cpp                  -*-C++-*-
+// bdem_convert.t.cpp                                                 -*-C++-*-
 
 #include <bdem_convert.h>
 
@@ -541,7 +541,10 @@ void testConversions(int             line,
                                        fromTypeDesc,
                                        &fromNullWord2,
                                        NULLNESS_OFFSET);
-    fromNullElemRef.makeNull();
+
+    if (fromNullElemRef.isBound()) {
+        fromNullElemRef.makeNull();
+    }
 
     TOTYPE toUnset; // const TOTYPE& TO_UNSET = toUnset; // TO_UNSET never used
     TestValue<TOTYPE> toNullTestValue(toUnset);
@@ -573,7 +576,10 @@ void testConversions(int             line,
     conversionStatus = bdem_Convert::convert(&toObj, from);
     ASSERT_EXPECTED_RESULT;
     if (veryVeryVerbose) {
-        bsl::cout << "AFTER:  ";  P_(toObj)  P_(expectedResult)  P(from)
+        bsl::cout << "AFTER:  ";
+        P_(toObj)
+        if (expectedSuccess) { P_(expectedResult) }
+        P(from)
     }
 
 #ifdef LONG_TEST

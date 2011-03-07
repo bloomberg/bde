@@ -32,6 +32,7 @@ bdem_BerDecoder::bdem_BerDecoder(
 , d_severity      (BDEM_BER_SUCCESS)
 , d_streamBuf     (0)
 , d_currentDepth  (0)
+, d_numUnknownElementsSkipped(0)
 , d_topNode       (0)
 {
 }

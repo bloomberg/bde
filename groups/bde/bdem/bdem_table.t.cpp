@@ -4672,7 +4672,7 @@ DEFINE_TEST_CASE(13) {
 
             // verify copying and assigning strings allocates memory
             string s1(Z), s2(Z);
-            s1 = "woof";
+            s1 = "woof                                          woof";
             BEGIN_BSLMA_EXCEPTION_TEST
                 ++passCount;
 
@@ -4693,7 +4693,8 @@ DEFINE_TEST_CASE(13) {
             int passCount = 0, firstAllocCount;
 
             bdem_List mL; const bdem_List& L = mL; ASSERT(0 == L.length());
-            mL.appendString("woof");               ASSERT(1 == L.length());
+            mL.appendString("woof                                    woof");
+            ASSERT(1 == L.length());
 
             vector<bdem_ElemType::Type> typeVec;
             typeVec.push_back(bdem_ElemType::BDEM_STRING);
@@ -4701,9 +4702,12 @@ DEFINE_TEST_CASE(13) {
             mTOrig.appendRow(L);
             mTOrig.appendRow(L);
             mTOrig.appendRow(L);
-            mTOrig.theModifiableRow(0)[0].theModifiableString() = "meow";
-            mTOrig.theModifiableRow(1)[0].theModifiableString() = "arf";
-            mTOrig.theModifiableRow(2)[0].theModifiableString() = "gruff";
+            mTOrig.theModifiableRow(0)[0].theModifiableString()
+                                       = "meow                                     meow";
+            mTOrig.theModifiableRow(1)[0].theModifiableString()
+                                       = "arf                                       arf";
+            mTOrig.theModifiableRow(2)[0].theModifiableString()
+                                       = "gruff                                   gruff";
 
             bdem_Table mT(typeVec, Z); const bdem_Table& T = mT;
 

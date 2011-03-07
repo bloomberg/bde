@@ -200,7 +200,6 @@ void bdem_RowLayout::insert(int                   dstIndex,
     }
 
     const int dstLength   = length();
-    const int dstEndIndex = dstIndex + numElements;
     const int totalLength = numElements + dstLength;
 
     bdem_RowLayoutEntry dummy(srcRowLayout[0].attributes(), 0);

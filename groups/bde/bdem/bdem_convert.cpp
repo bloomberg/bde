@@ -1,4 +1,4 @@
-// bdem_convert.cpp                  -*-C++-*-
+// bdem_convert.cpp                                                   -*-C++-*-
 #include <bdem_convert.h>
 
 #include <bdes_ident.h>
@@ -27,17 +27,20 @@ BDES_IDENT_RCSID(bdem_convert_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace {
-
+// LOCAL CONSTANTS
 enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
     // This enumeration defines the status values returned by methods in this
     // file.
 
+// STATIC HELPER FUNCTIONS
+static
 int getWord(const char **strPtr)
     // Advance '*strPtr' to the first non-whitespace character then return the
     // length of the non-whitespace portion of the string starting from the
     // new value of '*strPtr'.
 {
+    BSLS_ASSERT(strPtr);
+
     const char *newPtr = *strPtr;
 
     // Skip whitespace.
@@ -54,8 +57,6 @@ int getWord(const char **strPtr)
     return newPtr - *strPtr;
 }
 
-}  // close unnamed namespace
-
                         // ------------------
                         // class bdem_Convert
                         // ------------------
@@ -67,6 +68,8 @@ int bdem_Convert::fromString(bool *dstAddr, const char *srcValue)
         // Null or empty string.  Do nothing.
         return BDEM_SUCCESS;                                          // RETURN
     }
+
+    BSLS_ASSERT(dstAddr);
 
     const int wordLen = getWord(&srcValue);
 
@@ -107,6 +110,8 @@ int bdem_Convert::fromString(bool *dstAddr, const char *srcValue)
 
 int bdem_Convert::fromString(char *dstAddr, const char *srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     *dstAddr = srcValue ? *srcValue : 0;
 
     return BDEM_SUCCESS;
@@ -118,6 +123,8 @@ int bdem_Convert::fromString(short *dstAddr, const char *srcValue)
         // Null or empty string.  Do nothing.
         return BDEM_SUCCESS;                                          // RETURN
     }
+
+    BSLS_ASSERT(dstAddr);
 
     char *endPtr = 0;
     int i = (int) bsl::strtol(srcValue, &endPtr, 10);
@@ -135,6 +142,8 @@ int bdem_Convert::fromString(int *dstAddr, const char *srcValue)
         // Null or empty string.  Do nothing.
         return BDEM_SUCCESS;                                          // RETURN
     }
+
+    BSLS_ASSERT(dstAddr);
 
     char *endPtr = 0;
     int i = (int) bsl::strtol(srcValue, &endPtr, 10);
@@ -154,6 +163,8 @@ int bdem_Convert::fromString(bsls_PlatformUtil::Int64 *dstAddr,
         return BDEM_SUCCESS;                                          // RETURN
     }
 
+    BSLS_ASSERT(dstAddr);
+
     const char *endPtr = 0;
     Int64       result = 0;
 
@@ -172,6 +183,8 @@ int bdem_Convert::fromString(float *dstAddr, const char *srcValue)
         return BDEM_SUCCESS;                                          // RETURN
     }
 
+    BSLS_ASSERT(dstAddr);
+
     char *endPtr = 0;
     double d = bsl::strtod(srcValue, &endPtr);
     if (endPtr == srcValue) {
@@ -188,6 +201,8 @@ int bdem_Convert::fromString(double *dstAddr, const char *srcValue)
         // Null or empty string.  Do nothing.
         return BDEM_SUCCESS;                                          // RETURN
     }
+
+    BSLS_ASSERT(dstAddr);
 
     char *endPtr = 0;
     double d = bsl::strtod(srcValue, &endPtr);
@@ -206,6 +221,8 @@ int bdem_Convert::fromString(bdet_Datetime *dstAddr, const char *srcValue)
         return BDEM_SUCCESS;                                          // RETURN
     }
 
+    BSLS_ASSERT(dstAddr);
+
     const int wordLen = getWord(&srcValue);
     return bdepu_Iso8601::parse(dstAddr, srcValue, wordLen);
 }
@@ -216,6 +233,8 @@ int bdem_Convert::fromString(bdet_Date *dstAddr, const char *srcValue)
         // Null or empty string.  Do nothing.
         return BDEM_SUCCESS;                                          // RETURN
     }
+
+    BSLS_ASSERT(dstAddr);
 
     const int wordLen = getWord(&srcValue);
     return bdepu_Iso8601::parse(dstAddr, srcValue, wordLen);
@@ -228,6 +247,8 @@ int bdem_Convert::fromString(bdet_Time *dstAddr, const char *srcValue)
         return BDEM_SUCCESS;                                          // RETURN
     }
 
+    BSLS_ASSERT(dstAddr);
+
     const int wordLen = getWord(&srcValue);
     return bdepu_Iso8601::parse(dstAddr, srcValue, wordLen);
 }
@@ -238,6 +259,8 @@ int bdem_Convert::fromString(bdet_DatetimeTz *dstAddr, const char *srcValue)
         // Null or empty string.  Do nothing.
         return BDEM_SUCCESS;                                          // RETURN
     }
+
+    BSLS_ASSERT(dstAddr);
 
     const int wordLen = getWord(&srcValue);
     return bdepu_Iso8601::parse(dstAddr, srcValue, wordLen);
@@ -250,6 +273,8 @@ int bdem_Convert::fromString(bdet_DateTz *dstAddr, const char *srcValue)
         return BDEM_SUCCESS;                                          // RETURN
     }
 
+    BSLS_ASSERT(dstAddr);
+
     const int wordLen = getWord(&srcValue);
     return bdepu_Iso8601::parse(dstAddr, srcValue, wordLen);
 }
@@ -261,6 +286,8 @@ int bdem_Convert::fromString(bdet_TimeTz *dstAddr, const char *srcValue)
         return BDEM_SUCCESS;                                          // RETURN
     }
 
+    BSLS_ASSERT(dstAddr);
+
     const int wordLen = getWord(&srcValue);
     return bdepu_Iso8601::parse(dstAddr, srcValue, wordLen);
 }
@@ -269,11 +296,13 @@ int bdem_Convert::fromString(bdet_TimeTz *dstAddr, const char *srcValue)
 int bdem_Convert::convert(bdem_ElemRef             *dstAddr,
                           const bdem_ConstElemRef&  srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     const int rc = bdem_Convert::fromBdemType(dstAddr,
                                               srcValue.data(),
                                               srcValue.type());
 
-    if (!rc && srcValue.isNull()) {
+    if (!rc && srcValue.isBound() && srcValue.isNull()) {
         // Make destination null only if the conversion succeeds.
         dstAddr->makeNull();
     }
@@ -284,7 +313,9 @@ int bdem_Convert::convert(bdem_ElemRef             *dstAddr,
 int bdem_Convert::convert(bdem_ElemRef        *dstAddr,
                           const bdem_ElemRef&  srcValue)
 {
-    const int nullnessWord = srcValue.isNull();
+    BSLS_ASSERT(dstAddr);
+
+    const int nullnessWord = srcValue.isBound() && srcValue.isNull();
     bdem_ConstElemRef elemRef(srcValue.dataRaw(),
                               srcValue.descriptor(),
                               &nullnessWord,
@@ -295,6 +326,8 @@ int bdem_Convert::convert(bdem_ElemRef        *dstAddr,
 
 int bdem_Convert::convert(bsl::string *dstAddr, char srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if ('\0' == srcValue) {
         dstAddr->clear();
     }
@@ -306,6 +339,8 @@ int bdem_Convert::convert(bsl::string *dstAddr, char srcValue)
 
 int bdem_Convert::convert(bsl::string *dstAddr, short srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if (bdetu_Unset<short>::isUnset(srcValue)) {
         dstAddr->clear();
         return BDEM_SUCCESS;                                          // RETURN
@@ -318,6 +353,8 @@ int bdem_Convert::convert(bsl::string *dstAddr, short srcValue)
 
 int bdem_Convert::convert(bsl::string *dstAddr, int srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if (bdetu_Unset<int>::isUnset(srcValue)) {
         dstAddr->clear();
         return BDEM_SUCCESS;                                          // RETURN
@@ -332,6 +369,8 @@ int bdem_Convert::convert(bsl::string *dstAddr, int srcValue)
 int bdem_Convert::convert(bsl::string              *dstAddr,
                           bsls_PlatformUtil::Int64  srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if (bdetu_Unset<Int64>::isUnset(srcValue)) {
         dstAddr->clear();
         return BDEM_SUCCESS;                                          // RETURN
@@ -345,6 +384,8 @@ int bdem_Convert::convert(bsl::string              *dstAddr,
 
 int bdem_Convert::convert(bsl::string *dstAddr, float srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if (bdetu_Unset<float>::isUnset(srcValue)) {
         dstAddr->clear();
         return BDEM_SUCCESS;                                          // RETURN
@@ -358,20 +399,23 @@ int bdem_Convert::convert(bsl::string *dstAddr, float srcValue)
 
 int bdem_Convert::convert(bsl::string *dstAddr, double srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if (bdetu_Unset<double>::isUnset(srcValue)) {
         dstAddr->clear();
         return BDEM_SUCCESS;                                          // RETURN
     }
 
     char buffer[bdepu_TypesParserImpUtil::BDEPU_MAX_DOUBLE_STRLEN10 + 1];
-    int length = bdepu_TypesParserImpUtil::generateDoubleRaw(buffer,
-                                                             srcValue);
+    int length = bdepu_TypesParserImpUtil::generateDoubleRaw(buffer, srcValue);
     dstAddr->assign(buffer, length);
     return BDEM_SUCCESS;
 }
 
 int bdem_Convert::convert(bsl::string *dstAddr, long double srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     char buffer[bdepu_TypesParserImpUtil::BDEPU_MAX_LONGDOUBLE_STRLEN10 + 1];
     int length = bdepu_TypesParserImpUtil::generateLongDoubleRaw(buffer,
                                                                  srcValue);
@@ -381,6 +425,8 @@ int bdem_Convert::convert(bsl::string *dstAddr, long double srcValue)
 
 int bdem_Convert::convert(bsl::string *dstAddr, const bdet_Datetime& srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if (bdetu_Unset<bdet_Datetime>::isUnset(srcValue)) {
         dstAddr->clear();
         return BDEM_SUCCESS;                                          // RETURN
@@ -394,6 +440,8 @@ int bdem_Convert::convert(bsl::string *dstAddr, const bdet_Datetime& srcValue)
 
 int bdem_Convert::convert(bsl::string *dstAddr, const bdet_Date& srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if (bdetu_Unset<bdet_Date>::isUnset(srcValue)) {
         dstAddr->clear();
         return BDEM_SUCCESS;                                          // RETURN
@@ -407,6 +455,8 @@ int bdem_Convert::convert(bsl::string *dstAddr, const bdet_Date& srcValue)
 
 int bdem_Convert::convert(bsl::string *dstAddr, const bdet_Time& srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if (bdetu_Unset<bdet_Time>::isUnset(srcValue)) {
         dstAddr->clear();
         return BDEM_SUCCESS;                                          // RETURN
@@ -421,6 +471,8 @@ int bdem_Convert::convert(bsl::string *dstAddr, const bdet_Time& srcValue)
 int bdem_Convert::convert(bsl::string            *dstAddr,
                           const bdet_DatetimeTz&  srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if (bdetu_Unset<bdet_DatetimeTz>::isUnset(srcValue)) {
         dstAddr->clear();
         return BDEM_SUCCESS;                                          // RETURN
@@ -434,6 +486,8 @@ int bdem_Convert::convert(bsl::string            *dstAddr,
 
 int bdem_Convert::convert(bsl::string *dstAddr, const bdet_DateTz& srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if (bdetu_Unset<bdet_DateTz>::isUnset(srcValue)) {
         dstAddr->clear();
         return BDEM_SUCCESS;                                          // RETURN
@@ -447,6 +501,8 @@ int bdem_Convert::convert(bsl::string *dstAddr, const bdet_DateTz& srcValue)
 
 int bdem_Convert::convert(bsl::string *dstAddr, const bdet_TimeTz& srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     if (bdetu_Unset<bdet_TimeTz>::isUnset(srcValue)) {
         dstAddr->clear();
         return BDEM_SUCCESS;                                          // RETURN
@@ -463,12 +519,16 @@ int bdem_Convert::convert(bsl::string *dstAddr, const bdet_TimeTz& srcValue)
 
 int bdem_Convert::convert(bdet_DateTz *dstAddr, const bdet_Date& srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     *dstAddr = bdet_DateTz(srcValue, 0);
     return 0;
 }
 
 int bdem_Convert::convert(bdet_TimeTz *dstAddr, const bdet_Time& srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     *dstAddr = bdet_TimeTz(srcValue, 0);
     return 0;
 }
@@ -476,12 +536,16 @@ int bdem_Convert::convert(bdet_TimeTz *dstAddr, const bdet_Time& srcValue)
 int bdem_Convert::convert(bdet_DatetimeTz      *dstAddr,
                           const bdet_Datetime&  srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     *dstAddr = bdet_DatetimeTz(srcValue, 0);
     return 0;
 }
 
 int bdem_Convert::convert(bdem_List *dstAddr, const bdem_Row& srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     // Convert a 'bdem_Row' to a 'bdem_List'.
     *dstAddr = srcValue;
     return BDEM_SUCCESS;
@@ -491,6 +555,8 @@ int bdem_Convert::convert(bdem_Row *dstAddr, const bdem_Row& srcValue)
     // Specialization: 'bdem_Row' does not have a public assignment operator,
     // so this special conversion logic applies.
 {
+    BSLS_ASSERT(dstAddr);
+
     // Ensure that rows have identical element types, else fail conversion.
 
     const int srcLen = srcValue.length();
@@ -510,6 +576,8 @@ int bdem_Convert::convert(bdem_Row *dstAddr, const bdem_Row& srcValue)
 
 int bdem_Convert::convert(bdem_Row *dstAddr, const bdem_List& srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     // Convert a 'bdem_List' to a 'bdem_Row'.  Conversion will fail unless the
     // list and row have the same number and types of elements.
 
@@ -519,6 +587,8 @@ int bdem_Convert::convert(bdem_Row *dstAddr, const bdem_List& srcValue)
 int bdem_Convert::convert(bdem_Choice                 *dstAddr,
                           const bdem_ChoiceArrayItem&  srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     // Convert a 'bdem_ChoiceArrayItem' to a 'bdem_Choice'.
     *dstAddr = srcValue;
     return BDEM_SUCCESS;
@@ -529,6 +599,8 @@ int bdem_Convert::convert(bdem_ChoiceArrayItem        *dstAddr,
     // Specialization: 'bdem_ChoiceArrayItem' does not have a public
     // assignment operator, so this special conversion logic applies.
 {
+    BSLS_ASSERT(dstAddr);
+
     // Ensure that choice items are compatible, else fail conversion.
     if (dstAddr->numSelections() <= srcValue.selector()
      || dstAddr->selectionType(srcValue.selector()) !=
@@ -544,6 +616,8 @@ int bdem_Convert::convert(bdem_ChoiceArrayItem        *dstAddr,
 int bdem_Convert::convert(bdem_ChoiceArrayItem *dstAddr,
                           const bdem_Choice&    srcValue)
 {
+    BSLS_ASSERT(dstAddr);
+
     // Convert a 'bdem_Choice' to a 'bdem_ChoiceArrayItem'.  Conversion will
     // fail unless the 'bdem_Choice' and 'bdem_ChoiceArrayItem' have the same
     // types catalog.
@@ -555,6 +629,8 @@ int bdem_Convert::toBdemType(void                *dstAddr,
                              bdem_ElemType::Type  dstType,
                              const bdem_ElemRef&  srcValue)
 {
+    BSLS_ASSERT(dstAddr || bdem_ElemType::BDEM_VOID == dstType);
+
     return bdem_Convert::convertBdemTypes(dstAddr, dstType,
                                           srcValue.dataRaw(), srcValue.type());
 }
@@ -563,9 +639,16 @@ int bdem_Convert::fromBdemType(bdem_ElemRef        *dstAddr,
                                const void          *srcAddr,
                                bdem_ElemType::Type  srcType)
 {
-    const bool                 isDstNull = dstAddr->isNull();
+    BSLS_ASSERT(dstAddr);
+    BSLS_ASSERT(srcAddr || bdem_ElemType::BDEM_VOID == srcType);
+
+    const bool                 isDstNull = dstAddr->isBound()
+                                        && dstAddr->isNull();
     const bdem_ElemType::Type  dstType   = dstAddr->type();
-    void                      *dstValuePtr;
+
+    // 'dstType' is 'bdem_ElemType::BDEM_VOID' if '*dstAddr' is unbound.
+
+    void *dstValuePtr;
 
     switch (dstType) {
       case bdem_ElemType::BDEM_CHAR: {
@@ -697,6 +780,9 @@ int bdem_Convert::convertBdemTypes(void                *dstAddr,
                                    const void          *srcAddr,
                                    bdem_ElemType::Type  srcType)
 {
+    BSLS_ASSERT(dstAddr || bdem_ElemType::BDEM_VOID == dstType);
+    BSLS_ASSERT(srcAddr || bdem_ElemType::BDEM_VOID == srcType);
+
     int result;
 
     switch (srcType) {

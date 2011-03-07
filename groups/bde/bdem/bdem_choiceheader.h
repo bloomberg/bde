@@ -284,12 +284,13 @@ class bdem_ChoiceHeader {
     bdem_AggregateOption::AllocationStrategy  d_allocMode;  // alloc mode
 
     union {
-        // This 'union' stores the data value of this choice header object.
-        // 'd_selectionBuf' is an aligned buffer large enough to hold most
-        // (TBD all?) 'bdem' types in-place.  Those that are too large are
+        // This anonymous 'union' stores the data value corresponding to this
+        // choice header object.  'd_selectionBuf' is an aligned buffer large
+        // enough to hold *most* 'bdem' types in-place.  The exceptions are
+        // 'bdem_Choice', 'bdem_ChoiceArray', and 'bdem_Table', which are
         // allocated out-of-place and addressed by 'd_selection_p'.
 
-        bsls_AlignedBuffer<14 * sizeof(void *)> d_selectionBuf;
+        bsls_AlignedBuffer<8 * sizeof(void *)> d_selectionBuf;
 
         void *d_selection_p;  // allocated object if 'd_selectionBuf' too small
     };
