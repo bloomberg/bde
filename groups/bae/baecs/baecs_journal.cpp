@@ -870,7 +870,7 @@ int baecs_Journal::close()
 
 int baecs_Journal::growFile(FileDescriptor         fd,
                             bdesu_FileUtil::Offset size,
-                            bool                   reserve)
+                            bool                   )
 {
     BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
     // WRITE LOCK REQUIRED

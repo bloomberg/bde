@@ -51,7 +51,6 @@ bsl::string tempFileName()
 }
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-#define snprintf _snprintf
 #define rand_r   rand_s
 #define tmpnam_r tmpnam_s
 #endif
