@@ -1,6 +1,6 @@
 # BSL external definition options
 
-*-                      _       OPTS_FILE       = bsl.defs
+*-                  _       OPTS_FILE       = bsl.defs
 
 #==============================================================================
 # STL (bsl+stlport)
@@ -19,8 +19,12 @@
 
 #===
 
-windows                 _       STL_DEFINES     = /DBSL_OVERRIDES_STD /D_STLP_USE_STATIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
-!! windows              shr     STL_DEFINES     = /DBSL_OVERRIDES_STD /D_STLP_USE_DYNAMIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
+# provide a way to selectively disable BSL_OVERRIDES_STD
+!! *                _       BSL_STD_FLAG    = $(SWITCHCHAR)DBSL_OVERRIDES_STD
+*                   _       STL_DEFINES     = $(BSL_STD_FLAG)
+
+windows             _       STL_DEFINES     = /D_STLP_USE_STATIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
+!! windows          shr     STL_DEFINES     = $(BSL_STD_FLAG) /D_STLP_USE_DYNAMIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
 
 # enable/disable STLport debug
 !! unix-*-*-*-* 	_       STL_DBGDEFS     =
@@ -35,7 +39,7 @@ unix-*-*-*-*    	_       STL_DEFINES     = $(STL_EXCDEFS)
 # enable/disable STLport threads
 !! unix-*-*-*-* 	_       STL_MTDEFS      = -D_NOTHREADS -D_STLP_NO_THREADS
 !! unix-*-*-*-* 	mt      STL_MTDEFS      =
-unix-*-*-*-*    	_       STL_DEFINES     = -DBSL_OVERRIDES_STD $(STL_MTDEFS)
+unix-*-*-*-*    	_       STL_DEFINES     = $(STL_MTDEFS)
 
 # shared library support
 windows			shr	STL_DEFINES	= /D_STLP_USE_DECLSPEC
