@@ -520,9 +520,12 @@ class bdea_BitArray {
         // defines a 'bdea_BitArray' object 'x' with an initial capacity of 8
         // (bits), but a logical length of 0 (bits).
 
+        // DATA
         int d_i;
+
+        // CREATORS
+        explicit InitialCapacity(int i) : d_i(i) { }
         ~InitialCapacity() { }
-        InitialCapacity(int i) : d_i(i) { }
     };
 
     // CLASS METHODS

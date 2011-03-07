@@ -799,7 +799,6 @@ bsl::ostream& bdea_BitArray::print(bsl::ostream& stream,
                                    int           spacesPerLevel) const
 {
     if (stream) {
-        const char SPACE = spacesPerLevel < 0 ? ' ' : '\n';
         if (spacesPerLevel > 0) {
             bdeu_Print::indent(stream, level, spacesPerLevel);
         }
