@@ -250,8 +250,11 @@ void my_EchoClient::allocateCb(btesc_TimedCbChannel *channel, int status) {
                   , _1, _2
                   , channel
                   , 0));
-        if (channel->timedBufferedWrite(d_controlBuffer, BUFFER_SIZE,
-                bdetu_SystemTime::now() + d_writeTimeout, callback))
+        if (channel->timedBufferedWrite(
+                                      d_controlBuffer,
+                                      BUFFER_SIZE,
+                                      bdetu_SystemTime::now() + d_writeTimeout,
+                                      callback))
         {
             cout << "Failed to enqueue write request." << endl;
             ASSERT(channel->isInvalidWrite());
@@ -308,8 +311,11 @@ void my_EchoClient::bufferedReadCb(const char *buffer, int status,
                       , _1, _2
                       , channel
                       , sequence + 1));
-            if (channel->timedBufferedWrite(d_controlBuffer, BUFFER_SIZE,
-                bdetu_SystemTime::now() + d_writeTimeout, callback))
+            if (channel->timedBufferedWrite(
+                                      d_controlBuffer,
+                                      BUFFER_SIZE,
+                                      bdetu_SystemTime::now() + d_writeTimeout,
+                                      callback))
             {
                 cout << "Failed to enqueue write request." << endl;
                 ASSERT(channel->isInvalidWrite());
@@ -360,9 +366,10 @@ void my_EchoClient::writeCb(int status, int asyncStatus,
                   , _1, _2, _3
                   , channel
                   , sequence));
-            if (channel->timedBufferedRead(BUFFER_SIZE,
-                     bdetu_SystemTime::now() + d_readTimeout,
-                     callback))
+            if (channel->timedBufferedRead(
+                                       BUFFER_SIZE,
+                                       bdetu_SystemTime::now() + d_readTimeout,
+                                       callback))
             {
                 ASSERT(channel->isInvalidRead());
                 d_allocator.deallocate(channel);

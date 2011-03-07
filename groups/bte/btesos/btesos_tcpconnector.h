@@ -94,9 +94,7 @@ BDES_IDENT("$Id: $")
 // Establish a connection with the echo server:
 //..
 //   int status;
-//   btes_TimedChannel *channel = connector.timedAllocateTimed(
-//                                   &status,
-//                                   bdetu_SystemTime::now() + connectTimeout);
+//   btesc_TimedChannel *channel = connector.allocateTimed(&status);
 //   if (!channel) {
 //       assert(0 >= status);     // Async.  interrupts are *not* enabled.
 //       if (status) {

@@ -97,19 +97,26 @@ BDES_IDENT("$Id: $")
 //   while (0 == acceptor.isInvalid()) {
 //       int status;
 //       btesc_TimedChannel *channel =
-//           acceptor.timedAllocateTimed(&status, acceptTimeout);
+//           acceptor.timedAllocateTimed(
+//                                    &status,
+//                                    bdesu_SystemTime::now() + acceptTimeout);
 //       if (channel) {
 //           while(1) {
 //                char *result;
 //                int readStatus =
-//                    channel->timedBufferedReadRaw(&result, READ_SIZE,
-//                                                  readTimeout);
+//                    channel->timedBufferedReadRaw(
+//                                      &result,
+//                                      READ_SIZE,
+//                                      bdesu_SystemTime::now() + readTimeout);
 //                if (0 >= readStatus) {
 //                    bsl::cout << "Failed to read data." << bsl::endl;
 //                    break;
 //                }
 //                int ws =
-//                    channel->timedWrite(result, readStatus, writeTimeout);
+//                    channel->timedWrite(
+//                                     result,
+//                                     readStatus,
+//                                     bdesu_SystemTime::now() + writeTimeout);
 //                if (readStatus != ws) {
 //                    bsl::cout << "Failed to send data." << bsl::endl;
 //                    break;

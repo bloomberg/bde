@@ -170,9 +170,7 @@ BDES_IDENT("$Id: $")
 //          }
 //
 //          if (d_maxConnections > ++d_numConnections) {
-//              int s = d_allocator.timedAllocateTimed(
-//                                 d_allocateFunctor,
-//                                 bdetu_SystemTime::now() + d_connectTimeout);
+//              int s = d_allocator.allocateTimed(d_allocateFunctor);
 //              ASSERT(0 == s);
 //          }
 //          return;
@@ -192,9 +190,7 @@ BDES_IDENT("$Id: $")
 //      // In any case, except for hard error on allocator, enqueue another
 //      // connect request
 //      if (d_maxConnections > ++d_numConnections) {
-//          int s = d_allocator.timedAllocateTimed(
-//                                 d_allocateFunctor,
-//                                 bdetu_SystemTime::now() + d_connectTimeout);
+//          int s = d_allocator.allocateTimed(d_allocateFunctor);
 //          assert(0 == s);
 //      }
 //  }
@@ -304,9 +300,7 @@ BDES_IDENT("$Id: $")
 //
 //  int my_EchoClient::setPeer(const bteso_IPv4Address& address) {
 //      d_allocator.setPeer(address);
-//      return d_allocator.timedAllocateTimed(
-//                                 d_allocateFunctor,
-//                                 bdetu_SystemTime::now() + d_connectTimeout);
+//      return d_allocator.allocateTimed(d_allocateFunctor);
 //  }
 //..
 ///Dual control and data channels
@@ -397,9 +391,7 @@ BDES_IDENT("$Id: $")
 //                                  this,
 //                                  _1, _2,
 //                                  &d_controlChannel));
-//      if (d_allocator.timedAllocateTimed(
-//                               callback,
-//                               bdetu_SystemTime::now() + d_connectTimeout)) {
+//      if (d_allocator.allocateTimed(callback)) {
 //          return -1;
 //      }
 //
@@ -408,7 +400,7 @@ BDES_IDENT("$Id: $")
 //                                     _1, _2,
 //                                     &d_dataChannel);
 //
-//      return d_allocator.timedAllocateTimed(callback, d_connectTimeout);
+//      return d_allocator.allocateTimed(callback);
 //  }
 //
 //..

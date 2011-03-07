@@ -170,8 +170,7 @@ BDES_IDENT("$Id: $")
 //          d_allocator.close();
 //          return -2;
 //      }
-//      if (d_allocator.timedAllocateTimed(d_allocateFunctor,
-//                 bdetu_SystemTime::now() + d_acceptTimeout))
+//      if (d_allocator.allocateTimed(d_allocateFunctor))
 //      {
 //          // Failed to enqueue a request -- the allocator is invalid.
 //          d_allocator.close();
@@ -201,14 +200,15 @@ BDES_IDENT("$Id: $")
 //                                      this,
 //                                      _1, _2, _3
 //                                      channel));
-//          if (channel->timedBufferedRead(READ_SIZE,
-//                  bdetu_SystemTime::now() + d_readTimeout, callback)) {
+//          if (channel->timedBufferedRead(
+//                                    READ_SIZE,
+//                                    bdetu_SystemTime::now() + d_readTimeout,
+//                                    callback)) {
 //              bsl::cout << "Failed to enqueue read request." << bsl::endl;
 //              d_allocator.deallocate(channel);
 //          }
 //          // Re-register allocate callback functor.
-//          if (d_allocator.timedAllocateTimed(d_allocateFunctor,
-//                  bdetu_SystemTime::now() + d_acceptTimeout)) {
+//          if (d_allocator.allocateTimed(d_allocateFunctor)) {
 //              d_allocator.close();
 //          }
 //          return;
@@ -219,8 +219,7 @@ BDES_IDENT("$Id: $")
 //              bsl::cout << "Timed out while accepting a connection."
 //                        << bsl::endl;
 //              // Re-register the functor.
-//              if (d_allocator.timedAllocateTimed(d_allocateFunctor,
-//                      bdetu_SystemTime::now() + d_acceptTimeout)) {
+//              if (d_allocator.allocateTimed(d_allocateFunctor)) {
 //                d_allocator.close();
 //              }
 //          }

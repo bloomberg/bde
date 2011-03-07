@@ -15,6 +15,7 @@
 #include <btesc_timedchannel.h>
 
 #include <bdet_timeinterval.h>
+#include <bdetu_systemtime.h>
 #include <bslma_testallocator.h>
 
 #include <bcemt_barrier.h>                  // barrier
@@ -638,9 +639,10 @@ int main(int argc, char *argv[]) {
                              }
                          }
                          int ws =
-                             channel->timedWrite(result,
-                                                 readStatus,
-                                                 writeTimeout);
+                             channel->timedWrite(
+                                       result,
+                                       readStatus,
+                                       bdetu_SystemTime::now() + writeTimeout);
                          if (readStatus != ws) {
                              if (verbose) {
                                  cout << "Failed to send data, writeStatus = "

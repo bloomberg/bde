@@ -13,6 +13,7 @@
 #include <btesc_timedchannel.h>
 
 #include <bdet_timeinterval.h>
+#include <bdetu_systemtime.h>
 #include <bslma_testallocator.h>
 
 #include <bcemt_barrier.h>                  // Barrier
@@ -615,13 +616,17 @@ int main(int argc, char *argv[]) {
             while (0 == acceptor.isInvalid()) {
                 int status;
                 btesc_TimedChannel *channel =
-                    acceptor.timedAllocateTimed(&status, acceptTimeout);
+                    acceptor.timedAllocateTimed(
+                                      &status,
+                                      bdetu_SystemTime::now() + acceptTimeout);
                 if (channel) {
                     while(1) {
                          const char * result;
                          int readStatus =
-                             channel->timedBufferedReadRaw(&result, READ_SIZE,
-                                     readTimeout);
+                             channel->timedBufferedReadRaw(
+                                        &result,
+                                        READ_SIZE,
+                                        bdetu_SystemTime::now() + readTimeout);
                          if (0 >= readStatus) {
                              if (verbose) {
                                  cout << "Failed to read data, readStatus = "
@@ -635,9 +640,10 @@ int main(int argc, char *argv[]) {
                              }
                          }
                          int ws =
-                             channel->timedWrite(result,
-                                                 readStatus,
-                                                 writeTimeout);
+                             channel->timedWrite(
+                                       result,
+                                       readStatus,
+                                       bdetu_SystemTime::now() + writeTimeout);
                          if (readStatus != ws) {
                              if (verbose) {
                                  cout << "Failed to send data, writeStatus = "

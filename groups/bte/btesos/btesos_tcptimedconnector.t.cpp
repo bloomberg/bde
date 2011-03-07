@@ -554,7 +554,9 @@ int main(int argc, char *argv[]) {
             memcpy(controlPacket, inputPacket, PACKET_SIZE);
             int status;
             btesc_TimedChannel *channel =
-                     connector.timedAllocateTimed(&status, connectTimeout);
+                     connector.timedAllocateTimed(
+                                     &status,
+                                     bdetu_SystemTime::now() + connectTimeout);
             if (!channel) {
                 ASSERT(0 >= status);    // Async interrupts are *not* enabled.
                 if (status) {
@@ -576,15 +578,18 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < NUM_PACKETS; ++i) {
                  // Request/response mechanism
                 int writeStatus =
-                   channel->timedWrite(inputPacket, PACKET_SIZE, writeTimeout);
+                   channel->timedWrite(inputPacket,
+                                       PACKET_SIZE,
+                                       bdetu_SystemTime::now() + writeTimeout);
                 if (PACKET_SIZE != writeStatus) {
                     if (verbose) bsl::cout << "Failed to send data."
                                            << bsl::endl;
                     break;
                 }
-                int readStatus = channel->timedRead(receivedPacket,
-                                                    PACKET_SIZE,
-                                                    readTimeout);
+                int readStatus = channel->timedRead(
+                                        receivedPacket,
+                                        PACKET_SIZE,
+                                        bdetu_SystemTime::now() + readTimeout);
                 if (PACKET_SIZE != readStatus) {
                     if (verbose) cout << "Failed to read data"
                                       << bsl::endl;

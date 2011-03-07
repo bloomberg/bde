@@ -1750,6 +1750,11 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;  // global variable
     int errCode = 0;
 
+    // TBD: these tests frequently timeout on Windows, disabling until fixed
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    testStatus = -1;
+#else
+
 #ifdef BSLS_PLATFORM__OS_UNIX
     mySignal(SIGPIPE, sigPipeHandler);    // register a handler for SIGPIPE.
     // A write() on the closed socket will generate SIGPIPE.
@@ -13001,6 +13006,9 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
+
+#endif // !BSLS_PLATFORM__OS_WINDOWS
+
     return testStatus;
 }
 

@@ -1365,6 +1365,11 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
     int errCode = 0;
 
+    // TBD: these tests frequently timeout on Windows, disabling until fixed
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    testStatus = -1;
+#else
+
 #ifdef BSLS_PLATFORM__OS_UNIX
     mySignal(SIGPIPE, sigPipeHandler);    // register a handler for SIGPIPE.
     // A write() on the closed socket will generate SIGPIPE.
@@ -9434,6 +9439,9 @@ int main(int argc, char *argv[])
     errCode = 0;
     bteso_SocketImpUtil::cleanup(&errCode);
     ASSERT(0 == errCode);
+
+#endif // !BSLS_PLATFORM__OS_WINDOWS
+
     return testStatus;
 }
 

@@ -558,8 +558,7 @@ int main(int argc, char *argv[]) {
             generatePattern(inputPacket, PACKET_SIZE);
             memcpy(controlPacket, inputPacket, PACKET_SIZE);
             int status;
-            btesc_TimedChannel *channel =
-                     connector.allocateTimed(&status);
+            btesc_TimedChannel *channel = connector.allocateTimed(&status);
 
             if (!channel) {
                 ASSERT(0 >= status);    // Async interrupts are *not* enabled.
@@ -587,7 +586,9 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < NUM_PACKETS; ++i) {
                  // Request/response mechanism
                 int writeStatus =
-                   channel->timedWrite(inputPacket, PACKET_SIZE, writeTimeout);
+                   channel->timedWrite(inputPacket,
+                                       PACKET_SIZE,
+                                       bdetu_SystemTime::now() + writeTimeout);
                 if (PACKET_SIZE != writeStatus) {
                   if (verbose) cout << "Failed to send data, writeStatus =  "
                                     << writeStatus << bsl::endl;
@@ -598,7 +599,10 @@ int main(int argc, char *argv[]) {
                                       << writeStatus << endl;
                 }
 
-                int readStatus = channel->read(receivedPacket, PACKET_SIZE);
+                int readStatus = channel->timedRead(
+                                        receivedPacket,
+                                        PACKET_SIZE,
+                                        bdetu_SystemTime::now() + readTimeout);
                 if (PACKET_SIZE != readStatus) {
                     if (verbose) cout << "Failed to read data, readStatus = "
                                       << readStatus << bsl::endl;
