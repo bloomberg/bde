@@ -59,7 +59,7 @@ cwchar          bsl_cwchar.h        cwchar.SUNWCCh
 cwctype         bsl_cwctype.h       cwctype.SUNWCCh
 
 # Package headers
-bsl_stdhdrs_prologue.h
 bsl_stdhdrs_epilogue.h
-bsl_stdhdrs_file_ids.h
+bsl_stdhdrs_epilogue_recursive.h
 bsl_stdhdrs_incpaths.h
+bsl_stdhdrs_prologue.h

@@ -36,7 +36,12 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_C_LIB_HEADER(stddef.h)
+#   if defined(BSLS_PLATFORM__CMP_GNU) && \
+                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#     include_next <stddef.h>
+#   else
+#     include BSL_NATIVE_C_LIB_HEADER(stddef.h)
+#   endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
 
@@ -53,7 +58,12 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_C_LIB_HEADER(stddef.h)
+#   if defined(BSLS_PLATFORM__CMP_GNU) && \
+                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#     include_next <stddef.h>
+#   else
+#     include BSL_NATIVE_C_LIB_HEADER(stddef.h)
+#   endif
 
 //  On SUN, 'stddef.h' (a C header) defines 'size_t'.  This odd implementation
 //  forces the following 'using' directive. 

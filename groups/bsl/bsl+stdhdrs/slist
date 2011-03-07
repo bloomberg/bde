@@ -27,7 +27,12 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(slist)
+#   if defined(BSLS_PLATFORM__CMP_GNU) && \
+                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#     include_next <slist>
+#   else
+#     include BSL_NATIVE_CPP_LIB_HEADER(slist)
+#   endif
 
 #else
 

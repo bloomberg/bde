@@ -58,7 +58,7 @@
 
  The following sections provide more information on the two modes:
 
-/Native-STL mode
+/Native-STL Mode
 /- - - - - - - -
  In Native-STL mode, users that include standard headers, such as '<vector>',
  '<algorithm>', '<string>', etc., will include the native (i.e., compiler
@@ -92,7 +92,7 @@
  (**) Note that 'hash_map', 'hash_set', 'hash_multimap', 'hash_multiset' are
  not part of the C++ standard library.
 
-/BDE-STL mode
+/BDE-STL Mode
 /- - - - - - -
  In BDE-STL mode, the namespace 'std' is equivalent to 'bsl'.  Users explicitly
  using 'std::' to qualify standard library components will still be using
@@ -143,12 +143,17 @@
      Native-STL mode) before passing the object through.
 ..
 
- Note that the rest of this document is intended to explain the design and
- record the reasons for design decisions made during the development of the
- hybrid bsl mechanism.  Readers who are interested only in how to use this
- mechanism can stop here.
+ Note that the BSL package group itself is built in native STL mode (i.e.,
+ 'BSL_OVERRIDES_STD' is *not* defined).  BSL needs to use 'bslstl' headers,
+ and they are not designed to be included directly in 'BSL_OVERRIDES_STD'
+ mode.
 
-/Hierarchical structure of hybrid bsl mechanism
+ The rest of this document is intended to explain the design and record the
+ reasons for design decisions made during the development of the hybrid bsl
+ mechanism.  Readers who are interested only in how to use this mechanism can
+ stop here.
+
+/Hierarchical Structure of Hybrid BSL Mechanism
 /----------------------------------------------
 /bslstl
 /- - -
@@ -178,7 +183,7 @@
  Note that when users compile under Native-STL mode, the headers in
  'bsl+stdhdrs' are not necessary (though no harm when included).
 
-/Understanding the files in 'bsl+stdhdrs'
+/Understanding the Files in 'bsl+stdhdrs'
 /----------------------------------------
  The headers in 'bsl+stdhdrs' are intended to replace standard STL headers, and
  contain complex preprocessor logic to support BDE-STL mode.  These headers
@@ -330,41 +335,13 @@
  epilogue file ('bsl_stdhdrs_epilogue.h') was introduced to centralize the
  preprocessor logic that accomplishes the above post processing step.
 
- Note that the include order in the epilogue must be defined carefully.  Simple
- alphabetical ordering is insufficient.  Even in the epilogue, we need to
- ensure that all of the required Bloomberg implementations are included
- whenever a native header is included.  Since including a 'bslstl_*.h' header
- might result in inclusion of other native headers (e.g., including
- '<bslstl_string.h>' might in turn include native '<memory>'), we need to order
- the inclusions in the epilogue in reverse dependency order.  This constraint
- means, for example, that if '<bslstl_string.h>' uses '<memory>' (which brings
- in the definition for 'std::allocator'), then 'bslstl_allocator.h' must come
- after 'bslstl_string.h' in the epilogue in order to bring in 'bsl::allocator'.
- Otherwise, due to the include-standard-headers-once-only feature of the Sun
- compiler, the following code will not work correctly:
-..
-  // bsl_stdhdrs_epilogue.h
-
-  #ifdef INCLUDED_NATIVE_MEMORY
-  #include <bslstl_allocator.h>
-  #endif
-
-  #ifdef INCLUDED_NATIVE_STRING
-  #include <bslstl_string.h>
-  #endif
-
-  ---------------------------------
-  // implementation file
-
-  #include <string>
-  #include <memory>
-..
- When the compiler processes the inclusion of epilogue from the '<string>'
- header, '<bslstl_allocator.h>' is not included since native '<memory>' has not
- yet been included.  However, native '<memory>' is later included through
- '<bslstl_string.h>', which means that '<bslstl_allocator.h>' will never be
- pulled into the include graph because subsequent inclusions of '<memory>' will
- be silently ignored by the Sun compiler.
+ The epilogue file can recursively include itself (via
+ 'bsl_stdhdrs_epilogue_recursive.h') to process all native headers
+ independently of their dependencies on each other and independently of
+ 'bslstl' header dependencies on native headers.  (Recursion here is a
+ preprocessor equivalent for a loop.)  By doing so, it guarantees that it
+ finishes only when all native headers are matched with our corresponding
+ implementations.
 
 /Other Design Discussions
 /------------------------

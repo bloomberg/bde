@@ -36,7 +36,12 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_C_LIB_HEADER(stdio.h)
+#   if defined(BSLS_PLATFORM__CMP_GNU) && \
+                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#     include_next <stdio.h>
+#   else
+#     include BSL_NATIVE_C_LIB_HEADER(stdio.h)
+#   endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
 
@@ -53,7 +58,12 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_C_LIB_HEADER(stdio.h)
+#   if defined(BSLS_PLATFORM__CMP_GNU) && \
+                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#     include_next <stdio.h>
+#   else
+#     include BSL_NATIVE_C_LIB_HEADER(stdio.h)
+#   endif
 
 // This native header does not define any symbols in namespace 'std' to import,
 // so the following include is not necessary:

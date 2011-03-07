@@ -27,7 +27,12 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(complex)
+#   if defined(BSLS_PLATFORM__CMP_GNU) && \
+                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#     include_next <complex>
+#   else
+#     include BSL_NATIVE_CPP_LIB_HEADER(complex)
+#   endif
 
 #else // defined(BSL_OVERRIDES_STD)
 
@@ -44,7 +49,12 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(complex)
+#   if defined(BSLS_PLATFORM__CMP_GNU) && \
+                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#     include_next <complex>
+#   else
+#     include BSL_NATIVE_CPP_LIB_HEADER(complex)
+#   endif
 
 #   if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
         // Permit reliance on transitive includes within robo.
