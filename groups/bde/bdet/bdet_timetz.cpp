@@ -27,13 +27,15 @@ bsl::ostream& bdet_TimeTz::print(bsl::ostream& stream,
 
     bdeu_Print::indent(stream, level, spacesPerLevel);
 
+    // Write to a temporary stream having width 0 in case the caller has done
+    // something like:
+    //..
+    //  os << bsl::setw(20) << myTimeTz;
+    //..
+    // The user-specified width will be effective when 'tmp.str()' is written
+    // to 'stream' (below).
+
     bsl::ostringstream tmp;
-
-    // Set the width of 'tmp' to 0, so that the original width of 'stream' is
-    // preserved when streaming 'tmp' into 'stream'.
-
-    tmp.copyfmt(stream);
-    tmp.width(0);
 
     tmp << d_time;
 

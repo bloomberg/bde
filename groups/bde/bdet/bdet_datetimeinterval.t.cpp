@@ -1556,8 +1556,10 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
     // This is necessary because on linux, for some inexplainable reason,
     // even 'X.totalSecondsAsDouble() == X.totalSecondsAsDouble()' returns
-    // false.
-                const double SECONDS = X.totalSecondsAsDouble();
+    // false.  Under gcc 4.3.5, it's even necessary to declare 'SECONDS' as
+    // volatile, probably in order to force a narrowing of the value to a
+    // 64-bit double from the wider internal processor FP registers.
+                volatile double SECONDS = X.totalSecondsAsDouble();
                 LOOP_ASSERT(i, DBL_SECS  == SECONDS);
 
     // This is commented out due to precision problem when casting

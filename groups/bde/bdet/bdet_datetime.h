@@ -61,25 +61,25 @@ BDES_IDENT("$Id: $")
 // default-constructed 'bdet_Datetime' object, 'dt', are
 // "0001/01/01_24:00:00.000":
 //..
-//  bdet_Datetime dt;           BSLS_ASSERT( 1 == dt.date().year());
-//                              BSLS_ASSERT( 1 == dt.date().month());
-//                              BSLS_ASSERT( 1 == dt.date().day());
-//                              BSLS_ASSERT(24 == dt.time().hour());
-//                              BSLS_ASSERT( 0 == dt.time().minute());
-//                              BSLS_ASSERT( 0 == dt.time().second());
-//                              BSLS_ASSERT( 0 == dt.time().millisecond());
+//  bdet_Datetime dt;           assert( 1 == dt.date().year());
+//                              assert( 1 == dt.date().month());
+//                              assert( 1 == dt.date().day());
+//                              assert(24 == dt.time().hour());
+//                              assert( 0 == dt.time().minute());
+//                              assert( 0 == dt.time().second());
+//                              assert( 0 == dt.time().millisecond());
 //..
 // We can then set 'dt' to have a specific value, say, 8:43pm on January 6,
 // 2013:
 //..
 //  dt.setDatetime(2013, 1, 6, 20, 43);
-//                              BSLS_ASSERT(2013 == dt.date().year());
-//                              BSLS_ASSERT(   1 == dt.date().month());
-//                              BSLS_ASSERT(   6 == dt.date().day());
-//                              BSLS_ASSERT(  20 == dt.time().hour());
-//                              BSLS_ASSERT(  43 == dt.time().minute());
-//                              BSLS_ASSERT(   0 == dt.time().second());
-//                              BSLS_ASSERT(   0 == dt.time().millisecond());
+//                              assert(2013 == dt.date().year());
+//                              assert(   1 == dt.date().month());
+//                              assert(   6 == dt.date().day());
+//                              assert(  20 == dt.time().hour());
+//                              assert(  43 == dt.time().minute());
+//                              assert(   0 == dt.time().second());
+//                              assert(   0 == dt.time().millisecond());
 //..
 // Now suppose we add 6 hours and 9 seconds to this value.  There is more
 // than one way to do it:
@@ -87,39 +87,39 @@ BDES_IDENT("$Id: $")
 //  bdet_Datetime dt2(dt);
 //  dt2.addHours(6);
 //  dt2.addSeconds(9);
-//                              BSLS_ASSERT(2013 == dt2.date().year());
-//                              BSLS_ASSERT(   1 == dt2.date().month());
-//                              BSLS_ASSERT(   7 == dt2.date().day());
-//                              BSLS_ASSERT(   2 == dt2.time().hour());
-//                              BSLS_ASSERT(  43 == dt2.time().minute());
-//                              BSLS_ASSERT(   9 == dt2.time().second());
-//                              BSLS_ASSERT(   0 == dt2.time().millisecond());
+//                              assert(2013 == dt2.date().year());
+//                              assert(   1 == dt2.date().month());
+//                              assert(   7 == dt2.date().day());
+//                              assert(   2 == dt2.time().hour());
+//                              assert(  43 == dt2.time().minute());
+//                              assert(   9 == dt2.time().second());
+//                              assert(   0 == dt2.time().millisecond());
 //
 //  bdet_Datetime dt3(dt);
 //  dt3.addTime(6, 0, 9);
-//                              BSLS_ASSERT(dt2 == dt3);
+//                              assert(dt2 == dt3);
 //..
 // Notice that (in both cases) the date changed as a result of adding time;
 // however, changing just the date never affects the time:
 //..
 //  dt3.addDays(10);
-//                              BSLS_ASSERT(2013 == dt3.date().year());
-//                              BSLS_ASSERT(   1 == dt3.date().month());
-//                              BSLS_ASSERT(  17 == dt3.date().day());
-//                              BSLS_ASSERT(   2 == dt3.time().hour());
-//                              BSLS_ASSERT(  43 == dt3.time().minute());
-//                              BSLS_ASSERT(   9 == dt3.time().second());
-//                              BSLS_ASSERT(   0 == dt3.time().millisecond());
+//                              assert(2013 == dt3.date().year());
+//                              assert(   1 == dt3.date().month());
+//                              assert(  17 == dt3.date().day());
+//                              assert(   2 == dt3.time().hour());
+//                              assert(  43 == dt3.time().minute());
+//                              assert(   9 == dt3.time().second());
+//                              assert(   0 == dt3.time().millisecond());
 //..
 // We can also add more than a day's worth of time:
 //..
 //  dt2.addHours(240);
-//                              BSLS_ASSERT(dt3 == dt2);
+//                              assert(dt3 == dt2);
 //..
 // The individual arguments can also be negative:
 //..
 //  dt2.addTime(-246, 0, -10, 1000);  // -246 h, -10 s, +1000 ms
-//                              BSLS_ASSERT(dt == dt2);
+//                              assert(dt == dt2);
 //..
 // Finally, we stream the value of 'dt2' to 'stdout':
 //..

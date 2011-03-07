@@ -35,17 +35,17 @@ BDES_IDENT("$Id: $")
 // The following snippets of code illustrate how to create and use a
 // 'bdet_Time' object.  First we create a default-constructed object 't1':
 //..
-//  bdet_Time t1;                BSLS_ASSERT(24 == t1.hour());
-//                               BSLS_ASSERT( 0 == t1.minute());
-//                               BSLS_ASSERT( 0 == t1.second());
-//                               BSLS_ASSERT( 0 == t1.millisecond());
+//  bdet_Time t1;                assert(24 == t1.hour());
+//                               assert( 0 == t1.minute());
+//                               assert( 0 == t1.second());
+//                               assert( 0 == t1.millisecond());
 //..
 // Then we set 't1' to the value 2:34pm (14:34:00.000):
 //..
-//  t1.setTime(14, 34);          BSLS_ASSERT(14 == t1.hour());
-//                               BSLS_ASSERT(34 == t1.minute());
-//                               BSLS_ASSERT( 0 == t1.second());
-//                               BSLS_ASSERT( 0 == t1.millisecond());
+//  t1.setTime(14, 34);          assert(14 == t1.hour());
+//                               assert(34 == t1.minute());
+//                               assert( 0 == t1.second());
+//                               assert( 0 == t1.millisecond());
 //..
 // We can also use 'setTimeIfValid' if we are not sure whether the particular
 // time we want to set to is a valid 'bdet_Time' value.  For example, if we
@@ -53,32 +53,32 @@ BDES_IDENT("$Id: $")
 // instead of 0:
 //..
 //  int ret = t1.setTimeIfValid(24, 15);
-//                               BSLS_ASSERT( 0 != ret);          // "24:15" is
-//                                                                // not valid
+//                               assert( 0 != ret);          // "24:15" is not
+//                                                           // valid
 //
-//                               BSLS_ASSERT(14 == t1.hour());    // no effect
-//                               BSLS_ASSERT(34 == t1.minute());  // on the
-//                               BSLS_ASSERT( 0 == t1.second());  // object
-//                               BSLS_ASSERT( 0 == t1.millisecond());
+//                               assert(14 == t1.hour());    // no effect
+//                               assert(34 == t1.minute());  // on the
+//                               assert( 0 == t1.second());  // object
+//                               assert( 0 == t1.millisecond());
 //..
 // Next we copy-construct 't2' from 't1':
 //..
-//  bdet_Time t2(t1);            BSLS_ASSERT(t1 == t2);
+//  bdet_Time t2(t1);            assert(t1 == t2);
 //..
 // We can also add time to an existing time object:
 //..
 //  t2.addMinutes(5);
 //  t2.addSeconds(7);
-//                               BSLS_ASSERT(14 == t2.hour());
-//                               BSLS_ASSERT(39 == t2.minute());
-//                               BSLS_ASSERT( 7 == t2.second());
-//                               BSLS_ASSERT( 0 == t2.millisecond());
+//                               assert(14 == t2.hour());
+//                               assert(39 == t2.minute());
+//                               assert( 7 == t2.second());
+//                               assert( 0 == t2.millisecond());
 //..
 // Subtracting two 'bdet_Time' objects, 't1' from 't2', will yield a
 // 'bdet_DatetimeInterval':
 //..
 //  bdet_DatetimeInterval dt = t2 - t1;
-//                               BSLS_ASSERT(307 == dt.totalSeconds());
+//                               assert(307 == dt.totalSeconds());
 //..
 // Finally we stream the value of 't2' to 'stdout':
 //..

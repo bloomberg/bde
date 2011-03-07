@@ -26,13 +26,15 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
 
     bdeu_Print::indent(stream, level, spacesPerLevel);
 
+    // Write to a temporary stream having width 0 in case the caller has done
+    // something like:
+    //..
+    //  os << bsl::setw(20) << myDatetime;
+    //..
+    // The user-specified width will be effective when 'tmp.str()' is written
+    // to 'stream' (below).
+
     bsl::ostringstream tmp;
-
-    // Set the width of 'tmp' to 0, so that the original width of 'stream' is
-    // preserved when streaming 'tmp' into 'stream'.
-
-    tmp.copyfmt(stream);
-    tmp.width(0);
 
     tmp << date() << '_' << time();
 
@@ -40,9 +42,7 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
         tmp << '\n';
     }
 
-    stream << tmp.str();
-
-    return stream;
+    return stream << tmp.str() << bsl::flush;
 }
 
 // FREE OPERATORS

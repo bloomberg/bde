@@ -92,16 +92,16 @@ BDES_IDENT("$Id: $")
 // The following snippets of code illustrate how to create and use a
 // 'bdet_date' object.  First create a default date 'd1':
 //..
-//  bdet_Date d1;           BSLS_ASSERT(   1 == d1.year());
-//                          BSLS_ASSERT(   1 == d1.month());
-//                          BSLS_ASSERT(   1 == d1.day());
+//  bdet_Date d1;           assert(   1 == d1.year());
+//                          assert(   1 == d1.month());
+//                          assert(   1 == d1.day());
 //..
 // Next, set 'd1' to July 4, 1776:
 //..
 //  d1.setYearMonthDay(1776, 7, 4);
-//                          BSLS_ASSERT(1776 == d1.year());
-//                          BSLS_ASSERT(   7 == d1.month());
-//                          BSLS_ASSERT(   4 == d1.day());
+//                          assert(1776 == d1.year());
+//                          assert(   7 == d1.month());
+//                          assert(   4 == d1.day());
 //..
 // We can also use 'setYearMonthDayIfValid' if we are not sure whether the
 // particular date we want to set to is a valid 'bdet_Date'.  For example, if
@@ -109,38 +109,38 @@ BDES_IDENT("$Id: $")
 // not a leap year, there will be no effect on the existing value of the date:
 //..
 //  int ret = d1.setYearMonthDayIfValid(1900, 2, 29);
-//                          BSLS_ASSERT(   0 != ret);         // not leap year
+//                          assert(   0 != ret);         // not leap year
 //
-//                          BSLS_ASSERT(1776 == d1.year());   // no effect
-//                          BSLS_ASSERT(   7 == d1.month());  // on the
-//                          BSLS_ASSERT(   4 == d1.day());    // object
+//                          assert(1776 == d1.year());   // no effect
+//                          assert(   7 == d1.month());  // on the
+//                          assert(   4 == d1.day());    // object
 //..
 // From the date object, we can tell the day of year and day of week:
 //..
 //  int dayOfYear = d1.dayOfYear();
-//                          BSLS_ASSERT( 186 == dayOfYear);
+//                          assert( 186 == dayOfYear);
 //
 //  bdet_DayOfWeek::Day dayOfWeek = d1.dayOfWeek();
-//                          BSLS_ASSERT(bdet_DayOfWeek::BDET_THU == dayOfWeek);
+//                          assert(bdet_DayOfWeek::BDET_THU == dayOfWeek);
 //..
 // Finally, we can also create a date object 'd2' using the year and day of
 // year:
 //..
 //  bdet_Date d2(1776, dayOfYear);
-//                          BSLS_ASSERT(1776 == d2.year());
-//                          BSLS_ASSERT(   7 == d2.month());
-//                          BSLS_ASSERT(   4 == d2.day());
+//                          assert(1776 == d2.year());
+//                          assert(   7 == d2.month());
+//                          assert(   4 == d2.day());
 //..
 // Now, add six days to the value of 'd2'.
 //..
-//  d2 += 6;                BSLS_ASSERT(1776 == d2.year());
-//                          BSLS_ASSERT(   7 == d2.month());
-//                          BSLS_ASSERT(  10 == d2.day());
+//  d2 += 6;                assert(1776 == d2.year());
+//                          assert(   7 == d2.month());
+//                          assert(  10 == d2.day());
 //..
 // Next subtract 'd1' from 'd2', storing the difference (in days) in
 // 'daysDiff':
 //..
-//  int daysDiff = d2 - d1; BSLS_ASSERT(   6 == daysDiff);
+//  int daysDiff = d2 - d1; assert(   6 == daysDiff);
 //..
 // Finally, stream the value of 'd2' to 'stdout':
 //..
