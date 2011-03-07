@@ -1,4 +1,4 @@
-// bslmf_memberfunctionpointertraits.t.cpp            -*-C++-*-
+// bslmf_memberfunctionpointertraits.t.cpp                            -*-C++-*-
 
 #include <bslmf_memberfunctionpointertraits.h>
 
@@ -180,7 +180,7 @@ typedef T14 (T14::*TestFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
 typedef T0 (T0::*TestFunc0C)() const;
 typedef T1 (T1::*TestFunc1C)(T1) const;
 typedef T2 (T2::*TestFunc2C)(T1, T2) const;
-typedef T3 (T3::*TestFunc3C)(T1, T2, T3) const; //
+typedef T3 (T3::*TestFunc3C)(T1, T2, T3) const;
 typedef T4 (T4::*TestFunc4C)(T1, T2, T3, T4) const;
 typedef T5 (T5::*TestFunc5C)(T1, T2, T3,T4, T5) const;
 typedef T6 (T6::*TestFunc6C)(T1, T2, T3, T4, T5, T6) const;
@@ -197,23 +197,24 @@ typedef T13 (T13::*TestFunc13C)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
 typedef T14 (T14::*TestFunc14C)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
                                 T12, T13, T14) const;
 
-typedef void (*TestVFunc0)();
-typedef void (*TestVFunc1)(T1);
-typedef void (*TestVFunc2)(T1, T2);
-typedef void (*TestVFunc3)(T1, T2, T3); //
-typedef void (*TestVFunc4)(T1, T2, T3, T4);
-typedef void (*TestVFunc5)(T1, T2, T3,T4, T5);
-typedef void (*TestVFunc6)(T1, T2, T3, T4, T5, T6);
-typedef void (*TestVFunc7)(T1, T2, T3, T4, T5, T6, T7);
-typedef void (*TestVFunc8)(T1, T2, T3, T4, T5, T6, T7, T8);
-typedef void (*TestVFunc9)(T1, T2, T3, T4, T5, T6, T7, T8, T9);
-typedef void (*TestVFunc10)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10);
-typedef void (*TestVFunc11)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
-typedef void (*TestVFunc12)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12);
-typedef void (*TestVFunc13)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
-                            T13);
-typedef void (*TestVFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
-                            T13, T14);
+typedef void (*TestVoidFunc0)();
+typedef void (*TestVoidFunc1)(T1);
+typedef void (*TestVoidFunc2)(T1, T2);
+typedef void (*TestVoidFunc3)(T1, T2, T3);
+typedef void (*TestVoidFunc4)(T1, T2, T3, T4);
+typedef void (*TestVoidFunc5)(T1, T2, T3,T4, T5);
+typedef void (*TestVoidFunc6)(T1, T2, T3, T4, T5, T6);
+typedef void (*TestVoidFunc7)(T1, T2, T3, T4, T5, T6, T7);
+typedef void (*TestVoidFunc8)(T1, T2, T3, T4, T5, T6, T7, T8);
+typedef void (*TestVoidFunc9)(T1, T2, T3, T4, T5, T6, T7, T8, T9);
+typedef void (*TestVoidFunc10)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10);
+typedef void (*TestVoidFunc11)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
+typedef void (*TestVoidFunc12)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                               T12);
+typedef void (*TestVoidFunc13)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                               T12, T13);
+typedef void (*TestVoidFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                               T12, T13, T14);
 
 //=============================================================================
 //                              USAGE EXAMPLE
@@ -221,17 +222,17 @@ typedef void (*TestVFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
 
 // Define the following function types:
 //..
-    typedef void (*VFunc0)();
+    typedef void (*VoidFunc0)();
 //..
 // and the following 'struct' with the following members:
 //..
     struct MyTestClass {
-        static void Vfunc0() {}
-        int Vfunc1(int) { return 0; }
-        int Vfunc2(int, int) { return 1; }
+        static void voidFunc0() {}
+        int func1(int) { return 0; }
+        int func2(int, int) { return 1; }
     };
 //..
-// In order to deduce the types of 'Vfunc0' and 'Vfunc1', we will use the
+// In order to deduce the types of 'voidFunc0' and 'func1', we will use the
 // C++ template system to get two auxiliary functions:
 //..
     template <class TYPE>
@@ -259,11 +260,11 @@ typedef void (*TestVFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
         ASSERT(0 == bslmf_IsMemberFunctionPointer<int>::VALUE);
         ASSERT(0 == bslmf_IsMemberFunctionPointer<int>::VALUE);
 
-        checkNotMemberFunctionPointer( &MyTestClass::Vfunc0);
+        checkNotMemberFunctionPointer( &MyTestClass::voidFunc0);
         checkMemberFunctionPointer<int, bslmf_TypeList1<int> >(
-                                                         &MyTestClass::Vfunc1);
+                                                          &MyTestClass::func1);
         checkMemberFunctionPointer<int, bslmf_TypeList2<int, int> >(
-                                                         &MyTestClass::Vfunc2);
+                                                          &MyTestClass::func2);
     }
 //..
 

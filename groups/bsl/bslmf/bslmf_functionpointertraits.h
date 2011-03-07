@@ -32,14 +32,14 @@ BSLS_IDENT("$Id: $")
 //
 // Note that there is no reference to function traits, since whether 'FUNC' is
 // a reference to function type can be very easily obtained using the
-// meta-function call 'bslmf_IsFunctionPointer<FUNC*>'.
+// meta-function call 'bslmf_IsFunctionPointer<FUNC *>'.
 //
 ///Usage
 ///-----
 // Define the following function types:
 //..
 //  typedef int  (*IntFunctionIntIntPtr)(int, int);
-//  typedef void (*VFunc0)();
+//  typedef void (*VoidFunc0)();
 //..
 // The following program should compile and run without errors:
 //..
@@ -53,9 +53,9 @@ BSLS_IDENT("$Id: $")
 //                                                                 ResultType1;
 //      assert(1 == (bslmf_IsSame<ResultType1, int>::VALUE));
 //
-//      assert(1 == bslmf_IsFunctionPointer<Vfunc0>::VALUE);
-//      typedef bslmf_FunctionPointerTraits<VFunc0>::ResultType    ResultType0;
-//      typedef bslmf_FunctionPointerTraits<VFunc0>::ArgumentList  ArgList0;
+//      assert(1 == bslmf_IsFunctionPointer<VoidFunc0>::VALUE);
+//      typedef bslmf_FunctionPointerTraits<VoidFunc0>::ResultType ResultType0;
+//      typedef bslmf_FunctionPointerTraits<VoidFunc0>::ArgumentList  ArgList0;
 //      assert(1 == (bslmf_IsSame<ResultType0, void>::VALUE));
 //      assert(1 == (bslmf_IsSame<ArgList0, bslmf_TypeList0>::VALUE));
 //  }

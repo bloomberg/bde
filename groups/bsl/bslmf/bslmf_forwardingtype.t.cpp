@@ -178,11 +178,11 @@ int main(int argc, char *argv[])
 
         ASSERT_SAME(bslmf_ConstForwardingType<int       >::Type, int);
         ASSERT_SAME(bslmf_ConstForwardingType<int&      >::Type, int&);
-        P(bslmf_ConstForwardingType<int&>::BSLMF_FORWARDING_TYPE__ID);
+        if (verbose) P(bslmf_ConstForwardingType<int&>::BSLMF_FORWARDING_TYPE__ID);
         ASSERT_SAME(bslmf_ConstForwardingType<int const&>::Type, int);
 
         ASSERT_SAME(bslmf_ConstForwardingType<void *>::Type, void *);
-        P(bslmf_ConstForwardingType<void *>::BSLMF_FORWARDING_TYPE__ID);
+        if (verbose) P(bslmf_ConstForwardingType<void *>::BSLMF_FORWARDING_TYPE__ID);
         ASSERT_SAME(bslmf_ConstForwardingType<void *&        >::Type, void *&);
         ASSERT_SAME(bslmf_ConstForwardingType<void volatile *&>::Type,
                     volatile void *&);
@@ -198,8 +198,8 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf_ConstForwardingType<Union&  >::Type, Union&);
         ASSERT(0 == bslmf_IsArray<Class>::VALUE);
         ASSERT_SAME(bslmf_ConstForwardingType<Class   >::Type,const Class&);
-        P(bslmf_ConstForwardingType<Class>::BSLMF_FORWARDING_TYPE__ID);
-        P(bslmf_ConstForwardingType<Class>::IS_BASIC_TYPE);
+        if (verbose) P(bslmf_ConstForwardingType<Class>::BSLMF_FORWARDING_TYPE__ID);
+        if (verbose) P(bslmf_ConstForwardingType<Class>::IS_BASIC_TYPE);
         ASSERT_SAME(bslmf_ConstForwardingType<const Class&>::Type,
                     const Class&);
 
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 
         ASSERT_SAME(bslmf_ConstForwardingType< A>::Type, const char*);
         ASSERT_SAME(bslmf_ConstForwardingType<RA>::Type, char*);
-        P(bslmf_ConstForwardingType<RA>::BSLMF_FORWARDING_TYPE__ID);
+        if (verbose) P(bslmf_ConstForwardingType<RA>::BSLMF_FORWARDING_TYPE__ID);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
                           << "=====================" << endl;
 
         ASSERT_SAME(bslmf_ForwardingType<int       >::Type, int);
-        P(typeid(bslmf_ForwardingType<int>::Type).name());
+        if (verbose) P(typeid(bslmf_ForwardingType<int>::Type).name());
         ASSERT_SAME(bslmf_ForwardingType<int&      >::Type, int&);
         ASSERT_SAME(bslmf_ForwardingType<int const&>::Type, int);
 
@@ -253,8 +253,8 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf_ForwardingType<Union&      >::Type, Union&);
         ASSERT(0 == bslmf_IsArray<Class>::VALUE);
         ASSERT_SAME(bslmf_ForwardingType<Class       >::Type, const Class&);
-        P(bslmf_ForwardingType<Class>::BSLMF_FORWARDING_TYPE__ID);
-        P(bslmf_ForwardingType<Class>::IS_BASIC_TYPE);
+        if (verbose) P(bslmf_ForwardingType<Class>::BSLMF_FORWARDING_TYPE__ID);
+        if (verbose) P(bslmf_ForwardingType<Class>::IS_BASIC_TYPE);
         ASSERT_SAME(bslmf_ForwardingType<const Class&>::Type, const Class&);
 
         ASSERT_SAME(bslmf_ForwardingType<INT >::Type, int);

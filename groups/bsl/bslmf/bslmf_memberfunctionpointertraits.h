@@ -31,17 +31,17 @@ BSLS_IDENT("$Id: $")
 ///-----
 // Define the following function types:
 //..
-//  typedef void (*VFunc0)();
+//  typedef void (*VoidFunc0)();
 //..
 // and the following 'struct' with the following members:
 //..
 //  struct MyTestClass {
-//      static void Vfunc0() {}
-//      int Vfunc1(int) { return 0; }
-//      int Vfunc2(int, int) { return 1; }
+//      static void voidFunc0() {}
+//      int func1(int) { return 0; }
+//      int func2(int, int) { return 1; }
 //  };
 //..
-// In order to deduce the types of 'Vfunc0' and 'Vfunc1', we will use the
+// In order to deduce the types of 'voidFunc0' and 'func1', we will use the
 // C++ template system to get two auxiliary functions:
 //..
 //  template <class TYPE>
@@ -69,11 +69,11 @@ BSLS_IDENT("$Id: $")
 //      assert(0 == bslmf_IsMemberFunctionPointer<int>::VALUE);
 //      assert(0 == bslmf_IsMemberFunctionPointer<int>::VALUE);
 //
-//      checkNotMemberFunctionPointer( &MyTestClass::Vfunc0);
+//      checkNotMemberFunctionPointer( &MyTestClass::voidFunc0);
 //      checkMemberFunctionPointer<int, bslmf_TypeList1<int> >(
-//                                                       &MyTestClass::Vfunc1);
+//                                                        &MyTestClass::func1);
 //      checkMemberFunctionPointer<int, bslmf_TypeList2<int, int> >(
-//                                                       &MyTestClass::Vfunc2);
+//                                                        &MyTestClass::func2);
 //  }
 //..
 

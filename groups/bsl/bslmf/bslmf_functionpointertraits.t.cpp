@@ -176,23 +176,24 @@ typedef T13 (*TestFunc13)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
 typedef T14 (*TestFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
                           T13, T14);
 
-typedef void (*TestVFunc0)();
-typedef void (*TestVFunc1)(T1);
-typedef void (*TestVFunc2)(T1, T2);
-typedef void (*TestVFunc3)(T1, T2, T3); //
-typedef void (*TestVFunc4)(T1, T2, T3, T4);
-typedef void (*TestVFunc5)(T1, T2, T3,T4, T5);
-typedef void (*TestVFunc6)(T1, T2, T3, T4, T5, T6);
-typedef void (*TestVFunc7)(T1, T2, T3, T4, T5, T6, T7);
-typedef void (*TestVFunc8)(T1, T2, T3, T4, T5, T6, T7, T8);
-typedef void (*TestVFunc9)(T1, T2, T3, T4, T5, T6, T7, T8, T9);
-typedef void (*TestVFunc10)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10);
-typedef void (*TestVFunc11)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
-typedef void (*TestVFunc12)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12);
-typedef void (*TestVFunc13)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
-                            T13);
-typedef void (*TestVFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
-                            T13, T14);
+typedef void (*TestVoidFunc0)();
+typedef void (*TestVoidFunc1)(T1);
+typedef void (*TestVoidFunc2)(T1, T2);
+typedef void (*TestVoidFunc3)(T1, T2, T3);
+typedef void (*TestVoidFunc4)(T1, T2, T3, T4);
+typedef void (*TestVoidFunc5)(T1, T2, T3,T4, T5);
+typedef void (*TestVoidFunc6)(T1, T2, T3, T4, T5, T6);
+typedef void (*TestVoidFunc7)(T1, T2, T3, T4, T5, T6, T7);
+typedef void (*TestVoidFunc8)(T1, T2, T3, T4, T5, T6, T7, T8);
+typedef void (*TestVoidFunc9)(T1, T2, T3, T4, T5, T6, T7, T8, T9);
+typedef void (*TestVoidFunc10)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10);
+typedef void (*TestVoidFunc11)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
+typedef void (*TestVoidFunc12)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                               T12);
+typedef void (*TestVoidFunc13)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                               T12, T13);
+typedef void (*TestVoidFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                               T12, T13, T14);
 
 //=============================================================================
 //                              USAGE EXAMPLE
@@ -201,7 +202,7 @@ typedef void (*TestVFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
 // Define the following function types:
 //..
     typedef int  (*IntFunctionIntIntPtr)(int, int);
-    typedef void (*VFunc0)();
+    typedef void (*VoidFunc0)();
 //..
 // The following program should compile and run without errors:
 //..
@@ -215,9 +216,9 @@ typedef void (*TestVFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
                                                                    ResultType1;
         ASSERT(1 == (bslmf_IsSame<ResultType1, int>::VALUE));
 
-        ASSERT(1 == (bslmf_IsFunctionPointer<VFunc0>::VALUE));
-        typedef bslmf_FunctionPointerTraits<VFunc0>::ResultType    ResultType0;
-        typedef bslmf_FunctionPointerTraits<VFunc0>::ArgumentList  ArgList0;
+        ASSERT(1 == (bslmf_IsFunctionPointer<VoidFunc0>::VALUE));
+        typedef bslmf_FunctionPointerTraits<VoidFunc0>::ResultType ResultType0;
+        typedef bslmf_FunctionPointerTraits<VoidFunc0>::ArgumentList  ArgList0;
         ASSERT(1 == (bslmf_IsSame<ResultType0, void>::VALUE));
         ASSERT(1 == (bslmf_IsSame<ArgList0, bslmf_TypeList0>::VALUE));
     }
