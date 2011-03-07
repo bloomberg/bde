@@ -4,7 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_types.h>  // for testing only
+#include <bsls_asserttest.h>  // for testing only
+#include <bsls_types.h>       // for testing only
 
 namespace BloombergLP {
 

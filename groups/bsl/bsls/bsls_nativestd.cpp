@@ -1,9 +1,8 @@
-// bsls_nativestd.cpp                  -*-C++-*-
-
+// bsls_nativestd.cpp                                                 -*-C++-*-
 #include <bsls_nativestd.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
+BSLS_IDENT("$Id$ $CSID$")
 
 // ---------------------------------------------------------------------------
 // NOTICE:

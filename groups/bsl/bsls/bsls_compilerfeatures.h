@@ -67,13 +67,32 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+             // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+
 #if defined(BSLS_PLATFORM__CMP_IBM)
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 #endif
 
-// HP (aCC) also supports 'static_assert' in 0x mode, but that compiler switch
-// must be enabled before defining the following for 'BSLS_PLATFORM__CMP_HP'.
+             // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+
+// Microsoft VC2010 always supports the feature (it cannot be disabled).
 #if defined(BSLS_PLATFORM__CMP_MSVC) && BSLS_PLATFORM__CMP_VER_MAJOR >= 1600
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+
+// IBM XL C++ 11 has support in '0x' mode, or if explicitly activated.  Note
+// that '__IBMCPP_STATIC_ASSERT' was not available until xlC 11, so no version
+// check is needed.
+#elif defined(BSLS_PLATFORM__CMP_IBM) && defined(__IBMCPP_STATIC_ASSERT)
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+
+// HP-UX aCC 6.25 has support with '-Ax'.
+#elif defined(BSLS_PLATFORM__CMP_HP) && BSLS_PLATFORM__CMP_VER_MAJOR >= 62500 \
+   && defined(_HP_CXX0x_SOURCE)
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+
+// GCC 4.3 has support with '-std=c++0x'.
+#elif defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300\
+   && defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #endif
 

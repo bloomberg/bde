@@ -1,8 +1,8 @@
-// bsls_platform.cpp          -*-C++-*-
+// bsls_platform.cpp                                                  -*-C++-*-
 #include <bsls_platform.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
+BSLS_IDENT("$Id$ $CSID$")
 
                         // -------------------
                         // class bsls_Platform

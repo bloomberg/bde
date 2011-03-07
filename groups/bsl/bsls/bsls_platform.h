@@ -135,6 +135,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#ifndef __cplusplus
+#error This header should not be included in non-C++ compilation units.
+#endif
+
 namespace BloombergLP {
 
                     // ===========================

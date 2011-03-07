@@ -1973,28 +1973,28 @@ int main(int argc, char *argv[])
 // definition of the corresponding 'BSLS_ASSERT_*_IS_ACTIVE' macro.  Likewise,
 // those macros should not be defined unless the configuration is marked.
 //
-//  Expected test results
-//    BDE_BUILD mode      assertion            ASSERT macros
-//  SAFE2 SAFE DBG OPT      level              OPT DBG SAFE  
-//  ----- ---- --- ---    --------             --- --- ----
-//                                              X
-//                  X                           X
-//             X                                X   X
-//             X    X                           X   X
-//         X                                    X   X   X
-//         X        X                           X   X   X
-//         X   X                                X   X   X
-//         X   X    X                           X   X   X
-//    X                                         X   X   X
-//    X             X                           X   X   X
-//    X        X                                X   X   X
-//    X        X    X                           X   X   X
-//    X    X                                    X   X   X
-//    X    X        X                           X   X   X
-//    X    X   X                                X   X   X
-//    X    X   X    X                           X   X   X
-//                       LEVEL_NONE
-//                  X    LEVEL_NONE
+//  Expected test results                       (old rules)        (new rules)
+//    BDE_BUILD mode      assertion            ASSERT macros      ASSERT macros
+//  SAFE2 SAFE DBG OPT      level              OPT     SAFE       OPT     SAFE 
+//  ----- ---- --- ---    --------             --- --- ----       --- --- ----
+//                                              X                  X   X
+//                  X                           X                  X
+//             X                                X   X              X   X
+//             X    X                           X   X              X   
+//         X                                    X   X   X          X   X   X
+//         X        X                           X   X   X          X   X   X
+//         X   X                                X   X   X          X   X   X
+//         X   X    X                           X   X   X          X   X   X
+//    X                                         X   X   X          X   X   X
+//    X             X                           X   X   X          X   X   X
+//    X        X                                X   X   X          X   X   X
+//    X        X    X                           X   X   X          X   X   X
+//    X    X                                    X   X   X          X   X   X
+//    X    X        X                           X   X   X          X   X   X
+//    X    X   X                                X   X   X          X   X   X
+//    X    X   X    X                           X   X   X          X   X   X
+//                       LEVEL_NONE                               (no change
+//                  X    LEVEL_NONE                                below here)
 //             X         LEVEL_NONE
 //             X    X    LEVEL_NONE
 //         X             LEVEL_NONE

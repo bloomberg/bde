@@ -2,7 +2,7 @@
 #include <bsls_assert.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
+BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_platform.h>
 

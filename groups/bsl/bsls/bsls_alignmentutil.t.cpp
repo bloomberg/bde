@@ -3,12 +3,14 @@
 #include <bsls_alignmentutil.h>
 
 #include <bsls_alignmentfromtype.h>
-
+#include <bsls_asserttest.h>
+#include <bsls_asserttestexception.h>
 #include <bsls_platform.h>
 
 #include <bsls_types.h>  // for testing only
 
 #include <cstddef>  // offsetof() macro
+#include <climits>  // MAX_INT
 #include <cstdlib>  // atoi()
 #include <cstring>
 #include <iostream>
@@ -522,6 +524,83 @@ int main(int argc, char *argv[])
                 }
             }
         }
+
+        if (verbose) cout << "\nNegative Testing" << endl;
+
+        {
+#ifdef BDE_BUILD_TARGET_EXC
+            bsls_Assert::setFailureHandler(&bsls_AssertTest::failTestDriver);
+
+            // '0' in the expected 'ALIGN' column indicates that the call is
+            // out of contract, so any result will be accepted unless the
+            // relevant 'BSLS_ASSERT' macro is enabled.
+
+            static struct {
+                int         d_lineNumber;
+                const char *d_assertBuildType;
+                char        d_expectedResult;
+                const void *d_address;
+                int         d_align;
+            } const DATA[] = {
+                // LINE  TYPE  RESULT  ADDRESS  ALIGN
+                // ----  ----  ------  ----     -----
+                {  L_,   "S",  'F',     0,      -1 },
+                {  L_,   "S",  'F',     0,       0 },
+                {  L_,   "S",  'P',     0,       1 },
+                {  L_,   "S",  'P',     0,       2 },
+                {  L_,   "S",  'F',     0,       3 },
+                {  L_,   "S",  'P',     0,       4 },
+                {  L_,   "S",  'F',     0,       5 },
+                {  L_,   "S",  'F',     0,       6 },
+                {  L_,   "S",  'F',     0,       7 },
+                {  L_,   "S",  'P',     0,       8 },
+                {  L_,   "S",  'F',     0,       9 },
+                {  L_,   "S",  'F',     0,       65535 },
+                {  L_,   "S",  'P',     0,       65536 },
+                {  L_,   "S",  'F',     0,       65537 }
+            };
+            const int DATA_SIZE = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < DATA_SIZE; ++i) {
+                const int         LINE    = DATA[i].d_lineNumber;
+                const char *const TYPE    = DATA[i].d_assertBuildType;
+                const int         RESULT  = DATA[i].d_expectedResult;
+                const void *const ADDRESS = DATA[i].d_address;
+                const int         ALIGN   = DATA[i].d_align;
+
+                if(veryVerbose) {
+                    TAB P_(TYPE) P_(RESULT) P_(ADDRESS) P(ALIGN)
+                }
+
+                LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
+                LOOP_ASSERT(LINE, bsls_AssertTest::isValidExpected(RESULT));
+
+                // Skip this test if the relevant assert is not active in this
+                // build.
+                if ('F' == RESULT && !BSLS_ASSERTTEST_IS_ACTIVE(TYPE)) {
+                    continue;
+                }
+
+                // The relevant assert is active in this build
+                try {
+                    int a = bsls_AlignmentUtil::calculateAlignmentOffset(
+                                                                      ADDRESS,
+                                                                      ALIGN);
+                    LOOP_ASSERT(LINE, bsls_AssertTest::tryProbe(RESULT));
+
+//                    LOOP4_ASSERT(LINE, SIZE, ALIGN, a, ALIGN == a);
+                }
+                catch (const bsls_AssertTestException& e) {
+                    LOOP_ASSERT(LINE, bsls_AssertTest::catchProbe(RESULT,
+                                                                  e,
+                                                                  __FILE__));
+                }
+            }
+#else
+            if (verbose) cout <<
+                "\nDISABLED in this (non-exception) build mode." << endl;
+#endif
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -602,6 +681,72 @@ int main(int argc, char *argv[])
                                a == bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT));
 
         }
+
+        if (verbose) cout << "\nNegative Testing" << endl;
+
+        {
+#ifdef BDE_BUILD_TARGET_EXC
+            bsls_Assert::setFailureHandler(&bsls_AssertTest::failTestDriver);
+
+            // '0' in the expected 'ALIGN' column indicates that the call is
+            // out of contract, so any result will be accepted unless the
+            // relevant 'BSLS_ASSERT' macro is enabled.
+
+            static struct {
+                int         d_lineNumber;
+                const char *d_assertBuildType;
+                char        d_expectedResult;
+                int         d_input;
+                int         d_expected;
+            } const DATA[] = {
+                // LINE  TYPE  RESULT  SIZE  ALIGN
+                // ----  ----  ------  ----  -----
+                {  L_,   "S",  'F',    -1,      0 },
+                {  L_,   "S",  'F',     0,      0 },
+                {  L_,   "S",  'P',     1,      1 },
+                {  L_,   "S",  'P',    INT_MAX, 1 }
+            };
+            const int DATA_SIZE = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < DATA_SIZE; ++i) {
+                const int         LINE   = DATA[i].d_lineNumber;
+                const char *const TYPE   = DATA[i].d_assertBuildType;
+                const int         RESULT = DATA[i].d_expectedResult;
+                const int         SIZE   = DATA[i].d_input;
+                const int         ALIGN  = DATA[i].d_expected;
+
+                if(veryVerbose) {
+                    TAB P_(TYPE) P_(RESULT) P_(SIZE) P(ALIGN)
+                }
+
+                LOOP_ASSERT(LINE, bsls_AssertTest::isValidAssertBuild(TYPE));
+                LOOP_ASSERT(LINE, bsls_AssertTest::isValidExpected(RESULT));
+
+                // Skip this test if the relevant assert is not active in this
+                // build.
+                if ('F' == RESULT && !BSLS_ASSERTTEST_IS_ACTIVE(TYPE)) {
+                    continue;
+                }
+
+                // The relevant assert is active in this build
+                try {
+                    int a = bsls_AlignmentUtil::calculateAlignmentFromSize(
+                                                                         SIZE);
+                    LOOP_ASSERT(LINE, bsls_AssertTest::tryProbe(RESULT));
+
+                    LOOP4_ASSERT(LINE, SIZE, ALIGN, a, ALIGN == a);
+                }
+                catch (const bsls_AssertTestException& e) {
+                    LOOP_ASSERT(LINE, bsls_AssertTest::catchProbe(RESULT,
+                                                                  e,
+                                                                  __FILE__));
+                }
+            }
+#else
+            if (verbose) cout <<
+                "\nDISABLED in this (non-exception) build mode." << endl;
+#endif
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -645,6 +790,13 @@ int main(int argc, char *argv[])
         struct Test8bytesAlign  { char c; Test8BytesAlignedType
                                                d_8BytesAlignedType; };
 #endif
+// TBD broke *lots* of stuff (bdem, etc.)
+#if 0
+#if defined(BSLS_PLATFORM__OS_HPUX)
+        struct Test16bytesAlign { char c; __float80 d_float80;      };
+#endif
+#endif
+
         struct MaxAlignAlign    { char c; Class::MaxAlignedType d_maxAlign; };
 
         const int EXP =
@@ -660,6 +812,12 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
                 | (offsetof(Test8bytesAlign,
                                 d_8BytesAlignedType)       - 1)
+#endif
+// TBD broke *lots* of stuff (bdem, etc.)
+#if 0
+#if defined(BSLS_PLATFORM__OS_HPUX)
+                | (offsetof(Test16bytesAlign, d_float80)   - 1)
+#endif
 #endif
                 );
 

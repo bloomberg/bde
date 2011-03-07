@@ -1,11 +1,13 @@
+bsls_alignedbuffer
 bsls_alignment
 bsls_alignmentfromtype
 bsls_alignmentimp
 bsls_alignmenttotype
 bsls_alignmentutil
-bsls_alignedbuffer
 bsls_annotation
 bsls_assert
+bsls_asserttest
+bsls_asserttestexception
 bsls_blockgrowth
 bsls_buildtarget
 bsls_byteorder
@@ -13,6 +15,7 @@ bsls_compilerfeatures
 bsls_exceptionutil
 bsls_ident
 bsls_int64
+bsls_macroincrement
 bsls_nativestd
 bsls_objectbuffer
 bsls_performancehint
