@@ -420,31 +420,31 @@ BDES_IDENT("$Id: $")
 // The following snippets of code illustrate how to create and use a 'Mydate'
 // object.  First create a default object, 'd1':
 //..
-//  MyDate d1;                        BSLS_ASSERT(   1 == d1.year());
-//                                    BSLS_ASSERT(   1 == d1.month());
-//                                    BSLS_ASSERT(   1 == d1.day());
+//  MyDate d1;                        assert(   1 == d1.year());
+//                                    assert(   1 == d1.month());
+//                                    assert(   1 == d1.day());
 //..
 // Next, set 'd1' to July 4, 1776:
 //..
-//  d1.setYearMonthDay(1776, 7, 4);   BSLS_ASSERT(1776 == d1.year());
-//                                    BSLS_ASSERT(   7 == d1.month());
-//                                    BSLS_ASSERT(   4 == d1.day());
+//  d1.setYearMonthDay(1776, 7, 4);   assert(1776 == d1.year());
+//                                    assert(   7 == d1.month());
+//                                    assert(   4 == d1.day());
 //..
 // Then create 'd2' as a copy of 'd1':
 //..
-//  MyDate d2(d1);                    BSLS_ASSERT(1776 == d2.year());
-//                                    BSLS_ASSERT(   7 == d2.month());
-//                                    BSLS_ASSERT(   4 == d2.day());
+//  MyDate d2(d1);                    assert(1776 == d2.year());
+//                                    assert(   7 == d2.month());
+//                                    assert(   4 == d2.day());
 //..
 // Now, add six days to the value of 'd2':
 //..
-//  d2 += 6;                          BSLS_ASSERT(1776 == d2.year());
-//                                    BSLS_ASSERT(   7 == d2.month());
-//                                    BSLS_ASSERT(  10 == d2.day());
+//  d2 += 6;                          assert(1776 == d2.year());
+//                                    assert(   7 == d2.month());
+//                                    assert(  10 == d2.day());
 //..
 // Next subtract 'd1' from 'd2', storing the difference (in days) in 'dDays':
 //..
-//  int dDays = d2 - d1;              BSLS_ASSERT(6 == dDays);
+//  int dDays = d2 - d1;              assert(6 == dDays);
 //..
 // Finally, stream the value of 'd2' to 'stdout':
 //..
