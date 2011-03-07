@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<memory>' instead and use 'bsl::allocator' directly.  This component
+// '<bsl_memory.h>' instead and use 'bsl::allocator' directly.  This component
 // provides an STL-compatible proxy for any allocator class derived from
 // 'bslma_Allocator'.  The proxy class, 'bsl::allocator' is a template that
 // adheres to the allocator requirements defined in section 20.1.5
@@ -343,6 +343,13 @@ BSLS_IDENT("$Id: $")
 //                 assert(1 == countingAlloc.blocksOutstanding())
 //  }
 //..
+
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_memory.h> instead of <bslstl_allocator.h> in \
+BSL_OVERRIDES_STD mode"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

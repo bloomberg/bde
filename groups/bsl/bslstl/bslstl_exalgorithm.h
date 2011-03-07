@@ -17,9 +17,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<algorithm>' instead.  This component provides a namespace for algorithm
-// extensions that are not specified in the C++ standard.  This provides
-// backward compatibility to code using extensions that STLPort provides.
+// '<bsl_algorithm>' instead.  This component provides a namespace for
+// algorithm extensions that are not specified in the C++ standard.  This
+// provides backward compatibility to code using extensions that STLPort
+// provides.
 //
 // Note that the functions in this component are based on STLPort's
 // implementation, with copyright notice as follows:
@@ -52,6 +53,13 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This component is for use by the 'bsl+stdhdrs' package.  Use 'algorithm'
 // directly.
+
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_algorithm.h> instead of <bslstl_exalgorithm.h> in \
+BSL_OVERRIDES_STD mode"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

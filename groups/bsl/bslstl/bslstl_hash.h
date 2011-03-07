@@ -52,6 +52,13 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This component is for use by the 'bsl+stdhdrs' package.
 
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "<bslstl_hash.h> header can't be included directly in \
+BSL_OVERRIDES_STD mode"
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -93,7 +100,7 @@ std::size_t hashCstr(const char *string)
                           // class bslstl::hash
                           // ==================
 
-template <class KEY> struct hash;
+template <class BSLSTL_KEY> struct hash;
     // Empty base class for hashing.  No general hash struct defined, each type
     // requires a specialization.  Leaving this struct declared but undefined
     // will generate error messages that are more clear when someone tries to

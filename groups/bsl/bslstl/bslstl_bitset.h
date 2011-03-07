@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bitset>' instead and use 'bsl::bitset' directly.  This component
+// '<bsl_bitset.h>' instead and use 'bsl::bitset' directly.  This component
 // implements a static bitset class that is suitable for use as an
 // implementation of the 'std::bitset' class template.
 //
@@ -46,6 +46,13 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This component is for use by the 'bsl+stdhdrs' package.  Use 'std::bitset'
 // directly.
+
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_bitset.h> instead of <bslstl_bitset.h> in \
+BSL_OVERRIDES_STD mode"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: *This class is for internal use only.  Do not use.  Use
-// 'bsl_utility.h' and 'bsl::pair' directly instead.*
+// '<bsl_utility.h>' and 'bsl::pair' directly instead.*
 //
 // The 'bsl::pair' class template is instantiated on two types, 'T1' and 'T2',
 // and provides two public data members, 'first' and 'second' of type 'T1' and
@@ -239,6 +239,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_utility.h> instead of <bslstl_pair.h> in \
+BSL_OVERRIDES_STD mode"
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -263,8 +270,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
+#ifndef INCLUDED_ALGORITHM
+#include <algorithm>       // 'std::swap'
+#define INCLUDED_ALGORITHM
+#endif
+
 #ifndef INCLUDED_UTILITY
-#include <utility>  // 'std::pair'
+#include <utility>         // 'std::pair'
 #define INCLUDED_UTILITY
 #endif
 
@@ -596,6 +608,12 @@ class pair : private Pair_Imp<T1, T2,
         // assignment operator will not compile unless both 'T1' and 'T2'
         // supply assignment operators, and 'T1' is assignable from 'U1' and
         // 'T2' is assignable from 'U2'.
+
+    void swap(pair& other);
+        // Swap the value of this pair with the value of the specified 'other'
+        // pair by applying 'swap' to each of the 'first' and 'second' pair
+        // fields.   Note that this method is no-throw only if 'swap' on each
+        // field is no-throw.
 };
 
 // FREE OPERATORS
@@ -650,6 +668,13 @@ bool operator>=(const pair<T1, T2>& x, const pair<T1, T2>& y);
     // equal to 'y' if 'x' < 'y' would return false.  A call to this operator
     // will not compile unless a call to 'x < y' would compile.
 
+// FREE FUNCTIONS
+template <typename T1, typename T2>
+void swap(pair<T1, T2>& a, pair<T1, T2>& b);
+    // Swap the values of the specified 'a' and 'b' pairs by applying 'swap' to
+    // each of the 'first' and 'second' pair fields.   Note that this method is
+    // no-throw only if 'swap' on each field is no-throw.
+
 }  // close namespace bsl
 
 // ===========================================================================
@@ -658,6 +683,7 @@ bool operator>=(const pair<T1, T2>& x, const pair<T1, T2>& y);
 // See IMPLEMENTATION NOTES in the .cpp before modifying anything below.
 
 namespace bsl {
+
                            // ---------------
                            // struct Pair_Imp
                            // ---------------
@@ -918,6 +944,19 @@ pair<T1, T2>::operator=(const native_std::pair<U1, U2>& rhs)
     return *this;
 }
 
+template <typename T1, typename T2>
+inline
+void pair<T1, T2>::swap(pair& other)
+{
+    // Find either 'std::swap' or a specialized 'swap' for 'T1' and 'T2' via
+    // ADL.
+
+    using std::swap;
+
+    swap(first, other.first);
+    swap(second, other.second);
+}
+
 // FREE OPERATORS
 template <typename T1, typename T2>
 inline
@@ -961,6 +1000,14 @@ inline
 bool operator>=(const pair<T1, T2>& x, const pair<T1, T2>& y)
 {
     return ! (x < y);
+}
+
+// FREE FUNCTIONS
+template <typename T1, typename T2>
+inline
+void swap(pair<T1, T2>& a, pair<T1, T2>& b)
+{
+    a.swap(b);
 }
 
 }  // close namespace bsl

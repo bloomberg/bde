@@ -25,6 +25,13 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This component is for internal use only.  A usage example is not provided.
 
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "<bslstl_util.h> header can't be included directly in \
+BSL_OVERRIDES_STD mode"
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif

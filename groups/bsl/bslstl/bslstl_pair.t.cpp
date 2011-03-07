@@ -15,6 +15,8 @@
 
 #include <bslmf_issame.h>
 
+#include <algorithm>
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -64,9 +66,11 @@ using namespace BloombergLP;
 //     pair(const pair<U1, U2>& rhs);
 // [4] template <typename U1, typename U2>
 //     pair(const pair<U1, U2>& rhs, bslma_Allocator *alloc);
+// [5] void pair::swap(pair& rhs);
+// [5] void swap(pair& lhs, pair& rhs);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
-// [5] USAGE EXAMPLE
+// [6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //==========================================================================
@@ -76,11 +80,18 @@ using namespace BloombergLP;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+namespace {
+    // Namespace, because of the error on AIX/xlC:
+    // "Static declarations are not considered for a function call if the
+    // function is not qualified."
+
+void aSsErT(int c, const char *s, int i) {
     if (c) {
         std::printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
+}
+
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
@@ -482,6 +493,110 @@ struct my_NoTraits
 };
 
 //=============================================================================
+//                HELPER CLASSES AND FUNCTIONS FOR TESTING SWAP
+//-----------------------------------------------------------------------------
+
+                           // ===================
+                           // struct TypeWithSwap
+                           // ===================
+
+namespace TypeWithSwapNamespace {
+    struct TypeWithSwap {
+        int data;
+        bool swapCalled;
+
+        TypeWithSwap(int d)
+        : data(d)
+        , swapCalled(false)
+        {}
+
+        bool operator==(const TypeWithSwap& rhs) const {
+            return data == rhs.data;
+        }
+
+        void swap(TypeWithSwap& rhs) {
+            std::swap(data, rhs.data);
+
+            // set the flag indicating that this function has been called
+            rhs.swapCalled = swapCalled = true;
+        }
+
+        void assertSwapCalled() const {
+            ASSERT(swapCalled);
+        }
+    };
+
+    void swap(TypeWithSwap& lhs, TypeWithSwap& rhs) {
+        lhs.swap(rhs);
+    }
+}
+
+                           // ======================
+                           // struct TypeWithoutSwap
+                           // ======================
+
+struct TypeWithoutSwap {
+    int data;
+
+    TypeWithoutSwap(int d)
+    : data(d)
+    {}
+
+    bool operator==(const TypeWithoutSwap& rhs) const {
+        return data == rhs.data;
+    }
+
+    void assertSwapCalled() const {
+    }
+};
+
+
+template <typename T1, typename T2>
+void swapTestHelper()
+    // Test 'swap' method and free function for 'bsl::pair<T1, T2>'.
+{
+    typedef bsl::pair<T1, T2> test_pair;
+
+    // construct two pairs
+    test_pair orig_p1(T1(11), T2(12));
+    test_pair orig_p2(T1(21), T2(22));
+
+    // copy pairs so that originals remain unchanged
+    test_pair p1(orig_p1);
+    test_pair p2(orig_p2);
+
+    // swap copies with the free function
+    swap(p1, p2);
+
+    // verify that 'swap' worked
+    ASSERT(p1 == orig_p2);
+    ASSERT(p2 == orig_p1);
+
+    // verify that 'swap' member function was called
+    p1.first.assertSwapCalled();
+    p1.second.assertSwapCalled();
+    p2.first.assertSwapCalled();
+    p2.second.assertSwapCalled();
+
+    // restore the original values
+    p1 = orig_p1;
+    p2 = orig_p2;
+
+    // now use the 'swap' method
+    p1.swap(p2);
+
+    // verify that 'swap' worked
+    ASSERT(p1 == orig_p2);
+    ASSERT(p2 == orig_p1);
+
+    // verify that 'swap' member function was called
+    p1.first.assertSwapCalled();
+    p1.second.assertSwapCalled();
+    p2.first.assertSwapCalled();
+    p2.second.assertSwapCalled();
+}
+
+//=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
@@ -501,7 +616,7 @@ int main(int argc, char *argv[])
     std::printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -521,6 +636,45 @@ int main(int argc, char *argv[])
 
         usageExample();
 
+      } break;
+
+      case 5: {
+        // --------------------------------------------------------------------
+        // SWAP TEST
+        //
+        // Concerns:
+        // - 'swap' free function correctly swaps the values of 'pair::first'
+        //   and 'pair::second' data fields.
+        // - 'swap' member function correctly swaps the values of 'pair::first'
+        //   and 'pair::second' data fields.
+        // - If there is a 'swap' free functions defined for either of
+        //   'pair::first_type' or 'pair::second_type' types, 'pair::swap'
+        //   should use it (if the ADL lookup of 'swap' works correctly).
+        // - Otherwise 'pair::swap' should use the default 'std::swap'.
+        //
+        // Plan:
+        // - Create two types: one with 'swap' method and free function
+        //   (TypeWithSwap), and another without 'swap' (TypeWithoutSwap).
+        // - Instantiate 'pair' with TypeWithSwap as T1 and TypeWithoutSwap as
+        //   T2, and the other way around.
+        // - Test both 'swap' method and free functions on the two
+        //   instantiations of 'pair' described above.
+        //
+        // Testing:
+        //     // free function
+        //     template <typename T1, typename T2>
+        //     void bsl::swap(pair<T1, T2>& lhs, pair<T1, T2>& rhs);
+        //
+        //     // member function
+        //     template <typename T1, typename T2>
+        //     void pair<T1, T2>::swap(pair& rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) std::printf("\nSWAP TEST"
+                                 "\n=========\n");
+
+        swapTestHelper<TypeWithSwapNamespace::TypeWithSwap, TypeWithoutSwap>();
+        swapTestHelper<TypeWithoutSwap, TypeWithSwapNamespace::TypeWithSwap>();
       } break;
 
       case 4: {

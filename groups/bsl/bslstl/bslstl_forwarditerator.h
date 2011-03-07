@@ -78,6 +78,13 @@ BSLS_IDENT("$Id: $")
 // generalized test case to validate that a type conforms to the iterator
 // requirements.
 
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "<bslstl_forwarditerator.h> header can't be included directly in \
+BSL_OVERRIDES_STD mode"
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif

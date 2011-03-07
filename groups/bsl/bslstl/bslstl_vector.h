@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<vector>' instead and use 'bsl::vector' directly.  This component
+// '<bsl_vector.h>' instead and use 'bsl::vector' directly.  This component
 // implements a dynamic array class that supports the 'bslma_Allocator' model
 // and is suitable for use as an implementation of the 'std::vector' class
 // template.
@@ -26,6 +26,13 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This component is for use by the 'bsl+stdhdrs' package.  Use 'std::vector'
 // directly.
+
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_vector.h> instead of <bslstl_vector.h> in \
+BSL_OVERRIDES_STD mode"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

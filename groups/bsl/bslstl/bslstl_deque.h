@@ -18,10 +18,10 @@ BSLS_IDENT("$Id: $")
 //         Arthur Chiu (achiu)
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<deque>' instead and use 'bsl::deque' directly.  This component implements
-// a dynamic double-ended array class that supports the 'bslma_Allocator' model
-// and is suitable for use as an implementation of the 'bsl::deque' class
-// template.
+// '<bsl_deque.h>' instead and use 'bsl::deque' directly.  This component
+// implements a dynamic double-ended array class that supports the
+// 'bslma_Allocator' model and is suitable for use as an implementation of the
+// 'bsl::deque' class template.
 //
 ///Exceptional Behavior
 ///--------------------
@@ -43,6 +43,13 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This component is for use by the 'bsl+stlport' package.  Prefer using
 // 'bsl::deque' directly.
+
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_deque.h> instead of <bslstl_deque.h> in \
+BSL_OVERRIDES_STD mode"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
