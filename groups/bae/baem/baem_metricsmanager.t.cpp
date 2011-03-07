@@ -1793,7 +1793,7 @@ int main(int argc, char *argv[])
             const bsl::vector<const Category *>& cats = combIt.current();
             mX.collectSample(&sample,
                              &records,
-                             &cats.front(),
+                             (!cats.empty() ? &cats.front() : 0),
                              cats.size(),
                              false);
             ASSERT(NUM_METRICS * cats.size() == sample.numRecords());
@@ -1829,7 +1829,7 @@ int main(int argc, char *argv[])
             // Test with a reset.
             mX.collectSample(&sample,
                              &records2,
-                             &cats.front(),
+                             (!cats.empty() ? &cats.front() : 0),
                              cats.size(),
                              true);
             ASSERT(NUM_METRICS * cats.size() == sample.numRecords());

@@ -1,4 +1,4 @@
-// baem_integermetric.h              -*-C++-*-
+// baem_integermetric.h                                               -*-C++-*-
 #ifndef INCLUDED_BAEM_INTEGERMETRIC
 #define INCLUDED_BAEM_INTEGERMETRIC
 
@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide macros and helper classes for recording int metric values.
+//@PURPOSE: Provide helper classes for recording int metric values.
 //
 //@CLASSES:
 //   baem_IntegerMetric: container for recording integer metric values
