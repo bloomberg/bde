@@ -1,4 +1,4 @@
-// bcep_multiqueuethreadpool.h        -*-C++-*-
+// bcep_multiqueuethreadpool.h                                        -*-C++-*-
 #ifndef INCLUDED_BCEP_MULTIQUEUETHREADPOOL
 #define INCLUDED_BCEP_MULTIQUEUETHREADPOOL
 
@@ -649,12 +649,14 @@ class bcep_MultiQueueThreadPool {
         // of items dequeued / enqueued (respectively) since the last time
         // these values were reset and reset these values.
 
-    void start();
+    int start();
         // Enable queuing on all queues, start the thread pool if the thread
-        // pool is owned by this object, and make sure that at least the
-        // minimum number of processing threads are started.  This method
-        // will block if any thread is executing 'drain' or 'stop' or
-        // 'shutdown' at the time of the call.
+        // pool is owned by this object, and ensure that at least the minimum
+        // number of processing threads are started.  Return 0 on success, and
+        // a non-zero value otherwise.  This method will block if any thread is
+        // executing 'drain', 'stop', or 'shutdown' at the time of the call.
+        // This method has no effect if this thread pool has already been
+        // started.
 
     void drain();
         // Block until all queues are empty.  This method waits until all

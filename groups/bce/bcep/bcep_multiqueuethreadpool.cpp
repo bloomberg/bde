@@ -447,11 +447,11 @@ int bcep_MultiQueueThreadPool::drainQueue(int id)
     return rc;
 }
 
-void bcep_MultiQueueThreadPool::start()
+int bcep_MultiQueueThreadPool::start()
 {
     bcemt_LockGuard<bces_SpinLock>(&this->d_stateLock);
     if (STATE_RUNNING == d_state) {
-        return;
+        return 0;
     }
     d_registryLock.lockWrite();
     for (RegistryIterator it(d_queueRegistry); it; ++it) {
@@ -459,11 +459,16 @@ void bcep_MultiQueueThreadPool::start()
         rv.second->d_queue.enable();
     }
 
+    int rc = 0;
     if (d_threadPoolIsOwned) {
-        d_threadPool_p->start();
+        rc = d_threadPool_p->start() ? -1 : 0;
     }
-    d_state = STATE_RUNNING;
+    if (!rc) {
+        d_state = STATE_RUNNING;
+    }
     d_registryLock.unlock();
+
+    return rc;
 }
 
 void bcep_MultiQueueThreadPool::drain()
