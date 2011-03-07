@@ -1,4 +1,4 @@
-// bael_transmission.h              -*-C++-*-
+// bael_transmission.h                                                -*-C++-*-
 #ifndef INCLUDED_BAEL_TRANSMISSION
 #define INCLUDED_BAEL_TRANSMISSION
 
@@ -34,23 +34,23 @@ BDES_IDENT("$Id: $")
 // 'bael_Transmission' usage.
 //
 // First create a variable 'cause' of type 'bael_Transmission::Cause' and
-// initialize it to the value 'bael_Transmission::TRIGGER_ALL':
+// initialize it to the value 'bael_Transmission::BAEL_TRIGGER_ALL':
 //..
-//      bael_Transmission::Cause cause = bael_Transmission::TRIGGER_ALL;
+//  bael_Transmission::Cause cause = bael_Transmission::BAEL_TRIGGER_ALL;
 //..
 // Next, store a pointer to its ASCII representation in a variable 'asciiCause'
 // of type 'const char *':
 //..
-//      const char *asciiCause = bael_Transmission::toAscii(cause);
-//      assert(0 == strcmp(asciiCause, "TRIGGER_ALL"));
+//  const char *asciiCause = bael_Transmission::toAscii(cause);
+//  assert(0 == strcmp(asciiCause, "TRIGGER_ALL"));
 //..
 // Finally, print the value of 'cause' to 'bsl::cout'.
 //..
-//      bsl::cout << cause << bsl::endl;
+//  bsl::cout << cause << bsl::endl;
 //..
 // This statement produces the following output on 'stdout':
 //..
-//      TRIGGER_ALL
+//  TRIGGER_ALL
 //..
 ///USAGE EXAMPLE 2 - LOGGING
 ///-------------------------
@@ -58,12 +58,14 @@ BDES_IDENT("$Id: $")
 // to describe the condition causing the publication of a log message.  One
 // possible interpretation of three of these conditions is as follows:
 //..
-//     (1) BAEL_PASSTHROUGH - indicate that a message is being output as
-//           a stand-alone message.
-//     (2) BAEL_TRIGGER - indicate that a message is being output as part of
-//           a dump of all messages archived for the current thread.
-//     (3) BAEL_TRIGGER_ALL - indicate that a message is being output as part
-//           of a dump of all messages archived for *all* threads.
+//  (1) BAEL_PASSTHROUGH - indicate that a message is being output as a
+//                         stand-alone message.
+//
+//  (2) BAEL_TRIGGER - indicate that a message is being output as part of a
+//                     dump of all messages archived for the current thread.
+//
+//  (3) BAEL_TRIGGER_ALL - indicate that a message is being output as part of
+//                         a dump of all messages archived for *all* threads.
 //..
 // This example illustrates the use of 'bael_Transmission::Cause' by a
 // hypothetical logging system.
@@ -78,77 +80,77 @@ BDES_IDENT("$Id: $")
 // "publishes" the message.  That is the role of the 'publish' method in the
 // interface of 'my_Logger':
 //..
-//      // my_logger.h
+//  // my_logger.h
 //
-//      class my_Logger {
-//        // ...
-//        public:
-//          my_Logger();
-//          ~my_Logger();
-//          void publish(const char *message, bael_Transmission::Cause cause);
-//          // ...
-//      };
+//  class my_Logger {
+//    // ...
+//    public:
+//      my_Logger();
+//      ~my_Logger();
+//      void publish(const char *message, bael_Transmission::Cause cause);
+//      // ...
+//  };
 //..
 // The 'publish' method, defined in the following, shows the different actions
 // that are taken for the three distinct causes of log message publication:
 //..
-//      // my_logger.cpp
+//  // my_logger.cpp
 //
-//      my_Logger::my_Logger() { }
+//  my_Logger::my_Logger() { }
 //
-//      my_Logger::~my_Logger() { }
+//  my_Logger::~my_Logger() { }
 //
-//      void my_Logger::publish(const char               *message,
-//                              bael_Transmission::Cause  cause)
-//      {
-//          using namespace std;
-//          switch (cause) {
-//            case bael_Transmission::BAEL_PASSTHROUGH: {
-//              cout << bael_Transmission::toAscii(cause) << ":\t" << message
-//                   << endl;
-//            } break;
-//            case bael_Transmission::BAEL_TRIGGER: {
-//              cout << bael_Transmission::toAscii(cause) << ":\t" << message
-//                   << endl;
-//              cout << "\t[ dump all messages archived for current thread ]"
-//                   << endl;
-//            } break;
-//            case bael_Transmission::BAEL_TRIGGER_ALL: {
-//              cout << bael_Transmission::toAscii(cause) << ":\t" << message
-//                   << endl;
-//              cout << "\t[ dump all messages archived for *all* threads ]"
-//                   << endl;
-//            } break;
-//            default: {
-//              cout << "***ERROR*** Unsupported Message Cause: "  << message
-//                   << endl;
-//              return;
-//            } break;
-//          }
+//  void my_Logger::publish(const char               *message,
+//                          bael_Transmission::Cause  cause)
+//  {
+//      using namespace std;
+//      switch (cause) {
+//        case bael_Transmission::BAEL_PASSTHROUGH: {
+//          cout << bael_Transmission::toAscii(cause) << ":\t" << message
+//               << endl;
+//        } break;
+//        case bael_Transmission::BAEL_TRIGGER: {
+//          cout << bael_Transmission::toAscii(cause) << ":\t" << message
+//               << endl;
+//          cout << "\t[ dump all messages archived for current thread ]"
+//               << endl;
+//        } break;
+//        case bael_Transmission::BAEL_TRIGGER_ALL: {
+//          cout << bael_Transmission::toAscii(cause) << ":\t" << message
+//               << endl;
+//          cout << "\t[ dump all messages archived for *all* threads ]"
+//               << endl;
+//        } break;
+//        default: {
+//          cout << "***ERROR*** Unsupported Message Cause: "  << message
+//               << endl;
+//          return;
+//        } break;
 //      }
+//  }
 //
-//      // ...
+//  // ...
 //..
 // Finally, we create a 'my_Logger' object and 'publish' three (simplistic)
 // messages, each with a different cause:
 //..
-//      my_Logger logger;
+//  my_Logger logger;
 //
-//      const char *MSG_PASSTHROUGH = "report relatively minor problem";
-//      const char *MSG_TRIGGER     = "report serious thread-specific problem";
-//      const char *MSG_TRIGGER_ALL = "report process-impacting problem";
+//  const char *MSG_PASSTHROUGH = "report relatively minor problem";
+//  const char *MSG_TRIGGER     = "report serious thread-specific problem";
+//  const char *MSG_TRIGGER_ALL = "report process-impacting problem";
 //
-//      logger.publish(MSG_PASSTHROUGH, bael_Transmission::BAEL_PASSTHROUGH);
-//      logger.publish(MSG_TRIGGER,     bael_Transmission::BAEL_TRIGGER);
-//      logger.publish(MSG_TRIGGER_ALL, bael_Transmission::BAEL_TRIGGER_ALL);
+//  logger.publish(MSG_PASSTHROUGH, bael_Transmission::BAEL_PASSTHROUGH);
+//  logger.publish(MSG_TRIGGER,     bael_Transmission::BAEL_TRIGGER);
+//  logger.publish(MSG_TRIGGER_ALL, bael_Transmission::BAEL_TRIGGER_ALL);
 //..
 // The following output is produced on 'stdout':
 //..
-//      PASSTHROUGH:    report relatively minor problem
-//      TRIGGER:        report serious thread-specific problem
-//              [ dump all messages archived for current thread ]
-//      TRIGGER_ALL:    report process-impacting problem
-//              [ dump all messages archived for *all* threads ]
+//  PASSTHROUGH:    report relatively minor problem
+//  TRIGGER:        report serious thread-specific problem
+//                  [ dump all messages archived for current thread ]
+//  TRIGGER_ALL:    report process-impacting problem
+//                  [ dump all messages archived for *all* threads ]
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -268,6 +270,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, bael_Transmission::Cause rhs);
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
+
+                        // ------------------------
+                        // struct bael_Transmission
+                        // ------------------------
 
 // CLASS METHODS
 inline

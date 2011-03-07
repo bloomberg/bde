@@ -288,7 +288,6 @@ int main(int argc, char *argv[])
                 ASSERT(bael_Severity::BAEL_OFF   == tl.triggerAllLevel());
             }
         }
-        ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
       default: {
