@@ -1,4 +1,4 @@
-// bcem_aggregate.cpp                  -*-C++-*-
+// bcem_aggregate.cpp                                                 -*-C++-*-
 #include <bcem_aggregate.h>
 
 #include <bdes_ident.h>
@@ -2007,7 +2007,7 @@ bdet_TimeTz bcem_Aggregate::asTimeTz() const
 const bdem_ElemRef bcem_Aggregate::asElemRef() const
 {
     if (!d_parentData) {
-        // Top level aggregate
+        // top-level aggregate
         const bdem_Descriptor *descriptor =
                                 bdem_ElemAttrLookup::lookupTable()[d_dataType];
         int *nullnessWord = bdem_ElemType::BDEM_VOID == d_dataType
@@ -2284,7 +2284,7 @@ bool bcem_Aggregate::isNul2() const
         }
     }
 
-    return asElemRef().isNull();
+    return isVoid() || asElemRef().isNull();
 }
 
 bool bcem_Aggregate::isNullable() const
