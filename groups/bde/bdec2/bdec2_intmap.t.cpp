@@ -1,4 +1,4 @@
-// bdec2_intmap.t.cpp         -*-C++-*-
+// bdec2_intmap.t.cpp                                                 -*-C++-*-
 
 #include <bdec2_intmap.h>
 
@@ -2781,10 +2781,8 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, curLen == X.length()); // same lengths
                     LOOP_ASSERT(LINE, curLen == Y.length()); // same lengths
 
-                    LOOP2_ASSERT(LINE, blocks12A, firstResize == blocks12A);
-
                     LOOP_ASSERT(LINE, blocks12A == blocks23A);
-                    LOOP_ASSERT(LINE, bytes12A == bytes23A);
+                    LOOP_ASSERT(LINE, bytes12A  == bytes23A);
                 }
 
                 // Apply both functions under test to the respective objects.
