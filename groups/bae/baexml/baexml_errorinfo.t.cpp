@@ -696,7 +696,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(E2, V1.d_columnNumber == E2.columnNumber());
                 LOOP_ASSERT(E2, V1.d_source       == E2.source());
                 LOOP_ASSERT(E2, V1.d_message      == E2.message());
-                LOOP_ASSERT(E2, tb.numBlocksInUse() ==
+                LOOP_ASSERT(E2, tb.numBlocksInUse() <=
                                              NUM_ALLOCS + ta.numBlocksInUse());
             }
             ASSERT(0 == da.numBlocksInUse());
@@ -867,7 +867,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(E0, 2              == E0.columnNumber());
             LOOP_ASSERT(E0, "MySource.xml" == E0.source());
             LOOP_ASSERT(E0, "The error"    == E0.message());
-            LOOP_ASSERT(E0, 0 <  da.numBlocksInUse());
         }
         ASSERT(0 == da.numBlocksInUse());
         ASSERT(0 == ta.numBlocksInUse());
@@ -901,7 +900,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(E0, "MySource.xml" == E0.source());
             LOOP_ASSERT(E0, "The error"    == E0.message());
             LOOP_ASSERT(E0, 0 == da.numBlocksInUse());
-            LOOP_ASSERT(E0, 0 <  ta.numBlocksInUse());
         }
         ASSERT(0 == da.numBlocksInUse());
         ASSERT(0 == ta.numBlocksInUse());
@@ -933,7 +931,6 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(E1, V1.d_columnNumber == E1.columnNumber());
                 LOOP_ASSERT(E1, V1.d_source       == E1.source());
                 LOOP_ASSERT(E1, V1.d_message      == E1.message());
-                LOOP_ASSERT(E1, EMPTY1 || 0 < ta.numBlocksInUse());
             }
             else {
                 LOOP_ASSERT(E1, 0                 == E1.lineNumber());
@@ -967,8 +964,6 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(E2, V2.d_source       == E2.source());
                 LOOP_ASSERT(E2, V2.d_message      == E2.message());
                 LOOP_ASSERT(E2, 0 == da.numBlocksInUse());
-                LOOP_ASSERT(E2, EMPTY1 && EMPTY2 ||
-                                0 <  ta.numBlocksInUse());
 
                 // Set 'e2' to 'V1' if 'V1' severity is greater
                 e2.setError(V1.d_severity,
@@ -1001,8 +996,6 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(E2, V2.d_message      == E2.message());
                 }
                 LOOP_ASSERT(E2, 0 == da.numBlocksInUse());
-                LOOP_ASSERT(E2, EMPTY1 ||
-                                0 <  ta.numBlocksInUse());
 
                 Obj e3(&ta); const Obj& E3 = e3;
                 e3.setError(V2.d_severity,
@@ -1038,8 +1031,6 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(E3, V2.d_message      == E3.message());
                 }
                 LOOP_ASSERT(E3, 0 == da.numBlocksInUse());
-                LOOP_ASSERT(E3, EMPTY1 && EMPTY2 ||
-                                0 <  ta.numBlocksInUse());
 
                 e3.reset();
                 LOOP_ASSERT(E3,   E3.isNoError());

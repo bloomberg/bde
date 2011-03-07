@@ -189,6 +189,7 @@ baexml_Decoder::baexml_Decoder(
 , d_sourceUri     (d_allocator)
 , d_errorCount    (0)
 , d_warningCount  (0)
+, d_numUnknownElementsSkipped(0)
 , d_fatalError    (false)
 , d_remainingDepth(1)
 {
@@ -213,6 +214,7 @@ baexml_Decoder::baexml_Decoder(
 , d_sourceUri     (d_allocator)
 , d_errorCount    (0)
 , d_warningCount  (0)
+, d_numUnknownElementsSkipped(0)
 , d_fatalError    (false)
 , d_remainingDepth(1)
 {
@@ -235,6 +237,7 @@ baexml_Decoder::resetErrors()
     d_errorCount = 0;
     d_warningCount = 0;
     d_fatalError = 0;
+    d_numUnknownElementsSkipped = 0;
 
     if (d_logStream != 0) {
         d_logStream->reset();
@@ -606,12 +609,22 @@ int baexml_Decoder_NillableContext::addCharacters(const char *chars,
     return d_elementContext_p->addCharacters(chars, length, decoder);
 }
 
-int baexml_Decoder_NillableContext::parseAttribute(const char *name,
-                                                   const char *value,
-                                                  size_t       lenValue,
-                                               baexml_Decoder *decoder)
+int baexml_Decoder_NillableContext::parseAttribute(const char     *name,
+                                                   const char     *value,
+                                                   size_t          lenValue,
+                                                   baexml_Decoder *decoder)
 {
     BSLS_ASSERT(d_elementContext_p);
+
+// TBD
+#if 0
+    enum { BAEXML_SUCCESS = 0 };
+
+    if (!bsl::strcmp("nil", name) && !bsl::strcmp("true", value)) {
+        // xsi:nil=true attribute means the object is nil.  Do nothing.
+        return BAEXML_SUCCESS;                                        // RETURN
+    }
+#endif
 
     if (d_isNil) {
         d_elementContext_p->startElement(decoder);

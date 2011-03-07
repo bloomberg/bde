@@ -10,9 +10,6 @@ BDES_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
 //
-//@CLASSES:
-// baexml_EncoderOptions
-//
 //@AUTHOR: Rohan Bhindwale (rbhindwale@bloomberg.net)
 //
 //@DESCRIPTION:
@@ -30,10 +27,6 @@ BDES_IDENT_PRAGMA_ONCE
 #include <baescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -42,16 +35,16 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bdeat_attributeinfo.h>
 #endif
 
+#ifndef INCLUDED_BDEAT_SELECTIONINFO
+#include <bdeat_selectioninfo.h>
+#endif
+
 #ifndef INCLUDED_BDEAT_TYPETRAITS
 #include <bdeat_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BDEAT_VALUETYPEFUNCTIONS
-#include <bdeat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_objectbuffer.h>
 #endif
 
 #ifndef INCLUDED_BDEX_INSTREAMFUNCTIONS
@@ -62,12 +55,20 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bdex_outstreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BDEU_PRINTMETHODS
-#include <bdeu_printmethods.h>
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BAEXML_ENCODINGSTYLE
 #include <baexml_encodingstyle.h>
+#endif
+
+#ifndef INCLUDED_BDEUT_NULLABLEVALUE
+#include <bdeut_nullablevalue.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -76,17 +77,17 @@ BDES_IDENT_PRAGMA_ONCE
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
+#define INCLUDED_BSL_IOSFWD
 #endif
-
 
 namespace BloombergLP {
 
 class bslma_Allocator;
 
 
-                      // ===============================                       
-                      // class baexml_EncoderOptions                       
-                      // ===============================                       
+                            // ===========================                     
+                            // class baexml_EncoderOptions
+                            // ===========================                     
 
 class baexml_EncoderOptions {
     // Options for performing XML encodings.  Encoding style is either COMPACT
@@ -99,31 +100,31 @@ class baexml_EncoderOptions {
     // This class is generated using baexml_generateoptions.pl 
 
     // INSTANCE DATA
-    bsl::string                      d_objectNamespace;
+    bsl::string               d_objectNamespace;
         // namespace where object is defined 
-    bsl::string                      d_schemaLocation;
+    bsl::string               d_schemaLocation;
         // location of the schema
-    bsl::string                      d_tag;
+    bsl::string               d_tag;
         // tag for top level
-    int                              d_formattingMode;
+    int                       d_formattingMode;
         // Formatting mode
-    int                              d_initialIndentLevel;
+    int                       d_initialIndentLevel;
         // initial indentation level
-    int                              d_spacesPerLevel;
+    int                       d_spacesPerLevel;
         // spaces per level of indentation 
-    int                              d_wrapColumn;
+    int                       d_wrapColumn;
         // number of characters to wrap text 
-    int                              d_maxDecimalTotalDigits;
+    bdeut_NullableValue<int>  d_maxDecimalTotalDigits;
         // Maximum total digits of the decimal value that should be displayed 
-    int                              d_maxDecimalFractionDigits;
+    bdeut_NullableValue<int>  d_maxDecimalFractionDigits;
         // Maximum fractional digits of the decimal value that should be
         // displayed 
-    int                              d_significantDoubleDigits;
+    bdeut_NullableValue<int>  d_significantDoubleDigits;
         // The number of significant digits that must be displayed for the
         // double value. 
-    baexml_EncodingStyle::Value  d_encodingStyle;
+    baexml_EncodingStyle::Value d_encodingStyle;
         // encoding style (see component-level doc) 
-    bool                             d_allowControlCharacters;
+    bool                      d_allowControlCharacters;
         // Allow control characters to be encoded. 
 
   public:
@@ -165,23 +166,17 @@ class baexml_EncoderOptions {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const int DEFAULT_FORMATTING_MODE;
+    static const int DEFAULT_INITIALIZER_FORMATTING_MODE;
 
-    static const int DEFAULT_INITIAL_INDENT_LEVEL;
+    static const int DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL;
 
-    static const int DEFAULT_SPACES_PER_LEVEL;
+    static const int DEFAULT_INITIALIZER_SPACES_PER_LEVEL;
 
-    static const int DEFAULT_WRAP_COLUMN;
+    static const int DEFAULT_INITIALIZER_WRAP_COLUMN;
 
-    static const int DEFAULT_MAX_DECIMAL_TOTAL_DIGITS;
+    static const baexml_EncodingStyle::Value DEFAULT_INITIALIZER_ENCODING_STYLE;
 
-    static const int DEFAULT_MAX_DECIMAL_FRACTION_DIGITS;
-
-    static const int DEFAULT_SIGNIFICANT_DOUBLE_DIGITS;
-
-    static const baexml_EncodingStyle::Value DEFAULT_ENCODING_STYLE;
-
-    static const bool DEFAULT_ALLOW_CONTROL_CHARACTERS;
+    static const bool DEFAULT_INITIALIZER_ALLOW_CONTROL_CHARACTERS;
 
     static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -206,17 +201,17 @@ class baexml_EncoderOptions {
 
     // CREATORS
     explicit baexml_EncoderOptions(bslma_Allocator *basicAllocator = 0);
-        // Create an object of type 'baexml_EncoderOptions' having the
-        // default value.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // Create an object of type 'baexml_EncoderOptions' having the default value. 
+        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     baexml_EncoderOptions(const baexml_EncoderOptions& original,
-                              bslma_Allocator *basicAllocator = 0);
-        // Create an object of type 'baexml_EncoderOptions' having the
-        // value of the specified 'original' object.  Use the optionally
-        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.
+                   bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'baexml_EncoderOptions' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~baexml_EncoderOptions();
         // Destroy this object.
@@ -297,15 +292,15 @@ class baexml_EncoderOptions {
         // Set the "WrapColumn" attribute of this object to the specified
         // 'value'.
 
-    void setMaxDecimalTotalDigits(int value);
+    void setMaxDecimalTotalDigits(const bdeut_NullableValue<int>& value);
         // Set the "MaxDecimalTotalDigits" attribute of this object to the
         // specified 'value'.
 
-    void setMaxDecimalFractionDigits(int value);
+    void setMaxDecimalFractionDigits(const bdeut_NullableValue<int>& value);
         // Set the "MaxDecimalFractionDigits" attribute of this object to the
         // specified 'value'.
 
-    void setSignificantDoubleDigits(int value);
+    void setSignificantDoubleDigits(const bdeut_NullableValue<int>& value);
         // Set the "SignificantDoubleDigits" attribute of this object to the
         // specified 'value'.
 
@@ -398,15 +393,15 @@ class baexml_EncoderOptions {
         // Return a reference to the non-modifiable "WrapColumn" attribute of
         // this object.
 
-    const int& maxDecimalTotalDigits() const;
+    const bdeut_NullableValue<int>& maxDecimalTotalDigits() const;
         // Return a reference to the non-modifiable "MaxDecimalTotalDigits"
         // attribute of this object.
 
-    const int& maxDecimalFractionDigits() const;
+    const bdeut_NullableValue<int>& maxDecimalFractionDigits() const;
         // Return a reference to the non-modifiable "MaxDecimalFractionDigits"
         // attribute of this object.
 
-    const int& significantDoubleDigits() const;
+    const bdeut_NullableValue<int>& significantDoubleDigits() const;
         // Return a reference to the non-modifiable "SignificantDoubleDigits"
         // attribute of this object.
 
@@ -448,9 +443,9 @@ BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baexml_EncoderOptions)
 // ============================================================================
 
 
-                      // -------------------------------                       
-                      // class baexml_EncoderOptions                       
-                      // -------------------------------                       
+                            // ---------------------------                     
+                            // class baexml_EncoderOptions
+                            // ---------------------------                     
 
 // CLASS METHODS
 inline
@@ -662,19 +657,19 @@ void baexml_EncoderOptions::setWrapColumn(int value)
 }
 
 inline
-void baexml_EncoderOptions::setMaxDecimalTotalDigits(int value)
+void baexml_EncoderOptions::setMaxDecimalTotalDigits(const bdeut_NullableValue<int>& value)
 {
     d_maxDecimalTotalDigits = value;
 }
 
 inline
-void baexml_EncoderOptions::setMaxDecimalFractionDigits(int value)
+void baexml_EncoderOptions::setMaxDecimalFractionDigits(const bdeut_NullableValue<int>& value)
 {
     d_maxDecimalFractionDigits = value;
 }
 
 inline
-void baexml_EncoderOptions::setSignificantDoubleDigits(int value)
+void baexml_EncoderOptions::setSignificantDoubleDigits(const bdeut_NullableValue<int>& value)
 {
     d_significantDoubleDigits = value;
 }
@@ -889,19 +884,19 @@ const int& baexml_EncoderOptions::wrapColumn() const
 }
 
 inline
-const int& baexml_EncoderOptions::maxDecimalTotalDigits() const
+const bdeut_NullableValue<int>& baexml_EncoderOptions::maxDecimalTotalDigits() const
 {
     return d_maxDecimalTotalDigits;
 }
 
 inline
-const int& baexml_EncoderOptions::maxDecimalFractionDigits() const
+const bdeut_NullableValue<int>& baexml_EncoderOptions::maxDecimalFractionDigits() const
 {
     return d_maxDecimalFractionDigits;
 }
 
 inline
-const int& baexml_EncoderOptions::significantDoubleDigits() const
+const bdeut_NullableValue<int>& baexml_EncoderOptions::significantDoubleDigits() const
 {
     return d_significantDoubleDigits;
 }
@@ -970,10 +965,10 @@ bsl::ostream& operator<<(
 }  // close namespace BloombergLP
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_3.5.0 Tue May  4 08:22:33 2010
+// GENERATED BY BLP_BAS_CODEGEN_3.6.1 Mon Jan  3 12:39:26 2011
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

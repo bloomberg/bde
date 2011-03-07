@@ -115,7 +115,6 @@
       </xs:element>
       <xs:element name='MaxDecimalTotalDigits' type='xs:int'
             minOccurs='0' maxOccurs='1'
-            default='18'
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
@@ -126,7 +125,6 @@
       </xs:element>
       <xs:element name='MaxDecimalFractionDigits' type='xs:int'
             minOccurs='0' maxOccurs='1'
-            default='18'
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
@@ -137,7 +135,6 @@
       </xs:element>
       <xs:element name='SignificantDoubleDigits' type='xs:int'
             minOccurs='0' maxOccurs='1'
-            default='18'
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>

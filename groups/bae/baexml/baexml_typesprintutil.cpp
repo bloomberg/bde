@@ -1,4 +1,4 @@
-// baexml_typesprintutil.cpp                  -*-C++-*-
+// baexml_typesprintutil.cpp                                          -*-C++-*-
 #include <baexml_typesprintutil.h>
 
 #include <bdes_ident.h>
@@ -561,6 +561,17 @@ const char *printTextReplacingXMLEscapes(
     return 0;
 }
 
+// The 'printDecimalImpl' function prints decimal values based on the specified
+// 'precision' value which signifies the maximum number of fraction digits that
+// must be output.  The 'printDecimalWithOptions' provides similar
+// functionality to this function and also allows specifying the maximum number
+// of total digits to print.  'printDecimalWithOptions' prints similar values
+// to the stream as 'printDecimalImpl' except when maxNumFractionDigits is
+// equal to maxNumTotalDigits in which case 'printDecimalWithOptions' (which
+// always prints the leading '0' before the decimal) prints one less fraction
+// digit then 'printDecimalImpl'.  Note that these two functions can be
+// factored in a subsequent release.
+
 bsl::ostream& printDecimalImpl(bsl::ostream& stream,
                                double        object,
                                int           precision)
@@ -608,8 +619,7 @@ bsl::ostream& printDecimalImpl(bsl::ostream& stream,
     }
 
     // TBD the significance of "3" is not clear
-
-    int maxFractionLen = (precision + 3) - integralLen;
+    int maxFractionLen = precision + 3 - integralLen;
     if (maxFractionLen <= 0) {
         maxFractionLen = 1;
     }
@@ -625,6 +635,84 @@ bsl::ostream& printDecimalImpl(bsl::ostream& stream,
     stream.write(buffer, (ptr - buffer) + fractionLen);
 
     return stream;
+}
+
+bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
+                                      double        object,
+                                      int           maxTotalDigits,
+                                      int           maxFractionDigits)
+{
+    switch (bdes_Float::classifyFine(object)) {
+      case bdes_Float::BDES_POSITIVE_INFINITY:
+      case bdes_Float::BDES_NEGATIVE_INFINITY:
+      case bdes_Float::BDES_QNAN:
+      case bdes_Float::BDES_SNAN: {
+        stream.setstate(bsl::ios_base::failbit);
+        return stream;
+      }
+      default: {
+      } break;
+    }
+
+    // Maximum number of digits in the number (excluding the decimal point).
+    // Ex: for totalDigits = 4, 65.43, 1234, 1.456 etc
+    // Maximum number of fraction digits refers to the digits following the
+    // decimal point.
+
+    const int BUF_SIZE = 128;
+    char buffer[BUF_SIZE];
+    bsl::memset(buffer, 0, BUF_SIZE);
+
+    if (maxTotalDigits < 2) {
+        // At least two digits must be printed one before and one after the
+        // decimal.
+
+        maxTotalDigits = 2;
+    }
+
+    if (maxFractionDigits < 1) {
+        // At least one digit must be printed after the decimal.
+
+        maxFractionDigits = 1;
+    }
+
+    if (maxFractionDigits > maxTotalDigits - 1) {
+        maxFractionDigits = maxTotalDigits - 1;
+    }
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#pragma warning(push)
+#pragma warning(disable:4996)     // suppress 'sprintf' deprecation warning
+#endif
+
+    // format: "-"  forces left alignment, "#" always prints period
+    const int len = ::sprintf(buffer, "%-#1.*f", maxFractionDigits, object);
+    BSLS_ASSERT(len < (int) sizeof buffer);
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#pragma warning(pop)
+#endif
+
+    const char *ptr = bsl::strchr(buffer, '.');
+    BSLS_ASSERT(ptr != 0);
+
+    int integralLen = ptr - buffer;
+    if (object < 0) {
+        --integralLen;
+    }
+
+    int fractionLen = maxTotalDigits - integralLen;
+
+    if (fractionLen > maxFractionDigits) {
+        fractionLen = maxFractionDigits;
+    }
+    else if (fractionLen <= 0) {
+        fractionLen = 1;
+    }
+
+    ++ptr;  // move ptr to the first fraction digit
+
+    return stream.write(buffer, (ptr - buffer) + fractionLen);
 }
 
 }  // close unnamed namespace
@@ -777,10 +865,21 @@ baexml_TypesPrintUtil_Imp::printDecimal(bsl::ostream&                stream,
 bsl::ostream&
 baexml_TypesPrintUtil_Imp::printDecimal(bsl::ostream&                stream,
                                         const double&                object,
-                                        const baexml_EncoderOptions *,
+                                        const baexml_EncoderOptions *options,
                                         bdeat_TypeCategory::Simple)
 {
-    return printDecimalImpl(stream, object, DBL_DIG);
+    if (!options
+     || (options->maxDecimalTotalDigits().isNull()
+      && options->maxDecimalFractionDigits().isNull())) {
+        printDecimalImpl(stream, object, DBL_DIG);
+    }
+    else {
+        printDecimalWithOptions(stream,
+                                object,
+                                options->maxDecimalTotalDigits().value(),
+                                options->maxDecimalFractionDigits().value());
+    }
+    return stream;
 }
 
 bsl::ostream& baexml_TypesPrintUtil_Imp::printDefault(
@@ -873,89 +972,6 @@ bsl::ostream& baexml_TypesPrintUtil_Imp::printDefault(
 
     return stream;
 }
-
-// TBD obsolete code brought over from .h when the above two 'printDefault'
-// methods were moved to .cpp
-#if 0
-    // if this double corresponds to a xs:double xml type
-    //     store the current formatting flags
-    //     set uppercase and scientific formatting flag
-    //     set precision to significantDigits
-    //     reset the original formatting flags
-    //     // Ignore the fixed formatting mode
-    // else if the double corresponds to a xs:decimal
-    //     snprintf out to a character buffer
-    //     calculate the integralLen and fractionLen
-    //     print out the value based on the following algorithm:
-    //     1. if the integral digits are greater than maxTotalDigits,
-    //        print out all integral digits, truncation fraction digits as
-    //        necessary
-    //     2. print out the smallest number out of maxFractionDigits,
-    //        maxTotalDigits - integralLen and fractionLen of fraction digits.
-    //     3. special case '-' sign and do not use it when calculating the
-    //        integral digits to print
-
-    int maxTotalDigits    = encoderOptions->maxDecimalTotalDigits();
-    int maxFractionDigits = encoderOptions->maxDecimalFractionDigits();
-    int significantDigits = encoderOptions->significantDoubleDigits();
-
-    // TBD differentiate between double and decimal
-    // TBD implement significantDoubleDigits for double
-    // TBD what is a safe size for the double buffer ?
-    const int bufSize = 320;
-    char buffer[bufSize];
-    bsl::memset(buffer, 0, bufSize);
-
-    snprintf(buffer, sizeof(buffer), "%f", object);
-    const char *decimalLoc = buffer;
-    while (*decimalLoc && *decimalLoc != '.') {
-        ++decimalLoc;
-    }
-
-    int integralLen = decimalLoc - buffer;
-    int fractionLen = !*decimalLoc ? 0 : bsl::strlen(decimalLoc + 1);
-    int length      = 0;
-
-    if ('-' == buffer[0]) {
-        ++maxTotalDigits;
-    }
-
-    const char *end = decimalLoc + fractionLen;
-    while (end != decimalLoc && *end == '0') {
-        // Remove redundant 0s after the decimal point
-        // TBD do we want to do this.  Is there a formatting flag to print to
-        // disable printing of trailing 0s.
-        --end;
-        --fractionLen;
-    }
-
-    if (integralLen >= maxTotalDigits) {
-        length = integralLen;
-    }
-    else {
-        int fractionLenToPrint = maxTotalDigits - integralLen;
-        fractionLenToPrint     = fractionLenToPrint <= maxFractionDigits
-                               ? fractionLenToPrint
-                               : maxFractionDigits;
-        fractionLenToPrint = fractionLenToPrint <= fractionLen
-                           ? fractionLenToPrint
-                           : fractionLen;
-
-        length = 0 == fractionLenToPrint
-               ? integralLen
-               : integralLen + 1 + fractionLenToPrint;
-    }
-
-    if (2 == length && '-' == buffer[0] && '0' == buffer[1]) {
-        // Output -0 as 0
-        stream.put('0');
-    }
-    else {
-        stream.write(buffer, length);
-    }
-
-    return stream;
-#endif
 
 }  // close namespace BloombergLP
 

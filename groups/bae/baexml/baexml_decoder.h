@@ -499,6 +499,11 @@ class baexml_Decoder {
     bsl::string                      d_sourceUri;      // URI of input document
     int                              d_errorCount;     // error count
     int                              d_warningCount;   // warning count
+
+    int                              d_numUnknownElementsSkipped;
+                                                       // number of unknown
+                                                       // elements skipped
+
     bool                             d_fatalError;     // fatal error flag
     int                              d_remainingDepth;
         // remaining number of nesting levels allowed
@@ -645,6 +650,11 @@ class baexml_Decoder {
         // behavior is undefined unless this call was preceded by a prior
         // successful call to 'open'
 
+    void setNumUnknownElementsSkipped(int value);
+        // Set the number of unknown elements skipped by the decoder during
+        // the current decoding operation to the specified 'value'.  The
+        // behavior is undefined unless '0 <= value'.
+
     //ACCESSORS
     const baexml_DecoderOptions *options() const;
         // Return a pointer to the non-modifiable decoder options provided at
@@ -665,6 +675,11 @@ class baexml_Decoder {
 
     bsl::ostream *warningStream() const;
         // Return pointer to the warning stream.
+
+    int numUnknownElementsSkipped() const;
+        // Return the number of unknown elements that were skipped during the
+        // previous decoding operation.  Note that unknown elements are skipped
+        // only if 'true == options()->skipUnknownElements()'.
 
     baexml_ErrorInfo::Severity  errorSeverity() const;
         // Return the severity of the most severe warning or error encountered
@@ -2019,6 +2034,14 @@ int baexml_Decoder::MemOutStream::length() const
     return (int)d_sb.length();
 }
 
+inline
+void baexml_Decoder::setNumUnknownElementsSkipped(int value)
+{
+    BSLS_ASSERT_SAFE(0 <= value);
+
+    d_numUnknownElementsSkipped = value;
+}
+
                              // --------------------
                              // class baexml_Decoder
                              // --------------------
@@ -2045,6 +2068,12 @@ inline
 bsl::ostream *baexml_Decoder::errorStream() const
 {
     return d_errorStream;
+}
+
+inline
+int baexml_Decoder::numUnknownElementsSkipped() const
+{
+    return d_numUnknownElementsSkipped;
 }
 
 inline
@@ -2300,6 +2329,8 @@ int baexml_Decoder_ChoiceContext<TYPE>::parseSubElement(
          && false == bdeat_ChoiceFunctions::hasSelection(*d_object_p,
                                                          elementName,
                                                          lenName)) {
+            decoder->setNumUnknownElementsSkipped(
+                                     decoder->numUnknownElementsSkipped() + 1);
             d_selectionIsRepeatable = true;  // assume repeatable
             d_selectionName.assign(elementName, lenName);
 
@@ -2557,6 +2588,8 @@ int baexml_Decoder_SequenceContext<TYPE>::parseSubElement(
      && false == bdeat_SequenceFunctions::hasAttribute(*d_object_p,
                                                        elementName,
                                                        lenName)) {
+        decoder->setNumUnknownElementsSkipped(
+                                     decoder->numUnknownElementsSkipped() + 1);
         baexml_Decoder_UnknownElementContext unknownElement;
         return unknownElement.beginParse(decoder);
     }
@@ -3163,6 +3196,8 @@ int baexml_Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                                 *object,
                                                 d_elementName_p,
                                                 static_cast<int>(d_lenName))) {
+            d_decoder->setNumUnknownElementsSkipped(
+                                   d_decoder->numUnknownElementsSkipped() + 1);
             baexml_Decoder_UnknownElementContext unknownElement;
             return unknownElement.beginParse(d_decoder);
         }
@@ -3197,6 +3232,8 @@ int baexml_Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                                 *object,
                                                 d_elementName_p,
                                                 static_cast<int>(d_lenName))) {
+            d_decoder->setNumUnknownElementsSkipped(
+                                   d_decoder->numUnknownElementsSkipped() + 1);
             baexml_Decoder_UnknownElementContext unknownElement;
             return unknownElement.beginParse(d_decoder);
         }

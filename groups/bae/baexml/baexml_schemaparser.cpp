@@ -4,17 +4,17 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baexml_schemaparser_cpp,"$Id$ $CSID$")
 
-#include <baexml_namespaceregistry.h>
-#include <baexml_prefixstack.h>
 #include <baexml_elementattribute.h>
 #include <baexml_minireader.h>
+#include <baexml_namespaceregistry.h>
+#include <baexml_prefixstack.h>
 
 #include <baexml_typesparserutil.h>
 
+#include <bdeat_formattingmode.h>
 #include <bdem_elemref.h>
 #include <bdem_elemtype.h>
 #include <bdem_schema.h>
-#include <bdeat_formattingmode.h>
 #include <bdema_sequentialallocator.h>
 
 #include <bdeu_print.h>
@@ -31,17 +31,17 @@ BDES_IDENT_RCSID(baexml_schemaparser_cpp,"$Id$ $CSID$")
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 
-#include <bsl_functional.h>
 #include <bsl_algorithm.h>
+#include <bsl_functional.h>
 #include <bsl_iterator.h>
+#include <bsl_list.h>
 #include <bsl_map.h>
-#include <bsl_sstream.h>
 #include <bsl_ostream.h>
 #include <bsl_set.h>
+#include <bsl_sstream.h>
 #include <bsl_stack.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
-#include <bsl_list.h>
 
 namespace BloombergLP {
 
@@ -58,7 +58,7 @@ typedef bsl::pair<int, bsl::string> QualifiedSymbol;
 const int NULL_NSID = -1;
     // Null namespace ID
 
-inline
+static inline
 bdem_ElemType::Type bdemArrayType(bdem_ElemType::Type orig)
     // Given a bdem element type, 'orig', return the corresponding array
     // type.  The array type for 'LIST' is 'TABLE'.  This operation is
@@ -69,6 +69,7 @@ bdem_ElemType::Type bdemArrayType(bdem_ElemType::Type orig)
     return bdem_ElemType::BDEM_VOID == result ? orig : result;
 }
 
+static
 int parseDefaultValue(bdem_ElemRef elemRef, const bsl::string& defaultValue)
     // Replace the value in the specified 'elemRef' with the value parsed from
     // the specified 'defaultValue'.  Return 0 on success, and a non-zero value
@@ -493,8 +494,9 @@ void SchemaElement::setElementRef(SchemaElement *ref)
 inline
 bool SchemaElement::isDefined() const
 {
-    // Element is defined if it has a type or refers to another element
-    return (0 != d_directType || 0 != d_indirectType);
+    // Element is defined if it has a type or refers to another element.
+
+    return 0 != d_directType || 0 != d_indirectType;
 }
 
 SchemaType *SchemaElement::type() const
@@ -805,8 +807,7 @@ void SchemaType::setMaxValue(bsls_Types::Uint64 maxValue)
 }
 
 inline
-void SchemaType::addField(const bsl::string&  name,
-                          SchemaElement      *element)
+void SchemaType::addField(const bsl::string& name, SchemaElement *element)
 {
     d_fields.push_back(SchemaField(name, element));
     d_xmlTypeDescriptor = &COMPLEX_TYPE_DESCRIPTOR;
@@ -1078,7 +1079,7 @@ class ExternalSchemaInfo {
     baexml_PrefixStack   d_prefixes;
     int                  d_targetNsId;
 
-public:
+  public:
     // CREATORS
     ExternalSchemaInfo(baexml_NamespaceRegistry *namespaces,
                        const bdeut_StringRef&    location,
@@ -1120,57 +1121,64 @@ inline
 ExternalSchemaInfo::ExternalSchemaInfo(baexml_NamespaceRegistry *namespaces,
                                        const bdeut_StringRef&    location,
                                        bslma_Allocator          *allocator)
-: d_incType    (TOP_LEVEL)
-, d_parent     (0)
-, d_location   (location.data(), location.length(), allocator)
-, d_prefixes   (namespaces, allocator)
-, d_targetNsId (NULL_NSID)
+: d_incType   (TOP_LEVEL)
+, d_parent    (0)
+, d_location  (allocator)
+, d_prefixes  (namespaces, allocator)
+, d_targetNsId(NULL_NSID)
 {
+    if (location.data()) {
+        d_location.assign(location.data(), location.length());
+    }
 }
 
-inline
 ExternalSchemaInfo::ExternalSchemaInfo(InclusionType           iType,
                                        ExternalSchemaInfo     *parent,
                                        const bdeut_StringRef&  location,
                                        const bdeut_StringRef&  targetNs,
                                        bslma_Allocator        *allocator)
-: d_incType    (iType)
-, d_parent     (parent)
-, d_location   (location.data(), location.length(), allocator)
-, d_prefixes   (parent->d_prefixes.namespaceRegistry(), allocator)
-, d_targetNsId (NULL_NSID)
+: d_incType   (iType)
+, d_parent    (parent)
+, d_location  (allocator)
+, d_prefixes  (parent->d_prefixes.namespaceRegistry(), allocator)
+, d_targetNsId(NULL_NSID)
 {
-    BSLS_ASSERT (d_incType != TOP_LEVEL);
+    BSLS_ASSERT(d_incType != TOP_LEVEL);
+
+    if (location.data()) {
+        d_location.assign(location.data(), location.length());
+    }
+
     setTargetNamespace(targetNs);
 
     d_prefixes.pushPrefix("", targetNs);
 }
 
-inline baexml_PrefixStack *
-ExternalSchemaInfo::prefixStack()
+inline
+baexml_PrefixStack *ExternalSchemaInfo::prefixStack()
 {
     return &d_prefixes;
 }
-inline ExternalSchemaInfo::InclusionType
-ExternalSchemaInfo::inclusionType() const
+inline
+ExternalSchemaInfo::InclusionType ExternalSchemaInfo::inclusionType() const
 {
     return d_incType;
 }
 
-inline const bsl::string&
-ExternalSchemaInfo::schemaLocation() const
+inline
+const bsl::string& ExternalSchemaInfo::schemaLocation() const
 {
     return d_location;
 }
 
-inline ExternalSchemaInfo*
-ExternalSchemaInfo::parent() const
+inline
+ExternalSchemaInfo *ExternalSchemaInfo::parent() const
 {
     return d_parent;
 }
 
-inline ExternalSchemaInfo*
-ExternalSchemaInfo::root() const
+inline
+ExternalSchemaInfo *ExternalSchemaInfo::root() const
 {
     ExternalSchemaInfo *ret = const_cast<ExternalSchemaInfo*> (this);
 
@@ -1180,20 +1188,20 @@ ExternalSchemaInfo::root() const
     return ret;
 }
 
-inline int
-ExternalSchemaInfo::targetNsId() const
+inline
+int ExternalSchemaInfo::targetNsId() const
 {
     return d_targetNsId;
 }
 
-inline int
-ExternalSchemaInfo::defaultNsId() const
+inline
+int ExternalSchemaInfo::defaultNsId() const
 {
     return d_prefixes.lookupNamespaceId("");
 }
 
-inline bool
-ExternalSchemaInfo::setTargetNamespace(const bdeut_StringRef& uri)
+inline
+bool ExternalSchemaInfo::setTargetNamespace(const bdeut_StringRef& uri)
 {
     int nsId = d_prefixes.namespaceRegistry()->lookupOrRegister(uri);
 
@@ -1208,20 +1216,20 @@ ExternalSchemaInfo::setTargetNamespace(const bdeut_StringRef& uri)
     return false;
 }
 
-inline int
-ExternalSchemaInfo::getNamespaceIdByPrefix(const bsl::string& prefix) const
+inline
+int ExternalSchemaInfo::getNamespaceIdByPrefix(const bsl::string& prefix) const
 {
     return d_prefixes.lookupNamespaceId(prefix);
 }
 
-inline const char *
-ExternalSchemaInfo::targetNamespace() const
+inline
+const char *ExternalSchemaInfo::targetNamespace() const
 {
     return d_prefixes.lookupNamespaceUri(d_targetNsId);
 }
 
-inline const char *
-ExternalSchemaInfo::defaultNamespace() const
+inline
+const char *ExternalSchemaInfo::defaultNamespace() const
 {
     return d_prefixes.lookupNamespaceUri("");
 }
@@ -3487,7 +3495,7 @@ const char *SchemaContentHandler::targetNamespace() const
 {
     const ExternalSchemaInfo *info = topSchemaInfo();
 
-    int nsId = (info == 0) ? NULL_NSID : info->targetNsId();
+    const int nsId = 0 == info ? NULL_NSID : info->targetNsId();
 
     return d_namespaces.lookup(nsId);
 }

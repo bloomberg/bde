@@ -3394,21 +3394,36 @@ int main(int argc, char *argv[])
                 { L_,     "0.1X",      0.1,             },
                 { L_,     "1X",        1.0,             },
                 { L_,     "123.4X",    123.4,           },
+                { L_,     "79.9X",      79.9,           },
+                { L_,     "79.8645X",   79.8645,        },
+                { L_,     "-63.2X",     -63.2,          },
+                { L_,     "-63.2347X",  -63.2347,       },
                 { L_,     "0.005X",    0.005            },
                 { L_,     "9.99E36X",  qNaN,            },
                 { L_,     "+INFX",     qNaN,            },
                 { L_,     "-INFX",     qNaN,            },
                 { L_,     "NaNX",      qNaN,            },
+
+
+                { L_, "-0.10000000000000001X", -0.1      },
+                { L_, "-1.0000000000000000X",  -1        },
+                { L_, "-0.12345678901234500X", -0.123456789012345        },
+                { L_, "0.00000000000000000X",  0      },
+                { L_, "0.00000000000000001X",  0.00000000000000001      },
+                { L_, "0.10000000000000001X",  0.1      },
+                { L_, "1.0000000000000000X",   1        },
+                { L_, "123456789012345.0X",    123456789012345.0    },
+                { L_, "123456789.012345X",     123456789.012345     },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE            = DATA[i].d_lineNum;
                 const char *INPUT           = DATA[i].d_input;
-                const int   INPUT_LENGTH    = bsl::strlen(INPUT)-1;
+                const int   INPUT_LENGTH    = bsl::strlen(INPUT) - 1;
                 const Type  EXPECTED_RESULT = DATA[i].d_result;
 
-                Type mX;  const Type& X = mX;
+                Type mX; const Type& X = mX;
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
@@ -3418,7 +3433,8 @@ int main(int argc, char *argv[])
                 }
                 else {
                     LOOP2_ASSERT(LINE, retCode, 0 == retCode);
-                    LOOP2_ASSERT(LINE, X, EXPECTED_RESULT == X);
+                    LOOP3_ASSERT(LINE, X, EXPECTED_RESULT,
+                                 EXPECTED_RESULT == X);
                 }
             }
         }

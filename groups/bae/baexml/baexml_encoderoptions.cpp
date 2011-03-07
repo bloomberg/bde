@@ -13,40 +13,38 @@ BDES_IDENT_RCSID(baexml_encoderoptions_cpp,"$Id$ $CSID$ $CCId$")
 #include <bdeu_string.h>
 
 #include <baexml_encodingstyle.h>
+#include <bdeut_nullablevalue.h>
 #include <bsl_string.h>
 
 #include <bsls_assert.h>
 
-#include <bsl_ostream.h>
 #include <bsl_iomanip.h>
+#include <bsl_limits.h>
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 
-                      // -------------------------------                       
-                      // class baexml_EncoderOptions                       
-                      // -------------------------------                       
+                            // ---------------------------                     
+                            // class baexml_EncoderOptions
+                            // ---------------------------                     
 
 // CONSTANTS
 
 const char baexml_EncoderOptions::CLASS_NAME[] = "baexml_EncoderOptions";
 
-const int baexml_EncoderOptions::DEFAULT_FORMATTING_MODE = 0;
+const int baexml_EncoderOptions::DEFAULT_INITIALIZER_FORMATTING_MODE = 0;
 
-const int baexml_EncoderOptions::DEFAULT_INITIAL_INDENT_LEVEL = 0;
+const int baexml_EncoderOptions::DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL = 0;
 
-const int baexml_EncoderOptions::DEFAULT_SPACES_PER_LEVEL = 4;
+const int baexml_EncoderOptions::DEFAULT_INITIALIZER_SPACES_PER_LEVEL = 4;
 
-const int baexml_EncoderOptions::DEFAULT_WRAP_COLUMN = 80;
+const int baexml_EncoderOptions::DEFAULT_INITIALIZER_WRAP_COLUMN = 80;
 
-const int baexml_EncoderOptions::DEFAULT_MAX_DECIMAL_TOTAL_DIGITS = 18;
+const baexml_EncodingStyle::Value
+baexml_EncoderOptions::DEFAULT_INITIALIZER_ENCODING_STYLE =
+                                          baexml_EncodingStyle::BAEXML_COMPACT;
 
-const int baexml_EncoderOptions::DEFAULT_MAX_DECIMAL_FRACTION_DIGITS = 18;
-
-const int baexml_EncoderOptions::DEFAULT_SIGNIFICANT_DOUBLE_DIGITS = 18;
-
-const baexml_EncodingStyle::Value baexml_EncoderOptions::DEFAULT_ENCODING_STYLE = baexml_EncodingStyle::BAEXML_COMPACT;
-
-const bool baexml_EncoderOptions::DEFAULT_ALLOW_CONTROL_CHARACTERS = false;
+const bool baexml_EncoderOptions::DEFAULT_INITIALIZER_ALLOW_CONTROL_CHARACTERS = false;
 
 const bdeat_AttributeInfo baexml_EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
@@ -438,20 +436,20 @@ baexml_EncoderOptions::baexml_EncoderOptions(bslma_Allocator *basicAllocator)
 : d_objectNamespace(basicAllocator)
 , d_schemaLocation(basicAllocator)
 , d_tag(basicAllocator)
-, d_formattingMode(DEFAULT_FORMATTING_MODE)
-, d_initialIndentLevel(DEFAULT_INITIAL_INDENT_LEVEL)
-, d_spacesPerLevel(DEFAULT_SPACES_PER_LEVEL)
-, d_wrapColumn(DEFAULT_WRAP_COLUMN)
-, d_maxDecimalTotalDigits(DEFAULT_MAX_DECIMAL_TOTAL_DIGITS)
-, d_maxDecimalFractionDigits(DEFAULT_MAX_DECIMAL_FRACTION_DIGITS)
-, d_significantDoubleDigits(DEFAULT_SIGNIFICANT_DOUBLE_DIGITS)
-, d_encodingStyle(DEFAULT_ENCODING_STYLE)
-, d_allowControlCharacters(DEFAULT_ALLOW_CONTROL_CHARACTERS)
+, d_formattingMode(DEFAULT_INITIALIZER_FORMATTING_MODE)
+, d_initialIndentLevel(DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL)
+, d_spacesPerLevel(DEFAULT_INITIALIZER_SPACES_PER_LEVEL)
+, d_wrapColumn(DEFAULT_INITIALIZER_WRAP_COLUMN)
+, d_maxDecimalTotalDigits()
+, d_maxDecimalFractionDigits()
+, d_significantDoubleDigits()
+, d_encodingStyle(DEFAULT_INITIALIZER_ENCODING_STYLE)
+, d_allowControlCharacters(DEFAULT_INITIALIZER_ALLOW_CONTROL_CHARACTERS)
 {
 }
 
 baexml_EncoderOptions::baexml_EncoderOptions(const baexml_EncoderOptions& original,
-                                                     bslma_Allocator *basicAllocator)
+                               bslma_Allocator *basicAllocator)
 : d_objectNamespace(original.d_objectNamespace, basicAllocator)
 , d_schemaLocation(original.d_schemaLocation, basicAllocator)
 , d_tag(original.d_tag, basicAllocator)
@@ -498,15 +496,15 @@ void baexml_EncoderOptions::reset()
     bdeat_ValueTypeFunctions::reset(&d_objectNamespace);
     bdeat_ValueTypeFunctions::reset(&d_schemaLocation);
     bdeat_ValueTypeFunctions::reset(&d_tag);
-    d_formattingMode = DEFAULT_FORMATTING_MODE;
-    d_initialIndentLevel = DEFAULT_INITIAL_INDENT_LEVEL;
-    d_spacesPerLevel = DEFAULT_SPACES_PER_LEVEL;
-    d_wrapColumn = DEFAULT_WRAP_COLUMN;
-    d_maxDecimalTotalDigits = DEFAULT_MAX_DECIMAL_TOTAL_DIGITS;
-    d_maxDecimalFractionDigits = DEFAULT_MAX_DECIMAL_FRACTION_DIGITS;
-    d_significantDoubleDigits = DEFAULT_SIGNIFICANT_DOUBLE_DIGITS;
-    d_encodingStyle = DEFAULT_ENCODING_STYLE;
-    d_allowControlCharacters = DEFAULT_ALLOW_CONTROL_CHARACTERS;
+    d_formattingMode = DEFAULT_INITIALIZER_FORMATTING_MODE;
+    d_initialIndentLevel = DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL;
+    d_spacesPerLevel = DEFAULT_INITIALIZER_SPACES_PER_LEVEL;
+    d_wrapColumn = DEFAULT_INITIALIZER_WRAP_COLUMN;
+    bdeat_ValueTypeFunctions::reset(&d_maxDecimalTotalDigits);
+    bdeat_ValueTypeFunctions::reset(&d_maxDecimalFractionDigits);
+    bdeat_ValueTypeFunctions::reset(&d_significantDoubleDigits);
+    d_encodingStyle = DEFAULT_INITIALIZER_ENCODING_STYLE;
+    d_allowControlCharacters = DEFAULT_INITIALIZER_ALLOW_CONTROL_CHARACTERS;
 }
 
 // ACCESSORS
@@ -667,10 +665,10 @@ bsl::ostream& baexml_EncoderOptions::print(
 
 }  // close namespace BloombergLP
 
-// GENERATED BY BLP_BAS_CODEGEN_3.5.0 Tue May  4 08:22:33 2010
+// GENERATED BY BLP_BAS_CODEGEN_3.6.1 Mon Jan  3 12:39:26 2011
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
