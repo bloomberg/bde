@@ -9,7 +9,7 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Support efficient memory allocation from a user-supplied buffer.
 //
-//@DEPRECATED: Use 'bslma_bufferallocator' instead.
+//@DEPRECATED: Use 'bdema_bufferedsequentialallocator' instead.
 //
 //@CLASSES:
 //   bdema_BufferAllocator: memory allocator from user-supplied buffer
