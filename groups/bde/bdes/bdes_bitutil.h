@@ -53,7 +53,7 @@ BDES_IDENT("$Id: $")
 // 'geMask' will return a bit mask with all bits below the specified 'index'
 // cleared, and all bits at or above the 'index' set:
 //..
-//  BSLS_ASSERT(static_cast<int>(0xffff0000) == bdes_BitUtil::geMask(16));
+//  assert(static_cast<int>(0xffff0000) == bdes_BitUtil::geMask(16));
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::geMask(16)' in binary:                                   |
@@ -65,7 +65,7 @@ BDES_IDENT("$Id: $")
 // Similarly, 'ltMask' returns a bit mask with all bits above the specified
 // 'index' cleared, and all bits at or below 'index' set:
 //..
-//  BSLS_ASSERT(static_cast<int>(0x0000ffff) == bdes_BitUtil::ltMask(16));
+//  assert(static_cast<int>(0x0000ffff) == bdes_BitUtil::ltMask(16));
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::ltMask(16)' in binary:                                   |
@@ -76,7 +76,7 @@ BDES_IDENT("$Id: $")
 //..
 // 'eqMask' returns a bit mask with only the bit at the specified 'index' set:
 //..
-//  BSLS_ASSERT(static_cast<int>(0x00800000) == bdes_BitUtil::eqMask(23));
+//  assert(static_cast<int>(0x00800000) == bdes_BitUtil::eqMask(23));
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::eqMask(23)' in binary:                                   |
@@ -88,7 +88,7 @@ BDES_IDENT("$Id: $")
 // Similarly, 'neMask' returns a bit mask with only the bit at the specified
 // 'index' cleared:
 //..
-//  BSLS_ASSERT(static_cast<int>(0xfffeffff) == bdes_BitUtil::neMask(16));
+//  assert(static_cast<int>(0xfffeffff) == bdes_BitUtil::neMask(16));
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::neMask(16)' in binary:                                   |
@@ -100,7 +100,7 @@ BDES_IDENT("$Id: $")
 // Finally, 'oneMask' ('zeroMask') returns a bit mask with all bits within a
 // specified 'range' set (cleared):
 //..
-//  BSLS_ASSERT(static_cast<int>(0x000f0000) == bdes_BitUtil::oneMask(16, 4));
+//  assert(static_cast<int>(0x000f0000) == bdes_BitUtil::oneMask(16, 4));
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::oneMask(16, 4)' in binary:                               |
@@ -110,7 +110,7 @@ BDES_IDENT("$Id: $")
 //  | Result: only those bits set:           00000000000011110000000000000000 |
 //  +------------------------------------------------------------------------*/
 //
-//  BSLS_ASSERT(static_cast<int>(0xfff0ffff) == bdes_BitUtil::zeroMask(16, 4));
+//  assert(static_cast<int>(0xfff0ffff) == bdes_BitUtil::zeroMask(16, 4));
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::zeroMask(16, 4)' in binary:                              |
@@ -127,7 +127,7 @@ BDES_IDENT("$Id: $")
 //..
 //  int myInt = 0x3333;
 //  bdes_BitUtil::andEqual(&myInt, 9, false);
-//  BSLS_ASSERT(0x3133 == myInt);
+//  assert(0x3133 == myInt);
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::andEqual(&myInt, 9, false)' in binary:                   |
@@ -140,22 +140,22 @@ BDES_IDENT("$Id: $")
 //
 //  myInt = 0x3333;
 //  bdes_BitUtil::andEqual(&myInt, 9, true);
-//  BSLS_ASSERT(0x3333 == myInt);
+//  assert(0x3333 == myInt);
 //
 //  myInt = 0x3333;
 //  bdes_BitUtil::andEqual(&myInt, 8,  0, 8);
-//  BSLS_ASSERT(  0x33 == myInt);
+//  assert(  0x33 == myInt);
 //
 //  myInt = 0x3333;
 //  bdes_BitUtil::andEqual(&myInt, 8, -1, 8);    // Note '-1' is all 1's.
-//  BSLS_ASSERT(0x3333 == myInt);
+//  assert(0x3333 == myInt);
 //..
 // 'insertOne' ('insertZero') will split a number open and insert 1's (0's)
 // in the middle of it:
 //..
 //  myInt = 0x3333;
 //  bdes_BitUtil::insertOne(&myInt, 4, 8);
-//  BSLS_ASSERT(0x333ff3 == myInt);
+//  assert(0x333ff3 == myInt);
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::insertOne(&myInt, 4, 8)' in binary:                      |
@@ -168,14 +168,14 @@ BDES_IDENT("$Id: $")
 //
 //  myInt = 0x3333;
 //  bdes_BitUtil::insertZero(&myInt, 4, 8);
-//  BSLS_ASSERT(0x333003 == myInt);
+//  assert(0x333003 == myInt);
 //..
 // 'orEqual' will take a slice of a second integer 'srcInteger' and bitwise
 // or it with another integer:
 //..
 //  myInt = 0x33333333;
 //  bdes_BitUtil::orEqual(&myInt, 16, -1, 8);
-//  BSLS_ASSERT(static_cast<int>(0x33ff3333) == myInt);
+//  assert(static_cast<int>(0x33ff3333) == myInt);
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::orEqual(&myInt, 16, -1, 8)' in binary:                   |
@@ -189,7 +189,7 @@ BDES_IDENT("$Id: $")
 //
 //  myInt = 0;
 //  bdes_BitUtil::orEqual(&myInt, 16, -1, 8);
-//  BSLS_ASSERT(static_cast<int>(0x00ff0000) == myInt);
+//  assert(static_cast<int>(0x00ff0000) == myInt);
 //..
 // 'removeOne' and 'removeZero' each removes bits from the middle of a number;
 // 'removeOne' will fill in the vacated high-order bits with 1's, while
@@ -197,7 +197,7 @@ BDES_IDENT("$Id: $")
 //..
 //  myInt = 0x12345678;
 //  bdes_BitUtil::removeOne(&myInt, 8, 16);
-//  BSLS_ASSERT(static_cast<int>(0xffff1278) == myInt);
+//  assert(static_cast<int>(0xffff1278) == myInt);
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::removeOne(&myInt, 8, 16)' in binary:                     |
@@ -211,17 +211,17 @@ BDES_IDENT("$Id: $")
 //
 //  myInt = 0x12345678;
 //  bdes_BitUtil::removeZero(&myInt, 8, 16);
-//  BSLS_ASSERT(static_cast<int>(0x00001278) == myInt);
+//  assert(static_cast<int>(0x00001278) == myInt);
 //
 //  myInt = 0;
 //  bdes_BitUtil::removeOne(&myInt, 8, 16);
-//  BSLS_ASSERT(static_cast<int>(0xffff0000) == myInt);
+//  assert(static_cast<int>(0xffff0000) == myInt);
 //..
 // 'toggle' will toggle either one bit or a range of bits:
 //..
 //  myInt = 0x11111111;
 //  bdes_BitUtil::toggle(&myInt, 8, 16);
-//  BSLS_ASSERT(static_cast<int>(0x11eeee11) == myInt);
+//  assert(static_cast<int>(0x11eeee11) == myInt);
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::toggle(&myInt, 8, 16)' in binary:                        |
@@ -233,14 +233,14 @@ BDES_IDENT("$Id: $")
 //
 //  myInt = 0x55555555;
 //  bdes_BitUtil::toggle(&myInt, 8, 16);
-//  BSLS_ASSERT(static_cast<int>(0x55aaaa55) == myInt);
+//  assert(static_cast<int>(0x55aaaa55) == myInt);
 //..
 // One overload of 'xorEqual' will XOR a single bit at a specified index with
 // a boolean value:
 //..
 //  myInt = 0x11111111;
 //  bdes_BitUtil::xorEqual(&myInt, 16, true);
-//  BSLS_ASSERT(static_cast<int>(0x11101111) == myInt);
+//  assert(static_cast<int>(0x11101111) == myInt);
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::xorEqual(&myInt, 16, true)' in binary:                   |
@@ -252,14 +252,14 @@ BDES_IDENT("$Id: $")
 //
 //  myInt = 0x11111111;
 //  bdes_BitUtil::xorEqual(&myInt, 16, false);
-//  BSLS_ASSERT(static_cast<int>(0x11111111) == myInt);
+//  assert(static_cast<int>(0x11111111) == myInt);
 //..
 // Another overload of 'xorEqual' will take a section of a second integer
 // and XOR it into the first:
 //..
 //  myInt = 0x77777777;
 //  bdes_BitUtil::xorEqual(&myInt, 16, 0xff, 8);
-//  BSLS_ASSERT(static_cast<int>(0x77887777) == myInt);
+//  assert(static_cast<int>(0x77887777) == myInt);
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::xorEqual(&myInt, 16, 0xff, 8)' in binary:                |
@@ -273,7 +273,7 @@ BDES_IDENT("$Id: $")
 //
 //  myInt = 0x77777777;
 //  bdes_BitUtil::xorEqual(&myInt, 16, 0x55, 8);
-//  BSLS_ASSERT(static_cast<int>(0x77227777) == myInt);
+//  assert(static_cast<int>(0x77227777) == myInt);
 //..
 ///Accessors
 ///- - - - -
@@ -281,7 +281,7 @@ BDES_IDENT("$Id: $")
 // the highest (or lowest) set (or cleared) bits in an integer (or subrange of
 // the integer):
 //..
-//  BSLS_ASSERT( 8 == bdes_BitUtil::find1AtLargestIndex(0x00000101));
+//  assert( 8 == bdes_BitUtil::find1AtLargestIndex(0x00000101));
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::find1AtLargestIndex(0x00000101)' in binary:              |
@@ -291,13 +291,13 @@ BDES_IDENT("$Id: $")
 //  | index of highest set bit == 8                                           |
 //  +------------------------------------------------------------------------*/
 //
-//  BSLS_ASSERT( 8 == bdes_BitUtil::find0AtLargestIndex( ~0x00000101));
-//  BSLS_ASSERT( 8 == bdes_BitUtil::find0AtLargestIndex(  0xfffffe55));
-//  BSLS_ASSERT( 8 == bdes_BitUtil::find1AtLargestIndexGE(0x00000101,  3));
-//  BSLS_ASSERT(-1 == bdes_BitUtil::find1AtLargestIndexGE(0x00000155, 16));
-//  BSLS_ASSERT(-1 == bdes_BitUtil::find1AtLargestIndexLT(0xffff0100,  3));
+//  assert( 8 == bdes_BitUtil::find0AtLargestIndex( ~0x00000101));
+//  assert( 8 == bdes_BitUtil::find0AtLargestIndex(  0xfffffe55));
+//  assert( 8 == bdes_BitUtil::find1AtLargestIndexGE(0x00000101,  3));
+//  assert(-1 == bdes_BitUtil::find1AtLargestIndexGE(0x00000155, 16));
+//  assert(-1 == bdes_BitUtil::find1AtLargestIndexLT(0xffff0100,  3));
 //
-//  BSLS_ASSERT( 8 == bdes_BitUtil::find1AtLargestIndexLT(0xffff0100, 16));
+//  assert( 8 == bdes_BitUtil::find1AtLargestIndexLT(0xffff0100, 16));
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::find1AtLargestIndexLT(0xffff0100, 16)' in binary:        |
@@ -309,8 +309,8 @@ BDES_IDENT("$Id: $")
 //  | index of that bit is 8                                                  |
 //  +------------------------------------------------------------------------*/
 //
-//  BSLS_ASSERT( 8 == bdes_BitUtil::find1AtSmallestIndex(  0xffff0100));
-//  BSLS_ASSERT(16 == bdes_BitUtil::find1AtSmallestIndexGE(0xffff0100, 10));
+//  assert( 8 == bdes_BitUtil::find1AtSmallestIndex(  0xffff0100));
+//  assert(16 == bdes_BitUtil::find1AtSmallestIndexGE(0xffff0100, 10));
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::find1AtSmallestIndexGE(0xffff0100, 10)' in binary:       |
@@ -322,18 +322,18 @@ BDES_IDENT("$Id: $")
 //  | index of that bit is 16                                                 |
 //  +------------------------------------------------------------------------*/
 //
-//  BSLS_ASSERT( 8 == bdes_BitUtil::find1AtSmallestIndex(0xffff0100));
+//  assert( 8 == bdes_BitUtil::find1AtSmallestIndex(0xffff0100));
 //..
 // 'intAbs', 'intMax', and 'intMin' are faster than 'bsl::abs', 'bsl::max',
 // 'bsl::min', and are not template functions:
 //..
-//  BSLS_ASSERT(      6 == bdes_BitUtil::intAbs( 6));
-//  BSLS_ASSERT(      6 == bdes_BitUtil::intAbs(-6));
-//  BSLS_ASSERT(INT_MAX == bdes_BitUtil::intAbs(-INT_MAX));
-//  BSLS_ASSERT(INT_MIN == bdes_BitUtil::intAbs( INT_MIN));   // see note below
+//  assert(      6 == bdes_BitUtil::intAbs( 6));
+//  assert(      6 == bdes_BitUtil::intAbs(-6));
+//  assert(INT_MAX == bdes_BitUtil::intAbs(-INT_MAX));
+//  assert(INT_MIN == bdes_BitUtil::intAbs( INT_MIN));   // see note below
 //
-//  BSLS_ASSERT(12 == bdes_BitUtil::intMax(-5, 12));
-//  BSLS_ASSERT(-5 == bdes_BitUtil::intMin(-5, 12));
+//  assert(12 == bdes_BitUtil::intMax(-5, 12));
+//  assert(-5 == bdes_BitUtil::intMin(-5, 12));
 //..
 // Note that 'INT_MIN' is a special case.  Since the maximum representable
 // positive integer, 'INT_MAX', is one less the absolute value of 'INT_MIN',
@@ -345,7 +345,7 @@ BDES_IDENT("$Id: $")
 // 'mask' -- if a '0', it takes the corresponding bit of 'zeroSrcInteger'; if
 // a '1', it takes the corresponding bit of 'oneSrcInteger':
 //..
-//  BSLS_ASSERT(static_cast<int>(0x0f0f0f0f) ==
+//  assert(static_cast<int>(0x0f0f0f0f) ==
 //                    bdes_BitUtil::merge(0x0f0f0000, 0xffff0f0f, 0x0000ffff));
 //
 //  /*------------------------------------------------------------------------+
@@ -361,12 +361,12 @@ BDES_IDENT("$Id: $")
 //  | result:                                00001111000011110000111100001111 |
 //  +------------------------------------------------------------------------*/
 //
-//  BSLS_ASSERT(static_cast<int>(0x55555555) ==
+//  assert(static_cast<int>(0x55555555) ==
 //                    bdes_BitUtil::merge(0x00000000, 0xffffffff, 0x55555555));
 //..
 // 'numSetOne' ('numSetZero') counts the number of set (cleared) bits:
 //..
-//  BSLS_ASSERT(16 == bdes_BitUtil::numSetOne(0x55555555));
+//  assert(16 == bdes_BitUtil::numSetOne(0x55555555));
 //
 //  /*------------------------------------------------------------------------+
 //  | 'bdes_BitUtil::numSetOne( 0x55555555)' in binary:                       |
@@ -375,15 +375,15 @@ BDES_IDENT("$Id: $")
 //  | that has 16 ones set.  result: 16                                       |
 //  +------------------------------------------------------------------------*/
 //
-//  BSLS_ASSERT(16 == bdes_BitUtil::numSetOne( 0xffff0000));
-//  BSLS_ASSERT(16 == bdes_BitUtil::numSetOne( 0x0000ffff));
-//  BSLS_ASSERT( 1 == bdes_BitUtil::numSetOne( 0x00010000));
-//  BSLS_ASSERT(31 == bdes_BitUtil::numSetZero(0x00010000));
+//  assert(16 == bdes_BitUtil::numSetOne( 0xffff0000));
+//  assert(16 == bdes_BitUtil::numSetOne( 0x0000ffff));
+//  assert( 1 == bdes_BitUtil::numSetOne( 0x00010000));
+//  assert(31 == bdes_BitUtil::numSetZero(0x00010000));
 //..
 // 'rangeZero' and 'rangeOne' mask out a sub-range of bits from a value,
 // filling the rest with '0's or '1's:
 //..
-//  BSLS_ASSERT(static_cast<int>(0x00333300) ==
+//  assert(static_cast<int>(0x00333300) ==
 //                                 bdes_BitUtil::rangeZero(0x33333333, 8, 16));
 //
 //  /*------------------------------------------------------------------------+
@@ -395,25 +395,25 @@ BDES_IDENT("$Id: $")
 //  | result:                                00000000001100110011001100000000 |
 //  +------------------------------------------------------------------------*/
 //
-//  BSLS_ASSERT(static_cast<int>(0x00f0f000) ==
+//  assert(static_cast<int>(0x00f0f000) ==
 //                                 bdes_BitUtil::rangeZero(0xf0f0f0f0, 8, 16));
-//  BSLS_ASSERT(static_cast<int>(0xff3333ff) ==
+//  assert(static_cast<int>(0xff3333ff) ==
 //                                 bdes_BitUtil::rangeOne (0x33333333, 8, 16));
 //..
 // 'base2Log' takes a binary log of a number, rounded up to the next integer:
 //..
-//  BSLS_ASSERT(7 == bdes_BitUtil::base2Log(100));
-//  BSLS_ASSERT(7 == bdes_BitUtil::base2Log(128));
-//  BSLS_ASSERT(8 == bdes_BitUtil::base2Log(129));
+//  assert(7 == bdes_BitUtil::base2Log(100));
+//  assert(7 == bdes_BitUtil::base2Log(128));
+//  assert(8 == bdes_BitUtil::base2Log(129));
 //..
 // 'roundUpToBinaryPower' rounds a number up to the next power of 2:
 //..
-//  BSLS_ASSERT(128 == bdes_BitUtil::roundUpToBinaryPower(100));
-//  BSLS_ASSERT(128 == bdes_BitUtil::roundUpToBinaryPower(128));
+//  assert(128 == bdes_BitUtil::roundUpToBinaryPower(100));
+//  assert(128 == bdes_BitUtil::roundUpToBinaryPower(128));
 //..
 // 'setBitOne' will set a bit (or bits) to one, leaving other bits unaffected:
 //..
-//  BSLS_ASSERT(static_cast<int>(0x66676666) ==
+//  assert(static_cast<int>(0x66676666) ==
 //                                    bdes_BitUtil::setBitOne(0x66666666, 16));
 //
 //  /*------------------------------------------------------------------------+
@@ -424,10 +424,9 @@ BDES_IDENT("$Id: $")
 //  | result:                                01100110011001110110011001100110 |
 //  +------------------------------------------------------------------------*/
 //
-//  BSLS_ASSERT(static_cast<int>(0x00010000) ==
-//                                    bdes_BitUtil::setBitOne(0, 16));
+//  assert(static_cast<int>(0x00010000) == bdes_BitUtil::setBitOne(0, 16));
 //
-//  BSLS_ASSERT(static_cast<int>(0x33ffff33) ==
+//  assert(static_cast<int>(0x33ffff33) ==
 //                                    bdes_BitUtil::setOne(0x33333333, 8, 16));
 //..
 // 'sizeInBits' will return the size of an object in bits, rather than bytes:
@@ -437,10 +436,10 @@ BDES_IDENT("$Id: $")
 //  int               thisInt    = 0;
 //  bsls_Types::Int64 thisBigInt = 0;
 //
-//  BSLS_ASSERT( 8 == bdes_BitUtil::sizeInBits(thisChar));
-//  BSLS_ASSERT(16 == bdes_BitUtil::sizeInBits(thisShort));
-//  BSLS_ASSERT(32 == bdes_BitUtil::sizeInBits(thisInt));
-//  BSLS_ASSERT(64 == bdes_BitUtil::sizeInBits(thisBigInt));
+//  assert( 8 == bdes_BitUtil::sizeInBits(thisChar));
+//  assert(16 == bdes_BitUtil::sizeInBits(thisShort));
+//  assert(32 == bdes_BitUtil::sizeInBits(thisInt));
+//  assert(64 == bdes_BitUtil::sizeInBits(thisBigInt));
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION

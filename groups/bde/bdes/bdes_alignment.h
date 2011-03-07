@@ -293,8 +293,7 @@ BDES_IDENT("$Id: $")
 // 'calculateAlignmentOffset' function to align a memory address properly and
 // 'calculateAlignmentFromSize' to compute a safe alignment when none is
 // supplied.  This function allocates memory with specified size and alignment
-// requirements from a global buffer.  (See 'bdema_bufferallocator' for a more
-// robust implementation.)
+// requirements from a global buffer:
 //..
 //  enum { BUFFER_SIZE = 1000 };
 //

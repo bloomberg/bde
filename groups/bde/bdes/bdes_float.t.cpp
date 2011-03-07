@@ -455,6 +455,18 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_FDATA; ++i) {
             int   LINE           = FDATA[i].d_line;
+
+#if ( defined(BSLS_PLATFORM__CPU_X86_64) || defined(BSLS_PLATFORM__CPU_X86) ) \
+    && defined(BSLS_PLATFORM__CMP_GNU) && defined(BDE_BUILD_TARGET_OPT)
+            // This is necessary because on linux when building 64-bit
+            // optimized with gcc 4.3.5 (at least) some tests will incorrectly
+            // fail if 'input' is not 'volatile'.  This probably forces a
+            // narrowing of the value to a 32-bit float from the wider internal
+            // processor FP registers, but we're not certain of the exact
+            // mechanism.
+
+            volatile
+#endif
             float input          = FDATA[i].d_input;
             int   isZero         = FDATA[i].d_isZero;
             int   isNormal       = FDATA[i].d_isNormal;
@@ -466,6 +478,8 @@ int main(int argc, char *argv[])
             int   isQuietNan     = FDATA[i].d_isQNan;
             int   isSignalingNan = FDATA[i].d_isSNan;
             int   classifyFine   = FDATA[i].d_classification;
+
+            if (veryVeryVerbose) Pd(LINE);
 
             if (! hasFSNan) {
                 // If signaling NaN not supported, convert SNaN results to
@@ -553,6 +567,17 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_DDATA; ++i) {
             int    LINE           = DDATA[i].d_line;
+
+#if ( defined(BSLS_PLATFORM__CPU_X86_64) || defined(BSLS_PLATFORM__CPU_X86) ) \
+    && defined(BSLS_PLATFORM__CMP_GNU) && defined(BDE_BUILD_TARGET_OPT)
+            // This is necessary because on linux when building 64-bit
+            // optimized with gcc 4.3.5 (at least) some 'float' tests will
+            // incorrectly fail if 'input' is not 'volatile'.  The problem does
+            // not occur for 'double' yet, but we are adding the qualifier here
+            // for symmetry.
+
+            volatile
+#endif
             double input          = DDATA[i].d_input;
             int    isZero         = DDATA[i].d_isZero;
             int    isNormal       = DDATA[i].d_isNormal;
@@ -564,6 +589,8 @@ int main(int argc, char *argv[])
             int    isQuietNan     = DDATA[i].d_isQNan;
             int    isSignalingNan = DDATA[i].d_isSNan;
             int    classifyFine   = DDATA[i].d_classification;
+
+            if (veryVeryVerbose) Pd(LINE);
 
             if (! hasDSNan) {
                 // If signaling NaN not supported, convert SNaN results to
