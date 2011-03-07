@@ -50,12 +50,12 @@ BDES_IDENT("$Id: $")
 // integral time values before passing them to the various "convert" methods.
 // For example:
 //..
-//  BSLS_ASSERT( bdetu_Time::isValidHHMMSSmmm(timeValue));
+//  assert( bdetu_Time::isValidHHMMSSmmm(timeValue));
 //
 //  //         format: HHMMSSmmm
 //  int badTimeValue =  36102789;
 //
-//  BSLS_ASSERT(!bdetu_Time::isValidHHMMSSmmm(badTimeValue));
+//  assert(!bdetu_Time::isValidHHMMSSmmm(badTimeValue));
 //..
 //
 ///Example 2
