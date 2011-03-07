@@ -1,4 +1,4 @@
-// bdesb_overflowmemoutstreambuf.h -*-C++-*-
+// bdesb_overflowmemoutstreambuf.h                                    -*-C++-*-
 #ifndef INCLUDED_BDESB_OVERFLOWMEMOUTSTREAMBUF
 #define INCLUDED_BDESB_OVERFLOWMEMOUTSTREAMBUF
 
@@ -173,7 +173,7 @@ BDES_IDENT("$Id: $")
 //                                    char                   data)
 //  {
 //       stream.d_streamBuf->sputc(
-//                              bsl::toupper(static_cast<unsigned char>(data)));
+//                             bsl::toupper(static_cast<unsigned char>(data)));
 //       stream.d_streamBuf->pubsync();
 //       return stream;
 //  }
@@ -215,7 +215,6 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
 #endif
-
 
 namespace BloombergLP {
 
@@ -349,7 +348,7 @@ class bdesb_OverflowMemOutStreambuf : public bsl::streambuf {
                                   bslma_Allocator *basicAllocator = 0);
         // Create an empty stream buffer that uses the specified 'buffer' as an
         // initial output buffer of the specified 'length' (in bytes).
-        // Optionally specify 'basicAllocator' used to supply memory.  If
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently-installed default allocator is
         // used.  Note that this stream buffer does not assume ownership of
         // 'buffer'.

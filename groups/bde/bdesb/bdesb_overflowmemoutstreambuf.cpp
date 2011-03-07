@@ -1,4 +1,4 @@
-// bdesb_overflowmemoutstreambuf.cpp -*-C++-*-
+// bdesb_overflowmemoutstreambuf.cpp                                  -*-C++-*-
 #include <bdesb_overflowmemoutstreambuf.h>
 
 #include <bslma_allocator.h>
@@ -17,9 +17,11 @@ namespace BloombergLP {
 // PRIVATE MANIPULATORS
 void bdesb_OverflowMemOutStreambuf::grow(int n)
 {
+    BSLS_ASSERT(0 <= n);
+
     int newSize;
-    newSize = (0 == d_overflowBufferSize) ? d_initialBufferSize
-                                          : d_overflowBufferSize;
+    newSize = 0 == d_overflowBufferSize ? d_initialBufferSize
+                                        : d_overflowBufferSize;
 
     do {
         newSize *= 2;
@@ -87,8 +89,7 @@ bdesb_OverflowMemOutStreambuf::seekoff(off_type                offset,
 {
     privateSync();
     if (d_inOverflowBufferFlag) {
-        BSLS_ASSERT(pptr() - pbase() ==
-                                         (d_dataLength - d_initialBufferSize));
+        BSLS_ASSERT(pptr() - pbase() == (d_dataLength - d_initialBufferSize));
     }
     else {
         BSLS_ASSERT(pptr() - pbase() == d_dataLength);
@@ -193,6 +194,9 @@ bsl::streamsize
 bdesb_OverflowMemOutStreambuf::xsputn(const char_type *source,
                                       bsl::streamsize  numChars)
 {
+    BSLS_ASSERT(source);
+    BSLS_ASSERT(0 <= numChars);
+
     privateSync();
     int numBytesForLastCopy = numChars;
 
@@ -244,8 +248,8 @@ bdesb_OverflowMemOutStreambuf::bdesb_OverflowMemOutStreambuf(
 , d_overflowBufferSize(0)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT(d_initialBufferSize > 0);
-    BSLS_ASSERT(d_initialBuffer_p);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 < size);
 
     setp(d_initialBuffer_p, d_initialBuffer_p + d_initialBufferSize);
 }

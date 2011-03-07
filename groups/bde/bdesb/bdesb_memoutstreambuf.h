@@ -161,7 +161,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_streambuf.h>  // (char|int|pos|off|traits)_type
 #endif
 
-
 namespace BloombergLP {
 
                          // ===========================

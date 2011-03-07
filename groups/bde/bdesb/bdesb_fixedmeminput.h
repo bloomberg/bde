@@ -68,7 +68,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-
 namespace BloombergLP {
 
                         // =========================
@@ -113,7 +112,7 @@ class bdesb_FixedMemInput {
     // CREATORS
     bdesb_FixedMemInput(const char *buffer, bsl::streamsize length);
         // Create a 'bdesb_FixedMemInput' using the specified 'buffer' of the
-        // specified 'length'.  The behavior is undefined unless 0 < 'length'.
+        // specified 'length'.  The behavior is undefined unless '0 < length'.
 
     //! ~bdesb_FixedMemInput();
         // Destroy this stream buffer.  Note that this trivial destructor is
@@ -219,6 +218,8 @@ bdesb_FixedMemInput::bdesb_FixedMemInput(const char      *buffer,
 , d_bufferLength(length)
 , d_pos(0)
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
 }
 
 // MANIPULATORS
@@ -226,6 +227,9 @@ inline
 bdesb_FixedMemInput *bdesb_FixedMemInput::pubsetbuf(char            *buffer,
                                                     bsl::streamsize  length)
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_buffer_p     = const_cast<const char *>(buffer);
     d_bufferLength = length;
     d_pos          = 0;
@@ -237,6 +241,9 @@ bdesb_FixedMemInput *bdesb_FixedMemInput::pubsetbuf(const char      *buffer,
                                                     bsl::streamsize  length)
 
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_buffer_p     = buffer;
     d_bufferLength = length;
     d_pos          = 0;

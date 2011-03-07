@@ -72,7 +72,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_streambuf.h>
 #endif
 
-
 namespace BloombergLP {
 
                         // ====================
@@ -124,7 +123,7 @@ class bdesb_FixedMemOutput {
     bdesb_FixedMemOutput(char *buffer, bsl::streamsize length);
         // Create an empty stream buffer that uses the specified character
         // 'buffer' of the specified 'length'.  The behavior is undefined
-        // unless 'buffer' is not zero and 0 < 'length'.  Note that 'buffer' is
+        // unless 'buffer' is not zero and '0 < length'.  Note that 'buffer' is
         // held but not owned.
 
     //! ~bdesb_FixedMemOutput();
@@ -212,12 +211,21 @@ class bdesb_FixedMemOutput {
 
 };
 
+// ============================================================================
+//                         INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ====================
+                        // bdesb_FixedMemOutput
+                        // ====================
+
 // PRIVATE MANIPULATORS
 inline
 bdesb_FixedMemOutput::int_type bdesb_FixedMemOutput::overflow(int_type c)
 {
     return traits_type::eq_int_type(c,traits_type::eof())
-               ? traits_type::not_eof(c) : c;
+           ? traits_type::not_eof(c)
+           : c;
 }
 
 // CREATORS
@@ -228,6 +236,8 @@ bdesb_FixedMemOutput::bdesb_FixedMemOutput(char            *buffer,
 , d_capacity(length)
 , d_pos(0)
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
 }
 
 // MANIPULATORS
@@ -241,6 +251,9 @@ inline
 bdesb_FixedMemOutput *bdesb_FixedMemOutput::pubsetbuf(char            *buffer,
                                                       bsl::streamsize  length)
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_buffer_p = buffer;
     d_capacity = length;
     d_pos      = 0;
@@ -277,6 +290,9 @@ inline
 bsl::streamsize bdesb_FixedMemOutput::sputn(const char      *s,
                                             bsl::streamsize  length)
 {
+    BSLS_ASSERT_SAFE(s);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     pos_type current = d_pos;
     d_pos += length;
     if (d_pos > d_capacity) {

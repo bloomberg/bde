@@ -173,6 +173,10 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -193,13 +197,16 @@ BDES_IDENT("$Id: $")
 #include <bsl_streambuf.h>
 #endif
 
-
 #if defined(BSLS_PLATFORM__CMP_MSVC) && defined(min)
     // Note: on Windows -> WinDef.h:#define min(a,b) ...
 #undef min
 #endif
 
 namespace BloombergLP {
+
+                       // ================================
+                       // class bdesb_FixedMemOutStreamBuf
+                       // ================================
 
 class bdesb_FixedMemOutStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the 'basic_streambuf'
@@ -247,7 +254,7 @@ class bdesb_FixedMemOutStreamBuf : public bsl::streambuf {
                                bsl::streamsize  length);
         // Create an empty stream buffer that uses the specified character
         // 'buffer' of the specified 'length'.  The behavior is undefined
-        // unless 0 < 'length'.  Note that 'buffer' is held but not owned.
+        // unless '0 < length'.  Note that 'buffer' is held but not owned.
 
     ~bdesb_FixedMemOutStreamBuf();
         // Destroy this stream buffer.
@@ -291,11 +298,18 @@ class bdesb_FixedMemOutStreamBuf : public bsl::streambuf {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
+                       // --------------------------------
+                       // class bdesb_FixedMemOutStreamBuf
+                       // --------------------------------
+
 // PROTECTED MANIPULATORS
 inline
 bdesb_FixedMemOutStreamBuf *
 bdesb_FixedMemOutStreamBuf::setbuf(char_type *buffer, bsl::streamsize length)
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     // Reset pointers and length.
     setp(buffer, buffer + length);
     return this;
@@ -306,6 +320,9 @@ inline
 bdesb_FixedMemOutStreamBuf::bdesb_FixedMemOutStreamBuf(char            *buffer,
                                                        bsl::streamsize  length)
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     setp(buffer, buffer + length);
 }
 

@@ -183,6 +183,10 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -207,13 +211,16 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstring.h>
 #endif
 
-
 #if defined(BSLS_PLATFORM__CMP_MSVC) && defined(min)
     // Note: on Windows -> WinDef.h:#define min(a,b) ...
 #undef min
 #endif
 
 namespace BloombergLP {
+
+                       // ===============================
+                       // class bdesb_FixedMemInStreamBuf
+                       // ===============================
 
 class bdesb_FixedMemInStreamBuf : public bsl::streambuf {
     // This class implements the input functionality of the 'basic_streambuf'
@@ -301,16 +308,16 @@ class bdesb_FixedMemInStreamBuf : public bsl::streambuf {
     bdesb_FixedMemInStreamBuf(const char *buffer, bsl::streamsize length);
         // Create a 'bdesb_FixedMemInStreamBuf' using the specified 'buffer'
         // of the specified 'length'.  The behavior is undefined unless
-        // 0 < 'length'.
+        // '0 < length'.
 
     ~bdesb_FixedMemInStreamBuf();
         // Destroy this stream buffer.
 
     // MANIPULATORS
-    bdesb_FixedMemInStreamBuf *pubsetbuf(char           *buffer,
-                                         bsl::streamsize length);
-    virtual bdesb_FixedMemInStreamBuf *pubsetbuf(const char     *buffer,
-                                                 bsl::streamsize length);
+    bdesb_FixedMemInStreamBuf *pubsetbuf(char            *buffer,
+                                         bsl::streamsize  length);
+    virtual bdesb_FixedMemInStreamBuf *pubsetbuf(const char      *buffer,
+                                                 bsl::streamsize  length);
         // Reinitialize this stream buffer to use the specified character
         // 'buffer' having the specified 'length'.  Return the address of this
         // modifiable stream buffer.  Upon reinitialization for use of the new
@@ -330,6 +337,10 @@ class bdesb_FixedMemInStreamBuf : public bsl::streambuf {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
+                       // -------------------------------
+                       // class bdesb_FixedMemInStreamBuf
+                       // -------------------------------
+
 // PROTECTED MANIPULATORS
 inline
 bdesb_FixedMemInStreamBuf *bdesb_FixedMemInStreamBuf::setbuf(
@@ -337,6 +348,9 @@ bdesb_FixedMemInStreamBuf *bdesb_FixedMemInStreamBuf::setbuf(
                                                        bsl::streamsize  length)
 
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     // Reset pointers and length.
     d_buffer_p = buffer;
     d_length   = (int)length;
@@ -349,6 +363,9 @@ bdesb_FixedMemInStreamBuf *bdesb_FixedMemInStreamBuf::setbuf(
                                                        const char      *buffer,
                                                        bsl::streamsize  length)
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     return setbuf(const_cast<char *>(buffer), length);
 }
 
@@ -363,9 +380,12 @@ bsl::streamsize bdesb_FixedMemInStreamBuf::showmanyc()
 }
 
 inline
-bsl::streamsize bdesb_FixedMemInStreamBuf::xsgetn(char_type      *destination,
-                                                  bsl::streamsize numChars)
+bsl::streamsize bdesb_FixedMemInStreamBuf::xsgetn(char_type       *destination,
+                                                  bsl::streamsize  numChars)
 {
+    BSLS_ASSERT_SAFE(destination);
+    BSLS_ASSERT_SAFE(0 <= numChars);
+
     bsl::streamsize remainingChars = egptr() - gptr();
     int canCopy = (int)bsl::min(remainingChars, numChars);
     bsl::memcpy(destination, gptr(), canCopy);
@@ -380,6 +400,9 @@ bdesb_FixedMemInStreamBuf::bdesb_FixedMemInStreamBuf(const char      *buffer,
 : d_buffer_p(const_cast<char *>(buffer))
 , d_length((int)length)
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     setg(d_buffer_p, d_buffer_p, d_buffer_p + length);
 }
 
@@ -394,6 +417,9 @@ bdesb_FixedMemInStreamBuf *bdesb_FixedMemInStreamBuf::pubsetbuf(
                                                        const char     *buffer,
                                                        bsl::streamsize length)
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     return setbuf(buffer, length);
 }
 
@@ -402,6 +428,9 @@ bdesb_FixedMemInStreamBuf *bdesb_FixedMemInStreamBuf::pubsetbuf(
                                                       char           *buffer,
                                                       bsl::streamsize length)
 {
+    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     return static_cast<bdesb_FixedMemInStreamBuf *>(
                              this->bsl::streambuf::pubsetbuf(buffer, length));
 }

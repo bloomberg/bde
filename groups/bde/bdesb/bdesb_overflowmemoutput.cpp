@@ -1,4 +1,4 @@
-// bdesb_overflowmemoutput.cpp -*-C++-*-
+// bdesb_overflowmemoutput.cpp                                        -*-C++-*-
 #include <bdesb_overflowmemoutput.h>
 
 #include <bslma_allocator.h>
@@ -16,9 +16,11 @@ namespace BloombergLP {
 // PRIVATE MANIPULATORS
 void bdesb_OverflowMemOutput::grow(int n)
 {
+    BSLS_ASSERT(0 <= n);
+
     int newSize;
-    newSize = (0 == d_overflowBufferSize) ? d_initialBufferSize
-                                          : d_overflowBufferSize;
+    newSize = 0 == d_overflowBufferSize ? d_initialBufferSize
+                                        : d_overflowBufferSize;
     do {
         newSize *= 2;
     } while ((newSize - d_overflowBufferSize) < n);
@@ -47,8 +49,8 @@ bdesb_OverflowMemOutput::bdesb_OverflowMemOutput(
 , d_overflowBufferSize(0)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT(d_initialBufferSize > 0);
-    BSLS_ASSERT(d_initialBuffer_p);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 < size);
 }
 
 // MANIPULATORS
@@ -109,8 +111,7 @@ bsl::streampos bdesb_OverflowMemOutput::pubseekoff(bsl::streamoff     offset,
         }
         else {
             grow(newoff - totalSize);
-            BSLS_ASSERT(newoff <= d_initialBufferSize
-                                   + d_overflowBufferSize);
+            BSLS_ASSERT(newoff <= d_initialBufferSize + d_overflowBufferSize);
             d_put_p = d_overflowBuffer_p + newoff - d_initialBufferSize;
         }
     }
@@ -141,6 +142,9 @@ int bdesb_OverflowMemOutput::sputc(char c)
 bsl::streamsize bdesb_OverflowMemOutput::sputn(const char      *source,
                                                bsl::streamsize  numChars)
 {
+    BSLS_ASSERT(source);
+    BSLS_ASSERT(0 <= numChars);
+
     int numBytesForLastCopy = numChars;
     if (d_inOverflowBufferFlag) {
         if ((d_put_p - d_overflowBuffer_p + numChars) >

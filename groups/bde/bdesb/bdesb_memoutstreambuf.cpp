@@ -1,9 +1,8 @@
-// bdesb_memoutstreambuf.cpp               -*-C++-*-
+// bdesb_memoutstreambuf.cpp                                          -*-C++-*-
 #include <bdesb_memoutstreambuf.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdesb_memoutstreambuf_cpp,"$Id$ $CSID$")
-
 
 #include <bsls_assert.h>
 
@@ -18,6 +17,8 @@ namespace BloombergLP {
 // PRIVATE MANIPULATORS
 void bdesb_MemOutStreamBuf::grow(int newLength)
 {
+    BSLS_ASSERT(0 <= newLength);
+
     int newCapacity = capacity();
     if (0 == newCapacity) {
         newCapacity = BDESB_INITIAL_BUFFER_SIZE;

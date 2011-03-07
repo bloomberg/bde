@@ -1,4 +1,4 @@
-// bdesb_overflowmemoutput.h -*-C++-*-
+// bdesb_overflowmemoutput.h                                          -*-C++-*-
 #ifndef INCLUDED_BDESB_OVERFLOWMEMOUTPUT
 #define INCLUDED_BDESB_OVERFLOWMEMOUTPUT
 
@@ -85,7 +85,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_streambuf.h>
 #endif
 
-
 namespace BloombergLP {
 
                        // =============================
@@ -123,7 +122,6 @@ class bdesb_OverflowMemOutput {
 
     char *d_overflowBuffer_p;      // overflow buffer (owned)
 
-
     int   d_overflowBufferSize;    // size of 'd_overflowBuffer_p' buffer
 
     bslma_Allocator
@@ -153,7 +151,7 @@ class bdesb_OverflowMemOutput {
                             bslma_Allocator *basicAllocator = 0);
         // Create an empty stream buffer that uses the specified 'buffer' as an
         // initial output buffer of the specified 'length' (in bytes).
-        // Optionally specify 'basicAllocator' for used to supply memory.   If
+        // Optionally specify a 'basicAllocator' used to supply memory.   If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  Note that this stream buffer does not assume ownership of
         // 'buffer'.
