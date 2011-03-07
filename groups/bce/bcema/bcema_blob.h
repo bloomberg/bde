@@ -138,23 +138,23 @@ BDES_IDENT("$Id: $")
 //      SimpleBlobBufferFactory myFactory(1024);
 //
 //      bcema_Blob blob(&myFactory);
-//      BSLS_ASSERT(0    == blob.length());
-//      BSLS_ASSERT(0    == blob.totalSize());
+//      assert(0    == blob.length());
+//      assert(0    == blob.totalSize());
 //
 //      blob.setLength(512);
-//      BSLS_ASSERT( 512 == blob.length());
-//      BSLS_ASSERT(1024 == blob.totalSize());
+//      assert( 512 == blob.length());
+//      assert(1024 == blob.totalSize());
 //..
 // Users need to access buffers directly in order to read/write data.
 //..
 //      char data[] = "12345678901234567890"; // 20 bytes
-//      BSLS_ASSERT(0 != blob.numBuffers());
-//      BSLS_ASSERT(sizeof data <= blob.buffer(0).size());
+//      assert(0 != blob.numBuffers());
+//      assert(sizeof data <= blob.buffer(0).size());
 //      bsl::memcpy(blob.buffer(0).data(), data, sizeof data);
 //
 //      blob.setLength(sizeof data);
-//      BSLS_ASSERT(sizeof data == blob.length());
-//      BSLS_ASSERT(       1024 == blob.totalSize());
+//      assert(sizeof data == blob.length());
+//      assert(       1024 == blob.totalSize());
 //..
 // A 'bcema_BlobBuffer' can easily be re-assigned from one blob to another with
 // no copy.  In that case, the memory held by the buffer will be returned to
@@ -165,28 +165,28 @@ BDES_IDENT("$Id: $")
 // result in undefined behavior.
 //..
 //      bcema_Blob dest;
-//      BSLS_ASSERT(   0 == dest.length());
-//      BSLS_ASSERT(   0 == dest.totalSize());
+//      assert(   0 == dest.length());
+//      assert(   0 == dest.totalSize());
 //
-//      BSLS_ASSERT(0 != blob.numBuffers());
+//      assert(0 != blob.numBuffers());
 //      dest.appendBuffer(blob.buffer(0));
-//      BSLS_ASSERT(   0 == dest.length());
-//      BSLS_ASSERT(1024 == dest.totalSize());
+//      assert(   0 == dest.length());
+//      assert(1024 == dest.totalSize());
 //..
 // Note that at this point, the logical length (returned by 'length') of this
 // object has not changed.  'setLength' must be called explicitly by the user
 // if the logical length of the 'bcema_Blob' must be changed:
 //..
 //      dest.setLength(dest.buffer(0).size());
-//      BSLS_ASSERT(1024 == dest.length());
-//      BSLS_ASSERT(1024 == dest.totalSize());
+//      assert(1024 == dest.length());
+//      assert(1024 == dest.totalSize());
 //..
 // Sharing only a part of a buffer is also possible through shared pointer
 // aliasing.  In the following example, a buffer that contains only bytes 11-16
 // from the first buffer of 'blob' will be appended to 'blob'.
 //..
-//      BSLS_ASSERT(0 != blob.numBuffers());
-//      BSLS_ASSERT(16 <= blob.buffer(0).size());
+//      assert(0 != blob.numBuffers());
+//      assert(16 <= blob.buffer(0).size());
 //
 //      bcema_SharedPtr<char> shptr(blob.buffer(0).buffer(),
 //                                  blob.buffer(0).data() + 10);

@@ -16,7 +16,7 @@ BDES_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdema_protectablememoryscopedguard, bdema_protectableblocklist
 //
-//@DESCRIPTION: [!DEPRECATED!] This component provides an allocator,
+//@DESCRIPTION: This component provides an allocator,
 // 'bcema_ProtectableSequentialAllocator', that implements the
 // 'bslma_ManagedAllocator' protocol and provides a sequential allocator that
 // can apply access protection to the memory it allocates, preventing the
@@ -246,19 +246,19 @@ class bdema_ProtectableBlockDispenser;
                 // ==========================================
 
 class bcema_ProtectableSequentialAllocator : public bslma_ManagedAllocator {
-    // [!DEPRECATE!] This class defines a thread enabled memory allocator that
-    // dispenses arbitrarily-sized blocks of memory from an internal buffer.
-    // The memory allocated by this allocator can be *protected* from
-    // modification by calling 'protect'.  Writing to protected memory will
-    // cause a segmentation violation.  If an allocation request exceeds the
-    // remaining free memory space in the current buffer, the allocator
-    // replenishes its buffer with enough memory to satisfy the request and
-    // returns the specified portion of that buffer.  The 'release' method and
-    // the destructor unprotect and release all memory managed by this
-    // allocator, regardless of the protection state.  However, individual
-    // blocks of memory are not released for reuse by 'deallocate'.  The
-    // behavior for both 'allocate' and 'deallocate' is undefined unless the
-    // allocator is in the unprotected state.
+    // This class defines a thread enabled memory allocator that dispenses
+    // arbitrarily-sized blocks of memory from an internal buffer.  The memory
+    // allocated by this allocator can be *protected* from modification by
+    // calling 'protect'.  Writing to protected memory will cause a
+    // segmentation violation.  If an allocation request exceeds the remaining
+    // free memory space in the current buffer, the allocator replenishes its
+    // buffer with enough memory to satisfy the request and returns the
+    // specified portion of that buffer.  The 'release' method and the
+    // destructor unprotect and release all memory managed by this allocator,
+    // regardless of the protection state.  However, individual blocks of
+    // memory are not released for reuse by 'deallocate'.  The behavior for
+    // both 'allocate' and 'deallocate' is undefined unless the allocator is in
+    // the unprotected state.
 
     // DATA
     mutable bcemt_Mutex    d_mutex;       // synchronize access to data

@@ -133,41 +133,41 @@ BDES_IDENT("$Id: $")
 //  bcema_SharedPtr<int> intPtr;
 //  intPtr.createInplace(bslma_Default::allocator());
 //  *intPtr = 10;
-//  BSLS_ASSERT(10 == *intPtr);
+//  assert(10 == *intPtr);
 //..
 // Next we construct a weak pointer to the 'int':
 //..
 //  bcema_WeakPtr<int> intWeakPtr(intPtr);
-//  BSLS_ASSERT(!intWeakPtr.expired());
+//  assert(!intWeakPtr.expired());
 //..
 // 'bcema_WeakPtr' does not provide direct access to the shared object being
 // referenced.  To access and manipulate the 'int' from the weak pointer, we
 // have to obtain a shared pointer from it:
 //..
 //  bcema_SharedPtr<int> intPtr2 = intWeakPtr.acquireSharedPtr();
-//  BSLS_ASSERT(intPtr2);
-//  BSLS_ASSERT(10 == *intPtr2);
+//  assert(intPtr2);
+//  assert(10 == *intPtr2);
 //
 //  *intPtr2 = 20;
-//  BSLS_ASSERT(20 == *intPtr);
-//  BSLS_ASSERT(20 == *intPtr2);
+//  assert(20 == *intPtr);
+//  assert(20 == *intPtr2);
 //..
 // We remove the weak reference to the shared 'int' by calling the 'reset'
 // method:
 //..
 //  intWeakPtr.reset();
-//  BSLS_ASSERT(intWeakPtr.expired());
+//  assert(intWeakPtr.expired());
 //..
 // Note that resetting the weak pointer does not affect the shared pointers
 // referencing the 'int' object:
 //..
-//  BSLS_ASSERT(20 == *intPtr);
-//  BSLS_ASSERT(20 == *intPtr2);
+//  assert(20 == *intPtr);
+//  assert(20 == *intPtr2);
 //..
 // Now, we construct another weak pointer referencing the shared 'int':
 //..
 //  bcema_WeakPtr<int> intWeakPtr2(intPtr);
-//  BSLS_ASSERT(!intWeakPtr2.expired());
+//  assert(!intWeakPtr2.expired());
 //..
 // Finally 'reset' all shared references to the 'int', which will cause the
 // weak pointer to become "expired"; any subsequent attempt to obtain a shared
@@ -176,8 +176,8 @@ BDES_IDENT("$Id: $")
 //..
 //  intPtr.reset();
 //  intPtr2.reset();
-//  BSLS_ASSERT(intWeakPtr2.expired());
-//  BSLS_ASSERT(!intWeakPtr2.acquireSharedPtr());
+//  assert(intWeakPtr2.expired());
+//  assert(!intWeakPtr2.acquireSharedPtr());
 //..
 ///Example 2 - Breaking Cyclic Dependencies
 ///- - - - - - - - - - - - - - - - - - - -

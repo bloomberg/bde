@@ -1,4 +1,4 @@
-// bcema_pool.t.cpp  -*-C++-*-
+// bcema_pool.t.cpp                                                   -*-C++-*-
 
 #include <bcema_pool.h>
 
@@ -119,7 +119,6 @@ static void aSsErT(int c, const char *s, int i) {
                     << #K << ": " << K << "\t" << #L << ": " << L << "\n";   \
                rEpOrT(#X, __LINE__); }}
 
-
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -200,7 +199,6 @@ struct LLink {
     LLink *d_next_p;
 };
 
-
 static int blockSize(int numBytes)
     // Return the adjusted block size based on the specified 'numBytes' using
     // the calculation performed by the
@@ -216,13 +214,6 @@ static int blockSize(int numBytes)
     return numBytes;
 }
 
-inline static int myAbs(int n)
-    // Return the absolute value of the specified 'n'.  The behavior is
-    // undefined unless INT_MIN + 1 < n < INT_MAX.
-{
-    return n >= 0 ? n : -n;
-}
-
 inline static int roundUp(int x, int y)
     // Round up the specified 'x' to the nearest multiples of the specified
     // 'y'.  The behavior is undefined unless 0 <= x and 0 < y;
@@ -236,9 +227,8 @@ inline static int poolObjectSize(int size)
     // Return the actual object size used by the pool when given the specified
     // 'size'.
 {
-    
     const int HEADER_SIZE = offsetof(LLink, d_next_p);
-    return roundUp(size + HEADER_SIZE < (int)sizeof(LLink) 
+    return roundUp(size + HEADER_SIZE < (int)sizeof(LLink)
                    ? sizeof(LLink) : size + HEADER_SIZE,
                    bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
@@ -275,7 +265,6 @@ void stretchRemoveAll(Obj *object, int numElements)
     stretch(object, numElements);
     object->release();
 }
-
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -443,7 +432,6 @@ static int nextSize(int size)
 {
     return size * MY_GROW_FACTOR;
 }
-
 
 inline
 static void reallocate(double        ***array,
@@ -693,7 +681,7 @@ int main(int argc, char *argv[]) {
         //   Test the usage example.  Create a 'my_PooledArray<double>'
         //   object and append varying values to it.  Verify that the values
         //   are correctly appended using 'operator[]'.  Invoke 'removeAll'
-        //   and verify that the array length becomes 0. 
+        //   and verify that the array length becomes 0.
         //
         // Testing:
         //   USAGE TEST - Make sure main usage example compiles and works.
@@ -718,8 +706,7 @@ int main(int argc, char *argv[]) {
         }
         array.removeAll();
         ASSERT(0 == array.length());
-        
-      };
+      } break;
       case 15: {
         // --------------------------------------------------------------------
         // ORIGINAL USAGE TEST
@@ -727,7 +714,7 @@ int main(int argc, char *argv[]) {
         //   Test the old (removed) usage example.  Create a 'my_DoubleArray2'
         //   object and append varying values to it.  Verify that the values
         //   are correctly appended using 'operator[]'.  Invoke 'removeAll'
-        //   and verify that the array length becomes 0. 
+        //   and verify that the array length becomes 0.
         //
         // Testing:
         //   USAGE TEST - Make sure main usage example compiles and works.
@@ -775,7 +762,6 @@ int main(int argc, char *argv[]) {
             bench::runtest(numIterations, numObjects, numThreads);
         }
 
-
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -820,7 +806,7 @@ int main(int argc, char *argv[]) {
         struct {
             int  d_line;
             int  d_objectSize;
-            int  d_maxBlocksPerChunk;            
+            int  d_maxBlocksPerChunk;
             bool d_geometric;
         } DATA[] = {
             //line    object                          geometric
@@ -844,16 +830,16 @@ int main(int argc, char *argv[]) {
         bslma_TestAllocator taExp;  const bslma_TestAllocator& TAEXP = taExp;
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            bsls_BlockGrowth::Strategy strategy = 
-                DATA[di].d_geometric 
-                  ? bsls_BlockGrowth::BSLS_GEOMETRIC 
+            bsls_BlockGrowth::Strategy strategy =
+                DATA[di].d_geometric
+                  ? bsls_BlockGrowth::BSLS_GEOMETRIC
                   : bsls_BlockGrowth::BSLS_CONSTANT;
 
             const int LINE = DATA[di].d_line;
             const int OBJECT_SIZE      = DATA[di].d_objectSize;
             const int BLOCKS_PER_CHUNK = DATA[di].d_maxBlocksPerChunk;
             const int NUM_OBJECTS      =
-                                 (strategy == bsls_BlockGrowth::BSLS_CONSTANT) 
+                                 (strategy == bsls_BlockGrowth::BSLS_CONSTANT)
                                  ? BLOCKS_PER_CHUNK
                                  : -BLOCKS_PER_CHUNK;
             {
@@ -926,9 +912,9 @@ int main(int argc, char *argv[]) {
         for (int di = 0; di < NUM_DATA; ++di) {
             const int LINE = DATA[di].d_line;
             const int OBJECT_SIZE = DATA[di].d_objectSize;
-            bsls_BlockGrowth::Strategy strategy = 
-                DATA[di].d_geometric 
-                  ? bsls_BlockGrowth::BSLS_GEOMETRIC 
+            bsls_BlockGrowth::Strategy strategy =
+                DATA[di].d_geometric
+                  ? bsls_BlockGrowth::BSLS_GEOMETRIC
                   : bsls_BlockGrowth::BSLS_CONSTANT;
             {
 
@@ -1069,9 +1055,9 @@ int main(int argc, char *argv[]) {
             const int OBJECT_SIZE = sizeof(my_Class1);
             ASSERT(sizeof(my_Class2) == OBJECT_SIZE);
             const int NUM_OBJECTS = 1;
-            Obj mX(OBJECT_SIZE, 
+            Obj mX(OBJECT_SIZE,
                    bsls_BlockGrowth::BSLS_CONSTANT,
-                   NUM_OBJECTS, 
+                   NUM_OBJECTS,
                    &a);
 
             if (verbose) cout << "\twith a my_Class1 object" << endl;
@@ -1120,9 +1106,9 @@ int main(int argc, char *argv[]) {
             const int OBJECT_SIZE = sizeof(my_MostDerived);
             ASSERT(sizeof(my_MostDerived) == OBJECT_SIZE);
             const int NUM_OBJECTS = 1;
-            Obj mX(OBJECT_SIZE, 
+            Obj mX(OBJECT_SIZE,
                    bsls_BlockGrowth::BSLS_CONSTANT,
-                   NUM_OBJECTS, 
+                   NUM_OBJECTS,
                    &a);
 
             if (verbose) cout << "\tdeleteObject(my_MostDerived*)" << endl;
@@ -1229,21 +1215,21 @@ int main(int argc, char *argv[]) {
             0, 1, 4, 5, 7, 17, 23, 100
         };
         const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
-        
+
         bsls_BlockGrowth::Strategy STRATEGIES[] = {
-            bsls_BlockGrowth::BSLS_CONSTANT, 
+            bsls_BlockGrowth::BSLS_CONSTANT,
             bsls_BlockGrowth::BSLS_GEOMETRIC
         };
         const int NUM_STRATEGIES = sizeof STRATEGIES / sizeof *STRATEGIES;
 
-        static const int BLOCK_SIZES[] = { 
+        static const int BLOCK_SIZES[] = {
             bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT,
             bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT * 2,
             bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT * 3,
             bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT * 4,
         };
         const int NUM_BLOCK_SIZES = sizeof BLOCK_SIZES / sizeof *BLOCK_SIZES;
- 
+
         bslma_TestAllocator a;    const bslma_TestAllocator& A = a;
         for (int si = 0; si < NUM_STRATEGIES; ++si) {
             for (int bsi = 0; bsi < NUM_BLOCK_SIZES; ++bsi) {
@@ -1252,10 +1238,9 @@ int main(int argc, char *argv[]) {
                         const int BLOCK_SIZE = BLOCK_SIZES[bsi];
                         const int NUM_BLOCKS = RESERVED[ri];
                         const int EXTEND_SZ  = EXTEND[ei];
-                        const bsls_BlockGrowth::Strategy STRATEGY = 
+                        const bsls_BlockGrowth::Strategy STRATEGY =
                                                                 STRATEGIES[si];
 
-                    
                         // Add 'EXTEND' elements to mX, and add 'EXTEND'
                         // elements to mY and then remove those elements.
                         Obj mX(BLOCK_SIZE, STRATEGY, &a);
@@ -1263,7 +1248,7 @@ int main(int argc, char *argv[]) {
 
                         stretch(&mX, EXTEND_SZ);
                         stretchRemoveAll(&mX, EXTEND_SZ);
-                    
+
                         mX.reserveCapacity(NUM_BLOCKS);
                         mY.reserveCapacity(NUM_BLOCKS);
                         const int ALLOC_BLOCKS = A.numBlocksTotal();
@@ -1305,7 +1290,7 @@ int main(int argc, char *argv[]) {
         struct {
             int  d_line;
             int  d_objectSize;
-            int  d_numObjects;            
+            int  d_numObjects;
             bool d_geometric;
         } DATA[] = {
             //line    object                          geometric
@@ -1332,9 +1317,9 @@ int main(int argc, char *argv[]) {
             const int LINE = DATA[di].d_line;
             const int OBJECT_SIZE = DATA[di].d_objectSize;
             const int NUM_OBJECTS = DATA[di].d_numObjects;
-            bsls_BlockGrowth::Strategy strategy = 
-                DATA[di].d_geometric 
-                  ? bsls_BlockGrowth::BSLS_GEOMETRIC 
+            bsls_BlockGrowth::Strategy strategy =
+                DATA[di].d_geometric
+                  ? bsls_BlockGrowth::BSLS_GEOMETRIC
                   : bsls_BlockGrowth::BSLS_CONSTANT;
             {
 
@@ -1382,7 +1367,7 @@ int main(int argc, char *argv[]) {
         struct {
             int  d_line;
             int  d_objectSize;
-            int  d_numObjects;            
+            int  d_numObjects;
             bool d_geometric;
         } DATA[] = {
             //line    object                          geometric
@@ -1410,9 +1395,9 @@ int main(int argc, char *argv[]) {
             const int OBJECT_SIZE = DATA[di].d_objectSize;
             const int NUM_OBJECTS = DATA[di].d_numObjects;
 
-            bsls_BlockGrowth::Strategy strategy = 
-                DATA[di].d_geometric 
-                  ? bsls_BlockGrowth::BSLS_GEOMETRIC 
+            bsls_BlockGrowth::Strategy strategy =
+                DATA[di].d_geometric
+                  ? bsls_BlockGrowth::BSLS_GEOMETRIC
                   : bsls_BlockGrowth::BSLS_CONSTANT;
 
             Obj mX(OBJECT_SIZE, strategy, NUM_OBJECTS, &ta);
@@ -1460,7 +1445,6 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "DEFAULT NUMOBJECTS TEST" << endl
                                   << "=======================" << endl;
 
-
         if (verbose) cout << "\nTesting constructor and 'allocate' w/ default "
                              "'numObjects'." << endl;
 
@@ -1470,20 +1454,20 @@ int main(int argc, char *argv[]) {
         Obj mX(OBJECT_SIZE, &taX);  ASSERT(OBJECT_SIZE == mX.blockSize());
 
         bslma_TestAllocator taexp;    const bslma_TestAllocator& TAEXP = taexp;
-        Obj mExp(OBJECT_SIZE, 
+        Obj mExp(OBJECT_SIZE,
                  bsls_BlockGrowth::BSLS_GEOMETRIC,
-                 MAX_BLOCKS_PER_CHUNK, 
+                 MAX_BLOCKS_PER_CHUNK,
                  &taexp);
         ASSERT(OBJECT_SIZE == mExp.blockSize());
 
         // Number of iterations is number of chunk allocations before
-        // the max chunk size is reached, that is, 
+        // the max chunk size is reached, that is,
         // logBase2(CURRENT_MAX_BLOCKS_PER_CHUNK), plus an arbitrary
         // fudge factor.
         const int NUM_ITERATIONS = 4 +
                               (int)(bsl::log((double)MAX_BLOCKS_PER_CHUNK) /
                                     bsl::log(2.0));
-        
+
         int blocksPerChunk = INITIAL_CHUNK_SIZE;
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
             // Allocate until current pool is depleted.
@@ -1514,9 +1498,9 @@ int main(int argc, char *argv[]) {
         // GEOMETRIC GROWTH TEST
         //
         // Testing:
-        //   bcema_Pool(objectSize, 
+        //   bcema_Pool(objectSize,
         //              bsls_BlockGrowth::BSLS_GEOMETRIC,
-        //              numObjects, 
+        //              numObjects,
         //              basicAllocator);
         //   void *allocate();
         //
@@ -1549,33 +1533,33 @@ int main(int argc, char *argv[]) {
                                   << "]" << endl;
 
             BEGIN_BSLMA_EXCEPTION_TEST {
-                Obj mX(OBJECT_SIZE, 
+                Obj mX(OBJECT_SIZE,
                        bsls_BlockGrowth::BSLS_GEOMETRIC,
-                       CURRENT_MAX_BLOCKS_PER_CHUNK, 
+                       CURRENT_MAX_BLOCKS_PER_CHUNK,
                        &ta);
 
                 LOOP_ASSERT(di, OBJECT_SIZE == mX.blockSize());
 
                 int numAllocations = TA.numAllocations();
                 int blocksPerChunk = INITIAL_CHUNK_SIZE;
-                
+
                 // Number of iterations is number of chunk allocations before
-                // the max chunk size is reached, that is, 
+                // the max chunk size is reached, that is,
                 // logBase2(CURRENT_MAX_BLOCKS_PER_CHUNK), plus an arbitrary
                 // fudge factor.
                 const int NUM_ITERATIONS = 4 +
                     (int)(bsl::log((double)CURRENT_MAX_BLOCKS_PER_CHUNK) /
                           bsl::log(2.0));
-                    
+
                 for (int i = 0; i < NUM_ITERATIONS; ++i) {
                     for (int j = 0; j < blocksPerChunk; ++j) {
                         mX.allocate();
                     }
                     ++numAllocations;
                     ASSERT(numAllocations == TA.numAllocations());
-                    const int EXP_SIZE = 
+                    const int EXP_SIZE =
                                  blockSize(POOL_OBJECT_SIZE * blocksPerChunk);
-                    LOOP3_ASSERT(blocksPerChunk, 
+                    LOOP3_ASSERT(blocksPerChunk,
                                  EXP_SIZE,
                                  TA.lastAllocatedNumBytes(),
                                  EXP_SIZE == TA.lastAllocatedNumBytes());
@@ -1584,11 +1568,9 @@ int main(int argc, char *argv[]) {
                         ? blocksPerChunk *2
                         : CURRENT_MAX_BLOCKS_PER_CHUNK;
                 }
-                    
-
 
             } END_BSLMA_EXCEPTION_TEST
-        }        
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1601,9 +1583,9 @@ int main(int argc, char *argv[]) {
         //   occurs between replenishments.
         //
         // Testing:
-        //   bcema_Pool(objectSize, 
+        //   bcema_Pool(objectSize,
         //              bsls_BlockGrowth::BSLS_CONSTANT,
-        //              numObjects, 
+        //              numObjects,
         //              basicAllocator);
         //   void *allocate();
         //
@@ -1613,7 +1595,6 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl << "CONSTANT GROWTH TEST" << endl
                                   << "========================" << endl;
-
 
         if (verbose) cout << "\nTesting constructor and 'allocate' w/ varying "
                              "positive 'numObjects'." << endl;
@@ -1630,9 +1611,9 @@ int main(int argc, char *argv[]) {
         for (int di = 0; di < NUM_DATA; ++di) {
             BEGIN_BSLMA_EXCEPTION_TEST {
                 const int NUM_OBJECTS = DATA[di];
-                Obj mX(OBJECT_SIZE, 
-                       bsls_BlockGrowth::BSLS_CONSTANT, 
-                       NUM_OBJECTS, 
+                Obj mX(OBJECT_SIZE,
+                       bsls_BlockGrowth::BSLS_CONSTANT,
+                       NUM_OBJECTS,
                        &ta);
                 LOOP_ASSERT(di, OBJECT_SIZE == mX.blockSize());
 
@@ -1663,8 +1644,8 @@ int main(int argc, char *argv[]) {
         //   requests is equal to the expected object size.
         //
         // Testing:
-        //   bcema_Pool(blockSize, 
-        //              bsls_BlockGrowth::BSLS_CONSTANT, 
+        //   bcema_Pool(blockSize,
+        //              bsls_BlockGrowth::BSLS_CONSTANT,
         //              numObjects,
         //              basicAllocator);
         //   void *allocate();
@@ -1674,7 +1655,6 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl << "BLOCK SIZE TEST" << endl
                                   << "===============" << endl;
-
 
         if (verbose) cout << "\nTesting constructor and 'allocate' w/ varying "
                              "object sizes." << endl;
@@ -1687,9 +1667,9 @@ int main(int argc, char *argv[]) {
         for (int di = 0; di < NUM_DATA; ++di) {
             BEGIN_BSLMA_EXCEPTION_TEST {
                 const int OBJECT_SIZE = DATA[di];
-                Obj mX(OBJECT_SIZE, 
-                       bsls_BlockGrowth::BSLS_CONSTANT, 
-                       NUM_OBJECTS, 
+                Obj mX(OBJECT_SIZE,
+                       bsls_BlockGrowth::BSLS_CONSTANT,
+                       NUM_OBJECTS,
                        &testAllocator);
                 LOOP_ASSERT(di, OBJECT_SIZE == mX.blockSize());
                 char *lastP = 0;

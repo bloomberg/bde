@@ -35,7 +35,6 @@ struct LLink {
     LLink *d_next_p;
 };
 
-
                         // ---------
                         // CONSTANTS
                         // ---------
@@ -46,16 +45,6 @@ enum {
     MAX_CHUNK_SIZE     = 32  // minimum 'd_numObjects' value beyond which
                              // 'd_numObjects' becomes positive
 };
-
-static inline
-int myAbs(int n)
-    // Return the absolute value of the specified 'n'.  The behavior is
-    // undefined unless 'INT_MIN + 1 <= n'.
-{
-    BSLS_ASSERT(n - 1 < n);
-
-    return n >= 0 ? n : -n;
-}
 
 static inline
 int roundUp(int x, int y)
@@ -125,7 +114,6 @@ int computeInternalBlockSize(int blockSize)
                    bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
-
                         // ----------------
                         // class bcema_Pool
                         // ----------------
@@ -160,7 +148,6 @@ bcema_Pool::bcema_Pool(int blockSize, bslma_Allocator *basicAllocator)
 , d_blockList(basicAllocator)
 {
     BSLS_ASSERT(1 <= blockSize);
-
 
     d_internalBlockSize = computeInternalBlockSize(blockSize);
 }
