@@ -1,4 +1,4 @@
-// bdex_testinstreamformatter.cpp                -*-C++-*-
+// bdex_testinstreamformatter.cpp                                     -*-C++-*-
 #include <bdex_testinstreamformatter.h>
 
 #include <bdes_ident.h>
@@ -84,10 +84,10 @@ char *bdex_TestInstreamFormatter_StreamBuf::gptr() const
                         // STATIC METHODS
                         // --------------
 
-void bdex_TestInStreamFormatter::checkScalar(int                 *validFlag_p,
-                                             bdex_FieldCode::Type code,
-                                             int                  scalarSize,
-                                             int                  quietFlag)
+void bdex_TestInStreamFormatter::checkScalar(int                  *validFlag_p,
+                                             bdex_FieldCode::Type  code,
+                                             int                   scalarSize,
+                                             int                   quietFlag)
 {
     BSLS_ASSERT(validFlag_p);
     BSLS_ASSERT(0 < scalarSize);
@@ -121,11 +121,11 @@ void bdex_TestInStreamFormatter::checkScalar(int                 *validFlag_p,
     }
 }
 
-void bdex_TestInStreamFormatter::checkArray(int                 *validFlag_p,
-                                            bdex_FieldCode::Type code,
-                                            int                  scalarSize,
-                                            int                  numElements,
-                                            int                  quietFlag)
+void bdex_TestInStreamFormatter::checkArray(int                  *validFlag_p,
+                                            bdex_FieldCode::Type  code,
+                                            int                   scalarSize,
+                                            int                   numElements,
+                                            int                   quietFlag)
 {
     BSLS_ASSERT(validFlag_p);
     BSLS_ASSERT(0 < scalarSize);
@@ -179,10 +179,9 @@ void bdex_TestInStreamFormatter::checkArray(int                 *validFlag_p,
     }
 }
 
-void bdex_TestInStreamFormatter::checkVersion(
-                                          int *validFlag_p,
-                                          int  suppressVersionCheckFlag,
-                                          int  quietFlag)
+void bdex_TestInStreamFormatter::checkVersion(int *validFlag_p,
+                                              int  suppressVersionCheckFlag,
+                                              int  quietFlag)
 {
     BSLS_ASSERT(validFlag_p);
 
@@ -244,6 +243,7 @@ bdex_TestInStreamFormatter::bdex_TestInStreamFormatter(
 , d_imp(streamBuffer)
 , d_streamBuf(streamBuffer)
 {
+    BSLS_ASSERT(streamBuffer);
 }
 
 bdex_TestInStreamFormatter::~bdex_TestInStreamFormatter()
@@ -294,7 +294,7 @@ bdex_TestInStreamFormatter::getLength(int& variable)
 }
 
 bdex_TestInStreamFormatter& bdex_TestInStreamFormatter::getString(
-                                                            bsl::string& str)
+                                                              bsl::string& str)
 {
     int length;
     getLength(length);
@@ -795,10 +795,11 @@ bdex_TestInStreamFormatter::getFloat32(float& variable)
 
 bdex_TestInStreamFormatter&
 bdex_TestInStreamFormatter::getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                                 int length)
+                                          int                       length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -821,10 +822,11 @@ bdex_TestInStreamFormatter::getArrayInt64(bsls_PlatformUtil::Int64 *array,
 
 bdex_TestInStreamFormatter&
 bdex_TestInStreamFormatter::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                                  int length)
+                                           int                        length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -847,10 +849,11 @@ bdex_TestInStreamFormatter::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
 
 bdex_TestInStreamFormatter&
 bdex_TestInStreamFormatter::getArrayInt56(bsls_PlatformUtil::Int64 *array,
-                                 int length)
+                                          int                       length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -873,10 +876,11 @@ bdex_TestInStreamFormatter::getArrayInt56(bsls_PlatformUtil::Int64 *array,
 
 bdex_TestInStreamFormatter&
 bdex_TestInStreamFormatter::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                                  int length)
+                                           int                        length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -899,10 +903,11 @@ bdex_TestInStreamFormatter::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
 
 bdex_TestInStreamFormatter&
 bdex_TestInStreamFormatter::getArrayInt48(bsls_PlatformUtil::Int64 *array,
-                                 int length)
+                                          int                       length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -925,10 +930,11 @@ bdex_TestInStreamFormatter::getArrayInt48(bsls_PlatformUtil::Int64 *array,
 
 bdex_TestInStreamFormatter&
 bdex_TestInStreamFormatter::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                                  int length)
+                                           int                        length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -951,10 +957,11 @@ bdex_TestInStreamFormatter::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
 
 bdex_TestInStreamFormatter&
 bdex_TestInStreamFormatter::getArrayInt40(bsls_PlatformUtil::Int64 *array,
-                                 int length)
+                                          int                       length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -977,10 +984,11 @@ bdex_TestInStreamFormatter::getArrayInt40(bsls_PlatformUtil::Int64 *array,
 
 bdex_TestInStreamFormatter&
 bdex_TestInStreamFormatter::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                                  int length)
+                                           int                        length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -1031,6 +1039,7 @@ bdex_TestInStreamFormatter::getArrayUint32(unsigned int *array, int length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -1056,6 +1065,7 @@ bdex_TestInStreamFormatter::getArrayInt24(int *array, int length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -1081,6 +1091,7 @@ bdex_TestInStreamFormatter::getArrayUint24(unsigned int *array, int length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -1106,6 +1117,7 @@ bdex_TestInStreamFormatter::getArrayInt16(short *array, int length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -1131,6 +1143,7 @@ bdex_TestInStreamFormatter::getArrayUint16(unsigned short *array, int length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -1156,6 +1169,7 @@ bdex_TestInStreamFormatter::getArrayInt8(char *array, int length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -1181,6 +1195,7 @@ bdex_TestInStreamFormatter::getArrayInt8(signed char *array, int length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -1206,6 +1221,7 @@ bdex_TestInStreamFormatter::getArrayUint8(char *array, int length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -1231,6 +1247,7 @@ bdex_TestInStreamFormatter::getArrayUint8(unsigned char *array, int length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -1256,6 +1273,7 @@ bdex_TestInStreamFormatter::getArrayFloat64(double *array, int length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }
@@ -1280,6 +1298,7 @@ bdex_TestInStreamFormatter::getArrayFloat32(float *array, int length)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= length);
+
     if (0 == cursor()) {
         checkVersion(&d_validFlag, d_suppressVersionCheckFlag, d_quietFlag);
     }

@@ -153,6 +153,10 @@ BDES_IDENT("$Id: $")
 #include <bdesb_memoutstreambuf.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
@@ -651,6 +655,8 @@ bdex_ByteOutStream::bdex_ByteOutStream(int              initialCapacity,
     // IMPORTANT: d_streambuf and d_formatter must be initialized in the order
     // shown here.  Don't re-arrange their declarations in the class
     // definition.
+
+    BSLS_ASSERT_SAFE(0 <= initialCapacity);
 }
 
 inline
@@ -665,19 +671,25 @@ void bdex_ByteOutStream::invalidate()
     d_formatter.invalidate();
 }
 
-inline void bdex_ByteOutStream::removeAll()
+inline
+void bdex_ByteOutStream::removeAll()
 {
     d_streambuf.pubseekpos(0);
 }
 
-inline void bdex_ByteOutStream::reserveCapacity(int newCapacity)
+inline
+void bdex_ByteOutStream::reserveCapacity(int newCapacity)
 {
+    BSLS_ASSERT_SAFE(0 <= newCapacity);
+
     d_streambuf.reserveCapacity(newCapacity);
 }
 
 inline
 bdex_ByteOutStream& bdex_ByteOutStream::putLength(int length)
 {
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_formatter.putLength(length);
     return *this;
 }
@@ -845,6 +857,9 @@ bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayInt64(const bsls_PlatformUtil::Int64 *array,
                                   int                             count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayInt64(array, count);
     return *this;
 }
@@ -854,6 +869,9 @@ bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayUint64(const bsls_PlatformUtil::Uint64 *array,
                                    int                              count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayUint64(array, count);
     return *this;
 }
@@ -863,6 +881,9 @@ bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayInt56(const bsls_PlatformUtil::Int64 *array,
                                   int                             count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayInt56(array, count);
     return *this;
 }
@@ -872,6 +893,9 @@ bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayUint56(const bsls_PlatformUtil::Uint64 *array,
                                    int                              count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayUint56(array, count);
     return *this;
 }
@@ -881,6 +905,9 @@ bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayInt48(const bsls_PlatformUtil::Int64 *array,
                                   int                             count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayInt48(array, count);
     return *this;
 }
@@ -890,6 +917,9 @@ bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayUint48(const bsls_PlatformUtil::Uint64 *array,
                                    int                              count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayUint48(array, count);
     return *this;
 }
@@ -899,6 +929,9 @@ bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayInt40(const bsls_PlatformUtil::Int64 *array,
                                   int                             count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayInt40(array, count);
     return *this;
 }
@@ -908,6 +941,9 @@ bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayUint40(const bsls_PlatformUtil::Uint64 *array,
                                    int                              count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayUint40(array, count);
     return *this;
 }
@@ -916,6 +952,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayInt32(const int *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayInt32(array, count);
     return *this;
 }
@@ -924,6 +963,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayUint32(const unsigned int *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayUint32(array, count);
     return *this;
 }
@@ -932,6 +974,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayInt24(const int *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayInt24(array, count);
     return *this;
 }
@@ -940,6 +985,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayUint24(const unsigned int *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayUint24(array, count);
     return *this;
 }
@@ -948,6 +996,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayInt16(const short *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayInt16(array, count);
     return *this;
 }
@@ -956,6 +1007,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayUint16(const unsigned short *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayUint16(array, count);
     return *this;
 }
@@ -964,6 +1018,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayInt8(const char *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayInt8(array, count);
     return *this;
 }
@@ -972,6 +1029,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayInt8(const signed char *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayInt8(array, count);
     return *this;
 }
@@ -980,6 +1040,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayUint8(const char *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayUint8(array, count);
     return *this;
 }
@@ -988,6 +1051,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayUint8(const unsigned char *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayUint8(array, count);
     return *this;
 }
@@ -996,6 +1062,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayFloat64(const double *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayFloat64(array, count);
     return *this;
 }
@@ -1004,6 +1073,9 @@ inline
 bdex_ByteOutStream&
 bdex_ByteOutStream::putArrayFloat32(const float *array, int count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_formatter.putArrayFloat32(array, count);
     return *this;
 }

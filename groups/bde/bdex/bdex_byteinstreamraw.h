@@ -339,6 +339,10 @@ BDES_IDENT("$Id: $")
 #include <bdesb_fixedmeminput.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
@@ -883,6 +887,9 @@ bdex_ByteInStreamRaw::bdex_ByteInStreamRaw(const char *buffer, int numBytes)
     // IMPORTANT: d_streambuf and d_formatter must be initialized in the
     // order shown here.  Don't re-arrange their declarations in the class
     // definition.
+
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(0 <= numBytes);
 }
 
 inline
@@ -900,6 +907,9 @@ void bdex_ByteInStreamRaw::invalidate()
 inline
 void bdex_ByteInStreamRaw::reset(const char *buffer, int numBytes)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(0 <= numBytes);
+
     d_streambuf.pubsetbuf(buffer, numBytes);
     d_size = numBytes;
 }
@@ -907,6 +917,8 @@ void bdex_ByteInStreamRaw::reset(const char *buffer, int numBytes)
 inline
 void bdex_ByteInStreamRaw::setCursor(int index)
 {
+    BSLS_ASSERT_SAFE(0 <= index);
+
     d_streambuf.pubseekpos(index);
 }
 
@@ -1082,8 +1094,11 @@ bdex_ByteInStreamRaw& bdex_ByteInStreamRaw::getFloat32(float& variable)
 inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                                 int                       numValues)
+                                    int                       numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt64(array, numValues);
     return *this;
 }
@@ -1091,8 +1106,11 @@ bdex_ByteInStreamRaw::getArrayInt64(bsls_PlatformUtil::Int64 *array,
 inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                                  int                        numValues)
+                                     int                        numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint64(array, numValues);
     return *this;
 }
@@ -1100,8 +1118,11 @@ bdex_ByteInStreamRaw::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
 inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayInt56(bsls_PlatformUtil::Int64 *array,
-                                 int                       numValues)
+                                    int                       numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt56(array, numValues);
     return *this;
 }
@@ -1109,8 +1130,11 @@ bdex_ByteInStreamRaw::getArrayInt56(bsls_PlatformUtil::Int64 *array,
 inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                                  int                        numValues)
+                                     int                        numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint56(array, numValues);
     return *this;
 }
@@ -1118,8 +1142,11 @@ bdex_ByteInStreamRaw::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
 inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayInt48(bsls_PlatformUtil::Int64 *array,
-                                 int                       numValues)
+                                    int                       numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt48(array, numValues);
     return *this;
 }
@@ -1127,8 +1154,11 @@ bdex_ByteInStreamRaw::getArrayInt48(bsls_PlatformUtil::Int64 *array,
 inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                                  int                        numValues)
+                                     int                        numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint48(array, numValues);
     return *this;
 }
@@ -1136,8 +1166,11 @@ bdex_ByteInStreamRaw::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
 inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayInt40(bsls_PlatformUtil::Int64 *array,
-                                 int                       numValues)
+                                    int                       numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt40(array, numValues);
     return *this;
 }
@@ -1145,8 +1178,11 @@ bdex_ByteInStreamRaw::getArrayInt40(bsls_PlatformUtil::Int64 *array,
 inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                                  int                        numValues)
+                                     int                        numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint40(array, numValues);
     return *this;
 }
@@ -1155,6 +1191,9 @@ inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayInt32(int *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt32(array, numValues);
     return *this;
 }
@@ -1163,6 +1202,9 @@ inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayUint32(unsigned int *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint32(array, numValues);
     return *this;
 }
@@ -1171,6 +1213,9 @@ inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayInt24(int *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt24(array, numValues);
     return *this;
 }
@@ -1179,6 +1224,9 @@ inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayUint24(unsigned int *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint24(array, numValues);
     return *this;
 }
@@ -1187,6 +1235,9 @@ inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayInt16(short *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt16(array, numValues);
     return *this;
 }
@@ -1195,6 +1246,9 @@ inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayUint16(unsigned short *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint16(array, numValues);
     return *this;
 }
@@ -1203,6 +1257,9 @@ inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayInt8(char *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt8(array, numValues);
     return *this;
 }
@@ -1211,6 +1268,9 @@ inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayInt8(signed char *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt8(array, numValues);
     return *this;
 }
@@ -1219,6 +1279,9 @@ inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayUint8(char *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint8(array, numValues);
     return *this;
 }
@@ -1227,6 +1290,9 @@ inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayUint8(unsigned char *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint8(array, numValues);
     return *this;
 }
@@ -1235,6 +1301,9 @@ inline
 bdex_ByteInStreamRaw&
 bdex_ByteInStreamRaw::getArrayFloat64(double *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayFloat64(array, numValues);
     return *this;
 }
@@ -1243,6 +1312,9 @@ inline
 bdex_ByteInStreamRaw& bdex_ByteInStreamRaw::getArrayFloat32(float *array,
                                                             int    numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayFloat32(array, numValues);
     return *this;
 }

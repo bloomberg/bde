@@ -1,4 +1,4 @@
-// bdex_outstreamadapter.h         -*-C++-*-
+// bdex_outstreamadapter.h                                            -*-C++-*-
 #ifndef INCLUDED_BDEX_OUTSTREAMADAPTER
 #define INCLUDED_BDEX_OUTSTREAMADAPTER
 
@@ -457,6 +457,10 @@ BDES_IDENT("$Id: $")
 #include <bdex_outstream.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
@@ -465,9 +469,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-
 namespace BloombergLP {
-
 
                         // ===========================
                         // class bdex_OutStreamAdapter
@@ -837,7 +839,6 @@ class bdex_OutStreamAdapter : public bdex_OutStream {
         // double-precision floating point number and write those eight bytes
         // in network byte order.
 
-
     virtual bdex_OutStream& putArrayFloat32(const float *array, int length);
         // Format as an atomic sequence the most significant 32 bits in each of
         // the specified 'length' leading entries in the specified 'array' to
@@ -885,6 +886,7 @@ inline
 bdex_OutStreamAdapter<STREAM>::bdex_OutStreamAdapter(STREAM *stream)
 : d_stream_p(stream)
 {
+    BSLS_ASSERT_SAFE(stream);
 }
 
 template <class STREAM>
@@ -892,7 +894,6 @@ inline
 bdex_OutStreamAdapter<STREAM>::~bdex_OutStreamAdapter()
 {
 }
-
 
 // MANIPULATORS
 
@@ -907,6 +908,8 @@ template <class STREAM>
 inline
 bdex_OutStream& bdex_OutStreamAdapter<STREAM>::putLength(int value)
 {
+    BSLS_ASSERT_SAFE(0 <= value);
+
     d_stream_p->putLength(value);
     return *this;
 }
@@ -1097,6 +1100,9 @@ bdex_OutStreamAdapter<STREAM>::putArrayInt64(
                                         const bsls_PlatformUtil::Int64 *array,
                                         int                             length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayInt64(array, length);
     return *this;
 }
@@ -1108,6 +1114,9 @@ bdex_OutStreamAdapter<STREAM>::putArrayUint64(
                                        const bsls_PlatformUtil::Uint64 *array,
                                        int                              length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayUint64(array, length);
     return *this;
 }
@@ -1119,6 +1128,9 @@ bdex_OutStreamAdapter<STREAM>::putArrayInt56(
                                         const bsls_PlatformUtil::Int64 *array,
                                         int                             length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayInt56(array, length);
     return *this;
 }
@@ -1130,6 +1142,9 @@ bdex_OutStreamAdapter<STREAM>::putArrayUint56(
                                        const bsls_PlatformUtil::Uint64 *array,
                                        int                              length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayUint56(array, length);
     return *this;
 }
@@ -1141,6 +1156,9 @@ bdex_OutStreamAdapter<STREAM>::putArrayInt48(
                                         const bsls_PlatformUtil::Int64 *array,
                                         int                             length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayInt48(array, length);
     return *this;
 }
@@ -1152,6 +1170,9 @@ bdex_OutStreamAdapter<STREAM>::putArrayUint48(
                                        const bsls_PlatformUtil::Uint64 *array,
                                        int                              length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayUint48(array, length);
     return *this;
 }
@@ -1163,6 +1184,9 @@ bdex_OutStreamAdapter<STREAM>::putArrayInt40(
                                         const bsls_PlatformUtil::Int64 *array,
                                         int                             length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayInt40(array, length);
     return *this;
 }
@@ -1174,6 +1198,9 @@ bdex_OutStreamAdapter<STREAM>::putArrayUint40(
                                        const bsls_PlatformUtil::Uint64 *array,
                                        int                              length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayUint40(array, length);
     return *this;
 }
@@ -1183,6 +1210,9 @@ inline
 bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayInt32(const int *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayInt32(array, length);
     return *this;
 }
@@ -1193,6 +1223,9 @@ bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayUint32(const unsigned int *array,
                                               int                 length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayUint32(array, length);
     return *this;
 }
@@ -1202,6 +1235,9 @@ inline
 bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayInt24(const int *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayInt24(array, length);
     return *this;
 }
@@ -1212,6 +1248,9 @@ bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayUint24(const unsigned int *array,
                                               int                 length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayUint24(array, length);
     return *this;
 }
@@ -1221,6 +1260,9 @@ inline
 bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayInt16(const short *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayInt16(array, length);
     return *this;
 }
@@ -1231,6 +1273,9 @@ bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayUint16(const unsigned short *array,
                                               int                   length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayUint16(array, length);
     return *this;
 }
@@ -1240,6 +1285,9 @@ inline
 bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayInt8(const char *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayInt8(array, length);
     return *this;
 }
@@ -1250,6 +1298,9 @@ bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayInt8(const signed char *array,
                                             int                length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayInt8(array, length);
     return *this;
 }
@@ -1259,6 +1310,9 @@ inline
 bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayUint8(const char *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayUint8(array, length);
     return *this;
 }
@@ -1269,6 +1323,9 @@ bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayUint8(const unsigned char *array,
                                              int                  length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayUint8(array, length);
     return *this;
 }
@@ -1278,6 +1335,9 @@ inline
 bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayFloat64(const double *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayFloat64(array, length);
     return *this;
 }
@@ -1287,6 +1347,9 @@ inline
 bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayFloat32(const float *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->putArrayFloat32(array, length);
     return *this;
 }
@@ -1302,6 +1365,8 @@ template <class STREAM>
 inline
 void bdex_OutStreamAdapter<STREAM>::reserveCapacity(int newCapacity)
 {
+    BSLS_ASSERT_SAFE(0 <= newCapacity);
+
     d_stream_p->reserveCapacity(newCapacity);
 }
 
@@ -1329,8 +1394,6 @@ int bdex_OutStreamAdapter<STREAM>::length() const
 }
 
 }  // close namespace BloombergLP
-
-
 
 #endif
 

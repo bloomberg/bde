@@ -1,4 +1,4 @@
-// bdex_bytestreamimputil.h     -*-C++-*-
+// bdex_bytestreamimputil.h                                           -*-C++-*-
 #ifndef INCLUDED_BDEX_BYTESTREAMIMPUTIL
 #define INCLUDED_BDEX_BYTESTREAMIMPUTIL
 
@@ -271,6 +271,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
@@ -787,6 +791,8 @@ inline
 void bdex_ByteStreamImpUtil::putInt64(char                     *buffer,
                                       bsls_PlatformUtil::Int64  value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef const union Dummy {
         bsls_PlatformUtil::Int64 d_variable;
         char                     d_bytes[1];
@@ -817,6 +823,8 @@ inline
 void bdex_ByteStreamImpUtil::putInt56(char                     *buffer,
                                       bsls_PlatformUtil::Int64  value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef const union Dummy {
         bsls_PlatformUtil::Int64 d_variable;
         char                     d_bytes[1];
@@ -845,6 +853,8 @@ inline
 void bdex_ByteStreamImpUtil::putInt48(char                     *buffer,
                                       bsls_PlatformUtil::Int64  value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef const union Dummy {
         bsls_PlatformUtil::Int64 d_variable;
         char                     d_bytes[1];
@@ -871,6 +881,8 @@ inline
 void bdex_ByteStreamImpUtil::putInt40(char                     *buffer,
                                       bsls_PlatformUtil::Int64  value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef const union Dummy {
         bsls_PlatformUtil::Int64 d_variable;
         char                     d_bytes[1];
@@ -894,6 +906,8 @@ void bdex_ByteStreamImpUtil::putInt40(char                     *buffer,
 inline
 void bdex_ByteStreamImpUtil::putInt32(char *buffer, int value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef const union Dummy {
         int  d_variable;
         char d_bytes[1];
@@ -915,6 +929,8 @@ void bdex_ByteStreamImpUtil::putInt32(char *buffer, int value)
 inline
 void bdex_ByteStreamImpUtil::putInt24(char *buffer, int value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef const union Dummy {
         int  d_variable;
         char d_bytes[1];
@@ -934,6 +950,8 @@ void bdex_ByteStreamImpUtil::putInt24(char *buffer, int value)
 inline
 void bdex_ByteStreamImpUtil::putInt16(char *buffer, int value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef const union Dummy {
         int  d_variable;
         char d_bytes[1];
@@ -951,6 +969,8 @@ void bdex_ByteStreamImpUtil::putInt16(char *buffer, int value)
 inline
 void bdex_ByteStreamImpUtil::putInt8(char *buffer, int value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
 // The standard code causes compile issues for optimized AIX.  The following
 // code seems to fix the problem.
 //
@@ -981,6 +1001,8 @@ void bdex_ByteStreamImpUtil::putInt8(char *buffer, int value)
 inline
 void bdex_ByteStreamImpUtil::putFloat64(char *buffer, double value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef const union Dummy {
         double d_variable;
         char   d_bytes[1];
@@ -1010,6 +1032,8 @@ void bdex_ByteStreamImpUtil::putFloat64(char *buffer, double value)
 inline
 void bdex_ByteStreamImpUtil::putFloat32(char *buffer, float value)
 {
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef const union Dummy {
         float d_variable;
         char  d_bytes[1];
@@ -1034,6 +1058,9 @@ inline
 void bdex_ByteStreamImpUtil::getInt64(bsls_PlatformUtil::Int64 *variable,
                                       const char               *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         bsls_PlatformUtil::Int64 d_variable;
         char                     d_bytes[1];
@@ -1068,6 +1095,9 @@ inline
 void bdex_ByteStreamImpUtil::getUint64(bsls_PlatformUtil::Uint64 *variable,
                                        const char                *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         bsls_PlatformUtil::Uint64 d_variable;
         char                      d_bytes[1];
@@ -1102,6 +1132,9 @@ inline
 void bdex_ByteStreamImpUtil::getInt56(bsls_PlatformUtil::Int64 *variable,
                                       const char               *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         bsls_PlatformUtil::Int64 d_variable;
         char                     d_bytes[1];
@@ -1132,6 +1165,9 @@ inline
 void bdex_ByteStreamImpUtil::getUint56(bsls_PlatformUtil::Uint64 *variable,
                                        const char                *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         bsls_PlatformUtil::Uint64 d_variable;
         char                      d_bytes[1];
@@ -1162,6 +1198,9 @@ inline
 void bdex_ByteStreamImpUtil::getInt48(bsls_PlatformUtil::Int64 *variable,
                                       const char               *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         bsls_PlatformUtil::Int64 d_variable;
         char                     d_bytes[1];
@@ -1190,6 +1229,9 @@ inline
 void bdex_ByteStreamImpUtil::getUint48(bsls_PlatformUtil::Uint64 *variable,
                                        const char                *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         bsls_PlatformUtil::Uint64 d_variable;
         char                      d_bytes[1];
@@ -1218,6 +1260,9 @@ inline
 void bdex_ByteStreamImpUtil::getInt40(bsls_PlatformUtil::Int64 *variable,
                                       const char               *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         bsls_PlatformUtil::Int64 d_variable;
         char                     d_bytes[1];
@@ -1244,6 +1289,9 @@ inline
 void bdex_ByteStreamImpUtil::getUint40(bsls_PlatformUtil::Uint64 *variable,
                                        const char                *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         bsls_PlatformUtil::Uint64 d_variable;
         char                      d_bytes[1];
@@ -1269,6 +1317,9 @@ void bdex_ByteStreamImpUtil::getUint40(bsls_PlatformUtil::Uint64 *variable,
 inline
 void bdex_ByteStreamImpUtil::getInt32(int *variable, const char *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         int  d_variable;
         char d_bytes[1];
@@ -1295,6 +1346,9 @@ inline
 void bdex_ByteStreamImpUtil::getUint32(unsigned int *variable,
                                        const char   *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         int  d_variable;
         char d_bytes[1];
@@ -1320,6 +1374,9 @@ void bdex_ByteStreamImpUtil::getUint32(unsigned int *variable,
 inline
 void bdex_ByteStreamImpUtil::getInt24(int *variable, const char *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         int  d_variable;
         char d_bytes[1];
@@ -1342,6 +1399,9 @@ inline
 void bdex_ByteStreamImpUtil::getUint24(unsigned int *variable,
                                        const char   *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         int  d_variable;
         char d_bytes[1];
@@ -1363,6 +1423,9 @@ void bdex_ByteStreamImpUtil::getUint24(unsigned int *variable,
 inline
 void bdex_ByteStreamImpUtil::getInt16(short *variable, const char *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         short d_variable;
         char  d_bytes[1];
@@ -1385,6 +1448,9 @@ inline
 void bdex_ByteStreamImpUtil::getUint16(unsigned short *variable,
                                        const char     *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         short d_variable;
         char  d_bytes[1];
@@ -1406,12 +1472,18 @@ void bdex_ByteStreamImpUtil::getUint16(unsigned short *variable,
 inline
 void bdex_ByteStreamImpUtil::getInt8(char *variable, const char *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     *variable = buffer[0];
 }
 
 inline
 void bdex_ByteStreamImpUtil::getInt8(signed char *variable, const char *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     getInt8((char *)variable, buffer);
 }
 
@@ -1419,6 +1491,9 @@ inline
 void bdex_ByteStreamImpUtil::getInt8(unsigned char *variable,
                                      const char    *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     getInt8((char *)variable, buffer);
 }
 
@@ -1427,6 +1502,9 @@ void bdex_ByteStreamImpUtil::getInt8(unsigned char *variable,
 inline
 void bdex_ByteStreamImpUtil::getFloat64(double *variable, const char *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         double d_variable;
         char   d_bytes[1];
@@ -1460,6 +1538,9 @@ void bdex_ByteStreamImpUtil::getFloat64(double *variable, const char *buffer)
 inline
 void bdex_ByteStreamImpUtil::getFloat32(float *variable, const char *buffer)
 {
+    BSLS_ASSERT_SAFE(variable);
+    BSLS_ASSERT_SAFE(buffer);
+
     typedef union Dummy {
         float d_variable;
         char  d_bytes[1];
@@ -1489,6 +1570,10 @@ void bdex_ByteStreamImpUtil::putArrayInt16(char                 *buffer,
                                            const unsigned short *array,
                                            int                   count)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     putArrayInt16(buffer, (const short *)array, count);
 }
 
@@ -1497,6 +1582,10 @@ void bdex_ByteStreamImpUtil::putArrayInt8(char       *buffer,
                                           const char *array,
                                           int         count)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     std::memcpy(buffer, array, count);
 }
 
@@ -1505,6 +1594,10 @@ void bdex_ByteStreamImpUtil::putArrayInt8(char              *buffer,
                                           const signed char *array,
                                           int                count)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     putArrayInt8(buffer, (const char *)array, count);
 }
 
@@ -1513,6 +1606,10 @@ void bdex_ByteStreamImpUtil::putArrayInt8(char                *buffer,
                                           const unsigned char *array,
                                           int                  count)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     putArrayInt8(buffer, (const char *)array, count);
 }
 
@@ -1523,6 +1620,10 @@ void bdex_ByteStreamImpUtil::getArrayInt8(char       *array,
                                           const char *buffer,
                                           int         count)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     std::memcpy(array, buffer, count);
 }
 
@@ -1531,6 +1632,10 @@ void bdex_ByteStreamImpUtil::getArrayInt8(signed char *array,
                                           const char  *buffer,
                                           int          count)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     getArrayInt8((char *)array, buffer, count);
 }
 
@@ -1539,6 +1644,10 @@ void bdex_ByteStreamImpUtil::getArrayInt8(unsigned char *array,
                                           const char    *buffer,
                                           int            count)
 {
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     getArrayInt8((char *)array, buffer, count);
 }
 

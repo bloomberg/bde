@@ -1,4 +1,4 @@
-// bdex_testoutstreamformatter.cpp               -*-C++-*-
+// bdex_testoutstreamformatter.cpp                                    -*-C++-*-
 #include <bdex_testoutstreamformatter.h>
 
 #include <bdes_ident.h>
@@ -43,6 +43,7 @@ bdex_TestOutStreamFormatter::bdex_TestOutStreamFormatter(
 , d_makeNextInvalid(0)
 , d_validFlag(1)
 {
+    BSLS_ASSERT(streamBuf);
 }
 
 bdex_TestOutStreamFormatter::~bdex_TestOutStreamFormatter()
@@ -53,6 +54,8 @@ bdex_TestOutStreamFormatter::~bdex_TestOutStreamFormatter()
 bdex_TestOutStreamFormatter&
 bdex_TestOutStreamFormatter::putLength(int length)
 {
+    BSLS_ASSERT(0 <= length);
+
     bdex_FieldCode::Type code;
     if (d_makeNextInvalid) {
         code = bdex_FieldCode::BDEX_INVALID;
@@ -567,8 +570,7 @@ bdex_TestOutStreamFormatter::putArrayUint40(
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayInt32(const int *array,
-                                           int        count)
+bdex_TestOutStreamFormatter::putArrayInt32(const int *array, int count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -613,8 +615,7 @@ bdex_TestOutStreamFormatter::putArrayUint32(const unsigned int *array,
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayInt24(const int *array,
-                                           int        count)
+bdex_TestOutStreamFormatter::putArrayInt24(const int *array, int count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -659,8 +660,7 @@ bdex_TestOutStreamFormatter::putArrayUint24(const unsigned int *array,
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayInt16(const short *array,
-                                           int          count)
+bdex_TestOutStreamFormatter::putArrayInt16(const short *array, int count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -705,8 +705,7 @@ bdex_TestOutStreamFormatter::putArrayUint16(const unsigned short *array,
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayInt8(const char *array,
-                                          int         count)
+bdex_TestOutStreamFormatter::putArrayInt8(const char *array, int count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -750,8 +749,7 @@ bdex_TestOutStreamFormatter::putArrayInt8(const signed char *array, int count)
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayUint8(const char *array,
-                                           int         count)
+bdex_TestOutStreamFormatter::putArrayUint8(const char *array, int count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -796,8 +794,7 @@ bdex_TestOutStreamFormatter::putArrayUint8(const unsigned char *array,
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayFloat64(const double *array,
-                                             int           count)
+bdex_TestOutStreamFormatter::putArrayFloat64(const double *array, int count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);
@@ -819,8 +816,7 @@ bdex_TestOutStreamFormatter::putArrayFloat64(const double *array,
 }
 
 bdex_TestOutStreamFormatter&
-bdex_TestOutStreamFormatter::putArrayFloat32(const float *array,
-                                             int          count)
+bdex_TestOutStreamFormatter::putArrayFloat32(const float *array, int count)
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <= count);

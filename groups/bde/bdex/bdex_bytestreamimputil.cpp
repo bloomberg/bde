@@ -1,9 +1,10 @@
-// bdex_bytestreamimputil.cpp           -*-C++-*-
+// bdex_bytestreamimputil.cpp                                         -*-C++-*-
 #include <bdex_bytestreamimputil.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdex_bytestreamimputil_cpp,"$Id$ $CSID$")
 
+#include <bsls_assert.h>
 
 namespace BloombergLP {
 
@@ -20,6 +21,10 @@ void bdex_ByteStreamImpUtil::putArrayInt64(
                                         const bsls_PlatformUtil::Int64 *array,
                                         int                             count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt64(buffer, *array);
@@ -32,6 +37,10 @@ void bdex_ByteStreamImpUtil::putArrayInt64(
                                        const bsls_PlatformUtil::Uint64 *array,
                                        int                              count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt64(buffer, *array);
@@ -44,6 +53,10 @@ void bdex_ByteStreamImpUtil::putArrayInt56(
                                         const bsls_PlatformUtil::Int64 *array,
                                         int                             count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt56(buffer, *array);
@@ -56,6 +69,10 @@ void bdex_ByteStreamImpUtil::putArrayInt56(
                                        const bsls_PlatformUtil::Uint64 *array,
                                        int                              count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt56(buffer, *array);
@@ -68,6 +85,10 @@ void bdex_ByteStreamImpUtil::putArrayInt48(
                                         const bsls_PlatformUtil::Int64 *array,
                                         int                             count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt48(buffer, *array);
@@ -80,6 +101,10 @@ void bdex_ByteStreamImpUtil::putArrayInt48(
                                        const bsls_PlatformUtil::Uint64 *array,
                                        int                              count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt48(buffer, *array);
@@ -92,6 +117,10 @@ void bdex_ByteStreamImpUtil::putArrayInt40(
                                         const bsls_PlatformUtil::Int64 *array,
                                         int                             count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt40(buffer, *array);
@@ -104,6 +133,10 @@ void bdex_ByteStreamImpUtil::putArrayInt40(
                                        const bsls_PlatformUtil::Uint64 *array,
                                        int                              count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt40(buffer, *array);
@@ -115,6 +148,10 @@ void bdex_ByteStreamImpUtil::putArrayInt32(char      *buffer,
                                            const int *array,
                                            int        count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const int *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt32(buffer, *array);
@@ -126,6 +163,10 @@ void bdex_ByteStreamImpUtil::putArrayInt32(char               *buffer,
                                            const unsigned int *array,
                                            int                 count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const unsigned int *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt32(buffer, *array);
@@ -137,6 +178,10 @@ void bdex_ByteStreamImpUtil::putArrayInt24(char      *buffer,
                                            const int *array,
                                            int        count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const int *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt24(buffer, *array);
@@ -148,6 +193,10 @@ void bdex_ByteStreamImpUtil::putArrayInt24(char               *buffer,
                                            const unsigned int *array,
                                            int                 count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const unsigned int *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt24(buffer, *array);
@@ -159,6 +208,10 @@ void bdex_ByteStreamImpUtil::putArrayInt16(char        *buffer,
                                            const short *array,
                                            int          count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const short *endArray = array + count;
     for (; array < endArray; ++array) {
         typedef const union Dummy {
@@ -185,6 +238,10 @@ void bdex_ByteStreamImpUtil::putArrayFloat64(char         *buffer,
                                              const double *array,
                                              int           count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const double *endArray = array + count;
     for (; array < endArray; ++array) {
         putFloat64(buffer, *array);
@@ -196,6 +253,10 @@ void bdex_ByteStreamImpUtil::putArrayFloat32(char        *buffer,
                                              const float *array,
                                              int          count)
 {
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= count);
+
     const float *endArray = array + count;
     for (; array < endArray; ++array) {
         putFloat32(buffer, *array);
@@ -209,6 +270,10 @@ void bdex_ByteStreamImpUtil::getArrayInt64(bsls_PlatformUtil::Int64 *array,
                                            const char               *buffer,
                                            int                       count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt64(array, buffer);
@@ -220,6 +285,10 @@ void bdex_ByteStreamImpUtil::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
                                             const char                *buffer,
                                             int                        count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint64(array, buffer);
@@ -231,6 +300,10 @@ void bdex_ByteStreamImpUtil::getArrayInt56(bsls_PlatformUtil::Int64 *array,
                                            const char               *buffer,
                                            int                       count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt56(array, buffer);
@@ -242,6 +315,10 @@ void bdex_ByteStreamImpUtil::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
                                             const char                *buffer,
                                             int                        count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint56(array, buffer);
@@ -253,6 +330,10 @@ void bdex_ByteStreamImpUtil::getArrayInt48(bsls_PlatformUtil::Int64 *array,
                                            const char               *buffer,
                                            int                       count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt48(array, buffer);
@@ -264,6 +345,10 @@ void bdex_ByteStreamImpUtil::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
                                             const char                *buffer,
                                             int                        count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint48(array, buffer);
@@ -275,6 +360,10 @@ void bdex_ByteStreamImpUtil::getArrayInt40(bsls_PlatformUtil::Int64 *array,
                                            const char               *buffer,
                                            int                       count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt40(array, buffer);
@@ -286,6 +375,10 @@ void bdex_ByteStreamImpUtil::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
                                             const char                *buffer,
                                             int                        count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint40(array, buffer);
@@ -297,6 +390,10 @@ void bdex_ByteStreamImpUtil::getArrayInt32(int        *array,
                                            const char *buffer,
                                            int         count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const int *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt32(array, buffer);
@@ -308,6 +405,10 @@ void bdex_ByteStreamImpUtil::getArrayUint32(unsigned int *array,
                                             const char   *buffer,
                                             int           count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const unsigned int *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint32(array, buffer);
@@ -319,6 +420,10 @@ void bdex_ByteStreamImpUtil::getArrayInt24(int        *array,
                                            const char *buffer,
                                            int         count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const int *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt24(array, buffer);
@@ -330,6 +435,10 @@ void bdex_ByteStreamImpUtil::getArrayUint24(unsigned int *array,
                                             const char   *buffer,
                                             int           count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const unsigned int *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint24(array, buffer);
@@ -341,6 +450,10 @@ void bdex_ByteStreamImpUtil::getArrayInt16(short      *array,
                                            const char *buffer,
                                            int         count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const short *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt16(array, buffer);
@@ -352,6 +465,10 @@ void bdex_ByteStreamImpUtil::getArrayUint16(unsigned short *array,
                                             const char     *buffer,
                                             int             count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const unsigned short *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint16(array, buffer);
@@ -365,6 +482,10 @@ void bdex_ByteStreamImpUtil::getArrayFloat64(double     *array,
                                              const char *buffer,
                                              int         count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const double *endArray = array + count;
     for (; array < endArray; ++array) {
         getFloat64(array, buffer);
@@ -376,6 +497,10 @@ void bdex_ByteStreamImpUtil::getArrayFloat32(float      *array,
                                              const char *buffer,
                                              int         count)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= count);
+
     const float *endArray = array + count;
     for (; array < endArray; ++array) {
         getFloat32(array, buffer);

@@ -1,4 +1,4 @@
-// bdex_instreamadapter.h          -*-C++-*-
+// bdex_instreamadapter.h                                             -*-C++-*-
 #ifndef INCLUDED_BDEX_INSTREAMADAPTER
 #define INCLUDED_BDEX_INSTREAMADAPTER
 
@@ -455,6 +455,10 @@ BDES_IDENT("$Id: $")
 #include <bdex_instream.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
@@ -462,7 +466,6 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
-
 
 namespace BloombergLP {
 
@@ -1057,6 +1060,8 @@ template <class STREAM>
 inline
 bdex_InStreamAdapter<STREAM>::bdex_InStreamAdapter(STREAM *stream)
 {
+    BSLS_ASSERT_SAFE(stream);
+
     d_stream_p = stream;
 }
 
@@ -1242,6 +1247,9 @@ bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayInt64(bsls_PlatformUtil::Int64 *array,
                                             int                       length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayInt64(array, length);
     return *this;
 }
@@ -1251,6 +1259,9 @@ bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
                                              int                        length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayUint64(array, length);
     return *this;
 }
@@ -1260,6 +1271,9 @@ bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayInt56(bsls_PlatformUtil::Int64 *array,
                                             int                       length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayInt56(array, length);
     return *this;
 }
@@ -1269,6 +1283,9 @@ bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
                                              int                        length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayUint56(array, length);
     return *this;
 }
@@ -1278,6 +1295,9 @@ bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayInt48(bsls_PlatformUtil::Int64 *array,
                                             int                       length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayInt48(array, length);
     return *this;
 }
@@ -1287,6 +1307,9 @@ bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
                                              int                        length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayUint48(array, length);
     return *this;
 }
@@ -1296,6 +1319,9 @@ bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayInt40(bsls_PlatformUtil::Int64 *array,
                                             int                       length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayInt40(array, length);
     return *this;
 }
@@ -1305,6 +1331,9 @@ bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
                                              int                        length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayUint40(array, length);
     return *this;
 }
@@ -1313,6 +1342,9 @@ template <class STREAM>
 bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayInt32(int *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayInt32(array, length);
     return *this;
 }
@@ -1321,6 +1353,9 @@ template <class STREAM>
 bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayUint32(unsigned int *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayUint32(array, length);
     return *this;
 }
@@ -1329,6 +1364,9 @@ template <class STREAM>
 bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayInt24(int *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayInt24(array, length);
     return *this;
 }
@@ -1337,6 +1375,9 @@ template <class STREAM>
 bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayUint24(unsigned int *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayUint24(array, length);
     return *this;
 }
@@ -1345,6 +1386,9 @@ template <class STREAM>
 bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayInt16(short *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayInt16(array, length);
     return *this;
 }
@@ -1353,6 +1397,9 @@ template <class STREAM>
 bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayUint16(unsigned short *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayUint16(array, length);
     return *this;
 }
@@ -1361,6 +1408,9 @@ template <class STREAM>
 bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayInt8(char *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayInt8(array, length);
     return *this;
 }
@@ -1369,6 +1419,9 @@ template <class STREAM>
 bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayInt8(signed char *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayInt8(array, length);
     return *this;
 }
@@ -1377,6 +1430,9 @@ template <class STREAM>
 bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayUint8(char *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayUint8(array, length);
     return *this;
 }
@@ -1385,6 +1441,9 @@ template <class STREAM>
 bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayUint8(unsigned char *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayUint8(array, length);
     return *this;
 }
@@ -1393,6 +1452,9 @@ template <class STREAM>
 bdex_InStream&
 bdex_InStreamAdapter<STREAM>::getArrayFloat64(double *array, int length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayFloat64(array, length);
     return *this;
 }
@@ -1401,6 +1463,9 @@ template <class STREAM>
 bdex_InStream& bdex_InStreamAdapter<STREAM>::getArrayFloat32(float *array,
                                                              int    length)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= length);
+
     d_stream_p->getArrayFloat32(array, length);
     return *this;
 }

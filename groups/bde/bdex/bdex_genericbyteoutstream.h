@@ -183,6 +183,10 @@ BDES_IDENT("$Id: $")
 #include <bdex_outstreammethods.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_BYTEORDER
 #include <bsls_byteorder.h>
 #endif
@@ -573,6 +577,7 @@ bdex_GenericByteOutStream(StreamBuf *streamBuffer)
 : d_streamBuf(streamBuffer)
 , d_valid(true)
 {
+    BSLS_ASSERT_SAFE(streamBuffer);
 }
 
 // MANIPULATORS
@@ -597,6 +602,8 @@ inline
 bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putLength(int length)
 {
+    BSLS_ASSERT_SAFE(0 <= length);
+
     if (length > 127) {
         putInt32(length | (1 << 31));
     }
@@ -898,6 +905,9 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayInt64(
                                          const bsls_PlatformUtil::Int64 *array,
                                          int                             count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
 #if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
@@ -920,6 +930,9 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayUint64(
                                         const bsls_PlatformUtil::Uint64 *array,
                                         int                              count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
 #if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
@@ -939,6 +952,9 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayInt56(
                                          const bsls_PlatformUtil::Int64 *array,
                                          int                             count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt56(*array);
@@ -952,6 +968,9 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayUint56(
                                         const bsls_PlatformUtil::Uint64 *array,
                                         int                              count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putUint56(*array);
@@ -965,6 +984,9 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayInt48(
                                          const bsls_PlatformUtil::Int64 *array,
                                          int                             count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt48(*array);
@@ -978,6 +1000,9 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayUint48(
                                         const bsls_PlatformUtil::Uint64 *array,
                                         int                              count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putUint48(*array);
@@ -991,6 +1016,9 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayInt40(
                                          const bsls_PlatformUtil::Int64 *array,
                                          int                             count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     const bsls_PlatformUtil::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt40(*array);
@@ -1004,6 +1032,9 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayUint40(
                                         const bsls_PlatformUtil::Uint64 *array,
                                         int                              count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     const bsls_PlatformUtil::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         putUint40(*array);
@@ -1019,6 +1050,9 @@ bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putArrayInt32(const int *array,
                                                     int        count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
 #if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
     const int *endArray = array + count;
     for (; array < endArray; ++array) {
@@ -1040,6 +1074,9 @@ bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putArrayUint32(const unsigned int *array,
                                                      int                 count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
 #if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
     const unsigned int *endArray = array + count;
     for (; array < endArray; ++array) {
@@ -1058,6 +1095,9 @@ bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putArrayInt24(const int *array,
                                                     int        count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     const int *endArray = array + count;
     for (; array < endArray; ++array) {
         putInt24(*array);
@@ -1070,6 +1110,9 @@ bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putArrayUint24(const unsigned int *array,
                                                      int                 count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     const unsigned int *endArray = array + count;
     for (; array < endArray; ++array) {
         putUint24(*array);
@@ -1085,6 +1128,9 @@ bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putArrayInt16(const short *array,
                                                     int          count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
 #if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
     const short *endArray = array + count;
     for (; array < endArray; ++array) {
@@ -1107,6 +1153,9 @@ bdex_GenericByteOutStream<StreamBuf>::putArrayUint16(
                                                    const unsigned short *array,
                                                    int                   count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
 #if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
     const unsigned short *endArray = array + count;
     for (; array < endArray; ++array) {
@@ -1126,6 +1175,9 @@ bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putArrayInt8(const char *array,
                                                    int         count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     d_valid = d_valid ? count == d_streamBuf->sputn(array, count) : false;
     return *this;
 }
@@ -1136,6 +1188,9 @@ bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putArrayInt8(const signed char *array,
                                                    int                count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     putArrayInt8((const char *)array, count);
     return *this;
 }
@@ -1146,6 +1201,9 @@ bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putArrayUint8(const char *array,
                                                     int         count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     putArrayInt8((const char *)array, count);
     return *this;
 }
@@ -1155,6 +1213,9 @@ bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putArrayUint8(const unsigned char *array,
                                                     int                  count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
     const unsigned char *endArray = array + count;
     for (; array < endArray; ++array) {
         putUint8(*array);
@@ -1173,6 +1234,9 @@ bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putArrayFloat64(const double *array,
                                                       int           count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
 #if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
     const double *endArray = array + count;
     for (; array < endArray; ++array) {
@@ -1194,6 +1258,9 @@ bdex_GenericByteOutStream<StreamBuf>&
 bdex_GenericByteOutStream<StreamBuf>::putArrayFloat32(const float *array,
                                                       int          count)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= count);
+
 #if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
     const float *endArray = array + count;
     for (; array < endArray; ++array) {

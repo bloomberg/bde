@@ -4,7 +4,6 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdex_testinstream_cpp,"$Id$ $CSID$")
 
-
 #include <bdex_bytestreamimputil.h>
 #include <bdex_fieldcode.h>
 #include <bdex_testinstreamexception.h>
@@ -24,7 +23,6 @@ BDES_IDENT_RCSID(bdex_testinstream_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // CREATORS
-
 bdex_TestInStream::bdex_TestInStream(bslma_Allocator *basicAllocator)
 : d_allocator_p(bslma_Default::allocator(basicAllocator))
 , d_length(0)
@@ -35,6 +33,7 @@ bdex_TestInStream::bdex_TestInStream(bslma_Allocator *basicAllocator)
     // IMPORTANT: d_allocator_p, d_buffer_p, d_streambuf and d_formatter
     // must be all be initialized in the order shown here.  Don't
     // re-arrange their declarations in the class definition.
+
     BSLS_ASSERT(d_allocator_p);
 }
 
@@ -47,6 +46,8 @@ bdex_TestInStream::bdex_TestInStream(const char      *buffer,
 , d_streambuf(0, 0)
 , d_formatter(&d_streambuf)
 {
+    BSLS_ASSERT(0 <= numBytes);
+
     reload(buffer, numBytes);
 }
 
@@ -62,9 +63,10 @@ bdex_TestInStream::~bdex_TestInStream()
 }
 
 // MANIPULATORS
-
 void bdex_TestInStream::reload(const char *buffer, int numBytes)
 {
+    BSLS_ASSERT(0 <= numBytes);
+
     char *newBuffer = (char *)d_allocator_p->allocate(numBytes);
     if (d_buffer_p) {
         d_allocator_p->deallocate(d_buffer_p);
@@ -226,6 +228,9 @@ bdex_TestInStream&
 bdex_TestInStream::getArrayInt64(bsls_PlatformUtil::Int64 *array,
                                  int                       length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayInt64(array, length);
     return *this;
 }
@@ -234,6 +239,9 @@ bdex_TestInStream&
 bdex_TestInStream::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
                                   int                        length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayUint64(array, length);
     return *this;
 }
@@ -242,6 +250,9 @@ bdex_TestInStream&
 bdex_TestInStream::getArrayInt56(bsls_PlatformUtil::Int64 *array,
                                  int                       length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayInt56(array, length);
     return *this;
 }
@@ -250,6 +261,9 @@ bdex_TestInStream&
 bdex_TestInStream::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
                                   int                        length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayUint56(array, length);
     return *this;
 }
@@ -258,6 +272,9 @@ bdex_TestInStream&
 bdex_TestInStream::getArrayInt48(bsls_PlatformUtil::Int64 *array,
                                  int                       length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayInt48(array, length);
     return *this;
 }
@@ -266,6 +283,9 @@ bdex_TestInStream&
 bdex_TestInStream::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
                                   int                        length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayUint48(array, length);
     return *this;
 }
@@ -274,6 +294,9 @@ bdex_TestInStream&
 bdex_TestInStream::getArrayInt40(bsls_PlatformUtil::Int64 *array,
                                  int                       length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayInt40(array, length);
     return *this;
 }
@@ -282,6 +305,9 @@ bdex_TestInStream&
 bdex_TestInStream::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
                                   int                        length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayUint40(array, length);
     return *this;
 }
@@ -289,6 +315,9 @@ bdex_TestInStream::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
 bdex_TestInStream&
 bdex_TestInStream::getArrayInt32(int *array, int length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayInt32(array, length);
     return *this;
 }
@@ -296,6 +325,9 @@ bdex_TestInStream::getArrayInt32(int *array, int length)
 bdex_TestInStream&
 bdex_TestInStream::getArrayUint32(unsigned int *array, int length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayUint32(array, length);
     return *this;
 }
@@ -303,6 +335,9 @@ bdex_TestInStream::getArrayUint32(unsigned int *array, int length)
 bdex_TestInStream&
 bdex_TestInStream::getArrayInt24(int *array, int length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayInt24(array, length);
     return *this;
 }
@@ -310,6 +345,9 @@ bdex_TestInStream::getArrayInt24(int *array, int length)
 bdex_TestInStream&
 bdex_TestInStream::getArrayUint24(unsigned int *array, int length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayUint24(array, length);
     return *this;
 }
@@ -317,6 +355,9 @@ bdex_TestInStream::getArrayUint24(unsigned int *array, int length)
 bdex_TestInStream&
 bdex_TestInStream::getArrayInt16(short *array, int length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayInt16(array, length);
     return *this;
 }
@@ -324,6 +365,9 @@ bdex_TestInStream::getArrayInt16(short *array, int length)
 bdex_TestInStream&
 bdex_TestInStream::getArrayUint16(unsigned short *array, int length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayUint16(array, length);
     return *this;
 }
@@ -331,6 +375,9 @@ bdex_TestInStream::getArrayUint16(unsigned short *array, int length)
 bdex_TestInStream&
 bdex_TestInStream::getArrayInt8(char *array, int length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayInt8(array, length);
     return *this;
 }
@@ -338,6 +385,9 @@ bdex_TestInStream::getArrayInt8(char *array, int length)
 bdex_TestInStream&
 bdex_TestInStream::getArrayInt8(signed char *array, int length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayInt8(array, length);
     return *this;
 }
@@ -345,6 +395,9 @@ bdex_TestInStream::getArrayInt8(signed char *array, int length)
 bdex_TestInStream&
 bdex_TestInStream::getArrayUint8(char *array, int length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayUint8(array, length);
     return *this;
 }
@@ -352,6 +405,9 @@ bdex_TestInStream::getArrayUint8(char *array, int length)
 bdex_TestInStream&
 bdex_TestInStream::getArrayUint8(unsigned char *array, int length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayUint8(array, length);
     return *this;
 }
@@ -359,6 +415,9 @@ bdex_TestInStream::getArrayUint8(unsigned char *array, int length)
 bdex_TestInStream&
 bdex_TestInStream::getArrayFloat64(double *array, int length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayFloat64(array, length);
     return *this;
 }
@@ -366,6 +425,9 @@ bdex_TestInStream::getArrayFloat64(double *array, int length)
 bdex_TestInStream& bdex_TestInStream::getArrayFloat32(float *array,
                                                       int    length)
 {
+    BSLS_ASSERT(array);
+    BSLS_ASSERT(0 <= length);
+
     d_formatter.getArrayFloat32(array, length);
     return *this;
 }

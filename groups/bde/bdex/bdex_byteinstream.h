@@ -1,4 +1,4 @@
-// bdex_byteinstream.h          -*-C++-*-
+// bdex_byteinstream.h                                                -*-C++-*-
 #ifndef INCLUDED_BDEX_BYTEINSTREAM
 #define INCLUDED_BDEX_BYTEINSTREAM
 
@@ -300,14 +300,6 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
 #ifndef INCLUDED_BDEX_BYTEINSTREAMFORMATTER
 #include <bdex_byteinstreamformatter.h>
 #endif
@@ -318,6 +310,18 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDESB_FIXEDMEMINSTREAMBUF
 #include <bdesb_fixedmeminstreambuf.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
@@ -1033,7 +1037,10 @@ char *bdex_ByteInStream::cloneBuffer(const char      *buffer,
                                      int              numBytes,
                                      bslma_Allocator *basicAllocator)
 {
-    char *clone = (char *) basicAllocator->allocate(numBytes);
+    BSLS_ASSERT_SAFE(0 <= numBytes);
+    BSLS_ASSERT_SAFE(basicAllocator);
+
+    char *clone = (char *)basicAllocator->allocate(numBytes);
     bsl::memcpy(clone, buffer, numBytes);
     return clone;
 }
@@ -1065,6 +1072,8 @@ bdex_ByteInStream::bdex_ByteInStream(const char      *buffer,
     // IMPORTANT: d_allocator_p, d_buffer_p, d_streambuf and d_formatter
     // must be all be initialized in the order shown here.  Don't
     // re-arrange their declarations in the class definition.
+
+    BSLS_ASSERT_SAFE(0 <= numBytes);
 }
 
 inline
@@ -1258,6 +1267,9 @@ bdex_ByteInStream&
 bdex_ByteInStream::getArrayInt64(bsls_PlatformUtil::Int64 *array,
                                  int                       numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt64(array, numValues);
     return *this;
 }
@@ -1267,6 +1279,9 @@ bdex_ByteInStream&
 bdex_ByteInStream::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
                                   int                        numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint64(array, numValues);
     return *this;
 }
@@ -1276,6 +1291,9 @@ bdex_ByteInStream&
 bdex_ByteInStream::getArrayInt56(bsls_PlatformUtil::Int64 *array,
                                  int                       numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt56(array, numValues);
     return *this;
 }
@@ -1285,6 +1303,9 @@ bdex_ByteInStream&
 bdex_ByteInStream::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
                                   int                        numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint56(array, numValues);
     return *this;
 }
@@ -1294,6 +1315,9 @@ bdex_ByteInStream&
 bdex_ByteInStream::getArrayInt48(bsls_PlatformUtil::Int64 *array,
                                  int                       numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt48(array, numValues);
     return *this;
 }
@@ -1303,6 +1327,9 @@ bdex_ByteInStream&
 bdex_ByteInStream::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
                                   int                        numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint48(array, numValues);
     return *this;
 }
@@ -1312,6 +1339,9 @@ bdex_ByteInStream&
 bdex_ByteInStream::getArrayInt40(bsls_PlatformUtil::Int64 *array,
                                  int                       numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt40(array, numValues);
     return *this;
 }
@@ -1321,6 +1351,9 @@ bdex_ByteInStream&
 bdex_ByteInStream::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
                                   int                        numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint40(array, numValues);
     return *this;
 }
@@ -1329,6 +1362,9 @@ inline
 bdex_ByteInStream&
 bdex_ByteInStream::getArrayInt32(int *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt32(array, numValues);
     return *this;
 }
@@ -1337,6 +1373,9 @@ inline
 bdex_ByteInStream&
 bdex_ByteInStream::getArrayUint32(unsigned int *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint32(array, numValues);
     return *this;
 }
@@ -1345,6 +1384,9 @@ inline
 bdex_ByteInStream&
 bdex_ByteInStream::getArrayInt24(int *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt24(array, numValues);
     return *this;
 }
@@ -1353,6 +1395,9 @@ inline
 bdex_ByteInStream&
 bdex_ByteInStream::getArrayUint24(unsigned int *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint24(array, numValues);
     return *this;
 }
@@ -1361,6 +1406,9 @@ inline
 bdex_ByteInStream&
 bdex_ByteInStream::getArrayInt16(short *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt16(array, numValues);
     return *this;
 }
@@ -1369,6 +1417,9 @@ inline
 bdex_ByteInStream&
 bdex_ByteInStream::getArrayUint16(unsigned short *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint16(array, numValues);
     return *this;
 }
@@ -1377,6 +1428,9 @@ inline
 bdex_ByteInStream&
 bdex_ByteInStream::getArrayInt8(char *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt8(array, numValues);
     return *this;
 }
@@ -1385,6 +1439,9 @@ inline
 bdex_ByteInStream&
 bdex_ByteInStream::getArrayInt8(signed char *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayInt8(array, numValues);
     return *this;
 }
@@ -1393,6 +1450,9 @@ inline
 bdex_ByteInStream&
 bdex_ByteInStream::getArrayUint8(char *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint8(array, numValues);
     return *this;
 }
@@ -1401,6 +1461,9 @@ inline
 bdex_ByteInStream&
 bdex_ByteInStream::getArrayUint8(unsigned char *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayUint8(array, numValues);
     return *this;
 }
@@ -1409,6 +1472,9 @@ inline
 bdex_ByteInStream&
 bdex_ByteInStream::getArrayFloat64(double *array, int numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayFloat64(array, numValues);
     return *this;
 }
@@ -1417,6 +1483,9 @@ inline
 bdex_ByteInStream& bdex_ByteInStream::getArrayFloat32(float *array,
                                                       int    numValues)
 {
+    BSLS_ASSERT_SAFE(array);
+    BSLS_ASSERT_SAFE(0 <= numValues);
+
     d_formatter.getArrayFloat32(array, numValues);
     return *this;
 }

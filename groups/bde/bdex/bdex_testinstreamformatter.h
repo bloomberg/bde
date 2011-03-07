@@ -630,6 +630,10 @@ BDES_IDENT("$Id: $")
 #include <bdex_instreamfunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
 #endif
@@ -644,7 +648,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_CSTDIO
 #include <bsl_cstdio.h>     // for printing in macros
-#define INCLUDED_BSL_CSTDIO
 #endif
 
 namespace BloombergLP {
@@ -1344,6 +1347,8 @@ void bdex_TestInStreamFormatter::invalidate()
 inline
 void bdex_TestInStreamFormatter::seek(int offset)
 {
+    BSLS_ASSERT_SAFE(0 <= offset);
+
     d_streamBuf->pubseekpos(offset);
     d_validFlag = 1;
 }
@@ -1356,9 +1361,10 @@ void bdex_TestInStreamFormatter::reset()
 }
 
 inline
-void bdex_TestInStreamFormatter::reload(const char *buffer,
-                                        int         numBytes)
+void bdex_TestInStreamFormatter::reload(const char *buffer, int numBytes)
 {
+    BSLS_ASSERT_SAFE(0 <= numBytes);
+
     d_validFlag = 1;
     d_streamBuf->pubsetbuf(const_cast<char *>(buffer), numBytes);
 }
