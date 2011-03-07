@@ -3060,6 +3060,40 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\tUsing free function." << endl;
+
+        {
+            for (int ui = 0; SPECS[ui]; ++ui) {
+                const char *const U_SPEC = SPECS[ui];
+
+                if (verbose) {
+                    cout << "\tFor lhs objects of spec ";
+                    P(U_SPEC);
+                }
+
+                const Obj UU = g<Proto>(U_SPEC);  // control
+
+                for (int vi = 0; SPECS[vi]; ++vi) {
+                    const char *const V_SPEC = SPECS[vi];
+
+                    if (verbose) {
+                        cout << "\t\tSwapping with rhs objects of spec ";
+                        P(V_SPEC);
+                    }
+
+                    const Obj VV = g<Proto>(V_SPEC);  // control
+
+                    Obj mU;  const Obj& U = mU;  gg(&mU, U_SPEC);
+                    Obj mV;  const Obj& V = mV;  gg(&mV, V_SPEC);
+
+                    swap(mU, mV); // test here
+
+                    LOOP2_ASSERT(ui, vi, UU == V);
+                    LOOP2_ASSERT(ui, vi, VV == U);
+                }
+            }
+        }
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\nTesting 'transferTo'." << endl;
 
@@ -4639,8 +4673,7 @@ int main(int argc, char *argv[])
             ASSERT(VP == X(4));
         }
         ++numDeallocations;
-        ASSERT(numAllocations   == ta.numAllocations());
-        ASSERT(numDeallocations == ta.numDeallocations());
+        ASSERT(numAllocations - numDeallocations == ta.numAllocations() - ta.numDeallocations());
 
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {

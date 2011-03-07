@@ -1,4 +1,4 @@
-// bdef_function.cpp               -*-C++-*-
+// bdef_function.cpp                                                  -*-C++-*-
 #include <bdef_function.h>
 
 #include <bdes_ident.h>
@@ -185,7 +185,6 @@ BDES_IDENT_RCSID(bdef_function_cpp,"$Id$ $CSID$")
 // deallocation/reallocation that would still be done when the 'FUNC' type is
 // not-assignable and not in-place.
 
-
 #include <bsl_algorithm.h>
 
 #include <bdef_memfn.h>            // for testing only
@@ -225,28 +224,7 @@ bdef_Function_Rep::~bdef_Function_Rep()
 bdef_Function_Rep&
 bdef_Function_Rep::operator=(const bdef_Function_Rep& rhs)
 {
-    // First clean up 'this'.
-
-    if (d_manager_p) {
-        (void)(*d_manager_p)(this, (const void *)0, BDEF_DESTROY);
-        d_manager_p = 0;  // if 'CONSTRUCT' throws below
-    }
-
-    // Then construct 'this' again, from 'rhs' this time.
-
-    if (rhs.d_manager_p) {
-        (void)(*rhs.d_manager_p)(this,
-                                 (const void *)&rhs,
-                                 BDEF_COPY_CONSTRUCT);
-    }
-    else {
-        d_arena.d_func_p = rhs.d_arena.d_func_p;
-    }
-
-    // Set manager only now, in case 'CONSTRUCT' throws above (in which case
-    // 'this' will remain empty).
-
-    d_manager_p = rhs.d_manager_p;
+    bdef_Function_Rep(rhs, d_allocator_p).swap(*this);
     return *this;
 }
 
@@ -261,7 +239,7 @@ void bdef_Function_Rep::clear()
     d_manager_p = 0;
 }
 
-void bdef_Function_Rep::swap(bdef_Function_Rep *other)
+void bdef_Function_Rep::swap(bdef_Function_Rep& other)
 {
     // Note: we systematically eliminate all opportunities for optimization.
     // It's better to do it here, instead of in the manager (which is a
@@ -274,55 +252,55 @@ void bdef_Function_Rep::swap(bdef_Function_Rep *other)
     // significant gains).
 
     if (!d_manager_p) {
-        if (!other->d_manager_p) {
+        if (!other.d_manager_p) {
             // In the simplest case (two function pointers), two tests and a
             // pointer swap.
 
-            bsl::swap(other->d_arena.d_func_p, d_arena.d_func_p);
+            bsl::swap(other.d_arena.d_func_p, d_arena.d_func_p);
             return;
         }
 
         // Else 'this' is empty, transfer 'other' to this.
 
         void (*func)() = d_arena.d_func_p;
-        if (other->d_allocator_p == d_allocator_p) {
+        if (other.d_allocator_p == d_allocator_p) {
             // Potential for huge gain (if large object, no need to copy).
 
-            (void)(*other->d_manager_p)(this,
-                                        (const void *)other,
-                                        BDEF_MOVE_CONSTRUCT);
-            d_manager_p             = other->d_manager_p;
-            other->d_arena.d_func_p = func;
-            other->d_manager_p      = 0;
+            (void)(*other.d_manager_p)(this,
+                                       (const void *)&other,
+                                       BDEF_MOVE_CONSTRUCT);
+            d_manager_p            = other.d_manager_p;
+            other.d_arena.d_func_p = func;
+            other.d_manager_p      = 0;
             return;
         }
 
         // Else need to know 'FUNC' type for the transfer, invoke manager.
 
-        (void)(*other->d_manager_p)(this,
-                                    (const void *)other,
-                                    BDEF_COPY_CONSTRUCT);
-        d_manager_p             = other->d_manager_p;
+        (void)(*other.d_manager_p)(this,
+                                   (const void *)&other,
+                                   BDEF_COPY_CONSTRUCT);
+        d_manager_p            = other.d_manager_p;
 
-        (void)(*other->d_manager_p)(other, (const void *)0, BDEF_DESTROY);
-        other->d_arena.d_func_p = func;
-        other->d_manager_p      = 0;
+        (void)(*other.d_manager_p)(&other, (const void *)0, BDEF_DESTROY);
+        other.d_arena.d_func_p = func;
+        other.d_manager_p      = 0;
         return;
     }
 
     // Else 'this' is not empty.
 
-    if (!other->d_manager_p) {
+    if (!other.d_manager_p) {
         // If 'other' is empty, transfer 'this' to 'other'.
 
-        void (*func)() = other->d_arena.d_func_p;
-        if (other->d_allocator_p == d_allocator_p) {
+        void (*func)() = other.d_arena.d_func_p;
+        if (other.d_allocator_p == d_allocator_p) {
             // Same potential for huge gain (symmetric to above).
 
-            (void)(*d_manager_p)(other,
+            (void)(*d_manager_p)(&other,
                                  (const void *)this,
                                  BDEF_MOVE_CONSTRUCT);
-            other->d_manager_p = d_manager_p;
+            other.d_manager_p = d_manager_p;
             d_arena.d_func_p   = func;
             d_manager_p        = 0;
             return;
@@ -330,8 +308,8 @@ void bdef_Function_Rep::swap(bdef_Function_Rep *other)
 
         // Need to know 'FUNC' type for the transfer, invoke manager.
 
-        (void)(*d_manager_p)(other, (const void *)this, BDEF_COPY_CONSTRUCT);
-        other->d_manager_p = d_manager_p;
+        (void)(*d_manager_p)(&other, (const void *)this, BDEF_COPY_CONSTRUCT);
+        other.d_manager_p = d_manager_p;
 
         (void)(*d_manager_p)(this, (const void *)0, BDEF_DESTROY);
         d_arena.d_func_p   = func;
@@ -341,17 +319,27 @@ void bdef_Function_Rep::swap(bdef_Function_Rep *other)
 
     // Else neither 'this' nor 'other' are empty (nor function pointers).
 
-    if (d_allocator_p == other->d_allocator_p) {
+    if (d_allocator_p == other.d_allocator_p) {
         bool repInplace = (*d_manager_p)(0, 0, BDEF_IN_PLACE_DETECTION);
-        bool srcInplace = (*other->d_manager_p)(0, 0, BDEF_IN_PLACE_DETECTION);
+        bool srcInplace = (*other.d_manager_p)(0, 0, BDEF_IN_PLACE_DETECTION);
 
         if (!repInplace && !srcInplace) {
             // Quickswap: exchange object pointers and managers.
 
-            bsl::swap(d_arena.d_object_p, other->d_arena.d_object_p);
-            bsl::swap(d_manager_p, other->d_manager_p);
+            bsl::swap(d_arena.d_object_p, other.d_arena.d_object_p);
+            bsl::swap(d_manager_p, other.d_manager_p);
             return;
         }
+    }
+    else {
+        // Non-equal allocators, swap with temporary copies.
+
+        bdef_Function_Rep tempThis(*this, other.d_allocator_p);
+        bdef_Function_Rep tempOther(other, d_allocator_p);
+
+        tempThis.swap(other);
+        tempOther.swap(*this);
+        return;
     }
 
     // Exhausted all possibilities for optimizations, do a three-way swap.
@@ -360,19 +348,18 @@ void bdef_Function_Rep::swap(bdef_Function_Rep *other)
     // destruction so we could wrap it into an object buffer, but it's peanuts
     // at this point.
 
-    bdef_Function_Rep temp(other->d_allocator_p);
-    (void)(*d_manager_p)(&temp, (const void *)this, BDEF_COPY_CONSTRUCT);
+    // need equal allocators to make moves no-throw
+    BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
-    (void)(*d_manager_p)(this, (const void *)0, BDEF_DESTROY);
-    (void)(*other->d_manager_p)(this,
-                                (const void *)other,
-                                BDEF_COPY_CONSTRUCT);
+    bdef_Function_Rep temp(other.d_allocator_p);
 
-    (void)(*other->d_manager_p)(other, (const void *)0, BDEF_DESTROY);
-    (void)(*d_manager_p)(other, (const void *)&temp, BDEF_MOVE_CONSTRUCT);
-    temp.d_manager_p = 0;
+    (*d_manager_p)(&temp, (const void *)this, BDEF_MOVE_CONSTRUCT);
+    (*other.d_manager_p)(this, (const void *)&other, BDEF_MOVE_CONSTRUCT);
+    (*d_manager_p)(&other, (const void *)&temp, BDEF_MOVE_CONSTRUCT);
 
-    bsl::swap(d_manager_p, other->d_manager_p);
+    temp.d_manager_p = 0;  // clear the temp object
+
+    bsl::swap(d_manager_p, other.d_manager_p);
 }
 
 void bdef_Function_Rep::transferTo(bdef_Function_Rep *target)

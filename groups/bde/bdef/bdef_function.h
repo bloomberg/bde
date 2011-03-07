@@ -609,10 +609,9 @@ class bdef_Function_Rep {
         //
         // DEPRECATED: Use method 'bdef_Function::load' instead.
 
-    void swap(bdef_Function_Rep *rhs);
+    void swap(bdef_Function_Rep& other);
         // Exchange the invocable stored by this function object with that of
-        // the modifiable function object representation at the specified 'rhs'
-        // address.
+        // the specified 'other' modifiable function object representation.
 
     void transferTo(bdef_Function_Rep *target);
         // Transfer the invocable stored by this functor to the specified
@@ -957,9 +956,9 @@ class bdef_Function {
         // DEPRECATED: Create with 'allocator' and simply assign 'func'
         // instead.
 
-    void swap(bdef_Function<PROTOTYPE>& rhs);
+    void swap(bdef_Function<PROTOTYPE>& other);
         // Exchange the invocable stored by this function object with
-        // that stored by the specified 'rhs' function object.
+        // that stored by the specified 'other' function object.
 
     void transferTo(bdef_Function<PROTOTYPE> *target);
         // Transfer the invocable stored by this function object to the
@@ -1116,6 +1115,11 @@ class bdef_Function {
         // component-level documentation.  Note that this function returns
         // 'true' for an empty function object.
 };
+
+// FREE FUNCTIONS
+template <class PROTOTYPE>
+void swap(bdef_Function<PROTOTYPE>& a, bdef_Function<PROTOTYPE>& b);
+    // Swap the values of the specified 'a' and 'b' objects.
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
@@ -2200,10 +2204,8 @@ inline
 bdef_Function<PROTOTYPE>&
 bdef_Function<PROTOTYPE>::operator=(const bdef_Function<PROTOTYPE>& rhs)
 {
-    if (&rhs != this) {
-        d_rep       = rhs.d_rep;
-        d_invoker_p = rhs.d_invoker_p;
-    }
+    d_rep       = rhs.d_rep;
+    d_invoker_p = rhs.d_invoker_p;
     return *this;
 }
 
@@ -2242,12 +2244,10 @@ template <class PROTOTYPE>
 inline
 void bdef_Function<PROTOTYPE>::swap(bdef_Function<PROTOTYPE>& other)
 {
-    if (&other == this) {
-        return;
-    }
+    using bsl::swap;
 
-    d_rep.swap(&other.d_rep);
-    bsl::swap(this->d_invoker_p, other.d_invoker_p);
+    d_rep.swap(other.d_rep);
+    swap(d_invoker_p, other.d_invoker_p);
 }
 
 template <class PROTOTYPE>
@@ -2439,6 +2439,14 @@ bool bdef_Function<PROTOTYPE>::isInplace() const
     return d_rep.isInplace();
 }
 
+// FREE FUNCTIONS
+template <class PROTOTYPE>
+inline
+void swap(bdef_Function<PROTOTYPE>& a, bdef_Function<PROTOTYPE>& b)
+{
+    a.swap(b);
+}
+
                           // ------------------------
                           // struct bdef_Function_Rep
                           // ------------------------
@@ -2564,9 +2572,6 @@ template <class FUNC>
 bdef_Function_Rep&
 bdef_Function_Rep::operator=(const FUNC& func)
 {
-    bslma_Allocator *allocator = d_allocator_p;
-    this->~bdef_Function_Rep();
-
     enum {
         CREATION_TAG = bslmf_IsFunctionPointer<FUNC>::VALUE
                                              ? IS_FUNCTION_POINTER
@@ -2581,8 +2586,9 @@ bdef_Function_Rep::operator=(const FUNC& func)
                                              : IS_OUT_OF_PLACE
     };
 
-    new(this) bdef_Function_Rep(func, (bslmf_Tag<CREATION_TAG> *)0, allocator);
-
+    bdef_Function_Rep(func,
+                      (bslmf_Tag<CREATION_TAG> *)0,
+                      d_allocator_p).swap(*this);
     return *this;
 }
 
@@ -2590,6 +2596,15 @@ template <class FUNC>
 bdef_Function_Rep&
 bdef_Function_Rep::load(const FUNC& func, bslma_Allocator *allocator)
 {
+    // DEPRECATED
+    //
+    // This method's implementation remains not exception-safe for two
+    // reasons:
+    // - it is not possible to change the object's allocator with the copy-swap
+    //   idiom (swap doesn't affect the allocator)
+    // - it requires some custom exception-safety logic which may not be worth
+    //   doing considering that this method is deprecated.
+
     this->~bdef_Function_Rep();
     d_arena.d_func_p = 0;
 
