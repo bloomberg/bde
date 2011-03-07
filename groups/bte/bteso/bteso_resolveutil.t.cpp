@@ -365,7 +365,7 @@ int main(int argc, char *argv[])
                     { L_,  "sdv3",              0, "10.122.130.92",  SUCCESS },
                     { L_,  "jlu_wrong",  &errCode, 0,                FAIL    },
                     { L_,  "jlu_wrong",         0, 0,                FAIL    },
-                    { L_,  "n299",       &errCode, "172.17.135.149", SUCCESS },
+                    { L_,  "n299",       &errCode, "10.126.19.149",  SUCCESS },
                 #elif defined(BSLS_PLATFORM__OS_WINDOWS)
                     { L_,  "bny14",      &errCode, 0,                FAIL    },
                     { L_,  "bny14",             0, 0,                FAIL    },
@@ -1323,6 +1323,11 @@ int main(int argc, char *argv[])
             //   'errorCode' is unchanged, or test the optionally specified
             //   error code for an invalid name.
             //
+            // Note:
+            //   Host ip addresses may change from time to time.  To determine
+            //   the current ip address for a given machine, say
+            //   'host <hostname>'.
+            //
             // Testing
             //   int getAddress(bteso_IPv4Address *result,
             //                  const char        *hostname,
@@ -1358,7 +1363,8 @@ int main(int argc, char *argv[])
                 { L_,  "sdv3",              0,  "10.122.130.92",  SUCCESS },
                 { L_,  "jlu_wrong",  &errCode,  0,                FAIL    },
                 { L_,  "jlu_wrong",         0,  0,                FAIL    },
-                { L_,  "n299",       &errCode,  "172.17.135.149", SUCCESS },
+                { L_,  "n270",       &errCode,  "10.126.17.150",  SUCCESS },
+                { L_,  "n299",       &errCode,  "10.126.19.149",  SUCCESS },
             #elif defined(BSLS_PLATFORM__OS_WINDOWS)
                 { L_,  "bny14",      &errCode,  0,                FAIL    },
                 { L_,  "bny14",             0,  0,                FAIL    },
@@ -1406,7 +1412,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 LOOP2_ASSERT(LINE, retCode, EXP_RET == retCode);
-                LOOP2_ASSERT(LINE, result,  EXP == result);
+                LOOP3_ASSERT(LINE, result, EXP, EXP == result);
 
                 if (FAIL == EXP_RET) {
                     // Entries with invalid name.
@@ -1447,7 +1453,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 LOOP2_ASSERT(LINE, retCode, EXP_RET == retCode);
-                LOOP2_ASSERT(LINE, result,  EXP == result);
+                LOOP3_ASSERT(LINE, result, EXP, EXP == result);
 
                 if (FAIL == EXP_RET) {
                     // Entries with invalid name.

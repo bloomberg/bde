@@ -1,4 +1,4 @@
-// bteso_defaulteventmanager_epoll.h    -*-C++-*-
+// bteso_defaulteventmanager_epoll.h                                  -*-C++-*-
 #ifndef INCLUDED_BTESO_DEFAULTEVENTMANAGER_EPOLL
 #define INCLUDED_BTESO_DEFAULTEVENTMANAGER_EPOLL
 
@@ -111,7 +111,7 @@ BDES_IDENT("$Id: $")
 //  int rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
 //                           socket, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
 //
-//  BSLS_ASSERT(0 == rc);
+//  assert(0 == rc);
 //..
 // Second, register three socket events, two for 'socket[0]', and one for
 // 'socket[1]', and verify the state by using accessor functions.  The callback
