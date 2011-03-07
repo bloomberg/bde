@@ -514,7 +514,6 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
 
     *numNeeded            = 1;
     int numBytesAvailable = currentBlob->length();
-    int totalConsumed     = 0;
 
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
     d_callbackInProgress = true;

@@ -476,9 +476,9 @@ void btemt_SessionPool::sessionAllocationCb(int             result,
     }
 
     ++d_numSessions;
+    handle->d_session_p = session;
     handle->d_sessionStateCB(SESSION_UP, handle->d_handleId, session,
                              handle->d_userData_p);
-    handle->d_session_p = session;
 }
 
 // CREATORS

@@ -623,24 +623,6 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
 // CREATORS
 inline
 btemt_TcpTimerEventManager_ControlChannel::
-    btemt_TcpTimerEventManager_ControlChannel()
-: d_byte(0x53)
-, d_numServerReads(0)
-, d_numServerBytesRead(0)
-{
-    int rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
-                d_fds, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-
-    rc = bteso_IoUtil::setBlockingMode(
-            d_fds[1], bteso_IoUtil::BTESO_NONBLOCKING, 0);
-    rc = bteso_SocketOptUtil::setOption(d_fds[0],
-                                        bteso_SocketOptUtil::BTESO_TCPLEVEL,
-                                        bteso_SocketOptUtil::BTESO_TCPNODELAY,
-                                        1);
-}
-
-inline
-btemt_TcpTimerEventManager_ControlChannel::
     ~btemt_TcpTimerEventManager_ControlChannel()
 {
     bteso_SocketImpUtil::close(d_fds[0]);

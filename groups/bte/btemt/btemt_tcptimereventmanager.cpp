@@ -1,4 +1,4 @@
-// btemt_tcptimereventmanager.cpp -*-C++-*-
+// btemt_tcptimereventmanager.cpp                                     -*-C++-*-
 #include <btemt_tcptimereventmanager.h>
 
 #include <bdes_ident.h>
@@ -26,16 +26,19 @@ BDES_IDENT_RCSID(btemt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 
 #include <bslalg_typetraits.h>
 #include <bslalg_typetraitusesbslmaallocator.h>
-#include <bslma_default.h>
 #include <bslma_autorawdeleter.h>
+#include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_types.h>
+
+#include <bsl_cstdio.h>                // printf
+#include <bsl_ostream.h>
+
+#include <bsl_c_errno.h>
 
 #if defined(BSLS_PLATFORM__OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset
 #endif
-
-#include <bsl_ostream.h>
-#include <bsl_cstdio.h>                // printf
 
 using namespace bsl;  // automatically added by script
 
@@ -601,6 +604,32 @@ bsl::ostream& operator<<(bsl::ostream& stream,
               // class btemt_TcpTimerEventManager_ControlChannel
               // -----------------------------------------------
 
+// CREATORS
+btemt_TcpTimerEventManager_ControlChannel::
+    btemt_TcpTimerEventManager_ControlChannel()
+: d_byte(0x53)
+, d_numServerReads(0)
+, d_numServerBytesRead(0)
+{
+    int rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
+                                     d_fds,
+                                     bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+
+    if (rc) {
+        bsl::printf("%s(%d): Failed to create control channel"
+                    " (errno = %d, rc = %d).\n",
+                    __FILE__, __LINE__, errno, rc);
+    }
+
+    bteso_IoUtil::setBlockingMode(d_fds[1],
+                                  bteso_IoUtil::BTESO_NONBLOCKING,
+                                  0);
+    bteso_SocketOptUtil::setOption(d_fds[0],
+                                   bteso_SocketOptUtil::BTESO_TCPLEVEL,
+                                   bteso_SocketOptUtil::BTESO_TCPNODELAY,
+                                   1);
+}
+
 // MANIPULATORS
 int btemt_TcpTimerEventManager_ControlChannel::clientWrite()
 {
@@ -616,9 +645,9 @@ int btemt_TcpTimerEventManager_ControlChannel::clientWrite()
         if (rc >= 0) {
             return rc;
         }
-        printf("%s(%d): Failed to communicate request to control channel"
-               " (errno = %d, errorNumber = %d).\n",
-               __FILE__, __LINE__, errno, errorNumber);
+        bsl::printf("%s(%d): Failed to communicate request to control channel"
+                    " (errno = %d, errorNumber = %d, rc = %d).\n",
+                    __FILE__, __LINE__, errno, errorNumber, rc);
         BSLS_ASSERT(errorNumber > 0);
         return -errorNumber;
     }
@@ -755,8 +784,7 @@ void btemt_TcpTimerEventManager::controlCb()
             } break;
             case btemt_TcpTimerEventManager_Request::DEREGISTER_TIMER: {
                 BSLS_ASSERT(0 != req->timerId());
-                d_timerQueue.remove(
-                               (int)(bsls_PlatformUtil::IntPtr)req->timerId());
+                d_timerQueue.remove((int)(bsls_Types::IntPtr)req->timerId());
             } break;
             case btemt_TcpTimerEventManager_Request::DEREGISTER_ALL_TIMERS: {
                 d_timerQueue.removeAll();
@@ -909,7 +937,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
-, d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES, 
+, d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(true)
@@ -931,7 +959,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
-, d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES, 
+, d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
@@ -954,7 +982,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
 , d_manager_p(rawEventManager)
 , d_isManagedFlag(0)
 , d_timerQueue(threadSafeAllocator)
-, d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES, 
+, d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(false)
@@ -1258,8 +1286,8 @@ int btemt_TcpTimerEventManager::rescheduleTimer(
 {
     if (bcemt_ThreadUtil::isEqual(
                     bcemt_ThreadUtil::self(), d_dispatcher)) {
-        return d_timerQueue.update((int)(bsls_PlatformUtil::IntPtr)id,
-                                   timeout);                          // RETURN
+        return d_timerQueue.update((int)(bsls_Types::IntPtr)id, timeout);
+                                                                      // RETURN
     }
 
     int rc;
@@ -1272,10 +1300,9 @@ int btemt_TcpTimerEventManager::rescheduleTimer(
             // synchronize the following operation.
 
             int isNewTop = 0;
-            rc           = d_timerQueue.update(
-                                            (int)(bsls_PlatformUtil::IntPtr)id,
-                                            timeout,
-                                            &isNewTop);
+            rc           = d_timerQueue.update((int)(bsls_Types::IntPtr)id,
+                                               timeout,
+                                               &isNewTop);
             if (!rc && isNewTop) {
                 // Signal dispatcher for the new minimum, if needed.
 
@@ -1289,7 +1316,7 @@ int btemt_TcpTimerEventManager::rescheduleTimer(
                 if (0 > d_controlChannel.clientWrite()) {
                     d_requestQueue.popBack();
                     d_requestPool.deleteObjectRaw(req);
-                    d_timerQueue.remove((int)(bsls_PlatformUtil::IntPtr)id);
+                    d_timerQueue.remove((int)(bsls_Types::IntPtr)id);
                     BSLS_ASSERT("Failed to reschedule timer" && 0);
                 }
             }
@@ -1298,8 +1325,7 @@ int btemt_TcpTimerEventManager::rescheduleTimer(
             // Processing thread is disabled -- register directly
             // since the timer queue is thread-safe.
 
-            rc = d_timerQueue.update((int)(bsls_PlatformUtil::IntPtr)id,
-                                     timeout);
+            rc = d_timerQueue.update((int)(bsls_Types::IntPtr)id, timeout);
           } break;
         }
     }
@@ -1486,7 +1512,7 @@ void btemt_TcpTimerEventManager::deregisterTimer(const void *id)
     // We can just remove it.  If its at the top, dispatcher will
     // pick a new top on the next iteration.
 
-    d_timerQueue.remove((int)(bsls_PlatformUtil::IntPtr)id);
+    d_timerQueue.remove((int)(bsls_Types::IntPtr)id);
     d_numTimers = d_timerQueue.length();
 }
 
@@ -1637,7 +1663,7 @@ int btemt_TcpTimerEventManager::isEnabled() const
 
 }
 
-} // close namespace BloombergLP
+}  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:
