@@ -408,10 +408,10 @@ class bdeut_StrTokenIter {
         // otherwise.
 
     const char *operator()() const;
-        // Return the current token of this token iterator.  This value is
-        // updated by the 'reset' method, and whenever 'operator++' returns
-        // with the iterator in a valid state.  (See also the 'tokenRef'
-        // method.)
+        // Return the current token of this token iterator.  The value returned
+        // remains valid until the state of the iteration of this iterator is
+        // advanced (via 'operator++'), or 'reset' is called.  (See also the
+        // 'tokenRef' method.)
 
     bdeut_StringRef tokenRef() const;
         // Return a string reference that refers to the current token in the

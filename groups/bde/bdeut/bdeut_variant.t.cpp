@@ -1928,6 +1928,466 @@ Obj g(const char *spec)
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
+// TBD
+// The following list of explicit instantiations was provided by IBM as a
+// work-around for DRQS 22791105 (xlC compiler crash unless case 18 is
+// commented out).
+
+#ifdef BSLS_PLATFORM__CMP_IBM
+template class BloombergLP::bdeut_Variant<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bslalg_HasTrait<UsesAllocator<1>,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<UsesAllocator<10>,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<UsesAllocator<20>,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BitwiseCopyable<1>,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<BitwiseCopyable<10>,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<BitwiseCopyable<20>,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<BitwiseMoveable<1>,BloombergLP::bslalg_TypeTraitBitwiseMoveable>;
+template struct BloombergLP::bslalg_HasTrait<BitwiseMoveable<10>,BloombergLP::bslalg_TypeTraitBitwiseMoveable>;
+template struct BloombergLP::bslalg_HasTrait<BitwiseMoveable<20>,BloombergLP::bslalg_TypeTraitBitwiseMoveable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<UsesAllocator<1>,UsesAllocator<2>,UsesAllocator<3>,UsesAllocator<4>,UsesAllocator<5>,UsesAllocator<6>,UsesAllocator<7>,UsesAllocator<8>,UsesAllocator<9>,UsesAllocator<10>,UsesAllocator<11>,UsesAllocator<12>,UsesAllocator<13>,UsesAllocator<14>,UsesAllocator<15>,UsesAllocator<16>,UsesAllocator<17>,UsesAllocator<18>,UsesAllocator<19>,UsesAllocator<20> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<UsesAllocator<1>,NilTraits<2>,NilTraits<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,UsesAllocator<2>,NilTraits<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,UsesAllocator<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,NilTraits<4>,NilTraits<5>,NilTraits<6>,NilTraits<7>,NilTraits<8>,NilTraits<9>,NilTraits<10>,NilTraits<11>,NilTraits<12>,NilTraits<13>,NilTraits<14>,NilTraits<15>,NilTraits<16>,NilTraits<17>,UsesAllocator<18>,NilTraits<19>,NilTraits<20> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,NilTraits<4>,NilTraits<5>,NilTraits<6>,NilTraits<7>,NilTraits<8>,NilTraits<9>,NilTraits<10>,NilTraits<11>,NilTraits<12>,NilTraits<13>,NilTraits<14>,NilTraits<15>,NilTraits<16>,NilTraits<17>,NilTraits<18>,UsesAllocator<19>,NilTraits<20> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,NilTraits<4>,NilTraits<5>,NilTraits<6>,NilTraits<7>,NilTraits<8>,NilTraits<9>,NilTraits<10>,NilTraits<11>,NilTraits<12>,NilTraits<13>,NilTraits<14>,NilTraits<15>,NilTraits<16>,NilTraits<17>,NilTraits<18>,NilTraits<19>,UsesAllocator<20> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<BitwiseCopyable<1>,BitwiseCopyable<2>,BitwiseCopyable<3>,BitwiseCopyable<4>,BitwiseCopyable<5>,BitwiseCopyable<6>,BitwiseCopyable<7>,BitwiseCopyable<8>,BitwiseCopyable<9>,BitwiseCopyable<10>,BitwiseCopyable<11>,BitwiseCopyable<12>,BitwiseCopyable<13>,BitwiseCopyable<14>,BitwiseCopyable<15>,BitwiseCopyable<16>,BitwiseCopyable<17>,BitwiseCopyable<18>,BitwiseCopyable<19>,BitwiseCopyable<20> >,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<BitwiseCopyable<1>,NilTraits<2>,NilTraits<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,BitwiseCopyable<2>,NilTraits<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,BitwiseCopyable<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,NilTraits<4>,NilTraits<5>,NilTraits<6>,NilTraits<7>,NilTraits<8>,NilTraits<9>,NilTraits<10>,NilTraits<11>,NilTraits<12>,NilTraits<13>,NilTraits<14>,NilTraits<15>,NilTraits<16>,NilTraits<17>,BitwiseCopyable<18>,NilTraits<19>,NilTraits<20> >,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,NilTraits<4>,NilTraits<5>,NilTraits<6>,NilTraits<7>,NilTraits<8>,NilTraits<9>,NilTraits<10>,NilTraits<11>,NilTraits<12>,NilTraits<13>,NilTraits<14>,NilTraits<15>,NilTraits<16>,NilTraits<17>,NilTraits<18>,BitwiseCopyable<19>,NilTraits<20> >,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,NilTraits<4>,NilTraits<5>,NilTraits<6>,NilTraits<7>,NilTraits<8>,NilTraits<9>,NilTraits<10>,NilTraits<11>,NilTraits<12>,NilTraits<13>,NilTraits<14>,NilTraits<15>,NilTraits<16>,NilTraits<17>,NilTraits<18>,NilTraits<19>,BitwiseCopyable<20> >,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitBitwiseMoveable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<BitwiseMoveable<1>,BitwiseMoveable<2>,BitwiseMoveable<3>,BitwiseMoveable<4>,BitwiseMoveable<5>,BitwiseMoveable<6>,BitwiseMoveable<7>,BitwiseMoveable<8>,BitwiseMoveable<9>,BitwiseMoveable<10>,BitwiseMoveable<11>,BitwiseMoveable<12>,BitwiseMoveable<13>,BitwiseMoveable<14>,BitwiseMoveable<15>,BitwiseMoveable<16>,BitwiseMoveable<17>,BitwiseMoveable<18>,BitwiseMoveable<19>,BitwiseMoveable<20> >,BloombergLP::bslalg_TypeTraitBitwiseMoveable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<BitwiseCopyable<1>,NilTraits<2>,NilTraits<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitBitwiseMoveable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,BitwiseCopyable<2>,NilTraits<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitBitwiseMoveable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,BitwiseCopyable<3>,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitBitwiseMoveable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,NilTraits<4>,NilTraits<5>,NilTraits<6>,NilTraits<7>,NilTraits<8>,NilTraits<9>,NilTraits<10>,NilTraits<11>,NilTraits<12>,NilTraits<13>,NilTraits<14>,NilTraits<15>,NilTraits<16>,NilTraits<17>,BitwiseCopyable<18>,NilTraits<19>,NilTraits<20> >,BloombergLP::bslalg_TypeTraitBitwiseMoveable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,NilTraits<4>,NilTraits<5>,NilTraits<6>,NilTraits<7>,NilTraits<8>,NilTraits<9>,NilTraits<10>,NilTraits<11>,NilTraits<12>,NilTraits<13>,NilTraits<14>,NilTraits<15>,NilTraits<16>,NilTraits<17>,NilTraits<18>,BitwiseCopyable<19>,NilTraits<20> >,BloombergLP::bslalg_TypeTraitBitwiseMoveable>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<NilTraits<1>,NilTraits<2>,NilTraits<3>,NilTraits<4>,NilTraits<5>,NilTraits<6>,NilTraits<7>,NilTraits<8>,NilTraits<9>,NilTraits<10>,NilTraits<11>,NilTraits<12>,NilTraits<13>,NilTraits<14>,NilTraits<15>,NilTraits<16>,NilTraits<17>,NilTraits<18>,NilTraits<19>,BitwiseCopyable<20> >,BloombergLP::bslalg_TypeTraitBitwiseMoveable>;
+template class BloombergLP::bdeut_Variant2<TestString,TestArg<2> >;
+template class TestArg<20>;
+template class TestArg<19>;
+template class TestArg<18>;
+template class TestArg<17>;
+template class TestArg<16>;
+template class TestArg<15>;
+template class TestArg<14>;
+template class TestArg<13>;
+template class TestArg<12>;
+template class TestArg<11>;
+template class TestArg<10>;
+template class TestArg<9>;
+template class TestArg<8>;
+template class TestArg<7>;
+template class TestArg<6>;
+template class TestArg<5>;
+template class TestArg<4>;
+template class TestArg<3>;
+template class TestArg<2>;
+template struct BloombergLP::bslmf_IsSame<TestArg<2>,TestArg<2> >;
+template struct BloombergLP::bslmf_IsSame<BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant2<TestString,TestArg<2> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant2<TestString,TestArg<2> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant3<TestString,TestArg<2>,TestArg<3> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<3>,TestArg<3> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant3<TestString,TestArg<2>,TestArg<3> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant3<TestString,TestArg<2>,TestArg<3> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant4<TestString,TestArg<2>,TestArg<3>,TestArg<4> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<4>,TestArg<4> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant4<TestString,TestArg<2>,TestArg<3>,TestArg<4> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant4<TestString,TestArg<2>,TestArg<3>,TestArg<4> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant5<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<5>,TestArg<5> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant5<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant5<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant6<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<6>,TestArg<6> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant6<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant6<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<7>,TestArg<7> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<8>,TestArg<8> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<9>,TestArg<9> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<10>,TestArg<10> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<11>,TestArg<11> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<12>,TestArg<12> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<13>,TestArg<13> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<14>,TestArg<14> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<15>,TestArg<15> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<16>,TestArg<16> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<17>,TestArg<17> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<18>,TestArg<18> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<19>,TestArg<19> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<8> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<9> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<10> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<11> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<12> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<13> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<13>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<13>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<6> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<8> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<9> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<10> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<11> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<12> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<13> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList14<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14> >,TestArg<14> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<14>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<14>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<6> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<8> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<9> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<10> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<11> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<12> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<13> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<14> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList15<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15> >,TestArg<15> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<15>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<15>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<6> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<8> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<9> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<10> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<11> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<12> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<13> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<14> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<15> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList16<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16> >,TestArg<16> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<16>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<16>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<6> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<8> >;
+template struct BloombergLP::bslmf_IsSame<bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,const char *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<9> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<10> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<11> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<12> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<13> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<14> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<15> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<16> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList17<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17> >,TestArg<17> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<17>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<17>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<6> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<8> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<9> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<10> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<11> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<12> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<13> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<14> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<15> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<16> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<17> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList18<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18> >,TestArg<18> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<18>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestString>;
+template struct BloombergLP::bslmf_IsSame<TestArg<18>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<6> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<8> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<9> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<10> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<11> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<12> >;  // 59187
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<13> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<14> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<15> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<16> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<17> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<18> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,TestArg<19> >;  // 59672
+template struct BloombergLP::bslalg_HasTrait<TestArg<19>,BloombergLP::bslalg_TypeTraitPair>;  // 41035
+template struct BloombergLP::bslmf_IsSame<TestArg<19>,BloombergLP::bslmf_Nil>;  // 58554
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestString>;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<2> >;  // 59672
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant19<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant<BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_Variant<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >;
+template struct BloombergLP::bslmf_IsSame<TestArg<20>,TestArg<20> >;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>;
+template struct BloombergLP::bslalg_HasTrait<BloombergLP::bdeut_Variant<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,BloombergLP::bdeu_TypeTraitHasPrintMethod>;
+template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<int,TestInt,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;
+template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<BloombergLP::bslmf_Nil,int,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;
+template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<int,char,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;
+template class my_VariantWrapper<BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<int,TestInt,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> > >;
+template struct BloombergLP::bdeut_Variant_ReturnValueHelper<my_ReturningVisitor>;
+template struct BloombergLP::bdeut_Variant_EnableIf<1,int>;
+template struct BloombergLP::bdeut_Variant_EnableIf<0,void>;
+template struct BloombergLP::bdeut_Variant_ReturnValueHelper<my_ConstReturningVisitor>;
+//template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<Copyable,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;
+template class BloombergLP::bdeut_Variant<TestAllocObj,int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>;
+template class BloombergLP::bdeut_Variant<bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestAllocObj,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>;
+template class my_VariantWrapper<BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> > >;
+template class BloombergLP::bdeut_Variant<int,const char *,TestVoid,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>;
+template class bsl::basic_ostringstream<char,std::char_traits<char>,bsl::allocator<char> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList3<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >,int>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList3<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >,double>;
+//template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<Copyable,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;  // 80650
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<3> >;  // 59187
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<4> >;  // 59187
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<5> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<6> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<7> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<8> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<9> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<10> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<11> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<12> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<13> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<14> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<15> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<16> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<17> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<18> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<19> >;  // 59672
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList20<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13>,TestArg<14>,TestArg<15>,TestArg<16>,TestArg<17>,TestArg<18>,TestArg<19>,TestArg<20> >,TestArg<20> >;  // 59672
+template struct BloombergLP::bslalg_HasTrait<TestArg<20>,BloombergLP::bslalg_TypeTraitPair>;  // 41035
+template struct BloombergLP::bslmf_IsSame<TestArg<20>,BloombergLP::bslmf_Nil>;  // 58554
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList<int,char,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,int>;  // 59187
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList<int,char,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,char>;  // 59187
+template struct BloombergLP::bslalg_HasTrait<char,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;  // 41032
+template struct BloombergLP::bslalg_HasTrait<char,BloombergLP::bslalg_TypeTraitPair>;  // 41035
+template struct BloombergLP::bslmf_IsSame<char,BloombergLP::bslmf_Nil>;  // 58554
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList<BloombergLP::bslmf_Nil,int,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslmf_Nil>;  // 59035
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList<int,TestInt,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,int>;  // 59187
+template struct BloombergLP::bslmf_IsSame<TestInt,BloombergLP::bslmf_Nil>;  // 58554
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList6<TestAllocObj,int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid>,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >;  // 59187
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList<Copyable,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,Copyable>;  // 59203
+template struct BloombergLP::bslmf_IsSame<Copyable,int>;  // 59204
+template struct BloombergLP::bdeut_Variant_BdexStreamOutVisitor<BloombergLP::bdex_TestOutStream>;  // 59661
+//template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<Copyable,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;  // 80651
+template struct BloombergLP::bdeut_Variant_BdexStreamInVisitor<BloombergLP::bdex_TestInStream>;  // 59240
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList3<int,const char *,TestVoid>,int>;  // 59187
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList3<int,const char *,TestVoid>,const char *>;  // 59187
+//template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<Copyable,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList3<int,double,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> > >;
+template struct BloombergLP::bslmf_IsSame<double,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bslalg_HasTrait<double,BloombergLP::bslalg_TypeTraitBitwiseCopyable>;
+template struct BloombergLP::bslalg_HasTrait<double,BloombergLP::bslalg_TypeTraitPair>;
+// TBD
+// The following triggered compilation errors with xlC 10.1.
+// template class std::_Tidyfac<std::num_put<char,std::ostreambuf_iterator<char,std::char_traits<char> > > >;
+template struct BloombergLP::bslmf_IsConvertible<BloombergLP::bslmf_Nil,double>;
+template struct BloombergLP::bslmf_IsConvertible<int,double>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList<int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil>,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList2<TestString,TestArg<2> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList2<TestString,TestArg<2> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList2<TestString,TestArg<2> >,TestArg<2> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<2>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestString,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList3<TestString,TestArg<2>,TestArg<3> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList3<TestString,TestArg<2>,TestArg<3> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList3<TestString,TestArg<2>,TestArg<3> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList3<TestString,TestArg<2>,TestArg<3> >,TestArg<3> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<3>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<2>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList4<TestString,TestArg<2>,TestArg<3>,TestArg<4> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList4<TestString,TestArg<2>,TestArg<3>,TestArg<4> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList4<TestString,TestArg<2>,TestArg<3>,TestArg<4> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList4<TestString,TestArg<2>,TestArg<3>,TestArg<4> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList4<TestString,TestArg<2>,TestArg<3>,TestArg<4> >,TestArg<4> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<4>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<3>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList5<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList5<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5> >,TestString>;
+//template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<Copyable,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;
+template struct BloombergLP::bslmf_IsConvertible<double,double>;
+template struct BloombergLP::bslmf_IsSame<TestArg<4>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList5<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList5<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList5<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList5<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5> >,TestArg<5> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<5>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<5>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList6<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList6<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList6<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList6<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList6<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList6<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList6<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6> >,TestArg<6> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<6>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<6>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestString>;
+//template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<Copyable,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;
+template struct BloombergLP::bslmf_IsConvertible<bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,double>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<6> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList7<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7> >,TestArg<7> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<7>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<7>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >,TestArg<6> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList8<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8> >,TestArg<8> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<8>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<8>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,TestArg<5> >;
+//template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<Copyable,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,TestArg<6> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,TestArg<8> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList9<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9> >,TestArg<9> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<9>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<9>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,TestArg<6> >;
+//template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<Copyable,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,TestArg<8> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,TestArg<9> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList10<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10> >,TestArg<10> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<10>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<10>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,TestString>;
+//template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<Copyable,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,TestArg<6> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,TestArg<8> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,TestArg<9> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,TestArg<10> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList11<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11> >,TestArg<11> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<11>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<11>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestArg<6> >;
+//template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf_TypeList<Copyable,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil,BloombergLP::bslmf_Nil> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestArg<7> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestArg<8> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestArg<9> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestArg<10> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestArg<11> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList12<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12> >,TestArg<12> >;
+template struct BloombergLP::bslalg_HasTrait<TestArg<12>,BloombergLP::bslalg_TypeTraitPair>;
+template struct BloombergLP::bslmf_IsSame<TestArg<12>,BloombergLP::bslmf_Nil>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,BloombergLP::bslma_TestAllocator *>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestString>;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<2> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<3> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<4> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<5> >;
+template struct BloombergLP::bdeut_Variant_TypeIndex<BloombergLP::bslmf_TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<6> >;
+#endif
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -2802,7 +3262,6 @@ int main(int argc, char *argv[])
             ASSERT((0 == bslalg_HasTrait<Obj19, MoveableTrait>::VALUE));
             ASSERT((0 == bslalg_HasTrait<Obj20, MoveableTrait>::VALUE));
         }
-
 
       } break;
       case 18: {
@@ -7179,7 +7638,6 @@ int main(int argc, char *argv[])
                 ASSERT(V20 == X20.the<TestArg20>());
             }
         }
-
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -8194,7 +8652,8 @@ int main(int argc, char *argv[])
 
                 const int CURRENTTOTAL = ta.numBlocksTotal();
 
-                bsl::string testString("Hello, this string forces allocation",
+                bsl::string testString("Hello, this is a string long "
+                                       "enough to force memory allocation",
                                        &tmp);
 
                 ASSERT(0            == da.numBlocksTotal());
@@ -8334,7 +8793,6 @@ int main(int argc, char *argv[])
                 ASSERT(STRING_TYPE            == X.typeIndex());
                 ASSERT(1                      == X.is<bsl::string>());
                 ASSERT(STRING_DATA[VALUE_IDX] == X.the<bsl::string>());
-                ASSERT(0                      != da.numBlocksTotal());
                 ASSERT(0                      == ta.numBlocksTotal());
 
                 const int CURRENTTOTAL = da.numBlocksTotal();
@@ -8345,7 +8803,6 @@ int main(int argc, char *argv[])
                 ASSERT(1                      == Y.is<bsl::string>());
                 ASSERT(STRING_DATA[VALUE_IDX] == Y.the<bsl::string>());
                 ASSERT(CURRENTTOTAL           == da.numBlocksTotal());
-                ASSERT(0                      != ta.numBlocksTotal());
 
                 Obj mZ;                                      const Obj& Z = mZ;
                 mZ.assign(STRING_DATA[VALUE_IDX]);
@@ -8367,7 +8824,6 @@ int main(int argc, char *argv[])
                 ASSERT(TEST_STRING_TYPE            == X.typeIndex());
                 ASSERT(1                           == X.is<TestString>());
                 ASSERT(TEST_STRING_DATA[VALUE_IDX] == X.the<TestString>());
-                ASSERT(0                           != da.numBlocksTotal());
                 ASSERT(0                           == ta.numBlocksTotal());
 
                 const int CURRENTTOTAL = da.numBlocksTotal();
@@ -8378,7 +8834,6 @@ int main(int argc, char *argv[])
                 ASSERT(1                           == Y.is<TestString>());
                 ASSERT(TEST_STRING_DATA[VALUE_IDX] == Y.the<TestString>());
                 ASSERT(CURRENTTOTAL                == da.numBlocksTotal());
-                ASSERT(0                           != ta.numBlocksTotal());
 
                 Obj mZ;                                      const Obj& Z = mZ;
                 mZ.assign(TEST_STRING_DATA[VALUE_IDX]);
@@ -10062,14 +10517,11 @@ int main(int argc, char *argv[])
             mX.assign<TestString>(VK);
             ASSERT(1     == X.is<TestString>());
             ASSERT(VK    == X.the<TestString>());
-            ASSERT(0     <  testAllocator.numBlocksInUse());
-            ASSERT(TOTAL <  testAllocator.numBlocksTotal());
 
             mX.assign<int>(VA);
             ASSERT(1      == X.is<int>());
             ASSERT(VA     == X.the<int>());
             ASSERT(0      == testAllocator.numBlocksInUse());
-            ASSERT(TOTAL  <  testAllocator.numBlocksTotal());
         }
 
         {
@@ -10085,8 +10537,6 @@ int main(int argc, char *argv[])
             mX.assign<bsl::string>(VS);
             ASSERT(1  == X.is<bsl::string>());
             ASSERT(VS == X.the<bsl::string>());
-            ASSERT(0     <  testAllocator.numBlocksInUse());
-            ASSERT(TOTAL <  testAllocator.numBlocksTotal());
 
             {
                 const int PREVIOUS = testAllocator.numBlocksTotal();
@@ -10097,7 +10547,6 @@ int main(int argc, char *argv[])
                 mX.assign<bsl::string>(VT);
                 ASSERT(1  == X.is<bsl::string>());
                 ASSERT(VT == X.the<bsl::string>());
-                ASSERT(0     <  testAllocator.numBlocksInUse());
                 ASSERT(PREVIOUS == testAllocator.numBlocksTotal());
             }
 
@@ -10107,8 +10556,6 @@ int main(int argc, char *argv[])
             mX.assign<TestString>(VK);
             ASSERT(1  == X.is<TestString>());
             ASSERT(VK == X.the<TestString>());
-            ASSERT(0         <  testAllocator.numBlocksInUse());
-            ASSERT(TOTAL + 1 <  testAllocator.numBlocksTotal());
 
             {
                 const int PREVIOUS = testAllocator.numBlocksTotal();
