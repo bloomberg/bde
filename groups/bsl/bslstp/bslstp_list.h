@@ -297,15 +297,17 @@ class list : public _List_base<_Tp, _Alloc>
   };
 
 public:
+  // Modified by Pablo Halpern to use 'pointer', 'const_pointer', 'size_type',
+  // and 'difference_type' from 'allocator_type'.
+  typedef typename _Base::allocator_type allocator_type;
   typedef _Tp value_type;
-  typedef value_type* pointer;
-  typedef const value_type* const_pointer;
+  typedef typename allocator_type::pointer pointer;
+  typedef typename allocator_type::const_pointer const_pointer;
   typedef value_type& reference;
   typedef const value_type& const_reference;
   typedef _List_node<_Tp> _Node;
-  typedef size_t size_type;
-  typedef ptrdiff_t difference_type;
-  typedef typename _Base::allocator_type allocator_type;
+  typedef typename allocator_type::size_type size_type;
+  typedef typename allocator_type::difference_type difference_type;
   typedef bidirectional_iterator_tag _Iterator_category;
 
 public:
@@ -370,8 +372,10 @@ public:
 
   // Modified by Pablo Halpern
   //size_type max_size() const { return size_type(-1); }
-  size_type max_size() const
-    { return this->_M_node.allocator().max_size() - 1; }
+  size_type max_size() const {
+      const size_type v = this->_M_node.allocator().max_size();
+      return v ? v - 1 : 0;  // Don't return less than 0.
+  }
 
   reference front() { return *begin(); }
   const_reference front() const { return *begin(); }

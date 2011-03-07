@@ -1,4 +1,5 @@
-// bslstl_list.t.cpp                                                  -*-C++-*-
+// bslstl_list.t.cpp                  -*-C++-*-
+
 #include <bslstp_list.h>
 
 // #include <bslstl_allocator.h>
@@ -20,8 +21,8 @@
 #include <bsls_types.h>
 #include <bsls_stopwatch.h>                // for testing only
 
-#include <iterator>   // 'iterator_traits'
 #include <stdexcept>  // 'length_error', 'out_of_range'
+#include <algorithm>  // 'next_permutation'
 
 #include <cctype>
 #include <cstdio>
@@ -53,59 +54,69 @@ using namespace bsl;
 //
 // This test plan follows the standard approach for components implementing
 // value-semantic containers.  We have chosen as *primary* *manipulators* the
-// 'push_back' and 'clear' methods to be used by the generator functions
-// 'g' and 'gg'.  Additional helper functions are provided to facilitate
-// perturbation of internal state (e.g., capacity).  Note that some
-// manipulators must support aliasing, and those that perform memory allocation
-// must be tested for exception neutrality via the 'bslma_testallocator'
-// component.  After the mandatory sequence of cases (1--10) for value-semantic
-// types (cases 5 and 10 are not implemented, as there is not output or
-// streaming below stlport), we test each individual constructor, manipulator,
-// and accessor in subsequent cases.
+// 'push_back' and 'clear' methods to be used by the generator functions 'g'
+// and 'gg'.  Note that some manipulators must support aliasing, and those
+// that perform memory allocation must be tested for exception neutrality via
+// the 'bslma_testallocator' component.  After the mandatory sequence of cases
+// (1--10) for value-semantic types (cases 5 and 10 are not implemented, as
+// there is not output or streaming below stlport), we test each individual
+// constructor, manipulator, and accessor in subsequent cases.
 //
 // Abbreviations:
 // --------------
 // Throughout this test driver, we use
-//     T            VALUE_TYPE (template argument, no default)
-//     A            ALLOCATOR (template argument, default: bsl::allocator<T>)
+//     T            _Tp (template argument, no default)
+//     A            _Alloc (template argument, default: bsl::allocator<T>)
 //     list<T,A>    bsl::list<VALUE_TYPE,ALLOCATOR>
+//     list         list<T,A>
 //     Args...      shorthand for a family of templates <A1>, <A1,A2>, etc.
-//-----------------------------------------------------------------------------
+//
+// The of tests below is grouped as per the definition of list in the C++
+// standard (construct, iterators, capacity...) rather than the cannonical
+// grouping of members per BDE convention (CREATORS, MANIPULATORS, ACCESSORS).
+// -----------------------------------------------------------------------------
 // class list<T,A> (list)
 // =================================
-// [11] TRAITS
+//
+// TYPES:
+// [22] reference
+// [22] const_reference
+// [16] iterator
+// [16] const_iterator
+// [22] size_type
+// [22] difference_type
+// [22] value_type
+// [22] allocator_type
+// [22] pointer
+// [22] const_pointer
+// [16] reverse_iterator
+// [16] const_reverse_iterator
+// [23] TYPE TRAITS
 //
 // CREATORS:
-// [ 2] list<T,A>(const A& a = A());
-// [12] list<T,A>(size_type n, const A& a = A());
-// [12] list<T,A>(size_type n, const T& val, const A& a = A());
+// [ 2] list(const A& a = A());
+// [12] list(size_type n, const T& val = T(), const A& a = A());
 // [12] template<class InputIter>
-//        list<T,A>(InputIter first, InputIter last, const A& a = A());
-// [ 7] list<T,A>(const list<T,A>& orig, const A& = A());
-// [12] list(list<T,A>&& original);
-// [ 2] ~list<T,A>();
+//        list(InputIter first, InputIter last, const A& a = A());
+// [ 7] list(const list& orig, const A& = A());
+// [ 2] ~list();
 //
 /// MANIPULATORS:
+// [ 9] operator=(list&);
 // [13] template <class InputIter>
 //        void assign(InputIter first, InputIter last);
 // [13] void assign(size_type numElements, const T& val);
-// [ 9] operator=(list<T,A>&);
-// [15] reference operator[](size_type pos);
-// [15] reference at(size_type pos);
 // [16] iterator begin();
 // [16] iterator end();
 // [16] reverse_iterator rbegin();
 // [16] reverse_iterator rend();
 // [14] void resize(size_type n);
 // [14] void resize(size_type n, const T& val);
-// [14] void reserve(size_type n);
-// [ 2] void clear();
 // [15] reference front();
 // [15] reference back();
-// [20] template <class Args...>
-//        iterator emplace(const_iterator pos, Args...);
-// [ 2] void push_back(const T&);
-// [17] void push_back(T&&);
+// [17] void push_front(const T&);
+// [18] void pop_front();
+// [17] void push_back(const T&);
 // [18] void pop_back();
 // [17] iterator insert(const_iterator pos, const T& val);
 // [17] iterator insert(const_iterator pos, size_type n, const T& val);
@@ -113,20 +124,32 @@ using namespace bsl;
 //        void insert(const_iterator pos, InputIter first, InputIter last);
 // [18] iterator erase(const_iterator pos);
 // [18] iterator erase(const_iterator first, const_iterator last);
-// [19] void swap(list<T,A>&);
+// [19] void swap(list&);
+// [ 2] void clear();
+// [25] void splice(iterator pos, list& other);
+// [25] void splice(iterator pos, list& other, iterator i);
+// [25] void splice(iterator pos, list& other, iterator first, iterator last);
+// [26] void remove(const T& val);
+// [26] template <class PRED> void remove_if(PRED p);
+// [27] void unique();
+// [27] template <class BINPRED> void unique(BINPRED p);
+// [28] void merge(list& other);
+// [28] template <class COMP> void merge(list& other, COMP c);
+// [29] void sort();
+// [29] template <class COMP> void sort(COMP c);
+// [24] void reverse();
 //
 // ACCESSORS:
-// [ 4] const_reference operator[](size_type pos) const;
-// [ 4] const_reference at(size_type pos) const;
-// [15] const_reference front() const;
-// [15] const_reference back() const;
-// [ 4] size_type size() const;
-// [14] size_type max_size() const;
-// [??] bool empty() const;
+// [11] A get_allocator() const;
 // [16] const_iterator begin();
 // [16] const_iterator end();
 // [16] const_reverse_iterator rbegin();
 // [16] const_reverse_iterator rend();
+// [ 4] bool empty() const;
+// [ 4] size_type size() const;
+// [14] size_type max_size() const;
+// [15] const_reference front() const;
+// [15] const_reference back() const;
 //
 // FREE OPERATORS:
 // [ 6] bool operator==(const list<T,A>&, const list<T,A>&);
@@ -136,19 +159,23 @@ using namespace bsl;
 // [22] bool operator<=(const list<T,A>&, const list<T,A>&);
 // [22] bool operator>=(const list<T,A>&, const list<T,A>&);
 // [19] void swap(list<T,A>&, list<T,A>&);
-// [19] void swap(list<T,A>&, list<T,A>&&);
-// [19] void swap(list<T,A>&&, list<T,A>&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] ALLOCATOR-RELATED CONCERNS
-// [18] USAGE EXAMPLE
+// [  ] USAGE EXAMPLE
 // [21] CONCERN: 'std::length_error' is used properly
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(list<T,A> *object, const char *spec, int vF = 1);
 // [ 3] list<T,A>& gg(list<T,A> *object, const char *spec);
 // [ 8] list<T,A> g(const char *spec);
-
+// [ 4] iterator succ(iterator);
+// [ 4] const_iterator succ(iterator) const;
+// [ 4] T& nthElem(list& x, int n);
+// [ 4] const T& nthElem(list& x, int n) const;
+// [ 4] bool is_mutable(T&);
+// [ 4] bool is_mutable(const T&);
+//
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
@@ -223,15 +250,11 @@ void aSsErT(int c, const char *s, int i) {
 class TestType;
 class TestTypeNoAlloc;
 class TestTypeOtherAlloc;
-class BitwiseMoveableTestType;
-class BitwiseCopyableTestType;
 template <class T> class OtherAllocator;
 
 typedef TestType                      T;    // uses 'bslma' allocators
 typedef TestTypeNoAlloc               TNA;  // does not use 'bslma' allocators
 typedef TestTypeOtherAlloc            TOA;  // Uses non-'bslma' allocators
-typedef BitwiseMoveableTestType       BMT;  // uses 'bslma' allocators
-typedef BitwiseCopyableTestType       BCT;  // uses 'bslma' allocators
 
 typedef OtherAllocator<TestType>           OAT;   // Non-'bslma' allocator
 typedef OtherAllocator<TestTypeOtherAlloc> OATOA; // Non-'bslma' allocator
@@ -244,8 +267,6 @@ typedef char                          Element;  // every TestType's value type
 typedef list<T>                       Obj;
 
 // CONSTANTS
-const int MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
-
 const char UNINITIALIZED_VALUE = '_';
 const char DEFAULT_VALUE       = 'z';
 const char VA = 'A';
@@ -253,20 +274,13 @@ const char VB = 'B';
 const char VC = 'C';
 const char VD = 'D';
 const char VE = 'E';
+const char VF = 'F';
+const char VG = 'G';
+const char VH = 'H';
     // All test types have character value type.
 
 const int  LARGE_SIZE_VALUE = 10;
-    // Declare a large value for insertions into the list.  Note this value
-    // will cause multiple resizes during insertion into the list.
-
-const int NUM_ALLOCS[] = {
-    // Number of allocations (blocks) to create a list of the following size
-    // by using 'push_back' repeatedly (without initial reserve):
-    //
-    // 0    1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17
-    // --   --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-       0,   1,  2,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5,  5,  5,  5,  5,  6
-};
+    // Declare a large value for insertions into the list.
 
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -276,18 +290,15 @@ const int NUM_ALLOCS[] = {
 inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val); fflush(stdout);
-}
+inline void dbg_print(short val) { printf("%hd", val); fflush(stdout); }
+inline void dbg_print(unsigned short val) {printf("%hu", val); fflush(stdout);}
 inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(Int64 val) {
-    printf("%lld", val); fflush(stdout);
-}
-inline void dbg_print(size_t val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(float val) {
-    printf("'%f'", (double)val); fflush(stdout);
-}
+inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
+inline void dbg_print(long val) { printf("%lu", val); fflush(stdout); }
+inline void dbg_print(unsigned long val) { printf("%lu", val); fflush(stdout);}
+inline void dbg_print(Int64 val) { printf("%lld", val); fflush(stdout); }
+inline void dbg_print(Uint64 val) { printf("%llu", val); fflush(stdout); }
+inline void dbg_print(float val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 
@@ -339,6 +350,24 @@ inline const typename C::value_type& nthElem(const C& x, int n)
 {
     return *succ(x.begin(), n);
 }
+
+template <typename T>
+inline bool is_mutable(T& /* x */) { return true; }
+    // Return 'true'.  Preferred match if 'x' is a modifiable lvalue.
+
+template <typename T>
+inline bool is_mutable(const T& /* x */) { return false; }
+    // Return 'false'.  Preferred match if 'x' is an rvalue or const lvalue.
+
+template <typename T>
+inline T as_rvalue(const T& x) { return x; }
+    // Return a copy of 'x' as an rvalue, even if called on a (possibly
+    // const-qualified) lvalue or reference argument.
+
+template <typename T>
+inline char value_of(const T& x) { return static_cast<char>(x); }
+    // Return the char value corresponding to 'x'.  Specialized for each test
+    // type.
 
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
@@ -515,6 +544,45 @@ void dbg_print(const TestType& rhs) {
     fflush(stdout);
 }
 
+// TestType-specific value_of function.
+template <>
+inline char value_of<TestType>(const TestType& x)
+{
+    return x.value();
+}
+
+// Specializations of std::less and std::equal_to should never be called.
+// Certain algorithms have variants that call either a predicate function or
+// operator<.  A non-compliant implementation may implement the latter variant
+// by calling the former variant using std::less because most of the time,
+// they are identical.  Unfortunately, the standard does not require that
+// std::less do the same thing as operator<.  The same problem occurs with
+// std::equal_to and operator==.  These specializations suppress the default
+// definitions of std::less and std::equal_t and intercept stray calls by
+// non-compliant implementations.
+namespace std {
+    template <>
+    struct less<TestType> : binary_function<TestType, TestType, bool>
+    {
+        bool operator()(const TestType& a, const TestType& b) const {
+// TBD: STLPort failure -- implementation incorrectly calls this
+//            ASSERT(("less<TestType> should not be called", 0));
+            return a < b;
+        }
+    };
+
+    template <>
+    struct equal_to<TestType> : binary_function<TestType, TestType, bool>
+    {
+        bool operator()(const TestType& a, const TestType& b) const {
+// TBD: STLPort failure -- implementation incorrectly calls this
+//            ASSERT(("equal_to<TestType> should not be called", 0));
+            return a == b;
+        }
+    };
+} // End namespace bsl
+
+
                        // =====================
                        // class TestTypeNoAlloc
                        // =====================
@@ -522,9 +590,7 @@ void dbg_print(const TestType& rhs) {
 class TestTypeNoAlloc {
     // This test type has footprint and interface identical to 'TestType'.  It
     // also counts the number of default and copy constructions, assignments,
-    // and destructions.  It does not allocate, and thus could have the
-    // bit-wise copyable trait, but we defer this to the
-    // 'BitwiseCopyableTestType'.
+    // and destructions.
 
     // DATA
     union {
@@ -596,6 +662,13 @@ void dbg_print(const TestTypeNoAlloc& rhs) {
     fflush(stdout);
 }
 
+// TestTypeTypeNoAlloc-specific value_of function.
+template <>
+inline char value_of<TestTypeNoAlloc>(const TestTypeNoAlloc& x)
+{
+    return x.value();
+}
+
                                // ====================
                                // class OtherAllocator
                                // ====================
@@ -658,34 +731,6 @@ bool operator!=(const OtherAllocator<T>& a, const OtherAllocator<U>& b)
 {
     return a.implementation() != b.implementation();
 }
-
-                               // ====================
-                               // class SmallAllocator
-                               // ====================
-
-template <class T>
-class SmallAllocator : public OtherAllocator<T>
-{
-  public:
-    // Small allocator that can allocate only 10 elements.
-    // Note: Allocation limit is not enforced.  Only the operation of
-    // 'max_size' matters for this test.
-
-    template <typename U>
-    struct rebind
-    {
-        typedef SmallAllocator<U> other;
-    };
-
-    SmallAllocator() { }
-    explicit SmallAllocator(bslma_Allocator* a) : OtherAllocator<T>(a) { }
-
-    template <class U>
-    SmallAllocator(const SmallAllocator<U>& other)
-        : OtherAllocator<T>(other) { }
-
-    static size_t max_size() { return 10; }
-};
 
                                // ========================
                                // class TestTypeOtherAlloc
@@ -810,72 +855,12 @@ void dbg_print(const TestTypeOtherAlloc& rhs) {
     fflush(stdout);
 }
 
-                       // =============================
-                       // class BitwiseMoveableTestType
-                       // =============================
-
-class BitwiseMoveableTestType : public TestType {
-    // This test type is identical to 'TestType' except that it has the
-    // bit-wise moveable trait.  All members are inherited.
-
-  public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(BitwiseMoveableTestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  bslalg_TypeTraitBitwiseMoveable);
-
-    // CREATORS
-    explicit
-    BitwiseMoveableTestType(bslma_Allocator *ba = 0)
-    : TestType(ba)
-    {
-    }
-
-    explicit
-    BitwiseMoveableTestType(char c, bslma_Allocator *ba = 0)
-    : TestType(c, ba)
-    {
-    }
-
-    BitwiseMoveableTestType(const BitwiseMoveableTestType&  original,
-                            bslma_Allocator                *ba = 0)
-    : TestType(original, ba)
-    {
-    }
-};
-
-                       // =============================
-                       // class BitwiseCopyableTestType
-                       // =============================
-
-class BitwiseCopyableTestType : public TestTypeNoAlloc {
-    // This test type is identical to 'TestTypeNoAlloc' except that it has the
-    // bit-wise copyable and bit-wise equality comparable traits.  All members
-    // are inherited.
-
-  public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg_TypeTraitBitwiseCopyable);
-
-    // CREATORS
-    BitwiseCopyableTestType()
-    : TestTypeNoAlloc()
-    {
-    }
-
-    explicit
-    BitwiseCopyableTestType(char c)
-    : TestTypeNoAlloc(c)
-    {
-        ++numCharCtorCalls;
-    }
-
-    BitwiseCopyableTestType(const BitwiseCopyableTestType&  original)
-    : TestTypeNoAlloc(original.value())
-    {
-    }
-};
+// TestTypeOtherAlloc-specific value_of function.
+template <>
+inline char value_of<TestTypeOtherAlloc>(const TestTypeOtherAlloc& x)
+{
+    return x.value();
+}
 
                               // =============
                               // class RandSeq
@@ -1056,6 +1041,8 @@ class InputSeq {
     // ACCESSORS
     const_iterator begin() const;
     const_iterator end() const;
+
+    const TYPE operator[](int idx) const { return d_value[idx]; }
 };
 
 // CREATORS
@@ -1135,13 +1122,16 @@ class LimitAllocator : public ALLOC {
 
     // CREATORS
     LimitAllocator()
-    : d_limit(-1) {}
+        : d_limit(-1) {}
 
-    LimitAllocator(BloombergLP::bslma_Allocator *mechanism)
-    : AllocBase(mechanism), d_limit(-1) { }
+    // Templatize to make this a better match than the next constructor.
+    template <typename BSLMA_ALLOC>
+    explicit LimitAllocator(BSLMA_ALLOC *mechanism)
+        : AllocBase(mechanism), d_limit(-1) { }
 
-    LimitAllocator(const ALLOC& rhs)
-    : AllocBase((const AllocBase&) rhs), d_limit(-1) { }
+    template <typename U_ALLOC>
+    LimitAllocator(const U_ALLOC& rhs)
+        : AllocBase(rhs), d_limit(rhs.max_size()) { }
 
     ~LimitAllocator() { }
 
@@ -1150,6 +1140,84 @@ class LimitAllocator : public ALLOC {
 
     // ACCESSORS
     size_type max_size() const { return d_limit; }
+};
+
+                              // ====================
+                              // class PointerWrapper
+                              // ====================
+
+template <class T> class PointerWrapper;
+
+template <class T>
+class PointerWrapper<const T>
+{
+    // Wrapper around a raw pointer to const T.  Convertible both ways.
+
+  protected:
+    T* d_imp;
+
+  public:
+    PointerWrapper() { }
+    PointerWrapper(const T* p) : d_imp(const_cast<T*>(p)) { }
+
+    operator const T* ()  const { return d_imp; }
+    const T* operator->() const { return d_imp; }
+    const T& operator*()  const { return *d_imp; }
+};
+
+template <class T>
+class PointerWrapper : public PointerWrapper<const T>
+{
+    // Wrapper around a raw pointer to mutable T.  Convertible both ways.
+
+  public:
+    PointerWrapper() { }
+    PointerWrapper(T* p) { this->d_imp = p; }
+
+    operator T* ()  const { return this->d_imp; }
+    T* operator->() const { return this->d_imp; }
+    T& operator*()  const { return *this->d_imp; }
+};
+
+                              // ====================
+                              // class SmallAllocator
+                              // ====================
+
+template <class T>
+class SmallAllocator : public bsl::allocator<T> {
+    // Allocator type with small size and difference types and non-raw pointer
+    // types. // Used to test that these types are used in the interface to
+    // the container.
+
+    // PRIVATE TYPES
+    typedef bsl::allocator<T> AllocBase;
+
+  public:
+    // TYPES
+    typedef typename AllocBase::value_type        value_type;
+    // typedef typename AllocBase::pointer           pointer;
+    // typedef typename AllocBase::const_pointer     const_pointer;
+    typedef PointerWrapper<T>                     pointer;
+    typedef PointerWrapper<const T>               const_pointer;
+    typedef typename AllocBase::reference         reference;
+    typedef typename AllocBase::const_reference   const_reference;
+    typedef unsigned short                        size_type;
+    typedef short                                 difference_type;
+
+    template <class OTHER_TYPE> struct rebind {
+        typedef SmallAllocator<OTHER_TYPE> other;
+    };
+
+    // CREATORS
+    SmallAllocator() { }
+
+    explicit SmallAllocator(bslma_Allocator *mechanism)
+        : AllocBase(mechanism) { }
+
+    template <typename U>
+    SmallAllocator(const SmallAllocator<U>& rhs) : AllocBase(rhs) { }
+
+    ~SmallAllocator() { }
 };
 
 //=============================================================================
@@ -1219,6 +1287,56 @@ struct TestDriver {
         // true if both the container shares its allocator with its contained
         // elements.
 
+    // Unary predicate matching elements of a specified value
+    struct VPred {
+        const TYPE& d_match;
+        explicit VPred(const TYPE& v) : d_match(v) { }
+        bool operator()(const TYPE& x) const { return x == d_match; }
+    };
+
+    // Binary predicate returning true if the arguments values, expressed as
+    // integers, have the same low bit value.  Thus, 'A' and 'C' compare
+    // equal; 'B' and 'D' compare equal.  If an allocator is supplied to the
+    // predicate constructor, then each call will cause an allocate/deallocate
+    // sequence, which might throw an exception and is thus useful for
+    // exception testing.
+    struct LowBitEQ {
+        bslma_Allocator* d_alloc;
+        explicit LowBitEQ(bslma_Allocator* a = 0) : d_alloc(a) { }
+        bool operator()(const TYPE& a, const TYPE& b) const {
+            if (d_alloc) {
+                void* p = d_alloc->allocate(1);
+                d_alloc->deallocate(p);
+            }
+            char a1 = value_of(a);
+            char b1 = value_of(b);
+            return 0 == ((a1 ^ b1) & 1);
+        }
+    };
+
+    // Binary predicate returning true if b < a
+    class GreaterThan : binary_function<TYPE, TYPE, bool>
+    {
+        int * d_countPtr;         // Pointer to count of times invoked
+        int * d_invocationLimit;  // Number of invocations before throwing
+
+    public:
+        GreaterThan(int *count = 0) : d_countPtr(count) {
+            d_invocationLimit = 0;
+        }
+        void setInvocationLimit(int *limit) { d_invocationLimit = limit; }
+        bool operator()(const TYPE& a, const TYPE& b) {
+            if (d_countPtr) ++*d_countPtr;
+#ifdef BDE_TARGET_EXC
+            if (d_invocationLimit) {
+                if (0 == *d_invocationLimit) throw --*d_invocationLimit;
+                else if (0 < *d_invocationLimit) --*d_invocationLimit;
+            }
+#endif // BDE_TARGET_EXC
+            return b < a;
+        }
+    };
+
     // TEST APPARATUS
     static int getValues(const TYPE **values);
         // Load the specified 'values' with the address of an array containing
@@ -1246,7 +1364,64 @@ struct TestDriver {
         // Return, by value, a new list corresponding to the specified
         // 'spec'.
 
+    static bool checkIntegrity(const Obj& object, int length);
+        // Check the integrity of the specified 'object' by verifying that
+        // iterating over the list both forwards and backwards yields 'length'
+        // positions and that 'object.size()' equals 'length'.  This simple
+        // test should catch most instances of data structure corruption in a
+        // doubly-linked-list implementation of list.
+
+    static int expectedBlocks(int n);
+        // Return the number of blocks expected to be used by a list of length
+        // 'n'.
+
+    static int deltaBlocks(int n);
+        // Return the change in the number of blocks used by a list whose
+        // length has changed by 'n' elements.  Note: 'n' may be negative.
+
     // TEST CASES
+    static void testCase29();
+        // Test 'sort'
+
+    static void testCase28();
+        // Test 'merge'
+
+    static void testCase27();
+        // Test 'unique'
+
+    static void testCase26();
+        // Test 'remove' and 'remove_if'
+
+    static void testCase25();
+        // Test 'splice'
+
+    static void testCase24();
+        // Test 'reverse'
+
+    static void testCase23(bool uses_bslma, bool bitwise_moveable);
+        // Test type traits
+
+    static void testCase21();
+        // Test proper use of 'std::length_error'.
+
+    static void testCase20();
+        // Test comparison free operators.
+
+    static void testCase19();
+        // Test 'swap' member and global swap.
+
+    static void testCase18();
+        // Test 'erase' and 'pop_back'.
+
+    static void testCase17();
+        // Test 'insert' members, and move 'push_back' and 'insert' members.
+
+    template <class CONTAINER>
+    static void testCase17Range(const CONTAINER&);
+        // Test 'insert' member template.
+
+    static void testCase16();
+        // Test iterators.
 
     static void testCase15();
         // Test element access.
@@ -1319,14 +1494,17 @@ int TestDriver<TYPE,ALLOC>::getValues(const TYPE **valuesPtr)
 {
     bslma_DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
 
-    static TYPE values[5]; // avoid DEFAULT_VALUE and UNINITIALIZED_VALUE
+    static TYPE values[8]; // avoid DEFAULT_VALUE and UNINITIALIZED_VALUE
     values[0] = TYPE(VA);
     values[1] = TYPE(VB);
     values[2] = TYPE(VC);
     values[3] = TYPE(VD);
     values[4] = TYPE(VE);
+    values[5] = TYPE(VF);
+    values[6] = TYPE(VG);
+    values[7] = TYPE(VH);
 
-    const int NUM_VALUES = 5;
+    const int NUM_VALUES = 8;
 
     *valuesPtr = values;
     return NUM_VALUES;
@@ -1341,7 +1519,7 @@ int TestDriver<TYPE,ALLOC>::ggg(Obj           *object,
     getValues(&VALUES);
     enum { SUCCESS = -1 };
     for (int i = 0; spec[i]; ++i) {
-        if ('A' <= spec[i] && spec[i] <= 'E') {
+        if ('A' <= spec[i] && spec[i] <= 'H') {
             object->push_back(VALUES[spec[i] - 'A']);
         }
         else if ('~' == spec[i]) {
@@ -1381,7 +1559,7 @@ list<TYPE>  TestDriver<TYPE,ALLOC>::gV(const char *spec)
     getValues(&VALUES);
     list<TYPE> result;
     for (int i = 0; spec[i]; ++i) {
-        if ('A' <= spec[i] && spec[i] <= 'E') {
+        if ('A' <= spec[i] && spec[i] <= 'H') {
             result.push_back(VALUES[spec[i] - 'A']);
         }
         else if ('<' == spec[i]) {
@@ -1397,10 +1575,3120 @@ list<TYPE>  TestDriver<TYPE,ALLOC>::gV(const char *spec)
    return result;
 }
 
+template <class TYPE, class ALLOC>
+bool TestDriver<TYPE,ALLOC>::checkIntegrity(const Obj& object, int length)
+{
+    const const_iterator start  = object.begin();
+    const const_iterator finish = object.end();
+    const_iterator it;
+    int count = 0;
+    static const int MAX_SAVE_ITERS = 20;
+    const_iterator save_iters[MAX_SAVE_ITERS];
+    static const char DEFAULT_CVALUE = value_of(TYPE());
+
+    // Iterate over the list.  Terminate the loop at the shorter of 'it ==
+    // finish' or 'count == length'. These should be the same, but data
+    // structure corruption such as circular links or skipped nodes could make
+    // them different.
+    for (it = start; it != finish && count < length; ++it, ++count) {
+        // Dereference the iterator and verify that the value is within the
+        // expected range.
+        char v = value_of(*it);
+        if (v != DEFAULT_CVALUE && (v < VA || VH < v)) return false;
+        if (count < MAX_SAVE_ITERS) {
+            save_iters[count] = it;
+        }
+    }
+
+    // Verify that 'count' reached 'length' at the same time that 'it' reached
+    // 'finish'
+    if (it != finish || count != length)
+        return false;
+
+    // Iterate over the list in reverse.  Verify that we see the same iterator
+    // values on this traversal as we did in the forward direction.
+    while (it != start && count > 0) {
+        --it;
+        --count;
+        if (count < MAX_SAVE_ITERS && it != save_iters[count])
+            return false;
+    }
+
+    if (it != start || count != 0)
+        return false;
+
+    // If got here, then the only integrity test left is to verify that size()
+    // returns the actual length of the list.
+    return length == object.size();
+}
+
+template <class TYPE, class ALLOC>
+inline
+int TestDriver<TYPE,ALLOC>::deltaBlocks(int n)
+{
+    // One block per element plus one additional block per element if the
+    // element uses the list's allocator ('SCOPED_ALLOC' == 1).
+    return n + n * SCOPED_ALLOC;
+}
+
+template <class TYPE, class ALLOC>
+inline
+int TestDriver<TYPE,ALLOC>::expectedBlocks(int n)
+{
+    // One block for the sentinal node + block allocations.
+    return 1 + deltaBlocks(n);
+}
+
                                  // ----------
                                  // TEST CASES
                                  // ----------
 
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase29()
+{
+    // --------------------------------------------------------------------
+    // TESTING SORT
+    //   1. Sorts correctly in the presence of equivalent (duplicate) elements.
+    //   2. Sorts correctly if the input is already sorted or sorted in
+    //      reverse.
+    //   3. No memory is allocated or deallocated during the sort.
+    //   4. No constructors, destructors, or assignment of elements takes
+    //      place.
+    //   5. Iterators to all elements remain valid.
+    //   6. The predicate version of 'sort' can be used to sort using a
+    //      different comparison criterion.
+    //   7. The non-predicatate version of 'sort' does not use 'std::less'.
+    //   8. The sort is stable -- equivalent elements remain in the same order
+    //      as in the original list.
+    //   9. The number of calls to the comparison operation is no larger than
+    //      'N*log2(N)', where 'N' is the number of elements.
+    //   10. If the comparison function throws an exception, no memory is
+    //      leaked.  (The order of the elements is indeterminate.)
+    //
+    // Test plan:
+    //
+    //   Create a series of list specifications of different lengths, some
+    //   containing duplicates, triplicates, and multiple sets of duplicates
+    //   and triplicates.  Generate every permutation of elements within each
+    //   specification.  Create a list from the permutation, and store an
+    //   iterator to each list element.  Sort the list.  Verify that the
+    //   resultant list is a sorted version of the original.  Verify that
+    //   iterating over each element in the sorted list results in an iterator
+    //   that existed in the original list and that, for equivalent elements,
+    //   the iterators appear in the same order.  Test allocations,
+    //   constructor counts, destructor counts, and assignment counts before
+    //   and after the sort and verify that they haven't changed.
+    //   (Constructor, destructor, and assignment counts are meaningful only
+    //   if 'TYPE' is 'TestType', but will are accessible and will remain
+    //   unchanged anyway for other types.)  To address concern 7,
+    //   std::less<TestType> is specialized to detect being called
+    //   inappropriately.  To address concern 6, repeat the test using a
+    //   predicate that sorts in reverse order.  To address concern 9, the
+    //   predicate counts the number of invocations.  To address concern 10,
+    //   the predicate operator is instrumented to throw an exception after a
+    //   specific number of iterations.  Using a sample string, set the
+    //   comparison operator to throw at different counts and verify, after
+    //   each exception, that no memory is leaked, that the list is valid, and
+    //   that every element in the list is represented by a saved iterator.
+    //
+    // Testing:
+    //   void sort();
+    //   template <class COMP> void sort(COMP c);
+    // --------------------------------------------------------------------
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+
+    bslma_TestAllocator testAllocator;
+    ALLOC Z(&testAllocator);
+
+    const int MAX_SPEC_LEN = 10;
+
+    // NOTE: The elements within each of these specifications must be sorted
+    // so that 'next_permutation' can do the right thing.  Since we will be
+    // testing every permuation, there is no worry about having the elements
+    // int too predicatable an order.
+    const char *const SPECS[] = {
+        // Length 0 or 1: 1 permutation each
+        "",
+        "A",
+        // Length 2: max 2 permutations each
+        "AA", "AB",
+        // Length 3: max 3! = 6 permutations each
+        "AAA", "AAB", "ABB", "ABC",
+        // Length 4: max 4! = 24 permutations each
+        "AAAA", "AAAB", "AABB", "ABBB", "AABC", "ABBC", "ABCC", "ABCD",
+        // Length 5: max 5! = 120 permutations each
+        "AAAAA", "AAAAB", "AAABB", "AABBB", "ABBBB",
+        "AAABC", "AABBC", "AABCC", "ABBBC", "ABBCC", "ABCCC", "ABCDE",
+        // Length 8: max 8! = 40320 permutations each
+        "ABCDEFGH", "AABCDEFG", "ABCDEFGG", "AABCDEFF", "ABCDDEFG",
+        "AABCCDEE", "AAABBCDE",
+        // Length 10, with no more than 8 unique elements:
+        // max 10!/2!2! = 907200 permutations
+//        "AABCDEFFGH"
+    };
+
+    const int NUM_SPECS = sizeof(SPECS) / sizeof(SPECS[0]);
+
+    // Log2 of integers from 0 to 16, rounded up.
+    // (Log2(0) is undefined, but 0 works for our purposes.)
+    const int LOG2[] = { 0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4 };
+
+    if (verbose) printf("\nTesting sort()\n");
+
+    for (int i = 0; i < NUM_SPECS; ++i) {
+        const char* const S_SPEC = SPECS[i];  // Sorted spec.
+        const int LENGTH = strlen(S_SPEC);
+        ASSERT(MAX_SPEC_LEN >= LENGTH);
+
+        char spec[MAX_SPEC_LEN + 1];
+        strcpy(spec, S_SPEC);
+
+        // Expected result
+        Obj mExp;   const Obj& EXP = gg(&mExp, S_SPEC);
+
+        // Test each permutation
+        do {
+            const char *const SPEC = spec;
+            if (veryVeryVerbose) P(SPEC);
+
+            Obj mX(Z);  const Obj& X = gg(&mX, SPEC);
+
+            const_iterator save_iters[MAX_SPEC_LEN + 1];
+            const_iterator xi = X.begin();
+            for (int j = 0; j < LENGTH; ++j, ++xi) {
+                save_iters[j] = xi;
+            }
+            save_iters[LENGTH] = xi;
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+            const int CTORS_BEFORE = (numDefaultCtorCalls +
+                                      numCharCtorCalls    +
+                                      numCopyCtorCalls);
+            const int ASSIGN_BEFORE = numAssignmentCalls;
+            const int DTORS_BEFORE  = numDestructorCalls;
+
+            mX.sort();
+
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+            const int CTORS_AFTER = (numDefaultCtorCalls +
+                                     numCharCtorCalls    +
+                                     numCopyCtorCalls);
+            const int ASSIGN_AFTER = numAssignmentCalls;
+            const int DTORS_AFTER  = numDestructorCalls;
+
+            LOOP_ASSERT(SPEC, checkIntegrity(X, LENGTH));
+            LOOP_ASSERT(SPEC, X            == EXP);
+            // TBD: STLport failure -- STLPort's algorithm creates a scratch
+            // array of lists, each of which allocates a sentinal node.  This
+            // is technically conformant (I think) though inefficient.
+            // LOOP_ASSERT(SPEC, AA           == BB);
+            LOOP_ASSERT(SPEC, A            == B);
+            LOOP_ASSERT(SPEC, CTORS_AFTER  == CTORS_BEFORE);
+            LOOP_ASSERT(SPEC, DTORS_AFTER  == DTORS_BEFORE);
+            LOOP_ASSERT(SPEC, ASSIGN_AFTER == ASSIGN_BEFORE);
+
+            xi = X.begin();
+            for (int j = 0; j < LENGTH; ++j) {
+
+                // Find index of iterator in saved iterator array
+                const_iterator* p = find(save_iters, save_iters + LENGTH, xi);
+                int save_idx = p - save_iters;
+                LOOP2_ASSERT(SPEC, j, LENGTH >= save_idx);
+
+                // Verify stable sort. Iterate through equivalent values and
+                // verify that the sorted list produces iterators in the same
+                // order as in the saved iterator array.  As each iterator is
+                // matched, it is removed from 'save_iters' so as to ensure
+                // that no iterator appears more than once (which would
+                // represent a serious data structure corruption).
+                char val = SPEC[save_idx];
+                for (int k = save_idx; SPEC[k] == val; ++k, ++xi, ++j) {
+                    LOOP2_ASSERT(SPEC, k, xi == save_iters[k]);
+                    save_iters[k] = X.end();  // Avoid matching iterator twice
+                } // end for k
+            } // end for j
+        } while (next_permutation(spec, spec + LENGTH));
+    } // end for i
+
+    if (verbose) printf("\nTesting template<COMP> sort(COMP)\n");
+
+    for (int i = 0; i < NUM_SPECS; ++i) {
+        const int LENGTH = strlen(SPECS[i]);
+        ASSERT(MAX_SPEC_LEN >= LENGTH);
+
+        // Copy SPECS[i] in reverse order
+        char s_spec[MAX_SPEC_LEN + 1];
+        for (int j = 0; j < LENGTH; ++j) {
+            s_spec[j] = SPECS[i][LENGTH - j - 1];
+        }
+        s_spec[LENGTH] = '\0';
+        const char* const S_SPEC = s_spec;    // (reverse) sorted spec.
+
+        char spec[MAX_SPEC_LEN + 1];
+        strcpy(spec, S_SPEC);
+
+        // Expected result
+        Obj mExp;   const Obj& EXP = gg(&mExp, S_SPEC);
+
+        // Test each permutation
+        do {
+            const char *const SPEC = spec;
+
+            Obj mX(Z);  const Obj& X = gg(&mX, SPEC);
+
+            const_iterator save_iters[MAX_SPEC_LEN + 1];
+            const_iterator xi = X.begin();
+            for (int j = 0; j < LENGTH; ++j, ++xi) {
+                save_iters[j] = xi;
+            }
+            save_iters[LENGTH] = xi;
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+            const int CTORS_BEFORE = (numDefaultCtorCalls +
+                                      numCharCtorCalls    +
+                                      numCopyCtorCalls);
+            const int ASSIGN_BEFORE = numAssignmentCalls;
+            const int DTORS_BEFORE  = numDestructorCalls;
+
+            int predicateCalls = 0;  // Count of calls to predicate
+
+            if (veryVeryVeryVerbose) { printf("\tBefore: "); P_(X); }
+
+            mX.sort(GreaterThan(&predicateCalls));
+
+            if (veryVeryVeryVerbose) { printf("After: "); P(X); }
+
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+            const int CTORS_AFTER = (numDefaultCtorCalls +
+                                     numCharCtorCalls    +
+                                     numCopyCtorCalls);
+            const int ASSIGN_AFTER = numAssignmentCalls;
+            const int DTORS_AFTER  = numDestructorCalls;
+
+            LOOP_ASSERT(SPEC, checkIntegrity(X, LENGTH));
+            LOOP_ASSERT(SPEC, X            == EXP);
+            // TBD: STLport failure -- STLPort's algorithm creates a scratch
+            // array of lists, each of which allocates a sentinal node.  This
+            // is technically conformant (I think) though inefficient.
+            // LOOP_ASSERT(SPEC, AA           == BB);
+            LOOP_ASSERT(SPEC, A            == B);
+            LOOP_ASSERT(SPEC, CTORS_AFTER  == CTORS_BEFORE);
+            LOOP_ASSERT(SPEC, DTORS_AFTER  == DTORS_BEFORE);
+            LOOP_ASSERT(SPEC, ASSIGN_AFTER == ASSIGN_BEFORE);
+
+            // Verify complexity requirement.
+            LOOP_ASSERT(SPEC, predicateCalls <= LENGTH * LOG2[LENGTH]);
+            LOOP_ASSERT(SPEC, predicateCalls >= LENGTH - 1);
+
+            xi = X.begin();
+            for (int j = 0; j < LENGTH; ++j) {
+
+                // Find index of iterator in saved iterator array
+                const_iterator* p = find(save_iters, save_iters + LENGTH, xi);
+                int save_idx = p - save_iters;
+                LOOP2_ASSERT(SPEC, j, LENGTH >= save_idx);
+
+                // Verify stable sort. Iterate through equivalent values and
+                // verify that the sorted list produces iterators in the same
+                // order as in the saved iterator array.  As each iterator is
+                // matched, it is removed from 'save_iters' so as to ensure
+                // that no iterator appears more than once (which would
+                // represent a serious data structure corruption).
+                char val = SPEC[save_idx];
+                for (int k = save_idx; SPEC[k] == val; ++k, ++xi, ++j) {
+                    LOOP2_ASSERT(SPEC, k, xi == save_iters[k]);
+                    save_iters[k] = X.end();  // Avoid matching iterator twice
+                } // end for k
+            } // end for j
+        } while (next_permutation(spec, spec + LENGTH, std::greater<char>()));
+    } // end for i
+
+#ifdef BDE_TARGET_EXC
+    if (verbose) printf("\nTesting exception safety\n");
+
+    // Choose a longish string of random values
+    const char EH_SPEC[] = "CBHADBAGCBFFADHE";
+    const int EH_SPEC_LEN = sizeof(EH_SPEC) - 1;
+
+    bool caught_ex = true;
+    for (int threshold = 0; caught_ex; ++threshold) {
+        caught_ex = false;
+
+        Obj mX(Z);  const Obj& X = gg(&mX, EH_SPEC);
+
+        const_iterator save_iters[EH_SPEC_LEN + 1];
+        const_iterator xi = X.begin();
+        for (int j = 0; j < EH_SPEC_LEN; ++j, ++xi) {
+            save_iters[j] = xi;
+        }
+        save_iters[EH_SPEC_LEN] = xi;
+
+        const int BB = testAllocator.numBlocksTotal();
+        const int B  = testAllocator.numBlocksInUse();
+        const int CTORS_BEFORE = (numDefaultCtorCalls +
+                                  numCharCtorCalls    +
+                                  numCopyCtorCalls);
+        const int ASSIGN_BEFORE = numAssignmentCalls;
+        const int DTORS_BEFORE  = numDestructorCalls;
+
+        GreaterThan gt;  // Create a predicate object
+        int limit = threshold;
+        gt.setInvocationLimit(&limit);
+        try {
+            mX.sort(gt);
+        }
+        catch (int e) {
+            LOOP_ASSERT(threshold, -1 == e);
+            caught_ex = true;
+        }
+        catch (...) {
+            LOOP_ASSERT(threshold, ("Caught unexpected exception", 0));
+            caught_ex = true;
+        }
+
+        if (veryVeryVeryVerbose) {
+            T_; P_(threshold); P_(caught_ex);
+            printf("Result: "); P(X);
+        }
+
+        const int AA = testAllocator.numBlocksTotal();
+        const int A  = testAllocator.numBlocksInUse();
+        const int CTORS_AFTER = (numDefaultCtorCalls +
+                                 numCharCtorCalls    +
+                                 numCopyCtorCalls);
+        const int ASSIGN_AFTER = numAssignmentCalls;
+        const int DTORS_AFTER  = numDestructorCalls;
+
+        if (caught_ex) {
+            // Should not call predicate more than N*Log2(N) times.
+            LOOP_ASSERT(threshold, threshold < EH_SPEC_LEN * LOG2[EH_SPEC_LEN]);
+        }
+        else {
+            // Must have called predicate successfully at least N-1 times.
+            LOOP_ASSERT(threshold, threshold >= EH_SPEC_LEN -1);
+        }
+
+        // TBD: STLport failure: sort does not preserve the elements of the
+        // list in case of exception, in violation of both the C++98 and C++0x
+        // standards.
+        // LOOP_ASSERT(threshold, X.size() == EH_SPEC_LEN);
+        LOOP_ASSERT(threshold, checkIntegrity(X, X.size()));
+
+        // TBD: STLport failure -- STLPort's algorithm creates a scratch
+        // array of lists, each of which allocates a sentinal node.  This
+        // is technically conformant (I think) though inefficient.
+        // LOOP_ASSERT(threshold, AA           == BB);
+        LOOP_ASSERT(threshold, CTORS_AFTER  == CTORS_BEFORE);
+        LOOP_ASSERT(threshold, ASSIGN_AFTER == ASSIGN_BEFORE);
+
+        if (X.size() == EH_SPEC_LEN) {
+            // To avoid cascade errors The following tests are skipped if the
+            // length changed.  Otherwise they would all fail, giving no
+            // additional information.
+
+            LOOP_ASSERT(threshold, A            == B);
+            LOOP_ASSERT(threshold, DTORS_AFTER  == DTORS_BEFORE);
+        }
+
+        // Verify that all iterators in list were already in the list before
+        // the sort (and before the exception).  The order of elements is
+        // unspecified in the case of an exception, and is thus not tested.
+        for (xi = X.begin(); xi != X.end(); ++xi) {
+            // Find index of iterator in saved iterator array
+            const_iterator* p = find(save_iters, save_iters + EH_SPEC_LEN, xi);
+            int save_idx = p - save_iters;
+            const char VAL = EH_SPEC[save_idx];
+
+            LOOP_ASSERT(threshold, save_idx < EH_SPEC_LEN);
+            if (save_idx < EH_SPEC_LEN) {
+                LOOP_ASSERT(threshold, value_of(*xi) == VAL);
+            }
+        } // End for (xi)
+    } // End for (threshold)
+#endif // BDE_TARGET_EXC
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase28()
+{
+    // --------------------------------------------------------------------
+    // TESTING MERGE
+    //
+    // Concerns:
+    //   1. Merging produces correct results with and without duplicate
+    //      elements within and between the lists to be merged.
+    //   2. The argument to merge is empty after the merge.
+    //   3. No memory is allocated or deallocated during the merge.
+    //   4. No constructors, destructors, or assignment of elements takes
+    //      place.
+    //   5. Iterators to all elements remain valid.
+    //   6. The predicate version of 'merge' can be used to merge using a
+    //      different comparison criterion.
+    //   7. The non-predicatate version of 'merge' does not use 'std::less'.
+    //   8. Merging a list with itself has no effect.
+    //   9. If the comparison function throws an exception, no memory is
+    //      leaked and all elements remain in one list or the other.
+    //
+    // Test plan:
+    //   Create two lists from the cross-product of two small sets of
+    //   specifications. The elements in the lists are chosen so that every
+    //   combination of duplicate and non-duplicate elements, both within and
+    //   between lists, is represented.  Save the iterators to all elements of
+    //   both lists and record the memory usage before the merge.  Merge one
+    //   list into the other.  Verify that the merged value is correct, that
+    //   all of the pre-merge iterators are still valid, and that the
+    //   non-merged list is now empty.  To address concern 6, sort the initial
+    //   specifications using the reverse sort order, then use a custom
+    //   "greater-than" predicate to merge the lists and verify the same
+    //   values as for the non-predicate case.  To address concern 7,
+    //   std::less<TestType> is specialized to detect being called
+    //   inappropriately.  To address concern 8, merge each list with itself
+    //   and verify that no memory is allocated or deallocated and that all
+    //   iterators remain valid.
+    //
+    // Testing:
+    //   void merge(list& other);
+    //   template <class COMP> void merge(list& other, COMP c);
+    // --------------------------------------------------------------------
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+
+    bslma_TestAllocator testAllocator;
+    ALLOC Z(&testAllocator);
+
+    class SortedSpecGen
+    {
+        // Generate every possible specification up to 5 elements long such
+        // that no element has a value less than the previous element.  Using
+        // 6 of the possible 8 values for each element, there are a total of
+        // 462 combinations.
+    public:
+        enum { MAX_SPEC_LEN = 5 };
+    private:
+        int  d_len;
+        char d_spec[MAX_SPEC_LEN + 1];
+        mutable char d_reverse_spec[MAX_SPEC_LEN + 1];
+
+        enum { MAX_ELEMENT = 'F' };
+
+    public:
+        SortedSpecGen() : d_len(0) { d_spec[0] = '\0'; }
+
+        // Return true if this object holds a valid spec
+        operator bool() const { return d_len <= MAX_SPEC_LEN; }
+
+        // Advance to the next specification
+        SortedSpecGen& operator++() {
+
+            // Find the last element with value < MAX_ELEMENT. Note that
+            // with 'MAX_ELEMENT' set to 'F', we are using only 6 of the
+            // possible 8 values for each element yielding a total of 462
+            // combinations.  For more combinations (and a slower test),
+            // extend 'MAX_ELEMENT' to 'G' or (max) 'H'.
+            char max_elem_str[2] = { MAX_ELEMENT, 0 };
+            int i = strcspn(d_spec, max_elem_str) - 1;
+
+            // If nothing was found, then 'd_spec' is all MAX_ELEMENTs.
+            // Increment length and start over with all 'A's.
+            if (i < 0) {
+                ++d_len;
+                if (MAX_SPEC_LEN < d_len) return *this;
+                memset(d_spec, 'A', d_len);
+                d_spec[d_len] = '\0';
+                return *this;
+            }
+
+            // d_spec[i] < MAX_ELEMENT.  Increment the element at 'i' and fill
+            // the remainder of the spec with the same value.
+            char x = d_spec[i] + 1;
+            memset(d_spec + i, x, d_len - i);
+            return *this;
+        }
+
+        int len() const { return d_len; }
+        const char* spec() const { return d_spec; }
+        const char* reverse_spec() const {
+            for (int i = 0; i < d_len; ++i) {
+                d_reverse_spec[d_len - i - 1] = d_spec[i];
+            }
+            d_reverse_spec[d_len] = '\0';
+            return d_reverse_spec;
+        }
+    };  // End class SortedSpecGen
+
+    const int MAX_SPEC_LEN = SortedSpecGen::MAX_SPEC_LEN;
+
+    if (verbose) printf("\nTesting void merge(list& other);\n");
+
+    for (SortedSpecGen xgen; xgen; ++xgen) {
+        for (SortedSpecGen ygen; ygen; ++ygen) {
+
+            const char* const X_SPEC     = xgen.spec();
+            const int         X_SPEC_LEN = xgen.len();
+            const char* const Y_SPEC     = ygen.spec();
+            const int         Y_SPEC_LEN = ygen.len();
+
+            Obj mX(Z); const Obj& X = gg(&mX, X_SPEC);
+            Obj mY(Z); const Obj& Y = gg(&mY, Y_SPEC);
+
+            const_iterator xiters[MAX_SPEC_LEN + 1];
+            const_iterator yiters[MAX_SPEC_LEN + 1];
+
+            // Save the iterators before merge
+            int xi = 0;
+            for (const_iterator it = X.begin(); it != X.end(); ++it, ++xi) {
+                xiters[xi] = it;
+            }
+            xiters[xi] = X.end();
+            int yi = 0;
+            for (const_iterator it = Y.begin(); it != Y.end(); ++it, ++yi) {
+                yiters[yi] = it;
+            }
+            yiters[yi] = Y.end();
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+            const int CTORS_BEFORE = (numDefaultCtorCalls +
+                                      numCharCtorCalls    +
+                                      numCopyCtorCalls);
+            const int ASSIGN_BEFORE = numAssignmentCalls;
+            const int DTORS_BEFORE  = numDestructorCalls;
+
+            // Self merge (noop)
+// TBD: C++98 didn't support self merge.  C++0x does.
+//            mX.merge(mX);
+            LOOP2_ASSERT(X_SPEC, Y_SPEC, X.size() == X_SPEC_LEN);
+            LOOP2_ASSERT(X_SPEC, Y_SPEC, Y.size() == Y_SPEC_LEN);
+
+            if (veryVeryVerbose) {
+                T_; printf("Before: "); P_(X); P_(Y);
+            }
+
+            mX.merge(mY); // Test merge here
+
+            if (veryVeryVerbose) {
+                T_; printf("After: "); P_(X); P(Y);
+            }
+
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+            const int CTORS_AFTER = (numDefaultCtorCalls +
+                                     numCharCtorCalls    +
+                                     numCopyCtorCalls);
+            const int ASSIGN_AFTER = numAssignmentCalls;
+            const int DTORS_AFTER  = numDestructorCalls;
+
+            // Test result size
+            LOOP2_ASSERT(X_SPEC, Y_SPEC, X.size() == X_SPEC_LEN + Y_SPEC_LEN);
+            LOOP2_ASSERT(X_SPEC, Y_SPEC, Y.size() == 0);
+
+            // Test merged results and iterators
+            int idx = 0;
+            xi = yi = 0;
+            for (const_iterator it = X.begin(); it != X.end(); ++it, ++idx)
+            {
+                if (it == xiters[xi]) {
+                    if (yi < Y_SPEC_LEN) {
+                        // Verify that merge criterion was met
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
+                                     ! (Y_SPEC[yi] < X_SPEC[xi]));
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
+                                     VALUES[X_SPEC[xi] - 'A'] == *it)
+                    }
+                    ++xi;
+                }
+                else if (it == yiters[yi]) {
+                    if (xi < X_SPEC_LEN) {
+                        // Verify that merge criterion was met.
+                        // C++98 required that items from X precede equivalent
+                        // items from Y.  C++0x seemed to remove this
+                        // requirement, but we should adhere to it anyway.
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
+                                     Y_SPEC[yi] < X_SPEC[xi]);
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
+                                     VALUES[Y_SPEC[yi] - 'A'] == *it)
+                    }
+                    ++yi;
+                }
+                else {
+                    // A stable merge requires that the iterator must match
+                    // the next iterator on the save x or y list.
+                    LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
+                                 ("Invalid merge", 0));
+                }
+            }
+            // Test end iterators
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, xiters[xi] == X.end());
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, yiters[yi] == Y.end());
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, (xi + yi) == X.size());
+
+            // Test allocations and deallocations
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, AA == BB);
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,  A ==  B);
+
+            // Test that no constructors, destructors or assignments were
+            // called.
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, CTORS_AFTER  == CTORS_BEFORE);
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, DTORS_AFTER  == DTORS_BEFORE);
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, ASSIGN_AFTER ==ASSIGN_BEFORE);
+        } // end for (ygen)
+    } // end for (xgen)
+
+    if (verbose) printf("\nTesting void merge(list& other, COMP c);\n");
+
+    for (SortedSpecGen xgen; xgen; ++xgen) {
+        for (SortedSpecGen ygen; ygen; ++ygen) {
+
+            const char* const X_SPEC     = xgen.reverse_spec();
+            const int         X_SPEC_LEN = xgen.len();
+            const char* const Y_SPEC     = ygen.reverse_spec();
+            const int         Y_SPEC_LEN = ygen.len();
+
+            Obj mX(Z); const Obj& X = gg(&mX, X_SPEC);
+            Obj mY(Z); const Obj& Y = gg(&mY, Y_SPEC);
+
+            const_iterator xiters[MAX_SPEC_LEN + 1];
+            const_iterator yiters[MAX_SPEC_LEN + 1];
+
+            // Save the iterators before merge
+            int xi = 0;
+            for (const_iterator it = X.begin(); it != X.end(); ++it, ++xi) {
+                xiters[xi] = it;
+            }
+            xiters[xi] = X.end();
+            int yi = 0;
+            for (const_iterator it = Y.begin(); it != Y.end(); ++it, ++yi) {
+                yiters[yi] = it;
+            }
+            yiters[yi] = Y.end();
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+            const int CTORS_BEFORE = (numDefaultCtorCalls +
+                                      numCharCtorCalls    +
+                                      numCopyCtorCalls);
+            const int ASSIGN_BEFORE = numAssignmentCalls;
+            const int DTORS_BEFORE  = numDestructorCalls;
+
+            // Self merge (noop)
+// TBD: C++98 didn't support self merge.  C++0x does.
+//            mX.merge(mX, GreaterThan());
+            LOOP2_ASSERT(X_SPEC, Y_SPEC, X.size() == X_SPEC_LEN);
+            LOOP2_ASSERT(X_SPEC, Y_SPEC, Y.size() == Y_SPEC_LEN);
+
+            if (veryVeryVerbose) {
+                T_; printf("Before: "); P_(X); P_(Y);
+            }
+
+            mX.merge(mY, GreaterThan()); // Test merge here
+
+            if (veryVeryVerbose) {
+                T_; printf("After: "); P_(X); P(Y);
+            }
+
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+            const int CTORS_AFTER = (numDefaultCtorCalls +
+                                     numCharCtorCalls    +
+                                     numCopyCtorCalls);
+            const int ASSIGN_AFTER = numAssignmentCalls;
+            const int DTORS_AFTER  = numDestructorCalls;
+
+            // Test result size
+            LOOP2_ASSERT(X_SPEC, Y_SPEC, X.size() == X_SPEC_LEN + Y_SPEC_LEN);
+            LOOP2_ASSERT(X_SPEC, Y_SPEC, Y.size() == 0);
+
+            // Test merged results and iterators
+            int idx = 0;
+            xi = yi = 0;
+            for (const_iterator it = X.begin(); it != X.end(); ++it, ++idx)
+            {
+                if (it == xiters[xi]) {
+                    if (yi < Y_SPEC_LEN) {
+                        // Verify that merge criterion was met
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
+                                     ! (Y_SPEC[yi] > X_SPEC[xi]));
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
+                                     VALUES[X_SPEC[xi] - 'A'] == *it)
+                    }
+                    ++xi;
+                }
+                else if (it == yiters[yi]) {
+                    if (xi < X_SPEC_LEN) {
+                        // Verify that merge criterion was met.
+                        // C++98 required that items from X precede equivalent
+                        // items from Y.  C++0x seemed to remove this
+                        // requirement, but we should adhere to it anyway.
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
+                                     Y_SPEC[yi] > X_SPEC[xi]);
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
+                                     VALUES[Y_SPEC[yi] - 'A'] == *it)
+                    }
+                    ++yi;
+                }
+                else {
+                    // A stable merge requires that the iterator must match
+                    // the next iterator on the save x or y list.
+                    LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
+                                 ("Invalid merge", 0));
+                }
+            }
+            // Test end iterators
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, xiters[xi] == X.end());
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, yiters[yi] == Y.end());
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, (xi + yi) == X.size());
+
+            // Test allocations and deallocations
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, AA == BB);
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,  A ==  B);
+
+            // Test that no constructors, destructors or assignments were
+            // called.
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, CTORS_AFTER  == CTORS_BEFORE);
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, DTORS_AFTER  == DTORS_BEFORE);
+            LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, ASSIGN_AFTER ==ASSIGN_BEFORE);
+        } // end for (ygen)
+    } // end for (xgen)
+
+#ifdef BDE_TARGET_EXC
+    if (verbose) printf("\nTesting exception safety\n");
+    {
+        const char X_SPEC[] = "HGFEDCBA";
+        const char Y_SPEC[] = "GGEECCBA";
+        const int X_SPEC_LEN = sizeof(X_SPEC) - 1;
+        const int Y_SPEC_LEN = sizeof(Y_SPEC) - 1;
+        const int MERGED_SPEC_LEN = X_SPEC_LEN + Y_SPEC_LEN;
+
+        bool caught_ex = true;
+        for (int threshold = 0; caught_ex; ++threshold) {
+            caught_ex = false;
+
+            Obj mX(Z);  const Obj& X = gg(&mX, X_SPEC);
+            Obj mY(Z);  const Obj& Y = gg(&mY, Y_SPEC);
+
+            const_iterator save_iters[MERGED_SPEC_LEN + 1];
+            int j = 0;
+            for (const_iterator xi = X.begin(); xi != X.end(); ++xi, ++j) {
+                save_iters[j] = xi;
+            }
+            for (const_iterator yi = Y.begin(); yi != Y.end(); ++yi, ++j) {
+                save_iters[j] = yi;
+            }
+            save_iters[MERGED_SPEC_LEN] = Y.end();
+            LOOP_ASSERT(threshold, MERGED_SPEC_LEN == j);
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+            const int CTORS_BEFORE = (numDefaultCtorCalls +
+                                      numCharCtorCalls    +
+                                      numCopyCtorCalls);
+            const int ASSIGN_BEFORE = numAssignmentCalls;
+            const int DTORS_BEFORE  = numDestructorCalls;
+
+            GreaterThan gt;  // Create a predicate object
+            int limit = threshold;
+            gt.setInvocationLimit(&limit);
+            try {
+                mX.merge(mY, gt);
+            }
+            catch (int e) {
+                LOOP_ASSERT(threshold, -1 == e);
+                caught_ex = true;
+            }
+            catch (...) {
+                LOOP_ASSERT(threshold, ("Caught unexpected exception", 0));
+                caught_ex = true;
+            }
+
+            if (veryVeryVeryVerbose) {
+                T_; P_(threshold); P_(caught_ex);
+                printf("Result: "); P_(X); P(Y);
+            }
+
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+            const int CTORS_AFTER = (numDefaultCtorCalls +
+                                     numCharCtorCalls    +
+                                     numCopyCtorCalls);
+            const int ASSIGN_AFTER = numAssignmentCalls;
+            const int DTORS_AFTER  = numDestructorCalls;
+
+            LOOP_ASSERT(threshold, X.size() + Y.size() == MERGED_SPEC_LEN);
+            LOOP_ASSERT(threshold, checkIntegrity(X, X.size()));
+            LOOP_ASSERT(threshold, checkIntegrity(Y, Y.size()));
+
+            LOOP_ASSERT(threshold, AA           == BB);
+            LOOP_ASSERT(threshold, ASSIGN_AFTER == ASSIGN_BEFORE);
+            LOOP_ASSERT(threshold, CTORS_AFTER  == CTORS_BEFORE);
+
+            if (X.size() + Y.size() == MERGED_SPEC_LEN) {
+                // To avoid cascade errors The following tests are skipped if
+                // the total length changed.  Otherwise they would all fail,
+                // giving no additional information.
+                LOOP_ASSERT(threshold, A            == B);
+                LOOP_ASSERT(threshold, DTORS_AFTER  == DTORS_BEFORE);
+            }
+
+            // Verify that all iterators in the lists were already in the
+            // lists before the merge (and before the exception).  The order
+            // of elements is unspecified in the case of an exception, and is
+            // thus not tested.
+            char prev_val = 'Z';
+            for (const_iterator xi = X.begin(); xi != X.end(); ++xi) {
+                // Find index of iterator in saved iterator array
+                const_iterator* p = find(save_iters,
+                                         save_iters + MERGED_SPEC_LEN, xi);
+                int save_idx = p - save_iters;
+                const char VAL = (save_idx < X_SPEC_LEN) ?
+                                  X_SPEC[save_idx] :
+                                  Y_SPEC[save_idx - X_SPEC_LEN];
+
+                LOOP_ASSERT(threshold, save_idx < MERGED_SPEC_LEN);
+                if (save_idx < MERGED_SPEC_LEN) {
+                    LOOP_ASSERT(threshold, value_of(*xi) == VAL);
+                    // Verify that the values are still in descending value,
+                    // even though the standard does not seem to require it.
+                    LOOP_ASSERT(threshold, VAL <= prev_val);
+                }
+                save_iters[save_idx] = Y.end(); // Prevent duplicate matches
+            } // End for (xi)
+            prev_val = 'Z';
+            for (const_iterator yi = Y.begin(); yi != Y.end(); ++yi) {
+                // Find index of iterator in saved iterator array
+                const_iterator* p = find(save_iters,
+                                         save_iters + MERGED_SPEC_LEN, yi);
+                int save_idx = p - save_iters;
+                const char VAL = (save_idx < X_SPEC_LEN) ?
+                                  X_SPEC[save_idx] :
+                                  Y_SPEC[save_idx - X_SPEC_LEN];
+
+                LOOP_ASSERT(threshold, save_idx < MERGED_SPEC_LEN);
+                if (save_idx < MERGED_SPEC_LEN) {
+                    LOOP_ASSERT(threshold, value_of(*yi) == VAL);
+                    // Verify that the values are still in descending value,
+                    // even though the standard does not seem to require it.
+                    LOOP_ASSERT(threshold, VAL <= prev_val);
+                }
+                save_iters[save_idx] = Y.end(); // Prevent duplicate matches
+            } // End for (yi)
+        } // End for (threshold)
+    }
+#endif // BDE_TARGET_EXC
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase27()
+{
+    // --------------------------------------------------------------------
+    // TESTING UNIQUE
+    //
+    // Concerns:
+    //   1. The predicate and non-predicate versions of 'unique' have
+    //      essentially the same characteristics.
+    //   2. Can remove elements from any or all positions in the list except
+    //      the first.
+    //   3. Destructors are called for removed elements and memory is deleted
+    //      for removed elements.
+    //   4. No constructors, destructors, or assignment operators are called
+    //      on the remaining (non-removed) elements.
+    //   5. No memory is allocated.
+    //   6. Iterators to non-removed elements, including the 'end()' iterator,
+    //      remain valid after removal.
+    //   7. The non-removed elements retain their relative order.
+    //   8. The 'unique' operation is exception-neutral, if the equality
+    //      operator or predicate throw an exception.
+    //   9. The non-predicate version calls operator==(T,T) directly; it does
+    //      not call std::equal_to<T>::operator()(T,T).
+    //
+    // Plan:
+    //   For concern 1, preform the same tests for both the predicate and
+    //   non-predicate versions of 'unique.  Generate lists of various lengths
+    //   up to 10 elements, filling the lists with different sequences of
+    //   values such that every combination of matching and non-matching
+    //   subsequences is generated.  (For the predicate version, matching
+    //   elements need to be equal only in their low bit).  For each
+    //   combination, make a copy of all of the iterators to non-repeated
+    //   elements, then call 'unique'. Validate that: The number of new
+    //   destructor calls matches the number of elements removed, reduction of
+    //   memory blocks in use is correct for the number elements removed, the
+    //   number of new allocations is zero, the number of new constructor
+    //   calls is zero, and the iterating over the remaining elements produces
+    //   a sequence of values and iterators matching those saved before the
+    //   'unique' operation.  For concern 8, perform the tests in an
+    //   exception-testing framework, using a special feature of the
+    //   'LowBitEQ' predicate to cause exceptions to be thrown.  For concern
+    //   9, std::equal_to<TestType> is specialized to detect being called
+    //   inappropriately.
+    //
+    // Testing:
+    //   void unique();
+    //   template <class BINPRED> void unique(BINPRED p);
+    // --------------------------------------------------------------------
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    // For this test, it is important that 'NUM_VALUES' be even.
+    // If 'getValues' returns an odd number, ignore the last value.
+    const int           NUM_VALUES = getValues(&values) & 0xfffe;
+
+    bslma_TestAllocator testAllocator; // For exception testing only
+    bslma_TestAllocator objAllocator;  // For object allocation testing
+    ALLOC Z(&objAllocator);
+
+    const int LENGTHS[] = { 0, 1, 2, 3, 4, 5, 10 };
+    const int NUM_LENGTHS = sizeof(LENGTHS) / sizeof(LENGTHS[0]);
+    const int MAX_LENGTH = 10;
+
+    enum {
+        OP_FIRST,
+        OP_UNIQUE = OP_FIRST, // void unique();
+        OP_UNIQUE_PRED,       // template <class BINPRED> void unique(BINPRED);
+        OP_LAST
+    };
+
+    for (int op = OP_FIRST; op < OP_LAST; ++op) {
+
+        // The 'perturb_bit' is a bit mask that can be pertured in a value and
+        // still compare equal to the original according to the predicate.
+        char perturb_bit;
+
+        switch (op) {
+          case OP_UNIQUE:
+            if (verbose) printf("\nTesting unique()\n");
+            perturb_bit = 0;
+            break;
+          case OP_UNIQUE_PRED:
+            if (verbose) printf("\nTesting unique(BINPRED p)\n");
+            perturb_bit = 2;
+            break;
+        }
+
+        for (int i = 0; i < NUM_LENGTHS; ++i) {
+            const int LEN  = LENGTHS[i];
+
+            ASSERT(MAX_LENGTH >= LEN);
+
+            // 'mask' contains a bit for each element in the list.  For each
+            // '1' bit, the element should match the preceding element's value
+            // according to the predicate.  Bit 0 (the first position) is
+            // skipped, since it has no preceding value.
+            for (unsigned mask = 0; mask < (1 << LEN); mask += 2) {
+
+              BEGIN_BSLMA_EXCEPTION_TEST {
+                const_iterator save_iters[MAX_LENGTH + 1];
+                int res_len = 0;  // To compute expected result length
+                Obj mX(Z);    const Obj& X = mX;            // test objected
+                Obj res_exp;  const Obj& RES_EXP = res_exp; // expected result
+
+                int val_idx  = 0;
+                if (LEN > 0) {
+                    mX.push_back(VALUES[0]);
+                    res_exp.push_back(VALUES[0]);
+                    ++res_len;
+                    save_iters[0] = X.begin();
+                }
+                for (unsigned bit = 2; bit < (1 << LEN); bit <<= 1) {
+                    if ((mask & bit)) {
+                        // Set the new value to the previous value, but
+                        // (possibly) perturbed in such a way that it they
+                        // still compare equal according to the predicate.
+                        val_idx = val_idx ^ perturb_bit;
+                        mX.push_back(VALUES[val_idx]);
+                    }
+                    else {
+                        // Increment val_idx, modulo NUM_VALUES
+                        val_idx = (val_idx + 1) % NUM_VALUES;
+                        mX.push_back(VALUES[val_idx]);
+                        res_exp.push_back(VALUES[val_idx]);
+
+                        // Save iterators to non-repeated elements
+                        save_iters[res_len++] = --X.end();
+                    }
+                }
+                LOOP3_ASSERT(op, X, RES_EXP, X.size() == LEN);
+                LOOP3_ASSERT(op, X, RES_EXP, RES_EXP.size() == res_len);
+                save_iters[res_len] = X.end();
+
+                const int BB = objAllocator.numBlocksTotal();
+                const int B  = objAllocator.numBlocksInUse();
+                const int CTORS_BEFORE = (numDefaultCtorCalls +
+                                          numCharCtorCalls    +
+                                          numCopyCtorCalls);
+                const int ASSIGN_BEFORE = numAssignmentCalls;
+                const int DTORS_BEFORE  = numDestructorCalls;
+
+                if (veryVeryVerbose) { T_; printf("Before: "); P_(X); }
+
+                switch (op) {
+                  case OP_UNIQUE:
+                    mX.unique();
+                    break;
+                  case OP_UNIQUE_PRED: {
+                    mX.unique(LowBitEQ(&testAllocator));
+                  } break;
+                }
+
+                if (veryVeryVerbose) { printf("After: "); P(X); }
+
+                const int AA = objAllocator.numBlocksTotal();
+                const int A  = objAllocator.numBlocksInUse();
+                const int CTORS_AFTER = (numDefaultCtorCalls +
+                                         numCharCtorCalls    +
+                                         numCopyCtorCalls);
+                const int ASSIGN_AFTER = numAssignmentCalls;
+                const int DTORS_AFTER  = numDestructorCalls;
+
+                // Test result value
+                LOOP3_ASSERT(op, X, RES_EXP, checkIntegrity(X, res_len));
+                LOOP3_ASSERT(op, X, RES_EXP, X.size() == res_len);
+                LOOP3_ASSERT(op, X, RES_EXP, X == RES_EXP);
+
+                // Test that iterators are still valid
+                int idx = 0;
+                for (const_iterator it = X.begin(); it != X.end(); ++it, ++idx)
+                {
+                    LOOP4_ASSERT(op, X, RES_EXP, idx, save_iters[idx] == it);
+                }
+                // Test end iterator
+                LOOP4_ASSERT(op, X, RES_EXP, idx, save_iters[idx] == X.end());
+
+                // Test allocations and deallocations
+                LOOP3_ASSERT(op, X, RES_EXP, AA == BB);
+                LOOP3_ASSERT(op, X, RES_EXP,
+                             deltaBlocks(LEN - res_len) == B - A);
+
+                // If 'TYPE' is 'TestType', then test that no constructors or
+                // assignments were called and the expected number of
+                // destructors were called.
+                if (bslmf_IsSame<TYPE, TestType>::VALUE) {
+                    LOOP3_ASSERT(op, X, RES_EXP, CTORS_AFTER  == CTORS_BEFORE);
+                    LOOP3_ASSERT(op, X, RES_EXP,
+                                 ASSIGN_AFTER == ASSIGN_BEFORE);
+                    LOOP3_ASSERT(op, X, RES_EXP,
+                                 DTORS_AFTER == DTORS_BEFORE + (LEN-res_len));
+                }
+
+              } END_BSLMA_EXCEPTION_TEST
+            } // end for (mask)
+        } // end for (i)
+    } // end for (op)
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase26()
+{
+    // --------------------------------------------------------------------
+    // TESTING REMOVE
+    //
+    // Concerns:
+    //   1. 'remove' and 'remove_if' have essentially the same characteristics.
+    //   2. Will remove 0..N elements from an N-element list.
+    //   3. Can remove elements from any or all positions in the list
+    //   4. Destructors are called for removed elements and memory is deleted
+    //      for removed elements.
+    //   5. No constructors, destructors, or assignment operators are called
+    //      on the remaining (non-removed) elements.
+    //   6. No memory is allocated.
+    //   7. Iterators to non-removed elements, including the 'end()' iterator,
+    //      remain valid after removal.
+    //   8. The non-'E' elements retain their relative order.
+    //
+    // Plan:
+    //   For concern 1, preform the same tests for both 'remove' and
+    //   'remove_if'. Generate lists from a small set of specifications from
+    //   empty to 10 elements, none of which contain the value 'E'.  Replace 0
+    //   to 'LENGTH' elements with the value 'E', in every possible
+    //   combination.  For each specification and combination, make a copy of
+    //   all of the iterators to non-'E' elements, then call 'remove' or
+    //   'remove_if'.  Validate that: The number of new destructor call
+    //   matches the number of elements removed, reduction of memory blocks in
+    //   use is correct for the number elements removed, the number of new
+    //   allocations is zero, the number of new constructor calls is zero, and
+    //   the iterating over the remaining elements produces a sequence of
+    //   values and iterators matching those saved before the remove
+    //   operation.
+    //
+    // Testing:
+    //   void remove(const T& val);
+    //   template <class PRED> void remove_if(PRED p);
+    // --------------------------------------------------------------------
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+    const TYPE&         E          = VALUES[4];  // Element with value 'E'
+
+    bslma_TestAllocator testAllocator;
+    ALLOC Z(&testAllocator);
+
+    // Specifications from 0 to 10 elements long, none of which is the value
+    // 'E'.
+    const char* const SPECS[] = {
+        "", "A", "AB", "ABA", "ABCD", "AAAA", "ABCDF", "ABCDFGHDAB"
+    };
+
+    const int NUM_SPECS = sizeof(SPECS) / sizeof(SPECS[0]);
+    const int MAX_SPEC_LEN = 10;
+
+    enum {
+        OP_FIRST,
+        OP_REMOVE = OP_FIRST, // remove(const T& val);
+        OP_REMOVE_IF,         // template <class PRED> void remove_if(PRED p);
+        OP_LAST
+    };
+
+    for (int op = OP_FIRST; op < OP_LAST; ++op) {
+
+        if (verbose) {
+            switch (op) {
+              case OP_REMOVE:
+                printf("\nTesting remove(const T& val)\n");
+                break;
+              case OP_REMOVE_IF:
+                printf("\nTesting remove(PRED p)\n");
+                break;
+            }
+        }
+
+        for (int i = 0; i < NUM_SPECS; ++i) {
+            const char* const SPEC = SPECS[i];
+            const int         LEN  = std::strlen(SPEC);
+
+            ASSERT(MAX_SPEC_LEN >= LEN);
+
+            // 'mask' contains a bit for each element in the list.  For each
+            // '1' bit, the element is replaced by the value 'E'
+            for (unsigned mask = 0; mask < (1 << LEN); ++mask) {
+
+                Obj mX(Z);   const Obj& X = gg(&mX, SPEC);
+
+                const_iterator save_iters[MAX_SPEC_LEN + 1];
+                char res_spec[MAX_SPEC_LEN + 1]; // expected result spec
+                int res_len = 0;  // To compute expected result length
+
+                // Replace each element in 'mX' for which 'mask' has a '1'
+                // bit with the value 'E'.
+                iterator it = mX.begin();
+                int idx = 0;
+                for (unsigned bit = 1; bit < (1 << LEN);
+                     bit <<= 1, ++it, ++idx) {
+                    if ((mask & bit)) {
+                        *it = E;
+                    }
+                    else {
+                        save_iters[res_len] = it;
+                        res_spec[res_len] = SPEC[idx];
+                        ++res_len;
+                    }
+                }
+                LOOP2_ASSERT(SPEC, mask, X.end() == it);
+                save_iters[res_len] = X.end();
+                res_spec[res_len] = '\0';
+
+                const int BB = testAllocator.numBlocksTotal();
+                const int B  = testAllocator.numBlocksInUse();
+                const int CTORS_BEFORE = (numDefaultCtorCalls +
+                                          numCharCtorCalls    +
+                                          numCopyCtorCalls);
+                const int ASSIGN_BEFORE = numAssignmentCalls;
+                const int DTORS_BEFORE  = numDestructorCalls;
+
+                if (veryVeryVerbose) { T_; printf("Before: "); P_(X); }
+
+                switch (op) {
+                  case OP_REMOVE:    mX.remove(E);           break;
+                  case OP_REMOVE_IF: mX.remove_if(VPred(E)); break;
+                }
+
+                if (veryVeryVerbose) { printf("After: "); P(X); }
+
+                const int AA = testAllocator.numBlocksTotal();
+                const int A  = testAllocator.numBlocksInUse();
+                const int CTORS_AFTER = (numDefaultCtorCalls +
+                                         numCharCtorCalls    +
+                                         numCopyCtorCalls);
+                const int ASSIGN_AFTER = numAssignmentCalls;
+                const int DTORS_AFTER  = numDestructorCalls;
+
+                // Test result value
+                LOOP3_ASSERT(SPEC, res_spec, X, checkIntegrity(X, res_len));
+                LOOP3_ASSERT(SPEC, res_spec, X, X.size() == res_len);
+                LOOP3_ASSERT(SPEC, res_spec, X, X == g(res_spec));
+
+                // Test that iterators are still valid
+                const_iterator cit = X.begin();
+                for (idx = 0; idx < X.size(); ++idx, ++cit) {
+                    LOOP3_ASSERT(SPEC, res_spec, idx, save_iters[idx] == cit);
+                }
+                // Test end iterator
+                LOOP3_ASSERT(SPEC, res_spec, idx, save_iters[idx] == cit);
+
+                // Test allocations and deallocations
+                LOOP2_ASSERT(SPEC, res_spec, AA == BB);
+                LOOP2_ASSERT(SPEC, res_spec,
+                             deltaBlocks(LEN - res_len) == B - A);
+
+                // If 'TYPE' is 'TestType', then test that no constructors or
+                // assignments were called and the expected number of
+                // destructors were called.
+                if (bslmf_IsSame<TYPE, TestType>::VALUE) {
+                    LOOP2_ASSERT(SPEC, res_spec, CTORS_AFTER  == CTORS_BEFORE);
+                    LOOP2_ASSERT(SPEC, res_spec,
+                                 ASSIGN_AFTER == ASSIGN_BEFORE);
+                    LOOP2_ASSERT(SPEC, res_spec,
+                                 DTORS_AFTER == DTORS_BEFORE + (LEN-res_len));
+                }
+
+            } // end for (mask)
+        } // end for (i)
+    } // end for (op)
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase25()
+{
+    // --------------------------------------------------------------------
+    // TESTING SPLICE
+    //
+    // Concerns:
+    //   1. Can splice into any position within target list.
+    //   2. Can splice from any position within source list.
+    //   3. No iterators or pointers are invalidated.
+    //   4. No allocations or deallocations occur.
+    //   5. No constructor calls, destructor calls, or assignments occur.
+    //
+    // Test plan:
+    //   Perform a small area test with source and target lists of 0 to 5
+    //   elements each, splicing into every target position from every
+    //   source position and every source length.  Keep track of the
+    //   original iterators and element addresses from each list and
+    //   verify that they remain valid and point to the correct element in
+    //   the post-splice lists.  Query the number of allocations,
+    //   deallocations, constructor calls, destructor calls, and
+    //   assignment operator calls before and after each splice and verify
+    //   that they do not change.
+    //
+    // Testing:
+    //   void splice(iterator pos, list& other);
+    //   void splice(iterator pos, list& other, iterator i);
+    //   void splice(iterator pos, list& other,
+    //               iterator first, iterator last);
+    // --------------------------------------------------------------------
+
+    bslma_TestAllocator testAllocator;
+    ALLOC Z(&testAllocator);
+
+    const char* const SPECS[] = {
+        "", "A", "AB", "ABC", "ABCD", "ABCDE"
+    };
+
+    const int NUM_SPECS = sizeof(SPECS) / sizeof(SPECS[0]);
+    const int MAX_SPEC_LEN = 5;
+
+    enum {
+        OP_FIRST,
+        OP_SPLICE_ALL = OP_FIRST, // splice(pos, other)
+        OP_SPLICE_1,              // splice(pos, other, i)
+        OP_SPLICE_RANGE,          // splice(pos, other, first, last)
+        OP_LAST
+    };
+
+    for (int op = OP_FIRST; op < OP_LAST; ++op) {
+
+        switch (op) {
+            case OP_SPLICE_ALL:
+                if (verbose) printf("\nTesting splice(pos, other)\n");
+                break;
+            case OP_SPLICE_1:
+                if (verbose) printf("\nTesting splice(pos, other, i)\n");
+                break;
+            case OP_SPLICE_RANGE:
+                if (verbose) printf("\nTesting splice(pos, other, "
+                                    "first, last)\n");
+                break;
+        }
+
+        for (int i = 0; i < NUM_SPECS * NUM_SPECS; ++i) {
+            const char* const X_SPEC = SPECS[i / NUM_SPECS ];
+            const int         X_LEN  = std::strlen(X_SPEC);
+            const char* const Y_SPEC = SPECS[i % NUM_SPECS ];
+            const int         Y_LEN  = std::strlen(Y_SPEC);
+
+            if (veryVerbose) { P_(X_SPEC); P(Y_SPEC); }
+            LOOP_ASSERT(X_SPEC, X_LEN <= MAX_SPEC_LEN);
+            LOOP_ASSERT(Y_SPEC, Y_LEN <= MAX_SPEC_LEN);
+
+            int max_y_pos = MAX_SPEC_LEN;
+            int min_y_count = 0, max_y_count = MAX_SPEC_LEN;
+
+            switch (op) {
+                case OP_SPLICE_ALL:   min_y_count = Y_LEN;           break;
+                case OP_SPLICE_1:     min_y_count = max_y_count = 1; break;
+                case OP_SPLICE_RANGE:                                break;
+            }
+
+            if (max_y_pos + min_y_count > Y_LEN)
+                max_y_pos = Y_LEN - min_y_count;
+
+            for (int x_pos = 0; x_pos <= X_LEN; ++x_pos) {
+                for (int y_pos = 0; y_pos <= max_y_pos; ++y_pos) {
+                    for (int y_count = min_y_count;
+                         y_count <= Y_LEN-y_pos && y_count <= max_y_count;
+                         ++y_count)
+                    {
+                        Obj mX(Z);
+                        const Obj& X = gg(&mX, X_SPEC);
+
+                        Obj mY(Z);
+                        const Obj& Y = gg(&mY, Y_SPEC);
+
+                        if (veryVeryVerbose) {
+                            T_; P_(x_pos); P_(y_pos); P(y_count);
+                            T_; T_; printf("Before: "); P_(X); P(Y);
+                        }
+
+                        // iterators and pointers to elements -- BEFORE
+                        iterator    BX_iters[MAX_SPEC_LEN + 1];
+                        const TYPE* BX_ptrs[MAX_SPEC_LEN];
+                        iterator    BY_iters[MAX_SPEC_LEN + 1];
+                        const TYPE* BY_ptrs[MAX_SPEC_LEN];
+
+                        // iterators and pointers to elements -- AFTER
+                        iterator    AX_iters[2*MAX_SPEC_LEN + 1];
+                        const TYPE* AX_ptrs[2*MAX_SPEC_LEN];
+                        iterator    AY_iters[MAX_SPEC_LEN + 1];
+                        const TYPE* AY_ptrs[MAX_SPEC_LEN];
+
+                        // Save iterators and pointers into BEFORE arrays
+                        iterator xi = mX.begin();
+                        for (int j = 0; j < X_LEN; ++j, ++xi) {
+                            BX_iters[j] = xi;
+                            BX_ptrs[j] = &*xi;
+                        }
+                        BX_iters[X_LEN] = xi;
+
+                        iterator yi = mY.begin();
+                        for (int j = 0; j < Y_LEN; ++j, ++yi) {
+                            BY_iters[j] = yi;
+                            BY_ptrs[j] = &*yi;
+                        }
+                        BY_iters[Y_LEN] = yi;
+
+                        // Compute iterators and pointers AFTER splice
+                        for (int j = 0; j < x_pos; ++j) {
+                            AX_iters[j] = BX_iters[j];
+                            AX_ptrs[j] = BX_ptrs[j];
+                        }
+                        for (int j = 0; j < y_pos; ++j) {
+                            AY_iters[j] = BY_iters[j];
+                            AY_ptrs[j] = BY_ptrs[j];
+                        }
+                        for (int j = 0; j < y_count; ++j) {
+                            AX_iters[x_pos + j] = BY_iters[y_pos + j];
+                            AX_ptrs[x_pos + j] = BY_ptrs[y_pos + j];
+                        }
+                        for (int j = x_pos; j < X_LEN; ++j) {
+                            AX_iters[j + y_count] = BX_iters[j];
+                            AX_ptrs[j + y_count]  = BX_ptrs[j];
+                        }
+                        AX_iters[X_LEN + y_count] = BX_iters[X_LEN];
+                        for (int j = y_pos + y_count; j < Y_LEN; ++j) {
+                            AY_iters[j - y_count] = BY_iters[j];
+                            AY_ptrs[j - y_count]  = BY_ptrs[j];
+                        }
+                        AY_iters[Y_LEN - y_count] = BY_iters[Y_LEN];
+
+                        const int BB = testAllocator.numBlocksTotal();
+                        const int B  = testAllocator.numBlocksInUse();
+                        const int CTORS_BEFORE = (numDefaultCtorCalls +
+                                                  numCharCtorCalls    +
+                                                  numCopyCtorCalls);
+                        const int ASSIGN_BEFORE = numAssignmentCalls;
+                        const int DTORS_BEFORE  = numDestructorCalls;
+
+                        switch (op) {
+                            case OP_SPLICE_ALL:
+                                ASSERT(0 == y_pos);
+                                ASSERT(Y_LEN == y_count);
+                                mX.splice(BX_iters[x_pos], mY);
+                                break;
+                            case OP_SPLICE_1:
+                                ASSERT(1 == y_count);
+                                mX.splice(BX_iters[x_pos], mY,
+                                          BY_iters[y_pos]);
+                                break;
+                            case OP_SPLICE_RANGE:
+                                mX.splice(BX_iters[x_pos], mY,
+                                          BY_iters[y_pos],
+                                          BY_iters[y_pos + y_count]);
+                                break;
+                        }
+
+                        if (veryVeryVerbose) {
+                            T_; T_; printf("After: "); P_(X); P(Y);
+                        }
+
+                        const int AA = testAllocator.numBlocksTotal();
+                        const int A  = testAllocator.numBlocksInUse();
+                        const int CTORS_AFTER = (numDefaultCtorCalls +
+                                                 numCharCtorCalls    +
+                                                 numCopyCtorCalls);
+                        const int ASSIGN_AFTER = numAssignmentCalls;
+                        const int DTORS_AFTER  = numDestructorCalls;
+
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos, AA == BB);
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos, A  == B );
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                     CTORS_AFTER  == CTORS_BEFORE);
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                     ASSIGN_AFTER == ASSIGN_BEFORE);
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                     DTORS_AFTER  == DTORS_BEFORE);
+
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                     checkIntegrity(X, X_LEN + y_count));
+
+                        xi = mX.begin();
+                        for (int j = 0; j < X_LEN + y_count; ++j, ++xi) {
+                            LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                         AX_iters[j] == xi);
+                            LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                         AX_ptrs[j] == &*xi);
+                        }
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                     X.end() == xi);
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                     AX_iters[X_LEN + y_count] == xi);
+
+                        yi = mY.begin();
+                        for (int j = 0; j < Y_LEN - y_count; ++j, ++yi) {
+                            LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                         AY_iters[j] == yi);
+                            LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                         AY_ptrs[j] == &*yi);
+                        }
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                     Y.end() == yi);
+                        LOOP4_ASSERT(X_SPEC, Y_SPEC, x_pos, y_pos,
+                                     AY_iters[Y_LEN - y_count] == yi);
+
+                    } // end for (y_count)
+                } // end for (y_pos)
+            } // end for (x_pos)
+        } // end for (i)
+    } // end for (op)
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase24()
+{
+    // --------------------------------------------------------------------
+    // TESTING REVERSE
+    //
+    // Concerns:
+    //   1. Reversing a list produced the correct result with 0, 1, 2,
+    //      or more elements.
+    //   2. Reversing a list with duplicate elements works as expected.
+    //   3. No constructors, destructors, or assignment operators of
+    //      contained elements are called.
+    //   4. No memory is allocated or deallocated.
+    //
+    // Plan:
+    //   Create a list from a variety of specifications, including empty
+    //   lists, lists of different lengths, and lists with consecutive or
+    //   non-consecutive duplicate elements and call 'reverse' on the
+    //   list.  For concerns 1 and 2, verify that calling 'reverse'
+    //   produces the expected result.  For concern 3, compare the counts
+    //   of 'TestType' constructors and destructors before and after
+    //   calling 'reverse' and verify that they do not change.  For
+    //   concern 4, use a test allocator and compare the counts of total
+    //   blocks allocated and blocks in use before and after calling
+    //   'reverse' and verify that the counts do not change.
+    //
+    // Testing:
+    //   void reverse();
+    // --------------------------------------------------------------------
+
+    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    ALLOC Z(&testAllocator);
+
+    struct {
+        int         d_line;
+        const char* d_spec_before;
+        const char* d_spec_after;
+    } const DATA[] = {
+        { L_, "",           ""              },
+        { L_, "A",          "A"             },
+        { L_, "AB",         "BA"            },
+        { L_, "ABC",        "CBA"           },
+        { L_, "ABCD",       "DCBA"          },
+        { L_, "ABBC",       "CBBA"          },
+        { L_, "ABCA",       "ACBA"          },
+        { L_, "AAAA",       "AAAA"          },
+        { L_, "ABCDEABCD",  "DCBAEDCBA"     },
+    };
+
+    const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+    for (int i = 0; i < NUM_DATA; ++i) {
+        const int   LINE            = DATA[i].d_line;
+        const char *SPEC_BEFORE     = DATA[i].d_spec_before;
+        const char *SPEC_AFTER      = DATA[i].d_spec_after;
+        const int   LENGTH          = strlen(SPEC_BEFORE);
+
+        Obj mX(Z);
+        const Obj& X = gg(&mX, SPEC_BEFORE);
+
+        Obj mExp;
+        const Obj& EXP = gg(&mExp, SPEC_AFTER);
+
+        const int BB = testAllocator.numBlocksTotal();
+        const int B  = testAllocator.numBlocksInUse();
+        const int CTORS_BEFORE = (numDefaultCtorCalls +
+                                  numCharCtorCalls    +
+                                  numCopyCtorCalls);
+        const int ASSIGN_BEFORE = numAssignmentCalls;
+        const int DTORS_BEFORE  = numDestructorCalls;
+
+        mX.reverse();
+
+        const int AA = testAllocator.numBlocksTotal();
+        const int A  = testAllocator.numBlocksInUse();
+        const int CTORS_AFTER = (numDefaultCtorCalls +
+                                 numCharCtorCalls    +
+                                 numCopyCtorCalls);
+        const int ASSIGN_AFTER = numAssignmentCalls;
+        const int DTORS_AFTER  = numDestructorCalls;
+
+        LOOP_ASSERT(LINE, checkIntegrity(X, LENGTH));
+        LOOP_ASSERT(LINE, EXP == X);
+        LOOP_ASSERT(LINE, AA == BB);
+        LOOP_ASSERT(LINE, A  == B );
+        LOOP_ASSERT(LINE, CTORS_AFTER  == CTORS_BEFORE);
+        LOOP_ASSERT(LINE, ASSIGN_AFTER == ASSIGN_BEFORE);
+        LOOP_ASSERT(LINE, DTORS_AFTER  == DTORS_BEFORE);
+    } // end for (i)
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase23(bool uses_bslma, bool bitwise_moveable)
+{
+    // --------------------------------------------------------------------
+    // TESTING TYPE TRAITS
+    //
+    // Concerns:
+    //   1. That the list has the 'bslalg_TypeTraitHasStlIterators' trait.
+    //   2. Iff instantiated with 'bsl::allocator', then list has the
+    //      'bslalg_TypeTraitUsesBslmaAllocator' trait.
+    //   3. Iff instantiated with an allocator that is bitwise moveable, then
+    //      the list has the 'bslalg_TypeTraitBitwiseMoveable' trait.
+    //
+    // Plan:
+    //   Test each of the above three traits and compare their value to the
+    //   expected value as expressed in the 'uses_bslma' and
+    //   'bitwise_moveable' arguments to this function.
+    //
+    // Testing:
+    //   bslalg_TypeTraitHasStlIterators
+    //   bslalg_TypeTraitUsesBslmaAllocator
+    //   bslalg_TypeTraitBitwiseMoveable
+    // --------------------------------------------------------------------
+
+    ASSERT((bslalg_HasTrait<Obj,bslalg_TypeTraitHasStlIterators>::VALUE));
+
+    LOOP_ASSERT(uses_bslma, uses_bslma ==
+                (bslalg_HasTrait<Obj,
+                                 bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+
+    LOOP_ASSERT(bitwise_moveable, bitwise_moveable ==
+                (bslalg_HasTrait<Obj,
+                                 bslalg_TypeTraitBitwiseMoveable>::VALUE));
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase21()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'std::length_error'
+    //
+    // Concerns:
+    //   1) That any call to a constructor or 'assign' which would result in
+    //      an object with size exceeding 'max_size()' throws
+    //      'std::length_error'.
+    //   2) That any call to 'push_back' or 'insert' which would result in an
+    //      object with a new size that exceeds 'max_size()' throws
+    //      'std::length_error'.
+    //   3) That the 'max_size()' taken into consideration is that of the
+    //      allocator, and not an absolute constant.
+    //   4) That the value of the list is unchanged if an exception is
+    //      thrown.
+    //
+    // Plan:
+    //   For concern 3, we use an allocator wrapper that provides the same
+    //   functionality as 'ALLOC' but changes the return value of 'max_size()'
+    //   to a 'limit' value settable at runtime.  Note that the operations
+    //   throw unless 'length <= limit'.
+    //
+    //   Construct objects with value large enough that the constructor throws.
+    //   For 'assign', 'insert', 'push_back', we construct a small (non-empty)
+    //   object, and use the corresponding function to request an increase in
+    //   size that is guaranteed to result in a value exceeding 'max_size()'.
+    //
+    // Testing:
+    //   Proper use of 'std::length_error'
+    // ------------------------------------------------------------------------
+
+#if 0 // TBD: STLport failure -- implementation doesn't throw 'length_error'
+    bslma_TestAllocator testAllocator(veryVeryVerbose);
+
+    const TYPE DEFAULT_VALUE = TYPE(::DEFAULT_VALUE);
+
+    LimitAllocator<ALLOC> a(&testAllocator);
+
+    const int LENGTH = 32;
+    typedef list<TYPE,LimitAllocator<ALLOC> > LimitObj;
+
+    LimitObj mY(LENGTH, DEFAULT_VALUE);  // does not throw
+    const LimitObj& Y = mY;
+
+#ifdef BDE_BUILD_TARGET_EXC
+    if (verbose) printf("\nConstructor 'list(n, a = A())'.\n");
+
+    for (int limit = LENGTH - 1; limit <= LENGTH + 3; ++limit) {
+        bool exceptionCaught = false;
+        a.setMaxSize(limit);
+
+        // Limit for list may be smaller than allocator limit.
+        // Construct a temporary object to get it's max_size().
+        const int LIST_LIMIT = LimitObj(a).max_size();
+        LOOP2_ASSERT(limit, LIST_LIMIT, LIST_LIMIT <= limit);
+
+        if (veryVerbose)
+            printf("\tWith max_size() equal to LIST_LIMIT = %d\n", LIST_LIMIT);
+
+        try {
+            LimitObj mX(LENGTH, DEFAULT_VALUE, a);  // test here
+        }
+        catch (std::length_error& e) {
+            if (veryVerbose) {
+                printf("\t\tCaught std::length_error(\"%s\").\n", e.what());
+            }
+            exceptionCaught = true;
+        }
+        catch (...) {
+            ASSERT(0);
+            if (veryVerbose) {
+                printf("\t\tCaught unknown exception.\n");
+            }
+        }
+        LOOP2_ASSERT(LIST_LIMIT, exceptionCaught,
+                     (LIST_LIMIT < LENGTH) == exceptionCaught);
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBytesInUse());
+
+    if (verbose) printf("\nConstructor 'list(n, T x, a = A())'.\n");
+
+    for (int limit = LENGTH - 1; limit <= LENGTH + 3; ++limit) {
+        bool exceptionCaught = false;
+        a.setMaxSize(limit);
+
+        // Limit for list may be smaller than allocator limit.
+        // Construct a temporary object to get it's max_size().
+        const int LIST_LIMIT = LimitObj(a).max_size();
+
+        if (veryVerbose)
+            printf("\tWith max_size() equal to LIST_LIMIT = %d\n", LIST_LIMIT);
+
+        try {
+            LimitObj mX(LENGTH, DEFAULT_VALUE, a);  // test here
+        }
+        catch (std::length_error& e) {
+            if (veryVerbose) {
+                printf("\t\tCaught std::length_error(\"%s\").\n", e.what());
+            }
+            exceptionCaught = true;
+        }
+        catch (...) {
+            ASSERT(0);
+            if (veryVerbose) {
+                printf("\t\tCaught unknown exception.\n");
+            }
+        }
+        LOOP2_ASSERT(LIST_LIMIT, exceptionCaught,
+                     (LIST_LIMIT < LENGTH) == exceptionCaught);
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBytesInUse());
+
+    if (verbose) printf("\nConstructor 'list<Iter>(f, l, a = A())'.\n");
+
+    for (int limit = LENGTH - 1; limit <= LENGTH + 3; ++limit) {
+        bool exceptionCaught = false;
+        a.setMaxSize(limit);
+
+        // Limit for list may be smaller than allocator limit.
+        // Construct a temporary object to get it's max_size().
+        const int LIST_LIMIT = LimitObj(a).max_size();
+
+        if (veryVerbose)
+            printf("\tWith max_size() equal to LIST_LIMIT = %d\n", LIST_LIMIT);
+
+        try {
+            LimitObj mX(Y.begin(), Y.end(), a);  // test here
+        }
+        catch (std::length_error& e) {
+            if (veryVerbose) {
+                printf("\t\tCaught std::length_error(\"%s\").\n", e.what());
+            }
+            exceptionCaught = true;
+        }
+        catch (...) {
+            ASSERT(0);
+            if (veryVerbose) {
+                printf("\t\tCaught unknown exception.\n");
+            }
+        }
+        LOOP2_ASSERT(LIST_LIMIT, exceptionCaught,
+                     (LIST_LIMIT < LENGTH) == exceptionCaught);
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBytesInUse());
+
+    // The tests from here down start with a non-empty list and attempt
+    // to insert 'APPEND_LEN' items into that list.
+    const char* START_SPEC = "ABCDEABCDEABCDE";
+    const int START_LEN = strlen(START_SPEC);
+    const int APPEND_LEN = LENGTH - START_LEN;
+
+    mY.resize(APPEND_LEN);
+
+    // Insert operations
+    enum {
+        OP_FIRST,
+        OP_RESIZE = OP_FIRST,   // resize(size_type n)
+        OP_ASSIGN_N,            // assign(size_type n, const T& x)
+        OP_ASSIGN_RANGE,        // assign(IN_ITER first, IN_ITER last)
+        OP_PUSH_BACK,           // push_back()
+        OP_PUSH_FRONT,          // push_front()
+        OP_INSERT,              // insert(iterator p, const T& x)
+        OP_INSERT_N,            // insert(iterator p, size_type n, const T& x)
+        OP_INSERT_RANGE,        // insert(iterator p, IN_ITER f, IN_ITER l)
+        OP_LAST
+    };
+
+    for (int op = OP_FIRST; op < OP_LAST; ++op) {
+
+        if (verbose) {
+            switch (op) {
+              case OP_RESIZE:
+                printf("With resize(size_type n)"); break;
+              case OP_ASSIGN_N:
+                printf("With assign(size_type n, const T& x)"); break;
+              case OP_ASSIGN_RANGE:
+                printf("With assign(IN_ITER first, IN_ITER last)"); break;
+              case OP_PUSH_BACK:
+                printf("With push_back()"); break;
+              case OP_PUSH_FRONT:
+                printf("With push_front()"); break;
+              case OP_INSERT:
+                printf("With insert(iterator p, const T& x)"); break;
+              case OP_INSERT_N:
+                printf("With insert(iterator p, size_type n, const T& x)");
+                break;
+              case OP_INSERT_RANGE:
+                printf("With insert(iterator p, IN_ITER f, IN_ITER l)");
+                break;
+              default: ASSERT(0);
+            }
+        }
+
+        for (int limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
+            bool exceptionCaught = false;
+            a.setMaxSize(limit);
+
+            LimitObj mX(a);
+            const LimitObj& X =
+                TestDriver<TYPE,LimitAllocator<ALLOC> >::gg(&mX, START_SPEC);
+            int LIST_LIMIT = mX.max_size();
+
+            try {
+                if (veryVerbose)
+                    printf("\t\tWith max_size() equal to LIST_LIMIT = %d\n",
+                           LIST_LIMIT);
+
+                ExceptionGuard<LimitObj> guard(&mX, X, L_);
+
+                switch (op) {
+                  case OP_RESIZE: mX.resize(LENGTH, DEFAULT_VALUE);   break;
+                  case OP_ASSIGN_N: mX.assign(LENGTH, DEFAULT_VALUE); break;
+                  case OP_ASSIGN_RANGE: mX.assign(Y.begin(), Y.end()); break;
+                  case OP_PUSH_BACK:
+                      for (const_iterator i = Y.begin(); i != Y.end(); ++i) {
+                          mX.push_back(*i);
+                          guard.resetValue(X, L_);
+                      }
+                      break;
+                  case OP_PUSH_FRONT:
+                      for (const_iterator i = Y.begin(); i != Y.end(); ++i) {
+                          mX.push_front(*i);
+                          guard.resetValue(X, L_);
+                      }
+                      break;
+                  case OP_INSERT:
+                      for (int i = 0; i < LENGTH; ++i) {
+                          // TBD: C++0x allows const_iterator
+                          // mX.insert(X.begin(), DEFAULT_VALUE);
+                          mX.insert(mX.begin(), DEFAULT_VALUE);
+                          guard.resetValue(X, L_);
+                      }
+                      break;
+                  case OP_INSERT_N:
+                      // TBD: C++0x allows const_iterator
+                      // mX.insert(X.begin(), LENGTH, DEFAULT_VALUE);
+                      mX.insert(mX.begin(), LENGTH, DEFAULT_VALUE);
+                      break;
+                  case OP_INSERT_RANGE:
+                      guard.release();  // No strong guaranteee
+                      // TBD: C++0x allows const_iterator
+                      // mX.insert(X.begin(), Y.begin(), Y.end());
+                      mX.insert(mX.begin(), Y.begin(), Y.end());
+                      break;
+                  default: ASSERT(0);
+                }
+            }
+            catch (std::length_error& e) {
+                if (veryVerbose) {
+                    printf("\t\tCaught std::length_error(\"%s\").\n", e.what());
+                }
+                exceptionCaught = true;
+            }
+            catch (...) {
+                ASSERT(0);
+                if (veryVerbose) {
+                    printf("\t\tCaught unknown exception.\n");
+                }
+            }
+            LOOP2_ASSERT(LIST_LIMIT, exceptionCaught,
+                         (LIST_LIMIT < LENGTH) == exceptionCaught);
+            LOOP2_ASSERT(LIST_LIMIT, exceptionCaught,
+                         checkIntegrity(X, X.size());
+        } // End for (limit)
+
+        ASSERT(0 == testAllocator.numMismatches());
+        ASSERT(0 == testAllocator.numBytesInUse());
+
+    } // end for (OP)
+
+#endif //  BDE_BUILD_TARGET_EXC
+#endif // 0 TBD: STLport failure -- implementation doesn't throw 'length_error'
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase20()
+{
+    // --------------------------------------------------------------------
+    // TESTING COMPARISON FREE OPERATORS
+    //
+    // Concerns:
+    //   1) 'operator<' returns the lexicographic comparison on two lists.
+    //   2) 'operator>', 'operator<=', and 'operator>=' are correctly tied to
+    //      'operator<'.
+    //   3) That traits get selected properly.
+    //
+    // Plan:
+    //   For a variety of lists of different sizes and different values, test
+    //   that the comparison returns as expected.
+    //
+    // Testing:
+    //   bool operator<(const list<T,A>&, const list<T,A>&);
+    //   bool operator>(const list<T,A>&, const list<T,A>&);
+    //   bool operator<=(const list<T,A>&, const list<T,A>&);
+    //   bool operator>=(const list<T,A>&, const list<T,A>&);
+    // ------------------------------------------------------------------------
+
+    // NOTE: These specs must be sorted in lexicographical order
+    static const char *SPECS[] = {
+        "",
+        "A",
+        "AA",
+        "AAA",
+        "AAAA",
+        "AAAAA",
+        "AAAAAA",
+        "AAAAAAA",
+        "AAAAAAAA",
+        "AAAAAAAAA",
+        "AAAAAAAAAA",
+        "AAAAAAAAAAA",
+        "AAAAAAAAAAAA",
+        "AAAAAAAAAAAAA",
+        "AAAAAAAAAAAAAA",
+        "AAAAAAAAAAAAAAA",
+        "AAAAAB",
+        "AAAAABA",
+        "AAAAABAA",
+        "AAAAABAAA",
+        "AAAAABAAAA",
+        "AAAAABAAAAA",
+        "AAAAABAAAAAA",
+        "AAAAABAAAAAAA",
+        "AAAAABAAAAAAAA",
+        "AAAAABAAAAAAAAA",
+        "AAAAB",
+        "AAAABAAAAAA",
+        "AAAABAAAAAAA",
+        "AAAABAAAAAAAA",
+        "AAAABAAAAAAAAA",
+        "AAAABAAAAAAAAAA",
+        "AAAB",
+        "AAABA",
+        "AAABAA",
+        "AAABAAAAAA",
+        "AAB",
+        "AABA",
+        "AABAA",
+        "AABAAA",
+        "AABAAAAAA",
+        "AB",
+        "ABA",
+        "ABAA",
+        "ABAAA",
+        "ABAAAAAA",
+        "B",
+        "BA",
+        "BAA",
+        "BAAA",
+        "BAAAA",
+        "BAAAAA",
+        "BAAAAAA",
+        "BB",
+    };
+
+    const int NUM_SPECS = sizeof(SPECS) / sizeof(SPECS[0]);
+
+    if (verbose) printf("\nCompare each pair of similar and different"
+                        " values (u, v) in S x S \n.");
+    {
+        // Create first object
+        for (int si = 0; si < NUM_SPECS; ++si) {
+            const char *const U_SPEC = SPECS[si];
+
+            Obj mU(g(U_SPEC));  const Obj& U = mU;
+
+            if (veryVerbose) {
+                T_; T_; P_(U_SPEC); P(U);
+            }
+
+            // Create second object
+            for (int sj = 0; sj < NUM_SPECS; ++sj) {
+                const char *const V_SPEC = SPECS[sj];
+
+                Obj mV(g(V_SPEC));  const Obj& V = mV;
+
+                if (veryVerbose) {
+                    T_; T_; T_; P_(V_SPEC); P(V);
+                }
+
+                const bool isLT = si <  sj;
+                const bool isLE = si <= sj;
+                const bool isGT = si >  sj;
+                const bool isGE = si >= sj;
+
+                LOOP2_ASSERT(si, sj, isLT == (U <  V));
+                LOOP2_ASSERT(si, sj, isLE == (U <= V));
+                LOOP2_ASSERT(si, sj, isGT == (U >  V));
+                LOOP2_ASSERT(si, sj, isGE == (U >= V));
+                LOOP2_ASSERT(si, sj, (U <  V) == !(U >= V));
+                LOOP2_ASSERT(si, sj, (U >  V) == !(U <= V));
+            }
+        }
+    }
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase19()
+{
+    // --------------------------------------------------------------------
+    // TESTING SWAP
+    //
+    // Concerns:
+    //   1) Swapping containers does not swap allocators.
+    //   2) Swapping containers with same allocator results in no allocation
+    //      or deallocation operations.
+    //   3) Swapping containers causes iterators to remain valid but to refer
+    //      to the opposite container.
+    //   TBD: current implementation also allows swapping of containers with
+    //   different allocators. As per C++0x, this should not be allowed
+    //   because it might throw.  What should we test for here?
+    //
+    // Plan:
+    //   Construct 'lst1' and 'lst2' with same test allocator.
+    //   Add data to each list.  Remember allocation statistics and iterators.
+    //   Verify that contents were swapped.
+    //   Verify that allocator is unchanged.
+    //   Verify that no memory was allocated or deallocated.
+    //   Verify that each iterator now refers to the same element in the other
+    //      container.
+    //
+    // Testing:
+    //   swap(list& rhs);                           // member
+    //   bsl::swap(list<T,A>& lhs, list<T,A>& rhs); // free function
+    // ------------------------------------------------------------------------
+
+    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    const ALLOC Z(&testAllocator);
+
+    const int           MAX_LEN    = 15;
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec;     // container spec
+    } DATA[] = {
+        //line  spec                            length
+        //----  ----                            ------
+        { L_,   ""                        }, // 0
+        { L_,   "A"                       }, // 1
+        { L_,   "AB"                      }, // 2
+        { L_,   "ABC"                     }, // 3
+        { L_,   "ABCD"                    }, // 4
+        { L_,   "ABCDA"                   }, // 5
+        { L_,   "ABCDABCDABCDABC"         }, // 15
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    if (verbose) printf("\nTesting member swap\n");
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int     XLINE   = DATA[ti].d_lineNum;
+        const char   *XSPEC   = DATA[ti].d_spec;
+        const int     XLENGTH = strlen(XSPEC);
+        LOOP_ASSERT(XLINE, MAX_LEN >= XLENGTH);
+
+        for (int tj = 0; tj < NUM_DATA; ++tj) {
+            const int     YLINE   = DATA[tj].d_lineNum;
+            const char   *YSPEC   = DATA[tj].d_spec;
+            const int     YLENGTH = strlen(XSPEC);
+            LOOP_ASSERT(YLINE, MAX_LEN >= YLENGTH);
+
+            // Create two objects to be swapped.
+            Obj mX(Z);  const Obj& X = gg(&mX, XSPEC);
+            Obj mY(Z);  const Obj& Y = gg(&mY, YSPEC);
+
+            // Save iterators
+            const_iterator xiters[MAX_LEN + 1];
+            const_iterator yiters[MAX_LEN + 1];
+
+            const_iterator it = X.begin();
+            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+                xiters[i] = it;
+            }
+            it = Y.begin();
+            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+                yiters[i] = it;
+            }
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+
+            mX.swap(mY);  // Test here
+
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+
+            // Test the contents have swapped.  Allocator is unchanged.
+            LOOP2_ASSERT(XLINE, YLINE, g(YSPEC) == X);
+            LOOP2_ASSERT(XLINE, YLINE, g(XSPEC) == Y);
+            LOOP2_ASSERT(XLINE, YLINE, Z == X.get_allocator());
+            LOOP2_ASSERT(XLINE, YLINE, Z == Y.get_allocator());
+
+            // Test that iterators have swapped.  NOTE: the end iterator is
+            // included in this test.  This test is correct for our current
+            // implementation, but the standard does not require that the end
+            // iterator be swapped.
+            it = X.begin();
+            for (int i = 0; i < YLENGTH + 1; ++i, ++it) {
+                LOOP3_ASSERT(XLINE, YLINE, i, it == yiters[i]);
+            }
+            it = Y.begin();
+            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+                LOOP3_ASSERT(XLINE, YLINE, i, it == xiters[i]);
+            }
+
+            // No allocations or deallocations should have occured.
+            LOOP2_ASSERT(XLINE, YLINE, BB == AA);
+            LOOP2_ASSERT(XLINE, YLINE, B  == A );
+        } // end for tj
+    } // end for ti
+
+    if (verbose) printf("\nTesting free swap\n");
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int     XLINE   = DATA[ti].d_lineNum;
+        const char   *XSPEC   = DATA[ti].d_spec;
+        const int     XLENGTH = strlen(XSPEC);
+        LOOP_ASSERT(XLINE, MAX_LEN >= XLENGTH);
+
+        for (int tj = 0; tj < NUM_DATA; ++tj) {
+            const int     YLINE   = DATA[tj].d_lineNum;
+            const char   *YSPEC   = DATA[tj].d_spec;
+            const int     YLENGTH = strlen(XSPEC);
+            LOOP_ASSERT(YLINE, MAX_LEN >= YLENGTH);
+
+            // Create two objects to be swapped.
+            Obj mX(Z);  const Obj& X = gg(&mX, XSPEC);
+            Obj mY(Z);  const Obj& Y = gg(&mY, YSPEC);
+
+            // Save iterators
+            const_iterator xiters[MAX_LEN + 1];
+            const_iterator yiters[MAX_LEN + 1];
+
+            const_iterator it = X.begin();
+            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+                xiters[i] = it;
+            }
+            it = Y.begin();
+            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+                yiters[i] = it;
+            }
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+
+            swap(mX, mY);  // Test here
+
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+
+            // Test the contents have swapped.  Allocator is unchanged.
+            LOOP2_ASSERT(XLINE, YLINE, g(YSPEC) == X);
+            LOOP2_ASSERT(XLINE, YLINE, g(XSPEC) == Y);
+            LOOP2_ASSERT(XLINE, YLINE, Z == X.get_allocator());
+            LOOP2_ASSERT(XLINE, YLINE, Z == Y.get_allocator());
+
+            // Test that iterators have swapped.  NOTE: the end iterator is
+            // included in this test.  This test is correct for our current
+            // implementation, but the standard does not require that the end
+            // iterator be swapped.
+            it = X.begin();
+            for (int i = 0; i < YLENGTH + 1; ++i, ++it) {
+                LOOP3_ASSERT(XLINE, YLINE, i, it == yiters[i]);
+            }
+            it = Y.begin();
+            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+                LOOP3_ASSERT(XLINE, YLINE, i, it == xiters[i]);
+            }
+
+            // No allocations or deallocations should have occured.
+            LOOP2_ASSERT(XLINE, YLINE, BB == AA);
+            LOOP2_ASSERT(XLINE, YLINE, B  == A );
+        } // end for tj
+    } // end for ti
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase18()
+{
+    // --------------------------------------------------------------------
+    // TESTING ERASE
+    //
+    // Concerns:
+    //   1) That the resulting value is correct.
+    //   2) That erase operations do not allocate memory.
+    //   3) That no memory is leaked.
+    //
+    // Plan:
+    //   For the 'erase' methods, the concerns are simply to cover the full
+    //   range of possible indices and numbers of elements.  We build a list
+    //   with a variable size and capacity, and remove a variable element or
+    //   number of elements from it, and verify that size, capacity, and value
+    //   are as expected:
+    //      - Without exceptions, and computing the number of allocations.
+    //      - That the total allocations do not increase.
+    //      - That the in-use allocations diminish by the correct amount.
+    //
+    // Testing:
+    //   void pop_back();
+    //   void pop_front();
+    //   iterator erase(const_iterator pos);
+    //   iterator erase(const_iterator first, const_iterator last);
+    // -----------------------------------------------------------------------
+
+    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    const ALLOC Z(&testAllocator);
+
+    const int           MAX_LEN    = 15;
+
+    // Operations to test
+    enum {
+        TEST_FIRST,
+        TEST_ERASE1 = TEST_FIRST,     // erase(pos);
+        TEST_ERASE_RANGE,             // erase(first, last);
+        TEST_POP_BACK,                // pop_back();
+        TEST_POP_FRONT,               // pop_front();
+        TEST_LAST
+    };
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec;     // container spec
+    } DATA[] = {
+        //line  spec                            length
+        //----  ----                            ------
+        { L_,   ""                        }, // 0
+        { L_,   "A"                       }, // 1
+        { L_,   "AB"                      }, // 2
+        { L_,   "ABC"                     }, // 3
+        { L_,   "ABCD"                    }, // 4
+        { L_,   "ABCDA"                   }, // 5
+        { L_,   "ABCDABCDABCDABC"         }, // 15
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    // Iterate through the operations
+    for (int op = TEST_FIRST; op < TEST_LAST; ++op) {
+
+        const char* opname = "<unknown>";
+
+        switch (op) {
+            case TEST_ERASE1:      opname = "erase(iterator)";           break;
+            case TEST_ERASE_RANGE: opname = "erase(iterator, iterator)"; break;
+            case TEST_POP_BACK:    opname = "pop_back()";                break;
+            case TEST_POP_FRONT:   opname = "pop_front()";               break;
+        }
+
+        if (verbose) printf("\ntesting %s\n", opname);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec;
+            const int     LENGTH = strlen(SPEC);
+
+            LOOP_ASSERT(LENGTH, LENGTH <= MAX_LEN);
+
+            int pos_first, pos_last;  // possible start positions
+
+            switch (op) {
+                case TEST_ERASE1:
+                    pos_first = 0;
+                    pos_last  = LENGTH - 1;
+                    break;
+                case TEST_ERASE_RANGE:
+                    pos_first = 0;
+                    pos_last  = LENGTH;
+                    break;
+                case TEST_POP_BACK:
+                    pos_first = LENGTH - 1;
+                    pos_last  = LENGTH - 1;
+                    break;
+                case TEST_POP_FRONT:
+                    pos_first = 0;
+                    pos_last  = 0;
+                    break;
+            } // end switch
+
+            for (int posidx = pos_first; posidx <= pos_last; ++posidx) {
+
+                int erase_min, erase_max;      // num elements to be erased
+                if (TEST_ERASE_RANGE == op) {
+                    erase_min = 0;
+                    erase_max = LENGTH - posidx;
+                }
+                else {
+                    erase_min = 1;
+                    erase_max = 1;
+                    if (LENGTH < 1) continue;
+                }
+
+                for (int n = erase_min; n <= erase_max; ++n) {
+
+                    Obj mX(Z);
+                    const Obj& X = gg(&mX, SPEC);
+
+                    const Obj Y(X);  // Control
+
+                    // Save original iterators (including end iterator)
+                    // TBD: C++0x allows erasing using const_iterator
+                    // const_iterator orig_iters[MAX_LEN + 1];
+                    // const_iterator it = X.begin();
+                    iterator orig_iters[MAX_LEN + 1];
+                    iterator it = mX.begin();
+                    for (int i = 0; i < LENGTH + 1; ++i, ++it) {
+                        orig_iters[i] = it;
+                    }
+
+                    // TBD: C++0x allows erasing using const_iterator
+                    // const_iterator pos = orig_iters[posidx];
+                    iterator pos = orig_iters[posidx];
+                    iterator ret;
+
+                    const int BB = testAllocator.numBlocksTotal();
+                    const int B = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        T_; P_(SPEC); P_(posidx); P(n);
+                    }
+
+                    switch (op) {
+                        case TEST_ERASE1: {
+                            ret = mX.erase(pos);
+                        } break;
+                        case TEST_ERASE_RANGE: {
+                            // TBD: C++0x allows erasing using const_iterator
+                            // const_iterator end_range = succ(pos, n);
+                            iterator end_range = succ(pos, n);
+                            ret = mX.erase(pos, end_range);
+                        } break;
+                        case TEST_POP_BACK: {
+                            mX.pop_back();
+                            ret = mX.end();
+                        } break;
+                        case TEST_POP_FRONT: {
+                            mX.pop_front();
+                            ret = mX.begin();
+                        } break;
+                    } // end switch
+
+                    // Should never have an exception, so should always get
+                    // here.
+
+                    const int AA = testAllocator.numBlocksTotal();
+                    const int A = testAllocator.numBlocksInUse();
+
+                    // Test important values
+                    LOOP3_ASSERT(LINE, op, posidx,
+                                 checkIntegrity(X, LENGTH - n));
+                    LOOP3_ASSERT(LINE, op, posidx, LENGTH - n == X.size());
+                    LOOP3_ASSERT(LINE, op, posidx, BB == AA);
+                    LOOP3_ASSERT(LINE, op, posidx, B + deltaBlocks(-n) == A);
+
+                    const_iterator cit = X.begin();
+                    const_iterator yi = Y.begin();
+                    for (int i = 0; i < LENGTH; ++i, ++yi) {
+                        if (i < posidx) {
+                            // Test that part before erasure is unchanged
+                            LOOP4_ASSERT(LINE, op, posidx, i, *yi == *cit);
+                            LOOP4_ASSERT(LINE, op, posidx, i,
+                                         orig_iters[i] == cit);
+                            ++cit;
+                        }
+                        else if (i < posidx + n) {
+                            // skip erased values
+                            continue;
+                        }
+                        else {
+                            // Test that part after erasure is unchanged
+                            LOOP4_ASSERT(LINE, op, posidx, i, *yi == *cit);
+                            LOOP4_ASSERT(LINE, op, posidx, i,
+                                         orig_iters[i] == cit);
+                            ++cit;
+                        }
+                    }
+                    // Test end iterator
+                    LOOP3_ASSERT(LINE, op, posidx, X.end() == cit);
+                    LOOP3_ASSERT(LINE, op, posidx, Y.end() == yi);
+                    LOOP3_ASSERT(LINE, op, posidx, orig_iters[LENGTH] == cit);
+
+                } // end for (n)
+
+                LOOP3_ASSERT(LINE, op, posidx,
+                             0 == testAllocator.numBlocksInUse());
+            } // end for (posidx)
+        } // end for (ti)
+    } // end for (op)
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase17()
+{
+    // --------------------------------------------------------------------
+    // TESTING INSERTION:
+    //
+    // Concerns
+    //   1) That the resulting list value is correct.
+    //   2) That the 'insert' return (if any) value is a valid iterator to the
+    //      first inserted element or to the insertion position if no elements
+    //      are inserted.
+    //   3) That insertion of one element has the strong exception guarantee.
+    //   4) That insertion is exception neutral w.r.t. memory allocation.
+    //   5) The internal memory management system is hooked up properly
+    //      so that *all* internally allocated memory draws from a
+    //      user-supplied allocator whenever one is specified.
+    //   6) That inserting a 'const T& value' that is a reference to an element
+    //      of the list does not suffer from aliasing problems.
+    //   7) That no iterators are invalidated by the insertion.
+    //
+    // Plan:
+    //   Create objects of various sizes and insert a distict value one or
+    //   more times into each possible position.  For concerns 1, 2 & 5, verify
+    //   that the return value and modified list are as expected. For concerns
+    //   3 & 4 preform the test using the exception-testing infrastructure and
+    //   verify the value and memory changes.  For concern 6, we select the
+    //   value to insert from the middle of the list, thus testing insertion
+    //   before, at, and after the aliased element.  For concern 7, save
+    //   copies of the iterators before and after the insertion point and
+    //   verify that they point to the same (valid) elements after the
+    //   insertion by iterating to the same point in the resulting list and
+    //   comparing the new iterators to the old ones.
+    //
+    // Testing:
+    //   iterator insert(const_iterator pos, const T& value);
+    //   iterator insert(const_iterator pos, size_type n, const T& value);
+    //   void push_back(const T& value);
+    //   void push_front(const T& value);
+    // -----------------------------------------------------------------------
+
+    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    const ALLOC Z(&testAllocator);
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+
+    const int           MAX_LEN    = 15;
+
+    // Operations to test
+    enum {
+        TEST_FIRST,
+        TEST_INSERTN_0 = TEST_FIRST,  // insert(pos, 0, value);
+        TEST_INSERTN_1,               // insert(pos, 1, value);
+        TEST_INSERTN_2,               // insert(pos, 2, value);
+        TEST_INSERTN_3,               // insert(pos, 3, value);
+        TEST_INSERT,                  // insert(pos, value);
+        TEST_PUSH_BACK,               // push_back(value);
+        TEST_PUSH_FRONT,              // push_front(value);
+        TEST_LAST
+    };
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec;     // container spec
+    } DATA[] = {
+        //line  spec                            length
+        //----  ----                            ------
+        { L_,   ""                        }, // 0
+        { L_,   "A"                       }, // 1
+        { L_,   "AB"                      }, // 2
+        { L_,   "ABC"                     }, // 3
+        { L_,   "ABCD"                    }, // 4
+        { L_,   "ABCDA"                   }, // 5
+        { L_,   "ABCDABCDABCDABC"         }, // 15
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    // Iterate through the operations
+    for (int op = TEST_FIRST; op < TEST_LAST; ++op) {
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec;
+            const int     LENGTH = strlen(SPEC);
+
+            LOOP_ASSERT(LENGTH, LENGTH <= MAX_LEN);
+
+            for (int posidx = 0; posidx <= LENGTH; ++posidx) {
+
+                if (TEST_PUSH_BACK == op && LENGTH != posidx) {
+                    continue;  // Can push_back only at end
+                }
+                else if (TEST_PUSH_FRONT == op && 0 != posidx) {
+                    continue;  // Can push_front only at begining
+                }
+
+                BEGIN_BSLMA_EXCEPTION_TEST {
+                    const int AL = testAllocator.allocationLimit();
+                    testAllocator.setAllocationLimit(-1);
+
+                    Obj mX(Z);
+                    const Obj& X = gg(&mX, SPEC);
+
+                    const Obj Y(X);  // Control
+
+                    // Choose a value to insert that is deliberately aliasing
+                    // a list element.
+                    const TYPE& NEW_ELEM_REF(LENGTH ?
+                                             nthElem(X,LENGTH/2) :
+                                             VALUES[0]);
+                    const TYPE NEW_ELEM_VALUE(NEW_ELEM_REF);
+
+                    // Save original iterators (including end iterator)
+                    // TBD: C++0x allows insertion using const_iterator
+                    iterator orig_iters[MAX_LEN + 1];
+                    iterator it = mX.begin();
+                    for (int i = 0; i < LENGTH + 1; ++i, ++it) {
+                        orig_iters[i] = it;
+                    }
+
+                    testAllocator.setAllocationLimit(AL);
+
+                    int n = 0;
+                    // TBD: C++0x allows insertion using const_iterator
+                    // const_iterator pos = orig_iters[posidx];
+                    iterator pos = orig_iters[posidx];
+                    iterator ret;
+                    ExceptionGuard<Obj> guard(&mX, X, LINE);
+
+                    const int B = testAllocator.numBlocksInUse();
+
+                    switch (op) {
+                        case TEST_INSERT: {
+                            ret = mX.insert(pos, NEW_ELEM_REF);
+                            n = 1;
+                        } break;
+                        case TEST_PUSH_BACK: {
+                            mX.push_back(NEW_ELEM_REF);
+                            ret = --mX.end();
+                            n = 1;
+                        } break;
+                        case TEST_PUSH_FRONT: {
+                            mX.push_front(NEW_ELEM_REF);
+                            ret = mX.begin();
+                            n = 1;
+                        } break;
+                        default: {
+                            n = op - TEST_INSERTN_0;
+                            if (n > 1)
+                                // strong guarantee only for 0 or 1 insertion
+                                guard.release();
+                            // TBD: This version of 'insert' returns
+                            // 'iterator' in C++0x but 'void' in C++03.
+                            //ret = mX.insert(pos, n, NEW_ELEM_REF);
+                            mX.insert(pos, n, NEW_ELEM_REF);
+                            ret = succ(mX.begin(), posidx);
+                        }
+                    } // end switch
+                    guard.release();
+
+                    // If got here, then there was no exception
+
+                    const int A = testAllocator.numBlocksInUse();
+
+                    // Test important values
+                    LOOP3_ASSERT(LINE, op, posidx,
+                                 checkIntegrity(X, LENGTH + n));
+                    LOOP3_ASSERT(LINE, op, posidx, LENGTH + n == X.size());
+                    LOOP3_ASSERT(LINE, op, posidx, B + deltaBlocks(n) == A);
+
+                    const_iterator cit = X.begin();
+                    const_iterator yi = Y.begin();
+                    for (int i = 0; i < X.size(); ++i, ++cit) {
+                        if (i < posidx) {
+                            // Test that part before insertion is unchanged
+                            LOOP4_ASSERT(LINE, op, posidx, i, *yi++ == *cit);
+                            LOOP4_ASSERT(LINE, op, posidx, i,
+                                         orig_iters[i] == cit);
+                        }
+                        else if (i < posidx + n) {
+                            // Test inserted values
+                            LOOP4_ASSERT(LINE, op, posidx, i,
+                                         NEW_ELEM_VALUE == *cit);
+                        }
+                        else {
+                            // Test that part after insertion is unchanged
+                            LOOP4_ASSERT(LINE, op, posidx, i, *yi++ == *cit);
+                            LOOP4_ASSERT(LINE, op, posidx, i,
+                                         orig_iters[i - n] == cit);
+                        }
+                    }
+                    // Test end iterator
+                    LOOP3_ASSERT(LINE, op, posidx, X.end() == cit);
+                    LOOP3_ASSERT(LINE, op, posidx, orig_iters[LENGTH] == cit);
+
+                } END_BSLMA_EXCEPTION_TEST
+
+                LOOP3_ASSERT(LINE, op, posidx,
+                             0 == testAllocator.numBlocksInUse());
+            } // end for (posidx)
+        } // end for (ti)
+    } // end for (op)
+}
+
+template <class TYPE, class ALLOC>
+template <class CONTAINER>
+void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
+{
+    // --------------------------------------------------------------------
+    // TESTING RANGE INSERTION:
+    //
+    // Concerns
+    //   1) That the resulting list value is correct.
+    //   2) That the 'insert' return (if any) value is a valid iterator to the
+    //      first inserted element or to the insertion position if no elements
+    //      are inserted.
+    //   3) That insertion of one element has the strong exception guarantee.
+    //   4) That insertion is exception neutral w.r.t. memory allocation.
+    //   5) The internal memory management system is hooked up properly
+    //      so that *all* internally allocated memory draws from a
+    //      user-supplied allocator whenever one is specified.
+    //   6) That no iterators are invalidated by the insertion.
+    //
+    // Plan:
+    //   Create objects of various sizes and insert a range of 0 to 3 values
+    //   at each possible position.  For concerns 1, 2 & 5, verify
+    //   that the return value and modified list are as expected. For concerns
+    //   3 & 4 preform the test using the exception-testing infrastructure and
+    //   verify the value and memory changes.  For concern 7, save
+    //   copies of the iterators before and after the insertion point and
+    //   verify that they point to the same (valid) elements after the
+    //   insertion by iterating to the same point in the resulting list and
+    //   comparing the new iterators to the old ones.
+    //
+    // Testing:
+    //   template <class InputIter>
+    //    void insert(const_iterator pos, InputIter first, InputIter last);
+    // --------------------------------------------------------------------
+
+    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    const ALLOC Z(&testAllocator);
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+
+    const int           MAX_LEN    = 15;
+
+    // Starting data
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec;     // container spec
+    } DATA[] = {
+        //line  spec                            length
+        //----  ----                            ------
+        { L_,   ""                        }, // 0
+        { L_,   "A"                       }, // 1
+        { L_,   "AB"                      }, // 2
+        { L_,   "ABC"                     }, // 3
+        { L_,   "ABCD"                    }, // 4
+        { L_,   "ABCDA"                   }, // 5
+        { L_,   "ABCDABCDABCDABC"         }, // 15
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    // Data to insert
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec;     // container spec
+    } U_DATA[] = {
+        //line  spec                            length
+        //----  ----                            ------
+        { L_,   ""                        }, // 0
+        { L_,   "E"                       }, // 1
+        { L_,   "EA"                      }, // 2
+        { L_,   "EBA"                     }, // 3
+    };
+    const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int     LINE   = DATA[ti].d_lineNum;
+        const char   *SPEC   = DATA[ti].d_spec;
+        const int     LENGTH = strlen(SPEC);
+
+        LOOP_ASSERT(LENGTH, LENGTH <= MAX_LEN);
+
+        for (int posidx = 0; posidx <= LENGTH; ++posidx) {
+
+            for (int ui = 0; ui < NUM_U_DATA; ++ui) {
+
+                const int     U_LINE   = U_DATA[ui].d_lineNum;
+                const char   *U_SPEC   = U_DATA[ui].d_spec;
+                const size_t  N        = strlen(U_SPEC);
+
+                CONTAINER mU(U_SPEC);  const CONTAINER& U = mU;
+
+                BEGIN_BSLMA_EXCEPTION_TEST {
+                    const int AL = testAllocator.allocationLimit();
+                    testAllocator.setAllocationLimit(-1);
+
+                    Obj mX(Z);
+                    const Obj& X = gg(&mX, SPEC);
+
+                    const Obj Y(X);  // Control
+
+                    // Save original iterators (including end iterator)
+                    // TBD: C++0x allows insertion using const_iterator
+                    iterator orig_iters[MAX_LEN + 1];
+                    iterator it = mX.begin();
+                    for (int i = 0; i < LENGTH + 1; ++i, ++it) {
+                        orig_iters[i] = it;
+                    }
+
+                    testAllocator.setAllocationLimit(AL);
+
+                    // TBD: C++0x allows insertion using const_iterator
+                    // const_iterator pos = orig_iters[posidx];
+                    iterator pos = orig_iters[posidx];
+                    // iterator ret;  // TBD: C++0x insert returns iterator
+                    ExceptionGuard<Obj> guard(&mX, X, LINE);
+
+                    const int B = testAllocator.numBlocksInUse();
+
+                    if (N > 1) {
+                        // strong guarantee only for 0 or 1 insertions
+                        guard.release();
+                    }
+
+                    // TBD: This version of 'insert' returns
+                    // 'iterator' in C++0x but 'void' in C++03.
+                    //ret = mX.insert(pos, n, U.begin(), U.end());
+                    mX.insert(pos, U.begin(), U.end());
+                    guard.release();
+
+                    // If got here, then there was no exception
+
+                    const int A = testAllocator.numBlocksInUse();
+
+                    // Test important values
+                    LOOP3_ASSERT(LINE, posidx, U_LINE,
+                                 checkIntegrity(X, LENGTH + N));
+                    LOOP3_ASSERT(LINE, posidx, U_LINE, LENGTH + N == X.size());
+                    LOOP3_ASSERT(LINE, posidx, U_LINE,
+                                 B + deltaBlocks(N) == A);
+
+                    const_iterator cit = X.begin();
+                    const_iterator yi = Y.begin();
+                    for (int i = 0; i < X.size(); ++i, ++cit) {
+                        if (i < posidx) {
+                            // Test that part before insertion is unchanged
+                            LOOP4_ASSERT(LINE, posidx, U_LINE,
+                                         i, *yi++ == *cit);
+                            LOOP4_ASSERT(LINE, posidx, U_LINE, i,
+                                         orig_iters[i] == cit);
+                        }
+                        else if (i < posidx + N) {
+                            // Test inserted values
+                            LOOP4_ASSERT(LINE, posidx, U_LINE, i,
+                                         U[i - posidx] == *cit);
+                        }
+                        else {
+                            // Test that part after insertion is unchanged
+                            LOOP4_ASSERT(LINE, posidx, U_LINE, i,
+                                         *yi++ == *cit);
+                            LOOP4_ASSERT(LINE, posidx, U_LINE, i,
+                                         orig_iters[i - N] == cit);
+                        }
+                    }
+                    // Test end iterator
+                    LOOP3_ASSERT(LINE, posidx, U_LINE, X.end() == cit);
+                    LOOP3_ASSERT(LINE, posidx, U_LINE,
+                                 orig_iters[LENGTH] == cit);
+
+                } END_BSLMA_EXCEPTION_TEST
+
+                LOOP3_ASSERT(LINE, posidx, U_LINE,
+                             0 == testAllocator.numBlocksInUse());
+            } // end for (ui)
+        } // end for (posidx)
+    } // end for (ti)
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase16()
+{
+    // --------------------------------------------------------------------
+    // TESTING ITERATORS
+    //
+    // Concerns:
+    //   1) That 'iterator' and 'const_iterator' are bi-directional iterators.
+    //   2) That 'iterator' and 'const_iterator' are copy-constructible,
+    //      assignable, and equality-comparible, that 'iterator' is
+    //      convertible to 'const_iterator', and that 'reverse_iterator' is
+    //      constructible from 'iterator'.
+    //   3) That 'begin' and 'end' return mutable iterators for a
+    //      reference to a modifiable list, and non-mutable iterators
+    //      otherwise.
+    //   4) That the iterators can be dereferenced using 'operator*' or
+    //      'operator->', yielding a reference or pointer with the correct
+    //      constness.
+    //   5) That the range '[begin(), end())' equals the value of the list.
+    //   6) That iterators can be pre-incremented, post-incremented,
+    //      pre-decremented, and post-decremented.
+    //   7) Same concerns with 'rbegin', 'rend', 'reverse_iterator', and
+    //      'const_reverse_iterator'.
+    //
+    // Plan:
+    //   For concerns 1, 3, 4, and 7 create a one-element list and verify the
+    //   static properties of 'iterator', 'const_iterator',
+    //   ''reverse_iterator', and 'const_reverse_iterator'.
+    //
+    //   For concerns 1, 2, 5, 6, and 7, for each value given by variety of
+    //   specifications of different lengths, create a test list with this
+    //   value, and access each element in sequence and in reverse sequence,
+    //   both as a modifiable reference (setting it to a default value, then
+    //   back to its original value), and as a non-modifiable reference.  At
+    //   each step in the traversal, save the current iterator using both copy
+    //   construction and assignment and, in a nested second loop, traverse
+    //   the whole list in reverse order, testing that the nested-traversal
+    //   iterator matches the saved iterator iff they refer to the same
+    //   element.
+    //
+    // Testing:
+    //   type iterator
+    //   type reverse_iterator
+    //   type const_iterator
+    //   type const_reverse_iterator
+    //   iterator begin();
+    //   iterator end();
+    //   reverse_iterator rbegin();
+    //   reverse_iterator rend();
+    //   const_iterator begin() const;
+    //   const_iterator end() const;
+    //   const_reverse_iterator rbegin() const;
+    //   const_reverse_iterator rend() const;
+    // --------------------------------------------------------------------
+
+    typedef typename Obj::size_type size_type;
+
+    bslma_TestAllocator testAllocator(veryVeryVerbose);
+
+    const TYPE DEFAULT_VALUE = TYPE();
+
+    static const struct {
+        int         d_lineNum;          // source line number
+        const char *d_spec;             // initial
+    } DATA[] = {
+        { L_,  ""                },
+        { L_,  "A"               },
+        { L_,  "ABC"             },
+        { L_,  "ABCD"            },
+        { L_,  "ABCDE"           },
+        { L_,  "ABCDEAB"         },
+        { L_,  "ABCDEABC"        },
+        { L_,  "ABCDEABCD"       }
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    if (verbose) printf("Testing 'iterator', 'reverse_iterator', "
+                        "'const_iterator', and 'const_reverse_iterator'\n");
+    {
+        Obj mX(2); const Obj& X = mX;
+
+        iterator               iter   = mX.begin();
+        const_iterator         citer  =  X.begin();
+        reverse_iterator       riter  = mX.rbegin();
+        const_reverse_iterator criter =  X.rbegin();
+
+        // Check iterator category
+        ASSERT((bslmf_IsSame<typename iterator::iterator_category,
+                             bidirectional_iterator_tag>::VALUE));
+        ASSERT((bslmf_IsSame<typename reverse_iterator::iterator_category,
+                             bidirectional_iterator_tag>::VALUE));
+        ASSERT((bslmf_IsSame<typename const_iterator::iterator_category,
+                             bidirectional_iterator_tag>::VALUE));
+        ASSERT((bslmf_IsSame<typename const_reverse_iterator::iterator_category
+                            ,bidirectional_iterator_tag>::VALUE));
+
+        // Test mutability
+        ASSERT(  is_mutable(*mX.begin()));
+        ASSERT(! is_mutable(* X.begin()));
+        ASSERT(  is_mutable(*mX.rbegin()));
+        ASSERT(! is_mutable(* X.rbegin()));
+        ASSERT(  is_mutable(*--mX.end()));
+        ASSERT(! is_mutable(*-- X.end()));
+        ASSERT(  is_mutable(*--mX.rend()));
+        ASSERT(! is_mutable(*-- X.rend()));
+
+        ASSERT(  is_mutable(*iter));
+        ASSERT(! is_mutable(*citer));
+        ASSERT(  is_mutable(*riter));
+        ASSERT(! is_mutable(*criter));
+
+        // Test dereferencing
+        ASSERT(&*iter   == &X.front());
+        ASSERT(&*citer  == &X.front());
+        ASSERT(&*riter  == &X.back());
+        ASSERT(&*criter == &X.back());
+
+        // Test operator->()
+        ASSERT(iter.operator->()   == &X.front());
+        ASSERT(citer.operator->()  == &X.front());
+        ASSERT(riter.operator->()  == &X.back());
+        ASSERT(criter.operator->() == &X.back());
+    }
+
+    if (verbose) printf("Testing 'begin', and 'end', 'rbegin', 'rend', "
+                        " and their 'const' variants.\n");
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec;
+            const size_t  LENGTH = strlen(SPEC);
+
+            Obj mX(&testAllocator);  const Obj& X = gg(&mX, SPEC);
+
+            Obj mY(X);  const Obj& Y = mY;  // control
+
+            if (verbose) { P_(LINE); P(SPEC); }
+
+            iterator               iter   = mX.begin();
+            const_iterator         citer  =  X.begin();
+            reverse_iterator       riter  = mX.rend();
+            const_reverse_iterator criter =  X.rend();
+
+            for (size_type i = 0; i < LENGTH; ++i)
+            {
+                LOOP2_ASSERT(LINE, i, TYPE(SPEC[i]) == *iter);
+                LOOP2_ASSERT(LINE, i, TYPE(SPEC[i]) == *citer);
+
+                LOOP2_ASSERT(LINE, i, iter    != mX.end());
+                LOOP2_ASSERT(LINE, i, citer   !=  X.end());
+                LOOP2_ASSERT(LINE, i, riter   != mX.rbegin());
+                LOOP2_ASSERT(LINE, i, criter  !=  X.rbegin());
+                LOOP2_ASSERT(LINE, i, citer   == iter);
+                LOOP2_ASSERT(LINE, i, &*citer == &*iter);
+// TBD: C++ allows comparison of dissimilar reverse_iterators.  C++03 does not.
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300
+                LOOP2_ASSERT(LINE, i, criter  == riter);
+#endif
+
+                // Decrement reverse iterator before dereferencing
+                --riter;
+                --criter;
+
+                // Reverse iterator refers to same element as iterator
+                LOOP2_ASSERT(LINE, i, TYPE(SPEC[i]) == *riter);
+                LOOP2_ASSERT(LINE, i, TYPE(SPEC[i]) == *criter);
+                LOOP2_ASSERT(LINE, i, &*iter == &*riter);
+                LOOP2_ASSERT(LINE, i, &*iter == &*criter);
+
+                // iterator copy ctor and assignment
+                iterator iter2(iter);     // iterator copy ctor
+                iterator iter3(mY.end());
+                iter3 = iter;             // iterator assignment
+
+                // const_iterator copy ctor, assignment, and conversion
+                const_iterator citer2(citer);   // const_iterator copy ctor
+                const_iterator citer3(Y.end());
+                citer3 = citer;                 // const_iterator assignment
+                const_iterator citer4 = iter;   // conversion ctor
+                const_iterator citer5(Y.end());
+                citer5 = iter;                  // conversion assignment
+
+                // reverse_iterator conversion, copy ctor, and assignment
+                reverse_iterator       riter1(iter);     // conversion ctor
+                reverse_iterator       riter2(riter);    // copy ctor
+                reverse_iterator       riter3(mY.end());
+                riter3 = riter;                          // assignment
+
+                // const_reverse_iterator conversion, copy ctor, and assignment
+                const_reverse_iterator criter1(citer);   // rev conversion ctor
+                const_reverse_iterator criter3(criter);  // copy ctor
+                const_reverse_iterator criter2(riter);   // const conversion
+                const_reverse_iterator criter4(Y.end());
+                criter4 = criter;                        // assignment
+                const_reverse_iterator criter5(Y.end());
+                criter5 = riter;                         // const assignment
+
+                // Test equivalences: All of the iterators except for riter1
+                // and criter1 refer to the same element
+                LOOP2_ASSERT(LINE, i, iter     == iter2);
+                LOOP2_ASSERT(LINE, i, iter     == iter3);
+                LOOP2_ASSERT(LINE, i, citer    == citer2);
+                LOOP2_ASSERT(LINE, i, citer    == citer3);
+                LOOP2_ASSERT(LINE, i, citer    == citer4);
+                LOOP2_ASSERT(LINE, i, citer    == citer5);
+                LOOP2_ASSERT(LINE, i, riter    == riter2);
+                LOOP2_ASSERT(LINE, i, riter    == riter3);
+
+// TBD: C++ allows comparison of dissimilar reverse_iterators.  C++03 does not.
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300
+                LOOP2_ASSERT(LINE, i, riter    == criter);
+#endif
+                LOOP2_ASSERT(LINE, i, criter   == criter2);
+                LOOP2_ASSERT(LINE, i, criter   == criter3);
+                LOOP2_ASSERT(LINE, i, criter   == criter4);
+                LOOP2_ASSERT(LINE, i, criter   == criter5);
+
+                LOOP2_ASSERT(LINE, i, &*iter   == &*iter2);
+                LOOP2_ASSERT(LINE, i, &*citer  == &*citer2);
+                LOOP2_ASSERT(LINE, i, &*riter  == &*riter2);
+                LOOP2_ASSERT(LINE, i, &*criter == &*criter2);
+
+                // Forward-reverse equivalences
+                LOOP2_ASSERT(LINE, i, citer == criter1.base());
+                LOOP2_ASSERT(LINE, i, iter  == riter1.base());
+                LOOP2_ASSERT(LINE, i, &*iter  == &*--riter1);
+                LOOP2_ASSERT(LINE, i, &*citer == &*--criter1);
+
+                // Iterate backwards over the list
+                iterator               iback   = mX.end();
+                const_iterator         ciback  =  X.end();
+                reverse_iterator       riback  = mX.rbegin();
+                const_reverse_iterator criback =  X.rbegin();
+                for (size_type j = LENGTH; j > 0; ) {
+                    --j;
+                    --iback;
+                    --ciback;
+
+                    LOOP3_ASSERT(LINE, i, j, &*iback == &*ciback);
+                    LOOP3_ASSERT(LINE, i, j, &*iback == &*riback);
+                    LOOP3_ASSERT(LINE, i, j, &*iback == &*criback);
+
+                    const bool is_eq  = (j == i);
+                    const bool is_neq = (j != i);
+
+                    LOOP3_ASSERT(LINE, i, j, is_eq  == (iback   == iter2));
+                    LOOP3_ASSERT(LINE, i, j, is_neq == (iback   != iter2));
+                    LOOP3_ASSERT(LINE, i, j, is_eq  == (ciback  == citer2));
+                    LOOP3_ASSERT(LINE, i, j, is_neq == (ciback  != citer2));
+                    LOOP3_ASSERT(LINE, i, j, is_eq  == (riback  == riter2));
+                    LOOP3_ASSERT(LINE, i, j, is_neq == (riback  != riter2));
+                    LOOP3_ASSERT(LINE, i, j, is_eq  == (criback == criter2));
+                    LOOP3_ASSERT(LINE, i, j, is_neq == (criback != criter2));
+
+                    LOOP3_ASSERT(LINE, i, j, is_eq == (&*iback == &*iter2));
+                    LOOP3_ASSERT(LINE, i, j, is_eq == (&*iback == &*citer2));
+                    LOOP3_ASSERT(LINE, i, j, is_eq == (&*iback == &*riter2));
+                    LOOP3_ASSERT(LINE, i, j, is_eq == (&*iback == &*criter2));
+
+                    ++riback;
+                    ++criback;
+                    // iback and ciback have already been decremented
+                }
+
+                LOOP2_ASSERT(LINE, i, X.begin() == iback);
+                LOOP2_ASSERT(LINE, i, X.begin() == ciback);
+// TBD: C++ allows comparison of dissimilar reverse_iterators.  C++03 does not.
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300
+                LOOP2_ASSERT(LINE, i, X.rend()  == riback);
+#endif
+                LOOP2_ASSERT(LINE, i, X.rend()  == criback);
+
+                // Test result of pre and post-increment
+                LOOP2_ASSERT(LINE, i, iter2++   ==   iter3);
+                LOOP2_ASSERT(LINE, i, iter2     == ++iter3);
+                LOOP2_ASSERT(LINE, i, iter2     ==   iter3);
+                LOOP2_ASSERT(LINE, i, citer2++  ==   citer3);
+                LOOP2_ASSERT(LINE, i, citer2    == ++citer3);
+                LOOP2_ASSERT(LINE, i, citer2    ==   citer3);
+                LOOP2_ASSERT(LINE, i, riter2++  ==   riter3);
+                LOOP2_ASSERT(LINE, i, riter2    == ++riter3);
+                LOOP2_ASSERT(LINE, i, riter2    ==   riter3);
+                LOOP2_ASSERT(LINE, i, criter2++ ==   criter3);
+                LOOP2_ASSERT(LINE, i, criter2   == ++criter3);
+                LOOP2_ASSERT(LINE, i, criter2   ==   criter3);
+
+                ++iter;
+                ++citer;
+                // riter and criter have already been decremented
+            } // end for i
+
+            LOOP_ASSERT(LINE, X.end()    == iter);
+            LOOP_ASSERT(LINE, X.end()    == citer);
+// TBD: C++ allows comparison of dissimilar reverse_iterators.  C++03 does not.
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300
+            LOOP_ASSERT(LINE, X.rbegin() == riter);
+#endif
+            LOOP_ASSERT(LINE, X.rbegin() == criter);
+        } // end for each spec
+    } // end for 'begin', 'end', etc.
+}
 
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE,ALLOC>::testCase15()
@@ -1409,8 +4697,8 @@ void TestDriver<TYPE,ALLOC>::testCase15()
     // TESTING ELEMENT ACCESS
     // Concerns:
     //   1) That 'v.front()' and 'v.back()', allow modifing the
-    //      element when 'v' is modifiable, but must not modify its
-    //      indexed element when it is 'const'.
+    //      element when 'v' is modifiable, but must not modify the
+    //      element when it is 'const'.
     //
     // Plan:
     //   For each value given by variety of specifications of different
@@ -1460,6 +4748,8 @@ void TestDriver<TYPE,ALLOC>::testCase15()
             if (verbose) { P_(LINE); P(SPEC); }
 
             if (LENGTH) {
+                LOOP_ASSERT(LINE,   is_mutable(mX.front()));
+                LOOP_ASSERT(LINE, ! is_mutable(X.front()));
                 LOOP_ASSERT(LINE, TYPE(SPEC[0]) == X.front());
                 mX.front() = DEFAULT_VALUE;
                 LOOP_ASSERT(LINE, DEFAULT_VALUE == X.front());
@@ -1467,6 +4757,8 @@ void TestDriver<TYPE,ALLOC>::testCase15()
                 mX.front() = Y.front();
                 LOOP_ASSERT(LINE, Y == X);
 
+                LOOP_ASSERT(LINE,   is_mutable(mX.back()));
+                LOOP_ASSERT(LINE, ! is_mutable(X.back()));
                 LOOP_ASSERT(LINE, TYPE(SPEC[LENGTH - 1]) == X.back());
                 mX.back() = DEFAULT_VALUE;
                 LOOP_ASSERT(LINE, DEFAULT_VALUE == X.back());
@@ -1499,8 +4791,8 @@ void TestDriver<TYPE,ALLOC>::testCase14()
     //   each of the above concerns for each combination.
     //
     // Testing:
-    //   void resize(size_type sz);
-    //   void resize(size_type sz, const T& c);
+    //   void resize(size_type n);
+    //   void resize(size_type n, const T& val);
     // --------------------------------------------------------------------
 
     bslma_TestAllocator  testAllocator(veryVeryVerbose);
@@ -1539,12 +4831,12 @@ void TestDriver<TYPE,ALLOC>::testCase14()
         const char   *SPEC   = DATA[i].d_spec;
         const size_t  LENGTH = strlen(SPEC);
 
-        if (veryVerbose) { T_; P_(SPEC); }
+        if (veryVerbose) { T_; P(SPEC); }
 
         for (int newlen = 0; newlen < 20; ++newlen)
         {
             const int NEWLEN = newlen;
-            if (veryVerbose) { T_; T_; P_(NEWLEN); }
+            if (veryVerbose) { T_; T_; P(NEWLEN); }
 
             BEGIN_BSLMA_EXCEPTION_TEST {
                 const int AL = testAllocator.allocationLimit();
@@ -1565,20 +4857,21 @@ void TestDriver<TYPE,ALLOC>::testCase14()
                 const int A  = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
-                    T_; T_; T_; P_(X);
+                    T_; T_; T_; P(X);
                 }
 
+                LOOP2_ASSERT(LINE, NEWLEN, checkIntegrity(X, NEWLEN));
                 LOOP2_ASSERT(LINE, NEWLEN, NEWLEN == X.size());
                 if (NEWLEN <= LENGTH) {
                     LOOP2_ASSERT(LINE, NEWLEN, BB == AA);
                 }
                 else {
                     LOOP2_ASSERT(LINE, NEWLEN,
-                                 BB + (NEWLEN-LENGTH)*(1+SCOPED_ALLOC) == AA);
+                                 BB + deltaBlocks(NEWLEN - LENGTH) == AA);
                 }
 
                 LOOP2_ASSERT(LINE, NEWLEN,
-                             B + (NEWLEN - LENGTH) * (1 + SCOPED_ALLOC) == A);
+                             B + deltaBlocks(NEWLEN - LENGTH) == A);
 
                 const_iterator xi = X.begin();
                 const_iterator yi = U.begin();
@@ -1604,12 +4897,12 @@ void TestDriver<TYPE,ALLOC>::testCase14()
         const size_t  LENGTH = strlen(SPEC);
         const TYPE    VALUE  = VALUES[i % NUM_VALUES];
 
-        if (veryVerbose) { T_; P_(SPEC); }
+        if (veryVerbose) { T_; P(SPEC); }
 
         for (int newlen = 0; newlen < 20; ++newlen)
         {
             const int NEWLEN = newlen;
-            if (veryVerbose) { T_; T_; P_(NEWLEN); }
+            if (veryVerbose) { T_; T_; P(NEWLEN); }
 
             BEGIN_BSLMA_EXCEPTION_TEST {
                 const int AL = testAllocator.allocationLimit();
@@ -1630,20 +4923,21 @@ void TestDriver<TYPE,ALLOC>::testCase14()
                 const int A  = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
-                    T_; T_; T_; P_(X);
+                    T_; T_; T_; P(X);
                 }
 
+                LOOP2_ASSERT(LINE, NEWLEN, checkIntegrity(X, NEWLEN));
                 LOOP2_ASSERT(LINE, NEWLEN, NEWLEN == X.size());
                 if (NEWLEN <= LENGTH) {
                     LOOP2_ASSERT(LINE, NEWLEN, BB == AA);
                 }
                 else {
                     LOOP2_ASSERT(LINE, NEWLEN,
-                                 BB + (NEWLEN-LENGTH)*(1+SCOPED_ALLOC) == AA);
+                                 BB + deltaBlocks(NEWLEN - LENGTH) == AA);
                 }
 
                 LOOP2_ASSERT(LINE, NEWLEN,
-                             B + (NEWLEN - LENGTH) * (1 + SCOPED_ALLOC) == A);
+                             B + deltaBlocks(NEWLEN - LENGTH) == A);
 
                 const_iterator xi = X.begin();
                 const_iterator yi = U.begin();
@@ -1731,7 +5025,7 @@ void TestDriver<TYPE,ALLOC>::testCase13()
 
                 if (veryVerbose) {
                     printf("\t\tWith initial value of "); P_(INIT_LENGTH);
-                    printf("using default value.\n");
+                    printf(" using default value.\n");
                 }
 
                 Obj mX(INIT_LENGTH, DEFAULT_VALUE, Z);
@@ -1751,12 +5045,14 @@ void TestDriver<TYPE,ALLOC>::testCase13()
                     const int A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
-                        T_; T_; T_; P_(X);
+                        T_; T_; T_; P(X);
                     }
 
+                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
+                                 checkIntegrity(X, LENGTH));
                     LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
                     LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
-                                 A == 1 + LENGTH + SCOPED_ALLOC * LENGTH);
+                                 A == expectedBlocks(LENGTH));
 
                     for (const_iterator j = X.begin(); j != X.end(); ++j) {
                         LOOP4_ASSERT(INIT_LINE,LINE, i, ti, VALUE == *j);
@@ -1775,7 +5071,7 @@ void TestDriver<TYPE,ALLOC>::testCase13()
 
                 if (veryVerbose) {
                     printf("\t\tWith initial value of "); P_(INIT_LENGTH);
-                    printf("using default value.\n");
+                    printf(" using default value.\n");
                 }
 
                 for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -1801,12 +5097,14 @@ void TestDriver<TYPE,ALLOC>::testCase13()
                         const int A = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
-                            T_; T_; T_; P_(X);
+                            T_; T_; T_; P(X);
                         }
 
+                        LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
+                                     checkIntegrity(X, LENGTH));
                         LOOP4_ASSERT(INIT_LINE,LINE,i,ti, LENGTH == X.size());
                         LOOP4_ASSERT(INIT_LINE,LINE,i,ti,
-                                     A == 1 + LENGTH + SCOPED_ALLOC * LENGTH);
+                                     A == expectedBlocks(LENGTH));
 
                         for (const_iterator j = X.begin(); j != X.end(); ++j) {
                             LOOP4_ASSERT(INIT_LINE,LINE, i, ti, VALUE == *j);
@@ -1855,7 +5153,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
     //
     // Testing:
     //   template <class InputIter>
-    //     assign(InputIter first, InputIter last, const A& a = A());
+    //     assign(InputIter first, InputIter last);
     // --------------------------------------------------------------------
 
     bslma_TestAllocator  testAllocator(veryVeryVerbose);
@@ -1920,7 +5218,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
 
             if (veryVerbose) {
                 printf("\t\tWith initial value of "); P_(INIT_LENGTH);
-                printf("using default value.\n");
+                printf(" using default value.\n");
             }
 
             Obj mX(INIT_LENGTH, VALUES[i % NUM_VALUES], Z);
@@ -1942,12 +5240,14 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
                 const int A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
-                    T_; T_; T_; P_(X);
+                    T_; T_; T_; P(X);
                 }
 
+                LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
+                             checkIntegrity(X, LENGTH));
                 LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
                 LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
-                             A == 1 + LENGTH + SCOPED_ALLOC * LENGTH);
+                             A == expectedBlocks(LENGTH));
 
                 Obj mY(g(SPEC)); const Obj& Y = mY;
                 LOOP4_ASSERT(INIT_LINE, LINE, i, ti, Y == X);
@@ -1965,7 +5265,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
 
             if (veryVerbose) {
                 printf("\t\tWith initial value of "); P_(INIT_LENGTH);
-                printf("using default value.\n");
+                printf(" using default value.\n");
             }
 
             for (int ti = 0; ti < NUM_U_DATA; ++ti) {
@@ -1994,12 +5294,14 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
                     const int A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
-                        T_; T_; T_; P_(X);
+                        T_; T_; T_; P(X);
                     }
 
+                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
+                                 checkIntegrity(X, LENGTH));
                     LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
                     LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
-                                 A == 1 + LENGTH + SCOPED_ALLOC * LENGTH);
+                                 A == expectedBlocks(LENGTH));
                     LOOP4_ASSERT(INIT_LINE, LINE, i, ti, Y == X);
                 } END_BSLMA_EXCEPTION_TEST
 
@@ -2023,7 +5325,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
     //    3) The internal memory management system is hooked up properly
     //       so that *all* internally allocated memory draws from a
     //       user-supplied allocator whenever one is specified.
-    //    4) TBD: The move constructor moves value and allocator
+    //    4) TBD: The C++0x move constructor moves value and allocator
     //       correctly, and without performing any allocation.
     //
     // Plan:
@@ -2046,7 +5348,6 @@ void TestDriver<TYPE,ALLOC>::testCase12()
     //
     // Testing:
     //   list(size_type n, const T& value = T(), const A& a = A());
-    //   list(list&& original);
     // --------------------------------------------------------------------
 
     bslma_TestAllocator  testAllocator(veryVeryVerbose);
@@ -2102,9 +5403,10 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                 Obj mX(LENGTH);  const Obj& X = mX;
 
                 if (veryVerbose) {
-                    T_; T_; P_(X);
+                    T_; T_; P(X);
                 }
 
+                LOOP2_ASSERT(LINE, ti, checkIntegrity(X, LENGTH));
                 LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
                 LOOP2_ASSERT(LINE, ti, ALLOC() == X.get_allocator());
 
@@ -2124,15 +5426,16 @@ void TestDriver<TYPE,ALLOC>::testCase12()
 
                 if (verbose) {
                     printf("\t\tCreating object of "); P_(LENGTH);
-                    printf("using "); P(VALUE);
+                    printf(" using "); P(VALUE);
                 }
 
                 Obj mX(LENGTH, VALUE);  const Obj& X = mX;
 
                 if (veryVerbose) {
-                    T_; T_; P_(X);
+                    T_; T_; P(X);
                 }
 
+                LOOP2_ASSERT(LINE, ti, checkIntegrity(X, LENGTH));
                 LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
                 LOOP2_ASSERT(LINE, ti, ALLOC() == X.get_allocator());
 
@@ -2153,7 +5456,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
 
                 if (verbose) {
                     printf("\t\tCreating object of "); P_(LENGTH);
-                    printf("using "); P(VALUE);
+                    printf(" using "); P(VALUE);
                 }
 
                 const int BB = testAllocator.numBlocksTotal();
@@ -2166,9 +5469,10 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                 const int  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
-                    T_; T_; P_(X);
+                    T_; T_; P(X);
                 }
 
+                LOOP2_ASSERT(LINE, ti, checkIntegrity(X, LENGTH));
                 LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
                 LOOP2_ASSERT(LINE, ti, AL == X.get_allocator());
 
@@ -2176,10 +5480,8 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     LOOP3_ASSERT(LINE, ti, j, VALUE == nthElem(X,j));
                 }
 
-                LOOP2_ASSERT(LINE, ti, AA ==
-                             BB + 1 + (int)LENGTH + (int)LENGTH * SCOPED_ALLOC);
-                LOOP2_ASSERT(LINE, ti, A ==
-                             B + 1 + (int)LENGTH + (int)LENGTH * SCOPED_ALLOC);
+                LOOP2_ASSERT(LINE, ti, BB + expectedBlocks(LENGTH) == AA);
+                LOOP2_ASSERT(LINE, ti, B + expectedBlocks(LENGTH) == A);
             }
         }
 
@@ -2196,7 +5498,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
 
                 if (verbose) {
                     printf("\t\tCreating object of "); P_(LENGTH);
-                    printf("using "); P(VALUE);
+                    printf(" using "); P(VALUE);
                 }
 
                 const int BB = testAllocator.numBlocksTotal();
@@ -2210,9 +5512,10 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     const Obj& X = mX;
 
                     if (veryVerbose) {
-                        T_; T_; P_(X);
+                        T_; T_; P(X);
                     }
 
+                    LOOP2_ASSERT(LINE, ti, checkIntegrity(X, LENGTH));
                     LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
 
                     for (size_t j = 0; j < LENGTH; ++j) {
@@ -2227,16 +5530,18 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                 if (veryVerbose) { printf("\t\tAFTER : "); P_(AA); P(A);}
 
                 // The number of allocations, 'ALLOCS', needed for successful
-                // construction of a list of length
-                // 'LENGTH' is '1 + LENGTH + SCOPED_ALLOC * LENGTH', where
-                // 'SCOPED_ALLOC' is 1 if the element type uses the container's
-                // allocator and 0 otherwise.  Because we are retrying on each
+                // construction of a list of length 'LENGTH' is
+                // 'expectedBlocks(LENGTH)', Because we are retrying on each
                 // exception, the number of allocations by the time we succeed
                 // will be 'SUM(1 .. ALLOCS)', which is easily computed as
                 // 'ALLOCS * (ALLOCS+1) / 2'.
 
-                const int ALLOCS = 1 + LENGTH + SCOPED_ALLOC * LENGTH;
+                const int ALLOCS = expectedBlocks(LENGTH);
+#ifdef BDE_BUILD_TARGET_EXC
                 const int TOTAL_ALLOCS = ALLOCS * (ALLOCS+1) / 2;
+#else
+                const int TOTAL_ALLOCS = ALLOCS;
+#endif
                 LOOP2_ASSERT(LINE, ti, BB + TOTAL_ALLOCS == AA);
                 LOOP2_ASSERT(LINE, ti,  B + 0            ==  A);
 
@@ -2276,7 +5581,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         // Default allocator is not used
                         ASSERT(TB == defaultAllocator_p->numBlocksInUse());
                     }
-                    ASSERT(1 + LENGTH + LENGTH*SCOPED_ALLOC ==
+                    ASSERT(expectedBlocks(LENGTH) ==
                            objectAllocator_p->numBlocksInUse());
                 }
 
@@ -2296,7 +5601,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
 
                 if (verbose) {
                     printf("\t\tCreating object of "); P_(LENGTH);
-                    printf("using "); P(VALUE);
+                    printf(" using "); P(VALUE);
                 }
 
                 {
@@ -2319,7 +5624,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         // Default allocator is not used
                         ASSERT(TB == defaultAllocator_p->numBlocksInUse());
                     }
-                    ASSERT(1 + LENGTH + LENGTH*SCOPED_ALLOC ==
+                    ASSERT(expectedBlocks(LENGTH) ==
                            objectAllocator_p->numBlocksInUse());
                 }
 
@@ -2396,7 +5701,7 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
 
             if (verbose) {
                 printf("\t\tCreating object of "); P_(LENGTH);
-                printf("using "); P(SPEC);
+                printf(" using "); P(SPEC);
             }
 
             CONTAINER mU(SPEC);  const CONTAINER& U = mU;
@@ -2404,9 +5709,10 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
             Obj mX(U.begin(), U.end());  const Obj& X = mX;
 
             if (veryVerbose) {
-                T_; T_; P_(X);
+                T_; T_; P(X);
             }
 
+            LOOP2_ASSERT(LINE, ti, checkIntegrity(X, LENGTH));
             LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
 
             Obj mY(g(SPEC));  const Obj& Y = mY;
@@ -2435,19 +5741,18 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
             const int  A = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
-                T_; T_; P_(X);
+                T_; T_; P(X);
                 T_; T_; P_(AA - BB); P(A - B);
             }
 
+            LOOP2_ASSERT(LINE, ti, checkIntegrity(X, LENGTH));
             LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
 
             Obj mY(g(SPEC));  const Obj& Y = mY;
             LOOP2_ASSERT(LINE, ti, Y == X);
 
-            LOOP2_ASSERT(LINE, ti,
-                         BB + 1 + LENGTH + LENGTH * SCOPED_ALLOC == AA);
-            LOOP2_ASSERT(LINE, ti,
-                         B + 1 + LENGTH + LENGTH * SCOPED_ALLOC == A);
+            LOOP2_ASSERT(LINE, ti, BB + expectedBlocks(LENGTH) == AA);
+            LOOP2_ASSERT(LINE, ti, B + expectedBlocks(LENGTH) == A);
         }
     }
 
@@ -2461,7 +5766,7 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
 
             if (verbose) {
                 printf("\t\tCreating object of "); P_(LENGTH);
-                printf("using "); P(SPEC);
+                printf(" using "); P(SPEC);
             }
 
             CONTAINER mU(SPEC);  const CONTAINER& U = mU;
@@ -2478,9 +5783,10 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
                 Obj mX(U.begin(), U.end(), AL); const Obj& X = mX;
 
                 if (veryVerbose) {
-                    T_; T_; P_(X);
+                    T_; T_; P(X);
                 }
 
+                LOOP2_ASSERT(LINE, ti, checkIntegrity(X, LENGTH));
                 LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
                 LOOP2_ASSERT(LINE, ti, Y == X);
 
@@ -2492,15 +5798,18 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
             if (veryVerbose) { printf("\t\tAfter : "); P_(AA); P(A);}
 
             // The number of allocations, 'ALLOCS', needed for successful
-            // construction of a list of length 'LENGTH' is '1 + LENGTH +
-            // SCOPED_ALLOC * LENGTH', where 'SCOPED_ALLOC' is 1 if the element
-            // type uses the container's allocator and 0 otherwise.  Because
-            // we are retrying on each exception, the number of allocations by
-            // the time we succeed will be 'SUM(1 .. ALLOCS)', which is easily
-            // computed as 'ALLOCS * (ALLOCS+1) / 2'.
+            // construction of a list of length 'LENGTH' is
+            // 'expectedBlocks(LENGTH)'.  Because we are retrying on each
+            // exception, the number of allocations by the time we succeed
+            // will be 'SUM(1 .. ALLOCS)', which is easily computed as 'ALLOCS
+            // * (ALLOCS+1) / 2'.
 
-            const int ALLOCS = 1 + LENGTH + SCOPED_ALLOC * LENGTH;
+            const int ALLOCS = expectedBlocks(LENGTH);
+#ifdef BDE_BUILD_TARGET_EXC
             const int TOTAL_ALLOCS = ALLOCS * (ALLOCS+1) / 2;
+#else
+            const int TOTAL_ALLOCS = ALLOCS;
+#endif
             LOOP2_ASSERT(LINE, ti, BB + TOTAL_ALLOCS == AA);
             LOOP2_ASSERT(LINE, ti, B + 0 == A);
 
@@ -2526,9 +5835,13 @@ void TestDriver<TYPE,ALLOC>::testCase11(bslmf_MetaInt<1>,
     //      4. The allocator is passed through to elements if the elements
     //         also use bslma_Allocator.
     //      5. Creating an empty list allocates exactly one block.
+    //      6. 'get_allocator' returns the allocator used to construct the
+    //         list object.
     //
     // Testing:
-    //   Allocator traits and allocator propagation
+    //   allocator_type get_allocator() const;
+    //   Allocator traits
+    //   Allocator propagation
     // --------------------------------------------------------------------
 
     // Compile-time assert that this is the correct specialization.
@@ -2640,8 +5953,13 @@ void TestDriver<TYPE,ALLOC>::testCase11(bslmf_MetaInt<0>,
     //      3. The allocator is set with the extended copy-constructor.
     //      4. The allocator is copied when the list is copy-constructed.
     //      5. Creating an empty list allocates exactly one block.
+    //      6. 'get_allocator' returns the allocator used to construct the
+    //         list object.
     //
     // Testing:
+    //   allocator_type get_allocator() const;
+    //   Allocator traits
+    //   Allocator propagation
     //   Allocator traits and propagation
     // --------------------------------------------------------------------
 
@@ -2766,7 +6084,7 @@ template <class TYPE, class ALLOC>
 void TestDriver<TYPE,ALLOC>::testCase11(const char *t, const char *a)
 {
     // --------------------------------------------------------------------
-    // TEST ALLOCATOR-RELATED CONCERNS FOR NON-BSLMA ALLOCATORS
+    // TEST ALLOCATOR-RELATED CONCERNS
     //
     // This template specialization is for containers that use non-bslma
     // Allocators.
@@ -2814,7 +6132,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
     //       allocation exceptions.
     //   6.  The 'lhs' object must allocate all of its internal memory from
     //       its own allocator, even of 'rhs' uses a different allocator.
-    //   7.  TBD: Move assignment moves the value but not the allocator.
+    //   7.  TBD: C++0x move assignment moves the value but not the allocator.
     //       Memory is allocated only if the 'lhs' and 'rhs' allocators are
     //       different.
     //
@@ -2851,7 +6169,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
     //          With allocator, not moveable
     //
     // Testing:
-    //   list<T,A>& operator=(const list<T,A>& rhs);
+    //   list& operator=(const list& rhs);
     // --------------------------------------------------------------------
 
     bslma_TestAllocator testAllocator1(veryVeryVerbose);
@@ -2948,15 +6266,16 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                         ASSERT(NUM_CTOR <= (int)V.size());
                         ASSERT(NUM_DTOR <= (int)U_LEN_BEFORE);
 
+                        LOOP2_ASSERT(U_SPEC, V_SPEC, checkIntegrity(U, vLen));
                         LOOP2_ASSERT(U_SPEC, V_SPEC, VV == U);
                         LOOP2_ASSERT(U_SPEC, V_SPEC, VV == V);
                         LOOP2_ASSERT(U_SPEC, V_SPEC,  V == U);
                         LOOP2_ASSERT(U_SPEC, V_SPEC, BB1 == AA1);
                         LOOP2_ASSERT(U_SPEC, V_SPEC, B1  == A1 );
                         LOOP2_ASSERT(U_SPEC, V_SPEC,
-                                     BB2 + vLen * (1 + SCOPED_ALLOC) >= AA2);
+                                     BB2 + deltaBlocks(vLen) >= AA2);
                         LOOP2_ASSERT(U_SPEC, V_SPEC,
-                                     B2 + (vLen-uLen) * (1+SCOPED_ALLOC) == A2);
+                                     B2 + deltaBlocks(vLen-uLen) == A2);
                         for (const_iterator iu = U.begin(), iv = V.begin();
                              iu != U.end(); ++iu, ++iv) {
                             // Verify that U and V have no elements in common
@@ -3034,13 +6353,14 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                         const int AA2 = testAllocator2.numBlocksTotal();
                         const int A2  = testAllocator2.numBlocksInUse();
 
+                        LOOP2_ASSERT(U_SPEC, V_SPEC, checkIntegrity(U, vLen));
                         LOOP2_ASSERT(U_SPEC, V_SPEC, VV == U);
                         LOOP2_ASSERT(U_SPEC, V_SPEC, VV == V);
                         LOOP2_ASSERT(U_SPEC, V_SPEC,  V == U);
                         LOOP2_ASSERT(U_SPEC, V_SPEC,
-                                     BB2 + vLen * (1 + SCOPED_ALLOC) >= AA2);
+                                     BB2 + deltaBlocks(vLen) >= AA2);
                         LOOP2_ASSERT(U_SPEC, V_SPEC,
-                                     B2 + (vLen-uLen) * (1+SCOPED_ALLOC) == A2);
+                                     B2 + deltaBlocks(vLen-uLen) == A2);
                     }
                     // 'mV' (and therefore 'V') now out of scope
                     LOOP2_ASSERT(U_SPEC, V_SPEC, VV == U);
@@ -3135,6 +6455,7 @@ void TestDriver<TYPE,ALLOC>::testCase8()
     // --------------------------------------------------------------------
 
     bslma_TestAllocator testAllocator(veryVeryVerbose);
+    const ALLOC Z(&testAllocator);
 
     static const char *SPECS[] = {
         "", "~", "A", "B", "C", "D", "E", "A~B~C~D~E", "ABCDE", "ABC~DE",
@@ -3149,7 +6470,7 @@ void TestDriver<TYPE,ALLOC>::testCase8()
         const char *SPEC = SPECS[ti];
         if (veryVerbose) { P_(ti);  P(SPEC); }
 
-        Obj mX(&testAllocator);
+        Obj mX(Z);
         const Obj& X = gg(&mX, SPEC);
 
         if (veryVerbose) {
@@ -3172,7 +6493,7 @@ void TestDriver<TYPE,ALLOC>::testCase8()
         // compile-time fact
         ASSERT(sizeof(Obj) == sizeof g(SPEC));
 
-        Obj x(&testAllocator);                      // runtime tests
+        Obj x(Z);                      // runtime tests
         Obj& r1 = gg(&x, SPEC);
         Obj& r2 = gg(&x, SPEC);
         const Obj& r3 = g(SPEC);
@@ -3230,24 +6551,18 @@ void TestDriver<TYPE,ALLOC>::testCase7()
     //   'bslma_TestAllocator' and varying its *allocation* *limit*.
     //
     // Testing:
-    //   list<T,A>(const list<T,A>& original);
+    //   list(const list& original, const A& = A());
     // --------------------------------------------------------------------
 
     bslma_TestAllocator testAllocator(veryVeryVerbose);
+    const ALLOC Z(&testAllocator);
 
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVE  = bslalg_HasTrait<TYPE,
-                                        bslalg_TypeTraitBitwiseMoveable>::VALUE
-                         ? 0 : 1;  // if moveable, moves do not count as allocs
-    const int SCOPED_ALLOC = bslalg_HasTrait<TYPE,
-                                    bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
-
     if (verbose)
-        printf("\nTesting parameters: SCOPED_ALLOC = %d, TYPE_MOVE = %d.\n",
-               SCOPED_ALLOC, TYPE_MOVE);
+        printf("\nTesting parameters: SCOPED_ALLOC = %d.\n", SCOPED_ALLOC);
     {
         static const char *SPECS[] = {
             "",
@@ -3285,7 +6600,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
             LOOP_ASSERT(ti, LENGTH == W.size()); // same lengths
             if (veryVerbose) { printf("\tControl Obj: "); P(W); }
 
-            Obj *pX = new Obj(&testAllocator);
+            Obj *pX = new Obj(Z);
             Obj& mX = *pX;
 
             const Obj& X = mX;  gg(&mX, SPEC);
@@ -3299,13 +6614,18 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                 const Obj Y0(X);
 
                 if (veryVerbose) {
-                    printf("\tObj : "); P_(Y0);
+                    printf("\tObj : "); P(Y0);
                 }
 
+                LOOP_ASSERT(SPEC, checkIntegrity(Y0, LENGTH));
                 LOOP_ASSERT(SPEC, W == Y0);
                 LOOP_ASSERT(SPEC, W == X);
-                LOOP_ASSERT(SPEC, Y0.get_allocator() ==
-                             bslma_Default::defaultAllocator());
+                if (ObjHasBslmaAlloc::VALUE) {
+                    LOOP_ASSERT(SPEC, Y0.get_allocator() == ALLOC());
+                }
+                else {
+                    LOOP_ASSERT(SPEC, Y0.get_allocator() == X.get_allocator());
+                }
             }
             {   // Testing concern 4.
 
@@ -3316,6 +6636,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
 
                 Y1.push_back(VALUES[Y1.size() % NUM_VALUES]);
 
+                LOOP_ASSERT(SPEC, checkIntegrity(Y1, LENGTH + 1));
                 LOOP_ASSERT(SPEC, Y1.size() == LENGTH + 1);
                 LOOP_ASSERT(SPEC, W != Y1);
                 LOOP_ASSERT(SPEC, X != Y1);
@@ -3334,7 +6655,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                     printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
                 }
 
-                Obj Y11(X, &testAllocator);
+                Obj Y11(X, Z);
 
                 const int AA = testAllocator.numBlocksTotal();
                 const int  A = testAllocator.numBlocksInUse();
@@ -3344,9 +6665,8 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                     printf("\t\t\t\tBefore Append: "); P(Y11);
                 }
 
-                const int SCOPED_ALLOCS = SCOPED_ALLOC * LENGTH;
-                LOOP_ASSERT(SPEC, BB + 1 + LENGTH + SCOPED_ALLOCS == AA);
-                LOOP_ASSERT(SPEC,  B + 1 + LENGTH + SCOPED_ALLOCS ==  A);
+                LOOP_ASSERT(SPEC, BB + expectedBlocks(LENGTH) == AA);
+                LOOP_ASSERT(SPEC,  B + expectedBlocks(LENGTH) ==  A);
 
                 const int CC = testAllocator.numBlocksTotal();
                 const int  C = testAllocator.numBlocksInUse();
@@ -3359,8 +6679,8 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                 // Allocations should increase by one node block for the list.
                 // If TYPE uses an allocator, allocations hould increase by
                 // one more block.
-                LOOP_ASSERT(SPEC, CC + 1 + SCOPED_ALLOC == DD);
-                LOOP_ASSERT(SPEC, C  + 1 + SCOPED_ALLOC == D );
+                LOOP_ASSERT(SPEC, CC + deltaBlocks(1) == DD);
+                LOOP_ASSERT(SPEC, C  + deltaBlocks(1) == D );
 
                 if (veryVerbose) {
                     printf("\t\t\t\tAfter Append : ");
@@ -3373,6 +6693,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                 LOOP_ASSERT(SPEC, Y11.get_allocator() == X.get_allocator());
                 LOOP_ASSERT(SPEC, X == W);
             }
+#ifdef BDE_TARGET_EXC
             {   // Exception checking.
 
                 const int BB = testAllocator.numBlocksTotal();
@@ -3385,11 +6706,12 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                 size_t allocations = 0;
                 BEGIN_BSLMA_EXCEPTION_TEST {
                     allocations += bslmaExceptionCounter;
-                    const Obj Y2(X, &testAllocator);
+                    const Obj Y2(X, Z);
                     if (veryVerbose) {
                         printf("\t\t\tException Case  :\n");
                         printf("\t\t\t\tObj : "); P(Y2);
                     }
+                    LOOP_ASSERT(SPEC, checkIntegrity(Y2, LENGTH));
                     LOOP_ASSERT(SPEC, W == Y2);
                     LOOP_ASSERT(SPEC, W == X);
                     LOOP_ASSERT(SPEC, Y2.get_allocator() == X.get_allocator());
@@ -3405,6 +6727,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                 LOOP_ASSERT(SPEC, BB + allocations == AA);
                 LOOP_ASSERT(SPEC,  B + 0 ==  A);
             }
+#endif // BDE_TARGET_EXC
             {                            // with 'original' destroyed
                 Obj Y5(X);
                 if (veryVerbose) {
@@ -3421,6 +6744,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                     printf("\t\t\t\tAfter Append to new obj : ");
                     P(Y5);
                 }
+                LOOP_ASSERT(SPEC, checkIntegrity(Y5, LENGTH + 1));
                 LOOP_ASSERT(SPEC, W != Y5);
             }
         }
@@ -3545,8 +6869,10 @@ void TestDriver<TYPE,ALLOC>::testCase4()
     //   3) Iteration works for both const containers (using const_iterator)
     //      and non-const containers (using iterator).
     //   4) empty() returns true iff size() return 0
-    //   5) The test function succ() increments an iterator by n.
-    //   6) The test function nthElem() returns the nth element of a list
+    //   5) The test function 'succ' increments an iterator by n.
+    //   6) The test function 'nthElem' returns the nth element of a list.
+    //   7) The test function 'is_mutable' returns true iff its argument is a
+    //      mutable lvalue.
     //   NOTE: This is not a thorough test of iterators.  This test is only
     //   sufficient for using iterators to access the contents of a list in
     //   order.
@@ -3564,6 +6890,13 @@ void TestDriver<TYPE,ALLOC>::testCase4()
     //   iterator end();
     //   const_iterator begin() const;
     //   const_iterator end() const;
+    //
+    //   iterator succ(iterator);
+    //   const_iterator succ(iterator) const;
+    //   T& nthElem(list& x, int n);
+    //   const T& nthElem(list& x, int n) const;
+    //   bool is_mutable(T& val);
+    //   bool is_mutable(const T& val);
     // --------------------------------------------------------------------
 
     bslma_TestAllocator testAllocator(veryVeryVerbose);
@@ -3647,6 +6980,23 @@ void TestDriver<TYPE,ALLOC>::testCase4()
 
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+    if (verbose) printf("\nTesting is_mutable.\n");
+    {
+        TYPE mV;
+        const TYPE CV = TYPE();
+        TYPE& mVref = mV;
+        const TYPE& cmVref = mV;
+
+        ASSERT(  is_mutable(mV));
+        ASSERT(! is_mutable(CV));
+        ASSERT(  is_mutable(mVref));
+        ASSERT(! is_mutable(cmVref));
+// TBD aCC bug (DRQS 23276327)
+#if !defined(BSLS_PLATFORM__CMP_HP)
+        ASSERT(! is_mutable(as_rvalue(VALUES[0]))); // rvalue is not mutable
+#endif
+    }
+
     if (verbose) printf("\nTesting const and non-const versions of "
                         "begin() and end().\n");
     {
@@ -3660,7 +7010,8 @@ void TestDriver<TYPE,ALLOC>::testCase4()
             ASSERT(LENGTH <= MAX_LENGTH);
 
             for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
-                Obj mX(ALLOCATOR[ai]);
+                const ALLOC AL(ALLOCATOR[ai]);
+                Obj mX(AL);
 
                 const Obj& X = gg(&mX, SPEC);    // canonical organization
 
@@ -3719,7 +7070,8 @@ void TestDriver<TYPE,ALLOC>::testCase4()
             const char *const e = DATA[ti].d_elements;
 
             for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
-                Obj mX(ALLOCATOR[ai]);
+                const ALLOC AL(ALLOCATOR[ai]);
+                Obj mX(AL);
 
                 const Obj& X = gg(&mX, SPEC);
 
@@ -3740,7 +7092,7 @@ void TestDriver<TYPE,ALLOC>::testCase4()
                     T_; T_; T_; P(X);
                 }
 
-                Obj mY(ALLOCATOR[ai]); const Obj& Y = mY;
+                Obj mY(AL); const Obj& Y = mY;
 
                 for (size_t j = 0; j < LENGTH; j++) {
                     mY.push_back(TYPE());
@@ -3808,6 +7160,7 @@ void TestDriver<TYPE,ALLOC>::testCase3()
     // --------------------------------------------------------------------
 
     bslma_TestAllocator testAllocator(veryVeryVerbose);
+    const ALLOC Z(&testAllocator);
 
     if (verbose) printf("\nTesting generator on valid specs.\n");
     {
@@ -3867,13 +7220,13 @@ void TestDriver<TYPE,ALLOC>::testCase3()
             const char *const e      = DATA[ti].d_elements;
             const int         curLen = (int)strlen(SPEC);
 
-            Obj mX(&testAllocator);
+            Obj mX(Z);
             const Obj& X = gg(&mX, SPEC);   // original spec
 
             static const char *const MORE_SPEC = "~ABCDEABCDEABCDEABCDE~";
             char buf[100]; strcpy(buf, MORE_SPEC); strcat(buf, SPEC);
 
-            Obj mY(&testAllocator);
+            Obj mY(Z);
             const Obj& Y = gg(&mY, buf);    // extended spec
 
             if (curLen != oldLen) {
@@ -3948,7 +7301,7 @@ void TestDriver<TYPE,ALLOC>::testCase3()
             const int         INDEX   = DATA[ti].d_index;
             const size_t      LENGTH  = (int)strlen(SPEC);
 
-            Obj mX(&testAllocator);
+            Obj mX(Z);
 
             if ((int)LENGTH != oldLen) {
                 if (verbose) printf("\tof length %d:\n", LENGTH);
@@ -3979,23 +7332,25 @@ void TestDriver<TYPE,ALLOC>::testCase2()
     //    1) The default constructor
     //        1a) creates the correct initial value.
     //        1b) allocates exactly one block.
-    //        1c) has the internal memory management system hooked up
-    //              properly so that *all* internally allocated memory
-    //              draws from the same user-supplied allocator whenever
-    //              one is specified.
     //    2) The destructor properly deallocates all allocated memory to
     //         its corresponding allocator from any attainable state.
     //    3) 'push_back'
     //        3a) produces the expected value.
     //        3b) maintains valid internal state.
-    //        3c) is exception neutral with respect to memory allocation.
+    //        3c) preserves the strong exception guarantee and is
+    //            exception-neutral wrt memory allocation.
     //        3d) does not change the address of any other list elements
+    //        3e) has the internal memory management system hooked up
+    //              properly so that *all* internally allocated memory
+    //              draws from the same user-supplied allocator whenever
+    //              one is specified.
     //    4) 'clear'
     //        4a) produces the expected value (empty).
     //        4b) properly destroys each contained element value.
     //        4c) maintains valid internal state.
     //        4d) does not allocate memory.
-    //    5) The size based parameters of the class reflect the platform.
+    //        4e) deallocates all element memory
+    //    5) The size-based parameters of the class reflect the platform.
     //
     // Plan:
     //   To address concerns 1a - 1c, create an object using the default
@@ -4006,7 +7361,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
     //    - Where the object is constructed with an object allocator and
     //        neither of global and default allocator is used to supply memory.
     //
-    //   To address concerns 3a - 3d, construct a series of independent
+    //   To address concerns 3a - 3e, construct a series of independent
     //   objects, ordered by increasing length.  In each test, allow the
     //   object to leave scope without further modification, so that the
     //   destructor asserts internal object invariants appropriately.
@@ -4015,7 +7370,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
     //   and the 'bslma_TestAllocator' to confirm whether memory allocaiton has
     //   occurred.
     //
-    //   To address concerns 4a-4c, construct a similar test, replacing
+    //   To address concerns 4a-4e, construct a similar test, replacing
     //   'push_back' with 'clear'; this time, however, use the test
     //   allocator to record *numBlocksInUse* rather than *numBlocksTotal*.
     //
@@ -4053,20 +7408,14 @@ void TestDriver<TYPE,ALLOC>::testCase2()
     // --------------------------------------------------------------------
 
     bslma_TestAllocator testAllocator(veryVeryVerbose);
+    const ALLOC Z(&testAllocator);
 
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVE = bslalg_HasTrait<TYPE,
-                                        bslalg_TypeTraitBitwiseMoveable>::VALUE
-                            ? 0 : 1;
-    const int SCOPED_ALLOC  = bslalg_HasTrait<TYPE,
-                                    bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
-
     if (verbose)
-        printf("\tTesting parameters: SCOPED_ALLOC = %d, TYPE_MOVE = %d.\n",
-               SCOPED_ALLOC, TYPE_MOVE);
+        printf("\tTesting parameters: SCOPED_ALLOC = %d.\n", SCOPED_ALLOC);
 
     // --------------------------------------------------------------------
 
@@ -4084,7 +7433,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
         const int AA = testAllocator.numBlocksTotal();
         const int A  = testAllocator.numBlocksInUse();
 
-        const Obj X(&testAllocator);
+        ALLOC AL(&testAllocator);
+        const Obj X(AL);
 
         const int BB = testAllocator.numBlocksTotal();
         const int B  = testAllocator.numBlocksInUse();
@@ -4092,8 +7442,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
         if (veryVerbose) { T_; T_; P(X); }
         ASSERT(0 == X.size());
 
-        ASSERT(AA + 1 == BB);
-        ASSERT(A + 1  == B);
+        ASSERT(AA + expectedBlocks(0) == BB);
+        ASSERT(A + expectedBlocks(0)  == B);
     }
 
     if (verbose) printf("\t\tIn place using a buffer allocator.\n");
@@ -4102,11 +7452,12 @@ void TestDriver<TYPE,ALLOC>::testCase2()
         ASSERT(0 == defaultAllocator_p->numBlocksInUse());
         ASSERT(0 == objectAllocator_p->numBlocksInUse());
 
-        Obj x(objectAllocator_p);
+        ALLOC AL(objectAllocator_p);
+        Obj x(AL);
 
         ASSERT(0 == globalAllocator_p->numBlocksInUse());
         ASSERT(0 == defaultAllocator_p->numBlocksInUse());
-        ASSERT(1 == objectAllocator_p->numBlocksInUse());
+        ASSERT(expectedBlocks(0) == objectAllocator_p->numBlocksInUse());
     }
     ASSERT(0 == globalAllocator_p->numBlocksInUse());
     ASSERT(0 == defaultAllocator_p->numBlocksInUse());
@@ -4168,7 +7519,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
             if (verbose)
                     printf("\t\tOn an object of initial length %d.\n", li);
 
-            Obj mX(&testAllocator);  const Obj& X = mX;
+            ALLOC AL(&testAllocator);
+            Obj mX(AL);  const Obj& X = mX;
             const TYPE *elemAddrs[NUM_TRIALS];
 
             for (size_t i = 0; i < li; ++i) {
@@ -4197,14 +7549,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
                 P_(AA); P_(A); P(X);
             }
 
-            // When the type allocates, an extra allocation is used for the
-            // new element, and when the type is not bitwise moveable, size()
-            // allocations are used during the move, but an equal amount is
-            // destroyed thus the number of blocks in use is unchanged.
-
-            const int SCOPED_ALLOC_MOVES = SCOPED_ALLOC;
-            LOOP_ASSERT(li, BB + 1 + SCOPED_ALLOC_MOVES == AA);
-            LOOP_ASSERT(li, B + 1 + SCOPED_ALLOC == A);
+            LOOP_ASSERT(li, BB + deltaBlocks(1) == AA);
+            LOOP_ASSERT(li, B + deltaBlocks(1) == A);
 
             LOOP_ASSERT(li, li + 1 == X.size());
 
@@ -4276,7 +7622,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
             if (verbose)
                     printf("\t\tOn an object of initial length %d.\n", li);
 
-            Obj mX(&testAllocator);  const Obj& X = mX;
+            ALLOC AL(&testAllocator);
+            Obj mX(AL);  const Obj& X = mX;
 
             for (size_t i = 0; i < li; ++i) {
                 mX.push_back(VALUES[i % NUM_VALUES]);
@@ -4319,9 +7666,9 @@ void TestDriver<TYPE,ALLOC>::testCase2()
             LOOP_ASSERT(li, li == X.size());
 
             LOOP_ASSERT(li, BB == AA);
-            LOOP_ASSERT(li, B - (li + int(li) * SCOPED_ALLOC) == A);
+            LOOP_ASSERT(li, B - deltaBlocks(li) == A);
 
-            LOOP_ASSERT(li, BB + (li + int(li) * SCOPED_ALLOC) == CC);
+            LOOP_ASSERT(li, BB + deltaBlocks(li) == CC);
             LOOP_ASSERT(li, B == C);
         }
     }
@@ -4346,7 +7693,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
           BEGIN_BSLMA_EXCEPTION_TEST {
 
-            Obj mX(&testAllocator);  const Obj& X = mX;              // 1.
+            Obj mX(Z);  const Obj& X = mX;              // 1.
             const TYPE *elemAddrs[NUM_TRIALS];
             for (size_t i = 0; i < li; ++i) {                        // 2.
                 ExceptionGuard<Obj> guard(&mX, X, L_);
@@ -4392,7 +7739,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
               BEGIN_BSLMA_EXCEPTION_TEST {
                 size_t k; // loop index
 
-                Obj mX(&testAllocator);  const Obj& X = mX;         // 1.
+                Obj mX(Z);  const Obj& X = mX;                      // 1.
                 const TYPE *elemAddrs[NUM_TRIALS];
                 for (k = 0; k < i; ++k) {                           // 2.
                     ExceptionGuard<Obj> guard(&mX, X, L_);
@@ -4716,6 +8063,467 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING SORT
+        //
+        // Testing:
+        //   void sort();
+        //   template <class COMP> void sort(COMP c);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting SORT"
+                            "\n============\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase29();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase29();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase29();
+
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // TESTING MERGE
+        //
+        // Testing:
+        //   void merge(list& other);
+        //   template <class COMP> void merge(list& other, COMP c);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting MERGE"
+                            "\n=============\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase28();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase28();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase28();
+
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING UNIQUE
+        //
+        // Testing:
+        //   void unique();
+        //   template <class BINPRED> void unique(BINPRED p);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting  UNIQUE"
+                            "\n===============\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase27();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase27();
+
+        if (verbose) printf("\n... with 'TestTypeNoAlloc'.\n");
+        TestDriver<TNA>::testCase27();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc'.\n");
+        TestDriver<TOA>::testCase27();
+
+        if (verbose) printf("\n... with 'TestType' and 'OtherAlloc'.\n");
+        TestDriver<T,OAT>::testCase27();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase27();
+
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING REMOVE
+        //
+        // Testing:
+        //   void remove(const T& val);
+        //   template <class PRED> void remove_if(PRED p);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting  REMOVE"
+                            "\n===============\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase26();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase26();
+
+        if (verbose) printf("\n... with 'TestTypeNoAlloc'.\n");
+        TestDriver<TNA>::testCase26();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc'.\n");
+        TestDriver<TOA>::testCase26();
+
+        if (verbose) printf("\n... with 'TestType' and 'OtherAlloc'.\n");
+        TestDriver<T,OAT>::testCase26();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase26();
+
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // TESTING SPLICE
+        //
+        // Testing:
+        //   void splice(iterator pos, list& other);
+        //   void splice(iterator pos, list& other, iterator i);
+        //   void splice(iterator pos, list& other,
+        //               iterator first, iterator last);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting  SPLICE"
+                            "\n===============\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase25();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase25();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase25();
+
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING REVERSE
+        //
+        // Testing:
+        //   void reverse();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting  REVERSE"
+                            "\n================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase24();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase24();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase24();
+
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING TYPE TRAITS
+        //
+        // Testing:
+        //   bslalg_TypeTraitHasStlIterators
+        //   bslalg_TypeTraitUsesBslmaAllocator
+        //   bslalg_TypeTraitBitwiseMoveable
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting TYPE TRAITS"
+                            "\n===================\n");
+
+        // The default allocator is both a bslma allocator and is bitwise
+        // moveable.
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase23(/* uses_bslma */ true,
+                                     /* bitwise_moveable */ true);
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase23(/* uses_bslma */ true,
+                                  /* bitwise_moveable */ true);
+
+        if (verbose) printf("\n... with 'TestTypeNoAlloc'.\n");
+        TestDriver<TNA>::testCase23(/* uses_bslma */ true,
+                                    /* bitwise_moveable */ true);
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc'.\n");
+        TestDriver<TOA>::testCase23(/* uses_bslma */ true,
+                                    /* bitwise_moveable */ true);
+
+        // OtherAlloc allocator is neither a bslma allocator nor bitwise
+        // moveable.
+        if (verbose) printf("\n... with 'TestType' and 'OtherAlloc'.\n");
+        TestDriver<T,OAT>::testCase23(/* uses_bslma */ false,
+                                      /* bitwise_moveable */ false);
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase23(/* uses_bslma */ false,
+                                          /* bitwise_moveable */ false);
+
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING TYPEDEFS
+        //
+        // Concerns:
+        //   1. That all of the required typedefs are defined.
+        //   2. That the typedefs are identical to the corresponding typedefs
+        //      from the allocator.
+        //
+        // Plan:
+        //   Instantiate 'list<T,Alloc>' with at least two types of 'Alloc'.
+        //   Verify that each typedef in 'list<T,bAlloc>' matches the
+        //   corresponding typedef in 'Alloc'.  Note that the iterator types
+        //   were tested in test case 16 and so are not tested here.
+        //
+        // Testing:
+        //   reference
+        //   const_reference
+        //   size_type
+        //   difference_type
+        //   value_type
+        //   allocator_type
+        //   pointer
+        //   const_pointer
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting typedefs"
+                            "\n================\n");
+
+        if (verbose) printf("\nWith 'bsl::allocator'\n");
+        {
+            typedef bsl::allocator<T> Alloc;
+            typedef list<T,Alloc>     Obj;
+
+            ASSERT((bslmf_IsSame<Alloc::reference,
+                                 Obj::reference>::VALUE));
+            ASSERT((bslmf_IsSame<Alloc::const_reference,
+                                 Obj::const_reference>::VALUE));
+
+            ASSERT((bslmf_IsSame<Alloc::pointer,
+                                 Obj::pointer>::VALUE));
+            ASSERT((bslmf_IsSame<Alloc::const_pointer,
+                                 Obj::const_pointer>::VALUE));
+
+            ASSERT((bslmf_IsSame<Alloc::size_type,
+                                 Obj::size_type>::VALUE));
+            ASSERT((bslmf_IsSame<Alloc::difference_type,
+                                 Obj::difference_type>::VALUE));
+
+            ASSERT((bslmf_IsSame<T, Obj::value_type>::VALUE));
+            ASSERT((bslmf_IsSame<Alloc, Obj::allocator_type>::VALUE));
+        }
+
+        if (verbose) printf("\nWith 'SmallAllocator'\n");
+        {
+            typedef SmallAllocator<T> Alloc;
+            typedef list<T,Alloc>     Obj;
+
+            ASSERT((bslmf_IsSame<Alloc::reference,
+                                 Obj::reference>::VALUE));
+            ASSERT((bslmf_IsSame<Alloc::const_reference,
+                                 Obj::const_reference>::VALUE));
+
+            ASSERT((bslmf_IsSame<Alloc::pointer,
+                                 Obj::pointer>::VALUE));
+            ASSERT((bslmf_IsSame<Alloc::const_pointer,
+                                 Obj::const_pointer>::VALUE));
+
+            ASSERT((bslmf_IsSame<Alloc::size_type,
+                                 Obj::size_type>::VALUE));
+            ASSERT((bslmf_IsSame<Alloc::difference_type,
+                                 Obj::difference_type>::VALUE));
+
+            ASSERT((bslmf_IsSame<T, Obj::value_type>::VALUE));
+            ASSERT((bslmf_IsSame<Alloc, Obj::allocator_type>::VALUE));
+        }
+
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING EXCEPTIONS
+        //
+        // Concern: std::length_error is used properly
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting use of 'std::length_error'"
+                            "\n==================================\n");
+
+        TestDriver<T>::testCase21();
+
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING COMPARISON FREE OPERATORS
+        //
+        // Testing:
+        //   bool operator<(const list<T,A>& lhs, const list<T,A>& rhs);
+        //   bool operator>(const list<T,A>& lhs, const list<T,A>& rhs);
+        //   bool operator<=(const list<T,A>& lhs, const list<T,A>& rhs);
+        //   bool operator>=(const list<T,A>& lhs, const list<T,A>& rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting comparison free operators"
+                            "\n=================================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase20();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase20();
+
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING SWAP
+        //
+        // Testing:
+        //   void swap(list&);
+        //   void swap(list<T,A>&  lhs, list<T,A>&  rhs);
+        //   void swap(list<T,A>&& lhs, list<T,A>&  rhs);
+        //   void swap(list<T,A>&  lhs, list<T,A>&& rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting 'swap'"
+                            "\n==============\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase19();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase19();
+
+        if (verbose) printf("\n... with 'TestTypeNoAlloc'.\n");
+        TestDriver<TNA>::testCase19();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc'.\n");
+        TestDriver<TOA>::testCase19();
+
+        if (verbose) printf("\n... with 'TestType' and 'OtherAlloc'.\n");
+        TestDriver<T,OAT>::testCase19();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase19();
+
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING ERASE
+        //
+        // Testing:
+        //   iterator erase(const_iterator position);
+        //   iterator erase(const_iterator first, const_iterator last);
+        //   void pop_back();
+        //   void pop_front();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting 'erase' and 'pop_back'"
+                            "\n==============================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase18();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase18();
+
+        if (verbose) printf("\n... with 'TestTypeNoAlloc'.\n");
+        TestDriver<TNA>::testCase18();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc'.\n");
+        TestDriver<TOA>::testCase18();
+
+        if (verbose) printf("\n... with 'TestType' and 'OtherAlloc'.\n");
+        TestDriver<T,OAT>::testCase18();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase18();
+
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING INSERTION
+        //
+        // Testing:
+        //   void push_back(const T& value);
+        //   void push_front(const T& value);
+        //   iterator insert(const_iterator position, const T& value);
+        //   void insert(const_iterator pos, size_type n, const T& val);
+        //   template <class InputIter>
+        //    void insert(const_iterator pos, InputIter first, InputIter last);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Value Insertion"
+                            "\n=======================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase17();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase17();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc'.\n");
+        TestDriver<TOA>::testCase17();
+
+        if (verbose) printf("\n... with 'TestType' and 'OtherAlloc'.\n");
+        TestDriver<T,OAT>::testCase17();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase17();
+
+        if (verbose) printf("\nTesting Range Insertion"
+                            "\n=======================\n");
+
+        if (verbose) printf("\n... with 'TestType' "
+                            "and arbitrary forward iterator.\n");
+        TestDriver<T>::testCase17Range(InputSeq<T>());
+
+        if (verbose) printf("\n... with 'TestType' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<T>::testCase17Range(RandSeq<T>());
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<TOA>::testCase17Range(InputSeq<TOA>());
+
+        if (verbose) printf("\n... with 'TestType', 'OtherAlloc', "
+                            "and arbitrary input iterator.\n");
+        TestDriver<T,OAT>::testCase17Range(InputSeq<T>());
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc', 'OtherAlloc', "
+                            "and arbitrary input iterator.\n");
+        TestDriver<TOA,OATOA>::testCase17Range(InputSeq<TOA>());
+
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING ITERATORS
+        //
+        // Testing:
+        //   iterator begin();
+        //   iterator end();
+        //   reverse_iterator rbegin();
+        //   reverse_iterator rend();
+        //   const_iterator begin() const;
+        //   const_iterator end() const;
+        //   const_reverse_iterator rbegin() const;
+        //   const_reverse_iterator rend() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Iterators"
+                            "\n=================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase16();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase16();
+
+      } break;
       case 15: {
         // --------------------------------------------------------------------
         // TESTING ELEMENT ACCESS
@@ -4751,8 +8559,8 @@ int main(int argc, char *argv[])
         //   Using the default allocator, test that 'max_size' returns a value
         //   no larger than all of memory divided by the size of one element.
         //   Repeat this test with 'char' and TestType' element types.  Using
-        //   the 'SmallAllocator', test that 'max_size' returns the same value
-        //   as 'SmallAllocator<T>::max_size()', except that a node of
+        //   the 'LimitAllocator', test that 'max_size' returns the same value
+        //   as 'LimitAllocator<T>::max_size()', except that a node of
         //   overhead is allowed to be subtracted from the result.
         //
         //   For 'resize', call 'testCase14()' with different combinations of
@@ -4779,17 +8587,22 @@ int main(int argc, char *argv[])
             ASSERT(~(size_t)0 / sizeof(TestType) >= X.max_size());
         }
 
-        if (verbose) printf("\n... with 'int' and 'SmallAllocator.\n");
+        if (verbose) printf("\n... with 'int' and 'LimitAllocator.\n");
         {
-            list<int,SmallAllocator<int> > X;
-            // SmallAlloc will return the same 'max_size' regardless of the
+            const int LIMIT = 10;
+            typedef LimitAllocator<bsl::allocator<int> > LimA;
+            LimA a;
+            a.setMaxSize(LIMIT);
+
+            list<int,LimA> X(a);
+            // LimitAllocator will return the same 'max_size' regardless of the
             // type on which it is instantiated.  Thus, it will report that it
             // can allocate the same number of nodes as 'int's.  (This
             // behavior is not typical for an allocator, but works for this
             // test.)  The 'list' should have no more than one node of
             // overhead.
-            ASSERT(SmallAllocator<int>::max_size() >= X.max_size());
-            ASSERT(SmallAllocator<int>::max_size() - 1 <= X.max_size());
+            ASSERT(LIMIT     >= X.max_size());
+            ASSERT(LIMIT - 1 <= X.max_size());
         }
 
         if (verbose) printf("\nTesting 'resize'.\n");
@@ -5047,11 +8860,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestTypeNoAlloc'.\n");
         TestDriver<TNA>::testCase8();
 
-        if (verbose) printf("\n... with 'BitwiseMoveableTestType'.\n");
-        TestDriver<BMT>::testCase8();
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc'.\n");
+        TestDriver<TOA>::testCase8();
 
-        if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
-        TestDriver<BCT>::testCase8();
+        if (verbose) printf("\n... with 'TestType' and 'OtherAlloc'.\n");
+        TestDriver<T,OAT>::testCase8();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase8();
 
       } break;
       case 7: {
@@ -5080,11 +8897,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestTypeNoAlloc'.\n");
         TestDriver<TNA>::testCase7();
 
-        if (verbose) printf("\n... with 'BitwiseMoveableTestType'.\n");
-        TestDriver<BMT>::testCase7();
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc'.\n");
+        TestDriver<TOA>::testCase7();
 
-        if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
-        TestDriver<BCT>::testCase7();
+        if (verbose) printf("\n... with 'TestType' and 'OtherAlloc'.\n");
+        TestDriver<T,OAT>::testCase7();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase7();
 
       } break;
       case 6: {
@@ -5163,11 +8984,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestTypeNoAlloc'.\n");
         TestDriver<TNA>::testCase4();
 
-        if (verbose) printf("\n... with 'BitwiseMoveableTestType'.\n");
-        TestDriver<BMT>::testCase4();
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc'.\n");
+        TestDriver<TOA>::testCase4();
 
-        if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
-        TestDriver<BCT>::testCase4();
+        if (verbose) printf("\n... with 'TestType' and 'OtherAlloc'.\n");
+        TestDriver<T,OAT>::testCase4();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase4();
 
       } break;
       case 3: {
@@ -5194,12 +9019,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestTypeNoAlloc'.\n");
         TestDriver<TNA>::testCase3();
 
-        if (verbose) printf("\n... with 'BitwiseMoveableTestType'.\n");
-        TestDriver<BMT>::testCase3();
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc'.\n");
+        TestDriver<TOA>::testCase3();
 
-        if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
-        TestDriver<BCT>::testCase3();
+        if (verbose) printf("\n... with 'TestType' and 'OtherAlloc'.\n");
+        TestDriver<T,OAT>::testCase3();
 
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase3();
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -5229,11 +9057,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestTypeNoAlloc'.\n");
         TestDriver<TNA>::testCase2();
 
-        if (verbose) printf("\n... with 'BitwiseMoveableTestType'.\n");
-        TestDriver<BMT>::testCase2();
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc'.\n");
+        TestDriver<TOA>::testCase2();
 
-        if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
-        TestDriver<BCT>::testCase2();
+        if (verbose) printf("\n... with 'TestType' and 'OtherAlloc'.\n");
+        TestDriver<T,OAT>::testCase2();
+
+        if (verbose) printf("\n... with 'TestTypeOtherAlloc' and"
+                            " 'OtherAlloc'.\n");
+        TestDriver<TOA,OATOA>::testCase2();
 
       } break;
       case 1: {
@@ -5265,12 +9097,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n\t... with 'TestTypeNoAlloc'.\n");
         TestDriver<TNA>::testCase1();
-
-        if (verbose) printf("\n\t... with 'BitwiseMoveableTestType'.\n");
-        TestDriver<BMT>::testCase1();
-
-        if (verbose) printf("\n\t... with 'BitwiseCopyableTestType' .\n");
-        TestDriver<BCT>::testCase1();
 
         if (verbose) printf("\nAdditional tests: allocators.\n");
 

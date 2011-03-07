@@ -342,19 +342,23 @@ protected:
   size_type _M_node_count; // keeps track of size of tree
   _Compare _M_key_compare;
 
+  // The casts to '(void *&)' below suppress warnings: "conversion from 'X' to
+  // a more strictly aligned type 'Y' may cause misaligned access".  Note that
+  // the casts in question (to '(_Link_type&)') are safe downcasts.
+
   _Link_type& _M_root() const
-    { return (_Link_type&) this->_M_header._M_data->_M_parent; }
+    { return (_Link_type&)(void *&) this->_M_header._M_data->_M_parent; }
   _Link_type& _M_leftmost() const
-    { return (_Link_type&) this->_M_header._M_data->_M_left; }
+    { return (_Link_type&)(void *&) this->_M_header._M_data->_M_left; }
   _Link_type& _M_rightmost() const
-    { return (_Link_type&) this->_M_header._M_data->_M_right; }
+    { return (_Link_type&)(void *&) this->_M_header._M_data->_M_right; }
 
   static _Link_type&  _S_left(_Link_type __x)
-    { return (_Link_type&)(__x->_M_left); }
+    { return (_Link_type&)(void *&)(__x->_M_left); }
   static _Link_type&  _S_right(_Link_type __x)
-    { return (_Link_type&)(__x->_M_right); }
+    { return (_Link_type&)(void *&)(__x->_M_right); }
   static _Link_type&  _S_parent(_Link_type __x)
-    { return (_Link_type&)(__x->_M_parent); }
+    { return (_Link_type&)(void *&)(__x->_M_parent); }
   static reference   _S_value(_Link_type __x)
     { return __x->_M_value_field; }
   static const _Key&  _S_key(_Link_type __x)
@@ -363,11 +367,11 @@ protected:
     { return (_Color_type&)(__x->_M_color); }
 
   static _Link_type&  _S_left(_Base_ptr __x)
-    { return (_Link_type&)(__x->_M_left); }
+    { return (_Link_type&)(void *&)(__x->_M_left); }
   static _Link_type&  _S_right(_Base_ptr __x)
-    { return (_Link_type&)(__x->_M_right); }
+    { return (_Link_type&)(void *&)(__x->_M_right); }
   static _Link_type&  _S_parent(_Base_ptr __x)
-    { return (_Link_type&)(__x->_M_parent); }
+    { return (_Link_type&)(void *&)(__x->_M_parent); }
   static reference   _S_value(_Base_ptr __x)
     { return ((_Link_type)__x)->_M_value_field; }
   static const _Key&  _S_key(_Base_ptr __x)
