@@ -69,7 +69,7 @@ BDES_IDENT("$Id: $")
 // subsequently supplied to 'match'.  This is equivalent to Perl's '/i' option,
 // and can be turned off within a pattern by a '(?i)' option setting.
 //
-///Multi-line Matching
+///Multi-Line Matching
 ///- - - - - - - - - -
 // By default, a subject string supplied to 'match' is treated as consisting of
 // a single line of characters (even if it actually contains '\n' characters).
@@ -85,8 +85,8 @@ BDES_IDENT("$Id: $")
 // end of subject strings).  This is equivalent to Perl's '/m' option, and can
 // be turned off within a pattern by a '(?m)' option setting.  If there are no
 // '\n' characters in the subject string, or if there are no occurrences of '^'
-// or '$' in the prepared pattern, then including
-// 'bdepcre_RegEx::BDEPCRE_FLAG_MULTILINE' has no effect.
+// or '$' in the prepared pattern, then including 'BDEPCRE_FLAG_MULTILINE' has
+// no effect.
 //
 ///UTF-8 Support
 ///- - - - - - -
@@ -97,6 +97,19 @@ BDES_IDENT("$Id: $")
 // characters.  If 'BDEPCRE_FLAG_UTF8' is used to prepare a regular expression,
 // then any subject strings passed to the 'match' methods *must* be valid
 // UTF-8; otherwise, unexpected behavior may result.
+//
+///Dot Matches All
+///- - - - - - - -
+// If 'bdepcre_RegEx::BDEPCRE_FLAG_DOTMATCHESALL' is included in the flags
+// supplied to 'prepare', then a dot metacharacter in the pattern matches a
+// character of any value, including one that indicates a newline.  However, it
+// only ever matches one character, even if newlines are encoded as '\r\n'.
+// If 'BDEPCRE_FLAG_DOTMATCHESALL' is not used to prepare a regular expression,
+// a dot metacharacter will *not* match a newline; hence, patterns expected to
+// match across lines will fail to do so.  This flag is equivalent to Perl's
+// '/s' option, and can be changed within a pattern by a '(?s)' option setting.
+// A negative class such as '[^a]' always matches newline characters,
+// independent of the setting of this option.
 //
 ///Usage
 ///-----
@@ -363,9 +376,15 @@ class bdepcre_RegEx {
   public:
     // PUBLIC TYPES
     enum {
-        BDEPCRE_FLAG_CASELESS  = 0x0001,  // case-insensitive matching
-        BDEPCRE_FLAG_MULTILINE = 0x0002,  // multi-line matching
-        BDEPCRE_FLAG_UTF8      = 0x0800   // UTF-8 support
+        BDEPCRE_FLAG_CASELESS         = 0x0001,  // case-insensitive matching
+
+        BDEPCRE_FLAG_DOTMATCHESALL    = 0x0004,  // dot metacharacter matches
+                                                 // all chars (including
+                                                 // newlines)
+
+        BDEPCRE_FLAG_MULTILINE        = 0x0002,  // multi-line matching
+
+        BDEPCRE_FLAG_UTF8             = 0x0800   // UTF-8 support
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
       , FLAG_CASELESS  = BDEPCRE_FLAG_CASELESS
@@ -405,17 +424,27 @@ class bdepcre_RegEx {
         // 'errorOffset' (if non-null) with the offset in 'pattern' at which
         // the error was detected, and (4) return a non-zero value.  The
         // behavior is undefined unless 'flags' is the bit-wise inclusive-or of
-        // 0 or more values in '{ BDEPCRE_FLAG_CASELESS,
-        // BDEPCRE_FLAG_MULTILINE, BDEPCRE_FLAG_UTF8 }'.
+        // 0 or more of the following values:
+        //..
+        //  BDEPCRE_FLAG_CASELESS
+        //  BDEPCRE_FLAG_DOTMATCHESALL
+        //  BDEPCRE_FLAG_MULTILINE
+        //  BDEPCRE_FLAG_UTF8
+        //..
 
     // ACCESSORS
     int flags() const;
         // Return the flags that were supplied to the most recent successful
         // call to the 'prepare' method of this regular-expression object.  The
         // behavior is undefined unless 'isPrepared() == true'.  Note that the
-        // returned value will be the bit-wise inclusive-or of 0 or more values
-        // in '{ BDEPCRE_FLAG_CASELESS, BDEPCRE_FLAG_MULTILINE,
-        // BDEPCRE_FLAG_UTF8 }'.
+        // returned value will be the bit-wise inclusive-or of 0 or more of the
+        // following values:
+        //..
+        //  BDEPCRE_FLAG_CASELESS
+        //  BDEPCRE_FLAG_DOTMATCHESALL
+        //  BDEPCRE_FLAG_MULTILINE
+        //  BDEPCRE_FLAG_UTF8
+        //..
 
     bool isPrepared() const;
         // Return 'true' if this regular-expression object is in the "prepared"

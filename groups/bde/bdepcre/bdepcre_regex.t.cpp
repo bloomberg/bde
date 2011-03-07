@@ -1,4 +1,4 @@
-// bdepcre_regex.t.cpp    -*-C++-*-
+// bdepcre_regex.t.cpp                                                -*-C++-*-
 
 #include <bdepcre_regex.h>
 
@@ -523,62 +523,7 @@ int main(int argc, char *argv[])
     bslma_TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
-        // --------------------------------------------------------------------
-        // TESTING ?: non-matching grouping
-        //
-        // Concerns:
-        //   That (?:  ) specifies grouping, without specifying a subpattern.
-        //
-        //   That a subpattern can be nested inside the grouping.
-        // -------------------------------------------------------------------
-
-        Obj mX(&testAllocator);
-        int rc = mX.prepare(0,0,"XX(?:\\d\\d:)+ (\\S+)");
-        ASSERT(0 == rc);
-        bsl::vector<bsl::pair<int,int> > results;
-        //                     0123456789012
-        const char MATCH1[] = "XX12:23: WORD";
-        const char MATCH2[] = "XX12:23:34WORD";
-        ASSERT(0 == mX.match(&results, MATCH1, sizeof(MATCH1)-1));
-        LOOP_ASSERT(results.size(), 2 == results.size());
-        if (2 == results.size()) {
-            LOOP_ASSERT(results[1].first, 9 == results[1].first);
-        }
-
-        rc = mX.prepare(0,0,"XX(?:\\d\\d:)+(?: |\\d\\d)(\\S+)");
-        ASSERT(0 == mX.match(&results, MATCH1, sizeof(MATCH1)-1));
-        LOOP_ASSERT(results.size(), 2 == results.size());
-        if (2 == results.size()) {
-            LOOP_ASSERT(results[1].first, 9 == results[1].first);
-        }
-
-        ASSERT(0 == mX.match(&results, MATCH2, sizeof(MATCH2)-1));
-        LOOP_ASSERT(results.size(), 2 == results.size());
-        if (2 == results.size()) {
-            LOOP_ASSERT(results[1].first, 10 == results[1].first);
-        }
-
-        rc = mX.prepare(0,0,"XX(?:\\d\\d:)+(?: |(\\d\\d))(\\S+)");
-        ASSERT(0 == mX.match(&results, MATCH1, sizeof(MATCH1)-1));
-        // TBD...should have *ONE* subpattern match, but has two now
-        LOOP_ASSERT(results.size(), 3 == results.size());
-        if (3 == results.size()) {
-            // TBD, this match probably shouldn't happen
-            LOOP_ASSERT(results[1].first, -1 == results[1].first);
-            // TBD...this should be the FIRST match, not second
-            LOOP_ASSERT(results[2].first, 9 == results[2].first);
-        }
-
-        ASSERT(0 == mX.match(&results, MATCH2, sizeof(MATCH2)-1));
-        LOOP_ASSERT(results.size(), 3 == results.size());
-        if (3 == results.size()) {
-            LOOP_ASSERT(results[1].first, 8 == results[1].first);
-            LOOP_ASSERT(results[2].first, 10 == results[2].first);
-        }
-      } break;
-          
-      case 9: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   This will test the usage example provided in the component header
@@ -637,6 +582,249 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nEnd of Usage Example Test." << endl;
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING BDEPCRE_FLAG_DOTMATCHESALL FLAG
+        //   This will test the 'BDEPCRE_FLAG_DOTMATCHESALL' option when
+        //   compiling regular expressions.
+        //
+        // Concerns:
+        //   We want to make sure that the dot metacharacter '.' matches
+        //   all characters including newlines ('\n') when this flag is
+        //   specified.  We also want to check that not specifying this flag
+        //   disables the matching of newlines.
+        //
+        // Plan:
+        //   For a given pattern string containing newlines, create two
+        //   regular expression objects - one with 'BDEPCRE_FLAG_MULTILINE'
+        //   specified and another without.
+        //
+        //   For each object, exercise the match function using subjects of the
+        //   form "<preamble>\n<pattern-match>\n<postamble>".  Note that in
+        //   some cases the pattern to be matched will contain newlines.
+        //   Select test data with increasing preamble/postamble length (from
+        //   0 to 3).  Verify that the object with 'BDEPCRE_FLAG_DOTMATCHESALL'
+        //   always succeeds and also that the object without
+        //   'BDEPCRE_FLAG_DOTMATCHESALL' always fails.
+        //
+        //   Finally, exercise the match function using a subject that matches
+        //   the pattern exactly on a single line (i.e.  without any
+        //   preamble/postamble/newline characters).  Verify that both objects
+        //   succeed.
+        //
+        // Testing:
+        //   int flags() const;
+        //   BDEPCRE_FLAG_DOTMATCHESALL
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Dot Matches All Flag"
+                          << "\n============================" << endl;
+
+        const char PATTERN[]             = "b.*e";
+        const char SUBJECT_SINGLE_LINE[] = "bbasm_SecurityCache";
+
+        static const struct {
+            int         d_lineNum;          // source line number
+            const char *d_subject;          // subject string
+            int         d_preambleLength;   // number of chars in preamble
+            int         d_postambleLength;  // number of chars in postamble
+        } DATA[] = {
+            //line  subject                            preamble   postamble
+            //----  -------                            --------   ---------
+            { L_,   "bbasm\n_Se\ncurityCache\n",           0,         1     },
+            { L_,   "\nbbasm\n_Se\ncurityCache\n",         1,         1     },
+            { L_,   "a\nbbasm\n_Se\ncurityCache\na",       2,         2     },
+            { L_,   "a\nbbasm\n_Se\ncurityCache\na",       2,         2     },
+            { L_,   "az\nbbasm\n_Se\ncurityCache\n",       3,         1     },
+            { L_,   "\nbbasm\n_Se\ncurityCache\nab",       1,         3     },
+            { L_,   "az\nbbasm\n_Se\ncurityCache\nab",     3,         3     },
+            { L_,   "azc\nbbasm\n_Se\ncurityCache\n",      4,         1     },
+            { L_,   "\nbbasm\n_Se\ncurityCache\nabc",      1,         4     },
+            { L_,   "azc\nbbasm\n_Se\ncurityCache\nabc",   4,         4     },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        bslma_TestAllocator ta;
+        Obj mX(&ta); const Obj& X = mX;   // has 'BDEPCRE_FLAG_DOTMATCHESALL'
+        Obj mY(&ta); const Obj& Y = mY;   // !have 'BDEPCRE_FLAG_DOTMATCHESALL'
+
+        if (verbose) {
+            cout << "\nPreparing the regular expression objects." << endl;
+
+            if (veryVerbose) {
+                T_ P(PATTERN);
+            }
+        }
+
+        bsl::string errorMsg;
+        int         errorOffset;
+
+        int retCode = mX.prepare(&errorMsg,
+                                 &errorOffset,
+                                 PATTERN,
+                                 Obj::BDEPCRE_FLAG_DOTMATCHESALL);
+        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
+        LOOP_ASSERT(X.flags(), Obj::BDEPCRE_FLAG_DOTMATCHESALL == X.flags());
+
+        retCode = mY.prepare(&errorMsg, &errorOffset, PATTERN, 0);
+        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
+        LOOP_ASSERT(Y.flags(), 0 == Y.flags());
+
+        if (verbose) {
+            cout << "\nTrying multiline subjects." << endl;
+        }
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE          = DATA[i].d_lineNum;
+            const char *SUBJECT       = DATA[i].d_subject;
+            const int   PREAMBLE_LEN  = DATA[i].d_preambleLength;
+            const int   POSTAMBLE_LEN = DATA[i].d_postambleLength;
+            const int   SUBJECT_LEN   = bsl::strlen(SUBJECT);
+            const int   MATCH_OFFSET  = PREAMBLE_LEN;
+            const int   MATCH_LENGTH  = SUBJECT_LEN
+                                      - PREAMBLE_LEN
+                                      - POSTAMBLE_LEN;
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(SUBJECT) P_(SUBJECT_LEN)
+                   P_(PREAMBLE_LEN) P(POSTAMBLE_LEN)
+            }
+
+            if (veryVeryVerbose) {
+                cout << "\t\tUsing regular match function." << endl;
+            }
+
+            pair<int, int> match;
+
+            retCode = X.match(&match, SUBJECT, SUBJECT_LEN);
+            LOOP2_ASSERT(LINE, retCode,      0            == retCode);
+            LOOP2_ASSERT(LINE, match.first,  MATCH_OFFSET == match.first);
+            LOOP2_ASSERT(LINE, match.second, MATCH_LENGTH == match.second);
+
+            retCode = Y.match(&match, SUBJECT, SUBJECT_LEN);
+            LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+
+            if (veryVeryVerbose) {
+                cout << "\t\tUsing vector match function." << endl;
+            }
+
+            vector<pair<int, int> > vMatch;
+
+            retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN);
+            LOOP2_ASSERT(LINE, retCode, 0 == retCode);
+            LOOP2_ASSERT(LINE, retCode, 1 == vMatch.size());
+            LOOP2_ASSERT(LINE, vMatch[0].first,
+                         MATCH_OFFSET == vMatch[0].first);
+            LOOP2_ASSERT(LINE, vMatch[0].second,
+                         MATCH_LENGTH == vMatch[0].second);
+
+            retCode = Y.match(&vMatch, SUBJECT, SUBJECT_LEN);
+            LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+        }
+
+        if (verbose) {
+            cout << "\nTrying single line subject." << endl;
+        }
+
+        {
+            const char *SUBJECT     = SUBJECT_SINGLE_LINE;
+            const int   SUBJECT_LEN = bsl::strlen(SUBJECT);
+
+            if (veryVerbose) {
+                T_ P_(SUBJECT) P(SUBJECT_LEN)
+            }
+
+            if (veryVeryVerbose) {
+                cout << "\t\tUsing regular match function." << endl;
+            }
+
+            pair<int, int> match;
+
+            retCode = X.match(&match, SUBJECT, SUBJECT_LEN);
+            LOOP_ASSERT(retCode,      0           == retCode);
+            LOOP_ASSERT(match.first,  0           == match.first);
+            LOOP_ASSERT(match.second, SUBJECT_LEN == match.second);
+
+            retCode = Y.match(&match, SUBJECT, SUBJECT_LEN);
+            LOOP_ASSERT(retCode,      0           == retCode);
+            LOOP_ASSERT(match.first,  0           == match.first);
+            LOOP_ASSERT(match.second, SUBJECT_LEN == match.second);
+
+            if (veryVeryVerbose) {
+                cout << "\t\tUsing vector match function." << endl;
+            }
+
+            vector<pair<int, int> > vMatch;
+
+            retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN);
+            LOOP_ASSERT(retCode,          0           == retCode);
+            LOOP_ASSERT(vMatch.size(),    1           == vMatch.size());
+            LOOP_ASSERT(vMatch[0].first,  0           == vMatch[0].first);
+            LOOP_ASSERT(vMatch[0].second, SUBJECT_LEN == vMatch[0].second);
+
+            retCode = Y.match(&vMatch, SUBJECT, SUBJECT_LEN);
+            LOOP_ASSERT(retCode,          0           == retCode);
+            LOOP_ASSERT(vMatch.size(),    1           == vMatch.size());
+            LOOP_ASSERT(vMatch[0].first,  0           == vMatch[0].first);
+            LOOP_ASSERT(vMatch[0].second, SUBJECT_LEN == vMatch[0].second);
+        }
+
+        if (verbose) cout << "\nEnd of Multiline Flag Test." << endl;
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING ?: non-matching grouping
+        //
+        // Concerns:
+        //   That (?:  ) specifies grouping, without specifying a subpattern.
+        //
+        //   That a subpattern can be nested inside the grouping.
+        // -------------------------------------------------------------------
+
+        Obj mX(&testAllocator);
+        int rc = mX.prepare(0,0,"XX(?:\\d\\d:)+ (\\S+)");
+        ASSERT(0 == rc);
+        bsl::vector<bsl::pair<int,int> > results;
+        //                     0123456789012
+        const char MATCH1[] = "XX12:23: WORD";
+        const char MATCH2[] = "XX12:23:34WORD";
+        ASSERT(0 == mX.match(&results, MATCH1, sizeof(MATCH1)-1));
+        LOOP_ASSERT(results.size(), 2 == results.size());
+        if (2 == results.size()) {
+            LOOP_ASSERT(results[1].first, 9 == results[1].first);
+        }
+
+        rc = mX.prepare(0,0,"XX(?:\\d\\d:)+(?: |\\d\\d)(\\S+)");
+        ASSERT(0 == mX.match(&results, MATCH1, sizeof(MATCH1)-1));
+        LOOP_ASSERT(results.size(), 2 == results.size());
+        if (2 == results.size()) {
+            LOOP_ASSERT(results[1].first, 9 == results[1].first);
+        }
+
+        ASSERT(0 == mX.match(&results, MATCH2, sizeof(MATCH2)-1));
+        LOOP_ASSERT(results.size(), 2 == results.size());
+        if (2 == results.size()) {
+            LOOP_ASSERT(results[1].first, 10 == results[1].first);
+        }
+
+        rc = mX.prepare(0,0,"XX(?:\\d\\d:)+(?: |(\\d\\d))(\\S+)");
+        ASSERT(0 == mX.match(&results, MATCH1, sizeof(MATCH1)-1));
+        // TBD...should have *ONE* subpattern match, but has two now
+        LOOP_ASSERT(results.size(), 3 == results.size());
+        if (3 == results.size()) {
+            // TBD, this match probably shouldn't happen
+            LOOP_ASSERT(results[1].first, -1 == results[1].first);
+            // TBD...this should be the FIRST match, not second
+            LOOP_ASSERT(results[2].first, 9 == results[2].first);
+        }
+
+        ASSERT(0 == mX.match(&results, MATCH2, sizeof(MATCH2)-1));
+        LOOP_ASSERT(results.size(), 3 == results.size());
+        if (3 == results.size()) {
+            LOOP_ASSERT(results[1].first, 8 == results[1].first);
+            LOOP_ASSERT(results[2].first, 10 == results[2].first);
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
