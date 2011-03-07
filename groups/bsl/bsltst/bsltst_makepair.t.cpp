@@ -6,7 +6,8 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdio.h>      // printf
+#include <bsl_cstdlib.h>     // atoi
 #include <bsl_iostream.h>
 #include <bsl_utility.h>
 
