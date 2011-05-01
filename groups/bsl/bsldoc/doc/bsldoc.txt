@@ -1,0 +1,40 @@
+ bsldoc.txt
+
+@PURPOSE: Provide documentation of terms and concepts used throughout BDE.
+
+@MNEMONIC: Basic Standard Library DOCumentation (bsldoc)
+
+@AUTHOR: Alisdair Meredith (ameredith1)
+
+@DESCRIPTION: The 'bsldoc' package provides documentation of terms and concepts
+ used ubiquitously throughout BDE.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bsldoc' currently has 1 component having 1 level of physical dependency.
+ The table below shows the hierarchical ordering of the component.  The package
+ prefix and underscore ('bsldoc_') is omitted from the full component name for
+ layout efficiency.
+..
+  Level 1: glossary
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the component in 'bsldoc'.
+..
+  'bsldoc_glossary' - glossary of terms used throughout BDE documentation.
+..
+
+@Component Overview:
+
+ This Overview section summarizes the component that is available in 'bsldoc'.
+
+/'bsldoc_glossary'
+/-----------------
+ This component provides a glossary of terms used throughout BDE documentation.
+
+@Usage Examples
+
+ This package has no Usage examples, as yet.  It consists only of (strictly
+ non-executable) documentation.
