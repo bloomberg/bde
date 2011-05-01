@@ -10,6 +10,7 @@
 #include <bcemt_thread.h>           // for testing only
 
 #include <bsls_platform.h>          // for testing only
+#include <bsls_protocoltest.h>      // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_new.h>                // placement 'new' syntax
@@ -327,146 +328,19 @@ my_RecordBuffer::~my_RecordBuffer()
 //=============================================================================
 //                       CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
-int globalDestructorCalled;
 
-class ConcreteRecordBuffer : public bael_RecordBuffer {
-    // Test class used to verify protocol.
-
-    // DATA
-    mutable int d_fun;  // holds code describing last-called function:
-                        //   + 1 beginSequence
-                        //   + 2 endSequence
-                        //   + 3 popBack
-                        //   + 4 popFront
-                        //   + 5 pushBack
-                        //   + 6 pushFront
-                        //   + 7 removeAll
-                        //   + 8 back
-                        //   + 9 front
-                        //   +10 length
-
-  private:
-    // NOT IMPLEMENTED
-    ConcreteRecordBuffer(const ConcreteRecordBuffer&);
-    ConcreteRecordBuffer& operator=(const ConcreteRecordBuffer&);
-
-  public:
-    // CREATORS
-    ConcreteRecordBuffer();
-    ~ConcreteRecordBuffer();
-
-    // MANIPULATORS
-    void beginSequence();
-    void endSequence();
-
-    void popBack();
-
-    void popFront();
-
-    int pushBack(const bcema_SharedPtr<bael_Record>& handle);
-
-    int pushFront(const bcema_SharedPtr<bael_Record>& handle);
-
-    void removeAll();
-
-    void resetFun();
-
-    // ACCESSORS
-    const bael_Record& back() const;
-
-    const bael_Record& front() const;
-
-    int length() const;
-
-    int fun() const;
-        // Return descriptive code for the function called.
+struct RecordBufferTest : bsls_ProtocolTest<bael_RecordBuffer> {
+    void popBack()                                      { exit(); }
+    void popFront()                                     { exit(); }
+    int pushBack(const bcema_SharedPtr<bael_Record>&)   { return exit(); }
+    int pushFront(const bcema_SharedPtr<bael_Record>&)  { return exit(); }
+    void removeAll()                                    { exit(); }
+    void beginSequence()                                { exit(); }
+    void endSequence()                                  { exit(); }
+    const bael_Record& back() const                     { return exitRef(); }
+    const bael_Record& front() const                    { return exitRef(); }
+    int length() const                                  { return exit(); }
 };
-
-// Note: INTERNAL COMPILER ERROR on Windows if the following are
-// defined within the 'class' declaration.
-
-// CREATORS
-ConcreteRecordBuffer::ConcreteRecordBuffer()
-: d_fun(-1)
-{
-    globalDestructorCalled = 0;
-}
-
-ConcreteRecordBuffer::~ConcreteRecordBuffer()
-{
-    globalDestructorCalled = 1;
-}
-
-// MANIPULATORS
-void ConcreteRecordBuffer::beginSequence()
-{
-    d_fun = 1;
-}
-
-void ConcreteRecordBuffer::endSequence()
-{
-    d_fun = 2;
-}
-
-void ConcreteRecordBuffer::popBack()
-{
-    d_fun = 3;
-}
-
-void ConcreteRecordBuffer::popFront()
-{
-    d_fun = 4;
-}
-
-int ConcreteRecordBuffer::pushBack(const bcema_SharedPtr<bael_Record>&)
-{
-    d_fun = 5;
-    return 0;
-}
-
-int ConcreteRecordBuffer::pushFront(const bcema_SharedPtr<bael_Record>&)
-{
-    d_fun = 6;
-    return 0;
-}
-
-void ConcreteRecordBuffer::removeAll()
-{
-    d_fun = 7;
-}
-
-void ConcreteRecordBuffer::resetFun()
-{
-    d_fun = -1;
-}
-
-// ACCESSORS
-const bael_Record& ConcreteRecordBuffer::back() const
-{
-    d_fun = 8;
-
-    static const int fakeRecord = 77;
-    return (const bael_Record&)fakeRecord;
-}
-
-const bael_Record& ConcreteRecordBuffer::front() const
-{
-    d_fun = 9;
-
-    static const int fakeRecord = 77;
-    return (const bael_Record&)fakeRecord;
-}
-
-int ConcreteRecordBuffer::length() const
-{
-    d_fun = 10;
-    return 11;
-}
-
-int ConcreteRecordBuffer::fun() const
-{
-    return d_fun;
-}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -556,114 +430,24 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        ConcreteRecordBuffer mY;       const ConcreteRecordBuffer& Y = mY;
-        bael_RecordBuffer&   mX = mY;  const bael_RecordBuffer&    X = Y;
+        bsls_ProtocolTestDriver<RecordBufferTest> t;
 
-// Note that the cast in '(int)Y.fun()' in the 'ASSERT' expressions below was
-// necessitated by an internal compiler error on Windows.
+        ASSERT(t.testAbstract());
+        ASSERT(t.testNoDataMembers());
+        ASSERT(t.testVirtualDestructor());
 
-        if (verbose) cout << "\nTesting beginSequence" << endl;
-        {
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mX.beginSequence();        ASSERT( 1 == (int)Y.fun());
+        BSLS_PROTOCOLTEST_ASSERT(t, popBack());
+        BSLS_PROTOCOLTEST_ASSERT(t, popFront());
+        BSLS_PROTOCOLTEST_ASSERT(t, pushBack(bcema_SharedPtr<bael_Record>()));
+        BSLS_PROTOCOLTEST_ASSERT(t, pushFront(bcema_SharedPtr<bael_Record>()));
+        BSLS_PROTOCOLTEST_ASSERT(t, removeAll());
+        BSLS_PROTOCOLTEST_ASSERT(t, beginSequence());
+        BSLS_PROTOCOLTEST_ASSERT(t, endSequence());
+        BSLS_PROTOCOLTEST_ASSERT(t, back());
+        BSLS_PROTOCOLTEST_ASSERT(t, front());
+        BSLS_PROTOCOLTEST_ASSERT(t, length());
 
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mY.beginSequence();        ASSERT( 1 == (int)Y.fun());
-        }
-
-        if (verbose) cout << "\nTesting endSequence" << endl;
-        {
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mX.endSequence();          ASSERT( 2 == (int)Y.fun());
-
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mY.endSequence();          ASSERT( 2 == (int)Y.fun());
-        }
-
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
-        if (verbose) cout << "\nTesting popBack" << endl;
-        {
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mX.popBack();              ASSERT( 3 == (int)Y.fun());
-
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mY.popBack();              ASSERT( 3 == (int)Y.fun());
-        }
-
-        if (verbose) cout << "\nTesting popFront" << endl;
-        {
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mX.popFront();             ASSERT( 4 == (int)Y.fun());
-
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mY.popFront();             ASSERT( 4 == (int)Y.fun());
-        }
-
-        if (verbose) cout << "\nTesting pushBack" << endl;
-        {
-            bcema_SharedPtr<bael_Record> fakeHandle;
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mX.pushBack(fakeHandle);   ASSERT( 5 == (int)Y.fun());
-
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mY.pushBack(fakeHandle);   ASSERT( 5 == (int)Y.fun());
-        }
-
-        if (verbose) cout << "\nTesting pushFront" << endl;
-        {
-            bcema_SharedPtr<bael_Record> fakeHandle;
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mX.pushFront(fakeHandle);  ASSERT( 6 == (int)Y.fun());
-
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mY.pushFront(fakeHandle);  ASSERT( 6 == (int)Y.fun());
-        }
-
-        if (verbose) cout << "\nTesting removeAll" << endl;
-        {
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mX.removeAll();            ASSERT( 7 == (int)Y.fun());
-
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-            mY.removeAll();            ASSERT( 7 == (int)Y.fun());
-        }
-
-        if (verbose) cout << "\nTesting back" << endl;
-        {
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-             X.back();                 ASSERT( 8 == (int)Y.fun());
-
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-             Y.back();                 ASSERT( 8 == (int)Y.fun());
-        }
-
-        if (verbose) cout << "\nTesting front" << endl;
-        {
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-             X.front();                ASSERT( 9 == (int)Y.fun());
-
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-             Y.front();                ASSERT( 9 == (int)Y.fun());
-        }
-
-        if (verbose) cout << "\nTesting length" << endl;
-        {
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-             X.length();               ASSERT(10 == (int)Y.fun());
-
-            mY.resetFun();             ASSERT(-1 == (int)Y.fun());
-             Y.length();               ASSERT(10 == (int)Y.fun());
-        }
-#endif
-
-        if (verbose) cout << "\nTesting destructor" << endl;
-        {
-            bael_RecordBuffer *protocol = new ConcreteRecordBuffer;
-            ASSERT(0 == globalDestructorCalled);
-            delete protocol;
-            ASSERT(1 == globalDestructorCalled);
-        }
-
+        testStatus = t.failures();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

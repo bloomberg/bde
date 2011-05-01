@@ -1,8 +1,8 @@
-// bael_loggermanagerconfiguration.cpp  -*-C++-*-
+// bael_loggermanagerconfiguration.cpp                                -*-C++-*-
 #include <bael_loggermanagerconfiguration.h>
 
-#include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(bael_loggermanagerconfiguration_cpp,"$Id$ $CSID$")
 
 #include <bdeu_print.h>
 

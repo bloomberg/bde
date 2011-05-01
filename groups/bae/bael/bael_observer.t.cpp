@@ -12,7 +12,9 @@
 #include <bdex_testoutstream.h>                 // for testing only
 
 #include <bslma_testallocator.h>                // for testing only
+
 #include <bsls_platformutil.h>                  // for testing only
+#include <bsls_protocoltest.h>                  // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
@@ -78,24 +80,8 @@ void aSsErT(int c, const char *s, int i)
 //                       CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
 
-int my_ObserverDestructorCalled;
-
-class my_Observer : public bael_Observer {
-
-    int d_count;    // number of times 'publish' method called
-
-  public:
-    my_Observer() : d_count(0) { my_ObserverDestructorCalled = 0; }
-    ~my_Observer()             { my_ObserverDestructorCalled = 1; }
-
-    void publish(const bael_Record&  record, const bael_Context& context)
-    {
-        ++d_count;
-    }
-
-    int count() const { return d_count; }
-        // Return the number of times that the 'publish' method has been
-        // called.
+struct ObserverTest : bsls_ProtocolTest<bael_Observer> {
+    void publish(const bael_Record&, const bael_Context&)  { exit(); }
 };
 
 //=============================================================================
@@ -255,33 +241,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        if (verbose) cout << "\nTesting publish" << endl;
-        {
-            my_Observer mX;  const my_Observer& X = mX;
-            bael_Observer& protocol = mX;
+        bsls_ProtocolTestDriver<ObserverTest> t;
 
-            const int fakeRecord  = 77;
-            const int fakeContext = 88;
+        ASSERT(t.testAbstract());
+        ASSERT(t.testNoDataMembers());
+        ASSERT(t.testVirtualDestructor());
 
-            // publish a pair of log records
+        BSLS_PROTOCOLTEST_ASSERT(t, publish(bael_Record(), bael_Context()));
 
-            ASSERT(0 == X.count());
-            protocol.publish((const bael_Record &)fakeRecord,
-                             (const bael_Context &)fakeContext);
-            ASSERT(1 == X.count());
-            protocol.publish((const bael_Record &)fakeRecord,
-                             (const bael_Context &)fakeContext);
-            ASSERT(2 == X.count());
-        }
-
-        if (verbose) cout << "\nTesting destructor" << endl;
-        {
-            bael_Observer *protocol = new my_Observer;
-            ASSERT(0 == my_ObserverDestructorCalled);
-            delete protocol;
-            ASSERT(1 == my_ObserverDestructorCalled);
-        }
-
+        testStatus = t.failures();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

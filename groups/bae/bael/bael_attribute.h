@@ -296,7 +296,7 @@ bael_Attribute::bael_Attribute(const char             *name,
 , d_value(basicAllocator)
 , d_hashValue(-1)
 {
-    d_value.assign<bsl::string>(value);
+    d_value.assign<bsl::string>(bsl::string(value.data(), value.length()));
 }
 
 inline
@@ -366,7 +366,7 @@ void bael_Attribute::setValue(bsls_PlatformUtil::Int64 value)
 inline
 void bael_Attribute::setValue(const bdeut_StringRef& value)
 {
-    d_value.assign(bsl::string(value));
+    d_value.assign(bsl::string(value.data(), value.length()));
     d_hashValue = -1;
 }
 

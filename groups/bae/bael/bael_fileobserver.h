@@ -428,7 +428,8 @@ class bael_FileObserver : public bael_Observer {
         // Set the format of log records written to the log file and to
         // 'stdout' to the specified 'logFileFormat' and 'stdoutFormat',
         // respectively.  If this method is not called, default formats are
-        // used when publishing log records.
+        // used when publishing log records.  See "Log Record Formatting" under
+        // @DESCRIPTION for details of formatting syntax.
 
     // ACCESSORS
     bool isFileLoggingEnabled() const;
@@ -477,7 +478,8 @@ class bael_FileObserver : public bael_Observer {
         // Load the format of log records written by this file observer to the
         // log file into the specified '*logFileFormat' address and the format
         // of log records written to 'stdout' into the specified
-        // '*stdoutFormat' address.
+        // '*stdoutFormat' address.  See "Log Record Formatting" under
+        // @DESCRIPTION for details of formatting syntax.
 };
 
 // ============================================================================

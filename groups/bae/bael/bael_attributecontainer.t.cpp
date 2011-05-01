@@ -4,6 +4,7 @@
 #include <bael_attribute.h>             // for testing only
 
 #include <bsls_assert.h>
+#include <bsls_protocoltest.h>
 
 #include <bsl_iostream.h>
 #include <bsl_set.h>
@@ -327,69 +328,10 @@ typedef bael_AttributeContainer Obj;
 //                         GLOBAL CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-class TestAttributeContainer : public bael_AttributeContainer {
-
-  public:
-    // TYPES
-    enum Method {
-        NONE = 0,
-        DESTRUCTOR,
-        HAS_VALUE,
-        PRINT
-    };
-
-  private:
-    // DATA
-    Method *d_lastMethod;
-
-  public:
-
-    // CREATORS
-    TestAttributeContainer(Method *lastMethod)
-    : d_lastMethod(lastMethod)
-    {
-        *lastMethod = NONE;
-    }
-
-    // CREATORS
-    virtual ~TestAttributeContainer();
-        // Destroy this object and set the 'lastMethod' supplied at
-        // construction to 'DESTRUCTOR'.
-
-    // ACCESSORS
-    virtual bool hasValue(const bael_Attribute& value) const;
-        // Return 'true' and set the 'lastMethod' supplied at construction  to
-        // 'HAS_VALUE'.
-
-    virtual bsl::ostream& print(bsl::ostream& stream,
-                                int           level = 0,
-                                int           spacesPerLevel = 4) const;
-        // Return a reference to the specified 'stream' and set the
-        // 'lastMethod' supplied at construction  to 'PRINT'
+struct AttributeContainerTest : bsls_ProtocolTest<bael_AttributeContainer> {
+    bool hasValue(const bael_Attribute&) const          { return exit(); }
+    bsl::ostream& print(bsl::ostream&, int, int) const  { return exitRef(); }
 };
-
-// CREATORS
-TestAttributeContainer::~TestAttributeContainer()
-{
-    *d_lastMethod = DESTRUCTOR;
-}
-
-// ACCESSORS
-bool TestAttributeContainer::hasValue(const bael_Attribute& value) const
-{
-    *d_lastMethod = HAS_VALUE;
-    return true;
-}
-
-bsl::ostream& TestAttributeContainer::print(
-                                        bsl::ostream& stream,
-                                        int           level,
-                                        int           spacesPerLevel) const
-{
-    *d_lastMethod = PRINT;
-    return stream;
-}
-
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -459,24 +401,30 @@ int main(int argc, char *argv[])
 //..
       } break;
       case 1: {
+        // --------------------------------------------------------------------
+        // PROTOCOL TEST
+        //
+        // Concerns:
+        //   'bael_AttributeContainer' defines a proper protocol class.
+        //
+        // Plan:
+        //   Use 'bsls_ProtocolTest' to verify general protocol class concerns
+        //   for 'bael_AttributeContainer' as well as each of its methods.
+        //
+        // Testing:
+        //   class bael_AttributeContainer
+        // --------------------------------------------------------------------
 
+        bsls_ProtocolTestDriver<AttributeContainerTest> t;
 
-          TestAttributeContainer::Method method;
-          {
-              TestAttributeContainer mX(&method);
-              const TestAttributeContainer& MX = mX;
+        ASSERT(t.testAbstract());
+        ASSERT(t.testNoDataMembers());
+        ASSERT(t.testVirtualDestructor());
 
-              ASSERT(TestAttributeContainer::NONE == method);
+        BSLS_PROTOCOLTEST_ASSERT(t, hasValue(bael_Attribute("", 0)));
+        BSLS_PROTOCOLTEST_ASSERT(t, print(cout, 0, 0));
 
-              MX.hasValue(bael_Attribute("A", 1));
-
-              ASSERT(TestAttributeContainer::HAS_VALUE == method);
-
-              MX.print(bsl::cout, 1, 3);
-
-              ASSERT(TestAttributeContainer::PRINT == method);
-          }
-          ASSERT(TestAttributeContainer::DESTRUCTOR == method);
+        testStatus = t.failures();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
