@@ -147,20 +147,18 @@ BSLS_IDENT("$Id: $")
 //                          -----------------------
 //                      (A) BDE_BUILD_TARGET_SAFE_2
 //                      (B) BDE_BUILD_TARGET_SAFE
-//                      (C) BDE_BUILD_TARGET_DBG
+//                      (C) BDE_BUILD_TARGET_OPT
 //..
 // *Any* of the 8 possible combinations of the three build targets, e.g.,
-// 'BDE_BUILD_TARGET_DBG' and 'BDE_BUILD_TARGET_SAFE_2', may be defined.  By
+// 'BDE_BUILD_TARGET_OPT' and 'BDE_BUILD_TARGET_SAFE_2', may be defined.  By
 // contrast, the four (BSLS) assertion-level flags, shown below (e.g.,
 // 'BSLS_ASSERT_LEVEL_NONE'), are specific to this component.
 //
 // The following table shows the four mutually exclusive (BSLS) assertion-level
 // flags.  (Note that, by default, the 'BSLS_ASSERT_SAFE' macro is disabled,
-// and the 'BSLS_ASSERT_OPT' macro is enabled; the 'BSLS_ASSERT' macro is
-// endable or disabled, depending on whether the 'BDE_BUILD_TARGET_DBG' flag is
-// defined.  Hence, for symmetry, we explicitly enable 'BSLS_ASSERT' and
-// 'BSLS_ASSERT_SAFE' and explicitly disable 'BSLS_ASSERT' and
-// 'BSLS_ASSERT_OPT'.)
+// and the 'BSLS_ASSERT' and 'BSLS_ASSERT_OPT' macros are enabled; the
+// 'BSLS_ASSERT' macro is disabled when the 'BDE_BUILD_TARGET_OPT' flag is
+// defined and not overruled by also defining the 'BDE_BUILD_TARGET_SAFE' macro.)
 //..
 //                        (BSLS) Assertion-Level Flags
 //                       ------------------------------
@@ -190,10 +188,10 @@ BSLS_IDENT("$Id: $")
 //  ===========================================================================
 //  --- BDE_BUILD_TARGET ----   ------------ BSLS "ASSERT" MACRO --------------
 //    (A)      (B)      (C)            I.            II.            III.
-//  _SAFE_2   _SAFE    _DBG     BSLS_ASSERT_SAFE  BSLS_ASSERT   BSLS_ASSERT_OPT
+//  _SAFE_2   _SAFE    _OPT     BSLS_ASSERT_SAFE  BSLS_ASSERT   BSLS_ASSERT_OPT
 //  -------  -------  -------   ----------------  ------------  ---------------
-//                                                               INSTANTIATES
-//                    DEFINED                     INSTANTIATES   INSTANTIATES
+//                                                INSTANTIATES   INSTANTIATES
+//                    DEFINED                                    INSTANTIATES
 //           DEFINED             INSTANTIATES     INSTANTIATES   INSTANTIATES
 //           DEFINED  DEFINED    INSTANTIATES     INSTANTIATES   INSTANTIATES
 //  DEFINED                      INSTANTIATES     INSTANTIATES   INSTANTIATES
@@ -203,13 +201,14 @@ BSLS_IDENT("$Id: $")
 //
 //  ==========================================================================
 //..
-// As the table above illustrates, if no build targets are defined, then only
-// 'BSLS_ASSERT_OPT' instantiates.  If only 'BDE_BUILD_TARGET_DBG' is defined,
-// then both 'BSLS_ASSERT' and 'BSLS_ASSERT_OPT' instantiate.  If, however,
-// either 'BDE_BUILD_TARGET_SAFE' or 'BDE_BUILD_TARGET_SAFE_2' is defined, then
-// all three "ASSERT" macros, 'BSLS_ASSERT_SAFE', 'BSLS_ASSERT', and
+// As the table above illustrates, if no build targets are defined, then both
+// 'BSLS_ASSERT' and 'BSLS_ASSERT_OPT' instantiate.  If 'BDE_BUILD_TARGET_OPT'
+// is defined and neither 'BDE_BUILD_TARGET_SAFE' nor 'BDE_BUILD_TARGET_SAFE_2'
+// is defined, then only 'BSLS_ASSERT_OPT' instantiates.  If, however, either
+// 'BDE_BUILD_TARGET_SAFE' or 'BDE_BUILD_TARGET_SAFE_2' is defined, then all
+// three "ASSERT" macros, 'BSLS_ASSERT_SAFE', 'BSLS_ASSERT', and
 // 'BSLS_ASSERT_OPT', instantiate (regardless of whether or not
-// 'BDE_BUILD_TARGET_DBG' happens to be defined).
+// 'BDE_BUILD_TARGET_OPT' happens to be defined).
 //
 ///Assertion-Level Flags
 ///- - - - - - - - - - -
@@ -371,7 +370,7 @@ BSLS_IDENT("$Id: $")
 ///Conditional Compilation: 'BDE_BUILD_TARGET_SAFE_2' and Assertion Predicates
 ///---------------------------------------------------------------------------
 // To recap, there are three (mutually compatible) general *build* *targets*
-//: o 'BDE_BUILD_TARGET_DBG'
+//: o 'BDE_BUILD_TARGET_OPT'
 //: o 'BDE_BUILD_TARGET_SAFE'
 //: o 'BDE_BUILD_TARGET_SAFE_2'
 // and four (mutually exclusive) component-specific *assertion* *levels*
@@ -1247,7 +1246,7 @@ BSLS_IDENT("$Id: $")
     || BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED && (                          \
            defined(BDE_BUILD_TARGET_SAFE_2) ||                               \
            defined(BDE_BUILD_TARGET_SAFE)   ||                               \
-           defined(BDE_BUILD_TARGET_DBG)          )
+           !defined(BDE_BUILD_TARGET_OPT)         )
 
     #define BSLS_ASSERT_IS_ACTIVE       // also usable directly in client code
 #endif

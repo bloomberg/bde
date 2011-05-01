@@ -30,7 +30,7 @@
   Level 3: platformutil
 
   Level 2: alignedbuffer   exceptionutil   int64
-           objectbuffer    timeutil
+           objectbuffer    protocoltest    timeutil
 
   Level 1: alignment       assert          buildtarget
            logicerror      platform
@@ -44,18 +44,31 @@
  general, the distinction between a component and a class is important.
 ..
   'bsls_alignedbuffer' - raw buffers with user-specified size and alignment.
+
   'bsls_alignment'     - platform-specific alignment information.
+
   'bsls_assert'        - macros and mechanisms for user-defined "asserts".
+
   'bsls_buildtarget'   - types for compile-time build target identification.
+
   'bsls_exceptionutil' - exception constructs for non-exception builds.
+
   'bsls_int64'         - platform-dependent 64-bit integer types.
+
   'bsls_logicerror'    - low-level "logic error" exception.
+
   'bsls_objectbuffer'  - raw buffer with size and alignment of user-specified
                          parameterized type.
+
   'bsls_platform'      - preprocessor support for platform identification.
+
   'bsls_platformutil'  - encapsulate platform-dependent operations behind
                          a stable interface.
+
+  'bsls_protocoltest'  - classes and macros for testing abstract protocols.
+
   'bsls_stopwatch'     - a simple real-time interval timer.
+
   'bsls_timeutil'      - a platform-neutral interface to system clocks.
 ..
 
@@ -159,6 +172,10 @@
  whether a machine is big or little endian across all supported platforms, and
  defines a set of macros replacing the standard 'htonl', 'htons', 'ntohl', and
  'ntohs' which do not require including any system header.
+
+/'bsls_platform'
+/---------------
+ This component provides classes and macros for testing abstract protocols.
 
 /'bsls_stopwatch'
 /----------------

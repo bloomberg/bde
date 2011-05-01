@@ -2,7 +2,7 @@
 #include <bsls_asserttest.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
+BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_asserttestexception.h>
 #include <bsls_platform.h>
@@ -28,20 +28,18 @@ BSLS_IDENT("$Id: $")
 #endif
 
 //-----------------------------------------------------------------------------
-
+// STATIC HELPER FUNCTIONS
 static
 void printError(const char *text, const char *file, int line)
     // Print a formatted error message to 'stderr' using the specified
-    // expression 'text', 'file' name, and 'line' number.  If either
-    // 'text' or 'file' is empty ("") or null (0), replace it with some
-    // informative, "human-readable" text, before formatting.
+    // expression 'text', 'file' name, and 'line' number.  If either 'text' or
+    // 'file' is empty (""), or null (0), replace it with some informative,
+    // "human-readable" text, before formatting.
 {
-    // Note that we deliberately use 'stdio' rather than 'iostream' to
-    // avoid issues pertaining to memory allocation for file-scope 'static'
-    // objects such as 'std::cerr'.
-
-    // It should also be noted that the <iostream> components are located in a
-    // package higher in the levelization of this group.
+    // Note that we deliberately use 'stdio' rather than 'iostream' to avoid
+    // issues pertaining to memory allocation for file-scope 'static' objects
+    // such as 'std::cerr'.  Also note that the '<iostream>' components are
+    // located in a package higher in the levelization of 'bsl'.
 
     if (!text) {
         text = "(* Unspecified Expression Text *)";
@@ -68,7 +66,7 @@ static
 bool isPathSeparator(char c)
 {
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-    static const char pathSeparators[] = {':', '/', '\\'}; 
+    static const char pathSeparators[] = { ':', '/', '\\' };
 #else
     static const char pathSeparators[] = { '/' };
 #endif
@@ -81,35 +79,38 @@ bool isPathSeparator(char c)
 }
 
 static
-bool extractComponentName(const char ** componentName,
-                          int * length,
-                          const char * filename)
-    // Returns 'true' if the passed 'filename' corresponds to a valid filename
-    // for a BDE component, and 'false' otherwise.  If 'filename' corresponds
-    // to a valid component name, 'componentName' will be set to point to the
-    // start of that component name within 'filename', and 'length' will store
-    // the length of that component name.  Note that this sub-string will *not*
-    // be null-terminated.
+bool extractComponentName(const char **componentName,
+                          int         *length,
+                          const char  *filename)
+    // Return 'true' if the specified 'filename' corresponds to a valid
+    // filename for a BDE component, and 'false' otherwise.  If 'filename'
+    // corresponds to a valid component name, 'componentName' will be set to
+    // point to the start of that component name within 'filename', and
+    // 'length' will store the length of that component name.  Note that this
+    // sub-string will *not* be null-terminated.
 {
-    // A component filename is a filename ending in one of the
-    // following set of file extensions: '.h', '.cpp', '.t.cpp'.
-    // The component name is the component filename minus the extension
-    // and any leading pathname.
+    // A component filename is a filename ending in one of the following set of
+    // file extensions: '.h', '.cpp', '.t.cpp'.
+    // The component name is the component filename minus the extension and any
+    // leading pathname.
 
     // The basic algorithm searches for the end of the 'filename' and then
-    // iterates backwards.  First we verify that the filename has a
-    // valid extension for a component: '.cpp', '.t.cpp' or '.h'.  Then we
-    // keep searching backwards for the first path separator, which will
-    // depend on the filesystem the compiler is running on.  The string
-    // between the last path separator (if any) and the period starting
-    // the file extension mark out the component name to be returned.
-    if(!componentName || !length || !filename) {
+    // iterates backwards.  First we verify that the filename has a valid
+    // extension for a component: '.cpp', '.t.cpp', or '.h'.  Then we keep
+    // searching backwards for the first path separator, which will depend on
+    // the filesystem the compiler is running on.  The string between the last
+    // path separator (if any) and the period starting the file extension mark
+    // out the component name to be returned.
+
+    if (!componentName || !length || !filename) {
          printf("passed at least one null pointer\n");
          return false;
     }
 
-    const char * end = filename;
-    for ( ; *end; ++end ) {} // find the end of the string
+    const char *end = filename;
+    for (; *end; ++end) {
+        // Find the end of the string.
+    }
     if (3 > (end - filename)) {
         printf("filename is too short\n");
         return false;
@@ -129,7 +130,7 @@ bool extractComponentName(const char ** componentName,
         }
 
         if ('p' != *--end) {
-             printf("filename is not a .cpp(2)\n");
+             printf("filename is not a .cpp(1)\n");
              return false;
         }
 
@@ -157,7 +158,7 @@ bool extractComponentName(const char ** componentName,
          return false;
     }
 
-    const char * cursor = end;
+    const char *cursor = end;
     while (cursor != filename) {
         --cursor;
         if (isPathSeparator(*cursor)) {
@@ -180,15 +181,15 @@ namespace BloombergLP {
                             // ---------------------
 
 // CLASS METHODS
-bool bsls_AssertTest::isValidAssertBuild(const char *specString) 
+bool bsls_AssertTest::isValidAssertBuild(const char *specString)
 {
     if (specString) {
         switch (*specString) {
-          case 'S' :
-          case 'A' :
-          case 'O' :
-                return '\0' == specString[1]
-                    || ('2' == specString[1] && '\0' == specString[2]);
+          case 'S':
+          case 'A':
+          case 'O':
+            return '\0' == specString[1]
+                || ('2' == specString[1] && '\0' == specString[2]);
         }
     }
     return false;
@@ -204,7 +205,7 @@ bool bsls_AssertTest::isValidExpected(char specChar)
 bool bsls_AssertTest::tryProbe(char expectedResult)
 {
     if (!isValidExpected(expectedResult)) {
-        printf("Invalid 'expectedResult' passed to a tryProbe: '%c'\n",
+        printf("Invalid 'expectedResult' passed to 'tryProbe': '%c'\n",
                expectedResult);
     }
 
@@ -216,10 +217,13 @@ bool bsls_AssertTest::catchProbe(
                             const bsls_AssertTestException&  caughtException,
                             const char                      *componentFileName)
 {
+    // First we must validate each argument, in order to write a diagnostic
+    // message to the console.
+
     bool validArguments = true;
 
     if (!isValidExpected(expectedResult)) {
-        printf("Invalid 'expectedResult' passed to a catchProbe: '%c'\n",
+        printf("Invalid 'expectedResult' passed to 'catchProbe': '%c'\n",
                expectedResult);
         validArguments = false;
     }
@@ -229,45 +233,49 @@ bool bsls_AssertTest::catchProbe(
 
     const char *exceptionComponent;
     int exceptionNameLength;
-    if (file && !extractComponentName(
-                            &exceptionComponent, &exceptionNameLength, file)) {
+    if (file && !extractComponentName(&exceptionComponent,
+                                      &exceptionNameLength,
+                                      file)) {
         printf("Bad component name in exception caught by catchProbe: %s\n",
                file);
         validArguments = false;
     }
 
     validArguments = validArguments && caughtException.lineNumber() > 0
-                                    && text && *text;
+                                    && text
+                                    && *text;
 
     if (!validArguments) {
         printError(text, file, caughtException.lineNumber());
     }
 
+    // Note that 'componentFileName' is permitted to be NULL.
+
     const char *thisComponent;
     int thisNameLength;
-    if (componentFileName && !extractComponentName(
-                         &thisComponent, &thisNameLength, componentFileName)) {
+    if (componentFileName && !extractComponentName(&thisComponent,
+                                                   &thisNameLength,
+                                                   componentFileName)) {
         printf("Bad component name for test driver in catchProbe: %s\n",
                componentFileName);
         validArguments = false;
     }
 
+    // After diagnosing any invalid arguments, we can now return a result.
+
     if ('F' != expectedResult || !validArguments) {
         return false;
     }
 
-    // If componentFilename is null then it is deemed to match, which is the
-    // exact behavior of catchProbeRaw
-    if(0 != componentFileName) {
+    // If 'componentFilename' is null then it is deemed to match any filename.
+
+    if (0 != componentFileName) {
         // Two component filenames match if they are the same component name,
         // regardless of path, and regardless of file-extension.
-        // We have established both filenames are valid and non-empty, next we
-        // scan backwards from the end of each filename to the end of the
-        // component name.
-    
-        if (thisNameLength != exceptionNameLength || 
-           0 != strncmp(thisComponent, exceptionComponent, thisNameLength)) {
-               return false;
+
+        if (thisNameLength != exceptionNameLength
+         || 0 != strncmp(thisComponent, exceptionComponent, thisNameLength)) {
+            return false;
         }
     }
 
@@ -277,7 +285,7 @@ bool bsls_AssertTest::catchProbe(
 bool bsls_AssertTest::tryProbeRaw(char expectedResult)
 {
     if (!isValidExpected(expectedResult)) {
-        printf("Invalid 'expectedResult' passed to a tryProbe: '%c'\n",
+        printf("Invalid 'expectedResult' passed to a 'tryProbeRaw': '%c'\n",
                expectedResult);
     }
 
@@ -287,22 +295,17 @@ bool bsls_AssertTest::tryProbeRaw(char expectedResult)
 bool bsls_AssertTest::catchProbeRaw(char expectedResult)
 {
     if (!isValidExpected(expectedResult)) {
-        printf("Invalid 'expectedResult' passed to a catchProbe: '%c'\n",
+        printf("Invalid 'expectedResult' passed to a 'catchProbeRaw': '%c'\n",
                expectedResult);
     }
 
-    if ('F' != expectedResult) {
-        return false;
-    }
-
-    return true;
+    return 'F' == expectedResult;
 }
 
-
 BSLS_ASSERTTEST_NORETURN
-void bsls_AssertTest::failTestDriver(const char *text, 
-                                     const char *file, 
-                                     int         line) 
+void bsls_AssertTest::failTestDriver(const char *text,
+                                     const char *file,
+                                     int         line)
 {
 #ifdef BDE_BUILD_TARGET_EXC
     throw bsls_AssertTestException(text, file, line);
@@ -310,7 +313,6 @@ void bsls_AssertTest::failTestDriver(const char *text,
     printError(text, file, line);
     abort();
 #endif
-
 }
 
 }  // close namespace BloombergLP

@@ -44,6 +44,11 @@ using namespace std;
 // that certain combinations of build options cause a compile-time error will
 // also have to be done by hand (see negative case numbers).
 //
+// Global Concerns:
+//: o TBD
+//
+// Global Assumptions:
+//: o TBD
 // ----------------------------------------------------------------------------
 // [ 6] BSLS_ASSERT_SAFE_IS_ACTIVE
 // [ 6] BSLS_ASSERT_IS_ACTIVE
@@ -169,7 +174,7 @@ static int globalLine;
         try {
 
 #define ASSERTION_TEST_END                                      \
-        } catch (std::exception& e) {                           \
+        } catch (std::exception& ) {                            \
             if (verbose) cout << "\nException caught." << endl; \
         }
 #else
@@ -1465,7 +1470,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_ASSERT_LEVEL_ASSERT)                                   \
  || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED &&                                \
-        defined(BDE_BUILD_TARGET_DBG) &&                                \
+        !defined(BDE_BUILD_TARGET_OPT) &&                               \
         !defined(BDE_BUILD_TARGET_SAFE) &&                              \
         !defined(BDE_BUILD_TARGET_SAFE_2)
 
@@ -1543,7 +1548,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)                               \
  || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED &&                                \
-        !defined(BDE_BUILD_TARGET_DBG) &&                               \
+        defined(BDE_BUILD_TARGET_OPT) &&                                \
         !defined(BDE_BUILD_TARGET_SAFE) &&                              \
         !defined(BDE_BUILD_TARGET_SAFE_2)
 
@@ -1973,28 +1978,28 @@ int main(int argc, char *argv[])
 // definition of the corresponding 'BSLS_ASSERT_*_IS_ACTIVE' macro.  Likewise,
 // those macros should not be defined unless the configuration is marked.
 //
-//  Expected test results                       (old rules)        (new rules)
-//    BDE_BUILD mode      assertion            ASSERT macros      ASSERT macros
-//  SAFE2 SAFE DBG OPT      level              OPT     SAFE       OPT     SAFE 
-//  ----- ---- --- ---    --------             --- --- ----       --- --- ----
-//                                              X                  X   X
-//                  X                           X                  X
-//             X                                X   X              X   X
-//             X    X                           X   X              X   
-//         X                                    X   X   X          X   X   X
-//         X        X                           X   X   X          X   X   X
-//         X   X                                X   X   X          X   X   X
-//         X   X    X                           X   X   X          X   X   X
-//    X                                         X   X   X          X   X   X
-//    X             X                           X   X   X          X   X   X
-//    X        X                                X   X   X          X   X   X
-//    X        X    X                           X   X   X          X   X   X
-//    X    X                                    X   X   X          X   X   X
-//    X    X        X                           X   X   X          X   X   X
-//    X    X   X                                X   X   X          X   X   X
-//    X    X   X    X                           X   X   X          X   X   X
-//                       LEVEL_NONE                               (no change
-//                  X    LEVEL_NONE                                below here)
+//  Expected test results
+//    BDE_BUILD mode      assertion            ASSERT macros
+//  SAFE2 SAFE DBG OPT      level              OPT     SAFE
+//  ----- ---- --- ---    --------             --- --- ----
+//                                              X   X
+//                  X                           X
+//             X                                X   X
+//             X    X                           X   
+//         X                                    X   X   X
+//         X        X                           X   X   X
+//         X   X                                X   X   X
+//         X   X    X                           X   X   X
+//    X                                         X   X   X
+//    X             X                           X   X   X
+//    X        X                                X   X   X
+//    X        X    X                           X   X   X
+//    X    X                                    X   X   X
+//    X    X        X                           X   X   X
+//    X    X   X                                X   X   X
+//    X    X   X    X                           X   X   X
+//                       LEVEL_NONE
+//                  X    LEVEL_NONE
 //             X         LEVEL_NONE
 //             X    X    LEVEL_NONE
 //         X             LEVEL_NONE
@@ -2124,8 +2129,8 @@ void TestConfigurationMacros()
 #error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
 #endif
 
-#if defined(BSLS_ASSERT_IS_ACTIVE)
-#error BSLS_ASSERT_IS_ACTIVE should not be defined
+#if !defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should be defined
 #endif
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
@@ -2137,8 +2142,8 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_SAFE(false); ASSERT(true);  }
     catch(AssertFailed)          { ASSERT(false); }
 
-    try { BSLS_ASSERT(false);      ASSERT(true);  }
-    catch(AssertFailed)          { ASSERT(false); }
+    try { BSLS_ASSERT(false);      ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(true); }
 
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
@@ -2296,8 +2301,8 @@ void TestConfigurationMacros()
 #error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
 #endif
 
-#if !defined(BSLS_ASSERT_IS_ACTIVE)
-#error BSLS_ASSERT_IS_ACTIVE should be defined
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should not be defined
 #endif
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
@@ -2309,8 +2314,8 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_SAFE(false); ASSERT(true);  }
     catch(AssertFailed)          { ASSERT(false); }
 
-    try { BSLS_ASSERT(false);      ASSERT(false); }
-    catch(AssertFailed)          { ASSERT(true);  }
+    try { BSLS_ASSERT(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
 
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }

@@ -21,6 +21,7 @@ bsls_objectbuffer
 bsls_performancehint
 bsls_platform
 bsls_platformutil
+bsls_protocoltest
 bsls_stopwatch
 bsls_timeutil
 bsls_types
