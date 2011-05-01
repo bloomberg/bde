@@ -1,0 +1,77 @@
+ baetzo.txt
+
+@PURPOSE: Provide timezone data for use with timezone-enabled vocabulary types.
+
+@MNEMONIC: Basic Application Environment TimeZone (Olson) (baetzo)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'baetzo' package provides facilities to convert a local time
+ representation for one time zone into a local time representation for another
+ time zone.  Local time zone representations can be any of several time
+ vocabulary types (e.g., 'baet_LocalDatetime', 'bdet_Datetime').  Time zones
+ are here specified using *time* *zone* *identifiers* (e.g.,
+ "America/New_York", "America/Indiana/Indianapolis", "Europe/Rome",
+ "Pacific/Honolulu").
+
+/Hierarchical Synopsis
+/---------------------
+ The 'baetzo' package has 16 components having seven levels of dependency.  The
+ table below shows the hierarchical ordering of the components.  The package
+ prefix and underscore ('baetzo_') are omitted from the full component names
+ for layout efficiency.  The ordering within each level is simply alphabetical
+ and has no architectural significance.
+..
+  Level 7: timezoneutil
+
+  Level 6: timezoneutilimp
+
+  Level 5: defaultzoneinfocache
+
+  Level 4: datafileloader       testloader            zoneinfocache
+
+  Level 3: loader               zoneinfobinaryreader  zoneinfoutil
+
+  Level 2: localtimeperiod      zoneinfo
+
+  Level 1: dstpolicy            errorcode
+           localtimedescriptor  localtimevalidity
+           zoneinfobinaryheader
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'baetzo'.
+..
+  'baetzo_datafileloader'       - concrete 'baetzo_Loader' for Zoneinfo files
+
+  'baetzo_defaultzoneinfocache' - utilities to set/fetch time zone cache object
+
+  'baetzo_dstpolicy'            - enumeration of DST policies
+
+  'baetzo_errorcode'            - symbolic 'baetzo' return codes
+
+  'baetzo_loader'               - protocol for reading Zoneinfo files
+
+  'baetzo_localtimedescriptor'  - attributes of a local time value
+
+  'baetzo_localtimeperiod'      - description of local time over a time period
+
+  'baetzo_localtimevalidity'    - enumeration of local time validity status
+
+  'baetzo_testloader'           - test imp. of 'baetzo_Loader' protocol
+
+  'baetzo_timezoneutil'         - utilities for time zone conversion
+
+  'baetzo_timezoneutilimp'      - imp. utilities for time zone conversion
+
+  'baetzo_zoneinfo'             - value type for Zoneinfo time zone information
+
+  'baetzo_zoneinfobinaryheader' - attributes of Zoneinfo binary-file header
+
+  'baetzo_zoneinfobinaryreader' - utilities for reading Zoneinfo binary data
+
+  'baetzo_zoneinfocache'        - cache of time zone information
+
+  'baetzo_zoneinfoutil'         - utilities for 'baetzo_zoneinfo' objects
+..
