@@ -1,0 +1,28 @@
+ baet.txt
+
+@PURPOSE: Provide value-semantic vocabulary types (including time types).
+
+@MNEMONIC: Basic Application Environment (vocabulary) Types (baet)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'baet' package provides one component defining a single
+ date- and time-related vocabulary type.  BDE uses the term "vocabulary type"
+ to denote C++-supported, *library-defined* constructs for representing common
+ types that otherwise would be multiply and incompatibly implemented by various
+ clients.
+
+/Hierarchical Synopsis
+/---------------------
+ The single component of this package, 'baet_localdatetime', defines only one
+ level of dependency (of course).
+..
+  Level 1: baet_localdatetime
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the component in 'baet'.
+..
+  'baet_localdatetime' - datetime value qualified by time-zone identifier
+..
