@@ -1,8 +1,9 @@
 bsl+apache
-bsl+stdhdrs
 bsl+bslhdrs
-#bsl+sunworkarounds
+bsl+stdhdrs
 bslalg
+bsldoc
+bslim
 bslma
 bslmf
 bsls
