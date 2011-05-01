@@ -1,4 +1,4 @@
-// bdesu_pipeutil.t.cpp -*-C++-*-
+// bdesu_pipeutil.t.cpp                                               -*-C++-*-
 #include <bdesu_pipeutil.h>
 
 #include <bsls_platform.h>
@@ -50,43 +50,44 @@ static void aSsErT(int c, const char *s, int i)
 #define V(X) { if (verbose) P(X) }            // Print in verbose mode
 
 int main(int argc, char *argv[]) {
-     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-     verbose = argc > 2;
-     veryVerbose = argc > 3;
-     veryVeryVerbose = argc > 4;
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
-     switch(test) { case 0:
-       case 1: {
-         ///////////////////////////////////////////////////////
-         // makeCanonicalName test
-         //
-         // makeCanonicalName() is, well, canonical.  Here we
-         // re-implement its canonical behavior and ensure that
-         // the function behaves that way.
-         ///////////////////////////////////////////////////////
-         if (verbose) {
-            cout << "makeCanonicalName test" << endl;
-         }
+    switch(test) { case 0:
+      case 1: {
+        ///////////////////////////////////////////////////////
+        // makeCanonicalName test
+        //
+        // makeCanonicalName() is, well, canonical.  Here we
+        // re-implement its canonical behavior and ensure that
+        // the function behaves that way.
+        ///////////////////////////////////////////////////////
+
+        if (verbose) {
+           cout << "makeCanonicalName test" << endl;
+        }
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-         bsl::string compare("\\\\.\\pipe\\foo.bar");
+        bsl::string compare("\\\\.\\pipe\\foo.bar");
 #else
-         bsl::string compare;
-         const char* tmpdirPtr;
-         if (0 != (tmpdirPtr = bsl::getenv("TMPDIR"))) {
-             compare = tmpdirPtr;
-         }
-         else {
-             bdesu_FileUtil::getWorkingDirectory(&compare);
-         }
+        bsl::string compare;
+           const char* tmpdirPtr;
+           if (0 != (tmpdirPtr = bsl::getenv("TMPDIR"))) {
+               compare = tmpdirPtr;
+           }
+           else {
+               bdesu_FileUtil::getWorkingDirectory(&compare);
+           }
 
-         ASSERT(0 == bdesu_PathUtil::appendIfValid(&compare, "foo.bar"));
+           ASSERT(0 == bdesu_PathUtil::appendIfValid(&compare, "foo.bar"));
 #endif
 
-         bsl::string name;
-         ASSERT(0 == bdesu_PipeUtil::makeCanonicalName(&name, "FOO.Bar"));
-         LOOP2_ASSERT(name, compare, name == compare);
-         V(name);
+           bsl::string name;
+           ASSERT(0 == bdesu_PipeUtil::makeCanonicalName(&name, "FOO.Bar"));
+           LOOP2_ASSERT(name, compare, name == compare);
+           V(name);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

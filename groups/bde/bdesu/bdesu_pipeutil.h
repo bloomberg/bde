@@ -1,4 +1,4 @@
-// bdesu_pipeutil.h    -*-C++-*-
+// bdesu_pipeutil.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDESU_PIPEUTIL
 #define INCLUDED_BDESU_PIPEUTIL
 
@@ -43,23 +43,24 @@ struct bdesu_PipeUtil {
 
     static int makeCanonicalName(bsl::string            *pipeName,
                                  const bdeut_StringRef&  baseName);
-      // Load into the specified 'pipeName' the system-dependent canonical
-      // pipe name corresponding to the specified 'baseName'.  On Unix systems,
-      // attempts to load the environment variable TMPDIR to create the pipe
-      // name.  Return 0 on success, and a nonzero value if 'baseName' cannot
-      // be part of a pipe name on this system.
+        // Load into the specified 'pipeName' the system-dependent canonical
+        // pipe name corresponding to the specified 'baseName'.  On Unix
+        // systems, attempts to load the environment variable TMPDIR to create
+        // the pipe name.  Return 0 on success, and a nonzero value if
+        // 'baseName' cannot be part of a pipe name on this system.
 
     static int send(const bdeut_StringRef& pipeName,
                     const bdeut_StringRef& message);
-      // Send the specified 'message' to the pipe with the specified
-      // 'pipeName'.  Return 0 on success, and a nonzero value otherwise.
+        // Send the specified 'message' to the pipe with the specified
+        // 'pipeName'.  Return 0 on success, and a nonzero value otherwise.
 
     static bool isOpenForReading(const bdeut_StringRef& pipeName);
-      // Return 'true' if the pipe with the specified 'pipeName' exists and
-      // is currently open for reading by some process, and 'false' otherwise.
+        // Return 'true' if the pipe with the specified 'pipeName' exists and
+        // is currently open for reading by some process, and 'false'
+        // otherwise.
 };
 
-}  //close namespace BloombergLP
+}  // close namespace BloombergLP
 
 #endif
 

@@ -33,20 +33,11 @@ namespace BloombergLP {
 
 // STATIC HELPER FUNCTIONS
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM__OS_UNIX
 
 static
 void getPipeDir(bsl::string *dir)
-{
-    BSLS_ASSERT(dir);
-
-    dir->assign("\\\\.\\pipe\\");
-}
-
-#else  // non-Windows
-
-static
-void getPipeDir(bsl::string *dir)
+    // open an appropriate working directory
 {
     BSLS_ASSERT(dir);
 
@@ -58,6 +49,16 @@ void getPipeDir(bsl::string *dir)
         int rc = bdesu_FileUtil::getWorkingDirectory(dir);
         BSLS_ASSERT(0 == rc);
     }
+}
+
+#else  // Windows
+
+static
+void getPipeDir(bsl::string *dir)
+{
+    BSLS_ASSERT(dir);
+
+    dir->assign("\\\\.\\pipe\\");
 }
 
 #endif
@@ -77,7 +78,7 @@ bdesu_PipeUtil::makeCanonicalName(bsl::string           *pipeName,
 
     int rc = bdesu_PathUtil::appendIfValid(pipeName, baseName);
     if (0 != rc) {
-        return rc;
+        return rc;                                                    // RETURN
     }
 
     bsl::string::iterator where = pipeName->end() - baseName.length();
@@ -116,17 +117,17 @@ bdesu_PipeUtil::isOpenForReading(const bdeut_StringRef& pipeName)
                              GENERIC_WRITE, 0, NULL,
                              OPEN_EXISTING, 0, NULL);
     if (INVALID_HANDLE_VALUE == pipe) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     DWORD mode = PIPE_READMODE_MESSAGE;
     if (0 == SetNamedPipeHandleState(pipe, &mode, NULL, NULL)) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     DWORD dummy;
     if (0 == WriteFile(pipe, "\n", 1, &dummy, 0)) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     FlushFileBuffers(pipe);

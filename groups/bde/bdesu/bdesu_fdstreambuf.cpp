@@ -25,7 +25,7 @@ BDES_IDENT_RCSID(bdesu_fdstreambuf_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_locale.h>
@@ -48,17 +48,14 @@ extern "C" {
 # include <io.h>
 }  // extern "C"
 #endif
-namespace BloombergLP {
 
-namespace {
+namespace BloombergLP {
 
                                 // -----------
                                 // local types
                                 // -----------
 
 typedef BloombergLP::bdesu_FileUtil::FileDescriptor FdType;
-
-}  // close unnamed namespace
 
                               // ---------------
                               // local functions
@@ -90,7 +87,7 @@ bool getRegularFileInfo(FdType fd)
                     // class bdesu_FdStreamBuf_FileHandler
                     // ===================================
 
-bsls_PlatformUtil::size_type bdesu_FdStreamBuf_FileHandler::s_pageSize = 0;
+bsls_Types::size_type bdesu_FdStreamBuf_FileHandler::s_pageSize = 0;
 
 // CREATORS
 bdesu_FdStreamBuf_FileHandler::bdesu_FdStreamBuf_FileHandler()
@@ -162,9 +159,7 @@ int bdesu_FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
 {
     BSLS_ASSERT_OPT(0 <= numBytes);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
-    return FileUtil::read(d_fileId, buffer, numBytes);                // RETURN
-#else
+#ifdef BSLS_PLATFORM__OS_WINDOWS
     enum { CTRLZ = 26 };    // ^Z means EOF in Windows.  A ^Z character is
                             // allowed to occur at most once in a Windows text
                             // file, and then it must be the last character in
@@ -177,7 +172,8 @@ int bdesu_FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
         if (CTRLZ == d_peekBuffer || 0 == numBytes) {
             // if we have hit a ^Z, behave as if we're at the end of the file
             // if 0 bytes were requested, 0 bytes are returned
-            return 0;
+
+            return 0;                                                 // RETURN
         }
         BSLS_ASSERT(numBytes >= 1);
 
@@ -194,6 +190,7 @@ int bdesu_FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
 
     if (bytesRead && !(d_openModeFlags & bsl::ios_base::binary)) {
         // Iterate over buffer, translating '\r\n's to '\n's (in-place).
+
         char       *from = buffer;
         char       *to   = buffer;
         const char *last = buffer + bytesRead - 1;
@@ -214,6 +211,7 @@ int bdesu_FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
                     if (numberOfBytesPeeked) {
                         if (d_peekBuffer != '\n') {
                             // not a '\r\n'
+
                             *to++ = '\r';
                             d_peekBufferFlag = true;
                         }
@@ -229,6 +227,7 @@ int bdesu_FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
         }
 
         // pretend we're at end of file if hit ^Z
+
         if (CTRLZ == *from) {
             d_peekBuffer     = CTRLZ;
             d_peekBufferFlag = true;
@@ -237,6 +236,8 @@ int bdesu_FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
     }
 
     return bytesRead;
+#else
+    return FileUtil::read(d_fileId, buffer, numBytes);
 #endif
 }
 
@@ -264,6 +265,7 @@ int bdesu_FdStreamBuf_FileHandler::windowsWriteText(const char *buffer,
     char *nextInLF;
 
     // while the remaining bytes to copy contain an LF ('\n')
+
     while (nextCopySize > 0 && 0 !=
              (nextInLF = (char *) bsl::memchr(ptrInBuf, '\n', nextCopySize))) {
         int lineLength = nextInLF - ptrInBuf;
@@ -297,6 +299,7 @@ int bdesu_FdStreamBuf_FileHandler::windowsWriteText(const char *buffer,
                                            writeOutBuf, numBytesToWrite);
         if (0 == bytesWritten) {
             // error - write shortfall
+
             return -1;                                                // RETURN
         }
         writeOutBuf     += bytesWritten;
@@ -318,6 +321,7 @@ int bdesu_FdStreamBuf_FileHandler::write(const char *buffer, int numBytes)
         const int status = this->seek(0, FileUtil::BDESU_SEEK_FROM_CURRENT);
         if (status < 0) {
             // error: non-seekable device
+
             return -1;                                                // RETURN
         }
         d_peekBufferFlag = false;
@@ -347,8 +351,9 @@ int bdesu_FdStreamBuf_FileHandler::write(const char *buffer, int numBytes)
             buffer += written;
         }
         else {
-            // write returned 0 or negative, meaning it failed
-            return -1;   // error                                     // RETURN
+            // error: write returned 0 or negative, meaning it failed
+
+            return -1;                                                // RETURN
         }
     }
 }
@@ -399,12 +404,14 @@ void *bdesu_FdStreamBuf_FileHandler::mmap(bsl::streamoff offset,
     bdesu_FileUtil::Offset cur = seek(0, FileUtil::BDESU_SEEK_FROM_CURRENT);
     if (0 > cur) {
         // not seekable, won't be mappable
+
         return 0;                                                     // RETURN
     }
 
     if (0 != FileUtil::map(d_fileId, &ret, offset,
                            len, bdesu_MemoryUtil::BDESU_ACCESS_READ)) {
         // error -- device is not mappable
+
         this->seek(cur, FileUtil::BDESU_SEEK_FROM_BEGINNING);
         return 0;                                                     // RETURN
     }
@@ -506,10 +513,12 @@ int bdesu_FdStreamBuf::switchToInputMode()
       } break;
       case BDESU_ERROR_MODE: {
         // error mode is sticky
+
         return -1;                                                    // RETURN
       } break;
       case BDESU_OUTPUT_MODE: {
         // flush the output buffer
+
         if (traits_type::eq_int_type(overflow(traits_type::eof()),
                                      traits_type::eof())) {
             return -1;                                                // RETURN
@@ -571,6 +580,7 @@ int bdesu_FdStreamBuf::exitInputMode(bool correctSeek)
         if (0 > d_fileHandler.seek(-adjust,
                                    FileUtil::BDESU_SEEK_FROM_CURRENT)) {
             // non-seekable device
+
             return -1;                                                // RETURN
         }
     }
@@ -597,6 +607,7 @@ int bdesu_FdStreamBuf::switchToOutputMode()
       } break;
       case BDESU_ERROR_MODE: {
         // error mode is sticky
+
         return -1;                                                    // RETURN
       } break;
       case BDESU_NULL_MODE: {
@@ -885,6 +896,7 @@ bdesu_FdStreamBuf::pbackfail(int_type c)
         gbump(-1);
         if (!d_mmapBase_p && !traits_type::eq_int_type(c, eof)) {
             // input buffer is writable
+
             *gptr() = traits_type::to_char_type(c);
         }
         return traits_type::to_int_type(*gptr());                     // RETURN
@@ -1061,6 +1073,7 @@ bdesu_FdStreamBuf::seekoff(off_type               offset,
     if (0 == offset) {
         // We have only to return our current position, so it's not necessary
         // to exit input mode or change our file position.
+
         return pos_type(d_fileHandler.seek(0, CUR) - diskAdjust);     // RETURN
     }
 
@@ -1068,7 +1081,7 @@ bdesu_FdStreamBuf::seekoff(off_type               offset,
 }
 
 bsl::streambuf::pos_type
-bdesu_FdStreamBuf::seekpos(pos_type pos, bsl::ios_base::openmode /* dummy */)
+bdesu_FdStreamBuf::seekpos(pos_type pos, bsl::ios_base::openmode)
 {
     bsl::streamoff offset = off_type(pos);
 
@@ -1160,7 +1173,7 @@ bsl::streamsize bdesu_FdStreamBuf::xsputn(const char      *buffer,
     const int   eof   = traits_type::eof();
 
     if (BDESU_OUTPUT_MODE != d_mode && 0 != switchToOutputMode()) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     while (buffer < end) {

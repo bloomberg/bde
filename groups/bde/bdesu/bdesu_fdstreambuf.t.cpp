@@ -1,10 +1,10 @@
-// bdesu_fdstreambuf.t.cpp -*-C++-*-
+// bdesu_fdstreambuf.t.cpp                                            -*-C++-*-
 #include <bdesu_fdstreambuf.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -142,19 +142,19 @@ int diskLength(const char *string)
 int doRead(ObjFileHandler *fh, char *buf, int len)
 {
     if (fh->isInBinaryMode()) {
-        return fh->read(buf, len);
+        return fh->read(buf, len);                                    // RETURN
     }
     else {
         int charsSoFar = 0;
         while (charsSoFar < len) {
             int charsThisTime = fh->read(buf + charsSoFar, len - charsSoFar);
             if (!charsThisTime) {
-                return charsSoFar;
+                return charsSoFar;                                    // RETURN
             }
             charsSoFar += charsThisTime;
         };
 
-        return charsSoFar;
+        return charsSoFar;                                            // RETURN
     }
 }
 
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-//  int veryVeryVerbose = argc > 4;
+    //  int veryVeryVerbose = argc > 4;
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     char tmpDirName[] = "C:\\TEMP";
@@ -237,6 +237,7 @@ int main(int argc, char *argv[])
         const int lengthLine3 = sizeof(line3) - 1;
 
         // We start by selecting a file name for our (temporary) file.
+
         char fileNameBuffer[100];
         bsl::sprintf(fileNameBuffer,
 #ifdef BSLS_PLATFORM__OS_UNIX
@@ -249,12 +250,14 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "Filename: " << fileNameBuffer << bsl::endl;
 
         // Then, make sure the file does not already exist:
+
         bdesu_FileUtil::remove(fileNameBuffer);
         ASSERT(false == bdesu_FileUtil::exists(fileNameBuffer));
 
         // Next, Create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
         // existing (and therefore must be created):
+
         FdType fd = bdesu_FileUtil::open(fileNameBuffer,
                                          true,
                                          false);
@@ -266,21 +269,25 @@ int main(int argc, char *argv[])
         // 'streamBuffer' is cleared, reset, or destroyed, 'fd' will be closed.
         // Note that 'FdStreamBuf' implements 'streambuf', which provides the
         // public methods used in this example:
+
         bdesu_FdStreamBuf streamBuffer(fd, true);
 
         ASSERT(streamBuffer.fileDescriptor() == fd);
         ASSERT(streamBuffer.isOpened());
 
         // Next we use the 'sputn' method to write two lines to the file:
+
         streamBuffer.sputn(line1, lengthLine1);
         streamBuffer.sputn(line2, lengthLine2);
 
         // Then we seek back to the start of the file.
+
         int status = streamBuffer.pubseekpos(0);
         ASSERT(0 == status);
 
         // Next, we read the first 'lengthLine1' characters of the file
         // into 'buf', with the method 'sgetn'.
+
         char buf[1000];
         bsl::memset(buf, 0, sizeof(buf));
         status = streamBuffer.sgetn(buf, lengthLine1);
@@ -292,6 +299,7 @@ int main(int argc, char *argv[])
         // the 'sgetn' method will stop after reading 'lengthLine2' characters.
         // The 'sgetn' method will return the number of chars successfully
         // read:
+
         bsl::memset(buf, 0, sizeof(buf));
         status =  streamBuffer.sgetn(buf, 2 * lengthLine2);
         ASSERT(lengthLine2 == status);
@@ -302,45 +310,55 @@ int main(int argc, char *argv[])
         // beginning of the file in order to establish a new cursor position.
         // Note the 'pubseekpos' method always seeks relative to the beginning.
         // We seek back to the start of the file:
+
         status = streamBuffer.pubseekpos(0);
         ASSERT(0 == status);
 
         // Note that line1 and line3 are the same length:
+
         ASSERT(lengthLine1 == lengthLine3);
 
         // Then we write, replacing 'line1' in the file with 'line3':
+
         status = streamBuffer.sputn(line3, lengthLine3);
         ASSERT(lengthLine3 == status);
 
         // Now we seek back to the beginning of the file:
+
         status = streamBuffer.pubseekpos(0);
 
         // Next we verify we were returned to the start of the file:
+
         ASSERT(0 == status);
 
         // Then we read and verify the first line, which now contains the text
         // of 'line3':
+
         bsl::memset(buf, 0, sizeof(buf));
         status = streamBuffer.sgetn(buf, lengthLine3);
         ASSERT(lengthLine3 == status);
         ASSERT(!bsl::strcmp(line3, buf));
 
         // Now we read and verify the second line, still 'line2':
+
         bsl::memset(buf, 0, sizeof(buf));
         status = streamBuffer.sgetn(buf, lengthLine2);
         ASSERT(lengthLine2 == status);
         ASSERT(!bsl::strcmp(line2, buf));
 
         // Next we close 'fd' and disconnect 'streamBuffer' from 'fd':
+
         status = streamBuffer.clear();
         ASSERT(0 == status);
 
         // Note that 'streamBuffer' is now no longer open, and is not
         // associated with a file descriptor:
+
         ASSERT(!streamBuffer.isOpened());
         ASSERT(bdesu_FileUtil::INVALID_FD == streamBuffer.fileDescriptor());
 
         // Finally, we clean up the file:
+
         bdesu_FileUtil::remove(fileNameBuffer);
       } break;
       case 15: {
@@ -383,6 +401,7 @@ int main(int argc, char *argv[])
                      getProcessId());
 
         // Then, make sure file does not already exist:
+
         bdesu_FileUtil::remove(fileNameBuffer);
         ASSERT(0 == bdesu_FileUtil::exists(fileNameBuffer));
 
@@ -444,6 +463,7 @@ int main(int argc, char *argv[])
             ASSERT(!bsl::strcmp("Five times nine point five = 47.5\n", buf));
 #else
             //On Windows we see a CRLF ('\r\n') instead of a simple LF '\n'
+
             ASSERT(!bsl::strcmp("Five times nine point five = 47.5\r\n", buf));
 #endif
         }
@@ -460,6 +480,7 @@ int main(int argc, char *argv[])
                                                  // streamBuffer is destroyed.
                                                  // Mode will be binary on
                                                  // Unix, text on Dos.
+
             streamBuffer.pubseekpos(0);
 
             char buf[100];
@@ -475,6 +496,7 @@ int main(int argc, char *argv[])
         }
 
         // And finally, we clean up:
+
         bdesu_FileUtil::remove(fileNameBuffer);
       } break;
       case 14: {
@@ -497,23 +519,27 @@ int main(int argc, char *argv[])
                              "==========================\n";
 
         // We start by selecting a file name for our (temporary) file.
+
         char fileNameBuffer[100];
         bsl::sprintf(fileNameBuffer, fileNameTemplate, "14", getProcessId());
 
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
         // Then, make sure file does not already exist.
+
         bdesu_FileUtil::remove(fileNameBuffer);
 
         // Next, Create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
         // existing (and therefore must be created).
+
         FdType fd = bdesu_FileUtil::open(fileNameBuffer,
                                          true,
                                          false);
         ASSERT(-1 != (int) fd);
 
         // open a streamBuf (in text mode on Windows)
+
         ObjFileHandler fh;
         fh.reset(fd, true, true, false);
 
@@ -664,6 +690,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == fh.clear());
 
         // clean up
+
         bdesu_FileUtil::remove(fileNameBuffer);
       } break;
       case 13: {
@@ -704,17 +731,20 @@ int main(int argc, char *argv[])
         ASSERT(lineLength2 == lineLength4);
 
         // We start by selecting a file name for our (temporary) file.
+
         char fileNameBuffer[100];
         bsl::sprintf(fileNameBuffer, fileNameTemplate, "13", getProcessId());
 
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
         // Then, make sure file does not already exist.
+
         bdesu_FileUtil::remove(fileNameBuffer);
 
         // Next, Create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
         // existing (and therefore must be created).
+
         FdType fd = bdesu_FileUtil::open(fileNameBuffer,
                                          true,
                                          false);
@@ -800,6 +830,7 @@ int main(int argc, char *argv[])
         sb.clear();
 
         // clean up
+
         bdesu_FileUtil::remove(fileNameBuffer);
       } break;
       case 12: {
@@ -843,8 +874,8 @@ int main(int argc, char *argv[])
         FileUtil::remove(fnBuf);
 
         FdType fd = FileUtil::open(fnBuf,
-                                   true  /* writeable */,
-                                   false /* existing */);
+                                   true,      // writeable
+                                   false);    // not existing
         ASSERT(-1 != (int) fd);
 
         char buf[1000];
@@ -923,10 +954,11 @@ int main(int argc, char *argv[])
 
         // now verify for sure the \r's are in the file by reading it in
         // binary mode
+
         {
             ASSERT(fd == FileUtil::open(fnBuf,
-                                        false /* writeable */,
-                                        true  /* existing */));
+                                        false,     // readonly
+                                        true));    // existing
 
             Obj sb(fd, true, true, true);     // binary mode on windows
 
@@ -969,6 +1001,7 @@ int main(int argc, char *argv[])
 #endif
 
         // clean up
+
         FileUtil::remove(fnBuf);
       } break;
       case 11: {
@@ -1012,8 +1045,8 @@ int main(int argc, char *argv[])
         FileUtil::remove(fnBuf);
 
         FdType fd = FileUtil::open(fnBuf,
-                                   true  /* writeable */,
-                                   false /* existing */);
+                                   true,      // writeable
+                                   false);    // not existing
         ASSERT(-1 != (int) fd);
 
         char buf[1000];
@@ -1090,10 +1123,11 @@ int main(int argc, char *argv[])
 
         // now verify for sure the \r's are in the file by reading it in
         // binary mode
+
         {
             ASSERT(fd == FileUtil::open(fnBuf,
-                                        false /* writeable */,
-                                        true  /* existing */));
+                                        false,     // readonly
+                                        true));    // existing
 
             Obj sb(fd, true, true, true);     // binary mode on windows
 
@@ -1134,6 +1168,7 @@ int main(int argc, char *argv[])
 #endif
 
         // clean up
+
         FileUtil::remove(fnBuf);
       } break;
       case 10: {
@@ -1169,8 +1204,8 @@ int main(int argc, char *argv[])
         FileUtil::remove(fnBuf);
 
         FdType fd = FileUtil::open(fnBuf,
-                                   true  /* writeable */,
-                                   false /* existing */);
+                                   true,      // writeable
+                                   false);    // not existing
         ASSERT(-1 != (int) fd);
 
         Obj sb(fd, true, true, true, &ta);
@@ -1311,8 +1346,8 @@ int main(int argc, char *argv[])
         FileUtil::remove(fnBuf);
 
         FdType fd = FileUtil::open(fnBuf,
-                                   true  /* writeable */,
-                                   false /* existing */);
+                                   true,      // writable
+                                   false);    // not existing
         ASSERT(-1 != (int) fd);
 
         Obj sb(fd, true);
@@ -1350,7 +1385,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(sts, 9 == sts);
         LOOP_ASSERT(buf, !bsl::strcmp(line2 + len2 - 9, buf));
 
-		sb.clear();
+                sb.clear();
 
         FileUtil::remove(fnBuf);
       } break;
@@ -1386,13 +1421,13 @@ int main(int argc, char *argv[])
         FileUtil::remove(fnBuf2);
 
         FdType fd = FileUtil::open(fnBuf,
-                                   true  /* writeable */,
-                                   false /* existing */);
+                                   true,      // writeable
+                                   false);    // not existing
         ASSERT(-1 != (int) fd);
 
         FdType fd2 = FileUtil::open(fnBuf2,
-                                    true  /* writeable */,
-                                    false /* existing */);
+                                    true,       // writeable
+                                    false);     // not existing
         ASSERT(-1 != (int) fd2);
 
         {
@@ -1418,12 +1453,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == sb.pubseekoff(0, bsl::ios_base::beg));
 
             // read, verifying fd was not closed
+
             char buf[1000];
             bsl::memset(buf, 0, sizeof(buf));
             ASSERT(len1 == sb.sgetn(buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
 
             // will not close fd, even though willCloseOnReset was set
+
             sb.release();
 
             ASSERT(!sb.isOpened());
@@ -1438,6 +1475,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == sb.pubseekpos(0));
 
             // read, verifying fd was not closed
+
             bsl::memset(buf, 0, sizeof(buf));
             ASSERT(len1 == sb.sgetn(buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
@@ -1448,9 +1486,10 @@ int main(int argc, char *argv[])
             ASSERT((FdType) -1 == sb.fileDescriptor());
 
             // open and get same fd, which verifies clear closed fd
+
             ASSERT(fd == FileUtil::open(fnBuf,
-                                        true /* writeable */,
-                                        true /* existing */));
+                                        true,      // writeable
+                                        true));    // existing
 
             ASSERT(!sb.reset(fd, true, false, true));
 
@@ -1466,11 +1505,13 @@ int main(int argc, char *argv[])
             ASSERT(0 == sb.pubseekpos(0));
 
             // read, verifying fd was not closed
+
             bsl::memset(buf, 0, sizeof(buf));
             ASSERT(len1 == sb.sgetn(buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
 
             // read second copy of line1 verifying append worked
+
             bsl::memset(buf, 0, sizeof(buf));
             ASSERT(len1 == sb.sgetn(buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
@@ -1483,10 +1524,12 @@ int main(int argc, char *argv[])
 
             // destroying sb should close fd2
         }
+
         // open and get same fd, which verifies destruction of sb closed fd
+
         ASSERT(fd2 == FileUtil::open(fnBuf2,
-                                     true /* writeable */,
-                                     true /* existing */));
+                                     true,      // writeable
+                                     true));    // existing
 
         {
             Obj sb(fd, true, false, true, &ta);
@@ -1499,6 +1542,7 @@ int main(int argc, char *argv[])
         }
 
         // getting '0' from close verifies fd's are still open
+
         ASSERT(0 == FileUtil::close(fd));
         ASSERT(0 == FileUtil::close(fd2));
 
@@ -1536,13 +1580,13 @@ int main(int argc, char *argv[])
         FileUtil::remove(fnBuf2);
 
         FdType fd = FileUtil::open(fnBuf,
-                                   true  /* writeable */,
-                                   false /* existing */);
+                                   true,      // writeable
+                                   false);    // not existing
         ASSERT(-1 != (int) fd);
 
         FdType fd2 = FileUtil::open(fnBuf2,
-                                    true  /* writeable */,
-                                    false /* existing */);
+                                    true,      // writeable
+                                    false);    // not existing
         ASSERT(-1 != (int) fd2);
 
         {
@@ -1573,12 +1617,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == fh.seek(0, FileUtil::BDESU_SEEK_FROM_BEGINNING));
 
             // read, verifying fd was not closed
+
             char buf[1000];
             bsl::memset(buf, 0, sizeof(buf));
             ASSERT(len1 == doRead(&fh, buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
 
             // will not close fd, even though willCloseOnReset was set
+
             fh.release();
 
             ASSERT(!fh.isOpened());
@@ -1593,6 +1639,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == fh.seek(0, FileUtil::BDESU_SEEK_FROM_BEGINNING));
 
             // read, verifying fd was not closed
+
             bsl::memset(buf, 0, sizeof(buf));
             ASSERT(len1 == doRead(&fh, buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
@@ -1603,9 +1650,10 @@ int main(int argc, char *argv[])
             ASSERT((FdType) -1 == fh.fileDescriptor());
 
             // open and get same fd, which verifies clear closed fd
+
             ASSERT(fd == FileUtil::open(fnBuf,
-                                        true /* writeable */,
-                                        true /* existing */));
+                                        true,       // writeable
+                                        true));    // existing
 
             ASSERT(!fh.reset(fd, true, false));
 
@@ -1620,11 +1668,13 @@ int main(int argc, char *argv[])
             ASSERT(0 == fh.seek(0, FileUtil::BDESU_SEEK_FROM_BEGINNING));
 
             // read, verifying fd was not closed
+
             bsl::memset(buf, 0, sizeof(buf));
             ASSERT(len1 == doRead(&fh, buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
 
             // read second copy of line1 verifying append worked
+
             bsl::memset(buf, 0, sizeof(buf));
             ASSERT(len1 == doRead(&fh, buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
@@ -1647,6 +1697,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == fh.seek(0, FileUtil::BDESU_SEEK_FROM_BEGINNING));
 
             // verify first file still begins with line1
+
             bsl::memset(buf, 0, sizeof(buf));
             ASSERT(len1 == doRead(&fh, buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
@@ -1655,10 +1706,12 @@ int main(int argc, char *argv[])
 
             // destroying fh should close fd2
         }
+
         // open and get same fd, which verifies destruction of fh closed fd
+
         ASSERT(fd2 == FileUtil::open(fnBuf2,
-                                     true /* writeable */,
-                                     true /* existing */));
+                                     true,      // writable
+                                     true));    // existing
 
         {
             ObjFileHandler fh;
@@ -1676,6 +1729,7 @@ int main(int argc, char *argv[])
         }
 
         // getting '0' from close verifies fd's are still open
+
         ASSERT(0 == FileUtil::close(fd));
         ASSERT(0 == FileUtil::close(fd2));
 
@@ -1756,8 +1810,9 @@ int main(int argc, char *argv[])
 
         // Verity fd was closed by opening again and verifying we get the
         // same fd.
-        ASSERT(fd == FileUtil::open(fnBuf, false /* writeable */,
-                                           true  /* existing */));
+
+        ASSERT(fd == FileUtil::open(fnBuf, false,     // readonly
+                                           true));    // existing
         ASSERT(-1 != (int) fd);
 
         ASSERT(0 == FileUtil::close(fd));
@@ -1828,6 +1883,7 @@ int main(int argc, char *argv[])
         FileUtil::remove(fnBuf2);
 
         // Create file
+
         FdType fd = FileUtil::open(fnBuf, true, false);
         ASSERT(-1 != (int) fd);
 
@@ -1974,6 +2030,7 @@ int main(int argc, char *argv[])
         FileUtil::remove(fnBuf);
 
         // Create file
+
         {
             FdType fd = FileUtil::open(fnBuf, true, false);
             ASSERT(-1 != (int) fd);
@@ -2098,6 +2155,7 @@ int main(int argc, char *argv[])
         FileUtil::remove(fnBuf);
 
         // Create file
+
         {
             FdType fd = FileUtil::open(fnBuf, true, false);
             ASSERT(-1 != (int) fd);
@@ -2206,6 +2264,7 @@ int main(int argc, char *argv[])
         const int len2 = bsl::strlen(line2);
 
         // Create file
+
         {
             FileUtil::remove(fnBuf);
 
@@ -2237,6 +2296,7 @@ int main(int argc, char *argv[])
         }
 
         // read and seek on file
+
         {
             FdType fd = FileUtil::open(fnBuf, false, true);
             ASSERT(-1 != (int) fd);
@@ -2262,6 +2322,7 @@ int main(int argc, char *argv[])
         }
 
         // read and seek on file
+
         {
             FdType fd = FileUtil::open(fnBuf, false, true);
             ASSERT(-1 != (int) fd);
@@ -2395,6 +2456,7 @@ int main(int argc, char *argv[])
         const int dLen2 = diskLength(line2);
 
         // Create file
+
         {
             FileUtil::remove(fnBuf);
 
@@ -2418,6 +2480,7 @@ int main(int argc, char *argv[])
         }
 
         // read and seek on file
+
         {
             FdType fd = FileUtil::open(fnBuf, false, true);
             ASSERT(-1 != (int) fd);
@@ -2483,6 +2546,7 @@ int main(int argc, char *argv[])
         }
 
         // map file
+
         {
             FdType fd = FileUtil::open(fnBuf, false, true);
             ASSERT(-1 != (int) fd);
@@ -2510,6 +2574,7 @@ int main(int argc, char *argv[])
         }
 
         // write, read and seek on file in text mode
+
         {
             FdType fd = FileUtil::open(fnBuf, true, false);
             ASSERT(-1 != (int) fd);
@@ -2600,7 +2665,7 @@ int main(int argc, char *argv[])
             break;
         }
 
-        typedef bsls_PlatformUtil::Int64 Int64;
+        typedef bsls_Types::Int64 Int64;
         const Int64 fileSize = ((Int64) 1 << 30) * 5;    // 5 Gig
         const Int64 halfGig  =  (Int64) 1 << 29;
 

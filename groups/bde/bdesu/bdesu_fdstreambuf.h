@@ -360,8 +360,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOS
@@ -406,7 +406,7 @@ class bdesu_FdStreamBuf_FileHandler {
 
   private:
     // CLASS DATA
-    static bsls_PlatformUtil::size_type
+    static bsls_Types::size_type
            s_pageSize;             // page size associated with this operating
                                    // system
 
@@ -1064,10 +1064,11 @@ inline
 bool bdesu_FdStreamBuf_FileHandler::isInBinaryMode() const
 {
 #if defined(BSLS_PLATFORM__OS_UNIX)
-    return true;                                                      // RETURN
+    return true;
 # else
     // Windows
-    return (d_openModeFlags & bsl::ios_base::binary) != 0;            // RETURN
+
+    return (d_openModeFlags & bsl::ios_base::binary) != 0;
 # endif
 }
 
@@ -1122,7 +1123,9 @@ bdesu_FdStreamBuf::seekReturn(pos_type position)
 {
     if (BDESU_INPUT_MODE == d_mode || BDESU_INPUT_PUTBACK_MODE == d_mode) {
         if (0 != exitInputMode(false)) {
-            return (pos_type)-1;    // error                          // RETURN
+            // error
+
+            return (pos_type) - 1;                                    // RETURN
         }
     }
     setg(0, 0, 0);
@@ -1145,6 +1148,7 @@ bdesu_FdStreamBuf::reset(bdesu_FileUtil::FileDescriptor fileDescriptor,
 
     if (ok || bdesu_FileUtil::INVALID_FD == fileDescriptor) {
         // note we reset() whether flush succeeded or not
+
         ok &= (0 == d_fileHandler.reset(fileDescriptor,
                                         writableFlag,
                                         willCloseOnResetFlag,

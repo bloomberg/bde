@@ -55,6 +55,8 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 // STATIC HELPER FUNCTIONS
 static
 void pushBackWrapper(bsl::vector<bsl::string> *vector, const char *item)
+    // A 'thunk' to be bound to a vector that can be called to push an item to
+    // the vector.
 {
     BSLS_ASSERT(vector);
 
@@ -64,18 +66,18 @@ void pushBackWrapper(bsl::vector<bsl::string> *vector, const char *item)
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 static inline
 void invokeFindClose(HANDLE *handle, void *)
-{
-    BSLS_ASSERT_SAFE(handle);
-
     // Provides a function signature which can be used as a
     // 'bdema_ManagedPtr' deleter (i.e., we need to define a second argument
     // of type 'void *', which will be ignored).
+{
+    BSLS_ASSERT_SAFE(handle);
 
     FindClose(*handle);
 }
 
 static inline
 int makeDirectory(const char *path)
+    // Create a directory
 {
     BSLS_ASSERT_SAFE(path);
 
@@ -84,6 +86,8 @@ int makeDirectory(const char *path)
 
 static inline
 int removeDirectory(const char *path)
+    // Remove directory 'path'.  Return 0 on success and a non-zero value
+    // otherwise.
 {
     BSLS_ASSERT_SAFE(path);
 
@@ -92,6 +96,8 @@ int removeDirectory(const char *path)
 
 static inline
 int removeFile(const char *path)
+    // Remove plain file 'path'.  Return 0 on success and a non-zero value
+    // otherwise.
 {
     BSLS_ASSERT_SAFE(path);
 
@@ -164,6 +170,7 @@ bool isDotOrDots(const char *path)
 
 static inline
 int makeDirectory(const char *path)
+    // Create a directory
 {
     BSLS_ASSERT_SAFE(path);
 
@@ -173,6 +180,8 @@ int makeDirectory(const char *path)
 
 static inline
 int removeDirectory(const char *path)
+    // Remove directory 'path'.  Return 0 on success and a non-zero value
+    // otherwise.
 {
     BSLS_ASSERT_SAFE(path);
 
@@ -239,14 +248,14 @@ int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
                  i < children.size();
                  ++i) {
                 if (0 != remove(children[i].c_str(), true)) {
-                   return -1;
+                    return -1;                                        // RETURN
                 }
             }
         }
-        return removeDirectory(fileToRemove);
+        return removeDirectory(fileToRemove);                         // RETURN
     }
     else {
-        return removeFile(fileToRemove);
+        return removeFile(fileToRemove);                              // RETURN
     }
 }
 
@@ -265,9 +274,9 @@ bdesu_FileUtil::seek(FileDescriptor         fd,
     li.QuadPart = offset;
     li.LowPart = SetFilePointer(fd, li.LowPart, &li.HighPart, whence);
     if (li.LowPart == INVALID_SET_FILE_POINTER
-        && GetLastError() != NO_ERROR )
+       && GetLastError() != NO_ERROR )
     {
-       return -1;
+        return -1;                                                    // RETURN
     }
     return li.QuadPart;
 }
@@ -306,7 +315,7 @@ int bdesu_FileUtil::map(FileDescriptor           fd,
     HANDLE hMap;
 
     if (mode == bdesu_MemoryUtil::BDESU_ACCESS_NONE) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     mode &= 7;
 
@@ -331,7 +340,7 @@ int bdesu_FileUtil::map(FileDescriptor           fd,
 
     if (hMap == NULL) {
         *addr = 0;
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     *addr = MapViewOfFile(hMap,
@@ -341,7 +350,7 @@ int bdesu_FileUtil::map(FileDescriptor           fd,
                           len);
     CloseHandle(hMap);
     if (!*addr) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     return 0;
 }
@@ -353,7 +362,7 @@ int bdesu_FileUtil::unmap(void *addr, int)
     return UnmapViewOfFile(addr) ? 0 : -1;
 }
 
-int bdesu_FileUtil::sync(char *addr, int numBytes, bool /* sync */)
+int bdesu_FileUtil::sync(char *addr, int numBytes, bool)  // 3rd arg is sync
 {
     BSLS_ASSERT(addr);
     BSLS_ASSERT(0 <= numBytes);
@@ -415,13 +424,13 @@ int bdesu_FileUtil::getLastModificationTime(bdet_Datetime *time,
     WIN32_FIND_DATA findData;
     HANDLE handle = FindFirstFile(path, &findData);
     if (handle == INVALID_HANDLE_VALUE) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     bdema_ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
 
     SYSTEMTIME stUTC;
     if (0 == FileTimeToSystemTime(&findData.ftLastWriteTime, &stUTC)) {
-        return -2;
+        return -2;                                                    // RETURN
     }
 
     if (0 != time->setDatetimeIfValid(stUTC.wYear,
@@ -431,7 +440,7 @@ int bdesu_FileUtil::getLastModificationTime(bdet_Datetime *time,
                                       stUTC.wMinute,
                                       stUTC.wSecond,
                                       stUTC.wMilliseconds)) {
-        return -3;
+        return -3;                                                    // RETURN
     }
 
     return 0;
@@ -452,10 +461,10 @@ void bdesu_FileUtil::visitPaths(
 
     bsl::string dirName;
     if (0 != bdesu_PathUtil::getDirname(&dirName, patternStr)) {
-       // There is no leaf, therefore there can be nothing to do (but
-       // not an error)
+        // There is no leaf, therefore there can be nothing to do (but
+        // not an error)
 
-        return;
+        return;                                                       // RETURN
     }
 
     if (bsl::string::npos != dirName.find_first_of("*?")) {
@@ -507,7 +516,7 @@ void bdesu_FileUtil::visitPaths(
         WIN32_FIND_DATA findData;
         HANDLE handle = FindFirstFile(patternStr, &findData);
         if (INVALID_HANDLE_VALUE == handle) {
-            return;
+            return;                                                   // RETURN
         }
 
         bdema_ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
@@ -518,7 +527,7 @@ void bdesu_FileUtil::visitPaths(
             }
             else if (0 != bdesu_PathUtil::appendIfValid(&dirNamePath,
                                                         findData.cFileName)) {
-            //TBD
+                //TBD
             }
             else {
                 visitor(dirNamePath.c_str());
@@ -552,7 +561,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
 
     __int64 avail;
     if (!GetDiskFreeSpaceEx(path, (PULARGE_INTEGER)&avail, NULL, NULL)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     return avail;
 }
@@ -587,7 +596,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
                         GetProcAddress(hNtDll, "NtQueryVolumeInformationFile")
                : 0;
     if (!pNQVIF) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     IO_STATUS_BLOCK ioStatusBlock;
     enum {
@@ -597,7 +606,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
     LONG rc = pNQVIF(fd, &ioStatusBlock, &sizeInfo, sizeof(sizeInfo),
         fileFsSizeInformation);
     if (rc) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     return sizeInfo.AvailableAllocationUnits.QuadPart
         * sizeInfo.SectorsPerAllocationUnit
@@ -611,7 +620,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
     WIN32_FILE_ATTRIBUTE_DATA fileAttribute;
     if(!GetFileAttributesEx(path, GetFileExInfoStandard,
                                                      (void *)&fileAttribute)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     return (((bdesu_FileUtil::Offset)fileAttribute.nFileSizeHigh) << 32)
            | fileAttribute.nFileSizeLow;
@@ -620,6 +629,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
 bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
 {
     // TBD
+
     return OFFSET_MAX;
 }
 
@@ -639,13 +649,13 @@ bdesu_FileUtil::open(const char *pathName,
 
     if (isExisting) {
 #ifdef BSLS_PLATFORM__OS_FREEBSD
-        return ::open(  pathName, oflag);
+        return ::open(  pathName, oflag);                             // RETURN
 #elif defined(BSLS_PLATFORM__OS_HPUX)
         // In 64-bit mode, HP-UX defines 'open64' to be 'open', which triggers
         // a lookup failure here (since this class has members named 'open').
-        return ::open64(pathName, oflag);
+        return ::open64(pathName, oflag);                             // RETURN
 #else
-        return open64(  pathName, oflag);
+        return open64(  pathName, oflag);                             // RETURN
 #endif
     }
 
@@ -672,21 +682,21 @@ bdesu_FileUtil::seek(FileDescriptor fd, Offset offset, int whence)
     switch (whence) {
 #ifdef BSLS_PLATFORM__OS_FREEBSD
       case BDESU_SEEK_FROM_BEGINNING:
-        return lseek(fd, offset, SEEK_SET);
+        return lseek(fd, offset, SEEK_SET);                           // RETURN
       case BDESU_SEEK_FROM_CURRENT:
-        return lseek(fd, offset, SEEK_CUR);
+        return lseek(fd, offset, SEEK_CUR);                           // RETURN
       case BDESU_SEEK_FROM_END:
-        return lseek(fd, offset, SEEK_END);
+        return lseek(fd, offset, SEEK_END);                           // RETURN
 #else
       case BDESU_SEEK_FROM_BEGINNING:
-        return lseek64(fd, offset, SEEK_SET);
+        return lseek64(fd, offset, SEEK_SET);                         // RETURN
       case BDESU_SEEK_FROM_CURRENT:
-        return lseek64(fd, offset, SEEK_CUR);
+        return lseek64(fd, offset, SEEK_CUR);                         // RETURN
       case BDESU_SEEK_FROM_END:
-        return lseek64(fd, offset, SEEK_END);
+        return lseek64(fd, offset, SEEK_END);                         // RETURN
 #endif
       default:
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -706,7 +716,7 @@ int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
          // recursing as necessary.
          DIR *dir = opendir(fileToRemove);
          if (0 == dir) {
-            return -1;
+            return -1;                                                // RETURN
          }
          bdema_ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
 
@@ -744,16 +754,16 @@ int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
             bdesu_PathUtil::appendRaw(&path, entry.d_name);
             if (0 == lstat(path.c_str(), &dummy) &&
                 0 != remove(path.c_str(), true)) {
-               return -1;
+               return -1;                                             // RETURN
             }
             bdesu_PathUtil::popLeaf(&path);
          } while (entry_p == &entry);
       }
 
-      return removeDirectory(fileToRemove);
+      return removeDirectory(fileToRemove);                           // RETURN
    }
    else {
-      return removeFile(fileToRemove);
+      return removeFile(fileToRemove);                                // RETURN
    }
 }
 
@@ -799,9 +809,9 @@ int bdesu_FileUtil::map(FileDescriptor   fd,
 
     if (*addr == MAP_FAILED) {
         *addr = NULL;
-        return -1;
+        return -1;                                                    // RETURN
     } else {
-        return 0;
+        return 0;                                                     // RETURN
     }
 }
 
@@ -819,7 +829,7 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
     BSLS_ASSERT(addr);
     BSLS_ASSERT(0 <= numBytes);
 
-   return ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
+    return ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
 }
 
 int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
@@ -863,7 +873,7 @@ bool bdesu_FileUtil::isRegularFile(const char *path, bool followLinks)
     StatFuncType statFunc = followLinks ? stat : lstat;
 
     if (0 != statFunc(path, &fileStats)) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     return S_ISREG(fileStats.st_mode);
@@ -878,7 +888,7 @@ bool bdesu_FileUtil::isDirectory(const char *path, bool followLinks)
     StatFuncType statFunc = followLinks ? stat : lstat;
 
     if (0 != statFunc(path, &fileStats)) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     return S_ISDIR(fileStats.st_mode);
@@ -893,7 +903,7 @@ int bdesu_FileUtil::getLastModificationTime(bdet_Datetime *time,
     struct stat fileStats;
 
     if (0 != stat(path, &fileStats)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     *time = bdetu_Epoch::epoch();
@@ -912,7 +922,7 @@ void bdesu_FileUtil::visitPaths(
     int rc = glob(pattern, GLOB_NOSORT, 0, &pglob);
     bdema_ManagedPtr<glob_t> globGuard(&pglob, 0, &invokeGlobFree);
     if (GLOB_NOMATCH == rc) {
-        return;
+        return;                                                       // RETURN
     }
     if (GLOB_NOSPACE == rc) {
         throw bsl::bad_alloc();
@@ -938,9 +948,9 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
     int rc = statvfs64(path, &buf);
 #endif
     if (rc) {
-        return -1;
+        return -1;                                                    // RETURN
     } else {
-        return buf.f_bavail * buf.f_frsize;
+        return buf.f_bavail * buf.f_frsize;                           // RETURN
     }
 }
 
@@ -954,9 +964,9 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
     int rc = fstatvfs64(fd, &buf);
 #endif
     if (rc) {
-        return -1;
+        return -1;                                                    // RETURN
     } else {
-        return buf.f_bavail * buf.f_frsize;
+        return buf.f_bavail * buf.f_frsize;                           // RETURN
     }
 }
 
@@ -965,7 +975,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
     struct stat64 fileStats;
 
     if (0 != stat64(path, &fileStats)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     return fileStats.st_size;
@@ -981,11 +991,11 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
     int rc = getrlimit64(RLIMIT_FSIZE, &rl);
 #endif
     if (rc) {
-        return -1;
+        return -1;                                                    // RETURN
     } else if (rl.rlim_cur == RLIM_INFINITY) {
-        return OFFSET_MAX;
+        return OFFSET_MAX;                                            // RETURN
     } else {
-        return rl.rlim_cur;
+        return rl.rlim_cur;                                           // RETURN
     }
 }
 
@@ -1012,7 +1022,7 @@ int bdesu_FileUtil::createDirectories(const char *nativePath,
     BSLS_ASSERT(nativePath);
 
     if (exists(nativePath)) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     bsl::string path(nativePath);
@@ -1033,7 +1043,7 @@ int bdesu_FileUtil::createDirectories(const char *nativePath,
                                   directoryStack.back().length());
         if (!exists(path.c_str())) {
             if (0 != makeDirectory(path.c_str())) {
-                return -1;
+                return -1;                                            // RETURN
             }
         }
         directoryStack.pop_back();
@@ -1055,8 +1065,10 @@ int bdesu_FileUtil::getWorkingDirectory(bsl::string *path)
     char *retval = getcwd(buffer, BUFFER_SIZE);
     if (retval == buffer) {
         (*path) = buffer;
+
         //our contract requires an absolute path
-        return bdesu_PathUtil::isRelative(*path);
+
+        return bdesu_PathUtil::isRelative(*path);                     // RETURN
     }
     return -1;
 }
@@ -1068,6 +1080,7 @@ int bdesu_FileUtil::setWorkingDirectory(const char *path)
     // Since we '#define'ed chdir=_chdir above on Windows, we
     // can just implement this in terms of chdir for either
     // type of platform.
+
     return chdir(path);
 }
 
@@ -1092,10 +1105,10 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
     Offset currentSize = seek(fd, 0, BDESU_SEEK_FROM_END);
 
     if (currentSize == -1) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     if (currentSize >= size) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     if (reserve) {
         char *buf = (char*)allocator_p->allocate(bufferSize);
@@ -1106,17 +1119,17 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
             int rc = write(fd, buf, nBytes);
             if (rc != nBytes) {
                 allocator_p->deallocate(buf);
-                return -1;
+                return -1;                                            // RETURN
             }
             bytesToGrow -= nBytes;
         }
         allocator_p->deallocate(buf);
-        return 0;
+        return 0;                                                     // RETURN
     }
     int res = seek(fd, size-1, BDESU_SEEK_FROM_BEGINNING);
     if (-1 == res || 1 != write(fd, (const void *)"", 1))
     {
-        return -1;
+        return -1;                                                    // RETURN
     }
     return 0;
 }
@@ -1128,7 +1141,9 @@ int bdesu_FileUtil::rollFileChain(const char *path, int maxSuffix)
     enum { MAX_SUFFIX_LENGTH = 10 };
     bslma_Allocator *allocator_p = bslma_Default::defaultAllocator();
     int   length     = bsl::strlen(path) + MAX_SUFFIX_LENGTH + 2;
+
     // Use a single allocation to insure exception neutrality.
+
     char *buf      = (char*)allocator_p->allocate(2 * length);
     char *fromName = buf;
     char *toName   = buf + length;

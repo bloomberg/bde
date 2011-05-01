@@ -1,11 +1,10 @@
-// bdesu_memoryutil.t.cpp -*-C++-*-
+// bdesu_memoryutil.t.cpp                                             -*-C++-*-
 
 #include <bdesu_memoryutil.h>
 
 // TBD: this needs to test setting memory to executable
 
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 
 #include <bsl_iostream.h>
 
@@ -68,17 +67,21 @@ static void aSsErT(int c, const char *s, int i)
 
 int main(int argc, char *argv[])
 {
-     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-     verbose = argc > 2;
-     veryVerbose = argc > 3;
-     veryVeryVerbose = argc > 4;
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-          // disable popup on crash
-          SetErrorMode(SEM_NOGPFAULTERRORBOX);
+    {
+        // disable popup on crash
+
+         SetErrorMode(SEM_NOGPFAULTERRORBOX);
+    }
 #endif
 #ifdef BSLS_PLATFORM__OS_UNIX
     // disable core dumps
+
     {
         struct rlimit rl;
         rl.rlim_cur = rl.rlim_max = 0;
@@ -99,6 +102,7 @@ int main(int argc, char *argv[])
 
         // this test expects BDESU_ACCESS_READ==1, BDESU_ACCESS_WRITE==2,
         // BDESU_ACCESS_EXECUTE==4
+
         ASSERT(bdesu_MemoryUtil::BDESU_ACCESS_READ == 1);
         ASSERT(bdesu_MemoryUtil::BDESU_ACCESS_WRITE == 2);
         ASSERT(bdesu_MemoryUtil::BDESU_ACCESS_EXECUTE == 4);
@@ -113,6 +117,7 @@ int main(int argc, char *argv[])
         };
 
         // test all 8 modes
+
         for (int mode=0; mode<sizeof(modes)/sizeof(*modes); ++mode) {
             // do not try to set executable bit when on HP-UX
 #ifdef BSLS_PLATFORM__OS_HPUX
@@ -121,6 +126,7 @@ int main(int argc, char *argv[])
             }
 #endif
             // test read & write
+
             for (int op=0;
                 op<sizeof(operations)/sizeof(*operations);
                 ++op)
@@ -131,6 +137,7 @@ int main(int argc, char *argv[])
                     // do not test disabled read with write/execute
                     // allowed: most platforms do not have fine-grained
                     // read access control
+
                     if (verbose) cout << "Skipping op:" << operations[op]
                                       << ", mode:" << modes[mode] << bsl::endl;
                     continue;
@@ -148,9 +155,9 @@ int main(int argc, char *argv[])
                 };
                 char buffer[ARBITRARY_BUT_SUFFICIENT_BUFFER_SIZE];
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-		const char* redirectToNull = " >NUL 2>&1";
+                const char* redirectToNull = " >NUL 2>&1";
 #else
-		const char* redirectToNull = " >/dev/null 2>&1";
+                const char* redirectToNull = " >/dev/null 2>&1";
 #endif
                 sprintf(buffer, "%s -1 %s %d %d%s",
                                              argv[0], argv[0], -10-op, mode,
@@ -171,6 +178,7 @@ int main(int argc, char *argv[])
         char* data = (char*)bdesu_MemoryUtil::allocate(pageSize);
 
         // Write into the allocated buffer.
+
         data[0] = 1;
 
         // Make the memory write protected
@@ -210,7 +218,7 @@ int main(int argc, char *argv[])
 
         cout << "Within system: " << buffer << endl;
 
-        return !!system(buffer);
+        return !!system(buffer);                                      // RETURN
       } break;
       case -10: {
         //--------------------------------------------------------------
@@ -220,6 +228,7 @@ int main(int argc, char *argv[])
         // argv[2] and verify it is readable.  Note that it is normal for
         // this test case to fail for some values of argv[2].
         //--------------------------------------------------------------
+
         int size = bdesu_MemoryUtil::pageSize();
         char* ptr = (char*) bdesu_MemoryUtil::allocate(size);
         memset(ptr, 0x55, size);
@@ -242,6 +251,7 @@ int main(int argc, char *argv[])
         // argv[2] and verify it is writable.  Note that it is normal for
         // this test case to fail for some values of argv[2].
         //--------------------------------------------------------------
+
         int size = bdesu_MemoryUtil::pageSize();
         char* ptr = (char*) bdesu_MemoryUtil::allocate(size);
         int rc = bdesu_MemoryUtil::protect(ptr, size, atoi(argv[2]));
