@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 // only the ident is protected by the guard.
 */
 
-#ifndef INCLUDED_BSLS_PLATFORM
+#if !defined(INCLUDED_BSLS_PLATFORM) && defined(__cplusplus)
 #  include <bsls_platform.h>
 #endif
 
