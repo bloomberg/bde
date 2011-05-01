@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
           queryRequest.setQuery(listFromDispatcher);
           queryRequest.setQueryId(queryId);
 
-          ASSERT(queryRequest.query() == query.query());
+          ASSERT(*queryRequest.query() == *query.query());
           ASSERT(queryRequest.queryId() == QUERYID);
 
           bdema_ManagedPtr<bdem_List> listFromServer =
@@ -247,8 +247,8 @@ int main(int argc, char *argv[])
           queryResponse.setStatus((btemt_QueryResponse::Status)status);
           queryResponse.setQueryId(queryId);
 
-          ASSERT(queryResponse.queryResponse() ==
-                 queryResult.queryResponse());
+          ASSERT(*queryResponse.queryResponse() ==
+                 *queryResult.queryResponse());
           ASSERT(queryResponse.sequenceNum() == queryResult.sequenceNum());
           ASSERT(queryResponse.queryId() == QUERYID);
           ASSERT(queryResponse.status() == btemt_QueryResponse::BTEMT_SUCCESS);

@@ -477,11 +477,14 @@ class btemt_PoolMsg {
   public:
     // ENUMERATIONS
     enum PoolState {
-        BTEMT_ACCEPT_TIMEOUT = 0   // timed out accepting a connection
-      , BTEMT_ERROR_ACCEPTING      // error accepting a connection
-      , BTEMT_ERROR_CONNECTING     // error connecting to the peer
-      , BTEMT_CHANNEL_LIMIT        // channel limit reached
-      , BTEMT_CAPACITY_LIMIT       // capacity limit reached
+        BTEMT_ACCEPT_TIMEOUT = 0,           // timed out accepting a connection
+        BTEMT_ERROR_ACCEPTING,              // error accepting a connection
+        BTEMT_ERROR_CONNECTING,             // error connecting to the peer
+        BTEMT_CHANNEL_LIMIT,                // channel limit reached
+        BTEMT_CAPACITY_LIMIT,               // capacity limit reached
+        BTEMT_ERROR_BINDING_CLIENT_ADDR,    // error binding client address
+        BTEMT_ERROR_SETTING_OPTIONS         // error setting socket options
+
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
       , ACCEPT_TIMEOUT   = BTEMT_ACCEPT_TIMEOUT
       , ERROR_ACCEPTING  = BTEMT_ERROR_ACCEPTING

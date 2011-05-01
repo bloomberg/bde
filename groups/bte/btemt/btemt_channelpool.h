@@ -1,4 +1,4 @@
-// btemt_channelpool.h           -*-C++-*-
+// btemt_channelpool.h                                                -*-C++-*-
 #ifndef INCLUDED_BTEMT_CHANNELPOOL
 #define INCLUDED_BTEMT_CHANNELPOOL
 
@@ -619,6 +619,7 @@ namespace BloombergLP {
 
 // Used in name only
 class bteso_IPv4Address;
+class bteso_SocketOptions;
 class btesc_TimedCbChannel;
 class btesc_TimedCbChannelAllocator;
 
@@ -1030,14 +1031,15 @@ class btemt_ChannelPool {
         // server state since the last server connection or last timeout
         // callback.
 
-    int listen(const bteso_IPv4Address& endpoint,
-               int                      backlog,
-               int                      serverId,
-               int                      reuseAddress,
-               bool                     readEnabledFlag,
-               KeepHalfOpenMode         mode,
-               bool                     isTimedFlag,
-               const bdet_TimeInterval& timeout = bdet_TimeInterval());
+    int listen(const bteso_IPv4Address&   endpoint,
+               int                        backlog,
+               int                        serverId,
+               int                        reuseAddress,
+               bool                       readEnabledFlag,
+               KeepHalfOpenMode           mode,
+               bool                       isTimedFlag,
+               const bdet_TimeInterval&   timeout = bdet_TimeInterval(),
+               const bteso_SocketOptions *socketOptions = 0);
         // Establish a listening socket having the specified 'backlog' maximum
         // number of pending connections on the specified 'endpoint' and the
         // specified 'reuseAddress' used in setting 'REUSEADDRESS' socket
@@ -1047,9 +1049,11 @@ class btemt_ChannelPool {
         // upon creation, and otherwise it will not.  If the specified
         // 'isTimedFlag' is non-zero, register a timer which will execute
         // 'acceptTimeoutCb' in the dispatcher thread of the event manager for
-        // this server, if no connection attempt is received for a period of
-        // 'timeout' since the last connection or the last timeout.  Return 0
-        // on success, a positive value if there is a listening socket
+        // this server, if no connection attempt is received for the optionally
+        // specified 'timeout' period since the last connection or the last
+        // timeout.  Optionally specify 'socketOptions' that will be used to
+        // specify what options should be set on the listening socket.  Return
+        // 0 on success, a positive value if there is a listening socket
         // associated with 'serverId' (i.e., 'serverId' is not unique) and a
         // negative value if an error occurred.  The behavior is undefined
         // unless 0 < 'backlog'.
@@ -1236,29 +1240,33 @@ class btemt_ChannelPool {
         // Note that closing a listening socket has no effect on any channels
         // managed by this pool.
 
-    int listen(int                      portNumber,
-               int                      backlog,
-               int                      serverId,
-               int                      reuseAddress = 1,
-               bool                     readEnabledFlag = true);
-    int listen(int                      portNumber,
-               int                      backlog,
-               int                      serverId,
-               const bdet_TimeInterval& timeout,
-               int                      reuseAddress = 1,
-               bool                     readEnabledFlag = true);
-    int listen(const bteso_IPv4Address& endpoint,
-               int                      backlog,
-               int                      serverId,
-               int                      reuseAddress = 1,
-               bool                     readEnabledFlag = true);
-    int listen(const bteso_IPv4Address& endpoint,
-               int                      backlog,
-               int                      serverId,
-               const bdet_TimeInterval& timeout,
-               int                      reuseAddress = 1,
-               bool                     readEnabledFlag = true,
-               KeepHalfOpenMode         mode = BTEMT_CLOSE_BOTH);
+    int listen(int                        portNumber,
+               int                        backlog,
+               int                        serverId,
+               int                        reuseAddress = 1,
+               bool                       readEnabledFlag = true,
+               const bteso_SocketOptions *socketOptions = 0);
+    int listen(int                        portNumber,
+               int                        backlog,
+               int                        serverId,
+               const bdet_TimeInterval&   timeout,
+               int                        reuseAddress = 1,
+               bool                       readEnabledFlag = true,
+               const bteso_SocketOptions *socketOptions = 0);
+    int listen(const bteso_IPv4Address&   endpoint,
+               int                        backlog,
+               int                        serverId,
+               int                        reuseAddress = 1,
+               bool                       readEnabledFlag = true,
+               const bteso_SocketOptions *socketOptions = 0);
+    int listen(const bteso_IPv4Address&   endpoint,
+               int                        backlog,
+               int                        serverId,
+               const bdet_TimeInterval&   timeout,
+               int                        reuseAddress = 1,
+               bool                       readEnabledFlag = true,
+               KeepHalfOpenMode           mode = BTEMT_CLOSE_BOTH,
+               const bteso_SocketOptions *socketOptions = 0);
         // Establish a listening socket having the specified 'backlog' maximum
         // number of pending connections on the specified 'portNumber' on all
         // local interfaces or the specified 'endpoint', depending on which
@@ -1279,24 +1287,28 @@ class btemt_ChannelPool {
         // 'mode' to keep channel half-open in case a channel established by
         // the server with this 'serverId' is half-closed; if 'mode' is not
         // specified, then 'BTEMT_CLOSE_BOTH' is used (i.e., half-open
-        // connections lead to closing the channel completely).  Return 0 on
-        // success, a positive value if there is a listening socket associated
-        // with 'serverId' (i.e., 'serverId' is not unique) and a negative
-        // value if an error occurred.  Every time a connection is accepted by
-        // this pool on this (newly established) listening socket, 'serverId'
-        // is passed to the callback provided in the configuration at
-        // construction.  The behavior is undefined unless '0 < backlog'.
+        // connections lead to closing the channel completely).  Optionally
+        // specify 'socketOptions' that will be used to indicate what options
+        // should be set on the listening socket.  Return 0 on success, a
+        // positive value if there is a listening socket associated with
+        // 'serverId' (i.e., 'serverId' is not unique) and a negative value if
+        // an error occurred.  Every time a connection is accepted by this pool
+        // on this (newly established) listening socket, 'serverId' is passed
+        // to the callback provided in the configuration at construction.  The
+        // behavior is undefined unless '0 < backlog'.
 
                                   // *** Client part ***
 
-    int connect(const char               *hostname,
-                int                       portNumber,
-                int                       numAttempts,
-                const bdet_TimeInterval&  interval,
-                int                       sourceId,
-                ConnectResolutionMode     resolutionMode = BTEMT_RESOLVE_ONCE,
-                bool                      readEnabledFlag = true,
-                KeepHalfOpenMode          halfCloseMode = BTEMT_CLOSE_BOTH);
+    int connect(const char                *hostname,
+                int                        portNumber,
+                int                        numAttempts,
+                const bdet_TimeInterval&   interval,
+                int                        sourceId,
+                ConnectResolutionMode      resolutionMode = BTEMT_RESOLVE_ONCE,
+                bool                       readEnabledFlag = true,
+                KeepHalfOpenMode           halfCloseMode = BTEMT_CLOSE_BOTH,
+                const bteso_SocketOptions *socketOptions = 0,
+                const bteso_IPv4Address   *localAddress = 0);
         // Asynchronously issue up to the specified 'numAttempts' connection
         // requests to a server at the address resolved from the specified
         // 'hostname' on the specified 'portNumber', with at least the
@@ -1311,7 +1323,7 @@ class btemt_ChannelPool {
         // 'CHANNEL_LIMIT', or 'CAPACITY_LIMIT'), a pool state callback is
         // invoked with the event type, 'sourceId' and a severity.  Optionally
         // specify a 'resolutionMode' to indicate whether the name resolution
-        // is performed once (if 'resolutionMode' is 'BTEMT_RESOLVE_ONCE'),  or
+        // is performed once (if 'resolutionMode' is 'BTEMT_RESOLVE_ONCE'), or
         // performed anew prior to each attempt (if 'resolutionMode' is
         // 'BTEMT_RESOLVE_AT_EACH_ATTEMPT'); if 'resolutionMode' is not
         // specified, 'BTEMT_RESOLVE_ONCE' is used.  Optionally specify via a
@@ -1322,31 +1334,37 @@ class btemt_ChannelPool {
         // case the channel created for this connection is half-closed; if
         // 'mode' is not specified, then 'BTEMT_CLOSE_BOTH' is used (i.e.,
         // so-called half-open connections, that is, anything less than full
-        // duplex, lead to close the channel).  Return 0 on successful
-        // initiation, a positive value if there is an active connection
-        // attempt with the same 'sourceId' (in which case this connection
-        // attempt may be retried after that other connection either succeeds,
-        // fails, or times out), or a negative value if an error occurred, with
-        // the value of -1 indicating that the channel pool is not running.
-        // The behavior is undefined unless '0 < numAttempts', and either
-        // '0 < interval' or '1 == numAttempts' or both.  Note that if the
-        // connection cannot be established, up to 'numAttempts' pool state
-        // callbacks with 'ERROR_CONNECTING' may be generated, one for each
-        // 'interval'.  Also note that this function will fail if this channel
-        // pool is not running, and that no callbacks will be invoked if the
-        // return value is non-zero.  Also note that the same 'sourceId' can be
-        // used in several calls to 'connect' or 'import' as long as two calls
-        // to connect with the same 'sourceId' do not overlap.  Finally, note
-        // that the lifetime of the 'hostname' need not extend past the return
-        // of this function call, that is, 'hostname' need not remain valid
-        // until the last connection attempt but can be deleted upon return.
+        // duplex, lead to close the channel).  Optionally specify
+        // 'socketOptions' that will be used to specify what options should be
+        // set on the connecting socket.  Optionally specify the
+        // 'localAddress' that should be used as the source address.  Return 0
+        // on successful initiation, a positive value if there is an active
+        // connection attempt with the same 'sourceId' (in which case this
+        // connection attempt may be retried after that other connection either
+        // succeeds, fails, or times out), or a negative value if an error
+        // occurred, with the value of -1 indicating that the channel pool is
+        // not running.  The behavior is undefined unless '0 < numAttempts',
+        // and either '0 < interval' or '1 == numAttempts' or both.  Note that
+        // if the connection cannot be established, up to 'numAttempts' pool
+        // state callbacks with 'ERROR_CONNECTING' may be generated, one for
+        // each 'interval'.  Also note that this function will fail if this
+        // channel pool is not running, and that no callbacks will be invoked
+        // if the return value is non-zero.  Also note that the same 'sourceId'
+        // can be used in several calls to 'connect' or 'import' as long as two
+        // calls to connect with the same 'sourceId' do not overlap.  Finally,
+        // note that the lifetime of the 'hostname' need not extend past the
+        // return of this function call, that is, 'hostname' need not remain
+        // valid until the last connection attempt but can be deleted upon
+        // return.
 
-    int connect(const bteso_IPv4Address& serverAddress,
-                int                      numAttempts,
-                const bdet_TimeInterval& interval,
-                int                      sourceId,
-                bool                     readEnabledFlag = true,
-                KeepHalfOpenMode         mode = BTEMT_CLOSE_BOTH);
+    int connect(const bteso_IPv4Address&   serverAddress,
+                int                        numAttempts,
+                const bdet_TimeInterval&   interval,
+                int                        sourceId,
+                bool                       readEnabledFlag = true,
+                KeepHalfOpenMode           mode = BTEMT_CLOSE_BOTH,
+                const bteso_SocketOptions *socketOptions = 0,
+                const bteso_IPv4Address   *localAddress = 0);
         // Asynchronously issue up to the specified 'numAttempts' connection
         // requests to a server at the specified 'serverAddress', with at least
         // the specified (relative) time 'interval' after each attempt before
@@ -1366,13 +1384,16 @@ class btemt_ChannelPool {
         // specify a half-close 'mode' in case the channel created for this
         // connection is half-closed; if 'mode' is not specified, then
         // 'BTEMT_CLOSE_BOTH' is used (i.e., half-open connections lead to
-        // close the channel).  Return 0 on successful initiation, a positive
-        // value if there is an active connection attempt with the same
-        // 'sourceId' (in which case this connection attempt may be retried
-        // after that other connection either succeeds, fails, or times out),
-        // or a negative value if an error occurred, with the value of -1
-        // indicating that the channel pool is not running.  The behavior is
-        // undefined unless '0 < numAttempts', and either '0 < interval' or
+        // close the channel).  Optionally specify 'socketOptions' that will be
+        // used to specify what options should be set on the connecting socket.
+        // Optionally specify the 'localAddress' that should be used as the
+        // source address.  Return 0 on successful initiation, a positive value
+        // if there is an active connection attempt with the same 'sourceId'
+        // (in which case this connection attempt may be retried after that
+        // other connection either succeeds, fails, or times out), or a
+        // negative value if an error occurred, with the value of -1 indicating
+        // that the channel pool is not running.  The behavior is undefined
+        // unless '0 < numAttempts', and either '0 < interval' or
         // '1 == numAttempts' or both.  Note that if the connection cannot be
         // established, up to 'numAttempts' pool state callbacks with
         // 'ERROR_CONNECTING' may be generated, one for each 'interval'.  Also

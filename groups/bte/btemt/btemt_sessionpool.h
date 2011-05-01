@@ -1,4 +1,4 @@
-// btemt_sessionpool.h             -*-C++-*-
+// btemt_sessionpool.h                                                -*-C++-*-
 #ifndef INCLUDED_BTEMT_SESSIONPOOL
 #define INCLUDED_BTEMT_SESSIONPOOL
 
@@ -6,8 +6,6 @@
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
-
-
 
 //@PURPOSE: Provide thread-enabled session-based IPv4 communication
 //
@@ -37,7 +35,7 @@ BDES_IDENT("$Id: $")
 // notification is done via asynchronous callbacks that can be invoked from any
 // (managed) thread.
 //
-///Message management and delivery
+///Message Management and Delivery
 ///-------------------------------
 // The session pool provides an efficient mechanism for the full-duplex
 // delivery of messages trying to achieve fully parallel communication on a
@@ -54,8 +52,8 @@ BDES_IDENT("$Id: $")
 // message buffer is assumed and either the message is copied into the local
 // buffer of the session or the address of the buffer is retained.
 //
-///Usage example
-///-------------
+///Usage
+///-----
 // The following example implements a simple echo server.  This server accepts
 // connections, reads what it receives right away from the network stream,
 // sends it back and closes the connection.
@@ -454,7 +452,7 @@ BDES_IDENT("$Id: $")
 //
 //      char readBuffer[sizeof(STRING)];
 //      assert(sizeof(STRING) == socket->read(readBuffer, sizeof(STRING)));
-//      assert(0 == std::strcmp(readBuffer, STRING));
+//      assert(0 == bsl::strcmp(readBuffer, STRING));
 //
 //      factory.deallocate(socket);
 //      return 0;
@@ -535,15 +533,15 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-class btemt_Session;
-class btemt_SessionFactory;
 class btemt_ChannelPool;
 class btemt_DataMsg;
-
+class btemt_Session;
+class btemt_SessionFactory;
 
 struct btemt_SessionPool__Handle;
 class btemt_SessionPool;
 
+class bteso_SocketOptions;
 
                    // ======================================
                    // class btemt_SessionPoolSessionIterator
@@ -782,32 +780,40 @@ class btemt_SessionPool {
 
                                   // *** server-related section ***
 
-    int listen(int                                            *handleBuffer,
-               const btemt_SessionPool::SessionStateCallback&  callback,
-               int                                             portNumber,
-               int                                             backlog,
-               btemt_SessionFactory                           *factory,
-               void                                           *userData = 0);
-    int listen(int                                            *handleBuffer,
-               const btemt_SessionPool::SessionStateCallback&  callback,
-               int                                             portNumber,
-               int                                             backlog,
-               int                                             reuseAddress,
-               btemt_SessionFactory                           *factory,
-               void                                           *userData = 0);
-    int listen(int                                            *handleBuffer,
-               const btemt_SessionPool::SessionStateCallback&  callback,
-               const bteso_IPv4Address&                        endpoint,
-               int                                             backlog,
-               btemt_SessionFactory                           *factory,
-               void                                           *userData = 0);
-    int listen(int                                            *handleBuffer,
-               const btemt_SessionPool::SessionStateCallback&  callback,
-               const bteso_IPv4Address&                        endpoint,
-               int                                             backlog,
-               int                                             reuseAddress,
-               btemt_SessionFactory                           *factory,
-               void                                           *userData = 0);
+    int listen(
+            int                                            *handleBuffer,
+            const btemt_SessionPool::SessionStateCallback&  callback,
+            int                                             portNumber,
+            int                                             backlog,
+            btemt_SessionFactory                           *factory,
+            void                                           *userData = 0,
+            const bteso_SocketOptions                      *socketOptions = 0);
+    int listen(
+            int                                            *handleBuffer,
+            const btemt_SessionPool::SessionStateCallback&  callback,
+            int                                             portNumber,
+            int                                             backlog,
+            int                                             reuseAddress,
+            btemt_SessionFactory                           *factory,
+            void                                           *userData = 0,
+            const bteso_SocketOptions                      *socketOptions = 0);
+    int listen(
+            int                                            *handleBuffer,
+            const btemt_SessionPool::SessionStateCallback&  callback,
+            const bteso_IPv4Address&                        endpoint,
+            int                                             backlog,
+            btemt_SessionFactory                           *factory,
+            void                                           *userData = 0,
+            const bteso_SocketOptions                      *socketOptions = 0);
+    int listen(
+            int                                            *handleBuffer,
+            const btemt_SessionPool::SessionStateCallback&  callback,
+            const bteso_IPv4Address&                        endpoint,
+            int                                             backlog,
+            int                                             reuseAddress,
+            btemt_SessionFactory                           *factory,
+            void                                           *userData = 0,
+            const bteso_SocketOptions                      *socketOptions = 0);
         // Asynchronously listen for connection requests on the specified
         // 'portNumber' on all local interfaces or the specified 'endpoint',
         // depending on which overload of listen is used, with up to a maximum
@@ -817,12 +823,14 @@ class btemt_SessionPool {
         // handle for the listening connection into 'handleBuffer'.  Optionally
         // specify a 'reuseAddress' value to be used in setting 'REUSEADDRESS'
         // socket option.  If 'reuseAddress' is not specified, 1 (i.e.,
-        // 'REUSEADDRESS' is enabled) is used.  Return 0 on success, and a
-        // non-zero value otherwise.  Every time a connection is accepted by
-        // this pool on this (newly-established) listening socket, the newly
-        // allocated session is passed to the specified 'callback' along with
-        // the optionally specified 'userData'.  The behavior is undefined
-        // unless '0 < backlog'.
+        // 'REUSEADDRESS' is enabled) is used.  Optionally specify
+        // 'socketOptions' that will be used to specify what options should be
+        // set on the listening socket.  Return 0 on success, and a non-zero
+        // value otherwise.  Every time a connection is accepted by this pool
+        // on this (newly-established) listening socket, the newly allocated
+        // session is passed to the specified 'callback' along with the
+        // optionally specified 'userData'.  The behavior is undefined unless
+        // '0 < backlog'.
 
                                   // *** client-related section ***
     int closeHandle(int handle);
@@ -830,51 +838,63 @@ class btemt_SessionPool {
         // 'handle'.  Return 0 on success, or a non-zero value if the specified
         // 'handle' does not match any currently allocation session handle.
 
-    int connect(int                                            *handleBuffer,
-                const btemt_SessionPool::SessionStateCallback&  callback,
-                const char                                     *hostname,
-                int                                             port,
-                int                                             numAttempts,
-                const bdet_TimeInterval&                        interval,
-                btemt_SessionFactory                           *factory,
-                void                                           *userData = 0,
-                ConnectResolutionMode                           resolutionMode
-                                                               = RESOLVE_ONCE);
+    int connect(
+            int                                            *handleBuffer,
+            const btemt_SessionPool::SessionStateCallback&  callback,
+            const char                                     *hostname,
+            int                                             port,
+            int                                             numAttempts,
+            const bdet_TimeInterval&                        interval,
+            btemt_SessionFactory                           *factory,
+            void                                           *userData = 0,
+            ConnectResolutionMode                           resolutionMode
+                                                               = RESOLVE_ONCE,
+            const bteso_SocketOptions                      *socketOptions = 0,
+            const bteso_IPv4Address                        *localAddress = 0);
         // Asynchronously attempt to connect to the specified 'hostname' on the
         // specified 'port' up to the specified 'numAttempts' delaying for the
         // specified 'interval' between each attempt.  Optionally specify a
         // 'resolutionMode' to indicate whether the name resolution is
-        // performed once (if 'resolutionMode' is 'RESOLVE_ONCE'),  or
-        // performed anew prior to each attempt (if 'resolutionMode' is
-        // 'RESOLVE_AT_EACH_ATTEMPT');  if 'resolutionMode is not specified,
+        // performed once (if 'resolutionMode' is 'RESOLVE_ONCE'), or performed
+        // anew prior to each attempt (if 'resolutionMode' is
+        // 'RESOLVE_AT_EACH_ATTEMPT'); if 'resolutionMode is not specified,
         // 'RESOLVE_ONCE' is used.  Once a connection is successfully
         // established, allocate and start a session using the specified
         // 'factory' and load a handle for the initiated connection into
         // 'handleBuffer'.  Whenever this session state changes (i.e., is
         // established), the specified 'callback' will be invoked along with a
         // pointer to newly created 'btemt_Session' and the optionally
-        // specified 'userData'.  Return 0 on successful initiation, and a
+        // specified 'userData'.  Optionally specify 'socketOptions' that will
+        // be used to specify what options should be set on the connecting
+        // socket.  Optionally specify the 'localAddress' that should be used
+        // as the source address.  Return 0 on successful initiation, and a
         // non-zero value otherwise.  The behavior is undefined unless
         // '0 < numAttempts', and '0 < interval' or '1 == numAttempts'.
 
-    int connect(int                                            *handleBuffer,
-                const btemt_SessionPool::SessionStateCallback&  callback,
-                bteso_IPv4Address const&                        endpoint,
-                int                                             numAttempts,
-                const bdet_TimeInterval&                        interval,
-                btemt_SessionFactory                           *factory,
-                void                                           *userData = 0);
+    int connect(
+            int                                            *handleBuffer,
+            const btemt_SessionPool::SessionStateCallback&  callback,
+            bteso_IPv4Address const&                        endpoint,
+            int                                             numAttempts,
+            const bdet_TimeInterval&                        interval,
+            btemt_SessionFactory                           *factory,
+            void                                           *userData = 0,
+            const bteso_SocketOptions                      *socketOptions = 0,
+            const bteso_IPv4Address                        *localAddress = 0);
         // Asynchronously attempt to connect to the specified 'endpoint' up to
         // the specified 'numAttempts' delaying for the specified 'interval'
-        // between each attempt; once a connection is successfully
-        // established, allocate and start a session using the specified
-        // 'factory' and load a handle for the initiated connection into
-        // 'handleBuffer'.  Whenever this session state changes (i.e., is
-        // established), the specified 'callback' will be invoked along with a
-        // pointer to newly created 'btemt_Session' and the optionally
-        // specified 'userData'.  Return 0 on successful initiation, and a
-        // non-zero value otherwise.  The behavior is undefined unless
-        // '0 < numAttempts', and '0 < interval' or '1 == numAttempts'.
+        // between each attempt; once a connection is successfully established,
+        // allocate and start a session using the specified 'factory' and load
+        // a handle for the initiated connection into 'handleBuffer'.  Whenever
+        // this session state changes (i.e., is established), the specified
+        // 'callback' will be invoked along with a pointer to newly created
+        // 'btemt_Session' and the optionally specified 'userData'.  Optionally
+        // specify 'socketOptions' that will be used to specify what options
+        // should be set on the connecting socket.  Optionally specify the
+        // 'localAddress' that should be used as the source address.  Return 0
+        // on successful initiation, and a non-zero value otherwise.  The
+        // behavior is undefined unless '0 < numAttempts', and '0 < interval'
+        // or '1 == numAttempts'.
 
     int import(int                                            *handleBuffer,
                const btemt_SessionPool::SessionStateCallback&  callback,

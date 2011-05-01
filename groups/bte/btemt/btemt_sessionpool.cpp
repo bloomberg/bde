@@ -1,4 +1,4 @@
-// btemt_sessionpool.cpp           -*-C++-*-
+// btemt_sessionpool.cpp                                              -*-C++-*-
 #include <btemt_sessionpool.h>
 
 #include <bdes_ident.h>
@@ -7,6 +7,8 @@ BDES_IDENT_RCSID(btemt_sessionpool_cpp,"$Id$ $CSID$")
 #include <btemt_channelpool.h>
 #include <btemt_channelpoolchannel.h>
 #include <btemt_session.h>
+
+#include <bteso_socketoptions.h>
 
 #include <bcemt_thread.h>
 #include <bcemt_lockguard.h>
@@ -35,12 +37,12 @@ struct btemt_SessionPool__Handle {
 
     // PRIVATE TYPES
     enum Type {
-        LISTENER = 1
-        , REGULAR_SESSION = 2
-        , CONNECT_SESSION = 3
-        , IMPORTED_SESSION = 4
-        , INVALID_SESSION = 5
-        , ABORTED_CONNECT_SESSION = 6
+        LISTENER = 1,
+        REGULAR_SESSION = 2,
+        CONNECT_SESSION = 3,
+        IMPORTED_SESSION = 4,
+        INVALID_SESSION = 5,
+        ABORTED_CONNECT_SESSION = 6
     };
 
     // DATA
@@ -483,9 +485,9 @@ void btemt_SessionPool::sessionAllocationCb(int             result,
 
 // CREATORS
 btemt_SessionPool::btemt_SessionPool(
-                       const btemt_ChannelPoolConfiguration& config,
-                       SessionPoolStateCallback const&       poolStateCallback,
-                       bslma_Allocator                      *allocator)
+                      const btemt_ChannelPoolConfiguration&  config,
+                      SessionPoolStateCallback const&        poolStateCallback,
+                      bslma_Allocator                       *allocator)
 : d_handles(allocator)
 , d_config(config)
 , d_channelPool_p(0)
@@ -509,10 +511,10 @@ btemt_SessionPool::btemt_SessionPool(
 }
 
 btemt_SessionPool::btemt_SessionPool(
-                     const btemt_ChannelPoolConfiguration& config,
-                     SessionPoolStateCallback const&       poolStateCallback,
-                     bool                                  useBlobForDataReads,
-                     bslma_Allocator                      *allocator)
+                    const btemt_ChannelPoolConfiguration&  config,
+                    SessionPoolStateCallback const&        poolStateCallback,
+                    bool                                   useBlobForDataReads,
+                    bslma_Allocator                       *allocator)
 : d_handles(allocator)
 , d_config(config)
 , d_channelPool_p(0)
@@ -549,12 +551,12 @@ int btemt_SessionPool::start()
     BSLS_ASSERT(!d_channelPool_p);
 
     btemt_ChannelPool::ChannelStateChangeCallback channelStateFunctor(
-            bdef_MemFnUtil::memFn(&btemt_SessionPool::channelStateCb, this)
-          , d_allocator_p);
+               bdef_MemFnUtil::memFn(&btemt_SessionPool::channelStateCb, this),
+               d_allocator_p);
 
     btemt_ChannelPool::PoolStateChangeCallback poolStateFunctor(
-            bdef_MemFnUtil::memFn(&btemt_SessionPool::poolStateCb, this)
-          , d_allocator_p);
+                  bdef_MemFnUtil::memFn(&btemt_SessionPool::poolStateCb, this),
+                  d_allocator_p);
 
     if (d_useBlobForDataReads) {
         btemt_ChannelPool::BlobBasedReadCallback dataFunctor =
@@ -572,9 +574,9 @@ int btemt_SessionPool::start()
         bdef_Function<void (*)(int *, int*, const btemt_DataMsg&, void*)>
             dataFunctor(
                     bdef_MemFnUtil::memFn(
-                            &btemt_SessionPool::pooledBufferChainBasedReadCb
-                          , this)
-                  , d_allocator_p);
+                              &btemt_SessionPool::pooledBufferChainBasedReadCb,
+                              this),
+                    d_allocator_p);
 
         d_channelPool_p = new (*d_allocator_p)
                                          btemt_ChannelPool(channelStateFunctor,
@@ -676,10 +678,11 @@ int btemt_SessionPool::closeHandle(int handleId)
 
             bdef_Function<void (*)()> fctor(
                     bdef_BindUtil::bindA(
-                        d_allocator_p
-                      , bdef_MemFnUtil::memFn(
-                                 &btemt_SessionPool::connectAbortTimerCb, this)
-                      , handle));
+                        d_allocator_p,
+                        bdef_MemFnUtil::memFn(
+                                       &btemt_SessionPool::connectAbortTimerCb,
+                                       this),
+                        handle));
 
             int ret = d_channelPool_p->registerClock(
                                     fctor,
@@ -702,7 +705,9 @@ int btemt_SessionPool::connect(
                 const bdet_TimeInterval&                        interval,
                 btemt_SessionFactory                           *factory,
                 void                                           *userData,
-                ConnectResolutionMode                           resolutionMode)
+                ConnectResolutionMode                           resolutionMode,
+                const bteso_SocketOptions                      *socketOptions,
+                const bteso_IPv4Address                        *localAddress)
 {
     BSLS_ASSERT(d_channelPool_p);
 
@@ -744,7 +749,10 @@ int btemt_SessionPool::connect(
                                        interval,
                                        handleId,
                                        cpResolutionMode,
-                                       false);
+                                       false,
+                                       btemt_ChannelPool::BTEMT_CLOSE_BOTH,
+                                       socketOptions,
+                                       localAddress);
     if (ret) {
         HandlePtr handle;
         int rc = d_handles.remove(handleId, &handle);
@@ -756,13 +764,15 @@ int btemt_SessionPool::connect(
 }
 
 int btemt_SessionPool::connect(
-                  int                                            *handleBuffer,
-                  const btemt_SessionPool::SessionStateCallback&  cb,
-                  bteso_IPv4Address const&                        endpoint,
-                  int                                             numAttempts,
-                  const bdet_TimeInterval&                        interval,
-                  btemt_SessionFactory                           *factory,
-                  void                                           *userData)
+                 int                                            *handleBuffer,
+                 const btemt_SessionPool::SessionStateCallback&  cb,
+                 bteso_IPv4Address const&                        endpoint,
+                 int                                             numAttempts,
+                 const bdet_TimeInterval&                        interval,
+                 btemt_SessionFactory                           *factory,
+                 void                                           *userData,
+                 const bteso_SocketOptions                      *socketOptions,
+                 const bteso_IPv4Address                        *localAddress)
 {
     BSLS_ASSERT(d_channelPool_p);
 
@@ -774,7 +784,7 @@ int btemt_SessionPool::connect(
 
     int handleId;
     {
-        HandlePtr handle(new(*d_allocator_p) btemt_SessionPool__Handle(),
+        HandlePtr handle(new (*d_allocator_p) btemt_SessionPool__Handle(),
                        bdef_MemFnUtil::memFn(&btemt_SessionPool::handleDeleter,
                                              this),
                        d_allocator_p);
@@ -795,7 +805,10 @@ int btemt_SessionPool::connect(
                                        numAttempts,
                                        interval,
                                        handleId,
-                                       false);
+                                       false,
+                                       btemt_ChannelPool::BTEMT_CLOSE_BOTH,
+                                       socketOptions,
+                                       localAddress);
     if (ret) {
         HandlePtr handle;
         d_handles.remove(handleId, &handle);
@@ -814,7 +827,7 @@ int btemt_SessionPool::import(int *handleBuffer,
 {
     BSLS_ASSERT(d_channelPool_p);
 
-    HandlePtr handle(new(*d_allocator_p) btemt_SessionPool__Handle(),
+    HandlePtr handle(new (*d_allocator_p) btemt_SessionPool__Handle(),
                      bdef_MemFnUtil::memFn(&btemt_SessionPool::handleDeleter,
                                            this),
                      d_allocator_p);
@@ -840,55 +853,80 @@ int btemt_SessionPool::import(int *handleBuffer,
 }
 
 int btemt_SessionPool::listen(
-                   int                                           *handleBuffer,
-                   const btemt_SessionPool::SessionStateCallback& cb,
-                   int                                            portNumber,
-                   int                                            backlog,
-                   btemt_SessionFactory                          *factory,
-                   void                                          *userData)
+                 int                                            *handleBuffer,
+                 const btemt_SessionPool::SessionStateCallback&  cb,
+                 int                                             portNumber,
+                 int                                             backlog,
+                 btemt_SessionFactory                           *factory,
+                 void                                           *userData,
+                 const bteso_SocketOptions                      *socketOptions)
 {
     bteso_IPv4Address endpoint;
     endpoint.setPortNumber(portNumber);
-    return listen(handleBuffer, cb, endpoint, backlog, 1, factory, userData);
+    return listen(handleBuffer,
+                  cb,
+                  endpoint,
+                  backlog,
+                  1,
+                  factory,
+                  userData,
+                  socketOptions);
 }
 
 int btemt_SessionPool::listen(
-                   int                                           *handleBuffer,
-                   const btemt_SessionPool::SessionStateCallback& cb,
-                   int                                            portNumber,
-                   int                                            backlog,
-                   int                                            ,
-                   btemt_SessionFactory                          *factory,
-                   void                                          *userData)
+                 int                                            *handleBuffer,
+                 const btemt_SessionPool::SessionStateCallback&  cb,
+                 int                                             portNumber,
+                 int                                             backlog,
+                 int                                             ,
+                 btemt_SessionFactory                           *factory,
+                 void                                           *userData,
+                 const bteso_SocketOptions                      *socketOptions)
 {
     bteso_IPv4Address endpoint;
     endpoint.setPortNumber(portNumber);
-    return listen(handleBuffer, cb, endpoint, backlog, 1, factory, userData);
+    return listen(handleBuffer,
+                  cb,
+                  endpoint,
+                  backlog,
+                  1,
+                  factory,
+                  userData,
+                  socketOptions);
 }
 
 int btemt_SessionPool::listen(
-                   int                                           *handleBuffer,
-                   const btemt_SessionPool::SessionStateCallback& cb,
-                   const bteso_IPv4Address&                       endpoint,
-                   int                                            backlog,
-                   btemt_SessionFactory                          *factory,
-                   void                                          *userData)
+                 int                                            *handleBuffer,
+                 const btemt_SessionPool::SessionStateCallback&  cb,
+                 const bteso_IPv4Address&                        endpoint,
+                 int                                             backlog,
+                 btemt_SessionFactory                           *factory,
+                 void                                           *userData,
+                 const bteso_SocketOptions                      *socketOptions)
 {
-    return listen(handleBuffer, cb, endpoint, backlog, 1, factory, userData);
+    return listen(handleBuffer,
+                  cb,
+                  endpoint,
+                  backlog,
+                  1,
+                  factory,
+                  userData,
+                  socketOptions);
 }
 
 int btemt_SessionPool::listen(
-                   int                                           *handleBuffer,
-                   const btemt_SessionPool::SessionStateCallback& cb,
-                   const bteso_IPv4Address&                       endpoint,
-                   int                                            backlog,
-                   int                                            reuseAddress,
-                   btemt_SessionFactory                          *factory,
-                   void                                          *userData)
+                 int                                            *handleBuffer,
+                 const btemt_SessionPool::SessionStateCallback&  cb,
+                 const bteso_IPv4Address&                        endpoint,
+                 int                                             backlog,
+                 int                                             reuseAddress,
+                 btemt_SessionFactory                           *factory,
+                 void                                           *userData,
+                 const bteso_SocketOptions                      *socketOptions)
 {
     BSLS_ASSERT(d_channelPool_p);
 
-    HandlePtr handle(new(*d_allocator_p) btemt_SessionPool__Handle(),
+    HandlePtr handle(new (*d_allocator_p) btemt_SessionPool__Handle(),
                      bdef_MemFnUtil::memFn(&btemt_SessionPool::handleDeleter,
                                            this),
                      d_allocator_p);
@@ -906,7 +944,8 @@ int btemt_SessionPool::listen(
                                       backlog,
                                       handle->d_handleId,
                                       reuseAddress,
-                                      false);
+                                      false,
+                                      socketOptions);
     if (ret) {
         d_handles.remove(handle->d_handleId);
         return ret;

@@ -112,8 +112,8 @@ void queryRequestCb(bcema_SharedPtr<btemt_QueryRequest> queryRequest,
     BSLS_ASSERT(requestCount < NUM_QUERIES);
 
     LOOP_ASSERT(requestCount,
-                queryRequest->query() ==
-                query[requestCount].query());
+                *queryRequest->query() ==
+                *query[requestCount].query());
     if (isVerbose) {
         P_(requestCount); P(*queryRequest);
     }
@@ -130,8 +130,8 @@ void queryResponseCb(bcema_SharedPtr<btemt_QueryResponse> queryResponse,
     BSLS_ASSERT(responseCount < NUM_RESPONSES);
 
     LOOP_ASSERT(responseCount,
-                queryResponse->queryResponse() ==
-                queryResult[responseCount].queryResponse());
+                *queryResponse->queryResponse() ==
+                *queryResult[responseCount].queryResponse());
     if (isVerbose) {
         P_(responseCount); P(*queryResponse);
     }
