@@ -1,4 +1,4 @@
-// bteso_socketoptutil.h           -*-C++-*-
+// bteso_socketoptutil.h                                              -*-C++-*-
 #ifndef INCLUDED_BTESO_SOCKETOPTUTIL
 #define INCLUDED_BTESO_SOCKETOPTUTIL
 
@@ -115,12 +115,12 @@ BDES_IDENT("$Id: $")
 #include <btescm_version.h>
 #endif
 
-#ifndef INCLUDED_BTESO_SOCKETHANDLE
-#include <bteso_sockethandle.h>
-#endif
-
 #ifndef INCLUDED_BTESO_PLATFORM
 #include <bteso_platform.h>
+#endif
+
+#ifndef INCLUDED_BTESO_SOCKETHANDLE
+#include <bteso_sockethandle.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -174,6 +174,8 @@ BDES_IDENT("$Id: $")
                         // ==========================
 
 namespace BloombergLP {
+
+class bteso_SocketOptions;
 
 struct bteso_SocketOptUtil {
     // This class provides a namespace for platform independent pure procedures
@@ -290,10 +292,12 @@ struct bteso_SocketOptUtil {
 #endif
     };
 
-    template<class T>
-    static int setOption(bteso_SocketHandle::Handle handle, int level,
-                         int option, const T& Value,
-                         int *errorCode);
+    template <class T>
+    static int setOption(bteso_SocketHandle::Handle  handle,
+                         int                         level,
+                         int                         option,
+                         const T&                    Value,
+                         int                        *errorCode);
         // Set the option of the system socket having the specified
         // 'handle' to the specified 'value' for the specified 'level' and
         // load into the specified 'errorCode' the native error code of the
@@ -301,9 +305,12 @@ struct bteso_SocketOptUtil {
         // success.  Otherwise it returns a negative value.  The behavior
         // is undefined if the specified 'errorCode' is 0.
 
-    template<class T>
-    static int getOption(T *result, bteso_SocketHandle::Handle handle,
-                         int level, int option,  int *errorCode);
+    template <class T>
+    static int getOption(T                          *result,
+                         bteso_SocketHandle::Handle  handle,
+                         int                         level,
+                         int                         option,
+                         int                        *errorCode);
         // Load into the specified 'result' the value of the specified
         // socket 'option', of the specified 'level', for the socket
         // identified by the specified 'handle'.  Return 0, with no effect
@@ -312,33 +319,44 @@ struct bteso_SocketOptUtil {
         // the operation.  The behavior is undefined if the specified
         // 'result' is 0.
 
-    template<class T>
-    static int setOption(bteso_SocketHandle::Handle handle, int level,
-                         int option, const T& value);
+    template <class T>
+    static int setOption(bteso_SocketHandle::Handle handle,
+                         int                        level,
+                         int                        option,
+                         const T&                   value);
         // Set the option of the system socket having the specified
         // 'handle' to the specified 'value' for the specified 'level'.
         // Return 0, with no effect on 'errorCode', on success.  Otherwise
         // it returns a negative value.
 
-    template<class T>
-    static int getOption(T *result, bteso_SocketHandle::Handle handle,
-                         int level, int option);
+    template <class T>
+    static int getOption(T                          *result,
+                         bteso_SocketHandle::Handle  handle,
+                         int                         level,
+                         int                         option);
         // Load into the specified 'result' the value of the specified
         // socket 'option', of the specified 'level', for the socket
         // identified by the specified 'handle'.  Return 0, with no effect
         // on 'errorCode', on success and return a negative value otherwise.
         // The behavior is undefined if the specified 'result' is 0.
+
+    static int setSocketOptions(bteso_SocketHandle::Handle handle,
+                                const bteso_SocketOptions& options);
+        // Set the specified socket 'options' on the specified 'handle'.
+        // Return 0 on success and a non-zero value otherwise.
 };
 
 // ============================================================================
 //                     INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-template<class T>
+template <class T>
 inline int
-bteso_SocketOptUtil::setOption(bteso_SocketHandle::Handle handle, int level,
-                               int option, const T& value,
-                               int *errorCode)
+bteso_SocketOptUtil::setOption(bteso_SocketHandle::Handle  handle,
+                               int                         level,
+                               int                         option,
+                               const T&                    value,
+                               int                        *errorCode)
 {
     #ifdef BSLS_PLATFORM__OS_WINDOWS
     if (0 == setsockopt(handle, level, option,
@@ -363,10 +381,13 @@ bteso_SocketOptUtil::setOption(bteso_SocketHandle::Handle handle, int level,
     #endif
 }
 
-template<class T>
+template <class T>
 inline int
-bteso_SocketOptUtil::getOption(T *result, bteso_SocketHandle::Handle handle,
-                               int level, int option, int *errorCode)
+bteso_SocketOptUtil::getOption(T                          *result,
+                               bteso_SocketHandle::Handle  handle,
+                               int                         level,
+                               int                         option,
+                               int                        *errorCode)
 
 {
     #if defined (BSLS_PLATFORM__OS_AIX) || defined (BSLS_PLATFORM__CMP_GNU)
@@ -399,10 +420,12 @@ bteso_SocketOptUtil::getOption(T *result, bteso_SocketHandle::Handle handle,
     #endif
 }
 
-template<class T>
+template <class T>
 inline int
-bteso_SocketOptUtil::setOption(bteso_SocketHandle::Handle handle, int level,
-                               int option, const T& value)
+bteso_SocketOptUtil::setOption(bteso_SocketHandle::Handle handle,
+                               int                        level,
+                               int                        option,
+                               const T&                   value)
 {
     #ifdef BSLS_PLATFORM__OS_WINDOWS
         return setsockopt(handle, level, option,
@@ -413,10 +436,12 @@ bteso_SocketOptUtil::setOption(bteso_SocketHandle::Handle handle, int level,
     #endif
 }
 
-template<class T>
+template <class T>
 inline int
-bteso_SocketOptUtil::getOption(T *result, bteso_SocketHandle::Handle handle,
-                               int level, int option)
+bteso_SocketOptUtil::getOption(T                          *result,
+                               bteso_SocketHandle::Handle  handle,
+                               int                         level,
+                               int                         option)
 {
      #if defined (BSLS_PLATFORM__OS_AIX) ||   \
          defined (BSLS_PLATFORM__OS_LINUX) || \

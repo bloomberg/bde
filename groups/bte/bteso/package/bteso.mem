@@ -9,6 +9,8 @@ bteso_resolveutil
 bteso_streamsocket
 bteso_streamsocketfactory
 bteso_inetstreamsocketfactory
+bteso_lingeroptions
+bteso_socketoptions
 
 bteso_event
 bteso_eventtype

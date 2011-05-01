@@ -1,8 +1,10 @@
-// bteso_socketoptutil.t.cpp       -*-C++-*-
+// bteso_socketoptutil.t.cpp                                          -*-C++-*-
 
 #include <bteso_socketoptutil.h>
 
 #include <bteso_socketimputil.h>
+#include <bteso_socketoptions.h>
+#include <bteso_lingeroptions.h>
 #include <bteso_ipv4address.h>
 
 #ifdef BSLS_PLATFORM__OS_UNIX
@@ -115,13 +117,370 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+typedef bteso_SocketOptUtil             SockOptUtil;
 typedef bteso_SocketOptUtil::LingerData LingerData;
-typedef bteso_SocketHandle::Handle SocketHandle;
+typedef bteso_SocketHandle::Handle      SocketHandle;
+typedef bteso_SocketOptions             SocketOptions;
+typedef bteso_LingerOptions             LingerOptions;
+
 const unsigned short DUMMY_PORT = 5000;
 
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+//=============================================================================
+//              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
+//-----------------------------------------------------------------------------
+// The following functions interpret the given 'spec' in order from left to
+// right to configure a 'bteso_SocketOptions' according to a custom language.
+// A tilde ('~') indicates that the logical (but not necessarily
+// physical) state of the object is to be set to its initial, empty state (via
+// the 'removeAll' method).
+//
+// LANGUAGE SPECIFICATION:
+// -----------------------
+//
+// <SPEC>       ::= <EMPTY>   | <LIST>
+//
+// <EMPTY>      ::=
+//
+// <LIST>       ::= <ELEMENT> | <ELEMENT><LIST>
+//
+// <ELEMENT>    ::= <SEND_BUF_SIZE> | <RECV_BUF_SIZE> | <MIN_SEND_BUF_SIZE>
+//                  <MIN_RECV_BUF_SIZE> | <SEND_TIMEOUT> | <RECV_TIMEOUT>
+//                  <DEBUG> | <ALLOW_BROADCASTING> | <REUSE_ADDR> |
+//                  <KEEP_ALIVE> | <BYPASS_ROUTING> |
+//                  <LEAVE_OUT_OF_BAND_DATA_INLINE> | LINGER
+//
+// <ELEMENT>    ::= <SPEC><VALUE> | <SPEC><BOOLEAN> | <SPEC><LINGER>
+//
+// <SPEC>       ::= 'A'              // <SEND_BUF_SIZE>
+//                | 'B'              // <RECV_BUF_SIZE>
+//                | 'C'              // <MIN_SEND_BUF_SIZE>
+//                | 'D'              // <MIN_RECV_BUF_SIZE>
+//                | 'E'              // <SEND_TIMEOUT>
+//                | 'F'              // <RECV_TIMEOUT>
+//                | 'G'              // <DEBUG>
+//                | 'H'              // <ALLOW_BROADCASTING>
+//                | 'I'              // <REUSE_ADDR>
+//                | 'J'              // <KEEP_ALIVE>
+//                | 'K'              // <BYPASS_ROUTING>
+//                | 'L'              // <LEAVE_OUT_OF_BAND_INLINE>
+//                | 'M'              // <LINGER>
+//
+// <VALUE>      ::= '0' | '1' | '2'
+// <BOOLEAN>    ::= 'Y' | 'N'
+// <LINGER>     ::= <BOOLEAN><VALUE>
+//
+//-----------------------------------------------------------------------------
+
+int TIMEOUTS[] = { 0, 1, 2 };
+int DATA[] = { 16, 64, 128 };
+int SIZES[] = { 1024, 2048, 4096 };
+
+int setOption(SocketOptions *options, const char *specString)
+    // Set the spec.  Return the number of characters read.
+{
+    const char spec  = *specString;
+    const char value = *(specString + 1);
+    int        numRead = 2;
+    switch (spec) {
+      case 'A': {  // SEND_BUF_SIZE
+        LOOP_ASSERT(value, '0' == value || '1' == value || '2' == value);
+        options->setSendBufferSize(SIZES[value - '0']);
+      } break;
+      case 'B': {  // RECV_BUF_SIZE
+        LOOP_ASSERT(value, '0' == value || '1' == value || '2' == value);
+        options->setReceiveBufferSize(SIZES[value - '0']);
+      } break;
+      case 'C': {  // MIN_SEND_BUF_SIZE
+        LOOP_ASSERT(value, '0' == value || '1' == value || '2' == value);
+        options->setMinimumSendBufferSize(SIZES[value - '0']);
+      } break;
+      case 'D': {  // MIN_RECV_BUF_SIZE
+        LOOP_ASSERT(value, '0' == value || '1' == value || '2' == value);
+        options->setMinimumReceiveBufferSize(SIZES[value - '0']);
+      } break;
+      case 'E': {  // SEND_TIMEOUT
+        LOOP_ASSERT(value, '0' == value || '1' == value || '2' == value);
+        options->setSendTimeout(TIMEOUTS[value - '0']);
+      } break;
+      case 'F': {  // RECEIVE_TIMEOUT
+        LOOP_ASSERT(value, '0' == value || '1' == value || '2' == value);
+        options->setReceiveTimeout(TIMEOUTS[value - '0']);
+      } break;
+      case 'G': {  // DEBUG
+        LOOP_ASSERT(value, 'Y' == value || 'N' == value);
+        options->setDebugFlag('Y' == value ? true : false);
+      } break;
+      case 'H': {  // ALLOW BROADCASTING
+        LOOP_ASSERT(value, 'Y' == value || 'N' == value);
+        options->setAllowBroadcasting('Y' == value ? true : false);
+      } break;
+      case 'I': {  // REUSE ADDR
+        LOOP_ASSERT(value, 'Y' == value || 'N' == value);
+        options->setReuseAddress('Y' == value ? true : false);
+      } break;
+      case 'J': {  // KEEP ALIVE
+        LOOP_ASSERT(value, 'Y' == value || 'N' == value);
+        options->setKeepAlive('Y' == value ? true : false);
+      } break;
+      case 'K': {  // BYPASS ROUTING
+        LOOP_ASSERT(value, 'Y' == value || 'N' == value);
+        options->setBypassNormalRouting('Y' == value ? true : false);
+      } break;
+      case 'L': {  // LEAVE_OUT_OF_BAND_DATA_INLINE
+        LOOP_ASSERT(value, 'Y' == value || 'N' == value);
+        options->setLeaveOutOfBandDataInline('Y' == value ? true : false);
+      } break;
+      case 'M': {  // LINGER
+        LOOP_ASSERT(value, 'Y' == value || 'N' == value);
+        LingerOptions linger;
+        linger.setUseLingering('Y' == value ? true : false);
+        const char nextValue = *(specString + 2);
+        LOOP_ASSERT(nextValue, '0' == nextValue
+                    || '1' == nextValue || '2' == nextValue);
+        linger.setTimeout(DATA[nextValue - '0']);
+        options->setLinger(linger);
+        ++numRead;
+      } break;
+      default: {
+        LOOP2_ASSERT(spec, value, 0);
+        return 0;
+      } break;
+    }
+    return numRead;
+}
+
+int ggg(SocketOptions *object, const char *spec)
+    // Configure the specified 'object' according to the specified 'spec',
+    // using only the primary manipulator functions 'setXXX'.  Return the index
+    // of the first invalid character, and a negative value otherwise.  Note
+    // that this function is used to implement 'gg' as well as allow for
+    // verification of syntax error detection.
+{
+    enum { SUCCESS = -1 };
+    while (*spec) {
+        const int numRead = setOption(object, spec);
+        if (!numRead) {
+            return numRead;
+        }
+        spec += numRead;
+   }
+   return SUCCESS;
+}
+
+SocketOptions& gg(SocketOptions *object, const char *spec)
+    // Return, by reference, the specified object with its value adjusted
+    // according to the specified 'spec'.
+{
+    ASSERT(ggg(object, spec) < 0);
+    return *object;
+}
+
+SocketOptions g(const char *spec)
+    // Return, by value, a new object corresponding to the specified 'spec'.
+{
+    SocketOptions object;
+    return gg(&object, spec);
+}
+
+int verify(bteso_SocketHandle::Handle handle,
+           const bteso_SocketOptions& options)
+    // Verify that the socket options on the specified 'handle' match the
+    // specified 'options'.  Return 0 on success and a non-zero value
+    // otherwise.
+{
+    if (!options.debugFlag().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                        &result,
+                                        handle,
+                                        bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        bteso_SocketOptUtil::BTESO_DEBUGINFO);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT((bool) result, options.debugFlag().value(),
+                     (bool) result == options.debugFlag().value());
+    }
+
+    if (!options.allowBroadcasting().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                        &result,
+                                        handle,
+                                        bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        bteso_SocketOptUtil::BTESO_BROADCAST);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT((bool) result, options.allowBroadcasting().value(),
+                     (bool) result == options.allowBroadcasting().value());
+    }
+
+    if (!options.reuseAddress().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                      &result,
+                                      handle,
+                                      bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                      bteso_SocketOptUtil::BTESO_REUSEADDRESS);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+
+        LOOP2_ASSERT((bool) result, options.reuseAddress().value(),
+                     (bool) result == options.reuseAddress().value());
+    }
+
+    if (!options.keepAlive().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                        &result,
+                                        handle,
+                                        bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        bteso_SocketOptUtil::BTESO_KEEPALIVE);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT((bool) result, options.keepAlive().value(),
+                     (bool) result == options.keepAlive().value());
+    }
+
+    if (!options.bypassNormalRouting().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                        &result,
+                                        handle,
+                                        bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        bteso_SocketOptUtil::BTESO_DONTROUTE);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT((bool) result, options.bypassNormalRouting().value(),
+                     (bool) result == options.bypassNormalRouting().value());
+    }
+
+    if (!options.linger().isNull()) {
+        bteso_SocketOptUtil::LingerData lingerData;
+        const int rc = SockOptUtil::getOption(
+                                        &lingerData,
+                                        handle,
+                                        bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        bteso_SocketOptUtil::BTESO_LINGER);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+
+        LOOP2_ASSERT((bool) lingerData.l_onoff,
+                     options.linger().value().useLingering(),
+         (bool) lingerData.l_onoff == options.linger().value().useLingering());
+        LOOP2_ASSERT(lingerData.l_linger, options.linger().value().timeout(),
+                    lingerData.l_linger == options.linger().value().timeout());
+    }
+
+    if (!options.leaveOutOfBandDataInline().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                        &result,
+                                        handle,
+                                        bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        bteso_SocketOptUtil::BTESO_OOBINLINE);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT((bool) result, options.leaveOutOfBandDataInline().value(),
+                  (bool) result == options.leaveOutOfBandDataInline().value());
+    }
+
+    if (!options.sendBufferSize().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                        &result,
+                                        handle,
+                                        bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        bteso_SocketOptUtil::BTESO_SENDBUFFER);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT(result, options.sendBufferSize().value(),
+                     result >= options.sendBufferSize().value());
+    }
+
+    if (!options.receiveBufferSize().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                     &result,
+                                     handle,
+                                     bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                     bteso_SocketOptUtil::BTESO_RECEIVEBUFFER);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT(result, options.receiveBufferSize().value(),
+                     result >= options.receiveBufferSize().value());
+    }
+
+    if (!options.minimumSendBufferSize().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                       &result,
+                                       handle,
+                                       bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       bteso_SocketOptUtil::BTESO_SENDLOWATER);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT(result, options.minimumSendBufferSize().value(),
+                     result == options.minimumSendBufferSize().value());
+    }
+
+    if (!options.minimumReceiveBufferSize().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                    &result,
+                                    handle,
+                                    bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                    bteso_SocketOptUtil::BTESO_RECEIVELOWATER);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT(result, options.minimumReceiveBufferSize().value(),
+                     result == options.minimumReceiveBufferSize().value());
+    }
+
+    if (!options.sendTimeout().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                       &result,
+                                       handle,
+                                       bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       bteso_SocketOptUtil::BTESO_SENDTIMEOUT);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT(result, options.sendTimeout().value(),
+                     result == options.sendTimeout().value());
+    }
+
+    if (!options.receiveTimeout().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                    &result,
+                                    handle,
+                                    bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                                    bteso_SocketOptUtil::BTESO_RECEIVETIMEOUT);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT(result, options.receiveTimeout().value(),
+                     result == options.receiveTimeout().value());
+    }
+
+    return 0;
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -140,7 +499,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == errorcode);
 
     switch (test) { case 0:  // always the leading case.
-        case 5: {
+        case 6: {
             // ----------------------------------------------------------------
             // TESTING USAGE EXAMPLE
             //   The usage example provided in the component header file must
@@ -223,6 +582,214 @@ int main(int argc, char *argv[])
             #endif
 
         } break;
+        case 5: {
+            // ----------------------------------------------------------------
+            // TESTING int 'setSocketOptions' FUNCTION:
+            //
+            // Plan:
+            //
+            // Testing
+            //   static int setSocketOptions(bteso_SocketHandle::Handle  h,
+            //                               const SocketOptions        *opts);
+            //   static int getSocketOptions(SocketOptions              *opts,
+            //                               bteso_SocketHandle::Handle  h);
+            // ----------------------------------------------------------------
+
+            if (verbose) cout << endl <<
+                        "'setSocketOptions and getSocketOptions' TEST" << endl
+                     << "============================================" << endl;
+
+            // Boolean options
+            {
+                const struct {
+                    int         d_line;
+                    const char *d_spec_p;
+                    int         d_exp;
+                } DATA[] = {
+                  // Line   Spec  Exp
+                  // ----   ----  ---
+                  {   L_,   "GN",         0 },
+
+#ifdef BSLS_PLATFORM__OS_LINUX
+                  {   L_,   "GY",        -1 },
+#else
+                  {   L_,   "GY",         0 },
+#endif
+
+                  {   L_,   "HN",         0 },
+                  {   L_,   "HY",         0 },
+                  {   L_,   "IN",         0 },
+                  {   L_,   "IY",         0 },
+
+#ifndef BSLS_PLATFORM__OS_AIX
+// TBD on AIX setting this option succeeds for BTESO_SOCKET_DATAGRAM
+//                   {   L_,   "JN",        -1 },
+//                   {   L_,   "JY",        -1 },
+// #else
+                  {   L_,   "JN",         0 },
+                  {   L_,   "JY",         0 },
+#endif
+
+                  {   L_,   "KN",         0 },
+                  {   L_,   "KY",         0 },
+
+#ifndef BSLS_PLATFORM__OS_HPUX
+// TBD on HPUX setting this option succeeds for BTESO_SOCKET_DATAGRAM
+//                   {   L_,   "LN",        -1 },
+//                   {   L_,   "LY",        -1 },
+// #else
+                  {   L_,   "LN",         0 },
+                  {   L_,   "LY",         0 },
+#endif
+
+                  {   L_,   "GNHN",       0 },
+                  {   L_,   "GNHYIN",     0 },
+                  {   L_,   "GNHYIYKY",   0 },
+                };
+
+                const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+                bteso_SocketHandle::Handle handles[NUM_DATA];
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const int   LINE = DATA[i].d_line;
+                    const char *SPEC = DATA[i].d_spec_p;
+                    const int   EXP  = DATA[i].d_exp;
+
+                    SocketOptions mX = g(SPEC); const SocketOptions& X = mX;
+                    for (int k = 0; k < 2; ++k) {
+                        bteso_SocketImpUtil::Type type =
+                            k
+                            ? bteso_SocketImpUtil::BTESO_SOCKET_DATAGRAM
+                            : bteso_SocketImpUtil::BTESO_SOCKET_STREAM;
+
+                        if (veryVerbose) {
+                            P_(LINE) P_(SPEC) P_(type) P(X)
+                        }
+
+                        int err = 0;
+                        bteso_SocketImpUtil::open<bteso_IPv4Address>(
+                                                                   &handles[i],
+                                                                   type,
+                                                                   &err);
+                        LOOP_ASSERT(i, 0 == err);
+                        int rc = bteso_SocketOptUtil::setSocketOptions(
+                                                                    handles[i],
+                                                                    X);
+                        LOOP4_ASSERT(LINE, k, EXP, rc, EXP == rc);
+                        if (!EXP) {
+                            LOOP3_ASSERT(LINE, k, X, !verify(handles[i], X));
+                        }
+                    }
+                }
+            }
+
+            // Numerical options
+            {
+                const struct {
+                    int         d_line;
+                    const char *d_spec_p;
+                    int         d_exp;
+                } DATA[] = {
+              // Line   Spec
+              // ----   ----
+              {   L_,   "A0",         0 },
+              {   L_,   "A1",         0 },
+              {   L_,   "A2",         0 },
+
+              {   L_,   "B0",         0 },
+              {   L_,   "B1",         0 },
+              {   L_,   "B2",         0 },
+
+#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX)
+              // Cannot be changed on Linux and not specified on Sun
+
+              {   L_,   "C0",         0 },
+              {   L_,   "C1",         0 },
+              {   L_,   "C2",         0 },
+#else
+              {   L_,   "C0",        -1 },
+              {   L_,   "C1",        -1 },
+              {   L_,   "C2",        -1 },
+#endif
+
+#ifdef BSLS_PLATFORM__OS_SOLARIS
+              {   L_,   "D0",        -1 },
+              {   L_,   "D1",        -1 },
+              {   L_,   "D2",        -1 },
+#else
+              {   L_,   "D0",         0 },
+              {   L_,   "D1",         0 },
+              {   L_,   "D2",         0 },
+#endif
+
+#ifndef BSLS_PLATFORM__OS_HPUX
+// TBD on HPUX setting this option succeeds but the timeout value is not what
+// was specified.
+//               {   L_,   "E0",         0 },
+//               {   L_,   "E1",         0 },
+//               {   L_,   "E2",         0 },
+
+//               {   L_,   "F0",         0 },
+//               {   L_,   "F1",         0 },
+//               {   L_,   "F2",         0 },
+// #else
+              {   L_,   "E0",        -1 },
+              {   L_,   "E1",        -1 },
+              {   L_,   "E2",        -1 },
+
+              {   L_,   "F0",        -1 },
+              {   L_,   "F1",        -1 },
+              {   L_,   "F2",        -1 },
+#endif
+
+#if defined(BSLS_PLATFORM__OS_AIX)
+              // Works only on IBM.  On other platforms although the return
+              // code is 0, the timeout is not set correctly.
+
+              {   L_,   "MN1",       0 },
+#endif
+
+              {   L_,   "MY2",       0 },
+
+              {   L_,   "A1B2MY2",   0 },
+
+                };
+                const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+                bteso_SocketHandle::Handle handles[NUM_DATA];
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const int   LINE = DATA[i].d_line;
+                    const char *SPEC = DATA[i].d_spec_p;
+                    const int   EXP  = DATA[i].d_exp;
+
+                    SocketOptions mX = g(SPEC); const SocketOptions& X = mX;
+                    for (int k = 0; k < 2; ++k) {
+                        bteso_SocketImpUtil::Type type =
+                            k
+                            ? bteso_SocketImpUtil::BTESO_SOCKET_DATAGRAM
+                            : bteso_SocketImpUtil::BTESO_SOCKET_STREAM;
+
+                        if (veryVerbose) {
+                            P_(LINE) P_(SPEC) P_(type) P(X)
+                        }
+
+                        int err = 0;
+                        bteso_SocketImpUtil::open<bteso_IPv4Address>(
+                                                                   &handles[i],
+                                                                   type,
+                                                                   &err);
+                        LOOP_ASSERT(i, 0 == err);
+                        int rc = bteso_SocketOptUtil::setSocketOptions(
+                                                                    handles[i],
+                                                                    X);
+                        LOOP4_ASSERT(LINE, k, EXP, rc, EXP == rc);
+                        if (!EXP) {
+                            LOOP3_ASSERT(LINE, k, X, !verify(handles[i], X));
+                        }
+                    }
+                }
+            }
+        } break;
         case 4: {
             // ----------------------------------------------------------------
             // TESTING int setsockopt FUNCTION:
@@ -269,8 +836,8 @@ int main(int argc, char *argv[])
               //line   type        opt       onVal  offVal   sockLevel
               //----   ----        ---       -----  ------   ---------
             {
-              #if defined(BSLS_PLATFORM__OS_LINUX) 
-              // IP_RECVDSTADDR is not supported on Linux 
+              #if defined(BSLS_PLATFORM__OS_LINUX)
+              // IP_RECVDSTADDR is not supported on Linux
               // IP_PKTINFO does the job
               { L_,     udp,  IP_PKTINFO,       12,      0, IPPROTO_IP }
               #elif defined(BSLS_PLATFORM__OS_CYGWIN) || \
@@ -323,7 +890,7 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(SOCK_OPTS[i].d_lineNum, errno, 0 == result);
                 LOOP_ASSERT(i, 0 == errorcode);
-                if(veryVerbose)
+                if (veryVerbose)
                     cout << "Use system getsockopt() to get opt info."
                          << endl;
                 {

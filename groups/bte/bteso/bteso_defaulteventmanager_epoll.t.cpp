@@ -748,9 +748,9 @@ int main(int argc, char *argv[]) {
                 struct epoll_event events[NUM_PAIRS + 1];
                 int rc = epoll_wait(epollFd, events, NUM_PAIRS + 1, -1);
                 LOOP_ASSERT(i, i + 1 == rc);
-                bsl::set<int> observedFds;
+                bsl::set<intptr_t> observedFds;
                 for (int j = 0; j < rc; ++j) {
-                    int fd = (int) events[j].data.ptr;
+                    intptr_t fd = (intptr_t) events[j].data.ptr;
                     ASSERT(observedFds.end() == observedFds.find(fd));
                     int k;
                     for (k = 0; k <= i; ++k) {
