@@ -6,9 +6,8 @@ BDES_IDENT_RCSID(bdecs_idxclerk_cpp,"$Id$ $CSID$")
 
 #include <bdeu_print.h>
 
-#include <bslma_deallocatorguard.h>
-#include <bslma_default.h>
-#include <bslma_testallocator.h>
+#include <bslma_default.h>        // for testing only
+#include <bslma_testallocator.h>  // for testing only
 #include <bsls_performancehint.h>
 
 #include <bsl_ostream.h>
