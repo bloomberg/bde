@@ -368,7 +368,7 @@ void outerP(const char *leader, const Obj &X)
      template <typename TYPE>
      NullableVector<TYPE>::~NullableVector()
      {
-         BSLS_ASSERT(d_values.size() == d_nullFlags.length());
+         BSLS_ASSERT((int) d_values.size() == d_nullFlags.length());
      }
 
      // MANIPULATORS
@@ -6255,7 +6255,7 @@ int main(int argc, char *argv[])
 
                         const Obj VV = g(V_SPEC);               // control
 
-                        if (0 == uj && veryVerbose || veryVeryVerbose) {
+                        if ((0 == uj && veryVerbose) || veryVeryVerbose) {
                             cout << "\t\t\tFor destination objects of length "
                                                         << vLen << ":\t";
                             P(V_SPEC);
@@ -6278,7 +6278,8 @@ int main(int argc, char *argv[])
                             const Obj& V = mV;      gg(&mV, V_SPEC);
 
                             static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
-                            if (veryVeryVerbose||veryVerbose && firstFew > 0) {
+                            if (veryVeryVerbose ||
+                                               (veryVerbose && firstFew > 0)) {
                                 cout << "\t |"; P_(U_N); P_(V_N); P_(U); P(V);
                                 --firstFew;
                             }
@@ -6825,7 +6826,8 @@ int main(int argc, char *argv[])
                             const Obj& V = mV; gg(&mV, V_SPEC);
 
                             static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
-                            if (veryVeryVerbose||veryVerbose && firstFew > 0) {
+                            if (veryVeryVerbose ||
+                                               (veryVerbose && firstFew > 0)) {
                                 cout << "\t| "; P_(U_N); P_(V_N); P_(U); P(V);
                                 --firstFew;
                             }
@@ -7336,7 +7338,7 @@ int main(int argc, char *argv[])
                         const Obj& V = mV;       gg(&mV, SPEC);
 
                         static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
-                        if (veryVeryVerbose || veryVerbose && firstFew > 0) {
+                        if (veryVeryVerbose || (veryVerbose && firstFew > 0)) {
                             cout << "\t| "; P_(U_N); P_(V_N); P_(U); P(V);
                             --firstFew;
                         }
@@ -8587,7 +8589,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb) Try equality operators: x1 <op> x1." << endl;
-        ASSERT(X1 == X1 == 1);          ASSERT(X1 != X1 == 0);
+        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 2) Create a second object x2 (copy from x1)."
@@ -8601,8 +8603,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2." << endl;
-        ASSERT(X2 == X1 == 1);          ASSERT(X2 != X1 == 0);
-        ASSERT(X2 == X2 == 1);          ASSERT(X2 != X2 == 0);
+        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 3) Append an element value 0 to x1)."
@@ -8617,8 +8619,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb) Try equality operators: x1 <op> x1, x2." << endl;
-        ASSERT(X1 == X1 == 1);          ASSERT(X1 != X1 == 0);
-        ASSERT(X1 == X2 == 0);          ASSERT(X1 != X2 == 1);
+        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
+        ASSERT((X1 == X2) == 0);          ASSERT((X1 != X2) == 1);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 4) Append the same element value 0 to x2)."
@@ -8633,8 +8635,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2." << endl;
-        ASSERT(X2 == X1 == 1);          ASSERT(X2 != X1 == 0);
-        ASSERT(X2 == X2 == 1);          ASSERT(X2 != X2 == 0);
+        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 5) Append another element value 1 to x2)."
@@ -8650,8 +8652,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2." << endl;
-        ASSERT(X2 == X1 == 0);          ASSERT(X2 != X1 == 1);
-        ASSERT(X2 == X2 == 1);          ASSERT(X2 != X2 == 0);
+        ASSERT((X2 == X1) == 0);          ASSERT((X2 != X1) == 1);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 6) Remove all elements from x1."
@@ -8665,8 +8667,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb) Try equality operators: x1 <op> x1, x2." << endl;
-        ASSERT(X1 == X1 == 1);          ASSERT(X1 != X1 == 0);
-        ASSERT(X1 == X2 == 0);          ASSERT(X1 != X2 == 1);
+        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
+        ASSERT((X1 == X2) == 0);          ASSERT((X1 != X2) == 1);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 7) Create a third object x3 (default ctor)."
@@ -8681,9 +8683,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb) Try equality operators: x3 <op> x1, x2, x3." << endl;
-        ASSERT(X3 == X1 == 1);          ASSERT(X3 != X1 == 0);
-        ASSERT(X3 == X2 == 0);          ASSERT(X3 != X2 == 1);
-        ASSERT(X3 == X3 == 1);          ASSERT(X3 != X3 == 0);
+        ASSERT((X3 == X1) == 1);          ASSERT((X3 != X1) == 0);
+        ASSERT((X3 == X2) == 0);          ASSERT((X3 != X2) == 1);
+        ASSERT((X3 == X3) == 1);          ASSERT((X3 != X3) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 8) Create a fourth object x4 (copy of x2)."
@@ -8701,10 +8703,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb) Try equality operators: x4 <op> x1, x2, x3, x4." << endl;
-        ASSERT(X4 == X1 == 0);          ASSERT(X4 != X1 == 1);
-        ASSERT(X4 == X2 == 1);          ASSERT(X4 != X2 == 0);
-        ASSERT(X4 == X3 == 0);          ASSERT(X4 != X3 == 1);
-        ASSERT(X4 == X4 == 1);          ASSERT(X4 != X4 == 0);
+        ASSERT((X4 == X1) == 0);          ASSERT((X4 != X1) == 1);
+        ASSERT((X4 == X2) == 1);          ASSERT((X4 != X2) == 0);
+        ASSERT((X4 == X3) == 0);          ASSERT((X4 != X3) == 1);
+        ASSERT((X4 == X4) == 1);          ASSERT((X4 != X4) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 9) Assign x2 = x1 (non-empty becomes empty)."
@@ -8719,10 +8721,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2, x3, x4." << endl;
-        ASSERT(X2 == X1 == 1);          ASSERT(X2 != X1 == 0);
-        ASSERT(X2 == X2 == 1);          ASSERT(X2 != X2 == 0);
-        ASSERT(X2 == X3 == 1);          ASSERT(X2 != X3 == 0);
-        ASSERT(X2 == X4 == 0);          ASSERT(X2 != X4 == 1);
+        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
+        ASSERT((X2 == X3) == 1);          ASSERT((X2 != X3) == 0);
+        ASSERT((X2 == X4) == 0);          ASSERT((X2 != X4) == 1);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n10) Assign x3 = x4 (empty becomes non-empty)."
@@ -8739,10 +8741,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb) Try equality operators: x3 <op> x1, x2, x3, x4." << endl;
-        ASSERT(X3 == X1 == 0);          ASSERT(X3 != X1 == 1);
-        ASSERT(X3 == X2 == 0);          ASSERT(X3 != X2 == 1);
-        ASSERT(X3 == X3 == 1);          ASSERT(X3 != X3 == 0);
-        ASSERT(X3 == X4 == 1);          ASSERT(X3 != X4 == 0);
+        ASSERT((X3 == X1) == 0);          ASSERT((X3 != X1) == 1);
+        ASSERT((X3 == X2) == 0);          ASSERT((X3 != X2) == 1);
+        ASSERT((X3 == X3) == 1);          ASSERT((X3 != X3) == 0);
+        ASSERT((X3 == X4) == 1);          ASSERT((X3 != X4) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n11) Assign x4 = x4 (aliasing)."
@@ -8759,11 +8761,73 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\tb) Try equality operators: x4 <op> x1, x2, x3, x4." << endl;
-        ASSERT(X4 == X1 == 0);          ASSERT(X4 != X1 == 1);
-        ASSERT(X4 == X2 == 0);          ASSERT(X4 != X2 == 1);
-        ASSERT(X4 == X3 == 1);          ASSERT(X4 != X3 == 0);
-        ASSERT(X4 == X4 == 1);          ASSERT(X4 != X4 == 0);
+        ASSERT((X4 == X1) == 0);          ASSERT((X4 != X1) == 1);
+        ASSERT((X4 == X2) == 0);          ASSERT((X4 != X2) == 1);
+        ASSERT((X4 == X3) == 1);          ASSERT((X4 != X3) == 0);
+        ASSERT((X4 == X4) == 1);          ASSERT((X4 != X4) == 0);
 
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout <<
+                "\n 1) Create an object X5 (default ctor, default allocator)."
+                                                       "\t\t\t{ X5: }" << endl;
+        {
+            bslma_TestAllocator ga(veryVeryVerbose);
+            bslma_DefaultAllocatorGuard dag(&ga);
+            Obj mX5;  const Obj& X5 = mX5;
+            if (verbose) { cout << '\t';  P(X5); }
+
+            if (verbose) cout << "\ta) Check initial state of X5." << endl;
+            ASSERT(0 == X5.length());
+
+            if (verbose) cout <<
+                            "\tb) Try equality operators: X5 <op> X5." << endl;
+            ASSERT((X5 == X5) == 1);          ASSERT((X5 != X5) == 0);
+
+            mX5.append(0);
+            if (verbose) { cout << '\t';  P(X5); }
+
+            ASSERT(ga.numBytesInUse() > 0);
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout <<
+                "\n 1) Create an object X6 with ctor(int, bool, ...\n"
+                                                       "\t\t\t{ X6: }" << endl;
+        {
+            Obj mX6(8, false, &testAllocator);  const Obj& X6 = mX6;
+            if (verbose) { cout << '\t';  P(X6); }
+
+            if (verbose) cout << "\ta) Check initial state of X6." << endl;
+            ASSERT(8 == X6.length());
+
+            if (verbose) cout <<
+                            "\tb) Try equality operators: X6 <op> X6." << endl;
+            ASSERT((X6 == X6) == 1);        ASSERT((X6 != X6) == 0);
+
+            ASSERT(X6.length() == 8);
+            ASSERT(false == X6[0]);         ASSERT(false == X6[4]);
+            ASSERT(false == X6[5]);         ASSERT(false == X6[7]);
+        }
+        {
+            bslma_TestAllocator ga(veryVeryVerbose);
+            bslma_DefaultAllocatorGuard dag(&ga);
+            // Obj mX6(8, 0);  const Obj& X6 = mX6; <-- note: causes error
+            Obj mX6(8, false);  const Obj& X6 = mX6;
+            if (verbose) { cout << '\t';  P(X6); }
+
+            ASSERT(ga.numBytesInUse() > 0);
+
+            if (verbose) cout << "\ta) Check initial state of X6." << endl;
+            ASSERT(8 == X6.length());
+
+            if (verbose) cout <<
+                            "\tb) Try equality operators: X6 <op> X6." << endl;
+            ASSERT((X6 == X6) == 1);        ASSERT((X6 != X6) == 0);
+
+            ASSERT(X6.length() == 8);
+            ASSERT(false == X6[0]);         ASSERT(false == X6[4]);
+            ASSERT(false == X6[5]);         ASSERT(false == X6[7]);
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
