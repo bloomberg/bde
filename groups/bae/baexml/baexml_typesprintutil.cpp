@@ -874,11 +874,22 @@ baexml_TypesPrintUtil_Imp::printDecimal(bsl::ostream&                stream,
         printDecimalImpl(stream, object, DBL_DIG);
     }
     else {
+        const int maxTotalDigits =
+                                 options->maxDecimalTotalDigits().isNull()
+                                 ? DBL_DIG + 1
+                                 : options->maxDecimalTotalDigits().value();
+
+        const int maxFractionDigits =
+                                 options->maxDecimalFractionDigits().isNull()
+                                 ? DBL_DIG
+                                 : options->maxDecimalFractionDigits().value();
+
         printDecimalWithOptions(stream,
                                 object,
-                                options->maxDecimalTotalDigits().value(),
-                                options->maxDecimalFractionDigits().value());
+                                maxTotalDigits,
+                                maxFractionDigits);
     }
+
     return stream;
 }
 
