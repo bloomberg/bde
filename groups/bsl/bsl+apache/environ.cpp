@@ -42,7 +42,8 @@ extern "C" {
 // char** environ;
 
 #ifndef BSLS_PLATFORM__OS_AIX
-#ifndef _RWSTD_NO_PUTENV_CONST_CHAR
+#if !defined(_RWSTD_NO_PUTENV_CONST_CHAR) \
+ || (defined(BSLS_PLATFORM__OS_HPUX) && defined(BSLS_PLATFORM__CMP_GNU))
 
 _RWSTD_DLLIMPORT int putenv (const char*) _LIBC_THROWS ();
 
