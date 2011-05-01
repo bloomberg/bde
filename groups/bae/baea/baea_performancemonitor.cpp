@@ -76,11 +76,11 @@ const char LOG_CATEGORY[] = "BAEA.PERFORMANCEMONITOR";
 enum { INVALID_TIMER_HANDLE = -1 }; // invalid timer event scheduler handle
 
 struct MeasureData {
-    int id;
+    int         id;
     const char *tag;
     const char *name;
     const char *units;
-    bool hasAverage;
+    bool        hasAverage;
 };
 
 MeasureData s_measureData[PM::BAEA_NUM_MEASURES] = {
@@ -99,9 +99,11 @@ MeasureData s_measureData[PM::BAEA_NUM_MEASURES] = {
   { PM::BAEA_RESIDENT_SIZE,
             "RESIDENT_SIZE",   "Resident Size",   "Mb", true  },
   { PM::BAEA_NUM_THREADS,
-            "NUM_THREADS",     "Thread Count",    "  ", true  },
+            "NUM_THREADS",     "Thread Count",    "  ", true  }, 
   { PM::BAEA_NUM_PAGEFAULTS,
             "NUM_PAGEFAULTS",  "Page Faults",     "  ", false },
+  { PM::BAEA_VIRTUAL_SIZE,
+            "VIRTUAL_SIZE",    "Virtual Size",    "Mb", true  }
 };
 
 bool nearlyEqual(double lhs, double rhs)
@@ -355,6 +357,9 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
                                     * pageSize
                                     / (1024 * 1024);
 
+    stats->d_lstData[BAEA_VIRTUAL_SIZE] = (double) procStats.d_vsize
+                                    / (1024 * 1024);
+
     double cpuTimeU = (double) procStats.d_utime / clockTicksPerSec;
     double cpuTimeS = (double) procStats.d_stime / clockTicksPerSec;
 
@@ -539,22 +544,6 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::readProcStat(
     ss >> sep;
     ss >> stats->d_sysTimeMSecs;
 
-#if 0
-    bsl::cout << "comm " << stats->d_comm << ", "
-           << "d_pid " << stats->d_pid << ", "
-           << "d_ppid " << stats->d_ppid << ", "
-           << "d_pgid " << stats->d_pgid << ", "
-           << "d_session " << stats->d_session << ", "
-           << "d_terminal " << stats->d_terminal << ", "
-           << "d_flags " << stats->d_flags << ", "
-           << "d_processStartSecs " << stats->d_processStartSecs << ", "
-           << "d_processStartMSecs " << stats->d_processStartMSecs << ", "
-           << "d_userTimeSecs " << stats->d_userTimeSecs << ", "
-           << "d_userTimeMSecs " << stats->d_userTimeMSecs << ", "
-           << "d_sysTimeSecs " << stats->d_sysTimeSecs << ", "
-           << "d_sysTimeMSecs " << stats->d_sysTimeMSecs << ", "
-           << bsl::endl;
-#endif
     return 0;
 }
 
@@ -616,6 +605,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::collect(
     stats->d_lstData[BAEA_NUM_THREADS]   = 0;
 
     stats->d_lstData[BAEA_RESIDENT_SIZE] = 0;
+    stats->d_lstData[BAEA_VIRTUAL_SIZE]  = 0;
 
     double cpuTimeU = (double) procStats.d_userTimeSecs +
                       (double) procStats.d_userTimeMSecs / (double) 1000000;
@@ -740,8 +730,8 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::initialize(
                        << BAEL_LOG_END;
         return -1;
     }
-    psinfo_t psinfo;
-    if (sizeof(psinfo) != read(fd, &psinfo, sizeof(psinfo))) {
+    psinfo_t info;
+    if (sizeof info != read(fd, &info, sizeof info)) {
         BAEL_LOG_DEBUG << "Failed to read /proc filesystem for pid "
                        << stats->d_pid
                        << " (" << stats->d_description << ")"
@@ -749,13 +739,13 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::initialize(
         return -1;
     }
 
-    stats->d_startTime = bdet_TimeInterval(psinfo.pr_start.tv_sec,
-                                           psinfo.pr_start.tv_nsec);
+    stats->d_startTime = bdet_TimeInterval(info.pr_start.tv_sec,
+                                           info.pr_start.tv_nsec);
 
     close(fd);
 #else
-    pst_status psinfo;
-    int rc = pstat_getproc(&psinfo, sizeof psinfo, 0, stats->d_pid);
+    pst_status status;
+    int rc = pstat_getproc(&status, sizeof status, 0, stats->d_pid);
     if (-1 == rc)
     {
         BAEL_LOG_DEBUG << "Failed to read /proc filesystem for pid "
@@ -764,8 +754,9 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::initialize(
                        << BAEL_LOG_END;
         return -1;
     }
+
     // TBD only seconds on HPUX??
-    stats->d_startTime = bdet_TimeInterval(psinfo.pst_start,
+    stats->d_startTime = bdet_TimeInterval(status.pst_start,
                                            0);
 #endif
 
@@ -805,8 +796,8 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
         return -1;
     }
 
-    psinfo_t psinfo;
-    if (sizeof(psinfo) != read(fd, &psinfo, sizeof(psinfo))) {
+    psinfo_t info;
+    if (sizeof info != read(fd, &info, sizeof info)) {
         BAEL_LOG_DEBUG << "Failed to read /proc filesystem for pid "
                        << stats->d_pid
                        << " (" << stats->d_description << ")"
@@ -814,10 +805,10 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
         return -1;
     }
 
-    numThreads = psinfo.pr_nlwp;
+    numThreads = info.pr_nlwp;
 
     stats->d_lstData[BAEA_NUM_THREADS]   = (double) numThreads;
-    stats->d_lstData[BAEA_RESIDENT_SIZE] = (double) psinfo.pr_rssize // in Kb
+    stats->d_lstData[BAEA_RESIDENT_SIZE] = (double) info.pr_rssize // in Kb
                                            / 1024;
 
     close(fd);
@@ -834,8 +825,8 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
         return -1;
     }
 
-    pstatus_t prstatus;
-    if (sizeof(prstatus) != read(fd, &prstatus, sizeof(prstatus))) {
+    pstatus_t status;
+    if (sizeof status != read(fd, &status, sizeof status)) {
         BAEL_LOG_DEBUG << "Failed to read /proc filesystem for pid "
                        << stats->d_pid
                        << " (" << stats->d_description << ")"
@@ -843,37 +834,103 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
         return -1;
     }
 
-    cpuTimeU = bdet_TimeInterval((double)prstatus.pr_utime.tv_sec,
-                                        (double)prstatus.pr_utime.tv_nsec).
+    stats->d_lstData[BAEA_VIRTUAL_SIZE]  = (double) status.pr_brksize
+                                         / (1024 * 1024);
+
+    cpuTimeU = bdet_TimeInterval((double)status.pr_utime.tv_sec,
+                                 (double)status.pr_utime.tv_nsec).
                                                         totalSecondsAsDouble();
 
-    cpuTimeS = bdet_TimeInterval((double)prstatus.pr_stime.tv_sec,
-                                        (double)prstatus.pr_stime.tv_nsec).
+    cpuTimeS = bdet_TimeInterval((double)status.pr_stime.tv_sec,
+                                 (double)status.pr_stime.tv_nsec).
                                                         totalSecondsAsDouble();
 
     close(fd);
 #else
-    pst_status psinfo;
-    int rc = pstat_getproc(&psinfo, sizeof psinfo, 0, stats->d_pid);
-    if (-1 == rc)
-    {
-        BAEL_LOG_DEBUG << "Failed to read /proc filesystem for pid "
+    int rc;
+
+    struct pst_static pstatic;
+    rc = pstat_getstatic(&pstatic, sizeof pstatic, 1, 0);
+    if (-1 == rc) {
+        BAEL_LOG_DEBUG << "Failed to call 'pstat_getstatic' for pid "
                        << stats->d_pid
                        << " (" << stats->d_description << ")"
                        << BAEL_LOG_END;
         return -1;
     }
-    numThreads = psinfo.pst_nlwps;
+
+    pst_status status;
+    rc = pstat_getproc(&status, sizeof status, 0, stats->d_pid);
+    if (-1 == rc)
+    {
+        BAEL_LOG_DEBUG << "Failed to call 'pstat_getproc' for pid "
+                       << stats->d_pid
+                       << " (" << stats->d_description << ")"
+                       << BAEL_LOG_END;
+        return -1;
+    }
+    numThreads = status.pst_nlwps;
 
     stats->d_lstData[BAEA_NUM_THREADS]   = (double) numThreads;
-    stats->d_lstData[BAEA_RESIDENT_SIZE] = (double) psinfo.pst_rssize // in Kb
-                                           / 1024;
+    stats->d_lstData[BAEA_RESIDENT_SIZE] = (double) status.pst_rssize
+                                           * pstatic.page_size
+                                           / (1024 * 1024);
+
+#if defined(BAEA_PERFORMANCE_MONITOR_DEBUG)
+    BAEL_LOG_TRACE<< "\nreal data                  = " 
+                  << (double) (status.pst_dsize    * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nreal text                  = " 
+                  << (double) (status.pst_tsize    * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nreal stack                 = " 
+                  << (double)(status.pst_ssize     * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nreal shared memory         = " 
+                  << (double)(status.pst_shmsize   * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nreal memory mapped files   = "
+                  << (double)(status.pst_mmsize    * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nreal U-area                = " 
+                  << (double)(status.pst_usize     * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nreal device mapping        = "
+                  << (double)(status.pst_iosize    * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nvirt data                  = " 
+                  << (double)(status.pst_vdsize    * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nvirt text                  = " 
+                  << (double)(status.pst_vtsize    * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nvirt stack                 = " 
+                  << (double)(status.pst_vssize    * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nvirt shared memory         = " 
+                  << (double)(status.pst_vshmsize  * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nvirt memory mapped files   = " 
+                  << (double)(status.pst_vmmsize   * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nvirt U-area                = "
+                  << (double)(status.pst_vusize    * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << "\nvirt device mapping        = "
+                  << (double)(status.pst_viosize   * pstatic.page_size)
+                                                        / (1024 * 1024)
+                  << BAEL_LOG_END;
+#endif
+
+    stats->d_lstData[BAEA_VIRTUAL_SIZE]  = ((double) status.pst_vdsize
+                                           * pstatic.page_size)
+                                           / (1024 * 1024);
 
     // TBD -- only seconds resolution??
-    cpuTimeU = bdet_TimeInterval((double)psinfo.pst_utime, 0).
+    cpuTimeU = bdet_TimeInterval((double)status.pst_utime, 0).
                                                         totalSecondsAsDouble();
 
-    cpuTimeS = bdet_TimeInterval((double)psinfo.pst_stime, 0).
+    cpuTimeS = bdet_TimeInterval((double)status.pst_stime, 0).
                                                         totalSecondsAsDouble();
 #endif
 
@@ -960,6 +1017,7 @@ struct baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows> {
         USER_PROCESSOR_TIME,
         THREAD_COUNT,
         WORKING_SET,
+        VIRTUAL_SIZE,
         PAGEFAULTS_PER_SEC,
         ELAPSED_TIME,
         COUNTER_MAX
@@ -1148,6 +1206,7 @@ baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::rebindCounters(
         { 0, "Process", (char*) name, 0, instanceIndex, "% User Time"      },
         { 0, "Process", (char*) name, 0, instanceIndex, "Thread Count"     },
         { 0, "Process", (char*) name, 0, instanceIndex, "Working Set"      },
+        { 0, "Process", (char*) name, 0, instanceIndex, "Virtual Bytes"    },
         { 0, "Process", (char*) name, 0, instanceIndex, "Page Faults/sec"  },
         { 0, "Process", (char*) name, 0, instanceIndex, "Elapsed Time"     }
     };
@@ -1321,6 +1380,9 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows>::collect(
     stats->d_lstData[BAEA_NUM_THREADS]     = values[THREAD_COUNT].doubleValue;
 
     stats->d_lstData[BAEA_RESIDENT_SIZE]   = values[WORKING_SET].doubleValue
+                                             / (1024 * 1024);
+
+    stats->d_lstData[BAEA_VIRTUAL_SIZE]    = values[VIRTUAL_SIZE].doubleValue
                                              / (1024 * 1024);
 
     FILETIME creationFileTime, exitFileTime, kernelFileTime, userFileTime;

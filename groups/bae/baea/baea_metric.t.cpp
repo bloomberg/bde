@@ -11,6 +11,7 @@
 #include <bsl_sstream.h>
 
 #include <bsls_assert.h>
+#include <bsls_protocoltest.h>
 
 using namespace BloombergLP;
 
@@ -88,100 +89,14 @@ double dummyCallback(const bsl::string &value)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-class TestMetricReporter : public baea_MetricReporter {
-    // This component defines the base-level protocol for metric reporting;
-    // concrete types derived from this protocol gather and optionally publish
-    // metric.
-
-    int *d_funcCode_p;    // held
-
-  private:
-    TestMetricReporter(const TestMetricReporter&);
-    TestMetricReporter& operator=(TestMetricReporter&);
-
-  public:
-    // CREATORS
-    TestMetricReporter(int *funcCode);
-
-    virtual ~TestMetricReporter();
-        // Destroy this metric reporter.
-
-    // MANIPULATORS
-    virtual int registerMetric(const baea_Metric& information);
-        // Register the specify 'information' for gathering and reporting and
-        // return 0 on success, or return a non-zero value if a metric with the
-        // same name and category has already been registered.
-
-    virtual int setMetricCb(const char     *name,
-                            const char     *category,
-                            const MetricCb& metricCb);
-        // Set the callback to be called upon update of the metric registered
-        // in this reporter for the specified 'name' and 'category'.  Return 0
-        // on success, a non-zero value of no metric was previously registered
-        // for the 'name' and 'category'.
-
-    virtual baea_Metric *lookupMetric(const char *name,
-                                      const char *category);
-        // Return a pointer to the metric information object associated with
-        // the specified by 'name' and 'category', or a null pointer if no
-        // metric information is found.
-
-    // ACCESSORS
-    virtual bool isRegistered(const char *name, const char *category) const;
-        // Return true if a metric has already been registered with this
-        // reporter for the specified 'name' and 'category'.
-
-    virtual void printMetrics(bsl::ostream& stream) const;
-        // Print the metric information for all registered metrics to the
-        // specified 'stream'.
+struct MetricReporterTest : bsls_ProtocolTest<baea_MetricReporter> {
+    int registerMetric(const baea_Metric&)                   { return exit(); }
+    int setMetricCb(const char *, const char *, const MetricCb&)
+                                                             { return exit(); }
+    baea_Metric *lookupMetric(const char *, const char *)    { return exit(); }
+    bool isRegistered(const char *, const char *) const      { return exit(); }
+    void printMetrics(bsl::ostream&) const                          { exit(); }
 };
-
-TestMetricReporter::TestMetricReporter(int *funcCode)
-: d_funcCode_p(funcCode)
-{
-    BSLS_ASSERT(d_funcCode_p);
-
-    *d_funcCode_p = 0;
-}
-
-TestMetricReporter::~TestMetricReporter()
-{
-    *d_funcCode_p = 6;
-}
-
-int TestMetricReporter::registerMetric(const baea_Metric&)
-{
-    *d_funcCode_p = 1;
-    return 0;
-}
-
-
-int TestMetricReporter::setMetricCb(const char     *name,
-                                    const char     *category,
-                                    const MetricCb& metricCb)
-{
-    *d_funcCode_p = 2;
-    return 0;
-}
-
-baea_Metric *TestMetricReporter::lookupMetric(const char *name,
-                                              const char *category)
-{
-    *d_funcCode_p = 3;
-    return 0;
-}
-
-bool
-TestMetricReporter::isRegistered(const char *name, const char *category) const
-{
-    *d_funcCode_p = 4;
-    return true;
-}
-
-void TestMetricReporter::printMetrics(bsl::ostream& stream) const
-{
-    *d_funcCode_p = 5;
-}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -246,37 +161,34 @@ int main(int argc, char *argv[])
 
       } break;
       case 2: {
+        // --------------------------------------------------------------------
         // PROTOCOL TEST
         //
+        // Concerns:
+        //   'baea_MetricReporter' defines a proper protocol class.
+        //
+        // Plan:
+        //   Use 'bsls_ProtocolTest' to verify general protocol class concerns
+        //   for 'baea_MetricReporter' as well as each of its methods.
+        //
+        // Testing:
+        //   class baea_MetricReporter
+        // --------------------------------------------------------------------
 
-        baea_Metric        info;
-        baea_MetricReporter::MetricCb metricCb;
+        bsls_ProtocolTestDriver<MetricReporterTest> t;
 
-        int code = -1;
-        {
-            ASSERT(-1 == code);
-            TestMetricReporter   testReporter(&code);
-            baea_MetricReporter *reporter = &testReporter;
+        ASSERT(t.testAbstract());
+        ASSERT(t.testNoDataMembers());
+        ASSERT(t.testVirtualDestructor());
 
-            ASSERT(0 == code);
+        BSLS_PROTOCOLTEST_ASSERT(t, registerMetric(baea_Metric()));
+        BSLS_PROTOCOLTEST_ASSERT(t,
+                           setMetricCb(0, 0, baea_MetricReporter::MetricCb()));
+        BSLS_PROTOCOLTEST_ASSERT(t, lookupMetric(0, 0));
+        BSLS_PROTOCOLTEST_ASSERT(t, isRegistered(0, 0));
+        BSLS_PROTOCOLTEST_ASSERT(t, printMetrics(cout));
 
-            reporter->registerMetric(info);
-            ASSERT(1 == code);
-
-            reporter->setMetricCb("foo", "bar", metricCb);
-            ASSERT(2 == code);
-
-            reporter->lookupMetric("foo", "bar");
-            ASSERT(3 == code);
-
-            reporter->isRegistered("foo", "bar");
-            ASSERT(4 == code);
-
-            reporter->printMetrics(bsl::cout);
-            ASSERT(5 == code);
-        }
-        ASSERT(6 == code);
-
+        testStatus = t.failures();
       } break;
       case 1: {
         // --------------------------------------------------------------------

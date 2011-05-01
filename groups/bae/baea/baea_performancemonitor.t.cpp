@@ -1,4 +1,4 @@
-// baea_performancemonitor.t.cpp -*-C++-*-
+// baea_performancemonitor.t.cpp                                      -*-C++-*-
 
 #include <baea_performancemonitor.h>
 
@@ -8,16 +8,23 @@
 #include <bael_loggermanagerconfiguration.h>
 #include <bael_severity.h>
 
-#include <bslma_newdeleteallocator.h>
-
 #include <bcema_testallocator.h>
 #include <bcemt_thread.h>
 
+#include <bslma_newdeleteallocator.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
+
+#include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_stdexcept.h>
+
+#if defined(BSLS_PLATFORM__OS_UNIX)
+#include <sys/mman.h>
+#endif
 
 using namespace BloombergLP;
 
@@ -123,10 +130,153 @@ const char LOG_CATEGORY[] = "BAEA.PERFORMANCEMONITOR.TEST";
                                        bael_Severity::BAEL_OFF,\
                                        bael_Severity::BAEL_OFF)
 
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
+
+#ifndef BSLS_PLATFORM__OS_WINDOWS
+namespace test {
+
+class MmapAllocator : public bslma_Allocator {
+
+    typedef bsl::map<void*, std::size_t> MapType;
+
+    MapType          d_map;
+    bslma_Allocator *d_allocator_p;
+
+  public:
+    MmapAllocator(bslma_Allocator *basicAllocator = 0)
+    : d_map(basicAllocator)
+    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    {
+    }
+
+    virtual void *allocate(size_type size)
+    {
+#if defined(BSLS_PLATFORM__OS_SOLARIS)
+        // Run 'pmap -xs <pid>' to see a tabular description of the memory
+        // layout of a process.
+
+        void *result = mmap(0,
+                            size,
+                            PROT_READ | PROT_WRITE,
+                            MAP_ANON | MAP_PRIVATE,
+                            -1,
+                            0);
+
+        BSLS_ASSERT(reinterpret_cast<void*>(-1) != result);
+
+        d_map.insert(bsl::make_pair(result, size));
+
+        return result;
+
+#elif defined(BSLS_PLATFORM__OS_AIX)
+
+        void *result = mmap(0,
+                            size,
+                            PROT_READ | PROT_WRITE,
+                            MAP_ANON | MAP_PRIVATE,
+                            -1,
+                            0);
+
+        BSLS_ASSERT(reinterpret_cast<void*>(-1) != result);
+
+        d_map.insert(bsl::make_pair(result, size));
+
+        return result;
+
+#elif defined(BSLS_PLATFORM__OS_HPUX)
+
+        void *result = mmap(0,
+                            size,
+                            PROT_READ | PROT_WRITE,
+                            MAP_ANONYMOUS | MAP_PRIVATE,
+                            -1,
+                            0);
+
+        BSLS_ASSERT(reinterpret_cast<void*>(-1) != result);
+
+        d_map.insert(bsl::make_pair(result, size));
+
+        return result;
+
+#elif defined(BSLS_PLATFORM__OS_LINUX)
+        return d_allocator_p->allocate(size);
+#else
+#error Not implemented.
+#endif
+    }
+
+    virtual void deallocate(void *address)
+    {
+#if defined(BSLS_PLATFORM__OS_LINUX)
+        d_allocator_p->deallocate(address);
+#else
+        MapType::iterator it = d_map.find(address);
+        BSLS_ASSERT(it != d_map.end());
+
+        std::size_t size = it->second;
+
+        int rc = munmap(static_cast<char*>(address), size);
+        BSLS_ASSERT(-1 != rc);
+#endif
+    }
+};
+
+}  // close namespace test
+
+void report(int               bufferSize,
+            bsls_Types::Int64 currentBytesInUse,
+            bsls_Types::Int64 peakBytesInUse,
+            double            virtualSize,
+            double            residentSize)
+{
+    std::cout << "BufferSize        = "
+              << std::setprecision(8)
+              << bufferSize
+              << " ("
+              << std::setprecision(8)
+              << (((double)(bufferSize)) / (1024 * 1024))
+              << " MB)"
+              << std::endl;
+
+    std::cout << "CurrentBytesInUse = "
+              << std::setprecision(8)
+              << currentBytesInUse
+              << " ("
+              << std::setprecision(8)
+              << (((double)(currentBytesInUse)) / (1024 * 1024))
+              << " MB)"
+              << std::endl;
+
+    std::cout << "PeakBytesInUse   = "
+              << std::setprecision(8)
+              << peakBytesInUse
+              << " ("
+              << std::setprecision(8)
+              << (((double)(peakBytesInUse)) / (1024 * 1024))
+              << " MB)"
+              << std::endl;
+
+    std::cout << "VirtualSize      = "
+              << std::setprecision(8)
+              << virtualSize * 1024 * 1024
+              << " ("
+              << std::setprecision(8)
+              << (((double)(virtualSize)))
+              << " MB)"
+              << std::endl;
+
+    std::cout << "ResidentSize     = "
+              << std::setprecision(8)
+              << residentSize * 1024 * 1024
+              << " ("
+              << std::setprecision(8)
+              << (((double)(residentSize)))
+              << " MB)"
+              << std::endl;
+}
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -138,8 +288,7 @@ int main(int argc, char *argv[])
     int verbosity = 1 + verbose + veryVerbose
                   + veryVeryVerbose + veryVeryVeryVerbose;
 
-    switch (test) {
-      case 0: // Zero is always the leading case.
+    switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -296,81 +445,138 @@ int main(int argc, char *argv[])
         ASSERT(0  < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
-      case -1: {
+#ifndef BSLS_PLATFORM__OS_WINDOWS
+      case -1:
+      case -2: {
         // --------------------------------------------------------------------
-        // TESTING RESIDENT SIZE
+        // TESTING VIRTUAL SIZE AND RESIDENT SIZE
         //
         // Tests:
         //   numRegisteredPids()
         // --------------------------------------------------------------------
 
-        bcema_TestAllocator ta(veryVeryVeryVerbose);
+        bslma_NewDeleteAllocator newDeleteAllocator;
+        test::MmapAllocator      mmapAllocator;
+
+        bslma_Allocator *allocator;
+        switch (test) {
+        case -1: allocator = &newDeleteAllocator; break;
+        case -2: allocator = &mmapAllocator;      break;
+        }
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose, allocator);
 
         bslma_Default::setDefaultAllocator(&ta);
         bslma_Default::setGlobalAllocator(&ta);
 
         {
             INITIALIZE_LOGGER();
-            
-            baea_PerformanceMonitor  perfmon(&ta);
-            int                      rc;
-            double                   residentSize;
-            bsls_PlatformUtil::Int64 numBytesInUse;
-            bsl::deque<char>         buffer(&ta);
-            int                      bufferSize;
+
+            baea_PerformanceMonitor perfmon(&ta);
+            int                     rc;
+
+            int                     bufferSize        = 0;
+
+            double                  virtualSize       = 0;
+            double                  residentSize      = 0;
+            double                  size              = 0;
+
+            bsls_Types::Int64       currentBytesInUse = 0;
+            bsls_Types::Int64       peakBytesInUse    = 0;
+
+            baea_PerformanceMonitor::Measure virtualSizeMeasure =
+                                  baea_PerformanceMonitor::BAEA_VIRTUAL_SIZE;
 
             baea_PerformanceMonitor::Measure residentSizeMeasure =
                                   baea_PerformanceMonitor::BAEA_RESIDENT_SIZE;
 
             perfmon.registerPid(0, "test");
 
-            bufferSize = 1024;
+            bufferSize = 1024 * 1024;
 
-            for (int i = 0; i < 21; ++i) {
-                buffer.resize(bufferSize);
+            for (int i = 0; i < 8; ++i) {
 
-                perfmon.collect();
+                {
+                    bsl::deque<char> buffer(&ta);
+                    buffer.resize(bufferSize);
 
-                residentSize = 
-                    perfmon.begin()->latestValue(residentSizeMeasure);
+                    perfmon.collect();
 
-                std::cout << "--" 
-                          << std::endl;
+                    virtualSize =
+                        perfmon.begin()->latestValue(virtualSizeMeasure);
 
-                std::cout << "BufferSize    = "
-                          << std::setprecision(8)
-                          << bufferSize
-                          << " (" 
-                          << std::setprecision(8)
-                          << (((double)(bufferSize)) / (1024 * 1024)) 
-                          << " MB)"
-                          << std::endl; 
+                    residentSize =
+                        perfmon.begin()->latestValue(residentSizeMeasure);
 
-                std::cout << "NumBytesInUse = " 
-                          << std::setprecision(8)
-                          << ta.numBytesInUse() 
-                          << " (" 
-                          << std::setprecision(8)
-                          << (((double)(ta.numBytesInUse())) / (1024 * 1024)) 
-                          << " MB)"
-                          << std::endl;
+                    currentBytesInUse = ta.numBytesInUse();
+                    peakBytesInUse    = bsl::max(peakBytesInUse,
+                                                 ta.numBytesInUse());
 
-                std::cout << "ResidentSize  = " 
-                          << std::setprecision(8) 
-                          << residentSize * 1024 * 1024
-                          << " (" 
-                          << std::setprecision(8)
-                          << (((double)(residentSize))) 
-                          << " MB)"
-                          << std::endl;
+                    std::cout << "--"
+                              << std::endl;
+
+                    report(bufferSize,
+                           currentBytesInUse,
+                           peakBytesInUse,
+                           virtualSize,
+                           residentSize);
+                }
+
+                std::size_t halfBufferSize = bufferSize / 2;
+
+                {
+                    bsl::deque<char> buffer(&ta);
+                    buffer.resize(halfBufferSize);
+
+                    perfmon.collect();
+
+                    virtualSize =
+                        perfmon.begin()->latestValue(virtualSizeMeasure);
+
+                    residentSize =
+                        perfmon.begin()->latestValue(residentSizeMeasure);
+
+                    currentBytesInUse = ta.numBytesInUse();
+                    peakBytesInUse    = bsl::max(peakBytesInUse,
+                                                 ta.numBytesInUse());
+
+                    std::cout << "**"
+                              << std::endl;
+
+                    report(halfBufferSize,
+                           currentBytesInUse,
+                           peakBytesInUse,
+                           virtualSize,
+                           residentSize);
+                }
 
                 bufferSize *= 2;
             }
+
+            perfmon.collect();
+
+            virtualSize =
+                perfmon.begin()->latestValue(virtualSizeMeasure);
+
+            residentSize =
+                perfmon.begin()->latestValue(residentSizeMeasure);
+
+            currentBytesInUse = ta.numBytesInUse();
+            peakBytesInUse    = bsl::max(peakBytesInUse, ta.numBytesInUse());
+
+            std::cout << "##"
+                      << std::endl;
+
+            report(0,
+                   currentBytesInUse,
+                   peakBytesInUse,
+                   virtualSize,
+                   residentSize);
         }
         ASSERT(0  < ta.numAllocation());
         ASSERT(0 == ta.numBytesInUse());
-
       }  break;
+#endif
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
         testStatus = -1;

@@ -37,10 +37,14 @@
 //
 // CPU %             BAEA_CPU_UTIL        Sum of User CPU % and System CPU %.
 //
-// Resident Size     BAEA_RESIDENT_SIZE   Number of bytes of physical memory
-//                                        in this processes working set, i.e.,
-//                                        the size of the memory pages recently
-//                                        touched by the process.
+// Resident Size     BAEA_RESIDENT_SIZE   Number of mega-bytes of physical 
+//                                        memory used by the process.
+//
+// Virtual Size      BAEA_VIRTUAL_SIZE    The size of the heap, in 
+//                                        mega-bytes. This value does not
+//                                        include the size of the address
+//                                        space mapped to files (anonymous or
+//                                        otherwise.)
 //
 // Thread Count      BAEA_NUM_THREADS     Number of threads executing in the
 //                                        process.
@@ -180,6 +184,7 @@ class baea_PerformanceMonitor {
     // Defines a type alias for the operating system type discovered by the
     // bdes_platform component.  This type alias is used to specifically select
     // a particular template specialization of the 'Collector' template.
+
 #if defined(BSLS_PLATFORM__OS_LINUX)
     typedef bsls_Platform::OsLinux   OsType;
 #elif defined(BDES_PLATFORM__OS_FREEBSD)
@@ -253,9 +258,10 @@ typedef bsls_Platform::OsHpUx OsType;
         BAEA_CPU_UTIL,          // weighted CPU % (user + system)
         BAEA_CPU_UTIL_USER,     // weighted user CPU %
         BAEA_CPU_UTIL_SYSTEM,   // weighted system CPU %
-        BAEA_RESIDENT_SIZE,     // size, in bytes, of the working set
+        BAEA_RESIDENT_SIZE,     // number of MBs of physical memory 
         BAEA_NUM_THREADS,       // number of threads
         BAEA_NUM_PAGEFAULTS,    // number of pagefaults (major + minor)
+        BAEA_VIRTUAL_SIZE,      // number of MBs in the heap
         BAEA_NUM_MEASURES
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
       , CPU_TIME        = BAEA_CPU_TIME
@@ -267,6 +273,7 @@ typedef bsls_Platform::OsHpUx OsType;
       , RESIDENT_SIZE   = BAEA_RESIDENT_SIZE
       , NUM_THREADS     = BAEA_NUM_THREADS
       , NUM_PAGEFAULTS  = BAEA_NUM_PAGEFAULTS
+      , VIRTUAL_SIZE    = BAEA_VIRTUAL_SIZE
       , NUM_MEASURES    = BAEA_NUM_MEASURES
 #endif
     };
