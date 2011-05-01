@@ -22,6 +22,7 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -56,7 +57,7 @@ using namespace BloombergLP;
 // [ 8] char& theModifiableChar();
 // [ 8] short& theModifiableShort();
 // [ 8] int& theModifiableInt();
-// [ 8] bsls_PlatformUtil::Int64& theModifiableInt64();
+// [ 8] bsls_Types::Int64& theModifiableInt64();
 // [ 8] float& theModifiableFloat();
 // [ 8] double& theModifiableDouble();
 // [ 8] bsl::string& theModifiableString();
@@ -98,7 +99,7 @@ using namespace BloombergLP;
 // [ 8] const char& theChar() const;
 // [ 8] const short& theShort() const;
 // [ 8] const int& theInt() const;
-// [ 8] const bsls_PlatformUtil::Int64& theInt64() const;
+// [ 8] const bsls_Types::Int64& theInt64() const;
 // [ 8] const float& theFloat() const;
 // [ 8] const double& theDouble() const;
 // [ 8] const bsl::string& theString() const;
@@ -112,7 +113,7 @@ using namespace BloombergLP;
 // [ 8] const bsl::vector<char>& theCharArray() const;
 // [ 8] const bsl::vector<short>& theShortArray() const;
 // [ 8] const bsl::vector<int>& theIntArray() const;
-// [ 8] const bsl::vector<bsls_PlatformUtil::Int64>& theInt64Array() const;
+// [ 8] const bsl::vector<bsls_Types::Int64>& theInt64Array() const;
 // [ 8] const bsl::vector<float>& theFloatArray() const;
 // [ 8] const bsl::vector<double>& theDoubleArray() const;
 // [ 8] const bsl::vector<bsl::string>& theStringArray() const;
@@ -229,7 +230,7 @@ typedef bdem_ConstElemRef                    CERef;
 typedef bdem_ElemType                        EType;
 typedef bdem_AggregateOption                 AggOption;
 
-typedef bsls_PlatformUtil::Int64             Int64;
+typedef bsls_Types::Int64                    Int64;
 
 typedef bdem_Choice                          Choice;
 typedef bdem_ChoiceArray                     ChoiceArray;
@@ -583,13 +584,12 @@ const int              A02 = 10;
 const int              B02 = 20;
 const int              N02 = bdetu_Unset<int>::unsetValue();
 
-const bsls_PlatformUtil::Int64
+const bsls_Types::Int64
                        A03 = -100;
-const bsls_PlatformUtil::Int64
+const bsls_Types::Int64
                        B03 = -200;
-const bsls_PlatformUtil::Int64
-                       N03 =
-                           bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+const bsls_Types::Int64
+                       N03 = bdetu_Unset<bsls_Types::Int64>::unsetValue();
 
 const float            A04 = -1.5;
 const float            B04 = -2.5;
@@ -661,15 +661,15 @@ const  bsl::vector<int>                          A12 = fA12();
 const  bsl::vector<int>                          B12 = fB12();
 const  bsl::vector<int>                          N12;
 
-static bsl::vector<bsls_PlatformUtil::Int64>    fA13() {
-       bsl::vector<bsls_PlatformUtil::Int64> t;
+static bsl::vector<bsls_Types::Int64>    fA13() {
+       bsl::vector<bsls_Types::Int64> t;
                                      t.push_back(A03); return t; }
-static bsl::vector<bsls_PlatformUtil::Int64>    fB13() {
-       bsl::vector<bsls_PlatformUtil::Int64> t;
+static bsl::vector<bsls_Types::Int64>    fB13() {
+       bsl::vector<bsls_Types::Int64> t;
                                      t.push_back(B03); return t; }
-const  bsl::vector<bsls_PlatformUtil::Int64>     A13 = fA13();
-const  bsl::vector<bsls_PlatformUtil::Int64>     B13 = fB13();
-const  bsl::vector<bsls_PlatformUtil::Int64>     N13;
+const  bsl::vector<bsls_Types::Int64>     A13 = fA13();
+const  bsl::vector<bsls_Types::Int64>     B13 = fB13();
+const  bsl::vector<bsls_Types::Int64>     N13;
 
 static bsl::vector<float>                       fA14() {
        bsl::vector<float> t;         t.push_back(A04); return t; }
@@ -1964,7 +1964,7 @@ int main(int argc, char *argv[])
         //   char& theModifiableChar();
         //   short& theModifiableShort();
         //   int& theModifiableInt();
-        //   bsls_PlatformUtil::Int64& theModifiableInt64();
+        //   bsls_Types::Int64& theModifiableInt64();
         //   float& theModifiableFloat();
         //   double& theModifiableDouble();
         //   bsl::string& theModifiableString();
@@ -1996,7 +1996,7 @@ int main(int argc, char *argv[])
         //   const char& theChar() const;
         //   const short& theShort() const;
         //   const int& theInt() const;
-        //   const bsls_PlatformUtil::Int64& theInt64() const;
+        //   const bsls_Types::Int64& theInt64() const;
         //   const float& theFloat() const;
         //   const double& theDouble() const;
         //   const bsl::string& theString() const;
@@ -2010,7 +2010,7 @@ int main(int argc, char *argv[])
         //   const vector<char>& theCharArray() const;
         //   const vector<short>& theShortArray() const;
         //   const vector<int>& theIntArray() const;
-        //   const vector<bsls_PlatformUtil::Int64>& theInt64Array() const;
+        //   const vector<bsls_Types::Int64>& theInt64Array() const;
         //   const vector<float>& theFloatArray() const;
         //   const vector<double>& theDoubleArray() const;
         //   const vector<bdet_Datetime>& theDatetimeArray() const;

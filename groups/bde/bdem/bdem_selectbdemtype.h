@@ -1,4 +1,4 @@
-// bdem_selectbdemtype.h                  -*-C++-*-
+// bdem_selectbdemtype.h                                              -*-C++-*-
 #ifndef INCLUDED_BDEM_SELECTBDEMTYPE
 #define INCLUDED_BDEM_SELECTBDEMTYPE
 
@@ -49,8 +49,8 @@ BDES_IDENT("$Id: $")
 //    wchar_t                     BDEM_SHORT        short
 //    int                         BDEM_INT          int
 //    unsigned int                BDEM_INT          int
-//    bsls_PlatformUtil::Int64    BDEM_INT64        bsls_PlatformUtil::Int64
-//    bsls_PlatformUtil::Uint64   BDEM_INT64        bsls_PlatformUtil::Int64
+//    bsls_Types::Int64           BDEM_INT64        bsls_Types::Int64
+//    bsls_Types::Uint64          BDEM_INT64        bsls_Types::Int64
 //    float                       BDEM_FLOAT        float
 //    double                      BDEM_DOUBLE       double
 //    bsl::string                 BDEM_STRING       bsl::string
@@ -81,7 +81,7 @@ BDES_IDENT("$Id: $")
 //  BDEM_SHORT              BDEM_SHORT_ARRAY       bsl::vector<short>
 //  BDEM_INT                BDEM_INT_ARRAY         bsl::vector<int>
 //  BDEM_INT64              BDEM_INT64_ARRAY       bsl::vector<
-//                                                    bsls_PlatformUtil::Int64>
+//                                                           bsls_Types::Int64>
 //  BDEM_FLOAT              BDEM_FLOAT_ARRAY       bsl::vector<float>
 //  BDEM_DOUBLE             BDEM_DOUBLE_ARRAY      bsl::vector<double>
 //  BDEM_STRING             BDEM_STRING_ARRAY      bsl::vector<bsl::string>
@@ -197,8 +197,8 @@ BDES_IDENT("$Id: $")
 #include <bslmf_removereference.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -208,7 +208,6 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
-
 
 namespace BloombergLP {
 
@@ -380,7 +379,7 @@ struct bdem_SelectBdemType_GetCppType<bdem_ElemType::BDEM_INT> {
 
 template <>
 struct bdem_SelectBdemType_GetCppType<bdem_ElemType::BDEM_INT64> {
-    typedef bsls_PlatformUtil::Int64 Type;
+    typedef bsls_Types::Int64 Type;
 };
 
 template <>
@@ -430,7 +429,7 @@ struct bdem_SelectBdemType_GetCppType<bdem_ElemType::BDEM_INT_ARRAY> {
 
 template <>
 struct bdem_SelectBdemType_GetCppType<bdem_ElemType::BDEM_INT64_ARRAY> {
-    typedef bsl::vector<bsls_PlatformUtil::Int64> Type;
+    typedef bsl::vector<bsls_Types::Int64> Type;
 };
 
 template <>
@@ -604,13 +603,13 @@ struct bdem_SelectBdemType_Imp<unsigned int>
 };
 
 template <>
-struct bdem_SelectBdemType_Imp<bsls_PlatformUtil::Int64>
+struct bdem_SelectBdemType_Imp<bsls_Types::Int64>
 {
     enum { VALUE = bdem_ElemType::BDEM_INT64 };
 };
 
 template <>
-struct bdem_SelectBdemType_Imp<bsls_PlatformUtil::Uint64>
+struct bdem_SelectBdemType_Imp<bsls_Types::Uint64>
 {
     enum { VALUE = bdem_ElemType::BDEM_INT64 };
 };

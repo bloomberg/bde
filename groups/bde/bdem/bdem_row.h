@@ -366,10 +366,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>  // TBD DEPRECATED
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -1053,7 +1049,7 @@ bdem_ElemType::Type bdem_Row::elemType(int index) const
     BSLS_ASSERT_SAFE(index < d_rowData.length());
 
     return (bdem_ElemType::Type)
-                       (*d_rowData.rowLayout())[index].attributes()->d_elemEnum;
+                      (*d_rowData.rowLayout())[index].attributes()->d_elemEnum;
 }
 
 inline

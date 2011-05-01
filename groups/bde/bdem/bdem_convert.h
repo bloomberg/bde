@@ -222,8 +222,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_OSTREAM
@@ -345,7 +345,7 @@ struct bdem_Convert {
 
   private:
     // PRIVATE TYPES
-    typedef bsls_PlatformUtil::Int64 Int64;
+    typedef bsls_Types::Int64 Int64;
 
     typedef bslmf_MetaInt<0> FalseType;
     typedef bslmf_MetaInt<1> TrueType;
@@ -441,7 +441,7 @@ struct bdem_Convert {
     static int fromString(char            *dstAddr, const char *srcValue);
     static int fromString(short           *dstAddr, const char *srcValue);
     static int fromString(int             *dstAddr, const char *srcValue);
-    static int fromString(bsls_PlatformUtil::Int64
+    static int fromString(bsls_Types::Int64
                                           *dstAddr, const char *srcValue);
     static int fromString(float           *dstAddr, const char *srcValue);
     static int fromString(double          *dstAddr, const char *srcValue);
@@ -698,7 +698,7 @@ struct bdem_Convert {
     static int convert(bsl::string *dstAddr, char        srcValue);
     static int convert(bsl::string *dstAddr, short       srcValue);
     static int convert(bsl::string *dstAddr, int         srcValue);
-    static int convert(bsl::string *dstAddr, bsls_PlatformUtil::Int64
+    static int convert(bsl::string *dstAddr, bsls_Types::Int64
                                                          srcValue);
     static int convert(bsl::string *dstAddr, float       srcValue);
     static int convert(bsl::string *dstAddr, double      srcValue);

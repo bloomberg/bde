@@ -23,7 +23,7 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_alignmentfromtype.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -168,7 +168,7 @@ typedef bdem_Descriptor                      Desc;
 typedef bdem_ElemType                        EType;
 typedef bdem_AggregateOption                 AggOption;
 
-typedef bsls_PlatformUtil::Int64             Int64;
+typedef bsls_Types::Int64                    Int64;
 
 typedef bdet_Datetime                        Datetime;
 typedef bdet_Date                            Date;

@@ -25,7 +25,7 @@
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignedbuffer.h>                  // for testing only
 #include <bsls_platform.h>                       // for testing only
-#include <bsls_platformutil.h>                   // for testing only
+#include <bsls_types.h>                          // for testing only
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -39,7 +39,6 @@
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
 
 //=============================================================================
 //                                TEST PLAN
@@ -174,7 +173,13 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls_Types::Int64 Int64;
+
+typedef bdem_RowLayout         Obj;
+typedef const bdem_Descriptor *Element;
+
+typedef bdex_TestInStream  In;
+typedef bdex_TestOutStream Out;
 
 struct AggregateOptionRep {
     enum {
@@ -313,14 +318,6 @@ const bdem_Descriptor *const typesLookupTable[NUM_TYPES] =
     &ElemAttGenerator<bdem_ElemType::BDEM_CHOICE,ChoiceRep>::s,
     &ElemAttGenerator<bdem_ElemType::BDEM_CHOICE_ARRAY,ChoiceArrayRep>::s,
 };
-
-typedef bdem_RowLayout         Obj;
-typedef const bdem_Descriptor *Element;
-
-typedef bdex_TestInStream  In;
-typedef bdex_TestOutStream Out;
-
-typedef bsls_PlatformUtil::Int64 Int64;
 
 const Element VALUES[] = {
     typesLookupTable[bdem_ElemType::BDEM_CHAR],
@@ -1740,32 +1737,32 @@ int main(int argc, char *argv[])
                 //--  ----  -----  --- -------  ------------------
                 { L_, "",      0,   0, "{"              NL
                                        "}"              NL },
-                                       
+
                 { L_, "",      0,   2, "{"              NL
                                        "}"              NL },
-                                       
+
                 { L_, "",      1,   1, " {"             NL
                                        " }"             NL },
-                                       
+
                 { L_, "",      1,   2, "  {"            NL
                                        "  }"            NL  },
-                                       
+
                 { L_, "",     -1,   2, "{"              NL
                                        "  }"            NL  },
-                                       
+
                 { L_, "A",     0,   0, "{"              NL
                                        "CHAR 0"         NL
                                        "}"              NL  },
-                                       
+
                 { L_, "A",    -2,   1, "{"              NL
                                        "   CHAR 0"      NL
                                        "  }"            NL  },
-                                       
+
                 { L_, "BC",    1,   2, "  {"            NL
                                        "    SHORT 0"    NL
                                        "    INT 4"      NL
                                        "  }"            NL},
-                                       
+
                 { L_, "BC",    2,   1, "  {"            NL
                                        "   SHORT 0"     NL
                                        "   INT 4"       NL

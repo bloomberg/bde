@@ -4,9 +4,9 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdem_binding_cpp,"$Id$ $CSID$")
 
+#include <bdet_date.h>                  // for testing only
 #include <bdet_datetime.h>              // for testing only
 #include <bdet_datetimetz.h>            // for testing only
-#include <bdet_date.h>                  // for testing only
 #include <bdet_datetz.h>                // for testing only
 #include <bdet_time.h>                  // for testing only
 #include <bdet_timetz.h>                // for testing only
@@ -35,6 +35,7 @@ const bdem_EnumerationDef *lookupEnumDef(const bdem_RecordDef *constraint,
 
     const bdem_FieldDef&       field   = constraint->field(index);
     const bdem_EnumerationDef *enumDef = field.enumerationConstraint();
+
     BSLS_ASSERT(enumDef);
 
     return enumDef;
@@ -48,40 +49,63 @@ const bdem_EnumerationDef *lookupEnumDef(const bdem_RecordDef *constraint,
 const char *
 bdem_ConstRowBinding::enumerationAsString(const char *elementName) const
 {
-    const int columnIndex = d_constraint_p->fieldIndex(elementName);
-    return enumerationAsString(columnIndex);
+    BSLS_ASSERT(elementName);
+
+    const int index = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT(0 <= index);
+
+    return enumerationAsString(index);
 }
 
 const char *
-bdem_ConstRowBinding::enumerationAsString(int columnIndex) const
+bdem_ConstRowBinding::enumerationAsString(int index) const
 {
-    const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
-                                                       columnIndex);
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(     index < length());
 
-    if (bdem_ElemType::BDEM_INT == d_row_p->elemType(columnIndex)) {
-        return enumDef->lookupName(d_row_p->theInt(columnIndex));
+    const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p, index);
+
+    const bdem_ElemType::Type type = elemType(index);
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        return enumDef->lookupName(d_row_p->theInt(index));
     }
     else {
-        return enumDef->lookupName(d_row_p->theString(columnIndex).c_str());
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
+        return enumDef->lookupName(d_row_p->theString(index).c_str());
     }
 }
 
 int bdem_ConstRowBinding::enumerationAsInt(const char *elementName) const
 {
-    const int columnIndex = d_constraint_p->fieldIndex(elementName);
-    return enumerationAsInt(columnIndex);
+    BSLS_ASSERT(elementName);
+
+    const int index = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT(0 <= index);
+
+    return enumerationAsInt(index);
 }
 
-int bdem_ConstRowBinding::enumerationAsInt(int columnIndex) const
+int bdem_ConstRowBinding::enumerationAsInt(int index) const
 {
-    if (bdem_ElemType::BDEM_INT == d_row_p->elemType(columnIndex)) {
-        return d_row_p->theInt(columnIndex);
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(     index < length());
+
+    const bdem_ElemType::Type type = elemType(index);
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        return d_row_p->theInt(index);
     }
     else {
-        const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
-                                                           columnIndex);
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
 
-        return enumDef->lookupId(d_row_p->theString(columnIndex).c_str());
+        const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
+                                                           index);
+
+        return enumDef->lookupId(d_row_p->theString(index).c_str());
     }
 }
 
@@ -93,28 +117,39 @@ int bdem_ConstRowBinding::enumerationAsInt(int columnIndex) const
 int bdem_RowBinding::setEnumeration(const char         *elementName,
                                     const bsl::string&  enumeratorName) const
 {
-    const int columnIndex = d_constraint_p->fieldIndex(elementName);
-    return setEnumeration(columnIndex, enumeratorName);
+    BSLS_ASSERT(elementName);
+
+    const int index = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT(0 <= index);
+
+    return setEnumeration(index, enumeratorName);
 }
 
-int bdem_RowBinding::setEnumeration(int                 columnIndex,
+int bdem_RowBinding::setEnumeration(int                 index,
                                     const bsl::string&  enumeratorName) const
 {
-    const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
-                                                       columnIndex);
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(     index < length());
+
+    const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p, index);
 
     const int enumeratorId = enumDef->lookupId(enumeratorName.c_str());
     if (bdetu_Unset<int>::unsetValue() == enumeratorId) {
         return 1;
     }
 
-    if (bdem_ElemType::BDEM_INT == d_row_p->elemType(columnIndex)) {
-        const_cast<bdem_Row *>(d_row_p)->theModifiableInt(columnIndex) =
-                                                                  enumeratorId;
+    bdem_Row *row = const_cast<bdem_Row *>(d_row_p);
+
+    const bdem_ElemType::Type type = elemType(index);
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        row->theModifiableInt(index)    = enumeratorId;
     }
     else {
-        const_cast<bdem_Row *>(d_row_p)->theModifiableString(columnIndex) =
-                                                                enumeratorName;
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
+        row->theModifiableString(index) = enumeratorName;
     }
 
     return 0;
@@ -123,27 +158,38 @@ int bdem_RowBinding::setEnumeration(int                 columnIndex,
 int bdem_RowBinding::setEnumeration(const char *elementName,
                                     int         enumeratorId) const
 {
-    const int columnIndex = d_constraint_p->fieldIndex(elementName);
-    return setEnumeration(columnIndex, enumeratorId);
+    BSLS_ASSERT(elementName);
+
+    const int index = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT(0 <= index);
+
+    return setEnumeration(index, enumeratorId);
 }
 
-int bdem_RowBinding::setEnumeration(int columnIndex, int enumeratorId) const
+int bdem_RowBinding::setEnumeration(int index, int enumeratorId) const
 {
-    const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
-                                                       columnIndex);
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(     index < length());
+
+    const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p, index);
 
     const char *enumeratorName = enumDef->lookupName(enumeratorId);
     if (!enumeratorName) {
         return 1;
     }
 
-    if (bdem_ElemType::BDEM_INT == d_row_p->elemType(columnIndex)) {
-        const_cast<bdem_Row *>(d_row_p)->theModifiableInt(columnIndex) =
-                                                                  enumeratorId;
+    bdem_Row *row = const_cast<bdem_Row *>(d_row_p);
+
+    const bdem_ElemType::Type type = elemType(index);
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        row->theModifiableInt(index)    = enumeratorId;
     }
     else {
-        const_cast<bdem_Row *>(d_row_p)->theModifiableString(columnIndex) =
-                                                                enumeratorName;
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
+        row->theModifiableString(index) = enumeratorName;
     }
 
     return 0;
@@ -158,7 +204,14 @@ const char *
 bdem_ConstTableBinding::enumerationAsString(int         rowIndex,
                                             const char *elementName) const
 {
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex < numRows());
+    BSLS_ASSERT(elementName);
+
     const int columnIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT(0 <= columnIndex);
+
     return enumerationAsString(rowIndex, columnIndex);
 }
 
@@ -166,39 +219,64 @@ const char *
 bdem_ConstTableBinding::enumerationAsString(int rowIndex,
                                             int columnIndex) const
 {
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex    < numRows());
+    BSLS_ASSERT(0 <= columnIndex);
+    BSLS_ASSERT(     columnIndex < numColumns());
+
     const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
                                                        columnIndex);
 
-    if (bdem_ElemType::BDEM_INT == d_table_p->columnType(columnIndex)) {
-        return enumDef->lookupName(
-                                 (*d_table_p)[rowIndex][columnIndex].theInt());
+    bdem_ConstElemRef ref = (*this)[rowIndex][columnIndex];
+
+    const bdem_ElemType::Type type = elemType(columnIndex);
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        return enumDef->lookupName(ref.theInt());
     }
     else {
-        return enumDef->lookupName(
-                      (*d_table_p)[rowIndex][columnIndex].theString().c_str());
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
+        return enumDef->lookupName(ref.theString().c_str());
     }
 }
 
 int bdem_ConstTableBinding::enumerationAsInt(int         rowIndex,
                                              const char *elementName) const
 {
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex < numRows());
+    BSLS_ASSERT(elementName);
+
     const int columnIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT(0 <= columnIndex);
+
     return enumerationAsInt(rowIndex, columnIndex);
 }
 
 int
-bdem_ConstTableBinding::enumerationAsInt(int rowIndex,
-                                         int columnIndex) const
+bdem_ConstTableBinding::enumerationAsInt(int rowIndex, int columnIndex) const
 {
-    if (bdem_ElemType::BDEM_INT == d_table_p->columnType(columnIndex)) {
-        return (*d_table_p)[rowIndex][columnIndex].theInt();
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex    < numRows());
+    BSLS_ASSERT(0 <= columnIndex);
+    BSLS_ASSERT(     columnIndex < numColumns());
+
+    bdem_ConstElemRef ref = (*this)[rowIndex][columnIndex];
+
+    const bdem_ElemType::Type type = elemType(columnIndex);
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        return ref.theInt();
     }
     else {
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
         const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
                                                            columnIndex);
 
-        return enumDef->lookupId(
-                      (*d_table_p)[rowIndex][columnIndex].theString().c_str());
+        return enumDef->lookupId(ref.theString().c_str());
     }
 }
 
@@ -212,7 +290,14 @@ bdem_TableBinding::setEnumeration(int                 rowIndex,
                                   const char         *elementName,
                                   const bsl::string&  enumeratorName) const
 {
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex < numRows());
+    BSLS_ASSERT(elementName);
+
     const int columnIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT(0 <= columnIndex);
+
     return setEnumeration(rowIndex, columnIndex, enumeratorName);
 }
 
@@ -220,6 +305,11 @@ int bdem_TableBinding::setEnumeration(int                 rowIndex,
                                       int                 columnIndex,
                                       const bsl::string&  enumeratorName) const
 {
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex    < numRows());
+    BSLS_ASSERT(0 <= columnIndex);
+    BSLS_ASSERT(     columnIndex < numColumns());
+
     const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
                                                        columnIndex);
 
@@ -228,13 +318,16 @@ int bdem_TableBinding::setEnumeration(int                 rowIndex,
         return 0;
     }
 
-    bdem_ElemRef ref = (*const_cast<bdem_Table *>(d_table_p)).
-                                       theModifiableRow(rowIndex)[columnIndex];
+    bdem_ElemRef ref = (*this)[rowIndex][columnIndex];
 
-    if (bdem_ElemType::BDEM_INT == d_table_p->columnType(columnIndex)) {
+    const bdem_ElemType::Type type = elemType(columnIndex);
+
+    if (bdem_ElemType::BDEM_INT == type) {
         ref.theModifiableInt()    = enumeratorId;
     }
     else {
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
         ref.theModifiableString() = enumeratorName;
     }
 
@@ -245,7 +338,14 @@ int bdem_TableBinding::setEnumeration(int         rowIndex,
                                       const char *elementName,
                                       int         enumeratorId) const
 {
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex < numRows());
+    BSLS_ASSERT(elementName);
+
     const int columnIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT(0 <= columnIndex);
+
     return setEnumeration(rowIndex, columnIndex, enumeratorId);
 }
 
@@ -253,6 +353,11 @@ int bdem_TableBinding::setEnumeration(int rowIndex,
                                       int columnIndex,
                                       int enumeratorId) const
 {
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex    < numRows());
+    BSLS_ASSERT(0 <= columnIndex);
+    BSLS_ASSERT(     columnIndex < numColumns());
+
     const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
                                                        columnIndex);
 
@@ -261,13 +366,16 @@ int bdem_TableBinding::setEnumeration(int rowIndex,
         return 1;
     }
 
-    bdem_ElemRef ref = (*const_cast<bdem_Table *>(d_table_p)).
-                                       theModifiableRow(rowIndex)[columnIndex];
+    bdem_ElemRef ref = (*this)[rowIndex][columnIndex];
 
-    if (bdem_ElemType::BDEM_INT == d_table_p->columnType(columnIndex)) {
+    const bdem_ElemType::Type type = elemType(columnIndex);
+
+    if (bdem_ElemType::BDEM_INT == type) {
         ref.theModifiableInt()    = enumeratorId;
     }
     else {
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
         ref.theModifiableString() = enumeratorName;
     }
 
@@ -278,36 +386,117 @@ int bdem_TableBinding::setEnumeration(int rowIndex,
                         // class bdem_ConstColumnBinding
                         // -----------------------------
 
-// ACCESSORS
-const char *
-bdem_ConstColumnBinding::enumerationAsString(int rowIndex) const
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+// PRIVATE ACCESSORS
+bool bdem_ConstColumnBinding::canSatisfyColumn(
+                                              const bdem_Table    *table,
+                                              int                  columnIndex,
+                                              const bdem_FieldDef *field)
 {
+    const bdem_ElemType::Type type = table->columnType(columnIndex);
+
+    if (!bdem_ElemType::isAggregateType(type)) {
+        return true;                                                  // RETURN
+    }
+
+    const bdem_RecordDef *constraint = field->recordConstraint();
+
+    if (!constraint || type != field->elemType()) {
+        return false;                                                 // RETURN
+    }
+
+    const int numRows = table->numRows();
+
+    switch (type) {
+      case bdem_ElemType::BDEM_LIST: {
+        for (int i = 0; i < numRows; ++i) {
+            if (!bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                              (*table)[i].theList(columnIndex),
+                                              *constraint)) {
+                return false;                                         // RETURN
+            }
+        }
+      } break;
+      case bdem_ElemType::BDEM_TABLE: {
+        for (int i = 0; i < numRows; ++i) {
+            if (!bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                             (*table)[i].theTable(columnIndex),
+                                             *constraint)) {
+                return false;                                         // RETURN
+            }
+        }
+      } break;
+      case bdem_ElemType::BDEM_CHOICE: {
+        for (int i = 0; i < numRows; ++i) {
+            if (!bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                            (*table)[i].theChoice(columnIndex),
+                                            *constraint)) {
+                return false;                                         // RETURN
+            }
+        }
+      } break;
+      case bdem_ElemType::BDEM_CHOICE_ARRAY: {
+        for (int i = 0; i < numRows; ++i) {
+            if (!bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                       (*table)[i].theChoiceArray(columnIndex),
+                                       *constraint)) {
+                return false;                                         // RETURN
+            }
+        }
+      } break;
+      default: {
+        BSLS_ASSERT(0);  // Should *not* reach here!
+      } break;
+    }
+
+    return true;
+}
+#endif
+
+// ACCESSORS
+const char *bdem_ConstColumnBinding::enumerationAsString(int rowIndex) const
+{
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex < numRows());
+
     const bdem_EnumerationDef *enumDef =
                                        d_constraint_p->enumerationConstraint();
     BSLS_ASSERT(enumDef);
 
-    if (bdem_ElemType::BDEM_INT == d_constraint_p->elemType()) {
-        return enumDef->lookupName(
-                               (*d_table_p)[rowIndex][d_columnIndex].theInt());
+    bdem_ConstElemRef ref = (*this)[rowIndex];
+
+    const bdem_ElemType::Type type = elemType();
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        return enumDef->lookupName(ref.theInt());
     }
     else {
-        return enumDef->lookupName(
-                    (*d_table_p)[rowIndex][d_columnIndex].theString().c_str());
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
+        return enumDef->lookupName(ref.theString().c_str());
     }
 }
 
 int bdem_ConstColumnBinding::enumerationAsInt(int rowIndex) const
 {
-    if (bdem_ElemType::BDEM_INT == d_constraint_p->elemType()) {
-        return (*d_table_p)[rowIndex][d_columnIndex].theInt();
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex < numRows());
+
+    bdem_ConstElemRef ref = (*this)[rowIndex];
+
+    const bdem_ElemType::Type type = elemType();
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        return ref.theInt();
     }
     else {
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
         const bdem_EnumerationDef *enumDef =
                                        d_constraint_p->enumerationConstraint();
         BSLS_ASSERT(enumDef);
 
-        return enumDef->lookupId(
-                    (*d_table_p)[rowIndex][d_columnIndex].theString().c_str());
+        return enumDef->lookupId(ref.theString().c_str());
     }
 }
 
@@ -315,25 +504,28 @@ int bdem_ConstColumnBinding::enumerationAsInt(int rowIndex) const
 bool operator==(const bdem_ConstColumnBinding& lhs,
                 const bdem_ConstColumnBinding& rhs)
 {
-    const int             columnLength  = lhs.numRows();
+    const int numRows = lhs.numRows();
+
     const bdem_RecordDef *lhsConstraint =
                                         lhs.d_constraint_p->recordConstraint();
     const bdem_RecordDef *rhsConstraint =
                                         rhs.d_constraint_p->recordConstraint();
 
-    if (columnLength                   != rhs.numRows()
-     || lhs.d_constraint_p->elemType() != rhs.d_constraint_p->elemType()
-     || !lhsConstraint                 != !rhsConstraint
+    if (numRows        != rhs.numRows()
+     || lhs.elemType() != rhs.elemType()
+     || !lhsConstraint != !rhsConstraint
      || (lhsConstraint && rhsConstraint
      &&  !bdem_SchemaUtil::areEquivalent(*lhsConstraint, *rhsConstraint))) {
         return false;
     }
-    for (int rowIndex = 0; rowIndex < columnLength; ++rowIndex) {
+
+    for (int rowIndex = 0; rowIndex < numRows; ++rowIndex) {
         if ((*lhs.d_table_p)[rowIndex][lhs.d_columnIndex]
                             != (*rhs.d_table_p)[rowIndex][rhs.d_columnIndex]) {
             return false;
         }
     }
+
     return true;
 }
 
@@ -351,6 +543,9 @@ bool operator!=(const bdem_ConstColumnBinding& lhs,
 int bdem_ColumnBinding::setEnumeration(int                rowIndex,
                                        const bsl::string& enumeratorName) const
 {
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex < numRows());
+
     const bdem_EnumerationDef *enumDef =
                                        d_constraint_p->enumerationConstraint();
     BSLS_ASSERT(enumDef);
@@ -360,22 +555,27 @@ int bdem_ColumnBinding::setEnumeration(int                rowIndex,
         return 1;
     }
 
-    bdem_ElemRef ref = (*const_cast<bdem_Table *>(d_table_p)).
-                                     theModifiableRow(rowIndex)[d_columnIndex];
+    bdem_ElemRef ref = (*this)[rowIndex];
 
-    if (bdem_ElemType::BDEM_INT == d_constraint_p->elemType()) {
+    const bdem_ElemType::Type type = elemType();
+
+    if (bdem_ElemType::BDEM_INT == type) {
         ref.theModifiableInt()    = enumeratorId;
     }
     else {
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
         ref.theModifiableString() = enumeratorName;
     }
 
     return 0;
 }
 
-int bdem_ColumnBinding::setEnumeration(int rowIndex,
-                                       int enumeratorId) const
+int bdem_ColumnBinding::setEnumeration(int rowIndex, int enumeratorId) const
 {
+    BSLS_ASSERT(0 <= rowIndex);
+    BSLS_ASSERT(     rowIndex < numRows());
+
     const bdem_EnumerationDef *enumDef =
                                        d_constraint_p->enumerationConstraint();
     BSLS_ASSERT(enumDef);
@@ -385,13 +585,16 @@ int bdem_ColumnBinding::setEnumeration(int rowIndex,
         return 1;
     }
 
-    bdem_ElemRef ref = (*const_cast<bdem_Table *>(d_table_p)).
-                                     theModifiableRow(rowIndex)[d_columnIndex];
+    bdem_ElemRef ref = (*this)[rowIndex];
 
-    if (bdem_ElemType::BDEM_INT == d_constraint_p->elemType()) {
+    const bdem_ElemType::Type type = elemType();
+
+    if (bdem_ElemType::BDEM_INT == type) {
         ref.theModifiableInt()    = enumeratorId;
     }
     else {
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
         ref.theModifiableString() = enumeratorName;
     }
 
@@ -408,25 +611,32 @@ const char *bdem_ConstChoiceBinding::enumerationAsString() const
     const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
                                                        d_item_p->selector());
 
-    if (bdem_ElemType::BDEM_INT == d_item_p->selectionType()) {
-        return enumDef->lookupName(d_item_p->theInt());
+    const bdem_ElemType::Type type = selectionType();
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        return enumDef->lookupName(theInt());
     }
     else {
-        return enumDef->lookupName(d_item_p->theString().c_str());
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
+        return enumDef->lookupName(theString().c_str());
     }
 }
 
 int bdem_ConstChoiceBinding::enumerationAsInt() const
 {
-    if (bdem_ElemType::BDEM_INT == d_item_p->selectionType()) {
-        return d_item_p->theInt();
+    const bdem_ElemType::Type type = selectionType();
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        return theInt();
     }
     else {
-        const bdem_EnumerationDef *enumDef = lookupEnumDef(
-                                                         d_constraint_p,
-                                                         d_item_p->selector());
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
 
-        return enumDef->lookupId(d_item_p->theString().c_str());
+        const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
+                                                           selector());
+
+        return enumDef->lookupId(theString().c_str());
     }
 }
 
@@ -445,13 +655,15 @@ int bdem_ChoiceBinding::setEnumeration(const bsl::string& enumeratorName) const
         return 1;
     }
 
-    if (bdem_ElemType::BDEM_INT == d_item_p->selectionType()) {
-        const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableInt() =
-                                                                  enumeratorId;
+    const bdem_ElemType::Type type = selectionType();
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        theModifiableInt()    = enumeratorId;
     }
     else {
-        const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableString() =
-                                                                enumeratorName;
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
+        theModifiableString() = enumeratorName;
     }
 
     return 0;
@@ -467,13 +679,15 @@ int bdem_ChoiceBinding::setEnumeration(int enumeratorId) const
         return 1;
     }
 
-    if (bdem_ElemType::BDEM_INT == d_item_p->selectionType()) {
-        const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableInt() =
-                                                                  enumeratorId;
+    const bdem_ElemType::Type type = selectionType();
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        theModifiableInt()    = enumeratorId;
     }
     else {
-        const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableString() =
-                                                                enumeratorName;
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
+        theModifiableString() = enumeratorName;
     }
 
     return 0;
@@ -485,35 +699,47 @@ int bdem_ChoiceBinding::setEnumeration(int enumeratorId) const
 
 // ACCESSORS
 const char *
-bdem_ConstChoiceArrayBinding::enumerationAsString(int rowIndex) const
+bdem_ConstChoiceArrayBinding::enumerationAsString(int itemIndex) const
 {
-    const bdem_EnumerationDef *enumDef = lookupEnumDef(
-                                      d_constraint_p,
-                                      (*d_choiceArray_p)[rowIndex].selector());
+    BSLS_ASSERT(0 <= itemIndex);
+    BSLS_ASSERT(     itemIndex < length());
 
-    if (bdem_ElemType::BDEM_INT ==
-                                (*d_choiceArray_p)[rowIndex].selectionType()) {
-        return enumDef->lookupName((*d_choiceArray_p)[rowIndex].theInt());
+    const bdem_ChoiceArrayItem& item = (*this)[itemIndex];
+
+    const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
+                                                       item.selector());
+
+    const bdem_ElemType::Type type = item.selectionType();
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        return enumDef->lookupName(item.theInt());
     }
     else {
-        return enumDef->lookupName(
-                             (*d_choiceArray_p)[rowIndex].theString().c_str());
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
+        return enumDef->lookupName(item.theString().c_str());
     }
 }
 
-int bdem_ConstChoiceArrayBinding::enumerationAsInt(int rowIndex) const
+int bdem_ConstChoiceArrayBinding::enumerationAsInt(int itemIndex) const
 {
-    if (bdem_ElemType::BDEM_INT ==
-                                (*d_choiceArray_p)[rowIndex].selectionType()) {
-        return (*d_choiceArray_p)[rowIndex].theInt();
+    BSLS_ASSERT(0 <= itemIndex);
+    BSLS_ASSERT(     itemIndex < length());
+
+    const bdem_ChoiceArrayItem& item = (*this)[itemIndex];
+
+    const bdem_ElemType::Type type = item.selectionType();
+
+    if (bdem_ElemType::BDEM_INT == type) {
+        return item.theInt();
     }
     else {
-        const bdem_EnumerationDef *enumDef = lookupEnumDef(
-                                      d_constraint_p,
-                                      (*d_choiceArray_p)[rowIndex].selector());
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
 
-        return enumDef->lookupId(
-                             (*d_choiceArray_p)[rowIndex].theString().c_str());
+        const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
+                                                           item.selector());
+
+        return enumDef->lookupId(item.theString().c_str());
     }
 }
 
@@ -526,24 +752,27 @@ int bdem_ChoiceArrayBinding::setEnumeration(
                                       int                 itemIndex,
                                       const bsl::string&  enumeratorName) const
 {
-    const bdem_EnumerationDef *enumDef = lookupEnumDef(
-                                     d_constraint_p,
-                                     (*d_choiceArray_p)[itemIndex].selector());
+    BSLS_ASSERT(0 <= itemIndex);
+    BSLS_ASSERT(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = (*this)[itemIndex];
+
+    const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
+                                                       item.selector());
 
     const int enumeratorId = enumDef->lookupId(enumeratorName.c_str());
     if (bdetu_Unset<int>::unsetValue() == enumeratorId) {
         return 1;
     }
 
-    bdem_ChoiceArrayItem& item =
-                            (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                                                  theModifiableItem(itemIndex);
+    const bdem_ElemType::Type type = item.selectionType();
 
-    if (bdem_ElemType::BDEM_INT ==
-                               (*d_choiceArray_p)[itemIndex].selectionType()) {
+    if (bdem_ElemType::BDEM_INT == type) {
         item.theModifiableInt()    = enumeratorId;
     }
     else {
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
         item.theModifiableString() = enumeratorName;
     }
 
@@ -551,27 +780,26 @@ int bdem_ChoiceArrayBinding::setEnumeration(
 }
 
 int
-bdem_ChoiceArrayBinding::setEnumeration(int itemIndex,
-                                        int enumeratorId) const
+bdem_ChoiceArrayBinding::setEnumeration(int itemIndex, int enumeratorId) const
 {
-    const bdem_EnumerationDef *enumDef = lookupEnumDef(
-                                     d_constraint_p,
-                                     (*d_choiceArray_p)[itemIndex].selector());
+    bdem_ChoiceArrayItem& item = (*this)[itemIndex];
+
+    const bdem_EnumerationDef *enumDef = lookupEnumDef(d_constraint_p,
+                                                       item.selector());
 
     const char *enumeratorName = enumDef->lookupName(enumeratorId);
     if (!enumeratorName) {
         return 1;
     }
 
-    bdem_ChoiceArrayItem& item =
-                            (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                                                  theModifiableItem(itemIndex);
+    const bdem_ElemType::Type type = item.selectionType();
 
-    if (bdem_ElemType::BDEM_INT ==
-                               (*d_choiceArray_p)[itemIndex].selectionType()) {
+    if (bdem_ElemType::BDEM_INT == type) {
         item.theModifiableInt()    = enumeratorId;
     }
     else {
+        BSLS_ASSERT(bdem_ElemType::BDEM_STRING == type);
+
         item.theModifiableString() = enumeratorName;
     }
 

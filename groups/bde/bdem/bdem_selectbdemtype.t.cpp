@@ -1,4 +1,4 @@
-// bdem_selectbdemtype.t.cpp                  -*-C++-*-
+// bdem_selectbdemtype.t.cpp                                          -*-C++-*-
 
 #include <bdem_selectbdemtype.h>
 
@@ -10,7 +10,7 @@
 
 #include <bslmf_issame.h>         // for testing only
 
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -19,7 +19,6 @@
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
 
 //=============================================================================
 //                             TEST PLAN
@@ -353,8 +352,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef bsls_PlatformUtil::Int64 TT;
-            typedef bsls_PlatformUtil::Int64 PT;
+            typedef bsls_Types::Int64 TT;
+            typedef bsls_Types::Int64 PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
@@ -364,8 +363,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef bsls_PlatformUtil::Uint64 TT;
-            typedef bsls_PlatformUtil::Int64  PT;
+            typedef bsls_Types::Uint64 TT;
+            typedef bsls_Types::Int64  PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
@@ -529,8 +528,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef bsl::vector<bsls_PlatformUtil::Int64> TT;
-            typedef bsl::vector<bsls_PlatformUtil::Int64> PT;
+            typedef bsl::vector<bsls_Types::Int64> TT;
+            typedef bsl::vector<bsls_Types::Int64> PT;
 
             const int ET = bdem_ElemType::BDEM_INT64_ARRAY;
 
@@ -540,8 +539,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef bsl::vector<bsls_PlatformUtil::Uint64> TT;
-            typedef bsl::vector<bsls_PlatformUtil::Int64>  PT;
+            typedef bsl::vector<bsls_Types::Uint64> TT;
+            typedef bsl::vector<bsls_Types::Int64>  PT;
 
             const int ET = bdem_ElemType::BDEM_INT64_ARRAY;
 
@@ -616,9 +615,6 @@ int main(int argc, char *argv[])
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
-
-
-
         {
             typedef my_Class  TT;
             typedef bdem_List PT;
@@ -662,9 +658,6 @@ int main(int argc, char *argv[])
             ASSERT( 1 == (bslmf_IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
-
-
-
 
         {
             typedef MyArray<char>     TT;
@@ -755,8 +748,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef MyArray<bsls_PlatformUtil::Int64>     TT;
-            typedef bsl::vector<bsls_PlatformUtil::Int64> PT;
+            typedef MyArray<bsls_Types::Int64>     TT;
+            typedef bsl::vector<bsls_Types::Int64> PT;
 
             const int ET = bdem_ElemType::BDEM_INT64_ARRAY;
 
@@ -766,8 +759,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef MyArray<bsls_PlatformUtil::Uint64>    TT;
-            typedef bsl::vector<bsls_PlatformUtil::Int64> PT;
+            typedef MyArray<bsls_Types::Uint64>    TT;
+            typedef bsl::vector<bsls_Types::Int64> PT;
 
             const int ET = bdem_ElemType::BDEM_INT64_ARRAY;
 
@@ -876,8 +869,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef MyArray<const bsls_PlatformUtil::Int64> TT;
-            typedef bsl::vector<bsls_PlatformUtil::Int64>   PT;
+            typedef MyArray<const bsls_Types::Int64> TT;
+            typedef bsl::vector<bsls_Types::Int64>   PT;
 
             const int ET = bdem_ElemType::BDEM_INT64_ARRAY;
 
@@ -885,9 +878,6 @@ int main(int argc, char *argv[])
             ASSERT( 1 == (bslmf_IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
-
-
-
 
         {
             typedef bdet_DatetimeTz TT;
@@ -1076,9 +1066,6 @@ int main(int argc, char *argv[])
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
 
-
-
-
         {
             typedef MyCustomizedType<unsigned int> TT;
             typedef int                            PT;
@@ -1092,8 +1079,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef MyCustomizedType<bsls_PlatformUtil::Int64> TT;
-            typedef bsls_PlatformUtil::Int64                   PT;
+            typedef MyCustomizedType<bsls_Types::Int64> TT;
+            typedef bsls_Types::Int64                   PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
@@ -1114,8 +1101,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef MyCustomizedType<const bsls_PlatformUtil::Int64> TT;
-            typedef bsls_PlatformUtil::Int64                         PT;
+            typedef MyCustomizedType<const bsls_Types::Int64> TT;
+            typedef bsls_Types::Int64                         PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
@@ -1123,9 +1110,6 @@ int main(int argc, char *argv[])
             ASSERT( 1 == (bslmf_IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
-
-
-
 
         {
             typedef MyNullableValue<unsigned int> TT;
@@ -1139,8 +1123,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef MyNullableValue<bsls_PlatformUtil::Int64> TT;
-            typedef bsls_PlatformUtil::Int64                  PT;
+            typedef MyNullableValue<bsls_Types::Int64> TT;
+            typedef bsls_Types::Int64                  PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
@@ -1161,8 +1145,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef MyNullableValue<const bsls_PlatformUtil::Int64> TT;
-            typedef bsls_PlatformUtil::Int64                        PT;
+            typedef MyNullableValue<const bsls_Types::Int64> TT;
+            typedef bsls_Types::Int64                        PT;
 
             const int ET = bdem_ElemType::BDEM_INT64;
 
@@ -1170,8 +1154,6 @@ int main(int argc, char *argv[])
             ASSERT( 1 == (bslmf_IsSame<PT,
                                        bdem_SelectBdemType<TT>::Type>::VALUE));
         }
-
-
 
       } break;
       default: {

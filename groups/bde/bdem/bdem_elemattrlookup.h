@@ -107,8 +107,8 @@ BDES_IDENT("$Id: $")
 #include <bdem_tableimp.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -118,7 +118,6 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
-
 
 namespace BloombergLP {
 
@@ -176,7 +175,7 @@ template <class STREAM>
 const bdem_DescriptorStreamIn<STREAM> *
 bdem_ElemStreamInAttrLookup<STREAM>::lookupTable()
 {
-    typedef bsls_PlatformUtil::Int64 Int64;
+    typedef bsls_Types::Int64 Int64;
 
     static const bdem_DescriptorStreamIn<STREAM>
         table[bdem_ElemType::BDEM_NUM_TYPES] =
@@ -225,7 +224,7 @@ template <class STREAM>
 const bdem_DescriptorStreamOut<STREAM> *
 bdem_ElemStreamOutAttrLookup<STREAM>::lookupTable()
 {
-    typedef bsls_PlatformUtil::Int64 Int64;
+    typedef bsls_Types::Int64 Int64;
 
     static const bdem_DescriptorStreamOut<STREAM>
         table[bdem_ElemType::BDEM_NUM_TYPES] =

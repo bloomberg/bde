@@ -1,4 +1,4 @@
-// bdem_binding.t.cpp            -*-C++-*-
+// bdem_binding.t.cpp                                                 -*-C++-*-
 
 #include <bdem_binding.h>
 
@@ -10,9 +10,9 @@
 #include <bdet_datetz.h>
 #include <bdet_timetz.h>
 
-#include <bslma_testallocator.h>         // for testing only
-#include <bsls_platform.h>               // for testing only
-#include <bsls_platformutil.h>           // for testing only
+#include <bslma_testallocator.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_exception.h>
 #include <bsl_iostream.h>
@@ -813,36 +813,35 @@ typedef bdem_TableBinding                 TblBind;
 typedef bdem_ConstColumnBinding          CColBind;
 typedef bdem_ColumnBinding                ColBind;
 
-typedef bdem_ChoiceBinding                CBind;
-typedef bdem_ConstChoiceBinding           CCBind;
-typedef bdem_ChoiceArrayBinding           CArrBind;
-typedef bdem_ConstChoiceArrayBinding      CCArrBind;
+typedef bdem_ChoiceBinding                  CBind;
+typedef bdem_ConstChoiceBinding            CCBind;
+typedef bdem_ChoiceArrayBinding          CArrBind;
+typedef bdem_ConstChoiceArrayBinding    CCArrBind;
 
 typedef bdem_ConstElemRef                CElemRef;
 typedef bdem_ElemRef                      ElemRef;
 
-typedef bdem_ElemType                    ElemType;
-typedef bdem_List                        List;
-typedef bdem_Row                         Row;
-typedef bdem_Table                       Table;
-typedef bdem_Choice          Choice;
-typedef bdem_ChoiceArray         ChoiceArray;
+typedef bdem_ElemType                     ElemType;
+typedef bdem_List                         List;
+typedef bdem_Row                          Row;
+typedef bdem_Table                        Table;
+typedef bdem_Choice                       Choice;
+typedef bdem_ChoiceArray                  ChoiceArray;
 
-typedef bdem_FieldDef                    FldDef;
-typedef bdem_RecordDef                   RecDef;
-typedef bdem_Schema                      Schema;
+typedef bdem_FieldDef                     FldDef;
+typedef bdem_RecordDef                    RecDef;
+typedef bdem_Schema                       Schema;
 
-typedef bdet_Time                        Time;
-typedef bdet_Date                        Date;
-typedef bdet_Datetime                    Datetime;
-typedef bdet_DatetimeTz          DatetimeTz;
-typedef bdet_DateTz          DateTz;
-typedef bdet_TimeTz          TimeTz;
+typedef bdet_Time                         Time;
+typedef bdet_Date                         Date;
+typedef bdet_Datetime                     Datetime;
+typedef bdet_DatetimeTz                   DatetimeTz;
+typedef bdet_DateTz                       DateTz;
+typedef bdet_TimeTz                       TimeTz;
 
-typedef bsls_PlatformUtil::Int64         Int64;
+typedef bsls_Types::Int64                 Int64;
 
 const int NUM_TYPES = ElemType::BDEM_NUM_TYPES;
-// const int NUM_TYPES = ElemType::BDEM_TABLE+1;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -1164,52 +1163,6 @@ static const ElemType::Type csElemTypes[] = {
                                     //     'CHOICE_ARRAY')
 };
 const int NUM_CS_TYPES = sizeof csElemTypes / sizeof *csElemTypes;
-
-#if 0
-static const char *csElemTypeNames[] = {
-    "bdem_ElemType::BDEM_CHAR",                //  0
-    "bdem_ElemType::BDEM_SHORT",               //  1
-    "bdem_ElemType::BDEM_INT",                 //  2
-    "bdem_ElemType::BDEM_INT64",               //  3
-    "bdem_ElemType::BDEM_FLOAT",               //  4
-    "bdem_ElemType::BDEM_DOUBLE",              //  5
-    "bdem_ElemType::BDEM_STRING",              //  6
-    "bdem_ElemType::BDEM_DATETIME",            //  7
-    "bdem_ElemType::BDEM_DATE",                //  8
-    "bdem_ElemType::BDEM_TIME",                //  9
-    "bdem_ElemType::BDEM_CHAR_ARRAY",          // 10
-    "bdem_ElemType::BDEM_SHORT_ARRAY",         // 11
-    "bdem_ElemType::BDEM_INT_ARRAY",           // 12
-    "bdem_ElemType::BDEM_INT64_ARRAY",         // 13
-    "bdem_ElemType::BDEM_FLOAT_ARRAY",         // 14
-    "bdem_ElemType::BDEM_DOUBLE_ARRAY",        // 15
-    "bdem_ElemType::BDEM_STRING_ARRAY",        // 16
-    "bdem_ElemType::BDEM_DATETIME_ARRAY",      // 17
-    "bdem_ElemType::BDEM_DATE_ARRAY",          // 18
-    "bdem_ElemType::BDEM_TIME_ARRAY",          // 19
-    "bdem_ElemType::BDEM_LIST",                // 20
-    "bdem_ElemType::BDEM_TABLE",               // 21
-    "bdem_ElemType::BDEM_BOOL",                // 22
-    "bdem_ElemType::BDEM_DATETIMETZ",          // 23
-    "bdem_ElemType::BDEM_DATETZ",              // 24
-    "bdem_ElemType::BDEM_TIMETZ",              // 25
-    "bdem_ElemType::BDEM_BOOL_ARRAY",          // 26
-    "bdem_ElemType::BDEM_DATETIMETZ_ARRAY",    // 27
-    "bdem_ElemType::BDEM_DATETZ_ARRAY",        // 28
-    "bdem_ElemType::BDEM_TIMETZ_ARRAY",        // 29
-    "bdem_ElemType::BDEM_CHOICE",              // 30
-    "bdem_ElemType::BDEM_CHOICE_ARRAY",        // 31
-    "bdem_ElemType::BDEM_LIST (constrained)",  // 32
-    "bdem_ElemType::BDEM_TABLE (constrainted)" // 32
-    "bdem_ElemType::BDEM_CHOICE (constrained)",       // 34
-    "bdem_ElemType::BDEM_CHOICE_ARRAY (constrainted)" // 35
-};
-
-struct Assertions {
-    char typeNameAssertion[NUM_CS_TYPES == sizeof csElemTypeNames /
-                                           sizeof csElemTypeNames[0]];
-};
-#endif
 
 //=============================================================================
 //                'bdem_Schema' HELPER DATA AND FUNCTIONS
@@ -1953,7 +1906,7 @@ void createTable(bdem_Table *table, const bdem_RecordDef *constraint)
       table->reset(typesCatalog);
     }
 
-    int numRows = 2;  // TBD perhaps make this a default (third) argument
+    const int numRows = 2;
 
     for (int i = 0; i < numRows; ++i) {
         bdem_List list;
@@ -2183,9 +2136,8 @@ const int NUM_CHOICE_SPECS = sizeof choiceSpecs / sizeof *choiceSpecs;
                                  "z", "A", "B", "C", "D","E", "F"             \
     };                                                                        \
                                                                               \
-    ASSERT(NUM_TYPES == S1.record(0).numFields());                            
-                                                                              
-                                                                              
+    ASSERT(NUM_TYPES == S1.record(0).numFields());
+
 #define DECLARE_TEST_LIST_OBJECTS                                             \
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  \
     //                           Helper Data                                  \
@@ -2299,7 +2251,10 @@ const int NUM_CHOICE_SPECS = sizeof choiceSpecs / sizeof *choiceSpecs;
     Xd.push_back(XZ);                                                         \
     Xd.push_back(XZ);                                                         \
                                                                               \
-    const ElemType::Type types[] = { ElemType::BDEM_CHAR, ElemType::BDEM_INT }; \
+    const ElemType::Type types[] = {                                          \
+        ElemType::BDEM_CHAR,                                                  \
+        ElemType::BDEM_INT                                                    \
+    };                                                                        \
                                                                               \
     Choice                                       Xe(types,2);                 \
     const Choice                                 Xe_=Xe;                      \
@@ -2472,8 +2427,8 @@ const int NUM_CHOICE_SPECS = sizeof choiceSpecs / sizeof *choiceSpecs;
 #define DECLARE_TABLE_OBJECTS                                                 \
     initVectors();  /* initialize vectors used as helper data */              \
                                                                               \
-    /* Declare a 'list' vector and 'schema' vector corresponding to the entries \
-    // in the 'list' vector. */                                               \
+    /* Declare a 'list' vector and 'schema' vector corresponding to the */    \
+    /* entries in the 'list' vector.                                    */    \
                                                                               \
     bsl::vector<Schema>       listSchemaVec(NUM_LIST_SPECS);                  \
     bsl::vector<List>         listVec(NUM_LIST_SPECS);                        \
@@ -2514,8 +2469,8 @@ const int NUM_CHOICE_SPECS = sizeof choiceSpecs / sizeof *choiceSpecs;
         createTable(&tableVec[i],                                             \
                     rec->field(rec->numFields() - 1).recordConstraint());     \
         tableRecordName[i] = recName(*tableRecVec[i]);                        \
-    }                                                                         
-                                                                              
+    }
+
 #define DECLARE_CHOICE_OBJECTS                                                \
     /* Declare a 'choice' vector and 'schema' vector corresponding to the     \
     // entries in the 'choice' vector. */                                     \
@@ -2549,7 +2504,7 @@ const int NUM_CHOICE_SPECS = sizeof choiceSpecs / sizeof *choiceSpecs;
         choiceArrayRecordName[i] =                                            \
                     choiceArraySchemaVec[i].recordName(                       \
                  choiceArraySchemaVec[i].numRecords() - 1);                   \
-    }                                                                         
+    }
 
 //=============================================================================
 //                              TEST CASES
@@ -3562,7 +3517,7 @@ DEFINE_TEST_CASE(26) {
         //     having the first 'bdem_ChoiceArray' as an element.
         //     Create "const" and non-"const" choice array bindings from the
         //     second 'bdem_ChoiceArray' and call the 'choiceArrayBinding'
-        //     methods to obtain new choice array  bindings for the
+        //     methods to obtain new choice array bindings for the
         //      'bdem_ChoiceArray'.  Use the direct accessors to verify that
         //     the choice array and record have been installed correctly in the
         //     returned bindings.
@@ -3926,7 +3881,7 @@ DEFINE_TEST_CASE(26) {
 
         }
 
-      } 
+      }
 
 DEFINE_TEST_CASE(25) {
         // ------------------------------------------------------------------
@@ -5252,11 +5207,16 @@ DEFINE_TEST_CASE(23) {
             if (veryVerbose) {
                 T_ cout << "Having rows of an unconstrained type." << endl;
             }
-            // Not creating columns of unconstrained 'bdem_List' and
-            // 'bdem_Table', as that does not make sense.
-            for (int i = 0; i < NUM_TYPES - 2; ++i) {
+            for (int i = 0; i < NUM_TYPES; ++i) {
                 static char spec[] = "~ :a%a :b#ca";
                 spec[4] = bdemType[i];  // replace '%' in 'spec'
+
+                // Not creating columns of unconstrained aggregate type as
+                // column bindings to such are not allowed.
+
+                if (ElemType::isAggregateType(getType(bdemType[i]))) {
+                    continue;
+                }
 
                 Schema mS;  const Schema& S = mS;  createSchema(&mS, spec);
 
@@ -6121,7 +6081,7 @@ DEFINE_TEST_CASE(21) {
         //     'bdem_ChoiceArray' pointer and the same 'bdem_RecordDef'.
         //   - The two bindings being compared store different
         //     'bdem_ChoiceArray' pointers and the same 'bdem_RecordDef',
-        //     with the two choice  arrays having  identical data.
+        //     with the two choice arrays having identical data.
         //   - The two bindings being compared store different
         //     'bdem_ChoiceArray' pointers and the same 'bdem_RecordDef',
         //     with the two choice arrays having different data.
@@ -6292,7 +6252,7 @@ DEFINE_TEST_CASE(20) {
         //     pointer and the same 'bdem_RecordDef'.
         //   - The two bindings being compared store different 'bdem_Choice'
         //     pointers and the same 'bdem_RecordDef', with the two choices
-        //     having  identical data.
+        //     having identical data.
         //   - The two bindings being compared store different 'bdem_Choice'
         //     pointers and the same 'bdem_RecordDef', with the two choices
         //     having different data.
@@ -8337,7 +8297,7 @@ DEFINE_TEST_CASE(10) {
         //   functions provided by the choice bindings and verify that the
         //   references returned match the original data.  Use the accessors
         //   that return modifiable references to change the value of the
-        //   'bdem_List'.  Check that the  value of the original 'bdem_List'
+        //   'bdem_List'.  Check that the value of the original 'bdem_List'
         //   has been correctly modified via the bindings.  As a negative
         //  test, confirm that the accessors of  "const" row bindings return
         //  non-modifiable references.
@@ -9811,7 +9771,7 @@ DEFINE_TEST_CASE(7) {
                ChoiceArray mCA = choiceArrayVec[i];
                const ChoiceArray& CA = mCA;
 
-               const Schema &S = choiceArraySchemaVec[i];
+               const Schema&  S       = choiceArraySchemaVec[i];
                const RecDef  *rec     = &S.record(S.numRecords() - 1);
                const char    *recName = choiceArrayRecordName[i];
 
@@ -9883,8 +9843,8 @@ DEFINE_TEST_CASE(7) {
         {
            ChoiceArray mCA(choiceArrayVec[0]);  const ChoiceArray& CA = mCA;
 
-           const Schema  S   = choiceArraySchemaVec[0];
-           const RecDef *rec = &S.record(S.numRecords() - 1);
+           const Schema&  S   = choiceArraySchemaVec[0];
+           const RecDef  *rec = &S.record(S.numRecords() - 1);
 
            {
                 CCArrBind ccab(&CA, rec);
@@ -9903,8 +9863,8 @@ DEFINE_TEST_CASE(7) {
         {
             ChoiceArray mCA(choiceArrayVec[0]);  const ChoiceArray& CA = mCA;
 
-            const Schema  S   = choiceArraySchemaVec[0];
-            const RecDef *rec = &S.record(S.numRecords() - 1);
+            const Schema&  S   = choiceArraySchemaVec[0];
+            const RecDef  *rec = &S.record(S.numRecords() - 1);
 
             {
                       CCArrBind  ccab(&CA, rec);
@@ -10026,7 +9986,7 @@ DEFINE_TEST_CASE(6) {
             for (int i = 0; i < NUM_CHOICE_SPECS; ++i) {
                Choice mC = choiceVec[i]; const Choice& C = mC;
 
-               const Schema &S = choiceSchemaVec[i];
+               const Schema&  S       = choiceSchemaVec[i];
                const RecDef  *rec     = &S.record(S.numRecords() - 1);
                const char    *recName = choiceRecordName[i];
 
@@ -10110,7 +10070,7 @@ DEFINE_TEST_CASE(6) {
                ChoiceArray mCA = choiceArrayVec[i];
                const ChoiceArray& CA = mCA;
 
-               const Schema &S = choiceArraySchemaVec[i];
+               const Schema&  S       = choiceArraySchemaVec[i];
                const RecDef  *rec     = &S.record(S.numRecords() - 1);
                const char    *recName = choiceArrayRecordName[i];
                for (int index = 0; index < CA.length(); ++index) {
@@ -10173,8 +10133,8 @@ DEFINE_TEST_CASE(6) {
         {
            Choice mC(choiceVec[0]);  const Choice& C = mC;
 
-           const Schema  S   = choiceSchemaVec[0];
-           const RecDef *rec = &S.record(S.numRecords() - 1);
+           const Schema&  S   = choiceSchemaVec[0];
+           const RecDef  *rec = &S.record(S.numRecords() - 1);
 
            {
                 CCBind ccb(&C.item(), rec);
@@ -10193,8 +10153,8 @@ DEFINE_TEST_CASE(6) {
         {
             Choice mC(choiceVec[0]);  const Choice& C = mC;
 
-            const Schema  S   = choiceSchemaVec[0];
-            const RecDef *rec = &S.record(S.numRecords() - 1);
+            const Schema&  S   = choiceSchemaVec[0];
+            const RecDef  *rec = &S.record(S.numRecords() - 1);
 
             {
                       CCBind  ccb(&C, rec);
@@ -10347,7 +10307,7 @@ DEFINE_TEST_CASE(5) {
         {
             Table mT(tableVec[0]);  const Table& T = mT;
 
-            const Schema   S   = tableSchemaVec[0];
+            const Schema&  S   = tableSchemaVec[0];
             const RecDef  *rec = &S.record(S.numRecords() - 1);
             const FldDef&  fld = rec->field(0);
 
@@ -10368,7 +10328,7 @@ DEFINE_TEST_CASE(5) {
         {
             Table mT(tableVec[0]);  const Table& T = mT;
 
-            const Schema   S   = tableSchemaVec[0];
+            const Schema&  S   = tableSchemaVec[0];
             const RecDef  *rec = &S.record(S.numRecords() - 1);
             const FldDef&  fld = rec->field(0);
 
@@ -10540,8 +10500,8 @@ DEFINE_TEST_CASE(4) {
         {
             Table mT(tableVec[0]);  const Table& T = mT;
 
-            const Schema  S   = tableSchemaVec[0];
-            const RecDef *rec = &S.record(S.numRecords() - 1);
+            const Schema&  S   = tableSchemaVec[0];
+            const RecDef  *rec = tableRecVec[0];
 
             {
                 CTblBind ctb(&T, rec);
@@ -10560,8 +10520,8 @@ DEFINE_TEST_CASE(4) {
         {
             Table mT(tableVec[0]);  const Table& T = mT;
 
-            const Schema  S   = tableSchemaVec[0];
-            const RecDef *rec = tableRecVec[0];
+            const Schema&  S   = tableSchemaVec[0];
+            const RecDef  *rec = tableRecVec[0];
 
             {
                       CTblBind  ctb(&T, rec);
@@ -10821,8 +10781,8 @@ DEFINE_TEST_CASE(3) {
         {
             List mL(listVec[0]);  const List& L = mL;
 
-            const Schema  S   = listSchemaVec[0];
-            const RecDef *rec = &S.record(S.numRecords() - 1);
+            const Schema&  S   = listSchemaVec[0];
+            const RecDef  *rec = &S.record(S.numRecords() - 1);
 
             {
                 CRowBind crb(&L.row(), rec);
@@ -10841,8 +10801,8 @@ DEFINE_TEST_CASE(3) {
         {
             List mL(listVec[0]);  const List& L = mL;
 
-            const Schema  S   = listSchemaVec[0];
-            const RecDef *rec = &S.record(S.numRecords() - 1);
+            const Schema&  S   = listSchemaVec[0];
+            const RecDef  *rec = &S.record(S.numRecords() - 1);
 
             {
                       CRowBind  crb(&L.row(), rec);

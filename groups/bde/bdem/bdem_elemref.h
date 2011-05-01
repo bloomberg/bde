@@ -390,10 +390,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>  // @DEPRECATED
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -581,13 +577,15 @@ class bdem_ConstElemRef {
 
     const bdem_Descriptor *descriptor() const;
         // Return the address of the non-modifiable type-specific attributes of
-        // this object.  Note that if this reference is unbound, the descriptor
-        // for 'bdem_ElemType::BDEM_VOID' is returned.
+        // this object.  Note that this method should *NOT* be called; it is
+        // for *internal* use only.  Also note that if this reference is
+        // unbound, the descriptor for 'bdem_ElemType::BDEM_VOID' is returned.
 
     const void *data() const;
         // Return the address of the non-modifiable 'bdem' element referenced
         // by this object, or 0 if this reference is unbound.  The nullness of
-        // the element is not affected.
+        // the element is not affected.  Note that this method should *NOT* be
+        // called; it is for *internal* use only.
 
     bool isBound() const;
         // Return 'true' if this element reference refers to a (possibly
@@ -688,13 +686,15 @@ class bdem_ElemRef : public bdem_ConstElemRef {
     // PRIVATE ACCESSORS
     void setNullnessBit() const;
         // Set the nullness bit corresponding to the element referenced by this
-        // object to 1 if 'isNullable()' is 'true'.  This method has no effect
-        // if 'isNullable()' is 'false', or if this reference is unbound.
+        // object to 1 if 'isNullable' returns 'true'.  This method has no
+        // effect if 'isNullable' returns 'false', or if this reference is
+        // unbound.
 
     void clearNullnessBit() const;
         // Set the nullness bit corresponding to the element referenced by this
-        // object to 0 if 'isNullable()' is 'true'.  This method has no effect
-        // if 'isNullable()' is 'false', or if this reference is unbound.
+        // object to 0 if 'isNullable' returns 'true'.  This method has no
+        // effect if 'isNullable' returns 'false', or if this reference is
+        // unbound.
 
   public:
     // CLASS METHODS
@@ -816,7 +816,8 @@ class bdem_ElemRef : public bdem_ConstElemRef {
         // Return the address of the modifiable 'bdem' element referenced by
         // this object, or 0 if this reference is unbound.  If the referenced
         // element is null, it is made non-null before returning, but its value
-        // is not otherwise modified.
+        // is not otherwise modified.  Note that this method should *NOT* be
+        // called; it is for *internal* use only.
 
     void *dataRaw() const;
         // Return the address of the modifiable 'bdem' element referenced by

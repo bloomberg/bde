@@ -1,4 +1,4 @@
-// bdem_schemautil.t.cpp            -*-C++-*-
+// bdem_schemautil.t.cpp                                              -*-C++-*-
 
 #include <bdem_schemautil.h>
 
@@ -21,7 +21,7 @@
 #include <bslma_testallocatorexception.h>    // for testing only
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>               // for testing only
+#include <bsls_types.h>                      // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_string.h>
@@ -132,7 +132,7 @@ typedef bdem_Schema              Schema;
 
 typedef bdeat_FormattingMode     Format;
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls_Types::Int64        Int64;
 
 const int MASKS[] = {
     0,
@@ -163,8 +163,7 @@ const int             N02 = bdetu_Unset<int>::unsetValue();
 
 const Int64           A03 = -100;
 const Int64           B03 = -200;
-const Int64           N03 =
-                           bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+const Int64           N03 = bdetu_Unset<Int64>::unsetValue();
 
 const float           A04 = -1.5;
 const float           B04 = -2.5;
@@ -845,10 +844,10 @@ const char
             setDefaultValueForType(spec.defaultValue(), dfltIndex);
         }
 
-        const FldDef *field = (enumConstraint) 
+        const FldDef *field = (enumConstraint)
             ? record->appendField(spec, enumConstraint, fieldName, id)
             : record->appendField(spec, recordConstraint, fieldName, id);
-       
+
         ASSERT(field);
     }
 

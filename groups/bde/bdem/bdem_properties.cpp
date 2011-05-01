@@ -1,16 +1,12 @@
-// bdem_properties.cpp                  -*-C++-*-
+// bdem_properties.cpp                                                -*-C++-*-
 #include <bdem_properties.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdem_properties_cpp,"$Id$ $CSID$")
 
-
 #include <bdem_aggregateoption.h>
 #include <bdem_elemtype.h>
 #include <bdem_functiontemplates.h>
-
-#include <bsls_alignmentfromtype.h>
-#include <bsls_platformutil.h>
 
 #include <bdet_datetime.h>
 #include <bdet_datetimetz.h>
@@ -18,6 +14,9 @@ BDES_IDENT_RCSID(bdem_properties_cpp,"$Id$ $CSID$")
 #include <bdet_datetz.h>
 #include <bdet_time.h>
 #include <bdet_timetz.h>
+
+#include <bsls_alignmentfromtype.h>
+#include <bsls_types.h>
 
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -144,8 +143,7 @@ const bdem_Descriptor bdem_Properties::d_intAttr = {
 };
 
 const bdem_Descriptor bdem_Properties::d_int64Attr = {
-    BDEM_SCALAR_DESCRIPTOR_INIT(bsls_PlatformUtil::Int64,
-                                bdem_ElemType::BDEM_INT64)
+    BDEM_SCALAR_DESCRIPTOR_INIT(bsls_Types::Int64, bdem_ElemType::BDEM_INT64)
 };
 
 const bdem_Descriptor bdem_Properties::d_floatAttr = {
@@ -205,7 +203,7 @@ const bdem_Descriptor bdem_Properties::d_intArrayAttr = {
 };
 
 const bdem_Descriptor bdem_Properties::d_int64ArrayAttr = {
-    BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bsls_PlatformUtil::Int64>,
+    BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bsls_Types::Int64>,
                                bdem_ElemType::BDEM_INT64_ARRAY)
 };
 

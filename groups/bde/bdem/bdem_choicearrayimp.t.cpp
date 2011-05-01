@@ -1,4 +1,4 @@
-// bdem_choicearrayimp.t.cpp                  -*-C++-*-
+// bdem_choicearrayimp.t.cpp                                          -*-C++-*-
 
 #include <bdem_choicearrayimp.h>
 
@@ -28,6 +28,7 @@
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -215,7 +216,7 @@ typedef bdem_AggregateOption     AggOption;
 
 typedef bsl::vector<EType::Type> Catalog;
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls_Types::Int64        Int64;
 
 typedef bdet_Datetime            Datetime;
 typedef bdet_Date                Date;
@@ -261,13 +262,12 @@ const int              A02 = 10;
 const int              B02 = 20;
 const int              N02 = bdetu_Unset<int>::unsetValue();
 
-const bsls_PlatformUtil::Int64
+const bsls_Types::Int64
                        A03 = -100;
-const bsls_PlatformUtil::Int64
+const bsls_Types::Int64
                        B03 = -200;
-const bsls_PlatformUtil::Int64
-                       N03 =
-                           bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+const bsls_Types::Int64
+                       N03 = bdetu_Unset<bsls_Types::Int64>::unsetValue();
 
 const float            A04 = -1.5;
 const float            B04 = -2.5;
@@ -339,15 +339,15 @@ const  bsl::vector<int>                          A12 = fA12();
 const  bsl::vector<int>                          B12 = fB12();
 const  bsl::vector<int>                          N12;
 
-static bsl::vector<bsls_PlatformUtil::Int64>    fA13() {
-       bsl::vector<bsls_PlatformUtil::Int64> t;
+static bsl::vector<bsls_Types::Int64>    fA13() {
+       bsl::vector<bsls_Types::Int64> t;
                                      t.push_back(A03); return t; }
-static bsl::vector<bsls_PlatformUtil::Int64>    fB13() {
-       bsl::vector<bsls_PlatformUtil::Int64> t;
+static bsl::vector<bsls_Types::Int64>    fB13() {
+       bsl::vector<bsls_Types::Int64> t;
                                      t.push_back(B03); return t; }
-const  bsl::vector<bsls_PlatformUtil::Int64>     A13 = fA13();
-const  bsl::vector<bsls_PlatformUtil::Int64>     B13 = fB13();
-const  bsl::vector<bsls_PlatformUtil::Int64>     N13;
+const  bsl::vector<bsls_Types::Int64>     A13 = fA13();
+const  bsl::vector<bsls_Types::Int64>     B13 = fB13();
+const  bsl::vector<bsls_Types::Int64>     N13;
 
 static bsl::vector<float>                       fA14() {
        bsl::vector<float> t;         t.push_back(A04); return t; }
@@ -598,7 +598,7 @@ streamInAttrLookup<STREAM>::lookupTable()
         { &bdem_FunctionTemplates::streamInFundamental<short,STREAM> },
         { &bdem_FunctionTemplates::streamInFundamental<int,STREAM> },
         { &bdem_FunctionTemplates::
-                        streamInFundamental<bsls_PlatformUtil::Int64,STREAM> },
+                               streamInFundamental<bsls_Types::Int64,STREAM> },
         { &bdem_FunctionTemplates::streamInFundamental<float,STREAM> },
         { &bdem_FunctionTemplates::streamInFundamental<double,STREAM> },
         { &bdem_FunctionTemplates::streamIn<bsl::string,STREAM> },
@@ -608,8 +608,7 @@ streamInAttrLookup<STREAM>::lookupTable()
         { &bdem_FunctionTemplates::streamInArray<char,STREAM> },
         { &bdem_FunctionTemplates::streamInArray<short,STREAM> },
         { &bdem_FunctionTemplates::streamInArray<int,STREAM> },
-        { &bdem_FunctionTemplates::
-                              streamInArray<bsls_PlatformUtil::Int64,STREAM> },
+        { &bdem_FunctionTemplates::streamInArray<bsls_Types::Int64,STREAM> },
         { &bdem_FunctionTemplates::streamInArray<float,STREAM> },
         { &bdem_FunctionTemplates::streamInArray<double,STREAM> },
         { &bdem_FunctionTemplates::streamInArray<bsl::string,STREAM> },
@@ -655,7 +654,7 @@ streamOutAttrLookup<STREAM>::lookupTable()
         { &bdem_FunctionTemplates::streamOutFundamental<short,STREAM> },
         { &bdem_FunctionTemplates::streamOutFundamental<int,STREAM> },
         { &bdem_FunctionTemplates::
-                      streamOutFundamental<bsls_PlatformUtil::Int64, STREAM> },
+                             streamOutFundamental<bsls_Types::Int64, STREAM> },
         { &bdem_FunctionTemplates::streamOutFundamental<float,STREAM> },
         { &bdem_FunctionTemplates::streamOutFundamental<double,STREAM> },
         { &bdem_FunctionTemplates::streamOut<bsl::string,STREAM> },
@@ -665,8 +664,7 @@ streamOutAttrLookup<STREAM>::lookupTable()
         { &bdem_FunctionTemplates::streamOutArray<char, STREAM> },
         { &bdem_FunctionTemplates::streamOutArray<short, STREAM> },
         { &bdem_FunctionTemplates::streamOutArray<int, STREAM> },
-        { &bdem_FunctionTemplates::
-                            streamOutArray<bsls_PlatformUtil::Int64, STREAM> },
+        { &bdem_FunctionTemplates::streamOutArray<bsls_Types::Int64, STREAM> },
         { &bdem_FunctionTemplates::streamOutArray<float, STREAM> },
         { &bdem_FunctionTemplates::streamOutArray<double, STREAM> },
         { &bdem_FunctionTemplates::streamOutArray<bsl::string, STREAM> },
@@ -1310,7 +1308,8 @@ int main(int argc, char *argv[])
         //   The 'd_choiceArrayAttr' struct is initialized such that:
         //   1. 'd_elemEnum == 31'
         //   2. 'd_size == sizeof(bdem_ChoiceArrayImp)'
-        //   3. 'd_alignment == bsls_AlignmentFromType<bdem_ChoiceArrayImp>::VALUE'
+        //   3.
+        //  'd_alignment == bsls_AlignmentFromType<bdem_ChoiceArrayImp>::VALUE'
         //   4. Function 'unsetConstruct' calls the default constructor.
         //   5. Function 'copyConstruct' calls the copy constructor.
         //   6. Function 'destroy' calls the destructor.

@@ -1,4 +1,4 @@
-// bdem_binding.h               -*-C++-*-
+// bdem_binding.h                                                     -*-C++-*-
 #ifndef INCLUDED_BDEM_BINDING
 #define INCLUDED_BDEM_BINDING
 
@@ -418,7 +418,7 @@ BDES_IDENT("$Id: $")
 // represent the "Widgets" department:
 //..
 //  bdem_List widgetsDept(DeptTypes, numDeptTypes);
-//  widgetsDept[0].theModifiableString() = "Widgets";  // dept. name
+//  widgetsDept[0].theModifiableString() = "Widgets";  // department name
 //  widgetsDept[1].theModifiableDouble() = 195.7;      // revenue (knuts x M)
 //  widgetsDept[2].theModifiableTable()  = bdem_Table(TeamTypes, numTeamTypes);
 //  widgetsDept[2].theModifiableTable().appendRow(teamA);
@@ -675,12 +675,20 @@ BDES_IDENT("$Id: $")
 #include <bdem_schema.h>
 #endif
 
+#ifndef INCLUDED_BDEM_SCHEMAAGGREGATEUTIL
+#include <bdem_schemaaggregateutil.h>
+#endif
+
 #ifndef INCLUDED_BDEM_SCHEMAUTIL
 #include <bdem_schemautil.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -747,6 +755,7 @@ class bdem_ConstRowBinding {
     friend class bdem_RowBinding;
         // Allow the derived class to access the private members of this class.
 
+  private:
     // NOT IMPLEMENTED
     bdem_ConstRowBinding& operator=(const bdem_ConstRowBinding&);
 
@@ -992,7 +1001,7 @@ class bdem_ConstRowBinding {
     const char& theChar(const char *elementName) const;
     const short& theShort(const char *elementName) const;
     const int& theInt(const char *elementName) const;
-    const bsls_PlatformUtil::Int64& theInt64(const char *elementName) const;
+    const bsls_Types::Int64& theInt64(const char *elementName) const;
     const float& theFloat(const char *elementName) const;
     const double& theDouble(const char *elementName) const;
     const bsl::string& theString(const char *elementName) const;
@@ -1006,7 +1015,7 @@ class bdem_ConstRowBinding {
     const bsl::vector<char>& theCharArray(const char *elementName) const;
     const bsl::vector<short>& theShortArray(const char *elementName) const;
     const bsl::vector<int>& theIntArray(const char *elementName) const;
-    const bsl::vector<bsls_PlatformUtil::Int64>& theInt64Array(
+    const bsl::vector<bsls_Types::Int64>& theInt64Array(
                                                 const char *elementName) const;
     const bsl::vector<float>& theFloatArray(const char *elementName) const;
     const bsl::vector<double>& theDoubleArray(const char *elementName) const;
@@ -1101,12 +1110,12 @@ class bdem_ConstRowBinding {
         // corresponding element is 'INT' or 'STRING', and the element is
         // constrained by an enumeration definition.
 
-    const char *enumerationAsString(int columnIndex) const;
+    const char *enumerationAsString(int index) const;
         // Return the string representation of the enumeration element at the
-        // specified 'columnIndex' in this binding.  Return 0 if the element
+        // specified 'index' in this binding.  Return 0 if the element
         // has a null or unset value.  The returned pointer is valid until the
         // bound schema is destroyed.  The behavior is undefined unless
-        // '0 <= columnIndex < length()', the type of the indexed element is
+        // '0 <= index < length()', the type of the indexed element is
         // INT' or 'STRING', and the element is constrained by an enumeration
         // definition.
 
@@ -1119,13 +1128,13 @@ class bdem_ConstRowBinding {
         // or 'STRING', and the element is constrained by an enumeration
         // definition.
 
-    int enumerationAsInt(int columnIndex) const;
+    int enumerationAsInt(int index) const;
         // Return the integer ID of the enumeration element at the specified
-        // 'columnIndex' in this binding.  Return
-        // 'bdetu_Unset<int>::unsetValue()' if the element has an unset value.
-        // The behavior is undefined unless '0 <= columnIndex < length()', the
-        // type of the indexed element is 'INT' or 'STRING', and the element is
-        // constrained by an enumeration definition.
+        // 'index' in this binding.  Return 'bdetu_Unset<int>::unsetValue()'
+        // if the element has an unset value.  The behavior is undefined unless
+        // '0 <= index < length()', the type of the indexed element is 'INT'
+        // or 'STRING', and the element is constrained by an enumeration
+        // definition.
 };
 
 // FREE OPERATORS
@@ -1451,8 +1460,7 @@ class bdem_RowBinding : public bdem_ConstRowBinding {
     char& theModifiableChar(const char *elementName) const;
     short& theModifiableShort(const char *elementName) const;
     int& theModifiableInt(const char *elementName) const;
-    bsls_PlatformUtil::Int64& theModifiableInt64(
-                                                const char *elementName) const;
+    bsls_Types::Int64& theModifiableInt64(const char *elementName) const;
     float& theModifiableFloat(const char *elementName) const;
     double& theModifiableDouble(const char *elementName) const;
     bsl::string& theModifiableString(const char *elementName) const;
@@ -1466,7 +1474,7 @@ class bdem_RowBinding : public bdem_ConstRowBinding {
     bsl::vector<char>& theModifiableCharArray(const char *elementName) const;
     bsl::vector<short>& theModifiableShortArray(const char *elementName) const;
     bsl::vector<int>& theModifiableIntArray(const char *elementName) const;
-    bsl::vector<bsls_PlatformUtil::Int64>& theModifiableInt64Array(
+    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array(
                                                 const char *elementName) const;
     bsl::vector<float>& theModifiableFloatArray(const char *elementName) const;
     bsl::vector<double>& theModifiableDoubleArray(
@@ -1603,6 +1611,7 @@ class bdem_ConstTableBinding {
     friend class bdem_TableBinding;
         // Allow the derived class to access the private members of this class.
 
+  private:
     // NOT IMPLEMENTED
     bdem_ConstTableBinding& operator=(const bdem_ConstTableBinding&);
 
@@ -1726,8 +1735,8 @@ class bdem_ConstTableBinding {
     const char& theChar(int rowIndex, const char *columnName) const;
     const short& theShort(int rowIndex, const char *columnName) const;
     const int& theInt(int rowIndex, const char *columnName) const;
-    const bsls_PlatformUtil::Int64& theInt64(int         rowIndex,
-                                             const char *columnName) const;
+    const bsls_Types::Int64& theInt64(int         rowIndex,
+                                      const char *columnName) const;
     const float& theFloat(int rowIndex, const char *columnName) const;
     const double& theDouble(int rowIndex, const char *columnName) const;
     const bsl::string& theString(int rowIndex, const char *columnName) const;
@@ -1747,7 +1756,7 @@ class bdem_ConstTableBinding {
                                             const char *columnName) const;
     const bsl::vector<int>& theIntArray(int         rowIndex,
                                         const char *columnName) const;
-    const bsl::vector<bsls_PlatformUtil::Int64>& theInt64Array(
+    const bsl::vector<bsls_Types::Int64>& theInt64Array(
                                                 int         rowIndex,
                                                 const char *columnName) const;
     const bsl::vector<float>& theFloatArray(int         rowIndex,
@@ -1769,9 +1778,9 @@ class bdem_ConstTableBinding {
                                                const char *columnName) const;
     const bsl::vector<bdet_Time>& theTimeArray(int         rowIndex,
                                                const char *columnName) const;
-    const bsl::vector<bdet_TimeTz>& theTimeTzArray(int         rowIndex,
-                                                   const char *columnName)
-                                                                         const;
+    const bsl::vector<bdet_TimeTz>& theTimeTzArray(
+                                               int         rowIndex,
+                                               const char *columnName) const;
     const bdem_Choice& theChoice(int rowIndex, const char *columnName) const;
     const bdem_ChoiceArray& theChoiceArray(int         rowIndex,
                                            const char *columnName) const;
@@ -2127,8 +2136,8 @@ class bdem_TableBinding: public bdem_ConstTableBinding {
     char& theModifiableChar(int rowIndex, const char *columnName) const;
     short& theModifiableShort(int rowIndex, const char *columnName) const;
     int& theModifiableInt(int rowIndex, const char *columnName) const;
-    bsls_PlatformUtil::Int64& theModifiableInt64(int         rowIndex,
-                                                 const char *columnName) const;
+    bsls_Types::Int64& theModifiableInt64(int         rowIndex,
+                                          const char *columnName) const;
     float& theModifiableFloat(int rowIndex, const char *columnName) const;
     double& theModifiableDouble(int rowIndex, const char *columnName) const;
     bsl::string& theModifiableString(int         rowIndex,
@@ -2151,7 +2160,7 @@ class bdem_TableBinding: public bdem_ConstTableBinding {
                                                 const char *columnName) const;
     bsl::vector<int>& theModifiableIntArray(int         rowIndex,
                                             const char *columnName) const;
-    bsl::vector<bsls_PlatformUtil::Int64>& theModifiableInt64Array(
+    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array(
                                                 int         rowIndex,
                                                 const char *columnName) const;
     bsl::vector<float>& theModifiableFloatArray(int         rowIndex,
@@ -2330,8 +2339,19 @@ class bdem_ConstColumnBinding {
     friend class bdem_ColumnBinding;
         // Allow the derived class to access the private members of this class.
 
+  private:
     // NOT IMPLEMENTED
     bdem_ConstColumnBinding& operator=(const bdem_ConstColumnBinding&);
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    // PRIVATE ACCESSORS
+    bool canSatisfyColumn(const bdem_Table    *table,
+                          int                  columnIndex,
+                          const bdem_FieldDef *field);
+        // Return 'true' if the data in the column at the specified
+        // 'columnIndex' of the specified 'table' can satisfy the constraint of
+        // the specified 'field', and 'false' otherwise.
+#endif
 
   public:
     // CREATORS
@@ -2402,7 +2422,7 @@ class bdem_ConstColumnBinding {
         // choice at the specified 'rowIndex' in this binding to the
         // non-modifiable constraint record held by the field bound by this
         // binding.  The behavior is undefined unless
-        // '0 <= rowIndex < numElements()', and the field constrains a
+        // '0 <= rowIndex < numRows()', and the field constrains a
         // 'bdem_Choice'.
 
     bdem_ConstChoiceArrayBinding choiceArrayBinding(int rowIndex) const;
@@ -2410,7 +2430,7 @@ class bdem_ConstColumnBinding {
         // choice array in at the specified 'rowIndex' in this binding to the
         // non-modifiable constraint record held by the field bound by this
         // binding.  The behavior is undefined unless
-        // '0 <= rowIndex < numElements()', and the field constrains a
+        // '0 <= rowIndex < numRows()', and the field constrains a
         // 'bdem_ChoiceArray'.
 
     bdem_ConstRowBinding rowBinding(int rowIndex) const;
@@ -2418,14 +2438,14 @@ class bdem_ConstColumnBinding {
         // the list at the specified 'rowIndex' in this binding to the
         // non-modifiable constraint record held by the field bound by this
         // binding.  The behavior is undefined unless
-        // '0 <= rowIndex < numElements()', and the field constrains a
+        // '0 <= rowIndex < numRows()', and the field constrains a
         // 'bdem_List'.
 
     bdem_ConstTableBinding tableBinding(int rowIndex) const;
         // Return a "const" table binding that binds the non-modifiable table
         // at the specified 'rowIndex' in this binding to the non-modifiable
         // constraint record held by the field bound by this binding.  The
-        // behavior is undefined unless '0 <= rowIndex < numElements()', and
+        // behavior is undefined unless '0 <= rowIndex < numRows()', and
         // the field constrains a 'bdem_Table'.
 
     const char *enumerationAsString(int rowIndex) const;
@@ -2533,7 +2553,7 @@ class bdem_ColumnBinding: public bdem_ConstColumnBinding {
         // '0 <= columnIndex < table->numColumns()' and every data element at
         // 'columnIndex' in 'table' can satisfy the 'field' meta-data.
 
-    int setEnumeration(int rowIndex, const bsl::string&  enumeratorName) const;
+    int setEnumeration(int rowIndex, const bsl::string& enumeratorName) const;
         // Set the value of the enumeration element at the specified 'rowIndex'
         // in this binding.  If the element is of type
         // 'bdem_ElemType::BDEM_STRING', store the specified 'enumeratorName'
@@ -2553,7 +2573,7 @@ class bdem_ColumnBinding: public bdem_ConstColumnBinding {
         // look up 'enumeratorId' in the element's enumeration definition and
         // store the corresponding enumerator name in the element.  Return 0 on
         // success, and a non-zero value otherwise.  The behavior is undefined
-        // unless '0 <= index < numRows()', and the type of the referenced
+        // unless '0 <= rowIndex < numRows()', and the type of the referenced
         // element is 'INT' or 'STRING'.
 
     // ACCESSORS
@@ -2575,7 +2595,7 @@ class bdem_ColumnBinding: public bdem_ConstColumnBinding {
         // Return a choice binding that binds the modifiable choice at the
         // specified 'rowIndex' in this binding to the non-modifiable
         // constraint record held by the field bound by this binding.  The
-        // behavior is undefined unless '0 <= rowIndex < numElements()', and
+        // behavior is undefined unless '0 <= rowIndex < numRows()', and
         // the field constrains a 'bdem_Choice'.
 
     bdem_ChoiceArrayBinding choiceArrayBinding(int rowIndex) const;
@@ -2583,21 +2603,21 @@ class bdem_ColumnBinding: public bdem_ConstColumnBinding {
         // array in at the specified 'rowIndex' in this binding to the
         // non-modifiable constraint record held by the field bound by this
         // binding.  The behavior is undefined
-        // unless '0 <= rowIndex < numElements()', and the field constrains a
+        // unless '0 <= rowIndex < numRows()', and the field constrains a
         // 'bdem_ChoiceArray'.
 
     bdem_RowBinding rowBinding(int rowIndex) const;
         // Return a row binding that binds the modifiable row in the list at
         // the specified 'rowIndex' in this binding to the non-modifiable
         // constraint record held by the field bound by this binding.  The
-        // behavior is undefined unless '0 <= rowIndex < numElements()', and
+        // behavior is undefined unless '0 <= rowIndex < numRows()', and
         // the field constrains a 'bdem_List'.
 
     bdem_TableBinding tableBinding(int rowIndex) const;
         // Return a table binding that binds the modifiable table at the
         // specified 'rowIndex' in this binding to the non-modifiable
         // constraint record held by the field bound by this binding.  The
-        // behavior is undefined unless '0 <= rowIndex < numElements()', and
+        // behavior is undefined unless '0 <= rowIndex < numRows()', and
         // the field constrains a 'bdem_Table'.
 };
 
@@ -2650,6 +2670,7 @@ class bdem_ConstChoiceBinding {
         // Allow the derived class to access the private members of this
         // class.
 
+  private:
     // NOT IMPLEMENTED
     bdem_ConstChoiceBinding& operator=(const bdem_ConstChoiceBinding&);
 
@@ -2833,7 +2854,7 @@ class bdem_ConstChoiceBinding {
                 int                     choiceIndex,
                 const bdem_RecordDef   *record);
         // Reinitialize this choice binding to bind the non-modifiable choice
-        // array item at the  specified 'choiceIndex' in the specified
+        // array item at the specified 'choiceIndex' in the specified
         // 'choiceArray' to the specified non-modifiable 'record'.  The
         // behavior is undefined
         // unless '0 <= choiceIndex < choiceArray->length()' and the item data
@@ -2845,10 +2866,10 @@ class bdem_ConstChoiceBinding {
                 const bdem_Schema      *schema,
                 const char             *recordName);
         // Reinitialize this choice binding to bind the non-modifiable choice
-        // at the  specified 'choiceIndex' in the specified 'choiceArray' to
-        // the specified non-modifiable 'record'.  The behavior is undefined
-        // unless '0 <= choiceIndex < choiceArray->numChoices()' and the choice
-        // data at 'choiceIndex' in 'choiceArray' can satisfy the 'record'
+        // at the specified 'choiceIndex' in the specified 'choiceArray' to the
+        // specified non-modifiable 'record'.  The behavior is undefined unless
+        // '0 <= choiceIndex < choiceArray->numChoices()' and the choice data
+        // at 'choiceIndex' in 'choiceArray' can satisfy the 'record'
         // meta-data.
 
     void rebind(const bdem_ChoiceArray *choiceArray,
@@ -2856,7 +2877,7 @@ class bdem_ConstChoiceBinding {
                 const bdem_Schema      *schema,
                 int                     recordIndex);
         // Reinitialize this choice binding to bind the non-modifiable choice
-        // array item  at the specified 'choiceIndex' in the specified
+        // array item at the specified 'choiceIndex' in the specified
         // 'choiceArray' to the non-modifiable record definition at the
         // specified 'recordIndex' in the specified 'schema'.  The behavior is
         // undefined unless '0 <= choiceIndex < choiceArray->length()',
@@ -2919,7 +2940,7 @@ class bdem_ConstChoiceBinding {
     const char& theChar() const;
     const short& theShort() const;
     const int& theInt() const;
-    const bsls_PlatformUtil::Int64& theInt64() const;
+    const bsls_Types::Int64& theInt64() const;
     const float& theFloat() const;
     const double& theDouble() const;
     const bsl::string& theString() const;
@@ -2933,7 +2954,7 @@ class bdem_ConstChoiceBinding {
     const bsl::vector<char>& theCharArray() const;
     const bsl::vector<short>& theShortArray() const;
     const bsl::vector<int>& theIntArray() const;
-    const bsl::vector<bsls_PlatformUtil::Int64>& theInt64Array() const;
+    const bsl::vector<bsls_Types::Int64>& theInt64Array() const;
     const bsl::vector<float>& theFloatArray() const;
     const bsl::vector<double>& theDoubleArray() const;
     const bsl::vector<bsl::string>& theStringArray() const;
@@ -3221,7 +3242,7 @@ class bdem_ChoiceBinding : public bdem_ConstChoiceBinding {
                 int                   choiceIndex,
                 const bdem_RecordDef *record);
         // Reinitialize this choice binding to bind the modifiable choice
-        // array item at the  specified 'choiceIndex' in the specified
+        // array item at the specified 'choiceIndex' in the specified
         // 'choiceArray' to the specified non-modifiable 'record'.  The
         // behavior is undefined
         // unless '0 <= choiceIndex < choiceArray->length()' and the item data
@@ -3233,21 +3254,21 @@ class bdem_ChoiceBinding : public bdem_ConstChoiceBinding {
                 const bdem_Schema *schema,
                 const char        *recordName);
         // Reinitialize this choice binding to bind the modifiable choice
-        // at the  specified 'choiceIndex' in the specified 'choiceArray' to
-        // the specified non-modifiable 'record'.  The behavior is undefined
-        // unless '0 <= choiceIndex < choiceArray->numChoices()' and the choice
-        // data at 'choiceIndex' in 'choiceArray' can satisfy the 'record'
+        // at the specified 'choiceIndex' in the specified 'choiceArray' to the
+        // specified non-modifiable 'record'.  The behavior is undefined unless
+        // '0 <= choiceIndex < choiceArray->numChoices()' and the choice data
+        // at 'choiceIndex' in 'choiceArray' can satisfy the 'record'
         // meta-data.
 
     void rebind(bdem_ChoiceArray  *choiceArray,
                 int                choiceIndex,
                 const bdem_Schema *schema,
                 int                recordIndex);
-        // Reinitialize this choice binding to bind the modifiable choice
-        // array item  at the specified 'choiceIndex' in the specified
-        // 'choiceArray' to the non-modifiable record definition at the
-        // specified 'recordIndex' in the specified 'schema'.  The behavior is
-        // undefined unless '0 <= choiceIndex < choiceArray->length()',
+        // Reinitialize this choice binding to bind the modifiable choice array
+        // item at the specified 'choiceIndex' in the specified 'choiceArray'
+        // to the non-modifiable record definition at the specified
+        // 'recordIndex' in the specified 'schema'.  The behavior is undefined
+        // unless '0 <= choiceIndex < choiceArray->length()',
         // '0 <= recordIndex < schema->length()', and the item data at
         // 'choiceIndex' in 'choiceArray' can satisfy the record meta-data at
         // 'recordIndex' in 'schema'.
@@ -3315,7 +3336,7 @@ class bdem_ChoiceBinding : public bdem_ConstChoiceBinding {
     char& theModifiableChar() const;
     short& theModifiableShort() const;
     int& theModifiableInt() const;
-    bsls_PlatformUtil::Int64& theModifiableInt64() const;
+    bsls_Types::Int64& theModifiableInt64() const;
     float& theModifiableFloat() const;
     double& theModifiableDouble() const;
     bsl::string& theModifiableString() const;
@@ -3329,7 +3350,7 @@ class bdem_ChoiceBinding : public bdem_ConstChoiceBinding {
     bsl::vector<char>& theModifiableCharArray() const;
     bsl::vector<short>& theModifiableShortArray() const;
     bsl::vector<int>& theModifiableIntArray() const;
-    bsl::vector<bsls_PlatformUtil::Int64>& theModifiableInt64Array() const;
+    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array() const;
     bsl::vector<float>& theModifiableFloatArray() const;
     bsl::vector<double>& theModifiableDoubleArray() const;
     bsl::vector<bsl::string>& theModifiableStringArray() const;
@@ -3439,6 +3460,7 @@ class bdem_ConstChoiceArrayBinding {
         // Allow the derived class to access the private members of this
         // class.
 
+  private:
     // NOT IMPLEMENTED
     bdem_ConstChoiceArrayBinding& operator=(
                                           const bdem_ConstChoiceArrayBinding&);
@@ -3570,7 +3592,7 @@ class bdem_ConstChoiceArrayBinding {
         // item at 'itemIndex' (i.e., the field id for they selected type
         // within the 'record' associated with this binding).  Return
         // 'bdem_RecordDef::BDEM_NULL_FIELD_ID' if no element is currently
-        // selected. 
+        // selected.
 
     const char *selectorName(int itemIndex) const;
         // Return the name of the current selection of the choice array item
@@ -3582,7 +3604,7 @@ class bdem_ConstChoiceArrayBinding {
     const char& theChar(int itemIndex) const;
     const short& theShort(int itemIndex) const;
     const int& theInt(int itemIndex) const;
-    const bsls_PlatformUtil::Int64& theInt64(int itemIndex) const;
+    const bsls_Types::Int64& theInt64(int itemIndex) const;
     const float& theFloat(int itemIndex) const;
     const double& theDouble(int itemIndex) const;
     const bsl::string& theString(int itemIndex) const;
@@ -3596,8 +3618,7 @@ class bdem_ConstChoiceArrayBinding {
     const bsl::vector<char>& theCharArray(int itemIndex) const;
     const bsl::vector<short>& theShortArray(int itemIndex) const;
     const bsl::vector<int>& theIntArray(int itemIndex) const;
-    const bsl::vector<bsls_PlatformUtil::Int64>& theInt64Array(
-                                                          int itemIndex) const;
+    const bsl::vector<bsls_Types::Int64>& theInt64Array(int itemIndex) const;
     const bsl::vector<float>& theFloatArray(int itemIndex) const;
     const bsl::vector<double>& theDoubleArray(int itemIndex) const;
     const bsl::vector<bsl::string>& theStringArray(int itemIndex) const;
@@ -3618,7 +3639,7 @@ class bdem_ConstChoiceArrayBinding {
         // '0 <= itemIndex < length()' and the type of the indexed selection
         // matches the return type of the method used.
 
-    bdem_ConstChoiceBinding choiceBinding(int index) const;
+    bdem_ConstChoiceBinding choiceBinding(int itemIndex) const;
         // Return a "const" choice binding that binds the non-modifiable
         // choice array item stored at the specified 'index' in this binding
         // to the non-modifiable constraint record of this binding.  The
@@ -3651,22 +3672,22 @@ class bdem_ConstChoiceArrayBinding {
         // '0 <= selector(itemIndex) < numSelections()' and the indexed
         // record constrains a 'bdem_Table'.
 
-    const char *enumerationAsString(int rowIndex) const;
+    const char *enumerationAsString(int itemIndex) const;
         // Return the string representation of the enumeration element at the
-        // specified 'rowIndex' in this binding.  Return 0 if the element has a
-        // null or unset value.  The returned pointer is valid until the bound
-        // schema is destroyed.  The behavior is undefined unless
-        // '0 <= rowIndex < length()', the type of the indexed element is 'INT'
-        // or 'STRING', and the element is constrained by an enumeration
+        // specified 'itemIndex' in this binding.  Return 0 if the element has
+        // a null or unset value.  The returned pointer is valid until the
+        // bound schema is destroyed.  The behavior is undefined unless
+        // '0 <= itemIndex < length()', the type of the indexed element is
+        // 'INT' or 'STRING', and the element is constrained by an enumeration
         // definition.
 
-    int enumerationAsInt(int rowIndex) const;
+    int enumerationAsInt(int itemIndex) const;
         // Return the integer ID of the enumeration element at the specified
-        // 'rowIndex' in this binding.  Return 'bdetu_Unset<int>::unsetValue()'
-        // if the element has an unset value.  The behavior is undefined unless
-        // '0 <= rowIndex < length()', the type of the indexed element is 'INT'
-        // or 'STRING', and the element is constrained by an enumeration
-        // definition.
+        // 'itemIndex' in this binding.  Return
+        // 'bdetu_Unset<int>::unsetValue()' if the element has an unset value.
+        // The behavior is undefined unless '0 <= itemIndex < length()', the
+        // type of the indexed element is 'INT' or 'STRING', and the element is
+        // constrained by an enumeration definition.
 };
 
                         // =============================
@@ -3865,7 +3886,7 @@ class bdem_ChoiceArrayBinding : public bdem_ConstChoiceArrayBinding {
     char& theModifiableChar(int itemIndex) const;
     short& theModifiableShort(int itemIndex) const;
     int& theModifiableInt(int itemIndex) const;
-    bsls_PlatformUtil::Int64& theModifiableInt64(int itemIndex) const;
+    bsls_Types::Int64& theModifiableInt64(int itemIndex) const;
     float& theModifiableFloat(int itemIndex) const;
     double& theModifiableDouble(int itemIndex) const;
     bsl::string& theModifiableString(int itemIndex) const;
@@ -3879,7 +3900,7 @@ class bdem_ChoiceArrayBinding : public bdem_ConstChoiceArrayBinding {
     bsl::vector<char>& theModifiableCharArray(int itemIndex) const;
     bsl::vector<short>& theModifiableShortArray(int itemIndex) const;
     bsl::vector<int>& theModifiableIntArray(int itemIndex) const;
-    bsl::vector<bsls_PlatformUtil::Int64>& theModifiableInt64Array(
+    bsl::vector<bsls_Types::Int64>& theModifiableInt64Array(
                                                           int itemIndex) const;
     bsl::vector<float>& theModifiableFloatArray(int itemIndex) const;
     bsl::vector<double>& theModifiableDoubleArray(int itemIndex) const;
@@ -3953,6 +3974,10 @@ bdem_ConstRowBinding::bdem_ConstRowBinding(const bdem_Row       *row,
 : d_row_p(row)
 , d_constraint_p(record)
 {
+    BSLS_ASSERT_SAFE(row);
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(*row,
+                                                                *record));
 }
 
 inline
@@ -3960,8 +3985,18 @@ bdem_ConstRowBinding::bdem_ConstRowBinding(const bdem_Row    *row,
                                            const bdem_Schema *schema,
                                            const char        *recordName)
 : d_row_p(row)
-, d_constraint_p(schema->lookupRecord(recordName))
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(row);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
+    d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *row,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -3969,43 +4004,92 @@ bdem_ConstRowBinding::bdem_ConstRowBinding(const bdem_Row    *row,
                                            const bdem_Schema *schema,
                                            int                recordIndex)
 : d_row_p(row)
-, d_constraint_p(&schema->record(recordIndex))
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(row);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
+    d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                 *row,
+                                                 schema->record(recordIndex)));
 }
 
 inline
 bdem_ConstRowBinding::bdem_ConstRowBinding(const bdem_List      *list,
                                            const bdem_RecordDef *record)
-: d_row_p(&list->row())
+: d_row_p(0)
 , d_constraint_p(record)
 {
+    BSLS_ASSERT_SAFE(list);
+    BSLS_ASSERT_SAFE(record);
+
+    d_row_p = &list->row();
+
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(*d_row_p,
+                                                                *record));
 }
 
 inline
 bdem_ConstRowBinding::bdem_ConstRowBinding(const bdem_List   *list,
                                            const bdem_Schema *schema,
                                            const char        *recordName)
-: d_row_p(&list->row())
-, d_constraint_p(schema->lookupRecord(recordName))
+: d_row_p(0)
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(list);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
+    d_row_p        = &list->row();
+    d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_row_p,
+                                                             *d_constraint_p));
 }
 
 inline
 bdem_ConstRowBinding::bdem_ConstRowBinding(const bdem_List   *list,
                                            const bdem_Schema *schema,
                                            int                recordIndex)
-: d_row_p(&list->row())
-, d_constraint_p(&schema->record(recordIndex))
+: d_row_p(0)
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(list);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
+    d_row_p        = &list->row();
+    d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_row_p,
+                                                             *d_constraint_p));
 }
 
 inline
 bdem_ConstRowBinding::bdem_ConstRowBinding(const bdem_Table     *table,
                                            int                   rowIndex,
                                            const bdem_RecordDef *record)
-: d_row_p(&(*table)[rowIndex])
+: d_row_p(0)
 , d_constraint_p(record)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < table->numRows());
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(*table,
+                                                                *record));
+
+    d_row_p = &(*table)[rowIndex];
 }
 
 inline
@@ -4013,9 +4097,22 @@ bdem_ConstRowBinding::bdem_ConstRowBinding(const bdem_Table  *table,
                                            int                rowIndex,
                                            const bdem_Schema *schema,
                                            const char        *recordName)
-: d_row_p(&(*table)[rowIndex])
-, d_constraint_p(schema->lookupRecord(recordName))
+: d_row_p(0)
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < table->numRows());
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
+    d_row_p        = &(*table)[rowIndex];
+    d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *table,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -4023,9 +4120,23 @@ bdem_ConstRowBinding::bdem_ConstRowBinding(const bdem_Table  *table,
                                            int                rowIndex,
                                            const bdem_Schema *schema,
                                            int                recordIndex)
-: d_row_p(&(*table)[rowIndex])
-, d_constraint_p(&schema->record(recordIndex))
+: d_row_p(0)
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < table->numRows());
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
+    d_row_p        = &(*table)[rowIndex];
+    d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *table,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -4047,18 +4158,36 @@ void bdem_ConstRowBinding::rebind(const bdem_ConstRowBinding& binding)
 inline
 void bdem_ConstRowBinding::rebind(const bdem_Row *row)
 {
+    BSLS_ASSERT_SAFE(row);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *row,
+                                                             *d_constraint_p));
+
     d_row_p = row;
 }
 
 inline
 void bdem_ConstRowBinding::rebind(const bdem_List *list)
 {
+    BSLS_ASSERT_SAFE(list);
+
     d_row_p = &list->row();
+
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_row_p,
+                                                             *d_constraint_p));
 }
 
 inline
 void bdem_ConstRowBinding::rebind(const bdem_Table *table, int rowIndex)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < table->numRows());
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *table,
+                                                             *d_constraint_p));
+
     d_row_p = &(*table)[rowIndex];
 }
 
@@ -4066,6 +4195,11 @@ inline
 void bdem_ConstRowBinding::rebind(const bdem_Row       *row,
                                   const bdem_RecordDef *record)
 {
+    BSLS_ASSERT_SAFE(row);
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(*row,
+                                                                *record));
+
     d_row_p        = row;
     d_constraint_p = record;
 }
@@ -4075,8 +4209,17 @@ void bdem_ConstRowBinding::rebind(const bdem_Row    *row,
                                   const bdem_Schema *schema,
                                   const char        *recordName)
 {
+    BSLS_ASSERT_SAFE(row);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
     d_row_p        = row;
     d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_row_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -4084,16 +4227,32 @@ void bdem_ConstRowBinding::rebind(const bdem_Row    *row,
                                   const bdem_Schema *schema,
                                   int                recordIndex)
 {
+    BSLS_ASSERT_SAFE(row);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
     d_row_p        = row;
     d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_row_p,
+                                                             *d_constraint_p));
 }
 
 inline
 void bdem_ConstRowBinding::rebind(const bdem_List      *list,
                                   const bdem_RecordDef *record)
 {
+    BSLS_ASSERT_SAFE(list);
+    BSLS_ASSERT_SAFE(record);
+
     d_row_p        = &list->row();
     d_constraint_p = record;
+
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(*d_row_p,
+                                                                *record));
 }
 
 inline
@@ -4101,8 +4260,17 @@ void bdem_ConstRowBinding::rebind(const bdem_List   *list,
                                   const bdem_Schema *schema,
                                   const char        *recordName)
 {
+    BSLS_ASSERT_SAFE(list);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
     d_row_p        = &list->row();
     d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_row_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -4110,8 +4278,18 @@ void bdem_ConstRowBinding::rebind(const bdem_List   *list,
                                   const bdem_Schema *schema,
                                   int                recordIndex)
 {
+    BSLS_ASSERT_SAFE(list);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
     d_row_p        = &list->row();
     d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_row_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -4119,8 +4297,16 @@ void bdem_ConstRowBinding::rebind(const bdem_Table     *table,
                                   int                   rowIndex,
                                   const bdem_RecordDef *record)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < table->numRows());
+
     d_row_p        = &(*table)[rowIndex];
     d_constraint_p = record;
+
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(*table,
+                                                                *record));
 }
 
 inline
@@ -4129,8 +4315,19 @@ void bdem_ConstRowBinding::rebind(const bdem_Table  *table,
                                   const bdem_Schema *schema,
                                   const char        *recordName)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < table->numRows());
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
     d_row_p        = &(*table)[rowIndex];
     d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *table,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -4139,26 +4336,50 @@ void bdem_ConstRowBinding::rebind(const bdem_Table  *table,
                                   const bdem_Schema *schema,
                                   int                recordIndex)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < table->numRows());
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
     d_row_p        = &(*table)[rowIndex];
     d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *table,
+                                                             *d_constraint_p));
 }
 
 // ACCESSORS
 inline
 bdem_ConstElemRef bdem_ConstRowBinding::operator[](int index) const
 {
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+
     return (*d_row_p)[index];
 }
 
 inline
 bdem_ConstElemRef bdem_ConstRowBinding::element(const char *elementName) const
 {
-    return (*d_row_p)[d_constraint_p->fieldIndex(elementName)];
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return (*d_row_p)[fieldIndex];
 }
 
 inline
 bdem_ConstElemRef bdem_ConstRowBinding::element(int index) const
 {
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+
     return (*d_row_p)[index];
 }
 
@@ -4166,12 +4387,21 @@ inline
 bdem_ElemType::Type bdem_ConstRowBinding::elemType(
                                                  const char *elementName) const
 {
-    return d_row_p->elemType(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return d_row_p->elemType(fieldIndex);
 }
 
 inline
 bdem_ElemType::Type bdem_ConstRowBinding::elemType(int index) const
 {
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+
     return d_row_p->elemType(index);
 }
 
@@ -4196,223 +4426,453 @@ const bdem_Row& bdem_ConstRowBinding::row() const
 inline
 const bool& bdem_ConstRowBinding::theBool(const char *elementName) const
 {
-    return d_row_p->theBool(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL == elemType(fieldIndex));
+
+    return d_row_p->theBool(fieldIndex);
 }
 
 inline
 const char& bdem_ConstRowBinding::theChar(const char *elementName) const
 {
-    return d_row_p->theChar(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR == elemType(fieldIndex));
+
+    return d_row_p->theChar(fieldIndex);
 }
 
 inline
 const short& bdem_ConstRowBinding::theShort(const char *elementName) const
 {
-    return d_row_p->theShort(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT == elemType(fieldIndex));
+
+    return d_row_p->theShort(fieldIndex);
 }
 
 inline
 const int& bdem_ConstRowBinding::theInt(const char *elementName) const
 {
-    return d_row_p->theInt(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT == elemType(fieldIndex));
+
+    return d_row_p->theInt(fieldIndex);
 }
 
 inline
-const bsls_PlatformUtil::Int64&
+const bsls_Types::Int64&
 bdem_ConstRowBinding::theInt64(const char *elementName) const
 {
-    return d_row_p->theInt64(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == elemType(fieldIndex));
+
+    return d_row_p->theInt64(fieldIndex);
 }
 
 inline
 const float& bdem_ConstRowBinding::theFloat(const char *elementName) const
 {
-    return d_row_p->theFloat(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT == elemType(fieldIndex));
+
+    return d_row_p->theFloat(fieldIndex);
 }
 
 inline
 const double& bdem_ConstRowBinding::theDouble(const char *elementName) const
 {
-    return d_row_p->theDouble(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE == elemType(fieldIndex));
+
+    return d_row_p->theDouble(fieldIndex);
 }
 
 inline
 const bsl::string&
 bdem_ConstRowBinding::theString(const char *elementName) const
 {
-    return d_row_p->theString(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING == elemType(fieldIndex));
+
+    return d_row_p->theString(fieldIndex);
 }
 
 inline
 const bdet_Datetime&
 bdem_ConstRowBinding::theDatetime(const char *elementName) const
 {
-    return d_row_p->theDatetime(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIME == elemType(fieldIndex));
+
+    return d_row_p->theDatetime(fieldIndex);
 }
 
 inline
 const bdet_DatetimeTz&
 bdem_ConstRowBinding::theDatetimeTz(const char *elementName) const
 {
-    return d_row_p->theDatetimeTz(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIMETZ == elemType(fieldIndex));
+
+    return d_row_p->theDatetimeTz(fieldIndex);
 }
 
 inline
 const bdet_Date& bdem_ConstRowBinding::theDate(const char *elementName) const
 {
-    return d_row_p->theDate(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE == elemType(fieldIndex));
+
+    return d_row_p->theDate(fieldIndex);
 }
 
 inline
 const bdet_DateTz&
 bdem_ConstRowBinding::theDateTz(const char *elementName) const
 {
-    return d_row_p->theDateTz(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ == elemType(fieldIndex));
+
+    return d_row_p->theDateTz(fieldIndex);
 }
 
 inline
 const bdet_Time& bdem_ConstRowBinding::theTime(const char *elementName) const
 {
-    return d_row_p->theTime(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME == elemType(fieldIndex));
+
+    return d_row_p->theTime(fieldIndex);
 }
 
 inline
 const bdet_TimeTz&
 bdem_ConstRowBinding::theTimeTz(const char *elementName) const
 {
-    return d_row_p->theTimeTz(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ == elemType(fieldIndex));
+
+    return d_row_p->theTimeTz(fieldIndex);
 }
 
 inline
 const bsl::vector<bool>&
 bdem_ConstRowBinding::theBoolArray(const char *elementName) const
 {
-    return d_row_p->theBoolArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theBoolArray(fieldIndex);
 }
 
 inline
 const bsl::vector<char>&
 bdem_ConstRowBinding::theCharArray(const char *elementName) const
 {
-    return d_row_p->theCharArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theCharArray(fieldIndex);
 }
 
 inline
 const bsl::vector<short>&
 bdem_ConstRowBinding::theShortArray(const char *elementName) const
 {
-    return d_row_p->theShortArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theShortArray(fieldIndex);
 }
 
 inline
 const bsl::vector<int>&
 bdem_ConstRowBinding::theIntArray(const char *elementName) const
 {
-    return d_row_p->theIntArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theIntArray(fieldIndex);
 }
 
 inline
-const bsl::vector<bsls_PlatformUtil::Int64>&
+const bsl::vector<bsls_Types::Int64>&
 bdem_ConstRowBinding::theInt64Array(const char *elementName) const
 {
-    return d_row_p->theInt64Array(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theInt64Array(fieldIndex);
 }
 
 inline
 const bsl::vector<float>&
 bdem_ConstRowBinding::theFloatArray(const char *elementName) const
 {
-    return d_row_p->theFloatArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theFloatArray(fieldIndex);
 }
 
 inline
 const bsl::vector<double>&
 bdem_ConstRowBinding::theDoubleArray(const char *elementName) const
 {
-    return d_row_p->theDoubleArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theDoubleArray(fieldIndex);
 }
 
 inline
 const bsl::vector<bsl::string>&
 bdem_ConstRowBinding::theStringArray(const char *elementName) const
 {
-    return d_row_p->theStringArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theStringArray(fieldIndex);
 }
 
 inline
 const bsl::vector<bdet_Datetime>&
 bdem_ConstRowBinding::theDatetimeArray(const char *elementName) const
 {
-    return d_row_p->theDatetimeArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(
+                   bdem_ElemType::BDEM_DATETIME_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theDatetimeArray(fieldIndex);
 }
 
 inline
 const bsl::vector<bdet_DatetimeTz>&
 bdem_ConstRowBinding::theDatetimeTzArray(const char *elementName) const
 {
-    return d_row_p->theDatetimeTzArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_DATETIMETZ_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theDatetimeTzArray(fieldIndex);
 }
 
 inline
 const bsl::vector<bdet_Date>&
 bdem_ConstRowBinding::theDateArray(const char *elementName) const
 {
-    return d_row_p->theDateArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theDateArray(fieldIndex);
 }
 
 inline
 const bsl::vector<bdet_DateTz>&
 bdem_ConstRowBinding::theDateTzArray(const char *elementName) const
 {
-    return d_row_p->theDateTzArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theDateTzArray(fieldIndex);
 }
 
 inline
 const bsl::vector<bdet_Time>&
 bdem_ConstRowBinding::theTimeArray(const char *elementName) const
 {
-    return d_row_p->theTimeArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theTimeArray(fieldIndex);
 }
 
 inline
 const bsl::vector<bdet_TimeTz>&
 bdem_ConstRowBinding::theTimeTzArray(const char *elementName) const
 {
-    return d_row_p->theTimeTzArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theTimeTzArray(fieldIndex);
 }
 
 inline
 const bdem_Choice&
 bdem_ConstRowBinding::theChoice(const char *elementName) const
 {
-    return d_row_p->theChoice(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == elemType(fieldIndex));
+
+    return d_row_p->theChoice(fieldIndex);
 }
 
 inline
 const bdem_ChoiceArray&
 bdem_ConstRowBinding::theChoiceArray(const char *elementName) const
 {
-    return d_row_p->theChoiceArray(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == elemType(fieldIndex));
+
+    return d_row_p->theChoiceArray(fieldIndex);
 }
 
 inline
 const bdem_List& bdem_ConstRowBinding::theList(const char *elementName) const
 {
-    return d_row_p->theList(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == elemType(fieldIndex));
+
+    return d_row_p->theList(fieldIndex);
 }
 
 inline
 const bdem_Table&
 bdem_ConstRowBinding::theTable(const char *elementName) const
 {
-    return d_row_p->theTable(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == elemType(fieldIndex));
+
+    return d_row_p->theTable(fieldIndex);
 }
 
 inline
 bdem_ConstChoiceBinding bdem_ConstRowBinding::choiceBinding(int index) const
 {
-    return bdem_ConstChoiceBinding(&(*d_row_p)[index].theChoice(),
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == elemType(index));
+
+    return bdem_ConstChoiceBinding(
+                              &(*d_row_p)[index].theChoice(),
                               d_constraint_p->field(index).recordConstraint());
 }
 
@@ -4420,13 +4880,23 @@ inline
 bdem_ConstChoiceBinding
 bdem_ConstRowBinding::choiceBinding(const char *elementName) const
 {
-    return choiceBinding(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return choiceBinding(fieldIndex);
 }
 
 inline
 bdem_ConstChoiceArrayBinding
 bdem_ConstRowBinding::choiceArrayBinding(int index) const
 {
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == elemType(index));
+
     return bdem_ConstChoiceArrayBinding(
                               &(*d_row_p)[index].theChoiceArray(),
                               d_constraint_p->field(index).recordConstraint());
@@ -4436,13 +4906,24 @@ inline
 bdem_ConstChoiceArrayBinding
 bdem_ConstRowBinding::choiceArrayBinding(const char *elementName) const
 {
-    return choiceArrayBinding(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return choiceArrayBinding(fieldIndex);
 }
 
 inline
 bdem_ConstRowBinding bdem_ConstRowBinding::rowBinding(int index) const
 {
-    return bdem_ConstRowBinding(&(*d_row_p)[index].theList().row(),
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == elemType(index));
+
+    return bdem_ConstRowBinding(
+                              &(*d_row_p)[index].theList().row(),
                               d_constraint_p->field(index).recordConstraint());
 }
 
@@ -4450,21 +4931,38 @@ inline
 bdem_ConstRowBinding bdem_ConstRowBinding::rowBinding(
                                                  const char *elementName) const
 {
-    return rowBinding(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return rowBinding(fieldIndex);
 }
 
 inline
 bdem_ConstTableBinding bdem_ConstRowBinding::tableBinding(int index) const
 {
-    return bdem_ConstTableBinding(&(*d_row_p)[index].theTable(),
-                              d_constraint_p->field(index).recordConstraint());
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == elemType(index));
+
+    return bdem_ConstTableBinding(
+                           &(*d_row_p)[index].theTable(),
+                           d_constraint_p->field(index).recordConstraint());
 }
 
 inline
 bdem_ConstTableBinding bdem_ConstRowBinding::tableBinding(
                                                  const char *elementName) const
 {
-    return tableBinding(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return tableBinding(fieldIndex);
 }
 
 // FREE OPERATORS
@@ -4487,6 +4985,17 @@ bool operator!=(const bdem_ConstRowBinding& lhs,
                         // ---------------------
                         // class bdem_RowBinding
                         // ---------------------
+
+                        // -----------------
+                        // Level-0 Functions
+                        // -----------------
+
+// ACCESSORS
+inline
+bdem_Row& bdem_RowBinding::row() const
+{
+    return *const_cast<bdem_Row *>(d_row_p);
+}
 
 // CREATORS
 inline
@@ -4512,8 +5021,7 @@ bdem_RowBinding::bdem_RowBinding(bdem_Row          *row,
 }
 
 inline
-bdem_RowBinding::bdem_RowBinding(bdem_List            *list,
-                                 const bdem_RecordDef *record)
+bdem_RowBinding::bdem_RowBinding(bdem_List *list, const bdem_RecordDef *record)
 : bdem_ConstRowBinding(list, record)
 {
 }
@@ -4665,331 +5173,568 @@ void bdem_RowBinding::rebind(bdem_Table        *table,
 inline
 bdem_ElemRef bdem_RowBinding::operator[](int index) const
 {
-    return (*const_cast<bdem_Row *>(d_row_p))[index];
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+
+    return row()[index];
 }
 
 inline
 bdem_ElemRef bdem_RowBinding::element(int index) const
 {
-    return (*const_cast<bdem_Row *>(d_row_p))[index];
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+
+    return row()[index];
 }
 
 inline
 bdem_ElemRef bdem_RowBinding::element(const char *elementName) const
 {
-    return element(d_constraint_p->fieldIndex(elementName));
-}
+    BSLS_ASSERT_SAFE(elementName);
 
-inline
-bdem_Row& bdem_RowBinding::row() const
-{
-    return *const_cast<bdem_Row *>(d_row_p);
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return element(fieldIndex);
 }
 
 inline
 bool& bdem_RowBinding::theModifiableBool(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableBool(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL == elemType(fieldIndex));
+
+    return row().theModifiableBool(fieldIndex);
 }
 
 inline
 char& bdem_RowBinding::theModifiableChar(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableChar(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR == elemType(fieldIndex));
+
+    return row().theModifiableChar(fieldIndex);
 }
 
 inline
 short& bdem_RowBinding::theModifiableShort(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableShort(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT == elemType(fieldIndex));
+
+    return row().theModifiableShort(fieldIndex);
 }
 
 inline
 int& bdem_RowBinding::theModifiableInt(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableInt(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT == elemType(fieldIndex));
+
+    return row().theModifiableInt(fieldIndex);
 }
 
 inline
-bsls_PlatformUtil::Int64&
+bsls_Types::Int64&
 bdem_RowBinding::theModifiableInt64(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableInt64(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == elemType(fieldIndex));
+
+    return row().theModifiableInt64(fieldIndex);
 }
 
 inline
 float& bdem_RowBinding::theModifiableFloat(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableFloat(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT == elemType(fieldIndex));
+
+    return row().theModifiableFloat(fieldIndex);
 }
 
 inline
 double& bdem_RowBinding::theModifiableDouble(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableDouble(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE == elemType(fieldIndex));
+
+    return row().theModifiableDouble(fieldIndex);
 }
 
 inline
 bsl::string&
 bdem_RowBinding::theModifiableString(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableString(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING == elemType(fieldIndex));
+
+    return row().theModifiableString(fieldIndex);
 }
 
 inline
 bdet_Datetime&
 bdem_RowBinding::theModifiableDatetime(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableDatetime(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIME == elemType(fieldIndex));
+
+    return row().theModifiableDatetime(fieldIndex);
 }
 
 inline
 bdet_DatetimeTz&
 bdem_RowBinding::theModifiableDatetimeTz(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableDatetimeTz(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIMETZ == elemType(fieldIndex));
+
+    return row().theModifiableDatetimeTz(fieldIndex);
 }
 
 inline
 bdet_Date& bdem_RowBinding::theModifiableDate(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableDate(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE == elemType(fieldIndex));
+
+    return row().theModifiableDate(fieldIndex);
 }
 
 inline
 bdet_DateTz& bdem_RowBinding::theModifiableDateTz(
                                                  const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableDateTz(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ == elemType(fieldIndex));
+
+    return row().theModifiableDateTz(fieldIndex);
 }
 
 inline
 bdet_Time& bdem_RowBinding::theModifiableTime(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableTime(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME == elemType(fieldIndex));
+
+    return row().theModifiableTime(fieldIndex);
 }
 
 inline
 bdet_TimeTz& bdem_RowBinding::theModifiableTimeTz(
                                                  const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableTimeTz(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ == elemType(fieldIndex));
+
+    return row().theModifiableTimeTz(fieldIndex);
 }
 
 inline
 bsl::vector<bool>&
 bdem_RowBinding::theModifiableBoolArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableBoolArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableBoolArray(fieldIndex);
 }
 
 inline
 bsl::vector<char>&
 bdem_RowBinding::theModifiableCharArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableCharArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableCharArray(fieldIndex);
 }
 
 inline
 bsl::vector<short>&
 bdem_RowBinding::theModifiableShortArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableShortArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableShortArray(fieldIndex);
 }
 
 inline
 bsl::vector<int>&
 bdem_RowBinding::theModifiableIntArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableIntArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableIntArray(fieldIndex);
 }
 
 inline
-bsl::vector<bsls_PlatformUtil::Int64>&
+bsl::vector<bsls_Types::Int64>&
 bdem_RowBinding::theModifiableInt64Array(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableInt64Array(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableInt64Array(fieldIndex);
 }
 
 inline
 bsl::vector<float>&
 bdem_RowBinding::theModifiableFloatArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableFloatArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableFloatArray(fieldIndex);
 }
 
 inline
 bsl::vector<double>&
 bdem_RowBinding::theModifiableDoubleArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableDoubleArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableDoubleArray(fieldIndex);
 }
 
 inline
 bsl::vector<bsl::string>&
 bdem_RowBinding::theModifiableStringArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableStringArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableStringArray(fieldIndex);
 }
 
 inline
 bsl::vector<bdet_Datetime>&
 bdem_RowBinding::theModifiableDatetimeArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableDatetimeArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(
+                   bdem_ElemType::BDEM_DATETIME_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableDatetimeArray(fieldIndex);
 }
 
 inline
 bsl::vector<bdet_DatetimeTz>&
 bdem_RowBinding::theModifiableDatetimeTzArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableDatetimeTzArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_DATETIMETZ_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableDatetimeTzArray(fieldIndex);
 }
 
 inline
 bsl::vector<bdet_Date>&
 bdem_RowBinding::theModifiableDateArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableDateArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableDateArray(fieldIndex);
 }
 
 inline
 bsl::vector<bdet_DateTz>&
 bdem_RowBinding::theModifiableDateTzArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableDateTzArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableDateTzArray(fieldIndex);
 }
 
 inline
 bsl::vector<bdet_Time>&
 bdem_RowBinding::theModifiableTimeArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableTimeArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableTimeArray(fieldIndex);
 }
 
 inline
 bsl::vector<bdet_TimeTz>&
 bdem_RowBinding::theModifiableTimeTzArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableTimeTzArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableTimeTzArray(fieldIndex);
 }
 
 inline
 bdem_Choice& bdem_RowBinding::theModifiableChoice(
                                                  const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableChoice(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == elemType(fieldIndex));
+
+    return row().theModifiableChoice(fieldIndex);
 }
 
 inline
 bdem_ChoiceArray&
 bdem_RowBinding::theModifiableChoiceArray(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableChoiceArray(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == elemType(fieldIndex));
+
+    return row().theModifiableChoiceArray(fieldIndex);
 }
 
 inline
 bdem_List& bdem_RowBinding::theModifiableList(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableList(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == elemType(fieldIndex));
+
+    return row().theModifiableList(fieldIndex);
 }
 
 inline
 bdem_Table&
 bdem_RowBinding::theModifiableTable(const char *elementName) const
 {
-    return const_cast<bdem_Row *>(d_row_p)->theModifiableTable(
-                                      d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == elemType(fieldIndex));
+
+    return row().theModifiableTable(fieldIndex);
 }
 
 inline
 bdem_ChoiceBinding bdem_RowBinding::choiceBinding(int index) const
 {
-    return bdem_ChoiceBinding(
-              &(*const_cast<bdem_Row *>(d_row_p))[index].theModifiableChoice(),
-              d_constraint_p->field(index).recordConstraint());
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == elemType(index));
+
+    return bdem_ChoiceBinding(&row()[index].theModifiableChoice(),
+                              d_constraint_p->field(index).recordConstraint());
 }
 
 inline
 bdem_ChoiceBinding
 bdem_RowBinding::choiceBinding(const char *elementName) const
 {
-    return choiceBinding(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return choiceBinding(fieldIndex);
 }
 
 inline
 bdem_ChoiceArrayBinding
 bdem_RowBinding::choiceArrayBinding(int index) const
 {
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == elemType(index));
+
     return bdem_ChoiceArrayBinding(
-         &(*const_cast<bdem_Row *>(d_row_p))[index].theModifiableChoiceArray(),
-         d_constraint_p->field(index).recordConstraint());
+                              &row()[index].theModifiableChoiceArray(),
+                              d_constraint_p->field(index).recordConstraint());
 }
 
 inline
 bdem_ChoiceArrayBinding
 bdem_RowBinding::choiceArrayBinding(const char *elementName) const
 {
-    return choiceArrayBinding(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return choiceArrayBinding(fieldIndex);
 }
 
 inline
 bdem_RowBinding bdem_RowBinding::rowBinding(int index) const
 {
-    return bdem_RowBinding(
-          &(*const_cast<bdem_Row *>(d_row_p))[index].theModifiableList().row(),
-          d_constraint_p->field(index).recordConstraint());
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == elemType(index));
+
+    return bdem_RowBinding(&row()[index].theModifiableList().row(),
+                           d_constraint_p->field(index).recordConstraint());
 }
 
 inline
 bdem_RowBinding bdem_RowBinding::rowBinding(const char *elementName) const
 {
-    return rowBinding(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return rowBinding(fieldIndex);
 }
 
 inline
 bdem_TableBinding bdem_RowBinding::tableBinding(int index) const
 {
-    return bdem_TableBinding(
-               &(*const_cast<bdem_Row *>(d_row_p))[index].theModifiableTable(),
-               d_constraint_p->field(index).recordConstraint());
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < d_row_p->length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == elemType(index));
+
+    return bdem_TableBinding(&row()[index].theModifiableTable(),
+                             d_constraint_p->field(index).recordConstraint());
 }
 
 inline
 bdem_TableBinding bdem_RowBinding::tableBinding(const char *elementName) const
 {
-    return tableBinding(d_constraint_p->fieldIndex(elementName));
+    BSLS_ASSERT_SAFE(elementName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(elementName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return tableBinding(fieldIndex);
 }
 
                         // ----------------------------
@@ -5003,6 +5748,10 @@ bdem_ConstTableBinding::bdem_ConstTableBinding(const bdem_Table     *table,
 : d_table_p(table)
 , d_constraint_p(record)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(*table,
+                                                                *record));
 }
 
 inline
@@ -5010,8 +5759,18 @@ bdem_ConstTableBinding::bdem_ConstTableBinding(const bdem_Table  *table,
                                                const bdem_Schema *schema,
                                                const char        *recordName)
 : d_table_p(table)
-, d_constraint_p(schema->lookupRecord(recordName))
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
+    d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *table,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -5019,8 +5778,19 @@ bdem_ConstTableBinding::bdem_ConstTableBinding(const bdem_Table  *table,
                                                const bdem_Schema *schema,
                                                int                recordIndex)
 : d_table_p(table)
-, d_constraint_p(&schema->record(recordIndex))
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
+    d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *table,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -5042,6 +5812,11 @@ void bdem_ConstTableBinding::rebind(const bdem_ConstTableBinding& binding)
 inline
 void bdem_ConstTableBinding::rebind(const bdem_Table *table)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *table,
+                                                             *d_constraint_p));
+
     d_table_p = table;
 }
 
@@ -5049,6 +5824,11 @@ inline
 void bdem_ConstTableBinding::rebind(const bdem_Table     *table,
                                     const bdem_RecordDef *record)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(*table,
+                                                                *record));
+
     d_table_p      = table;
     d_constraint_p = record;
 }
@@ -5058,8 +5838,17 @@ void bdem_ConstTableBinding::rebind(const bdem_Table  *table,
                                     const bdem_Schema *schema,
                                     const char        *recordName)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
     d_table_p      = table;
     d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *table,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -5067,14 +5856,27 @@ void bdem_ConstTableBinding::rebind(const bdem_Table  *table,
                                     const bdem_Schema *schema,
                                     int                recordIndex)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
     d_table_p      = table;
     d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *table,
+                                                             *d_constraint_p));
 }
 
 // ACCESSORS
 inline
 const bdem_Row& bdem_ConstTableBinding::operator[](int rowIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+
     return (*d_table_p)[rowIndex];
 }
 
@@ -5082,13 +5884,26 @@ inline
 bdem_ConstElemRef
 bdem_ConstTableBinding::element(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)[rowIndex][d_constraint_p->fieldIndex(columnName)];
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return (*d_table_p)[rowIndex][fieldIndex];
 }
 
 inline
 bdem_ConstElemRef bdem_ConstTableBinding::element(int rowIndex,
                                                   int columnIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+
     return (*d_table_p)[rowIndex][columnIndex];
 }
 
@@ -5096,12 +5911,21 @@ inline
 bdem_ElemType::Type
 bdem_ConstTableBinding::elemType(const char *columnName) const
 {
-    return d_constraint_p->lookupField(columnName)->elemType();
+    BSLS_ASSERT_SAFE(columnName);
+
+    const bdem_FieldDef *fieldDef = d_constraint_p->lookupField(columnName);
+
+    BSLS_ASSERT_SAFE(fieldDef);
+
+    return fieldDef->elemType();
 }
 
 inline
 bdem_ElemType::Type bdem_ConstTableBinding::elemType(int columnIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+
     return d_table_p->columnType(columnIndex);
 }
 
@@ -5133,72 +5957,144 @@ inline
 const bool&
 bdem_ConstTableBinding::theBool(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theBool();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theBool();
 }
 
 inline
 const char&
 bdem_ConstTableBinding::theChar(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theChar();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theChar();
 }
 
 inline
 const short&
 bdem_ConstTableBinding::theShort(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theShort();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theShort();
 }
 
 inline
 const int&
 bdem_ConstTableBinding::theInt(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theInt();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theInt();
 }
 
 inline
-const bsls_PlatformUtil::Int64&
+const bsls_Types::Int64&
 bdem_ConstTableBinding::theInt64(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theInt64();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theInt64();
 }
 
 inline
 const float&
 bdem_ConstTableBinding::theFloat(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theFloat();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theFloat();
 }
 
 inline
 const double&
 bdem_ConstTableBinding::theDouble(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theDouble();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theDouble();
 }
 
 inline
 const bsl::string&
 bdem_ConstTableBinding::theString(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theString();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theString();
 }
 
 inline
 const bdet_Datetime&
 bdem_ConstTableBinding::theDatetime(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theDatetime();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIME == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theDatetime();
 }
 
 inline
@@ -5206,40 +6102,80 @@ const bdet_DatetimeTz&
 bdem_ConstTableBinding::theDatetimeTz(int         rowIndex,
                                       const char *columnName) const
 {
-    return (*d_table_p)
-            [rowIndex][d_constraint_p->fieldIndex(columnName)].theDatetimeTz();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIMETZ == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theDatetimeTz();
 }
 
 inline
 const bdet_Date&
 bdem_ConstTableBinding::theDate(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theDate();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theDate();
 }
 
 inline
 const bdet_DateTz&
 bdem_ConstTableBinding::theDateTz(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theDateTz();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theDateTz();
 }
 
 inline
 const bdet_Time&
 bdem_ConstTableBinding::theTime(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theTime();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theTime();
 }
 
 inline
 const bdet_TimeTz&
 bdem_ConstTableBinding::theTimeTz(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theTimeTz();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theTimeTz();
 }
 
 inline
@@ -5247,8 +6183,16 @@ const bsl::vector<bool>&
 bdem_ConstTableBinding::theBoolArray(int         rowIndex,
                                      const char *columnName) const
 {
-    return (*d_table_p)
-            [rowIndex][d_constraint_p->fieldIndex(columnName)].theBoolArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theBoolArray();
 }
 
 inline
@@ -5256,8 +6200,16 @@ const bsl::vector<char>&
 bdem_ConstTableBinding::theCharArray(int         rowIndex,
                                      const char *columnName) const
 {
-    return (*d_table_p)
-            [rowIndex][d_constraint_p->fieldIndex(columnName)].theCharArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theCharArray();
 }
 
 inline
@@ -5265,8 +6217,16 @@ const bsl::vector<short>&
 bdem_ConstTableBinding::theShortArray(int         rowIndex,
                                       const char *columnName) const
 {
-    return (*d_table_p)
-           [rowIndex][d_constraint_p->fieldIndex(columnName)].theShortArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theShortArray();
 }
 
 inline
@@ -5274,17 +6234,33 @@ const bsl::vector<int>&
 bdem_ConstTableBinding::theIntArray(int         rowIndex,
                                     const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theIntArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theIntArray();
 }
 
 inline
-const bsl::vector<bsls_PlatformUtil::Int64>&
+const bsl::vector<bsls_Types::Int64>&
 bdem_ConstTableBinding::theInt64Array(int         rowIndex,
                                       const char *columnName) const
 {
-    return (*d_table_p)
-           [rowIndex][d_constraint_p->fieldIndex(columnName)].theInt64Array();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theInt64Array();
 }
 
 inline
@@ -5292,8 +6268,16 @@ const bsl::vector<float>&
 bdem_ConstTableBinding::theFloatArray(int         rowIndex,
                                       const char *columnName) const
 {
-    return (*d_table_p)
-           [rowIndex][d_constraint_p->fieldIndex(columnName)].theFloatArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theFloatArray();
 }
 
 inline
@@ -5301,8 +6285,16 @@ const bsl::vector<double>&
 bdem_ConstTableBinding::theDoubleArray(int         rowIndex,
                                        const char *columnName) const
 {
-    return (*d_table_p)
-          [rowIndex][d_constraint_p->fieldIndex(columnName)].theDoubleArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theDoubleArray();
 }
 
 inline
@@ -5310,8 +6302,16 @@ const bsl::vector<bsl::string>&
 bdem_ConstTableBinding::theStringArray(int         rowIndex,
                                        const char *columnName) const
 {
-    return (*d_table_p)
-          [rowIndex][d_constraint_p->fieldIndex(columnName)].theStringArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theStringArray();
 }
 
 inline
@@ -5319,8 +6319,17 @@ const bsl::vector<bdet_Datetime>&
 bdem_ConstTableBinding::theDatetimeArray(int         rowIndex,
                                          const char *columnName) const
 {
-    return (*d_table_p)
-        [rowIndex][d_constraint_p->fieldIndex(columnName)].theDatetimeArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(
+                   bdem_ElemType::BDEM_DATETIME_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theDatetimeArray();
 }
 
 inline
@@ -5328,8 +6337,17 @@ const bsl::vector<bdet_DatetimeTz>&
 bdem_ConstTableBinding::theDatetimeTzArray(int         rowIndex,
                                            const char *columnName) const
 {
-    return (*d_table_p)
-       [rowIndex][d_constraint_p->fieldIndex(columnName)].theDatetimeTzArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_DATETIMETZ_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theDatetimeTzArray();
 }
 
 inline
@@ -5337,8 +6355,16 @@ const bsl::vector<bdet_Date>&
 bdem_ConstTableBinding::theDateArray(int         rowIndex,
                                      const char *columnName) const
 {
-    return (*d_table_p)
-            [rowIndex][d_constraint_p->fieldIndex(columnName)].theDateArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theDateArray();
 }
 
 inline
@@ -5346,8 +6372,16 @@ const bsl::vector<bdet_DateTz>&
 bdem_ConstTableBinding::theDateTzArray(int         rowIndex,
                                        const char *columnName) const
 {
-    return (*d_table_p)
-           [rowIndex][d_constraint_p->fieldIndex(columnName)].theDateTzArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theDateTzArray();
 }
 
 inline
@@ -5355,8 +6389,16 @@ const bsl::vector<bdet_Time>&
 bdem_ConstTableBinding::theTimeArray(int         rowIndex,
                                      const char *columnName) const
 {
-    return (*d_table_p)
-            [rowIndex][d_constraint_p->fieldIndex(columnName)].theTimeArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theTimeArray();
 }
 
 inline
@@ -5364,47 +6406,93 @@ const bsl::vector<bdet_TimeTz>&
 bdem_ConstTableBinding::theTimeTzArray(int         rowIndex,
                                        const char *columnName) const
 {
-    return (*d_table_p)
-           [rowIndex][d_constraint_p->fieldIndex(columnName)].theTimeTzArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theTimeTzArray();
 }
 
 inline
 const bdem_Choice&
 bdem_ConstTableBinding::theChoice(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theChoice();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theChoice();
 }
 
 inline
 const bdem_ChoiceArray&
-bdem_ConstTableBinding::theChoiceArray(int rowIndex, const char *columnName)
-                                                                          const
+bdem_ConstTableBinding::theChoiceArray(int         rowIndex,
+                                       const char *columnName) const
 {
-    return (*d_table_p)
-           [rowIndex][d_constraint_p->fieldIndex(columnName)].theChoiceArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theChoiceArray();
 }
 
 inline
 const bdem_List&
 bdem_ConstTableBinding::theList(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theList();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theList();
 }
 
 inline
 const bdem_Table&
 bdem_ConstTableBinding::theTable(int rowIndex, const char *columnName) const
 {
-    return (*d_table_p)
-             [rowIndex][d_constraint_p->fieldIndex(columnName)].theTable();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theTable();
 }
 
 inline
 bdem_ConstChoiceBinding
 bdem_ConstTableBinding::choiceBinding(int rowIndex, int columnIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == elemType(columnIndex));
+
     return bdem_ConstChoiceBinding(
                         &(*d_table_p)[rowIndex][columnIndex].theChoice(),
                         d_constraint_p->field(columnIndex).recordConstraint());
@@ -5415,13 +6503,29 @@ bdem_ConstChoiceBinding bdem_ConstTableBinding::choiceBinding(
                                                   int         rowIndex,
                                                   const char *columnName) const
 {
-    return choiceBinding(rowIndex, d_constraint_p->fieldIndex(columnName));
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == elemType(fieldIndex));
+
+    return choiceBinding(rowIndex, fieldIndex);
 }
 
 inline
 bdem_ConstChoiceArrayBinding
 bdem_ConstTableBinding::choiceArrayBinding(int rowIndex, int columnIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+    BSLS_ASSERT_SAFE(
+                    bdem_ElemType::BDEM_CHOICE_ARRAY == elemType(columnIndex));
+
     return bdem_ConstChoiceArrayBinding(
                         &(*d_table_p)[rowIndex][columnIndex].theChoiceArray(),
                         d_constraint_p->field(columnIndex).recordConstraint());
@@ -5432,13 +6536,24 @@ bdem_ConstChoiceArrayBinding
 bdem_ConstTableBinding::choiceArrayBinding(int         rowIndex,
                                            const char *columnName) const
 {
-    return choiceArrayBinding(rowIndex,
-                              d_constraint_p->fieldIndex(columnName));
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == elemType(fieldIndex));
+
+    return choiceArrayBinding(rowIndex, fieldIndex);
 }
 
 inline
 bdem_ConstRowBinding bdem_ConstTableBinding::rowBinding(int rowIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+
     return bdem_ConstRowBinding(&(*d_table_p)[rowIndex], d_constraint_p);
 }
 
@@ -5446,6 +6561,12 @@ inline
 bdem_ConstRowBinding bdem_ConstTableBinding::rowBinding(int rowIndex,
                                                         int columnIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == elemType(columnIndex));
+
     return bdem_ConstRowBinding(
                         &(*d_table_p)[rowIndex][columnIndex].theList().row(),
                         d_constraint_p->field(columnIndex).recordConstraint());
@@ -5456,13 +6577,27 @@ bdem_ConstRowBinding bdem_ConstTableBinding::rowBinding(
                                                   int         rowIndex,
                                                   const char *columnName) const
 {
-    return rowBinding(rowIndex, d_constraint_p->fieldIndex(columnName));
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return rowBinding(rowIndex, fieldIndex);
 }
 
 inline
 bdem_ConstTableBinding
 bdem_ConstTableBinding::tableBinding(int rowIndex, int columnIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == elemType(columnIndex));
+
     return bdem_ConstTableBinding(
                         &(*d_table_p)[rowIndex][columnIndex].theTable(),
                         d_constraint_p->field(columnIndex).recordConstraint());
@@ -5473,13 +6608,24 @@ bdem_ConstTableBinding
 bdem_ConstTableBinding::tableBinding(int         rowIndex,
                                      const char *columnName) const
 {
-    return tableBinding(rowIndex, d_constraint_p->fieldIndex(columnName));
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return tableBinding(rowIndex, fieldIndex);
 }
 
 inline
 bdem_ConstColumnBinding
 bdem_ConstTableBinding::columnBinding(int columnIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+
     return bdem_ConstColumnBinding(d_table_p,
                                    columnIndex,
                                    &d_constraint_p->field(columnIndex));
@@ -5489,7 +6635,13 @@ inline
 bdem_ConstColumnBinding bdem_ConstTableBinding::columnBinding(
                                                   const char *columnName) const
 {
-    return columnBinding(d_constraint_p->fieldIndex(columnName));
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return columnBinding(fieldIndex);
 }
 
 // FREE OPERATORS
@@ -5512,6 +6664,17 @@ bool operator!=(const bdem_ConstTableBinding& lhs,
                         // -----------------------
                         // class bdem_TableBinding
                         // -----------------------
+
+                        // -----------------
+                        // Level-0 Functions
+                        // -----------------
+
+// ACCESSORS
+inline
+bdem_Table& bdem_TableBinding::table() const
+{
+    return *const_cast<bdem_Table *>(d_table_p);
+}
 
 // CREATORS
 inline
@@ -5557,8 +6720,7 @@ void bdem_TableBinding::rebind(bdem_Table *table)
 }
 
 inline
-void bdem_TableBinding::rebind(bdem_Table           *table,
-                               const bdem_RecordDef *record)
+void bdem_TableBinding::rebind(bdem_Table *table, const bdem_RecordDef *record)
 {
     bdem_ConstTableBinding::rebind(table, record);
 }
@@ -5583,91 +6745,159 @@ void bdem_TableBinding::rebind(bdem_Table        *table,
 inline
 bdem_Row& bdem_TableBinding::operator[](int rowIndex) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+
+    return table().theModifiableRow(rowIndex);
 }
 
 inline
 bdem_ElemRef
 bdem_TableBinding::element(int rowIndex, const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                                      [d_constraint_p->fieldIndex(columnName)];
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return table().theModifiableRow(rowIndex)[fieldIndex];
 }
 
 inline
 bdem_ElemRef bdem_TableBinding::element(int rowIndex, int columnIndex) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                                                                 [columnIndex];
-}
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
 
-inline
-bdem_Table& bdem_TableBinding::table() const
-{
-    return *const_cast<bdem_Table *>(d_table_p);
+    return table().theModifiableRow(rowIndex)[columnIndex];
 }
 
 inline
 bdem_Row& bdem_TableBinding::theModifiableRow(int rowIndex) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+
+    return table().theModifiableRow(rowIndex);
 }
 
 inline
 bool& bdem_TableBinding::theModifiableBool(int         rowIndex,
                                            const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                  [d_constraint_p->fieldIndex(columnName)].theModifiableBool();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableBool();
 }
 
 inline
 char& bdem_TableBinding::theModifiableChar(int         rowIndex,
                                            const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                  [d_constraint_p->fieldIndex(columnName)].theModifiableChar();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableChar();
 }
 
 inline
 short& bdem_TableBinding::theModifiableShort(int         rowIndex,
                                              const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                 [d_constraint_p->fieldIndex(columnName)].theModifiableShort();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableShort();
 }
 
 inline
-int& bdem_TableBinding::theModifiableInt(int rowIndex, const char *columnName)
-                                                                          const
+int& bdem_TableBinding::theModifiableInt(int         rowIndex,
+                                         const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                   [d_constraint_p->fieldIndex(columnName)].theModifiableInt();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableInt();
 }
 
 inline
-bsls_PlatformUtil::Int64&
+bsls_Types::Int64&
 bdem_TableBinding::theModifiableInt64(int         rowIndex,
                                       const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                 [d_constraint_p->fieldIndex(columnName)].theModifiableInt64();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableInt64();
 }
 
 inline
 float& bdem_TableBinding::theModifiableFloat(int         rowIndex,
                                              const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                 [d_constraint_p->fieldIndex(columnName)].theModifiableFloat();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableFloat();
 }
 
 inline
 double& bdem_TableBinding::theModifiableDouble(int         rowIndex,
                                                const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                [d_constraint_p->fieldIndex(columnName)].theModifiableDouble();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableDouble();
 }
 
 inline
@@ -5675,8 +6905,16 @@ bsl::string&
 bdem_TableBinding::theModifiableString(int         rowIndex,
                                        const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                [d_constraint_p->fieldIndex(columnName)].theModifiableString();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableString();
 }
 
 inline
@@ -5684,8 +6922,16 @@ bdet_Datetime&
 bdem_TableBinding::theModifiableDatetime(int         rowIndex,
                                          const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-              [d_constraint_p->fieldIndex(columnName)].theModifiableDatetime();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIME == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableDatetime();
 }
 
 inline
@@ -5693,8 +6939,16 @@ bdet_DatetimeTz&
 bdem_TableBinding::theModifiableDatetimeTz(int         rowIndex,
                                            const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-            [d_constraint_p->fieldIndex(columnName)].theModifiableDatetimeTz();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIMETZ == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableDatetimeTz();
 }
 
 inline
@@ -5702,8 +6956,16 @@ bdet_Date&
 bdem_TableBinding::theModifiableDate(int         rowIndex,
                                      const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                  [d_constraint_p->fieldIndex(columnName)].theModifiableDate();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableDate();
 }
 
 inline
@@ -5711,8 +6973,16 @@ bdet_DateTz&
 bdem_TableBinding::theModifiableDateTz(int         rowIndex,
                                        const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                [d_constraint_p->fieldIndex(columnName)].theModifiableDateTz();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableDateTz();
 }
 
 inline
@@ -5720,8 +6990,16 @@ bdet_Time&
 bdem_TableBinding::theModifiableTime(int         rowIndex,
                                      const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                  [d_constraint_p->fieldIndex(columnName)].theModifiableTime();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableTime();
 }
 
 inline
@@ -5729,8 +7007,16 @@ bdet_TimeTz&
 bdem_TableBinding::theModifiableTimeTz(int         rowIndex,
                                        const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                [d_constraint_p->fieldIndex(columnName)].theModifiableTimeTz();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableTimeTz();
 }
 
 inline
@@ -5738,8 +7024,16 @@ bsl::vector<bool>&
 bdem_TableBinding::theModifiableBoolArray(int         rowIndex,
                                           const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-             [d_constraint_p->fieldIndex(columnName)].theModifiableBoolArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableBoolArray();
 }
 
 inline
@@ -5747,8 +7041,16 @@ bsl::vector<char>&
 bdem_TableBinding::theModifiableCharArray(int         rowIndex,
                                           const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-             [d_constraint_p->fieldIndex(columnName)].theModifiableCharArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableCharArray();
 }
 
 inline
@@ -5756,8 +7058,16 @@ bsl::vector<short>&
 bdem_TableBinding::theModifiableShortArray(int         rowIndex,
                                            const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-            [d_constraint_p->fieldIndex(columnName)].theModifiableShortArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableShortArray();
 }
 
 inline
@@ -5765,17 +7075,33 @@ bsl::vector<int>&
 bdem_TableBinding::theModifiableIntArray(int         rowIndex,
                                          const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-              [d_constraint_p->fieldIndex(columnName)].theModifiableIntArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableIntArray();
 }
 
 inline
-bsl::vector<bsls_PlatformUtil::Int64>&
+bsl::vector<bsls_Types::Int64>&
 bdem_TableBinding::theModifiableInt64Array(int         rowIndex,
                                            const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-            [d_constraint_p->fieldIndex(columnName)].theModifiableInt64Array();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableInt64Array();
 }
 
 inline
@@ -5783,8 +7109,16 @@ bsl::vector<float>&
 bdem_TableBinding::theModifiableFloatArray(int         rowIndex,
                                            const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-            [d_constraint_p->fieldIndex(columnName)].theModifiableFloatArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableFloatArray();
 }
 
 inline
@@ -5792,8 +7126,16 @@ bsl::vector<double>&
 bdem_TableBinding::theModifiableDoubleArray(int         rowIndex,
                                             const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-           [d_constraint_p->fieldIndex(columnName)].theModifiableDoubleArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableDoubleArray();
 }
 
 inline
@@ -5801,8 +7143,16 @@ bsl::vector<bsl::string>&
 bdem_TableBinding::theModifiableStringArray(int         rowIndex,
                                             const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-           [d_constraint_p->fieldIndex(columnName)].theModifiableStringArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableStringArray();
 }
 
 inline
@@ -5810,8 +7160,17 @@ bsl::vector<bdet_Datetime>&
 bdem_TableBinding::theModifiableDatetimeArray(int         rowIndex,
                                               const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-         [d_constraint_p->fieldIndex(columnName)].theModifiableDatetimeArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(
+                   bdem_ElemType::BDEM_DATETIME_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableDatetimeArray();
 }
 
 inline
@@ -5819,8 +7178,17 @@ bsl::vector<bdet_DatetimeTz>&
 bdem_TableBinding::theModifiableDatetimeTzArray(int         rowIndex,
                                                 const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-       [d_constraint_p->fieldIndex(columnName)].theModifiableDatetimeTzArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_DATETIMETZ_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableDatetimeTzArray();
 }
 
 inline
@@ -5828,8 +7196,16 @@ bsl::vector<bdet_Date>&
 bdem_TableBinding::theModifiableDateArray(int         rowIndex,
                                           const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-             [d_constraint_p->fieldIndex(columnName)].theModifiableDateArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableDateArray();
 }
 
 inline
@@ -5837,8 +7213,16 @@ bsl::vector<bdet_DateTz>&
 bdem_TableBinding::theModifiableDateTzArray(int         rowIndex,
                                             const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-           [d_constraint_p->fieldIndex(columnName)].theModifiableDateTzArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableDateTzArray();
 }
 
 inline
@@ -5846,8 +7230,16 @@ bsl::vector<bdet_Time>&
 bdem_TableBinding::theModifiableTimeArray(int         rowIndex,
                                           const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-             [d_constraint_p->fieldIndex(columnName)].theModifiableTimeArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableTimeArray();
 }
 
 inline
@@ -5855,8 +7247,16 @@ bsl::vector<bdet_TimeTz>&
 bdem_TableBinding::theModifiableTimeTzArray(int         rowIndex,
                                             const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-           [d_constraint_p->fieldIndex(columnName)].theModifiableTimeTzArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableTimeTzArray();
 }
 
 inline
@@ -5864,8 +7264,16 @@ bdem_Choice&
 bdem_TableBinding::theModifiableChoice(int         rowIndex,
                                        const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                [d_constraint_p->fieldIndex(columnName)].theModifiableChoice();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableChoice();
 }
 
 inline
@@ -5873,34 +7281,63 @@ bdem_ChoiceArray&
 bdem_TableBinding::theModifiableChoiceArray(int         rowIndex,
                                             const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-           [d_constraint_p->fieldIndex(columnName)].theModifiableChoiceArray();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableChoiceArray();
 }
 
 inline
 bdem_List& bdem_TableBinding::theModifiableList(int         rowIndex,
                                                 const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                  [d_constraint_p->fieldIndex(columnName)].theModifiableList();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableList();
 }
 
 inline
 bdem_Table& bdem_TableBinding::theModifiableTable(int         rowIndex,
                                                   const char *columnName) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                 [d_constraint_p->fieldIndex(columnName)].theModifiableTable();
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == elemType(fieldIndex));
+
+    return element(rowIndex, fieldIndex).theModifiableTable();
 }
 
 inline
 bdem_ChoiceBinding
 bdem_TableBinding::choiceBinding(int rowIndex, int columnIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == elemType(columnIndex));
+
     return bdem_ChoiceBinding(
-             &(*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                                           [columnIndex].theModifiableChoice(),
-             d_constraint_p->field(columnIndex).recordConstraint());
+                        &element(rowIndex, columnIndex).theModifiableChoice(),
+                        d_constraint_p->field(columnIndex).recordConstraint());
 }
 
 inline
@@ -5908,17 +7345,31 @@ bdem_ChoiceBinding
 bdem_TableBinding::choiceBinding(int         rowIndex,
                                  const char *columnName) const
 {
-    return choiceBinding(rowIndex, d_constraint_p->fieldIndex(columnName));
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return choiceBinding(rowIndex, fieldIndex);
 }
 
 inline
 bdem_ChoiceArrayBinding
 bdem_TableBinding::choiceArrayBinding(int rowIndex, int columnIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+    BSLS_ASSERT_SAFE(
+                    bdem_ElemType::BDEM_CHOICE_ARRAY == elemType(columnIndex));
+
     return bdem_ChoiceArrayBinding(
-             &(*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                                      [columnIndex].theModifiableChoiceArray(),
-             d_constraint_p->field(columnIndex).recordConstraint());
+                    &element(rowIndex, columnIndex).theModifiableChoiceArray(),
+                    d_constraint_p->field(columnIndex).recordConstraint());
 }
 
 inline
@@ -5926,56 +7377,94 @@ bdem_ChoiceArrayBinding
 bdem_TableBinding::choiceArrayBinding(int         rowIndex,
                                       const char *columnName) const
 {
-    return choiceArrayBinding(rowIndex,
-                              d_constraint_p->fieldIndex(columnName));
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return choiceArrayBinding(rowIndex, fieldIndex);
 }
 
 inline
 bdem_RowBinding bdem_TableBinding::rowBinding(int rowIndex) const
 {
-    return bdem_RowBinding(
-            &(*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex),
-            d_constraint_p);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+
+    return bdem_RowBinding(&table().theModifiableRow(rowIndex),
+                           d_constraint_p);
 }
 
 inline
 bdem_RowBinding
 bdem_TableBinding::rowBinding(int rowIndex, int columnIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == elemType(columnIndex));
+
     return bdem_RowBinding(
-             &(*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                                       [columnIndex].theModifiableList().row(),
-             d_constraint_p->field(columnIndex).recordConstraint());
+                     &element(rowIndex, columnIndex).theModifiableList().row(),
+                     d_constraint_p->field(columnIndex).recordConstraint());
 }
 
 inline
 bdem_RowBinding
 bdem_TableBinding::rowBinding(int rowIndex, const char *columnName) const
 {
-    return rowBinding(rowIndex, d_constraint_p->fieldIndex(columnName));
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return rowBinding(rowIndex, fieldIndex);
 }
 
 inline
 bdem_TableBinding
 bdem_TableBinding::tableBinding(int rowIndex, int columnIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex    < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == elemType(columnIndex));
+
     return bdem_TableBinding(
-             &(*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                                            [columnIndex].theModifiableTable(),
-             d_constraint_p->field(columnIndex).recordConstraint());
+                        &element(rowIndex, columnIndex).theModifiableTable(),
+                        d_constraint_p->field(columnIndex).recordConstraint());
 }
 
 inline
 bdem_TableBinding
 bdem_TableBinding::tableBinding(int rowIndex, const char *columnName) const
 {
-    return tableBinding(rowIndex, d_constraint_p->fieldIndex(columnName));
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return tableBinding(rowIndex, fieldIndex);
 }
 
 inline
 bdem_ColumnBinding bdem_TableBinding::columnBinding(int columnIndex) const
 {
-    return bdem_ColumnBinding(const_cast<bdem_Table *>(d_table_p),
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+
+    return bdem_ColumnBinding(&table(),
                               columnIndex,
                               &d_constraint_p->field(columnIndex));
 }
@@ -5984,7 +7473,13 @@ inline
 bdem_ColumnBinding
 bdem_TableBinding::columnBinding(const char *columnName) const
 {
-    return columnBinding(d_constraint_p->fieldIndex(columnName));
+    BSLS_ASSERT_SAFE(columnName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(columnName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return columnBinding(fieldIndex);
 }
 
                         // -----------------------------
@@ -6001,6 +7496,11 @@ bdem_ConstColumnBinding::bdem_ConstColumnBinding(
 , d_columnIndex(columnIndex)
 , d_constraint_p(field)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+    BSLS_ASSERT_SAFE(field);
+    BSLS_ASSERT_SAFE(canSatisfyColumn(table, columnIndex, field));
 }
 
 inline
@@ -6026,6 +7526,12 @@ void bdem_ConstColumnBinding::rebind(const bdem_Table    *table,
                                      int                  columnIndex,
                                      const bdem_FieldDef *field)
 {
+    BSLS_ASSERT_SAFE(table);
+    BSLS_ASSERT_SAFE(0 <= columnIndex);
+    BSLS_ASSERT_SAFE(     columnIndex < d_table_p->numColumns());
+    BSLS_ASSERT_SAFE(field);
+    BSLS_ASSERT_SAFE(canSatisfyColumn(table, columnIndex, field));
+
     d_table_p      = table;
     d_columnIndex  = columnIndex;
     d_constraint_p = field;
@@ -6035,12 +7541,18 @@ void bdem_ConstColumnBinding::rebind(const bdem_Table    *table,
 inline
 bdem_ConstElemRef bdem_ConstColumnBinding::operator[](int rowIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+
     return (*d_table_p)[rowIndex][d_columnIndex];
 }
 
 inline
 bdem_ConstElemRef bdem_ConstColumnBinding::element(int rowIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+
     return (*d_table_p)[rowIndex][d_columnIndex];
 }
 
@@ -6078,40 +7590,63 @@ inline
 bdem_ConstChoiceBinding
 bdem_ConstColumnBinding::choiceBinding(int rowIndex) const
 {
-    return bdem_ConstChoiceBinding(
-                            &(*d_table_p)[rowIndex][d_columnIndex].theChoice(),
-                            d_constraint_p->recordConstraint());
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == elemType());
+
+    return bdem_ConstChoiceBinding(&element(rowIndex).theChoice(),
+                                   d_constraint_p->recordConstraint());
 }
 
 inline
 bdem_ConstChoiceArrayBinding
 bdem_ConstColumnBinding::choiceArrayBinding(int rowIndex) const
 {
-    return bdem_ConstChoiceArrayBinding(
-                       &(*d_table_p)[rowIndex][d_columnIndex].theChoiceArray(),
-                       d_constraint_p->recordConstraint());
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == elemType());
+
+    return bdem_ConstChoiceArrayBinding(&element(rowIndex).theChoiceArray(),
+                                        d_constraint_p->recordConstraint());
 }
 
 inline
 bdem_ConstRowBinding bdem_ConstColumnBinding::rowBinding(int rowIndex) const
 {
-    return bdem_ConstRowBinding(
-                        &(*d_table_p)[rowIndex][d_columnIndex].theList().row(),
-                        d_constraint_p->recordConstraint());
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == elemType());
+
+    return bdem_ConstRowBinding(&element(rowIndex).theList().row(),
+                                d_constraint_p->recordConstraint());
 }
 
 inline
 bdem_ConstTableBinding
 bdem_ConstColumnBinding::tableBinding(int rowIndex) const
 {
-    return bdem_ConstTableBinding(
-                             &(*d_table_p)[rowIndex][d_columnIndex].theTable(),
-                             d_constraint_p->recordConstraint());
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == elemType());
+
+    return bdem_ConstTableBinding(&element(rowIndex).theTable(),
+                                  d_constraint_p->recordConstraint());
 }
 
                         // ------------------------
                         // class bdem_ColumnBinding
                         // ------------------------
+
+                        // -----------------
+                        // Level-0 Functions
+                        // -----------------
+
+// ACCESSORS
+inline
+bdem_Table& bdem_ColumnBinding::table() const
+{
+    return *const_cast<bdem_Table *>(d_table_p);
+}
 
 // CREATORS
 inline
@@ -6147,30 +7682,29 @@ void bdem_ColumnBinding::rebind(bdem_Table          *table,
 inline
 bdem_ElemRef bdem_ColumnBinding::operator[](int rowIndex) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                                                               [d_columnIndex];
-}
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
 
-inline
-bdem_Table& bdem_ColumnBinding::table() const
-{
-    return *const_cast<bdem_Table *>(d_table_p);
+    return table().theModifiableRow(rowIndex)[d_columnIndex];
 }
 
 inline
 bdem_ElemRef bdem_ColumnBinding::element(int rowIndex) const
 {
-    return (*const_cast<bdem_Table *>(d_table_p)).theModifiableRow(rowIndex)
-                                                               [d_columnIndex];
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+
+    return table().theModifiableRow(rowIndex)[d_columnIndex];
 }
 
 inline
 bdem_ChoiceBinding bdem_ColumnBinding::choiceBinding(int rowIndex) const
 {
-    bdem_Table *t_p = const_cast<bdem_Table *>(d_table_p);
-    bdem_Row& row = t_p->theModifiableRow(rowIndex);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == elemType());
 
-    return bdem_ChoiceBinding(&row[d_columnIndex].theModifiableChoice(),
+    return bdem_ChoiceBinding(&element(rowIndex).theModifiableChoice(),
                               d_constraint_p->recordConstraint());
 }
 
@@ -6178,31 +7712,34 @@ inline
 bdem_ChoiceArrayBinding
 bdem_ColumnBinding::choiceArrayBinding(int rowIndex) const
 {
-    bdem_Table *t_p = const_cast<bdem_Table *>(d_table_p);
-    bdem_Row& row = t_p->theModifiableRow(rowIndex);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == elemType());
 
     return bdem_ChoiceArrayBinding(
-                                &row[d_columnIndex].theModifiableChoiceArray(),
+                                &element(rowIndex).theModifiableChoiceArray(),
                                 d_constraint_p->recordConstraint());
 }
 
 inline
 bdem_RowBinding bdem_ColumnBinding::rowBinding(int rowIndex) const
 {
-    bdem_Table *t_p = const_cast<bdem_Table *>(d_table_p);
-    bdem_Row& row = t_p->theModifiableRow(rowIndex);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == elemType());
 
-    return bdem_RowBinding(&row[d_columnIndex].theModifiableList().row(),
+    return bdem_RowBinding(&element(rowIndex).theModifiableList().row(),
                            d_constraint_p->recordConstraint());
 }
 
 inline
 bdem_TableBinding bdem_ColumnBinding::tableBinding(int rowIndex) const
 {
-    bdem_Table *t_p = const_cast<bdem_Table *>(d_table_p);
-    bdem_Row& row = t_p->theModifiableRow(rowIndex);
+    BSLS_ASSERT_SAFE(0 <= rowIndex);
+    BSLS_ASSERT_SAFE(     rowIndex < d_table_p->numRows());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == elemType());
 
-    return bdem_TableBinding(&row[d_columnIndex].theModifiableTable(),
+    return bdem_TableBinding(&element(rowIndex).theModifiableTable(),
                              d_constraint_p->recordConstraint());
 }
 
@@ -6218,6 +7755,10 @@ bdem_ConstChoiceBinding::bdem_ConstChoiceBinding(
 : d_item_p(item)
 , d_constraint_p(record)
 {
+    BSLS_ASSERT_SAFE(item);
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(*item,
+                                                                *record));
 }
 
 inline
@@ -6226,35 +7767,74 @@ bdem_ConstChoiceBinding::bdem_ConstChoiceBinding(
                                         const bdem_Schema          *schema,
                                         const char                 *recordName)
 : d_item_p(item)
-, d_constraint_p(schema->lookupRecord(recordName))
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(item);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
+    d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *item,
+                                                             *d_constraint_p));
 }
 
 inline
 bdem_ConstChoiceBinding::bdem_ConstChoiceBinding(
-                                      const bdem_ChoiceArrayItem *item,
-                                      const bdem_Schema          *schema,
-                                      int                         recordIndex)
+                                       const bdem_ChoiceArrayItem *item,
+                                       const bdem_Schema          *schema,
+                                       int                         recordIndex)
 : d_item_p(item)
-, d_constraint_p(&schema->record(recordIndex))
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(item);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->numRecords());
+
+    d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *item,
+                                                             *d_constraint_p));
 }
 
 inline
 bdem_ConstChoiceBinding::bdem_ConstChoiceBinding(const bdem_Choice    *choice,
                                                  const bdem_RecordDef *record)
-: d_item_p(&choice->item())
+: d_item_p(0)
 , d_constraint_p(record)
 {
+    BSLS_ASSERT_SAFE(choice);
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             choice->item(),
+                                                             *d_constraint_p));
+
+    d_item_p = &choice->item();
 }
 
 inline
 bdem_ConstChoiceBinding::bdem_ConstChoiceBinding(const bdem_Choice *choice,
                                                  const bdem_Schema *schema,
                                                  const char        *recordName)
-: d_item_p(&choice->item())
-, d_constraint_p(schema->lookupRecord(recordName))
+: d_item_p(0)
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(choice);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
+    d_item_p       = &choice->item();
+    d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -6262,9 +7842,21 @@ bdem_ConstChoiceBinding::bdem_ConstChoiceBinding(
                                                 const bdem_Choice *choice,
                                                 const bdem_Schema *schema,
                                                 int                recordIndex)
-: d_item_p(&choice->item())
-, d_constraint_p(&schema->record(recordIndex))
+: d_item_p(0)
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(choice);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->numRecords());
+
+    d_item_p       = &choice->item();
+    d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -6272,9 +7864,19 @@ bdem_ConstChoiceBinding::bdem_ConstChoiceBinding(
                                            const bdem_ChoiceArray *choiceArray,
                                            int                     choiceIndex,
                                            const bdem_RecordDef   *record)
-: d_item_p(&(*choiceArray)[choiceIndex])
+: d_item_p(0)
 , d_constraint_p(record)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(0 <= choiceIndex);
+    BSLS_ASSERT_SAFE(     choiceIndex < choiceArray->length());
+    BSLS_ASSERT_SAFE(record);
+
+    d_item_p = &(*choiceArray)[choiceIndex];
+
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -6283,9 +7885,22 @@ bdem_ConstChoiceBinding::bdem_ConstChoiceBinding(
                                            int                     choiceIndex,
                                            const bdem_Schema      *schema,
                                            const char             *recordName)
-: d_item_p(&(*choiceArray)[choiceIndex])
-, d_constraint_p(schema->lookupRecord(recordName))
+: d_item_p(0)
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(0 <= choiceIndex);
+    BSLS_ASSERT_SAFE(     choiceIndex < choiceArray->length());
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
+    d_item_p       = &(*choiceArray)[choiceIndex];
+    d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -6294,9 +7909,23 @@ bdem_ConstChoiceBinding::bdem_ConstChoiceBinding(
                                           int                      choiceIndex,
                                           const bdem_Schema       *schema,
                                           int                      recordIndex)
-: d_item_p(&(*choiceArray)[choiceIndex])
-, d_constraint_p(&schema->record(recordIndex))
+: d_item_p(0)
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(0 <= choiceIndex);
+    BSLS_ASSERT_SAFE(     choiceIndex < choiceArray->length());
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
+    d_item_p       = &(*choiceArray)[choiceIndex];
+    d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -6318,12 +7947,22 @@ void bdem_ConstChoiceBinding::rebind(const bdem_ConstChoiceBinding& binding)
 inline
 void bdem_ConstChoiceBinding::rebind(const bdem_ChoiceArrayItem *item)
 {
+    BSLS_ASSERT_SAFE(item);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *item,
+                                                             *d_constraint_p));
+
     d_item_p = item;
 }
 
 inline
 void bdem_ConstChoiceBinding::rebind(const bdem_Choice *choice)
 {
+    BSLS_ASSERT_SAFE(choice);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             choice->item(),
+                                                             *d_constraint_p));
+
     d_item_p = &choice->item();
 }
 
@@ -6331,13 +7970,26 @@ inline
 void bdem_ConstChoiceBinding::rebind(const bdem_ChoiceArray *choiceArray,
                                      int                     choiceIndex)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(0 <= choiceIndex);
+    BSLS_ASSERT_SAFE(     choiceIndex < choiceArray->length());
+
     d_item_p = &(*choiceArray)[choiceIndex];
+
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
 void bdem_ConstChoiceBinding::rebind(const bdem_ChoiceArrayItem *item,
                                      const bdem_RecordDef       *record)
 {
+    BSLS_ASSERT_SAFE(item);
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(*item,
+                                                                *record));
+
     d_item_p       = item;
     d_constraint_p = record;
 }
@@ -6347,8 +7999,17 @@ void bdem_ConstChoiceBinding::rebind(const bdem_ChoiceArrayItem *item,
                                      const bdem_Schema          *schema,
                                      const char                 *recordName)
 {
+    BSLS_ASSERT_SAFE(item);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
     d_item_p       = item;
     d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -6356,14 +8017,29 @@ void bdem_ConstChoiceBinding::rebind(const bdem_ChoiceArrayItem *item,
                                      const bdem_Schema          *schema,
                                      int                         recordIndex)
 {
+    BSLS_ASSERT_SAFE(item);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
     d_item_p       = item;
     d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
 void bdem_ConstChoiceBinding::rebind(const bdem_Choice    *choice,
                                      const bdem_RecordDef *record)
 {
+    BSLS_ASSERT_SAFE(choice);
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(choice->item(),
+                                                                *record));
+
     d_item_p       = &choice->item();
     d_constraint_p = record;
 }
@@ -6373,8 +8049,17 @@ void bdem_ConstChoiceBinding::rebind(const bdem_Choice *choice,
                                      const bdem_Schema *schema,
                                      const char        *recordName)
 {
+    BSLS_ASSERT_SAFE(choice);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
     d_item_p       = &choice->item();
     d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -6382,8 +8067,18 @@ void bdem_ConstChoiceBinding::rebind(const bdem_Choice *choice,
                                      const bdem_Schema *schema,
                                      int                recordIndex)
 {
+    BSLS_ASSERT_SAFE(choice);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
     d_item_p       = &choice->item();
     d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -6391,8 +8086,17 @@ void bdem_ConstChoiceBinding::rebind(const bdem_ChoiceArray *choiceArray,
                                      int                     choiceIndex,
                                      const bdem_RecordDef   *record)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(0 <= choiceIndex);
+    BSLS_ASSERT_SAFE(     choiceIndex < choiceArray->length());
+    BSLS_ASSERT_SAFE(record);
+
     d_item_p       = &(*choiceArray)[choiceIndex];
     d_constraint_p = record;
+
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -6401,8 +8105,19 @@ void bdem_ConstChoiceBinding::rebind(const bdem_ChoiceArray *choiceArray,
                                      const bdem_Schema      *schema,
                                      const char             *recordName)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(0 <= choiceIndex);
+    BSLS_ASSERT_SAFE(     choiceIndex < choiceArray->length());
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
     d_item_p       = &(*choiceArray)[choiceIndex];
     d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -6411,8 +8126,20 @@ void bdem_ConstChoiceBinding::rebind(const bdem_ChoiceArray *choiceArray,
                                      const bdem_Schema      *schema,
                                      int                     recordIndex)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(0 <= choiceIndex);
+    BSLS_ASSERT_SAFE(     choiceIndex < choiceArray->length());
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
     d_item_p       = &(*choiceArray)[choiceIndex];
     d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_item_p,
+                                                             *d_constraint_p));
 }
 
 // ACCESSORS
@@ -6443,14 +8170,23 @@ bdem_ConstElemRef bdem_ConstChoiceBinding::selection() const
 inline
 bdem_ElemType::Type bdem_ConstChoiceBinding::selectionType(int index) const
 {
+    BSLS_ASSERT_SAFE(0 <= index);
+    BSLS_ASSERT_SAFE(     index < numSelections());
+
     return d_constraint_p->field(index).elemType();
 }
 
 inline
 bdem_ElemType::Type
-bdem_ConstChoiceBinding::selectionType(const char *elementName) const
+bdem_ConstChoiceBinding::selectionType(const char *selectionName) const
 {
-    return d_constraint_p->lookupField(elementName)->elemType();
+    BSLS_ASSERT_SAFE(selectionName);
+
+    const bdem_FieldDef *fieldDef = d_constraint_p->lookupField(selectionName);
+
+    BSLS_ASSERT_SAFE(fieldDef);
+
+    return fieldDef->elemType();
 }
 
 inline
@@ -6469,148 +8205,194 @@ inline
 int bdem_ConstChoiceBinding::selectorId() const
 {
     const int selectionIndex = selector();
-    return -1 == selectionIndex ? bdem_RecordDef::BDEM_NULL_FIELD_ID
-                                : d_constraint_p->fieldId(selectionIndex);
+    return -1 == selectionIndex
+           ? bdem_RecordDef::BDEM_NULL_FIELD_ID
+           : d_constraint_p->fieldId(selectionIndex);
 }
 
 inline
 const char *bdem_ConstChoiceBinding::selectorName() const
 {
     const int selectionIndex = selector();
-    return -1 == selectionIndex ? 0
-                                : d_constraint_p->fieldName(selectionIndex);
+    return -1 == selectionIndex
+           ? 0
+           : d_constraint_p->fieldName(selectionIndex);
 }
 
 inline
 const bool& bdem_ConstChoiceBinding::theBool() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL == selectionType());
+
     return d_item_p->theBool();
 }
 
 inline
 const char& bdem_ConstChoiceBinding::theChar() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR == selectionType());
+
     return d_item_p->theChar();
 }
 
 inline
 const short& bdem_ConstChoiceBinding::theShort() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT == selectionType());
+
     return d_item_p->theShort();
 }
 
 inline
 const int& bdem_ConstChoiceBinding::theInt() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT == selectionType());
+
     return d_item_p->theInt();
 }
 
 inline
-const bsls_PlatformUtil::Int64& bdem_ConstChoiceBinding::theInt64() const
+const bsls_Types::Int64& bdem_ConstChoiceBinding::theInt64() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == selectionType());
+
     return d_item_p->theInt64();
 }
 
 inline
 const float& bdem_ConstChoiceBinding::theFloat() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT == selectionType());
+
     return d_item_p->theFloat();
 }
 
 inline
 const double& bdem_ConstChoiceBinding::theDouble() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE == selectionType());
+
     return d_item_p->theDouble();
 }
 
 inline
 const bsl::string& bdem_ConstChoiceBinding::theString() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING == selectionType());
+
     return d_item_p->theString();
 }
 
 inline
 const bdet_Datetime& bdem_ConstChoiceBinding::theDatetime() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIME == selectionType());
+
     return d_item_p->theDatetime();
 }
 
 inline
 const bdet_DatetimeTz& bdem_ConstChoiceBinding::theDatetimeTz() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIMETZ == selectionType());
+
     return d_item_p->theDatetimeTz();
 }
 
 inline
 const bdet_Date& bdem_ConstChoiceBinding::theDate() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE == selectionType());
+
     return d_item_p->theDate();
 }
 
 inline
 const bdet_DateTz& bdem_ConstChoiceBinding::theDateTz() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ == selectionType());
+
     return d_item_p->theDateTz();
 }
 
 inline
 const bdet_Time& bdem_ConstChoiceBinding::theTime() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME == selectionType());
+
     return d_item_p->theTime();
 }
 
 inline
 const bdet_TimeTz& bdem_ConstChoiceBinding::theTimeTz() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ == selectionType());
+
     return d_item_p->theTimeTz();
 }
 
 inline
 const bsl::vector<bool>& bdem_ConstChoiceBinding::theBoolArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL_ARRAY == selectionType());
+
     return d_item_p->theBoolArray();
 }
 
 inline
 const bsl::vector<char>& bdem_ConstChoiceBinding::theCharArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR_ARRAY == selectionType());
+
     return d_item_p->theCharArray();
 }
 
 inline
 const bsl::vector<short>& bdem_ConstChoiceBinding::theShortArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT_ARRAY == selectionType());
+
     return d_item_p->theShortArray();
 }
 
 inline
 const bsl::vector<int>& bdem_ConstChoiceBinding::theIntArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT_ARRAY == selectionType());
+
     return d_item_p->theIntArray();
 }
 
 inline
-const bsl::vector<bsls_PlatformUtil::Int64>&
+const bsl::vector<bsls_Types::Int64>&
 bdem_ConstChoiceBinding::theInt64Array() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64_ARRAY == selectionType());
+
     return d_item_p->theInt64Array();
 }
 
 inline
 const bsl::vector<float>& bdem_ConstChoiceBinding::theFloatArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT_ARRAY == selectionType());
+
     return d_item_p->theFloatArray();
 }
 
 inline
 const bsl::vector<double>& bdem_ConstChoiceBinding::theDoubleArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE_ARRAY == selectionType());
+
     return d_item_p->theDoubleArray();
 }
 
 inline
 const bsl::vector<bsl::string>& bdem_ConstChoiceBinding::theStringArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING_ARRAY == selectionType());
+
     return d_item_p->theStringArray();
 }
 
@@ -6618,6 +8400,8 @@ inline
 const bsl::vector<bdet_Datetime>&
 bdem_ConstChoiceBinding::theDatetimeArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIME_ARRAY == selectionType());
+
     return d_item_p->theDatetimeArray();
 }
 
@@ -6625,60 +8409,80 @@ inline
 const bsl::vector<bdet_DatetimeTz>&
 bdem_ConstChoiceBinding::theDatetimeTzArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIMETZ_ARRAY == selectionType());
+
     return d_item_p->theDatetimeTzArray();
 }
 
 inline
 const bsl::vector<bdet_Date>& bdem_ConstChoiceBinding::theDateArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE_ARRAY == selectionType());
+
     return d_item_p->theDateArray();
 }
 
 inline
 const bsl::vector<bdet_DateTz>& bdem_ConstChoiceBinding::theDateTzArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ_ARRAY == selectionType());
+
     return d_item_p->theDateTzArray();
 }
 
 inline
 const bsl::vector<bdet_Time>& bdem_ConstChoiceBinding::theTimeArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME_ARRAY == selectionType());
+
     return d_item_p->theTimeArray();
 }
 
 inline
 const bsl::vector<bdet_TimeTz>& bdem_ConstChoiceBinding::theTimeTzArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ_ARRAY == selectionType());
+
     return d_item_p->theTimeTzArray();
 }
 
 inline
 const bdem_Choice& bdem_ConstChoiceBinding::theChoice() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == selectionType());
+
     return d_item_p->theChoice();
 }
 
 inline
 const bdem_ChoiceArray& bdem_ConstChoiceBinding::theChoiceArray() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == selectionType());
+
     return d_item_p->theChoiceArray();
 }
 
 inline
 const bdem_List& bdem_ConstChoiceBinding::theList() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == selectionType());
+
     return d_item_p->theList();
 }
 
 inline
 const bdem_Table& bdem_ConstChoiceBinding::theTable() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == selectionType());
+
     return d_item_p->theTable();
 }
 
 inline
 bdem_ConstChoiceBinding bdem_ConstChoiceBinding::choiceBinding() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == selectionType());
+
     return bdem_ConstChoiceBinding(
                          &d_item_p->theChoice().item(),
                          d_constraint_p->field(selector()).recordConstraint());
@@ -6688,6 +8492,8 @@ inline
 bdem_ConstChoiceArrayBinding
 bdem_ConstChoiceBinding::choiceArrayBinding() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == selectionType());
+
     return bdem_ConstChoiceArrayBinding(
                          &d_item_p->theChoiceArray(),
                          d_constraint_p->field(selector()).recordConstraint());
@@ -6696,6 +8502,8 @@ bdem_ConstChoiceBinding::choiceArrayBinding() const
 inline
 bdem_ConstRowBinding bdem_ConstChoiceBinding::rowBinding() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == selectionType());
+
     return bdem_ConstRowBinding(
                          &d_item_p->theList().row(),
                          d_constraint_p->field(selector()).recordConstraint());
@@ -6704,6 +8512,8 @@ bdem_ConstRowBinding bdem_ConstChoiceBinding::rowBinding() const
 inline
 bdem_ConstTableBinding bdem_ConstChoiceBinding::tableBinding() const
 {
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == selectionType());
+
     return bdem_ConstTableBinding(
                          &d_item_p->theTable(),
                          d_constraint_p->field(selector()).recordConstraint());
@@ -6729,6 +8539,17 @@ bool operator!=(const bdem_ConstChoiceBinding& lhs,
                         // ------------------------
                         // class bdem_ChoiceBinding
                         // ------------------------
+
+                        // -----------------
+                        // Level-0 Functions
+                        // -----------------
+
+// ACCESSORS
+inline
+bdem_ChoiceArrayItem& bdem_ChoiceBinding::item() const
+{
+    return *const_cast<bdem_ChoiceArrayItem *>(d_item_p);
+}
 
 // CREATORS
 inline
@@ -6916,279 +8737,327 @@ void bdem_ChoiceBinding::rebind(bdem_ChoiceArray  *choiceArray,
 inline
 bdem_ElemRef bdem_ChoiceBinding::makeSelection(int newSelector)
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->makeSelection(
-                                                                  newSelector);
+    BSLS_ASSERT_SAFE(-1 <= newSelector);
+    BSLS_ASSERT_SAFE(      newSelector < numSelections());
+
+    return item().makeSelection(newSelector);
 }
 
 inline
 bdem_ElemRef bdem_ChoiceBinding::makeSelection(const char *selectionName)
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->makeSelection(
-                                    d_constraint_p->fieldIndex(selectionName));
+    BSLS_ASSERT_SAFE(selectionName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(selectionName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return item().makeSelection(fieldIndex);
 }
 
 // ACCESSORS
 inline
-bdem_ChoiceArrayItem& bdem_ChoiceBinding::item() const
-{
-    return *const_cast<bdem_ChoiceArrayItem *>(d_item_p);
-}
-
-inline
 bdem_ElemRef bdem_ChoiceBinding::selection() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->selection();
+    return item().selection();
 }
 
 inline
 bool& bdem_ChoiceBinding::theModifiableBool() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableBool();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL == selectionType());
+
+    return item().theModifiableBool();
 }
 
 inline
 char& bdem_ChoiceBinding::theModifiableChar() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableChar();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR == selectionType());
+
+    return item().theModifiableChar();
 }
 
 inline
 short& bdem_ChoiceBinding::theModifiableShort() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableShort();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT == selectionType());
+
+    return item().theModifiableShort();
 }
 
 inline
 int& bdem_ChoiceBinding::theModifiableInt() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableInt();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT == selectionType());
+
+    return item().theModifiableInt();
 }
 
 inline
-bsls_PlatformUtil::Int64& bdem_ChoiceBinding::theModifiableInt64() const
+bsls_Types::Int64& bdem_ChoiceBinding::theModifiableInt64() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableInt64();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == selectionType());
+
+    return item().theModifiableInt64();
 }
 
 inline
 float& bdem_ChoiceBinding::theModifiableFloat() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableFloat();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT == selectionType());
+
+    return item().theModifiableFloat();
 }
 
 inline
 double& bdem_ChoiceBinding::theModifiableDouble() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableDouble();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE == selectionType());
+
+    return item().theModifiableDouble();
 }
 
 inline
 bsl::string& bdem_ChoiceBinding::theModifiableString() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableString();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING == selectionType());
+
+    return item().theModifiableString();
 }
 
 inline
 bdet_Datetime& bdem_ChoiceBinding::theModifiableDatetime() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                       theModifiableDatetime();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIME == selectionType());
+
+    return item().theModifiableDatetime();
 }
 
 inline
 bdet_DatetimeTz& bdem_ChoiceBinding::theModifiableDatetimeTz() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                     theModifiableDatetimeTz();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIMETZ == selectionType());
+
+    return item().theModifiableDatetimeTz();
 }
 
 inline
 bdet_Date& bdem_ChoiceBinding::theModifiableDate() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableDate();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE == selectionType());
+
+    return item().theModifiableDate();
 }
 
 inline
 bdet_DateTz& bdem_ChoiceBinding::theModifiableDateTz() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableDateTz();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ == selectionType());
+
+    return item().theModifiableDateTz();
 }
 
 inline
 bdet_Time& bdem_ChoiceBinding::theModifiableTime() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableTime();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME == selectionType());
+
+    return item().theModifiableTime();
 }
 
 inline
 bdet_TimeTz& bdem_ChoiceBinding::theModifiableTimeTz() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableTimeTz();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ == selectionType());
+
+    return item().theModifiableTimeTz();
 }
 
 inline
 bsl::vector<bool>& bdem_ChoiceBinding::theModifiableBoolArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                      theModifiableBoolArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL_ARRAY == selectionType());
+
+    return item().theModifiableBoolArray();
 }
 
 inline
 bsl::vector<char>& bdem_ChoiceBinding::theModifiableCharArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                      theModifiableCharArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR_ARRAY == selectionType());
+
+    return item().theModifiableCharArray();
 }
 
 inline
 bsl::vector<short>& bdem_ChoiceBinding::theModifiableShortArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                     theModifiableShortArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT_ARRAY == selectionType());
+
+    return item().theModifiableShortArray();
 }
 
 inline
 bsl::vector<int>& bdem_ChoiceBinding::theModifiableIntArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                       theModifiableIntArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT_ARRAY == selectionType());
+
+    return item().theModifiableIntArray();
 }
 
 inline
-bsl::vector<bsls_PlatformUtil::Int64>&
+bsl::vector<bsls_Types::Int64>&
 bdem_ChoiceBinding::theModifiableInt64Array() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                     theModifiableInt64Array();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64_ARRAY == selectionType());
+
+    return item().theModifiableInt64Array();
 }
 
 inline
 bsl::vector<float>& bdem_ChoiceBinding::theModifiableFloatArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                     theModifiableFloatArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT_ARRAY == selectionType());
+
+    return item().theModifiableFloatArray();
 }
 
 inline
 bsl::vector<double>& bdem_ChoiceBinding::theModifiableDoubleArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                    theModifiableDoubleArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE_ARRAY == selectionType());
+
+    return item().theModifiableDoubleArray();
 }
 
 inline
 bsl::vector<bsl::string>& bdem_ChoiceBinding::theModifiableStringArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                    theModifiableStringArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING_ARRAY == selectionType());
+
+    return item().theModifiableStringArray();
 }
 
 inline
 bsl::vector<bdet_Datetime>&
 bdem_ChoiceBinding::theModifiableDatetimeArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                  theModifiableDatetimeArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIME_ARRAY == selectionType());
+
+    return item().theModifiableDatetimeArray();
 }
 
 inline
 bsl::vector<bdet_DatetimeTz>&
 bdem_ChoiceBinding::theModifiableDatetimeTzArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                theModifiableDatetimeTzArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIMETZ_ARRAY == selectionType());
+
+    return item().theModifiableDatetimeTzArray();
 }
 
 inline
 bsl::vector<bdet_Date>& bdem_ChoiceBinding::theModifiableDateArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                      theModifiableDateArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE_ARRAY == selectionType());
+
+    return item().theModifiableDateArray();
 }
 
 inline
 bsl::vector<bdet_DateTz>& bdem_ChoiceBinding::theModifiableDateTzArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                    theModifiableDateTzArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ_ARRAY == selectionType());
+
+    return item().theModifiableDateTzArray();
 }
 
 inline
 bsl::vector<bdet_Time>& bdem_ChoiceBinding::theModifiableTimeArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                      theModifiableTimeArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME_ARRAY == selectionType());
+
+    return item().theModifiableTimeArray();
 }
 
 inline
 bsl::vector<bdet_TimeTz>& bdem_ChoiceBinding::theModifiableTimeTzArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                    theModifiableTimeTzArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ_ARRAY == selectionType());
+
+    return item().theModifiableTimeTzArray();
 }
 
 inline
 bdem_Choice& bdem_ChoiceBinding::theModifiableChoice() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableChoice();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == selectionType());
+
+    return item().theModifiableChoice();
 }
 
 inline
 bdem_ChoiceArray& bdem_ChoiceBinding::theModifiableChoiceArray() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->
-                                                    theModifiableChoiceArray();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == selectionType());
+
+    return item().theModifiableChoiceArray();
 }
 
 inline
 bdem_List& bdem_ChoiceBinding::theModifiableList() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableList();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == selectionType());
+
+    return item().theModifiableList();
 }
 
 inline
 bdem_Table& bdem_ChoiceBinding::theModifiableTable() const
 {
-    return const_cast<bdem_ChoiceArrayItem *>(d_item_p)->theModifiableTable();
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == selectionType());
+
+    return item().theModifiableTable();
 }
 
 inline
 bdem_ChoiceBinding bdem_ChoiceBinding::choiceBinding() const
 {
-    bdem_ChoiceArrayItem *ca_p = const_cast<bdem_ChoiceArrayItem *>(d_item_p);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == selectionType());
 
     return bdem_ChoiceBinding(
-                         &ca_p->theModifiableChoice().item(),
+                         &theModifiableChoice().item(),
                          d_constraint_p->field(selector()).recordConstraint());
 }
 
 inline
 bdem_ChoiceArrayBinding bdem_ChoiceBinding::choiceArrayBinding() const
 {
-    bdem_ChoiceArrayItem *ca_p = const_cast<bdem_ChoiceArrayItem *>(d_item_p);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == selectionType());
 
     return bdem_ChoiceArrayBinding(
-                         &ca_p->theModifiableChoiceArray(),
+                         &theModifiableChoiceArray(),
                          d_constraint_p->field(selector()).recordConstraint());
 }
 
 inline
 bdem_RowBinding bdem_ChoiceBinding::rowBinding() const
 {
-    bdem_ChoiceArrayItem *ca_p = const_cast<bdem_ChoiceArrayItem *>(d_item_p);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == selectionType());
 
     return bdem_RowBinding(
-                         &ca_p->theModifiableList().row(),
+                         &theModifiableList().row(),
                          d_constraint_p->field(selector()).recordConstraint());
 }
 
 inline
 bdem_TableBinding bdem_ChoiceBinding::tableBinding() const
 {
-    bdem_ChoiceArrayItem *ca_p = const_cast<bdem_ChoiceArrayItem *>(d_item_p);
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == selectionType());
 
     return bdem_TableBinding(
-                         &ca_p->theModifiableTable(),
+                         &theModifiableTable(),
                          d_constraint_p->field(selector()).recordConstraint());
 }
 
@@ -7204,6 +9073,11 @@ bdem_ConstChoiceArrayBinding::bdem_ConstChoiceArrayBinding(
 : d_choiceArray_p(choiceArray)
 , d_constraint_p(record)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_choiceArray_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -7212,8 +9086,18 @@ bdem_ConstChoiceArrayBinding::bdem_ConstChoiceArrayBinding(
                                           const bdem_Schema      *schema,
                                           const char             *recordName)
 : d_choiceArray_p(choiceArray)
-, d_constraint_p(schema->lookupRecord(recordName))
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
+    d_constraint_p = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_choiceArray_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -7222,8 +9106,19 @@ bdem_ConstChoiceArrayBinding::bdem_ConstChoiceArrayBinding(
                                            const bdem_Schema      *schema,
                                            int                     recordIndex)
 : d_choiceArray_p(choiceArray)
-, d_constraint_p(&schema->record(recordIndex))
+, d_constraint_p(0)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
+    d_constraint_p = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_choiceArray_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -7246,6 +9141,11 @@ void bdem_ConstChoiceArrayBinding::rebind(
 inline
 void bdem_ConstChoiceArrayBinding::rebind(const bdem_ChoiceArray *choiceArray)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *choiceArray,
+                                                             *d_constraint_p));
+
     d_choiceArray_p = choiceArray;
 }
 
@@ -7253,6 +9153,11 @@ inline
 void bdem_ConstChoiceArrayBinding::rebind(const bdem_ChoiceArray *choiceArray,
                                           const bdem_RecordDef   *record)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(record);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(*choiceArray,
+                                                                *record));
+
     d_choiceArray_p = choiceArray;
     d_constraint_p  = record;
 }
@@ -7262,8 +9167,17 @@ void bdem_ConstChoiceArrayBinding::rebind(const bdem_ChoiceArray *choiceArray,
                                           const bdem_Schema      *schema,
                                           const char             *recordName)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(recordName);
+
     d_choiceArray_p = choiceArray;
     d_constraint_p  = schema->lookupRecord(recordName);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_choiceArray_p,
+                                                             *d_constraint_p));
 }
 
 inline
@@ -7271,8 +9185,18 @@ void bdem_ConstChoiceArrayBinding::rebind(const bdem_ChoiceArray *choiceArray,
                                           const bdem_Schema      *schema,
                                           int                     recordIndex)
 {
+    BSLS_ASSERT_SAFE(choiceArray);
+    BSLS_ASSERT_SAFE(schema);
+    BSLS_ASSERT_SAFE(0 <= recordIndex);
+    BSLS_ASSERT_SAFE(     recordIndex < schema->length());
+
     d_choiceArray_p = choiceArray;
     d_constraint_p  = &schema->record(recordIndex);
+
+    BSLS_ASSERT_SAFE(d_constraint_p);
+    BSLS_ASSERT_SAFE(bdem_SchemaAggregateUtil::canSatisfyRecord(
+                                                             *d_choiceArray_p,
+                                                             *d_constraint_p));
 }
 
 // ACCESSORS
@@ -7280,6 +9204,9 @@ inline
 const bdem_ChoiceArrayItem&
 bdem_ConstChoiceArrayBinding::operator[](int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
     return (*d_choiceArray_p)[itemIndex];
 }
 
@@ -7311,6 +9238,9 @@ inline
 bdem_ElemType::Type
 bdem_ConstChoiceArrayBinding::selectionType(int selectionIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= selectionIndex);
+    BSLS_ASSERT_SAFE(     selectionIndex < numSelections());
+
     return d_constraint_p->field(selectionIndex).elemType();
 }
 
@@ -7318,90 +9248,147 @@ inline
 bdem_ElemType::Type
 bdem_ConstChoiceArrayBinding::selectionType(const char *selectionName) const
 {
-    return d_constraint_p->lookupField(selectionName)->elemType();
+    BSLS_ASSERT_SAFE(selectionName);
+
+    const bdem_FieldDef *fieldDef = d_constraint_p->lookupField(selectionName);
+
+    BSLS_ASSERT_SAFE(fieldDef);
+
+    return fieldDef->elemType();
 }
 
 inline
 bdem_ElemType::Type
 bdem_ConstChoiceArrayBinding::selectorType(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
     return (*d_choiceArray_p)[itemIndex].selectionType();
 }
 
 inline
 bdem_ConstElemRef bdem_ConstChoiceArrayBinding::selection(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
     return (*d_choiceArray_p)[itemIndex].selection();
 }
 
 inline
 int bdem_ConstChoiceArrayBinding::selector(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
     return (*d_choiceArray_p)[itemIndex].selector();
 }
 
 inline
 int bdem_ConstChoiceArrayBinding::selectorId(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
     const int selectionIndex = selector(itemIndex);
-    return -1 == selectionIndex ? bdem_RecordDef::BDEM_NULL_FIELD_ID
-                                : d_constraint_p->fieldId(selectionIndex);
+
+    return -1 == selectionIndex
+           ? bdem_RecordDef::BDEM_NULL_FIELD_ID
+           : d_constraint_p->fieldId(selectionIndex);
 }
 
 inline
 const char *bdem_ConstChoiceArrayBinding::selectorName(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
     const int selectionIndex = selector(itemIndex);
-    return -1 == selectionIndex ? 0
-                                : d_constraint_p->fieldName(selectionIndex);
+
+    return -1 == selectionIndex
+           ? 0
+           : d_constraint_p->fieldName(selectionIndex);
 }
 
 inline
 const bool& bdem_ConstChoiceArrayBinding::theBool(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theBool();
 }
 
 inline
 const char& bdem_ConstChoiceArrayBinding::theChar(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theChar();
 }
 
 inline
 const short& bdem_ConstChoiceArrayBinding::theShort(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theShort();
 }
 
 inline
 const int& bdem_ConstChoiceArrayBinding::theInt(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theInt();
 }
 
 inline
-const bsls_PlatformUtil::Int64&
+const bsls_Types::Int64&
 bdem_ConstChoiceArrayBinding::theInt64(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theInt64();
 }
 
 inline
 const float& bdem_ConstChoiceArrayBinding::theFloat(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theFloat();
 }
 
 inline
 const double& bdem_ConstChoiceArrayBinding::theDouble(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theDouble();
 }
 
 inline
 const bsl::string& bdem_ConstChoiceArrayBinding::theString(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theString();
 }
 
@@ -7409,6 +9396,10 @@ inline
 const bdet_Datetime&
 bdem_ConstChoiceArrayBinding::theDatetime(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIME == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theDatetime();
 }
 
@@ -7416,30 +9407,51 @@ inline
 const bdet_DatetimeTz&
 bdem_ConstChoiceArrayBinding::theDatetimeTz(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                    bdem_ElemType::BDEM_DATETIMETZ == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theDatetimeTz();
 }
 
 inline
 const bdet_Date& bdem_ConstChoiceArrayBinding::theDate(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theDate();
 }
 
 inline
 const bdet_DateTz& bdem_ConstChoiceArrayBinding::theDateTz(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theDateTz();
 }
 
 inline
 const bdet_Time& bdem_ConstChoiceArrayBinding::theTime(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theTime();
 }
 
 inline
 const bdet_TimeTz& bdem_ConstChoiceArrayBinding::theTimeTz(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theTimeTz();
 }
 
@@ -7447,6 +9459,11 @@ inline
 const bsl::vector<bool>&
 bdem_ConstChoiceArrayBinding::theBoolArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                    bdem_ElemType::BDEM_BOOL_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theBoolArray();
 }
 
@@ -7454,6 +9471,11 @@ inline
 const bsl::vector<char>&
 bdem_ConstChoiceArrayBinding::theCharArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                    bdem_ElemType::BDEM_CHAR_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theCharArray();
 }
 
@@ -7461,6 +9483,11 @@ inline
 const bsl::vector<short>&
 bdem_ConstChoiceArrayBinding::theShortArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                   bdem_ElemType::BDEM_SHORT_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theShortArray();
 }
 
@@ -7468,13 +9495,22 @@ inline
 const bsl::vector<int>&
 bdem_ConstChoiceArrayBinding::theIntArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theIntArray();
 }
 
 inline
-const bsl::vector<bsls_PlatformUtil::Int64>&
+const bsl::vector<bsls_Types::Int64>&
 bdem_ConstChoiceArrayBinding::theInt64Array(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                   bdem_ElemType::BDEM_INT64_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theInt64Array();
 }
 
@@ -7482,6 +9518,11 @@ inline
 const bsl::vector<float>&
 bdem_ConstChoiceArrayBinding::theFloatArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                   bdem_ElemType::BDEM_FLOAT_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theFloatArray();
 }
 
@@ -7489,6 +9530,11 @@ inline
 const bsl::vector<double>&
 bdem_ConstChoiceArrayBinding::theDoubleArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                  bdem_ElemType::BDEM_DOUBLE_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theDoubleArray();
 }
 
@@ -7496,6 +9542,11 @@ inline
 const bsl::vector<bsl::string>&
 bdem_ConstChoiceArrayBinding::theStringArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                  bdem_ElemType::BDEM_STRING_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theStringArray();
 }
 
@@ -7503,6 +9554,11 @@ inline
 const bsl::vector<bdet_Datetime>&
 bdem_ConstChoiceArrayBinding::theDatetimeArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                bdem_ElemType::BDEM_DATETIME_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theDatetimeArray();
 }
 
@@ -7510,6 +9566,11 @@ inline
 const bsl::vector<bdet_DatetimeTz>&
 bdem_ConstChoiceArrayBinding::theDatetimeTzArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+              bdem_ElemType::BDEM_DATETIMETZ_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theDatetimeTzArray();
 }
 
@@ -7517,6 +9578,11 @@ inline
 const bsl::vector<bdet_Date>&
 bdem_ConstChoiceArrayBinding::theDateArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                    bdem_ElemType::BDEM_DATE_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theDateArray();
 }
 
@@ -7524,6 +9590,11 @@ inline
 const bsl::vector<bdet_DateTz>&
 bdem_ConstChoiceArrayBinding::theDateTzArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                  bdem_ElemType::BDEM_DATETZ_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theDateTzArray();
 }
 
@@ -7531,6 +9602,11 @@ inline
 const bsl::vector<bdet_Time>&
 bdem_ConstChoiceArrayBinding::theTimeArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                    bdem_ElemType::BDEM_TIME_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theTimeArray();
 }
 
@@ -7538,6 +9614,11 @@ inline
 const bsl::vector<bdet_TimeTz>&
 bdem_ConstChoiceArrayBinding::theTimeTzArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                  bdem_ElemType::BDEM_TIMETZ_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theTimeTzArray();
 }
 
@@ -7545,6 +9626,10 @@ inline
 const bdem_Choice&
 bdem_ConstChoiceArrayBinding::theChoice(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theChoice();
 }
 
@@ -7552,6 +9637,11 @@ inline
 const bdem_ChoiceArray&
 bdem_ConstChoiceArrayBinding::theChoiceArray(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                  bdem_ElemType::BDEM_CHOICE_ARRAY == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theChoiceArray();
 }
 
@@ -7559,6 +9649,10 @@ inline
 const bdem_List&
 bdem_ConstChoiceArrayBinding::theList(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theList();
 }
 
@@ -7566,22 +9660,36 @@ inline
 const bdem_Table&
 bdem_ConstChoiceArrayBinding::theTable(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == selectorType(itemIndex));
+
     return (*d_choiceArray_p)[itemIndex].theTable();
 }
 
 inline
 bdem_ConstChoiceBinding
-bdem_ConstChoiceArrayBinding::choiceBinding(int index) const
+bdem_ConstChoiceArrayBinding::choiceBinding(int itemIndex) const
 {
-    return bdem_ConstChoiceBinding(&(*d_choiceArray_p)[index],d_constraint_p);
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == selectorType(itemIndex));
+
+    return bdem_ConstChoiceBinding(&(*d_choiceArray_p)[itemIndex],
+                                   d_constraint_p);
 }
 
 inline
 bdem_ConstChoiceArrayBinding
 bdem_ConstChoiceArrayBinding::choiceArrayBinding(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                  bdem_ElemType::BDEM_CHOICE_ARRAY == selectorType(itemIndex));
+
     return bdem_ConstChoiceArrayBinding(
-                      &(*d_choiceArray_p)[itemIndex].theChoiceArray(),
+                &(*d_choiceArray_p)[itemIndex].theChoiceArray(),
                 d_constraint_p->field(selector(itemIndex)).recordConstraint());
 }
 
@@ -7589,6 +9697,10 @@ inline
 bdem_ConstRowBinding
 bdem_ConstChoiceArrayBinding::rowBinding(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == selectorType(itemIndex));
+
     return bdem_ConstRowBinding(
                 &(*d_choiceArray_p)[itemIndex].theList().row(),
                 d_constraint_p->field(selector(itemIndex)).recordConstraint());
@@ -7598,6 +9710,10 @@ inline
 bdem_ConstTableBinding
 bdem_ConstChoiceArrayBinding::tableBinding(int itemIndex) const
 {
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == selectorType(itemIndex));
+
     return bdem_ConstTableBinding(
                 &(*d_choiceArray_p)[itemIndex].theTable(),
                 d_constraint_p->field(selector(itemIndex)).recordConstraint());
@@ -7623,6 +9739,17 @@ bool operator!=(const bdem_ConstChoiceArrayBinding& lhs,
                         // -----------------------------
                         // class bdem_ChoiceArrayBinding
                         // -----------------------------
+
+                        // -----------------
+                        // Level-0 Functions
+                        // -----------------
+
+// ACCESSORS
+inline
+bdem_ChoiceArray& bdem_ChoiceArrayBinding::choiceArray() const
+{
+    return *const_cast<bdem_ChoiceArray *>(d_choiceArray_p);
+}
 
 // CREATORS
 inline
@@ -7698,17 +9825,30 @@ inline
 bdem_ElemRef
 bdem_ChoiceArrayBinding::makeSelection(int itemIndex, int newSelector)
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                       theModifiableItem(itemIndex).makeSelection(newSelector);
+    BSLS_ASSERT_SAFE( 0 <= itemIndex);
+    BSLS_ASSERT_SAFE(      itemIndex   < length());
+    BSLS_ASSERT_SAFE(-1 <= newSelector);
+    BSLS_ASSERT_SAFE(      newSelector < numSelections());
+
+    return choiceArray().theModifiableItem(itemIndex).makeSelection(
+                                                                  newSelector);
 }
 
 inline
 bdem_ElemRef bdem_ChoiceArrayBinding::makeSelection(int         itemIndex,
                                                     const char *selectionName)
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                       theModifiableItem(itemIndex).makeSelection(
-                                    d_constraint_p->fieldIndex(selectionName));
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    BSLS_ASSERT_SAFE(selectionName);
+
+    const int fieldIndex = d_constraint_p->fieldIndex(selectionName);
+
+    BSLS_ASSERT_SAFE(0 <= fieldIndex);
+
+    return choiceArray().theModifiableItem(itemIndex).makeSelection(
+                                                                   fieldIndex);
 }
 
 // ACCESSORS
@@ -7716,310 +9856,511 @@ inline
 bdem_ChoiceArrayItem&
 bdem_ChoiceArrayBinding::operator[](int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                                                  theModifiableItem(itemIndex);
-}
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
 
-inline
-bdem_ChoiceArray& bdem_ChoiceArrayBinding::choiceArray() const
-{
-    return *const_cast<bdem_ChoiceArray *>(d_choiceArray_p);
+    return choiceArray().theModifiableItem(itemIndex);
 }
 
 inline
 bdem_ElemRef bdem_ChoiceArrayBinding::selection(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                                      theModifiableItem(itemIndex).selection();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    return choiceArray().theModifiableItem(itemIndex).selection();
 }
 
 inline
 bdem_ChoiceArrayItem&
 bdem_ChoiceArrayBinding::theModifiableItem(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                                                  theModifiableItem(itemIndex);
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    return choiceArray().theModifiableItem(itemIndex);
 }
 
 inline
 bool& bdem_ChoiceArrayBinding::theModifiableBool(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                              theModifiableItem(itemIndex).theModifiableBool();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL == item.selectionType());
+
+    return item.theModifiableBool();
 }
 
 inline
 char& bdem_ChoiceArrayBinding::theModifiableChar(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                              theModifiableItem(itemIndex).theModifiableChar();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR == item.selectionType());
+
+    return item.theModifiableChar();
 }
 
 inline
 short& bdem_ChoiceArrayBinding::theModifiableShort(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                             theModifiableItem(itemIndex).theModifiableShort();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT == item.selectionType());
+
+    return item.theModifiableShort();
 }
 
 inline
 int& bdem_ChoiceArrayBinding::theModifiableInt(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                               theModifiableItem(itemIndex).theModifiableInt();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT == item.selectionType());
+
+    return item.theModifiableInt();
 }
 
 inline
-bsls_PlatformUtil::Int64&
+bsls_Types::Int64&
 bdem_ChoiceArrayBinding::theModifiableInt64(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                             theModifiableItem(itemIndex).theModifiableInt64();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64 == item.selectionType());
+
+    return item.theModifiableInt64();
 }
 
 inline
 float& bdem_ChoiceArrayBinding::theModifiableFloat(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                             theModifiableItem(itemIndex).theModifiableFloat();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT == item.selectionType());
+
+    return item.theModifiableFloat();
 }
 
 inline
 double& bdem_ChoiceArrayBinding::theModifiableDouble(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                            theModifiableItem(itemIndex).theModifiableDouble();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE == item.selectionType());
+
+    return item.theModifiableDouble();
 }
 
 inline
 bsl::string& bdem_ChoiceArrayBinding::theModifiableString(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                            theModifiableItem(itemIndex).theModifiableString();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING == item.selectionType());
+
+    return item.theModifiableString();
 }
 
 inline
 bdet_Datetime&
 bdem_ChoiceArrayBinding::theModifiableDatetime(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                          theModifiableItem(itemIndex).theModifiableDatetime();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIME == item.selectionType());
+
+    return item.theModifiableDatetime();
 }
 
 inline
 bdet_DatetimeTz&
 bdem_ChoiceArrayBinding::theModifiableDatetimeTz(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                        theModifiableItem(itemIndex).theModifiableDatetimeTz();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETIMETZ == item.selectionType());
+
+    return item.theModifiableDatetimeTz();
 }
 
 inline
 bdet_Date& bdem_ChoiceArrayBinding::theModifiableDate(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                              theModifiableItem(itemIndex).theModifiableDate();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE == item.selectionType());
+
+    return item.theModifiableDate();
 }
 
 inline
 bdet_DateTz& bdem_ChoiceArrayBinding::theModifiableDateTz(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                            theModifiableItem(itemIndex).theModifiableDateTz();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ == item.selectionType());
+
+    return item.theModifiableDateTz();
 }
 
 inline
 bdet_Time& bdem_ChoiceArrayBinding::theModifiableTime(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                              theModifiableItem(itemIndex).theModifiableTime();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME == item.selectionType());
+
+    return item.theModifiableTime();
 }
 
 inline
 bdet_TimeTz& bdem_ChoiceArrayBinding::theModifiableTimeTz(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                            theModifiableItem(itemIndex).theModifiableTimeTz();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ == item.selectionType());
+
+    return item.theModifiableTimeTz();
 }
 
 inline
 bsl::vector<bool>&
 bdem_ChoiceArrayBinding::theModifiableBoolArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                         theModifiableItem(itemIndex).theModifiableBoolArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_BOOL_ARRAY == item.selectionType());
+
+    return item.theModifiableBoolArray();
 }
 
 inline
 bsl::vector<char>&
 bdem_ChoiceArrayBinding::theModifiableCharArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                         theModifiableItem(itemIndex).theModifiableCharArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHAR_ARRAY == item.selectionType());
+
+    return item.theModifiableCharArray();
 }
 
 inline
 bsl::vector<short>&
 bdem_ChoiceArrayBinding::theModifiableShortArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                        theModifiableItem(itemIndex).theModifiableShortArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_SHORT_ARRAY == item.selectionType());
+
+    return item.theModifiableShortArray();
 }
 
 inline
 bsl::vector<int>&
 bdem_ChoiceArrayBinding::theModifiableIntArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                          theModifiableItem(itemIndex).theModifiableIntArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT_ARRAY == item.selectionType());
+
+    return item.theModifiableIntArray();
 }
 
 inline
-bsl::vector<bsls_PlatformUtil::Int64>&
+bsl::vector<bsls_Types::Int64>&
 bdem_ChoiceArrayBinding::theModifiableInt64Array(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                        theModifiableItem(itemIndex).theModifiableInt64Array();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_INT64_ARRAY == item.selectionType());
+
+    return item.theModifiableInt64Array();
 }
 
 inline
 bsl::vector<float>&
 bdem_ChoiceArrayBinding::theModifiableFloatArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                        theModifiableItem(itemIndex).theModifiableFloatArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_FLOAT_ARRAY == item.selectionType());
+
+    return item.theModifiableFloatArray();
 }
 
 inline
 bsl::vector<double>&
 bdem_ChoiceArrayBinding::theModifiableDoubleArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                       theModifiableItem(itemIndex).theModifiableDoubleArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DOUBLE_ARRAY == item.selectionType());
+
+    return item.theModifiableDoubleArray();
 }
 
 inline
 bsl::vector<bsl::string>&
 bdem_ChoiceArrayBinding::theModifiableStringArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                       theModifiableItem(itemIndex).theModifiableStringArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_STRING_ARRAY == item.selectionType());
+
+    return item.theModifiableStringArray();
 }
 
 inline
 bsl::vector<bdet_Datetime>&
 bdem_ChoiceArrayBinding::theModifiableDatetimeArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                     theModifiableItem(itemIndex).theModifiableDatetimeArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(
+                   bdem_ElemType::BDEM_DATETIME_ARRAY == item.selectionType());
+
+    return item.theModifiableDatetimeArray();
 }
 
 inline
 bsl::vector<bdet_DatetimeTz>&
 bdem_ChoiceArrayBinding::theModifiableDatetimeTzArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                   theModifiableItem(itemIndex).theModifiableDatetimeTzArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(
+                 bdem_ElemType::BDEM_DATETIMETZ_ARRAY == item.selectionType());
+
+    return item.theModifiableDatetimeTzArray();
 }
 
 inline
 bsl::vector<bdet_Date>&
 bdem_ChoiceArrayBinding::theModifiableDateArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                         theModifiableItem(itemIndex).theModifiableDateArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATE_ARRAY == item.selectionType());
+
+    return item.theModifiableDateArray();
 }
 
 inline
 bsl::vector<bdet_DateTz>&
 bdem_ChoiceArrayBinding::theModifiableDateTzArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                       theModifiableItem(itemIndex).theModifiableDateTzArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_DATETZ_ARRAY == item.selectionType());
+
+    return item.theModifiableDateTzArray();
 }
 
 inline
 bsl::vector<bdet_Time>&
 bdem_ChoiceArrayBinding::theModifiableTimeArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                         theModifiableItem(itemIndex).theModifiableTimeArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIME_ARRAY == item.selectionType());
+
+    return item.theModifiableTimeArray();
 }
 
 inline
 bsl::vector<bdet_TimeTz>&
 bdem_ChoiceArrayBinding::theModifiableTimeTzArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                       theModifiableItem(itemIndex).theModifiableTimeTzArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TIMETZ_ARRAY == item.selectionType());
+
+    return item.theModifiableTimeTzArray();
 }
 
 inline
 bdem_Choice& bdem_ChoiceArrayBinding::theModifiableChoice(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                            theModifiableItem(itemIndex).theModifiableChoice();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE == item.selectionType());
+
+    return item.theModifiableChoice();
 }
 
 inline
 bdem_ChoiceArray&
 bdem_ChoiceArrayBinding::theModifiableChoiceArray(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                       theModifiableItem(itemIndex).theModifiableChoiceArray();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_CHOICE_ARRAY == item.selectionType());
+
+    return item.theModifiableChoiceArray();
 }
 
 inline
 bdem_List& bdem_ChoiceArrayBinding::theModifiableList(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                              theModifiableItem(itemIndex).theModifiableList();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == item.selectionType());
+
+    return item.theModifiableList();
 }
 
 inline
 bdem_Table& bdem_ChoiceArrayBinding::theModifiableTable(int itemIndex) const
 {
-    return (*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                             theModifiableItem(itemIndex).theModifiableTable();
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    bdem_ChoiceArrayItem& item = theModifiableItem(itemIndex);
+
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == item.selectionType());
+
+    return item.theModifiableTable();
 }
 
 inline
 bdem_ChoiceBinding bdem_ChoiceArrayBinding::choiceBinding(int itemIndex) const
 {
-    return bdem_ChoiceBinding(
-                           &(*const_cast<bdem_ChoiceArray *>(d_choiceArray_p)).
-                                                  theModifiableItem(itemIndex),
-                           d_constraint_p);
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+
+    return bdem_ChoiceBinding(&theModifiableItem(itemIndex), d_constraint_p);
 }
 
 inline
 bdem_ChoiceArrayBinding
 bdem_ChoiceArrayBinding::choiceArrayBinding(int itemIndex) const
 {
-    bdem_ChoiceArray *ca_p = const_cast<bdem_ChoiceArray *>(d_choiceArray_p);
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(
+                  bdem_ElemType::BDEM_CHOICE_ARRAY == selectorType(itemIndex));
 
     return bdem_ChoiceArrayBinding(
-                &ca_p->theModifiableItem(itemIndex).theModifiableChoiceArray(),
+                &theModifiableItem(itemIndex).theModifiableChoiceArray(),
                 d_constraint_p->field(selector(itemIndex)).recordConstraint());
 }
 
 inline
 bdem_RowBinding bdem_ChoiceArrayBinding::rowBinding(int itemIndex) const
 {
-    bdem_ChoiceArray *ca_p = const_cast<bdem_ChoiceArray *>(d_choiceArray_p);
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_LIST == selectorType(itemIndex));
 
     return bdem_RowBinding(
-                &ca_p->theModifiableItem(itemIndex).theModifiableList().row(),
+                &theModifiableItem(itemIndex).theModifiableList().row(),
                 d_constraint_p->field(selector(itemIndex)).recordConstraint());
 }
 
 inline
 bdem_TableBinding bdem_ChoiceArrayBinding::tableBinding(int itemIndex) const
 {
-    bdem_ChoiceArray *ca_p = const_cast<bdem_ChoiceArray *>(d_choiceArray_p);
+    BSLS_ASSERT_SAFE(0 <= itemIndex);
+    BSLS_ASSERT_SAFE(     itemIndex < length());
+    BSLS_ASSERT_SAFE(bdem_ElemType::BDEM_TABLE == selectorType(itemIndex));
 
     return bdem_TableBinding(
-                &ca_p->theModifiableItem(itemIndex).theModifiableTable(),
+                &theModifiableItem(itemIndex).theModifiableTable(),
                 d_constraint_p->field(selector(itemIndex)).recordConstraint());
 }
 

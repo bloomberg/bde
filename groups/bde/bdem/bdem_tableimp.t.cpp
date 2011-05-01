@@ -1,4 +1,4 @@
-// bdem_tableimp.t.cpp                   -*-C++-*-
+// bdem_tableimp.t.cpp                                                -*-C++-*-
 
 #include <bdem_tableimp.h>
 
@@ -7,16 +7,18 @@
 #include <bdem_functiontemplates.h>
 #include <bdem_properties.h>
 
-#include <bslma_newdeleteallocator.h>
-#include <bslma_testallocator.h>
-#include <bslma_testallocatorexception.h>
-#include <bslmf_isconvertible.h>
 #include <bdetu_unset.h>
 #include <bdex_byteinstream.h>
 #include <bdex_byteoutstream.h>
 #include <bdex_testinstream.h>
 #include <bdex_testoutstream.h>
 #include <bdex_testinstreamexception.h>       // for testing only
+
+#include <bslma_newdeleteallocator.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+#include <bslmf_isconvertible.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -399,7 +401,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamInFundamental<short,In> },
         { &bdem_FunctionTemplates::streamInFundamental<int,In> },
         { &bdem_FunctionTemplates::
-                            streamInFundamental<bsls_PlatformUtil::Int64,In> },
+                                   streamInFundamental<bsls_Types::Int64,In> },
         { &bdem_FunctionTemplates::streamInFundamental<float,In> },
         { &bdem_FunctionTemplates::streamInFundamental<double,In> },
         { &bdem_FunctionTemplates::streamInFundamental<bsl::string,In> },
@@ -409,7 +411,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamInArray<char,In> },
         { &bdem_FunctionTemplates::streamInArray<short,In> },
         { &bdem_FunctionTemplates::streamInArray<int,In> },
-        { &bdem_FunctionTemplates::streamInArray<bsls_PlatformUtil::Int64,In>},
+        { &bdem_FunctionTemplates::streamInArray<bsls_Types::Int64,In>},
         { &bdem_FunctionTemplates::streamInArray<float,In> },
         { &bdem_FunctionTemplates::streamInArray<double,In> },
         { &bdem_FunctionTemplates::streamInArray<bsl::string,In> },
@@ -424,7 +426,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamInFundamental<short,In2> },
         { &bdem_FunctionTemplates::streamInFundamental<int,In2> },
         { &bdem_FunctionTemplates::
-                           streamInFundamental<bsls_PlatformUtil::Int64,In2> },
+                                  streamInFundamental<bsls_Types::Int64,In2> },
         { &bdem_FunctionTemplates::streamInFundamental<float,In2> },
         { &bdem_FunctionTemplates::streamInFundamental<double,In2> },
         { &bdem_FunctionTemplates::streamInFundamental<bsl::string,In2> },
@@ -434,8 +436,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamInArray<char,In2> },
         { &bdem_FunctionTemplates::streamInArray<short,In2> },
         { &bdem_FunctionTemplates::streamInArray<int,In2> },
-        { &bdem_FunctionTemplates::
-                                 streamInArray<bsls_PlatformUtil::Int64,In2> },
+        { &bdem_FunctionTemplates::streamInArray<bsls_Types::Int64,In2> },
         { &bdem_FunctionTemplates::streamInArray<float,In2> },
         { &bdem_FunctionTemplates::streamInArray<double,In2> },
         { &bdem_FunctionTemplates::streamInArray<bsl::string,In2> },
@@ -450,7 +451,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamOutFundamental<short,Out> },
         { &bdem_FunctionTemplates::streamOutFundamental<int,Out> },
         { &bdem_FunctionTemplates::
-                          streamOutFundamental<bsls_PlatformUtil::Int64,Out> },
+                                 streamOutFundamental<bsls_Types::Int64,Out> },
         { &bdem_FunctionTemplates::streamOutFundamental<float,Out> },
         { &bdem_FunctionTemplates::streamOutFundamental<double,Out> },
         { &bdem_FunctionTemplates::streamOutFundamental<bsl::string,Out> },
@@ -460,8 +461,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamOutArray<char,Out> },
         { &bdem_FunctionTemplates::streamOutArray<short,Out> },
         { &bdem_FunctionTemplates::streamOutArray<int,Out> },
-        { &bdem_FunctionTemplates::
-                                streamOutArray<bsls_PlatformUtil::Int64,Out> },
+        { &bdem_FunctionTemplates::streamOutArray<bsls_Types::Int64,Out> },
         { &bdem_FunctionTemplates::streamOutArray<float,Out> },
         { &bdem_FunctionTemplates::streamOutArray<double,Out> },
         { &bdem_FunctionTemplates::streamOutArray<bsl::string,Out> },
@@ -481,7 +481,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamOutFundamental<short,Out2> },
         { &bdem_FunctionTemplates::streamOutFundamental<int,Out2> },
         { &bdem_FunctionTemplates::
-                         streamOutFundamental<bsls_PlatformUtil::Int64,Out2> },
+                                streamOutFundamental<bsls_Types::Int64,Out2> },
         { &bdem_FunctionTemplates::streamOutFundamental<float,Out2> },
         { &bdem_FunctionTemplates::streamOutFundamental<double,Out2> },
         { &bdem_FunctionTemplates::streamOutFundamental<bsl::string,Out2> },
@@ -491,8 +491,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamOutArray<char,Out2> },
         { &bdem_FunctionTemplates::streamOutArray<short,Out2> },
         { &bdem_FunctionTemplates::streamOutArray<int,Out2> },
-        { &bdem_FunctionTemplates::
-                               streamOutArray<bsls_PlatformUtil::Int64,Out2> },
+        { &bdem_FunctionTemplates::streamOutArray<bsls_Types::Int64,Out2> },
         { &bdem_FunctionTemplates::streamOutArray<float,Out2> },
         { &bdem_FunctionTemplates::streamOutArray<double,Out2> },
         { &bdem_FunctionTemplates::streamOutArray<bsl::string,Out2> },

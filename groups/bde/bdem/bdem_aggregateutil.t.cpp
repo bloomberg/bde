@@ -14,6 +14,7 @@
 #include <bslma_default.h>                      // for testing only
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_map.h>
@@ -182,7 +183,7 @@ typedef bdem_Table         Table;
 typedef bdem_Choice        Choice;
 typedef bdem_ChoiceArray   ChoiceArray;
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls_Types::Int64  Int64;
 
 const double RELDEF = 1e-12;  // 2/28/03: 'double' and 'float' have the same
 const double ABSDEF = 1e-24;  // Rel & Abs Tolerances.  KEEP IN SYNC w/.cpp

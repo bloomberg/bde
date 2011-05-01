@@ -1,4 +1,4 @@
-// bdem_schemaaggregateutil.t.cpp         -*-C++-*-
+// bdem_schemaaggregateutil.t.cpp                                     -*-C++-*-
 
 #include <bdem_schemaaggregateutil.h>
 
@@ -22,7 +22,7 @@
 #include <bslma_testallocator.h>             // for testing only
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>               // for testing only
+#include <bsls_types.h>                      // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -191,7 +191,7 @@ typedef bdem_ChoiceArrayItem     ChoiceItem;
 
 typedef bdeat_FormattingMode     Format;
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls_Types::Int64        Int64;
 
 const int NUM_TYPES = EType::BDEM_NUM_TYPES;
 
@@ -216,8 +216,7 @@ const int             N02 = bdetu_Unset<int>::unsetValue();
 
 const Int64           A03 = -100;
 const Int64           B03 = -200;
-const Int64           N03 =
-                           bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+const Int64           N03 = bdetu_Unset<Int64>::unsetValue();
 
 const float           A04 = -1.5;
 const float           B04 = -2.5;
@@ -3952,8 +3951,8 @@ int main(int argc, char *argv[])
                 const int   LINE      = DATA[i].d_lineNumber;
                 const char *DATA_SPEC = DATA[i].d_dataSpec;
 
-                Schema ds;  gg(&ds, DATA_SPEC);   // used to build list
-                int dataIndex = ds.numRecords() - 1;  // idx of last rec in 'ds'
+                Schema ds;  gg(&ds, DATA_SPEC);      // used to build list
+                int dataIndex = ds.numRecords() - 1; // idx of last rec in 'ds'
                 const RecDef& dr = ds.record(dataIndex);
 
                 if (veryVerbose) { P(ds); P(DATA_SPEC); }
@@ -4028,8 +4027,8 @@ int main(int argc, char *argv[])
                 const int   LINE      = DATA[i].d_lineNumber;
                 const char *DATA_SPEC = DATA[i].d_dataSpec;
 
-                Schema ds;  gg(&ds, DATA_SPEC);   // used to build list
-                int dataIndex = ds.numRecords() - 1;  // idx of last rec in 'ds'
+                Schema ds;  gg(&ds, DATA_SPEC);      // used to build list
+                int dataIndex = ds.numRecords() - 1; // idx of last rec in 'ds'
                 const RecDef& dr = ds.record(dataIndex);
 
                 if (veryVerbose) { P(ds); P(DATA_SPEC); }
@@ -5303,7 +5302,6 @@ int main(int argc, char *argv[])
                 ASSERT(1 == Util::canSatisfyRecord(CI, RD));
                 ASSERT(1 == Util::isChoiceArrayItemShallowConformant(CI, RD));
 
-
                 mC.selection().makeNull();
                 ASSERT(C.selection().isNull());
                 if (veryVerbose) P(C);
@@ -5360,7 +5358,7 @@ int main(int argc, char *argv[])
                     bool isConformant = true;
 
                     if (i != j) {
-                        LOOP2_ASSERT(i, j, 0 == 
+                        LOOP2_ASSERT(i, j, 0 ==
                                 Util::isChoiceArrayItemDeepConformant(CI, RI));
                         LOOP2_ASSERT(i, j, 0 ==
                                     Util::isChoiceArrayItemConformant(CI, RI));

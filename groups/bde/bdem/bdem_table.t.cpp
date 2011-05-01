@@ -27,6 +27,7 @@
 #include <bslma_testallocatorexception.h>  // for testing only
 #include <bslmf_isconvertible.h>           // for testing only
 #include <bsls_platform.h>                 // for testing only
+#include <bsls_types.h>                    // for testing only
 
 #include <bsl_algorithm.h>
 #include <bsl_new.h>                       // placement syntax
@@ -154,7 +155,7 @@ using namespace bsl;  // automatically added by script
 // [14] void setColumnChar(int colIdx, char value);
 // [14] void setColumnShort(int colIdx, short value);
 // [14] void setColumnInt(int colIdx, int value);
-// [14] void setColumnInt64(int colIdx, bsls_PlatformUtil::Int64 value);
+// [14] void setColumnInt64(int colIdx, bsls_Types::Int64 value);
 // [14] void setColumnFloat(int colIdx, float value);
 // [14] void setColumnDouble(int colIdx, double value);
 // [14] void setColumnString(int colIdx, const char *value);
@@ -316,19 +317,18 @@ const int              D02 = 40;
 const int              E02 = 50;
 const int              U02 = bdetu_Unset<int>::unsetValue();
 
-const bsls_PlatformUtil::Int64
+const bsls_Types::Int64
                        A03 = -100;
-const bsls_PlatformUtil::Int64
+const bsls_Types::Int64
                        B03 = -200;
-const bsls_PlatformUtil::Int64
+const bsls_Types::Int64
                        C03 = -300;
-const bsls_PlatformUtil::Int64
+const bsls_Types::Int64
                        D03 = -400;
-const bsls_PlatformUtil::Int64
+const bsls_Types::Int64
                        E03 = -200;
-const bsls_PlatformUtil::Int64
-                       U03 =
-                           bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+const bsls_Types::Int64
+                       U03 = bdetu_Unset<bsls_Types::Int64>::unsetValue();
 
 const float            A04 = -1.5;
 const float            B04 = -2.5;
@@ -425,27 +425,27 @@ const  bsl::vector<int>                          D12 = fD12();
 const  bsl::vector<int>                          E12 = fE12();
 const  bsl::vector<int>                          U12;
 
-static bsl::vector<bsls_PlatformUtil::Int64>    fA13() {
-       bsl::vector<bsls_PlatformUtil::Int64> t;
+static bsl::vector<bsls_Types::Int64>    fA13() {
+       bsl::vector<bsls_Types::Int64> t;
                                      t.push_back(A03); return t; }
-static bsl::vector<bsls_PlatformUtil::Int64>    fB13() {
-       bsl::vector<bsls_PlatformUtil::Int64> t;
+static bsl::vector<bsls_Types::Int64>    fB13() {
+       bsl::vector<bsls_Types::Int64> t;
                                      t.push_back(B03); return t; }
-static bsl::vector<bsls_PlatformUtil::Int64>    fC13() {
-       bsl::vector<bsls_PlatformUtil::Int64> t;
+static bsl::vector<bsls_Types::Int64>    fC13() {
+       bsl::vector<bsls_Types::Int64> t;
                                      t.push_back(C03); return t; }
-static bsl::vector<bsls_PlatformUtil::Int64>    fD13() {
-       bsl::vector<bsls_PlatformUtil::Int64> t;
+static bsl::vector<bsls_Types::Int64>    fD13() {
+       bsl::vector<bsls_Types::Int64> t;
                                      t.push_back(D03); return t; }
-static bsl::vector<bsls_PlatformUtil::Int64>    fE13() {
-       bsl::vector<bsls_PlatformUtil::Int64> t;
+static bsl::vector<bsls_Types::Int64>    fE13() {
+       bsl::vector<bsls_Types::Int64> t;
                                      t.push_back(E03); return t; }
-const  bsl::vector<bsls_PlatformUtil::Int64>     A13 = fA13();
-const  bsl::vector<bsls_PlatformUtil::Int64>     B13 = fB13();
-const  bsl::vector<bsls_PlatformUtil::Int64>     C13 = fC13();
-const  bsl::vector<bsls_PlatformUtil::Int64>     D13 = fD13();
-const  bsl::vector<bsls_PlatformUtil::Int64>     E13 = fE13();
-const  bsl::vector<bsls_PlatformUtil::Int64>     U13;
+const  bsl::vector<bsls_Types::Int64>     A13 = fA13();
+const  bsl::vector<bsls_Types::Int64>     B13 = fB13();
+const  bsl::vector<bsls_Types::Int64>     C13 = fC13();
+const  bsl::vector<bsls_Types::Int64>     D13 = fD13();
+const  bsl::vector<bsls_Types::Int64>     E13 = fE13();
+const  bsl::vector<bsls_Types::Int64>     U13;
 
 static bsl::vector<float>                       fA14() {
        bsl::vector<float> t;         t.push_back(A04); return t; }
@@ -1540,7 +1540,7 @@ class BdexHelper {
     const bdem_ChoiceArray B31 = fB31();                                      \
     const bdem_ChoiceArray C31 = fC31();                                      \
     const bdem_ChoiceArray D31 = fD31();                                      \
-    const bdem_ChoiceArray E31 = fE31();                                      
+    const bdem_ChoiceArray E31 = fE31();
 #else
 #define DECLARE_MAIN_VARIABLES
 #endif
@@ -1566,7 +1566,7 @@ DEFINE_TEST_CASE(22) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
@@ -2138,8 +2138,9 @@ DEFINE_TEST_CASE(21) {
         //   bdema allocator model
         //   correct declaration of bslalg_TypeTraitUsesBslmaAllocator
         // --------------------------------------------------------------------
+
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << "\nTesting allocator traits"
                           << "\n========================" << endl;
@@ -2163,8 +2164,9 @@ DEFINE_TEST_CASE(20) {
         // Testing:
         //   void reserveMemory(int numBytes);
         // --------------------------------------------------------------------
+
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << "\nTesting 'reserveMemory'"
                           << "\n=======================" << endl;
@@ -2211,8 +2213,9 @@ DEFINE_TEST_CASE(19) {
         // Testing:
         //   InitialMemory
         // --------------------------------------------------------------------
+
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << "\nTESTING CTORS WITH INITIAL MEMORY"
                           << "\n=================================" << endl;
@@ -2393,7 +2396,7 @@ DEFINE_TEST_CASE(18) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                   << "SWAP ELEMENTS" << endl
@@ -2469,7 +2472,7 @@ DEFINE_TEST_CASE(18) {
                                                                STRATEGIES[si];
                 if (veryVerbose) { T_ T_ P_(si) P(STRATEGY) }
  // v--------------^
-    bslma_TestAllocator da; bslma_DefaultAllocatorGuard dag(&da);
+    bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
 
     bslma_TestAllocator a;  // explicit allocation
 
@@ -2923,7 +2926,7 @@ DEFINE_TEST_CASE(17) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "REMOVE ALL ROWS/REMOVE ALL" << endl
@@ -2963,7 +2966,7 @@ DEFINE_TEST_CASE(17) {
         const bdem_Table ET_32 = TT32; // empty table with 32 columns
 
         if (verbose) cout << "\nInstall test allocator as the default." <<endl;
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag2(&da);
 
         if (verbose) cout << "\nTest both manipulators." << endl;
 
@@ -3053,7 +3056,7 @@ DEFINE_TEST_CASE(16) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "APPEND/INSERT UNSET/NULL ELEMENTS" << endl
@@ -3302,7 +3305,7 @@ DEFINE_TEST_CASE(15) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl << "IS UNSET/MAKE NULL/IS NULL" << endl
                                   << "==========================" << endl;
@@ -4023,7 +4026,7 @@ DEFINE_TEST_CASE(14) {
         //   void setColumnChar(int colIdx, char value);
         //   void setColumnShort(int colIdx, short value);
         //   void setColumnInt(int colIdx, int value);
-        //   void setColumnInt64(int colIdx, bsls_PlatformUtil::Int64 value);
+        //   void setColumnInt64(int colIdx, bsls_Types::Int64 value);
         //   void setColumnFloat(int colIdx, float value);
         //   void setColumnDouble(int colIdx, double value);
         //   void setColumnString(int colIdx, const char *value);
@@ -4063,7 +4066,7 @@ DEFINE_TEST_CASE(14) {
         DECLARE_MAIN_VARIABLES
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "SET COLUMN VALUES" << endl
@@ -4226,7 +4229,7 @@ DEFINE_TEST_CASE(14) {
 
         if (verbose) cout << "\tInstall test allocator as default." << endl;
 
-        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag(&da);
+        bslma_TestAllocator da; const bslma_DefaultAllocatorGuard dag2(&da);
 
         if (verbose) cout <<
           "\tCreate 3 subject tables with different allocation modes." << endl;
@@ -4664,7 +4667,7 @@ DEFINE_TEST_CASE(13) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         {
             bslma_TestAllocator testAllocator, *Z = &testAllocator;
@@ -4703,11 +4706,11 @@ DEFINE_TEST_CASE(13) {
             mTOrig.appendRow(L);
             mTOrig.appendRow(L);
             mTOrig.theModifiableRow(0)[0].theModifiableString()
-                                       = "meow                                     meow";
+                             = "meow                                     meow";
             mTOrig.theModifiableRow(1)[0].theModifiableString()
-                                       = "arf                                       arf";
+                             = "arf                                       arf";
             mTOrig.theModifiableRow(2)[0].theModifiableString()
-                                       = "gruff                                   gruff";
+                             = "gruff                                   gruff";
 
             bdem_Table mT(typeVec, Z); const bdem_Table& T = mT;
 
@@ -4787,7 +4790,7 @@ DEFINE_TEST_CASE(12) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                   << "APPENDING/INSERTING/REMOVING LIST/ROW ELEMENTS" << endl
@@ -5973,7 +5976,7 @@ DEFINE_TEST_CASE(11) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "NON-PRIMARY CONSTRUCTORS AND DESTRUCTOR" << endl
@@ -6815,7 +6818,7 @@ DEFINE_TEST_CASE(10) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl << "BDEX STREAMING" << endl
                                   << "==============" << endl;
@@ -6988,7 +6991,7 @@ DEFINE_TEST_CASE(9) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "ASSIGNMENT OPERATOR" << endl
@@ -7361,7 +7364,7 @@ DEFINE_TEST_CASE(8) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "TEST GENERATOR FUNCTIONS" << endl
@@ -7579,7 +7582,7 @@ DEFINE_TEST_CASE(7) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "Copy Construction" << endl
@@ -7896,7 +7899,7 @@ DEFINE_TEST_CASE(7) {
             usageC = taC.numBytesTotal();
             usageX = taX.numBytesTotal();          // Should be same as usageA.
 
-            if (veryVerbose) { P_(usageA) P_(usageB) P_(usageC) P(usageX) 
+            if (veryVerbose) { P_(usageA) P_(usageB) P_(usageC) P(usageX)
                                    P(tableA) P(tableB) P(tableC) }
 
             if (verbose) cout <<
@@ -7928,7 +7931,6 @@ DEFINE_TEST_CASE(7) {
             ASSERT(usageB != usageX);  // if fail: either bad copy or default
             ASSERT(usageC != usageX);  // if fail: bad default was
                                        // BDEM_WRITE_MANY!
-
 
             ASSERT(usageC != usageX); // if fail: bad default was
                                       // 'BDEM_WRITE_MANY'!
@@ -7977,7 +7979,7 @@ DEFINE_TEST_CASE(6) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "EQUALITY OPERATORS '==' and '!='" << endl
@@ -8308,7 +8310,7 @@ DEFINE_TEST_CASE(5) {
         DECLARE_MAIN_VARIABLES
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                   << "OUTPUT bsl::ostream& 'operator<<' and 'print'" << endl
@@ -9071,7 +9073,10 @@ DEFINE_TEST_CASE(5) {
                     cout << "\nDEFAULT ALLOCATOR:" << endl;
                     da.print();
                 }
-//                 LOOP2_ASSERT(i, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+// TBD
+#if 0
+                LOOP2_ASSERT(i, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+#endif
                 LOOP2_ASSERT(i, a.numBlocksTotal(), USAGE==a.numBlocksTotal());
 
                 if (veryVerbose) {
@@ -9137,7 +9142,7 @@ DEFINE_TEST_CASE(4) {
         DECLARE_MAIN_VARIABLES
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "PRIMARY MANIPULATORS/BASIC ACCESSORS" << endl
@@ -10258,7 +10263,7 @@ DEFINE_TEST_CASE(3) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "PRIMARY CONSTRUCTOR" << endl
@@ -10586,7 +10591,7 @@ DEFINE_TEST_CASE(2) {
         DECLARE_MAIN_VARIABLES
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "TEST APPARATUS" << endl
@@ -10677,7 +10682,7 @@ DEFINE_TEST_CASE(2) {
         ASSERT(1 == bdetu_Unset<char>::isUnset(U00));
         ASSERT(1 == bdetu_Unset<short>::isUnset(U01));
         ASSERT(1 == bdetu_Unset<int>::isUnset(U02));
-        ASSERT(1 == bdetu_Unset<bsls_PlatformUtil::Int64>::isUnset(U03));
+        ASSERT(1 == bdetu_Unset<bsls_Types::Int64>::isUnset(U03));
         ASSERT(1 == bdetu_Unset<float>::isUnset(U04));
         ASSERT(1 == bdetu_Unset<double>::isUnset(U05));
         ASSERT(1 == bdetu_Unset<bsl::string>::isUnset(U06));
@@ -10827,7 +10832,7 @@ DEFINE_TEST_CASE(1) {
         // --------------------------------------------------------------------
 
         bslma_TestAllocator defaultAllocator;
-        const bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+        const bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl

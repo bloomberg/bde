@@ -1,4 +1,4 @@
-// bdem_schema.t.cpp            -*-C++-*-
+// bdem_schema.t.cpp                                                  -*-C++-*-
 
 #include <bdem_schema.h>
 
@@ -23,12 +23,12 @@
 #include <bdex_testinstreamexception.h>         // for testing only
 #include <bdema_bufferedsequentialallocator.h>  // for testing only
 
-#include <bslma_defaultallocatorguard.h>     // for testing only
-#include <bslma_testallocator.h>             // for testing only
-#include <bslma_testallocatorexception.h>    // for testing only
+#include <bslma_defaultallocatorguard.h>        // for testing only
+#include <bslma_testallocator.h>                // for testing only
+#include <bslma_testallocatorexception.h>       // for testing only
 
-#include <bsls_platform.h>                   // for testing only
-#include <bsls_platformutil.h>               // for testing only
+#include <bsls_platform.h>                      // for testing only
+#include <bsls_types.h>                         // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_string.h>
@@ -315,7 +315,7 @@ typedef bdeat_FormattingMode     Format;
 typedef bdex_TestInStream        In;
 typedef bdex_TestOutStream       Out;
 
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls_Types::Int64        Int64;
 
 const int NUM_TYPES = EType::BDEM_NUM_TYPES;
 
@@ -339,8 +339,7 @@ const int             N02 = bdetu_Unset<int>::unsetValue();
 
 const Int64           A03 = -100;
 const Int64           B03 = -200;
-const Int64           N03 =
-                           bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+const Int64           N03 = bdetu_Unset<Int64>::unsetValue();
 
 const float           A04 = -1.5;
 const float           B04 = -2.5;

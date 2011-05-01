@@ -15,6 +15,7 @@
 
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -166,8 +167,9 @@ void aSsErTq(int c, const char *s, int i) {
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
 typedef bdem_ElemType ET;
-typedef bsls_PlatformUtil::Int64 Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+
+typedef bsls_Types::Int64  Int64;
+typedef bsls_Types::Uint64 Uint64;
 
 static const bool  BOOL_ZERO = false;
 static const bool  BOOL_V1   = true;
@@ -1509,8 +1511,6 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nBREATHING TEST"
                                << "\n==============" << bsl::endl;
 
-        typedef bsls_PlatformUtil::Int64 Int64;
-
         const char  valChar = 'A';
         const short nullShort = bdetu_Unset<short>::unsetValue();
         const int   nullInt = bdetu_Unset<int>::unsetValue();
@@ -1685,8 +1685,6 @@ int main(int argc, char *argv[])
 #if TEST_IS_ENABLED(-1)
         if (verbose) bsl::cout << "\nPERFORMANCE TEST"
                                << "\n================" << bsl::endl;
-
-        typedef bsls_PlatformUtil::Int64 Int64;
 
         enum { NUM_ITER = 10000 };
         double limit = argc > 2 ? bsl::atof(argv[2]) : 1.;  // 1s

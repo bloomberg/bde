@@ -1,4 +1,4 @@
-// bdem_choicearray.t.cpp                  -*-C++-*-
+// bdem_choicearray.t.cpp                                             -*-C++-*-
 #include <bdem_choicearray.h>
 
 #include <bdem_choice.h>            // testing only
@@ -30,6 +30,7 @@
 #include <bslma_newdeleteallocator.h>
 #include <bslmf_isconvertible.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -213,27 +214,27 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdem_ChoiceArray Obj;
+typedef bdem_ChoiceArray         Obj;
 
-typedef bdem_Properties                      Prop;
-typedef bdem_Descriptor                      Desc;
-typedef bdem_ElemType                        EType;
-typedef bdem_ElemRef                         ERef;
-typedef bdem_ConstElemRef                    CERef;
-typedef bdem_AggregateOption                 AggOption;
-typedef bdem_Choice                          Choice;
-typedef bdem_ChoiceArrayItem                 Item;
+typedef bdem_Properties          Prop;
+typedef bdem_Descriptor          Desc;
+typedef bdem_ElemType            EType;
+typedef bdem_ElemRef             ERef;
+typedef bdem_ConstElemRef        CERef;
+typedef bdem_AggregateOption     AggOption;
+typedef bdem_Choice              Choice;
+typedef bdem_ChoiceArrayItem     Item;
 
-typedef bsl::vector<EType::Type>             Catalog;
+typedef bsl::vector<EType::Type> Catalog;
 
-typedef bsls_PlatformUtil::Int64             Int64;
+typedef bsls_Types::Int64        Int64;
 
-typedef bdet_Datetime                        Datetime;
-typedef bdet_Date                            Date;
-typedef bdet_Time                            Time;
-typedef bdet_DatetimeTz                      DatetimeTz;
-typedef bdet_DateTz                          DateTz;
-typedef bdet_TimeTz                          TimeTz;
+typedef bdet_Datetime            Datetime;
+typedef bdet_Date                Date;
+typedef bdet_Time                Time;
+typedef bdet_DatetimeTz          DatetimeTz;
+typedef bdet_DateTz              DateTz;
+typedef bdet_TimeTz              TimeTz;
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
@@ -468,13 +469,12 @@ const int              A02 = 10;
 const int              B02 = 20;
 const int              N02 = bdetu_Unset<int>::unsetValue();
 
-const bsls_PlatformUtil::Int64
+const bsls_Types::Int64
                        A03 = -100;
-const bsls_PlatformUtil::Int64
+const bsls_Types::Int64
                        B03 = -200;
-const bsls_PlatformUtil::Int64
-                       N03 =
-                           bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+const bsls_Types::Int64
+                       N03 = bdetu_Unset<bsls_Types::Int64>::unsetValue();
 
 const float            A04 = -1.5;
 const float            B04 = -2.5;
@@ -546,15 +546,15 @@ const  bsl::vector<int>                          A12 = fA12();
 const  bsl::vector<int>                          B12 = fB12();
 const  bsl::vector<int>                          N12;
 
-static bsl::vector<bsls_PlatformUtil::Int64>    fA13() {
-       bsl::vector<bsls_PlatformUtil::Int64> t;
+static bsl::vector<bsls_Types::Int64>    fA13() {
+       bsl::vector<bsls_Types::Int64> t;
                                      t.push_back(A03); return t; }
-static bsl::vector<bsls_PlatformUtil::Int64>    fB13() {
-       bsl::vector<bsls_PlatformUtil::Int64> t;
+static bsl::vector<bsls_Types::Int64>    fB13() {
+       bsl::vector<bsls_Types::Int64> t;
                                      t.push_back(B03); return t; }
-const  bsl::vector<bsls_PlatformUtil::Int64>     A13 = fA13();
-const  bsl::vector<bsls_PlatformUtil::Int64>     B13 = fB13();
-const  bsl::vector<bsls_PlatformUtil::Int64>     N13;
+const  bsl::vector<bsls_Types::Int64>     A13 = fA13();
+const  bsl::vector<bsls_Types::Int64>     B13 = fB13();
+const  bsl::vector<bsls_Types::Int64>     N13;
 
 static bsl::vector<float>                       fA14() {
        bsl::vector<float> t;         t.push_back(A04); return t; }
