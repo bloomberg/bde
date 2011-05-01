@@ -9,6 +9,8 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_protocoltest.h>      // for testing only
+
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
@@ -86,44 +88,9 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-class TestPublisher : public baem_Publisher {
-
-  public:
-    // TYPES
-    enum Method {
-        NONE = 0,
-        DESTRUCTOR,
-        PUBLISH
-    };
-
-  private:
-    // DATA
-    Method *d_lastMethod;
-
-  public:
-
-    // CREATORS
-    TestPublisher(Method *lastMethod)
-    : d_lastMethod(lastMethod)
-    {
-        *lastMethod = NONE;
-    }
-
-    virtual ~TestPublisher();
-
-    // MANIPULATORS
-    virtual void publish(const baem_MetricSample& metricValue);
+struct PublisherTest : bsls_ProtocolTest<baem_Publisher> {
+    void publish(const baem_MetricSample&)  { exit(); }
 };
-
-TestPublisher::~TestPublisher()
-{
-    *d_lastMethod = DESTRUCTOR;
-}
-
-void TestPublisher::publish(const baem_MetricSample& metricValue)
-{
-    *d_lastMethod = PUBLISH;
-}
 
 //=============================================================================
 //                              USAGE EXAMPLE
@@ -369,21 +336,15 @@ int main(int argc, char *argv[])
                           << endl << "======================="
                           << endl;
 
-        TestPublisher::Method lastMethod;
-        TestPublisher *publisher = new (*Z) TestPublisher(&lastMethod);
+        bsls_ProtocolTestDriver<PublisherTest> t;
 
-        ASSERT(TestPublisher::NONE == lastMethod);
+        ASSERT(t.testAbstract());
+        ASSERT(t.testNoDataMembers());
+        ASSERT(t.testVirtualDestructor());
 
-        baem_MetricSample sample(Z);
-        publisher->publish(sample);
+        BSLS_PROTOCOLTEST_ASSERT(t, publish(baem_MetricSample()));
 
-        ASSERT(TestPublisher::PUBLISH == lastMethod);
-
-        Z->deleteObjectRaw(publisher);
-
-        ASSERT(TestPublisher::DESTRUCTOR == lastMethod);
-
-        ASSERT(0 == defaultAllocator.numBytesInUse());
+        testStatus = t.failures();
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
