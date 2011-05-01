@@ -1273,7 +1273,7 @@ void btesos_TcpCbChannel::writeCb() {
     if (d_writeRequests.size()) {
         d_currentWriteRequest_p = d_writeRequests.back();
         BSLS_ASSERT(d_currentWriteRequest_p);
-        while ((int) btesos_TcpCbChannel_RReg::BUFFERED ==
+        while ((int) btesos_TcpCbChannel_WReg::BUFFERED ==
                (int) d_currentWriteRequest_p->d_category)
         {   // will replace the current event.
             if (0 != d_wManager_p->registerSocketEvent(d_socket_p->handle(),

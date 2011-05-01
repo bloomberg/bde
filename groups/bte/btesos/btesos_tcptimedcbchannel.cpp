@@ -1954,7 +1954,7 @@ void btesos_TcpTimedCbChannel::writeCb()
             BSLS_ASSERT(d_writeTimerId);
         }
         int rCode = 0;
-        if ((int) btesos_TcpTimedCbChannel_RReg::BUFFERED ==
+        if ((int) btesos_TcpTimedCbChannel_WReg::BUFFERED ==
             (int) d_currentWriteRequest_p->d_category)
         {
             rCode = d_wManager_p->registerSocketEvent(d_socket_p->handle(),
