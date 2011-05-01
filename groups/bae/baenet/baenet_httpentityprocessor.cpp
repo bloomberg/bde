@@ -1,4 +1,4 @@
-// baenet_httpentityprocessor.cpp    -*-C++-*-
+// baenet_httpentityprocessor.cpp                                     -*-C++-*-
 #include <baenet_httpentityprocessor.h>
 
 #include <bdes_ident.h>
@@ -11,7 +11,6 @@ namespace BloombergLP {
                       // --------------------------------
 
 // CREATORS
-
 baenet_HttpEntityProcessor::~baenet_HttpEntityProcessor()
 {
 }

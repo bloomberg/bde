@@ -1,8 +1,12 @@
-// baenet_httpentityprocessor.t.cpp  -*-C++-*-
+// baenet_httpentityprocessor.t.cpp                                   -*-C++-*-
 #include <baenet_httpentityprocessor.h>
 
-#include <bsl_cstring.h>     // strlen()
-#include <bsl_cstdlib.h>     // atoi()
+#include <bcema_blob.h>
+
+#include <bsls_protocoltest.h>
+
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'strlen'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -51,7 +55,6 @@ static void aSsErT(int c, const char *s, int i)
                          << #K << ": " << K << "\n";\
                aSsErT(1, #X, __LINE__); } }
 
-
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -64,9 +67,60 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define NL "\n"
 
+// ============================================================================
+//                               TEST APPARATUS
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+
+class baenet_HttpStartLine {
+    // This 'class' is a trivial implementation of the 'baenet_HttpStartLine'
+    // type that is used (*in* *name* *only*) in the protocol under test.
+
+  public:
+    // CREATORS
+    baenet_HttpStartLine();
+    baenet_HttpStartLine(const baenet_HttpStartLine& original);
+    ~baenet_HttpStartLine();
+
+    // MANIPULATORS
+    baenet_HttpStartLine& operator=(const baenet_HttpStartLine& rhs);
+};
+
+// CREATORS
+baenet_HttpStartLine::baenet_HttpStartLine()
+{
+}
+
+baenet_HttpStartLine::baenet_HttpStartLine(const baenet_HttpStartLine&)
+{
+}
+
+baenet_HttpStartLine::~baenet_HttpStartLine()
+{
+}
+
+// MANIPULATORS
+baenet_HttpStartLine&
+baenet_HttpStartLine::operator=(const baenet_HttpStartLine&)
+{
+    return *this;
+}
+
+}  // close namespace BloombergLP
+
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//               GLOBAL TYPEDEFS/CLASSES/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+struct HttpEntityProcessorTest : bsls_ProtocolTest<baenet_HttpEntityProcessor>
+{
+    void onStartEntity(const baenet_HttpStartLine&,
+                       const bcema_SharedPtr<baenet_HttpHeader>&)   { exit(); }
+    void onEntityData(const bcema_Blob&)                            { exit(); }
+    void onEndEntity()                                              { exit(); }
+    bcema_SharedPtr<baenet_HttpHeader> createHeader() const  { return exit(); }
+};
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -82,6 +136,26 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // PROTOCOL TEST
+        // --------------------------------------------------------------------
+
+        bsls_ProtocolTestDriver<HttpEntityProcessorTest> t;
+
+        ASSERT(t.testAbstract());
+        ASSERT(t.testNoDataMembers());
+        ASSERT(t.testVirtualDestructor());
+
+        BSLS_PROTOCOLTEST_ASSERT(t,
+                onStartEntity(baenet_HttpStartLine(),
+                              bcema_SharedPtr<baenet_HttpHeader>()));
+        BSLS_PROTOCOLTEST_ASSERT(t, onEntityData(bcema_Blob()));
+        BSLS_PROTOCOLTEST_ASSERT(t, onEndEntity());
+        BSLS_PROTOCOLTEST_ASSERT(t, createHeader());
+
+        testStatus = t.failures();
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

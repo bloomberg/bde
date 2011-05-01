@@ -1,8 +1,12 @@
-// baenet_httpheader.t.cpp  -*-C++-*-
+// baenet_httpheader.t.cpp                                            -*-C++-*-
 #include <baenet_httpheader.h>
 
-#include <bsl_cstring.h>     // strlen()
-#include <bsl_cstdlib.h>     // atoi()
+#include <bdeut_stringref.h>
+
+#include <bsls_protocoltest.h>
+
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'strlen'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -51,7 +55,6 @@ static void aSsErT(int c, const char *s, int i)
                          << #K << ": " << K << "\n";\
                aSsErT(1, #X, __LINE__); } }
 
-
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -64,9 +67,61 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define NL "\n"
 
+// ============================================================================
+//                               TEST APPARATUS
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+
+class baenet_HttpBasicHeaderFields {
+    // This 'class' is a trivial implementation of the
+    // 'baenet_HttpBasicHeaderFields' type that is used (*in* *name* *only*) in
+    // the protocol under test.
+
+  public:
+    // CREATORS
+    baenet_HttpBasicHeaderFields();
+    baenet_HttpBasicHeaderFields(const baenet_HttpBasicHeaderFields& original);
+    ~baenet_HttpBasicHeaderFields();
+
+    // MANIPULATORS
+    baenet_HttpBasicHeaderFields& operator=(
+                                      const baenet_HttpBasicHeaderFields& rhs);
+};
+
+// CREATORS
+baenet_HttpBasicHeaderFields::baenet_HttpBasicHeaderFields()
+{
+}
+
+baenet_HttpBasicHeaderFields::baenet_HttpBasicHeaderFields(
+                                           const baenet_HttpBasicHeaderFields&)
+{
+}
+
+baenet_HttpBasicHeaderFields::~baenet_HttpBasicHeaderFields()
+{
+}
+
+// MANIPULATORS
+baenet_HttpBasicHeaderFields&
+baenet_HttpBasicHeaderFields::operator=(const baenet_HttpBasicHeaderFields&)
+{
+    return *this;
+}
+
+}  // close namespace BloombergLP
+
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//               GLOBAL TYPEDEFS/CLASSES/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+struct HttpHeaderTest : bsls_ProtocolTest<baenet_HttpHeader> {
+    int addField(const bdeut_StringRef&, const bdeut_StringRef&)
+                                                             { return exit(); }
+    const baenet_HttpBasicHeaderFields& basicFields() const
+                                                          { return exitRef(); }
+};
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -82,6 +137,23 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // PROTOCOL TEST
+        // --------------------------------------------------------------------
+
+        bsls_ProtocolTestDriver<HttpHeaderTest> t;
+
+        ASSERT(t.testAbstract());
+        ASSERT(t.testNoDataMembers());
+        ASSERT(t.testVirtualDestructor());
+
+        BSLS_PROTOCOLTEST_ASSERT(t,
+                               addField(bdeut_StringRef(), bdeut_StringRef()));
+        BSLS_PROTOCOLTEST_ASSERT(t, basicFields());
+
+        testStatus = t.failures();
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
