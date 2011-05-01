@@ -1,9 +1,8 @@
-// bdeut_variant.cpp              -*-C++-*-
+// bdeut_variant.cpp                                                  -*-C++-*-
 #include <bdeut_variant.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdeut_variant_cpp,"$Id$ $CSID$")
-
 
 // ---------------------------------------------------------------------------
 // NOTICE:

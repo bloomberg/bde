@@ -1338,8 +1338,11 @@ int main(int argc, char *argv[])
         //   expected.
         //
         // Concerns:
-        //   The default constructor must create a null object.  The
-        //   makeValue(const TYPE&) function must set the value appropriately.
+        //   * The default constructor must create a null object.
+        //   * makeValue() must set the value to the one constructed with the
+        //   default constructor.
+        //   * makeValue(const TYPE&) function must set the value
+        //   appropriately.
         //
         // Plan:
         //   Conduct the test using 'int' (does not use allocator) and
@@ -1360,6 +1363,7 @@ int main(int argc, char *argv[])
         //   bdeut_NullableValue();
         //   bdeut_NullableValue(bslma_Allocator *basicAllocator);
         //   ~bdeut_NullableValue();
+        //   TYPE& makeValue();
         //   TYPE& makeValue(const TYPE& rhs);
         //   bool isNull() const;
         //   const TYPE& value() const;
@@ -1386,6 +1390,25 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) cout << "\tTesting 'makeValue'." << endl;
+
+            {
+                Obj mX;  const Obj& X = mX;
+
+                mX.makeValue();
+                if (veryVeryVerbose) { T_ T_ P(X) };
+                ASSERT(!X.isNull());
+                LOOP_ASSERT(X.value(), ValueType() == X.value());
+            }
+
+            {
+                Obj mX;  const Obj& X = mX;
+
+                mX.makeValue(3);  // set some random value
+                mX.makeValue();   // reset to default
+                if (veryVeryVerbose) { T_ T_ P(X) };
+                ASSERT(!X.isNull());
+                LOOP_ASSERT(X.value(), ValueType() == X.value());
+            }
 
             {
                 Obj mX;  const Obj& X = mX;
@@ -1430,6 +1453,25 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) cout << "\tTesting 'makeValue'." << endl;
+
+            {
+                Obj mX(ALLOC);  const Obj& X = mX;
+
+                mX.makeValue();
+                if (veryVeryVerbose) { T_ T_ P(X) };
+                ASSERT(!X.isNull());
+                LOOP_ASSERT(X.value(), ValueType() == X.value());
+            }
+
+            {
+                Obj mX(ALLOC);  const Obj& X = mX;
+
+                mX.makeValue("3");  // set some random value
+                mX.makeValue();     // reset to default
+                if (veryVeryVerbose) { T_ T_ P(X) };
+                ASSERT(!X.isNull());
+                LOOP_ASSERT(X.value(), ValueType() == X.value());
+            }
 
             {
                 Obj mX(ALLOC);  const Obj& X = mX;
