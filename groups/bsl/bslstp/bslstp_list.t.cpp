@@ -1,4 +1,4 @@
-// bslstl_list.t.cpp                  -*-C++-*-
+// bslstp_list.t.cpp                                                  -*-C++-*-
 
 #include <bslstp_list.h>
 
@@ -72,9 +72,9 @@ using namespace bsl;
 //     Args...      shorthand for a family of templates <A1>, <A1,A2>, etc.
 //
 // The of tests below is grouped as per the definition of list in the C++
-// standard (construct, iterators, capacity...) rather than the cannonical
+// standard (construct, iterators, capacity...) rather than the canonical
 // grouping of members per BDE convention (CREATORS, MANIPULATORS, ACCESSORS).
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // class list<T,A> (list)
 // =================================
 //
@@ -337,7 +337,7 @@ inline ITER succ(ITER it, int n = 1)
     return it;
 }
 
-// Return the 'n'th element of container x, counting from 0. (I.e., if for
+// Return the 'n'th element of container x, counting from 0.  (I.e., if for
 // n == 0, return x.front().)
 template <typename C>
 inline typename C::value_type& nthElem(C& x, int n)
@@ -581,7 +581,6 @@ namespace std {
         }
     };
 } // End namespace bsl
-
 
                        // =====================
                        // class TestTypeNoAlloc
@@ -1081,7 +1080,6 @@ bool operator!=(InputSeqConstIterator<TYPE> a, InputSeqConstIterator<TYPE> b)
     return ! (a == b);
 }
 
-
                               // ====================
                               // class LimitAllocator
                               // ====================
@@ -1186,7 +1184,7 @@ class PointerWrapper : public PointerWrapper<const T>
 template <class T>
 class SmallAllocator : public bsl::allocator<T> {
     // Allocator type with small size and difference types and non-raw pointer
-    // types. // Used to test that these types are used in the interface to
+    // types.  Used to test that these types are used in the interface to
     // the container.
 
     // PRIVATE TYPES
@@ -1228,7 +1226,7 @@ template <class TYPE, class ALLOC = bsl::allocator<TYPE> >
 struct TestDriver {
     // The generating functions interpret the given 'spec' in order from left
     // to right to configure the object according to a custom language.
-    // Uppercase letters [A .. E] correspond to arbitrary (but unique) char
+    // Uppercase letters '[A .. E]' correspond to arbitrary (but unique) char
     // values to be appended to the 'bsl::list<T>' object.  A tilde ('~')
     // indicates that the logical (but not necessarily physical) state of the
     // object is to be set to its initial, empty state (via the 'clear'
@@ -1449,7 +1447,7 @@ struct TestDriver {
         // Test allocator-related concerns.  The first overload is called from
         // the main test driver.  The second overload is dispatched when
         // 'ALLOC' is not a bslma-compliant allocator.  The third overload is
-        // dispatched when 'ALLOC' is a bslma-compliant allocator. The
+        // dispatched when 'ALLOC' is a bslma-compliant allocator.  The
         // arguments 't' and 'a' are the names of the parameters 'TYPE' and
         // 'ALLOC', respectively.
 
@@ -1587,7 +1585,7 @@ bool TestDriver<TYPE,ALLOC>::checkIntegrity(const Obj& object, int length)
     static const char DEFAULT_CVALUE = value_of(TYPE());
 
     // Iterate over the list.  Terminate the loop at the shorter of 'it ==
-    // finish' or 'count == length'. These should be the same, but data
+    // finish' or 'count == length'.  These should be the same, but data
     // structure corruption such as circular links or skipped nodes could make
     // them different.
     for (it = start; it != finish && count < length; ++it, ++count) {
@@ -1635,7 +1633,7 @@ template <class TYPE, class ALLOC>
 inline
 int TestDriver<TYPE,ALLOC>::expectedBlocks(int n)
 {
-    // One block for the sentinal node + block allocations.
+    // One block for the sentinel node + block allocations.
     return 1 + deltaBlocks(n);
 }
 
@@ -1657,7 +1655,7 @@ void TestDriver<TYPE,ALLOC>::testCase29()
     //   5. Iterators to all elements remain valid.
     //   6. The predicate version of 'sort' can be used to sort using a
     //      different comparison criterion.
-    //   7. The non-predicatate version of 'sort' does not use 'std::less'.
+    //   7. The non-predicate version of 'sort' does not use 'std::less'.
     //   8. The sort is stable -- equivalent elements remain in the same order
     //      as in the original list.
     //   9. The number of calls to the comparison operation is no larger than
@@ -1707,7 +1705,7 @@ void TestDriver<TYPE,ALLOC>::testCase29()
 
     // NOTE: The elements within each of these specifications must be sorted
     // so that 'next_permutation' can do the right thing.  Since we will be
-    // testing every permuation, there is no worry about having the elements
+    // testing every permutation, there is no worry about having the elements
     // int too predicatable an order.
     const char *const SPECS[] = {
         // Length 0 or 1: 1 permutation each
@@ -1784,7 +1782,7 @@ void TestDriver<TYPE,ALLOC>::testCase29()
             LOOP_ASSERT(SPEC, checkIntegrity(X, LENGTH));
             LOOP_ASSERT(SPEC, X            == EXP);
             // TBD: STLport failure -- STLPort's algorithm creates a scratch
-            // array of lists, each of which allocates a sentinal node.  This
+            // array of lists, each of which allocates a sentinel node.  This
             // is technically conformant (I think) though inefficient.
             // LOOP_ASSERT(SPEC, AA           == BB);
             LOOP_ASSERT(SPEC, A            == B);
@@ -1800,7 +1798,7 @@ void TestDriver<TYPE,ALLOC>::testCase29()
                 int save_idx = p - save_iters;
                 LOOP2_ASSERT(SPEC, j, LENGTH >= save_idx);
 
-                // Verify stable sort. Iterate through equivalent values and
+                // Verify stable sort.  Iterate through equivalent values and
                 // verify that the sorted list produces iterators in the same
                 // order as in the saved iterator array.  As each iterator is
                 // matched, it is removed from 'save_iters' so as to ensure
@@ -1875,7 +1873,7 @@ void TestDriver<TYPE,ALLOC>::testCase29()
             LOOP_ASSERT(SPEC, checkIntegrity(X, LENGTH));
             LOOP_ASSERT(SPEC, X            == EXP);
             // TBD: STLport failure -- STLPort's algorithm creates a scratch
-            // array of lists, each of which allocates a sentinal node.  This
+            // array of lists, each of which allocates a sentinel node.  This
             // is technically conformant (I think) though inefficient.
             // LOOP_ASSERT(SPEC, AA           == BB);
             LOOP_ASSERT(SPEC, A            == B);
@@ -1895,7 +1893,7 @@ void TestDriver<TYPE,ALLOC>::testCase29()
                 int save_idx = p - save_iters;
                 LOOP2_ASSERT(SPEC, j, LENGTH >= save_idx);
 
-                // Verify stable sort. Iterate through equivalent values and
+                // Verify stable sort.  Iterate through equivalent values and
                 // verify that the sorted list produces iterators in the same
                 // order as in the saved iterator array.  As each iterator is
                 // matched, it is removed from 'save_iters' so as to ensure
@@ -1968,7 +1966,8 @@ void TestDriver<TYPE,ALLOC>::testCase29()
 
         if (caught_ex) {
             // Should not call predicate more than N*Log2(N) times.
-            LOOP_ASSERT(threshold, threshold < EH_SPEC_LEN * LOG2[EH_SPEC_LEN]);
+            LOOP_ASSERT(threshold,
+                        threshold < EH_SPEC_LEN * LOG2[EH_SPEC_LEN]);
         }
         else {
             // Must have called predicate successfully at least N-1 times.
@@ -1982,7 +1981,7 @@ void TestDriver<TYPE,ALLOC>::testCase29()
         LOOP_ASSERT(threshold, checkIntegrity(X, X.size()));
 
         // TBD: STLport failure -- STLPort's algorithm creates a scratch
-        // array of lists, each of which allocates a sentinal node.  This
+        // array of lists, each of which allocates a sentinel node.  This
         // is technically conformant (I think) though inefficient.
         // LOOP_ASSERT(threshold, AA           == BB);
         LOOP_ASSERT(threshold, CTORS_AFTER  == CTORS_BEFORE);
@@ -2031,14 +2030,14 @@ void TestDriver<TYPE,ALLOC>::testCase28()
     //   5. Iterators to all elements remain valid.
     //   6. The predicate version of 'merge' can be used to merge using a
     //      different comparison criterion.
-    //   7. The non-predicatate version of 'merge' does not use 'std::less'.
+    //   7. The non-predicate version of 'merge' does not use 'std::less'.
     //   8. Merging a list with itself has no effect.
     //   9. If the comparison function throws an exception, no memory is
     //      leaked and all elements remain in one list or the other.
     //
     // Test plan:
     //   Create two lists from the cross-product of two small sets of
-    //   specifications. The elements in the lists are chosen so that every
+    //   specifications.  The elements in the lists are chosen so that every
     //   combination of duplicate and non-duplicate elements, both within and
     //   between lists, is represented.  Save the iterators to all elements of
     //   both lists and record the memory usage before the merge.  Merge one
@@ -2089,7 +2088,7 @@ void TestDriver<TYPE,ALLOC>::testCase28()
         // Advance to the next specification
         SortedSpecGen& operator++() {
 
-            // Find the last element with value < MAX_ELEMENT. Note that
+            // Find the last element with value < MAX_ELEMENT.  Note that
             // with 'MAX_ELEMENT' set to 'F', we are using only 6 of the
             // possible 8 values for each element yielding a total of 462
             // combinations.  For more combinations (and a slower test),
@@ -2164,7 +2163,7 @@ void TestDriver<TYPE,ALLOC>::testCase28()
             const int DTORS_BEFORE  = numDestructorCalls;
 
             // Self merge (noop)
-// TBD: C++98 didn't support self merge.  C++0x does.
+// TBD: C++98 did not support self merge.  C++0x does.
 //            mX.merge(mX);
             LOOP2_ASSERT(X_SPEC, Y_SPEC, X.size() == X_SPEC_LEN);
             LOOP2_ASSERT(X_SPEC, Y_SPEC, Y.size() == Y_SPEC_LEN);
@@ -2280,7 +2279,7 @@ void TestDriver<TYPE,ALLOC>::testCase28()
             const int DTORS_BEFORE  = numDestructorCalls;
 
             // Self merge (noop)
-// TBD: C++98 didn't support self merge.  C++0x does.
+// TBD: C++98 did not support self merge.  C++0x does.
 //            mX.merge(mX, GreaterThan());
             LOOP2_ASSERT(X_SPEC, Y_SPEC, X.size() == X_SPEC_LEN);
             LOOP2_ASSERT(X_SPEC, Y_SPEC, Y.size() == Y_SPEC_LEN);
@@ -2510,14 +2509,14 @@ void TestDriver<TYPE,ALLOC>::testCase27()
     //      not call std::equal_to<T>::operator()(T,T).
     //
     // Plan:
-    //   For concern 1, preform the same tests for both the predicate and
+    //   For concern 1, perform the same tests for both the predicate and
     //   non-predicate versions of 'unique.  Generate lists of various lengths
     //   up to 10 elements, filling the lists with different sequences of
     //   values such that every combination of matching and non-matching
     //   subsequences is generated.  (For the predicate version, matching
     //   elements need to be equal only in their low bit).  For each
     //   combination, make a copy of all of the iterators to non-repeated
-    //   elements, then call 'unique'. Validate that: The number of new
+    //   elements, then call 'unique'.  Validate that: The number of new
     //   destructor calls matches the number of elements removed, reduction of
     //   memory blocks in use is correct for the number elements removed, the
     //   number of new allocations is zero, the number of new constructor
@@ -2557,7 +2556,7 @@ void TestDriver<TYPE,ALLOC>::testCase27()
 
     for (int op = OP_FIRST; op < OP_LAST; ++op) {
 
-        // The 'perturb_bit' is a bit mask that can be pertured in a value and
+        // The 'perturb_bit' is a bit mask that can be perturbed in a value and
         // still compare equal to the original according to the predicate.
         char perturb_bit;
 
@@ -2583,7 +2582,7 @@ void TestDriver<TYPE,ALLOC>::testCase27()
             // skipped, since it has no preceding value.
             for (unsigned mask = 0; mask < (1 << LEN); mask += 2) {
 
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const_iterator save_iters[MAX_LENGTH + 1];
                 int res_len = 0;  // To compute expected result length
                 Obj mX(Z);    const Obj& X = mX;            // test objected
@@ -2677,7 +2676,7 @@ void TestDriver<TYPE,ALLOC>::testCase27()
                                  DTORS_AFTER == DTORS_BEFORE + (LEN-res_len));
                 }
 
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             } // end for (mask)
         } // end for (i)
     } // end for (op)
@@ -2703,8 +2702,8 @@ void TestDriver<TYPE,ALLOC>::testCase26()
     //   8. The non-'E' elements retain their relative order.
     //
     // Plan:
-    //   For concern 1, preform the same tests for both 'remove' and
-    //   'remove_if'. Generate lists from a small set of specifications from
+    //   For concern 1, perform the same tests for both 'remove' and
+    //   'remove_if'.  Generate lists from a small set of specifications from
     //   empty to 10 elements, none of which contain the value 'E'.  Replace 0
     //   to 'LENGTH' elements with the value 'E', in every possible
     //   combination.  For each specification and combination, make a copy of
@@ -3458,7 +3457,7 @@ void TestDriver<TYPE,ALLOC>::testCase21()
                       mX.insert(mX.begin(), LENGTH, DEFAULT_VALUE);
                       break;
                   case OP_INSERT_RANGE:
-                      guard.release();  // No strong guaranteee
+                      guard.release();  // No strong guarantee
                       // TBD: C++0x allows const_iterator
                       // mX.insert(X.begin(), Y.begin(), Y.end());
                       mX.insert(mX.begin(), Y.begin(), Y.end());
@@ -3468,7 +3467,8 @@ void TestDriver<TYPE,ALLOC>::testCase21()
             }
             catch (std::length_error& e) {
                 if (veryVerbose) {
-                    printf("\t\tCaught std::length_error(\"%s\").\n", e.what());
+                    printf("\t\tCaught std::length_error(\"%s\").\n",
+                           e.what());
                 }
                 exceptionCaught = true;
             }
@@ -3628,7 +3628,7 @@ void TestDriver<TYPE,ALLOC>::testCase19()
     //   3) Swapping containers causes iterators to remain valid but to refer
     //      to the opposite container.
     //   TBD: current implementation also allows swapping of containers with
-    //   different allocators. As per C++0x, this should not be allowed
+    //   different allocators.  As per C++0x, this should not be allowed
     //   because it might throw.  What should we test for here?
     //
     // Plan:
@@ -3723,7 +3723,7 @@ void TestDriver<TYPE,ALLOC>::testCase19()
                 LOOP3_ASSERT(XLINE, YLINE, i, it == xiters[i]);
             }
 
-            // No allocations or deallocations should have occured.
+            // No allocations or deallocations should have occurred.
             LOOP2_ASSERT(XLINE, YLINE, BB == AA);
             LOOP2_ASSERT(XLINE, YLINE, B  == A );
         } // end for tj
@@ -3786,7 +3786,7 @@ void TestDriver<TYPE,ALLOC>::testCase19()
                 LOOP3_ASSERT(XLINE, YLINE, i, it == xiters[i]);
             }
 
-            // No allocations or deallocations should have occured.
+            // No allocations or deallocations should have occurred.
             LOOP2_ASSERT(XLINE, YLINE, BB == AA);
             LOOP2_ASSERT(XLINE, YLINE, B  == A );
         } // end for tj
@@ -4026,10 +4026,10 @@ void TestDriver<TYPE,ALLOC>::testCase17()
     //   7) That no iterators are invalidated by the insertion.
     //
     // Plan:
-    //   Create objects of various sizes and insert a distict value one or
+    //   Create objects of various sizes and insert a distinct value one or
     //   more times into each possible position.  For concerns 1, 2 & 5, verify
-    //   that the return value and modified list are as expected. For concerns
-    //   3 & 4 preform the test using the exception-testing infrastructure and
+    //   that the return value and modified list are as expected.  For concerns
+    //   3 & 4 perform the test using the exception-testing infrastructure and
     //   verify the value and memory changes.  For concern 6, we select the
     //   value to insert from the middle of the list, thus testing insertion
     //   before, at, and after the aliased element.  For concern 7, save
@@ -4099,10 +4099,10 @@ void TestDriver<TYPE,ALLOC>::testCase17()
                     continue;  // Can push_back only at end
                 }
                 else if (TEST_PUSH_FRONT == op && 0 != posidx) {
-                    continue;  // Can push_front only at begining
+                    continue;  // Can push_front only at beginning
                 }
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
@@ -4201,7 +4201,7 @@ void TestDriver<TYPE,ALLOC>::testCase17()
                     LOOP3_ASSERT(LINE, op, posidx, X.end() == cit);
                     LOOP3_ASSERT(LINE, op, posidx, orig_iters[LENGTH] == cit);
 
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 LOOP3_ASSERT(LINE, op, posidx,
                              0 == testAllocator.numBlocksInUse());
@@ -4232,8 +4232,8 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
     // Plan:
     //   Create objects of various sizes and insert a range of 0 to 3 values
     //   at each possible position.  For concerns 1, 2 & 5, verify
-    //   that the return value and modified list are as expected. For concerns
-    //   3 & 4 preform the test using the exception-testing infrastructure and
+    //   that the return value and modified list are as expected.  For concerns
+    //   3 & 4 perform the test using the exception-testing infrastructure and
     //   verify the value and memory changes.  For concern 7, save
     //   copies of the iterators before and after the insertion point and
     //   verify that they point to the same (valid) elements after the
@@ -4302,7 +4302,7 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
 
                 CONTAINER mU(U_SPEC);  const CONTAINER& U = mU;
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
@@ -4379,7 +4379,7 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
                     LOOP3_ASSERT(LINE, posidx, U_LINE,
                                  orig_iters[LENGTH] == cit);
 
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 LOOP3_ASSERT(LINE, posidx, U_LINE,
                              0 == testAllocator.numBlocksInUse());
@@ -4397,7 +4397,7 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     // Concerns:
     //   1) That 'iterator' and 'const_iterator' are bi-directional iterators.
     //   2) That 'iterator' and 'const_iterator' are copy-constructible,
-    //      assignable, and equality-comparible, that 'iterator' is
+    //      assignable, and equality-comparable, that 'iterator' is
     //      convertible to 'const_iterator', and that 'reverse_iterator' is
     //      constructible from 'iterator'.
     //   3) That 'begin' and 'end' return mutable iterators for a
@@ -4696,7 +4696,7 @@ void TestDriver<TYPE,ALLOC>::testCase15()
     // --------------------------------------------------------------------
     // TESTING ELEMENT ACCESS
     // Concerns:
-    //   1) That 'v.front()' and 'v.back()', allow modifing the
+    //   1) That 'v.front()' and 'v.back()', allow modifying the
     //      element when 'v' is modifiable, but must not modify the
     //      element when it is 'const'.
     //
@@ -4838,7 +4838,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
             const int NEWLEN = newlen;
             if (veryVerbose) { T_; T_; P(NEWLEN); }
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const int AL = testAllocator.allocationLimit();
                 testAllocator.setAllocationLimit(-1);
 
@@ -4882,7 +4882,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
                     LOOP2_ASSERT(LINE, NEWLEN, DEFAULT_VALUE == *xi);
                 }
                 LOOP2_ASSERT(LINE, NEWLEN, xi == X.end());
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(0 == testAllocator.numMismatches());
             ASSERT(0 == testAllocator.numBlocksInUse());
@@ -4904,7 +4904,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
             const int NEWLEN = newlen;
             if (veryVerbose) { T_; T_; P(NEWLEN); }
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const int AL = testAllocator.allocationLimit();
                 testAllocator.setAllocationLimit(-1);
 
@@ -4948,7 +4948,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
                     LOOP2_ASSERT(LINE, NEWLEN, VALUE == *xi);
                 }
                 LOOP2_ASSERT(LINE, NEWLEN, xi == X.end());
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(0 == testAllocator.numMismatches());
             ASSERT(0 == testAllocator.numBlocksInUse());
@@ -4976,7 +4976,7 @@ void TestDriver<TYPE,ALLOC>::testCase13()
     //    - In the presence of exceptions during memory allocations using
     //        a 'bslma_TestAllocator' and varying its *allocation* *limit*.
     //   and use basic accessors and equality comparison to verify that
-    //   assignment was succesfull.
+    //   assignment was successful.
     //
     // Testing:
     //   assign(size_type n, const T& value);
@@ -5084,7 +5084,7 @@ void TestDriver<TYPE,ALLOC>::testCase13()
                         printf(" using "); P(VALUE);
                     }
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         const int AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
@@ -5109,7 +5109,7 @@ void TestDriver<TYPE,ALLOC>::testCase13()
                         for (const_iterator j = X.begin(); j != X.end(); ++j) {
                             LOOP4_ASSERT(INIT_LINE,LINE, i, ti, VALUE == *j);
                         }
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     ASSERT(0 == testAllocator.numMismatches());
                     ASSERT(0 == testAllocator.numBlocksInUse());
@@ -5282,7 +5282,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
 
                 Obj mY(g(SPEC)); const Obj& Y = mY;
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
@@ -5303,7 +5303,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
                     LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
                                  A == expectedBlocks(LENGTH));
                     LOOP4_ASSERT(INIT_LINE, LINE, i, ti, Y == X);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 LOOP_ASSERT(testAllocator.numMismatches(),
                             0 == testAllocator.numMismatches());
@@ -5506,7 +5506,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
 
                 if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     Obj mX(LENGTH, VALUE, AL);
                     const Obj& X = mX;
@@ -5522,7 +5522,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         LOOP3_ASSERT(LINE, ti, j, VALUE == nthElem(X,j));
                     }
 
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 const int AA = testAllocator.numBlocksTotal();
                 const int  A = testAllocator.numBlocksInUse();
@@ -5777,7 +5777,7 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
 
             if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                 ALLOC AL(&testAllocator);
                 Obj mX(U.begin(), U.end(), AL); const Obj& X = mX;
@@ -5790,7 +5790,7 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
                 LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
                 LOOP2_ASSERT(LINE, ti, Y == X);
 
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             const int AA = testAllocator.numBlocksTotal();
             const int  A = testAllocator.numBlocksInUse();
@@ -6013,7 +6013,7 @@ void TestDriver<TYPE,ALLOC>::testCase11(bslmf_MetaInt<0>,
     }
 
     if (verbose)
-        printf("\nTesting that allocator is not passed through to elements.\n");
+       printf("\nTesting that allocator is not passed through to elements.\n");
 
     const int DD = OtherAllocatorDefaultImp.numBlocksInUse();
     if (bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE)
@@ -6140,7 +6140,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
     //   Specify a set S of unique object values with substantial and varied
     //   differences, ordered by increasing length.  For each value in S,
     //   construct an object x along with a sequence of similarly constructed
-    //   duplicates x1, x2, ..., xN. The elements within each object in S are
+    //   duplicates x1, x2, ..., xN.  The elements within each object in S are
     //   unique so that re-ordering elements cannot preserve equality.
     //   Attempt to affect every aspect of white-box state by altering each xi
     //   in a unique way.  Let the union of all such objects be the set T.
@@ -6260,9 +6260,10 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                         // objects, but could (through the use of
                         // element-by-element assignment) construct and
                         // destroy fewer elements.
-                        const int NUM_CTOR = numCopyCtorCalls - NUM_CTOR_BEFORE;
+                        const int NUM_CTOR =
+                                          numCopyCtorCalls - NUM_CTOR_BEFORE;
                         const int NUM_DTOR =
-                            numDestructorCalls - NUM_DTOR_BEFORE;
+                                          numDestructorCalls - NUM_DTOR_BEFORE;
                         ASSERT(NUM_CTOR <= (int)V.size());
                         ASSERT(NUM_DTOR <= (int)U_LEN_BEFORE);
 
@@ -6324,7 +6325,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
 
                 // Exception-test macros muse use 'testAllocator':
                 bslma_TestAllocator& testAllocator = testAllocator2;
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     // We want to use the allocation limit only for the
                     // assignment operation, not for producing the initial
                     // objects.  Thus, we save the limit in AL and turn off
@@ -6364,7 +6365,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                     }
                     // 'mV' (and therefore 'V') now out of scope
                     LOOP2_ASSERT(U_SPEC, V_SPEC, VV == U);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             } // end for (vi)
         } // end for (ui)
     } // end exception test
@@ -6396,7 +6397,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
 
             // Exception-test macros muse use 'testAllocator':
             bslma_TestAllocator& testAllocator = testAllocator2;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 // We want to use the allocation limit only for the
                 // assignment operation, not for producing the initial
                 // objects.  Thus, we save the limit in AL and turn off
@@ -6426,7 +6427,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                 LOOP_ASSERT(SPEC, Y == Y);
                 LOOP_ASSERT(SPEC, X == Y);
                 LOOP_ASSERT(SPEC, B2 == A2);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         } // end for (ti)
     } // end self-assignment test
 }
@@ -6677,7 +6678,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                 const int  D = testAllocator.numBlocksInUse();
 
                 // Allocations should increase by one node block for the list.
-                // If TYPE uses an allocator, allocations hould increase by
+                // If TYPE uses an allocator, allocations should increase by
                 // one more block.
                 LOOP_ASSERT(SPEC, CC + deltaBlocks(1) == DD);
                 LOOP_ASSERT(SPEC, C  + deltaBlocks(1) == D );
@@ -6704,7 +6705,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                 }
 
                 size_t allocations = 0;
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     allocations += bslmaExceptionCounter;
                     const Obj Y2(X, Z);
                     if (veryVerbose) {
@@ -6715,7 +6716,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                     LOOP_ASSERT(SPEC, W == Y2);
                     LOOP_ASSERT(SPEC, W == X);
                     LOOP_ASSERT(SPEC, Y2.get_allocator() == X.get_allocator());
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 const int AA = testAllocator.numBlocksTotal();
                 const int  A = testAllocator.numBlocksInUse();
@@ -7367,7 +7368,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
     //   destructor asserts internal object invariants appropriately.
     //   After the final insert operation in each test, use the (untested)
     //   basic accessors to cross-check the value of the object
-    //   and the 'bslma_TestAllocator' to confirm whether memory allocaiton has
+    //   and the 'bslma_TestAllocator' to confirm whether memory allocation has
     //   occurred.
     //
     //   To address concerns 4a-4e, construct a similar test, replacing
@@ -7599,7 +7600,6 @@ void TestDriver<TYPE,ALLOC>::testCase2()
                 mX.push_back(VALUES[i % NUM_VALUES]);
             }
 
-
             if(veryVerbose){
                 printf("\t\t\tAFTER SECOND INSERT "); P(X);
             }
@@ -7691,7 +7691,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
         for (size_t li = 0; li < NUM_TRIALS; ++li) { // i is the length
             if (verbose) printf("\t\t\tOn an object of length %d.\n", li);
 
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
             Obj mX(Z);  const Obj& X = mX;              // 1.
             const TYPE *elemAddrs[NUM_TRIALS];
@@ -7709,7 +7709,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
                 LOOP2_ASSERT(li, i, elemAddrs[i] == &*it);
             }
 
-          } END_BSLMA_EXCEPTION_TEST                                 // 4.
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                   // 4.
           LOOP_ASSERT(li, 0 == testAllocator.numBlocksInUse());      // 5.
         }
     }
@@ -7736,7 +7736,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
                 if (veryVerbose)
                     printf("\t\t\t\tAnd with final length %d.\n", j);
 
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 size_t k; // loop index
 
                 Obj mX(Z);  const Obj& X = mX;                      // 1.
@@ -7772,7 +7772,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
                     LOOP3_ASSERT(i, j, k, elemAddrs[k] == &*it);
                 }
 
-              } END_BSLMA_EXCEPTION_TEST                            // 8.
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END              // 8.
               LOOP_ASSERT(i, 0 == testAllocator.numBlocksInUse());  // 9.
             }
 
