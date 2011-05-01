@@ -163,7 +163,7 @@ for(;;)
   int c;
   int extra = 0;
 
-  fprintf(f, "%3d ", code - codestart);
+  fprintf(f, "%3d ", (int)(code - codestart));
 
   if (*code >= OP_BRA)
     {
