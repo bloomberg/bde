@@ -79,9 +79,9 @@ struct bslmf_FunctionPointerCLinkage {
     // C function pointer linkage tag.
 };
 
-                   // =============================
-                   // class bslmf_IsFunctionPointer
-                   // =============================
+                   // =================================
+                   // class bslmf_FunctionPointerTraits
+                   // =================================
 
 template <class PROTOTYPE>
 struct bslmf_FunctionPointerTraits {
@@ -111,173 +111,193 @@ struct bslmf_IsFunctionPointer {
 // ---- Anything below this line is implementation specific.  Do not use. ----
 
 // SPECIALIZATIONS
-template <class RET>
-struct bslmf_FunctionPointerTraits<RET (*)()> {
-    // Specialization for function pointers that return 'RET' and accept zero
-    // arguments.
+template <class BSLMF_RETURN>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)()> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept zero arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
-    typedef bslmf_TypeList0 ArgumentList;
+    typedef BSLMF_RETURN                          ResultType;
+    typedef bslmf_TypeList0                       ArgumentList;
     typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
 };
 
-template <class RET, class A1>
-struct bslmf_FunctionPointerTraits<RET (*)(A1)> {
-    // Specialization for function pointers that return 'RET' and accept one
-    // argument.
+template <class BSLMF_RETURN, class A1>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept one argument.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
-    typedef bslmf_TypeList1<A1> ArgumentList;
+    typedef BSLMF_RETURN                          ResultType;
+    typedef bslmf_TypeList1<A1>                   ArgumentList;
     typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
 };
 
-template <class RET, class A1, class A2>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2)> {
-    // Specialization for function pointers that return 'RET' and accept two
-    // arguments.
+template <class BSLMF_RETURN, class A1, class A2>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept two arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
-    typedef bslmf_TypeList2<A1,A2> ArgumentList;
+    typedef BSLMF_RETURN                          ResultType;
+    typedef bslmf_TypeList2<A1,A2>                ArgumentList;
     typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
 };
 
-template <class RET, class A1, class A2, class A3>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3)> {
-    // Specialization for function pointers that return 'RET' and accept three
-    // arguments.
+template <class BSLMF_RETURN, class A1, class A2, class A3>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept three arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
-    typedef bslmf_TypeList3<A1,A2,A3> ArgumentList;
+    typedef BSLMF_RETURN                          ResultType;
+    typedef bslmf_TypeList3<A1,A2,A3>             ArgumentList;
     typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
 };
 
-template <class RET, class A1, class A2, class A3, class A4>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3,A4)> {
-    // Specialization for function pointers that return 'RET' and accept four
-    // arguments.
+template <class BSLMF_RETURN, class A1, class A2, class A3, class A4>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept four arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
-    typedef bslmf_TypeList4<A1,A2,A3,A4> ArgumentList;
+    typedef BSLMF_RETURN                          ResultType;
+    typedef bslmf_TypeList4<A1,A2,A3,A4>          ArgumentList;
     typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
 };
 
-template <class RET, class A1, class A2, class A3, class A4, class A5>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3,A4,A5)> {
-    // Specialization for function pointers that return 'RET' and accept five
-    // arguments.
+template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept five arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
-    typedef bslmf_TypeList5<A1,A2,A3,A4,A5> ArgumentList;
+    typedef BSLMF_RETURN                          ResultType;
+    typedef bslmf_TypeList5<A1,A2,A3,A4,A5>       ArgumentList;
     typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
 };
 
-template <class RET, class A1, class A2, class A3, class A4, class A5,
-          class A6>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3,A4,A5,A6)> {
-    // Specialization for function pointers that return 'RET' and accept six
-    // arguments.
+template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept six arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
-    typedef bslmf_TypeList6<A1,A2,A3,A4,A5,A6> ArgumentList;
+    typedef BSLMF_RETURN                          ResultType;
+    typedef bslmf_TypeList6<A1,A2,A3,A4,A5,A6>    ArgumentList;
     typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
 };
 
-template <class RET, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3,A4,A5,A6,A7)> {
-    // Specialization for function pointers that return 'RET' and accept seven
-    // arguments.
+template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept seven arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
+    typedef BSLMF_RETURN                          ResultType;
     typedef bslmf_TypeList7<A1,A2,A3,A4,A5,A6,A7> ArgumentList;
     typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
 };
 
-template <class RET, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8)> {
-    // Specialization for function pointers that return 'RET' and accept eight
-    // arguments.
+template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7, class A8>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept eight arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
+    typedef BSLMF_RETURN                             ResultType;
     typedef bslmf_TypeList8<A1,A2,A3,A4,A5,A6,A7,A8> ArgumentList;
-    typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
+    typedef bslmf_FunctionPointerCPlusPlusLinkage    Linkage;
 };
 
-template <class RET, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9)> {
-    // Specialization for function pointers that return 'RET' and accept nine
-    // arguments.
+template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7, class A8, class A9>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                    A9)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept nine arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
+    typedef BSLMF_RETURN                                ResultType;
     typedef bslmf_TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9> ArgumentList;
-    typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
+    typedef bslmf_FunctionPointerCPlusPlusLinkage       Linkage;
 };
 
-template <class RET, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                             A10)> {
-    // Specialization for function pointers that return 'RET' and accept ten
-    // arguments.
+template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7, class A8, class A9,
+                              class A10>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept ten arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
+    typedef BSLMF_RETURN                                     ResultType;
     typedef bslmf_TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> ArgumentList;
-    typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
+    typedef bslmf_FunctionPointerCPlusPlusLinkage            Linkage;
 };
 
-template <class RET, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10,class A11>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                             A10,A11)> {
-    // Specialization for function pointers that return 'RET' and accept eleven
-    // arguments.
+template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept eleven arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
+    typedef BSLMF_RETURN                                         ResultType;
     typedef bslmf_TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11> ArgumentList;
-    typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
+    typedef bslmf_FunctionPointerCPlusPlusLinkage                Linkage;
 };
 
-template <class RET, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10, class A11,
-          class A12>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                             A10,A11,A12)> {
-    // Specialization for function pointers that return 'RET' and accept
-    // twelve arguments.
+template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11, class A12>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11,A12)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept twelve arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
+    typedef BSLMF_RETURN                          ResultType;
     typedef bslmf_TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12>
-        ArgumentList;
+                                                  ArgumentList;
     typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
 };
 
-template <class RET, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10, class A11,
-          class A12, class A13>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                             A10,A11,A12,A13)> {
-    // Specialization for function pointers that return 'RET' and accept
-    // thirteen arguments.
+template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11, class A12,
+                              class A13>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11,A12,A13)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept thirteen arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
+    typedef BSLMF_RETURN                          ResultType;
     typedef bslmf_TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13>
-        ArgumentList;
+                                                  ArgumentList;
     typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
 };
 
-template <class RET, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10, class A11,
-          class A12, class A13, class A14>
-struct bslmf_FunctionPointerTraits<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                             A10,A11,A12,A13,A14)> {
-    // Specialization for function pointers that return 'RET' and accept
-    // fourteen arguments.
+template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11, class A12,
+                              class A13, class A14>
+struct bslmf_FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11,A12,A13,A14)> {
+    // Specialization for function pointers that return 'BSLMF_RETURN' and
+    // accept fourteen arguments.
+
     enum { IS_FUNCTION_POINTER = 1 };
-    typedef RET ResultType;
+    typedef BSLMF_RETURN                          ResultType;
     typedef bslmf_TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14>
-        ArgumentList;
+                                                  ArgumentList;
     typedef bslmf_FunctionPointerCPlusPlusLinkage Linkage;
 };
 

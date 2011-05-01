@@ -2,8 +2,8 @@
 
 #include <bslmf_tag.h>
 
-#include <cstdlib>      // atoi()
-#include <cstring>      // strcmp()
+#include <cstdlib>      // 'atoi'
+#include <cstring>      // 'strcmp'
 #include <iostream>
 
 using namespace BloombergLP;
@@ -15,7 +15,7 @@ using namespace std;
 //                                Overview
 //                                --------
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_MetaTag
+// [ 1] bslmf_Tag
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 //=============================================================================
@@ -69,32 +69,54 @@ const unsigned C5 = BSLMF_TAG_TO_UINT(tag<-5>());  // (unsigned)-5
 
 const int CM5 = BSLMF_TAG_TO_INT(tag<-5>());  // -5
 
-template <class T>
-void doSomethingImp(T *t, bslmf_Tag<0>)
-{
-    // slow but generic implementation
-}
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
-template <class T>
-void doSomethingImp(T *t, bslmf_Tag<1>)
-{
-    // fast implementation (works only for some T's)
-}
+///Usage
+///-----
+// The most common use of this structure is to perform static function
+// dispatching based on a compile-time calculation.  Often the calculation is
+// nothing more than a simple predicate, allowing us to select one of two
+// functions.  The following function, 'doSomething', uses a fast
+// implementation (e.g., 'memcpy') if the parameterized type allows for such
+// operations; otherwise it will use a more generic and slower implementation
+// (e.g., copy constructor).
+//..
+    template <class T>
+    void doSomethingImp(T *t, bslmf_Tag<0> *)
+    {
+        // slow but generic implementation
+    }
 
-template <class T, bool IsFast>
-void doSomething(T *t)
-{
-    doSomethingImp(t, bslmf_Tag<IsFast>());
-}
+    template <class T>
+    void doSomethingImp(T *t, bslmf_Tag<1> *)
+    {
+        // fast implementation (appropriate for bitwise-movable types)
+    }
 
-void f()
-{
-    int i;
-    doSomething<int, true>(&i); // fast version selected for int
+    template <class T, bool IsFast>
+    void doSomething(T *t)
+    {
+        doSomethingImp(t, (bslmf_Tag<IsFast> *)0);
+    }
+//..
+// For some parameter types, the fast version of 'doSomethingImp' is not legal.
+// The power of this approach is that the compiler will compile just the
+// implementation selected by the tag argument.
+//..
+    void f()
+    {
+        int i;
+        doSomething<int, true>(&i);      // fast version selected for 'int'
 
-    double m;
-    doSomething<double, false>(&m); // slow version selected for double
-}
+        double m;
+        doSomething<double, false>(&m);  // slow version selected for 'double'
+    }
+//..
+// Note that an alternative design would be to use template partial
+// specialization instead of standard function overloading to avoid the
+// cost of passing a 'bslmf_Tag<N>' pointer.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -124,15 +146,32 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing Usage Example" << endl
-                          << "=====================" << endl;
-        f();
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+        f();  // call function defined in Usage
+
+//
+// The value of the integral parameter supplied to an instantiation of
+// 'bslmf_Tag<N>' is "recoverable" by using the 'BSLMF_TAG_TO_INT' macro.
+// For example:
+//..
+    bslmf_Tag<7> tag;
+    ASSERT( 7 == BSLMF_TAG_TO_INT(tag));
+    ASSERT(53 == BSLMF_TAG_TO_INT(bslmf_Tag<50 + 3>()));
+//..
+// The 'BSLMF_TAG_TO_BOOL' macro can be used to determine if the parameter is
+// non-zero:
+//..
+    ASSERT( 1 == BSLMF_TAG_TO_BOOL(tag));
+    ASSERT( 0 == BSLMF_TAG_TO_BOOL(bslmf_Tag<0>()));
+//..
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf_MetaTag' with various constant integral
+        //   Instantiate 'bslmf_Tag' with various constant integral
         //   values and verify that their 'VALUE' member is initialized
         //   properly.
         // --------------------------------------------------------------------
@@ -157,9 +196,9 @@ int main(int argc, char *argv[])
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
+
     return testStatus;
 }
 

@@ -1,4 +1,4 @@
-// bslmf_tag.cpp                  -*-C++-*-
+// bslmf_tag.cpp                                                      -*-C++-*-
 #include <bslmf_tag.h>
 
 #include <bsls_ident.h>
