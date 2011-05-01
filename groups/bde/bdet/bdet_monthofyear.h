@@ -1,4 +1,4 @@
-// bdet_monthofyear.h                 -*-C++-*-
+// bdet_monthofyear.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDET_MONTHOFYEAR
 #define INCLUDED_BDET_MONTHOFYEAR
 
@@ -29,20 +29,20 @@ BDES_IDENT("$Id: $")
 // First, create a variable 'month' of type 'bdet_MonthOfYear::Month' and
 // initialize it to the value 'bdet_MonthOfYear::APRIL'.
 //..
-//      bdet_MonthOfYear::Month month = bdet_MonthOfYear::APRIL;
+//  bdet_MonthOfYear::Month month = bdet_MonthOfYear::APRIL;
 //..
 // Next, store its representation in a variable 'rep' of type 'const char*'.
 //..
-//      const char *rep = bdet_MonthOfYear::toAscii(month);
-//      assert(0 == strcmp(rep, "APR"));
+//  const char *rep = bdet_MonthOfYear::toAscii(month);
+//  assert(0 == strcmp(rep, "APR"));
 //..
 // Finally, print the value of 'month' to 'cout'.
 //..
-//      bsl::cout << month << bsl::endl;
+//  bsl::cout << month << bsl::endl;
 //..
 // This statement produces the following output on 'stdout':
 //..
-//      APR
+//  APR
 //..
 
 #ifndef INCLUDED_BDESCM_VERSION
@@ -165,6 +165,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, bdet_MonthOfYear::Month rhs);
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+                        // -----------------------
+                        // struct bdet_MonthOfYear
+                        // -----------------------
+
 // CLASS METHODS
 inline
 int bdet_MonthOfYear::maxSupportedBdexVersion()
@@ -183,7 +187,8 @@ STREAM& bdet_MonthOfYear::bdexStreamIn(STREAM&                  stream,
             char newValue;
             stream.getInt8(newValue);
             if (stream) {
-                if (1 <= newValue && newValue <= bdet_MonthOfYear::BDET_LENGTH) {
+                if (1 <= newValue
+                      && newValue <= bdet_MonthOfYear::BDET_LENGTH) {
                     value = bdet_MonthOfYear::Month(newValue);
                 }
                 else {

@@ -2432,7 +2432,7 @@ if (verbose)
             Obj mX(D, T);  const Obj& X = mX;  // 01JAN0001_24:00:00.000
 
             for (int ti = 0; ti < NUM_DATA;  ++ti) {
-//                const int         LINE = DATA[ti].d_lineNum; // unused
+                const int         LI   = DATA[ti].d_lineNum;
                 const int         IND  = DATA[ti].d_indent;
                 const int         SPL  = DATA[ti].d_spaces;
                 const char *const FMT  = DATA[ti].d_fmt_p;
@@ -2444,17 +2444,17 @@ if (verbose)
                 if (veryVerbose) cout << "EXPECTED FORMAT:" << endl<<FMT<<endl;
                 ostrstream out1(buf1, SIZE);  X.print(out1, IND, SPL) << ends;
                 ostrstream out2(buf2, SIZE);  X.print(out2, IND, SPL) << ends;
-                if (veryVerbose) cout << "ACTUAL FORMAT:" << endl<<buf1<<endl;
+                if (veryVerbose) cout << " ACTUAL FORMAT:" << endl<<buf1<<endl;
 
                 const int SZ = strlen(FMT) + 1;
                 const int REST = SIZE - SZ;
-                LOOP_ASSERT(ti, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(ti, Z1 == buf1[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, 0 == strcmp(buf1, FMT));
-                LOOP_ASSERT(ti, 0 == strcmp(buf2, FMT));
-                LOOP_ASSERT(ti, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
-                LOOP_ASSERT(ti, 0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
+                LOOP_ASSERT(LI, SZ < SIZE);  // Check buffer is large enough.
+                LOOP_ASSERT(LI, Z1 == buf1[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LI, Z2 == buf2[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LI, 0 == strcmp(buf1, FMT));
+                LOOP_ASSERT(LI, 0 == strcmp(buf2, FMT));
+                LOOP_ASSERT(LI, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
+                LOOP_ASSERT(LI, 0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
             }
         }
 
@@ -2522,6 +2522,84 @@ if (verbose)
 
                 out << left << setfill(FILL_CHAR) << setw(FORMAT_WIDTH);
                 X.print(out, 0, -1);
+                out << ends;
+
+                if (veryVerbose) cout << "\tACTUAL FORMAT:   " << buf << endl;
+
+                const int SZ = strlen(FMT) + 1;
+                LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
+                LOOP_ASSERT(LINE, XX == buf[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LINE,  0 == memcmp(buf, FMT, SZ));
+                LOOP_ASSERT(LINE,
+                            0 == memcmp(buf + SZ, CTRL_BUF + SZ, SIZE-SZ));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'print' with spaces per level > 0 and"
+                          << " manipulators and left alignment."
+                          << endl;
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                int         d_year;     // year field value
+                int         d_month;    // month field value
+                int         d_day;      // day field value
+                int         d_hour;     // hour field value
+                int         d_minute;   // minute field value
+                int         d_second;   // second field value
+                int         d_msec;     // millisecond field value
+                const char *d_fmt_p;    // expected output format
+            } DATA[] = {
+            //--^
+            //line year mon day  hr min sec msec      output format
+            //---- ---- --- ---  -- --- --- ----  ------------------------
+            { L_,    1,  1,  1,   0,  0,  0,   0,
+                                        "01JAN0001_00:00:00.000@@@@@@@@\n" },
+            { L_, 1999,  1,  1,  23, 22, 21, 209,
+                                        "01JAN1999_23:22:21.209@@@@@@@@\n" },
+            { L_, 2000,  2,  1,  23, 22, 21, 210,
+                                        "01FEB2000_23:22:21.210@@@@@@@@\n" },
+            { L_, 2001,  3,  1,  23, 22, 21, 211,
+                                        "01MAR2001_23:22:21.211@@@@@@@@\n" },
+            { L_, 9999, 12, 31,  23, 59, 59, 999,
+                                        "31DEC9999_23:59:59.999@@@@@@@@\n" },
+            //--v
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            const int SIZE = 1000; // Must be big enough to hold output string.
+            const char XX = (char) 0xFF;  // Value used for an unset char.
+            char mCtrlBuf[SIZE];  memset(mCtrlBuf, XX, SIZE);
+            const char *CTRL_BUF = mCtrlBuf; // Used for extra character check.
+
+            const char    FILL_CHAR = '@'; // Used for filling whitespaces due
+                                           // to 'setw'.
+
+            const int  FORMAT_WIDTH = 30;
+
+            for (int di = 0; di < NUM_DATA;  ++di) {
+                const int         LINE   = DATA[di].d_lineNum;
+                const int         YEAR   = DATA[di].d_year;
+                const int         MONTH  = DATA[di].d_month;
+                const int         DAY    = DATA[di].d_day;
+                const int         HOUR   = DATA[di].d_hour;
+                const int         MINUTE = DATA[di].d_minute;
+                const int         SECOND = DATA[di].d_second;
+                const int         MSEC   = DATA[di].d_msec;
+                const char *const FMT    = DATA[di].d_fmt_p;
+
+                char buf[SIZE];
+                memcpy(buf, CTRL_BUF, SIZE); // Preset buf to 'unset' values.
+
+                Obj x;  const Obj& X = x;
+                x.setYearMonthDay(YEAR, MONTH, DAY);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+
+                if (veryVerbose) cout << "\tEXPECTED FORMAT: " << FMT << endl;
+                ostrstream out(buf, SIZE);
+
+                out << left << setfill(FILL_CHAR) << setw(FORMAT_WIDTH);
+                X.print(out, 0, 0);
                 out << ends;
 
                 if (veryVerbose) cout << "\tACTUAL FORMAT:   " << buf << endl;

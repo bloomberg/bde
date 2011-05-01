@@ -1262,7 +1262,6 @@ if (veryVerbose)
                 }
             }
         }
-
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1281,7 +1280,6 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (veryVerbose) cout << "Testing 'print'." << endl;
-
         {
             const int LMT = 60 * 100;
             static const struct {
@@ -1293,15 +1291,15 @@ if (veryVerbose)
             } DATA[] = {
                 //line  indent  spaces  offset      format
                 //----  ------  ------  ------      --------------
-                { L_,    0,      -1,     0,         "01JAN0001+0000"    },
-                { L_,    0,       0,     15,        "01JAN0001+0015"    },
-                { L_,    0,       2,     60,        "01JAN0001+0100"    },
-                { L_,    1,       1,     90,        " 01JAN0001+0130"   },
-                { L_,    1,       2,     -20,       "  01JAN0001-0020"  },
-                { L_,   -1,       2,     -330,      "01JAN0001-0530"    },
-                { L_,   -2,       1,     311,       "01JAN0001+0511"    },
-                { L_,    2,       1,     1439,      "  01JAN0001+2359"  },
-                { L_,    1,       3,     -1439,     "   01JAN0001-2359" },
+                { L_,    0,      -1,     0,         "01JAN0001+0000"      },
+                { L_,    0,       0,     15,        "01JAN0001+0015\n"    },
+                { L_,    0,       2,     60,        "01JAN0001+0100\n"    },
+                { L_,    1,       1,     90,        " 01JAN0001+0130\n"   },
+                { L_,    1,       2,     -20,       "  01JAN0001-0020\n"  },
+                { L_,   -1,       2,     -330,      "01JAN0001-0530\n"    },
+                { L_,   -2,       1,     311,       "01JAN0001+0511\n"    },
+                { L_,    2,       1,     1439,      "  01JAN0001+2359\n"  },
+                { L_,    1,       3,     -1439,     "   01JAN0001-2359\n" },
 
 // TBD
 #if 0
@@ -1334,10 +1332,11 @@ if (veryVerbose)
             const char *CTRL_BUF2 = mCtrlBuf2;
 
             for (int ti = 0; ti < NUM_DATA;  ++ti) {
-                const int         IND  = DATA[ti].d_indent;
-                const int         SPL  = DATA[ti].d_spaces;
-                const int         OFF  = DATA[ti].d_offset;
-                const char *const FMT  = DATA[ti].d_fmt_p;
+                const int         LI  = DATA[ti].d_lineNum;
+                const int         IND = DATA[ti].d_indent;
+                const int         SPL = DATA[ti].d_spaces;
+                const int         OFF = DATA[ti].d_offset;
+                const char *const FMT = DATA[ti].d_fmt_p;
 
                 bdet_Date date; // 01JAN0001
                 Obj mX(date, OFF);  const Obj& X = mX;
@@ -1352,13 +1351,13 @@ if (veryVerbose)
 
                 const int SZ = strlen(FMT) + 1;
                 const int REST = SIZE - SZ;
-                LOOP_ASSERT(ti, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(ti, Z1 == buf1[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, 0 == strcmp(buf1, FMT));
-                LOOP_ASSERT(ti, 0 == strcmp(buf2, FMT));
-                LOOP_ASSERT(ti, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
-                LOOP_ASSERT(ti, 0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
+                LOOP_ASSERT(LI, SZ < SIZE);  // Check buffer is large enough.
+                LOOP_ASSERT(LI, Z1 == buf1[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LI, Z2 == buf2[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LI, 0 == strcmp(buf1, FMT));
+                LOOP_ASSERT(LI, 0 == strcmp(buf2, FMT));
+                LOOP_ASSERT(LI, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
+                LOOP_ASSERT(LI, 0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
             }
         }
 
@@ -1371,17 +1370,17 @@ if (veryVerbose)
                 int         d_offset;   // tz offset
                 const char *d_fmt_p;    // expected output format
             } DATA[] = {
-                //indent spaces offset  format
-                //------ ------ ------  --------------
-                {  0,     -1,    0,     "01JAN0001+0000@@@@@@@@@@@@@@@@"    },
-                {  0,      0,    15,    "01JAN0001+0015@@@@@@@@@@@@@@@@"    },
-                {  0,      2,    60,    "01JAN0001+0100@@@@@@@@@@@@@@@@"    },
-                {  1,      1,    90,    " 01JAN0001+0130@@@@@@@@@@@@@@@@"   },
-                {  1,      2,    -20,   "  01JAN0001-0020@@@@@@@@@@@@@@@@"  },
-                { -1,      2,    -330,  "01JAN0001-0530@@@@@@@@@@@@@@@@"    },
-                { -2,      1,    311,   "01JAN0001+0511@@@@@@@@@@@@@@@@"    },
-                {  2,      1,    1439,  "  01JAN0001+2359@@@@@@@@@@@@@@@@"  },
-                {  1,      3,    -1439, "   01JAN0001-2359@@@@@@@@@@@@@@@@" },
+               //indent spaces offset  format
+               //------ ------ ------  --------------
+               {  0,     -1,    0,     "01JAN0001+0000@@@@@@@@@@@@@@@@"      },
+               {  0,      0,    15,    "01JAN0001+0015@@@@@@@@@@@@@@@@\n"    },
+               {  0,      2,    60,    "01JAN0001+0100@@@@@@@@@@@@@@@@\n"    },
+               {  1,      1,    90,    " 01JAN0001+0130@@@@@@@@@@@@@@@@\n"   },
+               {  1,      2,    -20,   "  01JAN0001-0020@@@@@@@@@@@@@@@@\n"  },
+               { -1,      2,    -330,  "01JAN0001-0530@@@@@@@@@@@@@@@@\n"    },
+               { -2,      1,    311,   "01JAN0001+0511@@@@@@@@@@@@@@@@\n"    },
+               {  2,      1,    1439,  "  01JAN0001+2359@@@@@@@@@@@@@@@@\n"  },
+               {  1,      3,    -1439, "   01JAN0001-2359@@@@@@@@@@@@@@@@\n" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1446,17 +1445,17 @@ if (veryVerbose)
                 int         d_offset;   // tz offset
                 const char *d_fmt_p;    // expected output format
             } DATA[] = {
-                //indent spaces offset  format
-                //------ ------ ------  --------------
-                {  0,     -1,    0,     "@@@@@@@@@@@@@@@@01JAN0001+0000"    },
-                {  0,      0,    15,    "@@@@@@@@@@@@@@@@01JAN0001+0015"    },
-                {  0,      2,    60,    "@@@@@@@@@@@@@@@@01JAN0001+0100"    },
-                {  1,      1,    90,    " @@@@@@@@@@@@@@@@01JAN0001+0130"   },
-                {  1,      2,    -20,   "  @@@@@@@@@@@@@@@@01JAN0001-0020"  },
-                { -1,      2,    -330,  "@@@@@@@@@@@@@@@@01JAN0001-0530"    },
-                { -2,      1,    311,   "@@@@@@@@@@@@@@@@01JAN0001+0511"    },
-                {  2,      1,    1439,  "  @@@@@@@@@@@@@@@@01JAN0001+2359"  },
-                {  1,      3,    -1439, "   @@@@@@@@@@@@@@@@01JAN0001-2359" },
+               //indent spaces offset  format
+               //------ ------ ------  --------------
+               {  0,     -1,    0,     "@@@@@@@@@@@@@@@@01JAN0001+0000"      },
+               {  0,      0,    15,    "@@@@@@@@@@@@@@@@01JAN0001+0015\n"    },
+               {  0,      2,    60,    "@@@@@@@@@@@@@@@@01JAN0001+0100\n"    },
+               {  1,      1,    90,    " @@@@@@@@@@@@@@@@01JAN0001+0130\n"   },
+               {  1,      2,    -20,   "  @@@@@@@@@@@@@@@@01JAN0001-0020\n"  },
+               { -1,      2,    -330,  "@@@@@@@@@@@@@@@@01JAN0001-0530\n"    },
+               { -2,      1,    311,   "@@@@@@@@@@@@@@@@01JAN0001+0511\n"    },
+               {  2,      1,    1439,  "  @@@@@@@@@@@@@@@@01JAN0001+2359\n"  },
+               {  1,      3,    -1439, "   @@@@@@@@@@@@@@@@01JAN0001-2359\n" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

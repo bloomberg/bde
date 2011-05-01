@@ -926,21 +926,21 @@ STREAM& bdet_Datetime::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) { // switch on the schema version (starting with 1)
           case 1: {
-             bdet_Date dateTmp;
-             bdet_Time timeTmp;
-             dateTmp.bdexStreamIn(stream, 1);
-             if (!stream) {
-                 return stream;
-             }
-             timeTmp.bdexStreamIn(stream, 1);
-             if (!stream) {
-                 return stream;
-             }
-             d_date = dateTmp;
-             d_time = timeTmp;
+            bdet_Date dateTmp;
+            bdet_Time timeTmp;
+            dateTmp.bdexStreamIn(stream, 1);
+            if (!stream) {
+                return stream;
+            }
+            timeTmp.bdexStreamIn(stream, 1);
+            if (!stream) {
+                return stream;
+            }
+            d_date = dateTmp;
+            d_time = timeTmp;
           } break;
           default: {
-              stream.invalidate();
+            stream.invalidate();
           }
         }
     }

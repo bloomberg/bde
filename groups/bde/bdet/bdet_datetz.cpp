@@ -4,6 +4,8 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdet_datetz_cpp,"$Id$ $CSID$")
 
+#include <bdesb_fixedmemoutstreambuf.h>
+
 #include <bdeu_print.h>
 
 #include <bsl_cstdio.h>    // 'sprintf'
@@ -32,32 +34,44 @@ bsl::ostream& bdet_DateTz::print(bsl::ostream& stream,
     //..
     //  os << bsl::setw(20) << myDateTz;
     //..
-    // The user-specified width will be effective when 'tmp.str()' is written
-    // to 'stream' (below).
+    // The user-specified width will be effective when 'buffer' is written to
+    // 'stream' (below).
 
-    bsl::ostringstream tmp;
+    const int SIZE = 128;  // Size the buffer to be able to hold a *bad* date.
+    char buffer[SIZE];
 
-    tmp << d_localDate;
+    bdesb_FixedMemOutStreamBuf sb(buffer, SIZE);
+    bsl::ostream os(&sb);
+
+    os << localDate();
 
     const char sign    = d_offset < 0 ? '-' : '+';
     const int  minutes = '-' == sign ? -d_offset : d_offset;
     const int  hours   = minutes / 60;
 
-    // space usage: +-  hh  mm  nil
-    const int SIZE = 1 + 2 + 2 + 1;
-    char buf[SIZE];
+    //         space usage: +-  hh  mm  nil
+    const int OFFSET_SIZE = 1 + 2 + 2 + 1;
+    char offsetBuffer[OFFSET_SIZE];
 
     // Use only 2 digits for 'hours' (DRQS 12693813).
     if (hours < 100) {
-        bsl::sprintf(buf, "%c%02d%02d", sign, hours, minutes % 60);
+        bsl::sprintf(offsetBuffer, "%c%02d%02d", sign, hours, minutes % 60);
     }
     else {
-        bsl::sprintf(buf, "%cXX%02d", sign, minutes % 60);
+        bsl::sprintf(offsetBuffer, "%cXX%02d", sign, minutes % 60);
     }
 
-    tmp << buf;
+    os << offsetBuffer;
 
-    return stream << tmp.str() << bsl::flush;
+    buffer[sb.length()] = '\0';
+
+    stream << buffer;
+
+    if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
+
+    return stream;
 }
 
 }  // close namespace BloombergLP
