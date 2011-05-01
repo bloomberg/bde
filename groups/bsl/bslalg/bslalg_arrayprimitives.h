@@ -907,6 +907,17 @@ struct bslalg_ArrayPrimitives_Imp {
         // and is not used.  Note that if 'TARGET_TYPE' is bit-wise moveable,
         // the 'rotate(char*, char*, char*)' can be used, enabling to take the
         // whole implementation out-of-line.
+
+    template <class FORWARD_ITERATOR>
+    static bool isInvalidRange(FORWARD_ITERATOR begin, FORWARD_ITERATOR end);
+    template <class TARGET_TYPE>
+    static bool isInvalidRange(TARGET_TYPE *begin, TARGET_TYPE *end);
+        // Return 'true' if '[begin, end)' provably do not form a valid range,
+        // and 'false' otherwise.  Note that 'begin == null == end' produces a
+        // valid range, and any other use of the null pointer value will return
+        // 'true'.  Also not that this function is intended to support testing,
+        // primarily through assertions, so will return 'true' unless it can
+        // *prove* that the passed range is invalid.
 };
 
 // ===========================================================================
@@ -926,6 +937,9 @@ void bslalg_ArrayPrimitives::defaultConstruct(TARGET_TYPE *begin,
                                               size_type    numElements,
                                               ALLOCATOR   *allocator)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     enum {
         VALUE = bslalg_HasTrait<TARGET_TYPE,
                                 bslalg_TypeTraitHasTrivialDefaultConstructor
@@ -949,6 +963,9 @@ void bslalg_ArrayPrimitives::uninitializedFillN(
                                                const TARGET_TYPE&  value,
                                                ALLOCATOR          *allocator)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     enum {
          // We provide specialized overloads of 'uninitializedFillN' for
          // fundamental and pointer types.  However, function pointers can have
@@ -984,6 +1001,8 @@ void bslalg_ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
                                            FWD_ITER     fromEnd,
                                            ALLOCATOR   *allocator)
 {
+    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
+
     enum {
         IS_BITWISECOPYABLE  = bslalg_HasTrait<TARGET_TYPE,
                                        bslalg_TypeTraitBitwiseCopyable>::VALUE,
@@ -1008,6 +1027,10 @@ void bslalg_ArrayPrimitives::destructiveMove(TARGET_TYPE *toBegin,
                                              TARGET_TYPE *fromEnd,
                                              ALLOCATOR   *allocator)
 {
+    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                                 fromEnd));
+
     enum {
         VALUE = bslalg_HasTrait<TARGET_TYPE,
                                 bslalg_TypeTraitBitwiseMoveable>::VALUE
@@ -1229,6 +1252,10 @@ void bslalg_ArrayPrimitives::insert(TARGET_TYPE        *toBegin,
                                     size_type           numElements,
                                     ALLOCATOR          *allocator)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                                 toEnd));
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     if (0 == numElements) {
         return;                                                       // RETURN
     }
@@ -1318,6 +1345,11 @@ void bslalg_ArrayPrimitives::erase(TARGET_TYPE *first,
                                    TARGET_TYPE *last,
                                    ALLOCATOR   *allocator)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first,
+                                                                 middle));
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle,
+                                                                 last));
+
     if (first == middle) { // erasing empty range O(1) versus O(N): Do not
                            // remove!
         return;
@@ -1342,6 +1374,11 @@ void bslalg_ArrayPrimitives::rotate(TARGET_TYPE *first,
                                     TARGET_TYPE *middle,
                                     TARGET_TYPE *last)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first,
+                                                                 middle));
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle,
+                                                                 last));
+
     enum {
         VALUE = bslalg_HasTrait<TARGET_TYPE,
                                 bslalg_TypeTraitBitwiseMoveable>::VALUE
@@ -1370,6 +1407,9 @@ void bslalg_ArrayPrimitives_Imp::defaultConstruct(
                    ALLOCATOR                                      *,
                    bslmf_MetaInt<HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     std::memset((void *)begin, 0, sizeof(TARGET_TYPE) * numElements);
 }
 
@@ -1381,6 +1421,9 @@ void bslalg_ArrayPrimitives_Imp::defaultConstruct(
                                       ALLOCATOR       *allocator,
                                       bslmf_MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     bslalg_ScalarPrimitives::defaultConstruct(begin, allocator);
     bitwiseFillN((char *)begin,
                  sizeof(TARGET_TYPE),
@@ -1393,6 +1436,9 @@ void bslalg_ArrayPrimitives_Imp::defaultConstruct(TARGET_TYPE     *begin,
                                                   ALLOCATOR       *allocator,
                                                   bslmf_MetaInt<NIL_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     bslalg_AutoArrayDestructor<TARGET_TYPE> guard(begin, begin);
 
     const TARGET_TYPE *end = begin + numElements;
@@ -1413,6 +1459,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     std::memset((char *)begin, (char)value, numElements);
 }
 
@@ -1424,6 +1473,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     std::memset(begin, value, numElements);
 }
 
@@ -1435,6 +1487,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     std::memset(begin, value, numElements);
 }
 
@@ -1446,6 +1501,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     std::memset(begin, value, numElements);
 }
 
@@ -1457,6 +1515,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     std::wmemset(begin, value, numElements);
 }
 
@@ -1468,6 +1529,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     uninitializedFillN((short *)begin, (short)value, numElements,
                        (void*)0, (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 }
@@ -1480,6 +1544,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     uninitializedFillN((int *)begin, (int)value, numElements,
                        (void*)0, (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 }
@@ -1492,15 +1559,18 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
 #if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
     uninitializedFillN((bsls_Types::Int64 *)begin,
                        (bsls_Types::Int64)value,
                        numElements);
 #else
-    uninitializedFillN((int *)begin, 
-                       (int)value, 
+    uninitializedFillN((int *)begin,
+                       (int)value,
                        numElements,
-                       (void*)0, 
+                       (void*)0,
                        (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 #endif
 }
@@ -1513,6 +1583,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
 #if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
     uninitializedFillN((bsls_Types::Int64 *)begin,
                        (bsls_Types::Int64)value,
@@ -1532,10 +1605,13 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     uninitializedFillN((bsls_Types::Int64 *)begin,
                        (bsls_Types::Uint64)value,
                        numElements,
-                       (void*)0, 
+                       (void*)0,
                        (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 }
 
@@ -1548,6 +1624,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     // Note: 'const'-correctness is respected because the next overload picks
     // up the 'const TARGET_TYPE' and will be a better match.  Note that we
     // cannot cast to 'const void **' (one would have to add 'const' at every
@@ -1571,6 +1650,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     // While it seems that this overload is subsumed by the previous template,
     // SunPro does not detect it.
 
@@ -1589,6 +1671,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                            ALLOCATOR                              *,
                            bslmf_MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     if (0 == numElements) {
         return;
     }
@@ -1624,6 +1709,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                                         ALLOCATOR                 *allocator,
                                         bslmf_MetaInt<NIL_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     if (0 == numElements) {
         return;                                                       // RETURN
     }
@@ -1648,6 +1736,10 @@ void bslalg_ArrayPrimitives_Imp::copyConstruct(
                              ALLOCATOR                              *,
                              bslmf_MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(toBegin);
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                                 fromEnd));
+
     const size_type numBytes = (const char*)fromEnd - (const char*)fromBegin;
     std::memcpy(toBegin, fromBegin, numBytes);
 }
@@ -1660,6 +1752,10 @@ void bslalg_ArrayPrimitives_Imp::copyConstruct(
                                           ALLOCATOR                 *allocator,
                                           bslmf_MetaInt<NIL_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                                 fromEnd));
+
     bslalg_AutoArrayDestructor<TARGET_TYPE> guard(toBegin, toBegin);
 
     while (fromBegin != fromEnd) {
@@ -1684,6 +1780,10 @@ void bslalg_ArrayPrimitives_Imp::destructiveMove(
                              ALLOCATOR                              *,
                              bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                                 fromEnd));
+
     const size_type numBytes = (const char*)fromEnd - (const char*)fromBegin;
     std::memcpy(toBegin, fromBegin, numBytes);
 }
@@ -1697,6 +1797,10 @@ void bslalg_ArrayPrimitives_Imp::destructiveMove(
                                           ALLOCATOR                 *allocator,
                                           bslmf_MetaInt<NIL_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                                 fromEnd));
+
     // 'TARGET_TYPE' certainly cannot be bit-wise copyable, so we can save the
     // compiler some work.
 
@@ -1717,6 +1821,10 @@ void bslalg_ArrayPrimitives_Imp::insert(
                            ALLOCATOR                              *allocator,
                            bslmf_MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                                 toEnd));
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     // Key to the transformation diagrams:
     //..
     //  A...G   original contents of '[toBegin, toEnd)'  ("tail")
@@ -1772,6 +1880,10 @@ void bslalg_ArrayPrimitives_Imp::insert(
                            ALLOCATOR                              *allocator,
                            bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                                 toEnd));
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     // Key to the transformation diagrams:
     //..
     //  A...G   original contents of '[toBegin, toEnd)'  ("tail")
@@ -1850,6 +1962,10 @@ void bslalg_ArrayPrimitives_Imp::insert(
                                       ALLOCATOR                   *allocator,
                                       bslmf_MetaInt<NIL_TRAITS>   *)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                                 toEnd));
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     // Key to the transformation diagrams:
     //..
     //  A...G   original contents of '[toBegin, toEnd)'  ("tail")
@@ -1964,6 +2080,12 @@ void bslalg_ArrayPrimitives_Imp::insert(
 {
     // 'FWD_ITER' has been converted to a 'const TARGET_TYPE *' and
     // 'TARGET_TYPE' is bit-wise copyable.
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                                 toEnd));
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                                 fromEnd));
+    BSLS_ASSERT_SAFE(fromBegin || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
 
     BSLS_ASSERT_SAFE(fromBegin + numElements == fromEnd);
     BSLS_ASSERT_SAFE(fromEnd <= toBegin || toEnd + numElements <= fromBegin);
@@ -2001,6 +2123,9 @@ void bslalg_ArrayPrimitives_Imp::insert(
                            bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
     // 'TARGET_TYPE' is bit-wise moveable.
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                                 toEnd));
+    BSLS_ASSERT_SAFE(0 <= numElements);
 
     if (0 == numElements) {
         return;                                                       // RETURN
@@ -2087,6 +2212,10 @@ void bslalg_ArrayPrimitives_Imp::insert(TARGET_TYPE               *toBegin,
                                         ALLOCATOR                 *allocator,
                                         bslmf_MetaInt<NIL_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                                 toEnd));
+    BSLS_ASSERT_SAFE(0 <= numElements);
+
     if (0 == numElements) {
         return;                                                       // RETURN
     }
@@ -2189,6 +2318,13 @@ void bslalg_ArrayPrimitives_Imp::moveInsert(
                           ALLOCATOR                               *allocator,
                           bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS>  *)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                                 toEnd));
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first, last));
+    BSLS_ASSERT_SAFE(first || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+    BSLS_ASSERT_SAFE(lastPtr);
+
     // Functionally indistinguishable from this:
 
     *lastPtr = last;
@@ -2209,6 +2345,13 @@ void bslalg_ArrayPrimitives_Imp::moveInsert(
                                        ALLOCATOR                  *allocator,
                                        bslmf_MetaInt<NIL_TRAITS>  *)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                                 toEnd));
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first, last));
+    BSLS_ASSERT_SAFE(first || 0 == numElements);
+    BSLS_ASSERT_SAFE(0 <= numElements);
+    BSLS_ASSERT_SAFE(lastPtr);
+
     // There isn't any advantage at destroying [first,last) one by one as we're
     // moving it, except perhaps for slightly better memory usage.
 
@@ -2229,6 +2372,11 @@ void bslalg_ArrayPrimitives_Imp::erase(
                              ALLOCATOR                              *,
                              bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first,
+                                                                 middle));
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle,
+                                                                 last));
+
     // Key to the transformation diagrams:
     //..
     //  t...z   Original contents of '[first, middle)'
@@ -2255,6 +2403,11 @@ void bslalg_ArrayPrimitives_Imp::erase(TARGET_TYPE               *first,
                                        ALLOCATOR                 *,
                                        bslmf_MetaInt<NIL_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first,
+                                                                 middle));
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle,
+                                                                 last));
+
     // Key to the transformation diagrams:
     //..
     //  t...z   Original contents of '[first, middle)'
@@ -2287,6 +2440,10 @@ void bslalg_ArrayPrimitives_Imp::rotate(
                                 TARGET_TYPE                            *end,
                                 bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(begin,
+                                                                 middle));
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle, end));
+
     bitwiseRotate((char *)begin, (char *)middle, (char *)end);
 }
 
@@ -2296,7 +2453,9 @@ void bslalg_ArrayPrimitives_Imp::rotate(TARGET_TYPE               *begin,
                                         TARGET_TYPE               *end,
                                         bslmf_MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT(begin <= middle && middle <= end);
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(begin,
+                                                                 middle));
+    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle, end));
 
     if (begin == middle || middle == end) {
         // This test changes into O(1) what would otherwise be O(N): Do not
@@ -2426,6 +2585,26 @@ void bslalg_ArrayPrimitives_Imp::rotate(TARGET_TYPE               *begin,
                     //                                 => _W__X__Y__Z_
                     //..
     }
+}
+
+template <class FORWARD_ITERATOR>
+bool bslalg_ArrayPrimitives_Imp::isInvalidRange(FORWARD_ITERATOR begin,
+                                                FORWARD_ITERATOR end)
+{
+    // Ideally would dispatch on random_access_iterator_tag to support
+    // generalized random access iterators, but we are constrained by 'bsl'
+    // levelization to not depend on 'bsl_iterator.h'.  As the intent is
+    // to detect invalid ranges in assertions, the conservative choice is
+    // to return 'false' always.
+
+    return false;
+}
+
+template <class TARGET_TYPE>
+bool bslalg_ArrayPrimitives_Imp::isInvalidRange(TARGET_TYPE *begin,
+                                                TARGET_TYPE *end)
+{
+    return !begin != !end || begin > end;
 }
 
 }  // close namespace BloombergLP

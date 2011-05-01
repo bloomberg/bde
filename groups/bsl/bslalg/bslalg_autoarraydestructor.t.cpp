@@ -1,4 +1,4 @@
-// bslalg_autoarraydestructor.t.cpp                  -*-C++-*-
+// bslalg_autoarraydestructor.t.cpp                                   -*-C++-*-
 
 #include <bslalg_autoarraydestructor.h>
 
@@ -13,6 +13,8 @@
 #include <bslma_testallocator.h>                 // for testing only
 #include <bslma_testallocatorexception.h>        // for testing only
 #include <bsls_alignmentutil.h>                  // for testing only
+#include <bsls_assert.h>                         // for testing only
+#include <bsls_asserttest.h>                     // for testing only
 #include <bsls_stopwatch.h>                      // for testing only
 
 #include <cstdio>
@@ -89,6 +91,16 @@ namespace {
 //#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_ printf("\t");             // Print a tab (w/o newline)
+
+//=============================================================================
+//                  SEMI-STANDARD NEGATIVE-TESTING MACROS
+//-----------------------------------------------------------------------------
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
@@ -507,7 +519,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
+    bslma_TestAllocator testAllocator(veryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -527,7 +539,7 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("Testing 'my_Array::insert' and 'my_Array::remove'.\n");
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
         {
             const char *DATA[] = { "A", "B", "C", "D", "E" };
             const int NUM_ELEM = sizeof DATA / sizeof *DATA;
@@ -553,7 +565,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, X[i] == DATA[i - 2]);
             }
         }
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
       } break;
       case 3: {
@@ -617,7 +629,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   bslalg_AutoArrayDestructor(T *b, T *e);
         //   ~AutoArrayDestructor();
-        //   T *moveBegin(ptrdiff_t offset = 1);
+        //   T *moveBegin(ptrdiff_t offset = -1);
         //   T *moveEnd(ptrdiff_t offset = 1);
         // --------------------------------------------------------------------
 
@@ -643,8 +655,8 @@ int main(int argc, char *argv[])
 
             bslalg_AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
 
-            ASSERT(&buf[3] == mG.moveBegin(3));
             ASSERT(&buf[5] == mG.moveEnd(5));
+            ASSERT(&buf[3] == mG.moveBegin(3));
 
             ASSERT(&buf[2] == mG.moveBegin(-1));
             ASSERT(&buf[4] == mG.moveEnd(-1));
@@ -658,7 +670,7 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\tException test.\n");
         {
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 bslalg_AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
                 const bslalg_AutoArrayDestructor<T>& G = mG;
@@ -671,11 +683,60 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { buf[i].print(); }
                 }
             }
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         ASSERT(0 == testAllocator.numBytesInUse());
         ASSERT(0 == testAllocator.numMismatches());
 
+        if(verbose) printf("\nNegative testing constructors\n");
+        {
+            bsls_AssertFailureHandlerGuard g(bsls_AssertTest::failTestDriver);
+
+            int * null = 0;
+            ASSERT_SAFE_PASS(bslalg_AutoArrayDestructor<int>(0, 0));
+            int simpleArray[] = { 0, 1, 2, 3, 4 };
+            int * begin = simpleArray;
+            int * end = begin;
+            ASSERT_SAFE_FAIL(bslalg_AutoArrayDestructor<int>(0, begin));
+            ASSERT_SAFE_FAIL(bslalg_AutoArrayDestructor<int>(begin, 0));
+            ASSERT_SAFE_PASS(bslalg_AutoArrayDestructor<int>(begin, begin));
+
+            ++begin; ++begin;  // Advance begin by two to form an invalid range
+            ++end;
+            ASSERT_SAFE_FAIL(bslalg_AutoArrayDestructor<int>(begin, end));
+            ++end;
+            ASSERT(begin == end);
+            ASSERT_SAFE_PASS(bslalg_AutoArrayDestructor<int>(begin, end));
+            ++end;
+            ASSERT_SAFE_PASS(bslalg_AutoArrayDestructor<int>(begin, end));
+        }
+
+        if(verbose) printf("\nNegative testing 'moveBegin' and 'moveEnd'\n");
+        {
+            bsls_AssertFailureHandlerGuard g(bsls_AssertTest::failTestDriver);
+
+            int * null = 0;
+            bslalg_AutoArrayDestructor<int> emptyGuard(0, 0);
+            ASSERT_SAFE_PASS(emptyGuard.moveBegin(0));
+            ASSERT_SAFE_PASS(emptyGuard.moveEnd(0));
+            ASSERT_SAFE_FAIL(emptyGuard.moveBegin());
+            ASSERT_SAFE_FAIL(emptyGuard.moveEnd());
+
+            int simpleArray[] = { 0, 1, 2, 3, 4 };
+            int * begin = &simpleArray[2];
+            bslalg_AutoArrayDestructor<int> intGuard(begin, begin);
+            ASSERT_SAFE_PASS(intGuard.moveBegin(0));
+            ASSERT_SAFE_PASS(intGuard.moveEnd(0));
+
+            ASSERT_SAFE_FAIL(intGuard.moveBegin(1));
+            ASSERT_SAFE_FAIL(intGuard.moveEnd(-1));
+
+            ASSERT_SAFE_PASS(intGuard.moveBegin());
+            ASSERT_SAFE_PASS(intGuard.moveEnd(-1));
+
+            ASSERT_SAFE_PASS(intGuard.moveEnd());
+            ASSERT_SAFE_PASS(intGuard.moveBegin(1));
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -710,8 +771,8 @@ int main(int argc, char *argv[])
 
             bslalg_AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
 
-            ASSERT(&buf[3] == mG.moveBegin(3));
             ASSERT(&buf[5] == mG.moveEnd(5));
+            ASSERT(&buf[3] == mG.moveBegin(3));
 
             ASSERT(&buf[2] == mG.moveBegin(-1));
             ASSERT(&buf[6] == mG.moveEnd(1));
@@ -719,7 +780,6 @@ int main(int argc, char *argv[])
             ASSERT(&buf[0]        == mG.moveBegin(-2));
             ASSERT(&buf[MAX_SIZE] == mG.moveEnd(MAX_SIZE - 6));
         }  // deallocates buf
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

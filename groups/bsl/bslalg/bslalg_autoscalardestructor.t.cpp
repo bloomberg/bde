@@ -1,4 +1,4 @@
-// bslalg_autoscalardestructor.t.cpp                  -*-C++-*-
+// bslalg_autoscalardestructor.t.cpp                                  -*-C++-*-
 
 #include <bslalg_autoscalardestructor.h>
 
@@ -13,13 +13,12 @@
 #include <bsls_alignmentutil.h>                  // for testing only
 #include <bsls_stopwatch.h>                      // for testing only
 
-#include <cstdio>
-#include <cstdlib>     // atoi()
-#include <cstring>     // strlen()
-#include <ctype.h>     // isalpha()
+#include <ctype.h>      // isalpha()
+#include <stdio.h>
+#include <stdlib.h>     // atoi()
+#include <string.h>     // strlen()
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -86,6 +85,12 @@ namespace {
 //#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_ printf("\t");             // Print a tab (w/o newline)
+
+//=============================================================================
+//                  SEMI-STANDARD NEGATIVE-TESTING MACROS
+//-----------------------------------------------------------------------------
+// This component supports only wide contracts, so there is no negative testing
+// to perform.
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
@@ -229,7 +234,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
+    bslma_TestAllocator testAllocator(veryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -334,7 +339,7 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\tException test.\n");
         {
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 bslalg_AutoScalarDestructor<T> mG(0);
                 const bslalg_AutoScalarDestructor<T>& G = mG;
@@ -344,7 +349,7 @@ int main(int argc, char *argv[])
 
                 mG.reset(buf);
             }
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         ASSERT(0 == testAllocator.numBytesInUse());
         ASSERT(0 == testAllocator.numMismatches());

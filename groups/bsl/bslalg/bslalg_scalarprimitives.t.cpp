@@ -1,4 +1,4 @@
-// bslalg_scalarprimitives.t.cpp                  -*-C++-*-
+// bslalg_scalarprimitives.t.cpp                                      -*-C++-*-
 
 #include <bslalg_scalarprimitives.h>
 
@@ -1172,7 +1172,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Exception testing.\n");
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef  rawBuf[2];
             my_Class4   *objPtr = (my_Class4 *)&rawBuf[0];
             Obj::construct(&objPtr[0], 1, TA);
@@ -1186,7 +1186,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == rawBuf[1].d_value);
             DestructionPrimitives::destroy(&objPtr[0]);
             DestructionPrimitives::destroy(&objPtr[1]);
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (verbose) printf("Trait selection testing.\n");
         {
@@ -1281,7 +1281,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...pair with allocators\n");
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[4];
             my_PairAA_4_4 *srcPtr = (my_PairAA_4_4 *)&rawBuf[0];
             Obj::copyConstruct(srcPtr, PAAV4V4, TA);
@@ -1298,7 +1298,7 @@ int main(int argc, char *argv[])
             ASSERT(4  == rawBuf[3].d_value);
             ASSERT(TA == rawBuf[3].d_allocator_p);
             objPtr->~my_PairAA_4_4();
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (verbose) printf("Trait selection testing.\n");
         {
@@ -1607,7 +1607,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with allocators\n");
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;;
             Obj::construct(objPtr, PAAV4V4, TA);
@@ -1616,9 +1616,9 @@ int main(int argc, char *argv[])
             ASSERT(4  == rawBuf[1].d_value);
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairAA_4_4();
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;;
             Obj::construct(objPtr, V4, V4, TA);
@@ -1627,12 +1627,12 @@ int main(int argc, char *argv[])
             ASSERT(4  == rawBuf[1].d_value);
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairAA_4_4();
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
 
         const int NUM_ALLOC1 = testAllocator.numAllocations();
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
             Obj::construct(objPtr, PBBV4V4, TA);
@@ -1641,11 +1641,11 @@ int main(int argc, char *argv[])
             ASSERT(4  == rawBuf[1].d_value);
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
 
         const int NUM_ALLOC2 = testAllocator.numAllocations();
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
             Obj::construct(objPtr, V4, V4, TA);
@@ -1654,7 +1654,7 @@ int main(int argc, char *argv[])
             ASSERT(4  == rawBuf[1].d_value);
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         ASSERT(NUM_ALLOC2 < testAllocator.numAllocations());
 
         if (verbose) printf("Trait selection testing.\n");
@@ -1726,7 +1726,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...pair with allocators\n");
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;;
             Obj::copyConstruct(objPtr, PAAV4V4, TA);
@@ -1735,12 +1735,12 @@ int main(int argc, char *argv[])
             ASSERT(4  == rawBuf[1].d_value);
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairAA_4_4();
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
 
         const int NUM_ALLOC1 = testAllocator.numAllocations();
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
             Obj::copyConstruct(objPtr, PBBV4V4, TA);
@@ -1749,7 +1749,7 @@ int main(int argc, char *argv[])
             ASSERT(4  == rawBuf[1].d_value);
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
 
         if (verbose) printf("Trait selection testing.\n");
@@ -1841,7 +1841,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with allocators\n");
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;;
             Obj::defaultConstruct(objPtr, TA);
@@ -1850,12 +1850,12 @@ int main(int argc, char *argv[])
             ASSERT(0  == rawBuf[1].d_value);
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairAA_4_4();
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (verbose) printf("\t...constructing pair with TypeTraitPair\n");
 
         const int NUM_ALLOC1 = testAllocator.numAllocations();
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
             Obj::defaultConstruct(objPtr, TA);
@@ -1864,7 +1864,7 @@ int main(int argc, char *argv[])
             ASSERT(0  == rawBuf[1].d_value);
             ASSERT(TA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
 
         if (verbose) printf("Trait selection testing.\n");

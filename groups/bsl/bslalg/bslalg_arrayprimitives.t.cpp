@@ -1,4 +1,4 @@
-// bslalg_arrayprimitives.t.cpp                  -*-C++-*-
+// bslalg_arrayprimitives.t.cpp                                       -*-C++-*-
 
 #include <bslalg_arrayprimitives.h>
 
@@ -776,8 +776,7 @@ void testRotate(bool bitwiseMoveableFlag,
         }
 
         if (exceptionSafetyFlag) {
-            bslma_TestAllocator& testAllocator = *Z;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                 gg(buf, SPEC);  verify(buf, SPEC);
 
                 TYPE *end = buf + (int)std::strlen(SPEC);
@@ -787,7 +786,7 @@ void testRotate(bool bitwiseMoveableFlag,
 
                 verify(buf, EXP);
                 guard.release(EXP);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             if (veryVerbose) printf("\n");
         } else {
             gg(buf, SPEC);  verify(buf, SPEC);
@@ -885,8 +884,7 @@ void testErase(bool bitwiseMoveableFlag,
         }
 
         if (exceptionSafetyFlag) {
-            bslma_TestAllocator& testAllocator = *Z;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                 gg(buf, SPEC);  verify(buf, SPEC);
                 CleanupGuard<TYPE> cleanup(buf, SPEC);
 
@@ -894,7 +892,7 @@ void testErase(bool bitwiseMoveableFlag,
 
                 verify(buf, EXP);
                 cleanup.release(EXP);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             if (veryVerbose) printf("\n");
         } else {
             gg(buf, SPEC);  verify(buf, SPEC);
@@ -1057,8 +1055,7 @@ void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
             TYPE *srcEnd = &srcBuf[END];
 
             if (exceptionSafetyFlag) {
-                bslma_TestAllocator& testAllocator = *Z;
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                     gg(srcBuf, SRC_SPEC);  verify(srcBuf, SRC_SPEC);
                     gg(dstBuf, DST_SPEC);  verify(dstBuf, DST_SPEC);
 
@@ -1079,7 +1076,7 @@ void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
                     verify(dstBuf, DST_EXP);
                     srcGuard.release(SRC_EXP);
                     cleanup(dstBuf, DST_EXP);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 if (veryVerbose) printf("\n");
             } else {
                 gg(srcBuf, SRC_SPEC);  verify(srcBuf, SRC_SPEC);
@@ -1264,8 +1261,7 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
         if (veryVerbose) printf("\t\t...and arbitrary FWD_ITER\n");
         {
             if (exceptionSafetyFlag) {
-                bslma_TestAllocator& testAllocator = *Z;
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                     gg(srcBuf, SRC_SPEC);  verify(srcBuf, SRC_SPEC);
                     gg(dstBuf, DST_SPEC);  verify(dstBuf, DST_SPEC);
 
@@ -1287,7 +1283,7 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
                     verify(dstBuf, DST_EXP);
                     srcGuard.release(SRC_EXP);
                     cleanup(dstBuf, DST_EXP);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 if (veryVerbose) printf("\n");
             } else {
                 gg(srcBuf, SRC_SPEC);  verify(srcBuf, SRC_SPEC);
@@ -1324,8 +1320,7 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
         if (veryVerbose) printf("\t\t...and FWD_ITER = TYPE*\n");
         {
             if (exceptionSafetyFlag) {
-                bslma_TestAllocator& testAllocator = *Z;
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                     gg(srcBuf, SRC_SPEC);  verify(srcBuf, SRC_SPEC);
                     gg(dstBuf, DST_SPEC);  verify(dstBuf, DST_SPEC);
 
@@ -1347,7 +1342,7 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
                     verify(dstBuf, DST_EXP);
                     srcGuard.release(SRC_EXP);
                     cleanup(dstBuf, DST_EXP);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 if (veryVerbose) printf("\n");
             } else {
                 gg(srcBuf, SRC_SPEC);  verify(srcBuf, SRC_SPEC);
@@ -1439,8 +1434,7 @@ void testDestructiveMoveAndMoveInsert(bool bitwiseMoveableFlag,
         TYPE *inputEnd = &input[NE];
 
         if (exceptionSafetyFlag) {
-            bslma_TestAllocator& testAllocator = *Z;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                 gg(input, INPUT);      verify(input, INPUT);
                 inputEnd = &input[NE];  // reset at each iteration
                 CleanupGuard<TYPE> cleanupInput(input, INPUT, &inputEnd);
@@ -1469,7 +1463,7 @@ void testDestructiveMoveAndMoveInsert(bool bitwiseMoveableFlag,
                 verify(dstBuf, DST_EXP);
                 srcGuard.release(SRC_EXP);
                 cleanup(dstBuf, DST_EXP);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             if (veryVerbose) printf("\n");
         } else {
             gg(input, INPUT);      verify(input, INPUT);
@@ -1600,8 +1594,7 @@ void testInsertValueN(bool bitwiseMoveableFlag,
             TYPE *buf = (TYPE*)&u.d_raw[0];
 
             if (exceptionSafetyFlag) {
-                bslma_TestAllocator& testAllocator = *Z;
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                     gg(buf, SPEC);  verify(buf, SPEC);
                     CleanupGuard<TYPE> cleanup(buf, SPEC);
 
@@ -1609,7 +1602,7 @@ void testInsertValueN(bool bitwiseMoveableFlag,
 
                     verify(buf, EXP);
                     cleanup.release(EXP);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 if (veryVerbose) printf("\n");
             } else {
                 gg(buf, SPEC);  verify(buf, SPEC);
@@ -1728,8 +1721,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
             TYPE *buf = (TYPE*)&u.d_raw[0];
 
             if (exceptionSafetyFlag) {
-                bslma_TestAllocator& testAllocator = *Z;
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                     gg(buf, SPEC);  verify(buf, SPEC);
                     CleanupGuard<TYPE> cleanup(buf, SPEC);
 
@@ -1742,7 +1734,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
 
                     verify(buf, EXP);
                     cleanup.release(EXP);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 if (veryVerbose) printf("\n");
             } else {
                 gg(buf, SPEC);  verify(buf, SPEC);
@@ -1774,8 +1766,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
             TYPE *buf = (TYPE*)&u.d_raw[0];
 
             if (exceptionSafetyFlag) {
-                bslma_TestAllocator& testAllocator = *Z;
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                     gg(buf, SPEC);  verify(buf, SPEC);
                     CleanupGuard<TYPE> cleanup(buf, SPEC);
 
@@ -1788,7 +1779,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
 
                     verify(buf, EXP);
                     cleanup.release(EXP);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 if (veryVerbose) printf("\n");
             } else {
                 gg(buf, SPEC);  verify(buf, SPEC);
@@ -1864,8 +1855,7 @@ void testMoveInsert(bool bitwiseMoveableFlag,
         TYPE *inputEnd = &input[NE];
 
         if (exceptionSafetyFlag) {
-            bslma_TestAllocator& testAllocator = *Z;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                 gg(input, INPUT);  verify(input, INPUT);
                 CleanupGuard<TYPE> cleanupInput(input, INPUT, &inputEnd);
 
@@ -1884,7 +1874,7 @@ void testMoveInsert(bool bitwiseMoveableFlag,
                 verify(input, INPUT_EXP);
                 verify(buf, EXP);
                 cleanupBuf.release(EXP);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             if (veryVerbose) printf("\n");
         } else {
             gg(input, INPUT);  verify(input, INPUT);
@@ -2002,13 +1992,12 @@ void testDestructiveMove(bool bitwiseMoveableFlag,
         const int NUM_COPIES = numCopyCtorCalls;
 
         if (exceptionSafetyFlag) {
-            bslma_TestAllocator& testAllocator = *Z;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                 Obj::destructiveMove(&buf[DST],
                                      &buf[SRC],
                                      &buf[SRC + NE],
                                      Z);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             if (veryVerbose) printf("\n");
         } else {
             Obj::destructiveMove(&buf[DST],
@@ -2114,10 +2103,9 @@ void testCopyConstruct(bool bitwiseCopyableFlag,
         const int NUM_CTORS  = numCharCtorCalls;
 
         if (exceptionSafetyFlag) {
-            bslma_TestAllocator& testAllocator = *Z;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                 Obj::copyConstruct(&buf[DST], &buf[SRC], &buf[SRC + NE], Z);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             if (veryVerbose) printf("\n");
         } else {
             Obj::copyConstruct(&buf[DST], &buf[SRC], &buf[SRC + NE], Z);
@@ -2163,10 +2151,9 @@ void testCopyConstruct(bool bitwiseCopyableFlag,
         const int NUM_CTORS  = numCharCtorCalls;
 
         if (exceptionSafetyFlag) {
-            bslma_TestAllocator& testAllocator = *Z;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                 Obj::copyConstruct(&buf[DST], &SPEC[SRC], &SPEC[SRC + NE], Z);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             if (veryVerbose) printf("\n");
         } else {
             Obj::copyConstruct(&buf[DST], &SPEC[SRC], &SPEC[SRC + NE], Z);
@@ -2266,10 +2253,9 @@ void testUninitializedFillN(bool bitwiseCopyableFlag,
             const int NUM_COPIES = numCopyCtorCalls;
 
             if (exceptionSafetyFlag) {
-                bslma_TestAllocator& testAllocator = *Z;
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                     Obj::uninitializedFillN(&buf[BEGIN], NE, V, Z);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 if (veryVerbose) printf("\n");
             } else {
                 Obj::uninitializedFillN(&buf[BEGIN], NE, V, Z);
@@ -2364,7 +2350,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
+    bslma_TestAllocator testAllocator(veryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.

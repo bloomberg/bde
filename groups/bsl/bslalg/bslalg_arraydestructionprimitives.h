@@ -107,9 +107,12 @@ struct bslalg_ArrayDestructionPrimitives {
         // Destroy of the elements in the segment of an array of parameterized
         // 'TARGET_TYPE' beginning at the specified 'begin' address and ending
         // immediately before the specified 'end' address, as if by calling the
-        // destructor on each object.  The behavior is undefined unless
-        // 'begin <= end'.  Note that this method does not deallocate any
-        // memory (except memory deallocated by the element destructor calls).
+        // destructor on each object.  If 'begin == 0' and 'end == 0' this
+        // function has no effect.  The behavior is undefined unless either (1)
+        // 'begin <= end', 'begin != 0', and 'end != 0', or (2)
+        // 'begin == 0 && end == 0'.  Note that this method does not deallocate
+        // any memory (except memory deallocated by the element destructor
+        // calls).
 };
 
 // ===========================================================================
@@ -143,7 +146,7 @@ void bslalg_ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
                                                 TARGET_TYPE       *end,
                                                 bslmf_MetaInt<0>)
 {
-    for ( ; begin != end; ++begin) {
+    for (; begin != end; ++begin) {
         begin->~TARGET_TYPE();
     }
 }
@@ -154,6 +157,8 @@ inline
 void bslalg_ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
                                                 TARGET_TYPE *end)
 {
+    BSLS_ASSERT_SAFE(begin || !end);
+    BSLS_ASSERT_SAFE(end   || !begin);
     BSLS_ASSERT_SAFE(begin <= end);
 
     typedef typename bslalg_HasTrait<

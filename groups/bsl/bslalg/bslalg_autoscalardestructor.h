@@ -78,8 +78,7 @@ class bslalg_AutoScalarDestructor {
     void reset(OBJECT_TYPE *object);
         // Set this guard object to manage the specified 'object', thereby
         // releasing from management any object currently managed by this
-        // proctor, if any.  The behavior is undefined unless 'object' is
-        // non-null.
+        // proctor, if any.
 };
 
 // ===========================================================================
@@ -120,8 +119,6 @@ template <class OBJECT_TYPE>
 inline
 void bslalg_AutoScalarDestructor<OBJECT_TYPE>::reset(OBJECT_TYPE *object)
 {
-    BSLS_ASSERT_SAFE(object);
-
     d_object_p = object;
 }
 

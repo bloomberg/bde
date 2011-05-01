@@ -4,7 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-//
 // IMPLEMENTATION NOTE: cases where 'value == 0' are common enough that it is
 // worth avoiding the overhead of the generic bit-wise copyable implementation
 // (exponential memcopy, see 'bitwiseFillN' below).  Same note applies for
@@ -132,6 +131,7 @@ void bslalg_ArrayPrimitives_Imp::bitwiseFillN(char      *begin,
                                               size_type  numBytesInitialized,
                                               size_type  numBytes)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numBytes);
     BSLS_ASSERT(numBytesInitialized <= numBytes);
 
     // Copy the destination onto itself, doubling size at every iteration.
@@ -157,6 +157,8 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                         void                                     *,
                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
     if (0 == numElements) {
         return;                                                      // RETURN
     }
@@ -179,7 +181,9 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    if (0 == numElements) {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
+     if (0 == numElements) {
         return;                                                      // RETURN
     }
     const char  *valueCharBuffer  = (const char *) &value;
@@ -203,6 +207,8 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
     if (0 == numElements) {
         return;                                                      // RETURN
     }
@@ -232,6 +238,8 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
     if (0 == numElements) {
         return;                                                      // RETURN
     }
@@ -251,6 +259,8 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
     if (0 == numElements) {
         return;                                                      // RETURN
     }
@@ -270,6 +280,8 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                          void                                     *,
                          bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
     if (0 == numElements) {
         return;                                                      // RETURN
     }
@@ -289,6 +301,8 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
     if (0 == numElements) {
         return;                                                      // RETURN
     }
@@ -308,6 +322,8 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
     if (0 == numElements) {
         return;                                                      // RETURN
     }
@@ -326,7 +342,12 @@ void bslalg_ArrayPrimitives_Imp::bitwiseSwapRanges(char *begin,
                                                    char *middle,
                                                    char *end)
 {
-    int numBytes = static_cast<int>(middle - begin);
+    BSLS_ASSERT_SAFE(!begin  == !middle);
+    BSLS_ASSERT_SAFE(!middle == !end);
+    BSLS_ASSERT_SAFE(begin  <= middle);
+    BSLS_ASSERT_SAFE(middle <= end);
+
+    std::ptrdiff_t numBytes = static_cast<int>(middle - begin);
     BSLS_ASSERT(numBytes == end - middle);
 
     union {
@@ -355,7 +376,12 @@ void bslalg_ArrayPrimitives_Imp::bitwiseRotateBackward(char *begin,
                                                        char *middle,
                                                        char *end)
 {
-    union {
+    BSLS_ASSERT_SAFE(!begin  == !middle);
+    BSLS_ASSERT_SAFE(!middle == !end);
+    BSLS_ASSERT_SAFE(begin  <= middle);
+    BSLS_ASSERT_SAFE(middle <= end);
+
+     union {
         char                               d_buffer[INPLACE_BUFFER_SIZE];
         bsls_AlignmentUtil::MaxAlignedType d_align;
     } arena;
@@ -376,6 +402,11 @@ void bslalg_ArrayPrimitives_Imp::bitwiseRotateForward(char *begin,
                                                       char *middle,
                                                       char *end)
 {
+    BSLS_ASSERT_SAFE(!begin  == !middle);
+    BSLS_ASSERT_SAFE(!middle == !end);
+    BSLS_ASSERT_SAFE(begin  <= middle);
+    BSLS_ASSERT_SAFE(middle <= end);
+
     union {
         char                               d_buffer[INPLACE_BUFFER_SIZE];
         bsls_AlignmentUtil::MaxAlignedType d_align;
@@ -397,7 +428,10 @@ void bslalg_ArrayPrimitives_Imp::bitwiseRotate(char *begin,
                                                char *middle,
                                                char *end)
 {
-    BSLS_ASSERT(begin <= middle && middle <= end);
+    BSLS_ASSERT_SAFE(!begin  == !middle);
+    BSLS_ASSERT_SAFE(!middle == !end);
+    BSLS_ASSERT_SAFE(begin  <= middle);
+    BSLS_ASSERT_SAFE(middle <= end);
 
     // These cases are simple enough, they should be taken care of on their
     // own.

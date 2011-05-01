@@ -1,4 +1,4 @@
-// bslalg_autoarraymovedestructor.t.cpp                  -*-C++-*-
+// bslalg_autoarraymovedestructor.t.cpp                               -*-C++-*-
 
 #include <bslalg_autoarraymovedestructor.h>
 
@@ -13,15 +13,16 @@
 #include <bslma_testallocator.h>                 // for testing only
 #include <bslma_testallocatorexception.h>        // for testing only
 #include <bsls_alignmentutil.h>                  // for testing only
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>                     // for testing only
 #include <bsls_stopwatch.h>                      // for testing only
 
-#include <cstdio>
-#include <cstdlib>     // atoi()
-#include <cstring>     // strlen()
-#include <ctype.h>     // isalpha()
+#include <ctype.h>    // isalpha()
+#include <stdio.h>
+#include <stdlib.h>   // atoi()
+#include <string.h>   // strlen()
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -233,7 +234,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
+    bslma_TestAllocator testAllocator(veryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -264,7 +265,7 @@ int main(int argc, char *argv[])
         //   a varying portion of an array.
         //
         // Testing:
-        //   AutoArrayMoveDestructor(T *b, T *e);
+        //   AutoArrayMoveDestructor(T *d, T *b, T *m, T *e);
         //   ~AutoArrayMoveDestructor();
         //   T *advance();
         //   T *begin() const;
@@ -317,7 +318,7 @@ int main(int argc, char *argv[])
             printf("\tException test.\n");
 
         {
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 bslalg_AutoArrayDestructor<T> mExcGuard(&buf[0], &buf[0]);
                 const bslalg_AutoArrayDestructor<T>& EXC_GUARD = mExcGuard;
@@ -360,7 +361,7 @@ int main(int argc, char *argv[])
                 }
                 mExcGuard.moveBegin(-GUARD_SIZE);  // whole range
             }
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         ASSERT(0 == testAllocator.numBytesInUse());
         ASSERT(0 == testAllocator.numMismatches());

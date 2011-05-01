@@ -11,16 +11,17 @@
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
 #include <bsls_alignmentutil.h>                  // for testing only
+#include <bsls_assert.h>                         // for testing only
+#include <bsls_asserttest.h>                     // for testing only
 #include <bsls_objectbuffer.h>                   // for testing only
 #include <bsls_types.h>                          // for testing only
 
-#include <cstdio>
-#include <cstdlib>     // atoi()
-#include <cstring>     // strlen()
-#include <ctype.h>     // isalpha()
+#include <ctype.h>      // isalpha()
+#include <stdio.h>
+#include <stdlib.h>     // atoi()
+#include <string.h>     // strlen()
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -88,6 +89,16 @@ namespace {
 //#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_ printf("\t");             // Print a tab (w/o newline)
+
+//=============================================================================
+//                  SEMI-STANDARD NEGATIVE-TESTING MACROS
+//-----------------------------------------------------------------------------
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
@@ -562,7 +573,7 @@ void testDestroy(bool bitwiseCopyableFlag)
         const int         BEGIN = DATA_2[ti].d_begin;
         const int         NE    = DATA_2[ti].d_ne;
         const char *const EXP   = DATA_2[ti].d_expected;
-        const int         SIZE  = std::strlen(SPEC);
+        const int         SIZE  = strlen(SPEC);
         ASSERT(SIZE <= MAX_SIZE);
 
         if (veryVerbose) {
@@ -629,6 +640,16 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
         testDestroy<BCT>(false);
 
+        if(verbose) printf("\nNegative testing\n");
+        {
+            bsls_AssertFailureHandlerGuard g(bsls_AssertTest::failTestDriver);
+
+            int * null = 0;
+            ASSERT_SAFE_FAIL(Obj::destroy(null));
+
+            int x = 0;
+            ASSERT_SAFE_PASS(Obj::destroy(&x));
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
