@@ -1,4 +1,4 @@
-// bslstl_vector.t.cpp                  -*-C++-*-
+// bslstl_vector.t.cpp                                                -*-C++-*-
 
 #include <bslstl_vector.h>
 
@@ -1904,7 +1904,8 @@ void TestDriver<TYPE,ALLOC>::testCase21()
             }
             catch (std::length_error& e) {
                 if (veryVerbose) {
-                    printf("\t\tCaught std::length_error(\"%s\").\n", e.what());
+                    printf("\t\tCaught std::length_error(\"%s\").\n",
+                           e.what());
                 }
                 exceptionCaught = true;
             }
@@ -1955,7 +1956,8 @@ void TestDriver<TYPE,ALLOC>::testCase21()
             }
             catch (std::length_error& e) {
                 if (veryVerbose) {
-                    printf("\t\tCaught std::length_error(\"%s\").\n", e.what());
+                    printf("\t\tCaught std::length_error(\"%s\").\n",
+                           e.what());
                 }
                 exceptionCaught = true;
             }
@@ -2628,7 +2630,7 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                 for (size_t j = 0; j < INIT_LENGTH; ++j) {
                     const size_t POS = j;
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         const int AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
@@ -2654,7 +2656,7 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                             LOOP5_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP,
                                  POS, m, VALUES[(m + 1) % NUM_VALUES] == X[m]);
                         }
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -2771,7 +2773,7 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                         P_(BEGIN_POS); P(END_POS);
                     }
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         const int AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
@@ -2800,7 +2802,7 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                                          END_POS, m,
                               VALUES[(m + NUM_ELEMENTS) % NUM_VALUES] == X[m]);
                         }
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
                 }
             }
@@ -3143,7 +3145,8 @@ void TestDriver<TYPE,ALLOC>::testCase17()
                     for (size_t j = 0; j <= INIT_LENGTH; ++j) {
                         const size_t POS = j;
 
-                        BEGIN_BSLMA_EXCEPTION_TEST {
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                             const int AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
 
@@ -3189,7 +3192,7 @@ void TestDriver<TYPE,ALLOC>::testCase17()
                                 LOOP5_ASSERT(INIT_LINE, LINE, i, j, k,
                                              DEFAULT_VALUE == X[k]);
                             }
-                        } END_BSLMA_EXCEPTION_TEST
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                     }
                 }
             }
@@ -3527,7 +3530,8 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
                     for (size_t j = 0; j <= INIT_LENGTH; ++j) {
                         const size_t POS = j;
 
-                        BEGIN_BSLMA_EXCEPTION_TEST {
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                             const int AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
 
@@ -3573,7 +3577,7 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
                                 LOOP5_ASSERT(INIT_LINE, LINE, i, j, k,
                                              DEFAULT_VALUE == X[k]);
                             }
-                        } END_BSLMA_EXCEPTION_TEST
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                     }
                 }
                 ASSERT(0 == testAllocator.numMismatches());
@@ -3919,7 +3923,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
             if (veryVerbose)
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
               const int AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
@@ -3956,7 +3960,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
                                                testAllocator.numAllocations());
 
               testAllocator.setAllocationLimit(AL2);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(0 == testAllocator.numMismatches());
             ASSERT(0 == testAllocator.numBlocksInUse());
@@ -3972,7 +3976,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
             if (veryVeryVerbose)
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
               const int AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
@@ -4006,7 +4010,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
                                                testAllocator.numAllocations());
 
               testAllocator.setAllocationLimit(AL2);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(0 == testAllocator.numMismatches());
             ASSERT(0 == testAllocator.numBlocksInUse());
@@ -4025,7 +4029,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
             if (veryVerbose)
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
               const int AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
@@ -4060,7 +4064,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
               stretch(&mX, DELTA);
               LOOP_ASSERT(ti, NE + DELTA == X.size());
               testAllocator.setAllocationLimit(AL2);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(0 == testAllocator.numMismatches());
             ASSERT(0 == testAllocator.numBlocksInUse());
@@ -4077,7 +4081,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
             if (veryVeryVerbose)
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
               const int AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
@@ -4112,7 +4116,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
               stretch(&mX, DELTA);
               LOOP_ASSERT(ti, NE + DELTA == X.size());
               testAllocator.setAllocationLimit(AL2);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(0 == testAllocator.numMismatches());
             ASSERT(0 == testAllocator.numBlocksInUse());
@@ -4258,7 +4262,7 @@ void TestDriver<TYPE,ALLOC>::testCase13()
                         printf(" using "); P(VALUE);
                     }
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         const int AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
@@ -4284,7 +4288,7 @@ void TestDriver<TYPE,ALLOC>::testCase13()
                         for (size_t j = 0; j < LENGTH; ++j) {
                             LOOP4_ASSERT(INIT_LINE, ti, i, j, VALUE == X[j]);
                         }
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     ASSERT(0 == testAllocator.numMismatches());
                     ASSERT(0 == testAllocator.numBlocksInUse());
@@ -4459,7 +4463,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
 
                 Obj mY(g(SPEC)); const Obj& Y = mY;
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
@@ -4481,7 +4485,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
                     for (size_t j = 0; j < LENGTH; ++j) {
                         LOOP5_ASSERT(INIT_LINE, LINE, i, ti, j, Y[j] == X[j]);
                     }
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 LOOP_ASSERT(testAllocator.numMismatches(),
                             0 == testAllocator.numMismatches());
@@ -4733,7 +4737,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
 
                 if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     Obj mX(LENGTH, DEFAULT_VALUE, &testAllocator);
                     const Obj& X = mX;
@@ -4749,7 +4753,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         LOOP3_ASSERT(LINE, ti, j, DEFAULT_VALUE == X[j]);
                     }
 
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 const int AA = testAllocator.numBlocksTotal();
                 const int  A = testAllocator.numBlocksInUse();
@@ -4789,7 +4793,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
 
                 if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     Obj mX(LENGTH, VALUE, &testAllocator);
                     const Obj& X = mX;
@@ -4805,7 +4809,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                         LOOP3_ASSERT(LINE, ti, j, VALUE == X[j]);
                     }
 
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 const int AA = testAllocator.numBlocksTotal();
                 const int  A = testAllocator.numBlocksInUse();
@@ -5084,7 +5088,7 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
 
             if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                 Obj mX(U.begin(), U.end(), &testAllocator);
 
@@ -5101,7 +5105,7 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
                     LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
                 }
 
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             const int AA = testAllocator.numBlocksTotal();
             const int  A = testAllocator.numBlocksInUse();
@@ -5416,7 +5420,8 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                             const int V_N = EXTEND[vj];
 
                             if (iteration % iterationModulus == 0) {
-                                BEGIN_BSLMA_EXCEPTION_TEST {
+                                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                     //--------------^
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
@@ -5452,7 +5457,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                     // 'mV' (and therefore 'V') now out of scope
                     LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
                     //--------------v
-                                } END_BSLMA_EXCEPTION_TEST
+                                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                             }
                             ++iteration;
                         }
@@ -5493,7 +5498,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
             LOOP_ASSERT(ti, curLen == (int)X.size());  // same lengths
 
             for (int tj = 0; tj < NUM_EXTEND; ++tj) {
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
@@ -5516,7 +5521,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
 
                     LOOP2_ASSERT(SPEC, N, Y == Y);
                     LOOP2_ASSERT(SPEC, N, X == Y);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
     }
@@ -5878,7 +5883,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                         printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
                     }
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         const Obj Y2(X, &testAllocator);
                         if (veryVerbose) {
                             printf("\t\t\tException Case  :\n");
@@ -5888,7 +5893,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                         LOOP2_ASSERT(SPEC, N, W == X);
                         LOOP2_ASSERT(SPEC, N,
                                      Y2.get_allocator() == X.get_allocator());
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     const int AA = testAllocator.numBlocksTotal();
                     const int  A = testAllocator.numBlocksInUse();
@@ -7013,7 +7018,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
         for (size_t li = 0; li < NUM_TRIALS; ++li) { // i is the length
             if (verbose) printf("\t\t\tOn an object of length %d.\n", li);
 
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
             Obj mX(&testAllocator);  const Obj& X = mX;              // 1.
             for (size_t i = 0; i < li; ++i) {                           // 2.
@@ -7027,7 +7032,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
                 LOOP2_ASSERT(li, i, VALUES[i % NUM_VALUES] == X[i]);
             }
 
-          } END_BSLMA_EXCEPTION_TEST                                 // 4.
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                   // 4.
           LOOP_ASSERT(li, 0 == testAllocator.numBlocksInUse());      // 5.
         }
     }
@@ -7054,7 +7059,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
                 if (veryVerbose)
                     printf("\t\t\t\tAnd with final length %d.\n", j);
 
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 size_t k; // loop index
 
                 Obj mX(&testAllocator);  const Obj& X = mX;         // 1.
@@ -7083,7 +7088,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
                     LOOP3_ASSERT(i, j, k, VALUES[k % NUM_VALUES] == X[k]);
                 }
 
-              } END_BSLMA_EXCEPTION_TEST                            // 8.
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END              // 8.
               LOOP_ASSERT(i, 0 == testAllocator.numBlocksInUse());  // 9.
             }
 

@@ -20,8 +20,15 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<iterator>' directly.  This component provides the facilities of the
+// '<bsl_iterator.h>' directly.  This component provides the facilities of the
 // iterators library from the C++ Standard.
+
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_iterator.h> instead of <bslstl_iterator.h> in \
+BSL_OVERRIDES_STD mode"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
