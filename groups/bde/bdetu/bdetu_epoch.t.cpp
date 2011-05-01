@@ -1,15 +1,15 @@
-// bdetu_epoch.t.cpp      -*-C++-*-
+// bdetu_epoch.t.cpp                                                  -*-C++-*-
 
 #include <bdetu_epoch.h>
 
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
-#include <bsl_climits.h>
-#include <bsl_cstdlib.h>  // atoi()
-#include <bsl_ctime.h>
+#include <bsl_limits.h>
 #include <bsl_iostream.h>
 #include <bsl_new.h>
+#include <bsl_cstdlib.h>  // atoi()
+#include <bsl_ctime.h>
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>  // atoi()
 
@@ -33,21 +33,25 @@ using namespace bsl;  // automatically added by script
 // [ 2] bsl::time_t convertToTimeT(const bdet_Datetime& datetime);
 // [ 2] void convertFromTimeT(bdet_Datetime *result, time_t time);
 // [ 2] bdet_Datetime convertFromTimeT(bsl::time_t time);
-// [ 3] int convertToTimeInterval(bdet_TimeInterval    *result,
-//                                const bdet_Datetime&  datetime);
-// [ 3] bdet_TimeInterval convertToTimeInterval(const bdet_Datetime& datetime);
-// [ 3] void convertFromTimeInterval(bdet_Datetime            *result,
-//                                   const bdet_TimeInterval&  timeInterval);
-// [ 3] bdet_Datetime convertFromTimeInterval(
+// [ 3] int convertToTimeT(time_t *result, const bdet_Datetime& datetime);
+// [ 3] bsl::time_t convertToTimeT(const bdet_Datetime& datetime);
+// [ 3] void convertFromTimeT(bdet_Datetime *result, time_t time);
+// [ 3] bdet_Datetime convertFromTimeT(bsl::time_t time);
+// [ 4] int convertToTimeInterval(bdet_TimeInterval    *result,
+//   4                            const bdet_Datetime&  datetime);
+// [ 4] bdet_TimeInterval convertToTimeInterval(const bdet_Datetime& datetime);
+// [ 4] void convertFromTimeInterval(bdet_Datetime            *result,
+//   4                               const bdet_TimeInterval&  timeInterval);
+// [ 4] bdet_Datetime convertFromTimeInterval(
 //                                      const bdet_TimeInterval& timeInterval);
-// [ 4] int convertToDatetimeInterval(bdet_DatetimeInterval *result,
-//                                    const bdet_Datetime&   datetime);
-// [ 4] bdet_DatetimeInterval convertToDatetimeInterval(
-//                                              const bdet_Datetime& datetime);
-// [ 4] void convertFromDatetimeInterval(
-//                             bdet_Datetime                *result,
-//                             const bdet_DatetimeInterval&  datetimeInterval);
-// [ 4] bdet_Datetime convertFromDatetimeInterval(
+// [ 5] int convertToDatetimeInterval(bdet_DatetimeInterval *result,
+//   5                                const bdet_Datetime&   datetime);
+// [ 5] bdet_DatetimeInterval convertToDatetimeInterval(
+//   5                                          const bdet_Datetime& datetime);
+// [ 5] void convertFromDatetimeInterval(
+//   5                         bdet_Datetime                *result,
+//   5                         const bdet_DatetimeInterval&  datetimeInterval);
+// [ 5] bdet_Datetime convertFromDatetimeInterval(
 //                              const bdet_DatetimeInterval& datetimeInterval);
 //-----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
@@ -109,8 +113,8 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_PlatformUtil::Int64 Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls_Types::Int64 Int64;
+typedef bsls_Types::Uint64 Uint64;
 
 int epochAddressIsNotZero = 0;
 int epochBuffer[10] = {0,0,0,0,0,0,0,0,0,0}; // some zeroes
@@ -167,7 +171,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   This will test the usage example provided in the component header
@@ -288,7 +292,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // CONVERT BDET_DATETIME TO/FROM BDET_DATETIMEINTERVAL
         //
@@ -396,7 +400,7 @@ int main(int argc, char *argv[])
             int                      d_status;       // value returned by
                                                      // function
 
-            bsls_PlatformUtil::Int64 d_retmsec;      // output
+            Int64 d_retmsec;      // output
 
         } DATA[] = {
                // <---------- input ---------->   <--expected--------->
@@ -477,7 +481,7 @@ int main(int argc, char *argv[])
             { L_, 9999, 12, 31, 23, 59, 59, 999,  0,
                                            253402300799999LL }, // 1947
 
-                // *** All fields are converted properly. ***
+                // *** All fields are converted properly.  ***
             //lin year mon day hou min sec msec   s      msec
             //--- ---- --- --- --- --- --- ----   -      ----
             { L_, 1971,  1,  1,  0,  0,  0,  0,  0, 31536000000LL }, // yr
@@ -577,7 +581,7 @@ int main(int argc, char *argv[])
 
             const int  STATUS = DATA[ti].d_status;
 
-            const bsls_PlatformUtil::Int64  RETMSEC = DATA[ti].d_retmsec;
+            const Int64  RETMSEC = DATA[ti].d_retmsec;
 
             if (veryVerbose) {
                 cout << "\n--------------------------------------" << endl;
@@ -617,7 +621,7 @@ int main(int argc, char *argv[])
     if (veryVerbose) { cout << "After: "; P(resultDup); }
 
     if (STATUS) {
-            // *** Bad status implies no change to result. ***
+            // *** Bad status implies no change to result.  ***
         LOOP4_ASSERT(LINE, vi, CONTROL, result, ORIGINAL == result);
         LOOP4_ASSERT(LINE, vi, CONTROL, result, ORIGINAL == resultDup);
     }
@@ -650,7 +654,7 @@ int main(int argc, char *argv[])
     const bdet_Datetime INPUT2(tmp2);
     if (veryVerbose) P(INPUT2);
 
-        // *** All relevant fields are recovered properly. ***
+        // *** All relevant fields are recovered properly.  ***
     LOOP3_ASSERT(LINE, INPUT2, result2, INPUT2 == result2);
     LOOP3_ASSERT(LINE, INPUT2, result2Dup, INPUT2 == result2Dup);
   //^-----------v
@@ -667,7 +671,7 @@ int main(int argc, char *argv[])
         static const struct {
             int d_lineNum;  // source line number
 
-            bsls_PlatformUtil::Int64 d_input_ms;   // initial time_t value
+            Int64 d_input_ms;   // initial time_t value
 
             int d_year;    // expected field of result
             int d_month;   // expected field of result
@@ -681,7 +685,7 @@ int main(int argc, char *argv[])
             //lin   input value   year mon day hou min sec
             //---   -----------   ---- --- --- --- --- ---
 
-                // *** All relevant fields are recovered properly. ***
+                // *** All relevant fields are recovered properly.  ***
             //lin       input (ms)  year mon day hou min sec  ms
             //---   --------------  ---- --- --- --- --- --- ---
             { L_,             1000, 1970,  1,  1,  0,  0,  1, 0 }, // sec
@@ -754,15 +758,15 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
 
-            const bsls_PlatformUtil::Int64 INPUT_MS = DATA[ti].d_input_ms;
+            const Int64 INPUT_MS = DATA[ti].d_input_ms;
 
-            const int                         YEAR = DATA[ti].d_year;
-            const int                        MONTH = DATA[ti].d_month;
-            const int                          DAY = DATA[ti].d_day;
-            const int                         HOUR = DATA[ti].d_hour;
-            const int                       MINUTE = DATA[ti].d_minute;
-            const int                       SECOND = DATA[ti].d_second;
-            const int                         MSEC = DATA[ti].d_msec;
+            const int       YEAR = DATA[ti].d_year;
+            const int      MONTH = DATA[ti].d_month;
+            const int        DAY = DATA[ti].d_day;
+            const int       HOUR = DATA[ti].d_hour;
+            const int     MINUTE = DATA[ti].d_minute;
+            const int     SECOND = DATA[ti].d_second;
+            const int       MSEC = DATA[ti].d_msec;
 
             if (veryVerbose) {
                 T_ P(INPUT_MS)
@@ -790,7 +794,7 @@ int main(int argc, char *argv[])
             resultDup = bdetu_Epoch::convertFromDatetimeInterval(INPUT);// TEST
             if (veryVerbose) { cout << " After: "; P_(resultDup) }
   //v-------^
-        // *** All relevant fields are recovered properly. ***
+        // *** All relevant fields are recovered properly.  ***
     LOOP3_ASSERT(LINE, YEAR, result.year(), YEAR == result.year());
     LOOP3_ASSERT(LINE, MONTH, result.month(), MONTH == result.month());
     LOOP3_ASSERT(LINE, DAY, result.day(), DAY == result.day());
@@ -888,7 +892,7 @@ int main(int argc, char *argv[])
 
         }
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // CONVERT BDET_DATETIME TO/FROM BDET_TIMEINTERVAL
         //
@@ -978,21 +982,21 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nbdet_Datetime => bdet_TimeInterval." << endl;
 
         static const struct {
-            int                      d_lineNum;      // source line number
+            int   d_lineNum;      // source line number
 
-            int                      d_year;         // input
-            int                      d_month;        // input
-            int                      d_day;          // input
-            int                      d_hour;         // input
-            int                      d_minute;       // input
-            int                      d_second;       // input
-            int                      d_millisecond;  // input
+            int   d_year;         // input
+            int   d_month;        // input
+            int   d_day;          // input
+            int   d_hour;         // input
+            int   d_minute;       // input
+            int   d_second;       // input
+            int   d_millisecond;  // input
 
-            int                      d_status;       // value returned by
-                                                     // function
+            int   d_status;       // value returned by
+                                  // function
 
-            bsls_PlatformUtil::Int64 d_retsec;       // output
-            int                      d_retnsec;      // output
+            Int64 d_retsec;       // output
+            int   d_retnsec;      // output
 
         } DATA[] = {
                // <---------- input ---------->   <--expected------------>
@@ -1033,7 +1037,8 @@ int main(int argc, char *argv[])
             { L_, 2038,  1, 19,  3,  0,  0,   0,  0, 2147482800, 0 }, // 17
             { L_, 2038,  1, 19,  3, 14,  0,   0,  0, 2147483640, 0 }, // 17
             { L_, 2038,  1, 19,  3, 14,  7,   0,  0, 2147483647, 0 }, // 17
-            { L_, 2038,  1, 19,  3, 14,  8,   0,  0, 2147483648, 0 }, // 17
+            { L_, 2038,  1, 19,  3, 14,  8,   0,  0, 2147483648LL,
+                                                                 0 }, // 17
 
             { L_, 2048,  1, 19,  3, 14,  8,   0,  0, 2463016448LL,
                                                                  0}, // 19
@@ -1061,7 +1066,7 @@ int main(int argc, char *argv[])
             { L_, 9999, 12, 31, 23, 59, 59, 999,  0, 253402300799LL,
                                                        999000000 }, // 1947
 
-                // *** All fields are converted properly. ***
+                // *** All fields are converted properly.  ***
             //lin year mon day hou min sec msec  s      sec  nsec
             //--- ---- --- --- --- --- --- ----  -      ---  ----
             { L_, 1971,  1,  1,  0,  0,  0,  0,  0, 31536000, 0 }, // year
@@ -1156,19 +1161,17 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
 
-            const int    LINE = DATA[ti].d_lineNum;
-            const int    YEAR = DATA[ti].d_year;
-            const int   MONTH = DATA[ti].d_month;
-            const int     DAY = DATA[ti].d_day;
-            const int    HOUR = DATA[ti].d_hour;
-            const int  MINUTE = DATA[ti].d_minute;
-            const int  SECOND = DATA[ti].d_second;
-            const int    MSEC = DATA[ti].d_millisecond;
-
-            const int  STATUS = DATA[ti].d_status;
-
-            const bsls_PlatformUtil::Int64  RETSEC = DATA[ti].d_retsec;
-            const int                      RETNSEC = DATA[ti].d_retnsec;
+            const int      LINE = DATA[ti].d_lineNum;
+            const int      YEAR = DATA[ti].d_year;
+            const int     MONTH = DATA[ti].d_month;
+            const int       DAY = DATA[ti].d_day;
+            const int      HOUR = DATA[ti].d_hour;
+            const int    MINUTE = DATA[ti].d_minute;
+            const int    SECOND = DATA[ti].d_second;
+            const int      MSEC = DATA[ti].d_millisecond;
+            const int    STATUS = DATA[ti].d_status;
+            const Int64  RETSEC = DATA[ti].d_retsec;
+            const int   RETNSEC = DATA[ti].d_retnsec;
 
             if (veryVerbose) {
                 cout << "\n--------------------------------------" << endl;
@@ -1208,7 +1211,7 @@ int main(int argc, char *argv[])
     if (veryVerbose) { cout << "After: "; P(resultDup); }
 
     if (STATUS) {
-            // *** Bad status implies no change to result. ***
+            // *** Bad status implies no change to result.  ***
         LOOP4_ASSERT(LINE, vi, CONTROL, result, ORIGINAL == result);
         LOOP4_ASSERT(LINE, vi, CONTROL, result, ORIGINAL == resultDup);
     }
@@ -1241,7 +1244,7 @@ int main(int argc, char *argv[])
     const bdet_Datetime INPUT2(tmp2);
     if (veryVerbose) P(INPUT2);
 
-        // *** All relevant fields are recovered properly. ***
+        // *** All relevant fields are recovered properly.  ***
     LOOP3_ASSERT(LINE, INPUT2, result2, INPUT2 == result2);
     LOOP3_ASSERT(LINE, INPUT2, result2Dup, INPUT2 == result2Dup);
   //^-----------v
@@ -1255,24 +1258,24 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nbdet_TimeInterval => bdet_Datetime." << endl;
 
         static const struct {
-            int d_lineNum;  // source line number
+            int  d_lineNum;    // source line number
 
-            bsls_PlatformUtil::Int64 d_input_s;   // initial time_t value
-            int                      d_input_ns;  // initial time_t value
+            Int64 d_input_s;   // initial time_t value
+            int   d_input_ns;  // initial time_t value
 
-            int d_year;    // expected field of result
-            int d_month;   // expected field of result
-            int d_day;     // expected field of result
-            int d_hour;    // expected field of result
-            int d_minute;  // expected field of result
-            int d_second;  // expected field of result
-            int d_msec;    // expected field of result
+            int   d_year;      // expected field of result
+            int   d_month;     // expected field of result
+            int   d_day;       // expected field of result
+            int   d_hour;      // expected field of result
+            int   d_minute;    // expected field of result
+            int   d_second;    // expected field of result
+            int   d_msec;      // expected field of result
 
         } DATA[] = {           // <------- result ------->
             //lin   input value   year mon day hou min sec
             //---   -----------   ---- --- --- --- --- ---
 
-                // *** All relevant fields are recovered properly. ***
+                // *** All relevant fields are recovered properly.  ***
             //lin     input (s) (ns) year mon day hou min sec  ms
             //---   ----------- ---- ---- --- --- --- --- --- ---
             { L_,             1,  0, 1970,  1,  1,  0,  0,  1, 0 }, // sec
@@ -1370,16 +1373,16 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
 
-            const bsls_PlatformUtil::Int64 INPUT_S = DATA[ti].d_input_s;
-            const int                     INPUT_NS = DATA[ti].d_input_ns;
+            const Int64  INPUT_S = DATA[ti].d_input_s;
+            const int   INPUT_NS = DATA[ti].d_input_ns;
 
-            const int                         YEAR = DATA[ti].d_year;
-            const int                        MONTH = DATA[ti].d_month;
-            const int                          DAY = DATA[ti].d_day;
-            const int                         HOUR = DATA[ti].d_hour;
-            const int                       MINUTE = DATA[ti].d_minute;
-            const int                       SECOND = DATA[ti].d_second;
-            const int                         MSEC = DATA[ti].d_msec;
+            const int       YEAR = DATA[ti].d_year;
+            const int      MONTH = DATA[ti].d_month;
+            const int        DAY = DATA[ti].d_day;
+            const int       HOUR = DATA[ti].d_hour;
+            const int     MINUTE = DATA[ti].d_minute;
+            const int     SECOND = DATA[ti].d_second;
+            const int       MSEC = DATA[ti].d_msec;
 
             if (veryVerbose) {
                 T_ P_(INPUT_S) P(INPUT_NS)
@@ -1410,7 +1413,7 @@ int main(int argc, char *argv[])
             resultDup = bdetu_Epoch::convertFromTimeInterval(INPUT);
             if (veryVerbose) { cout << " After: "; P_(resultDup) }
   //v-------^
-        // *** All relevant fields are recovered properly. ***
+        // *** All relevant fields are recovered properly.  ***
     LOOP3_ASSERT(LINE, YEAR, result.year(), YEAR == result.year());
     LOOP3_ASSERT(LINE, MONTH, result.month(), MONTH == result.month());
     LOOP3_ASSERT(LINE, DAY, result.day(), DAY == result.day());
@@ -1508,7 +1511,7 @@ int main(int argc, char *argv[])
 
         }
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // CONVERT BDET_DATETIME TO/FROM TIME_T
         //
@@ -1661,7 +1664,7 @@ int main(int argc, char *argv[])
 
             { L_, 9999, 12, 31, 23, 59, 59, 999,  FAILURE       },
 
-                // *** All fields are converted properly. ***
+                // *** All fields are converted properly.  ***
             //lin year mon day hou min sec msec   s      result
             //--- ---- --- --- --- --- --- ----   -      ------
             { L_, 1971,  1,  1,  0,  0,  0,   0,  0,   31536000 }, // year
@@ -1797,7 +1800,7 @@ int main(int argc, char *argv[])
     if (veryVerbose) { cout << "After: "; P(resultDup); }
 
     if (STATUS) {
-            // *** Bad status implies no change to result. ***
+            // *** Bad status implies no change to result.  ***
         LOOP4_ASSERT(LINE, vi, CONTROL, result, CONTROL == result);
         LOOP4_ASSERT(LINE, vi, CONTROL, result, CONTROL == resultDup);
     }
@@ -1822,7 +1825,7 @@ int main(int argc, char *argv[])
     result2Dup = bdetu_Epoch::convertFromTimeT(resultDup);
     if (veryVerbose) { cout << "After: "; P(result2Dup); }
 
-        // *** The millisecond field is always set to 0. ***
+        // *** The millisecond field is always set to 0.  ***
     if (veryVeryVerbose) P(INPUT);
     bdet_Datetime tmp2(INPUT);
     tmp2.setMillisecond(0);
@@ -1863,7 +1866,7 @@ int main(int argc, char *argv[])
             //lin   input value   year mon day hou min sec
             //---   -----------   ---- --- --- --- --- ---
 
-                // *** All relevant fields are recovered properly. ***
+                // *** All relevant fields are recovered properly.  ***
             //lin   input value   year mon day hou min sec
             //---   -----------   ---- --- --- --- --- ---
             { L_,             1,  1970,  1,  1,  0,  0,  1 }, // sec
@@ -1882,7 +1885,7 @@ int main(int argc, char *argv[])
             { L_,      31535999,  1970, 12, 31, 23, 59, 59 },
 
             { L_,      31536000,  1971,  1,  1,  0,  0,  0 }, // year
-            { L_,      63072000,  1972,  1,  1,  0,  0,  0 }, // lp. yr.
+            { L_,      63072000,  1972,  1,  1,  0,  0,  0 }, // lp.  yr.
             { L_,      94694400,  1973,  1,  1,  0,  0,  0 },
             { L_,     126230400,  1974,  1,  1,  0,  0,  0 },
 
@@ -1895,7 +1898,7 @@ int main(int argc, char *argv[])
 
             { L_,    2021253247,  2034,  1, 19,  3, 14,  7 }, // year
             { L_,    2052789247,  2035,  1, 19,  3, 14,  7 },
-            { L_,    2084325247,  2036,  1, 19,  3, 14,  7 }, // lp. yr.
+            { L_,    2084325247,  2036,  1, 19,  3, 14,  7 }, // lp.  yr.
             { L_,    2115947647,  2037,  1, 19,  3, 14,  7 },
 
             { L_,    2144805247,  2037, 12, 19,  3, 14,  7 }, // mon
@@ -1944,7 +1947,7 @@ int main(int argc, char *argv[])
             resultDup = bdetu_Epoch::convertFromTimeT(INPUT);
             if (veryVerbose) { cout << " After: "; P_(resultDup) }
   //v-------^
-        // *** All relevant fields are recovered properly. ***
+        // *** All relevant fields are recovered properly.  ***
     LOOP3_ASSERT(LINE, YEAR, result.year(), YEAR == result.year());
     LOOP3_ASSERT(LINE, MONTH, result.month(), MONTH == result.month());
     LOOP3_ASSERT(LINE, DAY, result.day(), DAY == result.day());
@@ -1961,7 +1964,7 @@ int main(int argc, char *argv[])
     LOOP3_ASSERT(LINE, SECOND, resultDup.second(),
                                                  SECOND == resultDup.second());
 
-        // *** The millisecond field is always set to 0. ***
+        // *** The millisecond field is always set to 0.  ***
     LOOP2_ASSERT(LINE, result.millisecond(), 0 == result.millisecond());
     LOOP2_ASSERT(LINE, resultDup.millisecond(), 0 == resultDup.millisecond());
   //^-----------v
@@ -2035,6 +2038,575 @@ int main(int argc, char *argv[])
 
     LOOP_ASSERT(i, currentValue == result);
     LOOP_ASSERT(i, currentValue == resultDup);
+  //^-------v
+        }
+
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // CONVERT BDET_DATETIME TO/FROM BSLS_TYPES::INT64
+        //
+        // Concerns:
+        //   To:
+        //     1) All fields are converted properly.
+        //     2) The millisecond field is ignored.
+        //     3) Time = 24:00:00:000 converts to 00:00:00, not to 24:00:00.
+        //     4) Bad status implies no change to result.
+        //
+        //   From:
+        //     1) All relevant fields are recovered properly.
+        //     2) The millisecond field is always set to 0.
+        //     3) 'bsls_Types::Int64' values producing invalid 'bdet_Datetime'
+        //         values fail:
+        //         a) time_t < -6213579600   (01/01/0001 - 00:00:00)
+        //         b) time_t > 2253402300799 (12/31/9999 - 23:59:59)
+        //         c) internal 64-bit integer temporaries do not overflow.
+        //
+        // Plan:
+        //   1) Test 'convertToTimeT64'
+        //        * Table-Based Implementation
+        //        * Category Partitioning Data Selection
+        //        * Orthogonal Perturbation:
+        //
+        //        Construct a table in which each input field, and output value
+        //        are represented in separate columns.  Note that the body of
+        //        the main loop will also be used to partially test
+        //        'convertFromTimeT64'.
+        //
+        //   2) Test convertFromTimeT64
+        //        * Reuse
+        //        * Table-Based Implementation
+        //        * Category Partitioning Data Selection
+        //        * Exploit proven inverse operation: 'convertToTimeT64'
+        //        * Orthogonal Perturbation:
+        //              * Unaltered Initial Values
+        //
+        //        A) First, REUSE the table used to test
+        //           'convertToTimeT64' to reverse every successful
+        //           conversion to 'bsls_Types::Int64', and compare that result
+        //           against the initial input (except in cases where
+        //           milliseconds were initially non-zero).
+        //
+        //        B) Second, create a separate table that explicitly converts
+        //           valid 'bsls_Types::Int64' to 'bdet_Datetime' values
+        //           with input and individual output fields represented as
+        //           separate columns.  For each result, that yields a status
+        //           equal to 0 (in a separate column) verify that the input is
+        //           the table's expected value via the proven
+        //           'convertToTimeT64';
+        //           'convertFromTimeT64' is then applied, and the
+        //           result of that calculation is compared with the expected
+        //           result values in the table.  For each result that yields a
+        //           non 0 status, verify that the result is unchanged from its
+        //           original value after 'convertFromTimeT64'.
+        //           Note that the 'millisecond' field is necessarily 0, and is
+        //           tested directly within the main loop.
+        //
+        //   3) Test 'convertToTimeT64' and then
+        //      'convertFromTimeT64':
+        //        * Exploit Inverse Relationship
+        //        * Loop-Based Implementation
+        //        * Pseudo-Random Data Selection
+        //            * Exploiting Inverse Relationship
+        //
+        //        Use a loop-based approach to verify that pseudo-randomly
+        //        selected, non-repeating datetime values that can be
+        //        converted to and then from 'bsls_Types::Int64' objects result
+        //        in exactly the same object.  Note that the intermediate
+        //        'bsls_Types' instance is initialized to a different "garbage"
+        //        value on each iteration.
+        //
+        // Testing:
+        //   bsls_Types::Int64 convertToTimeT64(constDatetime& d);
+        //   void convertFromTimeT64(Datetime *r, Int64 t);
+        //   bdet_Datetime convertFromTimeT64(Int64 time);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BDET_DATETIME TO INT64"
+                          << "======================" << endl;
+
+        enum { FAILURE = 1 };
+
+        {
+
+        if (verbose) cout << "\nbdet_Datetime => bsls_Types::Int64" << endl;
+
+        static const struct {
+            int d_lineNum;      // source line number
+
+            int d_year;         // input
+            int d_month;        // input
+            int d_day;          // input
+            int d_hour;         // input
+            int d_minute;       // input
+            int d_second;       // input
+            int d_millisecond;  // input
+
+            bsls_Types::Int64  d_time;      // output
+
+        } DATA[] = {
+               // <---------- input ---------->   <--expected->
+
+            //lin year mon day hou min sec msec           result   ld =
+            //--- ---- --- --- --- --- --- ----  --------------    Leap Day
+            { L_,    1,  1,  1,  0,  0,  0,   0,   -62135769600LL },
+            { L_, 1869, 12, 31, 23, 59, 59, 999,    -3155673601LL },
+            { L_, 1879, 12, 31, 23, 59, 59, 999,    -2840140801LL },
+            { L_, 1883, 10, 20, 12, 49, 20, 123,    -2720171440LL },
+            { L_, 1889, 12, 31, 23, 59, 59, 999,    -2524521601LL },
+            { L_, 1899, 12, 31, 23, 59, 59, 999,    -2208988801LL },
+            { L_, 1909, 12, 31, 23, 59, 59, 999,      -1893456001 },
+            { L_, 1919, 12, 31, 23, 59, 59, 999,      -1577923201 },
+            { L_, 1925,  5, 28,  5,  9, 40, 321,      -1407351020 },
+            { L_, 1929, 12, 31, 23, 59, 59, 999,      -1262304001 },
+            { L_, 1939, 12, 31, 23, 59, 59, 999,       -946771201 },
+            { L_, 1944,  7,  8, 13, 18, 33, 951,       -804163287 },
+            { L_, 1949, 12, 31, 23, 59, 59, 999,       -631152001 },
+            { L_, 1959, 12, 31, 23, 59, 59, 999,       -315619201 },
+
+            { L_, 1969, 12, 31, 23, 59, 59, 999,               -1 },
+            { L_, 1970,  1,  1,  0,  0,  0,   0,                0 }, //  0ld
+
+            { L_, 1980,  1,  1,  0,  0,  0,   0,        315532800 }, //  2ld
+            { L_, 1990,  1,  1,  0,  0,  0,   0,        631152000 }, //  5ld
+            { L_, 2000,  1,  1,  0,  0,  0,   0,        946684800 }, //  7ld
+            { L_, 2010,  1,  1,  0,  0,  0,   0,       1262304000 }, // 10ld
+            { L_, 2020,  1,  1,  0,  0,  0,   0,       1577836800 }, // 12ld
+            { L_, 2030,  1,  1,  0,  0,  0,   0,       1893456000 }, // 15ld
+            { L_, 2038,  1,  1,  0,  0,  0,   0,       2145916800 }, // 17ld
+
+            { L_, 2038,  1, 19,  0,  0,  0,   0,       2147472000 }, // 17ld
+            { L_, 2038,  1, 19,  3,  0,  0,   0,       2147482800 }, // 17ld
+            { L_, 2038,  1, 19,  3, 14,  0,   0,       2147483640 }, // 17ld
+            { L_, 2038,  1, 19,  3, 14,  7,   0,       2147483647 }, // 17ld
+            { L_, 2038,  1, 19,  3, 14,  8,   0,     2147483648LL },
+            { L_, 2048,  1, 19,  3, 14,  8,   0,     2463016448LL },
+            { L_, 2058,  1, 19,  3, 14,  8,   0,     2778635648LL },
+            { L_, 2068,  1, 19,  3, 14,  8,   0,     3094168448LL },
+            { L_, 2078,  1, 19,  3, 14,  8,   0,     3409787648LL },
+            { L_, 2088,  1, 19,  3, 14,  8,   0,     3725320448LL },
+            { L_, 2098,  1, 19,  3, 14,  8,   0,     4040939648LL },
+            { L_, 2108,  1, 19,  3, 14,  8,   0,     4356386048LL },
+            { L_, 9999, 12, 31, 23, 59, 57, 999,   253402300797LL },
+            { L_, 9999, 12, 31, 23, 59, 58, 999,   253402300798LL },
+            { L_, 9999, 12, 31, 23, 59, 59, 999,   253402300799LL },
+
+                // *** All fields are converted properly.  ***
+            //lin year mon day hou min sec msec          result
+            //--- ---- --- --- --- --- --- ----  --------------
+            { L_, 1971,  1,  1,  0,  0,  0,   0,       31536000 }, // year
+            { L_, 1972,  1,  1,  0,  0,  0,   0,       63072000 }, // year
+            { L_, 1973,  1,  1,  0,  0,  0,   0,       94694400 }, // year
+
+            { L_, 1971,  2,  1,  0,  0,  0,   0,       34214400 }, // month
+            { L_, 1971,  3,  1,  0,  0,  0,   0,       36633600 }, // month
+            { L_, 1971, 12,  1,  0,  0,  0,   0,       60393600 }, // month
+
+            { L_, 1972,  2,  1,  0,  0,  0,   0,       65750400 }, // month
+            { L_, 1972,  3,  1,  0,  0,  0,   0,       68256000 }, // month
+            { L_, 1972, 12,  1,  0,  0,  0,   0,       92016000 }, // month
+
+            { L_, 1972,  1, 30,  0,  0,  0,   0,       65577600 }, // day
+            { L_, 1972,  1, 31,  0,  0,  0,   0,       65664000 }, // day
+            { L_, 1972,  2, 29,  0,  0,  0,   0,       68169600 }, // day
+
+            { L_, 1972,  3, 31,  0,  0,  0,   0,       70848000 }, // day
+            { L_, 1972,  4, 30,  0,  0,  0,   0,       73440000 }, // day
+            { L_, 1972, 12, 31,  0,  0,  0,   0,       94608000 }, // day
+
+            { L_, 1972,  1,  1,  1,  0,  0,   0,       63075600 }, // hour
+            { L_, 1972,  1,  1, 23,  0,  0,   0,       63154800 }, // hour
+
+            { L_, 1972,  1,  1,  0,  1,  0,   0,       63072060 }, // min
+            { L_, 1972,  1,  1,  0, 59,  0,   0,       63075540 }, // min
+
+            { L_, 1972,  1,  1,  0,  0,  1,   0,       63072001 }, // sec
+            { L_, 1972,  1,  1,  0,  0, 59,   0,       63072059 }, // sec
+
+                // *** The millisecond field is ignored.  ***
+            //lin year mon day hou min sec msec          result
+            //--- ---- --- --- --- --- --- ----  --------------
+            { L_, 1972,  1,  1,  0,  0,  0,   0,       63072000 }, // msec
+            { L_, 1972,  1,  1,  0,  0,  0,   1,       63072000 }, // msec
+            { L_, 1972,  1,  1,  0,  0,  0,   9,       63072000 }, // msec
+            { L_, 1972,  1,  1,  0,  0,  0,  10,       63072000 }, // msec
+            { L_, 1972,  1,  1,  0,  0,  0,  90,       63072000 }, // msec
+            { L_, 1972,  1,  1,  0,  0,  0,  99,       63072000 }, // msec
+            { L_, 1972,  1,  1,  0,  0,  0, 100,       63072000 }, // msec
+            { L_, 1972,  1,  1,  0,  0,  0, 900,       63072000 }, // msec
+            { L_, 1972,  1,  1,  0,  0,  0, 999,       63072000 }, // msec
+
+                // *** Time = 24:00:00:000 converts to 00:00:00 ***
+            //lin year mon day hou min sec msec          result
+            //--- ---- --- --- --- --- --- ----  --------------
+            { L_, 1970,  1,  1, 24,  0,  0,   0,              0 }, // year
+            { L_, 1971,  1,  1, 24,  0,  0,   0,       31536000 }, // year
+            { L_, 1972,  1,  1, 24,  0,  0,   0,       63072000 }, // year
+            { L_, 1973,  1,  1, 24,  0,  0,   0,       94694400 }, // year
+
+            { L_, 1971,  2,  1, 24,  0,  0,   0,       34214400 }, // month
+            { L_, 1971,  3,  1, 24,  0,  0,   0,       36633600 }, // month
+            { L_, 1971, 12,  1, 24,  0,  0,   0,       60393600 }, // month
+
+            { L_, 1972,  2,  1, 24,  0,  0,   0,       65750400 }, // month
+            { L_, 1972,  3,  1, 24,  0,  0,   0,       68256000 }, // month
+            { L_, 1972, 12,  1, 24,  0,  0,   0,       92016000 }, // month
+
+            { L_, 1972,  1, 30, 24,  0,  0,   0,       65577600 }, // day
+            { L_, 1972,  1, 31, 24,  0,  0,   0,       65664000 }, // day
+            { L_, 1972,  2, 29, 24,  0,  0,   0,       68169600 }, // day
+
+            { L_, 1972,  3, 31, 24,  0,  0,   0,       70848000 }, // day
+            { L_, 1972,  4, 30, 24,  0,  0,   0,       73440000 }, // day
+            { L_, 1972, 12, 31, 24,  0,  0,   0,       94608000 }, // day
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        // PERTURBATION: Arbitrary initial time values in order to verify
+        //               "No Change" to 'result' on FAILURE.
+
+        const bsl::time_t INITIAL_VALUES[] = { // standard b-box int partition
+            INT_MIN, INT_MIN + 1, -1, 0, 1, INT_MAX
+        };
+
+        int tmp = sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES;
+
+        const int NUM_INITIAL_VALUES = tmp;
+
+        // MAIN TEST-TABLE LOOP
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+
+            const int    LINE = DATA[ti].d_lineNum;
+            const int    YEAR = DATA[ti].d_year;
+            const int   MONTH = DATA[ti].d_month;
+            const int     DAY = DATA[ti].d_day;
+            const int    HOUR = DATA[ti].d_hour;
+            const int  MINUTE = DATA[ti].d_minute;
+            const int  SECOND = DATA[ti].d_second;
+            const int    MSEC = DATA[ti].d_millisecond;
+
+            const bsls_Types::Int64 TIME = DATA[ti].d_time;
+
+            if (veryVerbose) {
+                cout << "\n--------------------------------------" << endl;
+                P_(LINE) P_(YEAR) P_(MONTH) P(DAY)
+                T_ P_(HOUR) P_(MINUTE) P_(SECOND) P(MSEC)
+                T_ P(TIME)
+            }
+
+            const bdet_Datetime INPUT(YEAR, MONTH, DAY,
+                                      HOUR, MINUTE, SECOND, MSEC);
+
+            if (veryVerbose) P(INPUT);
+
+            for (int vi = 0; vi < NUM_INITIAL_VALUES; ++vi) {
+  //v-----------^
+    const bsl::time_t CONTROL = INITIAL_VALUES[vi];
+    if (veryVeryVerbose) { P(CONTROL); }
+    bsls_Types::Int64 result = CONTROL;
+
+    if (veryVerbose) { cout << "Before: "; P(result); }
+    // This is necessary since the version of 'convertToTimeT64'
+    // does not do any error checking.
+
+    result = bdetu_Epoch::convertToTimeT64(INPUT);
+
+    if (veryVerbose) { cout << "After: "; P(result); }
+
+    LOOP4_ASSERT(LINE, vi, TIME, result, TIME == result);
+
+        // *** REUSE THIS LOOP TO PARTIALLY TEST convertFromTimeT ***
+
+    if (vi)                 continue; // Don't repeat more than once per row.
+
+    bdet_Datetime result2   (2222, 2, 22, 22, 22, 22, 222);
+    bdet_Datetime result2Dup(2222, 2, 22, 22, 22, 22, 222);
+
+    if (veryVerbose) { cout << "Before: "; P(result2); }
+    bdetu_Epoch::convertFromTimeT64(&result2, result);
+    if (veryVerbose) { cout << "After: "; P(result2); }
+
+    if (veryVerbose) { cout << "Before: "; P(result2Dup); }
+    result2Dup = bdetu_Epoch::convertFromTimeT64(result);
+    if (veryVerbose) { cout << "After: "; P(result2Dup); }
+
+        // *** The millisecond field is always set to 0.  ***
+    if (veryVeryVerbose) P(INPUT);
+    bdet_Datetime tmp2(INPUT);
+    tmp2.setMillisecond(0);
+
+        // *** There is no equivalent representation for 24:00:00 as a time_t
+    tmp2.setHour(tmp2.hour() % 24);
+
+    const bdet_Datetime INPUT2(tmp2);
+    if (veryVerbose) P(INPUT2);
+    LOOP2_ASSERT(LINE, INPUT2, 0 == INPUT2.millisecond()); // double check
+
+        // *** All relevant fields are recovered properly.  ***
+    LOOP3_ASSERT(LINE, INPUT2, result2, INPUT2 == result2);
+    LOOP3_ASSERT(LINE, INPUT2, result2Dup, INPUT2 == result2Dup);
+  //^-----------v
+            } // end for vi
+        } // end for ti
+
+        }
+
+        {
+
+        if (verbose) cout << "\ntime_t => bdet_Datetime." << endl;
+
+        bsl::numeric_limits<long long> LLONG_LIMITS;
+        static const struct {
+            int d_lineNum;               // source line number
+
+            bsls_Types::Int64 d_input;   // initial time_t value
+
+            int d_status;                // expected success
+
+            int d_year;                  // expected field of result
+            int d_month;                 // expected field of result
+            int d_day;                   // expected field of result
+            int d_hour;                  // expected field of result
+            int d_minute;                // expected field of result
+            int d_second;                // expected field of result
+
+        } DATA[] = {           // <------- result ------->
+            //lin   input value   year mon day hou min sec
+            //---   -----------   ---- --- --- --- --- ---
+
+                // *** All relevant fields are recovered properly.  ***
+            //lin   input value   s    year mon day hou min sec
+            //--- -------------   -    ---- --- --- --- --- ---
+            { L_,  LLONG_LIMITS.min(),     FAILURE                           },
+            { L_,  LLONG_MIN +1,  FAILURE                           },
+            { L_, -62135769602LL, FAILURE                           },
+            { L_, -62135769601LL, FAILURE                           },
+            { L_, -62135769600LL, 0,          1,  1,  1,  0,  0,  0 },
+            { L_, -62135769599LL, 0,          1,  1,  1,  0,  0,  1 },
+            { L_, -62135769598LL, 0,          1,  1,  1,  0,  0,  2 },
+            { L_,  -3155673601LL, 0,       1869, 12, 31, 23, 59, 59 },
+            { L_,  -2840140801LL, 0,       1879, 12, 31, 23, 59, 59 },
+            { L_,  -2720171440LL, 0,       1883, 10, 20, 12, 49, 20 },
+            { L_,  -2524521601LL, 0,       1889, 12, 31, 23, 59, 59 },
+            { L_,  -2208988801LL, 0,       1899, 12, 31, 23, 59, 59 },
+            { L_,    -1893456001, 0,       1909, 12, 31, 23, 59, 59 },
+            { L_,    -1577923201, 0,       1919, 12, 31, 23, 59, 59 },
+            { L_,    -1407351020, 0,       1925,  5, 28,  5,  9, 40 },
+            { L_,    -1262304001, 0,       1929, 12, 31, 23, 59, 59 },
+            { L_,     -946771201, 0,       1939, 12, 31, 23, 59, 59 },
+            { L_,     -804163287, 0,       1944,  7,  8, 13, 18, 33 },
+            { L_,     -631152001, 0,       1949, 12, 31, 23, 59, 59 },
+            { L_,     -315619201, 0,       1959, 12, 31, 23, 59, 59 },
+            { L_,             -1, 0,       1969, 12, 31, 23, 59, 59 },
+            { L_,              0, 0,       1970,  1,  1,  0,  0,  0 }, // sec
+            { L_,              1, 0,       1970,  1,  1,  0,  0,  1 }, // sec
+            { L_,             59, 0,       1970,  1,  1,  0,  0, 59 },
+
+            { L_,             60, 0,       1970,  1,  1,  0,  1,  0 }, // min
+            { L_,           3599, 0,       1970,  1,  1,  0, 59, 59 }, //
+
+            { L_,           3600, 0,       1970,  1,  1,  1,  0,  0 }, // hour
+            { L_,          86399, 0,       1970,  1,  1, 23, 59, 59 },
+
+            { L_,          86400, 0,       1970,  1,  2,  0,  0,  0 }, // day
+            { L_,        2678399, 0,       1970,  1, 31, 23, 59, 59 },
+
+            { L_,        2678400, 0,       1970,  2,  1,  0,  0,  0 }, // mon
+            { L_,       31535999, 0,       1970, 12, 31, 23, 59, 59 },
+
+            { L_,       31536000, 0,       1971,  1,  1,  0,  0,  0 }, // year
+            { L_,       63072000, 0,       1972,  1,  1,  0,  0,  0 }, // lp.yr
+            { L_,       94694400, 0,       1973,  1,  1,  0,  0,  0 },
+            { L_,      126230400, 0,       1974,  1,  1,  0,  0,  0 },
+
+            { L_,      441763200, 0,       1984,  1,  1,  0,  0,  0 }, // 10yrs
+            { L_,      757382400, 0,       1994,  1,  1,  0,  0,  0 },
+            { L_,     1072915200, 0,       2004,  1,  1,  0,  0,  0 },
+            { L_,     1388534400, 0,       2014,  1,  1,  0,  0,  0 },
+            { L_,     1704067200, 0,       2024,  1,  1,  0,  0,  0 },
+            { L_,     2019686400, 0,       2034,  1,  1,  0,  0,  0 },
+
+            { L_,     2021253247, 0,       2034,  1, 19,  3, 14,  7 }, // year
+            { L_,     2052789247, 0,       2035,  1, 19,  3, 14,  7 },
+            { L_,     2084325247, 0,       2036,  1, 19,  3, 14,  7 }, // lp.yr
+            { L_,     2115947647, 0,       2037,  1, 19,  3, 14,  7 },
+
+            { L_,     2144805247, 0,       2037, 12, 19,  3, 14,  7 }, // mon
+            { L_,     2147480047, 0,       2038,  1, 19,  2, 14,  7 }, // hour
+            { L_,     2147483587, 0,       2038,  1, 19,  3, 13,  7 }, // min
+            { L_,     2147483646, 0,       2038,  1, 19,  3, 14,  6 }, // sec
+
+            { L_,     2147483647, 0,       2038,  1, 19,  3, 14,  7 }, // top
+            { L_,        INT_MAX, 0,       2038,  1, 19,  3, 14,  7 },
+            { L_,   2147483648LL, 0,       2038,  1, 19,  3, 14,  8 },
+            { L_,   2463016448LL, 0,       2048,  1, 19,  3, 14,  8 },
+            { L_,   2778635648LL, 0,       2058,  1, 19,  3, 14,  8 },
+            { L_,   3094168448LL, 0,       2068,  1, 19,  3, 14,  8 },
+            { L_,   3409787648LL, 0,       2078,  1, 19,  3, 14,  8 },
+            { L_,   3725320448LL, 0,       2088,  1, 19,  3, 14,  8 },
+            { L_,   4040939648LL, 0,       2098,  1, 19,  3, 14,  8 },
+            { L_,   4356386048LL, 0,       2108,  1, 19,  3, 14,  8 },
+            { L_, 253402300797LL, 0,       9999, 12, 31, 23, 59, 57 },
+            { L_, 253402300798LL, 0,       9999, 12, 31, 23, 59, 58 },
+            { L_, 253402300799LL, 0,       9999, 12, 31, 23, 59, 59 },
+            { L_, 253402300800LL, FAILURE                           },
+            { L_, 253402300801LL, FAILURE                           },
+            { L_,  LLONG_MAX - 1, FAILURE                           },
+            { L_,      LLONG_MAX, FAILURE                           },
+         };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        // MAIN TEST-TABLE LOOP
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE  = DATA[ti].d_lineNum;
+
+            const bsls_Types::Int64  INPUT  = DATA[ti].d_input;
+
+            const int  STATUS = DATA[ti].d_status;
+
+            const int   YEAR  = DATA[ti].d_year;
+            const int  MONTH  = DATA[ti].d_month;
+            const int    DAY  = DATA[ti].d_day;
+            const int   HOUR  = DATA[ti].d_hour;
+            const int MINUTE  = DATA[ti].d_minute;
+            const int SECOND  = DATA[ti].d_second;
+
+            if (veryVerbose) {
+                cout << "\n--------------------------------------" << endl;
+                P_(LINE) P_(INPUT) P(STATUS)
+                T_ P_(YEAR) P_(MONTH) P(DAY)
+                T_ P_(HOUR) P_(MINUTE) P(SECOND)
+            }
+
+            {
+                // Double check that the table itself is right.
+                LOOP_ASSERT(LINE, !!STATUS == STATUS);
+
+                // If the conversion is meaningful double check
+                if (!STATUS) {
+                    bdet_Datetime dt(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND);
+                    bsls_Types::Int64 tt;
+                    tt = bdetu_Epoch::convertToTimeT64(dt);
+                    LOOP3_ASSERT(LINE, tt, INPUT, tt == INPUT);
+                }
+            }
+
+            bdet_Datetime CONTROL(1, 2, 3, 4, 5, 6, 7);
+            bdet_Datetime result(CONTROL);
+            bdet_Datetime resultDup(CONTROL);
+
+            if (veryVerbose) { cout << "Before: "; P(result) }
+            int status = bdetu_Epoch::convertFromTimeT64(&result,
+                                                                    INPUT);
+            if (veryVerbose) { cout << " After: "; P_(result) }
+            LOOP4_ASSERT(LINE, ti, STATUS, status, !STATUS == !status);
+                                                                   // black-box
+
+            if (!STATUS) {
+                resultDup = bdetu_Epoch::convertFromTimeT64(INPUT);
+            }
+            if (veryVerbose) { cout << "After: "; P(resultDup); }
+
+            if (STATUS) {
+                    // *** Bad status implies no change to result.  ***
+                LOOP4_ASSERT(LINE, ti, CONTROL, result, CONTROL == result);
+                LOOP4_ASSERT(LINE, ti, CONTROL, result, CONTROL == resultDup);
+            }
+            else {
+  //v-------^
+        // *** All relevant fields are recovered properly.  ***
+    LOOP3_ASSERT(LINE, YEAR, result.year(), YEAR == result.year());
+    LOOP3_ASSERT(LINE, MONTH, result.month(), MONTH == result.month());
+    LOOP3_ASSERT(LINE, DAY, result.day(), DAY == result.day());
+    LOOP3_ASSERT(LINE, HOUR, result.hour(), HOUR == result.hour());
+    LOOP3_ASSERT(LINE, MINUTE, result.minute(), MINUTE == result.minute());
+    LOOP3_ASSERT(LINE, SECOND, result.second(), SECOND == result.second());
+
+    LOOP3_ASSERT(LINE, YEAR, resultDup.year(), YEAR == resultDup.year());
+    LOOP3_ASSERT(LINE, MONTH, resultDup.month(), MONTH == resultDup.month());
+    LOOP3_ASSERT(LINE, DAY, resultDup.day(), DAY == resultDup.day());
+    LOOP3_ASSERT(LINE, HOUR, resultDup.hour(), HOUR == resultDup.hour());
+    LOOP3_ASSERT(LINE, MINUTE, resultDup.minute(),
+                                                 MINUTE == resultDup.minute());
+    LOOP3_ASSERT(LINE, SECOND, resultDup.second(),
+                                                 SECOND == resultDup.second());
+
+        // *** The millisecond field is always set to 0.  ***
+    LOOP2_ASSERT(LINE, result.millisecond(), 0 == result.millisecond());
+    LOOP2_ASSERT(LINE, resultDup.millisecond(), 0 == resultDup.millisecond());
+    //^----v
+            } // end for else
+  //^-----------v
+        } // end for ti
+
+        }
+
+        {
+
+        if (verbose) cout <<
+                  "\ntime_t => bdet_Datetime => time_t." << endl;
+
+        unsigned int SIZE = unsigned(INT_MAX) + 1;
+
+        if (veryVerbose) P(SIZE);
+                                         // to allow abs value to count!
+        unsigned int numTrials = 1000; // default with no v-v-verbose
+
+        const int PRIME = 123456789; // at least relatively prime to size
+
+        ASSERT(SIZE % PRIME);        // ensure SIZE not divisible by PRIME
+
+        double percentCovered = 100 * double(numTrials) / SIZE;
+
+        if (verbose) { T_ P_(numTrials) P(percentCovered) }
+
+        const unsigned int STARTING_VALUE = 0;
+
+        unsigned int pseudoRandomValue = STARTING_VALUE;
+
+        for (unsigned int i = 0; i < numTrials; ++i) {
+
+            // Ensure that there is no premature repetition; ok first time.
+
+            LOOP_ASSERT(i, STARTING_VALUE != pseudoRandomValue != !i);
+
+            bsl::time_t currentValue = pseudoRandomValue;
+            pseudoRandomValue += PRIME;
+            pseudoRandomValue %= SIZE;
+
+            const bdet_Datetime INITIAL_VALUE(
+                            1 +  3 * i % 9999,
+                            1 +  5 * i % 12,
+                            1 +  7 * i % 28,
+                            0 + 11 * i % 24,
+                            0 + 13 * i % 60,
+                            0 + 17 * i % 60,
+                            0 + 19 * i % 1000); // pseudo random values
+            if (veryVeryVerbose) P(INITIAL_VALUE);
+            bdet_Datetime tmp(INITIAL_VALUE);
+            bdet_Datetime tmpDup(INITIAL_VALUE);
+  //v-------^
+    if (veryVeryVerbose) { cout << "Before: "; P(tmp); }
+    bdetu_Epoch::convertFromTimeT64(&tmp, currentValue);
+    if (veryVeryVerbose) { cout << " After: "; P(tmp); }
+
+    if (veryVeryVerbose) { cout << "Before: "; P(tmpDup); }
+    tmpDup = bdetu_Epoch::convertFromTimeT64(currentValue);
+    if (veryVeryVerbose) { cout << " After: "; P(tmpDup); }
+
+    bsls_Types::Int64 result    = LLONG_MIN; // out of bounds
+
+    if (veryVeryVerbose) { cout<<"Before: "; P(result); }
+    result = bdetu_Epoch::convertToTimeT64(tmpDup);
+    if (veryVeryVerbose) { cout<<" After: "; P(result); }
+
+    LOOP_ASSERT(i, currentValue == result);
   //^-------v
         }
 

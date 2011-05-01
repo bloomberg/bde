@@ -15,11 +15,11 @@ namespace BloombergLP {
 // combine to represent the correct date (i.e., 1970/1/1_00:00:00.000) or they
 // don't, in which case the test driver will fail pretty darn quickly (but see
 // the supererogatory check in debug mode below).  If 'bdet_Datetime' is
-// changed to a single 'bsls_PlatformUtil::Int64' in the future, the 'struct'
-// 'lucky' should be updated to contain a single 'bsls_PlatformUtil::Int64'
-// member.  The initializer would also need to be updated appropriately to
-// reflect the implementation change in the 'bdet_Datetime' component to ensure
-// correctness on both little- and big-endian machines.
+// changed to a single 'bsls_Types::Int64' in the future, the 'struct' 'lucky'
+// should be updated to contain a single 'bsls_Types::Int64' member.  The
+// initializer would also need to be updated appropriately to reflect the
+// implementation change in the 'bdet_Datetime' component to ensure correctness
+// on both little- and big-endian machines.
 
 static struct {
     int d_a;

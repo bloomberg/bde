@@ -1,9 +1,8 @@
-// bdetu_datetime.cpp           -*-C++-*-
+// bdetu_datetime.cpp                                                 -*-C++-*-
 #include <bdetu_datetime.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdetu_datetime_cpp,"$Id$ $CSID$")
-
 
 // ---------------------------------------------------------------------------
 // NOTICE:
