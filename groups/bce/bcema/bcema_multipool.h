@@ -72,12 +72,13 @@ BDES_IDENT("$Id: $")
 //:   pools.
 //: 3 MAX BLOCKS PER CHUNK -- the maximum number of memory blocks within a
 //:   chunk, specified as either:
-//:   o (if the number of pools is specified) the unique maximum blocks per
-//:     chunk value for all the pools, or
-//:   o (if the number of pools is specified) an array of maximum blocks per
-//:     chunk values corresponding to each individual pool.
+//:     o the unique maximum-blocks-per-chunk value for all of the pools, or
+//:     o an array of maximum-blocks-per-chunk values corresponding to each
+//:       individual pool.
 //:   If the maximum blocks per chunk is not specified, an
-//:   implementation-defined default value is used.
+//:   implementation-defined default value is used.  Note that the maximum
+//:   blocks per chunk can be configured only if the number of pools is also
+//:   configured.
 //: 4 BASIC ALLOCATOR -- the allocator used to supply memory (to replenish an
 //:   internal pool, or directly if the maximum block size is exceeded).  If
 //:   not specified, the currently installed default allocator (see

@@ -1,11 +1,11 @@
-// bcema_testallocator.t.cpp -*-C++-*-
+// bcema_testallocator.t.cpp                                          -*-C++-*-
 
 #include <bcema_testallocator.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 
 #include <bsl_cstdio.h>               // printf()
 #include <bsl_cstring.h>              // memset(), strlen()
@@ -20,7 +20,6 @@
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
 
 //=============================================================================
 //                              TEST PLAN

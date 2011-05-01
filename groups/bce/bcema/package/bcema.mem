@@ -15,6 +15,9 @@ bcema_protectablemultipool
 bcema_protectablemultipoolallocator
 bcema_protectablesequentialallocator
 bcema_sharedptr
+bcema_sharedptrrep
+bcema_sharedptroutofplacerep
+bcema_sharedptrinplacerep
 bcema_testallocator
 bcema_threadenabledallocatoradapter
 bcema_weakptr

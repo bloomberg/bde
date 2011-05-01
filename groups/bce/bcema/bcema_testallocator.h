@@ -184,22 +184,21 @@ BDES_IDENT("$Id: $")
 #include <bcemt_thread.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_TESTALLOCATOR
-#include <bslma_testallocator.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLMA_TESTALLOCATOR
+#include <bslma_testallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
-
 
 namespace BloombergLP {
 
@@ -226,8 +225,7 @@ class bcema_TestAllocator : public bslma_Allocator {
                                   // object
 
     // FRIENDS
-    friend bsl::ostream& operator<<(bsl::ostream&              stream,
-                                    const bcema_TestAllocator& rhs);
+    friend bsl::ostream& operator<<(bsl::ostream&, const bcema_TestAllocator&);
 
     // NOT IMPLEMENTED
     bcema_TestAllocator(const bcema_TestAllocator&);
@@ -263,17 +261,15 @@ class bcema_TestAllocator : public bslma_Allocator {
         // 'name' exceeds that of this test allocator.
 
     ~bcema_TestAllocator();
-        // Destroy this allocator.  Note that the behavior of destroying an
-        // allocator while memory is allocated from it is not specified.
-        // (Unless you *know* that it is valid to do so, don't!)
-        //
-        // For this concrete object, destroying this allocator object has no
-        // effect on allocated memory (i.e., memory leaks will be detected by
-        // purify).  In verbose mode, print all contained state values of this
-        // allocator object to 'stdout'.  Except in quiet mode, report any
-        // memory leaks or mismatched deallocations to 'stdout'.  Abort if not
-        // in quiet mode unless both 'numBytesInUse()' or 'numBlocksInUse()' is
-        // not 0.
+        // Destroy this allocator.  In verbose mode, print all contained state
+        // values of this allocator object to 'stdout'.  Except in quiet mode,
+        // automatically report any memory leaks or mismatched deallocations to
+        // 'stdout'.  Abort if either 'numBlocksInUse' or 'numBytesInUse'
+        // return non-zero unless in no-abort mode or quiet mode.  Note that,
+        // in all cases, destroying this object has no effect on outstanding
+        // memory blocks allocated from this test allocator (and may result in
+        // memory leaks -- e.g., if the (default) 'bslma_MallocFreeAllocator'
+        // singleton was used).
 
     // MANIPULATORS
     void *allocate(size_type size);
@@ -324,7 +320,7 @@ class bcema_TestAllocator : public bslma_Allocator {
         // 'stdout', as will accumulated statistics upon destruction of this
         // object.  Note that the default mode is *not* verbose.
 
-    void setAllocationLimit(bsls_PlatformUtil::Int64 limit);
+    void setAllocationLimit(bsls_Types::Int64 limit);
         // Set the number of valid allocation requests before an exception is
         // to be thrown to the specified 'limit'.  If 'limit' is less than 0,
         // no exception is to be thrown.  By default, no exception is
@@ -349,39 +345,39 @@ class bcema_TestAllocator : public bslma_Allocator {
         // events will be reported on 'stdout', as will summary statistics
         // upon destruction of this object.
 
-    bsls_PlatformUtil::Int64 numBytesInUse() const;
+    bsls_Types::Int64 numBytesInUse() const;
         // Return the number of bytes currently allocated from this object.
         // Note that 'numBytesInUse() <= numBytesMax()'.
 
-    bsls_PlatformUtil::Int64 numBlocksInUse() const;
+    bsls_Types::Int64 numBlocksInUse() const;
         // Return the number of blocks currently allocated from this object.
         // Note that 'numBlocksInUse() <= numBlocksMax()'.
 
-    bsls_PlatformUtil::Int64 numBytesMax() const;
+    bsls_Types::Int64 numBytesMax() const;
         // Return the maximum number of bytes ever allocated from this object
         // at any one time.  Note that
         // 'numBytesInUse() <= numBytesMax() <= numBytesTotal()'.
 
-    bsls_PlatformUtil::Int64 numBlocksMax() const;
+    bsls_Types::Int64 numBlocksMax() const;
         // Return the maximum number of blocks ever allocated from this object
         // at any one time.  Note that
         // 'numBlocksInUse() <= numBlocksMax() <= numBlocksTotal()'.
 
-    bsls_PlatformUtil::Int64 numBytesTotal() const;
+    bsls_Types::Int64 numBytesTotal() const;
         // Return the cumulative number of bytes ever allocated from this
         // object.  Note that 'numBytesMax() <= numBytesTotal()'.
 
-    bsls_PlatformUtil::Int64 numBlocksTotal() const;
+    bsls_Types::Int64 numBlocksTotal() const;
         // Return the cumulative number of blocks ever allocated from this
         // object.  Note that 'numBlocksMax() <= numBlocksTotal()'.
 
-    bsls_PlatformUtil::Int64 numMismatches() const;
+    bsls_Types::Int64 numMismatches() const;
         // Return the number of mismatched memory deallocations that have
         // occurred since this object was created.  A memory deallocation is
         // *mismatched* if that memory was not allocated directly from this
         // allocator.
 
-    bsls_PlatformUtil::Int64 numBoundsErrors() const;
+    bsls_Types::Int64 numBoundsErrors() const;
         // Return the number of times memory deallocations have detected that
         // pad areas at the front or back of the user segment had been
         // overwritten.
@@ -395,7 +391,7 @@ class bcema_TestAllocator : public bslma_Allocator {
         // define the criteria for an abort at destruction if quiet mode has
         // not been set.
 
-    bsls_PlatformUtil::Int64 allocationLimit() const;
+    bsls_Types::Int64 allocationLimit() const;
         // Return the current number of allocation requests left before an
         // exception is thrown.  A negative value indicated that no exception
         // is scheduled.
@@ -420,12 +416,12 @@ class bcema_TestAllocator : public bslma_Allocator {
         // Note that the address is always recorded regardless of the validity
         // of the request.
 
-    bsls_PlatformUtil::Int64 numAllocations() const;
+    bsls_Types::Int64 numAllocations() const;
         // Return the cumulative number of allocation requests.  Note that this
         // number is incremented for every 'allocate' invocation, regardless of
         // the validity of the request.
 
-    bsls_PlatformUtil::Int64 numDeallocations() const;
+    bsls_Types::Int64 numDeallocations() const;
         // Return the cumulative number of deallocation requests.  Note that
         // this number is incremented for every 'deallocate' invocation,
         // regardless of the validity of the request.
@@ -468,14 +464,14 @@ class bcema_TestAllocator : public bslma_Allocator {
         //
         // DEPRECATED: use 'lastDeallocatedNumBytes' instead.
 
-    bsls_PlatformUtil::Int64 numAllocation() const;
+    bsls_Types::Int64 numAllocation() const;
         // Return the cumulative number of allocation requests.  Note that this
         // number is incremented for every 'allocate' invocation, regardless of
         // the validity of the request.
         //
         // DEPRECATED: use 'numAllocations' instead.
 
-    bsls_PlatformUtil::Int64 numDeallocation() const;
+    bsls_Types::Int64 numDeallocation() const;
         // Return the cumulative number of deallocation requests.  Note that
         // this number is incremented for every 'deallocate' invocation,
         // regardless of the validity of the request.
@@ -562,7 +558,7 @@ void bcema_TestAllocator::setVerbose(bool flagValue)
 }
 
 inline
-void bcema_TestAllocator::setAllocationLimit(bsls_PlatformUtil::Int64 limit)
+void bcema_TestAllocator::setAllocationLimit(bsls_Types::Int64 limit)
 {
     d_imp.setAllocationLimit(limit);
 }
@@ -587,49 +583,49 @@ bool bcema_TestAllocator::isVerbose() const
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numBlocksInUse() const
+bsls_Types::Int64 bcema_TestAllocator::numBlocksInUse() const
 {
     return d_imp.numBlocksInUse();
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numBytesInUse() const
+bsls_Types::Int64 bcema_TestAllocator::numBytesInUse() const
 {
     return d_imp.numBytesInUse();
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numBlocksMax() const
+bsls_Types::Int64 bcema_TestAllocator::numBlocksMax() const
 {
     return d_imp.numBlocksMax();
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numBytesMax() const
+bsls_Types::Int64 bcema_TestAllocator::numBytesMax() const
 {
     return d_imp.numBytesMax();
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numBlocksTotal() const
+bsls_Types::Int64 bcema_TestAllocator::numBlocksTotal() const
 {
     return d_imp.numBlocksTotal();
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numBytesTotal() const
+bsls_Types::Int64 bcema_TestAllocator::numBytesTotal() const
 {
     return d_imp.numBytesTotal();
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numMismatches() const
+bsls_Types::Int64 bcema_TestAllocator::numMismatches() const
 {
     return d_imp.numMismatches();
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numBoundsErrors() const
+bsls_Types::Int64 bcema_TestAllocator::numBoundsErrors() const
 {
     return d_imp.numBoundsErrors();
 }
@@ -642,7 +638,7 @@ int bcema_TestAllocator::status() const
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::allocationLimit() const
+bsls_Types::Int64 bcema_TestAllocator::allocationLimit() const
 {
     return d_imp.allocationLimit();
 }
@@ -674,13 +670,13 @@ void *bcema_TestAllocator::lastDeallocatedAddress() const
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numAllocations() const
+bsls_Types::Int64 bcema_TestAllocator::numAllocations() const
 {
     return d_imp.numAllocations();
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numDeallocations() const
+bsls_Types::Int64 bcema_TestAllocator::numDeallocations() const
 {
     return d_imp.numDeallocations();
 }
@@ -725,13 +721,13 @@ bcema_TestAllocator::lastDeallocateNumBytes() const
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numAllocation() const
+bsls_Types::Int64 bcema_TestAllocator::numAllocation() const
 {
     return numAllocations();
 }
 
 inline
-bsls_PlatformUtil::Int64 bcema_TestAllocator::numDeallocation() const
+bsls_Types::Int64 bcema_TestAllocator::numDeallocation() const
 {
     return numDeallocations();
 }

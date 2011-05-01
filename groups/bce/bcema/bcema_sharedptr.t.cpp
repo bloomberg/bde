@@ -54,16 +54,16 @@ using namespace bsl;  // automatically added by script
 //   leaks in the constructors (untested).
 // - The usage example is also untested.
 //-----------------------------------------------------------------------------
-// bcema_SharedPtr_RepImpl
+// bcema_SharedPtrOutofplaceRep
 //------------------------
 // [17] void *originalPtr() const;
-// [16] bcema_SharedPtr_RepImpl(...);
+// [16] bcema_SharedPtrOutofplaceRep(...);
 //
 // bcema_SharedPtr
 //----------------
 // [ 2] bcema_SharedPtr();
-// [ 2] bcema_SharedPtr(TYPE *ptr, bslma_Allocator *allocator=0);
-// [ 3] bcema_SharedPtr(PTRTYPE *ptr, bslma_Allocator *allocator=0)
+// [ 2] bcema_SharedPtr(TYPE *ptr, bslma_Allocator *basicAllocator=0);
+// [ 3] bcema_SharedPtr(PTRTYPE *ptr, bslma_Allocator *basicAllocator=0)
 // [ 3] bcema_SharedPtr(PTRTYPE *ptr, const DELETER &deleter, ... *allocator
 // [ 3] bcema_SharedPtr(bsl::auto_ptr<PTRTYPE> &autoPtr, ...
 // [ 7] bcema_SharedPtr(bcema_SharedPtr<TYPE> const &alias, TYPE *object);
@@ -552,7 +552,7 @@ class MyTestObjectFactory {
 
   public:
     // CREATORS
-    MyTestObjectFactory(bslma_Allocator *allocator = 0);
+    MyTestObjectFactory(bslma_Allocator *basicAllocator = 0);
 
     // ACCESSORS
     void deleteObject(MyTestObject *obj) const;
@@ -570,7 +570,7 @@ class MyTestDeleter {
 
   public:
     // CREATORS
-    explicit MyTestDeleter(bslma_Allocator *allocator = 0);
+    explicit MyTestDeleter(bslma_Allocator *basicAllocator = 0);
     MyTestDeleter(MyTestDeleter const& orig);
 
     // ACCESSORS
@@ -644,8 +644,8 @@ void myTestFunctor(MyTestObject *ptr)
                          // -------------------------
 
 // CREATORS
-MyTestObjectFactory::MyTestObjectFactory(bslma_Allocator *allocator)
-: d_allocator_p(allocator)
+MyTestObjectFactory::MyTestObjectFactory(bslma_Allocator *basicAllocator)
+: d_allocator_p(basicAllocator)
 {
 }
 
@@ -661,8 +661,8 @@ void MyTestObjectFactory::deleteObject(MyTestObject *obj) const
                             // -------------------
 
 // CREATORS
-MyTestDeleter::MyTestDeleter(bslma_Allocator *allocator)
-: d_allocator_p(allocator)
+MyTestDeleter::MyTestDeleter(bslma_Allocator *basicAllocator)
+: d_allocator_p(basicAllocator)
 {
 }
 
@@ -4415,7 +4415,7 @@ int main(int argc, char *argv[])
 
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING bcema_SharedPtr_RepImpl
+        // TESTING bcema_SharedPtrOutofplaceRep
         //
         // Concerns:
         //   1) 'incrementRefs' and 'decrementRefs' correctly adjust the number
@@ -4446,15 +4446,15 @@ int main(int argc, char *argv[])
         {
             bslma_Allocator     *da = bslma_Default::allocator();
             bslma_TestAllocator *t  = 0;
-            int *x                  = 0;
+            int *x                  = new int(0);
             int count               = 0;
 
-            bcema_SharedPtr_RepImpl<int, bslma_TestAllocator*> *implPtr =
-              new (*da) bcema_SharedPtr_RepImpl<int, bslma_TestAllocator*>(x,
+            bcema_SharedPtrOutofplaceRep<int, bslma_TestAllocator*> *implPtr =
+                     bcema_SharedPtrOutofplaceRep<int, bslma_TestAllocator*>::
+                                                         makeOutofplaceRep(x,
                                                                            t,
-                                                                           t,
-        bslmf_MetaInt<bcema_SharedPtr_DeleterTypeEnum::BCEMA_ALLOCATOR_PTR>());
-            bcema_SharedPtr_RepImpl<int, bslma_TestAllocator*>&impl = *implPtr;
+                                                                           t);
+            bcema_SharedPtrOutofplaceRep<int, bslma_TestAllocator*>&impl = *implPtr;
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
 
             impl.acquireRef();
@@ -4511,21 +4511,22 @@ int main(int argc, char *argv[])
             impl.releaseRef();
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
 
-            da->deallocate(implPtr);
+            impl.releaseRef();
+            //da->deallocate(implPtr);
         }
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING bcema_SharedPtr_RepImpl CTORS
+        // TESTING bcema_SharedPtrOutofplaceRep CTORS
         //
         // Plan: TBD
         //
         // Testing:
-        //   CONCERN: bcema_SharedPtr_RepImpl passes allocator
+        //   CONCERN: bcema_SharedPtrOutofplaceRep passes allocator
         //            to the deleter's constructor
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nConcern: bcema_SharedPtr_RepImpl passes"
+        if (verbose) cout << "\nConcern: bcema_SharedPtrOutofplaceRep passes"
                           << "\nallocator to the deleter's constructor."
                           << "\n======================================="
                           << endl;
@@ -4550,7 +4551,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING bcema_SharedPtr_RepImpl::originalPtr
+        // TESTING bcema_SharedPtrOutofplaceRep::originalPtr
         //
         // Plan:  Create shared pointers with various representations, release
         // them (getting back a pointer to the representation object) and
@@ -4563,7 +4564,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << "\nConcern: 'bcema_SharedPtrRep::originalPtr' returns"
-                 << "\ncorrect value for 'bcema_SharedPtr_RepImpl'"
+                 << "\ncorrect value for 'bcema_SharedPtrOutofplaceRep'"
                  << "\n================================================="
                  << endl;
 
@@ -4590,7 +4591,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << "\nConcern: 'bcema_SharedPtrRep::originalPtr' returns"
-                 << "\ncorrect value for 'bcema_SharedPtr_InplaceRepImpl'"
+                 << "\ncorrect value for 'bcema_SharedPtrInplaceRep'"
                  << "\n===================================================="
                  << endl;
 
@@ -5384,35 +5385,35 @@ int main(int argc, char *argv[])
                                        : bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
             };
 
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<ONE_ALIGN>::Type[1] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<TWO_ALIGN>::Type[1] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<ONE_ALIGN>::Type[3] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<FOUR_ALIGN>::Type[1] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<ONE_ALIGN>::Type[5] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<TWO_ALIGN>::Type[3] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<ONE_ALIGN>::Type[7] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<EIGHT_ALIGN>::Type[1] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<ONE_ALIGN>::Type[9] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<TWO_ALIGN>::Type[5] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<ONE_ALIGN>::Type[11] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<FOUR_ALIGN>::Type[3] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<ONE_ALIGN>::Type[13] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<TWO_ALIGN>::Type[7] >));
-            P(sizeof(bcema_SharedPtr_InplaceRepImpl<
+            P(sizeof(bcema_SharedPtrInplaceRep<
                                 bsls_AlignmentToType<ONE_ALIGN>::Type[15] >));
         }
 
@@ -5433,7 +5434,7 @@ int main(int argc, char *argv[])
                 bsl::strncpy(X.ptr(), EXP, size);
 
                 static const int ALLOC_SIZE =
-                    sizeof(bcema_SharedPtr_InplaceRepImpl<char>) + size - 1;
+                    sizeof(bcema_SharedPtrInplaceRep<char>) + size - 1;
                 LOOP_ASSERT(size, ++numAllocations == ta.numAllocations());
                 LOOP_ASSERT(size, ALLOC_SIZE <= ta.lastAllocatedNumBytes());
 
