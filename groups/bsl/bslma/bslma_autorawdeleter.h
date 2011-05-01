@@ -20,13 +20,14 @@ BSLS_IDENT("$Id: $")
 // manage a sequence of (otherwise-unmanaged) objects of parameterized 'TYPE'
 // supplied at construction.  If not explicitly released, the sequence of
 // managed objects are deleted automatically when the range proctor goes out of
-// scope by iterating on each object, first calling the (managed) object's
-// destructor, and then free the memory by invoking the 'deallocate' method of
-// an allocator (or pool) of parameterized 'ALLOCATOR' type also supplied at
-// construction.  Note that after a range proctor releases its sequence of
-// managed objects, the same proctor can be reused to conditionally manage
-// another sequence of objects (allocated from the same allocator or pool that
-// was supplied at construction) by invoking the 'reset' method.
+// scope by iterating over each object, first calling the (managed) object's
+// destructor, and then freeing its memory footprint by invoking the
+// 'deallocate' method of an allocator (or pool) of parameterized 'ALLOCATOR'
+// type also supplied at construction.  Note that after a range proctor
+// releases its sequence of managed objects, the same proctor can be reused to
+// conditionally manage another sequence of objects (allocated from the same
+// allocator or pool that was supplied at construction) by invoking the 'reset'
+// method.
 //
 ///"Raw" Warning
 ///-------------

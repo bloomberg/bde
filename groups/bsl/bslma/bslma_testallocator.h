@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide instrumented malloc/free allocator to track memory usage.
 //
 //@CLASSES:
-//         bslma_TestAllocator: instrumented 'malloc'/'free' memory allocator
-//  BEGIN_BSLMA_EXCEPTION_TEST: macro for testing allocation exceptions
-//    END_BSLMA_EXCEPTION_TEST: macro for testing allocation exceptions
+//  bslma_TestAllocator: instrumented 'malloc'/'free' memory allocator
+//  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN: macro to begin testing exceptions
+//  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END:   macro to end testing exceptions
 //
 //@SEE_ALSO bslma_newdeleteallocator, bslma_mallocfreeallocator
 //
@@ -113,36 +113,40 @@ BSLS_IDENT("$Id: $")
 //
 ///Exception Test Macros
 ///---------------------
-// This component also provides a pair of macros, 'BEGIN_BSLMA_EXCEPTION_TEST'
-// and 'END_BSLMA_EXCEPTION_TEST'.  These macros can be used for testing
-// exception safety of classes and their methods when memory allocation is
-// needed.
-//
-// A 'bslma_TestAllocator' named 'testAllocator' *must* *be* *defined* *in*
-// *scope* in order to use this pair of macros.  Note that if
-// exception-handling is disabled (i.e., if 'BDE_BUILD_TARGET_EXC' is not
-// defined), then the macros simply print the following:
+// This component also provides a pair of macros:
 //..
-//          BSLMA EXCEPTION TEST -- (NOT ENABLED) --
+//: o BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR)
+//: o BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 //..
-// When exception-handling is enabled, the macros will set the 'testAllocator's
-// allocation limit to 0, 'try' the code being tested, 'catch' any exceptions
-// thrown due to bad allocations, and keep increasing the allocation limit
-// until the code being tested completed successfully.
+// These macros can be used for testing exception-safety of classes and their
+// methods when memory allocation is needed.  A reference to an object of type
+// 'bslma_TestAllocator' must be supplied as an argument to the '_BEGIN' macro.
+// Note that if exception-handling is disabled (i.e., if 'BDE_BUILD_TARGET_EXC'
+// is not defined when building the code under test), then the macros simply
+// print the following:
+//..
+//  BSLMA EXCEPTION TEST -- (NOT ENABLED) --
+//..
+// When exception-handling is enabled, the '_BEGIN' macro will set the
+// allocation limit of the supplied allocator to 0, 'try' the code being
+// tested, 'catch' any exceptions that are thrown due to bad allocations, and
+// keep increasing the allocation limit until the code being tested completes
+// successfully.
 //
 ///Usage
 ///-----
 // The 'bslma_TestAllocator' defined in this component can be used in
-// conjunction with the 'BEGIN_BSLMA_EXCEPTION_TEST' and
-// 'END_BSLMA_EXCEPTION_TEST' macros to test the memory usage patterns of
-// of an object that uses the 'bslma_Allocator' protocol in its interface.
-// In this example, we illustrate how we might test that an object under test
-// is exception neutral.  For illustration purposes, we will assume the
-// existence of a 'my_shortarray' component implementing an 'std::vector'-like
-// array type, 'myShortArray':
+// conjunction with the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
+// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros to test the memory usage
+// patterns of an object that uses the 'bslma_Allocator' protocol in its
+// interface.  In this example, we illustrate how we might test that an object
+// under test is exception-neutral.  For illustration purposes, we will assume
+// the existence of a 'my_shortarray' component implementing an
+// 'std::vector'-like array type, 'myShortArray':
 //..
 //  // my_shortarray.t.cpp
 //  #include <my_shortarray.h>
+//
 //  #include <bslma_testallocator.h>
 //  #include <bslma_testallocatorexception.h>
 //
@@ -175,21 +179,21 @@ BSLS_IDENT("$Id: $")
 //..
 //  int main(int argc, char *argv[])
 //  {
-//      int test = argc > 1 ? atoi(argv[1]) : 0;
-//      int verbose = argc > 2;
-//      int veryVerbose = argc > 3;
-//      int veryVeryVerbose = argc > 4;
-//      int veryVeryVeryVerbose = argc > 5;
+//      int                 test = argc > 1 ? atoi(argv[1]) : 0;
+//      bool             verbose = argc > 2;
+//      bool         veryVerbose = argc > 3;
+//      bool     veryVeryVerbose = argc > 4;
+//      bool veryVeryVeryVerbose = argc > 5;
 //
 //..
-// We now define a 'bslma_TestAllocator' named 'testAllocator'.  Note that the
-// exception macros used later require that the test allocator passed to the
-// object under test be named 'testAllocator'.  Also note that if
-// 'veryVeryVeryVerbose' is 'true', then 'testAllocator' prints all allocation
-// and deallocation requests to 'stdout' and also prints the accumulated
-// statistics on destruction:
+// We now define a 'bslma_TestAllocator', 'sa', named "supplied" to indicate
+// that it is the allocator to be supplied to our object under test, as well as
+// to the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro (below).  Note that
+// if 'veryVeryVeryVerbose' is 'true', then 'sa' prints all allocation and
+// deallocation requests to 'stdout' and also prints the accumulated statistics
+// on destruction:
 //..
-//      bslma_TestAllocator testAllocator(veryVeryVeryVerbose);
+//      bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
 //
 //      switch (test) { case 0:
 //
@@ -220,34 +224,35 @@ BSLS_IDENT("$Id: $")
 //              // ...
 //
 //..
-// All code that we want to test for exception safety must be enclosed within
-// the 'BEGIN_BSLMA_EXCEPTION_TEST' and 'END_BSLMA_EXCEPTION_TEST' macros
-// which internally implement a 'do'-'while' loop.  Code provided by the
-// 'BEGIN_BSLMA_EXCEPTION_TEST' macro sets the allocation limit on the
-// 'testAllocator' to be 0 causing it to throw an exception on the first
+// All code that we want to test for exception-safety must be enclosed within
+// the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
+// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros, which internally implement
+// a 'do'-'while' loop.  Code provided by the
+// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro sets the allocation limit
+// of the supplied allocator to 0 causing it to throw an exception on the first
 // allocation.  This exception is caught by code provided by the
-// 'END_BSLMA_EXCEPTION_TEST' macro, which increments the allocation limit by 1
-// and re-runs the same code again.  Using this scheme we can check that our
-// code does not leak memory for any memory allocation request.  Note that the
-// curly braces surrounding these macros, although visually appealing, are not
-// technically required:
+// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macro, which increments the
+// allocation limit by 1 and re-runs the same code again.  Using this scheme we
+// can check that our code does not leak memory for any memory allocation
+// request.  Note that the curly braces surrounding these macros, although
+// visually appealing, are not technically required:
 //..
-//              BEGIN_BSLMA_EXCEPTION_TEST {
-//                  my_ShortArray mA(&testAllocator);
+//              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+//                  my_ShortArray mA(&sa);
 //                  const my_ShortArray& A = mA;
 //                  for (int ei = 0; ei < NUM_ELEM; ++ei) {
 //                      mA.append(VALUES[ei]);
 //                  }
 //                  if (veryVerbose) { T_ T_  P_(NUM_ELEM) P(A) }
 //                  LOOP_ASSERT(LINE, areEqual(EXP, A, NUM_ELEM));
-//              } END_BSLMA_EXCEPTION_TEST
+//              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 //          }
 //
 //..
 // After the exception-safety test we can ensure that all the memory allocated
-// from 'testAllocator' was successfully deallocated.
+// from 'sa' was successfully deallocated.
 //..
-//          if (veryVerbose) testAllocator.print();
+//          if (veryVerbose) sa.print();
 //
 //        } break;
 //
@@ -430,11 +435,12 @@ class bslma_TestAllocator : public bslma_Allocator {
         // Destroy this allocator.  In verbose mode, print all contained state
         // values of this allocator object to 'stdout'.  Except in quiet mode,
         // automatically report any memory leaks or mismatched deallocations to
-        // 'stdout'.  Abort if not in quiet mode unless both 'numBytesInUse' or
-        // 'numBlocksInUse' is not 0.  Note that, in all cases, destroying this
-        // object has no effect on outstanding memory blocks allocated from
-        // this test allocator (and may result in memory leaks -- e.g., if the
-        // (default) 'bslma_MallocFreeAllocator' singleton was used).
+        // 'stdout'.  Abort if either 'numBlocksInUse' or 'numBytesInUse'
+        // return non-zero unless in no-abort mode or quiet mode.  Note that,
+        // in all cases, destroying this object has no effect on outstanding
+        // memory blocks allocated from this test allocator (and may result in
+        // memory leaks -- e.g., if the (default) 'bslma_MallocFreeAllocator'
+        // singleton was used).
 
     // MANIPULATORS
     void *allocate(size_type size);
@@ -467,7 +473,7 @@ class bslma_TestAllocator : public bslma_Allocator {
         // no exception is scheduled.
 
     void setNoAbort(bool flagValue);
-        // Set the no-abort mode for this test allcoator to the specified
+        // Set the no-abort mode for this test allocator to the specified
         // (boolean) 'flagValue'.  'If flagValue' is 'true', aborting on fatal
         // errors is suppressed, and the functions simply return.  Diagnostics
         // are not affected.  Note that this function is provided primarily to
@@ -644,9 +650,9 @@ class bslma_TestAllocator : public bslma_Allocator {
 // TBD #endif
 };
 
-                     // ================================
-                     // macro BEGIN_BSLMA_EXCEPTION_TEST
-                     // ================================
+               // ==============================================
+               // macro BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
+               // ==============================================
 
 // The following is a workaround for an intermittent Visual Studio 2005
 // exception-handling failure.
@@ -659,79 +665,143 @@ class bslma_TestAllocator : public bslma_Allocator {
 
 #ifdef BDE_BUILD_TARGET_EXC
 
-#ifndef BEGIN_BSLMA_EXCEPTION_TEST
-#define BEGIN_BSLMA_EXCEPTION_TEST {                                       \
-    BSLMA_EXCEPTION_TEST_WORKAROUND                                        \
-    {                                                                      \
-        static int firstTime = 1;                                          \
-        if (veryVerbose && firstTime) {                                    \
-            std::puts("\t\tBSLMA EXCEPTION TEST -- (ENABLED) --");         \
-        }                                                                  \
-        firstTime = 0;                                                     \
-    }                                                                      \
-    if (veryVeryVerbose) {                                                 \
-        std::puts("\t\tBegin bslma exception test.");                      \
-    }                                                                      \
-    int bslmaExceptionCounter = 0;                                         \
-    testAllocator.setAllocationLimit(bslmaExceptionCounter);               \
-    do {                                                                   \
-        try {
-#endif  // BEGIN_BSLMA_EXCEPTION_TEST
+class bslma_TestAllocator_ProxyBase {
+    // This class provides a common base class for the parameterized
+    // 'bslma_TestAllocator_Proxy' class (below).  Note that the 'virtual'
+    // 'setAllocationLimit' method, although a "setter", *must* be declared
+    // 'const'.
 
-#else  // !defined(BDE_BUILD_TARGET_EXC)
+  public:
+    // ACCESSORS
+    virtual void setAllocationLimit(bsls_Types::Int64 limit) const = 0;
+};
 
-#ifndef BEGIN_BSLMA_EXCEPTION_TEST
-#define BEGIN_BSLMA_EXCEPTION_TEST                                         \
-{                                                                          \
-    static int firstTime = 1;                                              \
-    if (verbose && firstTime) {                                            \
-        std::puts("\t\tBSLMA EXCEPTION TEST -- (NOT ENABLED) --");         \
-        firstTime = 0;                                                     \
-    }                                                                      \
+template <class BSLMA_ALLOC_TYPE>
+class bslma_TestAllocator_Proxy: public bslma_TestAllocator_ProxyBase {
+    // This class provides a proxy to the test allocator that is supplied to
+    // the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro.  This proxy may
+    // be instantiated with 'bslma_TestAllocator', or with a type that supports
+    // the same interface as 'bslma_TestAllocator'.
+
+    // DATA
+    BSLMA_ALLOC_TYPE *d_allocator;  // allocator used in '*_BEGIN' and '*_END'
+                                    // macros (held, not owned)
+
+  public:
+    // CREATORS
+    bslma_TestAllocator_Proxy(BSLMA_ALLOC_TYPE *allocator)
+    : d_allocator(allocator)
+    {
+    }
+
+    // ACCESSORS
+    virtual void setAllocationLimit(bsls_Types::Int64 limit) const
+    {
+        d_allocator->setAllocationLimit(limit);
+    }
+};
+
+template <class BSLMA_ALLOC_TYPE>
+inline
+bslma_TestAllocator_Proxy<BSLMA_ALLOC_TYPE>
+bslma_TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
+    // Return, by value, a test allocator proxy for the specified parameterized
+    // 'allocator'.
+{
+    return bslma_TestAllocator_Proxy<BSLMA_ALLOC_TYPE>(allocator);
 }
-#endif  // BEGIN_BSLMA_EXCEPTION_TEST
+
+#ifndef BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR) {     \
+    BSLMA_EXCEPTION_TEST_WORKAROUND                                         \
+    {                                                                       \
+        static int firstTime = 1;                                           \
+        if (veryVerbose && firstTime) {                                     \
+            std::puts("\t\tBSLMA EXCEPTION TEST -- (ENABLED) --");          \
+        }                                                                   \
+        firstTime = 0;                                                      \
+    }                                                                       \
+    if (veryVeryVerbose) {                                                  \
+        std::puts("\t\tBegin bslma exception test.");                       \
+    }                                                                       \
+    int bslmaExceptionCounter = 0;                                          \
+    const bslma_TestAllocator_ProxyBase& bslmaExceptionTestAllocator =      \
+                       bslma_TestAllocator_getProxy(&BSLMA_TESTALLOCATOR);  \
+    bslmaExceptionTestAllocator.setAllocationLimit(bslmaExceptionCounter);  \
+    do {                                                                    \
+        try {
+#endif  // BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
+
+#else   // !defined(BDE_BUILD_TARGET_EXC)
+
+#ifndef BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR)       \
+{                                                                           \
+    static int firstTime = 1;                                               \
+    if (verbose && firstTime) {                                             \
+        std::puts("\t\tBSLMA EXCEPTION TEST -- (NOT ENABLED) --");          \
+        firstTime = 0;                                                      \
+    }                                                                       \
+}
+#endif  // BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
 
 #endif  // BDE_BUILD_TARGET_EXC
 
-                      // ==============================
-                      // macro END_BSLMA_EXCEPTION_TEST
-                      // ==============================
+// TBD remove this when no longer referenced in any .t.cpp files
+#ifndef BEGIN_BSLMA_EXCEPTION_TEST
+#define BEGIN_BSLMA_EXCEPTION_TEST                                          \
+                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+#endif
+
+                 // ============================================
+                 // macro BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                 // ============================================
 
 #ifdef BDE_BUILD_TARGET_EXC
 
-#ifndef END_BSLMA_EXCEPTION_TEST
-#define END_BSLMA_EXCEPTION_TEST                                           \
-        } catch (bslma_TestAllocatorException& e) {                        \
-            if (veryVeryVerbose) {                                         \
-                std::printf("\t*** BSLMA_EXCEPTION: "                      \
-                            "alloc limit = %d, last alloc size = %d ***\n",\
-                            bslmaExceptionCounter, e.numBytes());          \
-            }                                                              \
-            testAllocator.setAllocationLimit(++bslmaExceptionCounter);     \
-            continue;                                                      \
-        }                                                                  \
-        testAllocator.setAllocationLimit(-1);                              \
-        break;                                                             \
-    } while (1);                                                           \
-    if (veryVeryVerbose) {                                                 \
-        std::puts("\t\tEnd bslma exception test.");                        \
-    }                                                                      \
-    BSLMA_EXCEPTION_TEST_WORKAROUND                                        \
+#ifndef BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                              \
+        } catch (bslma_TestAllocatorException& e) {                         \
+            if (veryVeryVerbose) {                                          \
+                std::printf("\t*** BSLMA_EXCEPTION: "                       \
+                            "alloc limit = %d, last alloc size = %d ***\n", \
+                            bslmaExceptionCounter, (int)e.numBytes());      \
+            }                                                               \
+            bslmaExceptionTestAllocator.setAllocationLimit(                 \
+                                                 ++bslmaExceptionCounter);  \
+            continue;                                                       \
+        }                                                                   \
+        bslmaExceptionTestAllocator.setAllocationLimit(-1);                 \
+        break;                                                              \
+    } while (1);                                                            \
+    if (veryVeryVerbose) {                                                  \
+        std::puts("\t\tEnd bslma exception test.");                         \
+    }                                                                       \
+    BSLMA_EXCEPTION_TEST_WORKAROUND                                         \
 }
 
-#endif  // END_BSLMA_EXCEPTION_TEST
+#endif  // BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-#else  // !defined(BDE_BUILD_TARGET_EXC)
+#else   // !defined(BDE_BUILD_TARGET_EXC)
 
-#ifndef END_BSLMA_EXCEPTION_TEST
-#define END_BSLMA_EXCEPTION_TEST
+#ifndef BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
 
+#endif
+
+// TBD remove this when no longer referenced in any .t.cpp files
+#ifndef END_BSLMA_EXCEPTION_TEST
+#define END_BSLMA_EXCEPTION_TEST BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
+
+                        // -------------------------
+                        // class bslma_TestAllocator
+                        // -------------------------
 
 // MANIPULATORS
 inline

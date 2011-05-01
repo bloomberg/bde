@@ -1,28 +1,28 @@
-// bslma_allocator.cpp          -*-C++-*-
+// bslma_allocator.cpp                                                -*-C++-*-
 #include <bslma_allocator.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_alignment.h>                     // for testing only
 #include <bsls_exceptionutil.h>
-#include <bsls_platform.h>
 
-#ifdef BSLS_PLATFORM__CMP_HP
-#include <new>
-#else
-#include <stdexcept>
-#endif
+#include <new>   // 'std::bad_alloc'
 
 namespace BloombergLP {
 
-bslma_Allocator::~bslma_Allocator()
-{
-}
+                        // ---------------------
+                        // class bslma_Allocator
+                        // ---------------------
 
+// CLASS METHODS
 void bslma_Allocator::throwBadAlloc()
 {
     BSLS_THROW(std::bad_alloc());
+}
+
+// CREATORS
+bslma_Allocator::~bslma_Allocator()
+{
 }
 
 }  // close namespace BloombergLP

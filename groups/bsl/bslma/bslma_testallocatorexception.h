@@ -85,7 +85,7 @@ BSLS_IDENT("$Id: $")
 //  // ...
 //
 //  #ifdef BDE_BUILD_TARGET_EXC
-//  #define BEGIN_BSLMA_EXCEPTION_TEST {                                     \$
+//  #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN {                       \$
 //  {                                                                        \$
 //      static int firstTime = 1;                                            \$
 //      if (veryVerbose && firstTime) std::cout <<                           \$
@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 //  do {                                                                     \$
 //      try {
 //
-//  #define END_BSLMA_EXCEPTION_TEST                                         \$
+//  #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                           \$
 //      } catch (bslma_TestAllocatorException& e) {                          \$
 //          if (veryVerbose && bslmaExceptionLimit || veryVeryVerbose) {     \$
 //              --bslmaExceptionLimit;                                       \$
@@ -124,7 +124,7 @@ BSLS_IDENT("$Id: $")
 //      "### End bslma exception test." << std::endl;                        \$
 //  }
 //  #else
-//  #define BEGIN_BSLMA_EXCEPTION_TEST                                       \$
+//  #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN                         \$
 //  {                                                                        \$
 //      static int firstTime = 1;                                            \$
 //      if (verbose && firstTime) { std::cout <<                             \$
@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 //          firstTime = 0;                                                   \$
 //      }                                                                    \$
 //  }
-//  #define END_BSLMA_EXCEPTION_TEST
+//  #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 //  #endif
 //
 //  // ...
@@ -178,7 +178,7 @@ BSLS_IDENT("$Id: $")
 //              const int    NUM_ELEM = DATA[ti].d_numElem;
 //              const short *EXP      = DATA[ti].d_exp;
 //
-//              BEGIN_BSLMA_EXCEPTION_TEST {
+//              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN {
 //                  my_ShortArray mA(&testAllocator);
 //                  const my_ShortArray& A = mA;
 //                  for (int ei = 0; ei < NUM_ELEM; ++ei) {
@@ -186,7 +186,7 @@ BSLS_IDENT("$Id: $")
 //                  }
 //                  if (veryVerbose) { P_(ti); P_(NUM_ELEM); P(A); }
 //                  LOOP2_ASSERT(LINE, ti, areEqual(EXP, A, NUM_ELEM));
-//              } END_BSLMA_EXCEPTION_TEST
+//              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 //          }
 //
 //          if (veryVerbose) std::cout << testAllocator << std::endl;

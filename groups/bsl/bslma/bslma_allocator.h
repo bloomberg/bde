@@ -502,10 +502,10 @@ inline
 void *operator new(std::size_t                   size,
                    BloombergLP::bslma_Allocator& basicAllocator);
     // Return the memory allocated from the specified 'basicAllocator' of at
-    // least the specified 'size' bytes, or a null pointer if 'size' is 0.  The
-    // behavior is undefined unless '0 <= size'.  Note that an object may
-    // allocate additional memory internally, requiring the allocator to be
-    // passed in as a constructor argument:
+    // least the specified 'size' bytes, or 0 if 'size' is 0.  The behavior is
+    // undefined unless '0 <= static_cast<bslma_Allocator::size_type>(size)'.
+    // Note that an object may allocate additional memory internally, requiring
+    // the allocator to be passed in as a constructor argument:
     //..
     //  my_Type *createMyType(bslma_Allocator *basicAllocator)
     //  {
@@ -536,15 +536,15 @@ void operator delete(void                          *address,
     // to be called in case of an exception.
 
 // NOTE: The following two operators are declared but never defined to force a
-// link-time error should anyone inadvertently use them.
+// link-time error should any code inadvertently use them.
 
 void *operator new(std::size_t                   size,
                    BloombergLP::bslma_Allocator *basicAllocator);
-    // Note that this operator is intentionally declared, but not defined.
+    // Note that this operator is intentionally not defined.
 
 void operator delete(void                         *address,
                      BloombergLP::bslma_Allocator *basicAllocator);
-    // Note that this operator is intentionally declared, but not defined.
+    // Note that this operator is intentionally not defined.
 
 // ============================================================================
 //                      INLINE AND TEMPLATE FUNCTION DEFINITIONS

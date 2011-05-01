@@ -230,7 +230,7 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
 // my_shortarray.t.cpp
 
 #ifdef BDE_BUILD_TARGET_EXC
-#define BEGIN_BSLMA_EXCEPTION_TEST {                                      \
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN {                        \
     {                                                                     \
         static int firstTime = 1;                                         \
         if (veryVerbose && firstTime) cout <<                             \
@@ -245,7 +245,7 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
     do {                                                                  \
         try {
 
-#define END_BSLMA_EXCEPTION_TEST                                          \
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                            \
         } catch (bslma_TestAllocatorException& e) {                       \
             if (veryVerbose && bslmaExceptionLimit || veryVeryVerbose) {  \
                 --bslmaExceptionLimit;                                    \
@@ -269,7 +269,7 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
         "### End bslma exception test." << endl;                          \
 }
 #else
-#define BEGIN_BSLMA_EXCEPTION_TEST                                        \
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN                          \
 {                                                                         \
     static int firstTime = 1;                                             \
     if (verbose && firstTime) { cout <<                                   \
@@ -277,7 +277,7 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
         firstTime = 0;                                                    \
     }                                                                     \
 }
-#define END_BSLMA_EXCEPTION_TEST
+#define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
 
 typedef short Element;
@@ -345,14 +345,14 @@ int main(int argc, char *argv[]) {
             const int    NUM_ELEM = DATA[ti].d_numElem;
             const short *EXP      = DATA[ti].d_exp;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN {
                 my_ShortArray mA(&testAllocator);  const my_ShortArray& A = mA;
                 for (int ei = 0; ei < NUM_ELEM; ++ei) {
                     mA.append(VALUES[ei]);
                 }
                 if (veryVerbose) { P_(ti); P_(NUM_ELEM); P(A); }
                 LOOP2_ASSERT(LINE, ti, areEqual(EXP, A, NUM_ELEM));
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 1: {

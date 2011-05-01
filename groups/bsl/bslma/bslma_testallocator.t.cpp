@@ -8,15 +8,15 @@
 #include <bsls_platform.h>
 #include <bsls_alignmentutil.h>
 
-#include <cstdio>               // printf()
-#include <cstdlib>              // atoi()
-#include <cstring>              // memset(), strlen()
+#include <cstdio>               // 'printf'
+#include <cstdlib>              // 'atoi'
+#include <cstring>              // 'memset', 'strlen'
 #include <iostream>
 #ifdef BSLS_PLATFORM__OS_UNIX
-#include <unistd.h>             // pipe(), close() and dup().
+#include <unistd.h>             // 'pipe', 'close', 'dup'
 #endif
 #if defined(BSLS_PLATFORM__OS_SOLARIS)
-#include <sys/resource.h>       // for setrlimit, etc
+#include <sys/resource.h>       // 'setrlimit', etc.
 #endif
 
 using namespace BloombergLP;
@@ -125,6 +125,7 @@ static void aSsErT(int c, const char *s, int i)
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define Q_(X) cout << "<| " #X " |>" << flush;  // Q(X) without '\n'
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
+#define T_ cout << "\t" << flush;             // Print tab w/o newline
 #define L_ __LINE__                           // current Line number
 
 //=============================================================================
@@ -269,22 +270,46 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_shortarray.t.cpp
 
+///Usage
+///-----
+// The 'bslma_TestAllocator' defined in this component can be used in
+// conjunction with the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
+// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros to test the memory usage
+// patterns of an object that uses the 'bslma_Allocator' protocol in its
+// interface.  In this example, we illustrate how we might test that an object
+// under test is exception-neutral.  For illustration purposes, we will assume
+// the existence of a 'my_shortarray' component implementing an
+// 'std::vector'-like array type, 'myShortArray':
 //..
-// Below we provide a 'static' function 'areEqual' that will allow us to
-// compare two short arrays.
+//  // my_shortarray.t.cpp
+//  #include <my_shortarray.h>
+//
+//  #include <bslma_testallocator.h>
+//  #include <bslma_testallocatorexception.h>
+//
+//  // ...
+//
 //..
-static bool areEqual(const short *array1, const short *array2, int numElements)
-     // Return 'true' if the specified initial 'numElements' in the
-     // specified 'array1' and 'array2' have the same values, and 'false'
-     // otherwise.
-{
-    for (int i = 0; i < numElements; ++i) {
-        if (array1[i] != array2[i]) {
-            return false;                                             // RETURN
+// Below we provide a 'static' function, 'areEqual', that will allow us to
+// compare two short arrays:
+//..
+    static
+    bool areEqual(const short *array1, const short *array2, int numElements)
+        // Return 'true' if the specified initial 'numElements' in the
+        // specified 'array1' and 'array2' have the same values, and 'false'
+        // otherwise.
+    {
+        for (int i = 0; i < numElements; ++i) {
+            if (array1[i] != array2[i]) {
+                return false;                                         // RETURN
+            }
         }
+        return true;
     }
-    return true;
-}
+//
+//  // ...
+//
+//..
 
 static int verifyPrint(const bslma_TestAllocator& ta,
                        const char* const          FMT,
@@ -400,10 +425,11 @@ void operator delete(void *address)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -434,51 +460,99 @@ int main(int argc, char *argv[])
                       &V3 = VALUES[3],
                       &V4 = VALUES[4];
 
-        struct {
-            int d_line;
-            int d_numElem;
-            short d_exp[NUM_VALUES];
-        } DATA[] = {
-            { L_, 0, { 0 } },
-            { L_, 1, { V0 } },
-            { L_, 5, { V0, V1, V2, V3, V4 } }
-        };
+// The following is an abbreviated standard test driver.  Note that the number
+// of arguments specify the verbosity level that the test driver uses for
+// printing messages:
+//..
+//  int main(int argc, char *argv[])
+//  {
+//      int                 test = argc > 1 ? atoi(argv[1]) : 0;
+//      bool             verbose = argc > 2;
+//      bool         veryVerbose = argc > 3;
+//      bool     veryVeryVerbose = argc > 4;
+//      bool veryVeryVeryVerbose = argc > 5;
+//
+//..
+// We now define a 'bslma_TestAllocator', 'sa', named "supplied" to indicate
+// that it is the allocator to be supplied to our object under test, as well as
+// to the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro (below).  Note that
+// if 'veryVeryVeryVerbose' is 'true', then 'sa' prints all allocation and
+// deallocation requests to 'stdout' and also prints the accumulated statistics
+// on destruction:
+//..
+        bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-        const int NUM_TEST = sizeof DATA / sizeof *DATA;
+//      switch (test) { case 0:
+//
+//        // ...
+//
+//        case 6: {
+//
+//          // ...
+//
+            struct {
+                int   d_line;
+                int   d_numElem;
+                short d_exp[NUM_VALUES];
+            } DATA[] = {
+                { L_, 0, { } },
+                { L_, 1, { V0 } },
+                { L_, 5, { V0, V1, V2, V3, V4 } }
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_TEST; ++ti) {
-            const int    LINE     = DATA[ti].d_line;
-            const int    NUM_ELEM = DATA[ti].d_numElem;
-            const short *EXP      = DATA[ti].d_exp;
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int    LINE     = DATA[ti].d_line;
+                const int    NUM_ELEM = DATA[ti].d_numElem;
+                const short *EXP      = DATA[ti].d_exp;
+
+                if (veryVerbose) { T_ P_(ti) P_(NUM_ELEM) }
+
+                // ...
 
 //..
-// All code that we want to test for exception safety must be enclosed within
-// the 'BEGIN_BSLMA_EXCEPTION_TEST' and 'END_BSLMA_EXCEPTION_TEST macros'
-// which internally implement a 'do' 'while' loop.  The
-// 'BEGIN_BSLMA_EXCEPTION_TEST' macro sets the allocationLimit on the
-// 'testAllocator' to be 0 causing it to throw an exception on the first
-// allocation.  This exception is caught by the 'END_BSLMA_EXCEPTION_TEST'
-// macro which increments the allocationLimit by 1 and re-runs the same code
-// again.  Using this scheme we can check that our code does not leak memory
-// for any memory allocation request.  Note that the curly braces surrounding
-// these macros although visually appealing are not technically required.
+// All code that we want to test for exception-safety must be enclosed within
+// the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
+// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros, which internally implement
+// a 'do'-'while' loop.  Code provided by the
+// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro sets the allocation limit
+// of the supplied allocator to 0 causing it to throw an exception on the first
+// allocation.  This exception is caught by code provided by the
+// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macro, which increments the
+// allocation limit by 1 and re-runs the same code again.  Using this scheme we
+// can check that our code does not leak memory for any memory allocation
+// request.  Note that the curly braces surrounding these macros, although
+// visually appealing, are not technically required:
 //..
-            BEGIN_BSLMA_EXCEPTION_TEST {
-                my_ShortArray mA(&testAllocator);
-                const my_ShortArray& A = mA;
-                for (int ei = 0; ei < NUM_ELEM; ++ei) {
-                    mA.append(VALUES[ei]);
-                }
-                if (veryVerbose) { P_(ti); P_(NUM_ELEM); P(A); }
-                LOOP2_ASSERT(LINE, ti, areEqual(EXP, A, NUM_ELEM));
-            } END_BSLMA_EXCEPTION_TEST
-        }
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    my_ShortArray mA(&sa);
+                    const my_ShortArray& A = mA;
+                    for (int ei = 0; ei < NUM_ELEM; ++ei) {
+                        mA.append(VALUES[ei]);
+                    }
+                    if (veryVerbose) { T_ T_  P_(NUM_ELEM) P(A) }
+                    LOOP_ASSERT(LINE, areEqual(EXP, A, NUM_ELEM));
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            }
 
 //..
 // After the exception-safety test we can ensure that all the memory allocated
-// from 'testAllocator' was successfully deallocated.
+// from 'sa' was successfully deallocated.
 //..
-        if (veryVerbose) testAllocator.print();
+            if (veryVerbose) sa.print();
+//
+//        } break;
+//
+//        // ...
+//
+//      }
+//
+//      // ...
+//  }
+//..
+// Note that the 'BDE_BUILD_TARGET_EXC' macro is defined at compile-time to
+// indicate whether or not exceptions are enabled.
+
       } break;
       case 11: {
         // --------------------------------------------------------------------
