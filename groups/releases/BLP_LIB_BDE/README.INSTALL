@@ -1,0 +1,104 @@
+Installation
+------------
+
+To install a binary distribution simply unpack it into the desired location:
+
+    $ gunzip -c BLP_LIB_BDE_<version>.<platform>.tar.gz | tar xvf -
+
+To build and install a source distribution run the following command from the  
+top directory of the unpacked distribution:
+
+    $ gunzip -c BLP_LIB_BDE_<version>.tar.gz | tar xvf -
+    $ cd BLP_LIB_BDE_<version>
+    $ gmake install
+
+This will build and install all provided libraries in all available build
+types. Parallel builds are fully suppored and may be carried out with, e.g:
+
+    $ gmake -j8 install
+
+This will build and install the BDE libraries and headers into subdirectories
+of 'lib' and 'include' in the current directory respectively, creating them
+first if necessary.
+
+Applications that wish to only build against a certain build type may instead
+depend directly upon that build type from the application makefile. See the
+makefile in the examples directory for an example of this.
+
+Note that build types which do not have exceptions enabled may cause "warning"
+messages during compilation.
+
+
+Specifying Alternate Source or Installation Directories
+-------------------------------------------------------
+
+To change the source or install directories override the macros GROUP_LOCN,
+INSTALL_LIBDIR and INSTALL_INCDIR from the command line:
+
+    $ gmake install INSTALL_LIBDIR=/path/to/lib \
+                    INSTALL_INCDIR=/path/to/include \
+                    GROUP_LOCN=/path/to/src
+
+Installed header files are placed in a subdirectory with the name of the
+library to which they belong; for example './include/bde/...' for BDE.
+Installed libraries are placed under the platform identifier of the platform
+on which they are built, for example './lib/unix-SunOS-sparc-5.8-def'.
+
+
+64 Bit Builds
+-------------
+
+To build 64-bit versions of the BDE libraries on SunOS or AIX, override the
+COMPILER macro:
+
+    $ gmake install COMPILER=CC64
+
+This will install libraries into a platform identifier subdirectory ending in
+'CC64', for example './lib/unix-SunOS-sparc-5.8-CC64'. (This value may also
+be set in application makefiles to select the 64-bit version.)
+
+
+Windows builds
+--------------
+
+Windows builds are supported with the Visual C++ 7.1 compiler. At this time
+Perl is also required by the build process. (This requirement is expected to
+be removed in the future.)
+
+Please see README.EXAMPLES for additional notes regarding Windows builds.
+
+
+Other Generic Targets
+---------------------
+
+The following generic targets are also available:
+
+    build	- build but do not install
+    uninstall   - remove installed files
+    clean       - remove all transient files (e.g., object files)
+    realclean   - remove all transient and build-related files
+                  (including makefiles)
+
+
+Invoking Targets in Application Makefiles
+-----------------------------------------
+
+The top level Makefile may be included into application makefiles, which in
+turn may be used to invoke BDE targets with a 'bde.' prefix. For example:
+
+    $ gmake bde.install
+
+
+Retrieving BDE Library Configuration into Application Makefiles
+---------------------------------------------------------------
+
+All installed library build types may be accessed from application makefiles
+via provided macros, for example BDE_INSTINCDIR and BDE_INSTLIBDIR. See the
+provided example application makefile in the examples directory and the
+README.EXAMPLES file for more information.
+
+
+Contact
+-------
+
+Please report any issues to John Lakos.
