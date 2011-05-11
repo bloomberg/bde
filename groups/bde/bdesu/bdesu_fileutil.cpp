@@ -212,11 +212,16 @@ const bdesu_FileUtil::FileDescriptor bdesu_FileUtil::INVALID_FD =
 bdesu_FileUtil::FileDescriptor
 bdesu_FileUtil::open(const char *pathName,
                      bool        isReadWrite,
-                     bool        isExisting)
+                     bool        isExisting,
+                     bool        isAppend)
 {
     BSLS_ASSERT(pathName);
 
-    DWORD accessMode   = GENERIC_READ | (isReadWrite ? GENERIC_WRITE : 0);
+    DWORD accessMode   = GENERIC_READ | (isReadWrite
+                                         ? isAppend
+                                           ? FILE_APPEND_DATA
+                                           : GENERIC_WRITE
+                                         : 0);
     DWORD creationInfo = isExisting ? OPEN_EXISTING : CREATE_ALWAYS;
 
     return CreateFile(pathName,
@@ -641,11 +646,13 @@ const bdesu_FileUtil::FileDescriptor bdesu_FileUtil::INVALID_FD = -1;
 bdesu_FileUtil::FileDescriptor
 bdesu_FileUtil::open(const char *pathName,
                      bool        isReadWrite,
-                     bool        isExisting)
+                     bool        isExisting,
+                     bool        isAppend)
 {
     BSLS_ASSERT(pathName);
 
-    const int oflag = isReadWrite ? O_RDWR : O_RDONLY;
+    const int oflag = (isReadWrite ? O_RDWR : O_RDONLY)
+                      | (isReadWrite && isAppend ? O_APPEND : 0);
 
     if (isExisting) {
 #ifdef BSLS_PLATFORM__OS_FREEBSD

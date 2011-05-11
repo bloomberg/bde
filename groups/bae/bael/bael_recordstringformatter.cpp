@@ -19,10 +19,18 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_iomanip.h>
 #include <bsl_ostream.h>
+#include <bsl_sstream.h>
 
 namespace {
 
 const char *const DEFAULT_FORMAT_SPEC = "\n%d %p:%t %s %f:%l %c %m %u\n";
+
+const char *const MONTHS[] = {
+    0,
+    "JAN", "FEB", "MAR", "APR",
+    "MAY", "JUN", "JUL", "AUG",
+    "SEP", "OCT", "NOV", "DEC"
+};
 
 }  // close unnamed namespace
 
@@ -90,8 +98,8 @@ bael_RecordStringFormatter& bael_RecordStringFormatter::operator=(
 }
 
 // ACCESSORS
-void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
-                                            const bael_Record& record) const
+void bael_RecordStringFormatter::operator()(bsl::ostream&       stream,
+                                            const bael_Record&  record) const
 
 {
     const bael_RecordAttributes& fixedFields = record.fixedFields();
@@ -103,59 +111,92 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     const char* end      = runBegin + d_formatSpec.length();
     const char* iter     = runBegin;
 
+    bsl::string output;
+    output.reserve(1024);
+
     while (iter != end) {
         switch (*iter) {
           case '%': {
             // Flush run, output fields, and then start a new run (below).
-            stream.write(runBegin, iter - runBegin);
+            output.append(runBegin, iter - runBegin);
             if (++iter == end) {
                 break;
             }
             switch (*iter) {
               case '%': {
-                stream << '%';
+                output += '%';
               } break;
               case 'd': {
-                // use 'bdet_Datetime' built-in format
-                stream << timestamp;
+                char buffer[32];
+
+                snprintf(buffer,
+                        sizeof(buffer),
+                        "%02d%s%04d_%02d:%02d:%02d.%03d",
+                        timestamp.day(),
+                        MONTHS[timestamp.month()],
+                        timestamp.year(),
+                        timestamp.hour(),
+                        timestamp.minute(),
+                        timestamp.second(),
+                        timestamp.millisecond());
+                output += buffer;
               } break;
               case 'I': // fall through intentionally
               case 'i': {
                 // use ISO8601 "extended" format
-                stream
-                    << bsl::setw(4) << bsl::setfill('0') << timestamp.year()
-                    << '-'
-                    << bsl::setw(2) << bsl::setfill('0') << timestamp.month()
-                    << '-'
-                    << bsl::setw(2) << bsl::setfill('0') << timestamp.day()
-                    << ' '
-                    << bsl::setw(2) << bsl::setfill('0') << timestamp.hour()
-                    << ':'
-                    << bsl::setw(2) << bsl::setfill('0') << timestamp.minute()
-                    << ':'
-                    << bsl::setw(2) << bsl::setfill('0') << timestamp.second();
+
+                char buffer[32];
+
+                snprintf(buffer,
+                         sizeof(buffer),
+                         "%04d-%02d-%02d %02d:%02d:%02d",
+                         timestamp.year(),
+                         timestamp.month(),
+                         timestamp.day(),
+                         timestamp.hour(),
+                         timestamp.minute(),
+                         timestamp.second());
+                output += buffer;
 
                 if ('I' == *iter) {
-                    stream << '.' << bsl::setw(3) << bsl::setfill('0')
-                           << timestamp.millisecond();
+                    snprintf(buffer,
+                             sizeof(buffer),
+                             ".%03d",
+                             timestamp.millisecond());
+
+                    output += buffer;
                 }
 
                 if (0 == d_timestampOffset.totalMilliseconds()) {
-                    stream << 'Z';
+                    output += 'Z';
                 }
               } break;
               case 'p': {
-                stream << fixedFields.processID();
+                char buffer[32];
+
+                snprintf(buffer,
+                         sizeof(buffer),
+                         "%d",
+                         fixedFields.processID());
+
+                output += buffer;
               } break;
               case 't': {
-                stream << fixedFields.threadID();
+                char buffer[32];
+
+                snprintf(buffer,
+                         sizeof(buffer),
+                         "%llu",
+                         fixedFields.threadID());
+
+                output += buffer;
               } break;
               case 's': {
-                stream << bael_Severity::toAscii(
+                output += bael_Severity::toAscii(
                                  (bael_Severity::Level)fixedFields.severity());
               } break;
               case 'f': {
-                stream << fixedFields.fileName();
+                output += fixedFields.fileName();
               } break;
               case 'F': {
                 const bsl::string& filename = fixedFields.fileName();
@@ -166,44 +207,61 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                     filename.rfind('/');
 #endif
                 if (bsl::string::npos == rightmostSlashIndex) {
-                    stream << filename;
+                    output += filename;
                 }
                 else {
-                    stream << filename.substr(rightmostSlashIndex + 1);
+                    output += filename.substr(rightmostSlashIndex + 1);
                 }
               } break;
               case 'l': {
-                stream << fixedFields.lineNumber();
+                char buffer[32];
+
+                snprintf(buffer,
+                         sizeof(buffer),
+                         "%d",
+                         fixedFields.lineNumber());
+
+                output += buffer;
               } break;
               case 'c': {
-                stream << fixedFields.category();
+                output += fixedFields.category();
               } break;
               case 'm': {
-                stream << fixedFields.message();
+                output += fixedFields.message();
               } break;
               case 'x': {
+                bsl::stringstream ss;
                 int length = fixedFields.messageStreamBuf().length();
-                bdeu_Print::printString(stream,
+                bdeu_Print::printString(ss,
                                         fixedFields.message(),
                                         length,
                                         false);
+                output += ss.str();
               } break;
               case 'X': {
+                bsl::stringstream ss;
                 int length = fixedFields.messageStreamBuf().length();
-                bdeu_Print::singleLineHexDump(stream,
+                bdeu_Print::singleLineHexDump(ss,
                                               fixedFields.message(),
                                               length);
+                output += ss.str();
               } break;
               case 'u': {
                 const bdem_List& userFields    = record.userFields();
                 const int        numUserFields = userFields.length();
-                for (int i = 0; i < numUserFields; ++i) {
-                    stream << userFields[i] << " ";
+
+                if (numUserFields > 0) {
+                    bsl::stringstream ss;
+                    for (int i = 0; i < numUserFields; ++i) {
+                        ss << userFields[i] << " ";
+                    }
+                    output += ss.str();
                 }
               } break;
               default:
                 // Undefined: we just output the verbatim characters.
-                stream << '%' << *iter;
+                output += '%';
+                output += *iter;
             }
             // Start a new run from here.
             runBegin = ++iter;
@@ -239,8 +297,11 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
         }
     }
 
-    stream.write(runBegin, iter - runBegin);
-    stream << bsl::flush;
+    output.append(runBegin, iter - runBegin);
+
+    stream.write(output.c_str(), output.size());
+    stream.flush();
+
 }
 
 // FREE OPERATORS

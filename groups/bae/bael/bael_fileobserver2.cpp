@@ -51,6 +51,13 @@ BDES_IDENT_RCSID(bael_fileobserver2_cpp,"$Id$ $CSID$")
 #include <windows.h>
 #endif
 
+static const char *const months[] = {
+    0,
+    "JAN", "FEB", "MAR", "APR",
+    "MAY", "JUN", "JUL", "AUG",
+    "SEP", "OCT", "NOV", "DEC"
+};
+
 namespace {
 
 using namespace BloombergLP;
@@ -175,8 +182,8 @@ namespace BloombergLP {
                           // ------------------------
 
 // PRIVATE MANIPULATORS
-void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
-                                          const bael_Record& record)
+void bael_FileObserver2::logRecordDefault(bsl::ostream&       stream,
+                                          const bael_Record&  record)
 
 {
     const bael_RecordAttributes& fixedFields = record.fixedFields();
@@ -186,42 +193,95 @@ void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
         timestamp += d_localTimeOffset;
     }
 
-    stream << '\n';
+    bsl::string output;
+    output.reserve(1024);
+    char buffer[256];
 
-    stream << timestamp                                      << ' '
-           << fixedFields.processID()                        << ':'
-           << fixedFields.threadID()                         << ' '
-           << bael_Severity::toAscii(
-               (bael_Severity::Level)fixedFields.severity()) << ' '
-           << fixedFields.fileName()                         << ':'
-           << fixedFields.lineNumber()                       << ' '
-           << fixedFields.category()                         << ' '
-           << fixedFields.message()                          << ' ';
+    int y, m, d;
+    timestamp.date().getYearMonthDay(&y, &m, &d);
+
+    const char *const month = months[m];
+    int hour, min, sec, mSec;
+    timestamp.time().getTime(&hour, &min, &sec, &mSec);
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
+    snprintf(buffer,
+             sizeof(buffer),
+             "\n%02d%s%04d_%02d:%02d:%02d.%03d "
+             "%d:%llu %s %s:%d ",
+             d,
+             month,
+             y,
+             hour,
+             min,
+             sec,
+             mSec,
+             fixedFields.processID(),
+             fixedFields.threadID(),
+             bael_Severity::toAscii(
+                                 (bael_Severity::Level)fixedFields.severity()),
+             fixedFields.fileName(),
+             fixedFields.lineNumber());
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#undef snprintf
+#endif
+
+    output += buffer;
+    output += fixedFields.category();
+    output += ' ';
+    output += fixedFields.message();
+    output += ' ';
 
     const bdem_List& userFields = record.userFields();
     const int numUserFields = userFields.length();
+
+    stream << output;
+
     for (int i = 0; i < numUserFields; ++i) {
         stream << userFields[i] << ' ';
     }
 
-    stream << '\n' << bsl::flush;
+    stream << '\n';
+
+    stream.flush();
 }
 
-int bael_FileObserver2::openLogFile()
+int bael_FileObserver2::openLogFile(bool rollFileIfExistFlag)
 {
-    d_logFileTimestamp = bdetu_SystemTime::nowAsDatetimeLocal();
+    d_logFileTimestamp = bdetu_SystemTime::nowAsDatetimeGMT();
+
+    const bdet_Datetime localTimestamp =
+                                        d_logFileTimestamp + d_localTimeOffset;
 
     getLogFileName(&d_logFileName,
                    &d_datetimeInfoInFileName,
                    d_logFilePattern.c_str(),
-                   d_logFileTimestamp);
+                   localTimestamp);
 
     if (d_isOpenWithTimestampFlag && !d_datetimeInfoInFileName) {
-        d_logFileName += getTimestampSuffix(d_logFileTimestamp);
+        d_logFileName += getTimestampSuffix(localTimestamp);
     }
 
-    d_logFileStream.open(d_logFileName.c_str(), bsl::ios::out|bsl::ios::app);
-    if (d_logFileStream.is_open()) {
+    bool fileExistFlag = bdesu_FileUtil::exists(d_logFileName.c_str());
+    if (rollFileIfExistFlag && fileExistFlag) {
+        const int MAX_ROTATED_FILE_SUFFIX = 256;
+
+        bdesu_FileUtil::rollFileChain(d_logFileName.c_str(),
+                                      MAX_ROTATED_FILE_SUFFIX);
+        fileExistFlag = false;
+    }
+    bdesu_FileUtil::FileDescriptor fd =  bdesu_FileUtil::open(
+                                                         d_logFileName.c_str(),
+                                                         true,
+                                                         fileExistFlag,
+                                                         true);
+    d_logStreamBuf.reset(fd, true, true, true);
+
+    if (d_logStreamBuf.isOpened()) {
         d_logFileStream.clear();
         return 0;                                                     // RETURN
     }
@@ -235,18 +295,19 @@ int bael_FileObserver2::openLogFile()
 
 void bael_FileObserver2::rotateFile()
 {
-    if (!d_logFileStream.rdbuf()->is_open()) {
+    if (!d_logStreamBuf.isOpened()) {
         return;                                                       // RETURN
     }
 
     BSLS_ASSERT(d_logFilePattern.size() > 0);
 
-    d_logFileStream.close();
+    d_logStreamBuf.clear();
 
     if (!d_isOpenWithTimestampFlag && !d_datetimeInfoInFileName) {
 
         bsl::string newFileName(d_logFileName);
-        newFileName += getTimestampSuffix(d_logFileTimestamp);
+        newFileName +=
+                    getTimestampSuffix(d_logFileTimestamp + d_localTimeOffset);
 
         if (0 != bsl::rename(d_logFileName.c_str(), newFileName.c_str())) {
             fprintf(stderr, "Cannot rename %s to %s: %s\n",
@@ -255,15 +316,15 @@ void bael_FileObserver2::rotateFile()
         }
     }
 
-    openLogFile();
+    openLogFile(true);
 }
 
-void bael_FileObserver2::rotateIfNecessary()
+void bael_FileObserver2::rotateIfNecessary(const bdet_Datetime& timestamp)
 {
     BSLS_ASSERT(d_rotationSize >= 0);
     BSLS_ASSERT(d_rotationLifetime.totalSeconds() >= 0);
 
-    if (!d_logFileStream.rdbuf()->is_open()) {
+    if (!d_logStreamBuf.isOpened()) {
         return;                                                       // RETURN
     }
 
@@ -274,15 +335,13 @@ void bael_FileObserver2::rotateIfNecessary()
 
         if (static_cast<bsls_Types::Uint64>(d_logFileStream.tellp()) >
             static_cast<bsls_Types::Uint64>(d_rotationSize) * 1024) {
-
             rotateFile();
             return;                                                   // RETURN
         }
     }
 
     if (d_rotationLifetime.totalSeconds()
-         && (bdetu_SystemTime::nowAsDatetimeLocal() - d_logFileTimestamp)
-                                                       >= d_rotationLifetime) {
+                   && (timestamp - d_logFileTimestamp) >= d_rotationLifetime) {
         rotateFile();
         return;                                                       // RETURN
     }
@@ -290,7 +349,9 @@ void bael_FileObserver2::rotateIfNecessary()
 
 // CREATORS
 bael_FileObserver2::bael_FileObserver2(bslma_Allocator *basicAllocator)
-: d_logFilePattern(basicAllocator)
+: d_logStreamBuf(bdesu_FileUtil::INVALID_FD, false)
+, d_logFileStream(&d_logStreamBuf)
+, d_logFilePattern(basicAllocator)
 , d_logFileName(basicAllocator)
 , d_datetimeInfoInFileName(false)
 , d_isOpenWithTimestampFlag(false)
@@ -306,8 +367,8 @@ bael_FileObserver2::bael_FileObserver2(bslma_Allocator *basicAllocator)
 
 bael_FileObserver2::~bael_FileObserver2()
 {
-    if (d_logFileStream.is_open()) {
-        d_logFileStream.close();
+    if (d_logStreamBuf.isOpened()) {
+        d_logStreamBuf.clear();
     }
 }
 
@@ -315,8 +376,8 @@ bael_FileObserver2::~bael_FileObserver2()
 void bael_FileObserver2::disableFileLogging()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    if (d_logFileStream.is_open()) {
-        d_logFileStream.close();
+    if (d_logStreamBuf.isOpened()) {
+        d_logStreamBuf.clear();
     }
 }
 
@@ -344,7 +405,7 @@ int bael_FileObserver2::enableFileLogging(const char *fileNamePattern,
     BSLS_ASSERT(fileNamePattern);
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    if (d_logFileStream.is_open()) {
+    if (d_logStreamBuf.isOpened()) {
         return 1;                                                     // RETURN
     }
     d_logFilePattern = fileNamePattern;
@@ -368,16 +429,16 @@ void bael_FileObserver2::publish(const bael_Record&  record,
                                  const bael_Context& )
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    rotateIfNecessary();
+    rotateIfNecessary(record.fixedFields().timestamp());
 
-    if (d_logFileStream.is_open()) {
+    if (d_logStreamBuf.isOpened()) {
         d_logFileFunctor(d_logFileStream, record);
 
         if (!d_logFileStream) {
             fprintf(stderr, "Error on file stream for %s: %s\n",
                     d_logFileName.c_str(), bsl::strerror(getErrorCode()));
 
-            d_logFileStream.close();
+            d_logStreamBuf.clear();
         }
     }
 }
@@ -415,7 +476,7 @@ bool bael_FileObserver2::isFileLoggingEnabled() const
     // The standard says that 'fstream::is_open()' is a non-'const' method.
     // However, 'streambuf::is_open()' is 'const'.
 
-    return d_logFileStream.rdbuf()->is_open();
+    return d_logStreamBuf.isOpened();
 }
 
 bool bael_FileObserver2::isFileLoggingEnabled(bsl::string *result) const
@@ -427,7 +488,7 @@ bool bael_FileObserver2::isFileLoggingEnabled(bsl::string *result) const
     // The standard says that 'fstream::is_open()' is a non-'const' method.
     // However, 'streambuf::is_open()' is 'const'.
 
-    bool rc = d_logFileStream.rdbuf()->is_open();
+    bool rc = d_logStreamBuf.isOpened();
     if (rc) {
         result->assign(d_logFileName);
     }

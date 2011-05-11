@@ -191,6 +191,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BDESU_FDSTREAMBUF
+#include <bdesu_fdstreambuf.h>
+#endif
+
 namespace BloombergLP {
 
 class bael_Context;
@@ -218,7 +222,10 @@ class bael_FileObserver2 : public bael_Observer {
 
   private:
     // DATA
-    bsl::ofstream          d_logFileStream;            // output stream for
+    bdesu_FdStreamBuf      d_logStreamBuf;             // stream buffer for
+                                                       // file logging
+
+    bsl::ostream           d_logFileStream;            // output stream for
                                                        // file logging
 
     bsl::string            d_logFilePattern;           // log filename pattern
@@ -269,11 +276,15 @@ class bael_FileObserver2 : public bael_Observer {
         // Write the specified log 'record' to the specified output 'stream'
         // using the default record format of this file observer.
 
-    int openLogFile();
+    int openLogFile(bool rollFileIfExistFlag = false);
         // Open a log file for logging by this file observer; return 0 on
         // success, and a non-zero value otherwise.  The name of the file is
         // indicated by the most recent successful call to 'enableFileLogging'.
-        // The caller is responsible for acquiring any necessary lock.
+        // Optionally, specify 'rollFileIfExistFlag' as 'true' to roll the file
+        // by appending a ".1" suffix to the file name.  If a file already
+        // exists with the suffix ".N" rename the existing file with the suffix
+        // ".N+1" (recursively).  The caller is responsible for acquiring any
+        // necessary lock.
 
     void rotateFile();
         // Perform log file rotation by closing the current log file of this
@@ -281,7 +292,7 @@ class bael_FileObserver2 : public bael_Observer {
         // recent successful call to 'enableFileLogging', and opening a new log
         // file.  The caller is responsible for acquiring any necessary lock.
 
-    void rotateIfNecessary();
+    void rotateIfNecessary(const bdet_Datetime& timestamp);
         // Perform log file rotation if any rotation rule currently in effect
         // for this file observer indicates that the log file should be
         // rotated.  The caller is responsible for acquiring any necessary

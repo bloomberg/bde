@@ -1,7 +1,7 @@
 // bael_fileobserver2.t.cpp        -*-C++-*-
 #include <bael_fileobserver2.h>
 
-#include <bael_context.h>             
+#include <bael_context.h>
 #include <bael_defaultobserver.h>             // for testing only
 #include <bael_log.h>                         // for testing only
 #include <bael_loggermanager.h>               // for testing only
@@ -253,7 +253,7 @@ bsl::string tempFileName(bool verboseFlag)
     bsl::free(fn);
 #endif
 
-    if (verboseFlag) cout << "\tUse " << result << " as a base filename." 
+    if (verboseFlag) cout << "\tUse " << result << " as a base filename."
                           << endl;
     // Test Invariant:
     BSLS_ASSERT(!result.empty());
@@ -328,10 +328,10 @@ class LogRotationCallbackTester {
    struct Rep {
         int         d_invocations;
         int         d_status;
-        bsl::string d_previousFileName; 
+        bsl::string d_previousFileName;
         bsl::string d_fileName;
 
-        Rep(bslma_Allocator *allocator) 
+        Rep(bslma_Allocator *allocator)
         : d_invocations(0)
         , d_status(0)
         , d_previousFileName(allocator)
@@ -342,7 +342,7 @@ class LogRotationCallbackTester {
       private:
         // NOT IMPLEMENTED
         Rep(const Rep&);
-        Rep& operator=(const Rep&);           
+        Rep& operator=(const Rep&);
     };
 
     // DATA
@@ -366,7 +366,7 @@ class LogRotationCallbackTester {
         reset();
     }
 
-    void operator()(int                status, 
+    void operator()(int                status,
                     const bsl::string& previousFileName,
                     const bsl::string& newFileName)
         // Set the value at the status address supplied at construction to the
@@ -405,15 +405,15 @@ class LogRotationCallbackTester {
     const bsl::string& fileName() const { return d_rep->d_fileName; }
         // Return a reference to the non-modifiable file name supplied to the
         // most recent invocation of the function-call operator, or the empty
-        // string if 'numInvocations' is 0.       
+        // string if 'numInvocations' is 0.
 
     const bsl::string& previousFileName() const
         // Return a reference to the non-modifiable file name supplied to the
         // most recent invocation of the function-call operator, or the empty
-        // string if 'numInvocations' is 0.    
-    { 
-        return d_rep->d_previousFileName; 
-    }   
+        // string if 'numInvocations' is 0.
+    {
+        return d_rep->d_previousFileName;
+    }
 
 };
 
@@ -436,7 +436,7 @@ class ReentrantRotationCallback {
     {
     }
 
-    void operator()(int                status, 
+    void operator()(int                status,
                     const bsl::string& previousFileName,
                     const bsl::string& newFileName);
         // Set the value at the status address supplied at construction to the
@@ -444,7 +444,7 @@ class ReentrantRotationCallback {
         // supplied at construction to the specified 'logFileName'.
 };
 
-void ReentrantRotationCallback::operator()(int                status, 
+void ReentrantRotationCallback::operator()(int                status,
                                            const bsl::string& previousFileName,
                                            const bsl::string& newFileName)
 {
@@ -468,6 +468,39 @@ void publishRecord(Obj *mX, const char *message)
     mX->publish(record, context);
 }
 
+
+int getNumLines(const char *filename) {
+    bsl::ifstream fs;
+    fs.open(filename, bsl::ifstream::in);
+    fs.clear();
+    ASSERT(fs.is_open());
+
+    int numLines = 0;
+
+    bsl::string line;
+    while (getline(fs, line)) {
+        ++numLines;
+    }
+    fs.close();
+    return numLines;
+}
+
+int getFileSize(const char *filename) {
+    bsl::ifstream fs;
+    fs.open(filename, bsl::ifstream::in);
+    fs.clear();
+    ASSERT(fs.is_open());
+
+    int fileSize = 0;
+
+    bsl::string line;
+    while (getline(fs, line)) {
+        fileSize += line.length() + 1;
+    }
+    fs.close();
+    return fileSize;
+}
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -489,6 +522,117 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING LOG FILE ROLLING
+        //
+        // Concerns:
+        //  1. The current log file is always rolled with a ".1" extension.
+        //  2. If a file with ".N" extension exists, it is renamed to ".N+1".
+        //
+        // Plan:
+        //  1. Setup the observer such that there will be a conflict in the
+        //     file name.
+        //  2. Call 'forceRotation' to cause file rotation and verify that the
+        //     new file has the expected extension.
+        //  3. Perform 'forceRotation' again and verify that the file is rolled
+        //     properly.
+        //  4. Trigger a rotation on file size and verify the files are rolled
+        //     as expected.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+        bael_LoggerManagerConfiguration configuration;
+
+        // Publish synchronously all messages regardless of their severity.
+        // This configuration also guarantees that the observer will only
+        // see each message only once.
+
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                              bael_Severity::BAEL_OFF,
+                                              bael_Severity::BAEL_TRACE,
+                                              bael_Severity::BAEL_OFF,
+                                              bael_Severity::BAEL_OFF));
+
+        bael_MultiplexObserver multiplexObserver;
+        bael_LoggerManager::initSingleton(&multiplexObserver,
+                                          configuration);
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+        if (verbose) cout << "Test-case infrastructure setup." << endl;
+        {
+            bsl::string filename = tempFileName(veryVerbose);
+
+            Obj mX(&ta);  const Obj& X = mX;
+            multiplexObserver.registerObserver(&mX);
+
+            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+
+            if (verbose) cout << "Testing setup." << endl;
+            {
+                ASSERT(0 == mX.enableFileLogging((filename + "%%").c_str(),
+                                                 false));
+                ASSERT(X.isFileLoggingEnabled());
+
+                BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
+
+                glob_t globbuf;
+                ASSERT(0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
+                ASSERT(1 == globbuf.gl_pathc);
+                bsl::ifstream fs;
+                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                globfree(&globbuf);
+                ASSERT(fs.is_open());
+                int linesNum = 0;
+                bsl::string line;
+                while (getline(fs, line)) {
+                    ++linesNum;
+                }
+                fs.close();
+                ASSERT(2 == linesNum);
+                ASSERT(X.isFileLoggingEnabled());
+            }
+
+            if (verbose) cout << "Testing forced rotation." << endl;
+            {
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".1").c_str()));
+                mX.forceRotation();
+                ASSERT(1 == bdesu_FileUtil::exists((filename + ".1").c_str()));
+
+                BAEL_LOG_TRACE << "log 2" << BAEL_LOG_END;
+                BAEL_LOG_TRACE << "log 2" << BAEL_LOG_END;
+
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".2").c_str()));
+                mX.forceRotation();
+                ASSERT(1 == bdesu_FileUtil::exists((filename + ".2").c_str()));
+
+                BAEL_LOG_TRACE << "log 3" << BAEL_LOG_END;
+                BAEL_LOG_TRACE << "log 3" << BAEL_LOG_END;
+                BAEL_LOG_TRACE << "log 3" << BAEL_LOG_END;
+
+                ASSERT(6 == getNumLines((filename).c_str()));
+                ASSERT(4 == getNumLines((filename + ".1").c_str()));
+                ASSERT(2 == getNumLines((filename + ".2").c_str()));
+            }
+
+            if (verbose) cout << "Testing forced rotation." << endl;
+            {
+                ASSERT(0 == X.rotationSize());
+                mX.rotateOnSize(1);
+                ASSERT(1 == X.rotationSize());
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".3").c_str()));
+                for (int i = 0 ; i < 30; ++i) {
+                    BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+                }
+                ASSERT(1 == bdesu_FileUtil::exists((filename + ".3").c_str()));
+
+                ASSERT(1024 <  getFileSize((filename + ".1").c_str()));
+            }
+        }
+#endif
+
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // CAPTURE ERROR MESSAGE WHEN THE STREAM FAILS
@@ -570,7 +714,7 @@ int main(int argc, char *argv[])
             stderrFs.open(stderrFN.c_str(), bsl::ios_base::in);
 
             bsl::string line;
-            ASSERT2( getline(stderrFs, line));  // caught an error message
+            ASSERT2(getline(stderrFs, line));  // caught an error message
 #ifndef BSLS_PLATFORM__CMP_IBM
             // On native IBM, after the error, even when the stream fails,
             // logging will be attempted over and over again, which results in
@@ -833,7 +977,7 @@ int main(int argc, char *argv[])
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
                 bsl::ifstream fs;
                 fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
@@ -863,7 +1007,7 @@ int main(int argc, char *argv[])
                 // Check that a rotation occurred.
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
 
                 // Check the number of lines in the file.
@@ -887,7 +1031,7 @@ int main(int argc, char *argv[])
 
                 // Check that no rotation occurred.
 
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
                 fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
                 fs.clear();
@@ -913,7 +1057,7 @@ int main(int argc, char *argv[])
                 // Check that the rotation occurred.
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
                 ASSERT(3 == globbuf.gl_pathc);
 
                 bsl::ifstream fs;
@@ -946,7 +1090,7 @@ int main(int argc, char *argv[])
                 }
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
                 ASSERT(4 <= globbuf.gl_pathc);
 
                 // We are not checking the last one since we do not have any
@@ -954,16 +1098,7 @@ int main(int argc, char *argv[])
 
                 bsl::ifstream fs;
                 for (int i = 0; i < (int)globbuf.gl_pathc - 3; ++i) {
-                    fs.open(globbuf.gl_pathv[i + 2], bsl::ifstream::in);
-                    fs.clear();
-                    ASSERT(fs.is_open());
-                    int fileSize = 0;
-                    bsl::string line(&ta);
-                    while (getline(fs, line)) {
-                        fileSize += line.length() + 1;
-                    }
-                    fs.close();
-                    ASSERT(fileSize > 1024);
+                    ASSERT(1024 < getFileSize(globbuf.gl_pathv[i + 2]));
                 }
 
                 int oldNumFiles = globbuf.gl_pathc;
@@ -980,7 +1115,7 @@ int main(int argc, char *argv[])
 
                 // Verify that no rotation occurred.
 
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
                 ASSERT(oldNumFiles == (int)globbuf.gl_pathc);
                 globfree(&globbuf);
             }

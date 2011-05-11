@@ -56,7 +56,6 @@ bael_FileObserver::bael_FileObserver(bael_Severity::Level  stdoutThreshold,
 , d_stdoutShortFormat(DEFAULT_SHORT_FORMAT, basicAllocator)
 , d_fileObserver2(basicAllocator)
 {
-    d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
 }
 
 bael_FileObserver::bael_FileObserver(bael_Severity::Level  stdoutThreshold,
@@ -81,8 +80,8 @@ bael_FileObserver::bael_FileObserver(bael_Severity::Level  stdoutThreshold,
                                             d_fileObserver2.localTimeOffset());
         d_stdoutFormatter.setTimestampOffset(
                                             d_fileObserver2.localTimeOffset());
+        d_fileObserver2.enablePublishInLocalTime();
     }
-    d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
 }
 
 bael_FileObserver::~bael_FileObserver()
