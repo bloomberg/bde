@@ -182,8 +182,8 @@ namespace BloombergLP {
                           // ------------------------
 
 // PRIVATE MANIPULATORS
-void bael_FileObserver2::logRecordDefault(bsl::ostream&       stream,
-                                          const bael_Record&  record)
+void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
+                                          const bael_Record& record)
 
 {
     const bael_RecordAttributes& fixedFields = record.fixedFields();
@@ -335,6 +335,7 @@ void bael_FileObserver2::rotateIfNecessary(const bdet_Datetime& timestamp)
 
         if (static_cast<bsls_Types::Uint64>(d_logFileStream.tellp()) >
             static_cast<bsls_Types::Uint64>(d_rotationSize) * 1024) {
+
             rotateFile();
             return;                                                   // RETURN
         }

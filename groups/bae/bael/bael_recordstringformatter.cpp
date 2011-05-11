@@ -98,8 +98,8 @@ bael_RecordStringFormatter& bael_RecordStringFormatter::operator=(
 }
 
 // ACCESSORS
-void bael_RecordStringFormatter::operator()(bsl::ostream&       stream,
-                                            const bael_Record&  record) const
+void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
+                                            const bael_Record& record) const
 
 {
     const bael_RecordAttributes& fixedFields = record.fixedFields();
