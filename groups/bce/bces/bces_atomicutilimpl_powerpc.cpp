@@ -31,7 +31,7 @@ int bces_AtomicUtilImpl_PowerpcGetInt(const volatile int *value)
              "bne- 1b                             \n\t" // never taken
              "isync                               \n\t"
            : [result] "=b" (result)
-           : [value]  "r"  (value),
+           : [value]  "b"  (value),
              [zero]   "i"  (0)
            : "cr0", "ctr");
 
@@ -45,7 +45,7 @@ void bces_AtomicUtilImpl_PowerpcSetInt(volatile int *aInt, int val)
              "sync                  \n\t"
              "stw %[val], %[aInt]   \n\t"
            : [aInt] "=m" (*aInt)
-           : [val]  "r"  (val));
+           : [val]  "b"  (val));
 }
 
 extern "C"
@@ -63,8 +63,8 @@ int bces_AtomicUtilImpl_PowerpcAddInt(volatile int *aInt, int val)
              "bne- 1b                               \n\t"
              "isync                                 \n\t"
            : [result] "=&b" (result)
-           : [aInt]   "r"   (aInt),
-             [val]    "r"   (val),
+           : [aInt]   "b"   (aInt),
+             [val]    "b"   (val),
              [zero]   "i"   (0)
            : "cr0", "ctr", "xer");
 
@@ -85,8 +85,8 @@ int bces_AtomicUtilImpl_PowerpcSwapInt(volatile int *aInt,
             "bne- 1b                            \n\t"
             "isync                              \n\t"
           : [result] "=&b" (result)
-          : [aInt]   "r"   (aInt),
-            [val]    "r"   (val),
+          : [aInt]   "b"   (aInt),
+            [val]    "b"   (val),
             [zero]   "i"   (0)
           : "cr0", "ctr");
 
@@ -111,9 +111,9 @@ int bces_AtomicUtilImpl_PowerpcTestAndSwap(volatile int *aInt,
              "isync                               \n\t"
          "2:                                      \n\t"
            : [result]  "=&b" (result)
-           : [aInt]    "r"   (aInt),
-             [cmpVal]  "r"   (cmpVal),
-             [swapVal] "r"   (swapVal),
+           : [aInt]    "b"   (aInt),
+             [cmpVal]  "b"   (cmpVal),
+             [swapVal] "b"   (swapVal),
              [zero]    "i"   (0)
            : "cr0", "ctr");
 
@@ -133,7 +133,7 @@ void bces_AtomicUtilImpl_PowerpcSpinLock(volatile int *aSpin)
              "bne- 1b                            \n\t"   // lost reservation?
              "isync                              \n\t"
            : [temp]  "=&b" (temp)
-           : [aSpin] "r"   (aSpin),
+           : [aSpin] "b"   (aSpin),
              [zero]  "i"   (0)
            : "cr0", "ctr");
 }
@@ -165,7 +165,7 @@ int  bces_AtomicUtilImpl_PowerpcSpinTryLock(volatile int *aSpin,
              "li %[result], 255                   \n\t"  // return error
          "3:                                      \n\t"
            : [result]  "=&b" (result)
-           : [aSpin]   "r"   (aSpin),
+           : [aSpin]   "b"   (aSpin),
              [retries] "b"   (retries),
              [zero]    "i"   (0)
            : "cr0", "ctr");
@@ -282,8 +282,8 @@ void bces_AtomicUtilImpl_PowerpcSetInt64(
              "std %[valLo], %[aInt]             \n\t"   // store value in
                                                         // memory (atomic)
            : [aInt]  "=m" (*aInt)
-           : [valHi] "r"  (valHi),
-             [valLo] "r"  (valLo)
+           : [valHi] "b"  (valHi),
+             [valLo] "b"  (valLo)
            : "cr0");
 }
 
@@ -299,8 +299,8 @@ void bces_AtomicUtilImpl_PowerpcSetInt64Relaxed(
                                                       // as a full 64-bit value
              "std %[valLo], %[aInt]            \n\t"  // store atomically
            : [aInt]  "=m" (*aInt)
-           : [valHi] "r"  (valHi),
-             [valLo] "r"  (valLo)
+           : [valHi] "b"  (valHi),
+             [valLo] "b"  (valLo)
            : "cr0");
 }
 
@@ -333,11 +333,11 @@ bsls_PlatformUtil::Int64
                                                       // the caller will not
                                                       // see them
              "isync                             \n\t"
-           : [lo]    "=&r" (result.lo),
-             [hi]    "=&r" (result.hi)
-           : [aInt]  "r"   (aInt),
-             [valHi] "r"   (valHi),
-             [valLo] "r"   (valLo),
+           : [lo]    "=&b" (result.lo),
+             [hi]    "=&b" (result.hi)
+           : [aInt]  "b"   (aInt),
+             [valHi] "b"   (valHi),
+             [valLo] "b"   (valLo),
              [zero]  "i"   (0)
            : "cr0", "ctr", "xer");
 
@@ -370,13 +370,13 @@ bsls_PlatformUtil::Int64
                                                       // %[lo] still set, but
                                                       // the caller will not
                                                       // see them
-           : [lo]    "=&r" (result.lo),
-             [hi]    "=&r" (result.hi)
-           : [aInt]  "r"   (aInt),
-             [valHi] "r"   (valHi),
-             [valLo] "r"   (valLo),
+           : [lo]    "=&b" (result.lo),
+             [hi]    "=&b" (result.hi)
+           : [aInt]  "b"   (aInt),
+             [valHi] "b"   (valHi),
+             [valLo] "b"   (valLo),
              [zero]  "i"   (0)
-           : "cr0", "ctr");
+           : "cr0", "ctr", "xer");
 
     return result.value();
 }
@@ -410,11 +410,11 @@ bsls_PlatformUtil::Int64
                                                       // the caller will not
                                                       // see them
              "isync                             \n\t"
-           : [lo]    "=&r" (result.lo),
-             [hi]    "=&r" (result.hi)
-           : [aInt]  "r"   (aInt),
-             [valHi] "r"   (valHi),
-             [valLo] "r"   (valLo),
+           : [lo]    "=&b" (result.lo),
+             [hi]    "=&b" (result.hi)
+           : [aInt]  "b"   (aInt),
+             [valHi] "b"   (valHi),
+             [valLo] "b"   (valLo),
              [zero]  "i"   (0)
            : "cr0", "ctr");
 
@@ -462,13 +462,13 @@ bsls_PlatformUtil::Int64
                                                           // still set, but the
                                                           // caller will not
                                                           // see them
-           : [lo]        "=&r" (result.lo),
-             [hi]        "=&r" (result.hi)
-           : [aInt]      "r"   (aInt),
-             [cmpValHi]  "r"   (cmpValHi),
-             [cmpValLo]  "r"   (cmpValLo),
-             [swapValHi] "r"   (swapValHi),
-             [swapValLo] "r"   (swapValLo),
+           : [lo]        "=&b" (result.lo),
+             [hi]        "=&b" (result.hi)
+           : [aInt]      "b"   (aInt),
+             [cmpValHi]  "b"   (cmpValHi),
+             [cmpValLo]  "b"   (cmpValLo),
+             [swapValHi] "b"   (swapValHi),
+             [swapValLo] "b"   (swapValLo),
              [zero]      "i"   (0)
            : "cr0", "ctr");
 
@@ -499,7 +499,7 @@ bsls_PlatformUtil::Int64 bces_AtomicUtilImpl_PowerpcGetInt64(
              "bne- 1b                               \n\t" // never taken
              "isync                                 \n\t"
            : [result] "=b" (result)
-           : [value]  "r"  (value),
+           : [value]  "b"  (value),
              [zero]   "i"  (0)
            : "cr0", "ctr");
 
@@ -515,7 +515,7 @@ void bces_AtomicUtilImpl_PowerpcSetInt64(
              "sync                  \n\t"
              "std %[val], %[aInt]   \n\t"
            : [aInt] "=m" (*aInt)
-           : [val]  "r"  (val));
+           : [val]  "b"  (val));
 }
 
 extern "C"
@@ -538,8 +538,8 @@ bsls_PlatformUtil::Int64
 
              "isync                               \n\t"
            : [result] "=&b" (result)
-           : [aInt]   "r"   (aInt),
-             [val]    "r"   (val),
+           : [aInt]   "b"   (aInt),
+             [val]    "b"   (val),
              [zero]   "i"   (0)
            : "cr0", "ctr");
 
@@ -563,8 +563,8 @@ bsls_PlatformUtil::Int64
 
             "isync                              \n\t"
           : [result] "=&b" (result)
-          : [aInt]   "r"   (aInt),
-            [val]    "r"   (val),
+          : [aInt]   "b"   (aInt),
+            [val]    "b"   (val),
             [zero]   "i"   (0)
           : "cr0", "ctr");
 
@@ -592,9 +592,9 @@ bsls_PlatformUtil::Int64
              "isync                               \n\t"
          "2:                                      \n\t"
            : [result]  "=&b" (result)
-           : [aInt]    "r"   (aInt),
-             [cmpVal]  "r"   (cmpVal),
-             [swapVal] "r"   (swapVal),
+           : [aInt]    "b"   (aInt),
+             [cmpVal]  "b"   (cmpVal),
+             [swapVal] "b"   (swapVal),
              [zero]    "i"   (0)
            : "cr0", "ctr");
 
