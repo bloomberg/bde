@@ -981,12 +981,13 @@ class bdecs_PackedCalendar {
     bool isBusinessDay(const bdet_Date& date) const;
         // Return 'true' if the specified 'date' is a business day (i.e.,
         // not a holiday or weekend day), and 'false' otherwise.  The behavior
-        // is undefined unless 'true == isInRange(date)'.
+        // is undefined unless 'date' is within the valid range of this
+        // calendar.
 
     bool isHoliday(const bdet_Date& date) const;
         // Return 'true' if the specified 'date' is a holiday in this calendar,
-        // and 'false' otherwise.  The behavior is undefined unless
-        // 'true == isInRange(date)'.
+        // and 'false' otherwise.  The behavior is undefined unless 'date' is
+        // within the valid range of this calendar.
 
     bool isInRange(const bdet_Date& date) const;
         // Return 'true' if the specified 'date' is within the valid range of
@@ -997,7 +998,8 @@ class bdecs_PackedCalendar {
     bool isNonBusinessDay(const bdet_Date& date) const;
         // Return 'true' if the specified 'date' is not a business day (i.e.,
         // a holiday or weekend day), and 'false' otherwise.  The behavior is
-        // undefined unless 'true == isInRange(date)'.  Note that:
+        // undefined unless 'date' is within the valid range of this calendar.
+        // Note that:
         //..
         //  !isBusinessday(date)
         //..
@@ -1032,8 +1034,8 @@ class bdecs_PackedCalendar {
 
     int numHolidayCodes(const bdet_Date& date) const;
         // Return the number of (unique) holiday codes associated with the
-        // specified 'date' in this calendar.  The behavior is undefined
-        // unless 'true == isInRange(date)'.
+        // specified 'date' in this calendar.  The behavior is undefined unless
+        // 'date' is within the valid range of this calendar.
 
     int numHolidayCodesTotal() const;
         // Return the total number of holiday codes for all holidays in this
@@ -2033,6 +2035,17 @@ operator!=(const bdecs_PackedCalendar_BusinessDayConstIterator& lhs,
                        // class bdecs_PackedCalendar
                        // --------------------------
 
+                            // -----------------
+                            // Level-0 Functions
+                            // -----------------
+
+// ACCESSORS
+inline
+bool bdecs_PackedCalendar::isInRange(const bdet_Date& date) const
+{
+    return d_firstDate <= date && date <= d_lastDate;
+}
+
 // CLASS METHODS
 inline
 int bdecs_PackedCalendar::maxSupportedBdexVersion()
@@ -2255,12 +2268,16 @@ STREAM& bdecs_PackedCalendar::bdexStreamIn(STREAM& stream, int version)
 inline
 void bdecs_PackedCalendar::reserveHolidayCapacity(int numHolidays)
 {
+    BSLS_ASSERT_SAFE(0 <= numHolidays);
+
     d_holidayOffsets.reserve(numHolidays);
 }
 
 inline
 void bdecs_PackedCalendar::reserveHolidayCodeCapacity(int numHolidayCodes)
 {
+    BSLS_ASSERT_SAFE(0 <= numHolidayCodes);
+
     d_holidayCodes.reserve(numHolidayCodes);
 }
 
@@ -2303,6 +2320,8 @@ inline
 bdecs_PackedCalendar::BusinessDayConstIterator
 bdecs_PackedCalendar::beginBusinessDays(const bdet_Date& date) const
 {
+    BSLS_ASSERT_SAFE(isInRange(date));
+
     return BusinessDayConstIterator(*this, date, false);
 }
 
@@ -2324,6 +2343,8 @@ inline
 bdecs_PackedCalendar::HolidayConstIterator
 bdecs_PackedCalendar::beginHolidays(const bdet_Date& date) const
 {
+    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+
     OffsetsConstIterator i = bsl::lower_bound(d_holidayOffsets.begin(),
                                               d_holidayOffsets.end(),
                                               date - d_firstDate);
@@ -2348,6 +2369,8 @@ inline
 bdecs_PackedCalendar::BusinessDayConstIterator
 bdecs_PackedCalendar::endBusinessDays(const bdet_Date& date) const
 {
+    BSLS_ASSERT_SAFE(isInRange(date));
+
     return BusinessDayConstIterator(*this, date, true);
 }
 
@@ -2369,6 +2392,8 @@ inline
 bdecs_PackedCalendar::HolidayConstIterator
 bdecs_PackedCalendar::endHolidays(const bdet_Date& date) const
 {
+    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+
     OffsetsConstIterator i = bsl::lower_bound(d_holidayOffsets.begin(),
                                               d_holidayOffsets.end(),
                                               date - d_firstDate + 1);
@@ -2391,12 +2416,16 @@ const bdet_Date& bdecs_PackedCalendar::firstDate() const
 inline
 bool bdecs_PackedCalendar::isBusinessDay(const bdet_Date& date) const
 {
+    BSLS_ASSERT_SAFE(isInRange(date));
+
     return !isNonBusinessDay(date);
 }
 
 inline
 bool bdecs_PackedCalendar::isHoliday(const bdet_Date& date) const
 {
+    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+
     const int offset = date - d_firstDate;
     const OffsetsConstIterator offsetEnd = d_holidayOffsets.end();
     const OffsetsConstIterator i = bsl::lower_bound(d_holidayOffsets.begin(),
@@ -2409,14 +2438,10 @@ bool bdecs_PackedCalendar::isHoliday(const bdet_Date& date) const
 }
 
 inline
-bool bdecs_PackedCalendar::isInRange(const bdet_Date& date) const
-{
-    return d_firstDate <= date && date <= d_lastDate;
-}
-
-inline
 bool bdecs_PackedCalendar::isNonBusinessDay(const bdet_Date& date) const
 {
+    BSLS_ASSERT_SAFE(isInRange(date));
+
     return isWeekendDay(date) || isHoliday(date);
 }
 
@@ -2429,7 +2454,7 @@ bool bdecs_PackedCalendar::isWeekendDay(bdet_DayOfWeek::Day dayOfWeek) const
 inline
 bool bdecs_PackedCalendar::isWeekendDay(const bdet_Date& date) const
 {
-   return isWeekendDay(date.dayOfWeek());
+    return isWeekendDay(date.dayOfWeek());
 }
 
 inline
@@ -2479,6 +2504,8 @@ inline
 bdecs_PackedCalendar::BusinessDayConstReverseIterator
 bdecs_PackedCalendar::rbeginBusinessDays(const bdet_Date& date) const
 {
+    BSLS_ASSERT_SAFE(isInRange(date));
+
     return BusinessDayConstReverseIterator(endBusinessDays(date));
 }
 
@@ -2486,6 +2513,8 @@ inline
 bdecs_PackedCalendar::HolidayCodeConstReverseIterator
 bdecs_PackedCalendar::rbeginHolidayCodes(const bdet_Date& date) const
 {
+    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+
     return HolidayCodeConstReverseIterator(endHolidayCodes(date));
 }
 
@@ -2508,6 +2537,8 @@ inline
 bdecs_PackedCalendar::HolidayConstReverseIterator
 bdecs_PackedCalendar::rbeginHolidays(const bdet_Date& date) const
 {
+    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+
     return HolidayConstReverseIterator(endHolidays(date));
 }
 
@@ -2529,6 +2560,8 @@ inline
 bdecs_PackedCalendar::BusinessDayConstReverseIterator
 bdecs_PackedCalendar::rendBusinessDays(const bdet_Date& date) const
 {
+    BSLS_ASSERT_SAFE(isInRange(date));
+
     return BusinessDayConstReverseIterator(beginBusinessDays(date));
 }
 
@@ -2536,6 +2569,8 @@ inline
 bdecs_PackedCalendar::HolidayCodeConstReverseIterator
 bdecs_PackedCalendar::rendHolidayCodes(const bdet_Date& date) const
 {
+    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+
     return HolidayCodeConstReverseIterator(beginHolidayCodes(date));
 }
 
@@ -2557,6 +2592,8 @@ inline
 bdecs_PackedCalendar::HolidayConstReverseIterator
 bdecs_PackedCalendar::rendHolidays(const bdet_Date& date) const
 {
+    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+
     return HolidayConstReverseIterator(beginHolidays(date));
 }
 
