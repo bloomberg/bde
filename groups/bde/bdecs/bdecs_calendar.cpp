@@ -1,4 +1,4 @@
-// bdecs_calendar.cpp            -*-C++-*-
+// bdecs_calendar.cpp                                                 -*-C++-*-
 #include <bdecs_calendar.h>
 
 #include <bdes_ident.h>
@@ -142,6 +142,8 @@ void bdecs_Calendar::addDay(const bdet_Date& date)
 
 void bdecs_Calendar::addHoliday(const bdet_Date& date)
 {
+    // TBD BSLS_ASSERT(isInRange(date));
+
     if (0 == d_packedCalendar.addHolidayIfInRange(date)) {
         d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
     }
@@ -149,6 +151,8 @@ void bdecs_Calendar::addHoliday(const bdet_Date& date)
 
 void bdecs_Calendar::addHolidayCode(const bdet_Date& date, int holidayCode)
 {
+    // TBD BSLS_ASSERT(isInRange(date));
+
     if (0 == d_packedCalendar.addHolidayCodeIfInRange(date, holidayCode)) {
         d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
     }
@@ -216,6 +220,8 @@ void bdecs_Calendar::unionNonBusinessDays(const bdecs_PackedCalendar& other)
 
 void bdecs_Calendar::removeHoliday(const bdet_Date& date)
 {
+    // TBD BSLS_ASSERT(isInRange(date));
+
     d_packedCalendar.removeHoliday(date);
     if (true == isInRange(date) && false == isWeekendDay(date)) {
         d_nonBusinessDays.set0(date - firstDate());
