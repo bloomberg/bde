@@ -654,19 +654,21 @@ struct baetzo_TimeZoneUtil {
         // with the actual local time offset, as indicated by time zone data,
         // at 'localTime.gmtDatetime()' in the time zone indicated by the
         // specified 'timeZoneId', and 'false' otherwise.  Return 0 on success,
-        // and a non-zero value with 'false' loaded into result otherwise.  A
+        // and a non-zero value with 'false' loaded into 'result' otherwise.  A
         // return value of 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates
         // that 'timeZoneId' is not recognized.
 
     static int validateLocalTime(bool                      *result,
                                  const baet_LocalDatetime&  localTime);
-        // Load, into the specified 'result', 'true' if the offset from UTC of
-        // the specified 'localTime' (i.e. 'localTime.datetimeTz().offset()')
-        // is consistent with the actual local time offset, as indicated by
-        // time zone data, at 'localTime.dateTimeTz().gmtDatetime()' in the
-        // time zone inidicated by 'localTime.timeZoneId()', and 'false'
-        // otherwise.  Return 0 on success, and a non-zero value with 'false'
-        // loaded into 'result' otherwise.  A return value of
+        // Load, into the specified 'result', 'true' if the time zone
+        // identifier of the specified 'localTime' (i.e.
+        // 'localTime.timeZoneId()') is a valid identifier, and the offset from
+        // UTC of 'localTime' (i.e. 'localTime.datetimeTz().offset()') is
+        // consistent with the actual local time offset, as indicated by time
+        // zone data, at 'localTime.dateTimeTz().gmtDatetime()' in the time
+        // zone inidicated by 'localTime.timeZoneId()', and 'false' otherwise.
+        // Return 0 on success, and a non-zero value with 'false' loaded into
+        // 'result' otherwise.  A return value of
         // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' is not recognized.
 
