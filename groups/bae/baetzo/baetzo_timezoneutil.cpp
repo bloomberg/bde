@@ -223,7 +223,7 @@ int baetzo_TimeZoneUtil::addInterval(
 }
 
 
-int baetzo_TimeZoneUtil::validateConsistency(
+int baetzo_TimeZoneUtil::validateLocalTime(
                                             bool                   *result,
                                             const bdet_DatetimeTz&  localTime,
                                             const char             *timeZoneId)

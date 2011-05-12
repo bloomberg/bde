@@ -60,8 +60,8 @@ using namespace bsl;
 // [ 3] loadLocalTimePeriod(LclTmPeriod *, const DatetmTz&, const ch *);
 // [ 2] loadLocalTimePeriodForUtc(LclTmPeriod *, const ch *, const Date...
 // [ 7] addInterval(LclDatetm *, const LclDatetm&, const DatetmInterval&);
-// [ 9] validateConsistency(bool * result, const LclDatetm& lcTime);
-// [ 9] validateConsistency(bool *, const DatetmTz&, const char *TZ);
+// [ 9] validateLocalTime(bool * result, const LclDatetm& lcTime);
+// [ 9] validateLocalTime(bool * result, const DatetmTz&, const char *TZ);
 // ============================================================================
 
 // ============================================================================
@@ -1185,7 +1185,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'validateConsistency'
+        // CLASS METHOD 'validateLocalTime'
         //
         // Concerns:
         //: 1 This method returns a non-zero value when given a bogus id.
@@ -1212,12 +1212,12 @@ int main(int argc, char *argv[])
         //:   macros). (C-5)
         //
         // Testing:
-        //   validateConsistency(bool * result, const LclDatetm& lcTime);
-        //   validateConsistency(bool *, const DatetmTz&, const char *TZ);
+        //   validateLocalTime(bool * result, const LclDatetm& lcTime);
+        //   validateLocalTime(bool * result, const DatetmTz&, const char *TZ);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CLASS METHOD 'validateConsistency'" << endl
+                          << "CLASS METHOD 'validateLocalTime'" << endl
                           << "=================================" << endl;
 
         if (verbose) cout << "\tTest invalid 'timeZoneId'." << endl;
@@ -1228,11 +1228,11 @@ int main(int argc, char *argv[])
             bool                     result;
 
             ASSERT(EUID ==
-                         Obj::validateConsistency(&result, TIME_TZ, BOGUS_ID));
-            ASSERT(EUID == Obj::validateConsistency(&result, LCL_TIME));
+                         Obj::validateLocalTime(&result, TIME_TZ, BOGUS_ID));
+            ASSERT(EUID == Obj::validateLocalTime(&result, LCL_TIME));
         }
 
-        if (verbose) cout << "\tTest 'validateConsistency'." << endl;
+        if (verbose) cout << "\tTest 'validateLocalTime'." << endl;
         {
             static const struct {
                 int         d_line;
@@ -1294,14 +1294,14 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(LINE,
                             0 ==
-                             Obj::validateConsistency(&result, TIME_TZ, TZID));
+                             Obj::validateLocalTime(&result, TIME_TZ, TZID));
 
                 LOOP_ASSERT(LINE, EXP == result);
 
                 const baet_LocalDatetime LCL_TIME(TIME_TZ, TZID);
 
                 LOOP_ASSERT(LINE,
-                            0 == Obj::validateConsistency(&result, LCL_TIME));
+                            0 == Obj::validateLocalTime(&result, LCL_TIME));
                 LOOP_ASSERT(LINE, EXP == result);
             }
         }
@@ -1311,19 +1311,19 @@ int main(int argc, char *argv[])
             bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
-                            "\t'validateConsistency' class method" << endl;
+                            "\t'validateLocalTime' class method" << endl;
             {
                 const bdet_DatetimeTz    TIME_TZ(bdet_Datetime(2011, 1, 1), 0);
                 const char               TZ_ID[] = "America/New_York";
                 const baet_LocalDatetime LCL_TIME(TIME_TZ, TZ_ID);
                 bool                     result;
 
-                ASSERT_PASS(Obj::validateConsistency(&result, TIME_TZ, TZ_ID));
-                ASSERT_FAIL(Obj::validateConsistency(0, TIME_TZ, TZ_ID));
-                ASSERT_FAIL(Obj::validateConsistency(&result, TIME_TZ, 0));
+                ASSERT_PASS(Obj::validateLocalTime(&result, TIME_TZ, TZ_ID));
+                ASSERT_FAIL(Obj::validateLocalTime(0, TIME_TZ, TZ_ID));
+                ASSERT_FAIL(Obj::validateLocalTime(&result, TIME_TZ, 0));
 
-                ASSERT_SAFE_PASS(Obj::validateConsistency(&result, LCL_TIME));
-                ASSERT_SAFE_FAIL(Obj::validateConsistency(0, LCL_TIME));
+                ASSERT_SAFE_PASS(Obj::validateLocalTime(&result, LCL_TIME));
+                ASSERT_SAFE_FAIL(Obj::validateLocalTime(0, LCL_TIME));
             }
         }
       } break;

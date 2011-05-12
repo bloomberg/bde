@@ -646,23 +646,27 @@ struct baetzo_TimeZoneUtil {
         // value of 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' was not recognized.
 
-    static int validateConsistency(bool                   *result,
-                                   const bdet_DatetimeTz&  localTime,
-                                   const char             *timeZoneId);
-        // Load, into the specified 'result', 'true' if the offset from UTC in
-        // the specified 'localTime' is consistent with the offset of the time
-        // zone indicated by the specified 'timeZoneId' at the time indicated
-        // by 'localTime', and 'false' otherwise.  Return 0 on success, and a
-        // non-zero value with no effect otherwise.  A return value of
-        // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
-        // 'timeZoneId' is not recognized.
+    static int validateLocalTime(bool                   *result,
+                                 const bdet_DatetimeTz&  localTime,
+                                 const char             *timeZoneId);
+        // Load, into the specified 'result', 'true' if the offset from UTC of
+        // the specified 'localTime' (i.e.  'localTime.offset()') is consistent
+        // with the actual local time offset, as indicated by time zone data,
+        // at 'localTime.gmtDatetime()' in the time zone indicated by the
+        // specified 'timeZoneId', and 'false' otherwise.  Return 0 on success,
+        // and a non-zero value with 'false' loaded into result otherwise.  A
+        // return value of 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates
+        // that 'timeZoneId' is not recognized.
 
-    static int validateConsistency(bool                      *result,
-                                   const baet_LocalDatetime&  localTime);
-        // Load, into the specified 'result', 'true' if the offset from UTC in
-        // the specified 'localTime' is consistent with the offset of the time
-        // zone of 'localTime', and 'false' otherwise.  Return 0 on success,
-        // and a non-zero value with no effect otherwise.  A return value of
+    static int validateLocalTime(bool                      *result,
+                                 const baet_LocalDatetime&  localTime);
+        // Load, into the specified 'result', 'true' if the offset from UTC of
+        // the specified 'localTime' (i.e. 'localTime.datetimeTz().offset()')
+        // is consistent with the actual local time offset, as indicated by
+        // time zone data, at 'localTime.dateTimeTz().gmtDatetime()' in the
+        // time zone inidicated by 'localTime.timeZoneId()', and 'false'
+        // otherwise.  Return 0 on success, and a non-zero value with 'false'
+        // loaded into 'result' otherwise.  A return value of
         // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' is not recognized.
 
@@ -814,15 +818,15 @@ int baetzo_TimeZoneUtil::loadLocalTimePeriod(
 }
 
 inline
-int baetzo_TimeZoneUtil::validateConsistency(
+int baetzo_TimeZoneUtil::validateLocalTime(
                                           bool                      *result,
                                           const baet_LocalDatetime&  localTime)
 {
     BSLS_ASSERT_SAFE(result);
 
-    return validateConsistency(result,
-                               localTime.datetimeTz(),
-                               localTime.timeZoneId().c_str());
+    return validateLocalTime(result,
+                             localTime.datetimeTz(),
+                             localTime.timeZoneId().c_str());
 }
 
 }  // close namespace BloombergLP
