@@ -13,5 +13,6 @@ bslstl_pair
 bslstl_randomaccessiterator
 bslstl_stdexceptutil
 bslstl_string
+bslstl_stringargument
 bslstl_util
 bslstl_vector
