@@ -1,4 +1,4 @@
-// bdem_beruniversaltagnumber.h              -*-C++-*-
+// bdem_beruniversaltagnumber.h                                       -*-C++-*-
 #ifndef INCLUDED_BDEM_BERUNIVERSALTAGNUMBER
 #define INCLUDED_BDEM_BERUNIVERSALTAGNUMBER
 
@@ -52,7 +52,7 @@ BDES_IDENT("$Id: $")
 //                                     DEC              BDEM_BER_INT
 //  [unsigned] long                    DEFAULT          BDEM_BER_INT
 //                                     DEC              BDEM_BER_INT
-//  bsls_PlatformUtil::[Uint64|Int64]  DEFAULT          BDEM_BER_INT
+//  bsls_Types::[Uint64|Int64]         DEFAULT          BDEM_BER_INT
 //                                     DEC              BDEM_BER_INT
 //  float                              DEFAULT          BDEM_BER_REAL
 //  double                             DEFAULT          BDEM_BER_REAL
@@ -132,14 +132,6 @@ BDES_IDENT("$Id: $")
 #include <bdeat_typecategory.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
-#endif
-
 #ifndef INCLUDED_BDEX_INSTREAMFUNCTIONS
 #include <bdex_instreamfunctions.h>
 #endif
@@ -150,6 +142,14 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEX_OUTSTREAMFUNCTIONS
 #include <bdex_outstreamfunctions.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_OSTREAM
@@ -308,10 +308,9 @@ class bdem_BerUniversalTagNumber_Imp {
 
     TagVal select(const unsigned long& object, bdeat_TypeCategory::Simple);
 
-    TagVal select(const bsls_PlatformUtil::Int64& object,
-                  bdeat_TypeCategory::Simple);
+    TagVal select(const bsls_Types::Int64& object, bdeat_TypeCategory::Simple);
 
-    TagVal select(const bsls_PlatformUtil::Uint64& object,
+    TagVal select(const bsls_Types::Uint64& object,
                   bdeat_TypeCategory::Simple);
 
     TagVal select(const float& object, bdeat_TypeCategory::Simple);
@@ -624,7 +623,7 @@ bdem_BerUniversalTagNumber_Imp::select(const unsigned long&,
 
 inline
 bdem_BerUniversalTagNumber::Value
-bdem_BerUniversalTagNumber_Imp::select(const bsls_PlatformUtil::Int64&,
+bdem_BerUniversalTagNumber_Imp::select(const bsls_Types::Int64&,
                                        bdeat_TypeCategory::Simple)
 {
     BSLS_ASSERT_SAFE(
@@ -636,7 +635,7 @@ bdem_BerUniversalTagNumber_Imp::select(const bsls_PlatformUtil::Int64&,
 
 inline
 bdem_BerUniversalTagNumber::Value
-bdem_BerUniversalTagNumber_Imp::select(const bsls_PlatformUtil::Uint64&,
+bdem_BerUniversalTagNumber_Imp::select(const bsls_Types::Uint64&,
                                        bdeat_TypeCategory::Simple)
 {
     BSLS_ASSERT_SAFE(
