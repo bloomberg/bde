@@ -95,16 +95,6 @@ struct baenet_HttpRequestMethod {
             // This is a PUT request.
       , BAENET_TRACE   = 7
             // This is a TRACE request.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-      , CONNECT = BAENET_CONNECT
-      , DELETE  = BAENET_DELETE
-      , GET     = BAENET_GET
-      , HEAD    = BAENET_HEAD
-      , OPTIONS = BAENET_OPTIONS
-      , POST    = BAENET_POST
-      , PUT     = BAENET_PUT
-      , TRACE   = BAENET_TRACE
-#endif
     };
 
     enum {
