@@ -23,7 +23,6 @@
 
 #include <bsls_platform.h>                    // for testing only
 
-#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 

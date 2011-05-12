@@ -17,6 +17,7 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
+#include <bsl_c_stdlib.h>
 #include <bsl_iomanip.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
@@ -33,6 +34,24 @@ const char *const MONTHS[] = {
 };
 
 }  // close unnamed namespace
+
+static void toString(bsl::string *result, int value)
+    //
+{
+    char buffer[16];
+    bsl::cout << "int" << bsl::endl;
+    snprintf(buffer, sizeof buffer, "%d", value);
+    *result += buffer;
+}
+
+static void toString(bsl::string *result, unsigned long long value)
+    //
+{
+    char buffer[32];
+    bsl::cout << "ull" << bsl::endl;
+    snprintf(buffer, sizeof(buffer), "%llu", value);
+    *result += buffer;
+}
 
 namespace BloombergLP {
 
@@ -172,24 +191,10 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 }
               } break;
               case 'p': {
-                char buffer[32];
-
-                snprintf(buffer,
-                         sizeof(buffer),
-                         "%d",
-                         fixedFields.processID());
-
-                output += buffer;
+                toString(&output, fixedFields.processID());
               } break;
               case 't': {
-                char buffer[32];
-
-                snprintf(buffer,
-                         sizeof(buffer),
-                         "%llu",
-                         fixedFields.threadID());
-
-                output += buffer;
+                toString(&output, fixedFields.threadID());
               } break;
               case 's': {
                 output += bael_Severity::toAscii(
@@ -214,14 +219,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 }
               } break;
               case 'l': {
-                char buffer[32];
-
-                snprintf(buffer,
-                         sizeof(buffer),
-                         "%d",
-                         fixedFields.lineNumber());
-
-                output += buffer;
+                toString(&output, fixedFields.lineNumber());
               } break;
               case 'c': {
                 output += fixedFields.category();

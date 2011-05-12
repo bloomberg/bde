@@ -230,16 +230,22 @@ void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
 #undef snprintf
 #endif
 
-    output += buffer;
-    output += fixedFields.category();
-    output += ' ';
-    output += fixedFields.message();
-    output += ' ';
+    //output += buffer;
+    //output += fixedFields.category();
+    //output += ' ';
+    //output += fixedFields.message();
+    //output += ' ';
+
+    //stream << output;
 
     const bdem_List& userFields = record.userFields();
     const int numUserFields = userFields.length();
 
-    stream << output;
+    stream << buffer;
+    stream << fixedFields.category();
+    stream << ' ';
+    stream << fixedFields.message();
+    stream << ' ';
 
     for (int i = 0; i < numUserFields; ++i) {
         stream << userFields[i] << ' ';
