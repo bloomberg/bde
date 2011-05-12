@@ -32,6 +32,7 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BSL_OVERRIDES_STD
 #include <bslstl_string.h>
+#include <bslstl_stringargument.h>
 #endif
 
 #endif
