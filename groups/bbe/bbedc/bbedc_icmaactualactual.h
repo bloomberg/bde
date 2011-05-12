@@ -17,9 +17,11 @@ BDES_IDENT_PRAGMA_ONCE
 //
 //@DESCRIPTION: This component provides a namespace for pure procedures that
 // manipulate dates as prescribed by the International Swaps and Derivatives
-// Association (ICMA) Actual/Actual day-count convention.  In the ICMA
-// Actual/Actual convention the day count between two dates is exactly the
-// number of days separating the dates as per a conventional calendar.
+// Association (ISMA) Actual/Actual day-count convention, known both as
+// 'ICMA Actual / Actual' and 'ISMA Actual / Actual'.  Actual/Actual convention
+// the day count between two dates is exactly the number of days separating the
+// dates as per a conventional calendar.  This is the convention used for
+// calculations regarding US treasuries bonds.
 //
 ///Usage
 ///-----
