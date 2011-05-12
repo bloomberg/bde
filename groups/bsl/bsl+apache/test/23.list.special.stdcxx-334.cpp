@@ -28,8 +28,14 @@
 #include <string>
 #include <cassert>
 
-class Alloc : public std::allocator <char>
+struct Alloc : std::allocator <char>
 {
+    Alloc() {}
+    Alloc(Alloc const &) {}
+
+    // support rebind
+    template <typename T>
+    Alloc(std::allocator<T> const &) {}
 };
 
 bool operator == (Alloc a1, Alloc a2)
