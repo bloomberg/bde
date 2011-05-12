@@ -1,17 +1,16 @@
 // bdema_managedptr.t.cpp          -*-C++-*-
 
 #include <bdema_managedptr.h>
-#include <bslma_allocator.h>        // for testing only
-#include <bslma_testallocator.h>    // for testing only
+#include <bslma_allocator.h>                    // for testing only
+#include <bslma_defaultallocatorguard.h>        // for testing only
+#include <bslma_testallocator.h>                // for testing only
 
-#include <cstdlib>     // atoi()
-#include <cstring>     // memcpy()
+#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstring.h>     // memcpy()
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
-using namespace std;
-using namespace bsl;  //automatically added by script
-
+using namespace bsl;  // automatically added by script
 
 //=============================================================================
 //                             TEST PLAN
@@ -28,42 +27,57 @@ using namespace bsl;  //automatically added by script
 // aliasing machinery works as documented.  At last, we must also check that
 // a 'bdema_ManagedPtr' acts exactly as a pointer wherever one is expected.
 //-----------------------------------------------------------------------------
-// [  ] bdema_ManagedPtr(TYPE *ptr=0);
-// [  ] bdema_ManagedPtr(bdema_ManagedPtrRef<TYPE> ref);
-// [  ] bdema_ManagedPtr(bdema_ManagedPtrRef<OTHER> ref)
-// [  ] bdema_ManagedPtr(bdema_ManagedPtr<TYPE> &original);
-// [  ] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &original)
-// [  ] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
-// [  ] bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
-// [  ] bdema_ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
-// [  ] bdema_ManagedPtr(TYPE *ptr, FACTORY *factory, ...)
-// [  ] ~bdema_ManagedPtr();
-// [  ] void load(TYPE *ptr=0);
-// [  ] void load(TYPE *ptr, FACTORY *factory) 
-// [  ] void load(TYPE *ptr, void *factory, void (*deleter)(TYPE *, void*));
-// [  ] void load(TYPE *ptr, FACTORY *factory, void(*deleter)(TYPE *,FACTORY*))
-// [  ] void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
-// [  ] void swap(bdema_ManagedPtr<TYPE>& rhs);
-// [  ] bdema_ManagedPtr<TYPE>& operator=(bdema_ManagedPtr<TYPE> &rhs);
-// [  ] bdema_ManagedPtr<TYPE>& operator=(bdema_ManagedPtr<OTHER> &rhs)
-// [  ] void clear();
-// [  ] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
-// [  ] operator bdema_ManagedPtrRef<TYPE>();
-// [  ] operator bool() const;
-// [  ] TYPE& operator*() const;
-// [  ] TYPE *operator->() const;
-// [  ] TYPE *ptr() const;
-// [  ] bdema_ManagedPtrDeleter const& deleter() const;
+// [ 2] bdema_ManagedPtr();
+// [ 2] bdema_ManagedPtr(TYPE *ptr);
+// [ 2] bdema_ManagedPtr(bdema_ManagedPtr_Ref<TYPE> ref);
+// [ 2] bdema_ManagedPtr(bdema_ManagedPtr<TYPE> &original);
+// [ 2] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &original)
+// [ 2] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
+// [ 2] bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
+// [ 2] bdema_ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
+// [ 2] ~bdema_ManagedPtr();
+// [ 3] operator bdema_ManagedPtr_Ref<TYPE>();
+// [ 3] operator bdema_ManagedPtr_Ref<OTHER>();
+// [ 3] void load(TYPE *ptr=0);
+// [ 3] void load(TYPE *ptr);
+// [ 3] void load(TYPE *ptr, FACTORY *factory)
+// [ 3] void load(TYPE *ptr, void *factory, void (*deleter)(TYPE *, void*));
+// [ 3] void load(TYPE *ptr, FACTORY *factory, void(*deleter)(TYPE *,FACTORY*))
+// [ 3] void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
+// [ 3] void swap(bdema_ManagedPtr<TYPE>& rhs);
+// [ 3] bdema_ManagedPtr<TYPE>& operator=(bdema_ManagedPtr<TYPE> &rhs);
+// [ 3] bdema_ManagedPtr<TYPE>& operator=(bdema_ManagedPtr<OTHER> &rhs)
+// [ 3] bdema_ManagedPtr<TYPE>& operator=(bdema_ManagedPtr_Ref<TYPE> ref);
+// [ 4] void clear();
+// [ 4] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
+// [ 2] operator bdema_ManagedPtr_UnspecifiedBool() const;
+// [ 4] TYPE& operator*() const;
+// [ 4] TYPE *operator->() const;
+// [ 2] TYPE *ptr() const;
+// [ 4] bdema_ManagedPtrDeleter const& deleter() const;
+//
+// class bdema_ManagedPtrDeleter
+// class bdema_ManagedPtrFactoryDeleter       (this one needs negative testing)
+// class bdema_ManagedPtrNilDeleter
+//
+// imp. class bdema_ManagedPtr_Members
+// imp. class bdema_ManagedPtr_Ref            (this one needs negative testing)
+// imp. class bdema_ManagedPtr_ReferenceType
+// imp. class bdema_ManagedPtr_UnspecifiedBoolHelper
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] CASTING EXAMPLE
-// [ 3] USAGE EXAMPLE
+// [ 5] CASTING EXAMPLE
+// [ 6] USAGE EXAMPLE
+// [ 7] VERIFYING FAILURES TO COMPILE
+
+namespace {
+
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
+int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+void aSsErT(int c, const char *s, int i) {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -109,19 +123,23 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-static int verbose = 0;
-static int veryVerbose = 0;
+int verbose = 0;
+int veryVerbose = 0;
 
 bdema_ManagedPtr<int> i;
 
 class MyTestObject;
 class MyDerivedObject;
+class MySecondDerivedObject;
 typedef MyTestObject TObj;
 typedef bdema_ManagedPtr<MyTestObject> Obj;
 typedef bdema_ManagedPtr<const MyTestObject> CObj;
 typedef MyDerivedObject TDObj;
 typedef bdema_ManagedPtr<MyDerivedObject> DObj;
 typedef bdema_ManagedPtr<const MyDerivedObject> CDObj;
+typedef MySecondDerivedObject TSObj;
+typedef bdema_ManagedPtr<MySecondDerivedObject> SObj;
+typedef bdema_ManagedPtr<const MySecondDerivedObject> CSObj;
 
 //=============================================================================
 //                         HELPER CLASSES FOR TESTING
@@ -141,7 +159,7 @@ class MyTestObject {
     virtual ~MyTestObject();
 
     int *valuePtr(int index = 0);
-    
+
     volatile int *deleteCounter() const;
 };
 
@@ -182,17 +200,32 @@ MyDerivedObject::MyDerivedObject(int *counter)
 {
 }
 
+class MySecondDerivedObject : public MyTestObject
+{
+  public:
+    MySecondDerivedObject(int *counter);
+    // Use compiler-generated copy and destruction
+};
+
+inline
+MySecondDerivedObject::MySecondDerivedObject(int *counter)
+: MyTestObject(counter)
+{
+}
+
 //=============================================================================
 //                    FILE-STATIC FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-static void MyTestDeleter(TObj *object, bslma_TestAllocator *allocator)
+void myTestDeleter(TObj *object, bslma_TestAllocator *allocator)
 {
     allocator->deleteObject(object);
-    bsl::cout << "MyTestDeleter called" << endl;
+    if (verbose) {
+        bsl::cout << "myTestDeleter called" << endl;
+    }
 }
 
-static bdema_ManagedPtr<MyTestObject>
+bdema_ManagedPtr<MyTestObject>
 returnManagedPtr(int *numDels, bslma_TestAllocator *allocator)
 {
     MyTestObject *p = new (*allocator) MyTestObject(numDels);
@@ -200,7 +233,7 @@ returnManagedPtr(int *numDels, bslma_TestAllocator *allocator)
     return ret;
 }
 
-static bdema_ManagedPtr<MyDerivedObject>
+bdema_ManagedPtr<MyDerivedObject>
 returnDerivedPtr(int *numDels, bslma_TestAllocator *allocator)
 {
     MyDerivedObject *p = new (*allocator) MyDerivedObject(numDels);
@@ -208,15 +241,23 @@ returnDerivedPtr(int *numDels, bslma_TestAllocator *allocator)
     return ret;
 }
 
+bdema_ManagedPtr<MySecondDerivedObject>
+returnSecondDerivedPtr(int *numDels, bslma_TestAllocator *allocator)
+{
+    MySecondDerivedObject *p = new (*allocator) MySecondDerivedObject(numDels);
+    bdema_ManagedPtr<MySecondDerivedObject> ret(p, allocator);
+    return ret;
+}
+
+}  // close unnamed namespace
+
 //=============================================================================
 //                                CASTING EXAMPLE
 //-----------------------------------------------------------------------------
-namespace TYPE_CASTING_EXAMPLE {
+namespace TYPE_CASTING_TEST_NAMESPACE {
 
     typedef MyTestObject A;
     typedef MyDerivedObject B;
-    void processAObject(bdema_ManagedPtr<A> Aptr) {}
-    void processBObject(bdema_ManagedPtr<B> Bptr) {}
 
 ///Type Casting
 ///------------
@@ -233,43 +274,81 @@ namespace TYPE_CASTING_EXAMPLE {
 //..
 // If the statements:
 //..
-        B *b_p = 0; // = 0 not in the header usage example - added to bypass
-                    // /RTC failure on Win64
-        A *a_p = b_p;
-//..
-// are legal expressions, then the statements
-//..
-#ifdef BSLS_PLATFORM__CMP_SUN
-        bdema_ManagedPtr<B> b_mp1;
-        bdema_ManagedPtr<A> a_mp1;
-        a_mp1 = b_mp1; // conversion assignment
-                       // WARNING: READ RELEASE NOTES BELOW
-#endif
-//..
-// and
-//..
-        bdema_ManagedPtr<B> b_mp2;
-        bdema_ManagedPtr<A> a_mp2(b_mp2); // conversion construction
-//..
-// should also be valid.  NOTE that in all of the above cases, the proper
-// destructor of 'B' will be invoked when the instance is destroyed even if
-// 'A' does not provide a polymorphic destructor.
-//
+        bslma_TestAllocator localDefaultTa;
+        bslma_TestAllocator localTa;
+
+        bslma_DefaultAllocatorGuard guard(&localDefaultTa);
+
+        int numdels = 0;
+
+        {
+            B *b_p = 0;
+            A *a_p = b_p;
+    //..
+    // are legal expressions, then the statements
+    //..
+            bdema_ManagedPtr<A> a_mp1;
+            bdema_ManagedPtr<B> b_mp1;
+
+            ASSERT(!a_mp1 && !b_mp1);
+
+            a_mp1 = b_mp1;      // conversion assignment of nil ptr to nil
+            ASSERT(!a_mp1 && !b_mp1);
+
+            B *b_p2 = new (localDefaultTa) B(&numdels);
+            bdema_ManagedPtr<B> b_mp2(b_p2);    // default allocator
+            ASSERT(!a_mp1 && b_mp2);
+
+            a_mp1 = b_mp2;      // conversion assignment of nonnil ptr to nil
+            ASSERT(a_mp1 && !b_mp2);
+
+            B *b_p3 = new (localTa) B(&numdels);
+            bdema_ManagedPtr<B> b_mp3(b_p3, &localTa);
+            ASSERT(a_mp1 && b_mp3);
+
+            a_mp1 = b_mp3;      // conversion assignment of nonnil to nonnil
+            ASSERT(a_mp1 && !b_mp3);
+
+            a_mp1 = b_mp3;  // conversion assignment of nil to nonnil
+            ASSERT(!a_mp1 && !b_mp3);
+
+            // c'tor conversion init with nil
+            bdema_ManagedPtr<A> a_mp4(b_mp3, b_mp3.ptr());
+            ASSERT(!a_mp4 && !b_mp3);
+
+            // c'tor conversion init with nonnil
+            B *p_b5 = new (localTa) B(&numdels);
+            bdema_ManagedPtr<B> b_mp5(p_b5, &localTa);
+            bdema_ManagedPtr<A> a_mp5(b_mp5, b_mp5.ptr());
+            ASSERT(a_mp5 && !b_mp5);
+            ASSERT(a_mp5.ptr() == p_b5);
+
+            // c'tor conversion init with nonnil
+            B *p_b6 = new (localTa) B(&numdels);
+            bdema_ManagedPtr<B> b_mp6(p_b6, &localTa);
+            bdema_ManagedPtr<A> a_mp6(b_mp6);
+            ASSERT(a_mp6 && !b_mp6);
+            ASSERT(a_mp6.ptr() == p_b6);
+
+            struct S {
+                int d_i[10];
+            };
+
 #if 0
-// RELEASE NOTES: the assignment with conversion will *not* compile on all
-// platforms with BDE 1.3.0.  That is, the following statement will not compile
-// (for instance, with the AIX or Gnu compilers):
-//..
-        a_mp2 = b_mp2; // WILL NOT COMPILE WITH BDE 1.3.0
-//..
-#else
-// The fixed version is given in the Clearcase dev branch, but because of
-// binary incompatibilities, it is not possible to release the fix at this
-// time.  This limitation can be overcome, however, by using an explicit cast
-// as detailed below:
-//..
-        a_mp2  = bdema_ManagedPtr<A>(b_mp2); // WORKAROUND
+            S *pS = new (localTa) S;
+            for (int i = 0; 10 > i; ++i) {
+                pS->d_i[i] = i;
+            }
+
+            bdema_ManagedPtr<S> s_mp1(pS);
+            bdema_ManagedPtr<int> i_mp1(pS, static_cast<int*>(pS.ptr()) + 4);
+            ASSERT(4 == *i_mp1);
 #endif
+
+            ASSERT(2 == numdels);
+        }
+
+        ASSERT(4 == numdels);
     } // implicitCastingExample()
 //..
 //
@@ -296,14 +375,17 @@ namespace TYPE_CASTING_EXAMPLE {
 // pointer will be reset to an unset state, and the source will not be
 // modified.  Consider for example the following snippet of code:
 //..
-    void processPolymorphicObject(bdema_ManagedPtr<A> aPtr)
+    void processPolymorphicObject(bdema_ManagedPtr<A> aPtr,
+                                  bool *castSucceeded)
     {
         bdema_ManagedPtr<B> bPtr(aPtr, dynamic_cast<B*>(aPtr.ptr()));
         if (bPtr) {
-            processBObject(bPtr);
+            ASSERT(!aPtr);
+            *castSucceeded = true;
         }
         else {
-            processAObject(aPtr);
+            ASSERT(aPtr);
+            *castSucceeded = false;
         }
     }
 //..
@@ -312,7 +394,31 @@ namespace TYPE_CASTING_EXAMPLE {
 // stated, the managed instance will be destroyed correctly regardless of how
 // it is cast.
 
-} // namespace TYPE_CASTING_EXAMPLE
+} // namespace TYPE_CASTING_TEST_NAMESPACE
+
+//=============================================================================
+//                              CREATORS TEST
+//=============================================================================
+
+namespace CREATORS_TEST_NAMESPACE {
+
+struct SS {
+    char  d_buf[100];
+    int  *d_numDeletes_p;
+
+    SS(int *numDeletes) {
+        d_numDeletes_p = numDeletes;
+    }
+    ~SS() {
+        ++*d_numDeletes_p;
+    }
+};
+
+typedef bdema_ManagedPtr<SS> SSObj;
+typedef bdema_ManagedPtr<char> ChObj;
+
+}  // close namespace CREATORS_TEST_NAMESPACE
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -409,7 +515,7 @@ namespace USAGE_EXAMPLE {
 // entire array before starting to manage what has now become an invalid
 // pointer.  Instead, 'result' must retain its ownership to the entire array,
 // which can be attained by:
-//.. 
+//..
         result.loadAlias(result, result.ptr()-i);
 //..
 // If we reset the result pointer, the entire array is deallocated:
@@ -423,6 +529,7 @@ namespace USAGE_EXAMPLE {
 //..
 
 } // namespace USAGE_EXAMPLE
+
 //=============================================================================
 //                  TEST PROGRAM
 //-----------------------------------------------------------------------------
@@ -441,7 +548,30 @@ int main(int argc, char *argv[])
     bslma_TestAllocator ta;
 
     switch (test) { case 0:
-      case 3: {
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING FAILURE TO COMPILE
+        //
+        // verifying that things that shouldn't compile, don't
+        // --------------------------------------------------------------------
+
+        int numdels = 0;
+
+        Obj mX;
+        Obj mY;
+
+#       if 0
+            // < and > comparisons should be illegal, these lines would not
+            // compile
+
+            bool a;
+            a = mX <  mY;
+            a = mX <= mY;
+            a = mX >  mY;
+            a = mX >= mY;
+#       endif
+      } break;
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -465,14 +595,13 @@ int main(int argc, char *argv[])
         usageExample1();
 
       } break;
-      case 2: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION EXAMPLES
         //
         // Concerns
-        //   The examples provided in the component header file in the "Type
-        //   Casting" section must compile, link, and run on all platforms as
-        //   shown.
+        //   Test casting of managed pointers, both when the pointer is null
+        //   and when it is not.
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
@@ -482,15 +611,514 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        using namespace TYPE_CASTING_EXAMPLE;
+        using namespace TYPE_CASTING_TEST_NAMESPACE;
 
         if (verbose) cout << "\nTYPE CASTING EXAMPLE"
                           << "\n--------------------" << endl;
 
-        implicitCastingExample();
-        explicitCastingExample();
-        processPolymorphicObject(Obj());
+        int numdels = 0;
 
+        {
+            implicitCastingExample();
+            explicitCastingExample();
+
+            bool castSucceeded;
+
+            processPolymorphicObject(returnManagedPtr(&numdels, &ta),
+                                                               &castSucceeded);
+            ASSERT(!castSucceeded);
+            processPolymorphicObject(
+                    bdema_ManagedPtr<A>(returnDerivedPtr(&numdels, &ta)),
+                                                               &castSucceeded);
+            ASSERT(castSucceeded);
+            processPolymorphicObject(
+                    bdema_ManagedPtr<A>(returnSecondDerivedPtr(&numdels, &ta)),
+                                                               &castSucceeded);
+            ASSERT(!castSucceeded);
+
+            returnManagedPtr(&numdels, &ta);
+            returnDerivedPtr(&numdels, &ta);
+            returnSecondDerivedPtr(&numdels, &ta);
+        }
+
+        LOOP_ASSERT(numdels, 6 == numdels);
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // CLEAR, RELEASE, AND ACCESSORS
+        //
+        // Concerns:
+        //   That clear, release, and all accessors work properly.  The 'ptr()'
+        //   accessor and the 'ManagedPtr_unspecifiedBool()' conversion have
+        //   already been substantially tested in previous tests.
+        //
+        // Tested:
+        // '*' is my short-hand for "not yet verified this test as claimed"
+        // 'X' is my short-hand for "confirmed to *not* be tested"
+        // '-' is my short-hand for "confirmed to not be explicitly tested"
+        //     Just because a function is tested, we do not confirm that the
+        //     testing is adequate, that audit happens later.
+        // * void clear();
+        // * bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
+        // * operator bdema_ManagedPtr_UnspecifiedBool() const;
+        // * TYPE& operator*() const;
+        // * TYPE *operator->() const;
+        // * bdema_ManagedPtrDeleter const& deleter() const;
+        //
+        // ADD NEGATIVE TESTING FOR operator*()
+        // --------------------------------------------------------------------
+
+        using namespace CREATORS_TEST_NAMESPACE;
+
+        bslma_TestAllocator taDefault;
+        bslma_DefaultAllocatorGuard allocatorGuard(&taDefault);
+
+        numDeletes = 0;
+        {
+            TObj *p = new (taDefault) MyTestObject(&numDeletes);
+            Obj o(p);
+
+            ASSERT(0 == numDeletes);
+            o.clear();
+            ASSERT(1 == numDeletes);
+
+            ASSERT(!o && !o.ptr());
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p;
+            {
+                p = new (taDefault) MyTestObject(&numDeletes);
+                Obj o(p);
+
+                ASSERT(p == o.release().first);
+                ASSERT(0 == numDeletes);
+
+                ASSERT(!o && !o.ptr());
+            }
+
+            ASSERT(0 == numDeletes);
+            taDefault.deleteObject(p);
+        }
+        ASSERT(1 == numDeletes);
+
+        // testing 'deleter()' accessor and 'release().second'
+        numDeletes = 0;
+        {
+            TObj *p;
+            {
+                p =  new (taDefault) MyTestObject(&numDeletes);
+                Obj o(p);
+
+                bdema_ManagedPtrDeleter d(o.deleter());
+                bdema_ManagedPtrDeleter d2(o.release().second);
+                ASSERT(0 == numDeletes);
+
+                ASSERT(d.object()  == d2.object());
+                ASSERT(d.factory() == d2.factory());
+                ASSERT(d.deleter() == d2.deleter());
+            }
+
+            ASSERT(0 == numDeletes);
+            taDefault.deleteObject(p);
+        }
+        ASSERT(1 == numDeletes);
+
+        {
+            int numDeallocation = taDefault.numDeallocation();
+            numDeletes = 0;
+            {
+                SS *p = new (taDefault) SS(&numDeletes);
+                std::strcpy(p->d_buf, "Woof meow");
+
+                SSObj s(p);
+
+                // testing * and -> references
+                ASSERT(!strcmp(&(*s).d_buf[5], "meow"));
+                ASSERT(!strcmp(&s->d_buf[5],   "meow"));
+            }
+            ASSERT(taDefault.numDeallocation() == numDeallocation + 1);
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // LOAD, SWAP, AND ASSIGN TEST
+        //
+        // Concerns:
+        //   Test all varieties of load, swap function and all assignments.
+        //
+        // Plan:
+        //   Test the functions in the order in which they are declared in
+        //   the ManagedPtr class.
+        //
+        // Tested:
+        // '*' is my short-hand for "not yet verified this test as claimed"
+        // 'X' is my short-hand for "confirmed to *not* be tested"
+        // '-' is my short-hand for "confirmed to not be explicitly tested"
+        //     Just because a function is tested, we do not confirm that the
+        //     testing is adequate, that audit happens later.
+        // * operator bdema_ManagedPtr_Ref<TYPE>();
+        // * operator bdema_ManagedPtr_Ref<OTHER>();
+        // * void load(TYPE *ptr=0);
+        // * void load(TYPE *ptr);
+        // * void load(TYPE *ptr, FACTORY *factory)
+        // * void load(TYPE *ptr,
+        //             void *factory,
+        //             void (*deleter)(TYPE *, void*));
+        // * void load(TYPE *ptr,
+        //             FACTORY *factory,
+        //             void(*deleter)(TYPE *,FACTORY*))
+        // * void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
+        // * void swap(bdema_ManagedPtr<TYPE>& rhs);
+        // * bdema_ManagedPtr<TYPE>& operator=(bdema_ManagedPtr<TYPE> &rhs);
+        // * bdema_ManagedPtr<TYPE>& operator=(bdema_ManagedPtr<OTHER> &rhs)
+        // * bdema_ManagedPtr<TYPE>& operator=(bdema_ManagedPtr_Ref<TYPE> ref);
+        // --------------------------------------------------------------------
+
+        using namespace CREATORS_TEST_NAMESPACE;
+
+        bslma_TestAllocator taDefault;
+        bslma_DefaultAllocatorGuard allocatorGuard(&taDefault);
+
+        numDeletes = 0;
+        {
+            TObj *p = new (taDefault) MyTestObject(&numDeletes);
+            Obj o(p);
+
+            ASSERT(o);
+            ASSERT(0 == numDeletes);
+
+            o.load();
+            ASSERT(!o);
+
+            ASSERT(1 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p =  new (taDefault) MyTestObject(&numDeletes);
+            TObj *p2 = new (taDefault) MyTestObject(&numDeletes);
+            Obj o(p);
+
+            ASSERT(o);
+            ASSERT(0 == numDeletes);
+
+            o.load(p2);
+            ASSERT(o);
+
+            ASSERT(1 == numDeletes);
+        }
+        ASSERT(2 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p =  new (taDefault) MyTestObject(&numDeletes);
+            TObj *p2 = new (taDefault) MyTestObject(&numDeletes);
+            Obj o(p);
+
+            ASSERT(o);
+            ASSERT(0 == numDeletes);
+
+            o.load(p2, &taDefault);
+            ASSERT(o);
+
+            ASSERT(1 == numDeletes);
+        }
+        ASSERT(2 == numDeletes);
+
+        numDeletes = 0;
+        {
+            typedef void (*DeleterFunc)(MyTestObject *, void *);
+            DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
+
+            TObj *p =  new (taDefault) MyTestObject(&numDeletes);
+            TObj *p2 = new (taDefault) MyTestObject(&numDeletes);
+            Obj o(p);
+            o.load(p2, (void *) &taDefault, deleterFunc);
+
+            ASSERT(1 == numDeletes);
+        }
+        ASSERT(2 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p =  new (taDefault) MyTestObject(&numDeletes);
+            TObj *p2 = new (taDefault) MyTestObject(&numDeletes);
+            Obj o(p);
+
+            o.load(p2, &taDefault, &myTestDeleter);
+
+            ASSERT(1 == numDeletes);
+        }
+        ASSERT(2 == numDeletes);
+
+        {
+            int numDeallocation = taDefault.numDeallocation();
+            numDeletes = 0;
+            {
+                SS *p = new (taDefault) SS(&numDeletes);
+                std::strcpy(p->d_buf, "Woof meow");
+                char *pc = (char *) taDefault.allocate(5);
+                std::strcpy(pc, "Werf");
+
+                SSObj s(p);
+                ChObj c(pc);
+
+                ASSERT(taDefault.numDeallocation() == numDeallocation);
+                c.loadAlias(s, &p->d_buf[5]);
+                ASSERT(taDefault.numDeallocation() == numDeallocation + 1);
+
+                ASSERT(!s);
+
+                ASSERT(!std::strcmp(c.ptr(), "meow"));
+            }
+            ASSERT(taDefault.numDeallocation() == numDeallocation + 2);
+        }
+
+        numDeletes = 0;
+        {
+            TObj *p =  new (taDefault) MyTestObject(&numDeletes);
+            TObj *p2 = new (taDefault) MyTestObject(&numDeletes);
+
+            Obj o(p);
+            Obj o2(p2);
+
+            o.swap(o2);
+
+            ASSERT(o.ptr() == p2);
+            ASSERT(o2.ptr() == p);
+        }
+        ASSERT(2 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p =  new (taDefault) MyTestObject(&numDeletes);
+            TObj *p2 = new (taDefault) MyTestObject(&numDeletes);
+
+            Obj o(p);
+            Obj o2(p2);
+
+            o = o2;
+
+            ASSERT(!o2);
+            ASSERT(1 == numDeletes);
+
+            ASSERT(o.ptr() == p2);
+        }
+        ASSERT(2 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p =   new (taDefault) MyTestObject(&numDeletes);
+            TDObj *p2 = new (taDefault) MyDerivedObject(&numDeletes);
+
+            Obj o(p);
+            DObj o2(p2);
+
+            o = o2;
+
+            ASSERT(!o2);
+            ASSERT(1 == numDeletes);
+
+            ASSERT(o.ptr() == p2);
+        }
+        ASSERT(2 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p = new (taDefault) MyTestObject(&numDeletes);
+            Obj o(p);
+            Obj o2;
+
+            bdema_ManagedPtr_Ref<TObj> r = o;
+            o2 = r;
+            ASSERT(o2);
+            ASSERT(!o);
+            ASSERT(0 == numDeletes);
+
+            bdema_ManagedPtr_Ref<TObj> r2 = o;
+            o2 = r2;
+            ASSERT(!o2);
+            ASSERT(!o);
+
+            ASSERT(1 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TDObj *p = new (taDefault) MyDerivedObject(&numDeletes);
+            DObj o(p);
+            Obj o2;
+
+            bdema_ManagedPtr_Ref<TObj> r = o;
+            o2 = r;
+            ASSERT(o2);
+            ASSERT(!o);
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // CREATORS TEST
+        //
+        // Concerns:
+        //   Exercise all declared constructors of ManagedPtr and conversion
+        //   operator ManagedPtrRef().  Note that ManagedPtrRef normally just
+        //   exists to facilitate copies and assignments of one managedptr to
+        //   another, however, it is a good idea to test it explicitly
+        //   because on some platforms, such as Sun, it is unnecessary and
+        //   does not come into play when copying and assigning ManagedPtr's.
+        //
+        // Plan:
+        //   Go through the constructors in the order in which they are
+        //   declared in the ManagedPtr class and exercise all of them,
+        //   exercising the ManagedPtrRef class when need to exercise the
+        //   ManagedPtr class.
+        //
+        // Tested:
+        // '*' is my short-hand for "not yet verified this test as claimed"
+        // 'X' is my short-hand for "confirmed to *not* be tested"
+        // '-' is my short-hand for "confirmed to not be explicitly tested"
+        //     Just because a function is tested, we do not confirm that the
+        //     testing is adequate, that audit happens later.
+        // X bdema_ManagedPtr();
+        // * bdema_ManagedPtr(TYPE *ptr);
+        // * bdema_ManagedPtr(bdema_ManagedPtr_Ref<TYPE> ref);
+        // * bdema_ManagedPtr(bdema_ManagedPtr<TYPE> &original);
+        // * bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &original)
+        // * bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
+        // * bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
+        // * bdema_ManagedPtr(TYPE *ptr,
+        //                    void *factory,
+        //                    void(*deleter)(TYPE*, void*))
+        // - ~bdema_ManagedPtr();
+        // * TYPE *ptr() const;
+        // --------------------------------------------------------------------
+
+        using namespace CREATORS_TEST_NAMESPACE;
+
+        bslma_TestAllocator taDefault;
+        bslma_DefaultAllocatorGuard allocatorGuard(&taDefault);
+
+        numDeletes = 0;
+        {
+            Obj o;
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p = new (taDefault) MyTestObject(&numDeletes);
+            Obj o(p);
+
+            ASSERT(o.ptr() == p);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            // this test tests creation of a ref from the same type of
+            // managedPtr, then assignment to a managedptr.
+
+            Obj o2;
+            {
+                TObj *p = new (taDefault) MyTestObject(&numDeletes);
+                Obj o(p);
+
+                bdema_ManagedPtr_Ref<TObj> r = o;
+                o2 = r;
+
+                ASSERT(o2.ptr() == p);
+            }
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            // this cast tests both a cast while creating the ref,
+            // and the constructor from a ref.
+
+            TDObj *p = new (taDefault) MyDerivedObject(&numDeletes);
+            DObj o(p);
+
+            ASSERT(o);
+            ASSERT(o.ptr() == p);
+
+            bdema_ManagedPtr_Ref<TObj> r = o;
+            ASSERT(o);
+            Obj o2(r);
+
+            ASSERT(!o && !o.ptr());
+            ASSERT(0 == numDeletes);
+
+            ASSERT(o2.ptr() == p);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p = new (taDefault) MyTestObject(&numDeletes);
+            Obj o(p);
+
+            Obj o2(o);
+            ASSERT(o2.ptr() == p);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TDObj *p = new (taDefault) MyDerivedObject(&numDeletes);
+            DObj d(p);
+
+            Obj o(d);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            SS *p = new (taDefault) SS(&numDeletes);
+            std::strcpy(p->d_buf, "Woof meow");
+
+            SSObj s(p);
+            ChObj c(s, &p->d_buf[5]);
+
+            ASSERT(!s);
+
+            ASSERT(!std::strcmp(c.ptr(), "meow"));
+
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p = new (ta) MyTestObject(&numDeletes);
+            Obj o(p, &ta);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            typedef void (*DeleterFunc)(MyTestObject *, void *);
+            DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
+
+            TObj *p = new (ta) MyTestObject(&numDeletes);
+            Obj o(p, (void *) &ta, deleterFunc);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p = new (ta) MyTestObject(&numDeletes);
+            Obj o(p, &ta, &myTestDeleter);
+        }
+        ASSERT(1 == numDeletes);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -512,8 +1140,8 @@ int main(int argc, char *argv[])
                           << "\n--------------" << endl;
 
         if (verbose) cout << "\tTest copy construction.\n";
-        
-        numDeletes = 0; 
+
+        numDeletes = 0;
         {
             TObj *p = new MyTestObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
@@ -528,8 +1156,8 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         if (verbose) cout << "\tTest assignment.\n";
-        
-        numDeletes = 0; 
+
+        numDeletes = 0;
         {
             TObj *p = new MyTestObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
@@ -549,8 +1177,8 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         if (verbose) cout << "\tTest construction from an rvalue.\n";
-        
-        numDeletes = 0; 
+
+        numDeletes = 0;
         {
             Obj x(returnManagedPtr(&numDeletes, &ta)); Obj const &X = x;
 
@@ -561,7 +1189,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest assignment from an rvalue.\n";
 
-        numDeletes = 0; 
+        numDeletes = 0;
         {
             Obj x; Obj const &X = x;
             x = returnManagedPtr(&numDeletes, &ta);
@@ -572,8 +1200,8 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         if (verbose) cout << "\tTest conversion construction.\n";
-        
-        numDeletes = 0; 
+
+        numDeletes = 0;
         {
             TDObj *p = new MyDerivedObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
@@ -598,10 +1226,10 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         if (verbose) cout << "\tTest conversion assignment.\n";
-#if !defined(BSLS_PLATFORM__CMP_SUN)
-        if (verbose) cout << "\t\tdisabled for this compiler.\n";
+#ifndef OK_CONVERSION_ASSIGNMENT
+        if (verbose) cout << "\t\tdisabled for this version.\n";
 #else
-        numDeletes = 0; 
+        numDeletes = 0;
         {
             TDObj *p = new MyDerivedObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
@@ -630,10 +1258,10 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << "\tTest conversion construction from an rvalue.\n";
-#if !defined(BSLS_PLATFORM__CMP_SUN)
-        if (verbose) cout << "\t\tdisabled for this compiler.\n";
+#ifndef OK_CONVERSION_ASSIGNMENT
+        if (verbose) cout << "\t\tdisabled for this version.\n";
 #else
-        numDeletes = 0; 
+        numDeletes = 0;
         {
             Obj x(returnDerivedPtr(&numDeletes, &ta)); Obj const &X = x;
 
@@ -645,10 +1273,10 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << "\tTest conversion assignment from an rvalue.\n";
-#if !defined(BSLS_PLATFORM__CMP_SUN)
-        if (verbose) cout << "\t\tdisabled for this compiler.\n";
+#ifndef OK_CONVERSION_ASSIGNMENT
+        if (verbose) cout << "\t\tdisabled for this version.\n";
 #else
-        numDeletes = 0; 
+        numDeletes = 0;
         {
             Obj x; Obj const &X = x;
             x = returnDerivedPtr(&numDeletes, &ta); // conversion-assignment
@@ -661,8 +1289,8 @@ int main(int argc, char *argv[])
 #endif
 
         if (verbose) cout << "\tTest alias construction.\n";
-        
-        numDeletes = 0; 
+
+        numDeletes = 0;
         {
             TObj *p = new MyTestObject(&numDeletes);
             ASSERT(0 != p);
@@ -678,8 +1306,8 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         if (verbose) cout << "\tTest alias construction with conversion.\n";
-        
-        numDeletes = 0; 
+
+        numDeletes = 0;
         {
             TDObj *p = new MyDerivedObject(&numDeletes);
             ASSERT(0 != p);
@@ -696,7 +1324,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest 'load' method.\n";
 
-        numDeletes = 0; 
+        numDeletes = 0;
         {
             int numDeletes2 = 0;
             TObj *p = new MyTestObject(&numDeletes2);
@@ -705,7 +1333,7 @@ int main(int argc, char *argv[])
 
             Obj o(p);
 
-            TObj *p2 = new MyTestObject(&numDeletes); 
+            TObj *p2 = new MyTestObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o.load(p2);
@@ -717,7 +1345,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest 'load' method with allocator.\n";
 
-        numDeletes = 0; 
+        numDeletes = 0;
         {
             int numDeletes2 = 0;
             TObj *p = new MyTestObject(&numDeletes2);
@@ -725,7 +1353,7 @@ int main(int argc, char *argv[])
 
             Obj o(p);
 
-            TObj *p2 = new(ta) MyTestObject(&numDeletes); 
+            TObj *p2 = new(ta) MyTestObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o.load(p2,&ta);
@@ -736,8 +1364,8 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         if (verbose) cout << "\tTest 'loadAlias'.\n";
-        
-        numDeletes = 0; 
+
+        numDeletes = 0;
         {
             TObj *p = new MyTestObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
@@ -763,7 +1391,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest 'swap'.\n";
 
-        numDeletes = 0; 
+        numDeletes = 0;
         {
             TObj *p = new MyTestObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
@@ -783,12 +1411,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest 'swap' with custom deleter.\n";
 
-        numDeletes = 0; 
+        numDeletes = 0;
         {
             TObj *p = new(ta) MyTestObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
-            Obj o(p, &ta, &MyTestDeleter);
+            Obj o(p, &ta, &myTestDeleter);
             Obj o2;
 
             ASSERT(p == o.ptr());
@@ -801,6 +1429,22 @@ int main(int argc, char *argv[])
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
+        if (verbose) cout << "\tTest boolean.\n";
+
+        numDeletes = 0;
+        {
+            TObj *p = new(ta) MyTestObject(&numDeletes);
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+
+            Obj o(p, &ta, &myTestDeleter);
+            Obj o2;
+
+            ASSERT(o);
+            ASSERT(!o2);
+
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
