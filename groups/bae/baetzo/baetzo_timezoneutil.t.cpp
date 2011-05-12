@@ -52,14 +52,16 @@ using namespace bsl;
 // [ 8] convertLocalToLocalTime(DatetmTz *, const ch *, const Datetm&, ...
 // [ 4] initLocalTime(DatetmTz *, const Datetm&, const ch *, Dst);
 // [ 4] initLocalTime(LclDatetm *, const Datetm&, const ch *, Dst);
-// [ 4] initLocalTime(DatetmTz *, Validity *, const Datetm&, const ch ...
-// [ 4] initLocalTime(LclDatetm *, Validity *, const Datetm&, const ch...
+// [ 4] initLocalTime(DatetmTz *, Valid *, const Datetm&, const ch *, ...
+// [ 4] initLocalTime(LclDatetm *, Valid *, const Datetm&, const ch *, ...
 // [ 5] convertLocalToUtc(Datetm *, const Datetm&, const ch *, Dst);
 // [ 5] convertLocalToUtc(LclDatetm *, const Datetm&, const ch *, Dst);
 // [ 3] loadLocalTimePeriod(LclTmPeriod *, const LclDatetm&);
 // [ 3] loadLocalTimePeriod(LclTmPeriod *, const DatetmTz&, const ch *);
 // [ 2] loadLocalTimePeriodForUtc(LclTmPeriod *, const ch *, const Date...
 // [ 7] addInterval(LclDatetm *, const LclDatetm&, const DatetmInterval&);
+// [ 9] validateConsistency(bool * result, const LclDatetm& lcTime);
+// [ 9] validateConsistency(bool *, const DatetmTz&, const char *TZ);
 // ============================================================================
 
 // ============================================================================
@@ -838,6 +840,37 @@ struct LogVerbosityGuard {
     }
 };
 
+//=============================================================================
+//                                 HELPER FUNCTIONS
+//-----------------------------------------------------------------------------
+static bdet_DatetimeTz toDatetimeTz(const char *iso8601TimeString)
+    // Return the datetime value indicated by the specified
+    // 'iso8601TimeString'.  The behavior is undefined unless
+    // 'iso8601TimeString' is a null-terminated C-string containing a time
+    // description matching the iso8601 specification (see 'bdepu_iso8601').
+{
+    bdet_DatetimeTz time;
+    int rc = bdepu_Iso8601::parse(&time,
+                                  iso8601TimeString,
+                                  bsl::strlen(iso8601TimeString));
+    BSLS_ASSERT(0 == rc);
+    return time;
+}
+
+static bdet_Datetime toDatetime(const char *iso8601TimeString)
+    // Return the datetime value indicated by the specified
+    // 'iso8601TimeString'.  The behavior is undefined unless
+    // 'iso8601TimeString' is a null-terminated C-string containing a time
+    // description matching the iso8601 specification (see 'bdepu_iso8601').
+{
+    bdet_Datetime time;
+    int rc = bdepu_Iso8601::parse(&time,
+                                  iso8601TimeString,
+                                  bsl::strlen(iso8601TimeString));
+    BSLS_ASSERT(0 == rc);
+    return time;
+}
+
 // ============================================================================
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -891,7 +924,7 @@ int main(int argc, char *argv[])
     baetzo_DefaultZoneinfoCache::setDefaultCache(&testCache);
 
     switch (test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -1150,6 +1183,150 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == defaultAllocator.numBytesInUse());
       } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // CLASS METHOD 'validateConsistency'
+        //
+        // Concerns:
+        //: 1 This method returns a non-zero value when given a bogus id.
+        //:
+        //: 2 This method loads the correct value for trivial time zones.
+        //:
+        //: 3 This method may loads 'true' for more than one offset if the time
+        //:   is ambiguous.
+        //:
+        //: 4 This method loads 'false' for any invalid local time.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Test that a non-zero value is returned with a time zone id that
+        //:   does not exist. (C-1)
+        //:
+        //: 2 Use a table based approach with a) boundary values, b) ambiguous
+        //:   time values, and c) invalid time values, and verify that the
+        //:   expect result returned. (C-2..4)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid input (using the 'BSLS_ASSERTTEST_*'
+        //:   macros). (C-5)
+        //
+        // Testing:
+        //   validateConsistency(bool * result, const LclDatetm& lcTime);
+        //   validateConsistency(bool *, const DatetmTz&, const char *TZ);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "CLASS METHOD 'validateConsistency'" << endl
+                          << "=================================" << endl;
+
+        if (verbose) cout << "\tTest invalid 'timeZoneId'." << endl;
+        {
+            const bdet_DatetimeTz    TIME_TZ(bdet_Datetime(2011, 1, 1), 0);
+            const char               BOGUS_ID[] = "bogusId";
+            const baet_LocalDatetime LCL_TIME(TIME_TZ, BOGUS_ID);
+            bool                     result;
+
+            ASSERT(EUID ==
+                         Obj::validateConsistency(&result, TIME_TZ, BOGUS_ID));
+            ASSERT(EUID == Obj::validateConsistency(&result, LCL_TIME));
+        }
+
+        if (verbose) cout << "\tTest 'validateConsistency'." << endl;
+        {
+            static const struct {
+                int         d_line;
+                const char *d_datetimeTz;           // iso8601 w/o tz offset
+                const char *d_timeZoneId;
+                bool        d_expectedResult;
+            } DATA[] = {
+
+            { L_,  "0001-01-01T00:00:00.000-00:00",  GMT,   true },
+            { L_,  "0001-01-01T00:00:00.000-00:01",  GMT,  false },
+            { L_,  "9999-12-31T23:59:59.999+00:01",  GMT,  false },
+            { L_,  "9999-12-31T23:59:59.999-00:00",  GMT,   true },
+
+            { L_,  "2011-11-07T01:30:00.000-00:00",  GP1,  false },
+            { L_,  "2011-11-07T01:30:00.000-00:59",  GP1,  false },
+            { L_,  "2011-11-07T01:30:00.000-01:00",  GP1,   true },
+            { L_,  "2011-11-07T01:30:00.000-01:01",  GP1,  false },
+            { L_,  "2011-11-07T01:30:00.000-02:00",  GP1,  false },
+
+            { L_,  "2011-11-07T01:30:00.000+00:00",  GM1,  false },
+            { L_,  "2011-11-07T01:30:00.000+00:59",  GM1,  false },
+            { L_,  "2011-11-07T01:30:00.000+01:00",  GM1,  true },
+            { L_,  "2011-11-07T01:30:00.000+01:01",  GM1,  false },
+            { L_,  "2011-11-07T01:30:00.000+02:00",  GM1,  false },
+
+            { L_,  "2010-01-01T00:00:00-05:00",      NY,    true },
+            { L_,  "2010-07-01T00:00:00-04:00",      NY,    true },
+
+            { L_,  "2010-03-14T01:59:59.999-05:00",  NY,    true },
+            { L_,  "2010-03-14T02:00:00.000-05:00",  NY,   false },
+            { L_,  "2010-03-14T02:59:59.999-05:00",  NY,   false },
+            { L_,  "2010-03-14T03:00:00.000-05:00",  NY,   false },
+            { L_,  "2010-03-14T01:59:59.999-04:00",  NY,   false },
+            { L_,  "2010-03-14T02:00:00.000-04:00",  NY,   false },
+            { L_,  "2010-03-14T02:59:59.999-04:00",  NY,   false },
+            { L_,  "2010-03-14T03:00:00.000-04:00",  NY,    true },
+
+            { L_,  "2010-11-07T00:59:59.999-04:00",  NY,    true },
+            { L_,  "2010-11-07T01:00:00.000-04:00",  NY,    true },
+            { L_,  "2010-11-07T01:59:59.999-04:00",  NY,    true },
+            { L_,  "2010-11-07T02:00:00.000-04:00",  NY,   false },
+            { L_,  "2010-11-07T00:59:59.999-05:00",  NY,   false },
+            { L_,  "2010-11-07T01:00:00.000-05:00",  NY,    true },
+            { L_,  "2010-11-07T01:59:59.999-05:00",  NY,    true },
+            { L_,  "2010-11-07T02:00:00.000-05:00",  NY,    true },
+
+            };
+
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int              LINE    = DATA[i].d_line;
+                const bdet_DatetimeTz& TIME_TZ =
+                                            toDatetimeTz(DATA[i].d_datetimeTz);
+                const char            *TZID    = DATA[i].d_timeZoneId;
+                const bool             EXP     = DATA[i].d_expectedResult;
+
+                bool result;
+
+                LOOP_ASSERT(LINE,
+                            0 ==
+                             Obj::validateConsistency(&result, TIME_TZ, TZID));
+
+                LOOP_ASSERT(LINE, EXP == result);
+
+                const baet_LocalDatetime LCL_TIME(TIME_TZ, TZID);
+
+                LOOP_ASSERT(LINE,
+                            0 == Obj::validateConsistency(&result, LCL_TIME));
+                LOOP_ASSERT(LINE, EXP == result);
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+
+            if (veryVerbose) cout <<
+                            "\t'validateConsistency' class method" << endl;
+            {
+                const bdet_DatetimeTz    TIME_TZ(bdet_Datetime(2011, 1, 1), 0);
+                const char               TZ_ID[] = "America/New_York";
+                const baet_LocalDatetime LCL_TIME(TIME_TZ, TZ_ID);
+                bool                     result;
+
+                ASSERT_PASS(Obj::validateConsistency(&result, TIME_TZ, TZ_ID));
+                ASSERT_FAIL(Obj::validateConsistency(0, TIME_TZ, TZ_ID));
+                ASSERT_FAIL(Obj::validateConsistency(&result, TIME_TZ, 0));
+
+                ASSERT_SAFE_PASS(Obj::validateConsistency(&result, LCL_TIME));
+                ASSERT_SAFE_FAIL(Obj::validateConsistency(0, LCL_TIME));
+            }
+        }
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // CLASS METHOD 'convertLocalToLocal'
@@ -1200,10 +1377,9 @@ int main(int argc, char *argv[])
         {
             LogVerbosityGuard guard;
             const char GMT[] = "Etc/GMT";
-            const bdet_Datetime      inputTime(2010, 1, 1, 12, 0);
-            const bdet_DatetimeTz    inputTimeTz(inputTime, 0);
-            const baet_LocalDatetime inputLclTime(inputTimeTz, GMT);
-            const baet_LocalDatetime bogusLclTime(inputTimeTz, "bogusId");
+            const bdet_Datetime      TIME(2010, 1, 1, 12, 0);
+            const bdet_DatetimeTz    TIME_TZ(TIME, 0);
+            const baet_LocalDatetime LCL_TIME(TIME_TZ, GMT);
 
             bdet_Datetime      result;
             bdet_DatetimeTz    resultTz;
@@ -1211,51 +1387,51 @@ int main(int argc, char *argv[])
 
             ASSERT(EUID == Obj::convertLocalToLocalTime(&resultLclTime,
                                                         "bogusId",
-                                                        inputLclTime));
+                                                        LCL_TIME));
 
             // ----------------------------------------------------------------
 
             ASSERT(EUID == Obj::convertLocalToLocalTime(&resultLclTime,
                                                         "bogusId",
-                                                        inputTimeTz));
+                                                        TIME_TZ));
 
             // ----------------------------------------------------------------
 
             ASSERT(EUID == Obj::convertLocalToLocalTime(&resultTz,
                                                         "bogusId",
-                                                        inputLclTime));
+                                                        LCL_TIME));
 
             // ----------------------------------------------------------------
 
             ASSERT(EUID == Obj::convertLocalToLocalTime(&resultTz,
                                                         "bogusId",
-                                                        inputTimeTz));
+                                                        TIME_TZ));
 
             // ----------------------------------------------------------------
 
             ASSERT(EUID == Obj::convertLocalToLocalTime(&resultLclTime,
                                                         "bogusId",
-                                                        inputTime,
+                                                        TIME,
                                                         GMT,
                                                         UNSP));
 
             ASSERT(EUID == Obj::convertLocalToLocalTime(&resultLclTime,
                                                         GMT,
-                                                        inputTime,
+                                                        TIME,
                                                         "bogusId",
-                                                         UNSP));
+                                                        UNSP));
 
             // ----------------------------------------------------------------
 
             ASSERT(EUID == Obj::convertLocalToLocalTime(&resultTz,
                                                         "bogusId",
-                                                        inputTime,
+                                                        TIME,
                                                         GMT,
                                                         UNSP));
 
             ASSERT(EUID == Obj::convertLocalToLocalTime(&resultTz,
                                                         GMT,
-                                                        inputTime,
+                                                        TIME,
                                                         "bogusId",
                                                         UNSP));
         }
@@ -1267,7 +1443,7 @@ int main(int argc, char *argv[])
                 int         d_line;
                 const char *d_srcTimeZoneId;
                 const char *d_input;           // iso8601 w/o tz offset
-                const char *d_dstTimeZoneId;
+                const char *d_targetTimeZoneId;
                 int         d_policy;          // Obj::DstPolicy
                 const char *d_expectedResult;  // iso8601 w/ tz offset
             } DATA[] = {
@@ -1303,90 +1479,81 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE            = DATA[i].d_line;
-                const char *srcTimeZoneId      = DATA[i].d_srcTimeZoneId;
-                const char *dstTimeZoneId      = DATA[i].d_dstTimeZoneId;
-                const Dst::Enum policy = (Dst::Enum)DATA[i].d_policy;
-                const bsl::string inputStr(DATA[i].d_input);
-                const bsl::string expResultStr(DATA[i].d_expectedResult);
+                const int               LINE     = DATA[i].d_line;
+                const char             *SRC_TZID = DATA[i].d_srcTimeZoneId;
+                const bdet_DatetimeTz&  TIME_TZ  =
+                                                 toDatetimeTz(DATA[i].d_input);
+                const char             *TGT_TZID = DATA[i].d_targetTimeZoneId;
+                const Dst::Enum         POLICY   = (Dst::Enum)DATA[i].d_policy;
 
-                bdet_DatetimeTz  inputTimeTz;
-                bdet_DatetimeTz  expResultTimeTz;
-                LOOP_ASSERT(LINE, 0 == bdepu_Iso8601::parse(&inputTimeTz,
-                                                 inputStr.c_str(),
-                                                 inputStr.size()));
-                LOOP_ASSERT(LINE, 0 == bdepu_Iso8601::parse(&expResultTimeTz,
-                                                 expResultStr.c_str(),
-                                                 expResultStr.size()));
+                const bdet_DatetimeTz   EXP_TIME_TZ =
+                                        toDatetimeTz(DATA[i].d_expectedResult);
 
-                const bdet_Datetime inputTime(inputTimeTz.localDatetime());
-                const baet_LocalDatetime inputLclTime(inputTimeTz,
-                                                      srcTimeZoneId);
-                const baet_LocalDatetime expResultLclTime(expResultTimeTz,
-                                                          dstTimeZoneId);
+                const bdet_Datetime      TIME(TIME_TZ.localDatetime());
+                const baet_LocalDatetime LCL_TIME(TIME_TZ, SRC_TZID);
+                const baet_LocalDatetime EXP_LCL_TIME(EXP_TIME_TZ, TGT_TZID, Z);
 
                 if (veryVeryVerbose) {
-                    P_(LINE) P_(srcTimeZoneId) P_(inputTimeTz)
-                    P(expResultTimeTz)
+                    P_(LINE) P_(SRC_TZID) P_(TIME_TZ) P(EXP_TIME_TZ)
                 }
 
-                bdet_DatetimeTz resultTz;
+                bdet_DatetimeTz    resultTz;
                 baet_LocalDatetime resultLclTime;
 
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertLocalToLocalTime(&resultLclTime,
-                                                              dstTimeZoneId,
-                                                              inputLclTime));
+                                                              TGT_TZID,
+                                                              LCL_TIME));
                 LOOP2_ASSERT(LINE, resultLclTime,
-                              expResultLclTime == resultLclTime);
+                             EXP_LCL_TIME == resultLclTime);
 
                 // ------------------------------------------------------------
 
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertLocalToLocalTime(&resultLclTime,
-                                                              dstTimeZoneId,
-                                                              inputTimeTz));
+                                                              TGT_TZID,
+                                                              TIME_TZ));
                 LOOP2_ASSERT(LINE, resultLclTime,
-                             expResultLclTime == resultLclTime);
+                             EXP_LCL_TIME == resultLclTime);
 
                 // ------------------------------------------------------------
 
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertLocalToLocalTime(&resultTz,
-                                                              dstTimeZoneId,
-                                                              inputLclTime));
+                                                              TGT_TZID,
+                                                              LCL_TIME));
                 LOOP2_ASSERT(LINE, resultTz,
-                             expResultTimeTz == resultTz);
+                             EXP_TIME_TZ == resultTz);
 
                 // ------------------------------------------------------------
 
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertLocalToLocalTime(&resultTz,
-                                                              dstTimeZoneId,
-                                                              inputTimeTz));
+                                                              TGT_TZID,
+                                                              TIME_TZ));
                 LOOP2_ASSERT(LINE, resultTz,
-                             expResultTimeTz == resultTz);
+                             EXP_TIME_TZ == resultTz);
 
                 // ------------------------------------------------------------
 
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertLocalToLocalTime(&resultTz,
-                                                             dstTimeZoneId,
-                                                             inputTime,
-                                                             srcTimeZoneId,
-                                                             policy));
-                LOOP2_ASSERT(LINE, resultTz, expResultTimeTz == resultTz);
+                                                              TGT_TZID,
+                                                              TIME,
+                                                              SRC_TZID,
+                                                              POLICY));
+                LOOP2_ASSERT(LINE, resultTz, EXP_TIME_TZ == resultTz);
 
                 // ------------------------------------------------------------
 
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertLocalToLocalTime(&resultLclTime,
-                                                             dstTimeZoneId,
-                                                             inputTime,
-                                                             srcTimeZoneId,
-                                                             policy));
+                                                              TGT_TZID,
+                                                              TIME,
+                                                              SRC_TZID,
+                                                              POLICY));
                 LOOP2_ASSERT(LINE, resultLclTime,
-                             expResultLclTime == resultLclTime);
+                             EXP_LCL_TIME == resultLclTime);
             }
         }
 
@@ -1411,39 +1578,33 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int        LINE   = DATA[ti].d_line;
-                const char      *TZID   = DATA[ti].d_timeZoneId;
-                const bsl::string inputStr(DATA[ti].d_input);
-                const bsl::string expResultStr(DATA[ti].d_expectedResult);
+                const int              LINE        = DATA[ti].d_line;
+                const char            *TZID        = DATA[ti].d_timeZoneId;
+                const bdet_Datetime    TIME        =
+                                                  toDatetime(DATA[ti].d_input);
+                const bdet_DatetimeTz  EXP_TIME_TZ =
+                                       toDatetimeTz(DATA[ti].d_expectedResult);
 
-                bdet_Datetime    inputTime;
-                bdet_DatetimeTz  expResultTime;
-                ASSERT(0 == bdepu_Iso8601::parse(&inputTime,
-                                                 inputStr.c_str(),
-                                                 inputStr.size()));
-                ASSERT(0 == bdepu_Iso8601::parse(&expResultTime,
-                                                 expResultStr.c_str(),
-                                                 expResultStr.size()));
-                const baet_LocalDatetime expLocalTime(expResultTime, TZID, Z);
+                const baet_LocalDatetime EXP_LCL_TIME(EXP_TIME_TZ, TZID, Z);
 
                 if (veryVerbose) {
-                    P_(LINE); P_(inputTime); P(expLocalTime);
+                    P_(LINE); P_(TIME); P(EXP_LCL_TIME);
                 }
 
                 bdet_DatetimeTz    resultTz;
                 baet_LocalDatetime resultLclTime(Z);
                 ASSERT(0 == Obj::convertLocalToLocalTime(&resultTz,
                                                          TZID,
-                                                         inputTime,
+                                                         TIME,
                                                          TZID));
-                LOOP2_ASSERT(LINE, resultTz, expResultTime == resultTz);
+                LOOP2_ASSERT(LINE, resultTz, EXP_TIME_TZ == resultTz);
 
                 ASSERT(0 == Obj::convertLocalToLocalTime(&resultLclTime,
                                                          TZID,
-                                                         inputTime,
+                                                         TIME,
                                                          TZID));
                 LOOP2_ASSERT(LINE, resultLclTime,
-                             expLocalTime == resultLclTime);
+                             EXP_LCL_TIME == resultLclTime);
             }
         }
 
@@ -1457,99 +1618,99 @@ int main(int argc, char *argv[])
                 bdet_DatetimeTz    resultTz;
                 baet_LocalDatetime resultLcl;
 
-                const bdet_Datetime      inputTime(2010, 1, 1, 12, 0);
-                const bdet_DatetimeTz    inputTz(inputTime, -5 * 60);
-                const char               srcTimeZoneId[] = "America/New_York";
-                const baet_LocalDatetime inputLcl(inputTz, srcTimeZoneId);
-                const char               tgtTimeZoneId[] = "Etc/UTC";
+                const bdet_Datetime      TIME(2010, 1, 1, 12, 0);
+                const bdet_DatetimeTz    TIME_TZ(TIME, -5 * 60);
+                const char               SRC_TZID[] = "America/New_York";
+                const baet_LocalDatetime LCL_TIME(TIME_TZ, SRC_TZID);
+                const char               TGT_TZID[] = "Etc/UTC";
 
                 ASSERT_SAFE_PASS(Obj::convertLocalToLocalTime(&resultLcl,
-                                                              tgtTimeZoneId,
-                                                              inputLcl));
+                                                              TGT_TZID,
+                                                              LCL_TIME));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
                                                        (baet_LocalDatetime*) 0,
-                                                       tgtTimeZoneId,
-                                                       inputLcl));
+                                                       TGT_TZID,
+                                                       LCL_TIME));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
                                                               0,
-                                                              inputLcl));
+                                                              LCL_TIME));
 
                 // ------------------------------------------------------------
 
                 ASSERT_SAFE_PASS(Obj::convertLocalToLocalTime(&resultLcl,
-                                                              tgtTimeZoneId,
-                                                              inputTz));
+                                                              TGT_TZID,
+                                                              TIME_TZ));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
                                                        (baet_LocalDatetime*) 0,
-                                                       tgtTimeZoneId,
-                                                       inputTz));
+                                                       TGT_TZID,
+                                                       TIME_TZ));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
                                                               0,
-                                                              inputTz));
+                                                              TIME_TZ));
 
                 // ------------------------------------------------------------
 
                 ASSERT_SAFE_PASS(Obj::convertLocalToLocalTime(&resultTz,
-                                                              tgtTimeZoneId,
-                                                              inputLcl));
+                                                              TGT_TZID,
+                                                              LCL_TIME));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
                                                          (bdet_DatetimeTz *) 0,
-                                                         tgtTimeZoneId,
-                                                         inputLcl));
+                                                         TGT_TZID,
+                                                         LCL_TIME));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
                                                               0,
-                                                              inputLcl));
+                                                              LCL_TIME));
 
                 // ------------------------------------------------------------
 
                 ASSERT_SAFE_PASS(Obj::convertLocalToLocalTime(&resultTz,
-                                                              tgtTimeZoneId,
-                                                              inputTz));
+                                                              TGT_TZID,
+                                                              TIME_TZ));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
                                                          (bdet_DatetimeTz *) 0,
-                                                         tgtTimeZoneId,
-                                                         inputTz));
+                                                         TGT_TZID,
+                                                         TIME_TZ));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
                                                               0,
-                                                              inputTz));
+                                                              TIME_TZ));
 
                 // ------------------------------------------------------------
 
                 ASSERT_PASS(Obj::convertLocalToLocalTime(&resultLcl,
-                                                         tgtTimeZoneId,
-                                                         inputTime,
-                                                         srcTimeZoneId));
+                                                         TGT_TZID,
+                                                         TIME,
+                                                         SRC_TZID));
                 ASSERT_FAIL(Obj::convertLocalToLocalTime(
                                                        (baet_LocalDatetime*) 0,
-                                                       tgtTimeZoneId,
-                                                       inputTime,
-                                                       srcTimeZoneId));
+                                                       TGT_TZID,
+                                                       TIME,
+                                                       SRC_TZID));
                 ASSERT_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
                                                          0,
-                                                         inputTime,
-                                                         srcTimeZoneId));
+                                                         TIME,
+                                                         SRC_TZID));
                 ASSERT_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
-                                                         tgtTimeZoneId,
-                                                         inputTime,
+                                                         TGT_TZID,
+                                                         TIME,
                                                          0));
 
                 // ------------------------------------------------------------
 
                 ASSERT_PASS(Obj::convertLocalToLocalTime(&resultTz,
-                                                         tgtTimeZoneId,
-                                                         inputTime,
-                                                         srcTimeZoneId));
+                                                         TGT_TZID,
+                                                         TIME,
+                                                         SRC_TZID));
                 ASSERT_FAIL(Obj::convertLocalToLocalTime((bdet_DatetimeTz *) 0,
-                                                         tgtTimeZoneId,
-                                                         inputTime,
-                                                         srcTimeZoneId));
+                                                         TGT_TZID,
+                                                         TIME,
+                                                         SRC_TZID));
                 ASSERT_FAIL(Obj::convertLocalToLocalTime(&resultTz,
                                                          0,
-                                                         inputTime,
-                                                         srcTimeZoneId));
+                                                         TIME,
+                                                         SRC_TZID));
                 ASSERT_FAIL(Obj::convertLocalToLocalTime(&resultTz,
-                                                         tgtTimeZoneId,
-                                                         inputTime,
+                                                         TGT_TZID,
+                                                         TIME,
                                                          0));
             }
         }
@@ -1601,11 +1762,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nCreate a table for testing" << endl;
         {
             static const struct{
-                int         d_line;
-                const char *d_timeZoneId;
-                const char *d_startTime;       // iso8601 w/ tz offset
-                bsls_Types::Int64 d_interval;
-                const char *d_expectedResult;  // iso8601 w/ tz offset
+                int                d_line;
+                const char        *d_timeZoneId;
+                const char        *d_startTime;       // iso8601 w/ tz offset
+                bsls_Types::Int64  d_interval;
+                const char        *d_expectedResult;  // iso8601 w/ tz offset
             } DATA[] = {
 
             // No transitions
@@ -1647,41 +1808,34 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE = DATA[i].d_line;
-                const char *TZID = DATA[i].d_timeZoneId;
-                const bdet_DatetimeInterval interval(0,
+                const int              LINE = DATA[i].d_line;
+                const char            *TZID = DATA[i].d_timeZoneId;
+                const bdet_DatetimeTz  TIME =
+                                             toDatetimeTz(DATA[i].d_startTime);
+                const bdet_DatetimeInterval INTERVAL(0,
                                                      0,
                                                      0,
                                                      0,
                                                      DATA[i].d_interval);
-                const bsl::string inputStr(DATA[i].d_startTime);
-                const bsl::string expResultStr(DATA[i].d_expectedResult);
+                const bdet_DatetimeTz  EXP_TIME_TZ =
+                                        toDatetimeTz(DATA[i].d_expectedResult);
 
-                bdet_DatetimeTz  inputTime;
-                bdet_DatetimeTz  expResultTime;
-                ASSERT(0 == bdepu_Iso8601::parse(&inputTime,
-                                                 inputStr.c_str(),
-                                                 inputStr.size()));
-                ASSERT(0 == bdepu_Iso8601::parse(&expResultTime,
-                                                 expResultStr.c_str(),
-                                                 expResultStr.size()));
-
-                baet_LocalDatetime inputLclTime(inputTime, TZID);
+                baet_LocalDatetime LCL_TIME(TIME, TZID);
 
                 if (veryVeryVerbose) {
-                    P_(LINE); P_(TZID); P_(inputTime); P(expResultTime);
+                    P_(LINE); P_(TZID); P_(TIME); P(EXP_TIME_TZ);
                 }
 
                 baet_LocalDatetime resultLcl;
                 ASSERT(0 == Obj::addInterval(&resultLcl,
-                                             inputLclTime,
-                                             interval));
+                                             LCL_TIME,
+                                             INTERVAL));
 
                 LOOP2_ASSERT(LINE, resultLcl,
-                             resultLcl.datetimeTz() == expResultTime);
+                             EXP_TIME_TZ == resultLcl.datetimeTz());
 
                 LOOP2_ASSERT(LINE, resultLcl,
-                             resultLcl.timeZoneId() == TZID);
+                             TZID == resultLcl.timeZoneId());
 
             }
         }
@@ -1692,17 +1846,16 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'addInterval' class method." << endl;
             {
-                const bdet_Datetime         inputTime(2010, 1, 1, 12, 0);
-                const bdet_DatetimeTz       inputTz(inputTime, -5 * 60);
-                const baet_LocalDatetime    inputLcl(inputTz,
-                                                     "America/New_York");
-                const bdet_DatetimeInterval interval(0, 0, 0, 0, 0);
+                const bdet_Datetime      TIME(2010, 1, 1, 12, 0);
+                const bdet_DatetimeTz    TIME_TZ(TIME, -5 * 60);
+                const baet_LocalDatetime LCL_TIME(TIME_TZ, "America/New_York");
+                const bdet_DatetimeInterval INTERVAL(0, 0, 0, 0, 0);
 
                 baet_LocalDatetime resultLcl;
                 ASSERT_PASS(0 == Obj::addInterval(&resultLcl,
-                                                  inputLcl,
-                                                  interval));
-                ASSERT_FAIL(0 == Obj::addInterval(0, inputLcl, interval));
+                                                  LCL_TIME,
+                                                  INTERVAL));
+                ASSERT_FAIL(0 == Obj::addInterval(0, LCL_TIME, INTERVAL));
             }
         }
       } break;
@@ -1746,12 +1899,12 @@ int main(int argc, char *argv[])
             {
                 // Test with an invalid time zone id.
                 LogVerbosityGuard guard;
-                bdet_Datetime inputTime(2010, 1, 1, 12, 0);
 
-                bdet_DatetimeTz result;
+                const bdet_Datetime   TIME(2010, 1, 1, 12, 0);
+                bdet_DatetimeTz       result;
                 ASSERT(EUID == Obj::convertUtcToLocalTime(&result,
                                                           "bogusId",
-                                                          inputTime));
+                                                          TIME));
             }
 
             struct TestData {
@@ -1795,42 +1948,32 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE = DATA[i].d_line;
-                const char *TZID = DATA[i].d_timeZoneId;
-                const bsl::string inputStr(DATA[i].d_input);
-                const bsl::string expResultStr(DATA[i].d_expectedResult);
-
-                bdet_Datetime    inputTime;
-                bdet_DatetimeTz  expResultTime;
-                LOOP_ASSERT(LINE,
-                            0 == bdepu_Iso8601::parse(&inputTime,
-                                                      inputStr.c_str(),
-                                                      inputStr.size()));
-                LOOP_ASSERT(LINE,
-                            0 == bdepu_Iso8601::parse(&expResultTime,
-                                                      expResultStr.c_str(),
-                                                      expResultStr.size()));
+                const int              LINE = DATA[i].d_line;
+                const char            *TZID = DATA[i].d_timeZoneId;
+                const bdet_Datetime    TIME = toDatetime(DATA[i].d_input);
+                const bdet_DatetimeTz  EXP_TIME_TZ =
+                                        toDatetimeTz(DATA[i].d_expectedResult);
 
                 if (veryVeryVerbose) {
-                    P_(LINE); P_(TZID); P_(inputTime); P(expResultTime);
+                    P_(LINE); P_(TZID); P_(TIME); P(EXP_TIME_TZ);
                 }
 
                 bdet_DatetimeTz resultTz;
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertUtcToLocalTime(&resultTz,
                                                             TZID,
-                                                            inputTime));
+                                                            TIME));
 
-                LOOP2_ASSERT(LINE, resultTz, resultTz == expResultTime);
+                LOOP2_ASSERT(LINE, resultTz, resultTz == EXP_TIME_TZ);
 
                 baet_LocalDatetime resultLcl;
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertUtcToLocalTime(&resultLcl,
                                                             TZID,
-                                                            inputTime));
+                                                            TIME));
 
                 LOOP2_ASSERT(LINE, resultLcl.datetimeTz(),
-                             expResultTime == resultLcl.datetimeTz());
+                             EXP_TIME_TZ == resultLcl.datetimeTz());
 
                 LOOP2_ASSERT(LINE, resultLcl.timeZoneId(),
                              TZID == resultLcl.timeZoneId());
@@ -1844,35 +1987,35 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout <<
                              "\t'convertUtcToLocalTime' class method." << endl;
             {
-                const bdet_Datetime inputTime(2010, 1, 1, 12, 0);
+                const bdet_Datetime TIME(2010, 1, 1, 12, 0);
 
                 bdet_DatetimeTz    resultTz;
                 baet_LocalDatetime resultLcl;
 
                 ASSERT_PASS(0 == Obj::convertUtcToLocalTime(&resultLcl,
                                                             "America/New_York",
-                                                            inputTime));
+                                                            TIME));
                 ASSERT_FAIL(0 == Obj::convertUtcToLocalTime(
                                                       (baet_LocalDatetime *) 0,
                                                       "America/New_York",
-                                                      inputTime));
+                                                      TIME));
                 ASSERT_FAIL(0 == Obj::convertUtcToLocalTime(&resultLcl,
                                                             0,
-                                                            inputTime));
+                                                            TIME));
 
                 // ------------------------------------------------------------
 
                 ASSERT_SAFE_PASS(0 == Obj::convertUtcToLocalTime(
                                                             &resultTz,
                                                             "America/New_York",
-                                                            inputTime));
+                                                            TIME));
                 ASSERT_SAFE_FAIL(0 == Obj::convertUtcToLocalTime(
                                                          (bdet_DatetimeTz *) 0,
                                                          "America/New_York",
-                                                         inputTime));
+                                                         TIME));
                 ASSERT_SAFE_FAIL(0 == Obj::convertUtcToLocalTime(&resultTz,
                                                                  0,
-                                                                 inputTime));
+                                                                 TIME));
 
             }
         }
@@ -1919,16 +2062,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tTest invalid time zone id." << endl;
         {
             LogVerbosityGuard guard;
-            bdet_Datetime inputTime(2010, 1, 1, 12, 0);
+
+            const bdet_Datetime TIME(2010, 1, 1, 12, 0);
 
             bdet_Datetime      result;
             baet_LocalDatetime resultLclTime(Z);
+
             ASSERT(EUID == Obj::convertLocalToUtc(&result,
-                                                  inputTime,
+                                                  TIME,
                                                   "bogusId",
                                                   UNSP));
             ASSERT(EUID == Obj::convertLocalToUtc(&resultLclTime,
-                                                  inputTime,
+                                                  TIME,
                                                   "bogusId",
                                                   UNSP));
         }
@@ -1970,51 +2115,41 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int        LINE   = DATA[i].d_line;
-                const char      *TZID   = DATA[i].d_timeZoneId;
-                const Dst::Enum  policy = (Dst::Enum)DATA[i].d_policy;
-                const bsl::string inputStr(DATA[i].d_input);
-                const bsl::string expResultStr(DATA[i].d_expectedResult);
+                const int              LINE   = DATA[i].d_line;
+                const char            *TZID   = DATA[i].d_timeZoneId;
+                const bdet_Datetime    TIME   = toDatetime(DATA[i].d_input);
+                const Dst::Enum        POLICY = (Dst::Enum)DATA[i].d_policy;
+                const bdet_DatetimeTz  EXP_TIME_TZ =
+                                        toDatetimeTz(DATA[i].d_expectedResult);
 
-                bdet_Datetime   inputTime;
-                bdet_DatetimeTz expResultTime;
-                LOOP_ASSERT(LINE,
-                            0 == bdepu_Iso8601::parse(&inputTime,
-                                                      inputStr.c_str(),
-                                                      inputStr.size()));
-                LOOP_ASSERT(LINE,
-                            0 == bdepu_Iso8601::parse(&expResultTime,
-                                                      expResultStr.c_str(),
-                                                      expResultStr.size()));
-                baet_LocalDatetime expLocalTime(expResultTime, TZID, Z);
+                const baet_LocalDatetime EXP_LCL_TIME(EXP_TIME_TZ, TZID, Z);
 
                 if (veryVeryVerbose) {
-                    P_(LINE); P_(policy); P_(inputTime); P(expLocalTime);
+                    P_(LINE); P_(POLICY); P_(TIME); P(EXP_LCL_TIME);
                 }
 
                 bdet_Datetime      resultUtc;
                 baet_LocalDatetime resultUtcLclTime;
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertLocalToUtc(&resultUtc,
-                                                        inputTime,
+                                                        TIME,
                                                         TZID,
-                                                        policy));
+                                                        POLICY));
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertLocalToUtc(&resultUtcLclTime,
-                                                        inputTime,
+                                                        TIME,
                                                         TZID,
-                                                        policy));
+                                                        POLICY));
 
-                bdet_Datetime expResultUtc;
-                expResultUtc = expResultTime.gmtDatetime();
+                const bdet_Datetime EXP_UTC_TIME = EXP_TIME_TZ.gmtDatetime();
 
-                baet_LocalDatetime expResultUtcLclTime(
-                                              bdet_DatetimeTz(expResultUtc, 0),
+                const baet_LocalDatetime EXP_UTC_LCL_TIME(
+                                              bdet_DatetimeTz(EXP_UTC_TIME, 0),
                                               "Etc/UTC");
 
-                LOOP2_ASSERT(LINE, resultUtc, resultUtc == expResultUtc);
+                LOOP2_ASSERT(LINE, resultUtc, EXP_UTC_TIME == resultUtc);
                 LOOP2_ASSERT(LINE, resultUtcLclTime,
-                             resultUtcLclTime == expResultUtcLclTime);
+                             EXP_UTC_LCL_TIME == resultUtcLclTime);
             }
         }
 
@@ -2037,48 +2172,38 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int        LINE   = DATA[ti].d_line;
-                const char      *TZID   = DATA[ti].d_timeZoneId;
-                const bsl::string inputStr(DATA[ti].d_input);
-                const bsl::string expResultStr(DATA[ti].d_expectedResult);
+                const int              LINE       = DATA[ti].d_line;
+                const char            *TZID       = DATA[ti].d_timeZoneId;
+                const bdet_Datetime    TIME = toDatetime(DATA[ti].d_input);
+                const bdet_DatetimeTz  EXP_TIME_TZ =
+                                       toDatetimeTz(DATA[ti].d_expectedResult);
 
-                bdet_Datetime   inputTime;
-                bdet_DatetimeTz expResultTime;
-                LOOP_ASSERT(LINE,
-                            0 == bdepu_Iso8601::parse(&inputTime,
-                                                      inputStr.c_str(),
-                                                      inputStr.size()));
-                LOOP_ASSERT(LINE,
-                            0 == bdepu_Iso8601::parse(&expResultTime,
-                                                      expResultStr.c_str(),
-                                                      expResultStr.size()));
-                baet_LocalDatetime expLocalTime(expResultTime, TZID, Z);
+                const baet_LocalDatetime EXP_LCL_TIME(EXP_TIME_TZ, TZID, Z);
 
                 if (veryVeryVerbose) {
-                    P_(LINE) P_(inputTime) P(expLocalTime);
+                    P_(LINE) P_(TIME) P(EXP_LCL_TIME);
                 }
 
                 bdet_Datetime      resultUtc;
                 baet_LocalDatetime resultUtcLclTime;
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertLocalToUtc(&resultUtc,
-                                                        inputTime,
+                                                        TIME,
                                                         TZID));
                 LOOP_ASSERT(LINE,
                             0 == Obj::convertLocalToUtc(&resultUtcLclTime,
-                                                        inputTime,
+                                                        TIME,
                                                         TZID));
 
-                bdet_Datetime expResultUtc;
-                expResultUtc = expResultTime.gmtDatetime();
+                const bdet_Datetime EXP_UTC_TIME(EXP_TIME_TZ.gmtDatetime());
 
-                baet_LocalDatetime expResultUtcLclTime(
-                                              bdet_DatetimeTz(expResultUtc, 0),
+                const baet_LocalDatetime EXP_UTC_LCL_TIME(
+                                              bdet_DatetimeTz(EXP_UTC_TIME, 0),
                                               "Etc/UTC");
 
-                LOOP2_ASSERT(LINE, resultUtc, resultUtc == expResultUtc);
+                LOOP2_ASSERT(LINE, resultUtc, EXP_UTC_TIME == resultUtc);
                 LOOP2_ASSERT(LINE, resultUtcLclTime,
-                             resultUtcLclTime == expResultUtcLclTime);
+                             EXP_UTC_LCL_TIME == resultUtcLclTime);
             }
         }
 
@@ -2089,35 +2214,35 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout <<
                                   "\t'convertLocalToUtc' class method" << endl;
             {
-                const bdet_Datetime inputTime(2010, 1, 1, 12, 0);
+                const bdet_Datetime TIME(2010, 1, 1, 12, 0);
 
                 bdet_Datetime      resultTime;
                 baet_LocalDatetime resultLcl;
 
                 ASSERT_PASS(Obj::convertLocalToUtc(&resultTime,
-                                                   inputTime,
+                                                   TIME,
                                                    "America/New_York"));
-               
+
                 ASSERT_FAIL(Obj::convertLocalToUtc((bdet_Datetime *) 0,
-                                                   inputTime,
+                                                   TIME,
                                                    "America/New_York"));
-                
-                ASSERT_FAIL(Obj::convertLocalToUtc(&resultTime, 
-                                                   inputTime, 
+
+                ASSERT_FAIL(Obj::convertLocalToUtc(&resultTime,
+                                                   TIME,
                                                    0));
 
                 // ------------------------------------------------------------
 
                 ASSERT_PASS(Obj::convertLocalToUtc(&resultLcl,
-                                                   inputTime,
+                                                   TIME,
                                                    "America/New_York"));
-              
+
                 ASSERT_FAIL(Obj::convertLocalToUtc((baet_LocalDatetime *) 0,
-                                                   inputTime,
+                                                   TIME,
                                                    "America/New_York"));
-             
+
                 ASSERT_FAIL(Obj::convertLocalToUtc(&resultLcl,
-                                                   inputTime,
+                                                   TIME,
                                                    0));
             }
         }
@@ -2166,17 +2291,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTest invalid time zone id." << endl;
         {
             LogVerbosityGuard guard;
-            bdet_Datetime inputTime(2010, 1, 1, 12, 0);
+            bdet_Datetime TIME(2010, 1, 1, 12, 0);
 
             bdet_DatetimeTz    resultTz;
             baet_LocalDatetime resultLclTime(Z);
             ASSERT(EUID == Obj::initLocalTime(&resultTz,
-                                              inputTime,
+                                              TIME,
                                               "bogusId",
                                               UNSP));
 
             ASSERT(EUID == Obj::initLocalTime(&resultLclTime,
-                                              inputTime,
+                                              TIME,
                                               "bogusId",
                                               UNSP));
         }
@@ -2220,62 +2345,58 @@ int main(int argc, char *argv[])
 
             {
                 for (int ti = 0; ti < NUM_DATA; ++ti) {
-                    const int        LINE   = DATA[ti].d_line;
-                    const char      *TZID   = DATA[ti].d_timeZoneId;
-                    const Dst::Enum  policy = (Dst::Enum)DATA[ti].d_policy;
-                    const Validity::Enum validity =
+                    const int              LINE   = DATA[ti].d_line;
+                    const char            *TZID   = DATA[ti].d_timeZoneId;
+                    const Dst::Enum        POLICY =
+                                                  (Dst::Enum)DATA[ti].d_policy;
+                    const Validity::Enum   VALIDITY =
                                           (Validity::Enum) DATA[ti].d_validity;
-                    const bsl::string inputStr(DATA[ti].d_input);
-                    const bsl::string expResultStr(DATA[ti].d_expectedResult);
+                    const bdet_Datetime    TIME = toDatetime(DATA[ti].d_input);
+                    const bdet_DatetimeTz  EXP_TIME_TZ =
+                                       toDatetimeTz(DATA[ti].d_expectedResult);
 
-                    bdet_Datetime    inputTime;
-                    bdet_DatetimeTz  expResultTime;
-                    ASSERT(0 == bdepu_Iso8601::parse(&inputTime,
-                                                     inputStr.c_str(),
-                                                     inputStr.size()));
-                    ASSERT(0 == bdepu_Iso8601::parse(&expResultTime,
-                                                     expResultStr.c_str(),
-                                                     expResultStr.size()));
-                    baet_LocalDatetime expLocalTime(expResultTime, TZID, Z);
+                    const baet_LocalDatetime EXP_LCL_TIME(EXP_TIME_TZ,
+                                                          TZID,
+                                                          Z);
 
                     if (veryVerbose) {
-                        P_(LINE); P_(policy); P_(inputTime); P(expLocalTime);
+                        P_(LINE); P_(POLICY); P_(TIME); P(EXP_LCL_TIME);
                     }
 
                     bdet_DatetimeTz    resultTz;
                     baet_LocalDatetime resultLclTime(Z);
                     ASSERT(0 == Obj::initLocalTime(&resultTz,
-                                                   inputTime,
+                                                   TIME,
                                                    TZID,
-                                                   policy));
-                    LOOP2_ASSERT(LINE, resultTz, expResultTime == resultTz);
+                                                   POLICY));
+                    LOOP2_ASSERT(LINE, resultTz, EXP_TIME_TZ == resultTz);
 
                     ASSERT(0 == Obj::initLocalTime(&resultLclTime,
-                                                   inputTime,
+                                                   TIME,
                                                    TZID,
-                                                   policy));
+                                                   POLICY));
                     LOOP2_ASSERT(LINE, resultLclTime,
-                                 expLocalTime == resultLclTime);
+                                 EXP_LCL_TIME == resultLclTime);
 
                     Validity::Enum resultValidity;
                     ASSERT(0 == Obj::initLocalTime(&resultTz,
                                                    &resultValidity,
-                                                   inputTime,
+                                                   TIME,
                                                    TZID,
-                                                   policy));
-                    LOOP2_ASSERT(LINE, resultTz, expResultTime == resultTz);
+                                                   POLICY));
+                    LOOP2_ASSERT(LINE, resultTz, EXP_TIME_TZ == resultTz);
                     LOOP2_ASSERT(LINE, resultValidity,
-                                 validity == resultValidity);
+                                 VALIDITY == resultValidity);
 
                     ASSERT(0 == Obj::initLocalTime(&resultLclTime,
                                                    &resultValidity,
-                                                   inputTime,
+                                                   TIME,
                                                    TZID,
-                                                   policy));
+                                                   POLICY));
                     LOOP2_ASSERT(LINE, resultLclTime,
-                                 expLocalTime == resultLclTime);
+                                 EXP_LCL_TIME == resultLclTime);
                     LOOP2_ASSERT(LINE, resultValidity,
-                                 validity == resultValidity);
+                                 VALIDITY == resultValidity);
                 }
             }
         }
@@ -2299,37 +2420,30 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int        LINE   = DATA[ti].d_line;
-                const char      *TZID   = DATA[ti].d_timeZoneId;
-                const bsl::string inputStr(DATA[ti].d_input);
-                const bsl::string expResultStr(DATA[ti].d_expectedResult);
+                const int              LINE   = DATA[ti].d_line;
+                const char            *TZID   = DATA[ti].d_timeZoneId;
+                const bdet_Datetime    TIME   = toDatetime(DATA[ti].d_input);
+                const bdet_DatetimeTz  EXP_TIME_TZ =
+                                       toDatetimeTz(DATA[ti].d_expectedResult);
 
-                bdet_Datetime    inputTime;
-                bdet_DatetimeTz  expResultTime;
-                ASSERT(0 == bdepu_Iso8601::parse(&inputTime,
-                                                 inputStr.c_str(),
-                                                 inputStr.size()));
-                ASSERT(0 == bdepu_Iso8601::parse(&expResultTime,
-                                                 expResultStr.c_str(),
-                                                 expResultStr.size()));
-                baet_LocalDatetime expLocalTime(expResultTime, TZID, Z);
+                const baet_LocalDatetime EXP_LCL_TIME(EXP_TIME_TZ, TZID, Z);
 
                 if (veryVerbose) {
-                    P_(LINE); P_(inputTime); P(expLocalTime);
+                    P_(LINE); P_(TIME); P(EXP_LCL_TIME);
                 }
 
                 bdet_DatetimeTz    resultTz;
                 baet_LocalDatetime resultLclTime(Z);
                 ASSERT(0 == Obj::initLocalTime(&resultTz,
-                                               inputTime,
+                                               TIME,
                                                TZID));
-                LOOP2_ASSERT(LINE, resultTz, resultTz   == expResultTime);
+                LOOP2_ASSERT(LINE, resultTz, EXP_TIME_TZ == resultTz);
 
                 ASSERT(0 == Obj::initLocalTime(&resultLclTime,
-                                               inputTime,
+                                               TIME,
                                                TZID));
                 LOOP2_ASSERT(LINE, resultLclTime,
-                                                resultLclTime == expLocalTime);
+                             EXP_LCL_TIME == resultLclTime);
             }
         }
 
@@ -2339,7 +2453,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'initLocalTime' class method" << endl;
             {
-                const bdet_Datetime inputTime(2010, 1, 1, 12, 0);
+                const bdet_Datetime TIME(2010, 1, 1, 12, 0);
 
                 bdet_Datetime      resultTime;
                 bdet_DatetimeTz    resultTz;
@@ -2347,73 +2461,73 @@ int main(int argc, char *argv[])
                 Validity::Enum     resultValidity;
 
                 ASSERT_SAFE_PASS(Obj::initLocalTime(&resultTz,
-                                                    inputTime,
+                                                    TIME,
                                                     "America/New_York"));
-        
+
                 ASSERT_SAFE_FAIL(Obj::initLocalTime((bdet_DatetimeTz *) 0,
-                                                    inputTime,
+                                                    TIME,
                                                     "America/New_York"));
-       
+
                 ASSERT_SAFE_FAIL(Obj::initLocalTime(&resultTz,
-                                                    inputTime,
+                                                    TIME,
                                                     0));
 
                 // ------------------------------------------------------------
 
                 ASSERT_PASS(Obj::initLocalTime(&resultLcl,
-                                               inputTime,
+                                               TIME,
                                                "America/New_York"));
-      
+
                 ASSERT_FAIL(Obj::initLocalTime((baet_LocalDatetime *) 0,
-                                               inputTime,
+                                               TIME,
                                                "America/New_York"));
-     
+
                 ASSERT_FAIL(Obj::initLocalTime(&resultLcl,
-                                               inputTime,
+                                               TIME,
                                                0));
 
                 // ------------------------------------------------------------
 
                 ASSERT_SAFE_PASS(Obj::initLocalTime(&resultTz,
                                                     &resultValidity,
-                                                    inputTime,
+                                                    TIME,
                                                     "America/New_York"));
-    
+
                 ASSERT_SAFE_FAIL(Obj::initLocalTime((bdet_DatetimeTz *) 0,
                                                     &resultValidity,
-                                                    inputTime,
+                                                    TIME,
                                                     "America/New_York"));
-   
+
                 ASSERT_SAFE_FAIL(Obj::initLocalTime(&resultTz,
                                                     0,
-                                                    inputTime,
+                                                    TIME,
                                                     "America/New_York"));
-  
+
                 ASSERT_SAFE_FAIL(Obj::initLocalTime(&resultTz,
                                                     &resultValidity,
-                                                    inputTime,
+                                                    TIME,
                                                     0));
 
                 // ------------------------------------------------------------
 
                 ASSERT_PASS(Obj::initLocalTime(&resultLcl,
                                                &resultValidity,
-                                               inputTime,
+                                               TIME,
                                                "America/New_York"));
- 
+
                 ASSERT_FAIL(Obj::initLocalTime((baet_LocalDatetime *) 0,
                                                &resultValidity,
-                                               inputTime,
+                                               TIME,
                                                "America/New_York"));
 
                 ASSERT_FAIL(Obj::initLocalTime(&resultLcl,
                                                0,
-                                               inputTime,
+                                               TIME,
                                                "America/New_York"));
 
                 ASSERT_FAIL(Obj::initLocalTime(&resultLcl,
                                                &resultValidity,
-                                               inputTime,
+                                               TIME,
                                                0));
             }
         }
@@ -2508,32 +2622,18 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout <<
                                    "\tTest all 'loadLocalTimePeriod'." << endl;
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE   = DATA[ti].d_line;
-                const char     *TZID   = DATA[ti].d_timeZoneId;
-                const char     *abbrev = DATA[ti].d_abbrev;
-                const int       offset = DATA[ti].d_utcOffset;
-                const bool      isDst  = DATA[ti].d_isDst;
-                const Dst::Enum policy = (Dst::Enum) DATA[ti].d_policy;
+                const int              LINE    = DATA[ti].d_line;
+                const char            *TZID    = DATA[ti].d_timeZoneId;
+                const char            *ABBREV  = DATA[ti].d_abbrev;
+                const bdet_DatetimeTz  TIME_TZ =
+                                                toDatetimeTz(DATA[ti].d_input);
+                const Dst::Enum        POLICY  = (Dst::Enum) DATA[ti].d_policy;
+                const bdet_Datetime    START   = toDatetime(DATA[ti].d_start);
+                const bdet_Datetime    END     = toDatetime(DATA[ti].d_end);
+                const int              OFFSET  = DATA[ti].d_utcOffset;
+                const bool             ISDST   = DATA[ti].d_isDst;
 
-                const bsl::string inputStr(DATA[ti].d_input);
-                const bsl::string startStr(DATA[ti].d_start);
-                const bsl::string endStr(DATA[ti].d_end);
-
-                bdet_DatetimeTz inputTimeTz;
-                bdet_Datetime start;
-                bdet_Datetime end;
-                ASSERT(0 == bdepu_Iso8601::parse(&inputTimeTz,
-                                                 inputStr.c_str(),
-                                                 inputStr.size()));
-                ASSERT(0 == bdepu_Iso8601::parse(&start,
-                                                 startStr.c_str(),
-                                                 startStr.size()));
-                ASSERT(0 == bdepu_Iso8601::parse(&end,
-                                                 endStr.c_str(),
-                                                 endStr.size()));
-
-                bdet_Datetime      inputTime = inputTimeTz.localDatetime();
-                baet_LocalDatetime inputLclTime(inputTimeTz, TZID);
+                const baet_LocalDatetime LCL_TIME(TIME_TZ, TZID);
 
                 for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
                     const char CONFIG = cfg;
@@ -2546,12 +2646,12 @@ int main(int argc, char *argv[])
                       case 'a': {
                         LOOP2_ASSERT(LINE, CONFIG,
                                0 == Obj::loadLocalTimePeriod(&result,
-                                                             inputLclTime));
+                                                             LCL_TIME));
                       } break;
                       case 'b': {
                         LOOP2_ASSERT(LINE, CONFIG,
                                0 == Obj::loadLocalTimePeriod(&result,
-                                                             inputTimeTz,
+                                                             TIME_TZ,
                                                              TZID));
                       } break;
                       default: {
@@ -2560,20 +2660,20 @@ int main(int argc, char *argv[])
                     }
 
                     if (veryVeryVerbose) {
-                        T_ T_ P_(LINE) P_(policy) P_(inputTime) P(result)
+                        T_ T_ P_(LINE) P_(POLICY) P_(TIME_TZ) P(result)
                     }
 
                     const Descriptor& desc = result.descriptor();
                     LOOP3_ASSERT(LINE, CONFIG, result.utcStartTime(),
-                                 start == result.utcStartTime());
+                                 START == result.utcStartTime());
                     LOOP3_ASSERT(LINE, CONFIG, result.utcEndTime(),
-                                 end == result.utcEndTime());
+                                 END == result.utcEndTime());
                     LOOP3_ASSERT(LINE, CONFIG, desc.description(),
-                                 abbrev == desc.description());
+                                 ABBREV == desc.description());
                     LOOP3_ASSERT(LINE, CONFIG, desc.dstInEffectFlag(),
-                                 isDst  == desc.dstInEffectFlag());
+                                 ISDST  == desc.dstInEffectFlag());
                     LOOP3_ASSERT(LINE, CONFIG, desc.utcOffsetInSeconds(),
-                                 offset == desc.utcOffsetInSeconds());
+                                 OFFSET == desc.utcOffsetInSeconds());
                 }
             }
         }
@@ -2587,10 +2687,10 @@ int main(int argc, char *argv[])
             {
                 baetzo_LocalTimePeriod resultPeriod;
 
-                const bdet_Datetime      inputTime(2010, 1, 1, 12, 0);
-                const bdet_DatetimeTz    inputTz(inputTime, -5 * 60);
-                const char               timeZoneId[] = "America/New_York";
-                const baet_LocalDatetime inputLcl(inputTz, timeZoneId);
+                const bdet_Datetime      TIME(2010, 1, 1, 12, 0);
+                const bdet_DatetimeTz    inputTz(TIME, -5 * 60);
+                const char               TZID[] = "America/New_York";
+                const baet_LocalDatetime inputLcl(inputTz, TZID);
 
                 ASSERT_SAFE_PASS(Obj::loadLocalTimePeriod(&resultPeriod,
                                                           inputLcl));
@@ -2599,10 +2699,10 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Obj::loadLocalTimePeriod(&resultPeriod,
                                                           inputTz,
-                                                          timeZoneId));
+                                                          TZID));
                 ASSERT_SAFE_FAIL(Obj::loadLocalTimePeriod(0,
                                                           inputTz,
-                                                          timeZoneId));
+                                                          TZID));
                 ASSERT_SAFE_FAIL(Obj::loadLocalTimePeriod(&resultPeriod,
                                                           inputTz,
                                                           0));
@@ -2642,12 +2742,13 @@ int main(int argc, char *argv[])
         {
             // Test with an invalid time zone id.
             LogVerbosityGuard guard;
-            bdet_Datetime inputTime(2010, 1, 1, 12, 0);
+
+            bdet_Datetime TIME(2010, 1, 1, 12, 0);
 
             baetzo_LocalTimePeriod result;
             ASSERT(EUID == Obj::loadLocalTimePeriodForUtc(&result,
                                                           "bogusId",
-                                                          inputTime));
+                                                          TIME));
         }
 
         if (verbose) cout <<
@@ -2697,42 +2798,28 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tTesting 'loadLocalTimePeriodForUtc'." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE   = DATA[ti].d_line;
-            const char *TZID   = DATA[ti].d_timeZoneId;
-            const char *ABBREV = DATA[ti].d_abbrev;
-            const int   OFFSET = DATA[ti].d_utcOffset;
-            const bool  ISDST  = DATA[ti].d_isDst;
-            const bsl::string inputStr(DATA[ti].d_input);
-            const bsl::string startStr(DATA[ti].d_start);
-            const bsl::string endStr(DATA[ti].d_end);
-
-            bdet_Datetime inputTime, start, end;
-            LOOP_ASSERT(LINE,
-                        0 == bdepu_Iso8601::parse(&inputTime,
-                                                  inputStr.c_str(),
-                                                  inputStr.size()));
-            LOOP_ASSERT(LINE,
-                        0 == bdepu_Iso8601::parse(&start,
-                                                  startStr.c_str(),
-                                                  startStr.size()));
-            LOOP_ASSERT(LINE,
-                        0 == bdepu_Iso8601::parse(&end,
-                                                  endStr.c_str(),
-                                                  endStr.size()));
+            const int            LINE   = DATA[ti].d_line;
+            const char          *TZID   = DATA[ti].d_timeZoneId;
+            const bdet_Datetime  TIME   = toDatetime(DATA[ti].d_input);
+            const bdet_Datetime  START  = toDatetime(DATA[ti].d_start);
+            const bdet_Datetime  END    = toDatetime(DATA[ti].d_end);
+            const char          *ABBREV = DATA[ti].d_abbrev;
+            const int            OFFSET = DATA[ti].d_utcOffset;
+            const bool           ISDST  = DATA[ti].d_isDst;
 
             baetzo_LocalTimePeriod result;
 
             LOOP_ASSERT(LINE, 0 == Obj::loadLocalTimePeriodForUtc(&result,
                                                                   TZID,
-                                                                  inputTime));
+                                                                  TIME));
 
             if (veryVeryVerbose) {
-                P_(LINE); P_(inputTime); P(result);
+                P_(LINE); P_(TIME); P(result);
             }
 
             const Descriptor& desc = result.descriptor();
-            LOOP_ASSERT(LINE, start  == result.utcStartTime());
-            LOOP_ASSERT(LINE, end    == result.utcEndTime());
+            LOOP_ASSERT(LINE, START  == result.utcStartTime());
+            LOOP_ASSERT(LINE, END    == result.utcEndTime());
             LOOP_ASSERT(LINE, ABBREV == desc.description());
             LOOP_ASSERT(LINE, ISDST  == desc.dstInEffectFlag());
             LOOP_ASSERT(LINE, OFFSET == desc.utcOffsetInSeconds());
@@ -2745,21 +2832,21 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout <<
                                 "\t'loadLocalTimePeriod' class method" << endl;
             {
-                const bdet_Datetime      inputTime(2010, 1, 1, 12, 0);
+                const bdet_Datetime TIME(2010, 1, 1, 12, 0);
 
                 baetzo_LocalTimePeriod resultPeriod;
 
                 ASSERT_SAFE_PASS(Obj::loadLocalTimePeriodForUtc(
                                                             &resultPeriod,
                                                             "America/New_York",
-                                                            inputTime));
+                                                            TIME));
                 ASSERT_SAFE_FAIL(Obj::loadLocalTimePeriodForUtc(
                                                             0,
                                                             "America/New_York",
-                                                            inputTime));
+                                                            TIME));
                 ASSERT_SAFE_FAIL(Obj::loadLocalTimePeriodForUtc(&resultPeriod,
                                                                 0,
-                                                                inputTime));
+                                                                TIME));
             }
         }
       } break;
@@ -2946,10 +3033,6 @@ int main(int argc, char *argv[])
 
 // Time zone with sequential STD transitions (Saigon)
  { L_, SA, "1912-05-01T00:30:00",  UNSP, "1912-05-01T01:30:00+08:00" },
-
-#ifndef BSLS_PLATFORM__OS_WINDOWS
-#warning the following two test cases are ambiguously defined
-#endif
  { L_, SA, "1912-05-01T00:30:00",   STD, "1912-04-30T23:30:00+07:00" },
  { L_, SA, "1912-05-01T00:30:00",   DST, "1912-04-30T23:30:00+07:00" }
 
