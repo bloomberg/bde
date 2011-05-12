@@ -645,6 +645,27 @@ struct baetzo_TimeZoneUtil {
         // success, and a non-zero value with no effect otherwise.  A return
         // value of 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' was not recognized.
+
+    static int validateConsistency(bool                   *result,
+                                   const bdet_DatetimeTz&  localTime,
+                                   const char             *timeZoneId);
+        // Load, into the specified 'result', 'true' if the offset from UTC in
+        // the specified 'localTime' is consistent with the offset of the time
+        // zone indicated by the specified 'timeZoneId' at the time indicated
+        // by 'localTime', and 'false' otherwise.  Return 0 on success, and a
+        // non-zero value with no effect otherwise.  A return value of
+        // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // 'timeZoneId' is not recognized.
+
+    static int validateConsistency(bool                      *result,
+                                   const baet_LocalDatetime&  localTime);
+        // Load, into the specified 'result', 'true' if the offset from UTC in
+        // the specified 'localTime' is consistent with the offset of the time
+        // zone of 'localTime', and 'false' otherwise.  Return 0 on success,
+        // and a non-zero value with no effect otherwise.  A return value of
+        // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // 'timeZoneId' is not recognized.
+
 };
 
 // ============================================================================
@@ -790,6 +811,18 @@ int baetzo_TimeZoneUtil::loadLocalTimePeriod(
     return loadLocalTimePeriodForUtc(result,
                                      timeZoneId,
                                      localTime.gmtDatetime());
+}
+
+inline
+int baetzo_TimeZoneUtil::validateConsistency(
+                                          bool                      *result,
+                                          const baet_LocalDatetime&  localTime)
+{
+    BSLS_ASSERT_SAFE(result);
+
+    return validateConsistency(result,
+                               localTime.datetimeTz(),
+                               localTime.timeZoneId().c_str());
 }
 
 }  // close namespace BloombergLP
