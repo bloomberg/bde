@@ -581,7 +581,7 @@ bdem_BerUniversalTagNumber_Imp::select(const int&, bdeat_TypeCategory::Simple)
 {
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-        | FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
     return bdem_BerUniversalTagNumber::BDEM_BER_INT;
 }
