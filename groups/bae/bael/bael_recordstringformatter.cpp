@@ -35,26 +35,25 @@ const char *const MONTHS[] = {
 
 }  // close unnamed namespace
 
-namespace BloombergLP {
-
-static void appendToString(bsl::string *result, int value)
-    // Convert the specified 'value' into ASCII characters and append it to the
-    // specified 'result.
+static void toString(bsl::string *result, int value)
+    //
 {
     char buffer[16];
+    bsl::cout << "int" << bsl::endl;
     snprintf(buffer, sizeof buffer, "%d", value);
     *result += buffer;
 }
 
-static void appendToString(bsl::string *result,
-                           bsls_PlatformUtil::Uint64 value)
-    // Convert the specified 'value' into ASCII characters and append it to the
-    // specified 'result.
+static void toString(bsl::string *result, unsigned long long value)
+    //
 {
     char buffer[32];
+    bsl::cout << "ull" << bsl::endl;
     snprintf(buffer, sizeof(buffer), "%llu", value);
     *result += buffer;
 }
+
+namespace BloombergLP {
 
                         // --------------------------------
                         // class bael_RecordStringFormatter
@@ -127,8 +126,9 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     bdet_Datetime timestamp = fixedFields.timestamp() + d_timestampOffset;
 
     // Step through the format string, outputting the required elements.
-    const char* iter = d_formatSpec.data();
-    const char* end  = iter + d_formatSpec.length();
+    const char* runBegin = d_formatSpec.data();
+    const char* end      = runBegin + d_formatSpec.length();
+    const char* iter     = runBegin;
 
     bsl::string output;
     output.reserve(1024);
@@ -136,6 +136,8 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     while (iter != end) {
         switch (*iter) {
           case '%': {
+            // Flush run, output fields, and then start a new run (below).
+            output.append(runBegin, iter - runBegin);
             if (++iter == end) {
                 break;
             }
@@ -147,15 +149,15 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 char buffer[32];
 
                 snprintf(buffer,
-                         sizeof(buffer),
-                         "%02d%s%04d_%02d:%02d:%02d.%03d",
-                         timestamp.day(),
-                         MONTHS[timestamp.month()],
-                         timestamp.year(),
-                         timestamp.hour(),
-                         timestamp.minute(),
-                         timestamp.second(),
-                         timestamp.millisecond());
+                        sizeof(buffer),
+                        "%02d%s%04d_%02d:%02d:%02d.%03d",
+                        timestamp.day(),
+                        MONTHS[timestamp.month()],
+                        timestamp.year(),
+                        timestamp.hour(),
+                        timestamp.minute(),
+                        timestamp.second(),
+                        timestamp.millisecond());
                 output += buffer;
               } break;
               case 'I': // fall through intentionally
@@ -189,10 +191,10 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 }
               } break;
               case 'p': {
-                appendToString(&output, fixedFields.processID());
+                toString(&output, fixedFields.processID());
               } break;
               case 't': {
-                appendToString(&output, fixedFields.threadID());
+                toString(&output, fixedFields.threadID());
               } break;
               case 's': {
                 output += bael_Severity::toAscii(
@@ -217,7 +219,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 }
               } break;
               case 'l': {
-                appendToString(&output, fixedFields.lineNumber());
+                toString(&output, fixedFields.lineNumber());
               } break;
               case 'c': {
                 output += fixedFields.category();
@@ -259,37 +261,41 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 output += '%';
                 output += *iter;
             }
-            ++iter;
+            // Start a new run from here.
+            runBegin = ++iter;
           } break;
           case '\\': {
+            // Flush run, output fields, and then start a new run (below).
+            stream.write(runBegin, iter - runBegin);
             if (++iter == end) {
                 break;
             }
             switch (*iter) {
               case 'n': {
-                output += '\n';
+                stream << '\n';
               } break;
               case 't': {
-                output += '\t';
+                stream << '\t';
               } break;
               case '\\': {
-                output += '\\';
+                stream << '\\';
               } break;
               default: {
                 // Undefined: we just output the verbatim characters.
-                output += '\\';
-                output += *iter;
+                stream << '\\' << *iter;
               }
             }
-            ++iter;
+            // Start a new run from here.
+            runBegin = ++iter;
           } break;
           default: {
             // Do nothing, instead, let run accumulate.
-            output += *iter;
             ++iter;
           }
         }
     }
+
+    output.append(runBegin, iter - runBegin);
 
     stream.write(output.c_str(), output.size());
     stream.flush();
