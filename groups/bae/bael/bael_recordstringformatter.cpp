@@ -104,7 +104,7 @@ bael_RecordStringFormatter::bael_RecordStringFormatter(
 bael_RecordStringFormatter::~bael_RecordStringFormatter()
 {
 }
-
+ 
 // MANIPULATORS
 bael_RecordStringFormatter& bael_RecordStringFormatter::operator=(
                                          const bael_RecordStringFormatter& rhs)
