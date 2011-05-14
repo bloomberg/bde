@@ -1207,22 +1207,22 @@ int Local::StackTraceResolver::resolve(
     //    }
 
     if (0 == linkMap) {
-	// This method was adopted as superior to the above (commented out)
-	// method.
+        // This method was adopted as superior to the above (commented out)
+        // method.
 
-	Local::ElfDynamic *dynamic = (Local::ElfDynamic *) &_DYNAMIC;
-	if (0 == dynamic) {
-	    return -1;                                                // RETURN
-	}
+        Local::ElfDynamic *dynamic = (Local::ElfDynamic *) &_DYNAMIC;
+        if (0 == dynamic) {
+            return -1;                                                // RETURN
+        }
 
-	while (true) {
-	    if (DT_DEBUG == dynamic->d_tag) {
-		r_debug *rdb = (r_debug *) dynamic->d_un.d_ptr;
-		if (rdb) {
-		    linkMap = rdb->r_map;
-		    break;
-		}
-		else {
+        while (true) {
+            if (DT_DEBUG == dynamic->d_tag) {
+                r_debug *rdb = (r_debug *) dynamic->d_un.d_ptr;
+                if (rdb) {
+                    linkMap = rdb->r_map;
+                    break;
+                }
+                else {
                     return -1;                                        // RETURN
                 }
             }
@@ -1236,7 +1236,7 @@ int Local::StackTraceResolver::resolve(
         }
     }
 
-    for (int i = 0; linkMap; ++i) {
+    for (int i = 0; linkMap; ++i, linkMap = linkMap->l_next) {
         Local::ElfHeader *elfHeader = (Local::ElfHeader *) linkMap->l_addr;
 
         if (0 != checkElfHeader(elfHeader)) {
@@ -1262,8 +1262,6 @@ int Local::StackTraceResolver::resolve(
         if (rc) {
             return -1;                                                // RETURN
         }
-
-        linkMap = linkMap->l_next;
     }
 
 #else
