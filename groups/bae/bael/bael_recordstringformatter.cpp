@@ -42,8 +42,18 @@ static void appendToString(bsl::string *result, int value)
     // specified 'result.
 {
     char buffer[16];
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
     snprintf(buffer, sizeof buffer, "%d", value);
     *result += buffer;
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#undef snprintf
+#endif
+
 }
 
 static void appendToString(bsl::string *result,
@@ -52,7 +62,17 @@ static void appendToString(bsl::string *result,
     // specified 'result.
 {
     char buffer[32];
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
     snprintf(buffer, sizeof(buffer), "%llu", value);
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#undef snprintf
+#endif
+
     *result += buffer;
 }
 
@@ -132,6 +152,10 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
 
     bsl::string output;
     output.reserve(1024);
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#define snprintf _snprintf
+#endif
 
     while (iter != end) {
         switch (*iter) {
@@ -290,6 +314,10 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
           }
         }
     }
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#undef snprintf
+#endif
 
     stream.write(output.c_str(), output.size());
     stream.flush();
