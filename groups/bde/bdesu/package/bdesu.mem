@@ -2,14 +2,6 @@
 bdesu_fdstreambuf
 bdesu_fileutil
 bdesu_memoryutil
-bdesu_objectfileformat
 bdesu_pathutil
 bdesu_pipeutil
 bdesu_processutil
-bdesu_stackaddressutil
-bdesu_stacktrace
-bdesu_stacktraceframe
-bdesu_stacktraceresolver_filehelper
-bdesu_stacktraceresolverimpl_elf
-bdesu_stacktraceresolverimpl_xcoff
-bdesu_stacktraceresolverimpl_windows

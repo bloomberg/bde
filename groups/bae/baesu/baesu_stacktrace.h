@@ -1,6 +1,6 @@
-// bdesu_stacktrace.h                                                 -*-C++-*-
-#ifndef INCLUDED_BDESU_STACKTRACE
-#define INCLUDED_BDESU_STACKTRACE
+// baesu_stacktrace.h                                                 -*-C++-*-
+#ifndef INCLUDED_BAESU_STACKTRACE
+#define INCLUDED_BAESU_STACKTRACE
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -10,12 +10,12 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a set of portable utilities for generating a stack trace
 //
 //@CLASSES:
-//  bdesu_StackTrace: mechanism for obtaining a stack trace of function calls
-//  bdesu_StackTraceUtil: namespace for functions for printing a stack trace
+//  baesu_StackTrace: mechanism for obtaining a stack trace of function calls
+//  baesu_StackTraceUtil: namespace for functions for printing a stack trace
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
-//@SEE_ALSO: bdesu_stacktraceframe, bdesu_stackaddress
+//@SEE_ALSO: baesu_stacktraceframe, baesu_stackaddress
 //
 //@DESCRIPTION: This component defines a platform-independent interface for
 // obtaining return addresses from the stack and resolving those addresses into
@@ -24,21 +24,21 @@ BDES_IDENT("$Id: $")
 // platform-specific.  Function names and addresses are supported on all
 // platforms.  On Windows and AIX, source file names and line numbers are also
 // provided.  The methods provided by this utility always trace the stack of
-// the calling thread.  The class 'bdesu_StackTrace' is a mechanism that
+// the calling thread.  The class 'baesu_StackTrace' is a mechanism that
 // contains the stack trace and a memory allocator, and methods to either
 // gather address information from the stack, or take the address information
 // as a argument, and translate that address information into human-readable
-// debug information.  The class 'bdesu_StackTraceUtil' contains a single
+// debug information.  The class 'baesu_StackTraceUtil' contains a single
 // static method that prints a stack trace.
 //
 ///Usage Examples
 ///-------------
 // The following examples illustrate 3 different ways to print a stack trace.
 //
-///1. Using 'bdesu_StackTraceUtil::printStackTrace'
+///1. Using 'baesu_StackTraceUtil::printStackTrace'
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // This example shows the easiest way to write a stack trace to a stream, by
-// calling the static function 'bdesu_StackTraceUtil::printStackTrace'.
+// calling the static function 'baesu_StackTraceUtil::printStackTrace'.
 //
 // We declare a function, 'recurseAndPrintExample1', that will recurse several
 // times and then print a stack trace.
@@ -59,7 +59,7 @@ BDES_IDENT("$Id: $")
 // defaulting to 1000, which is more than we need, and the 'demangle' argument
 // is unspecified, defaulting to 'true'.
 //..
-//          bdesu_StackTraceUtil::printStackTrace(cout);
+//          baesu_StackTraceUtil::printStackTrace(cout);
 //      }
 //
 //      ++*depth;   // Prevent compiler from optimizing tail recursion as a
@@ -77,26 +77,26 @@ BDES_IDENT("$Id: $")
 // were longer than 80 chars, so continuation is wrapped.
 //..
 //  (0) .recurseAndPrintExample1(int*)+0x60 at 0x10013060
-//           source:bdesu_stacktrace.t.cpp:488 in bdesu_stacktrace.t.dbg_exc_mt
+//           source:baesu_stacktrace.t.cpp:488 in baesu_stacktrace.t.dbg_exc_mt
 //  (1) .recurseAndPrintExample1(int*)+0x48 at 0x10013048
-//           source:bdesu_stacktrace.t.cpp:479 in bdesu_stacktrace.t.dbg_exc_mt
+//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
 //  (2) .recurseAndPrintExample1(int*)+0x48 at 0x10013048
-//           source:bdesu_stacktrace.t.cpp:479 in bdesu_stacktrace.t.dbg_exc_mt
+//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
 //  (3) .recurseAndPrintExample1(int*)+0x48 at 0x10013048
-//           source:bdesu_stacktrace.t.cpp:479 in bdesu_stacktrace.t.dbg_exc_mt
+//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
 //  (4) .recurseAndPrintExample1(int*)+0x48 at 0x10013048
-//           source:bdesu_stacktrace.t.cpp:479 in bdesu_stacktrace.t.dbg_exc_mt
-//  (5) .main+0x2e8 at 0x10000a68 source:bdesu_stacktrace.t.cpp:575
-//                                             in bdesu_stacktrace.t.dbg_exc_mt
+//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
+//  (5) .main+0x2e8 at 0x10000a68 source:baesu_stacktrace.t.cpp:575
+//                                             in baesu_stacktrace.t.dbg_exc_mt
 //  (6) .__start+0x9c at 0x100001ec source:crt0main.s in
-//                                                bdesu_stacktrace.t.dbg_exc_mt
+//                                                baesu_stacktrace.t.dbg_exc_mt
 //..
 ///2. Stack trace using the 'initializeStackTraceFromStack' method
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //..
 // This example employes the 'initializeStackTraceFromStack' method of
-// 'bdesu_StackTrace', which is easy to use.  After it is called, the
-// 'bdesu_StackTrace' object contains the stack trace which can be output to
+// 'baesu_StackTrace', which is easy to use.  After it is called, the
+// 'baesu_StackTrace' object contains the stack trace which can be output to
 // any stream using '<<'.
 //..
 // static
@@ -122,7 +122,7 @@ BDES_IDENT("$Id: $")
 // through the heap, thus minimizing potential complications due to stack size
 // limits and possible heap corruption.
 //..
-//         bdesu_StackTrace st;
+//         baesu_StackTrace st;
 //         int rc = st.initializeFromStack();
 //..
 // 'initializeFromStack' will fail and there will be no frames on Windows
@@ -162,14 +162,14 @@ BDES_IDENT("$Id: $")
 //      else {
 //          enum { ARRAY_LENGTH = 50 };
 //          void *addresses[ARRAY_LENGTH];
-//          bdesu_StackTrace st;
+//          baesu_StackTrace st;
 //..
 // First, we call 'getStackAddresses' to get the stored return addresses from
 // the stack and load them into the array 'addresses'.  The call returns the
 // number of addresses saved into the array, which will be less than or equal
 // to 'ARRAY_LENGTH'.
 //..
-//          int numAddresses = bdesu_StackAddressUtil::getStackAddresses(
+//          int numAddresses = baesu_StackAddressUtil::getStackAddresses(
 //                                                               addresses,
 //                                                               ARRAY_LENGTH);
 //..
@@ -194,7 +194,7 @@ BDES_IDENT("$Id: $")
 // print out only those properties.
 //..
 //          for (int i = 0; i < st.numFrames(); ++i) {
-//              const bdesu_StackTraceFrame& frame = st.stackFrame(i);
+//              const baesu_StackTraceFrame& frame = st.stackFrame(i);
 //  
 //              const char *sn = frame.symbolName();
 //              sn = sn ? sn : "--unknown--";
@@ -215,8 +215,8 @@ BDES_IDENT("$Id: $")
 #include <bdema_heapbypassallocator.h>
 #endif
 
-#ifndef INCLUDED_BDESU_STACKTRACEFRAME
-#include <bdesu_stacktraceframe.h>
+#ifndef INCLUDED_BAESU_STACKTRACEFRAME
+#include <baesu_stacktraceframe.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -234,10 +234,10 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
                        // ======================
-                       // class bdesu_StackTrace
+                       // class baesu_StackTrace
                        // ======================
 
-class bdesu_StackTrace {
+class baesu_StackTrace {
     // This class is a value class (but not a value-semantic type) that can
     // contain a stack trace, and has methods with which to populate the stack
     // trace information, either directly from the stack or from an array of
@@ -255,7 +255,7 @@ class bdesu_StackTrace {
 
   private:
     // DATA
-    bsl::vector<bdesu_StackTraceFrame> *d_frames;    // pointer to owned vector
+    bsl::vector<baesu_StackTraceFrame> *d_frames;    // pointer to owned vector
                                                      // of stack trace frames
                                                      // to contain debug
                                                      // information
@@ -268,8 +268,8 @@ class bdesu_StackTrace {
 
   private:
     // NOT IMPLEMENTED
-    bdesu_StackTrace(const bdesu_StackTrace&);
-    bdesu_StackTrace& operator=(const bdesu_StackTrace&);
+    baesu_StackTrace(const baesu_StackTrace&);
+    baesu_StackTrace& operator=(const baesu_StackTrace&);
 
   public:
     // CLASS METHODS
@@ -278,12 +278,12 @@ class bdesu_StackTrace {
         // is for testing only.
 
     // CREATORS
-    bdesu_StackTrace();
+    baesu_StackTrace();
         // Create an empty stack trace object.  Memory for this object will be
         // supplied by an allocator of type 'bdema_HeapBypassAllocator',
         // created and owned by this object.
 
-    ~bdesu_StackTrace();
+    ~baesu_StackTrace();
         // Destroy this stack object.
 
     // MANIPULATORS
@@ -322,7 +322,7 @@ class bdesu_StackTrace {
         // previously contained in this object are discarded.
 
     // ACCESSORS
-    const bdesu_StackTraceFrame& stackFrame(int index) const;
+    const baesu_StackTraceFrame& stackFrame(int index) const;
         // Return a reference to the 'index'th stack trace frame contained in
         // this object.  An index of 0 refers to the frame on top of the stack,
         // the most recently called routine, an index of '1' refers to the
@@ -341,17 +341,17 @@ class bdesu_StackTrace {
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&           stream,
-                         const bdesu_StackTrace& stackTrace);
+                         const baesu_StackTrace& stackTrace);
     // Print any stack trace contained in the specified 'stackTrace' to the
     // specified 'stream', returning 'stream'.
 
                        // ==========================
-                       // class bdesu_StackTraceUtil
+                       // class baesu_StackTraceUtil
                        // ==========================
 
-struct bdesu_StackTraceUtil {
+struct baesu_StackTraceUtil {
     // This 'struct' serves as a namespace for static methods that use
-    // 'bdesu_StackTrace'.
+    // 'baesu_StackTrace'.
 
     enum {
         DEFAULT_MAX_FRAMES = 1000    // suggested default value for 'maxFrames'
@@ -378,24 +378,24 @@ struct bdesu_StackTraceUtil {
 //=============================================================================
 
                              // ----------------------
-                             // class bdesu_StackTrace
+                             // class baesu_StackTrace
                              // ----------------------
 
 // CLASS METHODS
 
 inline
-void bdesu_StackTrace::forTestingOnlyDump(bsl::string *string)
+void baesu_StackTrace::forTestingOnlyDump(bsl::string *string)
 {
     bsl::stringstream ss;
 
-    bdesu_StackTraceUtil::printStackTrace(ss);
+    baesu_StackTraceUtil::printStackTrace(ss);
 
     *string = ss.str();
 }
 
 // MANIPULATORS
 inline
-bslma_Allocator *bdesu_StackTrace::allocator()
+bslma_Allocator *baesu_StackTrace::allocator()
 {
     return &d_allocator;
 }

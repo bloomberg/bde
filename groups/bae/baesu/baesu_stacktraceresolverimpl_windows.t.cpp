@@ -1,7 +1,7 @@
-// bdesu_stacktraceresolverimpl_windows.t.cpp                         -*-C++-*-
-#include <bdesu_stacktraceresolverimpl_windows.h>
+// baesu_stacktraceresolverimpl_windows.t.cpp                         -*-C++-*-
+#include <baesu_stacktraceresolverimpl_windows.h>
 
-#include <bdesu_objectfileformat.h>
+#include <baesu_objectfileformat.h>
 
 #include <bdema_sequentialallocator.h>
 #include <bdeu_random.h>
@@ -16,7 +16,7 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#ifdef BDESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS
+#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS
 
 using namespace BloombergLP;
 using bsl::cin;
@@ -79,8 +79,8 @@ static void aSsErT(int c, const char *s, int i)
 // GLOBAL HELPER TYPES & CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Windows> Obj;
-typedef bdesu_StackTraceFrame                                         Frame;
+typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows> Obj;
+typedef baesu_StackTraceFrame                                         Frame;
 typedef bsls_Types::UintPtr                                           UintPtr;
 typedef bsls_Types::IntPtr                                            IntPtr;
 
@@ -191,7 +191,7 @@ UintPtr bigRand()
     return (UintPtr) (bigRandSeed ^ lowBits);
 }
 
-void stuffRandomAddresses(bsl::vector<bdesu_StackTraceFrame> *v)
+void stuffRandomAddresses(bsl::vector<baesu_StackTraceFrame> *v)
 {
     const UintPtr delta = (UintPtr) 1 << ((sizeof(UintPtr) - 1) * 8);
     const int vecLength = 3 * 256 * 3 + 2048;
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Garbage Test\n"
                              "============\n";
 
-        bsl::vector<bdesu_StackTraceFrame> traceVec;
+        bsl::vector<baesu_StackTraceFrame> traceVec;
         stuffRandomAddresses(&traceVec);
 
         ASSERT(0 == Obj::resolve(&traceVec,
@@ -267,15 +267,15 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // bdesu_StackTraceResolverImp<Windows> BREATHING TEST
+        // baesu_StackTraceResolverImp<Windows> BREATHING TEST
         //
-        // Concerns: Exercise bdesu_StackTrace basic functionality.
+        // Concerns: Exercise baesu_StackTrace basic functionality.
         //
         // Plan: Call 'printStackTrace()' to print a stack trace.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                      "bdesu_StackTraceResolverImpl<Windows> breathing test\n"
+                      "baesu_StackTraceResolverImpl<Windows> breathing test\n"
                       "====================================================\n";
 
 #if defined(BSLS_PLATFORM__OS_WINDOWS) && !defined(BDE_BUILD_TARGET_DBG)
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
         // though they use the same processor), if you take '&' of a global
         // function, you get a pointer to a thunk which will do a long jump to
         // the function.  So we'll leave the testing of symbols in shared
-        // libraries and global symbols to 'bdesu_stacktrace.t.cpp.
+        // libraries and global symbols to 'baesu_stacktrace.t.cpp.
 
         typedef bsls_Types::UintPtr UintPtr;
 
@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
 #endif
 
         for (unsigned i = 0; i < frames.size(); ++i) {
-            const bdesu_StackTraceFrame& frame = frames[i];
+            const baesu_StackTraceFrame& frame = frames[i];
             const char *name;
 
             name = frame.mangledSymbolName();
@@ -345,7 +345,7 @@ int main(int argc, char *argv[])
         }
 
         for (unsigned i = 0; i < frames.size(); ++i) {
-            const bdesu_StackTraceFrame& frame = frames[i];
+            const baesu_StackTraceFrame& frame = frames[i];
             const char *name;
 
             name = frame.mangledSymbolName();
@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
             name = frame.libraryFileName();
             LOOP_ASSERT(ng(name), name && *name);
             LOOP_ASSERT(name, safeStrStr(frame.libraryFileName(),
-                              "\\bdesu_stacktraceresolverimpl_windows."));
+                              "\\baesu_stacktraceresolverimpl_windows."));
             LOOP_ASSERT(name, safeStrStr(frame.libraryFileName(), ".exe"));
             if (0 == i) {
                 name = frame.sourceFileName();
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
                     }
 
                     LOOP_ASSERT(pc, !bsl::strcmp(pc,
-                                "bdesu_stacktraceresolverimpl_windows.t.cpp"));
+                                "baesu_stacktraceresolverimpl_windows.t.cpp"));
                 }
                 ASSERT(safeCmp(frame.symbolName(),           "funcStaticOne"));
                 ASSERT(safeStrStr(frame.mangledSymbolName(), "funcStaticOne"));
@@ -384,14 +384,14 @@ int main(int argc, char *argv[])
                 // universally used on Windows.  Screw it.
 
                 name = frame.sourceFileName();
-                ASSERT(safeCmp(name,"bdesu_stacktraceresolverimpl_windows.h"));
+                ASSERT(safeCmp(name,"baesu_stacktraceresolverimpl_windows.h"));
 
                 LOOP_ASSERT(frame.lineNumber(),
                                   abs(frame.lineNumber() - testFuncLine) < 30);
                 ASSERT(safeStrStr(frame.mangledSymbolName(), "testFunc"));
                 LOOP_ASSERT(frame.symbolName(), safeCmp(frame.symbolName(),
-                               "BloombergLP::bdesu_StackTraceResolverImpl"
-                               "<BloombergLP::bdesu_ObjectFileFormat::Windows>"
+                               "BloombergLP::baesu_StackTraceResolverImpl"
+                               "<BloombergLP::baesu_ObjectFileFormat::Windows>"
                                "::testFunc"));
             }
         }

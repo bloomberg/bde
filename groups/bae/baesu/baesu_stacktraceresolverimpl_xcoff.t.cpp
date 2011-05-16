@@ -1,7 +1,7 @@
-// bdesu_stacktraceresolverimpl_xcoff.t.cpp                           -*-C++-*-
-#include <bdesu_stacktraceresolverimpl_xcoff.h>
+// baesu_stacktraceresolverimpl_xcoff.t.cpp                           -*-C++-*-
+#include <baesu_stacktraceresolverimpl_xcoff.h>
 
-#include <bdesu_objectfileformat.h>
+#include <baesu_objectfileformat.h>
 
 #include <bdema_sequentialallocator.h>
 
@@ -15,7 +15,7 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#ifdef BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF
+#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF
 
 using namespace BloombergLP;
 using bsl::cin;
@@ -78,8 +78,8 @@ static void aSsErT(int c, const char *s, int i)
 // GLOBAL HELPER TYPES & CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff> Obj;
-typedef bdesu_StackTraceFrame                                       Frame;
+typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> Obj;
+typedef baesu_StackTraceFrame                                       Frame;
 typedef bsls_Types::UintPtr                                         UintPtr;
 
 //=============================================================================
@@ -222,7 +222,7 @@ UintPtr bigRand()
     return (UintPtr) bigRandSeed ^ lowBits;
 }
 
-void stuffRandomAddresses(bsl::vector<bdesu_StackTraceFrame> *v)
+void stuffRandomAddresses(bsl::vector<baesu_StackTraceFrame> *v)
 {
     const UintPtr delta = (UintPtr) 1 << ((sizeof(UintPtr) - 1) * 8);
     const int vecLength = 3 * 256 * 3 + 2048;
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Garbage Test\n"
                              "============\n";
 
-        bsl::vector<bdesu_StackTraceFrame> traceVec;
+        bsl::vector<baesu_StackTraceFrame> traceVec;
         stuffRandomAddresses(&traceVec);
 
         ASSERT(0 == Obj::resolve(&traceVec,
@@ -298,20 +298,20 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // bdesu_StackTraceResolverImp<Xcoff> BREATHING TEST
+        // baesu_StackTraceResolverImp<Xcoff> BREATHING TEST
         //
-        // Concerns: Exercise bdesu_StackTrace basic functionality.
+        // Concerns: Exercise baesu_StackTrace basic functionality.
         //
         // Plan: Call 'printStackTrace()' to print a stack trace.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                        "bdesu_StackTraceResolverImpl<Xcoff> breathing test\n"
+                        "baesu_StackTraceResolverImpl<Xcoff> breathing test\n"
                         "==================================================\n";
 
         // There seems to be a problem with taking a pointer to an function in
         // a shared library.  We'll leave the testing of symbols in shared
-        // libraries to 'bdesu_stacktrace.t.cpp.
+        // libraries to 'baesu_stacktrace.t.cpp.
 
         typedef bsls_Types::UintPtr UintPtr;
 
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
             frames.at(2).setAddress(addFixedOffset(testFuncPtr));
 
             frames[3].setAddress(addFixedOffset((UintPtr)
-                 &bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff>::
+                 &baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>::
                                                                      resolve));
 
             // make sure 'qsort' is loaded
@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
 
             if (verbose) P(frames.at(0).libraryFileName());
             ASSERT(safeCmp(frames.at(0).libraryFileName(),
-                           "bdesu_stacktraceresolverimpl_xcoff.t.",
+                           "baesu_stacktraceresolverimpl_xcoff.t.",
                            32));
             for (int i = 1; i < frames.size(); ++i) {
                 if (4 == i) {
@@ -436,18 +436,18 @@ int main(int argc, char *argv[])
                         switch (i) {
                           case 2: {
                             LOOP_ASSERT(pc, !bsl::strcmp(pc,
-                                  "bdesu_stacktraceresolverimpl_xcoff.h"));
+                                  "baesu_stacktraceresolverimpl_xcoff.h"));
                           }  break;
                           case 3: {
                             LOOP_ASSERT(pc, !bsl::strcmp(pc,
-                                  "bdesu_stacktraceresolverimpl_xcoff.cpp"));
+                                  "baesu_stacktraceresolverimpl_xcoff.cpp"));
                           }  break;
                           case 4: {
                              ; // so nothing
                           }  break;
                           default: {
                             LOOP2_ASSERT(i, pc, !bsl::strcmp(pc,
-                                  "bdesu_stacktraceresolverimpl_xcoff.t.cpp"));
+                                  "baesu_stacktraceresolverimpl_xcoff.t.cpp"));
                           }  break;
                         }
                     }
@@ -478,13 +478,13 @@ int main(int argc, char *argv[])
                     safeCmp(frames.at(1).symbolName(), ".funcStaticOne(int)"));
                 LOOP_ASSERT(frames.at(2).symbolName(),
                              safeCmp(frames.at(2).symbolName(), "BloombergLP::"
-                                   "bdesu_StackTraceResolverImpl<BloombergLP::"
-                               "bdesu_ObjectFileFormat::Xcoff>::.testFunc()"));
+                                   "baesu_StackTraceResolverImpl<BloombergLP::"
+                               "baesu_ObjectFileFormat::Xcoff>::.testFunc()"));
                 {
                     const char *match =
                                    "BloombergLP::"
-                                   "bdesu_StackTraceResolverImpl<BloombergLP::"
-                                   "bdesu_ObjectFileFormat::Xcoff>::.resolve(";
+                                   "baesu_StackTraceResolverImpl<BloombergLP::"
+                                   "baesu_ObjectFileFormat::Xcoff>::.resolve(";
                     int matchLen = bsl::strlen(match);
                     LOOP_ASSERT(frames.at(3).symbolName(),
                           safeCmp(frames.at(3).symbolName(), match, matchLen));

@@ -1,6 +1,6 @@
-// bdesu_objectfileformat.h                                           -*-C++-*-
-#ifndef INCLUDED_BDESU_OBJECTFILEFORMAT
-#define INCLUDED_BDESU_OBJECTFILEFORMAT
+// baesu_objectfileformat.h                                           -*-C++-*-
+#ifndef INCLUDED_BAESU_OBJECTFILEFORMAT
+#define INCLUDED_BAESU_OBJECTFILEFORMAT
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide platform-dependent object file format trait definitions.
 //
 //@CLASSES:
-//   bdesu_ObjectFileFormat: namespace for object file format traits
+//   baesu_ObjectFileFormat: namespace for object file format traits
 //
 //@SEE_ALSO:
 //
@@ -18,7 +18,7 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a set of traits that identify and
 // describe a platform's object file format properties.  For example, the
-// 'bdesu_ObjectFileFormat::ResolverPolicy' trait is ascribed a "value" (i.e.,
+// 'baesu_ObjectFileFormat::ResolverPolicy' trait is ascribed a "value" (i.e.,
 // 'Elf' or 'Xcoff') appropriate for each supported platform.  The various
 // stack trace traits are actually types declared in the
 // 'bdescu_ObjectFileFormat' 'struct'.  These types are intended to be used in
@@ -30,7 +30,7 @@ BDES_IDENT("$Id: $")
 ///Usage
 ///-----
 // 'typeTest' is a template function that will return 1 if passed an object of
-// types 'bdesu_ObjectFileFormat::{Elf,Xcoff,Windows}' appropriate for the
+// types 'baesu_ObjectFileFormat::{Elf,Xcoff,Windows}' appropriate for the
 // current platform and 0 otherwise.
 //..
 //  template <typename TYPE>
@@ -38,25 +38,25 @@ BDES_IDENT("$Id: $")
 //      return 0;
 //  }
 //
-//  #if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
 //
-//  int typeTest(const bdesu_ObjectFileFormat::Elf &)
+//  int typeTest(const baesu_ObjectFileFormat::Elf &)
 //  {
 //      return 1;
 //  }
 //
 //  #endif
-//  #if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 //
-//  int typeTest(const bdesu_ObjectFileFormat::Xcoff &)
+//  int typeTest(const baesu_ObjectFileFormat::Xcoff &)
 //  {
 //      return 1;
 //  }
 //
 //  #endif
-//  #if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 //
-//  int typeTest(const bdesu_ObjectFileFormat::Windows &)
+//  int typeTest(const baesu_ObjectFileFormat::Windows &)
 //  {
 //      return 1;
 //  }
@@ -68,24 +68,24 @@ BDES_IDENT("$Id: $")
 //..
 // First, verify ResolverPolicy
 //..
-//    bdesu_ObjectFileFormat::ResolverPolicy policy;
+//    baesu_ObjectFileFormat::ResolverPolicy policy;
 //    BSLS_ASSERT(1 == typeTest(policy));
 //..
-// Finally, verify exactly 1 'BDESU_OBJECTFILEFORMAT_RESOLVER_*' #define
+// Finally, verify exactly 1 'BAESU_OBJECTFILEFORMAT_RESOLVER_*' #define
 // exists
 //..
 //    int count = 0;
-//  #if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
 //    ++count;
-//    BSLS_ASSERT(1 == BDESU_OBJECTFILEFORMAT_RESOLVER_ELF);
+//    BSLS_ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_ELF);
 //  #endif
-//  #if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 //    ++count;
-//    BSLS_ASSERT(1 == BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF);
+//    BSLS_ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF);
 //  #endif
-//  #if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 //    ++count;
-//    BSLS_ASSERT(1 == BDESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
+//    BSLS_ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
 //  #endif
 //    BSLS_ASSERT(1 == count);
 //..
@@ -101,10 +101,10 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
                         // ============================
-                        // class bdesu_ObjectFileFormat
+                        // class baesu_ObjectFileFormat
                         // ============================
 
-struct bdesu_ObjectFileFormat {
+struct baesu_ObjectFileFormat {
     // This 'struct' provides a namespace for object file format trait
     // definitions, the 'Policy' trait, and within the code #defines are
     // defined to drive conditional compilation in client components.
@@ -120,21 +120,21 @@ struct bdesu_ObjectFileFormat {
     defined(BSLS_PLATFORM__OS_HPUX)
 
     typedef Elf Policy;
-#   define BDESU_OBJECTFILEFORMAT_RESOLVER_ELF 1
+#   define BAESU_OBJECTFILEFORMAT_RESOLVER_ELF 1
 
 #endif
 
 #if defined(BSLS_PLATFORM__OS_AIX)
 
     typedef Xcoff Policy;
-#   define BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF 1
+#   define BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF 1
 
 #endif
 
 #if defined(BSLS_PLATFORM__OS_WINDOWS)
 
     typedef Windows Policy;
-#   define BDESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS 1
+#   define BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS 1
 
 #endif
 

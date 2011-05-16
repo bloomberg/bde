@@ -1,8 +1,8 @@
-// bdesu_stacktraceresolver_filehelper.t.cpp                          -*-C++-*-
-#include <bdesu_stacktraceresolver_filehelper.h>
+// baesu_stacktraceresolver_filehelper.t.cpp                          -*-C++-*-
+#include <baesu_stacktraceresolver_filehelper.h>
 
 #include <bdesu_fileutil.h>
-#include <bdesu_objectfileformat.h>
+#include <baesu_objectfileformat.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -69,8 +69,8 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
-#if   defined(BDESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
-   || defined(BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
+   || defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 //=============================================================================
 //                  GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -78,7 +78,7 @@ static void aSsErT(int c, const char *s, int i)
 typedef bdesu_FileUtil                      FileUtil;
 typedef FileUtil::FileDescriptor            FdType;    // shorthand for file
                                                        // descriptor
-typedef bdesu_StackTraceResolver_FileHelper Helper;
+typedef baesu_StackTraceResolver_FileHelper Helper;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -131,11 +131,11 @@ int main(int argc, char *argv[]) {
     // int veryVerbose = argc > 3;
     // int veryVeryVerbose = argc > 4;
 
-#if   defined(BDESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
-   || defined(BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
+   || defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     const char *tmpDirName       = "/tmp";
     const char *fileNameTemplate =
-                          "/tmp/bdesu_StackTraceResolver_FileHelper.%d.%d.txt";
+                          "/tmp/baesu_StackTraceResolver_FileHelper.%d.%d.txt";
 
     ASSERT(FileUtil::exists(tmpDirName) && FileUtil::isDirectory(tmpDirName));
 #endif
@@ -144,27 +144,27 @@ int main(int argc, char *argv[]) {
     bslma_DefaultAllocatorGuard guard(&ta);
 
     switch(test) { case 0:
-#if   defined(BDESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
-   || defined(BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
+   || defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
       case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
         // Concern: Demonstrate the use of
-        //  'bdesu_StackTraceResolver_FileHelper'.
+        //  'baesu_StackTraceResolver_FileHelper'.
         //
         // Plan: call 'readExact' and 'loadString' and verify the results.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                         "bdesu_StackTraceResolver_FileHelper usage example\n"
+                         "baesu_StackTraceResolver_FileHelper usage example\n"
                          "=================================================\n";
 
         bslma_TestAllocator ta;
 
         char fileNameBuffer[100];
         sprintf(fileNameBuffer,
-                "/tmp/bdesu_StackTraceResolver_FileHelper.usage.%d.txt",
+                "/tmp/baesu_StackTraceResolver_FileHelper.usage.%d.txt",
                 getProcessId());
 
         // Make sure file does not already exist.
@@ -209,7 +209,7 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == rc);
 
         {
-            bdesu_StackTraceResolver_FileHelper helper(fileNameBuffer);
+            baesu_StackTraceResolver_FileHelper helper(fileNameBuffer);
 
             char buf[100];
             memset(buf, 0, sizeof(buf));

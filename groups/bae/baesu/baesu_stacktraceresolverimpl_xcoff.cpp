@@ -1,17 +1,17 @@
-// bdesu_stacktraceresolverimpl_xcoff.cpp                             -*-C++-*-
-#include <bdesu_stacktraceresolverimpl_xcoff.h>
+// baesu_stacktraceresolverimpl_xcoff.cpp                             -*-C++-*-
+#include <baesu_stacktraceresolverimpl_xcoff.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bdesu_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
+
+#include <baesu_objectfileformat.h>
+
+#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF
+
+#include <baesu_stacktraceresolver_filehelper.h>
 
 #include <bdesu_fileutil.h>
-#include <bdesu_objectfileformat.h>
-
-#ifdef BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF
-
 #include <bdesu_processutil.h>
-#include <bdesu_stacktraceresolver_filehelper.h>
-
 #include <bdeu_string.h>
 
 #include <bslma_default.h>
@@ -514,7 +514,7 @@ BDES_IDENT_RCSID(bdesu_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 // 4. For each frame pointer populate the remaining stack frame data from the
 //    AUXENT's of the matching symbol.
 //
-// The data that we are looking for (members of bdesu_StackTraceFrame) and
+// The data that we are looking for (members of baesu_StackTraceFrame) and
 // where we can find it:
 // 1. object file name                 : Obtained by traversing the various
 //                                       object files in the executable
@@ -555,7 +555,7 @@ enum {
     SYMBOL_BUF_LEN  = SCRATCH_BUF_LEN   // length in bytes of 'd_symbolBuf_p'
 };
 
-typedef bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff>
+typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>
                                                             StackTraceResolver;
 
 typedef bsls_Types::UintPtr UintPtr;
@@ -583,7 +583,7 @@ Local::UintPtr parseNumber(const TYPE& text)
 }
 
  // ===========================================================================
- // struct bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff>::AuxInfo
+ // struct baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>::AuxInfo
  //               == struct Local::StackTraceResolver::AuxInfo
  // ===========================================================================
 
@@ -653,13 +653,13 @@ struct Local::StackTraceResolver::LoadAuxInfosInfo {
 };
 
       // -----------------------------------------------------------------
-      // class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff>
+      // class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>
       //                == class Local::StackTraceResolver
       // -----------------------------------------------------------------
 
 // PRIVATE CREATORS
-Local::StackTraceResolver::bdesu_StackTraceResolverImpl(
-                            bsl::vector<bdesu_StackTraceFrame> *stackFrames,
+Local::StackTraceResolver::baesu_StackTraceResolverImpl(
+                            bsl::vector<baesu_StackTraceFrame> *stackFrames,
                             bool                                demangle,
                             bslma_Allocator                    *basicAllocator)
 : d_helper(0)
@@ -686,7 +686,7 @@ Local::StackTraceResolver::bdesu_StackTraceResolverImpl(
                                               sizeof(void *) * totalNumFrames);
     memset(d_segAddresses_p, 0, sizeof(void *) * totalNumFrames);
 
-    d_segFramePtrs_p = (bdesu_StackTraceFrame **)
+    d_segFramePtrs_p = (baesu_StackTraceFrame **)
                       d_allocator_p->allocate(sizeof(void *) * totalNumFrames);
 
     d_segAuxInfos_p = (AuxInfo *) d_allocator_p->allocate(
@@ -696,7 +696,7 @@ Local::StackTraceResolver::bdesu_StackTraceResolverImpl(
     d_symbolBuf_p  = (char *) d_allocator_p->allocate(Local::SYMBOL_BUF_LEN);
 }
 
-Local::StackTraceResolver::~bdesu_StackTraceResolverImpl()
+Local::StackTraceResolver::~baesu_StackTraceResolverImpl()
 {
 }
 
@@ -1403,7 +1403,7 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
         d_segFramePtrs_p[i]->setLibraryFileName(displayFileName);
     }
 
-    bdesu_StackTraceResolver_FileHelper helper(libraryFileName);
+    baesu_StackTraceResolver_FileHelper helper(libraryFileName);
     d_helper = &helper;
 
     if (archiveMemberName && archiveMemberName[0]) {
@@ -1497,7 +1497,7 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
 
     for (int i = 0; i < d_numCurrAddresses; ++i) {
         AuxInfo               *auxInfo = d_segAuxInfos_p + i;
-        bdesu_StackTraceFrame *frame   = d_segFramePtrs_p[i];
+        baesu_StackTraceFrame *frame   = d_segFramePtrs_p[i];
 
         if (auxInfo->d_symEntValid) {
             const char *symbolName = getSymbolName(&auxInfo->d_symEnt);
@@ -1609,7 +1609,7 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
 
 // PUBLIC CLASS METHODS
 int Local::StackTraceResolver::resolve(
-                            bsl::vector<bdesu_StackTraceFrame> *stackFrames,
+                            bsl::vector<baesu_StackTraceFrame> *stackFrames,
                             bool                                demangle,
                             bslma_Allocator                    *basicAllocator)
 {

@@ -1,8 +1,8 @@
-// bdesu_stacktraceframe.t.cpp                                        -*-C++-*-
+// baesu_stacktraceframe.t.cpp                                        -*-C++-*-
 
-#include <bdesu_stacktraceframe.h>
+#include <baesu_stacktraceframe.h>
 
-#include <bdesu_objectfileformat.h>
+#include <baesu_objectfileformat.h>
 
 #include <bdema_sequentialallocator.h>
 #include <bdeu_string.h>
@@ -178,7 +178,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdesu_StackTraceFrame Obj;
+typedef baesu_StackTraceFrame Obj;
 
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 10: {
         // --------------------------------------------------------------------
-        // bdesu_StackTraceFrame USAGE EXAMPLE
+        // baesu_StackTraceFrame USAGE EXAMPLE
         //
         // Concerns:
         //   Demonstrate stack trace frame basic functionality.
@@ -252,14 +252,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "bdema_StackTraceFrame usage example\n"
                              "===================================\n";
 
-        // Here we create two 'bdesu_StackTraceFrame' objects, modify their
+        // Here we create two 'baesu_StackTraceFrame' objects, modify their
         // properties, and compare them.  First, we create the objects 'a' and
         // 'b':
 
         bslma_TestAllocator ta;
         bdema_SequentialAllocator sa(&ta);
 
-        bdesu_StackTraceFrame a, b;
+        baesu_StackTraceFrame a, b;
 
         ASSERT(a == b);
 
@@ -930,8 +930,8 @@ int main(int argc, char *argv[])
         //:   allocated from the default allocator.  (C-11)
         //
         // Testing:
-        //   bool operator==(const bdesu_StackTraceFrame& lhs, rhs);
-        //   bool operator!=(const bdesu_StackTraceFrame& lhs, rhs);
+        //   bool operator==(const baesu_StackTraceFrame& lhs, rhs);
+        //   bool operator!=(const baesu_StackTraceFrame& lhs, rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1254,7 +1254,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
-        //   operator<<(ostream& s, const bdesu_StackTraceFrame& stf);
+        //   operator<<(ostream& s, const baesu_StackTraceFrame& stf);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1527,17 +1527,17 @@ int main(int argc, char *argv[])
                          "]"                                                 },
 
         { L_, -9, -9, A, "woof+0x64 at 0xabcdef01"
-#ifdef BDESU_OBJECTFILEFORMAT_RESOLVER_ELF
+#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_ELF
                          " static"
 #endif
-#ifdef BDESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS
+#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS
                          " source:mysource.cpp:10 in lib1.so" },
 #else
                          " source:mysource.cpp:10 in /lib/lib1.so" },
 #endif
 
         { L_, -9, -9, B, "Woof+0xc8 at 0x12345678"
-#ifdef BDESU_OBJECTFILEFORMAT_RESOLVER_ELF
+#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_ELF
                          " static"
 #endif
                          " source:yoursource.cpp:50 in myExec.tsk" },
@@ -1687,8 +1687,8 @@ int main(int argc, char *argv[])
         //:   (C-15)
         //
         // Testing:
-        //   bdesu_StackTraceFrame()
-        //   ~bdesu_StackTraceFrame()
+        //   baesu_StackTraceFrame()
+        //   ~baesu_StackTraceFrame()
         //   setAddress(const void *)
         //   setLibraryFileName(const char *)
         //   setLineNumber(int)

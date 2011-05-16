@@ -1,6 +1,6 @@
-// bdesu_stacktraceresolverimpl_xcoff.h                               -*-C++-*-
-#ifndef INCLUDED_BDESU_STACKTRACERESOLVERIMPL_XCOFF
-#define INCLUDED_BDESU_STACKTRACERESOLVERIMPL_XCOFF
+// baesu_stacktraceresolverimpl_xcoff.h                               -*-C++-*-
+#ifndef INCLUDED_BAESU_STACKTRACERESOLVERIMPL_XCOFF
+#define INCLUDED_BAESU_STACKTRACERESOLVERIMPL_XCOFF
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -10,20 +10,20 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a utility to resolve xcoff symbols in a stack trace.
 //
 //@CLASSES:
-//   bdesu_StackTraceResolverImpl<Xcoff>: symbol resolution for Xcoff objects
+//   baesu_StackTraceResolverImpl<Xcoff>: symbol resolution for Xcoff objects
 //
-//@SEE_ALSO: bdesu_stacktraceresolverimpl_{elf,windows}
+//@SEE_ALSO: baesu_stacktraceresolverimpl_{elf,windows}
 //
 //@AUTHOR: Oleg Semenov (osemenov), Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a class,
-// bdesu_StackTraceResolver<Xcoff>, that, given a vector of
-// 'bdesu_StackTraceFrame's that have only their 'address' fields set, resolves
+// baesu_StackTraceResolver<Xcoff>, that, given a vector of
+// 'baesu_StackTraceFrame's that have only their 'address' fields set, resolves
 // all other fields in those frames.  Xcoff objects are used on AIX platforms.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bdesu' and is *not* intended
+// This component is an implementation detail of 'baesu' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -31,18 +31,18 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BDESU_OBJECTFILEFORMAT
-#include <bdesu_objectfileformat.h>
+#ifndef INCLUDED_BAESU_OBJECTFILEFORMAT
+#include <baesu_objectfileformat.h>
 #endif
 
-#if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
-#ifndef INCLUDED_BDESU_STACKTRACEFRAME
-#include <bdesu_stacktraceframe.h>
+#ifndef INCLUDED_BAESU_STACKTRACEFRAME
+#include <baesu_stacktraceframe.h>
 #endif
 
-#ifndef INCLUDED_BDESU_STACKTRACERESOLVER_FILEHELPER
-#include <bdesu_stacktraceresolver_filehelper.h>
+#ifndef INCLUDED_BAESU_STACKTRACERESOLVER_FILEHELPER
+#include <baesu_stacktraceresolver_filehelper.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -77,21 +77,21 @@ BDES_IDENT("$Id: $")
 #define INCLUDED_SYMS
 #endif
 
-#define BDESU_STACKTRACERESOLVERIMPL_XCOFF_LINE __LINE__
+#define BAESU_STACKTRACERESOLVERIMPL_XCOFF_LINE __LINE__
 
 namespace BloombergLP {
 
 template <typename RESOLVER_POLICY>
-class bdesu_StackTraceResolverImpl;
+class baesu_StackTraceResolverImpl;
 
       // =================================================================
-      // class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff>
+      // class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>
       // =================================================================
 
 template <>
-class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff> {
+class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
     // This class is for resolving symbols in Xcoff executables.  Given a
-    // vector of 'bdesu_StackTraceFrame's that have only their 'address' fields
+    // vector of 'baesu_StackTraceFrame's that have only their 'address' fields
     // set, it resolves all other fields in those frames.  Xcoff objects are
     // used on AIX platforms.  Note that all methods, including the
     // constructor, are private except for that static method 'resolve' which
@@ -115,10 +115,10 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff> {
     };
 
     // DATA
-    bdesu_StackTraceResolver_FileHelper
+    baesu_StackTraceResolver_FileHelper
                           *d_helper;          // helper for reading files
 
-    bsl::vector<bdesu_StackTraceFrame>
+    bsl::vector<baesu_StackTraceFrame>
                           *d_allFrames_p;     // pointer to vector of stack
                                               // trace frames to be populated
                                               // by resolution.  Note only the
@@ -128,7 +128,7 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff> {
                                               // other fields.  Held, not
                                               // owned.
 
-    bdesu_StackTraceFrame
+    baesu_StackTraceFrame
                          **d_segFramePtrs_p;  // pointers into
                                               // 'd_allFrames_p' listing
                                               // only those frames whose
@@ -194,13 +194,13 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff> {
 
   private:
     // NOT IMPLEMENTED
-    bdesu_StackTraceResolverImpl(const bdesu_StackTraceResolverImpl&);
-    bdesu_StackTraceResolverImpl& operator=(
-                                          const bdesu_StackTraceResolverImpl&);
+    baesu_StackTraceResolverImpl(const baesu_StackTraceResolverImpl&);
+    baesu_StackTraceResolverImpl& operator=(
+                                          const baesu_StackTraceResolverImpl&);
 
     // PRIVATE CREATORS
-    bdesu_StackTraceResolverImpl(
-                           bsl::vector<bdesu_StackTraceFrame> *stackFrames,
+    baesu_StackTraceResolverImpl(
+                           bsl::vector<baesu_StackTraceFrame> *stackFrames,
                            bool                                demangle,
                            bslma_Allocator                    *basicAllocator);
         // Create an stack trace reolver that can populate other fields of the
@@ -211,7 +211,7 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff> {
         // 'basicAllocator' is 0 or unspecified, the intention is that it
         // should be of type 'bdema_HeapByPassAllocator'.
 
-    ~bdesu_StackTraceResolverImpl();
+    ~baesu_StackTraceResolverImpl();
         // Destroy this stack trace resolver object.
 
     // PRIVATE MANIPULATORS
@@ -311,7 +311,7 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff> {
 
   public:
     static
-    int resolve(bsl::vector<bdesu_StackTraceFrame> *stackFrames,
+    int resolve(bsl::vector<baesu_StackTraceFrame> *stackFrames,
                 bool                                demangle,
                 bslma_Allocator                    *basicAllocator);
         // Populate information for the specified 'stackFrames', a vector of
@@ -332,11 +332,11 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff> {
 //=============================================================================
 
                          // ----------------------------------
-                         // class bdesu_StackTraceResolverImpl
+                         // class baesu_StackTraceResolverImpl
                          // ----------------------------------
 
 inline
-int bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Xcoff>::testFunc()
+int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>::testFunc()
 {
     // Do some random garbage to generate some code, then return a line number
     // within this routine

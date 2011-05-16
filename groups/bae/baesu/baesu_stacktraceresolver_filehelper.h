@@ -1,6 +1,6 @@
-// bdesu_stacktraceresolver_filehelper.h                              -*-C++-*-
-#ifndef INCLUDED_BDESU_STACKTRACERESOLVER_FILEHELPER
-#define INCLUDED_BDESU_STACKTRACERESOLVER_FILEHELPER
+// baesu_stacktraceresolver_filehelper.h                              -*-C++-*-
+#ifndef INCLUDED_BAESU_STACKTRACERESOLVER_FILEHELPER
+#define INCLUDED_BAESU_STACKTRACERESOLVER_FILEHELPER
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -10,10 +10,10 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide platform-independent file input for stack trace resolvers
 //
 //@CLASSES:
-//   bdesu_StackTraceResolver_FileHelper: file input for stack trace resolvers
+//   baesu_StackTraceResolver_FileHelper: file input for stack trace resolvers
 //
-//@SEE_ALSO: bdesu_StackTraceResolverImpl_Elf
-//           bdesu_StackTraceResolverImpl_Xcoff
+//@SEE_ALSO: baesu_StackTraceResolverImpl_Elf
+//           baesu_StackTraceResolverImpl_Xcoff
 //
 //@AUTHOR: Bill Chapman
 //
@@ -32,7 +32,7 @@ BDES_IDENT("$Id: $")
 //
 //  char fileNameBuffer[100];
 //  sprintf(fileNameBuffer,
-//          "/tmp/bdesu_StackTraceResolver_FileHelper.usage.%d.txt",
+//          "/tmp/baesu_StackTraceResolver_FileHelper.usage.%d.txt",
 //          getProcessId());
 //..
 // Make sure file does not already exist.
@@ -76,7 +76,7 @@ BDES_IDENT("$Id: $")
 //  assert(0 == rc);
 //
 //  {
-//      bdesu_StackTraceResolver_FileHelper helper(fileNameBuffer);
+//      baesu_StackTraceResolver_FileHelper helper(fileNameBuffer);
 //
 //      char buf[100];
 //      memset(buf, 0, sizeof(buf));
@@ -117,11 +117,11 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BDESU_OBJECTFILEFORMAT
-#include <bdesu_objectfileformat.h>
+#ifndef INCLUDED_BAESU_OBJECTFILEFORMAT
+#include <baesu_objectfileformat.h>
 #endif
-#if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-    defined(BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+    defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
 #ifndef INCLUDED_BDESU_FILEUTIL
 #include <bdesu_fileutil.h>
@@ -136,12 +136,12 @@ namespace BloombergLP {
 class bslma_Allocator;
 
                  // =========================================
-                 // class bdesu_StackTraceResolver_FileHelper
+                 // class baesu_StackTraceResolver_FileHelper
                  // =========================================
 
-class bdesu_StackTraceResolver_FileHelper {
+class baesu_StackTraceResolver_FileHelper {
     // This class provides a low-level file utility functions for
-    // 'bdesu_StackTraceResolver<Elf>' and 'bdesu_StackTraceResolver<Xcoff>'.
+    // 'baesu_StackTraceResolver<Elf>' and 'baesu_StackTraceResolver<Xcoff>'.
     // This class contains the file descriptor of current object file.  Note
     // that the file is opened readonly, and all reads specify the offset, so
     // the offset of the file descriptor is not considered part of the state of
@@ -161,19 +161,19 @@ class bdesu_StackTraceResolver_FileHelper {
 
   private:
     // NOT IMPLEMENTED
-    bdesu_StackTraceResolver_FileHelper(
-                                   const bdesu_StackTraceResolver_FileHelper&);
-    bdesu_StackTraceResolver_FileHelper& operator=(
-                                   const bdesu_StackTraceResolver_FileHelper&);
+    baesu_StackTraceResolver_FileHelper(
+                                   const baesu_StackTraceResolver_FileHelper&);
+    baesu_StackTraceResolver_FileHelper& operator=(
+                                   const baesu_StackTraceResolver_FileHelper&);
   public:
     // CREATORS
     explicit
-    bdesu_StackTraceResolver_FileHelper(const char *fileName);
+    baesu_StackTraceResolver_FileHelper(const char *fileName);
         // Open the file referred to by the specified 'fileName' for read-only
         // access and set 'd_fd' to the file descriptor.  The behavior is
         // undefined if the specified file does not exist or is unreadable.
 
-    ~bdesu_StackTraceResolver_FileHelper();
+    ~baesu_StackTraceResolver_FileHelper();
         // Close the file indicated at construction and destroy this object.
 
     // ACCESSORS
@@ -205,12 +205,12 @@ class bdesu_StackTraceResolver_FileHelper {
 // ===========================================================================
 
                      // -----------------------------------
-                     // bdesu_StackTraceResolver_FileHelper
+                     // baesu_StackTraceResolver_FileHelper
                      // -----------------------------------
 
 // ACCESSORS
 inline
-int bdesu_StackTraceResolver_FileHelper::readExact(void    *buf,
+int baesu_StackTraceResolver_FileHelper::readExact(void    *buf,
                                                    UintPtr  numBytes,
                                                    Offset   offset) const
 {

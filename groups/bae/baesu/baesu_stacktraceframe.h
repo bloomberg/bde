@@ -1,6 +1,6 @@
-// bdesu_stacktraceframe.h                                            -*-C++-*-
-#ifndef INCLUDED_BDESU_STACKTRACEFRAME
-#define INCLUDED_BDESU_STACKTRACEFRAME
+// baesu_stacktraceframe.h                                            -*-C++-*-
+#ifndef INCLUDED_BAESU_STACKTRACEFRAME
+#define INCLUDED_BAESU_STACKTRACEFRAME
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -10,15 +10,15 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide an attribute class representing a stack frame
 //
 //@CLASSES:
-//   bdesu_StackTraceFrame: a representation of one frame of a stack trace
+//   baesu_StackTraceFrame: a representation of one frame of a stack trace
 //
 //@AUTHOR: Bill Chapman
 //
-//@SEE_ALSO: bdesu_stacktrace
+//@SEE_ALSO: baesu_stacktrace
 //
 //@DESCRIPTION: This component provides a value-semantic attribute class,
-// 'bdesu_StackTraceFrame', that represents a single information about a single
-// function call on the call stack.  A 'bdesu_StackTraceFrame' stores the
+// 'baesu_StackTraceFrame', that represents a single information about a single
+// function call on the call stack.  A 'baesu_StackTraceFrame' stores the
 // traits 'address', 'libraryFileName', 'lineNumber', 'mangledSymbolName',
 // 'offsetFromSymbol', 'sourceFileName', and 'symbolName'.  All of these
 // properties which are represented by 'const char *' pointers can be 0, the
@@ -31,11 +31,11 @@ BDES_IDENT("$Id: $")
 ///Usage
 ///-----
 //..
-// Here we create two 'bdesu_StackTraceFrame' objects, modify their
+// Here we create two 'baesu_StackTraceFrame' objects, modify their
 // properties, and compare them.  First, we create the objects 'a' and
 // 'b':
 //..
-//  bdesu_StackTraceFrame a, b;
+//  baesu_StackTraceFrame a, b;
 //
 //  assert(a == b);
 //..
@@ -107,13 +107,13 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
                        // ===========================
-                       // class bdesu_StackTraceFrame
+                       // class baesu_StackTraceFrame
                        // ===========================
 
-class bdesu_StackTraceFrame {
+class baesu_StackTraceFrame {
     // This class provides a value-semantic attribute class that represents a
     // frame in a stack trace.  This class does not enforce any relationship
-    // between its different properties.  'bdesu_StackTraceFrame' does not
+    // between its different properties.  'baesu_StackTraceFrame' does not
     // manage the lifetime of any of the objects to which it refers.  The copy
     // constructor, assignment operator, and destructor are provided by the
     // compiler by default.  The default constructor initializes all fields to
@@ -125,7 +125,7 @@ class bdesu_StackTraceFrame {
     // function 'parent', on the stack frame of 'child' is the address within
     // 'parent' of the first instruction to be called after 'child' returns.
     // The 'address' field is this address within 'parent', and all other
-    // fields in the 'bdesu_StackTraceFrame' refer to the function 'parent'.
+    // fields in the 'baesu_StackTraceFrame' refer to the function 'parent'.
 
     // CONSTANTS
     enum {
@@ -176,7 +176,7 @@ class bdesu_StackTraceFrame {
                                         // value, so should 'd_symbolName_p'.
 
     friend bsl::ostream& operator<<(bsl::ostream&,
-                                    const bdesu_StackTraceFrame&);
+                                    const baesu_StackTraceFrame&);
 
   public:
     // CLASS METHODS
@@ -185,19 +185,19 @@ class bdesu_StackTraceFrame {
         // The value of an offset before it is set.
 
     // CREATORS
-    bdesu_StackTraceFrame();
-        // Create a 'bdesu_StackTraceFrame' object with all members set to
+    baesu_StackTraceFrame();
+        // Create a 'baesu_StackTraceFrame' object with all members set to
         // invalid values: string pointer values default to 0, the 'lineNumber'
         // value to 'INVALID_LINE_NUMBER', and the 'offsetFromSymbol' value to
         // 'INVALID_OFFSET'.
 
-    // bdesu_StackTraceFrame(const bdesu_StackTraceFrame&);
+    // baesu_StackTraceFrame(const baesu_StackTraceFrame&);
         // compiler generated
 
-    // bdesu_StackTraceFrame& operator=(const bdesu_StackTraceFrame&);
+    // baesu_StackTraceFrame& operator=(const baesu_StackTraceFrame&);
         // compiler generated
 
-    // ~bdesu_StackTraceFrame();
+    // ~baesu_StackTraceFrame();
         // compiler generated
 
     // MANIPULATORS
@@ -310,22 +310,22 @@ class bdesu_StackTraceFrame {
 };
 
 // FREE OPERATORS
-bool operator==(const bdesu_StackTraceFrame& lhs,
-                const bdesu_StackTraceFrame& rhs);
+bool operator==(const baesu_StackTraceFrame& lhs,
+                const baesu_StackTraceFrame& rhs);
     // Return 'true' if all corresponding attributes of the specified 'lhs' and
     // 'rhs' stack trace frame objects have the same value, and 'false'
     // otherwise.  Note that two 'const char *'s pointing to different but
     // equal strings are considered equal.
 
-bool operator!=(const bdesu_StackTraceFrame& lhs,
-                const bdesu_StackTraceFrame& rhs);
+bool operator!=(const baesu_StackTraceFrame& lhs,
+                const baesu_StackTraceFrame& rhs);
     // Return 'true' if any corresponding attributes of the specified 'lhs' and
     // 'rhs' stack trace frame objects do not have the same value, and 'false'
     // otherwise.  Note that two 'const char *'s pointing to different but
     // equal strings are considered equal.
 
 bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const bdesu_StackTraceFrame& frame);
+                         const baesu_StackTraceFrame& frame);
     // Print the contents of 'frame' to the specified 'stream' in a plain text
     // format, on one line, omitting the mangled symbol name.  Fields that are
     // invalid are either not printed or printed as "--unknown--".  Return a
@@ -339,19 +339,19 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 // ===========================================================================
 
                        // ---------------------------
-                       // class bdesu_StackTraceFrame
+                       // class baesu_StackTraceFrame
                        // ---------------------------
 
 // CLASS METHODS
 inline
-bsl::size_t bdesu_StackTraceFrame::invalidOffset()
+bsl::size_t baesu_StackTraceFrame::invalidOffset()
 {
     return (bsl::size_t) INVALID_OFFSET;
 }
 
 // CREATORS
 inline
-bdesu_StackTraceFrame::bdesu_StackTraceFrame()
+baesu_StackTraceFrame::baesu_StackTraceFrame()
 : d_address_p(0)
 , d_libraryFileName_p(0)
 , d_lineNumber(INVALID_LINE_NUMBER)
@@ -364,13 +364,13 @@ bdesu_StackTraceFrame::bdesu_StackTraceFrame()
 
 // MANIPULATORS
 inline
-void bdesu_StackTraceFrame::setAddress(const void *addressValue)
+void baesu_StackTraceFrame::setAddress(const void *addressValue)
 {
     d_address_p = addressValue;
 }
 
 inline
-void bdesu_StackTraceFrame::setLibraryFileName(
+void baesu_StackTraceFrame::setLibraryFileName(
                                               const char *libraryFileNameValue)
 {
     d_libraryFileName_p = libraryFileNameValue && *libraryFileNameValue
@@ -379,13 +379,13 @@ void bdesu_StackTraceFrame::setLibraryFileName(
 }
 
 inline
-void bdesu_StackTraceFrame::setLineNumber(int lineNumberValue)
+void baesu_StackTraceFrame::setLineNumber(int lineNumberValue)
 {
     d_lineNumber = lineNumberValue;
 }
 
 inline
-void bdesu_StackTraceFrame::setMangledSymbolName(
+void baesu_StackTraceFrame::setMangledSymbolName(
                                             const char *mangledSymbolNameValue)
 {
     d_mangledSymbolName_p = mangledSymbolNameValue && *mangledSymbolNameValue
@@ -394,14 +394,14 @@ void bdesu_StackTraceFrame::setMangledSymbolName(
 }
 
 inline
-void bdesu_StackTraceFrame::setOffsetFromSymbol(
+void baesu_StackTraceFrame::setOffsetFromSymbol(
                                              bsl::size_t offsetFromSymbolValue)
 {
     d_offsetFromSymbol = offsetFromSymbolValue;
 }
 
 inline
-void bdesu_StackTraceFrame::setSourceFileName(const char *sourceFileNameValue)
+void baesu_StackTraceFrame::setSourceFileName(const char *sourceFileNameValue)
 {
     d_sourceFileName_p = sourceFileNameValue && *sourceFileNameValue
                        ? sourceFileNameValue
@@ -409,7 +409,7 @@ void bdesu_StackTraceFrame::setSourceFileName(const char *sourceFileNameValue)
 }
 
 inline
-void bdesu_StackTraceFrame::setSymbolName(const char *symbolNameValue)
+void baesu_StackTraceFrame::setSymbolName(const char *symbolNameValue)
 {
     d_symbolName_p = symbolNameValue && *symbolNameValue
                    ? symbolNameValue
@@ -418,93 +418,93 @@ void bdesu_StackTraceFrame::setSymbolName(const char *symbolNameValue)
 
 // ACCESSORS
 inline
-const void *bdesu_StackTraceFrame::address() const
+const void *baesu_StackTraceFrame::address() const
 {
     return d_address_p;
 }
 
 inline
-bool bdesu_StackTraceFrame::isAddressValid() const
+bool baesu_StackTraceFrame::isAddressValid() const
 {
     return 0 != d_address_p;
 }
 
 inline
-bool bdesu_StackTraceFrame::isLibraryFileNameValid() const
+bool baesu_StackTraceFrame::isLibraryFileNameValid() const
 {
     return 0 != d_libraryFileName_p;
 }
 
 inline
-bool bdesu_StackTraceFrame::isLineNumberValid() const
+bool baesu_StackTraceFrame::isLineNumberValid() const
 {
     return d_lineNumber > 0;
 }
 
 inline
-bool bdesu_StackTraceFrame::isMangledSymbolNameValid() const
+bool baesu_StackTraceFrame::isMangledSymbolNameValid() const
 {
     return 0 != d_mangledSymbolName_p && 0 != *d_mangledSymbolName_p;
 }
 
 inline
-bool bdesu_StackTraceFrame::isOffsetFromSymbolValid() const
+bool baesu_StackTraceFrame::isOffsetFromSymbolValid() const
 {
     return invalidOffset() != d_offsetFromSymbol;
 }
 
 inline
-bool bdesu_StackTraceFrame::isSourceFileNameValid() const
+bool baesu_StackTraceFrame::isSourceFileNameValid() const
 {
     return 0 != d_sourceFileName_p && 0 != *d_sourceFileName_p;
 }
 
 inline
-bool bdesu_StackTraceFrame::isSymbolNameValid() const
+bool baesu_StackTraceFrame::isSymbolNameValid() const
 {
     return 0 != d_symbolName_p && 0 != *d_symbolName_p;
 }
 
 inline
-const char *bdesu_StackTraceFrame::libraryFileName() const
+const char *baesu_StackTraceFrame::libraryFileName() const
 {
     return d_libraryFileName_p;
 }
 
 inline
-int bdesu_StackTraceFrame::lineNumber() const
+int baesu_StackTraceFrame::lineNumber() const
 {
     return d_lineNumber;
 }
 
 inline
-bsl::size_t bdesu_StackTraceFrame::offsetFromSymbol() const
+bsl::size_t baesu_StackTraceFrame::offsetFromSymbol() const
 {
     return d_offsetFromSymbol;
 }
 
 inline
-const char *bdesu_StackTraceFrame::mangledSymbolName() const
+const char *baesu_StackTraceFrame::mangledSymbolName() const
 {
     return d_mangledSymbolName_p;
 }
 
 inline
-const char *bdesu_StackTraceFrame::sourceFileName() const
+const char *baesu_StackTraceFrame::sourceFileName() const
 {
     return d_sourceFileName_p;
 }
 
 inline
-const char *bdesu_StackTraceFrame::symbolName() const
+const char *baesu_StackTraceFrame::symbolName() const
 {
     return d_symbolName_p;
 }
 
 // FREE OPERATORS
 inline
-bool operator!=(const bdesu_StackTraceFrame& lhs,
-                const bdesu_StackTraceFrame& rhs)
+bool operator!=(const baesu_StackTraceFrame& lhs,
+                const baesu_StackTraceFrame& rhs)
 {
     return !(lhs == rhs);
 }

@@ -1,16 +1,16 @@
-// bdesu_stacktrace.cpp                                               -*-C++-*-
-#include <bdesu_stacktrace.h>
+// baesu_stacktrace.cpp                                               -*-C++-*-
+#include <baesu_stacktrace.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bdesu_stacktrace_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baesu_stacktrace_cpp,"$Id$ $CSID$")
 
-#include <bdesu_objectfileformat.h>
-#include <bdesu_stackaddressutil.h>
-#include <bdesu_stacktraceframe.h>
+#include <baesu_objectfileformat.h>
+#include <baesu_stackaddressutil.h>
+#include <baesu_stacktraceframe.h>
 
-#include <bdesu_stacktraceresolverimpl_elf.h>
-#include <bdesu_stacktraceresolverimpl_xcoff.h>
-#include <bdesu_stacktraceresolverimpl_windows.h>
+#include <baesu_stacktraceresolverimpl_elf.h>
+#include <baesu_stacktraceresolverimpl_xcoff.h>
+#include <baesu_stacktraceresolverimpl_windows.h>
 
 #include <bslma_allocator.h>
 
@@ -21,27 +21,27 @@ BDES_IDENT_RCSID(bdesu_stacktrace_cpp,"$Id$ $CSID$")
 #pragma optimize("", off)
 #endif
 
-// Note that the 'class' 'bdesu_StackTrace' contains a pointer to a vector that
+// Note that the 'class' 'baesu_StackTrace' contains a pointer to a vector that
 // is owned, rather than containing the vector directly, so that the vector,
 // when created, can take a pointer to 'd_allocator'.
 
 namespace BloombergLP {
 
                            // ----------------------
-                           // class bdesu_StackTrace
+                           // class baesu_StackTrace
                            // ----------------------
 
 // CREATORS
-bdesu_StackTrace::bdesu_StackTrace()
+baesu_StackTrace::baesu_StackTrace()
 : d_frames(0)
 , d_allocator()
 {
-    typedef bsl::vector<bdesu_StackTraceFrame> FrameVec;
+    typedef bsl::vector<baesu_StackTraceFrame> FrameVec;
 
     d_frames = new (d_allocator) FrameVec(&d_allocator);
 }
 
-bdesu_StackTrace::~bdesu_StackTrace()
+baesu_StackTrace::~baesu_StackTrace()
 {
     // All allocated memory is freed when 'd_allocator' is destroyed, and the
     // memory occupied by the vector 'd_frames' with it.  Note that the
@@ -50,15 +50,15 @@ bdesu_StackTrace::~bdesu_StackTrace()
 }
 
 // MANIPULATORS
-int bdesu_StackTrace::initializeFromAddressArray(void *addresses[],
+int baesu_StackTrace::initializeFromAddressArray(void *addresses[],
                                                  int   numAddresses,
                                                  bool  demangle)
 {
     BSLS_ASSERT(numAddresses >= 0);
     BSLS_ASSERT(0 == numAddresses || 0 != addresses);
 
-    typedef bdesu_ObjectFileFormat::Policy Policy;
-    typedef bdesu_StackTraceResolverImpl<Policy> Resolver;
+    typedef baesu_ObjectFileFormat::Policy Policy;
+    typedef baesu_StackTraceResolverImpl<Policy> Resolver;
 
     d_frames->clear();
     d_frames->resize(numAddresses);
@@ -70,7 +70,7 @@ int bdesu_StackTrace::initializeFromAddressArray(void *addresses[],
     return Resolver::resolve(d_frames, demangle, &d_allocator);
 }
 
-int bdesu_StackTrace::initializeFromStack(int maxFrames, bool demangle)
+int baesu_StackTrace::initializeFromStack(int maxFrames, bool demangle)
 {
 #if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_WINDOWS)
     enum { IGNORE_OFFSET = 2 };
@@ -81,7 +81,7 @@ int bdesu_StackTrace::initializeFromStack(int maxFrames, bool demangle)
 
     void **addresses = (void **) d_allocator.allocate(
                                                    maxFrames * sizeof(void *));
-    int numAddresses = bdesu_StackAddressUtil::getStackAddresses(addresses,
+    int numAddresses = baesu_StackAddressUtil::getStackAddresses(addresses,
                                                                  maxFrames);
     if (numAddresses <= 0 || numAddresses > maxFrames) {
         return -1;                                                    // RETURN
@@ -95,7 +95,7 @@ int bdesu_StackTrace::initializeFromStack(int maxFrames, bool demangle)
 }
 
 // ACCESSORS
-const bdesu_StackTraceFrame& bdesu_StackTrace::stackFrame(int index) const
+const baesu_StackTraceFrame& baesu_StackTrace::stackFrame(int index) const
 {
     BSLS_ASSERT(index >= 0);
     BSLS_ASSERT(index < (int) d_frames->size());
@@ -103,12 +103,12 @@ const bdesu_StackTraceFrame& bdesu_StackTrace::stackFrame(int index) const
     return (*d_frames)[index];
 }
 
-int bdesu_StackTrace::numFrames() const
+int baesu_StackTrace::numFrames() const
 {
     return d_frames->size();
 }
 
-bsl::ostream& bdesu_StackTrace::printTerse(bsl::ostream& stream) const
+bsl::ostream& baesu_StackTrace::printTerse(bsl::ostream& stream) const
 {
     for (unsigned i = 0; i < d_frames->size(); ++i) {
         stream << "(" << i << ") " << (*d_frames)[i] << bsl::endl;
@@ -119,17 +119,17 @@ bsl::ostream& bdesu_StackTrace::printTerse(bsl::ostream& stream) const
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&           stream,
-                         const bdesu_StackTrace& stackTrace)
+                         const baesu_StackTrace& stackTrace)
 {
     return stackTrace.printTerse(stream);
 }
 
                           // --------------------------
-                          // class bdesu_StackTraceUtil
+                          // class baesu_StackTraceUtil
                           // --------------------------
 
 // CLASS METHOD
-void bdesu_StackTraceUtil::printStackTrace(bsl::ostream& stream,
+void baesu_StackTraceUtil::printStackTrace(bsl::ostream& stream,
                                            int           maxFrames,
                                            bool          demangle)
 {
@@ -140,11 +140,11 @@ void bdesu_StackTraceUtil::printStackTrace(bsl::ostream& stream,
 #endif
     maxFrames += IGNORE_OFFSET;    // allocate extra frame(s) to be ignored
 
-    bdesu_StackTrace st;
+    baesu_StackTrace st;
 
     void **addresses = (void **) st.allocator()->allocate(
                                                    maxFrames * sizeof(void *));
-    int numAddresses = bdesu_StackAddressUtil::getStackAddresses(addresses,
+    int numAddresses = baesu_StackAddressUtil::getStackAddresses(addresses,
                                                                  maxFrames);
     if (numAddresses <= 0 || numAddresses > maxFrames) {
         stream << "Stack Trace: Internal Error getting stack addresses\n";

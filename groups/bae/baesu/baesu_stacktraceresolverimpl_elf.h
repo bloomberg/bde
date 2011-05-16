@@ -1,6 +1,6 @@
-// bdesu_stacktraceresolverimpl_elf.h                                 -*-C++-*-
-#ifndef INCLUDED_BDESU_STACKTRACERESOLVERIMPL_ELF
-#define INCLUDED_BDESU_STACKTRACERESOLVERIMPL_ELF
+// baesu_stacktraceresolverimpl_elf.h                                 -*-C++-*-
+#ifndef INCLUDED_BAESU_STACKTRACERESOLVERIMPL_ELF
+#define INCLUDED_BAESU_STACKTRACERESOLVERIMPL_ELF
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -10,14 +10,14 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a utility to resolve ELF symbols in a stack trace.
 //
 //@CLASSES:
-//   bdesu_StackTraceResolverImpl<Elf>: symbol resolution for ELF objects
+//   baesu_StackTraceResolverImpl<Elf>: symbol resolution for ELF objects
 //
-//@SEE_ALSO: bdesu_stacktraceresolverimpl_{windows,xcoff}
+//@SEE_ALSO: baesu_stacktraceresolverimpl_{windows,xcoff}
 //
 //@AUTHOR: Oleg Semenov (osemenov), Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides a class, bdesu_StackTraceResolver<Elf>,
-// that, given a vector of 'bdesu_StackTraceFrame's that have only their
+//@DESCRIPTION: This component provides a class, baesu_StackTraceResolver<Elf>,
+// that, given a vector of 'baesu_StackTraceFrame's that have only their
 // 'address' fields set, resolves all other fields in those frames.  The Elf
 // object file format is used on Linux, Solaris, and HP-UX platforms.
 //: The ELF format is described by documents at
@@ -27,7 +27,7 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bdesu' and is *not* intended
+// This component is an implementation detail of 'baesu' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -35,16 +35,16 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BDESU_OBJECTFILEFORMAT
-#include <bdesu_objectfileformat.h>
+#ifndef INCLUDED_BAESU_OBJECTFILEFORMAT
+#include <baesu_objectfileformat.h>
 #endif
 
-#ifndef INCLUDED_BDESU_STACKTRACEFRAME
-#include <bdesu_stacktraceframe.h>
+#ifndef INCLUDED_BAESU_STACKTRACEFRAME
+#include <baesu_stacktraceframe.h>
 #endif
 
-#ifndef INCLUDED_BDESU_STACKTRACERESOLVER_FILEHELPER
-#include <bdesu_stacktraceresolver_filehelper.h>
+#ifndef INCLUDED_BAESU_STACKTRACERESOLVER_FILEHELPER
+#include <baesu_stacktraceresolver_filehelper.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -61,19 +61,19 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
 
 template <typename RESOLVER_POLICY>
-class bdesu_StackTraceResolverImpl;
+class baesu_StackTraceResolverImpl;
 
            // =======================================================
-           // class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf>
+           // class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf>
            // =======================================================
 
 template <>
-class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf> {
+class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf> {
     // This class provides a public static 'resolve' method that, given a
-    // vector of 'bdesu_StackTraceFrame's that have only their 'address' fields
+    // vector of 'baesu_StackTraceFrame's that have only their 'address' fields
     // set, resolves all other fields in those frames.  The Elf object file
     // format is used on Linux, Solaris, and HP-UX platforms.  All other
     // methods in this class are private.
@@ -92,7 +92,7 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf> {
                                             // segments)
 
     // DATA
-    bsl::vector<bdesu_StackTraceFrame>
+    bsl::vector<baesu_StackTraceFrame>
                       *d_ioAllFrames_p;     // pointer to vector of frames in
                                             // the StackTrace object
 
@@ -110,14 +110,14 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf> {
 
   private:
     // NOT IMPLEMENTED
-    bdesu_StackTraceResolverImpl(const bdesu_StackTraceResolverImpl&);
-    bdesu_StackTraceResolverImpl& operator=(
-                                          const bdesu_StackTraceResolverImpl&);
+    baesu_StackTraceResolverImpl(const baesu_StackTraceResolverImpl&);
+    baesu_StackTraceResolverImpl& operator=(
+                                          const baesu_StackTraceResolverImpl&);
 
   private:
     // PRIVATE CREATORS
-    bdesu_StackTraceResolverImpl(
-                           bsl::vector<bdesu_StackTraceFrame> *ioFrames_p,
+    baesu_StackTraceResolverImpl(
+                           bsl::vector<baesu_StackTraceFrame> *ioFrames_p,
                            bool                                demangle,
                            bslma_Allocator                    *basicAllocator);
         // Create an stack trace reolver that can populate other fields of the
@@ -128,7 +128,7 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf> {
         // 'basicAllocator' is 0 or unspecified, the intention is that it
         // should be of type 'bdema_HeapByPassAllocator'.
 
-    ~bdesu_StackTraceResolverImpl();
+    ~baesu_StackTraceResolverImpl();
         // Destroy this object.
 
     // PRIVATE MANIPULATORS
@@ -151,7 +151,7 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf> {
         // non-zero value otherwise.
 
     // PRIVATE ACCESSORS
-    void setFrameSymbolName(bdesu_StackTraceFrame *frame) const;
+    void setFrameSymbolName(baesu_StackTraceFrame *frame) const;
         // Set the 'symbolName' field of the specified 'frame', which must
         // already have the 'mangledSymbolName' field set, to the demangled
         // version of the 'mangledSymbolName' field.  If 'd_demangle' is
@@ -160,7 +160,7 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf> {
 
   public:
     // CLASS METHOD
-    static int resolve(bsl::vector<bdesu_StackTraceFrame> *ioFrames,
+    static int resolve(bsl::vector<baesu_StackTraceFrame> *ioFrames,
                        bool                                demangle,
                        bslma_Allocator                    *basicAllocator);
         // Populate information for the specified 'ioFrames', a vector of stack
@@ -196,11 +196,11 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf> {
 };
 
                          // ----------------------------------
-                         // class bdesu_StackTraceResolverImpl
+                         // class baesu_StackTraceResolverImpl
                          // ----------------------------------
 
 inline
-int bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf>::testFunc()
+int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf>::testFunc()
 {
     // Do some random garbage to generate some code, then return a line number
     // within this routine

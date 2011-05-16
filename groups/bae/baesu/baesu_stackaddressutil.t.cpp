@@ -1,5 +1,5 @@
-// bdesu_stackaddressutil.t.cpp                                       -*-C++-*-
-#include <bdesu_stackaddressutil.h>
+// baesu_stackaddressutil.t.cpp                                       -*-C++-*-
+#include <baesu_stackaddressutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
@@ -81,7 +81,7 @@ const bool lamePlatform = false;
 // GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace BDESU_STACKADDRESSUTIL_TEST_CASE_ONE {
+namespace BAESU_STACKADDRESSUTIL_TEST_CASE_ONE {
 
 volatile int recurseDepth = 50;
 
@@ -107,7 +107,7 @@ int recurser(volatile int *depth, ChainLink *cl_p)
         int numAddresses;
 
         bsl::memset(buffer, 0, sizeof(buffer));
-        numAddresses = bdesu_StackAddressUtil::getStackAddresses(
+        numAddresses = baesu_StackAddressUtil::getStackAddresses(
                                                                 buffer,
                                                                 BUFFER_LENGTH);
         LOOP_ASSERT(numAddresses, lamePlatform || numAddresses > recurseDepth);
@@ -119,7 +119,7 @@ int recurser(volatile int *depth, ChainLink *cl_p)
         }
 
         bsl::memset(buffer, 0, sizeof(buffer));
-        numAddresses = bdesu_StackAddressUtil::getStackAddresses(buffer, 10);
+        numAddresses = baesu_StackAddressUtil::getStackAddresses(buffer, 10);
         LOOP_ASSERT(numAddresses, lamePlatform || 10 == numAddresses);
         for (int i = 0; i < numAddresses; ++i) {
             ASSERT(0 != buffer[i]);
@@ -143,7 +143,7 @@ int recurser(volatile int *depth, ChainLink *cl_p)
     return sum;    
 }
 
-}  // close namespace BDESU_STACKADDRESSUTIL_TEST_CASE_ONE
+}  // close namespace BAESU_STACKADDRESSUTIL_TEST_CASE_ONE
 
 bsl::string myHex(UintPtr up)
 {
@@ -154,7 +154,7 @@ bsl::string myHex(UintPtr up)
     return ss.str();
 }
 
-namespace BDESU_STACKADDRESSUTIL_TEST_CASE_THREE {
+namespace BAESU_STACKADDRESSUTIL_TEST_CASE_THREE {
 struct AddressEntry {
     UintPtr d_returnAddress;
     int     d_traceIndex;
@@ -229,7 +229,7 @@ int func0()
     enum { NUM_FUNC_ADDRS = sizeof funcAddrs / sizeof *funcAddrs };
 
     bsl::memset(buffer, 0, sizeof(buffer));
-    int numAddresses = bdesu_StackAddressUtil::getStackAddresses(
+    int numAddresses = baesu_StackAddressUtil::getStackAddresses(
                                                                 buffer,
                                                                 BUFFER_LENGTH);
 
@@ -281,7 +281,7 @@ int func0()
     return 0;
 }
 
-}  // close namespace BDESU_STACKADDRESSUTIL_TEST_CASE_THREE
+}  // close namespace BAESU_STACKADDRESSUTIL_TEST_CASE_THREE
 
 //=============================================================================
 //                                   MAIN PROGRAM
@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
                              "============================\n";
 
 #ifndef BSLS_PLATFORM__OS_WINDOWS
-        ASSERT(BDESU_STACKADDRESSUTIL_TEST_CASE_THREE::func5() > 0);
+        ASSERT(BAESU_STACKADDRESSUTIL_TEST_CASE_THREE::func5() > 0);
 #endif
       }  break;
       case 2: {
@@ -334,8 +334,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "getStackAddresses(0, 0) TEST\n"
                              "============================\n";
 
-        bdesu_StackAddressUtil::getStackAddresses(0, 0);
-        bdesu_StackAddressUtil::getStackAddresses(0, 0);
+        baesu_StackAddressUtil::getStackAddresses(0, 0);
+        baesu_StackAddressUtil::getStackAddresses(0, 0);
       }  break;
       case 1: {
         // --------------------------------------------------------------------
@@ -354,7 +354,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
-        namespace TC = BDESU_STACKADDRESSUTIL_TEST_CASE_ONE;
+        namespace TC = BAESU_STACKADDRESSUTIL_TEST_CASE_ONE;
 
         // Call 'recurseAndPrintExample3' with will recurse 'depth' times, then
         // print a stack trace.

@@ -1,6 +1,6 @@
-// bdesu_stacktraceresolverimpl_windows.h                             -*-C++-*-
-#ifndef INCLUDED_BDESU_STACKTRACERESOLVERIMPL_WINDOWS
-#define INCLUDED_BDESU_STACKTRACERESOLVERIMPL_WINDOWS
+// baesu_stacktraceresolverimpl_windows.h                             -*-C++-*-
+#ifndef INCLUDED_BAESU_STACKTRACERESOLVERIMPL_WINDOWS
+#define INCLUDED_BAESU_STACKTRACERESOLVERIMPL_WINDOWS
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -10,20 +10,20 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide resolution of symbols in stack trace for Windows objects
 //
 //@CLASSES:
-//   bdesu_StackTraceResolverImpl<Windows>: symbol resolution for Windows objs
+//   baesu_StackTraceResolverImpl<Windows>: symbol resolution for Windows objs
 //
 //@SEE_ALSO:
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
 //@DESCRIPTION: This class provides a class this able to take a vector of
-// 'bdesu_StackTraceFrame's that have only their 'address' fields set, and sets
+// 'baesu_StackTraceFrame's that have only their 'address' fields set, and sets
 // as many of the other fields in the stack trace frames as possible.  Elf
 // objects are used on Solaris, Linux, and HPUX platforms.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'bdesu' and is *not* intended
+// This component is an implementation detail of 'baesu' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -31,12 +31,12 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BDESU_OBJECTFILEFORMAT
-#include <bdesu_objectfileformat.h>
+#ifndef INCLUDED_BAESU_OBJECTFILEFORMAT
+#include <baesu_objectfileformat.h>
 #endif
 
-#ifndef INCLUDED_BDESU_STACKTRACEFRAME
-#include <bdesu_stacktraceframe.h>
+#ifndef INCLUDED_BAESU_STACKTRACEFRAME
+#include <baesu_stacktraceframe.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -49,17 +49,17 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 
 template <typename RESOLVER_POLICY>
-class bdesu_StackTraceResolverImpl;
+class baesu_StackTraceResolverImpl;
 
     // ===================================================================
-    // class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Windows>
+    // class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>
     // ===================================================================
 
 template <>
-class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Windows> {
+class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows> {
     // This type is for resolving symbols in Windows executables.  Resolving
     // symbols on Windows is straightforward using the dbghelp.dll library,
     // described at
@@ -67,15 +67,15 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Windows> {
 
   private:
     // NOT IMPLEMENTED
-    bdesu_StackTraceResolverImpl();
-    bdesu_StackTraceResolverImpl(const bdesu_StackTraceResolverImpl&);
-    bdesu_StackTraceResolverImpl& operator=(
-                                          const bdesu_StackTraceResolverImpl&);
-    ~bdesu_StackTraceResolverImpl();
+    baesu_StackTraceResolverImpl();
+    baesu_StackTraceResolverImpl(const baesu_StackTraceResolverImpl&);
+    baesu_StackTraceResolverImpl& operator=(
+                                          const baesu_StackTraceResolverImpl&);
+    ~baesu_StackTraceResolverImpl();
 
   public:
     // CLASS METHODS
-    static int resolve(bsl::vector<bdesu_StackTraceFrame> *outFrames,
+    static int resolve(bsl::vector<baesu_StackTraceFrame> *outFrames,
                        bool                                demangle,
                        bslma_Allocator                    *basicAllocator);
         // Given a specified vector 'outFrames' of stack trace frames with only
@@ -92,11 +92,11 @@ class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Windows> {
 };
 
                          // ----------------------------------
-                         // class bdesu_StackTraceResolverImpl
+                         // class baesu_StackTraceResolverImpl
                          // ----------------------------------
 
 inline
-int bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Windows>::testFunc()
+int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::testFunc()
 {
     // Do some random garbage to generate some code, then return a line number
     // within this routine

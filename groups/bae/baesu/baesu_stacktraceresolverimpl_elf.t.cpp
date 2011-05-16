@@ -1,7 +1,7 @@
-// bdesu_stacktraceresolverimpl_elf.t.cpp                             -*-C++-*-
-#include <bdesu_stacktraceresolverimpl_elf.h>
+// baesu_stacktraceresolverimpl_elf.t.cpp                             -*-C++-*-
+#include <baesu_stacktraceresolverimpl_elf.h>
 
-#include <bdesu_objectfileformat.h>
+#include <baesu_objectfileformat.h>
 
 #include <bdema_sequentialallocator.h>
 
@@ -16,7 +16,7 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#ifdef BDESU_OBJECTFILEFORMAT_RESOLVER_ELF
+#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_ELF
 
 using namespace BloombergLP;
 using bsl::cin;
@@ -79,8 +79,8 @@ static void aSsErT(int c, const char *s, int i)
 // GLOBAL HELPER TYPES & CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf> Obj;
-typedef bdesu_StackTraceFrame                                     Frame;
+typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf> Obj;
+typedef baesu_StackTraceFrame                                     Frame;
 typedef bsls_Types::UintPtr                                       UintPtr;
 
 //=============================================================================
@@ -229,7 +229,7 @@ UintPtr bigRand()
     return (UintPtr) bigRandSeed ^ lowBits;
 }
 
-void stuffRandomAddresses(bsl::vector<bdesu_StackTraceFrame> *v)
+void stuffRandomAddresses(bsl::vector<baesu_StackTraceFrame> *v)
 {
     const UintPtr delta = (UintPtr) 1 << ((sizeof(UintPtr) - 1) * 8);
     const int vecLength = 3 * 256 * 3 + 2048;
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Garbage Test\n"
                              "============\n";
 
-        bsl::vector<bdesu_StackTraceFrame> traceVec;
+        bsl::vector<baesu_StackTraceFrame> traceVec;
         stuffRandomAddresses(&traceVec);
 
         ASSERT(0 == Obj::resolve(&traceVec,
@@ -305,20 +305,20 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // bdesu_StackTraceResolverImp<Elf> BREATHING TEST
+        // baesu_StackTraceResolverImp<Elf> BREATHING TEST
         //
-        // Concerns: Exercise bdesu_StackTrace basic functionality.
+        // Concerns: Exercise baesu_StackTrace basic functionality.
         //
         // Plan: Call 'printStackTrace()' to print a stack trace.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                          "bdesu_StackTraceResolverImpl<Elf> breathing test\n"
+                          "baesu_StackTraceResolverImpl<Elf> breathing test\n"
                           "================================================\n";
 
         // There seems to be a problem with taking a pointer to an function in
         // a shared library.  We'll leave the testing of symbols in shared
-        // libraries to 'bdesu_stacktrace.t.cpp.
+        // libraries to 'baesu_stacktrace.t.cpp.
 
         typedef bsls_Types::UintPtr UintPtr;
 
@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
 
 #if 0
             // Testing '&qsort' doesn't work.  The similar test in
-            // bdesu_stacktrace.t.cpp works.  I think what's happening is
+            // baesu_stacktrace.t.cpp works.  I think what's happening is
             // &qsort doesn't properly point to 'qsort', it points to a thunk
             // that dynamically loads qsort and then calls it.  So when the
             // resolver tries to resolve the ptr to the thunk, it can't.
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
 #endif
 
             frames[4].setAddress(addFixedOffset((UintPtr)
-                   &bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf>::
+                   &baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf>::
                                                                      resolve));
 
             for (int i = 0; i < (int) frames.size(); ++i) {
@@ -423,7 +423,7 @@ int main(int argc, char *argv[])
 #undef IS_VALID
 
             const char *libName = ng(frames[0].libraryFileName());
-            const char *thisLib = "bdesu_stacktraceresolverimpl_elf.t";
+            const char *thisLib = "baesu_stacktraceresolverimpl_elf.t";
 #undef  GOOD_LIBNAME
 #define GOOD_LIBNAME(func, exp, match) \
             LOOP3_ASSERT(#func, exp, ng(match), func(ng(exp), match));
@@ -454,7 +454,7 @@ int main(int argc, char *argv[])
                     }
 
                     LOOP2_ASSERT(i, pc, !bsl::strcmp(pc,
-                                    "bdesu_stacktraceresolverimpl_elf.t.cpp"));
+                                    "baesu_stacktraceresolverimpl_elf.t.cpp"));
                 }
             }
 #endif
@@ -487,15 +487,15 @@ int main(int argc, char *argv[])
                 SM(0, "funcGlobalOne(int)");
                 SM(1, "funcStaticOne(int)");
                 SM(2, "BloombergLP::"
-                      "bdesu_StackTraceResolverImpl"
+                      "baesu_StackTraceResolverImpl"
                       "<BloombergLP::"
-                      "bdesu_ObjectFileFormat::Elf>::"
+                      "baesu_ObjectFileFormat::Elf>::"
                       "testFunc()");
                 SM(3, "funcStaticInlineOne(int)");
                 const char *resName = "BloombergLP::"
-                                      "bdesu_StackTraceResolverImpl"
+                                      "baesu_StackTraceResolverImpl"
                                       "<BloombergLP::"
-                                      "bdesu_ObjectFileFormat::Elf>::"
+                                      "baesu_ObjectFileFormat::Elf>::"
                                       "resolve(";
                 int resNameLen = bsl::strlen(resName);
                 const char *name4 = frames[4].symbolName();

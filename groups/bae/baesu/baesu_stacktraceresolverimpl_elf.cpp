@@ -1,14 +1,14 @@
-// bdesu_stacktraceresolverimpl_elf.cpp                               -*-C++-*-
-#include <bdesu_stacktraceresolverimpl_elf.h>
+// baesu_stacktraceresolverimpl_elf.cpp                               -*-C++-*-
+#include <baesu_stacktraceresolverimpl_elf.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bdesu_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
-#include <bdesu_objectfileformat.h>
+#include <baesu_objectfileformat.h>
 
-#ifdef BDESU_OBJECTFILEFORMAT_RESOLVER_ELF
+#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_ELF
 
-#include <bdesu_stacktraceresolver_filehelper.h>
+#include <baesu_stacktraceresolver_filehelper.h>
 
 #include <bdeu_string.h>
 
@@ -412,7 +412,7 @@ namespace {
 
 namespace Local {
 
-typedef bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf>
+typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf>
                                                             StackTraceResolver;
 
                             // --------------------------
@@ -533,11 +533,11 @@ struct Local::StackTraceResolver::CurrentSegment {
                                         // absolute offsets into a file
 
     // DATA
-    bdesu_StackTraceResolver_FileHelper
+    baesu_StackTraceResolver_FileHelper
                   *d_helper_p;          // file helper associated with
                                         // current segment
 
-    bdesu_StackTraceFrame
+    baesu_StackTraceFrame
                  **d_framePtrs_p;       // array of pointers into
                                         // 'd_ioAllFrames' referring
                                         // only to those frames whose
@@ -622,7 +622,7 @@ Local::StackTraceResolver::CurrentSegment::CurrentSegment(
     // only first N elements will be populated, where 'N <= d_numFrames.
 
     const int bytesToAllocate = numFrames * sizeof(void *);
-    d_framePtrs_p = (bdesu_StackTraceFrame **)
+    d_framePtrs_p = (baesu_StackTraceFrame **)
                                     basicAllocator->allocate(bytesToAllocate);
     d_addresses_p = (const void **) basicAllocator->allocate(bytesToAllocate);
 }
@@ -644,13 +644,13 @@ void Local::StackTraceResolver::CurrentSegment::reset()
 }
 
       // ---------------------------------------------------------------
-      // class bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Elf>
+      // class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf>
       //                 == class U::StackTraceResolver
       // ---------------------------------------------------------------
 
 // PRIVATE CREATORS
-Local::StackTraceResolver::bdesu_StackTraceResolverImpl(
-                            bsl::vector<bdesu_StackTraceFrame> *ioFrames,
+Local::StackTraceResolver::baesu_StackTraceResolverImpl(
+                            bsl::vector<baesu_StackTraceFrame> *ioFrames,
                             bool                                demangle,
                             bslma_Allocator                    *basicAllocator)
 : d_ioAllFrames_p(ioFrames)
@@ -665,7 +665,7 @@ Local::StackTraceResolver::bdesu_StackTraceResolverImpl(
                                                          basicAllocator);
 }
 
-Local::StackTraceResolver::~bdesu_StackTraceResolverImpl()
+Local::StackTraceResolver::~baesu_StackTraceResolverImpl()
 {
 }
 
@@ -871,7 +871,7 @@ int Local::StackTraceResolver::loadSymbols()
                         const void *address = d_seg_p->d_addresses_p[i];
                         if (symbolAddress <= address
                            && address < endSymbolAddress) {
-                            bdesu_StackTraceFrame& frame =
+                            baesu_StackTraceFrame& frame =
                                                     *d_seg_p->d_framePtrs_p[i];
 
                             frame.setOffsetFromSymbol(
@@ -962,7 +962,7 @@ int Local::StackTraceResolver::processLoadedImage(
                         fileName ? fileName : "(null)", name ? name : "(null)",
                                             (int) d_seg_p->d_isMainExecutable);
 
-    bdesu_StackTraceResolver_FileHelper helper(name);
+    baesu_StackTraceResolver_FileHelper helper(name);
     d_seg_p->d_helper_p = &helper;
 
     for (int i = 0; i < numProgramHeaders; ++i) {
@@ -1005,7 +1005,7 @@ int Local::StackTraceResolver::processLoadedImage(
 
 // PRIVATE ACCESSORS
 void Local::StackTraceResolver::setFrameSymbolName(
-                                            bdesu_StackTraceFrame *frame) const
+                                            baesu_StackTraceFrame *frame) const
 {
 #if !defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__CMP_GNU)
     // Linux or Sun g++ or HPUX
@@ -1097,7 +1097,7 @@ extern "C" void *_DYNAMIC;    // global pointer that leads to the link map
 
 // CLASS METHODS
 int Local::StackTraceResolver::resolve(
-                            bsl::vector<bdesu_StackTraceFrame> *ioFrames,
+                            bsl::vector<baesu_StackTraceFrame> *ioFrames,
                             bool                                demangle,
                             bslma_Allocator                    *basicAllocator)
 {
@@ -1143,7 +1143,7 @@ int Local::StackTraceResolver::resolve(
 
             // note this will be opened twice, here and in 'processLoadedImage'
 
-            bdesu_StackTraceResolver_FileHelper helper(desc.filename);
+            baesu_StackTraceResolver_FileHelper helper(desc.filename);
 
             rc = helper.readExact(&elfHeader, sizeof(elfHeader), 0);
             if (rc) {

@@ -1,10 +1,10 @@
-// bdesu_stacktraceframe.cpp                                          -*-C++-*-
-#include <bdesu_stacktraceframe.h>
+// baesu_stacktraceframe.cpp                                          -*-C++-*-
+#include <baesu_stacktraceframe.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bdesu_stacktraceframe_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baesu_stacktraceframe_cpp,"$Id$ $CSID$")
 
-#include <bdesu_objectfileformat.h>
+#include <baesu_objectfileformat.h>
 
 #include <bdeu_print.h>
 
@@ -38,11 +38,11 @@ static bool equal(const char *a, const char *b)
 }
 
                        // ---------------------------
-                       // class bdesu_StackTraceFrame
+                       // class baesu_StackTraceFrame
                        // ---------------------------
 
 // ACCESSORS
-bsl::ostream& bdesu_StackTraceFrame::print(bsl::ostream& stream,
+bsl::ostream& baesu_StackTraceFrame::print(bsl::ostream& stream,
                                            int           level,
                                            int           spacesPerLevel) const
 {
@@ -68,8 +68,8 @@ bsl::ostream& bdesu_StackTraceFrame::print(bsl::ostream& stream,
 }
 
 // FREE OPERATORS
-bool operator==(const bdesu_StackTraceFrame& lhs,
-                const bdesu_StackTraceFrame& rhs)
+bool operator==(const baesu_StackTraceFrame& lhs,
+                const baesu_StackTraceFrame& rhs)
 {
     return lhs.address() ==               rhs.address()
         && equal(lhs.libraryFileName(),   rhs.libraryFileName())
@@ -81,7 +81,7 @@ bool operator==(const bdesu_StackTraceFrame& lhs,
 }
 
 bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const bdesu_StackTraceFrame& frame)
+                         const baesu_StackTraceFrame& frame)
 {
     // Note that we don't print out the mangled symbol name.  If demangling did
     // not happen, the 'symbolName' value will also have the mangled symbol
@@ -107,7 +107,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     }
     stream << bsl::dec;
     if (frame.isSourceFileNameValid()) {
-#if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
         // source file info is only available for statics on Elf
 
         stream << " static";

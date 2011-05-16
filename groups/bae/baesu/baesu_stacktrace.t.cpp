@@ -1,8 +1,8 @@
-// bdesu_stacktrace.t.cpp                                             -*-C++-*-
-#include <bdesu_stacktrace.h>
+// baesu_stacktrace.t.cpp                                             -*-C++-*-
+#include <baesu_stacktrace.h>
 
-#include <bdesu_objectfileformat.h>
-#include <bdesu_stackaddressutil.h>
+#include <baesu_objectfileformat.h>
+#include <baesu_stackaddressutil.h>
 
 #include <bdef_function.h>
 #include <bdema_sequentialallocator.h>
@@ -130,12 +130,12 @@ static void aSsErT(int c, const char *s, int i)
 
 namespace {
 
-typedef bdesu_StackAddressUtil         Address;
-typedef bdesu_StackTrace               Obj;
-typedef bdesu_StackTraceFrame          Frame;
-typedef bdesu_StackTraceUtil           Util;
+typedef baesu_StackAddressUtil         Address;
+typedef baesu_StackTrace               Obj;
+typedef baesu_StackTraceFrame          Frame;
+typedef baesu_StackTraceUtil           Util;
 
-#if   defined(BDESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+#if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0 };
 
 # if   defined(BSLS_PLATFORM__OS_SOLARIS)
@@ -148,10 +148,10 @@ typedef bdesu_StackTraceUtil           Util;
 #   error unknown platform
 # endif
 
-#elif defined(BDESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_XCOFF = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1 };
-#elif defined(BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 1 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0 };
 #else
@@ -275,7 +275,7 @@ const char *nullGuard(const char *string)
                                 // --------------
 
 static
-void testStackTrace(const bdesu_StackTrace& st)
+void testStackTrace(const baesu_StackTrace& st)
     // Verify that the specified StackTrace 'st' is sane.
 {
     LOOP_ASSERT(st.numFrames(), st.numFrames() > 0);
@@ -348,14 +348,14 @@ void top()
 
         bsl::vector<const char *> matches;
         matches.push_back("forTestingOnlyDump");
-        matches.push_back(" source:bdesu_stacktrace.h");
-        matches.push_back(" in bdesu_stacktrace.t");
+        matches.push_back(" source:baesu_stacktrace.h");
+        matches.push_back(" in baesu_stacktrace.t");
         matches.push_back("top");
-        matches.push_back(" source:bdesu_stacktrace.t.cpp");
-        matches.push_back(" in bdesu_stacktrace.t");
+        matches.push_back(" source:baesu_stacktrace.t.cpp");
+        matches.push_back(" in baesu_stacktrace.t");
         matches.push_back("main");
-        matches.push_back(" source:bdesu_stacktrace.t.cpp");
-        matches.push_back(" in bdesu_stacktrace.t");
+        matches.push_back(" source:baesu_stacktrace.t.cpp");
+        matches.push_back(" in baesu_stacktrace.t");
         checkOutput(dump, matches);
     }
     else {
@@ -406,7 +406,7 @@ void case_12_top()
             testStackTrace(st);
 
             for (int i = 0; i < st.numFrames(); ++i) {
-                const bdesu_StackTraceFrame frame = st.stackFrame(i);
+                const baesu_StackTraceFrame frame = st.stackFrame(i);
                 const char *lnBegin = nullGuard(frame.libraryFileName());
                 const char *ln = lnBegin + bsl::strlen(lnBegin);
                 while (ln > lnBegin && '/' != ln[-1] && '\\' != ln[-1]) {
@@ -573,7 +573,7 @@ void case_11_top()
 
     const char *maxMangledStr = "";
     for (int i = 0; i < st.numFrames(); ++i) {
-        const bdesu_StackTraceFrame& frame = st.stackFrame(i);
+        const baesu_StackTraceFrame& frame = st.stackFrame(i);
 
         size_t mangled = bsl::strlen(nullGuard(frame.mangledSymbolName()));
         if (mangled > maxMangled) {
@@ -757,7 +757,7 @@ void case_7_top(bool demangle)
                 // 'case_7_top' is global -- elf can't find source file names
                 // for globals
 
-                const char *sfnMatch = "bdesu_stacktrace.t.cpp";
+                const char *sfnMatch = "baesu_stacktrace.t.cpp";
                 const char *sfn = st.stackFrame(0).sourceFileName();
                 sfn = nullGuard(sfn);
 
@@ -803,7 +803,7 @@ void case_7_top(bool demangle)
                     // be known on elf, thus it will be known for all
                     // platforms.
 
-                    const char *sfnMatch = "bdesu_stacktrace.t.cpp";
+                    const char *sfnMatch = "baesu_stacktrace.t.cpp";
                     const char *sfn = st.stackFrame(i).sourceFileName();
                     sfn = nullGuard(sfn);
 
@@ -1048,7 +1048,7 @@ void top()
     matches.push_back("main");
 
     bsl::stringstream os;
-    bdesu_StackTraceUtil::printStackTrace(os);
+    baesu_StackTraceUtil::printStackTrace(os);
     checkOutput(os.str(), matches);
 
     if (verbose) {
@@ -1207,7 +1207,7 @@ void top(bslma_Allocator *alloc)
 
     {
         bsl::stringstream myStream(alloc);
-        bdesu_StackTraceUtil::printStackTrace(myStream);
+        baesu_StackTraceUtil::printStackTrace(myStream);
         bsl::string str(alloc);
 
         {
@@ -1221,7 +1221,7 @@ void top(bslma_Allocator *alloc)
         checkOutput(str, matches);
 
         if (problem()) {
-            bdesu_StackTraceUtil::printStackTrace(*out_p);
+            baesu_StackTraceUtil::printStackTrace(*out_p);
         }
     }
 
@@ -1239,7 +1239,7 @@ void top(bslma_Allocator *alloc)
 
         void *addresses[3 + IGNORE_OFFSET];
         bsl::memset(addresses, 0, sizeof(addresses));
-        int na = bdesu_StackAddressUtil::getStackAddresses(addresses,
+        int na = baesu_StackAddressUtil::getStackAddresses(addresses,
                                                            3 + IGNORE_OFFSET);
         na -= IGNORE_OFFSET;
 
@@ -1363,14 +1363,14 @@ void recurseAndPrintExample3(int *depth)
     else {
         enum { ARRAY_LENGTH = 50 };
         void *addresses[ARRAY_LENGTH];
-        bdesu_StackTrace st;
+        baesu_StackTrace st;
 
         // First, we call 'getStackAddresses' to get the stored return
         // addresses from the stack and load them into the array 'addresses'.
         // The call returns the number of addresses saved into the array, which
         // will be less than or equal to 'ARRAY_LENGTH'.
 
-        int numAddresses = bdesu_StackAddressUtil::getStackAddresses(
+        int numAddresses = baesu_StackAddressUtil::getStackAddresses(
                                                              addresses,
                                                              ARRAY_LENGTH);
 
@@ -1397,7 +1397,7 @@ void recurseAndPrintExample3(int *depth)
         // print out only those properties.
 
         for (int i = 0; i < st.numFrames(); ++i) {
-            const bdesu_StackTraceFrame& frame = st.stackFrame(i);
+            const baesu_StackTraceFrame& frame = st.stackFrame(i);
 
             const char *sn = frame.symbolName();
             sn = sn ? sn : "--unknown--";
@@ -1434,7 +1434,7 @@ void recurseAndPrintExample2(int *depth)
         // complications due to stack size limits and possible heap
         // corruption.
 
-        bdesu_StackTrace st;
+        baesu_StackTrace st;
         int rc = st.initializeFromStack();
 
         // 'initializeFromStack' will fail and there will be no frames on
@@ -1470,7 +1470,7 @@ void recurseAndPrintExample1(int *depth)
         // is unspecified, defaulting to 1000 which is more than we need
         // and the 'demangle' argument is unspecified, defaulting to 'on'.
 
-        bdesu_StackTraceUtil::printStackTrace(*out_p);
+        baesu_StackTraceUtil::printStackTrace(*out_p);
     }
 
     ++*depth;   // Prevent compiler from optimizing tail recursion as a
@@ -1629,8 +1629,8 @@ int main(int argc, char *argv[])
         }
 
         for (int i = 0; i < DATA_POINTS; ++i) {
-            bdesu_StackTrace& stackTrace = stackTraces[i];
-            const bdesu_StackTraceFrame& frame = stackTrace.stackFrame(0);
+            baesu_StackTrace& stackTrace = stackTraces[i];
+            const baesu_StackTraceFrame& frame = stackTrace.stackFrame(0);
 
             UintPtr thisAddress = (UintPtr) frame.address();
             IntPtr offset = frame.offsetFromSymbol();
@@ -1697,7 +1697,7 @@ int main(int argc, char *argv[])
         //:   call the routine out of line.
         //: 4 On platforms / build modes that support source file names,
         //:   verify that the source file name of the inline function is
-        //:   'bdesu_stacktrace.h'.
+        //:   'baesu_stacktrace.h'.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TEST WITH INLINE FUNCTION\n"
@@ -2080,7 +2080,7 @@ int main(int argc, char *argv[])
 
         namespace TD = CASE_MINUS_ONE;
 
-        bdesu_StackTrace st;
+        baesu_StackTrace st;
 
         int depth = TD::RECURSION_DEPTH;
 

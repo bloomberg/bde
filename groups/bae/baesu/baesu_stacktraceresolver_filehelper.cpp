@@ -1,12 +1,12 @@
-// bdesu_stacktraceresolver_filehelper.cpp                            -*-C++-*-
-#include <bdesu_stacktraceresolver_filehelper.h>
+// baesu_stacktraceresolver_filehelper.cpp                            -*-C++-*-
+#include <baesu_stacktraceresolver_filehelper.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bdesu_stacktraceresolver_filehelper_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baesu_stacktraceresolver_filehelper_cpp,"$Id$ $CSID$")
+
+#include <baesu_objectfileformat.h>
 
 #include <bdesu_fileutil.h>
-#include <bdesu_objectfileformat.h>
-
 #include <bdeu_string.h>
 
 #include <bslma_allocator.h>
@@ -14,15 +14,15 @@ BDES_IDENT_RCSID(bdesu_stacktraceresolver_filehelper_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-#if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-    defined(BDESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+    defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
                     // -----------------------------------
-                    // bdesu_StackTraceResolver_FileHelper
+                    // baesu_StackTraceResolver_FileHelper
                     // -----------------------------------
 
 // CREATORS
-bdesu_StackTraceResolver_FileHelper::bdesu_StackTraceResolver_FileHelper(
+baesu_StackTraceResolver_FileHelper::baesu_StackTraceResolver_FileHelper(
                                                           const char *fileName)
 {
     d_fd = bdesu_FileUtil::open(fileName,
@@ -31,7 +31,7 @@ bdesu_StackTraceResolver_FileHelper::bdesu_StackTraceResolver_FileHelper(
     BSLS_ASSERT(FileUtil::INVALID_FD != d_fd);
 }
 
-bdesu_StackTraceResolver_FileHelper::~bdesu_StackTraceResolver_FileHelper()
+baesu_StackTraceResolver_FileHelper::~baesu_StackTraceResolver_FileHelper()
 {
     BSLS_ASSERT(FileUtil::INVALID_FD != d_fd);
 
@@ -39,7 +39,7 @@ bdesu_StackTraceResolver_FileHelper::~bdesu_StackTraceResolver_FileHelper()
 }
 
 // ACCESSORS
-char *bdesu_StackTraceResolver_FileHelper::loadString(
+char *baesu_StackTraceResolver_FileHelper::loadString(
                                          Offset           offset,
                                          char            *scratchBuf,
                                          int              scratchBufLength,
@@ -85,7 +85,7 @@ char *bdesu_StackTraceResolver_FileHelper::loadString(
     return bdeu_String::copy(scratchBuf, stringLen, basicAllocator);
 }
 
-bsls_Types::UintPtr bdesu_StackTraceResolver_FileHelper::readBytes(
+bsls_Types::UintPtr baesu_StackTraceResolver_FileHelper::readBytes(
                                                          void    *buf,
                                                          UintPtr  numBytes,
                                                          Offset   offset) const

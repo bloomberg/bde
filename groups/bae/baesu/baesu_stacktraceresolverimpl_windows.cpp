@@ -1,14 +1,14 @@
-// bdesu_stacktraceresolverimpl_windows.cpp                           -*-C++-*-
-#include <bdesu_stacktraceresolverimpl_windows.h>
+// baesu_stacktraceresolverimpl_windows.cpp                           -*-C++-*-
+#include <baesu_stacktraceresolverimpl_windows.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bdesu_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
 
-#include <bdesu_objectfileformat.h>
+#include <baesu_objectfileformat.h>
 
 #include <bdeu_string.h>
 
-#if defined(BDESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 
 #include <bsls_platform.h>
 #include <bsls_platformutil.h>
@@ -143,11 +143,11 @@ bool Resolver_DllApi::loaded()
 }  // close unnamed namespace
 
        // =============================================================
-       // bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Windows>
+       // baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>
        // =============================================================
 
-int bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Windows>::resolve(
-                        bsl::vector<bdesu_StackTraceFrame> *frames,
+int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
+                        bsl::vector<baesu_StackTraceFrame> *frames,
                         bool                                demangle,
                         bslma_Allocator                    *basicAllocator)
     // Given the specified vector 'frames' of frames from the stack trace
@@ -155,7 +155,7 @@ int bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Windows>::resolve(
     // invalid, resolve the rest of the fields in the frames.  Each 'address'
     // field must be initialized to the return instruction pointer from a
     // subroutine that was on the stack when
-    // 'bdesu_StackTrace::getStackPointers' was run.  Return 0 on success and a
+    // 'baesu_StackTrace::getStackPointers' was run.  Return 0 on success and a
     // non-zero value otherwise.  Note that on Windows, demangling is not an
     // option -- it always happens.
 {
@@ -195,7 +195,7 @@ int bdesu_StackTraceResolverImpl<bdesu_ObjectFileFormat::Windows>::resolve(
     SYMBOL_INFO *sym = (SYMBOL_INFO*) basicAllocator->allocate(SIZEOF_SEGMENT);
 
     for(int i = 0; i < numFrames; ++i) {
-        bdesu_StackTraceFrame *frame = &(*frames)[i];
+        baesu_StackTraceFrame *frame = &(*frames)[i];
         DWORD64 address = (DWORD64) frame->address();
 
         IMAGEHLP_LINE64 line;

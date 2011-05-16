@@ -1,6 +1,6 @@
-// bdesu_stackaddressutil.h                                           -*-C++-*-
-#ifndef INCLUDED_BDESU_STACKADDRESSUTIL
-#define INCLUDED_BDESU_STACKADDRESSUTIL
+// baesu_stackaddressutil.h                                           -*-C++-*-
+#ifndef INCLUDED_BAESU_STACKADDRESSUTIL
+#define INCLUDED_BAESU_STACKADDRESSUTIL
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -10,9 +10,9 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a utility for obtaining return addresses from the stack
 //
 //@CLASSES:
-//   bdesu_StackAddressUtil: utilities for obtaining addresses from the stack
+//   baesu_StackAddressUtil: utilities for obtaining addresses from the stack
 //
-//@SEE_ALSO: bdesu_stacktrace, bdesu_stacktraceframe
+//@SEE_ALSO: baesu_stacktrace, baesu_stacktraceframe
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
@@ -27,12 +27,12 @@ BDES_IDENT("$Id: $")
 #endif
 
                         // ============================
-                        // class bdesu_StackAddressUtil
+                        // class baesu_StackAddressUtil
                         // ============================
 
 namespace BloombergLP {
 
-struct bdesu_StackAddressUtil {
+struct baesu_StackAddressUtil {
     // This struct provides a namespace for the function to obtain return
     // addresses from the stack.
 

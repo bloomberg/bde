@@ -1,8 +1,8 @@
-// bdesu_objectfileformat.cpp                                         -*-C++-*-
-#include <bdesu_objectfileformat.h>
+// baesu_objectfileformat.cpp                                         -*-C++-*-
+#include <baesu_objectfileformat.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bdesu_objectfileformat_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baesu_objectfileformat_cpp,"$Id$ $CSID$")
 
 // ---------------------------------------------------------------------------
 // NOTICE:

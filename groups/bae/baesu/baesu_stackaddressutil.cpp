@@ -1,8 +1,8 @@
-// bdesu_stackaddressutil.cpp                                         -*-C++-*-
-#include <bdesu_stackaddressutil.h>
+// baesu_stackaddressutil.cpp                                         -*-C++-*-
+#include <baesu_stackaddressutil.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bdesu_stackaddressutil_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baesu_stackaddressutil_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
@@ -182,14 +182,14 @@ int loadDll(U::WinDbgHelpFuncHandle *funcHandle)
 namespace BloombergLP {
 
                               // ------------------
-                              // bdesu_StackAddress
+                              // baesu_StackAddress
                               // ------------------
 
 
 // CLASS METHODS
 #if defined(BSLS_PLATFORM__OS_AIX)
 
-int bdesu_StackAddressUtil::getStackAddresses(void **buffer,
+int baesu_StackAddressUtil::getStackAddresses(void **buffer,
                                               int    maxFrames)
 {
     struct AixFrame {
@@ -258,7 +258,7 @@ void freeCallBack(void *allocator, void *segmentPtr)
 
 }  // extern "C"
 
-int bdesu_StackAddressUtil::getStackAddresses(void **buffer,
+int baesu_StackAddressUtil::getStackAddresses(void **buffer,
                                               int    maxFrames)
 {
     int rc;
@@ -318,7 +318,7 @@ int bdesu_StackAddressUtil::getStackAddresses(void **buffer,
 #endif
 #ifdef BSLS_PLATFORM__OS_LINUX
 
-int bdesu_StackAddressUtil::getStackAddresses(void    **buffer,
+int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
                                               int       maxFrames)
 {
     if (0 >= maxFrames) {
@@ -354,9 +354,9 @@ extern char **_environ;
     // not loaded.
 }
 
-void bdesu_StackAddressUtil_SparcAsmDummy()
+void baesu_StackAddressUtil_SparcAsmDummy()
     // This routine is never called.  It just provides a place to put the
-    // assembler routine 'bdesu_StackAddressUtil_flushWinAndGetFP', which
+    // assembler routine 'baesu_StackAddressUtil_flushWinAndGetFP', which
     // flushes the stack registers of the sparc processor to memory.  Note this
     // routine must be global to avoid the compiler issuing
     // 'static function never called' warnings.
@@ -370,9 +370,9 @@ void bdesu_StackAddressUtil_SparcAsmDummy()
     // trick.  It was also found that recursing deeply also works, but that is
     // more brute force.
 
-    asm volatile(".global bdesu_StackAddressUtil_flushAndGetFP\n"
-                 ".type bdesu_StackAddressUtil_flushAndGetFP,#function\n"
-                 "bdesu_StackAddressUtil_flushAndGetFP:\n"
+    asm volatile(".global baesu_StackAddressUtil_flushAndGetFP\n"
+                 ".type baesu_StackAddressUtil_flushAndGetFP,#function\n"
+                 "baesu_StackAddressUtil_flushAndGetFP:\n"
                  "ta 0x03\n"
                  "mov %o6, %o0\n"
                  "retl\n"
@@ -380,16 +380,16 @@ void bdesu_StackAddressUtil_SparcAsmDummy()
                  );
 }
 
-extern "C" char *bdesu_StackAddressUtil_flushAndGetFP();
+extern "C" char *baesu_StackAddressUtil_flushAndGetFP();
 
-int bdesu_StackAddressUtil::getStackAddresses(void    **buffer,
+int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
                                               int       maxFrames)
 {
     // 'STACK_BIAS' is a sparc constant defined in '/usr/include/sys/stack.h'.
     // The type 'frame' is a struct declared in '<sys/frame.h>'.
 
     const frame *framePtr = (frame *) (void *)
-                         (bdesu_StackAddressUtil_flushAndGetFP() + STACK_BIAS);
+                         (baesu_StackAddressUtil_flushAndGetFP() + STACK_BIAS);
     int frameIndex = 0;
 
     // Calculate the base of the stack.  It is preferable to call
@@ -440,7 +440,7 @@ int bdesu_StackAddressUtil::getStackAddresses(void    **buffer,
 #endif
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 
-int bdesu_StackAddressUtil::getStackAddresses(void    **buffer,
+int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
                                               int       maxFrames)
 {
     U::WinDbgHelpFuncHandle api;
