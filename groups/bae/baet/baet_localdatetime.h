@@ -60,7 +60,7 @@ BDES_IDENT("$Id: $ $CSID: $")
 //  baet_LocalDatetime localDatetime;
 //..
 // Next, we update the time referred to by 'localDatetime' to the New York
-// time "December 25, 2009, 11:00" with the time zone identifier set to
+// time "December 25, 2009, 11:00" with the time-zone identifier set to
 // "America/New_York":
 //..
 //  bdet_Datetime   datetime(2009, 12, 25, 11, 00, 00);
@@ -74,7 +74,7 @@ BDES_IDENT("$Id: $ $CSID: $")
 //  assert(datetimeTz == localDatetime.datetimeTz());
 //  assert(timeZoneId == localDatetime.timeZoneId());
 //..
-// Next, we change the time zone id to another string, for example
+// Next, we change the time-zone identifier to another string, for example
 // "Europe/Berlin":
 //..
 //  bsl::string anotherTimeZoneId("Europe/Berlin");
@@ -89,7 +89,7 @@ BDES_IDENT("$Id: $ $CSID: $")
 //..
 // This statement produces the following output on 'stdout':
 //..
-//  [ 25DEC2009_11:00:00.000-0820, Europe/Berlin ]
+//  [ datetimeTz = 25DEC2009_11:00:00.000-0500 timeZoneId = "Europe/Berlin" ]
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -184,7 +184,7 @@ class baet_LocalDatetime {
         // the currently installed default allocator is used.
 
     baet_LocalDatetime(const baet_LocalDatetime&  original,
-                       bslma_Allocator           *bslma_Allocator = 0);
+                       bslma_Allocator           *basicAllocator = 0);
         // Create a 'baet_LocalDatetime' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -341,21 +341,21 @@ inline
 baet_LocalDatetime&
 baet_LocalDatetime::operator=(const baet_LocalDatetime& rhs)
 {
-    bslma_Allocator *allocator = d_timeZoneId.get_allocator().mechanism();
-    baet_LocalDatetime(rhs, allocator).swap(*this);
+    d_timeZoneId = rhs.d_timeZoneId;  // must be first
+    d_datetimeTz = rhs.d_datetimeTz;
     return *this;
 }
 
 inline
-void baet_LocalDatetime::setDatetimeTz(const bdet_DatetimeTz& datetimeTz)
+void baet_LocalDatetime::setDatetimeTz(const bdet_DatetimeTz& value)
 {
-    d_datetimeTz = datetimeTz;
+    d_datetimeTz = value;
 }
 
 inline
-void baet_LocalDatetime::setTimeZoneId(const char *timeZoneId)
+void baet_LocalDatetime::setTimeZoneId(const char *value)
 {
-    d_timeZoneId.assign(timeZoneId);
+    d_timeZoneId.assign(value);
 }
 
 inline
@@ -435,7 +435,7 @@ bool operator!=(const baet_LocalDatetime& lhs, const baet_LocalDatetime& rhs)
 }
 
 inline
-std::ostream& operator<<(std::ostream&             stream,
+bsl::ostream& operator<<(bsl::ostream&             stream,
                          const baet_LocalDatetime& localDatetime)
 {
     return localDatetime.print(stream, 0, -1);
@@ -443,9 +443,9 @@ std::ostream& operator<<(std::ostream&             stream,
 
 // FREE FUNCTIONS
 inline
-void swap(baet_LocalDatetime& lhs, baet_LocalDatetime& rhs)
+void swap(baet_LocalDatetime& a, baet_LocalDatetime& b)
 {
-    lhs.swap(rhs);
+    a.swap(b);
 }
 
 }  // close namespace BloombergLP
