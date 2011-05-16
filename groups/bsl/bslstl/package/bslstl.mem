@@ -9,6 +9,7 @@ bslstl_exfunctional
 bslstl_forwarditerator
 bslstl_hash
 bslstl_iterator
+bslstl_list
 bslstl_pair
 bslstl_randomaccessiterator
 bslstl_stdexceptutil
