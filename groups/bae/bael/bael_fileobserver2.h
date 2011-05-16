@@ -102,7 +102,10 @@ BDES_IDENT("$Id: $")
 // optionally renamed as indicated by the most recent successful call to
 // 'enableFileLogging' (e.g., a typical configuration will cause the file
 // to be renamed by appending a timestamp of the form '.YYYYMMDD_HHMMSS').
-// Finally, a new log file is opened.
+// A new log file will be opened after the file is rotated.  If the new log
+// file has the same name as the rotated log file, a ".1" suffix will be
+// appended to the rotated file.  If a file already exists with a ".N" suffix ,
+// rename the existing file with the suffix ".N+1" (recursively).
 //
 ///Thread-Safety
 ///-------------
@@ -276,27 +279,33 @@ class bael_FileObserver2 : public bael_Observer {
         // Write the specified log 'record' to the specified output 'stream'
         // using the default record format of this file observer.
 
-    int openLogFile(bool rollFileIfExistFlag = false);
+    int openLogFile();
         // Open a log file for logging by this file observer; return 0 on
         // success, and a non-zero value otherwise.  The name of the file is
         // indicated by the most recent successful call to 'enableFileLogging'.
-        // Optionally, specify 'rollFileIfExistFlag' as 'true' to roll the file
-        // by appending a ".1" suffix to the file name.  If a file already
-        // exists with the suffix ".N" rename the existing file with the suffix
-        // ".N+1" (recursively).  The caller is responsible for acquiring any
-        // necessary lock.
+        // The caller is responsible for acquiring any necessary lock.
 
     void rotateFile();
         // Perform log file rotation by closing the current log file of this
         // file observer, optionally renaming it as indicated by the most
         // recent successful call to 'enableFileLogging', and opening a new log
-        // file.  The caller is responsible for acquiring any necessary lock.
+        // file.  If the new file has the same name as the file that was just
+        // rotated, rename the old file by appending a suffix ".1", and, if a
+        // file already exists with the suffix ".N" rename the existing file
+        // with the suffix ".N+1" (recursively).  The caller is responsible
+        // for acquiring any necessary lock.
+
 
     void rotateIfNecessary(const bdet_Datetime& timestamp);
         // Perform log file rotation if any rotation rule currently in effect
         // for this file observer indicates that the log file should be
         // rotated.  The caller is responsible for acquiring any necessary
         // lock.
+
+    void setLogFileName();
+        // Prepare this object for opening a new log file by updating the log
+        // file name.  The name of the file is indicated by the most recent
+        // successful call to 'enableFileLogging'.
 
   public:
     // CREATORS
@@ -332,10 +341,10 @@ class bael_FileObserver2 : public bael_Observer {
         // in local time is not enabled.
 
     int enableFileLogging(const char *logFilenamePattern,
-                          bool        timestampFlag = false);
+                          bool        appendTimestampFlag = false);
         // Enable logging of all messages published to this file observer to
         // a file indicated by the specified 'logFilenamePattern' and the
-        // optionally-specified 'timestampFlag'.  The basename of
+        // optionally-specified 'apppendTimestampFlag'.  The basename of
         // 'logFilenamePattern' may contain '%'-escape sequences that are
         // interpreted as follows:
         //..
@@ -350,11 +359,17 @@ class bael_FileObserver2 : public bael_Observer {
         // Each time a log file is opened by this file observer (upon a
         // successful call to this method and following each log file rotation)
         // the name of the log file is derived from 'logFilenamePattern' by
-        // interpolating the above recognized '%'-escape sequences and
-        // optionally appending '.%Y%M%D_%H%M%S' (the current timestamp).  The
-        // timestamp is appended to the filename *only* if 'timestampFlag' is
-        // 'true' *and* the basename of 'logFilenamePattern' does *not* contain
-        // any of the '%'-escape sequences recognized by this method.
+        // interpolating the above recognized '%'-escape sequences.
+        // Optionally, if the basename of 'logFilenamePattern' does *not*
+        // contain any of the '%'-escape sequences recognized by this method,
+        // set 'appendTimestampFlag' to 'true' to append '.%Y%M%D_%H%M%S' (the
+        // current timestamp) to the filename.  If 'appendTimestampFlag' is
+        // 'false' and 'logFilenamePattern' does not contain a recognized
+        // '%'-escape sequence, a timestamp will be appended to the file *only*
+        // when it is rotated (see Log File Rotation section under @DESCRIPTION
+        // in component-level documentation for details).
+        // 'appendTimestampFlag' has no effect if 'logFilenamePattern' contains
+        // a recognized '%'-escape sequence.
         //
         // Return 0 on success, a positive value if file logging is already
         // enabled, and a negative value for any I/O error.

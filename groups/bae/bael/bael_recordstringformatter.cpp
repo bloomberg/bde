@@ -1,4 +1,4 @@
-// bael_recordstringformatter.cpp                -*-C++-*-
+// bael_recordstringformatter.cpp                                     -*-C++-*-
 #include <bael_recordstringformatter.h>
 
 #include <bdes_ident.h>

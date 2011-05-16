@@ -43,10 +43,11 @@ using namespace bsl;  // automatically added by script
 // [ 5] static Offset getAvailableSpace(FileDescriptor);
 // [ 6] static Offset getFileSize(const bsl::string&);
 // [ 6] static Offset getFileSize(const char *);
+// [ 8] FD open(const char *p, bool writable, bool exist, bool append);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE 1
-// [ 8] USAGE EXAMPLE 2
+// [ 9] USAGE EXAMPLE 1
+// [10] USAGE EXAMPLE 2
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -418,6 +419,8 @@ int main(int argc, char *argv[]) {
         //  3. Reopen the file in normal mode, write a charater and ensure that
         //     it overwrites the data in the file instead of appending to it.
         //
+        // Testing:
+        //   FD open(const char *p, bool writable, bool exist, bool append);
         // --------------------------------------------------------------------
 
         bsl::string fileName(tempFileName());
