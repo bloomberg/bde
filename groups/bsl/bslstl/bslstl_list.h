@@ -329,6 +329,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_iterator.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
+#include <bslstl_allocatortraits.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_RANGECOMPARE
 #include <bslalg_rangecompare.h>
 #endif
@@ -380,212 +384,6 @@ BSL_OVERRIDES_STD mode"
 //////////////////////////////////////////////////////////////////////////
 // TBD BEGIN Move to new components
 /////////////////////////////////////////////////////////////////////////
-
-namespace bsl {
-
-template <class ALLOC>
-struct allocator_traits {
-  private:
-    typedef BloombergLP::bslmf_MetaInt<0> FalseType;
-    typedef BloombergLP::bslmf_MetaInt<1> TrueType;
-
-    typedef
-    typename BloombergLP::bslmf_IsConvertible<BloombergLP::bslma_Allocator*,
-                                              ALLOC>::Type IsBslma;
-
-    template <class T>
-    struct IsScoped {
-        enum {
-            USES_BDEMA = BloombergLP::bslalg_HasTrait<T,
-                   BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-        };
-
-        typedef BloombergLP::bslmf_MetaInt<IsBslma::VALUE && USES_BDEMA> Type;
-    };
-
-    // construct object with by passing the allocator in if scoped, ignoring
-    // the allocator otherwise.
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
-    template <class T, class... Args>
-    static void doConstruct(TrueType /*scoped*/, ALLOC& a, T* p,
-                            Args&&... args)
-        { ::new((void*) p) T(a, std::forward<Args>(args)...); }
-#else
-    template <class T>
-    static void doConstruct(TrueType /*scoped*/, ALLOC& a, T* p)
-        { ::new((void*) p) T(a.mechanism()); }
-    template <class T, class ARG1>
-    static void doConstruct(TrueType /*scoped*/, ALLOC& a, T* p,
-                            const ARG1& a1)
-        { ::new((void*) p) T(a1, a.mechanism()); }
-    template <class T, class ARG1, class ARG2>
-    static void doConstruct(TrueType /*scoped*/, ALLOC& a, T* p,
-                            const ARG1& a1, const ARG2& a2)
-        { ::new((void*) p) T(a1, a2, a.mechanism()); }
-    template <class T, class ARG1, class ARG2, class ARG3>
-    static void doConstruct(TrueType /*scoped*/, ALLOC& a, T* p,
-                            const ARG1& a1, const ARG2& a2, const ARG3& a3)
-        { ::new((void*) p) T(a1, a2, a3, a.mechanism()); }
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4>
-    static void doConstruct(TrueType /*scoped*/, ALLOC& a, T* p,
-                            const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                            const ARG4& a4)
-        { ::new((void*) p) T(a1, a2, a3, a4, a.mechanism()); }
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5>
-    static void doConstruct(TrueType /*scoped*/, ALLOC& a, T* p,
-                            const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                            const ARG4& a4, const ARG5& a5)
-        { ::new((void*) p) T(a1, a2, a3, a4, a5, a.mechanism()); }
-#endif
-
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
-    template <class T, class... Args>
-    static void doConstruct(FalseType /*scoped*/, ALLOC& a, T* p,
-                            Args&&... args)
-        { ::new((void*) p) T(std::forward<Args>(args)...); }
-#else
-    template <class T>
-    static void doConstruct(FalseType /*scoped*/, ALLOC& a, T* p)
-        { ::new((void*) p) T(); }
-    template <class T, class ARG1>
-    static void doConstruct(FalseType /*scoped*/, ALLOC& a, T* p,
-                            const ARG1& a1)
-        { ::new((void*) p) T(a1); }
-    template <class T, class ARG1, class ARG2>
-    static void doConstruct(FalseType /*scoped*/, ALLOC& a, T* p,
-                            const ARG1& a1, const ARG2& a2)
-        { ::new((void*) p) T(a1, a2); }
-    template <class T, class ARG1, class ARG2, class ARG3>
-    static void doConstruct(FalseType /*scoped*/, ALLOC& a, T* p,
-                            const ARG1& a1, const ARG2& a2, const ARG3& a3)
-        { ::new((void*) p) T(a1, a2, a3); }
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4>
-    static void doConstruct(FalseType /*scoped*/, ALLOC& a, T* p,
-                            const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                            const ARG4& a4)
-        { ::new((void*) p) T(a1, a2, a3, a4); }
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5>
-    static void doConstruct(FalseType /*scoped*/, ALLOC& a, T* p,
-                            const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                            const ARG4& a4, const ARG5& a5)
-        { ::new((void*) p) T(a1, a2, a3, a4, a5); }
-#endif
-
-  public:
-    typedef ALLOC                            allocator_type;
-    typedef typename ALLOC::value_type       value_type;
-
-    typedef typename ALLOC::pointer          pointer;
-    typedef typename ALLOC::const_pointer    const_pointer;
-    typedef void*                            void_pointer;
-    typedef void const*                      const_void_pointer;
-    typedef typename ALLOC::difference_type  difference_type;
-    typedef typename ALLOC::size_type        size_type;
-
-#ifdef BDE_CXX0X_TEMPLATE_ALIASES
-    template <class T> using rebind_alloc =
-        typename ALLOC::template rebind<Alloc,T>::other;
-    template <class T> using rebind_traits =
-        allocator_traits<rebind_alloc<T> >;
-#else // !BDE_CXX0X_TEMPLATE_ALIASES
-    template <class T>
-    struct rebind_alloc : ALLOC::template rebind<T> { };
-
-    template <class T>
-    struct rebind_traits :
-        allocator_traits<typename ALLOC::template rebind<T>::other> {
-    };
-#endif // !BDE_CXX0X_TEMPLATE_ALIASES
-
-    static pointer allocate(ALLOC& a, size_type n)
-        { return a.allocate(n, 0); }
-    static pointer allocate(ALLOC& a, size_type n, const_void_pointer hint)
-        { return a.allocate(n, hint); }
-
-    static void deallocate(ALLOC& a, pointer p, size_type n)
-        { a.deallocate(p, n); }
-
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
-    template <class T, class... Args>
-    static void construct(ALLOC& a, T* p, Args&&... args)
-    {
-         doConstruct(typename IsScoped<T>::Type(), a, p,
-                     std::forward<Args>(args)...);
-    }
-#else
-    template <class T>
-    static void construct(ALLOC& a, T* p)
-    {
-        doConstruct(typename IsScoped<T>::Type(), a, p);
-    }
-    template <class T, class ARG1>
-    static void construct(ALLOC& a, T* p, const ARG1& a1)
-    {
-        doConstruct(typename IsScoped<T>::Type(), a, p, a1);
-    }
-    template <class T, class ARG1, class ARG2>
-    static void construct(ALLOC& a, T* p, const ARG1& a1, const ARG2& a2)
-    {
-        doConstruct(typename IsScoped<T>::Type(), a, p, a1, a2);
-    }
-    template <class T, class ARG1, class ARG2, class ARG3>
-    static void construct(ALLOC& a, T* p, const ARG1& a1, const ARG2& a2,
-                          const ARG3& a3)
-    {
-        doConstruct(typename IsScoped<T>::Type(), a, p, a1, a2, a3);
-    }
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4>
-    static void construct(ALLOC& a, T* p, const ARG1& a1, const ARG2& a2,
-                          const ARG3& a3, const ARG4& a4)
-    {
-        doConstruct(typename IsScoped<T>::Type(), a, p, a1, a2, a3, a4);
-    }
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5>
-    static void construct(ALLOC& a, T* p, const ARG1& a1, const ARG2& a2,
-                          const ARG3& a3, const ARG4& a4, const ARG5& a5)
-    {
-        doConstruct(typename IsScoped<T>::Type(), a, p, a1, a2, a3, a4, a5);
-    }
-#endif
-
-    template <class T>
-    static void destroy(ALLOC& a, T* p) {
-        p->~T();
-    }
-
-    static size_type max_size(const ALLOC& a)
-        { return a.max_size(); }
-
-    // Allocator propagation traits
-    static ALLOC select_on_container_copy_construction(const ALLOC& rhs);
-    typedef FalseType propagate_on_container_copy_assignment;
-    typedef FalseType propagate_on_container_move_assignment;
-    typedef FalseType propagate_on_container_swap;
-
-  private:
-    static ALLOC selectOnCopyConstruct(const ALLOC& a, FalseType)
-        // Return allocator 'a'.  This function is called when 'ALLOC' is
-        // not a bslma allocator.
-        { return a; }
-
-    static ALLOC selectOnCopyConstruct(const ALLOC&, TrueType)
-        // Return a default constructed 'ALLOC' object.  This function is
-        // called when 'ALLOC' is bslma allocator.
-        { return ALLOC(); }
-};
-
-template <class ALLOC>
-inline
-ALLOC allocator_traits<ALLOC>::select_on_container_copy_construction(
-    const ALLOC& rhs)
-{
-    return selectOnCopyConstruct(rhs, IsBslma());
-}
-
-}  // close namespace bsl
 
 namespace BloombergLP {
 
@@ -875,7 +673,22 @@ class list {
     explicit list(size_type n);
     list(size_type n, const TYPE& value, const ALLOC& = ALLOC());
     template <class InputIter>
-      list(InputIter first, InputIter last, const ALLOC& = ALLOC());
+      list(InputIter first, InputIter last, const ALLOC& = ALLOC(),
+           typename BloombergLP::bslmf_EnableIf<
+               !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
+           >::type * = 0);
+        // Construct a list list containing copies of the elements in the
+        // specified range '[first, last)'.  Does not participate in overload
+        // resolution unless 'InputIter' is an iterator type.
+        //
+        // TBD: This function's signature is specified using 'bslmf_EnableIf'
+        // in such a way that it will not be selected during overload
+        // resolution if 'InputIter' is a fundamental type.  Unfortunately,
+        // this function *will* (incorrectly) be selected if 'InputIter' is an
+        // enumerated type.  The best way to correct this problem is to use
+        // 'bslmf_IsArithmetic' (a currently unimplemented metafunction that
+        // would include enums) instead of 'bslmf_IsFundamental' in the
+        // 'bslmf_EnableIf' expression.
     list(const list& x);
     list(const list&, const ALLOC&);
 #ifdef BDE_CXX0X_RVALUES
@@ -892,7 +705,22 @@ class list {
 //    list& operator=(initializer_list<TYPE>);
 
     template <class InputIter>
-      void assign(InputIter first, InputIter last);
+    void assign(InputIter first, InputIter last,
+                typename BloombergLP::bslmf_EnableIf<
+                    !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
+                >::type * = 0);
+        // Replace the contents of this list with copies of the elements in
+        // the specified range '[first, last)'.  Does not participate in
+        // overload resolution unless 'InputIter' is an iterator type.
+        //
+        // TBD: This function's signature is specified using 'bslmf_EnableIf'
+        // in such a way that it will not be selected during overload
+        // resolution if 'InputIter' is a fundamental type.  Unfortunately,
+        // this function *will* (incorrectly) be selected if 'InputIter' is an
+        // enumerated type.  The best way to correct this problem is to use
+        // 'bslmf_IsArithmetic' (a currently unimplemented metafunction that
+        // would include enums) instead of 'bslmf_IsFundamental' in the
+        // 'bslmf_EnableIf' expression.
     void assign(size_type n, const TYPE& t);
 //  void assign(initializer_list<TYPE>);
 
@@ -989,7 +817,24 @@ class list {
     iterator insert(const_iterator position, const TYPE& x);
     iterator insert(const_iterator position, size_type n, const TYPE& x);
     template <class InputIter>
-    iterator insert(const_iterator position, InputIter first, InputIter last);
+    iterator insert(const_iterator position, InputIter first, InputIter last,
+                    typename BloombergLP::bslmf_EnableIf<
+                        !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
+                    >::type * = 0);
+        // Insert the specified range '[first, last)' into this list at the
+        // specified 'position' and return an iterator to the first inserted
+        // element or 'position' if the range is empty.  Does not participate
+        // in overload resolution unless 'InputIter' is an iterator type.
+        //
+        // TBD: This function's signature is specified using 'bslmf_EnableIf'
+        // in such a way that it will not be selected during overload
+        // resolution if 'InputIter' is a fundamental type.  Unfortunately,
+        // this function *will* (incorrectly) be selected if 'InputIter' is an
+        // enumerated type.  The best way to correct this problem is to use
+        // 'bslmf_IsArithmetic' (a currently unimplemented metafunction that
+        // would include enums) instead of 'bslmf_IsFundamental' in the
+        // 'bslmf_EnableIf' expression.
+
 //  iterator insert(const_iterator position, initializer_list<TYPE> il);
 
 #ifdef BDE_CXX0X_RVALUES
@@ -1036,25 +881,11 @@ class list {
 
   private:
     // These private functions cannot be declared until 'const_iterator'
-    // and 'size_type' declared.
+    // and 'size_type' have been declared.
 
     iterator insert_node(const_iterator position, NodePtr node);
         // Insert the specified 'node' prior to the specified 'position' in
         // the list.
-
-    template <class Integral>
-    iterator insert_imp(const_iterator position, Integral n, Integral x,
-            typename BloombergLP::bslmf_EnableIf<
-                        BloombergLP::bslmf_IsFundamental<Integral>::VALUE
-                     >::type * = 0);
-        // Disambiguate insert on the integral type.
-
-    template <class InputIter>
-    iterator insert_imp(const_iterator position, InputIter first, InputIter last,
-            typename BloombergLP::bslmf_EnableIf<
-                        !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
-                     >::type * = 0);
-        // Disambiguate insert on the iterator type.
 
     template <class COMPARE>
     NodePtr merge_imp(NodePtr node1,
@@ -1246,8 +1077,11 @@ list<TYPE,ALLOC>::list(size_type n, const TYPE& value, const ALLOC& a)
 
 template <class TYPE, class ALLOC>
   template <class InputIter>
-    list<TYPE,ALLOC>::list(InputIter first, InputIter last, const ALLOC& a)
-        : d_alloc_and_size(a, size_type(-1))
+list<TYPE,ALLOC>::list(InputIter first, InputIter last, const ALLOC& a,
+                       typename BloombergLP::bslmf_EnableIf<
+                           !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
+                       >::type *)
+    : d_alloc_and_size(a, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
     list tmp(allocator());
@@ -1391,7 +1225,11 @@ list<TYPE,ALLOC>& list<TYPE,ALLOC>::operator=(list&& x)
 
 template <class TYPE, class ALLOC>
   template <class InputIter>
-    void list<TYPE,ALLOC>::assign(InputIter first, InputIter last)
+void
+list<TYPE,ALLOC>::assign(InputIter first, InputIter last,
+                         typename BloombergLP::bslmf_EnableIf<
+                           !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
+                         >::type *)
 {
     iterator i = this->begin();
     iterator e = this->end();
@@ -1873,35 +1711,14 @@ list<TYPE,ALLOC>::insert(const_iterator position,
 }
 
 template <class TYPE, class ALLOC>
-  template <class InputIter>
-inline
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::insert(const_iterator position,
-                         InputIter first, InputIter last)
-{
-    return insert_imp(position, first, last);
-}
-
-template <class TYPE, class ALLOC>
-    template <class Integral>
-inline
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::insert_imp(const_iterator position, Integral n, Integral x,
-        typename BloombergLP::bslmf_EnableIf<
-                    BloombergLP::bslmf_IsFundamental<Integral>::VALUE
-                 >::type *)
-{
-    return insert(position, static_cast<size_type>(n),
-                            static_cast<const TYPE&>(x));
-}
-
-template <class TYPE, class ALLOC>
     template <class InputIter>
 typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::insert_imp(const_iterator position, InputIter first, InputIter last,
-        typename BloombergLP::bslmf_EnableIf<
-                    !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
-                 >::type *)
+list<TYPE,ALLOC>::insert(const_iterator position,
+                         InputIter      first,
+                         InputIter      last,
+                         typename BloombergLP::bslmf_EnableIf<
+                           !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
+                         >::type *)
 {
     if (first == last) {
         return position.unconst();

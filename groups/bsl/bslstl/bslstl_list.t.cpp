@@ -1263,6 +1263,36 @@ class SmallAllocator : public bsl::allocator<T> {
     ~SmallAllocator() { }
 };
 
+                              // ================
+                              // class IntWrapper
+                              // ================
+
+class IntWrapper
+{
+    // Simple wrapper object implicitly convertible from 'int'.
+
+    int d_val;
+
+  public:
+    IntWrapper(int v = 0) : d_val(v) { }
+
+    int value() const { return d_val; }
+};
+
+inline
+bool operator==(IntWrapper a, IntWrapper b)
+{
+    return a.value() == b.value();
+}
+
+inline
+bool operator!=(IntWrapper a, IntWrapper b)
+{
+    return ! (a == b);
+}
+
+enum TestEnum { TWO = 2, NINETYNINE = 99 };
+
 //=============================================================================
 //                       USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -3914,8 +3944,13 @@ void TestDriver<TYPE,ALLOC>::testCase19()
     //   1. Swapping containers does not swap allocators.
     //   2. Swapping containers with same allocator results in no allocation
     //      or deallocation operations.
-    //   3. Swapping containers causes iterators to remain valid but to refer
-    //      to the opposite container.
+    //   3. Swapping containers with the same allocator causes iterators to
+    //      remain valid but to refer to the opposite container.
+    //   4. DEPRECATED: Swapping containers with different allocator instances
+    //      will have the same memory usage copy-constructing each container
+    //      and destroying the original.
+    //   5. DEPRECATED: An exception thrown while swapping containers with
+    //      different allocator instances will leave the containers unchanged.
     //
     // Plan:
     //   Construct 'lst1' and 'lst2' with same test allocator.
@@ -3925,6 +3960,10 @@ void TestDriver<TYPE,ALLOC>::testCase19()
     //   Verify that no memory was allocated or deallocated.
     //   Verify that each iterator now refers to the same element in the other
     //      container.
+    //   For concerns 4 and 5, construct two containers with different
+    //   allocators and swap them within an exception test harness.  Verify
+    //   the expected memory usage and verify that an exception leaves the
+    //   containers unchanged.
     //
     // Testing:
     //   swap(list& rhs);                           // member
@@ -3932,7 +3971,9 @@ void TestDriver<TYPE,ALLOC>::testCase19()
     // ------------------------------------------------------------------------
 
     bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma_TestAllocator testAllocator2(veryVeryVerbose);
     const ALLOC Z(&testAllocator);
+    const ALLOC Z2(&testAllocator2);
 
     const int           MAX_LEN    = 15;
 
@@ -3962,7 +4003,7 @@ void TestDriver<TYPE,ALLOC>::testCase19()
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const int     YLINE   = DATA[tj].d_lineNum;
             const char   *YSPEC   = DATA[tj].d_spec;
-            const int     YLENGTH = strlen(XSPEC);
+            const int     YLENGTH = strlen(YSPEC);
             LOOP_ASSERT(YLINE, MAX_LEN >= YLENGTH);
 
             // Create two objects to be swapped.
@@ -3978,7 +4019,7 @@ void TestDriver<TYPE,ALLOC>::testCase19()
                 xiters[i] = it;
             }
             it = Y.begin();
-            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+            for (int i = 0; i < YLENGTH + 1; ++i, ++it) {
                 yiters[i] = it;
             }
 
@@ -4025,7 +4066,7 @@ void TestDriver<TYPE,ALLOC>::testCase19()
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const int     YLINE   = DATA[tj].d_lineNum;
             const char   *YSPEC   = DATA[tj].d_spec;
-            const int     YLENGTH = strlen(XSPEC);
+            const int     YLENGTH = strlen(YSPEC);
             LOOP_ASSERT(YLINE, MAX_LEN >= YLENGTH);
 
             // Create two objects to be swapped.
@@ -4041,7 +4082,7 @@ void TestDriver<TYPE,ALLOC>::testCase19()
                 xiters[i] = it;
             }
             it = Y.begin();
-            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+            for (int i = 0; i < YLENGTH + 1; ++i, ++it) {
                 yiters[i] = it;
             }
 
@@ -4075,6 +4116,61 @@ void TestDriver<TYPE,ALLOC>::testCase19()
             // No allocations or deallocations should have occurred.
             LOOP2_ASSERT(XLINE, YLINE, BB == AA);
             LOOP2_ASSERT(XLINE, YLINE, B  == A );
+        } // end for tj
+    } // end for ti
+
+    if (verbose) printf("\nTesting member swap with unequal allocators\n");
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int     XLINE   = DATA[ti].d_lineNum;
+        const char   *XSPEC   = DATA[ti].d_spec;
+        const int     XLENGTH = strlen(XSPEC);
+        LOOP_ASSERT(XLINE, MAX_LEN >= XLENGTH);
+
+        for (int tj = 0; tj < NUM_DATA; ++tj) {
+            const int     YLINE   = DATA[tj].d_lineNum;
+            const char   *YSPEC   = DATA[tj].d_spec;
+            const int     YLENGTH = strlen(YSPEC);
+            LOOP_ASSERT(YLINE, MAX_LEN >= YLENGTH);
+
+            // Create two objects to be swapped.
+            Obj mX(Z);  const Obj& X = gg(&mX, XSPEC);
+            Obj mY(Z2); const Obj& Y = gg(&mY, YSPEC);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                ExceptionGuard<Obj> gx(&mX, X, XLINE);
+                ExceptionGuard<Obj> gy(&mY, Y, YLINE);
+
+                const int BB = testAllocator.numBlocksTotal();
+                const int B  = testAllocator.numBlocksInUse();
+                const int BB2 = testAllocator2.numBlocksTotal();
+                const int B2  = testAllocator2.numBlocksInUse();
+
+                mX.swap(mY);  // Test here
+
+                gx.release();
+                gy.release();
+
+                const int AA = testAllocator.numBlocksTotal();
+                const int A  = testAllocator.numBlocksInUse();
+                const int AA2 = testAllocator2.numBlocksTotal();
+                const int A2  = testAllocator2.numBlocksInUse();
+
+                // Test the contents have swapped.  Allocator is unchanged.
+                LOOP2_ASSERT(XLINE, YLINE, g(YSPEC) == X);
+                LOOP2_ASSERT(XLINE, YLINE, g(XSPEC) == Y);
+                LOOP2_ASSERT(XLINE, YLINE, Z  == X.get_allocator());
+                LOOP2_ASSERT(XLINE, YLINE, Z2 == Y.get_allocator());
+
+                // Total allocations increased by enough to build copies
+                // of each list
+                LOOP2_ASSERT(XLINE, YLINE, BB +expectedBlocks(YLENGTH) == AA );
+                LOOP2_ASSERT(XLINE, YLINE, BB2+expectedBlocks(XLENGTH) == AA2);
+
+                // Blocks in use have effectively swapped
+                LOOP2_ASSERT(XLINE, YLINE,
+                             A - B   == deltaBlocks(YLENGTH - XLENGTH));
+                LOOP2_ASSERT(XLINE, YLINE, A2 - B2 == -(A - B));
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         } // end for tj
     } // end for ti
 }
@@ -4306,6 +4402,12 @@ void TestDriver<TYPE,ALLOC>::testCase17()
     //   6. That inserting a 'const T& value' that is a reference to an element
     //      of the list does not suffer from aliasing problems.
     //   7. That no iterators are invalidated by the insertion.
+    //   8. That inserting 'n' copies of value 'v' selects the correct
+    //      overload when 'n' and 'v' are identical arithmetic types (i.e.,
+    //      the iterator-range overload is not selected). 
+    //   9. That inserting 'n' copies of value 'v' selects the correct
+    //      overload when 'v' is a pointer type and 'n' is a null pointer
+    //      literal ,'0'. (i.e., the iterator-range overload is not selected). 
     //
     // Plan:
     //   Create objects of various sizes and insert a distinct value one or
@@ -4318,7 +4420,10 @@ void TestDriver<TYPE,ALLOC>::testCase17()
     //   copies of the iterators before and after the insertion point and
     //   verify that they point to the same (valid) elements after the
     //   insertion by iterating to the same point in the resulting list and
-    //   comparing the new iterators to the old ones.
+    //   comparing the new iterators to the old ones.  For concerns 8 and 9,
+    //   insert 2 elements of integral or pointer types into lists and verify
+    //   that it compiles and that the resultant list contains the expected
+    //   values.
     //
     // Testing:
     //   iterator insert(const_iterator pos, const T& value);
@@ -4489,6 +4594,80 @@ void TestDriver<TYPE,ALLOC>::testCase17()
             } // end for (posidx)
         } // end for (ti)
     } // end for (op)
+
+    if (verbose) printf("\nTesting overloading disambiguation\n");
+    {
+        // 'n' and 'v' are identical aritmetic types.  Make sure overload
+        // resolution doesn't try to call the iterator-range 'insert'.
+        {
+            list<size_t, ALLOC> x;
+            list<size_t, ALLOC>& X = x;
+            size_t n = 2, v = 99;
+
+            x.insert(X.begin(), n, v);
+            ASSERT(X.size()  == n);
+            ASSERT(X.front() == v);
+            ASSERT(X.back()  == v);
+        }
+        {
+            list<IntWrapper, ALLOC> x;
+            list<IntWrapper, ALLOC>& X = x;
+            unsigned char n = 2, v = 99;
+
+            x.insert(X.begin(), n, v);
+            ASSERT(X.size()  == n);
+            ASSERT(X.front() == v);
+            ASSERT(X.back()  == v);
+        }
+        {
+            list<IntWrapper, ALLOC> x;
+            list<IntWrapper, ALLOC>& X = x;
+            size_t n = 2, v = 99;
+
+            x.insert(X.begin(), n, v);
+            ASSERT(X.size()  == n);
+            ASSERT(X.front() == v);
+            ASSERT(X.back()  == v);
+        }
+        {
+            list<IntWrapper, ALLOC> x;
+            list<IntWrapper, ALLOC>& X = x;
+            float n = 2, v = 99;
+
+            x.insert(X.begin(), n, v);
+            ASSERT(X.size()  == n);
+            ASSERT(X.front() == v);
+            ASSERT(X.back()  == v);
+        }
+
+        // TBD: The following should work, but enumerations are non-
+        // fundamental aritmetic types are are not handled correctly yet.
+        // {
+        //     list<IntWrapper, ALLOC> x;
+        //     list<IntWrapper, ALLOC>& X = x;
+        //     TestEnum n = TWO, v = NINETYNINE;
+
+        //     x.insert(X.begin(), n, v);
+        //     ASSERT(X.size()  == n);
+        //     ASSERT(X.front() == v);
+        //     ASSERT(X.back()  == v);
+        // }
+
+        // 'n' is an 'int' and 'v' is a zero 'int' literal (which is also a
+        // null pointer literal).  Make sure that it is correctly treated as a
+        // pointer.
+        {
+            list<char*, ALLOC> x;
+            list<char*, ALLOC>& X = x;
+            int   n = 2;
+            char *v = 0;
+
+            x.insert(X.begin(), n, 0);  // Literal null, acts like an int.
+            ASSERT(X.size()  == n);
+            ASSERT(X.front() == v);
+            ASSERT(X.back()  == v);
+        }
+    }
 }
 
 template <class TYPE, class ALLOC>
@@ -5880,6 +6059,13 @@ void TestDriver<TYPE,ALLOC>::testCase12()
     //      user-supplied allocator whenever one is specified.
     //   4. TBD: The C++0x move constructor moves value and allocator
     //      correctly, and without performing any allocation.
+    //   5. Constructing a list with 'n' copies of value 'v' selects the
+    //      correct overload when 'n' and 'v' are identical arithmetic types
+    //      (i.e., the iterator-range overload is not selected).
+    //   6. Constructing a list with 'n' copies of value 'v' selects the
+    //      correct overload when 'v' is a pointer type and 'n' is a null
+    //      pointer literal ,'0'. (i.e., the iterator-range overload is not
+    //      selected).
     //
     // Plan:
     //   For the constructor we will create objects of varying sizes with
@@ -5898,6 +6084,9 @@ void TestDriver<TYPE,ALLOC>::testCase12()
     //   As for concern 4, we simply move-construct each value into a new
     //   list and check that the value, and allocator are as
     //   expected, and that no allocation was performed.
+    //   For concerns 5 and 6, construct a list with 2 elements of arithmetic
+    //   or pointer types and verify that it compiles and that the resultant
+    //   list contains the expected values.
     //
     // Testing:
     //   list(size_type n, const T& value = T(), const A& a = A());
@@ -6184,6 +6373,74 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                 ASSERT(0 == globalAllocator_p->numBlocksInUse());
                 ASSERT(0 == objectAllocator_p->numBlocksInUse());
             }
+        }
+    }
+
+    if (verbose) printf("\nTesting overloading disambiguation\n");
+    {
+        // 'n' and 'v' are identical aritmetic types.  Make sure overload
+        // resolution doesn't try to call the iterator-range 'insert'.
+        {
+            size_t n = 2, v = 99;
+            list<size_t, ALLOC> x(n, v);
+            list<size_t, ALLOC>& X = x;
+
+            ASSERT(X.size()  == n);
+            ASSERT(X.front() == v);
+            ASSERT(X.back()  == v);
+        }
+        {
+            unsigned char n = 2, v = 99;
+            list<IntWrapper, ALLOC> x(n, v);
+            list<IntWrapper, ALLOC>& X = x;
+
+            ASSERT(X.size()  == n);
+            ASSERT(X.front() == v);
+            ASSERT(X.back()  == v);
+        }
+        {
+            size_t n = 2, v = 99;
+            list<IntWrapper, ALLOC> x(n, v);
+            list<IntWrapper, ALLOC>& X = x;
+
+            ASSERT(X.size()  == n);
+            ASSERT(X.front() == v);
+            ASSERT(X.back()  == v);
+        }
+        {
+            float n = 2, v = 99;
+            list<IntWrapper, ALLOC> x(n, v);
+            list<IntWrapper, ALLOC>& X = x;
+
+            ASSERT(X.size()  == n);
+            ASSERT(X.front() == v);
+            ASSERT(X.back()  == v);
+        }
+
+        // TBD: The following should work, but enumerations are non-
+        // fundamental aritmetic types are are not handled correctly yet.
+        // {
+        //     TestEnum n = TWO, v = NINETYNINE;
+        //     list<IntWrapper, ALLOC> x(n, v);
+        //     list<IntWrapper, ALLOC>& X = x;
+
+        //     ASSERT(X.size()  == n);
+        //     ASSERT(X.front() == v);
+        //     ASSERT(X.back()  == v);
+        // }
+
+        // 'n' is an 'int' and 'v' is a zero 'int' literal (which is also a
+        // null pointer literal).  Make sure that it is correctly treated as a
+        // pointer.
+        {
+            int   n = 2;
+            char *v = 0;
+            list<char*, ALLOC> x(n, 0);  // Literal null, acts like an int.
+            list<char*, ALLOC>& X = x;
+
+            ASSERT(X.size()  == n);
+            ASSERT(X.front() == v);
+            ASSERT(X.back()  == v);
         }
     }
 }
