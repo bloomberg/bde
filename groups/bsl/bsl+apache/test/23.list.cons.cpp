@@ -581,29 +581,8 @@ void test_cons (T*, Allocator*, const ContRangeBase<
             rw_assert (0 != ret_ptr, 0, tcase.line,
                        "line %d. %{$FUNCALL} expected \"%{X=*}\", got null",
                        __LINE__, cwidth, int (tdata.reslen_), tdata.res_);
-        
+
             if (0 != ret_ptr) {
-
-                if (is_class) {
-
-                    std::size_t def_ctor = (Cons (size) == which);
-
-                    // verify that the list ctor calls only copy ctor
-                    // of UserClass and only the given number of times each
-                    bool success = UserClass::is_total (std::size_t (-1),
-                                                        def_ctor,
-                                                        tdata.reslen_,
-                                                        0, 0, 0);
-                    rw_assert (success, 0, tcase.line,
-                               "line %d. %{$FUNCALL} called default/copy ctor "
-                               "and operator=() %zu, %zu, and %zu times, "
-                               "respectively, %zu, %zu, 0 expected",
-                               __LINE__,
-                               UserClass::n_total_def_ctor_,
-                               UserClass::n_total_copy_ctor_,
-                               UserClass::n_total_op_assign_,
-                               def_ctor, tdata.reslen_);
-                }
 
                 const std::size_t got_size = ret_ptr->size ();
                 char* const got = new char [got_size + 1];
