@@ -21,7 +21,7 @@
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
@@ -1729,6 +1729,253 @@ int main(int argc, char *argv[])
 
       } break;
       case 5: {
+        // --------------------------------------------------------------------
+        // PRINT AND OUTPUT OPERATOR
+        //   Ensure that the value of the object can be formatted appropriately
+        //   on an 'ostream' in some standard, human-readable form.
+        //
+        // Concerns:
+        //: 1 The 'print' method writes the value to the specified 'ostream'.
+        //:
+        //: 2 The 'print' method writes the value in the intended format.
+        //:
+        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
+        //:   but with each "attributeName = " elided.
+        //:
+        //: 4 The 'print' method signature and return type are standard.
+        //:
+        //: 5 The 'print' method returns the supplied 'ostream'.
+        //:
+        //: 6 The output 'operator<<' signature and return type are standard.
+        //:
+        //: 7 The output 'operator<<' returns the supplied 'ostream'.
+        //
+        // Plan:
+        //: 1 Use the addresses of the 'print' member function and 'operator<<'
+        //:   free function defined in this component to initialize,
+        //:   respectively, member-function and free-function pointers having
+        //:   the appropriate signatures and return types.  (C-4)
+        //:
+        //: 2 Using the table-driven technique:  (C-1..3, 5, 7)
+        //:
+        //:   1 Define twelve carefully selected combinations of (two) object
+        //:     values ('A' and 'B'), having distinct values for each
+        //:     corresponding salient attribute, and various values for the
+        //:     two formatting parameters, along with the expected output
+        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
+        //:     1 { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
+        //:     2 { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
+        //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
+        //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
+        //:
+        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
+        //:
+        //:     1 Using a 'const' 'Obj', supply each object value and pair of
+        //:       formatting parameters to 'print', unless the parameters are,
+        //:       arbitrarily, (-9, -9), in which case 'operator<<' will be
+        //:       invoked instead.
+        //:
+        //:     2 Use a standard 'ostringstream' to capture the actual output.
+        //:
+        //:     3 Verify the address of what is returned is that of the
+        //:       supplied stream.  (C-5, 7)
+        //:
+        //:     4 Compare the contents captured in P-2.2.2 with what is
+        //:       expected.  (C-1..3)
+        //
+        // Testing:
+        //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
+        //   operator<<(ostream& s, const baetzo_LocalTimeDescriptor& d);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PRINT AND OUTPUT OPERATOR" << endl
+                          << "=========================" << endl;
+
+        if (verbose) cout << "\nAssign the addresses of 'print' and "
+                             "the output 'operator<<' to variables." << endl;
+        {
+            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
+            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            funcPtr     printMember = &Obj::print;
+            operatorPtr operatorOp  = operator<<;
+
+            (void)printMember;  // quash potential compiler warnings
+            (void)operatorOp;
+        }
+
+
+        if (verbose) cout <<
+             "\nCreate a table of distinct value/format combinations." << endl;
+
+        static const Obj A(bdet_DatetimeTz(bdet_Datetime(2011, 5, 3, 15),
+                                           -4 * 60),
+                           "EDT");
+
+        static const Obj B(bdet_DatetimeTz(bdet_Datetime(2011, 1, 9, 10),
+                                           2 * 60),
+                           "IST");
+
+        static const struct {
+            int         d_line;           // source line number
+            int         d_level;
+            int         d_spacesPerLevel;
+            const Obj  *d_object_p;
+            const char *d_expected_p;
+        } DATA[] = {
+
+#define NL "\n"
+#define SP " "
+
+        // ------------------------------------------------------------------
+        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
+        // ------------------------------------------------------------------
+
+        //LINE L SPL  OBJ   EXPECTED
+        //---- - ---  ---   ---------------------------------------------------
+
+        { L_,  0,  0,  &A,  "["                                              NL
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       NL
+                            "timeZoneId = \"EDT\""                           NL
+                            "]"                                              NL
+                                                                             },
+
+        { L_,  0,  1,  &A,  "["                                              NL
+                            " datetimeTz = 03MAY2011_15:00:00.000-0400"      NL
+                            " timeZoneId = \"EDT\""                          NL
+                            "]"                                              NL
+                                                                             },
+
+        { L_,  0, -1,  &A,  "["                                              SP
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
+                            "timeZoneId = \"EDT\""                           SP
+                            "]"
+                                                                             },
+        // ------------------------------------------------------------------
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
+        // ------------------------------------------------------------------
+
+        //LINE L SPL  OBJ   EXPECTED
+        //---- - ---  ---   ---------------------------------------------------
+
+        { L_,  3,  0,  &A,  "["                                              NL
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       NL
+                            "timeZoneId = \"EDT\""                           NL
+                            "]"                                              NL
+                                                                             },
+
+        { L_,  3,  2,  &A,  "      ["                                        NL
+                            "        datetimeTz = 03MAY2011_15:00:00.000-0400"
+                                                                             NL
+                            "        timeZoneId = \"EDT\""                   NL
+                            "      ]"                                        NL
+                                                                             },
+
+        { L_,  3, -2,  &A,  "      ["                                        SP
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
+                            "timeZoneId = \"EDT\""                           SP
+                            "]"
+                                                                             },
+
+        { L_, -3,  0,  &A,  "["                                              NL
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       NL
+                            "timeZoneId = \"EDT\""                           NL
+                            "]"                                              NL
+                                                                             },
+
+        { L_, -3,  2,  &A,  "["                                              NL
+                            "        datetimeTz = 03MAY2011_15:00:00.000-0400"
+                                                                             NL
+                            "        timeZoneId = \"EDT\""                   NL
+                            "      ]"                                        NL
+                                                                             },
+
+        { L_, -3, -2,  &A,  "["                                              SP
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
+                            "timeZoneId = \"EDT\""                           SP
+                            "]"
+                                                                             },
+        // -----------------------------------------------------------------
+        // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  OBJ   EXPECTED
+        //---- - ---  ---   ---------------------------------------------------
+
+        { L_,  2,  3,  &B,  "      ["                                        NL
+                            "         datetimeTz = 09JAN2011_10:00:00.000+0200"
+                                                                             NL
+                            "         timeZoneId = \"IST\""                  NL
+                            "      ]"                                        NL
+                                                                             },
+        // -----------------------------------------------------------------
+        // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  OBJ   EXPECTED
+        //---- - ---  ---   --------------------------------------------------
+
+        { L_, -9, -9,  &A,  "["                                              SP
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
+                            "timeZoneId = \"EDT\""                           SP
+                            "]"
+                                                                             },
+
+        { L_, -9, -9,  &B,  "["                                              SP
+                            "datetimeTz = 09JAN2011_10:00:00.000+0200"       SP
+                            "timeZoneId = \"IST\""                           SP
+                            "]"
+                                                                             },
+#undef NL
+#undef SP
+
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (verbose) cout << "\nTesting with various print specifications."
+                          << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE =  DATA[ti].d_line;
+                const int   L    =  DATA[ti].d_level;
+                const int   SPL  =  DATA[ti].d_spacesPerLevel;
+                const Obj&  OBJ  = *DATA[ti].d_object_p;
+                const char *EXP  =  DATA[ti].d_expected_p;
+
+                if (veryVerbose) { T_ P_(L) P_(SPL) P(OBJ) }
+
+                if (veryVeryVerbose) { T_ T_ Q(EXP) cout << EXP; }
+
+                ostringstream os;
+
+                if (-9 == L && -9 == SPL) {
+
+                    // Verify supplied stream is returned by reference.
+
+                    LOOP_ASSERT(LINE, &os == &(os << OBJ));
+
+                    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
+                }
+                else {
+
+                    // Verify supplied stream is returned by reference.
+
+                    LOOP_ASSERT(LINE, &os == &OBJ.print(os, L, SPL));
+
+                    if (veryVeryVerbose) { T_ T_ Q(print) }
+                }
+
+                // Verify output is formatted as expected.
+
+                if (veryVeryVerbose) { P(os.str()) }
+
+                LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
+            }
+        }
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
