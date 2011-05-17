@@ -970,8 +970,7 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 
 !! unix-Linux-*-*-gcc-3.4.6    _  COMPILERPATH = /usr/bin
 !! unix-Linux-*-*-gcc-4.3.5    _  COMPILERPATH = /opt/swt/install/gcc-4.3.5/bin
-!! unix-Linux-x86-*-gcc        _  CXX         = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-Linux-x86_64-*-gcc     _  CXX         = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-Linux-*-*-gcc        _  CXX         = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
 !! unix-FreeBSD-*-*-def    _  CXX         = $(RETRY_ON_SIGNAL) g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
