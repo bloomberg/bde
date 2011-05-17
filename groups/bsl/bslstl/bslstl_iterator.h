@@ -447,10 +447,27 @@ bool operator<(const reverse_iterator<ITER>& x,
                           static_cast<const Base&>(y));
 }
 
+template <class ITER1, class ITER2>
+inline
+bool operator<(const reverse_iterator<ITER1>& x,
+               const reverse_iterator<ITER2>& y)
+{
+    // this is to compare reverse_iterator with const_reverse_iterator
+    return x.base() < y.base();
+}
+
 template <class ITER>
 inline
 bool operator>(const reverse_iterator<ITER>& x,
                const reverse_iterator<ITER>& y)
+{
+    return y < x;
+}
+
+template <class ITER1, class ITER2>
+inline
+bool operator>(const reverse_iterator<ITER1>& x,
+               const reverse_iterator<ITER2>& y)
 {
     return y < x;
 }
@@ -463,10 +480,26 @@ bool operator<=(const reverse_iterator<ITER>& x,
     return !(y < x);
 }
 
+template <class ITER1, class ITER2>
+inline
+bool operator<=(const reverse_iterator<ITER1>& x,
+                const reverse_iterator<ITER2>& y)
+{
+    return !(y < x);
+}
+
 template <class ITER>
 inline
 bool operator>=(const reverse_iterator<ITER>& x,
                 const reverse_iterator<ITER>& y)
+{
+    return !(x < y);
+}
+
+template <class ITER1, class ITER2>
+inline
+bool operator>=(const reverse_iterator<ITER1>& x,
+                const reverse_iterator<ITER2>& y)
 {
     return !(x < y);
 }
