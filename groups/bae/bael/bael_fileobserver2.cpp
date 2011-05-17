@@ -267,8 +267,10 @@ int bael_FileObserver2::openLogFile()
     return -1;
 }
 
-void bael_FileObserver2::rotateFile()
+void bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
 {
+    BSLS_ASSERT(rotatedLogFileName);
+
     if (!d_logStreamBuf.isOpened()) {
         return;                                                       // RETURN
     }
@@ -283,10 +285,17 @@ void bael_FileObserver2::rotateFile()
         newFileName +=
                     getTimestampSuffix(d_logFileTimestamp + d_localTimeOffset);
 
-        if (0 != bsl::rename(d_logFileName.c_str(), newFileName.c_str())) {
-            fprintf(stderr, "Cannot rename %s to %s: %s\n",
-                    d_logFileName.c_str(), newFileName.c_str(),
-                    bsl::strerror(getErrorCode()));
+        if (0 == bsl::rename(d_logFileName.c_str(), newFileName.c_str())) {
+            *rotatedLogFileName = newFileName;
+        }
+        else {
+            bsl::cerr << "Cannot rename "
+                      << d_logFileName
+                      << " to "
+                      << newFileName
+                      << ": "
+                      << std::strerror(getErrorCode())
+                      << bsl::endl;
         }
     }
 
@@ -297,18 +306,23 @@ void bael_FileObserver2::rotateFile()
 
         bdesu_FileUtil::rollFileChain(d_logFileName.c_str(),
                                       MAX_ROTATED_FILE_SUFFIX);
+
+        *rotatedLogFileName = d_logFileName + ".1";
     }
 
     openLogFile();
 }
 
-void bael_FileObserver2::rotateIfNecessary(const bdet_Datetime& timestamp)
+bool bael_FileObserver2::rotateIfNecessary(
+                                      bsl::string          *rotatedLogFileName,
+                                      const bdet_Datetime&  timestamp)
 {
     BSLS_ASSERT(d_rotationSize >= 0);
     BSLS_ASSERT(d_rotationLifetime.totalSeconds() >= 0);
+    BSLS_ASSERT(rotatedLogFileName);
 
     if (!d_logStreamBuf.isOpened()) {
-        return;                                                       // RETURN
+        return false;                                                 // RETURN
     }
 
     if (d_rotationSize) {
@@ -319,15 +333,15 @@ void bael_FileObserver2::rotateIfNecessary(const bdet_Datetime& timestamp)
         if (static_cast<bsls_Types::Uint64>(d_logFileStream.tellp()) >
             static_cast<bsls_Types::Uint64>(d_rotationSize) * 1024) {
 
-            rotateFile();
-            return;                                                   // RETURN
+            rotateFile(rotatedLogFileName);
+            return true;                                              // RETURN
         }
     }
 
     if (d_rotationLifetime.totalSeconds()
                    && (timestamp - d_logFileTimestamp) >= d_rotationLifetime) {
-        rotateFile();
-        return;                                                       // RETURN
+        rotateFile(rotatedLogFileName);
+        return true;                                                  // RETURN
     }
 }
 
@@ -363,6 +377,8 @@ bael_FileObserver2::bael_FileObserver2(bslma_Allocator *basicAllocator)
 , d_publishInLocalTime(false)
 , d_rotationSize(0)
 , d_rotationLifetime(0)
+, d_onRotationCb(basicAllocator)
+, d_rotationCbMutex()
 {
 }
 
@@ -417,8 +433,21 @@ int bael_FileObserver2::enableFileLogging(const char *fileNamePattern,
 
 void bael_FileObserver2::forceRotation()
 {
-    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    rotateFile();
+    bsl::string rotatedLogFileName;
+    {
+        bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
+        rotateFile(&rotatedLogFileName);
+    }
+
+    // The file-rotation callback must be invoked without a lock on 'd_mutex'
+    // to allow the callback to invoke other manipulators on this object.
+
+    {
+        bcemt_LockGuard<bcemt_Mutex> guard(&d_rotationCbMutex);
+        if (d_onRotationCb) {
+            d_onRotationCb(0, rotatedLogFileName);
+        }
+    }
 }
 
 void bael_FileObserver2::enablePublishInLocalTime()
@@ -430,17 +459,30 @@ void bael_FileObserver2::enablePublishInLocalTime()
 void bael_FileObserver2::publish(const bael_Record&  record,
                                  const bael_Context& )
 {
-    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    rotateIfNecessary(record.fixedFields().timestamp());
+    bsl::string rotatedFileName;
+    bool        rotatedFlag;
+    {
+        bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
+        rotatedFlag = rotateIfNecessary(&rotatedFileName,
+                                        record.fixedFields().timestamp());
 
-    if (d_logStreamBuf.isOpened()) {
-        d_logFileFunctor(d_logFileStream, record);
+        if (d_logStreamBuf.isOpened()) {
+            d_logFileFunctor(d_logFileStream, record);
 
-        if (!d_logFileStream) {
-            fprintf(stderr, "Error on file stream for %s: %s\n",
-                    d_logFileName.c_str(), bsl::strerror(getErrorCode()));
+            if (!d_logFileStream) {
+                fprintf(stderr, "Error on file stream for %s: %s\n",
+                        d_logFileName.c_str(), bsl::strerror(getErrorCode()));
 
-            d_logStreamBuf.clear();
+                d_logStreamBuf.clear();
+            }
+        }
+    }
+
+    if (rotatedFlag)
+    {
+        bcemt_LockGuard<bcemt_Mutex> guard(&d_rotationCbMutex);
+        if (d_onRotationCb) {
+            d_onRotationCb(0, rotatedFileName);
         }
     }
 }
@@ -461,6 +503,13 @@ void bael_FileObserver2::rotateOnSize(int size)
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_rotationSize = size;
+}
+
+void bael_FileObserver2::setOnFileRotationCallback(
+                              const OnFileRotationCallback& onRotationCallback)
+{
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_rotationCbMutex);
+    d_onRotationCb = onRotationCallback;
 }
 
 void
