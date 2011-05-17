@@ -1,4 +1,4 @@
-// bael_fileobserver2.t.cpp                                           -*-C++-*-
+// bael_fileobserver2.t.cpp        -*-C++-*-
 #include <bael_fileobserver2.h>
 
 #include <bael_context.h>
@@ -328,12 +328,14 @@ class LogRotationCallbackTester {
    struct Rep {
         int         d_invocations;
         int         d_status;
-        bsl::string d_rotatedFileName;
+        bsl::string d_previousFileName;
+        bsl::string d_fileName;
 
         Rep(bslma_Allocator *allocator)
         : d_invocations(0)
         , d_status(0)
-        , d_rotatedFileName(allocator)
+        , d_previousFileName(allocator)
+        , d_fileName(allocator)
         {
         }
 
@@ -365,14 +367,16 @@ class LogRotationCallbackTester {
     }
 
     void operator()(int                status,
-                    const bsl::string& rotatedFileName)
+                    const bsl::string& previousFileName,
+                    const bsl::string& newFileName)
         // Set the value at the status address supplied at construction to the
         // specified 'status', and set the value at the log file name address
         // supplied at construction to the specified 'logFileName'.
     {
         ++d_rep->d_invocations;
         d_rep->d_status           = status;
-        d_rep->d_rotatedFileName = rotatedFileName;
+        d_rep->d_previousFileName = previousFileName;
+        d_rep->d_fileName         = newFileName;
 
     }
 
@@ -382,7 +386,8 @@ class LogRotationCallbackTester {
     {
         d_rep->d_invocations = 0;
         d_rep->d_status           = UNINITIALIZED;
-        d_rep->d_rotatedFileName = "";
+        d_rep->d_previousFileName = "";
+        d_rep->d_fileName         = "";
 
     }
 
@@ -397,12 +402,17 @@ class LogRotationCallbackTester {
         // function-call operation, or 'UNINITIALIZED' if 'numInvocations' is
         // 0.
 
-    const bsl::string& rotatedFileName() const
+    const bsl::string& fileName() const { return d_rep->d_fileName; }
+        // Return a reference to the non-modifiable file name supplied to the
+        // most recent invocation of the function-call operator, or the empty
+        // string if 'numInvocations' is 0.
+
+    const bsl::string& previousFileName() const
         // Return a reference to the non-modifiable file name supplied to the
         // most recent invocation of the function-call operator, or the empty
         // string if 'numInvocations' is 0.
     {
-        return d_rep->d_rotatedFileName;
+        return d_rep->d_previousFileName;
     }
 
 };
@@ -427,14 +437,16 @@ class ReentrantRotationCallback {
     }
 
     void operator()(int                status,
-                    const bsl::string& rotatedFileName);
+                    const bsl::string& previousFileName,
+                    const bsl::string& newFileName);
         // Set the value at the status address supplied at construction to the
         // specified 'status', and set the value at the log file name address
         // supplied at construction to the specified 'logFileName'.
 };
 
 void ReentrantRotationCallback::operator()(int                status,
-                                           const bsl::string& rotatedFileName)
+                                           const bsl::string& previousFileName,
+                                           const bsl::string& newFileName)
 {
     d_observer_p->disableFileLogging();
 }
@@ -510,193 +522,6 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 6: {
-        // --------------------------------------------------------------------
-        // Testing: Log file rotation callback
-        //
-        // Testing:
-        //    void setOnFileRotationCallback(const OnFileRotationCallback& );
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting Log Rotation Callback"
-                          << "\n=============================" << endl;
-
-        {
-            if (veryVerbose) {
-                cout << "\tTest a rotation that will fail without a callback."
-                     << endl;
-            }
-            Obj mX(Z); const Obj& X = mX;
-            mX.forceRotation();
-
-            ASSERT(0 == defaultAllocator.numBytesInUse());
-        }
-        {
-            if (veryVerbose) {
-                cout << "\tTest a rotation that will fail with a callback."
-                     << endl;
-            }
-            RotCbTest   callback(Z);
-            Obj mX(Z); const Obj& X = mX;
-
-            mX.setOnFileRotationCallback(callback);
-
-            ASSERT(0 == callback.numInvocations());
-
-            mX.forceRotation();
-
-            ASSERT(1 == callback.numInvocations());
-            ASSERT(0 != callback.status());
-        }
-        {
-            if (veryVerbose) {
-                cout << "\tTest a rotation that with a callback."
-                     << endl;
-            }
-            bsl::vector<bsl::string> files(Z);
-            RotCbTest callback(Z);
-            Obj mX(Z); const Obj& X = mX;
-
-            mX.setOnFileRotationCallback(callback);
-
-            ASSERT(0 == callback.numInvocations());
-
-            bsl::string filename = tempFileName(veryVerbose);
-
-            ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
-
-            bsl::string temp;
-            ASSERT(X.isFileLoggingEnabled(&temp));
-
-            for (int i = 0; i < 3; ++i) {
-                // A sleep is required because timestamp resolution is 1 second
-                bcemt_ThreadUtil::microSleep(100, 1);
-
-                mX.forceRotation();
-                ASSERT(1            == callback.numInvocations());
-                ASSERT(0            == callback.status());
-                //ASSERT(files.back() == callback.rotatedFileName());
-
-                if (veryVeryVerbose) {
-                    P(callback.rotatedFileName());
-                }
-                files.push_back(callback.rotatedFileName());
-                callback.reset();
-            }
-
-            for (int i = 0; i < files.size(); ++i) {
-                 bdesu_FileUtil::remove(files[i]);
-            }
-        }
-        {
-            if (veryVerbose) {
-                cout << "\tTest a rotation that renames old log files."
-                     << endl;
-            }
-            bsl::vector<bsl::string> files(Z);
-            RotCbTest callback(Z);
-            Obj mX(Z); const Obj& X = mX;
-
-            mX.setOnFileRotationCallback(callback);
-
-            ASSERT(0 == callback.numInvocations());
-
-            bsl::string filename = tempFileName(veryVerbose);
-
-            ASSERT(0 == mX.enableFileLogging(filename.c_str(), false));
-
-            bsl::string temp;
-            ASSERT(X.isFileLoggingEnabled(&temp));
-
-            files.push_back(temp);
-            for (int i = 0; i < 3; ++i) {
-                // A sleep is required because timestamp resolution is 1 second
-                bcemt_ThreadUtil::microSleep(100, 1);
-
-                mX.forceRotation();
-                ASSERT(1            == callback.numInvocations());
-                ASSERT(0            == callback.status());
-                ASSERT(temp         != callback.rotatedFileName());
-                ASSERT(files.back() != callback.rotatedFileName());
-
-                if (veryVeryVerbose) {
-                    P(callback.rotatedFileName());
-                }
-                files.push_back(callback.rotatedFileName());
-                callback.reset();
-            }
-
-            for (int i = 0; i < files.size(); ++i) {
-                 bdesu_FileUtil::remove(files[i]);
-            }
-        }
-
-        {
-            if (veryVerbose) {
-                cout << "\tTest a with publication rotation" << endl;
-            }
-
-            bsl::vector<bsl::string> files(Z);
-            RotCbTest   callback(Z);
-            Obj mX(Z); const Obj& X = mX;
-
-            mX.setOnFileRotationCallback(callback);
-
-            ASSERT(0 == callback.numInvocations());
-
-            bsl::string filename = tempFileName(veryVerbose);
-
-            ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
-            mX.rotateOnSize(1);
-
-            bsl::string temp;
-            ASSERT(X.isFileLoggingEnabled(&temp));
-
-            files.push_back(temp);
-
-
-            char buffer[1025];  // rotateOnSize is specified in multiples of 1K
-            std::memset(buffer, 'x', sizeof(buffer));
-            buffer[sizeof(buffer) - 1] = 0;
-
-            publishRecord(&mX, buffer);
-            for (int i = 0; i < 3; ++i) {
-                // A sleep is required because timestamp resolution is 1 second
-                bcemt_ThreadUtil::microSleep(100, 1);
-
-                publishRecord(&mX, buffer);
-
-                ASSERT(1            == callback.numInvocations());
-                ASSERT(0            == callback.status());
-                //ASSERT(files.back() == callback.rotatedFileName());
-
-                if (veryVeryVerbose) {
-                    P(callback.rotatedFileName());
-                }
-                files.push_back(callback.rotatedFileName());
-                callback.reset();
-            }
-
-            for (int i = 0; i < files.size(); ++i) {
-                bdesu_FileUtil::remove(files[i]);
-            }
-
-        }
-        {
-            if (veryVerbose) {
-                cout << "\tTest a re-entrant rotation" << endl;
-            }
-
-            Obj mX(Z); const Obj& X = mX;
-            ReentrantRotationCallback callback(&mX);
-
-            mX.setOnFileRotationCallback(callback);
-
-            mX.forceRotation();  //  The test is whether this call will lock
-                                 //  the task.
-        }
-
-      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING LOG FILE ROLLING

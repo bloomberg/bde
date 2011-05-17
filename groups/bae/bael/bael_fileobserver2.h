@@ -223,29 +223,6 @@ class bael_FileObserver2 : public bael_Observer {
         // 'LogRecordFunctor' defines the type of the functor used for
         // formatting log records to a stream.
 
-    // PUBLIC TYPES
-    typedef bdef_Function<void (*)(int, const std::string&)>
-                                                        OnFileRotationCallback;
-        // An 'OnFileRotationCallback' is an alias for a user-supplied
-        // callback function that is invoked after the file observer attempts
-        // to rotate its log file.  The provided callback function takes three
-        // parameters: (1) an integer status value, 0 indicates a new log file
-        // was successfully created and a non-zero value indicates an error
-        // occured rotating the file (2) a string that, if a file rotation was
-        // successfully  performed, indicates the name of the previous log file
-        // (3) a string that, if a file rotation was successfully performed,
-        // indicates the name of the the newly created log file.  E.g.:
-        //..
-        //  void onLogFileRotation(int                rotationStatus,
-        //                         const std::string& rotatedLogFileName);
-        //..
-        // Note that if file logging is enabled in a way that the current log
-        // file name does not contain a time stamp, then rotating the log file
-        // renames the previous log file (appending a timestamp to the name)
-        // before creating a new log file with the original name; in such
-        // cases 'rotatedLogFileName' will be the new name of the previous
-        // log file.
-
   private:
     // DATA
     bdesu_FdStreamBuf      d_logStreamBuf;             // stream buffer for
@@ -292,16 +269,6 @@ class bael_FileObserver2 : public bael_Observer {
                                                        // lifetime before
                                                        // rotation
 
-    OnFileRotationCallback d_onRotationCb;             // user-callback
-                                                       // for file rotation
-
-    mutable bcemt_Mutex    d_rotationCbMutex;          // serialize
-                                                       // 'd_onRotationCb';
-                                                       // required because
-                                                       // callback must be
-                                                       // called with
-                                                       // 'd_mutex' unlocked
-
     // NOT IMPLEMENTED
     bael_FileObserver2(const bael_FileObserver2&);
     bael_FileObserver2& operator=(const bael_FileObserver2&);
@@ -318,27 +285,22 @@ class bael_FileObserver2 : public bael_Observer {
         // indicated by the most recent successful call to 'enableFileLogging'.
         // The caller is responsible for acquiring any necessary lock.
 
-    void rotateFile(bsl::string *rotatedLogFileName);
+    void rotateFile();
         // Perform log file rotation by closing the current log file of this
-        // file observer, optionally rename it as indicated by the most
-        // recent successful call to 'enableFileLogging', open a new log file,
-        // and load into the specified 'rotatedLogFileName' the name of the
-        // rotated log file.  If the new file has the same name as the file
-        // that was just rotated, rename the old file by appending a suffix
-        // ".1", and, if a file already exists with the suffix ".N" rename the
-        // existing file with the suffix ".N+1" (recursively).  The caller is
-        // responsible for acquiring any necessary lock.
+        // file observer, optionally renaming it as indicated by the most
+        // recent successful call to 'enableFileLogging', and opening a new log
+        // file.  If the new file has the same name as the file that was just
+        // rotated, rename the old file by appending a suffix ".1", and, if a
+        // file already exists with the suffix ".N" rename the existing file
+        // with the suffix ".N+1" (recursively).  The caller is responsible
+        // for acquiring any necessary lock.
 
 
-    bool rotateIfNecessary(bsl::string          *rotatedLogFileName,
-                           const bdet_Datetime&  timestamp);
+    void rotateIfNecessary(const bdet_Datetime& timestamp);
         // Perform log file rotation if any rotation rule currently in effect
         // for this file observer indicates that the log file should be
-        // rotated, using the specified 'timestamp' to determine if the log
-        // file has pass its maximum lifetime, and, if a rotation is performed,
-        // load into the specified 'rotatedLogFileName' the name of the rotated
-        // file.  Return 'true' if a file is rotated and 'false' otherwise.
-        // The caller is responsible for acquiring any necessary lock.
+        // rotated.  The caller is responsible for acquiring any necessary
+        // lock.
 
     void setLogFileName();
         // Prepare this object for opening a new log file by updating the log
@@ -440,14 +402,6 @@ class bael_FileObserver2 : public bael_Observer {
         // of time that the file has been opened exceeds the specified
         // 'timeInterval'.  This rule replaces any rotation-on-lifetime rule
         // currently in effect, if any.
-
-    void setOnFileRotationCallback(
-                             const OnFileRotationCallback& onRotationCallback);
-        // Set the specified 'onRotationCallback' to be invoked after each
-        // time this file observer attempts perform a log file rotation. 
-        // The behavior is undefined if the supplied function calls either
-        // 'setOnFileRotationCallback', 'forceRotation()', or 'publish()' on
-        // this file observer.
 
     void setLogFileFunctor(const LogRecordFunctor& logFileFunctor);
         // Set the formatting functor used when writing records to the log file
