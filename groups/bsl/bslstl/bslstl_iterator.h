@@ -220,17 +220,33 @@ template <class ITER> inline
 bool operator<(const reverse_iterator<ITER>& x,
                const reverse_iterator<ITER>& y);
 
+template <class ITER1, class ITER2> inline
+bool operator<(const reverse_iterator<ITER1>& x,
+               const reverse_iterator<ITER2>& y);
+
 template <class ITER> inline
 bool operator>(const reverse_iterator<ITER>& x,
                const reverse_iterator<ITER>& y);
+
+template <class ITER1, class ITER2> inline
+bool operator>(const reverse_iterator<ITER1>& x,
+               const reverse_iterator<ITER2>& y);
 
 template <class ITER> inline
 bool operator<=(const reverse_iterator<ITER>& x,
                 const reverse_iterator<ITER>& y);
 
+template <class ITER1, class ITER2> inline
+bool operator<=(const reverse_iterator<ITER1>& x,
+                const reverse_iterator<ITER2>& y);
+
 template <class ITER> inline
 bool operator>=(const reverse_iterator<ITER>& x,
                 const reverse_iterator<ITER>& y);
+
+template <class ITER1, class ITER2> inline
+bool operator>=(const reverse_iterator<ITER1>& x,
+                const reverse_iterator<ITER2>& y);
 
 template <class ITER> inline
 typename reverse_iterator<ITER>::difference_type
@@ -400,11 +416,7 @@ bool operator==(const reverse_iterator<ITER1>& x,
                 const reverse_iterator<ITER2>& y)
 {
     // this is to compare reverse_iterator with const_reverse_iterator
-
-    typedef BSLSTL_MAKE_REVERSE_ITERATOR(ITER1) Base1;
-    typedef BSLSTL_MAKE_REVERSE_ITERATOR(ITER2) Base2;
-
-    return x.Base1::base() == y.Base2::base();
+    return x.base() == y.base();
 }
 
 template <class ITER>
