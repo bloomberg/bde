@@ -287,20 +287,21 @@ class bael_FileObserver2 : public bael_Observer {
 
     void rotateFile();
         // Perform log file rotation by closing the current log file of this
-        // file observer, optionally renaming it as indicated by the most
-        // recent successful call to 'enableFileLogging', and opening a new log
-        // file.  If the new file has the same name as the file that was just
-        // rotated, rename the old file by appending a suffix ".1", and, if a
-        // file already exists with the suffix ".N" rename the existing file
-        // with the suffix ".N+1" (recursively).  The caller is responsible
-        // for acquiring any necessary lock.
+        // file observer, rename it as indicated by the most recent successful
+        // call to 'enableFileLogging', and open a new log file.  If the new
+        // file has the same name as the file that was just rotated, rename the
+        // old file by appending a suffix ".1", and, if a file already exists
+        // with the suffix ".N" rename the existing file with the suffix ".N+1"
+        // (recursively).  The caller is responsible for acquiring any
+        // necessary lock.
 
 
     void rotateIfNecessary(const bdet_Datetime& timestamp);
         // Perform log file rotation if any rotation rule currently in effect
         // for this file observer indicates that the log file should be
-        // rotated.  The caller is responsible for acquiring any necessary
-        // lock.
+        // rotated, using the specified 'timestamp' to determine if the log
+        // file has pass its maximum lifetime.  The caller is responsible for
+        // acquiring any necessary lock.
 
     void setLogFileName();
         // Prepare this object for opening a new log file by updating the log
