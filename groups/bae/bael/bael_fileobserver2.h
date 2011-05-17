@@ -99,13 +99,13 @@ BDES_IDENT("$Id: $")
 // enabled by the 'rotateOnSize' and 'rotateOnLifetime' methods, respectively.
 // If both rules are in effect, log file rotation is performed when either rule
 // applies.  When file rotation occurs, the current log file is closed and
-// optionally renamed as indicated by the most recent successful call to
-// 'enableFileLogging' (e.g., a typical configuration will cause the file
-// to be renamed by appending a timestamp of the form '.YYYYMMDD_HHMMSS').
-// A new log file will be opened after the file is rotated.  If the new log
-// file has the same name as the rotated log file, a ".1" suffix will be
-// appended to the rotated file.  If a file already exists with a ".N" suffix ,
-// rename the existing file with the suffix ".N+1" (recursively).
+// renamed as indicated by the most recent successful call to
+// 'enableFileLogging' (e.g., a typical configuration will cause the file to be
+// renamed by appending a timestamp of the form '.YYYYMMDD_HHMMSS').  A new log
+// file will be opened after the file is rotated.  If the new log file has the
+// same name as the rotated log file, a ".1" suffix will be appended to the
+// rotated file.  If a file already exists with a ".N" suffix , rename the
+// existing file with the suffix ".N+1" (recursively).
 //
 ///Thread-Safety
 ///-------------
@@ -388,9 +388,9 @@ class bael_FileObserver2 : public bael_Observer {
 
     void forceRotation();
         // Forcefully perform a log file rotation by this file observer.  Close
-        // the current log file, optionally rename it as indicated by the most
-        // recent successful call to 'enableFileLogging', and open a new log
-        // file.  This method has no effect if file logging is not enabled.
+        // the current log file, rename it as indicated by the most recent
+        // successful call to 'enableFileLogging', and open a new log file.
+        // This method has no effect if file logging is not enabled.
 
     void rotateOnSize(int size);
         // Set this file observer to perform log file rotation when the size of
