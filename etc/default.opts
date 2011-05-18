@@ -114,6 +114,7 @@
 !! unix-AIX-*-*-xlc           _       BDE_COMPILERVERSION_FLAG = 10.1
 !! unix-Linux                 _       BDE_COMPILERVERSION_FLAG = 3.4.6
 !! unix-Linux-x86_64-2.6.18   _       BDE_COMPILERVERSION_FLAG = 4.3.5
+!! unix-Linux-i686-2.6.32     _       BDE_COMPILERVERSION_FLAG = 4.4.3
 !! unix-FreeBSD               _       BDE_COMPILERVERSION_FLAG = 4.2.1
 !! unix-Cygwin                _       BDE_COMPILERVERSION_FLAG = 3.4.1
 !! unix-NONSUCH               _       BDE_COMPILERVERSION_FLAG = <Uncollapsed!>
@@ -968,16 +969,17 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 
 !! unix-SunOS-*-*-CC64     _    CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bb/util/common/studio8-v10/SUNWspro/bin/CC $(CXX64FLAGS)
 
-!! unix-Linux-*-*-gcc-3.4.6    _  COMPILERPATH = /usr/bin
-!! unix-Linux-*-*-gcc-4.3.5    _  COMPILERPATH = /opt/swt/install/gcc-4.3.5/bin
-!! unix-Linux-x86-*-gcc        _  CXX         = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-Linux-x86_64-*-gcc     _  CXX         = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-Linux-*-*-gcc-3.4.6            _  COMPILERPATH = /usr/bin
+!! unix-Linux-*-*-gcc-4.3.5            _  COMPILERPATH = /opt/swt/install/gcc-4.3.5/bin
+!! unix-Linux-i686-2.6.32-gcc-4.3.5    _  COMPILERPATH = /usr/bin
 
-!! unix-FreeBSD-*-*-def    _  CXX         = $(RETRY_ON_SIGNAL) g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-Linux-*-*-gcc                  _  CXX          = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
-!! unix-Cygwin-*-*-def   _      CXX             = $(RETRY_ON_SIGNAL) g++ -D__cygwin -D__linux $(CXX64FLAGS)
+!! unix-FreeBSD-*-*-def                _  CXX          = $(RETRY_ON_SIGNAL) g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
-!! unix-Darwin-*-*-def   _      CXX             = $(RETRY_ON_SIGNAL) g++ -D__darwin -D__linux -D__unix -Wno-long-double $(CXX64FLAGS)
+!! unix-Cygwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__cygwin -D__linux $(CXX64FLAGS)
+
+!! unix-Darwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__darwin -D__linux -D__unix -Wno-long-double $(CXX64FLAGS)
 
 !! unix-AIX-*-*-*   _   CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlC $(CXX64FLAGS)
 !! unix-AIX-*-*-*   mt  CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlC_r $(CXX64FLAGS)
