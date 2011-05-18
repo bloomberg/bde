@@ -69,10 +69,6 @@ struct baenet_HttpMessageType {
     enum Value {
         BAENET_REQUEST  = 0
       , BAENET_RESPONSE = 1
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-      , REQUEST  = BAENET_REQUEST
-      , RESPONSE = BAENET_RESPONSE
-#endif
     };
 
     enum {
