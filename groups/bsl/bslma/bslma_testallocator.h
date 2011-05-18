@@ -672,6 +672,10 @@ class bslma_TestAllocator_ProxyBase {
     // 'const'.
 
   public:
+    virtual ~bslma_TestAllocator_ProxyBase()
+    {
+    }
+
     // ACCESSORS
     virtual void setAllocationLimit(bsls_Types::Int64 limit) const = 0;
 };
@@ -691,6 +695,10 @@ class bslma_TestAllocator_Proxy: public bslma_TestAllocator_ProxyBase {
     // CREATORS
     bslma_TestAllocator_Proxy(BSLMA_ALLOC_TYPE *allocator)
     : d_allocator(allocator)
+    {
+    }
+
+    ~bslma_TestAllocator_Proxy()
     {
     }
 
