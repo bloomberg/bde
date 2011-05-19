@@ -208,8 +208,7 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
                                            &offsetFromLine,
                                            &line);
         if (rc) {
-            frame->setSourceFileName(bdeu_String::copy(line.FileName,
-                                                       basicAllocator));
+            frame->setSourceFileName(line.FileName);
             frame->setLineNumber(line.LineNumber);
         }
         ZeroMemory(sym, SIZEOF_SEGMENT);
@@ -224,8 +223,7 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
             // windows is always demangled
 
             ((TCHAR *) sym)[SIZEOF_SEGMENT - 1] = 0;
-            frame->setMangledSymbolName(
-                                bdeu_String::copy(sym->Name, basicAllocator));
+            frame->setMangledSymbolName(sym->Name);
             frame->setSymbolName(frame->mangledSymbolName());
             frame->setOffsetFromSymbol((bsl::size_t) offsetFromSymbol);
         }
@@ -256,9 +254,8 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
                 libNameMap[hModule] = bdeu_String::copy("", basicAllocator);
             }
             else {
-                frame->setLibraryFileName(bdeu_String::copy(libNameBuf,
-                                                            basicAllocator));
-                libNameMap[hModule] = frame->libraryFileName();
+                frame->setLibraryFileName(libNameBuf);
+                libNameMap[hModule] = frame->libraryFileName().c_str();
             }
         }
     }
