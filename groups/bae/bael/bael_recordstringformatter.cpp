@@ -26,13 +26,6 @@ namespace {
 
 const char *const DEFAULT_FORMAT_SPEC = "\n%d %p:%t %s %f:%l %c %m %u\n";
 
-const char *const MONTHS[] = {
-    0,
-    "JAN", "FEB", "MAR", "APR",
-    "MAY", "JUN", "JUL", "AUG",
-    "SEP", "OCT", "NOV", "DEC"
-};
-
 }  // close unnamed namespace
 
 namespace BloombergLP {
@@ -169,17 +162,9 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
               } break;
               case 'd': {
                 char buffer[32];
+                int length;
+                timestamp.printToBuf(&length, buffer, sizeof buffer);
 
-                snprintf(buffer,
-                         sizeof(buffer),
-                         "%02d%s%04d_%02d:%02d:%02d.%03d",
-                         timestamp.day(),
-                         MONTHS[timestamp.month()],
-                         timestamp.year(),
-                         timestamp.hour(),
-                         timestamp.minute(),
-                         timestamp.second(),
-                         timestamp.millisecond());
                 output += buffer;
               } break;
               case 'I': // fall through intentionally

@@ -220,23 +220,23 @@ struct bdesu_FileUtil {
 
     // CLASS METHODS
     static FileDescriptor open(const char         *path,
-                               bool                isWritable,
-                               bool                isExisting,
-                               bool                isAppend = false);
+                               bool                writableFlag,
+                               bool                existFlag,
+                               bool                appendFlag = false);
     static FileDescriptor open(const bsl::string&  path,
-                               bool                isWritable,
-                               bool                isExisting,
-                               bool                isAppend = false);
+                               bool                writableFlag,
+                               bool                existFlag,
+                               bool                appendFlag = false);
         // Open the file at the specified 'path' with write permission as
-        // specified by 'isWritable'.  If 'isExisting' is true, succeed only
+        // specified by 'writableFlag'.  If 'existFlag' is true, succeed only
         // if the file exists; otherwise, succeed only if it does not exist
-        // (in which case create it).  Optionally, if 'isWritable' is true,
-        // specify 'isAppend' to indicate whether the file should be open in
-        // append mode.  'isAppend' has no effect if 'isWritable' is false.
+        // (in which case create it).  Optionally, if 'writableFlag' is true,
+        // specify 'appendFlag' to indicate whether the file should be open in
+        // append mode.  'appendFlag' has no effect if 'writableFlag' is false.
         // Return a FileDescriptor for the file on success, or 'INVALID_FD'
         // otherwise.  Note that two calls are necessary to open a file which
-        // may or may not exist.  Also note that if 'isWritable' and
-        // 'isExisting' are both 'false', this function will necessarily fail.
+        // may or may not exist.  Also note that if 'writableFlag' and
+        // 'existFlag' are both 'false', this function will necessarily fail.
 
     static int close(FileDescriptor descriptor);
         // Close the specified 'descriptor'.  Return 0 on success and a
@@ -532,12 +532,12 @@ void bdesu_FileUtil::visitPaths(
 
 inline
 bdesu_FileUtil::FileDescriptor bdesu_FileUtil::open(
-                                                 const bsl::string& path,
-                                                 bool               isWritable,
-                                                 bool               isExisting,
-                                                 bool               isAppend)
+                                               const bsl::string& path,
+                                               bool               writableFlag,
+                                               bool               existFlag,
+                                               bool               appendFlag)
 {
-    return open(path.c_str(), isWritable, isExisting, isAppend);
+    return open(path.c_str(), writableFlag, existFlag, appendFlag);
 }
 
 inline

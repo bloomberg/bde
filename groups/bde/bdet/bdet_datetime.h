@@ -557,6 +557,8 @@ class bdet_Datetime {
         // 'bdex' package-level documentation for more information on 'bdex'
         // streaming of value-semantic types and containers.)
 
+    void printToBuf(int *resultLen, char *resultBuf, int size);
+
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
     static int maxSupportedVersion();

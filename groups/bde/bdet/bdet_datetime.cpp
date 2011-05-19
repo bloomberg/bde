@@ -11,6 +11,13 @@ BDES_IDENT_RCSID(bdet_datetime_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
+static const char *const MONTHS[] = {
+    0,
+    "JAN", "FEB", "MAR", "APR",
+    "MAY", "JUN", "JUL", "AUG",
+    "SEP", "OCT", "NOV", "DEC"
+};
+
 namespace BloombergLP {
 
                         // -------------------
@@ -53,6 +60,36 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
     }
 
     return stream;
+}
+
+void bdet_Datetime::printToBuf(int *resultLen, char *resultBuf, int size)
+{
+    int y, m, d;
+    date().getYearMonthDay(&y, &m, &d);
+
+    const char *const month = MONTHS[m];
+    int hour, min, sec, mSec;
+    time().getTime(&hour, &min, &sec, &mSec);
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
+    *resultLen = snprintf(resultBuf,
+                          size,
+                          "%02d%s%04d_%02d:%02d:%02d.%03d",
+                          d,
+                          month,
+                          y,
+                          hour,
+                          min,
+                          sec,
+                          mSec);
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#undef snprintf
+#endif
+
 }
 
 // FREE OPERATORS

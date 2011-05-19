@@ -102,20 +102,68 @@ BDES_IDENT("$Id: $")
 // time.  This behavior can be changed by calling 'enablePublishInLocalTime()'
 // which will cause timestamp attributes to be written in local time instead.
 //
+///Log Filename Pattern
+///--------------------
+// The 'enableFileLogging' method allow the use of '%'-escape sequences to
+// specifiy the log filename.  The recognized sequences are as follows:
+//..
+//   %Y - current year (four digits with leading zeros)
+//   %M - current month (two digits with leading zeros)
+//   %D - current day (two digits with leading zeros)
+//   %h - current hour (two digits with leading zeros)
+//   %m - current minute (two digits with leading zeros)
+//   %s - current second (two digits with leading zeros)
+//   %% - the empty string
+//..
+// For example, a log filename pattern of "task.log.%Y%M%D_%h%m%s" may yield
+// the a filename of "task.log.20110501_123000" if the file is opened on
+// '01-May-2011 12:30:00'.
+//
 ///Log File Rotation
 ///-----------------
 // A 'bael_FileObserver' may be configured to perform automatic rotation of
-// log files based on simple file rotation conditions (or rules).  Rotation
-// rules may be established based on the size of the log file (i.e., a
+// log files based on simple file rotation conditions (or rules).
+//
+///File Rotation Conditions
+/// - - - - - - - - - - - -
+// Rotation rules may be established based on the size of the log file (i.e., a
 // "rotation-on-size" rule), and the length of time that the log file has been
 // opened (i.e., a "rotation-on-lifetime" rule).  These rules are independently
 // enabled by the 'rotateOnSize' and 'rotateOnLifetime' methods, respectively.
 // If both rules are in effect, log file rotation is performed when either rule
-// applies.  When file rotation occurs, the current log file is closed and
-// optionally renamed as indicated by the most recent successful call to
-// 'enableFileLogging' (e.g., a typical configuration will cause the file
-// to be renamed by appending a timestamp of the form '.YYYYMMDD_HHMMSS').
-// Finally, a new log file is opened.
+// applies.
+//
+///Rotated File Naming
+///- - - - - - - - - -
+// When file rotation occurs, the current log file is closed and renamed
+// depending on the most recent successful call to 'enableFileLogging'.  If the
+// log filename pattern does not contain a '%'-escape sequence and
+// 'appendTimestampFlag' is set to 'false' when 'enableFileLogging' is called,
+// the log file will be renamed with a timestamp appended.  Otherwise, the
+// current log file is assumed to be unique, and log file is simple closed and
+// and new log file is opened during rotation.
+//
+// There is a possibility that the new log file has the same name as the
+// rotated file.  This often occurs when the filename pattern has a timestamp
+// that does not have resolution in seconds (e.g. "a.log.%Y%M%D").  To resolve
+// this, if the new log file has the same name as the rotated file, a ".1"
+// suffix will be appended to the rotated file.  If a file already exists with
+// a ".N" suffix, rename the existing file with the suffix ".N+1"
+// (recursively).
+//
+// The table below demonstrates the names of the log files opened at
+// '2011-May-11 12:30:00' based on the filename patterns and whether
+// 'appendTimestampFlag' is set to 'true':
+//..
+// ----------------+-------+-------------------------+-------------------------
+//  Pattern        | Flag  | Name Before Rotation    | Name After Rotation
+// ----------------+-------+-------------------------+-------------------------
+//  "a.log"        | true  | "a.log.20110520_123000" | "a.log.20110520_123000"
+//  "a.log"        | false | "a.log"                 | "a.log.20110520_123000"
+//  "a.log.%Y%M%D" | true  | "a.log.20110520"        | "a.log.20110520"
+//  "a.log.%Y%M%D" | false | "a.log.20110520"        | "a.log.20110520"
+// ----------------+-------+-------------------------+-------------------------
+//..
 //
 ///Thread-Safety
 ///-------------
@@ -361,16 +409,23 @@ class bael_FileObserver : public bael_Observer {
         //   %h - current hour (two digits with leading zeros)
         //   %m - current minute (two digits with leading zeros)
         //   %s - current second (two digits with leading zeros)
-        //   %% - the empty string
+        //   %% - the empty string (used to prevent a timestamp from being
+        //        added to the filename if 'appendTimestampFlag' is 'true')
         //..
         // Each time a log file is opened by this file observer (upon a
         // successful call to this method and following each log file rotation)
         // the name of the log file is derived from 'logFilenamePattern' by
-        // interpolating the above recognized '%'-escape sequences and
-        // optionally appending '.%Y%M%D_%H%M%S' (the current timestamp).  The
-        // timestamp is appended to the filename *only* if 'timestampFlag' is
-        // 'true' *and* the basename of 'logFilenamePattern' does *not* contain
-        // any of the '%'-escape sequences recognized by this method.
+        // interpolating the above recognized '%'-escape sequences.
+        // Optionally, if the basename of 'logFilenamePattern' does *not*
+        // contain any of the '%'-escape sequences recognized by this method,
+        // supply 'appendTimestampFlag' as 'true' to append '.%Y%M%D_%H%M%S'
+        // (the current timestamp) to the filename.  If 'appendTimestampFlag'
+        // is 'false' and 'logFilenamePattern' does not contain a recognized
+        // '%'-escape sequence, a timestamp will be appended to the file *only*
+        // when it is rotated (see the "Log File Rotation" section under
+        // @DESCRIPTION in the component-level documentation for details).
+        // 'appendTimestampFlag' has no effect if 'logFilenamePattern' contains
+        // a recognized '%'-escape sequence.
         //
         // Return 0 on success, a positive value if file logging is already
         // enabled, and a negative value for any I/O error.

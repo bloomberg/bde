@@ -1,4 +1,4 @@
-// bael_fileobserver2.t.cpp        -*-C++-*-
+// bael_fileobserver2.t.cpp                                           -*-C++-*-
 #include <bael_fileobserver2.h>
 
 #include <bael_context.h>
@@ -522,6 +522,82 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
+      case 6: {
+        // --------------------------------------------------------------------
+        // --------------------------------------------------------------------
+        bael_LoggerManagerConfiguration configuration;
+
+        // Publish synchronously all messages regardless of their severity.
+        // This configuration also guarantees that the observer will only
+        // see each message only once.
+
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                              bael_Severity::BAEL_OFF,
+                                              bael_Severity::BAEL_TRACE,
+                                              bael_Severity::BAEL_OFF,
+                                              bael_Severity::BAEL_OFF));
+
+        bael_MultiplexObserver multiplexObserver;
+        bael_LoggerManager::initSingleton(&multiplexObserver,
+                                          configuration);
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+        if (verbose) cout << "Test-case infrastructure setup." << endl;
+        {
+            bsl::string filename = tempFileName(veryVerbose);
+
+            Obj mX(&ta);  const Obj& X = mX;
+            multiplexObserver.registerObserver(&mX);
+
+            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+
+            if (verbose) cout << "Testing setup." << endl;
+            {
+                ASSERT(0 == mX.enableFileLogging((filename + "%%").c_str(),
+                                                 false));
+                mX.rotateOnSize(1);
+                ASSERT(X.isFileLoggingEnabled());
+
+                BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
+
+                glob_t globbuf;
+                ASSERT(0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
+                ASSERT(1 == globbuf.gl_pathc);
+                bsl::ifstream fs;
+                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                globfree(&globbuf);
+                ASSERT(fs.is_open());
+                int linesNum = 0;
+                bsl::string line;
+                while (getline(fs, line)) {
+                    ++linesNum;
+                }
+                fs.close();
+                ASSERT(2 == linesNum);
+                ASSERT(X.isFileLoggingEnabled());
+            }
+
+            if (verbose) cout << "Testing rotation." << endl;
+            {
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".1").c_str()));
+                char buffer[512];
+                memset(buffer, 'x', sizeof buffer);
+                buffer[sizeof buffer - 1] = '\0';
+
+                BAEL_LOG_TRACE << buffer << BAEL_LOG_END;
+                mX.disableFileLogging();
+
+                ASSERT(0 == mX.enableFileLogging((filename + "%%").c_str(),
+                                                 false));
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".1").c_str()));
+
+                BAEL_LOG_TRACE << buffer << BAEL_LOG_END;
+                BAEL_LOG_TRACE << 'x' << BAEL_LOG_END;
+                ASSERT(1 == bdesu_FileUtil::exists((filename + ".1").c_str()));
+            }
+        }
+
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING LOG FILE ROLLING
@@ -622,7 +698,7 @@ int main(int argc, char *argv[])
                 mX.rotateOnSize(1);
                 ASSERT(1 == X.rotationSize());
                 ASSERT(0 == bdesu_FileUtil::exists((filename + ".3").c_str()));
-                for (int i = 0 ; i < 30; ++i) {
+                for (int i = 0 ; i < 15; ++i) {
                     BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
                 }
                 ASSERT(1 == bdesu_FileUtil::exists((filename + ".3").c_str()));
@@ -1080,7 +1156,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == X.rotationSize());
                 mX.rotateOnSize(1);
                 ASSERT(1 == X.rotationSize());
-                for (int i = 0 ; i < 30; ++i) {
+                for (int i = 0 ; i < 15; ++i) {
                     BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
                     // We sleep because otherwise, the loop is too fast to make
@@ -1108,7 +1184,7 @@ int main(int argc, char *argv[])
                 mX.disableSizeRotation();
                 ASSERT(0 == X.rotationSize());
 
-                for (int i = 0 ; i < 30; ++i) {
+                for (int i = 0 ; i < 15; ++i) {
                     BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
                     bcemt_ThreadUtil::microSleep(50 * 1000);
                 }
