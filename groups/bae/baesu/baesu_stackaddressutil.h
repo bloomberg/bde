@@ -36,6 +36,17 @@ struct baesu_StackAddressUtil {
     // This struct provides a namespace for the function to obtain return
     // addresses from the stack.
 
+    // On some platforms, 'getStackAddresses' finds a frame representing
+    // 'getStackAddresses' itself.  This frame is usually unwanted.
+    // 'IGNORE_FRAMES' instructs the caller as to whether the first frame is
+    // such an unwanted frame.
+
+#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_WINDOWS)
+    enum { IGNORE_FRAMES = 1 };
+#else
+    enum { IGNORE_FRAMES = 0 };
+#endif
+
     // CLASS METHODS
     static
     int getStackAddresses(void   **buffer,

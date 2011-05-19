@@ -193,6 +193,8 @@ bsl::ostream *out_p;    // pointer to either 'cout' or a dummy stringstream
                         // that is never output, depending on the value of
                         // 'verbose'.
 
+static const bsl::size_t npos = bsl::string::npos;
+
 static inline
 bool problem()
 {
@@ -286,8 +288,7 @@ void testStackTrace(const baesu_StackTrace& st)
         const Frame& frame = st.stackFrame(i);
 
         ASSERT(frame.address());
-        ASSERT((PLAT_WIN && !DEBUG_ON) || (frame.libraryFileName() &&
-                                                    *frame.libraryFileName()));
+        ASSERT((PLAT_WIN && !DEBUG_ON) || frame.libraryFileName().c_str());
 
         // The very last symbol might be weird on some platforms, so tolerate
         // that.
@@ -296,9 +297,8 @@ void testStackTrace(const baesu_StackTrace& st)
             continue;
         }
 
-        ASSERT((PLAT_WIN && !DEBUG_ON) || (frame.symbolName() &&
-                                                         *frame.symbolName()));
-        if (bsl::strstr(nullGuard(frame.symbolName()), "main")) {
+        ASSERT((PLAT_WIN && !DEBUG_ON) || frame.isSymbolNameValid());
+        if (npos != frame.symbolName().find("main")) {
             reachedMain = true;
         }
 
@@ -312,7 +312,7 @@ void testStackTrace(const baesu_StackTrace& st)
         }
 
         if (!FORMAT_ELF && DEBUG_ON) {
-            ASSERT(frame.sourceFileName() && *frame.sourceFileName());
+            ASSERT(frame.isSourceFileNameValid());
             ASSERT(frame.lineNumber() > 0);
         }
 
@@ -407,7 +407,7 @@ void case_12_top()
 
             for (int i = 0; i < st.numFrames(); ++i) {
                 const baesu_StackTraceFrame frame = st.stackFrame(i);
-                const char *lnBegin = nullGuard(frame.libraryFileName());
+                const char *lnBegin = frame.libraryFileName().c_str();
                 const char *ln = lnBegin + bsl::strlen(lnBegin);
                 while (ln > lnBegin && '/' != ln[-1] && '\\' != ln[-1]) {
                     --ln;
@@ -421,7 +421,9 @@ void case_12_top()
                             "(%d) %s+0x" SIZE_T_CONTROL_STRING " at 0x"
                                               SIZE_T_CONTROL_STRING " in %s\n",
                             i,
-                            nullGuard(frame.symbolName()),
+                            frame.isSymbolNameValid()
+                                                   ? frame.symbolName().c_str()
+                                                   : "-- unknown",
                             (UintPtr) frame.offsetFromSymbol(),
                             (UintPtr) frame.address(),
                             ln);
@@ -575,13 +577,12 @@ void case_11_top()
     for (int i = 0; i < st.numFrames(); ++i) {
         const baesu_StackTraceFrame& frame = st.stackFrame(i);
 
-        size_t mangled = bsl::strlen(nullGuard(frame.mangledSymbolName()));
+        size_t mangled = frame.mangledSymbolName().length();
         if (mangled > maxMangled) {
             maxMangled = mangled;
-            maxMangledStr = nullGuard(frame.mangledSymbolName());
+            maxMangledStr = frame.mangledSymbolName().c_str();
         }
-        maxDemangled = bsl::max(maxDemangled,
-                                bsl::strlen(nullGuard(frame.symbolName())));
+        maxDemangled = bsl::max(maxDemangled, frame.symbolName().length());
     }
 
     if (verbose) {
@@ -743,12 +744,12 @@ void case_7_top(bool demangle)
         if (DEBUG_ON || !PLAT_WIN) {
             // check that the names are right
 
-            bool dot = '.' == *st.stackFrame(0).symbolName();
+            bool dot = '.' == *st.stackFrame(0).symbolName().c_str();
 
             const char *match = ".case_7_top";
             match += !dot;
             int len = bsl::strlen(match);
-            const char *sn = st.stackFrame(0).symbolName();
+            const char *sn = st.stackFrame(0).symbolName().c_str();
             LOOP3_ASSERT(sn, match, len,
                                    !demangle || !bsl::strncmp(sn, match, len));
             LOOP2_ASSERT(sn, match,              bsl::strstr( sn, match));
@@ -758,7 +759,7 @@ void case_7_top(bool demangle)
                 // for globals
 
                 const char *sfnMatch = "baesu_stacktrace.t.cpp";
-                const char *sfn = st.stackFrame(0).sourceFileName();
+                const char *sfn = st.stackFrame(0).sourceFileName().c_str();
                 sfn = nullGuard(sfn);
 
                 int sfnMatchLen = bsl::strlen(sfnMatch);
@@ -775,7 +776,7 @@ void case_7_top(bool demangle)
             bool finished = false;
             int recursersFound = 0;
             for (int i = 1; i < st.numFrames(); ++i) {
-                sn = st.stackFrame(i).symbolName();
+                sn = st.stackFrame(i).symbolName().c_str();
                 if (!sn || !*sn) {
                     ASSERT(sn && *sn);
                     break;
@@ -804,8 +805,8 @@ void case_7_top(bool demangle)
                     // platforms.
 
                     const char *sfnMatch = "baesu_stacktrace.t.cpp";
-                    const char *sfn = st.stackFrame(i).sourceFileName();
-                    sfn = nullGuard(sfn);
+                    const char *sfn =
+                                     st.stackFrame(i).sourceFileName().c_str();
 
                     int sfnMatchLen = bsl::strlen(sfnMatch);
                     int sfnLen = bsl::strlen(sfn);
@@ -1226,38 +1227,29 @@ void top(bslma_Allocator *alloc)
     }
 
     {
-        // note that on Linux, 'getStackAddresses' gets one extra address at
-        // the top of the stack that we're not interested in.
-        // 'printStackAddresses' and 'initializeFromStack' automatically adjust
-        // for this.
+        enum { IGNORE_FRAMES = baesu_StackAddressUtil::IGNORE_FRAMES };
 
-#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_WINDOWS)
-        enum { IGNORE_OFFSET = 1 };
-#else
-        enum { IGNORE_OFFSET = 0 };
-#endif
-
-        void *addresses[3 + IGNORE_OFFSET];
+        void *addresses[3 + IGNORE_FRAMES];
         bsl::memset(addresses, 0, sizeof(addresses));
         int na = baesu_StackAddressUtil::getStackAddresses(addresses,
-                                                           3 + IGNORE_OFFSET);
-        na -= IGNORE_OFFSET;
+                                                           3 + IGNORE_FRAMES);
+        na -= IGNORE_FRAMES;
 
         if (!PLAT_WIN || DEBUG_ON) {
             LOOP_ASSERT(na, 3 == na);
 
             Obj st;
-            int rc = st.initializeFromAddressArray(addresses + IGNORE_OFFSET,
+            int rc = st.initializeFromAddressArray(addresses + IGNORE_FRAMES,
                                                    na);
             ASSERT(!rc);
             LOOP_ASSERT(st.numFrames(), st.numFrames() == na);
 
             const char *sn;
-            sn = st.stackFrame(0).symbolName();
+            sn = st.stackFrame(0).symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "top"));
-            sn = st.stackFrame(1).symbolName();
+            sn = st.stackFrame(1).symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "bottom"));
-            sn = st.stackFrame(2).symbolName();
+            sn = st.stackFrame(2).symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "main"));
 
             LOOP_ASSERT(st, !problem());
@@ -1273,11 +1265,11 @@ void top(bslma_Allocator *alloc)
             LOOP_ASSERT(st.numFrames(), 3 == st.numFrames());
 
             const char *sn;
-            sn = st.stackFrame(0).symbolName();
+            sn = st.stackFrame(0).symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "top"));
-            sn = st.stackFrame(1).symbolName();
+            sn = st.stackFrame(1).symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "bottom"));
-            sn = st.stackFrame(2).symbolName();
+            sn = st.stackFrame(2).symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "main"));
         }
 
@@ -1399,7 +1391,7 @@ void recurseAndPrintExample3(int *depth)
         for (int i = 0; i < st.numFrames(); ++i) {
             const baesu_StackTraceFrame& frame = st.stackFrame(i);
 
-            const char *sn = frame.symbolName();
+            const char *sn = frame.symbolName().c_str();
             sn = sn ? sn : "--unknown--";
             *out_p << '(' << i << "): " << sn << endl;
         }
@@ -1637,7 +1629,7 @@ int main(int argc, char *argv[])
 
             if (!PLAT_WIN || DEBUG_ON) {
                 LOOP2_ASSERT(i, frame.symbolName(),
-                                      bsl::strstr(frame.symbolName(), "main"));
+                                      npos != frame.symbolName().find("main"));
 
                 ASSERT(thisAddress > lastAddress);
 

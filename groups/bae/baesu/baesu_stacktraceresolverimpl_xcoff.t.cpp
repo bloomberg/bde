@@ -83,6 +83,12 @@ typedef baesu_StackTraceFrame                                       Frame;
 typedef bsls_Types::UintPtr                                         UintPtr;
 
 //=============================================================================
+// GLOBAL HELPER VARIABLES FOR TESTING
+//-----------------------------------------------------------------------------
+
+static const bsl::size_t npos = bsl::string::npos;
+
+//=============================================================================
 // GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -182,18 +188,6 @@ bool safeCmp(const char *a, const char *b, int len = -1)
     }
 
     return -1 == len ? !bsl::strcmp(a, b) : !bsl::strncmp(a, b, len);
-}
-
-static
-bool safeStrStr(const char *string, const char *target)
-    // Return 'true' if the specified 'target' points to a string contained in
-    // the specified 'string'.  Return 'false' if 'string' or 'target' is null.
-{
-    if (!string || !target) {
-        return false;                                                 // RETURN
-    }
-
-    return bsl::strstr(string, target);
 }
 
 static
@@ -360,16 +354,11 @@ int main(int argc, char *argv[])
             const char *name;
 
             for (int i = 0; i < frames.size(); ++i) {
-                name = frames.at(i).mangledSymbolName();
-                ASSERT(!name);
-                name = frames.at(i).symbolName();
-                ASSERT(!name);
-                name = frames.at(i).libraryFileName();
-                ASSERT(!name);
-                name = frames.at(i).sourceFileName();
-                ASSERT(!name);
-                line = frames.at(i).lineNumber();
-                ASSERT(line < 0);
+                ASSERT(!frames.at(i).isMangledSymbolNameValid());
+                ASSERT(!frames.at(i).isSymbolNameValid());
+                ASSERT(!frames.at(i).isLibraryFileNameValid());
+                ASSERT(!frames.at(i).isSourceFileNameValid());
+                ASSERT(!frames.at(i).isLineNumberValid());
             }
 
             Obj::resolve(&frames,
@@ -385,15 +374,11 @@ int main(int argc, char *argv[])
             }
 
             for (int i = 0; i < frames.size(); ++i) {
-                name = frames.at(i).mangledSymbolName();
-                LOOP2_ASSERT(i, ng(name), name && *name);
-                name = frames.at(i).symbolName();
-                LOOP2_ASSERT(i, ng(name), name && *name);
-                name = frames.at(i).libraryFileName();
-                LOOP2_ASSERT(i, ng(name), name && *name);
+                LOOP_ASSERT(i, frames.at(i).isMangledSymbolNameValid());
+                LOOP_ASSERT(i, frames.at(i).isSymbolNameValid());
+                LOOP_ASSERT(i, frames.at(i).isLibraryFileNameValid());
                 if (debug && 4 != i) {
-                    name = frames.at(i).sourceFileName();
-                    LOOP2_ASSERT(i, ng(name), name && *name);
+                    LOOP_ASSERT(i, frames.at(i).isSourceFileNameValid());
                     line = frames.at(i).lineNumber();
                     LOOP2_ASSERT(i, line, line > 0);
                     if (2 == i) {
@@ -407,26 +392,27 @@ int main(int argc, char *argv[])
             }
 
             if (verbose) P(frames.at(0).libraryFileName());
-            ASSERT(safeCmp(frames.at(0).libraryFileName(),
+            ASSERT(safeCmp(frames.at(0).libraryFileName().c_str(),
                            "baesu_stacktraceresolverimpl_xcoff.t.",
                            32));
             for (int i = 1; i < frames.size(); ++i) {
                 if (4 == i) {
                     if (verbose) P(frames.at(4).libraryFileName());
                     LOOP2_ASSERT(i, frames.at(4).libraryFileName(),
-                     safeStrStr(frames.at(4).libraryFileName(), "/lib/libc."));
-                    ASSERT('/' == *frames.at(4).libraryFileName());
+                             npos != frames.at(4).libraryFileName().find(
+                                                                "/lib/libc."));
+                    ASSERT('/' == frames.at(4).libraryFileName()[0]);
                 }
                 else {
                     LOOP2_ASSERT(i, frames.at(i).libraryFileName(),
-                                      safeCmp(frames.at(0).libraryFileName(),
-                                              frames.at(i).libraryFileName()));
+                                      frames.at(0).libraryFileName() ==
+                                               frames.at(i).libraryFileName());
                 }
             }
 
             if (debug) {
                 for (int i = 0; i < frames.size(); ++i) {
-                    name = frames.at(i).sourceFileName();
+                    name = frames.at(i).sourceFileName().c_str();
                     LOOP_ASSERT(i, 4 == i || (name && *name));
                     if (name) {
                         const char *pc = name + bsl::strlen(name);
@@ -455,31 +441,31 @@ int main(int argc, char *argv[])
             }
 
             LOOP_ASSERT(frames.at(0).symbolName(),
-                       safeStrStr(frames.at(0).symbolName(), "funcGlobalOne"));
+                      npos != frames.at(0).symbolName().find("funcGlobalOne"));
             LOOP_ASSERT(frames.at(1).symbolName(),
-                       safeStrStr(frames.at(1).symbolName(), "funcStaticOne"));
+                      npos != frames.at(1).symbolName().find("funcStaticOne"));
             LOOP_ASSERT(frames.at(0).mangledSymbolName(),
-                safeStrStr(frames.at(0).mangledSymbolName(), "funcGlobalOne"));
+               npos != frames.at(0).mangledSymbolName().find("funcGlobalOne"));
             LOOP_ASSERT(frames.at(1).mangledSymbolName(),
-                safeStrStr(frames.at(1).mangledSymbolName(), "funcStaticOne"));
+               npos != frames.at(1).mangledSymbolName().find("funcStaticOne"));
             LOOP_ASSERT(frames.at(2).symbolName(),
-                       safeStrStr(frames.at(2).symbolName(), "testFunc"));
+                           npos != frames.at(2).symbolName().find("testFunc"));
             LOOP_ASSERT(frames.at(2).mangledSymbolName(),
-                safeStrStr(frames.at(2).mangledSymbolName(), "testFunc"));
+                    npos != frames.at(2).mangledSymbolName().find("testFunc"));
             LOOP_ASSERT(frames.at(3).mangledSymbolName(),
-                safeStrStr(frames.at(3).mangledSymbolName(), "resolve"));
+                     npos != frames.at(3).mangledSymbolName().find("resolve"));
             LOOP_ASSERT(frames.at(4).mangledSymbolName(),
-                safeStrStr(frames.at(4).mangledSymbolName(), "qsort"));
+                       npos != frames.at(4).mangledSymbolName().find("qsort"));
 
             if (demangle) {
                 LOOP_ASSERT(frames.at(0).symbolName(),
-                    safeCmp(frames.at(0).symbolName(), ".funcGlobalOne(int)"));
+                           frames.at(0).symbolName() == ".funcGlobalOne(int)");
                 LOOP_ASSERT(frames.at(1).symbolName(),
-                    safeCmp(frames.at(1).symbolName(), ".funcStaticOne(int)"));
+                           frames.at(1).symbolName() == ".funcStaticOne(int)");
                 LOOP_ASSERT(frames.at(2).symbolName(),
-                             safeCmp(frames.at(2).symbolName(), "BloombergLP::"
+                             frames.at(2).symbolName() == "BloombergLP::"
                                    "baesu_StackTraceResolverImpl<BloombergLP::"
-                               "baesu_ObjectFileFormat::Xcoff>::.testFunc()"));
+                               "baesu_ObjectFileFormat::Xcoff>::.testFunc()");
                 {
                     const char *match =
                                    "BloombergLP::"
@@ -487,10 +473,12 @@ int main(int argc, char *argv[])
                                    "baesu_ObjectFileFormat::Xcoff>::.resolve(";
                     int matchLen = bsl::strlen(match);
                     LOOP_ASSERT(frames.at(3).symbolName(),
-                          safeCmp(frames.at(3).symbolName(), match, matchLen));
+                                     safeCmp(frames.at(3).symbolName().c_str(),
+                                             match,
+                                             matchLen));
                 }
                 LOOP_ASSERT(frames.at(4).symbolName(),
-                                 safeCmp(frames.at(4).symbolName(), ".qsort"));
+                                        frames.at(4).symbolName() == ".qsort");
 
                 break;
             }

@@ -233,18 +233,12 @@ int func0()
                                                                 buffer,
                                                                 BUFFER_LENGTH);
 
-#ifdef BSLS_PLATFORM__OS_LINUX
-    enum { START_INDEX = 1 };
-#else
-    enum { START_INDEX = 0 };
-#endif
-
-    for (int toIndex = 0, fromIndex = START_INDEX;
+    for (int toIndex = 0, fromIndex = baesu_StackAddressUtil::IGNORE_FRAMES;
                             fromIndex < numAddresses; ++toIndex, ++fromIndex) {
         entries[toIndex].d_returnAddress = (UintPtr) buffer[fromIndex];
         entries[toIndex].d_traceIndex    = toIndex;
     }
-    numAddresses -= START_INDEX;
+    numAddresses -= baesu_StackAddressUtil::IGNORE_FRAMES;
 
     bsl::sort(entries, entries + numAddresses);
 

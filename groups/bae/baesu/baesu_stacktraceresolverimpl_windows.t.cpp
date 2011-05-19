@@ -88,6 +88,8 @@ typedef bsls_Types::IntPtr                                            IntPtr;
 // GLOBAL HELPER VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
 
+static const bsl::size_t npos = bsl::string::npos;
+
 //=============================================================================
 // GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -141,30 +143,6 @@ const void *addFixedOffset(bsls_Types::UintPtr funcAddress)
     const char *ptr = (const char *) funcAddress;
 
     return ptr + 4;
-}
-
-static
-bool safeCmp(const char *a, const char *b)
-    // Do '!strcmp', returning 'true' if the specified 'a' and 'b' point to
-    // identical strings.  Return 'false' if either one is null.
-{
-    if (!a || !b) {
-        return false;                                                 // RETURN
-    }
-
-    return !bsl::strcmp(a, b);
-}
-
-static
-bool safeStrStr(const char *string, const char *target)
-    // Return 'true' if the specified 'target' points to a string contained in
-    // the specified 'string'.  Return 'false' if 'string' or 'target' is null.
-{
-    if (!string || !target) {
-        return false;                                                 // RETURN
-    }
-
-    return bsl::strstr(string, target);
 }
 
 static
@@ -322,17 +300,12 @@ int main(int argc, char *argv[])
 
         for (unsigned i = 0; i < frames.size(); ++i) {
             const baesu_StackTraceFrame& frame = frames[i];
-            const char *name;
 
-            name = frame.mangledSymbolName();
-            ASSERT(!name);
-            name = frame.symbolName();
-            ASSERT(!name);
-            name = frame.libraryFileName();
-            ASSERT(!name);
-            name = frame.sourceFileName();
-            ASSERT(!name);
-            ASSERT(frame.lineNumber() < 0);
+            ASSERT(!frame.isMangledSymbolNameValid());
+            ASSERT(!frame.isSymbolNameValid());
+            ASSERT(!frame.isLibraryFileNameValid());
+            ASSERT(!frame.isSourceFileNameValid());
+            ASSERT(!frame.isLineNumberValid());
         }
 
         Obj::resolve(&frames,
@@ -346,31 +319,26 @@ int main(int argc, char *argv[])
 
         for (unsigned i = 0; i < frames.size(); ++i) {
             const baesu_StackTraceFrame& frame = frames[i];
-            const char *name;
+            bsl::string name;
 
-            name = frame.mangledSymbolName();
-            LOOP_ASSERT(ng(name), name && *name);
-            name = frame.symbolName();
-            LOOP_ASSERT(ng(name), name && *name);
+            ASSERT(frame.isMangledSymbolNameValid());
+            ASSERT(frame.isSymbolNameValid());
+            ASSERT(frame.isLibraryFileNameValid());
             name = frame.libraryFileName();
-            LOOP_ASSERT(ng(name), name && *name);
-            LOOP_ASSERT(name, safeStrStr(frame.libraryFileName(),
-                              "\\baesu_stacktraceresolverimpl_windows."));
-            LOOP_ASSERT(name, safeStrStr(frame.libraryFileName(), ".exe"));
+            LOOP_ASSERT(name, npos != name.find(
+                                   "\\baesu_stacktraceresolverimpl_windows."));
+            LOOP_ASSERT(name, npos != name.find(".exe"));
             if (0 == i) {
-                name = frame.sourceFileName();
-                ASSERT(name && *name);
-                if (name) {
-                    const char *pc = name + bsl::strlen(name);
-                    while (pc > name && '\\' != pc[-1]) {
-                        --pc;
-                    }
-
-                    LOOP_ASSERT(pc, !bsl::strcmp(pc,
-                                "baesu_stacktraceresolverimpl_windows.t.cpp"));
+                const char *cName = frame.sourceFileName().c_str();
+                const char *pc = cName + bsl::strlen(cName);
+                while (pc > cName && '\\' != pc[-1]) {
+                    --pc;
                 }
-                ASSERT(safeCmp(frame.symbolName(),           "funcStaticOne"));
-                ASSERT(safeStrStr(frame.mangledSymbolName(), "funcStaticOne"));
+
+                LOOP_ASSERT(pc, !bsl::strcmp(pc,
+                                "baesu_stacktraceresolverimpl_windows.t.cpp"));
+                ASSERT(frame.symbolName() == "funcStaticOne");
+                ASSERT(npos!= frame.mangledSymbolName().find("funcStaticOne"));
             } else if (false && 1 == i) {
                 // *NONE* of these test work.  dbghelp.dll totally falls on its
                 // face when there's an inline routine on the stack.  There's
@@ -383,16 +351,16 @@ int main(int argc, char *argv[])
                 // only write a compiler, but write one so good that it becomes
                 // universally used on Windows.  Screw it.
 
-                name = frame.sourceFileName();
-                ASSERT(safeCmp(name,"baesu_stacktraceresolverimpl_windows.h"));
+                ASSERT(frame.sourceFileName() ==
+                                     "baesu_stacktraceresolverimpl_windows.h");
 
                 LOOP_ASSERT(frame.lineNumber(),
                                   abs(frame.lineNumber() - testFuncLine) < 30);
-                ASSERT(safeStrStr(frame.mangledSymbolName(), "testFunc"));
-                LOOP_ASSERT(frame.symbolName(), safeCmp(frame.symbolName(),
+                ASSERT(npos != frame.mangledSymbolName().find("testFunc"));
+                LOOP_ASSERT(frame.symbolName(), frame.symbolName() ==
                                "BloombergLP::baesu_StackTraceResolverImpl"
                                "<BloombergLP::baesu_ObjectFileFormat::Windows>"
-                               "::testFunc"));
+                               "::testFunc");
             }
         }
 #endif

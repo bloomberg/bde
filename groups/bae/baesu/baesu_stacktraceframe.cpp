@@ -18,25 +18,6 @@ BDES_IDENT_RCSID(baesu_stacktraceframe_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-// STATIC METHODS
-inline
-static bool equal(const char *a, const char *b)
-    // Return 'true' if the specified strings 'a' and 'b' have the same value
-    // or are both null and 'false' otherwise.
-{
-    if      (0 == a) {
-        return 0 == b;                                                // RETURN
-    }
-    else if (0 == b) {
-        return false;                                                 // RETURN
-    }
-    else if (a == b) {
-        return true;                                                  // RETURN
-    }
-
-    return !bsl::strcmp(a, b);
-}
-
                        // ---------------------------
                        // class baesu_StackTraceFrame
                        // ---------------------------
@@ -54,13 +35,13 @@ bsl::ostream& baesu_StackTraceFrame::print(bsl::ostream& stream,
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.print(d_address_p, "address");
-    printer.print(d_libraryFileName_p, "library file name");
-    printer.print(d_lineNumber, "line number");
-    printer.print(d_offsetFromSymbol, "offset from symbol");
-    printer.print(d_sourceFileName_p, "source file name");
-    printer.print(d_mangledSymbolName_p, "mangled symbol name");
-    printer.print(d_symbolName_p, "symbol name");
+    printer.print(d_address_p,                 "address");
+    printer.print(d_libraryFileName.c_str(),   "library file name");
+    printer.print(d_lineNumber,                "line number");
+    printer.print(d_offsetFromSymbol,          "offset from symbol");
+    printer.print(d_sourceFileName.c_str(),    "source file name");
+    printer.print(d_mangledSymbolName.c_str(), "mangled symbol name");
+    printer.print(d_symbolName.c_str(),        "symbol name");
     printer.end();
 
     stream.flags(fmtFlags);
@@ -68,18 +49,6 @@ bsl::ostream& baesu_StackTraceFrame::print(bsl::ostream& stream,
 }
 
 // FREE OPERATORS
-bool operator==(const baesu_StackTraceFrame& lhs,
-                const baesu_StackTraceFrame& rhs)
-{
-    return lhs.address() ==               rhs.address()
-        && equal(lhs.libraryFileName(),   rhs.libraryFileName())
-        && lhs.lineNumber() ==            rhs.lineNumber()
-        && equal(lhs.mangledSymbolName(), rhs.mangledSymbolName())
-        && lhs.offsetFromSymbol() ==      rhs.offsetFromSymbol()
-        && equal(lhs.sourceFileName(),    rhs.sourceFileName())
-        && equal(lhs.symbolName(),        rhs.symbolName());
-}
-
 bsl::ostream& operator<<(bsl::ostream&                stream,
                          const baesu_StackTraceFrame& frame)
 {
@@ -88,11 +57,11 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     // name.
 
     if (frame.isSymbolNameValid()) {
-        stream << frame.d_symbolName_p;
+        stream << frame.symbolName();
     }
     else {
         if (frame.isMangledSymbolNameValid()) {
-            stream << frame.d_mangledSymbolName_p;
+            stream << frame.mangledSymbolName();
         }
         else {
             stream << " --unknown--";
@@ -100,10 +69,10 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     }
     stream << bsl::hex;
     if (frame.isOffsetFromSymbolValid()) {
-        stream << "+0x" << frame.d_offsetFromSymbol;
+        stream << "+0x" << frame.offsetFromSymbol();
     }
     if (frame.isAddressValid()) {
-        stream << " at 0x" << (bsls_PlatformUtil::UintPtr) frame.d_address_p;
+        stream << " at 0x" << (bsls_PlatformUtil::UintPtr) frame.address();
     }
     stream << bsl::dec;
     if (frame.isSourceFileNameValid()) {
@@ -114,7 +83,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 #endif
         // point 'pc' to the basename
 
-        const char *pcB = frame.d_sourceFileName_p;
+        const char *pcB = frame.sourceFileName().c_str();
         const char *pc = pcB + bsl::strlen(pcB);
         while (pc > pcB && '/' != pc[-1] && '\\' != pc[-1]) {
             --pc;
@@ -128,7 +97,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     if (frame.isLibraryFileNameValid()) {
         // unless it's a shared library, point 'pc' to the basename
 
-        const char *pcB = frame.d_libraryFileName_p;
+        const char *pcB = frame.libraryFileName().c_str();
         const char *pc = pcB + bsl::strlen(pcB);
 #ifdef BSLS_PLATFORM__OS_WINDOWS
         const bool isUnix = false;

@@ -1633,7 +1633,7 @@ int Local::StackTraceResolver::resolve(
         // list of segments.
 
         int i = stackFrames->size() - 1;
-        while (i >= 0 && (*stackFrames)[i].symbolName()) {
+        while (i >= 0 && (*stackFrames)[i].isSymbolNameValid()) {
             --i;
         }
         if (i < 0) {
@@ -1684,8 +1684,8 @@ int Local::StackTraceResolver::resolve(
     // shared libraries at least some of the time
 
     for (int i = 0; i < (int) stackFrames->size(); ++i) {
-        if (!bsl::strcmp((*stackFrames)[i].sourceFileName(), ".file")) {
-            (*stackFrames)[i].setSourceFileName(0);
+        if (!bsl::strcmp((*stackFrames)[i].sourceFileName().c_str(), ".file")){
+            (*stackFrames)[i].setSourceFileName("");
         }
     }
 

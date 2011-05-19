@@ -422,17 +422,18 @@ int main(int argc, char *argv[])
             }
 #undef IS_VALID
 
-            const char *libName = ng(frames[0].libraryFileName());
+            const char *libName = frames[0].libraryFileName().c_str();
             const char *thisLib = "baesu_stacktraceresolverimpl_elf.t";
 #undef  GOOD_LIBNAME
 #define GOOD_LIBNAME(func, exp, match) \
             LOOP3_ASSERT(#func, exp, ng(match), func(ng(exp), match));
 
-            GOOD_LIBNAME(safeStrStr,  frames[0].libraryFileName(), thisLib);
-            GOOD_LIBNAME(safeCmp,     frames[1].libraryFileName(), libName);
-            GOOD_LIBNAME(safeCmp,     frames[2].libraryFileName(), libName);
-            GOOD_LIBNAME(safeCmp,     frames[3].libraryFileName(), libName);
-            GOOD_LIBNAME(safeCmp,     frames[4].libraryFileName(), libName);
+            GOOD_LIBNAME(safeStrStr,
+                                  frames[0].libraryFileName().c_str(),thisLib);
+            GOOD_LIBNAME(safeCmp, frames[1].libraryFileName().c_str(),libName);
+            GOOD_LIBNAME(safeCmp, frames[2].libraryFileName().c_str(),libName);
+            GOOD_LIBNAME(safeCmp, frames[3].libraryFileName().c_str(),libName);
+            GOOD_LIBNAME(safeCmp, frames[4].libraryFileName().c_str(),libName);
 #undef  GOOD_LIBNAME
 
             // frame[1] was pointing to a static, the ELF resolver should have
@@ -441,11 +442,11 @@ int main(int argc, char *argv[])
 #ifndef BSLS_PLATFORM__OS_LINUX
             for (unsigned i = 0; i < frames.size(); ++i) {
                 if (0 == i || 2 == i || 4 == i) {
-                    ASSERT(!frames[i].sourceFileName());
+                    ASSERT(!frames[i].isSourceFileNameValid());
                     continue;
                 }
 
-                const char *name = ng(frames[i].sourceFileName());
+                const char *name = frames[i].sourceFileName().c_str();
                 ASSERT(name && *name);
                 if (name) {
                     const char *pc = name + bsl::strlen(name);
@@ -461,7 +462,7 @@ int main(int argc, char *argv[])
 
 #undef  SM
 #define SM(nm, match) {                                             \
-                const char *name = nm;                              \
+                const char *name = nm.c_str();                      \
                 LOOP2_ASSERT(name, match, safeStrStr(name, match)); \
             }
 
@@ -479,9 +480,9 @@ int main(int argc, char *argv[])
 
             if (demangle) {
 #undef  SM
-#define SM(i, match) {                                         \
-                    const char *name = frames[i].symbolName(); \
-                    LOOP_ASSERT(name, safeCmp(name, match));   \
+#define SM(i, match) {                                                 \
+                    const char *name = frames[i].symbolName().c_str(); \
+                    LOOP_ASSERT(name, safeCmp(name, match));           \
                 }
 
                 SM(0, "funcGlobalOne(int)");
@@ -498,7 +499,7 @@ int main(int argc, char *argv[])
                                       "baesu_ObjectFileFormat::Elf>::"
                                       "resolve(";
                 int resNameLen = bsl::strlen(resName);
-                const char *name4 = frames[4].symbolName();
+                const char *name4 = frames[4].symbolName().c_str();
                 LOOP2_ASSERT(name4, resName,
                                           safeCmp(name4, resName, resNameLen));
                 break;

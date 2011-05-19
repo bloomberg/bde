@@ -884,7 +884,7 @@ int Local::StackTraceResolver::loadSymbols()
                                             d_scratchBuf_p,
                                             Local::SCRATCH_BUF_LEN,
                                             d_allocator_p));
-                            if (frame.mangledSymbolName()) {
+                            if (frame.isMangledSymbolNameValid()) {
                                 setFrameSymbolName(&frame);
                             }
 
@@ -1013,24 +1013,24 @@ void Local::StackTraceResolver::setFrameSymbolName(
     int status = -1;
     char *demangledSymbol = 0;
     if (d_demangle) {
-        // note this routine uses malloc to allocate its result
+        // note the demangler uses malloc to allocate its result
 
 #if defined(BSLS_PLATFORM__OS_HPUX)
-        demangledSymbol = __cxa_demangle(frame->mangledSymbolName(),
+        demangledSymbol = __cxa_demangle(frame->mangledSymbolName().c_str(),
                                          0,
                                          0,
                                          &status);
 #else
-        demangledSymbol = abi::__cxa_demangle(frame->mangledSymbolName(),
-                                              0,
-                                              0,
-                                              &status);
+        demangledSymbol = abi::__cxa_demangle(
+                                            frame->mangledSymbolName().c_str(),
+                                            0,
+                                            0,
+                                            &status);
 #endif
     }
     if (0 == status) {
         zprintf("Demangled to: %s\n", demangledSymbol);
-        frame->setSymbolName(bdeu_String::copy(demangledSymbol,
-                                               d_allocator_p));
+        frame->setSymbolName(demangledSymbol);
     }
     else {
         zprintf("Did not demangle: status: %d\n", status);

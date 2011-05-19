@@ -188,31 +188,6 @@ typedef baesu_StackTraceFrame Obj;
 //                     GLOBAL FUNCTIONS USED FOR TESTING
 // ============================================================================
 
-void cloneStrings(Obj *sfn, bslma_Allocator *alloc)
-{
-    const char *pc;
-
-    pc = sfn->libraryFileName();
-    if (pc) {
-        sfn->setLibraryFileName(bdeu_String::copy(pc, alloc));
-    }
-
-    pc = sfn->sourceFileName();
-    if (pc) {
-        sfn->setSourceFileName(bdeu_String::copy(pc, alloc));
-    }
-
-    pc = sfn->mangledSymbolName();
-    if (pc) {
-        sfn->setMangledSymbolName(bdeu_String::copy(pc, alloc));
-    }
-
-    pc = sfn->symbolName();
-    if (pc) {
-        sfn->setSymbolName(bdeu_String::copy(pc, alloc));
-    }
-}
-
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -235,6 +210,7 @@ int main(int argc, char *argv[])
     bslma_Default::setGlobalAllocator(&globalAllocator);
     bslma_TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma_Default::setDefaultAllocator(&defaultAllocator);
+    bslma_TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:
       case 10: {
@@ -259,7 +235,7 @@ int main(int argc, char *argv[])
         bslma_TestAllocator ta;
         bdema_SequentialAllocator sa(&ta);
 
-        baesu_StackTraceFrame a, b;
+        baesu_StackTraceFrame a(&ta), b(&ta);
 
         ASSERT(a == b);
 
@@ -422,7 +398,7 @@ int main(int argc, char *argv[])
 
         // Attribute 2 Values: 'libraryFileName'
 
-        const T2 D2 = 0;                // default value
+        const T2 D2 = "";               // default value
         const T2 A2 = "/lib/lib1.so";
         const T2 B2 = "/lib/lib1.ko";
 
@@ -440,19 +416,19 @@ int main(int argc, char *argv[])
 
         // Attribute 5 Values: 'sourceFileName'
 
-        const T5 D5 = 0;                // default value
+        const T5 D5 = "";               // default value
         const T5 A5 = "/a/b/c/d/mysource.cpp";
         const T5 B5 = "/b/c/d/e/yoursource.cpp";
 
         // Attribute 6 Values: 'mangledSymbolName'
 
-        const T6 D6 = 0;                // default value
+        const T6 D6 = "";               // default value
         const T6 A6 = "mangledwoof";
         const T6 B6 = "woofmangled";
 
         // Attribute 7 Values: "symbolName"
 
-        const T7 D7 = 0;                // default value
+        const T7 D7 = "";               // default value
         const T7 A7 = "woof";
         const T7 B7 = "Woof";
 
@@ -540,7 +516,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_ P_(LINE1) P_(ADDRESS1) P_(LIB1) P_(LN1)
                                          P_(OFFSET1) P_(SFN1) P_(MSN1) P(SN1) }
 
-            Obj mZ;    const Obj& Z = mZ;
+            Obj mZ(&ta);    const Obj& Z = mZ;
             mZ.setAddress(ADDRESS1);
             mZ.setLibraryFileName(LIB1);
             mZ.setLineNumber(LN1);
@@ -549,7 +525,7 @@ int main(int argc, char *argv[])
             mZ.setMangledSymbolName(MSN1);
             mZ.setSymbolName(SN1);
 
-            Obj mZZ(Z);    const Obj& ZZ = mZZ;
+            Obj mZZ(Z, &ta);    const Obj& ZZ = mZZ;
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P_(ZZ) }
 
@@ -581,7 +557,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ P_(LINE2) P_(ADDRESS2) P_(LIB2) P_(LN2)
                                          P_(OFFSET2) P_(SFN2) P_(MSN2) P(SN2) }
 
-                Obj mX;    const Obj& X = mX;
+                Obj mX(&ta);    const Obj& X = mX;
                 mX.setAddress(ADDRESS2);
                 mX.setLibraryFileName(LIB2);
                 mX.setLineNumber(LN2);
@@ -684,7 +660,7 @@ int main(int argc, char *argv[])
 
         // Attribute 2 Values: 'libraryFileName'
 
-        const T2 D2 = 0;                // default value
+        const T2 D2 = "";               // default value
         const T2 A2 = "/lib/lib1.so";
         const T2 B2 = "/lib/lib1.ko";
 
@@ -702,19 +678,19 @@ int main(int argc, char *argv[])
 
         // Attribute 5 Values: 'sourceFileName'
 
-        const T5 D5 = 0;                // default value
+        const T5 D5 = "";               // default value
         const T5 A5 = "/a/b/c/d/mysource.cpp";
         const T5 B5 = "/b/c/d/e/yoursource.cpp";
 
         // Attribute 6 Values: 'mangledSymbolName'
 
-        const T6 D6 = 0;                // default value
+        const T6 D6 = "";               // default value
         const T6 A6 = "mangledwoof";
         const T6 B6 = "woofmangled";
 
         // Attribute 7 Values: "symbolName"
 
-        const T7 D7 = 0;                // default value
+        const T7 D7 = "";               // default value
         const T7 A7 = "woof";
         const T7 B7 = "Woof";
 
@@ -802,7 +778,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_ P_(LINE) P_(ADDRESS) P_(LIB) P_(LN)
                                          P_(OFFSET) P_(SFN) P_(MSN) P(SN) }
 
-            Obj mZ;    const Obj& Z = mZ;
+            Obj mZ(&ta);    const Obj& Z = mZ;
             mZ.setAddress(ADDRESS);
             mZ.setLibraryFileName(LIB);
             mZ.setLineNumber(LN);
@@ -811,7 +787,7 @@ int main(int argc, char *argv[])
             mZ.setMangledSymbolName(MSN);
             mZ.setSymbolName(SN);
 
-            Obj mZZ;    const Obj& ZZ = mZZ;
+            Obj mZZ(&ta);    const Obj& ZZ = mZZ;
             mZZ.setAddress(ADDRESS);
             mZZ.setLibraryFileName(LIB);
             mZZ.setLineNumber(LN);
@@ -824,7 +800,7 @@ int main(int argc, char *argv[])
 
             LOOP3_ASSERT(LINE, Z, ZZ, Z == ZZ);
 
-            Obj mX(Z);    const Obj& X = mX;
+            Obj mX(Z, &ta);    const Obj& X = mX;
 
             if (veryVerbose) { T_ T_ P(X) }
 
@@ -981,7 +957,7 @@ int main(int argc, char *argv[])
 
         // Attribute 2 Values: 'libraryFileName'
 
-        const T2 D2 = 0;                // default value
+        const T2 D2 = "";               // default value
         const T2 A2 = "/lib/lib1.so";
         const T2 B2 = "/lib/lib1.ko";
 
@@ -999,19 +975,19 @@ int main(int argc, char *argv[])
 
         // Attribute 5 Values: 'sourceFileName'
 
-        const T5 D5 = 0;                // default value
+        const T5 D5 = "";               // default value
         const T5 A5 = "/a/b/c/d/mysource.cpp";
         const T5 B5 = "/b/c/d/e/yoursource.cpp";
 
         // Attribute 6 Values: 'mangledSymbolName'
 
-        const T6 D6 = 0;                // default value
+        const T6 D6 = "";               // default value
         const T6 A6 = "mangledwoof";
         const T6 B6 = "woofmangled";
 
         // Attribute 7 Values: "symbolName"
 
-        const T7 D7 = 0;                // default value
+        const T7 D7 = "";               // default value
         const T7 A7 = "woof";
         const T7 B7 = "Woof";
 
@@ -1103,7 +1079,7 @@ int main(int argc, char *argv[])
                 bslma_TestAllocator ta;
                 bdema_SequentialAllocator sa(&ta);
 
-                Obj mX;    const Obj& X = mX;
+                Obj mX(&ta);    const Obj& X = mX;
                 mX.setAddress(ADDRESS1);
                 mX.setLibraryFileName(LIB1);
                 mX.setLineNumber(LN1);
@@ -1115,7 +1091,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE1, X,   X == X);
                 LOOP2_ASSERT(LINE1, X, !(X != X));
 
-                Obj mY;    const Obj& Y = mY;
+                Obj mY(&ta);    const Obj& Y = mY;
                 mY.setAddress(ADDRESS1);
                 mY.setLibraryFileName(LIB1);
                 mY.setLineNumber(LN1);
@@ -1126,8 +1102,6 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(LINE1, Y,   Y == Y);
                 LOOP2_ASSERT(LINE1, Y, !(Y != Y));
-
-                cloneStrings(&mY, &sa);
 
                 LOOP2_ASSERT(LINE1, Y,   Y == Y);
                 LOOP2_ASSERT(LINE1, Y, !(Y != Y));
@@ -1153,7 +1127,6 @@ int main(int argc, char *argv[])
 
                 const bool EXP = ti == tj;  // expected for equality comparison
 
-                bslma_TestAllocator ta;
                 bdema_SequentialAllocator sa(&ta);
 
                 for (int cfg = 0; cfg < 4; ++cfg) {
@@ -1162,7 +1135,7 @@ int main(int argc, char *argv[])
 
                     // Verify value, commutativity, and no memory allocation.
 
-                    Obj mX;    const Obj& X = mX;
+                    Obj mX(&ta);    const Obj& X = mX;
                     mX.setAddress(ADDRESS1);
                     mX.setLibraryFileName(LIB1);
                     mX.setLineNumber(LN1);
@@ -1171,11 +1144,7 @@ int main(int argc, char *argv[])
                     mX.setMangledSymbolName(MSN1);
                     mX.setSymbolName(SN1);
 
-                    if (CLONE_X) {
-                        cloneStrings(&mX, &sa);
-                    }
-
-                    Obj mY;    const Obj& Y = mY;
+                    Obj mY(&ta);    const Obj& Y = mY;
                     mY.setAddress(ADDRESS2);
                     mY.setLibraryFileName(LIB2);
                     mY.setLineNumber(LN2);
@@ -1183,10 +1152,6 @@ int main(int argc, char *argv[])
                     mY.setSourceFileName(SFN2);
                     mY.setMangledSymbolName(MSN2);
                     mY.setSymbolName(SN2);
-
-                    if (CLONE_Y) {
-                        cloneStrings(&mY, &sa);
-                    }
 
                     if (veryVerbose) {
                         T_ T_ T_ P_(EXP) P_(CLONE_X) P_(CLONE_Y) P_(X) P_(Y) }
@@ -1559,7 +1524,7 @@ int main(int argc, char *argv[])
                 const char *const EXP    = DATA[ti].d_expected_p;
 
                 char v = 0;
-                Obj mX;         const Obj& X = mX;
+                Obj mX(&ta);         const Obj& X = mX;
                 switch (V) {
                   case A: {
                     v = 'A';
@@ -1707,13 +1672,13 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef const void  *T1;        // 'address_p'
-        typedef const char  *T2;        // 'libraryFileName_p'
+        typedef const void  *T1;        // 'address'
+        typedef const char  *T2;        // 'libraryFileName'
         typedef int          T3;        // 'lineNumber'
         typedef bsl::size_t  T4;        // 'offsetFromSymbol'
-        typedef const char  *T5;        // 'sourceFileName_p'
-        typedef const char  *T6;        // 'mangledSymbolName_p'
-        typedef const char  *T7;        // 'symbolName_p'
+        typedef const char  *T5;        // 'sourceFileName'
+        typedef const char  *T6;        // 'mangledSymbolName'
+        typedef const char  *T7;        // 'symbolName'
 
         // Attribute 1 Values: 'address'
 
@@ -1723,7 +1688,7 @@ int main(int argc, char *argv[])
 
         // Attribute 2 Values: 'libraryFileName'
 
-        const T2 D2 = 0;                // default value
+        const T2 D2 = "";               // default value
         const T2 A2 = "/lib/lib1.so";
         const T2 B2 = "/lib/lib1.ko";
 
@@ -1741,23 +1706,23 @@ int main(int argc, char *argv[])
 
         // Attribute 5 Values: 'sourceFileName'
 
-        const T5 D5 = 0;                // default value
+        const T5 D5 = "";               // default value
         const T5 A5 = "/a/b/c/d/mysource.cpp";
         const T5 B5 = "/b/c/d/e/yoursource.cpp";
 
         // Attribute 6 Values: 'mangledSymbolName'
 
-        const T6 D6 = 0;                // default value
+        const T6 D6 = "";               // default value
         const T6 A6 = "mangledwoof";
         const T6 B6 = "woofmangled";
 
         // Attribute 7 Values: "symbolName"
 
-        const T7 D7 = 0;                // default value
+        const T7 D7 = "";               // default value
         const T7 A7 = "woof";
         const T7 B7 = "Woof";
 
-        Obj mX;    const Obj& X = mX;
+        Obj mX(&ta);    const Obj& X = mX;
 
         // -------------------------------------
         // Verify the object's attribute values.
@@ -2095,7 +2060,7 @@ int main(int argc, char *argv[])
 
         // Attribute 2 Values: 'libraryFileName'
 
-        const T2 D2 = 0;                // default value
+        const T2 D2 = "";               // default value
         const T2 A2 = "/lib/lib1.so";
 
         // Attribute 3 Values: 'lineNumber'
@@ -2110,17 +2075,17 @@ int main(int argc, char *argv[])
 
         // Attribute 5 Values: 'sourceFileName'
 
-        const T5 D5 = 0;                // default value
+        const T5 D5 = "";               // default value
         const T5 A5 = "/a/b/c/d/mysource.cpp";
 
         // Attribute 6 Values: 'mangledSymbolName'
 
-        const T6 D6 = 0;                // default value
+        const T6 D6 = "";               // default value
         const T6 A6 = "mangledwoof";
 
         // Attribute 7 Values: "symbolName"
 
-        const T7 D7 = 0;                // default value
+        const T7 D7 = "";               // default value
         const T7 A7 = "woof";
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2128,7 +2093,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
                              "\t\t{ w:D             }" << endl;
 
-        Obj mW;  const Obj& W = mW;
+        Obj mW(&ta);  const Obj& W = mW;
 
         if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
@@ -2151,7 +2116,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
                              "\t\t{ w:D x:D         }" << endl;
 
-        Obj mX(W);  const Obj& X = mX;
+        Obj mX(W, &ta);  const Obj& X = mX;
 
         if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
@@ -2205,7 +2170,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 4. Create an object 'y' (copy from 'Z')."
                              "\t\t{ w:D x:A y:A     }" << endl;
 
-        Obj mY(X);  const Obj& Y = mY;
+        Obj mY(X, &ta);  const Obj& Y = mY;
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
@@ -2230,7 +2195,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 5. Create an object 'z' (copy from 'y')."
                              "\t\t{ w:D x:A y:A z:A }" << endl;
 
-        Obj mZ(Y);  const Obj& Z = mZ;
+        Obj mZ(Y, &ta);  const Obj& Z = mZ;
 
         if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }

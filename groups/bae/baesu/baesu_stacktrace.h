@@ -196,7 +196,7 @@ BDES_IDENT("$Id: $")
 //          for (int i = 0; i < st.numFrames(); ++i) {
 //              const baesu_StackTraceFrame& frame = st.stackFrame(i);
 //  
-//              const char *sn = frame.symbolName();
+//              const char *sn = frame.symbolName().c_str();
 //              sn = sn ? sn : "--unknown--";
 //              *out_p << '(' << i << "): " << sn << endl;
 //          }
