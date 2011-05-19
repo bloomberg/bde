@@ -690,13 +690,6 @@ void blobBasedReadCb(int             *needed,
     msg->removeAll();
 }
 
-struct TestData {
-  Obj           *d_pool_p;
-  int            d_channelId;
-  bcemt_Barrier *d_barrier_p;
-  bcema_Blob    *d_blob_p;
-};
-
 int write(int nBytes)
 {
     bcema_Blob blob(&blobFactory);
@@ -709,31 +702,20 @@ enum  {
     ERROR_MAX_POSSIBLE_WRITE_FAILED = 2
 };
 
-const char* checkRcToString(int type)
-{
-    #define CASE(T)	    case T: return #T
-    switch (type) {
-      CASE(ERROR_IMPOSSIBLE_WRITE_SUCCEEDED);
-      CASE(ERROR_MAX_POSSIBLE_WRITE_FAILED);
-    };
-    #undef CASE
-
-    BSLS_ASSERT_OPT(0);
-    return "UNKNOWN";
-}
-
 int check()
 {
     int rc;
 
     // try to write too much
+
     rc = write(CACHE_HI_WAT + 1);
-    LOOP_ASSERT(rc, rc);
+    MTLOOP_ASSERT(rc, rc);
     if (!rc) return ERROR_IMPOSSIBLE_WRITE_SUCCEEDED;
 
     // try to write max possible
+
     rc = write(CACHE_HI_WAT);
-    LOOP_ASSERT(rc, !rc);
+    MTLOOP_ASSERT(rc, !rc);
     if (rc) return ERROR_MAX_POSSIBLE_WRITE_FAILED;
 
     return 0;
@@ -743,11 +725,11 @@ void delay(int delay)
 {
     int i;
     for (i = 0; i < delay; ++i);
-    BSLS_ASSERT_OPT(i); // poor way to stop optimize-away
 }
 
 // signal allow writer threads to start writing from the same time (to
 // increase concurrency), barrier could be another way but might be too heavy.
+
 static bces_AtomicInt sig = 0;
 void signalerThread()
 {
@@ -768,19 +750,16 @@ void writerThread(unsigned threadIndex)
     bcema_Blob blob(&blobFactory);
     for (iter = 0; iter < maxWritesPerThread && 
                    consecutiveFailures < maxConsecutiveFailures; ++iter) {
+
         int randVal = rand_r(&threadIndex);
         int nBytes  = minMsgSize + randVal % (maxMsgSize - minMsgSize + 1);
         blob.setLength(nBytes);
 
-//         MTCOUT << "Waiting" << MTENDL;
-
         while(sig <= oldSignal);
         oldSignal = sig;
 
-//         MTCOUT << "Before write" << MTENDL;
-
         int rc = channelPool->write(channelId, blob);
-        LOOP_ASSERT(rc, !rc);
+        MTLOOP_ASSERT(rc, !rc);
 
         if (rc == 0) {
             consecutiveFailures = 0;
@@ -792,42 +771,6 @@ void writerThread(unsigned threadIndex)
     }
 
     barrier->wait();
-}
-
-void success()
-{
-    std::cout << "no bug found" << std::endl;
-    _exit(0);
-}
-
-bcema_PooledBlobBufferFactory f(1024);
-extern "C" void* threadFunctionCase36(void *data)
-{
-    TestData      *testData = (TestData *) data;
-    Obj           *pool     = testData->d_pool_p;
-    int            id       = testData->d_channelId;
-    bcemt_Barrier *barrier  = testData->d_barrier_p;;
-    
-    bcema_Blob b(&f);
-    b.setLength(CACHE_HI_WAT);
-
-    barrier->wait();
-
-    int rc = pool->write(id, b);
-    LOOP_ASSERT(rc, !rc);
-
-    barrier->wait();
-
-//     int selfId = bcemt_ThreadUtil::selfAsId();
-//     int randSize = rand_r(&selfId);
-//     b.setLength(randSize);
-
-//     int rc = pool->write(id, b);
-//     LOOP_ASSERT(rc, !rc);
-
-//     barrier->wait();
-
-    return 0;
 }
 
 }
@@ -7786,7 +7729,7 @@ int main(int argc, char *argv[])
         channelCbBarrier.wait();
         channelCbBarrier.wait();
 
-        const int NT = 2;
+        const int NT = 5;
         bcemt_Barrier currBarrier(NT + 1);
         barrier = &currBarrier;
 
@@ -7812,23 +7755,29 @@ int main(int argc, char *argv[])
         bcemt_ThreadUtil::sleep(bdet_TimeInterval(1)); // let flush complete
                                                        // if any
         rc = check();
-        ASSERT(!rc); // never returns
+        ASSERT(!rc);
+
+        cout << "First check" << endl;
 
         // more thorough check
-        bcemt_ThreadUtil::sleep(bdet_TimeInterval(10)); // in case flush did
-                                                        // not complete
-
-        rc = check();
-        ASSERT(!rc); // never returns
-
         bcemt_ThreadUtil::sleep(bdet_TimeInterval(10));  // in case flush did
                                                          // not complete
 
         rc = check();
-        ASSERT(!rc); // never returns
+        ASSERT(!rc);
+
+        cout << "Second check" << endl;
+
+        bcemt_ThreadUtil::sleep(bdet_TimeInterval(10));   // in case flush did
+                                                          // not complete
+
+        rc = check();
+        ASSERT(!rc);
+
+        cout << "Third check" << endl;
 
         // Following veriy that the bug is due to d_writeCacheSize mess-up
-        bcemt_ThreadUtil::sleep(bdet_TimeInterval(10));  // in case flush did
+        bcemt_ThreadUtil::sleep(bdet_TimeInterval(1));   // in case flush did
                                                          // not complete
         if (ERROR_MAX_POSSIBLE_WRITE_FAILED) {
           rc = channelPool->setWriteCacheHiWatermark(channelId,
