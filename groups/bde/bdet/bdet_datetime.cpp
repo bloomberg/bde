@@ -11,6 +11,8 @@ BDES_IDENT_RCSID(bdet_datetime_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
+#include <bsls_assert.h>
+
 static const char *const MONTHS[] = {
     0,
     "JAN", "FEB", "MAR", "APR",
@@ -64,6 +66,10 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
 
 void bdet_Datetime::printToBuf(int *resultLen, char *resultBuf, int size)
 {
+    BSLS_ASSERT(resultLen);
+    BSLS_ASSERT(resultBuf);
+    BSLS_ASSERT(0 <= size);
+
     int y, m, d;
     date().getYearMonthDay(&y, &m, &d);
 

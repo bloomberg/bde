@@ -109,12 +109,17 @@ void getLogFileName(bsl::string                  *logFileName,
                     bool                         *datetimeInfoInFileName,
                     const char                   *logFilePattern,
                     const bdet_DatetimeInterval&  localTimeOffset,
-                    bool                          appendTimestampFlag)
+                    bool                          appendTimestampFlag = false)
     // Load into the specified '*logFileName' that is obtained by replacing
     // every timestamp-specific token in the specified 'logFilePattern' with
-    // the corresponding field in the specified 'logFileTimestamp'.  Load
-    // 'true' into the specified '*datetimeInfoInFileName' if 'logFilePattern'
-    // contains at least one timestamp-specific token, and 'false' otherwise.
+    // the corresponding field of the local time calculated from the current
+    // time in GMT and the specified 'localTimeOffset'.  Load the current time
+    // in GMT into '*timestamp'.  Load 'true' into the specified
+    // '*datetimeInfoInFileName' if 'logFilePattern' contains at least one
+    // timestamp-specific token, and 'false' otherwise.  Optionally, if
+    // 'logFilePattern' does *not* contain a timestamp-specific token, specify
+    // 'appendTimestampFlag' to indicate whether a timestamp should be appended
+    // to the log file name.
 {
     *timestamp = bdetu_SystemTime::nowAsDatetimeGMT();
 
@@ -247,12 +252,24 @@ void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
 
 int bael_FileObserver2::openLogFile()
 {
+#ifdef BSLS_PLATFORM__CMP_SUN
+    // For the CC compiler on Sun, when opening a file that already exists,
+    // 'ofstream::tellp' will give the number of characters from the end of the
+    // existing file.  Therefore, it is necessary to keep track of the original
+    // file size for rotation on size test.  This is not necessary with other
+    // compilers.
+
+    d_startingLogFileSize = bdesu_FileUtil::getFileSize(d_logFileName.c_str());
+    if (d_startingLogFileSize < 0) {
+        d_startingLogFileSize = 0;
+    }
+#endif
+
     d_logFileStream.open(d_logFileName.c_str(), bsl::ios::out|bsl::ios::app);
     if (d_logFileStream.is_open()) {
         d_logFileStream.clear();
         return 0;                                                     // RETURN
     }
-    d_startingLogFileSize = bdesu_FileUtil::getFileSize(d_logFileName.c_str());
 
     fprintf(stderr,
             "Cannot open log file %s: %s.  File logging will be disabled!\n",
@@ -312,13 +329,19 @@ void bael_FileObserver2::rotateIfNecessary(const bdet_Datetime& timestamp)
     }
 
     if (d_rotationSize) {
-
         // 'tellp' returns -1 on failure.  Rotate the log file if either
         // 'tellp' fails, or the rotation size is exceeded.
 
-        if (d_startingLogFileSize
-                   + static_cast<bsls_Types::Uint64>(d_logFileStream.tellp()) >
+#ifdef BSLS_PLATFORM__CMP_SUN
+        // Adding the original file size to 'tellp' is only need on Sun's CC
+        // compiler.
+
+        bsl::streampos pos = d_logFileStream.tellp();
+        if (pos < 0 || d_startingLogFileSize + pos > d_rotationSize * 1024) {
+#else
+        if (static_cast<bsls_Types::Uint64>(d_logFileStream.tellp()) >
             static_cast<bsls_Types::Uint64>(d_rotationSize) * 1024) {
+#endif
 
             rotateFile();
             return;                                                   // RETURN
@@ -345,7 +368,9 @@ bael_FileObserver2::bael_FileObserver2(bslma_Allocator *basicAllocator)
 , d_publishInLocalTime(false)
 , d_rotationSize(0)
 , d_rotationLifetime(0)
+#ifdef BSLS_PLATFORM__CMP_SUN
 , d_startingLogFileSize(0)
+#endif
 {
 }
 

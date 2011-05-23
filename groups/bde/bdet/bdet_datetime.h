@@ -547,6 +547,14 @@ class bdet_Datetime {
         // human-readable format is not fully specified, and can change
         // without notice.
 
+    void printToBuf(int *resultLen, char *resultBuf, int size);
+        // Efficiently write the value of this object to the specified output
+        // buffer 'resultBuf' with the specified 'size', and load into
+        // 'resultLen' the number of characters (not including the null
+        // character) that would have been written if the limit due to 'size'
+        // is not imposed.  'resultBuf' is null-terminated unless 'size' is 0.
+        // The behavior is undefined unless 0 <= 'size'.
+
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // Write this value to the specified output 'stream' using the
@@ -556,8 +564,6 @@ class bdet_Datetime {
         // Note that in no event is 'version' written to 'stream'.  (See the
         // 'bdex' package-level documentation for more information on 'bdex'
         // streaming of value-semantic types and containers.)
-
-    void printToBuf(int *resultLen, char *resultBuf, int size);
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 

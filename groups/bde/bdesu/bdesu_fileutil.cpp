@@ -211,18 +211,13 @@ const bdesu_FileUtil::FileDescriptor bdesu_FileUtil::INVALID_FD =
 
 bdesu_FileUtil::FileDescriptor
 bdesu_FileUtil::open(const char *pathName,
-                     bool        writableFlag,
-                     bool        existFlag,
-                     bool        appendFlag)
+                     bool        isReadWrite,
+                     bool        isExisting)
 {
     BSLS_ASSERT(pathName);
 
-    DWORD accessMode   = GENERIC_READ | (writableFlag
-                                         ? appendFlag
-                                           ? FILE_APPEND_DATA
-                                           : GENERIC_WRITE
-                                         : 0);
-    DWORD creationInfo = existFlag ? OPEN_EXISTING : CREATE_ALWAYS;
+    DWORD accessMode   = GENERIC_READ | (isReadWrite ? GENERIC_WRITE : 0);
+    DWORD creationInfo = isExisting ? OPEN_EXISTING : CREATE_ALWAYS;
 
     return CreateFile(pathName,
                       accessMode,
@@ -645,16 +640,14 @@ const bdesu_FileUtil::FileDescriptor bdesu_FileUtil::INVALID_FD = -1;
 
 bdesu_FileUtil::FileDescriptor
 bdesu_FileUtil::open(const char *pathName,
-                     bool        writableFlag,
-                     bool        existFlag,
-                     bool        appendFlag)
+                     bool        isReadWrite,
+                     bool        isExisting)
 {
     BSLS_ASSERT(pathName);
 
-    const int oflag = (writableFlag ? O_RDWR : O_RDONLY)
-                      | (writableFlag && appendFlag ? O_APPEND : 0);
+    const int oflag = isReadWrite ? O_RDWR : O_RDONLY;
 
-    if (existFlag) {
+    if (isExisting) {
 #ifdef BSLS_PLATFORM__OS_FREEBSD
         return ::open(  pathName, oflag);                             // RETURN
 #elif defined(BSLS_PLATFORM__OS_HPUX)

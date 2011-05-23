@@ -524,6 +524,19 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 6: {
         // --------------------------------------------------------------------
+        // ROTATE WHEN OPENING EXISTING FILE
+        //
+        // Concerns:
+        //  1. 'rotateOnSize' triggers a rotation as expected even if the log
+        //     file already exist.
+        //
+        // Plan:
+        //  1. Set 'rotateOnSize' to 1k, create a file with approximately 0.5k.
+        //  2. Write another 0.5k to the file and verify that that file is
+        //     rotated.
+        //
+        // Testing:
+        //  Concern: 'rotateOnSize' triggers correctly for existing files
         // --------------------------------------------------------------------
         bael_LoggerManagerConfiguration configuration;
 
@@ -560,20 +573,10 @@ int main(int argc, char *argv[])
 
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
 
-                glob_t globbuf;
-                ASSERT(0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
-                ASSERT(1 == globbuf.gl_pathc);
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                int linesNum = 0;
-                bsl::string line;
-                while (getline(fs, line)) {
-                    ++linesNum;
-                }
-                fs.close();
-                ASSERT(2 == linesNum);
+                ASSERT(1 == bdesu_FileUtil::exists(filename.c_str()));
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".1").c_str()));
+
+                ASSERT(2 == getNumLines(filename.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
             }
 
@@ -589,6 +592,9 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == mX.enableFileLogging((filename + "%%").c_str(),
                                                  false));
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".1").c_str()));
+
+                BAEL_LOG_TRACE << 'x' << BAEL_LOG_END;
                 ASSERT(0 == bdesu_FileUtil::exists((filename + ".1").c_str()));
 
                 BAEL_LOG_TRACE << buffer << BAEL_LOG_END;
@@ -634,7 +640,6 @@ int main(int argc, char *argv[])
         bael_LoggerManager::initSingleton(&multiplexObserver,
                                           configuration);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
         bcema_TestAllocator ta(veryVeryVeryVerbose);
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
@@ -653,20 +658,10 @@ int main(int argc, char *argv[])
 
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
 
-                glob_t globbuf;
-                ASSERT(0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
-                ASSERT(1 == globbuf.gl_pathc);
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                int linesNum = 0;
-                bsl::string line;
-                while (getline(fs, line)) {
-                    ++linesNum;
-                }
-                fs.close();
-                ASSERT(2 == linesNum);
+                ASSERT(1 == bdesu_FileUtil::exists(filename.c_str()));
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".1").c_str()));
+
+                ASSERT(2 == getNumLines(filename.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
             }
 
@@ -706,7 +701,6 @@ int main(int argc, char *argv[])
                 ASSERT(1024 <  getFileSize((filename + ".1").c_str()));
             }
         }
-#endif
 
       } break;
       case 4: {
