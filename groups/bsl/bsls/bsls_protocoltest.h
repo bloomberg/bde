@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide classes and macros for testing abstract protocols.
 //
 //@CLASSES:
-//  bsls_ProtocolTest:       provides protocol testing boilerplate operations
-//  bsls_ProtocolTestDriver: provides protocol tests and counts test failures
+//  bsls_ProtocolTestImp:   provides protocol testing boilerplate operations
+//  bsls_ProtocolTest:      provides protocol tests and counts test failures
 //
 //@MACROS:
 //  BSLS_PROTOCOLTEST_ASSERT: macro for testing protocol methods
@@ -46,26 +46,26 @@ BSLS_IDENT("$Id: $")
 //..
 // First, define a test class derived from this protocol and implement its
 // virtual methods.  Rather than deriving the test class from 'MyInterface'
-// directly, it is derived from 'bsls_ProtocolTest<MyInterface>' (which, in
+// directly, it is derived from 'bsls_ProtocolTestImp<MyInterface>' (which, in
 // turn, is derived from 'MyInterface') that implements boilerplate code for
 // simplifying testing of protocols.
 //..
-//  struct MyInterfaceTest : bsls_ProtocolTest<MyInterface> {
+//  struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
 //      const char *bar(char const *, char const *) { return exit(); }
 //      int foo(int) const                          { return exit(); }
 //  };
 //..
 // Notice that in 'MyInterfaceTest' we must provide an implementation of every
 // protocol method.  The implementation of each method is simply
-// 'return exit();' the purpose of which is to provide 'bsls_ProtocolTest' a
+// 'return exit();' the purpose of which is to provide 'bsls_ProtocolTestImp' a
 // way to verify that the method is declared correctly in the protocol class.
 // If a method returns 'void', then just 'exit();' is sufficient.
 //
-// Next, we use 'bsls_ProtocolTestDriver' to perform the actual testing of our
-// 'MyInterface' protocol class.  We create an object of
-// 'bsls_ProtocolTestDriver' parameterized with 'MyInterfaceTest':
+// Next, we use 'bsls_ProtocolTest' to perform the actual testing of our
+// 'MyInterface' protocol class.  We create an object of 'bsls_ProtocolTest'
+// parameterized with 'MyInterfaceTest':
 //..
-//  bsls_ProtocolTestDriver<MyInterfaceTest> t;
+//  bsls_ProtocolTest<MyInterfaceTest> t;
 //..
 // We use the 't' test driver object to test some general concerns about the
 // protocol class:
@@ -176,7 +176,7 @@ struct bsls_ProtocolTest_Dtor : BSLS_TESTIMP {
     // the 'exit' function from its destructor, which will be executed if the
     // protocol's destructor is declared 'virtual' and not executed otherwise.
     // The 'BSLS_TESTIMP' template parameter is required to be a type derived
-    // from 'bsls_ProtocolTest' class.
+    // from 'bsls_ProtocolTestImp' class.
 
     // CREATORS
     ~bsls_ProtocolTest_Dtor();
@@ -222,12 +222,12 @@ class bsls_ProtocolTest_Status {
         // has yet completed), and 'false' if it failed.
 };
 
-                          // =======================
-                          // class bsls_ProtocolTest
-                          // =======================
+                          // ==========================
+                          // class bsls_ProtocolTestImp
+                          // ==========================
 
 template <class BSLS_PROTOCOL>
-class bsls_ProtocolTest : public BSLS_PROTOCOL {
+class bsls_ProtocolTestImp : public BSLS_PROTOCOL {
     // This mechanism class template is a base class for a test implementation
     // of a protocol class defined by the 'BSLS_PROTOCOL' template parameter.
     // Its purpose is to reduce the boilerplate test code required to verify
@@ -254,10 +254,10 @@ class bsls_ProtocolTest : public BSLS_PROTOCOL {
     typedef BSLS_PROTOCOL ProtocolType;
 
     // CREATORS
-    bsls_ProtocolTest();
-        // Create an object of the 'bsls_ProtocolTest' class.
+    bsls_ProtocolTestImp();
+        // Create an object of the 'bsls_ProtocolTestImp' class.
 
-    ~bsls_ProtocolTest();
+    ~bsls_ProtocolTestImp();
         // Destroy this object and check the status of the test execution
         // (success or failure).  On test failure, report it to
         // 'bsls_ProtocolTest_Status'.
@@ -299,16 +299,16 @@ class bsls_ProtocolTest : public BSLS_PROTOCOL {
         // indicate that virtual methods were overridden correctly.
 };
 
-                       // =============================
-                       // class bsls_ProtocolTestDriver
-                       // =============================
+                       // =======================
+                       // class bsls_ProtocolTest
+                       // =======================
 
 template <class BSLS_TESTIMP>
-class bsls_ProtocolTestDriver {
+class bsls_ProtocolTest {
     // This mechanism class template provides the implementation of protocol
     // testing concerns via 'test*' methods (for non-method concerns), and via
     // 'operator->' (for method concerns).  The 'BSLS_TESTIMP' template
-    // parameter is required to be a class derived from 'bsls_ProtocolTest'
+    // parameter is required to be a class derived from 'bsls_ProtocolTestImp'
     // that provides test implementations of all protocol methods.
 
   private:
@@ -326,8 +326,8 @@ class bsls_ProtocolTestDriver {
 
   public:
     // CREATORS
-    bsls_ProtocolTestDriver();
-        // Construct a 'bsls_ProtocolTestDriver' object.
+    bsls_ProtocolTest();
+        // Construct a 'bsls_ProtocolTest' object.
 
     // MANIPULATORS
     BSLS_TESTIMP operator->();
@@ -461,14 +461,14 @@ bool bsls_ProtocolTest_Status::last() const
     return d_last;
 }
 
-                          // -----------------------
-                          // class bsls_ProtocolTest
-                          // -----------------------
+                          // --------------------------
+                          // class bsls_ProtocolTestImp
+                          // --------------------------
 
 // CREATORS
 template <class BSLS_PROTOCOL>
 inline
-bsls_ProtocolTest<BSLS_PROTOCOL>::bsls_ProtocolTest()
+bsls_ProtocolTestImp<BSLS_PROTOCOL>::bsls_ProtocolTestImp()
 : d_status(0)
 , d_entered(false)
 , d_exited(false)
@@ -477,7 +477,7 @@ bsls_ProtocolTest<BSLS_PROTOCOL>::bsls_ProtocolTest()
 
 template <class BSLS_PROTOCOL>
 inline
-bsls_ProtocolTest<BSLS_PROTOCOL>::~bsls_ProtocolTest()
+bsls_ProtocolTestImp<BSLS_PROTOCOL>::~bsls_ProtocolTestImp()
 {
     if (d_entered && !d_exited) {
         d_status->fail();
@@ -487,8 +487,8 @@ bsls_ProtocolTest<BSLS_PROTOCOL>::~bsls_ProtocolTest()
 // MANIPULATORS
 template <class BSLS_PROTOCOL>
 inline
-typename bsls_ProtocolTest<BSLS_PROTOCOL>::ProtocolType *
-bsls_ProtocolTest<BSLS_PROTOCOL>::operator->()
+typename bsls_ProtocolTestImp<BSLS_PROTOCOL>::ProtocolType *
+bsls_ProtocolTestImp<BSLS_PROTOCOL>::operator->()
 {
     enter();
     return static_cast<BSLS_PROTOCOL *>(this);
@@ -496,7 +496,7 @@ bsls_ProtocolTest<BSLS_PROTOCOL>::operator->()
 
 template <class BSLS_PROTOCOL>
 inline
-void bsls_ProtocolTest<BSLS_PROTOCOL>::setTestStatus(
+void bsls_ProtocolTestImp<BSLS_PROTOCOL>::setTestStatus(
                                               bsls_ProtocolTest_Status *status)
 {
     d_status = status;
@@ -504,7 +504,7 @@ void bsls_ProtocolTest<BSLS_PROTOCOL>::setTestStatus(
 
 template <class BSLS_PROTOCOL>
 inline
-void bsls_ProtocolTest<BSLS_PROTOCOL>::enter()
+void bsls_ProtocolTestImp<BSLS_PROTOCOL>::enter()
 {
     d_entered = true;
 }
@@ -513,7 +513,7 @@ void bsls_ProtocolTest<BSLS_PROTOCOL>::enter()
 template <class BSLS_PROTOCOL>
 inline
 bsls_ProtocolTest_MethodReturnType
-bsls_ProtocolTest<BSLS_PROTOCOL>::exit() const
+bsls_ProtocolTestImp<BSLS_PROTOCOL>::exit() const
 {
     d_exited = true;
     return bsls_ProtocolTest_MethodReturnType();
@@ -522,7 +522,7 @@ bsls_ProtocolTest<BSLS_PROTOCOL>::exit() const
 template <class BSLS_PROTOCOL>
 inline
 bsls_ProtocolTest_MethodReturnRefType
-bsls_ProtocolTest<BSLS_PROTOCOL>::exitRef() const
+bsls_ProtocolTestImp<BSLS_PROTOCOL>::exitRef() const
 {
     d_exited = true;
     return bsls_ProtocolTest_MethodReturnRefType();
@@ -531,20 +531,20 @@ bsls_ProtocolTest<BSLS_PROTOCOL>::exitRef() const
 template <class BSLS_PROTOCOL>
 template <class T>
 inline
-T bsls_ProtocolTest<BSLS_PROTOCOL>::exitVal(const T& value) const
+T bsls_ProtocolTestImp<BSLS_PROTOCOL>::exitVal(const T& value) const
 {
     d_exited = true;
     return value;
 }
 
-                       // -----------------------------
-                       // class bsls_ProtocolTestDriver
-                       // -----------------------------
+                       // -----------------------
+                       // class bsls_ProtocolTest
+                       // -----------------------
 
 // PRIVATE MANIPULATORS
 template <class BSLS_TESTIMP>
 inline
-void bsls_ProtocolTestDriver<BSLS_TESTIMP>::startTest()
+void bsls_ProtocolTest<BSLS_TESTIMP>::startTest()
 {
     d_status.resetLast();
 }
@@ -552,14 +552,14 @@ void bsls_ProtocolTestDriver<BSLS_TESTIMP>::startTest()
 // CREATORS
 template <class BSLS_TESTIMP>
 inline
-bsls_ProtocolTestDriver<BSLS_TESTIMP>::bsls_ProtocolTestDriver()
+bsls_ProtocolTest<BSLS_TESTIMP>::bsls_ProtocolTest()
 {
 }
 
 // MANIPULATORS
 template <class BSLS_TESTIMP>
 inline
-BSLS_TESTIMP bsls_ProtocolTestDriver<BSLS_TESTIMP>::operator->()
+BSLS_TESTIMP bsls_ProtocolTest<BSLS_TESTIMP>::operator->()
 {
     startTest();
 
@@ -570,7 +570,7 @@ BSLS_TESTIMP bsls_ProtocolTestDriver<BSLS_TESTIMP>::operator->()
 
 template <class BSLS_TESTIMP>
 inline
-bool bsls_ProtocolTestDriver<BSLS_TESTIMP>::testAbstract()
+bool bsls_ProtocolTest<BSLS_TESTIMP>::testAbstract()
 {
     startTest();
 
@@ -583,7 +583,7 @@ bool bsls_ProtocolTestDriver<BSLS_TESTIMP>::testAbstract()
 
 template <class BSLS_TESTIMP>
 inline
-bool bsls_ProtocolTestDriver<BSLS_TESTIMP>::testNoDataMembers()
+bool bsls_ProtocolTest<BSLS_TESTIMP>::testNoDataMembers()
 {
     struct EmptyProtocol
     {
@@ -600,7 +600,7 @@ bool bsls_ProtocolTestDriver<BSLS_TESTIMP>::testNoDataMembers()
 }
 
 template <class BSLS_TESTIMP>
-bool bsls_ProtocolTestDriver<BSLS_TESTIMP>::testVirtualDestructor()
+bool bsls_ProtocolTest<BSLS_TESTIMP>::testVirtualDestructor()
 {
     startTest();
 
@@ -643,14 +643,14 @@ bool bsls_ProtocolTestDriver<BSLS_TESTIMP>::testVirtualDestructor()
 // ACCESSORS
 template <class BSLS_TESTIMP>
 inline
-int bsls_ProtocolTestDriver<BSLS_TESTIMP>::failures() const
+int bsls_ProtocolTest<BSLS_TESTIMP>::failures() const
 {
     return d_status.failures();
 }
 
 template <class BSLS_TESTIMP>
 inline
-bool bsls_ProtocolTestDriver<BSLS_TESTIMP>::lastStatus() const
+bool bsls_ProtocolTest<BSLS_TESTIMP>::lastStatus() const
 {
     return d_status.last();
 }
