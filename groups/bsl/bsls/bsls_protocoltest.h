@@ -169,13 +169,13 @@ struct bsls_ProtocolTest_MethodReturnRefType {
                        // class bsls_ProtocolTest_Dtor
                        // ============================
 
-template <class BSLS_TESTIMPL>
-struct bsls_ProtocolTest_Dtor : BSLS_TESTIMPL {
+template <class BSLS_TESTIMP>
+struct bsls_ProtocolTest_Dtor : BSLS_TESTIMP {
     // This class template is a helper protocol test implementation that tests
     // that a protocol destructor is declared 'virtual'.  It does so by calling
     // the 'exit' function from its destructor, which will be executed if the
     // protocol's destructor is declared 'virtual' and not executed otherwise.
-    // The 'BSLS_TESTIMPL' template parameter is required to be a type derived
+    // The 'BSLS_TESTIMP' template parameter is required to be a type derived
     // from 'bsls_ProtocolTest' class.
 
     // CREATORS
@@ -303,17 +303,17 @@ class bsls_ProtocolTest : public BSLS_PROTOCOL {
                        // class bsls_ProtocolTestDriver
                        // =============================
 
-template <class BSLS_TESTIMPL>
+template <class BSLS_TESTIMP>
 class bsls_ProtocolTestDriver {
     // This mechanism class template provides the implementation of protocol
     // testing concerns via 'test*' methods (for non-method concerns), and via
-    // 'operator->' (for method concerns).  The 'BSLS_TESTIMPL' template
+    // 'operator->' (for method concerns).  The 'BSLS_TESTIMP' template
     // parameter is required to be a class derived from 'bsls_ProtocolTest'
     // that provides test implementations of all protocol methods.
 
   private:
     // TYPES
-    typedef typename BSLS_TESTIMPL::ProtocolType ProtocolType;
+    typedef typename BSLS_TESTIMP::ProtocolType ProtocolType;
 
     // DATA
     bsls_ProtocolTest_Status d_status;
@@ -330,10 +330,10 @@ class bsls_ProtocolTestDriver {
         // Construct a 'bsls_ProtocolTestDriver' object.
 
     // MANIPULATORS
-    BSLS_TESTIMPL operator->();
-        // Return a 'BSLS_TESTIMPL' object which gets dereferenced via
+    BSLS_TESTIMP operator->();
+        // Return a 'BSLS_TESTIMP' object which gets dereferenced via
         // 'operator->()' as well.  Note that 'operator->' makes this class
-        // behave like a proxy to 'BSLS_TESTIMPL', and 'BSLS_TESTIMPL' is a
+        // behave like a proxy to 'BSLS_TESTIMP', and 'BSLS_TESTIMP' is a
         // proxy to the actual protocol class.
 
     bool testAbstract();
@@ -415,9 +415,9 @@ bsls_ProtocolTest_MethodReturnRefType::operator T&() const
                        // ----------------------------
 
 // CREATORS
-template <class BSLS_TESTIMPL>
+template <class BSLS_TESTIMP>
 inline
-bsls_ProtocolTest_Dtor<BSLS_TESTIMPL>::~bsls_ProtocolTest_Dtor()
+bsls_ProtocolTest_Dtor<BSLS_TESTIMP>::~bsls_ProtocolTest_Dtor()
 {
     this->exit();
 }
@@ -542,35 +542,35 @@ T bsls_ProtocolTest<BSLS_PROTOCOL>::exitVal(const T& value) const
                        // -----------------------------
 
 // PRIVATE MANIPULATORS
-template <class BSLS_TESTIMPL>
+template <class BSLS_TESTIMP>
 inline
-void bsls_ProtocolTestDriver<BSLS_TESTIMPL>::startTest()
+void bsls_ProtocolTestDriver<BSLS_TESTIMP>::startTest()
 {
     d_status.resetLast();
 }
 
 // CREATORS
-template <class BSLS_TESTIMPL>
+template <class BSLS_TESTIMP>
 inline
-bsls_ProtocolTestDriver<BSLS_TESTIMPL>::bsls_ProtocolTestDriver()
+bsls_ProtocolTestDriver<BSLS_TESTIMP>::bsls_ProtocolTestDriver()
 {
 }
 
 // MANIPULATORS
-template <class BSLS_TESTIMPL>
+template <class BSLS_TESTIMP>
 inline
-BSLS_TESTIMPL bsls_ProtocolTestDriver<BSLS_TESTIMPL>::operator->()
+BSLS_TESTIMP bsls_ProtocolTestDriver<BSLS_TESTIMP>::operator->()
 {
     startTest();
 
-    BSLS_TESTIMPL impl;
+    BSLS_TESTIMP impl;
     impl.setTestStatus(&d_status);
     return impl;
 }
 
-template <class BSLS_TESTIMPL>
+template <class BSLS_TESTIMP>
 inline
-bool bsls_ProtocolTestDriver<BSLS_TESTIMPL>::testAbstract()
+bool bsls_ProtocolTestDriver<BSLS_TESTIMP>::testAbstract()
 {
     startTest();
 
@@ -581,9 +581,9 @@ bool bsls_ProtocolTestDriver<BSLS_TESTIMPL>::testAbstract()
     return lastStatus();
 }
 
-template <class BSLS_TESTIMPL>
+template <class BSLS_TESTIMP>
 inline
-bool bsls_ProtocolTestDriver<BSLS_TESTIMPL>::testNoDataMembers()
+bool bsls_ProtocolTestDriver<BSLS_TESTIMP>::testNoDataMembers()
 {
     struct EmptyProtocol
     {
@@ -599,22 +599,22 @@ bool bsls_ProtocolTestDriver<BSLS_TESTIMPL>::testNoDataMembers()
     return lastStatus();
 }
 
-template <class BSLS_TESTIMPL>
-bool bsls_ProtocolTestDriver<BSLS_TESTIMPL>::testVirtualDestructor()
+template <class BSLS_TESTIMP>
+bool bsls_ProtocolTestDriver<BSLS_TESTIMP>::testVirtualDestructor()
 {
     startTest();
 
     union InPlaceObject {
-        char  buffer[sizeof(bsls_ProtocolTest_Dtor<BSLS_TESTIMPL>)];
+        char  buffer[sizeof(bsls_ProtocolTest_Dtor<BSLS_TESTIMP>)];
         void *alignment;
 
-        bsls_ProtocolTest_Dtor<BSLS_TESTIMPL> *object()
+        bsls_ProtocolTest_Dtor<BSLS_TESTIMP> *object()
         {
-            return reinterpret_cast<bsls_ProtocolTest_Dtor<BSLS_TESTIMPL> *>(
+            return reinterpret_cast<bsls_ProtocolTest_Dtor<BSLS_TESTIMP> *>(
                                              reinterpret_cast<void *>(buffer));
         }
 
-        BSLS_TESTIMPL *impl()
+        BSLS_TESTIMP *impl()
         {
             return object();
         }
@@ -624,33 +624,33 @@ bool bsls_ProtocolTestDriver<BSLS_TESTIMPL>::testVirtualDestructor()
 
     // Prepare a test object by manually creating it in-place.
 
-    new (o.object()) bsls_ProtocolTest_Dtor<BSLS_TESTIMPL>();
+    new (o.object()) bsls_ProtocolTest_Dtor<BSLS_TESTIMP>();
     o.object()->setTestStatus(&d_status);
 
     // Perform the test.
 
     o.object()->enter();
-    o.impl()->~BSLS_TESTIMPL();
+    o.impl()->~BSLS_TESTIMP();
 
     // 'bsls_ProtocolTest_Dtor::~bsls_ProtocolTest_Dtor' will be called only if
     // the destructor was declared 'virtual' in the interface, but
-    // 'BSLS_TESTIMPL::~BSLS_TESTIMPL' is always executed to check if the
+    // 'BSLS_TESTIMP::~BSLS_TESTIMP' is always executed to check if the
     // derived destructor was called.
 
     return lastStatus();
 }
 
 // ACCESSORS
-template <class BSLS_TESTIMPL>
+template <class BSLS_TESTIMP>
 inline
-int bsls_ProtocolTestDriver<BSLS_TESTIMPL>::failures() const
+int bsls_ProtocolTestDriver<BSLS_TESTIMP>::failures() const
 {
     return d_status.failures();
 }
 
-template <class BSLS_TESTIMPL>
+template <class BSLS_TESTIMP>
 inline
-bool bsls_ProtocolTestDriver<BSLS_TESTIMPL>::lastStatus() const
+bool bsls_ProtocolTestDriver<BSLS_TESTIMP>::lastStatus() const
 {
     return d_status.last();
 }
