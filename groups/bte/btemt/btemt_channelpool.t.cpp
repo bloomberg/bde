@@ -748,7 +748,7 @@ void writerThread(unsigned threadIndex)
     int oldSignal = 0;
 
     bcema_Blob blob(&blobFactory);
-    for (iter = 0; iter < maxWritesPerThread && 
+    for (iter = 0; iter < maxWritesPerThread &&
                    consecutiveFailures < maxConsecutiveFailures; ++iter) {
 
         int randVal = rand_r(&threadIndex);
@@ -7744,7 +7744,7 @@ int main(int argc, char *argv[])
         // fork threads
         for (int i = 0; i < NT; ++i) {
           bcemt_ThreadUtil::Handle handle;
-          rc = bcemt_ThreadUtil::create(&handle, 
+          rc = bcemt_ThreadUtil::create(&handle,
                                         bdef_BindUtil::bind(&writerThread, i));
           ASSERT(!rc);
         }
@@ -7783,14 +7783,14 @@ int main(int argc, char *argv[])
           rc = channelPool->setWriteCacheHiWatermark(channelId,
                                                      CACHE_HI_WAT * 2);
           ASSERT(!rc);
-          
+
           rc = write(CACHE_HI_WAT);
           ASSERT(!rc);
         }
         else {
           rc = channelPool->setWriteCacheHiWatermark(channelId, 1);
           ASSERT(!rc);
-          
+
           rc = write(CACHE_HI_WAT + 1);
           ASSERT(rc);
         }
