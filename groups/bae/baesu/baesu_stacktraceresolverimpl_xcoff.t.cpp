@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == Obj::resolve(&traceVec,
                                  true,
                                  &sa));
-        
+
         for (int vecIndex = 0; vecIndex < (int) traceVec.size();
                                                              vecIndex += 128) {
             bsl::stringstream ss(&ta);

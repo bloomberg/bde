@@ -608,21 +608,21 @@ struct Local::StackTraceResolver::AuxInfo {
     UintPtr d_includesStartIndex;  // start of range of symbol table
                                    // entries corresponding to include
                                    // files
-                                
+
     UintPtr d_includesEndIndex;    // end of above
-                                
+
     UintPtr d_functionStartIndex;  // start of range of indexes for
                                    // function we are looking up
-                                
+
     UintPtr d_functionEndIndex;    // end of range of indexes for
                                    // function we are looking up
 
     UintPtr d_lineNumberOffset;    // offset into line number table
                                    // corresponding to this symbol
-        
+
     int     d_lineNumberBase;      // amount to adust the line number if
                                    // it's relative
-        
+
     bool    d_symEntValid;         // whether 'd_symEnt' is valid
 
     bool    d_sourceSymEntValid;   // whether 'd_sourceSymEnt' is valid

@@ -140,7 +140,7 @@ int recurser(volatile int *depth, ChainLink *cl_p)
 
     ++*depth;           // Prevent compilers from optimizing tail recursion as
                         // a loop.
-    return sum;    
+    return sum;
 }
 
 }  // close namespace BAESU_STACKADDRESSUTIL_TEST_CASE_ONE
@@ -215,7 +215,9 @@ CASE3_FUNC(4, 5)
 
 int func0()
 {
-    enum { BUFFER_LENGTH = 100 };
+    enum { BUFFER_LENGTH = 100,
+           IGNORE_FRAMES = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES
+     };
 
     void *buffer[BUFFER_LENGTH];
     AddressEntry entries[BUFFER_LENGTH];
@@ -233,12 +235,12 @@ int func0()
                                                                 buffer,
                                                                 BUFFER_LENGTH);
 
-    for (int toIndex = 0, fromIndex = baesu_StackAddressUtil::IGNORE_FRAMES;
+    for (int toIndex = 0, fromIndex = IGNORE_FRAMES;
                             fromIndex < numAddresses; ++toIndex, ++fromIndex) {
         entries[toIndex].d_returnAddress = (UintPtr) buffer[fromIndex];
         entries[toIndex].d_traceIndex    = toIndex;
     }
-    numAddresses -= baesu_StackAddressUtil::IGNORE_FRAMES;
+    numAddresses -= IGNORE_FRAMES;
 
     bsl::sort(entries, entries + numAddresses);
 
@@ -342,7 +344,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Call the routines in the usage example to observe that the stack
         //   trace works.
-        // 
+        //
         // --------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST\n"

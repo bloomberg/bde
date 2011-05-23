@@ -17,16 +17,22 @@ BDES_IDENT("$Id: $")
 //@SEE_ALSO: baesu_stacktrace
 //
 //@DESCRIPTION: This component provides a value-semantic attribute class,
-// 'baesu_StackTraceFrame', that represents a single information about a single
-// function call on the call stack.  A 'baesu_StackTraceFrame' stores the
-// traits 'address', 'libraryFileName', 'lineNumber', 'mangledSymbolName',
-// 'offsetFromSymbol', 'sourceFileName', and 'symbolName'.  All of these
-// properties which are represented by 'const char *' pointers can be 0, the
-// 'lineNumber' property has the value 'INVALID_LINE_NUMBER' if it does not
-// represet a valid line number, the 'offsetFromSymbol' property has the value
-// 'INVALID_OFFSET' if it is not a valid value.  All values are assigned
-// invalid values by the default constructor, after which, once the
-// corresponding 'set' routine has been called, they are valid.
+// 'baesu_StackTraceFrame', that represents information about a single function
+// call on the call stack.  A 'baesu_StackTraceFrame' stores the traits
+// 'address', 'libraryFileName', 'lineNumber', 'mangledSymbolName',
+// 'offsetFromSymbol', 'sourceFileName', and 'symbolName'.  Many of these
+// properties which are represented by 'bsl::string's, where a value of "" is
+// consider invalid for those attributes, the 'lineNumber' property has the
+// value 'BAESU_INVALID_LINE_NUMBER' if it does not represet a valid line
+// number, the 'offsetFromSymbol' property has the value 'BAESU_INVALID_OFFSET'
+// if it is not a valid value.  All values are assigned invalid values by the
+// default constructor.  Each attribute has an 'is<attribute name>Valid' method
+// which returns 'true' if the attribute has a valid value and 'false'
+// otherwise.  Each attribute has a gettor, which has just the name of the
+// attribute, and at least one settor, which has the name
+// 'set<attribute name>'.  String attributes all have two settors, one that
+// takes a reference to a const string, and one which takes a 'const char *'.
+// It is only possible to set attributes to valid values.
 //
 ///Usage
 ///-----
@@ -92,6 +98,10 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -123,17 +133,15 @@ namespace BloombergLP {
                        // ===========================
 
 class baesu_StackTraceFrame {
-    // This class provides a value-semantic attribute class that represents a
-    // frame in a stack trace.  This class does not enforce any relationship
-    // between its different properties.  'baesu_StackTraceFrame' does not
-    // manage the lifetime of any of the objects to which it refers.  The copy
-    // constructor, assignment operator, and destructor are provided by the
-    // compiler by default.  The default constructor initializes all fields to
-    // invalid values.  Once assigned with the 'set*' methods, the value of a
-    // field is valid.  Use the 'is*Valid' methods to determine validity of a
-    // field.  The traits of this class are 'address', 'libraryFileName',
-    // 'lineNumber', 'mangledSymbolName', 'offsetFromSymbol', 'sourceFileName',
-    // and 'symbolName'.  Where you have a function 'child' called by a parent
+    // This class provides an unconstrained value-semantic attribute class that
+    // represents a frame in a stack trace.  This class does not enforce any
+    // relationship between its different attributes.  The default constructor
+    // initializes all fields to invalid values.  Once assigned with the
+    // appropriate 'set*' method, the value of a field is valid.  Use the
+    // 'is*Valid' methods to determine validity of a field.  The traits of this
+    // class are 'address', 'libraryFileName', 'lineNumber',
+    // 'mangledSymbolName', 'offsetFromSymbol', 'sourceFileName', and
+    // 'symbolName'.  Where you have a function 'child' called by a parent
     // function 'parent', on the stack frame of 'child' is the address within
     // 'parent' of the first instruction to be called after 'child' returns.
     // The 'address' field is this address within 'parent', and all other
@@ -141,73 +149,77 @@ class baesu_StackTraceFrame {
 
     // CONSTANTS
     enum {
-        INVALID_LINE_NUMBER = -1,  // the 'lineNumber' attribute is initialized
-                                   // to this
-        INVALID_OFFSET      = -1   // the 'offset' attribute is initialized to
-                                   // this, must be cast to a 'size_t' for
-                                   // comparison or assignment, see
-                                   // 'invalidOffset'
+        BAESU_INVALID_LINE_NUMBER = -1, // the 'lineNumber' attribute is
+                                        // initialized to this
+        BAESU_INVALID_OFFSET      = -1  // the 'offset' attribute is
+                                        // initialized to this, must be cast to
+                                        // a 'size_t' for comparison or
+                                        // assignment, see 'invalidOffset'
     };
 
   private:
     // DATA
     const void *d_address_p;            // address of code within the function
-                                        // referred to by this object
+                                        // referred to by this object, if
+                                        // known, and 0 otherwise
 
-    bsl::string d_libraryFileName;      // executable file or shared library,
-                                        // if known, where the code referred to
-                                        // by 'd_address_p' resides, and 0
-                                        // otherwise
+    bsl::string d_libraryFileName;      // name of the executable file or
+                                        // shared library, where the code
+                                        // referred to by 'd_address_p'
+                                        // resides, if known, and "" otherwise
 
     int         d_lineNumber;           // the line number in the source file
                                         // corresponding to 'd_address_p', if
-                                        // known, and 'INVALID_LINE_NUMBER'
+                                        // known, and
+                                        // 'BAESU_INVALID_LINE_NUMBER'
                                         // otherwise
 
     bsl::size_t d_offsetFromSymbol;     // the offset (in bytes) from the
                                         // beginning of the function into which
                                         // 'd_address_p' points and
                                         // 'd_address_p', if known, and
-                                        // 'INVALID_OFFSET' otherwise.
+                                        // 'BAESU_INVALID_OFFSET' otherwise
 
     bsl::string d_sourceFileName;       // the name of the source file
                                         // corresponding to the code referred
-                                        // to by 'd_address_p', if known, and 0
-                                        // otherwise
+                                        // to by 'd_address_p', if known, and
+                                        // "" otherwise
 
-    bsl::string d_mangledSymbolName;    // the mangled name of the routine
+    bsl::string d_mangledSymbolName;    // The mangled name of the routine
                                         // where 'd_address_p' resides, if
-                                        // known, and 0 otherwise
+                                        // known, and "" otherwise.
 
-    bsl::string d_symbolName;           // the name of the routine containing
+    bsl::string d_symbolName;           // The name of the routine containing
                                         // the instruction pointed at by
-                                        // 'd_address_p'; may be either
-                                        // mangled or demangled, or 0 if
-                                        // unknown.  Note that if
-                                        // 'd_mangledSymbolName' has a valid
-                                        // value, so should 'd_symbolName'.
+                                        // 'd_address_p', if known, and ""
+                                        // otherwise.
 
     bslma_Allocator
                *d_allocator_p;          // allocator (held, not owned)
 
   public:
+    BSLALG_DECLARE_NESTED_TRAITS(baesu_StackTraceFrame,
+                                 bslalg_TypeTraitUsesBslmaAllocator);
+
     // CLASS METHODS
     static
     bsl::size_t invalidOffset();
         // The value of an offset before it is set.
 
     // CREATORS
+    explicit
     baesu_StackTraceFrame(bslma_Allocator *allocator = 0);
         // Create a 'baesu_StackTraceFrame' object with all members set to
-        // invalid values: string pointer values default to 0, the 'lineNumber'
-        // value to 'INVALID_LINE_NUMBER', and the 'offsetFromSymbol' value to
-        // 'INVALID_OFFSET'.
+        // invalid values: string pointer values default to "", the
+        // 'lineNumber' value to 'BAESU_INVALID_LINE_NUMBER', and the
+        // 'offsetFromSymbol' value to 'BAESU_INVALID_OFFSET'.
 
     baesu_StackTraceFrame(const baesu_StackTraceFrame&  original,
                           bslma_Allocator              *allocator = 0);
-        // Create a 'baesu_StackTraceFrame' object using the specfied
-        // 'allocator' with all other members set to their corresponding values
-        // in the specified 'original' stack trace frame.
+        // Create a 'baesu_StackTraceFrame' object having the same value as the
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     // ~baesu_StackTraceFrame();
         // compiler generated
@@ -224,8 +236,7 @@ class baesu_StackTraceFrame {
     void setLibraryFileName(const bsl::string&  libraryFileNameValue);
         // Set the libraryFileName attribute of this object to the specified
         // 'libraryFileNameValue'.  The behavior is undefined if
-        // 'libraryFileNameValud == 0'.  Note that if
-        // '0 == *libraryFileNameValue', this method will have no effect.
+        // 'libraryFileNameValue' is 0 or "".
 
     void setLineNumber(int lineNumberValue);
         // Set the lineNumber attribute of this object to the specified
@@ -236,25 +247,24 @@ class baesu_StackTraceFrame {
     void setMangledSymbolName(const bsl::string&  mangledSymbolNameValue);
         // Set the mangledSymbolName attribute of this object to the specified
         // 'mangledSymbolNameValue'.  The behavior is undefined if
-        // 'mangledSymbolNameValue == 0'.  Note that if
-        // '0 == *mangledSymbolNameValue', this method will have no effect.
+        // 'mangledSymbolNameValue' is 0 or "".
 
     void setOffsetFromSymbol(bsl::size_t offsetFromSymbolValue);
         // Set the offsetFromSymbol attribute of this object to the specified
         // 'offsetFromSymbolValue'.  The behavior is undefined if
-        // 'offsetFromSymbolValue < 0'.
+        // 'offsetFromSymbolValue == invalidOffset()'.
 
     void setSourceFileName(const char         *sourceFileNameValue);
     void setSourceFileName(const bsl::string&  sourceFileNameValue);
         // Set the sourceFileName attribute of this object to the specified
         // 'sourceFileNameValue'.  The behavior is undefined if
+        // 'sourceFileNameValue' is 0 or "".
 
     void setSymbolName(const char         *symbolNameValue);
     void setSymbolName(const bsl::string&  symbolNameValue);
         // Set the symbolName attribute of this object to the specified
-        // 'symbolNameValue'.  The behavior is undefined if
-        // 'symbolNameValue == 0'.  Note that if '0 == *symbolNameValue', this
-        // method will have no effect.
+        // 'symbolNameValue'.  The behavior is undefined if 'symbolNameValue'
+        // is 0 or "".
 
     bslma_Allocator *allocator();
         // Return the allocator used by this object.
@@ -292,7 +302,7 @@ class baesu_StackTraceFrame {
 
     const bsl::string& libraryFileName() const;
         // Return the name of the program file or shared library referred to by
-        // this object or 0 if it has not been set.
+        // this object or "" if it has not been set.
 
     int lineNumber() const;
         // Return the line number in the source file of the statement
@@ -300,7 +310,7 @@ class baesu_StackTraceFrame {
 
     const bsl::string& mangledSymbolName() const;
         // Return a the mangled name of the function corresponding to this
-        // object or 0 if it has not been set.
+        // object or "" if it has not been set.
 
     bsl::size_t offsetFromSymbol() const;
         // Return the offset of 'address' from the address of the beginning of
@@ -308,10 +318,10 @@ class baesu_StackTraceFrame {
 
     const bsl::string& sourceFileName() const;
         // Return the name of the source file containing the function to which
-        // this object refers or 0 if it has not been set.
+        // this object refers or "" if it has not been set.
 
     const bsl::string& symbolName() const;
-        // Return a the name of the function to which this object refers, or 0
+        // Return a the name of the function to which this object refers, or ""
         // if it has not been set.
 
     bsl::ostream& print(bsl::ostream& stream,
@@ -336,15 +346,13 @@ bool operator==(const baesu_StackTraceFrame& lhs,
                 const baesu_StackTraceFrame& rhs);
     // Return 'true' if all corresponding attributes of the specified 'lhs' and
     // 'rhs' stack trace frame objects have the same value, and 'false'
-    // otherwise.  Note that two 'const char *'s pointing to different but
-    // equal strings are considered equal.
+    // otherwise.
 
 bool operator!=(const baesu_StackTraceFrame& lhs,
                 const baesu_StackTraceFrame& rhs);
     // Return 'true' if any corresponding attributes of the specified 'lhs' and
     // 'rhs' stack trace frame objects do not have the same value, and 'false'
-    // otherwise.  Note that two 'const char *'s pointing to different but
-    // equal strings are considered equal.
+    // otherwise.    // equal strings are considered equal.
 
 bsl::ostream& operator<<(bsl::ostream&                stream,
                          const baesu_StackTraceFrame& frame);
@@ -368,7 +376,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 inline
 bsl::size_t baesu_StackTraceFrame::invalidOffset()
 {
-    return (bsl::size_t) INVALID_OFFSET;
+    return (bsl::size_t) BAESU_INVALID_OFFSET;
 }
 
 // CREATORS
@@ -376,7 +384,7 @@ inline
 baesu_StackTraceFrame::baesu_StackTraceFrame(bslma_Allocator *allocator)
 : d_address_p(0)
 , d_libraryFileName(bslma_Default::allocator(allocator))
-, d_lineNumber(INVALID_LINE_NUMBER)
+, d_lineNumber(BAESU_INVALID_LINE_NUMBER)
 , d_offsetFromSymbol(invalidOffset())
 , d_sourceFileName(bslma_Default::allocator(allocator))
 , d_mangledSymbolName(bslma_Default::allocator(allocator))
@@ -423,6 +431,8 @@ baesu_StackTraceFrame& baesu_StackTraceFrame::operator=(
 inline
 void baesu_StackTraceFrame::setAddress(const void *addressValue)
 {
+    BSLS_ASSERT_SAFE(addressValue);
+
     d_address_p = addressValue;
 }
 
@@ -430,6 +440,9 @@ inline
 void baesu_StackTraceFrame::setLibraryFileName(
                                               const char *libraryFileNameValue)
 {
+    BSLS_ASSERT_SAFE( libraryFileNameValue);
+    BSLS_ASSERT_SAFE(*libraryFileNameValue);
+
     d_libraryFileName = libraryFileNameValue;
 }
 
@@ -437,12 +450,16 @@ inline
 void baesu_StackTraceFrame::setLibraryFileName(
                                        const bsl::string& libraryFileNameValue)
 {
+    BSLS_ASSERT_SAFE(!libraryFileNameValue.empty());
+
     d_libraryFileName = libraryFileNameValue;
 }
 
 inline
 void baesu_StackTraceFrame::setLineNumber(int lineNumberValue)
 {
+    BSLS_ASSERT_SAFE(lineNumberValue > 0);
+
     d_lineNumber = lineNumberValue;
 }
 
@@ -450,6 +467,9 @@ inline
 void baesu_StackTraceFrame::setMangledSymbolName(
                                             const char *mangledSymbolNameValue)
 {
+    BSLS_ASSERT_SAFE( mangledSymbolNameValue);
+    BSLS_ASSERT_SAFE(*mangledSymbolNameValue);
+
     d_mangledSymbolName = mangledSymbolNameValue;
 }
 
@@ -457,6 +477,8 @@ inline
 void baesu_StackTraceFrame::setMangledSymbolName(
                                      const bsl::string& mangledSymbolNameValue)
 {
+    BSLS_ASSERT_SAFE(!mangledSymbolNameValue.empty());
+
     d_mangledSymbolName = mangledSymbolNameValue;
 }
 
@@ -464,12 +486,17 @@ inline
 void baesu_StackTraceFrame::setOffsetFromSymbol(
                                              bsl::size_t offsetFromSymbolValue)
 {
+    BSLS_ASSERT_SAFE(invalidValue() != offsetFromSymbolValue);
+
     d_offsetFromSymbol = offsetFromSymbolValue;
 }
 
 inline
 void baesu_StackTraceFrame::setSourceFileName(const char *sourceFileNameValue)
 {
+    BSLS_ASSERT_SAFE( sourceFileNameValue);
+    BSLS_ASSERT_SAFE(*sourceFileNameValue);
+
     d_sourceFileName = sourceFileNameValue;
 }
 
@@ -477,18 +504,25 @@ inline
 void baesu_StackTraceFrame::setSourceFileName(
                                         const bsl::string& sourceFileNameValue)
 {
+    BSLS_ASSERT_SAFE(!sourceFileNameValue.empty());
+
     d_sourceFileName = sourceFileNameValue;
 }
 
 inline
 void baesu_StackTraceFrame::setSymbolName(const char *symbolNameValue)
 {
+    BSLS_ASSERT_SAFE( symbolNameValue);
+    BSLS_ASSERT_SAFE(*symbolNameValue);
+
     d_symbolName = symbolNameValue;
 }
 
 inline
 void baesu_StackTraceFrame::setSymbolName(const bsl::string& symbolNameValue)
 {
+    BSLS_ASSERT_SAFE(!symbolNameValue.empty());
+
     d_symbolName = symbolNameValue;
 }
 

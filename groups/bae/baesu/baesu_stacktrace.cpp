@@ -72,12 +72,8 @@ int baesu_StackTrace::initializeFromAddressArray(void *addresses[],
 
 int baesu_StackTrace::initializeFromStack(int maxFrames, bool demangle)
 {
-#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_WINDOWS)
-    enum { IGNORE_OFFSET = 2 };
-#else
-    enum { IGNORE_OFFSET = 1 };
-#endif
-    maxFrames += IGNORE_OFFSET;    // allocate extra frame(s) to be ignored
+    enum { IGNORE_FRAMES = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES + 1 };
+    maxFrames += IGNORE_FRAMES;    // allocate extra frame(s) to be ignored
 
     void **addresses = (void **) d_allocator.allocate(
                                                    maxFrames * sizeof(void *));
@@ -89,8 +85,8 @@ int baesu_StackTrace::initializeFromStack(int maxFrames, bool demangle)
 
     // Throw away the first frame, since it refers to this routine.
 
-    return initializeFromAddressArray(addresses + IGNORE_OFFSET,
-                                      numAddresses - IGNORE_OFFSET,
+    return initializeFromAddressArray(addresses    + IGNORE_FRAMES,
+                                      numAddresses - IGNORE_FRAMES,
                                       demangle);
 }
 
@@ -133,12 +129,8 @@ void baesu_StackTraceUtil::printStackTrace(bsl::ostream& stream,
                                            int           maxFrames,
                                            bool          demangle)
 {
-#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_WINDOWS)
-    enum { IGNORE_OFFSET = 2 };
-#else
-    enum { IGNORE_OFFSET = 1 };
-#endif
-    maxFrames += IGNORE_OFFSET;    // allocate extra frame(s) to be ignored
+    enum { IGNORE_FRAMES = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES + 1 };
+    maxFrames += IGNORE_FRAMES;    // allocate extra frame(s) to be ignored
 
     baesu_StackTrace st;
 
@@ -153,8 +145,8 @@ void baesu_StackTraceUtil::printStackTrace(bsl::ostream& stream,
 
     // Throw away the first frame, since it refers to this routine.
 
-    const int rc = st.initializeFromAddressArray(addresses + IGNORE_OFFSET,
-                                                 numAddresses - IGNORE_OFFSET,
+    const int rc = st.initializeFromAddressArray(addresses    + IGNORE_FRAMES,
+                                                 numAddresses - IGNORE_FRAMES,
                                                  demangle);
     if (rc) {
         stream << "Stack Trace: Internal Error initializing frames\n";
@@ -168,7 +160,7 @@ void baesu_StackTraceUtil::printStackTrace(bsl::ostream& stream,
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

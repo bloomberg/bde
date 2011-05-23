@@ -92,20 +92,20 @@ void zprintf(const char *, ...)
 // follows:
 //
 // typedef struct {
-//     unsigned char e_ident[EI_NIDENT];    //  ident bytes 
-//     Elf32_Half    e_type;                //  file type 
-//     Elf32_Half    e_machine;             //  target machine 
-//     Elf32_Word    e_version;             //  file version 
-//     Elf32_Addr    e_entry;               //  start address 
-//     Elf32_Off     e_phoff;               //  program header file offset 
-//     Elf32_Off     e_shoff;               //  section header file offset 
-//     Elf32_Word    e_flags;               //  file flags 
-//     Elf32_Half    e_ehsize;              //  sizeof ehdr 
-//     Elf32_Half    e_phentsize;           //  sizeof phdr 
-//     Elf32_Half    e_phnum;               //  number of program headers 
-//     Elf32_Half    e_shentsize;           //  sizeof section header 
-//     Elf32_Half    e_shnum;               //  number of section headers 
-//     Elf32_Half    e_shstrndx;            //  shdr string index 
+//     unsigned char e_ident[EI_NIDENT];    //  ident bytes
+//     Elf32_Half    e_type;                //  file type
+//     Elf32_Half    e_machine;             //  target machine
+//     Elf32_Word    e_version;             //  file version
+//     Elf32_Addr    e_entry;               //  start address
+//     Elf32_Off     e_phoff;               //  program header file offset
+//     Elf32_Off     e_shoff;               //  section header file offset
+//     Elf32_Word    e_flags;               //  file flags
+//     Elf32_Half    e_ehsize;              //  sizeof ehdr
+//     Elf32_Half    e_phentsize;           //  sizeof phdr
+//     Elf32_Half    e_phnum;               //  number of program headers
+//     Elf32_Half    e_shentsize;           //  sizeof section header
+//     Elf32_Half    e_shnum;               //  number of section headers
+//     Elf32_Half    e_shstrndx;            //  shdr string index
 // } Elf32_Ehdr;
 //
 // Each segment is described by a program header that is an array of
@@ -113,14 +113,14 @@ void zprintf(const char *, ...)
 // to prepare the program for execution, and typically looks as follows:
 //
 // typedef struct {
-//     Elf32_Word p_type;                   //  entry type 
-//     Elf32_Off  p_offset;                 //  file offset 
-//     Elf32_Addr p_vaddr;                  //  virtual address 
-//     Elf32_Addr p_paddr;                  //  physical address 
-//     Elf32_Word p_filesz;                 //  file size 
-//     Elf32_Word p_memsz;                  //  memory size 
-//     Elf32_Word p_flags;                  //  entry flags 
-//     Elf32_Word p_align;                  //  memory/file alignment 
+//     Elf32_Word p_type;                   //  entry type
+//     Elf32_Off  p_offset;                 //  file offset
+//     Elf32_Addr p_vaddr;                  //  virtual address
+//     Elf32_Addr p_paddr;                  //  physical address
+//     Elf32_Word p_filesz;                 //  file size
+//     Elf32_Word p_memsz;                  //  memory size
+//     Elf32_Word p_flags;                  //  entry flags
+//     Elf32_Word p_align;                  //  memory/file alignment
 // } Elf32_Phdr;
 //
 // An object file segment contains one or more sections.  The string table
@@ -129,26 +129,26 @@ void zprintf(const char *, ...)
 // '.data', '.bss' etc.
 //
 // typedef struct {
-//     Elf32_Word sh_name;                  //  section name 
-//     Elf32_Word sh_type;                  //  SHT_... 
-//     Elf32_Word sh_flags;                 //  SHF_... 
-//     Elf32_Addr sh_addr;                  //  virtual address 
-//     Elf32_Off  sh_offset;                //  file offset 
-//     Elf32_Word sh_size;                  //  section size 
-//     Elf32_Word sh_link;                  //  misc info 
-//     Elf32_Word sh_info;                  //  misc info 
-//     Elf32_Word sh_addralign;             //  memory alignment 
-//     Elf32_Word sh_entsize;               //  entry size if table 
+//     Elf32_Word sh_name;                  //  section name
+//     Elf32_Word sh_type;                  //  SHT_...
+//     Elf32_Word sh_flags;                 //  SHF_...
+//     Elf32_Addr sh_addr;                  //  virtual address
+//     Elf32_Off  sh_offset;                //  file offset
+//     Elf32_Word sh_size;                  //  section size
+//     Elf32_Word sh_link;                  //  misc info
+//     Elf32_Word sh_info;                  //  misc info
+//     Elf32_Word sh_addralign;             //  memory alignment
+//     Elf32_Word sh_entsize;               //  entry size if table
 // } Elf32_Shdr;
 //
 // typedef struct
 // {
-//     Elf32_Word    st_name;               //  Symbol name (string tbl index) 
-//     Elf32_Addr    st_value;              //  Symbol value 
-//     Elf32_Word    st_size;               //  Symbol size 
-//     unsigned char st_info;               //  Symbol type and binding 
-//     unsigned char st_other;              //  Symbol visibility 
-//     Elf32_Section st_shndx;              //  Section index - 16-bit 
+//     Elf32_Word    st_name;               //  Symbol name (string tbl index)
+//     Elf32_Addr    st_value;              //  Symbol value
+//     Elf32_Word    st_size;               //  Symbol size
+//     unsigned char st_info;               //  Symbol type and binding
+//     unsigned char st_other;              //  Symbol visibility
+//     Elf32_Section st_shndx;              //  Section index - 16-bit
 // } Elf32_Sym;
 //
 // Below we explain the strategies to resolve symbols on the various platforms
@@ -161,7 +161,7 @@ void zprintf(const char *, ...)
 // linked symbols:
 //
 // typedef struct {
-//     Elf32_Sword d_tag;                   //  how to interpret value 
+//     Elf32_Sword d_tag;                   //  how to interpret value
 //     union {
 //         Elf32_Word d_val;
 //         Elf32_Addr d_ptr;
@@ -171,18 +171,18 @@ void zprintf(const char *, ...)
 //
 // Tag values
 //
-// #define    DT_NULL      0                //  last entry in list 
-// #define    DT_DEBUG    21                //  pointer to r_debug structure 
+// #define    DT_NULL      0                //  last entry in list
+// #define    DT_DEBUG    21                //  pointer to r_debug structure
 //
 // struct r_debug {
-//     int            r_version;            //  debugging info version no. 
-//     Link_map      *r_map;                //  address of link_map 
-//     unsigned long  r_brk;                //  address of update routine 
+//     int            r_version;            //  debugging info version no.
+//     Link_map      *r_map;                //  address of link_map
+//     unsigned long  r_brk;                //  address of update routine
 //     r_state_e      r_state;
-//     unsigned long  r_ldbase;             //  base addr of ld.so 
-//     Link_map      *r_ldsomap;            //  address of ld.so.1's link map 
-//     rd_event_e     r_rdevent;            //  debug event 
-//     rd_flags_e     r_flags;              //  misc flags. 
+//     unsigned long  r_ldbase;             //  base addr of ld.so
+//     Link_map      *r_ldsomap;            //  address of ld.so.1's link map
+//     rd_event_e     r_rdevent;            //  debug event
+//     rd_flags_e     r_flags;              //  misc flags.
 // };
 //
 // The link_map is a chain of loaded object.
@@ -191,15 +191,15 @@ void zprintf(const char *, ...)
 //
 //     unsigned long  l_addr;               // address at which object is
 //                                          // mapped
-//     char          *l_name;               //  full name of loaded object 
+//     char          *l_name;               //  full name of loaded object
 // #ifdef _LP64
-//     Elf64_Dyn     *l_ld;                 //  dynamic structure of object 
+//     Elf64_Dyn     *l_ld;                 //  dynamic structure of object
 // #else
-//     Elf32_Dyn     *l_ld;                 //  dynamic structure of object 
+//     Elf32_Dyn     *l_ld;                 //  dynamic structure of object
 // #endif
-//     Link_map     *l_next;                //  next link object 
-//     Link_map     *l_prev;                //  previous link object 
-//     char         *l_refname;             //  filters reference name 
+//     Link_map     *l_next;                //  next link object
+//     Link_map     *l_prev;                //  previous link object
+//     char         *l_refname;             //  filters reference name
 // };
 //
 // Linux:
@@ -226,7 +226,7 @@ void zprintf(const char *, ...)
 //     // argument passed to the dl_iterate_phdr() callback to determine
 //     // whether or not they are provided.
 //
-//     //  Incremented when a new object may have been added.  
+//     //  Incremented when a new object may have been added.
 //     unsigned long long int dlpi_adds;
 //
 //     //  Incremented when an object may have been removed.
@@ -493,6 +493,8 @@ typedef SPLICE(Sym)     ElfSymbol;         // Describes one symbol in the
 
 static
 int checkElfHeader(Local::ElfHeader *elfHeader)
+    // Return 0 if the magic numbers in the elf header are correct and a
+    // non-zero value otherwise.
 {
     if (elfHeader->e_ident[EI_MAG0] != ELFMAG0 ||
         elfHeader->e_ident[EI_MAG1] != ELFMAG1 ||
@@ -503,13 +505,15 @@ int checkElfHeader(Local::ElfHeader *elfHeader)
     }
 
     // this code can only read native-endian ELF files
+
     if (elfHeader->e_ident[EI_DATA] !=
                           (Local::IS_BIG_ENDIAN ? ELFDATA2MSB : ELFDATA2LSB)) {
         return -1;                                                    // RETURN
     }
 
     // this code can only read native-sized ELF files
-    if (elfHeader->e_ident[EI_CLASS] != 
+
+    if (elfHeader->e_ident[EI_CLASS] !=
                              (sizeof(void *) == 4 ? ELFCLASS32 : ELFCLASS64)) {
         return -1;                                                    // RETURN
     }
@@ -717,7 +721,7 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     }
 
     if (0 != checkElfHeader(&elfHeader)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     d_seg_p->d_adjustment = (UintPtr) segmentBaseAddress;

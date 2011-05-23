@@ -471,11 +471,11 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
 #   error unrecognized architecture
 #elif defined(BSLS_PLATFORM__CPU_64_BIT)
     // x86 compatible cpu, 64 bit executable
- 
+
     const int machine = IMAGE_FILE_MACHINE_AMD64;
 #elif defined(BSLS_PLATFORM__CPU_32_BIT)
     // x86 compatible cpu, 32 bit executable
- 
+
     const int machine = IMAGE_FILE_MACHINE_I386;
 #else
 #   error unrecognized architecture

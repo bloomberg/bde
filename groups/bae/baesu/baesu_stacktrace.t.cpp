@@ -193,6 +193,11 @@ bsl::ostream *out_p;    // pointer to either 'cout' or a dummy stringstream
                         // that is never output, depending on the value of
                         // 'verbose'.
 
+bool stringstreamUsed;  // stringstreams allocate temporaries with the default
+                        // allocator, so if we use any stringstreams we should
+                        // not consider it an error if the default allocator
+                        // has been used
+
 static const bsl::size_t npos = bsl::string::npos;
 
 static inline
@@ -202,7 +207,7 @@ bool problem()
         out_p = &cout;
         verbose = true;
 
-        return true;
+        return true;                                                  // RETURN
     }
 
     return false;
@@ -623,7 +628,7 @@ BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
         return FALSE;                                                 // RETURN
     }
 
-    bsl::stringstream ss;
+    bsl::stringstream ss;               stringstreamUsed = true;
     Util::printStackTrace(ss);
     const bsl::string& dump = ss.str();
     const bsl::size_t NPOS = bsl::string::npos;
@@ -672,7 +677,7 @@ BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
 
 static int phonyCompare(const void *, const void *)
 {
-    bsl::stringstream ss;
+    bsl::stringstream ss;                   stringstreamUsed = true;
     Util::printStackTrace(ss);
     const bsl::string& dump = ss.str();
     const bsl::size_t NPOS = bsl::string::npos;
@@ -866,7 +871,7 @@ void case_6_top(bool demangle)
         matches.push_back("bottom");
         matches.push_back("main");
 
-        bsl::stringstream os;
+        bsl::stringstream os;                   stringstreamUsed = true;
         os << st;
         const bsl::string& str = os.str();
         checkOutput(str, matches);
@@ -950,7 +955,7 @@ void case_5_Top(bool demangle)
         matches.push_back("bottom");
         matches.push_back("main");
 
-        bsl::stringstream os;
+        bsl::stringstream os;                   stringstreamUsed = true;
         os << st;
         const bsl::string& str = os.str();
         checkOutput(str, matches);
@@ -1048,7 +1053,7 @@ void top()
     matches.push_back("bottom");
     matches.push_back("main");
 
-    bsl::stringstream os;
+    bsl::stringstream os;                       stringstreamUsed = true;
     baesu_StackTraceUtil::printStackTrace(os);
     checkOutput(os.str(), matches);
 
@@ -1124,7 +1129,7 @@ int bottom()
                                 // ------
 
 namespace CASE_3 {
- 
+
 bool called = false;
 
 void top(bslma_Allocator *alloc)
@@ -1143,7 +1148,7 @@ void top(bslma_Allocator *alloc)
 
     bsl::string strA(alloc);
     {
-        bsl::stringstream ssA(alloc);
+        bsl::stringstream ssA(alloc);           stringstreamUsed = true;
         bsl::ostream& ssARef = ssA << st;
         ASSERT(&ssA == &ssARef);
         {
@@ -1207,7 +1212,7 @@ void top(bslma_Allocator *alloc)
     matches.push_back("main");
 
     {
-        bsl::stringstream myStream(alloc);
+        bsl::stringstream myStream(alloc);           stringstreamUsed = true;
         baesu_StackTraceUtil::printStackTrace(myStream);
         bsl::string str(alloc);
 
@@ -1227,7 +1232,7 @@ void top(bslma_Allocator *alloc)
     }
 
     {
-        enum { IGNORE_FRAMES = baesu_StackAddressUtil::IGNORE_FRAMES };
+        enum { IGNORE_FRAMES = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES };
 
         void *addresses[3 + IGNORE_FRAMES];
         bsl::memset(addresses, 0, sizeof(addresses));
@@ -1497,7 +1502,14 @@ int main(int argc, char *argv[])
     // that works on Windoze.
 
     bsl::stringstream dummyOstream(&ta);
-    out_p = verbose ? &cout : &dummyOstream;
+    if (verbose) {
+        out_p = &cout;
+        stringstreamUsed = false;
+    }
+    else {
+        out_p = &dummyOstream;
+        stringstreamUsed = true;
+    }
 
     switch (test) { case 0:
       case 17: {
@@ -1966,7 +1978,7 @@ int main(int argc, char *argv[])
         //:   in.
         //: 5 That neither function allocates any memory from the default
         //:   allocator.
-        // 
+        //
         // Plan:
         //: 1 Create a stack trace object.
         //: 2 Output the stack trace object to a stringstream using '<<'.
@@ -2095,6 +2107,10 @@ int main(int argc, char *argv[])
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
+    }
+
+    if (!stringstreamUsed) {
+        ASSERT(0 == defaultAllocator.numAllocations());
     }
 
     if (testStatus > 0) {

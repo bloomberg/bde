@@ -22,6 +22,10 @@ BDES_IDENT("$Id: $")
 // (text) memory location of the first instruction to be executed upon
 // returning from a called routine.
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
 #endif
@@ -38,13 +42,13 @@ struct baesu_StackAddressUtil {
 
     // On some platforms, 'getStackAddresses' finds a frame representing
     // 'getStackAddresses' itself.  This frame is usually unwanted.
-    // 'IGNORE_FRAMES' instructs the caller as to whether the first frame is
-    // such an unwanted frame.
+    // 'BAESU_IGNORE_FRAMES' instructs the caller as to whether the first frame
+    // is such an unwanted frame.
 
 #if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_WINDOWS)
-    enum { IGNORE_FRAMES = 1 };
+    enum { BAESU_IGNORE_FRAMES = 1 };
 #else
-    enum { IGNORE_FRAMES = 0 };
+    enum { BAESU_IGNORE_FRAMES = 0 };
 #endif
 
     // CLASS METHODS

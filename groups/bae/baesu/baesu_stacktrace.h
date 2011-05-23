@@ -132,10 +132,10 @@ BDES_IDENT("$Id: $")
 //         assert(0 == rc);
 //         assert(st.numFrames() >= 6);                    // main + 5 recurse
 // #endif
-// 
+//
 //         *out_p << st;    // print it out
 //     }
-// 
+//
 //     ++*depth;   // Prevent compiler from optimizing tail recursion as a
 //                 // loop.
 // }
@@ -183,8 +183,8 @@ BDES_IDENT("$Id: $")
 // optimized on Windows with the optimizer.
 //..
 //  #if !defined(BSLS_PLATFORM__OS_WINDOWS) || !defined(BDE_BUILD_TARGET_OPT)
-//          ASSERT(0 == rc);
-//          ASSERT(st.numFrames() >= 6);                    // main + 5 recurse
+//          assert(0 == rc);
+//          assert(st.numFrames() >= 6);                    // main + 5 recurse
 //  #endif
 //..
 // Finally, wne can now print out the stack trace object using 'cout << st;',
@@ -195,13 +195,13 @@ BDES_IDENT("$Id: $")
 //..
 //          for (int i = 0; i < st.numFrames(); ++i) {
 //              const baesu_StackTraceFrame& frame = st.stackFrame(i);
-//  
+//
 //              const char *sn = frame.symbolName().c_str();
 //              sn = sn ? sn : "--unknown--";
 //              *out_p << '(' << i << "): " << sn << endl;
 //          }
 //      }
-//  
+//
 //      ++*depth;   // Prevent compiler from optimizing tail recursion as a
 //                  // loop.
 //  }

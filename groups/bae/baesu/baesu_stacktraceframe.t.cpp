@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
         //:   3 For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
         //:
         //:     1 Use the value constructor to create a modifiable 'Obj',
-        //:       'mX', using 'oa', and having the value 'W' 
+        //:       'mX', using 'oa', and having the value 'W'
         //:
         //:     2 Assign 'mX' from 'Z' in the presence of injected exceptions
         //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
@@ -570,7 +570,7 @@ int main(int argc, char *argv[])
 
                 LOOP4_ASSERT(LINE1, LINE2, Z, X, (Z == X) == (LINE1 == LINE2));
 
-                Obj *mR = &(mX = Z);                        
+                Obj *mR = &(mX = Z);
                 LOOP4_ASSERT(LINE1, LINE2,  Z,   X,  Z ==   X);
                 LOOP4_ASSERT(LINE1, LINE2,  Z,  ZZ,  Z ==  ZZ);
                 LOOP4_ASSERT(LINE1, LINE2, mR, &mX, mR == &mX);
@@ -871,7 +871,7 @@ int main(int argc, char *argv[])
         //:   attributes such that (a) for each salient attribute, there exists
         //:   a pair of rows that differ (slightly) in only the column
         //:   corresponding to that attribute, and (b) all attribute values
-        //:   that can allocate memory on construction do so. 
+        //:   that can allocate memory on construction do so.
         //:
         //: 4 For each row 'R1' in the table of P-3:  (C-1..8)
         //:   1 Create a single object 'X' and use it to verify the reflexive
@@ -1235,9 +1235,9 @@ int main(int argc, char *argv[])
             // Verify that the signatures and return types are standard.
 
             union {
-               funcPtr      d_print;
-               operatorPtr  d_operatorOp;
-               void        *d_p;
+                funcPtr      d_print;
+                operatorPtr  d_operatorOp;
+                void        *d_p;
             } u;
             if (verbose) {
                 u.d_print      = &Obj::print;
@@ -1558,7 +1558,7 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
 
-                bsl::ostringstream os;
+                bsl::ostringstream os(&ta);
 
                 if (-9 == L && -9 == SPL) {
 
@@ -2333,6 +2333,16 @@ int main(int argc, char *argv[])
 
     LOOP_ASSERT(globalAllocator.numBlocksTotal(),
                 0 == globalAllocator.numBlocksTotal());
+
+    // CONCERN: In no case does memory come from the default allocator.
+
+    if (5 != test) {
+        // exempt case 5 from this because the ostringstream allocates
+        // temporaries from the default allocator.
+
+        LOOP_ASSERT(defaultAllocator.numBlocksTotal(),
+                    0 == defaultAllocator.numBlocksTotal());
+    }
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

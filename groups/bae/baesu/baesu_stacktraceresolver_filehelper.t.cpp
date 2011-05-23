@@ -340,7 +340,7 @@ int main(int argc, char *argv[]) {
                                    sizeof(scratchBuf),
                                    &ta);
         ASSERT(!bsl::strcmp(cmpBuf, result));
-        
+
         memset(result, 0, strlen(result) + 1);
         ta.deallocate(result);
         bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
