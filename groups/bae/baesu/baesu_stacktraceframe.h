@@ -486,7 +486,7 @@ inline
 void baesu_StackTraceFrame::setOffsetFromSymbol(
                                              bsl::size_t offsetFromSymbolValue)
 {
-    BSLS_ASSERT_SAFE(invalidValue() != offsetFromSymbolValue);
+    BSLS_ASSERT_SAFE(invalidOffset() != offsetFromSymbolValue);
 
     d_offsetFromSymbol = offsetFromSymbolValue;
 }
