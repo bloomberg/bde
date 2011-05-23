@@ -99,13 +99,13 @@ BDES_IDENT("$Id: $")
 ///Log Record Timestamps
 ///---------------------
 // By default, the timestamp attributes of published records are written in UTC
-// time.  This behavior can be changed by calling 'enablePublishInLocalTime()'
+// time.  This behavior can be changed by calling 'enablePublishInLocalTime'
 // which will cause timestamp attributes to be written in local time instead.
 //
 ///Log Filename Pattern
 ///--------------------
 // The 'enableFileLogging' method allow the use of '%'-escape sequences to
-// specifiy the log filename.  The recognized sequences are as follows:
+// specify the log filename.  The recognized sequences are as follows:
 //..
 //   %Y - current year (four digits with leading zeros)
 //   %M - current month (two digits with leading zeros)
@@ -159,7 +159,7 @@ BDES_IDENT("$Id: $")
 //
 // There is a possibility that the new log file has the same name as the
 // rotated file.  This often occurs when the filename pattern has a timestamp
-// that does not have resolution in seconds (e.g. "a.log.%Y%M%D") or it can be
+// that does not have resolution in seconds (e.g., "a.log.%Y%M%D") or it can be
 // done on purpose by using a pattern such as "a.log%%".  To resolve this, a
 // ".1" suffix will be appended to the rotated file.  If a file with a ".N"
 // suffix already exists, rename the existing file with the suffix ".N+1"
@@ -274,10 +274,10 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+class bslma_Allocator;
+
 class bael_Context;
 class bael_Record;
-
-class bslma_Allocator;
 
                           // =======================
                           // class bael_FileObserver
@@ -326,6 +326,7 @@ class bael_FileObserver : public bael_Observer {
     bael_FileObserver2         d_fileObserver2;      // forward most operations
                                                      // this object
 
+  private:
     // NOT IMPLEMENTED
     bael_FileObserver(const bael_FileObserver&);
     bael_FileObserver& operator=(const bael_FileObserver&);

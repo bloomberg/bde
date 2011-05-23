@@ -938,11 +938,11 @@ STREAM& bdet_Datetime::bdexStreamIn(STREAM& stream, int version)
             bdet_Time timeTmp;
             dateTmp.bdexStreamIn(stream, 1);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             timeTmp.bdexStreamIn(stream, 1);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             d_date = dateTmp;
             d_time = timeTmp;

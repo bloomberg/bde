@@ -79,7 +79,7 @@ BDES_IDENT("$Id: $")
 ///---------------------
 // By default, the timestamp attributes of published records are written in UTC
 // time.  If the default logging functor is in effect, this behavior can be
-// changed by calling 'enablePublishInLocalTime()' which will cause timestamp
+// changed by calling 'enablePublishInLocalTime' which will cause timestamp
 // attributes to be written in local time instead.  This method will not have
 // the intended effect if the 'setLogFileFunctor' method has been called to
 // install an alternate logging functor from the default.  However, if the
@@ -92,7 +92,7 @@ BDES_IDENT("$Id: $")
 ///Log Filename Pattern
 ///--------------------
 // The 'enableFileLogging' method allow the use of '%'-escape sequences to
-// specifiy the log filename.  The recognized sequences are as follows:
+// specify the log filename.  The recognized sequences are as follows:
 //..
 //   %Y - current year (four digits with leading zeros)
 //   %M - current month (two digits with leading zeros)
@@ -146,7 +146,7 @@ BDES_IDENT("$Id: $")
 //
 // There is a possibility that the new log file has the same name as the
 // rotated file.  This often occurs when the filename pattern has a timestamp
-// that does not have resolution in seconds (e.g. "a.log.%Y%M%D") or it can be
+// that does not have resolution in seconds (e.g., "a.log.%Y%M%D") or it can be
 // done on purpose by using a pattern such as "a.log%%".  To resolve this, a
 // ".1" suffix will be appended to the rotated file.  If a file with a ".N"
 // suffix already exists, rename the existing file with the suffix ".N+1"
@@ -239,10 +239,10 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+class bslma_Allocator;
+
 class bael_Context;
 class bael_Record;
-
-class bslma_Allocator;
 
                           // ========================
                           // class bael_FileObserver2
@@ -308,10 +308,11 @@ class bael_FileObserver2 : public bael_Observer {
 #ifdef BSLS_PLATFORM__CMP_SUN
     int                    d_startingLogFileSize;      // size of the log file
                                                        // when it was opened
-                                                       // (only needed for CC
+                                                       // (needed only for CC
                                                        // compiler on Sun)
 #endif
 
+  private:
     // NOT IMPLEMENTED
     bael_FileObserver2(const bael_FileObserver2&);
     bael_FileObserver2& operator=(const bael_FileObserver2&);
@@ -338,7 +339,7 @@ class bael_FileObserver2 : public bael_Observer {
         // log filename.
         //
         // Another situation where renaming will occur is when the new log file
-        // will have the same filename as the rotated log file. In this case,
+        // will have the same filename as the rotated log file.  In this case,
         // rename the rotated file by appending a suffix ".1", and, if a file
         // already exists with the suffix ".N", rename the existing file with
         // the suffix ".N+1" (recursively).  See the "Rotated File Naming"

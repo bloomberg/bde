@@ -256,7 +256,7 @@ int bael_FileObserver2::openLogFile()
     // For the CC compiler on Sun, when opening a file that already exists,
     // 'ofstream::tellp' will give the number of characters from the end of the
     // existing file.  Therefore, it is necessary to keep track of the original
-    // file size for rotation on size test.  This is not necessary with other
+    // file size for rotation on size test.  This is not necessary for other
     // compilers.
 
     d_startingLogFileSize = bdesu_FileUtil::getFileSize(d_logFileName.c_str());
@@ -333,7 +333,7 @@ void bael_FileObserver2::rotateIfNecessary(const bdet_Datetime& timestamp)
         // 'tellp' fails, or the rotation size is exceeded.
 
 #ifdef BSLS_PLATFORM__CMP_SUN
-        // Adding the original file size to 'tellp' is only need on Sun's CC
+        // Adding the original file size to 'tellp' is needed only for Sun's CC
         // compiler.
 
         bsl::streampos pos = d_logFileStream.tellp();

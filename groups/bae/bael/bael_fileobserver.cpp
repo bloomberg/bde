@@ -181,6 +181,7 @@ void bael_FileObserver::publish(const bael_Record&  record,
         d_stdoutFormatter(oss, record);
 
         // Use 'fputs', as 'puts' adds a newline.
+
         bsl::fputs(oss.str().c_str(), stdout);
         bsl::fflush(stdout);
     }

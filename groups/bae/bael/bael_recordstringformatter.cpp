@@ -15,6 +15,7 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bdeu_print.h>
 
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_c_stdlib.h>
@@ -50,7 +51,7 @@ static void appendToString(bsl::string *result, int value)
 }
 
 static void appendToString(bsl::string *result,
-                           bsls_PlatformUtil::Uint64 value)
+                           bsls_Types::Uint64 value)
     // Convert the specified 'value' into ASCII characters and append it to the
     // specified 'result.
 {
@@ -140,6 +141,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     bdet_Datetime timestamp = fixedFields.timestamp() + d_timestampOffset;
 
     // Step through the format string, outputting the required elements.
+
     const char* iter = d_formatSpec.data();
     const char* end  = iter + d_formatSpec.length();
 
@@ -263,10 +265,12 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                     output += ss.str();
                 }
               } break;
-              default:
+              default: {
                 // Undefined: we just output the verbatim characters.
+
                 output += '%';
                 output += *iter;
+              }
             }
             ++iter;
           } break;
@@ -286,6 +290,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
               } break;
               default: {
                 // Undefined: we just output the verbatim characters.
+
                 output += '\\';
                 output += *iter;
               }
@@ -293,7 +298,6 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
             ++iter;
           } break;
           default: {
-            // Do nothing, instead, let run accumulate.
             output += *iter;
             ++iter;
           }

@@ -150,9 +150,9 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-class bael_Record;
-
 class bslma_Allocator;
+
+class bael_Record;
 
                         // ================================
                         // class bael_RecordStringFormatter

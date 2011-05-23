@@ -32,7 +32,7 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
                                    int           spacesPerLevel) const
 {
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     bdeu_Print::indent(stream, level, spacesPerLevel);
