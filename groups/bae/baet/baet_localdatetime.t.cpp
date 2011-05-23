@@ -210,8 +210,35 @@ typedef bslma_TestAllocator TestAllocator;
 typedef bdex_TestInStream   In;
 typedef bdex_TestOutStream  Out;
 
+#if 0
+template<class STREAM>
+struct bdex_MethodTypes {
+
+public:
+    // MANIPULATORS
+	typedef STREAM& (Obj::*memberInType )(STREAM&, int);
+
+    // ACCESSORS
+	typedef STREAM& (Obj::*memberOutType)(STREAM&, int) const;
+};
+#endif
+
+template<class STREAM> STREAM&  (*inFunc)(STREAM&, int);
+template<class STREAM> STREAM& (*outFunc)(STREAM&, int) const;
+
+
 typedef bdet_DatetimeTz  T1;  // Attribute 'datetimeTz'
 typedef const char      *T2;  // Attribute 'timeZoneId'
+
+// ============================================================================
+//                     HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+static bool someDiff(const Obj& a, const Obj& b)
+{
+    return a.datetimeTz() != b.datetimeTz()
+        || a.timeZoneId() != b.timeZoneId();
+}
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -425,6 +452,460 @@ int main(int argc, char *argv[])
 
       } break;
       case 10: {
+        // --------------------------------------------------------------------
+        // BSLX STREAMING
+        //   Ensure that we can serialize the value of any object of the class,
+        //   and then deserialize that value back into any object of the class.
+        //
+        // Concerns:
+        //: 1 Streaming must be neutral to exceptions thrown as a result of
+        //:   either allocating memory or streaming in values.
+        //:
+        //: 2 Ensure that streaming works under the following conditions:
+        //:   1 VALID - may contain any sequence of valid values.
+        //:   2 EMPTY - valid, but contains no data.
+        //:   3 INVALID - may or may not be empty.
+        //:   4 INCOMPLETE - the stream is truncated, but otherwise valid.
+        //:   5 CORRUPTED - the data contains explicitly inconsistent fields.
+        //
+        // Plan:
+        //: 1 Perform a trivial direct (breathing) test of the 'outStream' and
+        //:   'inStream' methods (C-1).  Note that the rest of the testing will
+        //:   use the stream operators.
+        //:
+        //: 2 Specify a set 'S' of unique object values with substantial and
+        //:   varied differences.  For each value in 'S', construct an object
+        //:   'x' along with a sequence of similarly constructed duplicates
+        //:   'x1,   x2, ..., xN'.  Attempt to affect every aspect of white-box
+        //:   state by altering each 'xi' in a unique way.  Let the union of
+        //:   all such objects be the set 'T'.
+        //:
+        //: 3 VALID STREAMS (and exceptions): Using all combinations of
+        //:   '(u, v)' in 'T X T', stream-out the value of u into a buffer and
+        //:   stream it back into (an independent object of) 'v', and assert
+        //:   that 'u == v'.  (C-1, 2-1)
+        //:
+        //: 4 EMPTY AND INVALID STREAMS: For each 'x' in 'T', attempt to stream
+        //:   into (a temporary copy of) 'x' from an empty and then invalid
+        //:   stream.  Verify after each try that the object is unchanged and
+        //:   that the stream is invalid.  (C-2-2).
+        //:
+        //: 5 INCOMPLETE (BUT OTHERWISE VALID) DATA: Write 3 distinct objects
+        //:   to an output stream buffer of total length 'N'.  For each partial
+        //:   stream length from 0 to 'N - 1', construct a truncated input
+        //:   stream and attempt to read into objects initialized with distinct
+        //:   values.  Verify values of objects that are either successfully
+        //:   modified or left entirely unmodified, and that the stream became
+        //:   invalid immediately after the first incomplete read.  Finally
+        //:   ensure that each object streamed into is in some valid state by
+        //:   creating a copy and then assigning a known value to that copy;
+        //:   allow the original object to leave scope without further
+        //:   modification, so that the destructor asserts internal object
+        //:   invariants appropriately.  (C-2-4)
+        //
+        //: 6 CORRUPTED DATA: We will assume that the incomplete test fail
+        //:   every field, including a char (multi-byte representation) hence
+        //:   we need only to produce values that are inconsistent with a valid
+        //:   value and verify that they are detected.  Use the underlying
+        //:   stream package to simulate an instance of a typical valid
+        //:   (control) stream and verify that it can be streamed in
+        //:   successfully.  Then for each data field in the stream (beginning
+        //:   with the version number), provide one or more similar tests with
+        //:   that data field corrupted.  After each test, verify that the
+        //:   object is in some valid state after streaming, and that the input
+        //:   stream has gone invalid.  (C-2-5)
+        //:
+        //: 7 Finally, tests of the explicit wire format will be performed.
+        //
+        // Testing:
+        //   static int maxSupportedBdexVersion();
+        //   STREAM& bdexStreamIn(STREAM& stream, int version);
+        //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BSLX STREAMING" << endl
+                          << "==============" << endl;
+
+        if (verbose) cout <<
+                   "\nAssign the addresses of the 'bdex' methods to variables."
+				                                                       << endl;
+        {
+			Obj obj;
+			 inFunc = &Obj::bdexStreamIn (In(),  1);
+			outFunc = &Obj::bdexStreamOut(Out(), 1);
+
+#if 0
+            // Verify that the signatures and return types are standard.
+
+            funcPtr     memberSwap = &Obj::swap;
+            freeFuncPtr freeSwap   = swap;
+
+            (void)memberSwap;  // quash potential compiler warnings
+            (void)freeSwap;
+            typedef Obj& (Obj::*operatorPtr)(const Obj&);
+
+            // Verify that the signature and return type are standard.
+
+            operatorPtr operatorAssignment = &Obj::operator=;
+
+            (void)operatorAssignment;  // quash potential compiler warning
+#endif
+        }
+
+        if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
+        {
+            if (verbose) cout << "\tusing object syntax:" << endl;
+            const Obj X;
+            ASSERT(1 == X.maxSupportedBdexVersion());
+            if (verbose) cout << "\tusing class method syntax:" << endl;
+            ASSERT(1 == Obj::maxSupportedBdexVersion());
+        }
+
+        // -----------------------------------
+        // Values used in several stream tests.
+        // -----------------------------------
+
+        const int VERSION = Obj::maxSupportedBdexVersion();
+
+        bslma_TestAllocator testAllocator("tA", veryVeryVeryVerbose);
+
+        bdet_DatetimeTz defaultDtz;
+
+        bdet_Datetime   smallDt; smallDt.addMilliseconds(1);
+        bdet_Datetime    someDt(2011,  5,  3, 15, 32);
+        bdet_Datetime   largeDt(9999, 12, 31, 23, 59, 59, 999);
+
+        bdet_DatetimeTz smallDtz(smallDt, -(24 * 60 - 1));
+        bdet_DatetimeTz  someDtz( someDt, -( 4 * 60 - 0));
+        bdet_DatetimeTz largeDtz(largeDt,  (24 * 60 - 1));
+
+        const char *defaultTzId = "";
+        const char   *smallTzId = "a";
+        const char   *largeTzId = LONGEST_STRING;
+
+        const Obj V0(defaultDtz, defaultTzId);
+        const Obj V1(  smallDtz, defaultTzId);
+        const Obj V2(   someDtz, defaultTzId);
+        const Obj V3(  largeDtz, defaultTzId);
+        const Obj V4(defaultDtz,   smallTzId);
+        const Obj V5(  smallDtz,   smallTzId);
+        const Obj V6(   someDtz,   smallTzId);
+        const Obj V7(  largeDtz,   smallTzId);
+        const Obj V8(defaultDtz,   largeTzId);
+        const Obj V9(defaultDtz,   largeTzId);
+        const Obj VA(   someDtz,   largeTzId);
+        const Obj VB(   someDtz,   largeTzId);
+
+        const Obj VALUES[]   =
+                            { V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB };
+        const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+        if (verbose) cout << "\nDirect initial trial of 'streamOut' and"
+                             " (valid) 'streamIn' functionality." << endl;
+        {
+            bslma_TestAllocator testAllocator("tA", veryVeryVeryVerbose);
+
+            const Obj X(bdet_DatetimeTz(bdet_Datetime(2011, 5, 3, 15),
+                                        -4 * 60),
+                        "a_" SUFFICIENTLY_LONG_STRING,
+                        &testAllocator);
+            if (veryVerbose) { cout << "\t   Value being streamed: "; P(X); }
+
+            Out out;
+            X.bdexStreamOut(out, VERSION);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            In in(OD, LOD);  ASSERT(in);  ASSERT(!in.isEmpty());
+            in.setSuppressVersionCheck(1);
+
+            Obj t(&testAllocator);  ASSERT(X != t);
+
+            if (veryVerbose) { cout << "\tValue being overwritten: "; P(t); }
+            ASSERT(X != t);
+
+            t.bdexStreamIn(in, VERSION);
+            ASSERT(in);
+            ASSERT(in.isEmpty());
+
+            if (veryVerbose) { cout << "\t  Value after overwrite: "; P(t); }
+            ASSERT(X == t);
+        }
+
+        if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
+        {
+
+            for (int ui = 0; ui < NUM_VALUES; ++ui) {
+                if (veryVerbose) { T_ T_ P(ui) }
+
+                Obj mU(VALUES[ui], &testAllocator); const Obj& U = mU;
+
+                Out out;
+                U.bdexStreamOut(out, VERSION);
+
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
+
+                In in(OD, LOD);
+                    // Must reset 'in' on each iteration of inner loop.
+                in.setSuppressVersionCheck(1);
+
+                LOOP_ASSERT(U, in);
+                LOOP_ASSERT(U, !in.isEmpty());
+                In &testInStream = in;  // for macros below
+
+                // Verify that each new value overwrites every old value
+                // and that the input stream is emptied, but remains valid.
+
+                for (int vi = 0; vi < NUM_VALUES; ++vi) {
+                    if (veryVerbose) { T_ T_ P(vi) }
+
+                    Obj mV(VALUES[vi], &testAllocator); const Obj& V = mV;
+
+                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BEGIN_BDEX_EXCEPTION_TEST {
+                        in.reset();
+                        bdex_InStreamFunctions::streamIn(testInStream,
+                                                         mV,
+                                                         VERSION);
+                    } END_BDEX_EXCEPTION_TEST
+                    } END_BSLMA_EXCEPTION_TEST
+                    LOOP2_ASSERT(ui, vi, U == V);
+                    LOOP2_ASSERT(ui, vi, in);
+                    LOOP2_ASSERT(ui, vi, in.isEmpty());
+                }
+            }
+        }
+
+        if (verbose) cout << "\tOn empty and invalid streams." << endl;
+        {
+            // testing empty and invalid streams
+            Out out;
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+            ASSERT(0 == LOD);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                In in(OD, LOD);  In& testInStream = in;
+                LOOP_ASSERT(i, in);
+                LOOP_ASSERT(i, in.isEmpty());
+
+                // Ensure that reading from an empty or invalid input stream
+                // leaves the stream invalid and the target object unchanged.
+
+                const Obj X(VALUES[i]);  Obj t(X);  LOOP_ASSERT(i, X == t);
+
+                BEGIN_BDEX_EXCEPTION_TEST {
+                  in.reset();
+
+                  // read from empty
+                  t.bdexStreamIn(in, VERSION);
+                  LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t);
+
+                  // read from (then now) invalid stream
+                  //bdex_InStreamFunctions::streamIn(in, t, VERSION);
+                  t.bdexStreamIn(in, VERSION);
+                  LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t);
+
+                } END_BDEX_EXCEPTION_TEST
+            }
+        }
+
+        if (verbose) cout << "\tOn incomplete (but otherwise valid) data."
+                          << endl;
+        {
+            // Each object unique has unique attributes w.r.t. objects to be
+            // compared (e.g., W1, X1, Y1).  Note that 'smallDtz', 'someDtz',
+            // and 'largeDtz' differ in each constituent attribute and that
+            // each 'timeZoneId' is unique.  Thus, partially constructed 'tn'
+            // objects do not artificially match their target value until 'tn'
+            // is completed assembled.
+
+            const Obj W1(smallDtz, "");
+            const Obj X1( someDtz, "a");
+            const Obj Y1(largeDtz, "bb");
+
+            const Obj W2(largeDtz, "ccc");
+            const Obj X2(smallDtz, "dddd");
+            const Obj Y2( someDtz, "eeeee");
+
+            const Obj W3( someDtz, "ffffff");
+            const Obj X3(largeDtz, "hhhhhhh");
+            const Obj Y3(smallDtz, "iiiiiiii");
+
+            Out out;
+
+            X1.bdexStreamOut(out, VERSION); const int LOD1 = out.length();
+            X2.bdexStreamOut(out, VERSION); const int LOD2 = out.length();
+            X3.bdexStreamOut(out, VERSION); const int LOD  = out.length();
+
+            const char *const OD = out.data();
+
+            for (int i = 0; i < LOD; ++i) {
+                In in(OD, i);  In& testInStream = in;
+                in.setSuppressVersionCheck(1);
+
+                BEGIN_BDEX_EXCEPTION_TEST {
+                  in.reset();
+                  LOOP_ASSERT(i, in);
+                  LOOP_ASSERT(i, !i == in.isEmpty());
+
+                  Obj t1(W1), t2(W2), t3(W3);
+
+                  if (i < LOD1) {
+                      t1.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i,
+                                                          someDiff(X1, t1));
+
+                      t2.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W2 == t2);
+
+                      t3.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
+
+                  } else if (i < LOD2) {
+                      t1.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X1 == t1);
+
+                      t2.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i,
+                                                          someDiff(X2, t2));
+                      LOOP_ASSERT(i, bdet_DatetimeTz::isValid(
+                                          t2.datetimeTz().dateTz().localDate(),
+                                          t2.datetimeTz().offset()));
+
+                      t3.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
+
+                  } else {
+                      t1.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X1 == t1);
+
+                      t2.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X2 == t2);
+
+                      t3.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i,
+                                                          someDiff(X3, t3));
+                      LOOP_ASSERT(i, bdet_DatetimeTz::isValid(
+                                          t3.datetimeTz().dateTz().localDate(),
+                                          t3.datetimeTz().offset()));
+                  }
+
+                  // Check the validity of the target objects, 'tn', with some
+                  // (light) usage (assignment).
+
+                                LOOP_ASSERT(i, Y1 != t1);
+                    t1 = Y1;    LOOP_ASSERT(i, Y1 == t1);
+
+                                LOOP_ASSERT(i, Y2 != t2);
+                    t2 = Y2;    LOOP_ASSERT(i, Y2 == t2);
+
+                                LOOP_ASSERT(i, Y3 != t3);
+                    t3 = Y3;    LOOP_ASSERT(i, Y3 == t3);
+
+                } END_BDEX_EXCEPTION_TEST
+            }
+        }
+
+        if (verbose) cout << "\tOn corrupted data." << endl;
+
+        const Obj W;               // default value
+        const Obj X(someDtz, "A"); // original (control) value
+        const Obj Y(someDtz, "B"); // new (streamed-out) value
+
+        Out out;
+        //Y.datetimeTz().bdexStreamOut(out, 1);
+        //out.putString(Y.timeZoneId());
+
+        if (verbose) cout << "\t\tGood stream (for control)." << endl;
+        {
+            const char version = 1;
+
+            Out out;
+            Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new" value
+            out.putString(Y.timeZoneId());        // 2. Stream out "new" value
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
+            In in(OD, LOD);  ASSERT(in);
+            in.setSuppressVersionCheck(1);
+            t.bdexStreamIn(in, VERSION);
+            ASSERT(in);
+                             ASSERT(W != t);  ASSERT(X != t);  ASSERT(Y == t);
+        }
+
+        if (verbose) cout << "\t\tBad version." << endl;
+        {
+            const char version = 0; // too small ('version' must be >= 1)
+
+            Out out;
+            Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new" value
+            out.putString(Y.timeZoneId());        // 2. Stream out "new" value
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
+            In in(OD, LOD);  ASSERT(in);
+            in.setSuppressVersionCheck(1);
+            in.setQuiet(!veryVerbose);
+            t.bdexStreamIn(in, version);
+            ASSERT(!in);
+                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
+        }
+
+        {
+            const char version = 2 ; // too large (current version is 1)
+
+            Out out;
+            Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new" value
+            out.putString(Y.timeZoneId());        // 2. Stream out "new" value
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
+            In in(OD, LOD);  ASSERT(in);
+            in.setSuppressVersionCheck(1);
+            in.setQuiet(!veryVerbose);
+            t.bdexStreamIn(in, version);
+            ASSERT(!in);
+                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
+        }
+
+        if (verbose) cout << "\nWire format direct tests." << endl;
+        {
+            for (int i = 0; i < NUM_VALUES; ++i) {
+
+                Obj       mX(VALUES[i]);  const Obj& X = mX;
+                const int VER = 1;
+
+                if (veryVerbose) { T_ P(X) }
+
+                Out outO;  X.bdexStreamOut(outO, VER);
+
+                Out outA;  X.datetimeTz().bdexStreamOut(outA, VER);
+                           outA.putString(X.timeZoneId());
+
+                LOOP_ASSERT(i, outA.length() == outO.length());
+                LOOP_ASSERT(i, 0             == memcmp(outO.data(),
+                                                       outA.data(),
+                                                       outA.length()));
+
+                Obj mY;  const Obj& Y = mY;
+                In in(outA.data(), outA.length());
+                in.setSuppressVersionCheck(1);
+                mY.bdexStreamIn(in, VER);
+
+                LOOP_ASSERT(i, in.isEmpty());
+                LOOP_ASSERT(i, X == Y);
+            }
+        }
+
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -640,7 +1121,7 @@ int main(int argc, char *argv[])
 
             // 'timeZoneId'
             { L_,   '?', &defaultDtz,    smallTzId },
-//          { L_,   'Y', &defaultDtz,    largeTzId },
+            { L_,   'Y', &defaultDtz,    largeTzId },
 
             // other
             { L_,   '?',    &someDtz,    smallTzId },
@@ -1806,7 +2287,6 @@ int main(int argc, char *argv[])
             (void)printMember;  // quash potential compiler warnings
             (void)operatorOp;
         }
-
 
         if (verbose) cout <<
              "\nCreate a table of distinct value/format combinations." << endl;
