@@ -51,15 +51,16 @@ BSLS_IDENT("$Id: $")
 // simplifying testing of protocols.
 //..
 //  struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
-//      const char *bar(char const *, char const *) { return exit(); }
-//      int foo(int) const                          { return exit(); }
+//      const char *bar(char const *, char const *) { return markDone(); }
+//      int foo(int) const                          { return markDone(); }
 //  };
 //..
 // Notice that in 'MyInterfaceTest' we must provide an implementation of every
 // protocol method.  The implementation of each method is simply
-// 'return exit();' the purpose of which is to provide 'bsls_ProtocolTestImp' a
-// way to verify that the method is declared correctly in the protocol class.
-// If a method returns 'void', then just 'exit();' is sufficient.
+// 'return markDone();' the purpose of which is to provide
+// 'bsls_ProtocolTestImp' a way to verify that the method is declared correctly
+// in the protocol class.  If a method returns 'void', then just 'markDone();'
+// is sufficient.
 //
 // Next, we use 'bsls_ProtocolTest' to perform the actual testing of our
 // 'MyInterface' protocol class.  We create an object of 'bsls_ProtocolTest'
@@ -173,14 +174,14 @@ template <class BSLS_TESTIMP>
 struct bsls_ProtocolTest_Dtor : BSLS_TESTIMP {
     // This class template is a helper protocol test implementation that tests
     // that a protocol destructor is declared 'virtual'.  It does so by calling
-    // the 'exit' function from its destructor, which will be executed if the
-    // protocol's destructor is declared 'virtual' and not executed otherwise.
-    // The 'BSLS_TESTIMP' template parameter is required to be a type derived
-    // from 'bsls_ProtocolTestImp' class.
+    // the 'markDone' function from its destructor, which will be executed if
+    // the protocol's destructor is declared 'virtual' and not executed
+    // otherwise.  The 'BSLS_TESTIMP' template parameter is required to be a
+    // type derived from 'bsls_ProtocolTestImp' class.
 
     // CREATORS
     ~bsls_ProtocolTest_Dtor();
-        // Destroy this object and call the 'exit' method, indicating that
+        // Destroy this object and call the 'markDone' method, indicating that
         // the base class's destructor was declared 'virtual'.
 };
 
@@ -231,7 +232,7 @@ class bsls_ProtocolTestImp : public BSLS_PROTOCOL {
     // This mechanism class template is a base class for a test implementation
     // of a protocol class defined by the 'BSLS_PROTOCOL' template parameter.
     // Its purpose is to reduce the boilerplate test code required to verify
-    // that derived virtual methods are called.  It provides 'exit' member
+    // that derived virtual methods are called.  It provides 'markDone' member
     // functions one of which should be called from each method of the protocol
     // class test implementation to indicate that the virtual method is
     // correctly overridden.  It also overloads 'operator->' to serve as a
@@ -248,7 +249,8 @@ class bsls_ProtocolTestImp : public BSLS_PROTOCOL {
 
     bool mutable              d_exited;   // 'true' if this object exited a
                                           // protocol method in the derived
-                                          // class
+                                          // class; mutable, so it can be set
+                                          // from 'const' methods
   public:
     // TYPES
     typedef BSLS_PROTOCOL ProtocolType;
@@ -268,32 +270,33 @@ class bsls_ProtocolTestImp : public BSLS_PROTOCOL {
         // in order to call a method on 'BSLS_PROTOCOL'.  Also mark this
         // object as 'entered' for the purpose of calling a protocol method.
 
-    void enter();
+    void markEnter();
         // Mark this object as entered for the purpose of calling a protocol
         // method.  The 'entered' property is tested in the destructor to
         // check for test failures (i.e., if 'entered == false' then the test
-        // cannot fail since it never ran).  Note that 'enter' and 'exit' calls
-        // have to be paired for a protocol method call test to succeed.
+        // cannot fail since it never ran).  Note that 'markEnter' and
+        // 'markDone' calls have to be paired for a protocol method call test
+        // to succeed.
 
     void setTestStatus(bsls_ProtocolTest_Status *testStatus);
         // Connect this protocol test object with the specified 'testStatus'
         // object, which will be used for test failure reporting.
 
     // ACCESSORS
-    bsls_ProtocolTest_MethodReturnType exit() const;
+    bsls_ProtocolTest_MethodReturnType markDone() const;
         // Return a proxy object convertible to any value or pointer type.
         // Derived classed should call this method from their implementations
         // of protocol virtual methods to indicate that virtual methods were
         // overridden correctly.
 
-    bsls_ProtocolTest_MethodReturnRefType exitRef() const;
+    bsls_ProtocolTest_MethodReturnRefType markDoneRef() const;
         // Return a proxy object convertible to any reference type.  Derived
         // classed should call this method from their implementations of
         // protocol virtual methods to indicate that virtual methods were
         // overridden correctly.
 
     template <class T>
-    T exitVal(const T& value) const;
+    T markDoneVal(const T& value) const;
         // Return the specified 'value'.  Derived classes should call this
         // method from their implementations of protocol virtual methods to
         // indicate that virtual methods were overridden correctly.
@@ -419,7 +422,7 @@ template <class BSLS_TESTIMP>
 inline
 bsls_ProtocolTest_Dtor<BSLS_TESTIMP>::~bsls_ProtocolTest_Dtor()
 {
-    this->exit();
+    this->markDone();
 }
 
                       // ------------------------------
@@ -490,7 +493,7 @@ inline
 typename bsls_ProtocolTestImp<BSLS_PROTOCOL>::ProtocolType *
 bsls_ProtocolTestImp<BSLS_PROTOCOL>::operator->()
 {
-    enter();
+    markEnter();
     return static_cast<BSLS_PROTOCOL *>(this);
 }
 
@@ -504,7 +507,7 @@ void bsls_ProtocolTestImp<BSLS_PROTOCOL>::setTestStatus(
 
 template <class BSLS_PROTOCOL>
 inline
-void bsls_ProtocolTestImp<BSLS_PROTOCOL>::enter()
+void bsls_ProtocolTestImp<BSLS_PROTOCOL>::markEnter()
 {
     d_entered = true;
 }
@@ -513,7 +516,7 @@ void bsls_ProtocolTestImp<BSLS_PROTOCOL>::enter()
 template <class BSLS_PROTOCOL>
 inline
 bsls_ProtocolTest_MethodReturnType
-bsls_ProtocolTestImp<BSLS_PROTOCOL>::exit() const
+bsls_ProtocolTestImp<BSLS_PROTOCOL>::markDone() const
 {
     d_exited = true;
     return bsls_ProtocolTest_MethodReturnType();
@@ -522,7 +525,7 @@ bsls_ProtocolTestImp<BSLS_PROTOCOL>::exit() const
 template <class BSLS_PROTOCOL>
 inline
 bsls_ProtocolTest_MethodReturnRefType
-bsls_ProtocolTestImp<BSLS_PROTOCOL>::exitRef() const
+bsls_ProtocolTestImp<BSLS_PROTOCOL>::markDoneRef() const
 {
     d_exited = true;
     return bsls_ProtocolTest_MethodReturnRefType();
@@ -531,7 +534,7 @@ bsls_ProtocolTestImp<BSLS_PROTOCOL>::exitRef() const
 template <class BSLS_PROTOCOL>
 template <class T>
 inline
-T bsls_ProtocolTestImp<BSLS_PROTOCOL>::exitVal(const T& value) const
+T bsls_ProtocolTestImp<BSLS_PROTOCOL>::markDoneVal(const T& value) const
 {
     d_exited = true;
     return value;
@@ -629,7 +632,7 @@ bool bsls_ProtocolTest<BSLS_TESTIMP>::testVirtualDestructor()
 
     // Perform the test.
 
-    o.object()->enter();
+    o.object()->markEnter();
     o.impl()->~BSLS_TESTIMP();
 
     // 'bsls_ProtocolTest_Dtor::~bsls_ProtocolTest_Dtor' will be called only if

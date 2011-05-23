@@ -43,9 +43,9 @@ using namespace BloombergLP;
 //
 // class bsls_ProtocolTestImp:
 // [ 6] void setTestStatus(bsls_ProtocolTest_Status *);
-// [ 6] exit();
-// [ 6] exitRef();
-// [ 6] exitVal();
+// [ 6] markDone();
+// [ 6] markDoneRef();
+// [ 6] markDoneVal();
 //
 // class bsls_ProtocolTest_Status:
 // [ 5] bsls_ProtocolTest_Status();
@@ -95,8 +95,8 @@ struct MyInterface {
 };
 
 struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
-    const char *bar(char const *, char const *) { return exit(); }
-    int foo(int) const                          { return exit(); }
+    const char *bar(char const *, char const *) { return markDone(); }
+    int foo(int) const                          { return markDone(); }
 };
 
 // For testing 'testAbstract'.
@@ -105,7 +105,7 @@ struct NotAbstractInterface {
 };
 
 struct NotAbstractInterfaceTest : bsls_ProtocolTestImp<NotAbstractInterface> {
-    void foo() { exit(); }
+    void foo() { markDone(); }
 };
 
 // For testing 'testNoDataMembers'.
@@ -125,7 +125,7 @@ struct NoVirtualDestructor {
 };
 
 struct NoVirtualDestructorTest : bsls_ProtocolTestImp<NoVirtualDestructor> {
-    void foo() { exit(); }
+    void foo() { markDone(); }
 };
 
 // For testing return value convertions to a reference to a non-copyable type
@@ -142,8 +142,8 @@ struct MyInterfaceNonVirtual {
 };
 
 struct MyInterfaceNonVirtualTest : bsls_ProtocolTestImp<MyInterfaceNonVirtual> {
-    int foo(int) { return exit(); }
-    void bar()   { exit(); }
+    int foo(int) { return markDone(); }
+    void bar()   { markDone(); }
 };
 
 struct MyInterfaceNonPublic {
@@ -153,7 +153,7 @@ struct MyInterfaceNonPublic {
 
 struct MyInterfaceNonPublicTest : bsls_ProtocolTestImp<MyInterfaceNonPublic> {
     // This override must be public.
-    int foo(int) { return exit(); }
+    int foo(int) { return markDone(); }
 };
 
 struct MyInterfaceNonCopyableReturn {
@@ -162,7 +162,7 @@ struct MyInterfaceNonCopyableReturn {
 
 struct MyInterfaceNonCopyableReturnTest
     : bsls_ProtocolTestImp<MyInterfaceNonCopyableReturn> {
-    const NonCopyable& foo(int) { return exitRef(); }
+    const NonCopyable& foo(int) { return markDoneRef(); }
 };
 
 }  // close unnamed namespace
@@ -378,39 +378,40 @@ int main(int argc, char *argv[])
         //:    constructed.
         //:  2 'setTestDriver' establishes the connection between the
         //:    'bsls_ProtocolTestImp' and 'bsls_ProtocolTest'.
-        //:  3 'exit', 'exitRef' and 'exitVal' methods when called mark the
-        //:    test as "pass" and "fail" when not called.
-        //:  4 The type of the return value of 'exit', 'exitRef' and 'exitVal'
-        //:    is what we expect.
+        //:  3 'markDone', 'markDoneRef' and 'markDoneVal' methods when called
+        //:    mark the test as "pass" and "fail" when not called.
+        //:  4 The type of the return value of 'markDone', 'markDoneRef' and
+        //:    'markDoneVal' is what we expect.
         //
         // Plan:
         //:  1 Create an object of a class derived from 'bsls_ProtocolTestImp'.
         //:    This is a protocol test object.
         //:  2 Connect the protocol test object with the test driver status
         //:    object using 'setTestStatus'.
-        //:  3 Mark the protocol test object as 'entered' by calling 'enter()'.
-        //:  4 Do not call any of the 'exit', 'exitRef' or 'exitVal' methods,
-        //:    and verify that on destruction the protocol test objects calls
-        //:    method 'fail()' of the test driver object (setting the 'failed'
-        //:    flag).
-        //:  5 Now do call 'exit', 'exitRef' and 'exitVal' individually, and
-        //:    verify that on destruction the protocol test objects does not
-        //:    call method 'fail()' of the test driver object.
-        //:  6 Verify that the return value type of 'exit', 'exitRef' and
-        //:    'exitVal' is what's expected.
+        //:  3 Mark the protocol test object as 'entered' by calling
+        //:    'markEnter()'.
+        //:  4 Do not call any of the 'markDone', 'markDoneRef' or
+        //:    'markDoneVal' methods, and verify that on destruction the
+        //:     protocol test objects calls method 'fail()' of the test
+        //:     driver object (setting the 'failed' flag).
+        //:  5 Now do call 'markDone', 'markDoneRef' and 'markDoneVal'
+        //:    individually, and verify that on destruction the protocol test
+        //:    objects does not call method 'fail()' of the test driver object.
+        //:  6 Verify that the return value type of 'markDone', 'markDoneRef'
+        //:    and 'markDoneVal' is what's expected.
         //
         // Testing:
         //   class bsls_ProtocolTestImp;
         //   void setTestDriver(bsls_ProtocolTest_Status *);
-        //   exit();
-        //   exitRef();
-        //   exitVal();
+        //   markDone();
+        //   markDoneRef();
+        //   markDoneVal();
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING PROTOCOL TEST BASE CLASS\n"
                             "================================\n");
 
-        if (veryVerbose) printf("\tnot calling 'exit' fails the test\n");
+        if (veryVerbose) printf("\tnot calling 'markDone' fails the test\n");
 
         {
             bsls_ProtocolTest_Status testStatus;
@@ -419,13 +420,13 @@ int main(int argc, char *argv[])
             {
                 MyInterfaceTest testObj;
                 testObj.setTestStatus(&testStatus);
-                testObj.enter();
+                testObj.markEnter();
             }
 
             ASSERT(testStatus.failures() != 0);
         }
 
-        if (veryVerbose) printf("\tcalling 'exit' passes the test\n");
+        if (veryVerbose) printf("\tcalling 'markDone' passes the test\n");
 
         {
             bsls_ProtocolTest_Status testStatus;
@@ -434,14 +435,14 @@ int main(int argc, char *argv[])
             {
                 MyInterfaceTest testObj;
                 testObj.setTestStatus(&testStatus);
-                testObj.enter();
-                testObj.exit();
+                testObj.markEnter();
+                testObj.markDone();
             }
 
             ASSERT(testStatus.failures() == 0);
         }
 
-        if (veryVerbose) printf("\tcalling 'exitRef' passes the test\n");
+        if (veryVerbose) printf("\tcalling 'markDoneRef' passes the test\n");
 
         {
             bsls_ProtocolTest_Status testStatus;
@@ -450,14 +451,14 @@ int main(int argc, char *argv[])
             {
                 MyInterfaceTest testObj;
                 testObj.setTestStatus(&testStatus);
-                testObj.enter();
-                testObj.exitRef();
+                testObj.markEnter();
+                testObj.markDoneRef();
             }
 
             ASSERT(testStatus.failures() == 0);
         }
 
-        if (veryVerbose) printf("\tcalling 'exitVal' passes the test\n");
+        if (veryVerbose) printf("\tcalling 'markDoneVal' passes the test\n");
 
         {
             bsls_ProtocolTest_Status testStatus;
@@ -466,34 +467,35 @@ int main(int argc, char *argv[])
             {
                 MyInterfaceTest testObj;
                 testObj.setTestStatus(&testStatus);
-                testObj.enter();
-                testObj.exitVal(0);
+                testObj.markEnter();
+                testObj.markDoneVal(0);
             }
 
             ASSERT(testStatus.failures() == 0);
         }
 
-        if (veryVerbose) printf("\t'exit' has a proper return type "
+        if (veryVerbose) printf("\t'markDone' has a proper return type "
                                 "(compile-time)\n");
 
         {
             MyInterfaceTest testObj;
-            bsls_ProtocolTest_MethodReturnType proxy = testObj.exit();
+            bsls_ProtocolTest_MethodReturnType proxy = testObj.markDone();
         }
 
-        if (veryVerbose) printf("\t'exitRef' has a proper return type "
+        if (veryVerbose) printf("\t'markDoneRef' has a proper return type "
                                 "(compile-time)\n");
 
         {
             MyInterfaceTest testObj;
-            bsls_ProtocolTest_MethodReturnRefType proxy = testObj.exitRef();
+            bsls_ProtocolTest_MethodReturnRefType proxy
+                                                       = testObj.markDoneRef();
         }
 
-        if (veryVerbose) printf("\t'exitVal' has a proper return type\n");
+        if (veryVerbose) printf("\t'markDoneVal' has a proper return type\n");
 
         {
             MyInterfaceTest testObj;
-            int r = testObj.exitVal(10);
+            int r = testObj.markDoneVal(10);
 
             ASSERT(r == 10);
         }
@@ -605,10 +607,11 @@ int main(int argc, char *argv[])
                 {
                     bsls_ProtocolTest_Dtor<MyInterfaceTest> dtorTest;
                     dtorTest.setTestStatus(&status);
-                    dtorTest.enter();
+                    dtorTest.markEnter();
                 }
 
-                // if dtorTest destructor called 'exit' than the test succeeded
+                // if dtorTest destructor called 'markDone' than the test
+                // succeeded
                 ASSERT(status.failures() == 0);
                 ASSERT(status.last());
 
@@ -627,7 +630,7 @@ int main(int argc, char *argv[])
                     bsls_ProtocolTest_Dtor<MyInterfaceTest> * dtorTest =
                         new (&o) bsls_ProtocolTest_Dtor<MyInterfaceTest>();
 
-                    dtorTest->enter();
+                    dtorTest->markEnter();
                     dtorTest->setTestStatus(&status);
                     dtorTest->MyInterfaceTest::~MyInterfaceTest();
                 }
