@@ -24,7 +24,7 @@ namespace BloombergLP {
                                              "." STRINGIFY(BCE_VERSION_MINOR) \
                                              "." STRINGIFY(REQUIRED_BCE_PATCH)
 
-#define BTE_VERSION_PATCH 0
+#define BTE_VERSION_PATCH 1
 #define BTESCM_VERSION_STRING "BLP_LIB_BDE_BTE_" STRINGIFY(BTE_VERSION_MAJOR) \
                                              "." STRINGIFY(BTE_VERSION_MINOR) \
                                              "." STRINGIFY(BTE_VERSION_PATCH) \
