@@ -97,6 +97,11 @@ BSLS_IDENT("$Id: $")
 //  return t.failures();
 //..
 
+#ifndef INCLUDED_CSTDIO
+#define INCLUDED_CSTDIO
+#include <cstdio>
+#endif
+
 namespace BloombergLP {
 
                     // ==================================
@@ -320,6 +325,7 @@ class bsls_ProtocolTest {
 
     // DATA
     bsls_ProtocolTest_Status d_status;
+    bool                     d_verbose;  // print trace messages if 'true'
 
   private:
     // PRIVATE MANIPULATORS
@@ -327,17 +333,20 @@ class bsls_ProtocolTest {
         // Start a new test by resetting this object to the state before the
         // test.
 
+    void trace(char const *message) const;
+        // Print a trace 'message' if 'd_verbose' is 'true'.
+
   public:
     // CREATORS
-    bsls_ProtocolTest();
+    explicit
+    bsls_ProtocolTest(bool verbose = false);
         // Construct a 'bsls_ProtocolTest' object.
 
     // MANIPULATORS
-    BSLS_TESTIMP operator->();
-        // Return a 'BSLS_TESTIMP' object which gets dereferenced via
-        // 'operator->()' as well.  Note that 'operator->' makes this class
-        // behave like a proxy to 'BSLS_TESTIMP', and 'BSLS_TESTIMP' is a
-        // proxy to the actual protocol class.
+    BSLS_TESTIMP method(const char *methodDesc = "");
+        // Return a 'BSLS_TESTIMP' object to perform testing of a specific
+        // method which gets called via 'operator->()'.  Note that
+        // 'BSLS_TESTIMP' is a proxy to the actual protocol class.
 
     bool testAbstract();
         // Return 'true' (i.e., the test passed) if the protocol class being
@@ -377,10 +386,10 @@ class bsls_ProtocolTest {
 // requires that a standard test driver 'ASSERT' macro is defined, which is
 // used to assert the test completion status.
 
-#define BSLS_PROTOCOLTEST_ASSERT(testDriver, methodCall)                      \
+#define BSLS_PROTOCOLTEST_ASSERT(test, methodCall)                            \
     do {                                                                      \
-        testDriver->methodCall;                                               \
-        if (!testDriver.lastStatus()) {                                       \
+        test.method("testing if method "#methodCall" is virtual")->methodCall;\
+        if (!test.lastStatus()) {                                             \
             ASSERT(0 && "Not a virtual method: "#methodCall);                 \
         }                                                                     \
     } while (0)
@@ -552,18 +561,29 @@ void bsls_ProtocolTest<BSLS_TESTIMP>::startTest()
     d_status.resetLast();
 }
 
+template <class BSLS_TESTIMP>
+inline
+void bsls_ProtocolTest<BSLS_TESTIMP>::trace(char const *message) const
+{
+    if (d_verbose) {
+        std::printf("\t%s\n", message);
+    }
+}
+
 // CREATORS
 template <class BSLS_TESTIMP>
 inline
-bsls_ProtocolTest<BSLS_TESTIMP>::bsls_ProtocolTest()
+bsls_ProtocolTest<BSLS_TESTIMP>::bsls_ProtocolTest(bool verbose)
+: d_verbose(verbose)
 {
 }
 
 // MANIPULATORS
 template <class BSLS_TESTIMP>
 inline
-BSLS_TESTIMP bsls_ProtocolTest<BSLS_TESTIMP>::operator->()
+BSLS_TESTIMP bsls_ProtocolTest<BSLS_TESTIMP>::method(const char *methodDesc)
 {
+    trace(methodDesc);
     startTest();
 
     BSLS_TESTIMP impl;
@@ -575,6 +595,7 @@ template <class BSLS_TESTIMP>
 inline
 bool bsls_ProtocolTest<BSLS_TESTIMP>::testAbstract()
 {
+    trace("test if the protocol is an abstract class");
     startTest();
 
     if (!bsls_ProtocolTest_IsAbstract<ProtocolType>::VALUE) {
@@ -588,6 +609,7 @@ template <class BSLS_TESTIMP>
 inline
 bool bsls_ProtocolTest<BSLS_TESTIMP>::testNoDataMembers()
 {
+    trace("test if the protocol has no data members");
     struct EmptyProtocol
     {
         virtual ~EmptyProtocol() {}
@@ -605,6 +627,7 @@ bool bsls_ProtocolTest<BSLS_TESTIMP>::testNoDataMembers()
 template <class BSLS_TESTIMP>
 bool bsls_ProtocolTest<BSLS_TESTIMP>::testVirtualDestructor()
 {
+    trace("test if the protocol has a virtual destructor");
     startTest();
 
     union InPlaceObject {

@@ -246,6 +246,14 @@ int main(int argc, char *argv[])
             BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
         }
 
+        if (veryVerbose) printf("\ttesting the macro in verbose mode\n");
+
+        {
+            bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
+            BSLS_PROTOCOLTEST_ASSERT(t, foo(int()));
+            BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
+        }
+
         if (veryVerbose) printf("\ttesting that the macro fails with a "
                                 "'bad' protocol\n");
 
@@ -315,11 +323,11 @@ int main(int argc, char *argv[])
         {
             bsls_ProtocolTest<MyInterfaceTest> t;
 
-            t->foo(int());
+            t.method()->foo(int());
             ASSERT(t.failures() == 0);
             ASSERT(t.lastStatus());
 
-            t->bar("", "");
+            t.method()->bar("", "");
             ASSERT(t.failures() == 0);
             ASSERT(t.lastStatus());
         }
@@ -331,18 +339,18 @@ int main(int argc, char *argv[])
             bsls_ProtocolTest<MyInterfaceNonVirtualTest> t;
 
             // verify failure
-            t->foo(int());
+            t.method()->foo(int());
             ASSERT(t.failures() == 1);
             ASSERT(!t.lastStatus());
 
             // try one more time
-            t->foo(int());
+            t.method()->foo(int());
             ASSERT(t.failures() == 2);
             ASSERT(!t.lastStatus());
 
             // now try to passing test and make sure it doesn't change the
             // count of 'failures'
-            t->bar();
+            t.method()->bar();
             ASSERT(t.failures() == 2);
             ASSERT(t.lastStatus());
         }
@@ -364,7 +372,7 @@ int main(int argc, char *argv[])
         {
             bsls_ProtocolTest<MyInterfaceNonCopyableReturnTest> t;
 
-            t->foo(int());
+            t.method()->foo(int());
             ASSERT(t.failures() == 0);
             ASSERT(t.lastStatus());
         }
@@ -746,6 +754,15 @@ int main(int argc, char *argv[])
                 ASSERT(t.failures() == 1);
                 ASSERT(!t.lastStatus());
             }
+        }
+
+        if (veryVerbose) printf("\tmanipulators in verbose mode\n");
+
+        {
+            bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
+            ASSERT(t.testAbstract());
+            ASSERT(t.testNoDataMembers());
+            ASSERT(t.testVirtualDestructor());
         }
       } break;
       case 3: {
