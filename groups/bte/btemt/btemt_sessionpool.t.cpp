@@ -1089,7 +1089,7 @@ void Tester::sessionStateCb(int            state,
     }
 }
 
-int Tester::portNumber() const  
+int Tester::portNumber() const
 {
     return d_portNumber;
 }
