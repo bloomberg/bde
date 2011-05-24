@@ -31,8 +31,8 @@ BDES_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
 #ifndef INCLUDED_BAESU_OBJECTFILEFORMAT

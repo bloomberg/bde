@@ -113,8 +113,8 @@ BDES_IDENT("$Id: $")
 //  bdesu_FileUtil::remove(fileNameBuffer);
 //..
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
 #ifndef INCLUDED_BAESU_OBJECTFILEFORMAT

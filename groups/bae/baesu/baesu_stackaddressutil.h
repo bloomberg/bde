@@ -26,8 +26,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
                         // ============================
