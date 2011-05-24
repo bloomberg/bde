@@ -67,7 +67,7 @@ void Printer::printHexAddr(const void *address, const char *name) const
                           d_spacesPerLevel);
 }
 
-void Printer::start() const
+void Printer::start(bool suppressBracket) const
 {
     if (!suppressInitialIndentFlag()) {
         const int absSpacesPerLevel = d_spacesPerLevel < 0
@@ -75,17 +75,22 @@ void Printer::start() const
                                       :  d_spacesPerLevel;
         *d_stream_p << bsl::setw(absSpacesPerLevel * d_level) << "";
     }
-    *d_stream_p << '[';
-    if (d_spacesPerLevel >= 0) {
-        *d_stream_p << '\n';
+
+    if (!suppressBracket) {
+        *d_stream_p << '[';
+        if (d_spacesPerLevel >= 0) {
+            *d_stream_p << '\n';
+        }
     }
 }
 
-void Printer::end() const
+void Printer::end(bool suppressBracket) const
 {
-    printEndIndentation();
+    if (!suppressBracket) {
+        printEndIndentation();
+        *d_stream_p << ']';
+    }
 
-    *d_stream_p << ']';
     if (d_spacesPerLevel >= 0) {
         *d_stream_p << '\n';
     }

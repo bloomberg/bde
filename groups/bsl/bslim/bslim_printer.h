@@ -510,7 +510,7 @@ class Printer {
         // Return the absolute value of the formatting level supplied at
         // construction.
 
-    void end() const;
+    void end(bool suppressBracket = false) const;
         // Print to the output stream supplied at construction the closing
         // square bracket, indented by 'absLevel() * spacesPerLevel()' blank
         // spaces.  If 'spacesPerLevel() >= 0', print a newline character after
@@ -590,7 +590,7 @@ class Printer {
         // each level of indentation is configured using the 'spacesPerLevel'
         // supplied at construction.
 
-    void start() const;
+    void start(bool suppressBracket = false) const;
         // Print to the output stream supplied at construction the opening
         // square bracket.  Indent by 'absLevel() * spacesPerLevel()' blank
         // spaces if 'suppressInitialIndentFlag' is 'false', and suppress the
