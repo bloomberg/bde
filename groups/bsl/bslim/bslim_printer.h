@@ -511,10 +511,10 @@ class Printer {
         // construction.
 
     void end(bool suppressBracket = false) const;
-        // Print to the output stream supplied at construction the closing
-        // square bracket, indented by 'absLevel() * spacesPerLevel()' blank
-        // spaces.  If 'spacesPerLevel() >= 0', print a newline character after
-        // the square bracket.
+        // If the optionally specified 'suppressBracket' is false, print to the
+        // output stream supplied at construction a closing square bracket,
+        // indented by 'absLevel() * spacesPerLevel()' blank spaces.  If
+        // 'spacesPerLevel() >= 0', print a newline character.
 
     template <class TYPE>
     void print(const TYPE& data, const char *name) const;
@@ -591,10 +591,11 @@ class Printer {
         // supplied at construction.
 
     void start(bool suppressBracket = false) const;
-        // Print to the output stream supplied at construction the opening
-        // square bracket.  Indent by 'absLevel() * spacesPerLevel()' blank
-        // spaces if 'suppressInitialIndentFlag' is 'false', and suppress the
-        // initial indentation otherwise.
+        // Print to the output stream supplied at construction
+        // 'absLevel() * spacesPerLevel()' blank spaces if the
+        // 'suppressInitialIndentFlag' is 'false', and suppress the initial
+        // indentation otherwise.  Print an opening square bracket if the
+        // optionally specified 'suppressBracket' is false.
 
     bool suppressInitialIndentFlag() const;
         // Return 'true' if the initial output indentation will be
