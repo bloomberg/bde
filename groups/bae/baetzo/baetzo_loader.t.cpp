@@ -57,8 +57,8 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 namespace {
 
-struct LoaderTestImp : bsls_ProtocolTest<baetzo_Loader> {
-    int loadTimeZone(baetzo_Zoneinfo *, const char *) { return exit(); }
+struct LoaderTestImp : bsls_ProtocolTestImp<baetzo_Loader> {
+    int loadTimeZone(baetzo_Zoneinfo *, const char *) { return markDone(); }
 };
 
 }
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
+    int veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -289,15 +289,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        bsls_ProtocolTestDriver<LoaderTestImp> t;
+        bsls_ProtocolTest<LoaderTestImp> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
         ASSERT(t.testVirtualDestructor());
 
         BSLS_PROTOCOLTEST_ASSERT(t, loadTimeZone(0, 0));
-
-        testStatus = t.failures();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
