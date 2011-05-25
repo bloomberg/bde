@@ -83,7 +83,6 @@ class baesu_StackTrace {
                                                  // 'd_frames'.
     bsl::vector<baesu_StackTraceFrame>
                                  d_frames;
-    bslma_Allocator             *d_allocator_p;  // held, now owned
 
   public:
     BSLALG_DECLARE_NESTED_TRAITS2(baesu_StackTrace,
@@ -212,8 +211,6 @@ baesu_StackTrace::baesu_StackTrace(bslma_Allocator *basicAllocator)
 : d_hbpAlloc()
 , d_frames(basicAllocator ? basicAllocator
                           : &d_hbpAlloc)
-, d_allocator_p(basicAllocator ? basicAllocator
-                               : &d_hbpAlloc)
 {
 }
 
@@ -224,8 +221,6 @@ baesu_StackTrace::baesu_StackTrace(const baesu_StackTrace&  original,
 , d_frames(original.d_frames,
            basicAllocator ? basicAllocator
                           : &d_hbpAlloc)
-, d_allocator_p(basicAllocator ? basicAllocator
-                               : &d_hbpAlloc)
 {
 }
 
@@ -276,7 +271,7 @@ const baesu_StackTraceFrame& baesu_StackTrace::operator[](int index) const
 inline
 bslma_Allocator *baesu_StackTrace::allocator() const
 {
-    return d_allocator_p;
+    return d_frames.get_allocator().mechanism();
 }
 
 inline
@@ -315,6 +310,8 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
                          const baesu_StackTrace& object)
 {
     object.print(stream, 0, -1);
+
+    return stream;
 }
 
 // FREE FUNCTIONS

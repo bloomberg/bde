@@ -7,4 +7,4 @@ baesu_stacktraceresolver_filehelper
 baesu_stacktraceresolverimpl_elf
 baesu_stacktraceresolverimpl_windows
 baesu_stacktraceresolverimpl_xcoff
-
+baesu_stacktraceutil

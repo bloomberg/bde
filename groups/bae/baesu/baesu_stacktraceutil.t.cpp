@@ -1,5 +1,5 @@
-// baesu_stacktrace.t.cpp                                             -*-C++-*-
-#include <baesu_stacktrace.h>
+// baesu_stacktraceutil.t.cpp                                         -*-C++-*-
+#include <baesu_stacktraceutil.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -106,21 +106,6 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 1: {
-        // --------------------------------------------------------------------
-        // CREATOR TEST
-        //
-        // Concerns:
-        //: 1 That neither the default constructor nor the destructor segfault
-        //:   when called.  There are no other creators.
-        //
-        // Plan:
-        //: 1 Create and destroy an object.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "Creator Test\n"
-                             "============\n";
-
-        Obj st;
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
