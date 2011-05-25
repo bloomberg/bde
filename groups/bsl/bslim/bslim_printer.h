@@ -51,8 +51,6 @@ BSLS_IDENT("$Id: $")
 //:   equal sign, and brackets may be omitted, with the entire value
 //:   represented on a single line in a custom format.  For example, the
 //:   'bdet_Date::print' method emits the date value in the format: 01JAN2001.
-//:   Note that 'Printer' may not be useful for implementing such types (see
-//:   Usage Example 4).
 //
 // For example, consider a class having two attributes, "ticker", represented
 // by a 'bsl::string', and "price", represented by a 'double'.  The output for
@@ -82,8 +80,7 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // In the following examples, we examine the implementation of the 'print'
-// method of different types of classes using 'Printer'.  We also examine a
-// situation where the use of 'Printer' is not appropriate (Example 4).
+// method of different types of classes using 'Printer'.
 //
 ///Example 1: 'print' Method for a Value-Semantic Class
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -356,10 +353,10 @@ BSLS_IDENT("$Id: $")
 //
 //    private:
 //      // DATA
-//      my::Date d_localDate;  // date, local to the timezone indicated by
-//                             // 'd_offset'
+//      bsl::string d_localDate;  // date, local to the timezone indicated by
+//                                // 'd_offset'
 //
-//      int      d_offset;     // offset from GMT (in minutes)
+//      int         d_offset;     // offset from GMT (in minutes)
 //
 //    public:
 //      // ...
@@ -370,8 +367,10 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //  };
 //..
-// For various reasons, it is easier to write the 'print' method without the
-// 'Printer' class.  Note that to ensure correct formatting of the value in the
+// The 'Printer' class may be used in this case to print the start and end
+// indentation by passing a 'suppressBracket' flag to the 'start' and 'end'
+// methods.  The value itself can be written to the stream directly without
+// using 'Printer'.  Note that to ensure correct formatting of the value in the
 // presence of a call to 'setw' on the stream, the output must be written to a
 // 'bsl::ostringstream' first; the string containing the output can then be
 // written to the specified 'stream':
@@ -384,10 +383,7 @@ BSLS_IDENT("$Id: $")
 //         return stream;                                             // RETURN
 //     }
 //
-//     bdeu_Print::indent(stream, level, spacesPerLevel);
-//
 //     bsl::ostringstream tmp;
-//
 //     tmp << d_localDate;
 //
 //     const char sign    = d_offset < 0 ? '-' : '+';
@@ -407,11 +403,11 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     tmp << buf;
-//     stream << tmp.str();
 //
-//     if (0 <= spacesPerLevel) { // multiline
-//         stream << '\n';
-//     }
+//     bslim::Printer printer(&stream, level, spacesPerLevel);
+//     printer.start(true);
+//     stream << tmp.str();
+//     printer.end(true);
 //
 //     return stream << bsl::flush;
 //  }

@@ -6,6 +6,7 @@
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_cstdio.h>
 
 #include <cstdlib>
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
@@ -342,6 +343,67 @@ bsl::ostream& MyClass::print(bsl::ostream& stream,
 
     return stream;
 }
+
+// EXAMPLE 4
+//
+class DateTz {
+    // This 'class' represents a date value explicitly in a local time
+    // zone.  The offset of that time (in minutes) from GMT is also part of
+    // the value of this class.
+
+  private:
+    // DATA
+    bsl::string d_localDate;  // date, local to the timezone indicated by
+                              // 'd_offset'
+
+    int         d_offset;     // offset from GMT (in minutes)
+
+  public:
+    // ...
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+    // ...
+};
+
+bsl::ostream& DateTz::print(bsl::ostream& stream,
+                            int           level,
+                            int           spacesPerLevel) const
+{
+   if (stream.bad()) {
+       return stream;                                                 // RETURN
+   }
+
+   bsl::ostringstream tmp;
+   tmp << d_localDate;
+
+   const char sign    = d_offset < 0 ? '-' : '+';
+   const int  minutes = '-' == sign ? -d_offset : d_offset;
+   const int  hours   = minutes / 60;
+
+   // space usage: +-  hh  mm  nil
+   const int SIZE = 1 + 2 + 2 + 1;
+   char buf[SIZE];
+
+   // Use at most 2 digits for 'hours'
+   if (hours < 100) {
+       bsl::sprintf(buf, "%c%02d%02d", sign, hours, minutes % 60);
+   }
+   else {
+       bsl::sprintf(buf, "%cXX%02d", sign, minutes % 60);
+   }
+
+   tmp << buf;
+
+   bslim::Printer printer(&stream, level, spacesPerLevel);
+   printer.start(true);
+   stream << tmp.str();
+   printer.end(true);
+
+   return stream << bsl::flush;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
