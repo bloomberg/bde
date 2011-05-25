@@ -1,7 +1,6 @@
 baesu_objectfileformat
 baesu_stackaddressutil
 baesu_stacktrace
-baesu_stacktracex
 baesu_stacktraceframe
 baesu_stacktraceprintutil
 baesu_stacktraceresolver_filehelper
