@@ -24,7 +24,8 @@ int bces_AtomicUtilImpl_PowerpcGetInt(const volatile int *value)
 // This should be just a regular load but a bug in Power5/Power5+ forces us to
 // use a lwarx.  See
 // http://www.rdrop.com/users/paulmck/scalability/paper/N2745r.2011.03.04a.html
-// http://www.rdrop.com/users/paulmck/scalability/paper/N2745rP5.2010.02.19a.html
+// http://www.rdrop.com/users/paulmck/scalability/paper/
+//                                                    N2745rP5.2010.02.19a.html
 
          "1:  lwarx %[result], %[zero], %[value]  \n\t"
              "cmpw %[result], %[result]           \n\t" // create data
@@ -503,7 +504,8 @@ bsls_PlatformUtil::Int64 bces_AtomicUtilImpl_PowerpcGetInt64(
 // This should be just a regular load but a bug in Power5/Power5+ forces us to
 // use a ldarx.  see
 // http://www.rdrop.com/users/paulmck/scalability/paper/N2745r.2011.03.04a.html
-// http://www.rdrop.com/users/paulmck/scalability/paper/N2745rP5.2010.02.19a.html
+// http://www.rdrop.com/users/paulmck/scalability/paper/
+//                                                    N2745rP5.2010.02.19a.html
 
          "1:  ldarx %[result], %[zero], %[value]    \n\t"
              "cmpd %[result], %[result]             \n\t" // create data
