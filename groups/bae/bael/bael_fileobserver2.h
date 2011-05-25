@@ -145,14 +145,16 @@ BDES_IDENT("$Id: $")
 // Notice that the filename is changed on rotation only in the second case.
 //
 // There is a possibility that the new log file has the same name as the
-// rotated file.  This often occurs when the filename pattern has a timestamp
-// that does not have resolution in seconds (e.g., "a.log.%Y%M%D") or it can be
-// done on purpose by using a pattern such as "a.log%%".  To resolve this, a
-// ".1" suffix will be appended to the rotated file.  If a file with a ".N"
-// suffix already exists, rename the existing file with the suffix ".N+1"
-// (recursively).  The maximum number of log files that can be kept this way is
-// 256.  The file with the extension ".256", if exists, will be removed on file
-// rotation.
+// rotated file, causing a name collision.  This often occurs when the filename
+// pattern has a timestamp that does not have resolution in seconds (e.g.,
+// "a.log.%Y%M%D") or it can be done on purpose by using a pattern such as
+// "a.log%%".  To resolve this, a ".1" suffix will be appended to the rotated
+// file.  If a file with a ".N" suffix already exists, rename the existing file
+// with the suffix ".N+1" (recursively), until 'N == maxFileChainSuffix'.
+// 'maxFileChainSuffix' can be set with the 'setMaxFileChainSuffix' method, and
+// the default value is 32.  The file with the suffix ".maxFileChainSuffix"
+// will be removed.  Note that the 'setMaxFileChainSuffix' has no effect if
+// there is no name collision on rotation.
 //
 ///Thread-Safety
 ///-------------
@@ -304,6 +306,9 @@ class bael_FileObserver2 : public bael_Observer {
     bdet_DatetimeInterval  d_rotationLifetime;         // maximum log file
                                                        // lifetime before
                                                        // rotation
+
+    int                    d_maxFileChainSuffix;       // maximum suffix number
+                                                       // when rolling files
 
 #ifdef BSLS_PLATFORM__CMP_SUN
     int                    d_startingLogFileSize;      // size of the log file
@@ -460,6 +465,11 @@ class bael_FileObserver2 : public bael_Observer {
         // of this file observer to the specified 'logFileFunctor'.  Note that
         // a default format is in effect until this method is called.
 
+    void setMaxFileChainSuffix(int value);
+        // Set the maximum suffix number that would be added when a file is
+        // rolled due to a name collision.  The behavior is undefined unless
+        // 'value > 0'.
+
     // ACCESSORS
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
@@ -489,6 +499,10 @@ class bael_FileObserver2 : public bael_Observer {
         // may become incorrect when the difference between the local time and
         // UTC time changes (e.g., when transitioning into or out of daylight
         // savings time).
+
+    int maxFileChainSuffix() const;
+        // Returns the maximum file chain suffix that can be made with file
+        // rolling.
 };
 
 }  // close namespace BloombergLP

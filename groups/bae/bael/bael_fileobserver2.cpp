@@ -53,8 +53,6 @@ BDES_IDENT_RCSID(bael_fileobserver2_cpp,"$Id$ $CSID$")
 #include <windows.h>
 #endif
 
-enum { MAX_ROTATED_FILE_SUFFIX = 256 };
-
 namespace {
 
 using namespace BloombergLP;
@@ -310,7 +308,7 @@ void bael_FileObserver2::rotateFile()
 
     if (bdesu_FileUtil::exists(d_logFileName.c_str())) {
         if(0 != bdesu_FileUtil::rollFileChain(d_logFileName.c_str(),
-                                              MAX_ROTATED_FILE_SUFFIX)) {
+                                              d_maxFileChainSuffix)) {
             fprintf(stderr, "Cannot roll log file: %s\n",
                     d_logFileName.c_str());
         }
@@ -368,6 +366,7 @@ bael_FileObserver2::bael_FileObserver2(bslma_Allocator *basicAllocator)
 , d_publishInLocalTime(false)
 , d_rotationSize(0)
 , d_rotationLifetime(0)
+, d_maxFileChainSuffix(32)
 #ifdef BSLS_PLATFORM__CMP_SUN
 , d_startingLogFileSize(0)
 #endif
@@ -478,11 +477,19 @@ void bael_FileObserver2::rotateOnSize(int size)
     d_rotationSize = size;
 }
 
-void
-bael_FileObserver2::setLogFileFunctor(const LogRecordFunctor& logFileFunctor)
+void bael_FileObserver2::setLogFileFunctor(
+                                        const LogRecordFunctor& logFileFunctor)
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_logFileFunctor = logFileFunctor;
+}
+
+void bael_FileObserver2::setMaxFileChainSuffix(int value)
+{
+    BSLS_ASSERT(0 < value);
+
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
+    d_maxFileChainSuffix = value;
 }
 
 // ACCESSORS
@@ -535,6 +542,12 @@ bdet_DatetimeInterval bael_FileObserver2::localTimeOffset() const
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     return d_localTimeOffset;
+}
+
+int bael_FileObserver2::maxFileChainSuffix() const
+{
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
+    return d_maxFileChainSuffix;
 }
 
 }  // close namespace BloombergLP

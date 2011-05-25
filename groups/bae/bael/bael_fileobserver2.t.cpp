@@ -687,18 +687,55 @@ int main(int argc, char *argv[])
                 ASSERT(2 == getNumLines((filename + ".2").c_str()));
             }
 
-            if (verbose) cout << "Testing forced rotation." << endl;
+            if (verbose) cout << "Testing rotate on size." << endl;
             {
                 ASSERT(0 == X.rotationSize());
                 mX.rotateOnSize(1);
                 ASSERT(1 == X.rotationSize());
                 ASSERT(0 == bdesu_FileUtil::exists((filename + ".3").c_str()));
-                for (int i = 0 ; i < 15; ++i) {
-                    BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
-                }
+
+                char buffer[1024];
+                memset(buffer, 'x', sizeof buffer);
+                buffer[sizeof buffer - 1] = '\0';
+
+                BAEL_LOG_TRACE << buffer << BAEL_LOG_END;
+                BAEL_LOG_TRACE << "x" << BAEL_LOG_END;
+
                 ASSERT(1 == bdesu_FileUtil::exists((filename + ".3").c_str()));
 
                 ASSERT(1024 <  getFileSize((filename + ".1").c_str()));
+            }
+
+            if (verbose) cout << "Testing max rolling file chain." << endl;
+            {
+                // Verify default value
+                ASSERT(32 == X.maxFileChainSuffix());
+                mX.setMaxFileChainSuffix(3);
+                ASSERT(3 == X.maxFileChainSuffix());
+
+                ASSERT(1 == bdesu_FileUtil::exists((filename + ".3").c_str()));
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".4").c_str()));
+
+                mX.forceRotation();
+
+                ASSERT(1 == bdesu_FileUtil::exists((filename + ".3").c_str()));
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".4").c_str()));
+
+                mX.setMaxFileChainSuffix(4);
+                ASSERT(4 == X.maxFileChainSuffix());
+
+                ASSERT(1 == bdesu_FileUtil::exists((filename + ".3").c_str()));
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".4").c_str()));
+
+                mX.forceRotation();
+
+                ASSERT(1 == bdesu_FileUtil::exists((filename + ".4").c_str()));
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".5").c_str()));
+
+                mX.forceRotation();
+
+                ASSERT(1 == bdesu_FileUtil::exists((filename + ".4").c_str()));
+                ASSERT(0 == bdesu_FileUtil::exists((filename + ".5").c_str()));
             }
         }
 
