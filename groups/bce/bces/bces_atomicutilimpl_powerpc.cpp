@@ -17,12 +17,14 @@ int bces_AtomicUtilImpl_PowerpcGetInt(const volatile int *value)
 {
     int result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
-             "lwsync                              \n\t"
+             "sync                                \n\t"
 
 // This should be just a regular load but a bug in Power5/Power5+ forces us to
-// use a lwarx.  see
-// http://www.rdrop.com/users/paulmck/scalability/paper/N2745r.2010.01.12a.html
+// use a lwarx.  See
+// http://www.rdrop.com/users/paulmck/scalability/paper/N2745r.2011.03.04a.html
+// http://www.rdrop.com/users/paulmck/scalability/paper/N2745rP5.2010.02.19a.html
 
          "1:  lwarx %[result], %[zero], %[value]  \n\t"
              "cmpw %[result], %[result]           \n\t" // create data
@@ -41,6 +43,7 @@ int bces_AtomicUtilImpl_PowerpcGetInt(const volatile int *value)
 extern "C"
 void bces_AtomicUtilImpl_PowerpcSetInt(volatile int *aInt, int val)
 {
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
              "sync                  \n\t"
              "stw %[val], %[aInt]   \n\t"
@@ -53,6 +56,7 @@ int bces_AtomicUtilImpl_PowerpcAddInt(volatile int *aInt, int val)
 {
     int result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
              "sync                                  \n\t"
 
@@ -66,7 +70,7 @@ int bces_AtomicUtilImpl_PowerpcAddInt(volatile int *aInt, int val)
            : [aInt]   "b"   (aInt),
              [val]    "b"   (val),
              [zero]   "i"   (0)
-           : "cr0", "ctr", "xer");
+           : "cr0", "ctr");
 
     return result;
 }
@@ -77,8 +81,9 @@ int bces_AtomicUtilImpl_PowerpcSwapInt(volatile int *aInt,
 {
     int result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__(
-            "lwsync                             \n\t"
+            "sync                               \n\t"
 
         "1:  lwarx %[result], %[zero], %[aInt]  \n\t"
             "stwcx. %[val], %[zero], %[aInt]    \n\t"
@@ -100,8 +105,9 @@ int bces_AtomicUtilImpl_PowerpcTestAndSwap(volatile int *aInt,
 {
     int result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
-             "lwsync                              \n\t"
+             "sync                                \n\t"
 
          "1:  lwarx %[result], %[zero], %[aInt]   \n\t"  // load and reserve
              "cmpw %[cmpVal], %[result]           \n\t"  // compare the values
@@ -125,6 +131,7 @@ void bces_AtomicUtilImpl_PowerpcSpinLock(volatile int *aSpin)
 {
     int temp;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
          "1:  lwarx %[temp], %[zero], %[aSpin]   \n\t"   // load and reserve
              "cmpwi %[temp], 0                   \n\t"   // compare the values
@@ -144,9 +151,8 @@ int  bces_AtomicUtilImpl_PowerpcSpinTryLock(volatile int *aSpin,
 {
     int result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
-             "lwsync                              \n\t"
-
          "1:  lwarx %[result], %[zero], %[aSpin]  \n\t"  // load and reserve
              "cmpwi %[result], 0                  \n\t"  // compare the values
              "bne- 2f                             \n\t"
@@ -161,7 +167,6 @@ int  bces_AtomicUtilImpl_PowerpcSpinTryLock(volatile int *aSpin,
          "2:  addi %[retries], %[retries], -1     \n\t"  // --retries
              "cmpwi %[retries], 0                 \n\t"  // if (retries > 0)
              "bne- 1b                             \n\t"  //     retry lock
-             "isync                               \n\t"
              "li %[result], 255                   \n\t"  // return error
          "3:                                      \n\t"
            : [result]  "=&b" (result)
@@ -178,6 +183,7 @@ void bces_AtomicUtilImpl_PowerpcSpinUnlock(volatile int *aSpin)
 {
     int temp;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
              "lwsync                    \n\t"
              "li %[temp], 0             \n\t"
@@ -218,8 +224,9 @@ bsls_PlatformUtil::Int64
 {
     Int64_Words result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__(
-            "lwsync                     \n\t"
+            "sync                       \n\t"
 
         "1:  ld %[lo], %[val]           \n\t"   // load double word (atomic)
             "cmpd %[lo], %[lo]          \n\t"   // create data dependency for
@@ -247,6 +254,7 @@ bsls_PlatformUtil::Int64
 {
     Int64_Words result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__(
             "ld %[lo], %[val]       \n\t"   // load double word (atomic)
             "srdi %[hi], %[lo], 32  \n\t"   // move high 32-bit of %[lo] into
@@ -256,8 +264,7 @@ bsls_PlatformUtil::Int64
                                             // the caller will not see them
           : [lo]  "=b" (result.lo),
             [hi]  "=b" (result.hi)
-          : [val] "m"  (*val)
-          : "cr0", "ctr");
+          : [val] "m"  (*val));
 
     return result.value();
 }
@@ -274,6 +281,7 @@ void bces_AtomicUtilImpl_PowerpcSetInt64(
     // pair in the inline assembly code below.  The PowerPC ABI guarantees that
     // the registers used for 'val' and 'valHi'/'valLo' arguments are the same.
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
              "rldimi %[valLo], %[valHi], 32, 64 \n\t"   // %[valLo] has now
                                                         // 'val' as a full
@@ -283,8 +291,7 @@ void bces_AtomicUtilImpl_PowerpcSetInt64(
                                                         // memory (atomic)
            : [aInt]  "=m" (*aInt)
            : [valHi] "b"  (valHi),
-             [valLo] "b"  (valLo)
-           : "cr0");
+             [valLo] "b"  (valLo));
 }
 
 extern "C"
@@ -294,14 +301,14 @@ void bces_AtomicUtilImpl_PowerpcSetInt64Relaxed(
                                       int                                valHi,
                                       int                                valLo)
 {
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
              "rldimi %[valLo], %[valHi], 32, 64 \n\t" // %[valLo] has now 'val'
                                                       // as a full 64-bit value
              "std %[valLo], %[aInt]            \n\t"  // store atomically
            : [aInt]  "=m" (*aInt)
            : [valHi] "b"  (valHi),
-             [valLo] "b"  (valLo)
-           : "cr0");
+             [valLo] "b"  (valLo));
 }
 
 extern "C"
@@ -314,6 +321,7 @@ bsls_PlatformUtil::Int64
 {
     Int64_Words result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
              "rldimi %[valLo], %[valHi], 32, 64 \n\t" // %[valLo] has now 'val'
                                                       // as a full 64-bit value
@@ -339,7 +347,7 @@ bsls_PlatformUtil::Int64
              [valHi] "b"   (valHi),
              [valLo] "b"   (valLo),
              [zero]  "i"   (0)
-           : "cr0", "ctr", "xer");
+           : "cr0", "ctr");
 
     return result.value();
 }
@@ -354,6 +362,7 @@ bsls_PlatformUtil::Int64
 {
     Int64_Words result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
              "rldimi %[valLo], %[valHi], 32, 64 \n\t" // %[valLo] has now 'val'
                                                       // as a full 64-bit value
@@ -376,7 +385,7 @@ bsls_PlatformUtil::Int64
              [valHi] "b"   (valHi),
              [valLo] "b"   (valLo),
              [zero]  "i"   (0)
-           : "cr0", "ctr", "xer");
+           : "cr0", "ctr");
 
     return result.value();
 }
@@ -391,10 +400,11 @@ bsls_PlatformUtil::Int64
 {
     Int64_Words result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
              "rldimi %[valLo], %[valHi], 32, 64 \n\t" // %[valLo] has now 'val'
                                                       // as a full 64-bit value
-             "lwsync                            \n\t"
+             "sync                              \n\t"
 
          "1:  ldarx %[lo], %[zero], %[aInt]     \n\t" // load and reserve
              "stdcx. %[valLo], %[zero], %[aInt] \n\t" // store old value if
@@ -434,6 +444,7 @@ bsls_PlatformUtil::Int64
 {
     Int64_Words result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
              "rldimi %[cmpValLo], %[cmpValHi], 32, 64   \n\t"
                                                           // %[cmpValLo] has
@@ -443,7 +454,7 @@ bsls_PlatformUtil::Int64
                                                           // %[swapValLo] has
                                                           // now 'swapVal' as a
                                                           // full 64-bit value
-             "lwsync                                \n\t"
+             "sync                                  \n\t"
 
          "1:  ldarx %[lo], %[zero], %[aInt]         \n\t" // load and reserve
              "cmpd %[cmpValLo], %[lo]               \n\t" // compare values
@@ -485,12 +496,14 @@ bsls_PlatformUtil::Int64 bces_AtomicUtilImpl_PowerpcGetInt64(
 {
     bsls_PlatformUtil::Int64 result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__(
-             "lwsync                                \n\t"
+             "sync                                  \n\t"
 
 // This should be just a regular load but a bug in Power5/Power5+ forces us to
 // use a ldarx.  see
-// http://www.rdrop.com/users/paulmck/scalability/paper/N2745r.2010.01.12a.html
+// http://www.rdrop.com/users/paulmck/scalability/paper/N2745r.2011.03.04a.html
+// http://www.rdrop.com/users/paulmck/scalability/paper/N2745rP5.2010.02.19a.html
 
          "1:  ldarx %[result], %[zero], %[value]    \n\t"
              "cmpd %[result], %[result]             \n\t" // create data
@@ -511,6 +524,7 @@ void bces_AtomicUtilImpl_PowerpcSetInt64(
                                        volatile bsls_PlatformUtil::Int64 *aInt,
                                        bsls_PlatformUtil::Int64           val)
 {
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
              "sync                  \n\t"
              "std %[val], %[aInt]   \n\t"
@@ -526,6 +540,7 @@ bsls_PlatformUtil::Int64
 {
     bsls_PlatformUtil::Int64 result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
              "sync                                \n\t"
 
@@ -554,8 +569,9 @@ bsls_PlatformUtil::Int64
 {
     bsls_PlatformUtil::Int64 result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__(
-            "lwsync                             \n\t"
+            "sync                               \n\t"
 
         "1:  ldarx %[result], %[zero], %[aInt]  \n\t"
             "stdcx. %[val], %[zero], %[aInt]    \n\t"
@@ -580,8 +596,9 @@ bsls_PlatformUtil::Int64
 {
     bsls_PlatformUtil::Int64 result;
 
+    // __volatile__ to avoid compiler optimizations
     __asm__ __volatile__ (
-             "lwsync                              \n\t"
+             "sync                                \n\t"
 
          "1:  ldarx %[result], %[zero], %[aInt]   \n\t"  // load and reserve
              "cmpd %[cmpVal], %[result]           \n\t"  // compare values
