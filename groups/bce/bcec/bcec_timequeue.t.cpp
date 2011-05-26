@@ -1067,23 +1067,17 @@ int main(int argc, char *argv[])
       } break;
     case 14: {
         // --------------------------------------------------------------------
-        // TEST PRIMARY MANIPULATORS/ACCESSORS
+        // BASIC MEMORY ALLOCATION TEST
         //
         // Plan:
         //
         // Testing:
-        //   bcec_TimeQueue(bslma_Allocator *allocator=0);
-        //   ~bcec_TimeQueue();
-        //   void* add(const bdet_TimeInterval& time, const DATA& data, ...
-        //   int length() const;
-        //   bool isRegisteredHandle(int handle) const;
-        //   int minTime(bdet_TimeInterval *buffer);
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "Testing primary manipulators and accessors" << endl
-                 << "==========================================" << endl;
+                 << "Basic memory allocation test" << endl
+                 << "============================" << endl;
 
         {
             const char VA[] = "A";
@@ -1147,69 +1141,17 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            P(na1.numBlocksTotal());
-            P(na1.numBytesTotal());
-            P(na1.numBlocksMax());
-            P(na1.numBytesMax());
-            P(na2.numBlocksTotal());
-            P(na2.numBytesTotal());
-            P(na2.numBlocksMax());
-            P(na2.numBytesMax());
-        }
-        {
-            const char VA[] = "A";
-            const char VB[] = "B";
-            const char VC[] = "C";
-            const char VD[] = "D";
-            const char VE[] = "E";
-
-            static const struct {
-                int         d_lineNum;     // Source line number
-                int         d_secs;
-                int         d_nsecs;
-                const char* d_value;
-                int         d_isNewTop;
-            } VALUES[] = {
-                //line secs  nsecs    value    isNewTop
-                //---- ----- -------- -------- --------
-                { L_,   2  , 1000000, VA     , 1       },
-                { L_,   2  , 1000001, VB     , 0       },
-                { L_,   1  , 9999998, VC     , 1       },
-                { L_,   1  , 9999999, VD     , 0       },
-                { L_,   0  , 0000000, VE     , 1       }
-            };
-
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-            Obj mX(&ta);  const Obj& X = mX;
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const int   LINE        = VALUES[i].d_lineNum;
-                const char *VAL         = VALUES[i].d_value;
-                const int   SECS        = VALUES[i].d_secs;
-                const int   NSECS       = VALUES[i].d_nsecs;
-                const int   ISNEWTOP    = VALUES[i].d_isNewTop;
-                const bdet_TimeInterval TIME(SECS,NSECS);
-
-                int isNewTop;
-                int newLength;
-
-                int handle;
-                handle = mX.add(TIME, VAL, &isNewTop, &newLength);
-                if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
-                    T_();  P_(isNewTop); P_(newLength); P(X.length());
-                }
-                LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
-                LOOP_ASSERT(LINE, (i+1) == newLength);
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
+            if (veryVerbose) {
+                P(na1.numBlocksTotal());
+                P(na1.numBytesTotal());
+                P(na1.numBlocksMax());
+                P(na1.numBytesMax());
+                P(na2.numBlocksTotal());
+                P(na2.numBytesTotal());
+                P(na2.numBlocksMax());
+                P(na2.numBytesMax());
             }
         }
-        ASSERT(0 == defaultAlloc.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-        ASSERT(0 == ta.numMismatches());
-        if (veryVeryVerbose) { P(ta); }
-
       } break;
       case 13: {
           // ------------------------------------------------------------------
