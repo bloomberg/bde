@@ -26,10 +26,6 @@ BDES_IDENT_RCSID(btemt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 
 #include <bdema_bufferedsequentialallocator.h>
 
-// TBD remove
-#include <bslma_testallocator.h>
-#include <bslma_default.h>
-
 #include <bslalg_typetraits.h>
 #include <bslalg_typetraitusesbslmaallocator.h>
 #include <bslma_autorawdeleter.h>

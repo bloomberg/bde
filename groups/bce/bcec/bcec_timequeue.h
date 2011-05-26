@@ -705,12 +705,11 @@ class bcec_TimeQueue {
                                                // is singly linked only, using
                                                // d_next_p)
 
-    // Note that 'd_mapAllocator_p' is the allocator provided to 'd_map'
-    // if at construction the client specifies that the pool allocator should
-    // be used.  Also we use a proctor to manage 'd_mapAllocator_p' so that it
-    // is not deleted before 'd_map'.  Because of the initialization dependency
-    // between these three data members their declaration order should always
-    // be as follows.
+    // Note that 'd_mapAllocator_p' is the allocator provided to 'd_map',
+    // if the client specifies that the pool allocator should be used.  Also we
+    // use a proctor to manage 'd_mapAllocator_p' so that it is not deleted
+    // before 'd_map'.  Because of the initialization dependency between these
+    // three data members their declaration order should always be as follows.
 
     bcema_PoolAllocator     *d_mapAllocator_p; // pool allocator provided to
                                                // the map of timers to use for
@@ -1071,7 +1070,8 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(bslma_Allocator *basicAllocator)
 , d_nodeArray(basicAllocator)
 , d_nextFreeNode_p(0)
 , d_mapAllocator_p(0)
-, d_mapAllocatorProctor(0, bslma_Default::allocator(basicAllocator))
+, d_mapAllocatorProctor(d_mapAllocator_p,
+                        bslma_Default::allocator(basicAllocator))
                                                     // proctor expects that the
                                                     // allocator is non-zero
 , d_map(basicAllocator)
@@ -1096,7 +1096,7 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(bool             usePoolAllocator,
                    : 0)
 , d_mapAllocatorProctor(d_mapAllocator_p,
                         bslma_Default::allocator(basicAllocator))
-, d_map(d_mapAllocator_p)
+, d_map(usePoolAllocator ? d_mapAllocator_p : basicAllocator)
 , d_length(0)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
@@ -1112,7 +1112,8 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(int              numIndexBits,
 , d_nodeArray(basicAllocator)
 , d_nextFreeNode_p(0)
 , d_mapAllocator_p(0)
-, d_mapAllocatorProctor(0, bslma_Default::allocator(basicAllocator))
+, d_mapAllocatorProctor(d_mapAllocator_p,
+                        bslma_Default::allocator(basicAllocator))
                                                     // proctor expects that the
                                                     // allocator is non-zero
 , d_map(basicAllocator)
@@ -1140,7 +1141,7 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(int              numIndexBits,
                    : 0)
 , d_mapAllocatorProctor(d_mapAllocator_p,
                         bslma_Default::allocator(basicAllocator))
-, d_map(d_mapAllocator_p)
+, d_map(usePoolAllocator ? d_mapAllocator_p : basicAllocator)
 , d_length(0)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
