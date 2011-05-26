@@ -2735,7 +2735,7 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-            bslma_TestAllocator na(1);
+            bslma_TestAllocator na(veryVeryVerbose);
             Obj mX(&na); const Obj& X = mX;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
