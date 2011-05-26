@@ -1065,6 +1065,152 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         BCEC_TIMEQUEUE_TEST_CASE_MINUS_100::run();
       } break;
+    case 14: {
+        // --------------------------------------------------------------------
+        // TEST PRIMARY MANIPULATORS/ACCESSORS
+        //
+        // Plan:
+        //
+        // Testing:
+        //   bcec_TimeQueue(bslma_Allocator *allocator=0);
+        //   ~bcec_TimeQueue();
+        //   void* add(const bdet_TimeInterval& time, const DATA& data, ...
+        //   int length() const;
+        //   bool isRegisteredHandle(int handle) const;
+        //   int minTime(bdet_TimeInterval *buffer);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "Testing primary manipulators and accessors" << endl
+                 << "==========================================" << endl;
+
+        {
+            const char VA[] = "A";
+            const char VB[] = "B";
+            const char VC[] = "C";
+            const char VD[] = "D";
+            const char VE[] = "E";
+
+            static const struct {
+                int         d_lineNum;     // Source line number
+                int         d_secs;
+                int         d_nsecs;
+                const char* d_value;
+                int         d_isNewTop;
+            } VALUES[] = {
+                //line secs  nsecs    value    isNewTop
+                //---- ----- -------- -------- --------
+                { L_,   2  , 1000000, VA     , 1       },
+                { L_,   2  , 1000000, VB     , 0       },
+                { L_,   2  , 1000000, VC     , 0       },
+                { L_,   2  , 1000001, VB     , 0       },
+                { L_,   1  , 9999998, VC     , 1       },
+                { L_,   1  , 9999999, VD     , 0       },
+                { L_,   1  , 9999999, VE     , 0       },
+                { L_,   1  , 9999999, VC     , 0       },
+                { L_,   0  , 0000000, VE     , 1       }
+            };
+
+            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            bslma_TestAllocator na1, na2, scratch;
+            Obj mX(&na1); const Obj& X = mX;
+            Obj mY(true, &na2); const Obj& Y = mY;
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const int   LINE        = VALUES[i].d_lineNum;
+                const char *VAL         = VALUES[i].d_value;
+                const int   SECS        = VALUES[i].d_secs;
+                const int   NSECS       = VALUES[i].d_nsecs;
+                const int   ISNEWTOP    = VALUES[i].d_isNewTop;
+                const bdet_TimeInterval TIME(SECS,NSECS);
+
+                int isNewTop;
+                bdet_TimeInterval newMinTime;
+                int newLength;
+                bsl::vector<int> handles1(&scratch), handles2(&scratch);
+                for (int j = 0; j < 1000; ++j) {
+                  int handle1, handle2;
+                    handle1 = mX.add(TIME + i * j + j,
+                                     VAL, &isNewTop, &newLength);
+                    handle2 = mY.add(TIME + i * j + j + 1,
+                                     VAL, &isNewTop, &newLength);
+                    handles1.push_back(handle1);
+                    handles2.push_back(handle2);
+
+                    const int LEN = handles1.size();
+                    const int  ND = rand() % LEN;
+
+                    for (int j = 0; j < ND; ++j) {
+                        mX.remove(handles1[j]);
+                        mY.remove(handles2[j]);
+                    }
+                }
+            }
+            P(na1.numBlocksTotal());
+            P(na1.numBytesTotal());
+            P(na1.numBlocksMax());
+            P(na1.numBytesMax());
+            P(na2.numBlocksTotal());
+            P(na2.numBytesTotal());
+            P(na2.numBlocksMax());
+            P(na2.numBytesMax());
+        }
+        {
+            const char VA[] = "A";
+            const char VB[] = "B";
+            const char VC[] = "C";
+            const char VD[] = "D";
+            const char VE[] = "E";
+
+            static const struct {
+                int         d_lineNum;     // Source line number
+                int         d_secs;
+                int         d_nsecs;
+                const char* d_value;
+                int         d_isNewTop;
+            } VALUES[] = {
+                //line secs  nsecs    value    isNewTop
+                //---- ----- -------- -------- --------
+                { L_,   2  , 1000000, VA     , 1       },
+                { L_,   2  , 1000001, VB     , 0       },
+                { L_,   1  , 9999998, VC     , 1       },
+                { L_,   1  , 9999999, VD     , 0       },
+                { L_,   0  , 0000000, VE     , 1       }
+            };
+
+            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            Obj mX(&ta);  const Obj& X = mX;
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const int   LINE        = VALUES[i].d_lineNum;
+                const char *VAL         = VALUES[i].d_value;
+                const int   SECS        = VALUES[i].d_secs;
+                const int   NSECS       = VALUES[i].d_nsecs;
+                const int   ISNEWTOP    = VALUES[i].d_isNewTop;
+                const bdet_TimeInterval TIME(SECS,NSECS);
+
+                int isNewTop;
+                int newLength;
+
+                int handle;
+                handle = mX.add(TIME, VAL, &isNewTop, &newLength);
+                if (veryVerbose) {
+                    T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
+                    T_();  P_(isNewTop); P_(newLength); P(X.length());
+                }
+                LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
+                LOOP_ASSERT(LINE, (i+1) == newLength);
+                LOOP_ASSERT(LINE, (i+1) == X.length());
+                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
+            }
+        }
+        ASSERT(0 == defaultAlloc.numAllocations());
+        ASSERT(0 == ta.numBytesInUse());
+        ASSERT(0 == ta.numMismatches());
+        if (veryVeryVerbose) { P(ta); }
+
+      } break;
       case 13: {
           // ------------------------------------------------------------------
           // TESTING CONCERN: After draining the queue new elements may be
@@ -2589,7 +2735,8 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-            Obj mX(&ta); const Obj& X = mX;
+            bslma_TestAllocator na(1);
+            Obj mX(&na); const Obj& X = mX;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE        = VALUES[i].d_lineNum;
@@ -2602,17 +2749,25 @@ int main(int argc, char *argv[])
                 int isNewTop;
                 bdet_TimeInterval newMinTime;
                 int newLength;
-                int  handle;
-                handle = mX.add(TIME, VAL, &isNewTop, &newLength);
-                if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
-                    T_();  P_(isNewTop); P(newMinTime); P_(newLength);
-                    P(X.length());
-                }
-                LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
-                LOOP_ASSERT(LINE, (i+1) == newLength);
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
+                int  handle1, handle2, handle3, handle4;
+                handle1 = mX.add(TIME + 1, VAL, &isNewTop, &newLength);
+                handle2 = mX.add(TIME + 2, VAL, &isNewTop, &newLength);
+                handle3 = mX.add(TIME + 3, VAL, &isNewTop, &newLength);
+                handle4 = mX.add(TIME + 4, VAL, &isNewTop, &newLength);
+//                 if (veryVerbose) {
+//                     T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
+//                     T_();  P_(isNewTop); P(newMinTime); P_(newLength);
+//                     P(X.length());
+//                 }
+//                 LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
+//                 LOOP_ASSERT(LINE, (i+1) == newLength);
+//                 LOOP_ASSERT(LINE, (i+1) == X.length());
+//                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
+
+                mX.remove(handle1);
+                mX.remove(handle2);
+                mX.remove(handle3);
+                mX.remove(handle4);
             }
         }
         ASSERT(0 == defaultAlloc.numAllocations());
