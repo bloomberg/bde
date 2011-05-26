@@ -1,4 +1,4 @@
-// bdem_beruniversaltagnumber.cpp                                     -*-C++-*-
+// bdem_beruniversaltagnumber.t.cpp                                   -*-C++-*-
 #include <bdem_beruniversaltagnumber.h>
 
 #include <bdeat_arrayfunctions.h>
