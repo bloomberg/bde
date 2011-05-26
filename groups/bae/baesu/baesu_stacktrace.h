@@ -7,24 +7,26 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an object that can represent a stack trace
+//@PURPOSE: Provide a description of a function call stack
 //
 //@CLASSES:
-//  baesu_StackTrace: value of a stack trace, container of stack trace frames
+//  baesu_StackTrace: description of a function call stack
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@SEE_ALSO: baesu_stacktraceframe, baesu_stacktraceutil,
-//           baesu_stacktraceprintutil
+//           baesu_stacktraceprintutil, bdema_heapbypassallocator
 //
 //@DESCRIPTION: This component provides an unconstrained (value-semantic)
-// class, 'baesu_StackTrace', that is used to represent a stack trace.  This
-// class contains a sequence of 'baesu_StackTraceFrame' objects and a memory
-// allocator that is used by default, though the client may specify another
+// class, 'baesu_StackTrace', that is used to describe a function call-stack.
+// A stack trace object contains a sequence of 'baesu_StackTraceFrame's.  By
+// default, a 'baesu_StackTrace' object is supplied memory by an owned instance
+// of 'bdema_HeapBypassAllocator', though the client may specify another
 // allocator to be used in its place at construction.
 //
 ///Usage
 ///-----
+// TBD
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -38,16 +40,24 @@ BDES_IDENT("$Id: $")
 #include <bdema_heapbypassallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
 #include <bslalg_typetraitbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
 #include <bslalg_typetraitusesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -63,9 +73,12 @@ class bslma_Allocator;
                           // ======================
 
 class baesu_StackTrace {
-    // This unconstrained (value-semantic) class describes a stack trace,
-    // represented as a sequence randomly-accesible 'baesu_StackTraceFrame'
-    // objects, each of which represents one function call on the stack.
+    // This unconstrained (value-semantic) class describes a function call
+    // stack, represented as a sequence randomly-accesible
+    // 'baesu_StackTraceFrame' objects, each of which represents one function
+    // call on the stack.  Note that the default allocator used if none is
+    // specified to the constructor is the owned heap bypass allocator rather
+    // than the default allocator.
     //
     // This class:
     //: o supports a complete set of *value* *semantic* operations
@@ -81,8 +94,10 @@ class baesu_StackTrace {
                                                  // Note this must be declared
                                                  // and constructed prior to
                                                  // 'd_frames'.
+
     bsl::vector<baesu_StackTraceFrame>
-                                 d_frames;
+                                 d_frames;       // sequence of stack trace
+                                                 // frames
 
   public:
     BSLALG_DECLARE_NESTED_TRAITS2(baesu_StackTrace,
@@ -92,20 +107,24 @@ class baesu_StackTrace {
     // CREATORS
     explicit
     baesu_StackTrace(bslma_Allocator *basicAllocator = 0);
-        // Create a 'baesu_StackTrace' object of 0 length.  If 'allocator' is
-        // specfied, the underlying 'd_frames' vector will use that value, if
-        // not, 'd_frames' will be initialized using the heap bypass allocator
-        // contained in this object.
+        // Create a 'baesu_StackTrace' object of 0 length.  Non-standard:
+        // Optionally specify 'basicAllocator'.  If 'basicAllocator' is not
+        // specified, than an owned instance of the heap-bypass allocator is
+        // used.  Note that the heap bypass allocator is used by default to
+        // avoid heap allocation in case the heap has been corrupted.
 
     baesu_StackTrace(const baesu_StackTrace&  original,
                      bslma_Allocator         *allocator = 0);
-        // Create a 'baesu_StackTrace' object having the same value
-        // as the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create a 'baesu_StackTrace' object having the same value as the
+        // specified 'original' object.  Non-standard: Optionally specify
+        // 'basicAllocator'.  If 'basicAllocator' is not specified, than an
+        // owned instance of the heap-bypass allocator is used.  Note that the
+        // heap bypass allocator is used by default to avoid heap allocation in
+        // case the heap has been corrupted.
 
     // ~baesu_StackTrace();
-        // Compiler-generated
+        // Destroy this object.  Note that this destructor is
+        // compiler-generated.
 
     // MANIPULATORS
     baesu_StackTrace& operator=(const baesu_StackTrace& rhs);
@@ -113,20 +132,20 @@ class baesu_StackTrace {
         // return a reference providing modifiable access to this object.
 
     baesu_StackTraceFrame& operator[](int index);
-        // Return a reference to the stack trace frame corresponding to the
-        // specified 'index'.  The behavior is undefined unless
-        // '0 <= index < length()'.
+        // Return a reference providing modifiable access to the stack trace
+        // frame at the specified 'index' in this object.  The behavior is
+        // undefined unless '0 <= index < length()'.
 
     void removeAll();
-        // Remove all stack trace frames from this object and free their
-        // memory, after which 'length()' will be 0.
+        // Remove all stack trace frames from this object.  After this
+        // operation, 'length' will return 0.
 
     void resize(int newLength);
-        // Add or remove stack trace frames to or from the end of this stack
-        // trace object such that 'length() == newLength'.  Stack trace frames
-        // whose indices are in the range
-        // '0 <= index < min(oldLength, newLength)', where 'oldLength' was the
-        // length of this object prior to the operation, will be unchanged.
+        // Add default constructed stack trace frames to or remove stack trace
+        // frames from the end of this stack trace object such that, after the
+        // operation, 'length() == newLength'.  Stack trace frames whose
+        // indices are in the range '0 <= index < min(length, newLength) will
+        // be unchanged.  The behavior is undefined unless '0 <= newLength'.
 
     void swap(baesu_StackTrace& other);
         // Efficiently exchange the value of this object with the value of the
@@ -136,9 +155,9 @@ class baesu_StackTrace {
 
     // ACCESSORS
     const baesu_StackTraceFrame& operator[](int index) const;
-        // Return a reference to the const stack trace frame corresponding to
-        // the specified 'index'.  The behavior is undefined unless
-        // '0 <= index < length()'.
+        // Return a reference providing non-modifiable access to the stack
+        // trace frame at the specified 'index' in this object.  The behavior
+        // is undefined unless '0 <= index < length()'.
 
     bslma_Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.  Note
@@ -169,16 +188,17 @@ class baesu_StackTrace {
 bool operator==(const baesu_StackTrace& lhs,
                 const baesu_StackTrace& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'baesu_StackTrace' objects
-    // have the same value if all of their corresponding stack trace frames
-    // have the same value.
+    // value, and 'false' otherwise.  Two 'baesu_StackTrace' objects have the
+    // same value if they have the save length, and all of their corresponding
+    // stack trace frames have the same value.
 
 bool operator!=(const baesu_StackTrace& lhs,
                 const baesu_StackTrace& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'baesu_StackTrace' objects do
-    // not have the same value if any of the stack trace frames contained in
-    // 'lhs' is not the same as the corresponding stack trace frame in 'rhs'.
+    // not have the same value if they do not have the same length, or any of
+    // the stack trace frames contained in 'lhs' is not the same as the
+    // corresponding stack trace frame in 'rhs'.
 
 bsl::ostream& operator<<(bsl::ostream&           stream,
                          const baesu_StackTrace& object);
@@ -209,8 +229,7 @@ void swap(baesu_StackTrace& a, baesu_StackTrace& b);
 inline
 baesu_StackTrace::baesu_StackTrace(bslma_Allocator *basicAllocator)
 : d_hbpAlloc()
-, d_frames(basicAllocator ? basicAllocator
-                          : &d_hbpAlloc)
+, d_frames(basicAllocator ? basicAllocator : &d_hbpAlloc)
 {
 }
 
@@ -219,8 +238,7 @@ baesu_StackTrace::baesu_StackTrace(const baesu_StackTrace&  original,
                                    bslma_Allocator         *basicAllocator)
 : d_hbpAlloc()
 , d_frames(original.d_frames,
-           basicAllocator ? basicAllocator
-                          : &d_hbpAlloc)
+           basicAllocator ? basicAllocator : &d_hbpAlloc)
 {
 }
 
@@ -236,6 +254,9 @@ baesu_StackTrace& baesu_StackTrace::operator=(const baesu_StackTrace& rhs)
 inline
 baesu_StackTraceFrame& baesu_StackTrace::operator[](int index)
 {
+    BSLS_ASSERT_SAFE(index >= 0);
+    BSLS_ASSERT_SAFE(index < length());
+
     return d_frames[index];
 }
 
@@ -248,6 +269,8 @@ void baesu_StackTrace::removeAll()
 inline
 void baesu_StackTrace::resize(int newLength)
 {
+    BSLS_ASSERT_SAFE(newLength >= 0);
+
     d_frames.resize(newLength);
 }
 
@@ -265,6 +288,9 @@ void baesu_StackTrace::swap(baesu_StackTrace& other)
 inline
 const baesu_StackTraceFrame& baesu_StackTrace::operator[](int index) const
 {
+    BSLS_ASSERT_SAFE(index >= 0);
+    BSLS_ASSERT_SAFE(index < length());
+
     return d_frames[index];
 }
 
@@ -281,23 +307,6 @@ int baesu_StackTrace::length() const
 }
 
 // FREE OPERATORS
-inline
-bool operator==(const baesu_StackTrace& lhs,
-                const baesu_StackTrace& rhs)
-{
-    if (lhs.length() != rhs.length()) {
-        return false;
-    }
-
-    for (int i = 0;  i < lhs.length(); ++i) {
-        if (lhs[i] != rhs[i]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 inline
 bool operator!=(const baesu_StackTrace& lhs,
                 const baesu_StackTrace& rhs)

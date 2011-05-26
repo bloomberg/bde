@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an namespace class for operations regarding stack trace
+//@PURPOSE: Provide platform-independent utilities for obtaining a stack trace
 //
 //@CLASSES: baesu_StackTraceUtil
 //
@@ -21,7 +21,7 @@ BDES_IDENT("$Id: $")
 // other methods are available here.
 //
 ///Usage Examples
-///-------------
+///--------------
 // The following examples illustrate 2 different ways to print a stack trace.
 //
 ///1. Stack trace using the 'initializeStackTraceFromStack' method
@@ -56,7 +56,7 @@ BDES_IDENT("$Id: $")
 // limits and possible heap corruption.
 //..
 //         baesu_StackTrace st;
-//         int rc = st.initializeFromStack();
+//         int rc = baesu_StackTraceUtil::loadStackTraceFromStack(&st);
 //..
 // 'initializeFromStack' will fail and there will be no frames on Windows
 // compiled with the optimizer.
@@ -66,7 +66,7 @@ BDES_IDENT("$Id: $")
 //         assert(st.numFrames() >= 6);                    // main + 5 recurse
 // #endif
 //
-//         *out_p << st;    // print it out
+//         baesu_StackTraceUtil::printFormatted(cout, st);
 //     }
 //
 //     ++*depth;   // Prevent compiler from optimizing tail recursion as a
@@ -110,7 +110,10 @@ BDES_IDENT("$Id: $")
 // the stack trace object, such as function names, source file names, and line
 // numbers, if they are available.  The third argument, demangle, is 'true'.
 //..
-//          int rc = st.initializeFromAddressArray(addresses, numAddresses);
+//          int rc = baesu_StackTraceUtil::loadStackTraceFromAddressArray(
+//                                                               &st
+//                                                               addresses,
+//                                                               numAddresses);
 //..
 // There will be no frames and 'initializeFromAddressArray' will fail if
 // optimized on Windows with the optimizer.
@@ -127,11 +130,11 @@ BDES_IDENT("$Id: $")
 // print out only those properties.
 //..
 //          for (int i = 0; i < st.numFrames(); ++i) {
-//              const baesu_StackTraceFrame& frame = st.stackFrame(i);
+//              const baesu_StackTraceFrame& frame = st[i];
 //
 //              const char *sn = frame.symbolName().c_str();
 //              sn = sn ? sn : "--unknown--";
-//              *out_p << '(' << i << "): " << sn << endl;
+//              cout << '(' << i << "): " << sn << endl;
 //          }
 //      }
 //
@@ -160,26 +163,28 @@ struct baesu_StackTraceUtil {
     // This 'struct' is a namespace for a collection of functions that are
     // useful for obtaining a stack trace.  Their main purpose is to support
     // the function 'baesu_StackTracePrintUtil::printStackTrace', but it is
-    // possible, with more work, to obtain a stack trace using these functions
-    // alone.
+    // possible, though less convenient, to obtain a stack trace using these
+    // functions directly.  However, using these functions
 
     static
-    int loadStackTraceFromAddressArray(baesu_StackTrace *stackTrace,
-                                       void             *addresses[],
-                                       int               numAddresses,
-                                       bool              demangle = true);
+    int loadStackTraceFromAddressArray(
+                             baesu_StackTrace *stackTrace,
+                             void             *addresses[],
+                             int               numAddresses,
+                             bool              demanglingPreferredFlag = true);
         // Populate the specified '*stackTrace' object with stack trace
         // information from the stack, given a specifid array 'addresses' of at
-        // least 'numAddresses' instruction pointers from the stack that were
-        // obtained by calling 'getStackPointers'.  Optionally specify
-        // 'demangle' indicating whether or not demangling is to occur.  Return
-        // 0 on success and a non-zero value otherwise.  The behavior is
-        // undefined if 'addresses == 0' or if 'addresses' contains fewer than
-        // 'numAddresses' addresses.  Note that demangling sometimes involves
-        // calling 'malloc', and that demangling is always performed on the
-        // Windows platform regardless of the value of 'demangle'.  Also note
-        // that any frames previously contained in the stack trace object are
-        // discarded.
+        // least 'numAddresses' instruction pointers from the stack which can
+        // be obtained by calling 'baesu_StackAddressUtil::getStackAddresses'.
+        // Optionally specify 'demanglingPreferredFlag' indicating whether or
+        // not demangling is to occur.  Return 0 on success and a non-zero
+        // value otherwise.  The behavior is undefined if 'addresses == 0' or
+        // if 'addresses' contains fewer than 'numAddresses' addresses.  Note
+        // that demangling sometimes involves calling 'malloc', and that
+        // demangling is always performed on the Windows platform and never
+        // performed on Solaris using the CC compiler regardless of the value
+        // of 'demanglingPreferredFlag'.  Also note that any frames previously
+        // contained in the stack trace object are discarded.
 
     static
     int loadStackTraceFromStack(
@@ -193,9 +198,11 @@ struct baesu_StackTraceUtil {
         // specify 'demangle' to indicate whether function names are to be
         // demangled.  The behavior is undefined unless 'maxFrames', if
         // specified, is greater than 0.  Return 0 on success and a non-zero
-        // value otherwise.  Note that demangling involves calling 'malloc'.
-        // Finally note that any frames previously contained in the
-        // 'stackTrace' object are discarded.
+        // value otherwise.  Note that demangling involves calling 'malloc',
+        // and that demangling is always performed on the Windows platform and
+        // never performed on Solaris using the CC compiler regardless of the
+        // value of 'demanglingPreferredFlag'.  Finally note that any frames
+        // previously contained in the 'stackTrace' object are discarded.
 
     static
     bsl::ostream& printFormatted(bsl::ostream& stream,

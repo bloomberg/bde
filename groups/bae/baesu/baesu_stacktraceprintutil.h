@@ -7,12 +7,14 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a set of portable utilities for generating a stack trace
+//@PURPOSE: Provide a portable utility for generating a stack trace
 //
 //@CLASSES:
 //  baesu_StackTracePrintUtil: namespace for function to print a stack trace
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
+//
+//@SEE ALSO: baesu_StackTraceUtil
 //
 //@DESCRIPTION: This component defines a namespace class containing a single
 // static platform-independent function that will print a stack trace to a
