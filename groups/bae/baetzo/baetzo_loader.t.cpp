@@ -274,9 +274,16 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // PROTOCOL TEST:
-        //   We need to make sure that 'baetzo_Loader' protocol class is
-        //   properly defined according to protocol class rules defined in
-        //   'bsls_ProtocolTest' component.
+        //   We need to make sure that 'baetzo_Loader' satisfies the protocol
+        //   class requirements.
+        //
+        // Concerns:
+        //: 1 'baetzo_Loader' is an abstract class, i.e., no objects of the
+        //    'baetzo_Loader' class can be created.
+        //: 2 It has no data members.
+        //: 3 All of its members are pure virtual.
+        //: 4 It has a pure virtual destructor.
+        //: 5 All of its methods are publicly accessible.
         //
         // Plan:
         //   Use 'bsl_ProtocolTest' component to test this protocol class.
