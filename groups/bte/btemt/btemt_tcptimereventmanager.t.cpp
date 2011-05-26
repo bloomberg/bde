@@ -1357,10 +1357,7 @@ int main(int argc, char *argv[])
                         bdef_BindUtil::bind(&timerCallback,
                                             &flags[i], &timeValues[i],
                                             delta, i, false));
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
                 mX.registerTimer(timeValues[i], functor);
-                LOOP_ASSERT(i, 0 == da.numBytesInUse());
             }
             if (veryVerbose) {
                 cout << "\t\tRegistered " << NUM_TIMERS << " timers." << endl;
