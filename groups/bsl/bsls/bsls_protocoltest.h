@@ -19,18 +19,32 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alexei Zakharov (azakharov7)
 //
 //@DESCRIPTION: This component provides classes and macros that simplify the
-// creation of test drivers for protocol classes (i.e., abstract interface
-// classes).  It allows verifying the conformance of a protocol class to a set
-// of rules to which all protocols must conform:
+// creation of test drivers for protocol (i.e., pure abstract interface)
+// classes.
+//
+// The purpose of a test driver for a protocol class is to verify the protocol
+// class concerns.  Although each protocol class is different from one another,
+// we can formulate the list of concerns that apply to all protocol classes.
+//
+// Each protocol class has to conform to these rules:
+//: o it is an abstract class, i.e. no objects of a protocol class can be
+//:   created,
+//: o it has no data members,
+//: o all of its methods are pure virtual,
+//: o it has a pure virtual destructor,
+//: o all of its methods are publicly accessible.
+//
+// This protocol test driver component allows to verify the comformance of a
+// protocol class to the following subset of the rules listed above:
 //: o a protocol class is an abstract class,
 //: o it has no data members,
 //: o it has a virtual destructor,
-//: o its methods are publicly accessible, and
+//: o its methods are publicly accessible,
 //: o each of its methods is virtual.
 //
-// Only verifiable concerns are checked.  For example, it is not possible to
-// verify that a method is pure virtual, so it is not checked by this
-// component.
+// These are the verifiable concerns.  Other protocol concerns are not possible
+// to verify within the framework of the C++ language.  For example, it is not
+// possible to verify that a method is pure virtual.
 //
 ///Usage
 ///-----
@@ -48,7 +62,7 @@ BSLS_IDENT("$Id: $")
 // virtual methods.  Rather than deriving the test class from 'MyInterface'
 // directly, it is derived from 'bsls_ProtocolTestImp<MyInterface>' (which, in
 // turn, is derived from 'MyInterface') that implements boilerplate code for
-// simplifying testing of protocols.
+// simplifying the testing of protocols.
 //..
 //  struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
 //      const char *bar(char const *, char const *) { return markDone(); }
@@ -56,11 +70,10 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Notice that in 'MyInterfaceTest' we must provide an implementation of every
-// protocol method.  The implementation of each method is simply
-// 'return markDone();' the purpose of which is to provide
-// 'bsls_ProtocolTestImp' a way to verify that the method is declared correctly
-// in the protocol class.  If a method returns 'void', then just 'markDone();'
-// is sufficient.
+// protocol method.  The implementation of each method should simply call
+// 'markDone' which is provided by the base class for the purpose of verifying
+// that the method it's called from is declared as virtual in the protocol
+// class.
 //
 // Next, we use 'bsls_ProtocolTest' to perform the actual testing of our
 // 'MyInterface' protocol class.  We create an object of 'bsls_ProtocolTest'
@@ -91,11 +104,7 @@ BSLS_IDENT("$Id: $")
 //..
 // These steps conclude the protocol testing.  If there are any failures, they
 // will be reported via standard test driver assertions (e.g., the standard
-// 'ASSERT' macro).  The total number of failures is available from the test
-// driver object:
-//..
-//  return t.failures();
-//..
+// 'ASSERT' macro).
 
 #ifndef INCLUDED_CSTDIO
 #define INCLUDED_CSTDIO
@@ -111,10 +120,10 @@ namespace BloombergLP {
 template <class T>
 struct bsls_ProtocolTest_IsAbstract {
     // This class template is a compile-time meta-function, parameterized with
-    // type 'T', the output of which is 'VALUE', which is equal to 'true' if
-    // 'T' is abstract and 'false' otherwise.  The 'IsAbstract' test makes use
-    // of the fact that a type 'an array of objects of an abstract type'
-    // (e.g., 'U (*)[1]') cannot exist.  Note that it is only an approximation,
+    // type 'T', the output of which is 'VALUE', which will be 'true' if 'T' is
+    // abstract and 'false' otherwise.  The 'IsAbstract' test makes use of the
+    // fact that a type 'an array of objects of an abstract type' (e.g.,
+    // 'U (*)[1]') cannot exist.  Note that it is only an approximation,
     // because this is also true for an incomplete type.  But this
     // approximation is good enough for the purpose of testing protocol
     // classes.
@@ -138,11 +147,11 @@ struct bsls_ProtocolTest_IsAbstract {
 struct bsls_ProtocolTest_MethodReturnType {
     // This class is a proxy for a return type designed to simplify testing
     // implementations of protocol methods.
-    // 'bsls_ProtocolTest_MethodReturnType' can be converted to any type (which
-    // can be either a value or pointer type, but not a reference type).  When
-    // an object of this class is returned from a test implementation of a
-    // protocol method, it is implicitly converted to the return type of the
-    // protocol method.
+    // 'bsls_ProtocolTest_MethodReturnType' can be converted to any
+    // non-reference type (i.e., the type can be either a value or pointer
+    // type, but not a reference type).  When an object of this class is
+    // returned from a test implementation of a protocol method, it is
+    // implicitly converted to the return type of the protocol method.
 
     // ACCESSORS
     template <class T>
@@ -177,12 +186,12 @@ struct bsls_ProtocolTest_MethodReturnRefType {
 
 template <class BSLS_TESTIMP>
 struct bsls_ProtocolTest_Dtor : BSLS_TESTIMP {
-    // This class template is a helper protocol test implementation that tests
-    // that a protocol destructor is declared 'virtual'.  It does so by calling
-    // the 'markDone' function from its destructor, which will be executed if
-    // the protocol's destructor is declared 'virtual' and not executed
-    // otherwise.  The 'BSLS_TESTIMP' template parameter is required to be a
-    // type derived from 'bsls_ProtocolTestImp' class.
+    // This class template is a helper protocol-test implementation class that
+    // tests that a protocol destructor is declared 'virtual', which it does by
+    // calling the 'markDone' function from its destructor.  The destructor
+    // will be executed if the protocol's destructor is declared 'virtual' and
+    // not executed otherwise.  Note that the 'BSLS_TESTIMP' template parameter
+    // is required to be a type derived from 'bsls_ProtocolTestImp' class.
 
     // CREATORS
     ~bsls_ProtocolTest_Dtor();
@@ -271,7 +280,7 @@ class bsls_ProtocolTestImp : public BSLS_PROTOCOL {
 
     // MANIPULATORS
     BSLS_PROTOCOL *operator->();
-        // Dereference this object as if it was a pointer to 'BSLS_PROTOCOL'
+        // Dereference this object as if it were a pointer to 'BSLS_PROTOCOL'
         // in order to call a method on 'BSLS_PROTOCOL'.  Also mark this
         // object as 'entered' for the purpose of calling a protocol method.
 
@@ -280,7 +289,7 @@ class bsls_ProtocolTestImp : public BSLS_PROTOCOL {
         // method.  The 'entered' property is tested in the destructor to
         // check for test failures (i.e., if 'entered == false' then the test
         // cannot fail since it never ran).  Note that 'markEnter' and
-        // 'markDone' calls have to be paired for a protocol method call test
+        // 'markDone' calls have to be paired for a protocol-method-call test
         // to succeed.
 
     void setTestStatus(bsls_ProtocolTest_Status *testStatus);
