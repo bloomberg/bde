@@ -2735,8 +2735,7 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-            bslma_TestAllocator na(veryVeryVerbose);
-            Obj mX(&na); const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE        = VALUES[i].d_lineNum;
@@ -2749,25 +2748,17 @@ int main(int argc, char *argv[])
                 int isNewTop;
                 bdet_TimeInterval newMinTime;
                 int newLength;
-                int  handle1, handle2, handle3, handle4;
-                handle1 = mX.add(TIME + 1, VAL, &isNewTop, &newLength);
-                handle2 = mX.add(TIME + 2, VAL, &isNewTop, &newLength);
-                handle3 = mX.add(TIME + 3, VAL, &isNewTop, &newLength);
-                handle4 = mX.add(TIME + 4, VAL, &isNewTop, &newLength);
-//                 if (veryVerbose) {
-//                     T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
-//                     T_();  P_(isNewTop); P(newMinTime); P_(newLength);
-//                     P(X.length());
-//                 }
-//                 LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
-//                 LOOP_ASSERT(LINE, (i+1) == newLength);
-//                 LOOP_ASSERT(LINE, (i+1) == X.length());
-//                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
-
-                mX.remove(handle1);
-                mX.remove(handle2);
-                mX.remove(handle3);
-                mX.remove(handle4);
+                int  handle;
+                handle = mX.add(TIME, VAL, &isNewTop, &newLength);
+                if (veryVerbose) {
+                    T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
+                    T_();  P_(isNewTop); P(newMinTime); P_(newLength);
+                    P(X.length());
+                }
+                LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
+                LOOP_ASSERT(LINE, (i+1) == newLength);
+                LOOP_ASSERT(LINE, (i+1) == X.length());
+                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
             }
         }
         ASSERT(0 == defaultAlloc.numAllocations());
