@@ -28,9 +28,6 @@
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
 
-#include <bsl_iostream.h>
-#include <bsl_iomanip.h>
-
 #include <bsl_cstdlib.h>
 #include <bsl_cctype.h>
 #include <bsl_bitset.h>
