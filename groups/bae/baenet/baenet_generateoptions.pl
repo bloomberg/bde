@@ -97,11 +97,12 @@ sub mungeConfigSchemaFile($$)
     }
 }
 
-
 # Generate the option files from the .xsd file:
 my $writable = 1;
-        
-0 == system("bas_codegen.pl $xsdfile -m msg -p baenet -E -P $dummyPrefix --testDrivers=yes --dualSTL=yes --noAggregateConversion --ignoreCase=yes") or
+
+0 == system("bas_codegen.pl $xsdfile -m msg -p baenet -E -P $dummyPrefix "
+          . "--testD rivers=yes --dualSTL=yes --noAggregateConversion "
+          . "--ignoreCase=yes") or
     die "bas_codegen.pl failed\n";
 
 foreach my $outputfile (@optionComponentFiles) {
