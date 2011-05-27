@@ -713,9 +713,8 @@ class bdecs_PackedCalendar {
 
     void addHoliday(const bdet_Date& date);
         // Mark the specified 'date' as a holiday (i.e., a non-business day).
-        // The behavior is undefined unless 'date' is within the valid range of
-        // this calendar.  Note that this method has no effect if 'date' is
-        // already marked as a holiday.
+        // Extend the valid range of this calendar if necessary.  Note that
+        // this method has no effect if 'date' is already marked as a holiday.
 
     int addHolidayIfInRange(const bdet_Date& date);
         // Mark the specified 'date' as a holiday (i.e., a non-business day) if

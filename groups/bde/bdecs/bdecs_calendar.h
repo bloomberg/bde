@@ -523,9 +523,8 @@ class bdecs_Calendar {
 
     void addHoliday(const bdet_Date& date);
         // Mark the specified 'date' as a holiday (i.e., a non-business day).
-        // The behavior is undefined unless 'date' is within the valid range of
-        // this calendar.  Note that this method has no effect if 'date' is
-        // already marked as a holiday.
+        // Extend the valid range of this calendar if necessary.  Note that
+        // this method has no effect if 'date' is already marked as a holiday.
 
     void addHolidayCode(const bdet_Date& date, int holidayCode);
         // Mark the specified 'date' as a holiday (i.e., a non-business day)
@@ -536,8 +535,7 @@ class bdecs_Calendar {
         // change the state of this object nor invalidate any iterators).  If
         // 'date' is already marked as a holiday, this method will not
         // invalidate any 'HolidayConstIterator' or 'BusinessDayConstIterator'
-        // iterators.  The behavior is undefined unless 'date' is within the
-        // valid range of this calendar.
+        // iterators.
 
     void addWeekendDay(bdet_DayOfWeek::Day weekendDay);
         // Add to this calendar the specified 'weekendDay' (i.e., a recurring
@@ -609,18 +607,16 @@ class bdecs_Calendar {
 
     void removeHoliday(const bdet_Date& date);
         // Remove from this calendar the holiday having the specified 'date' if
-        // such a holiday exists.  The behavior is undefined unless 'date' is
-        // within the valid range of this calendar.  Note that this operation
-        // has no effect if 'date' is not a holiday.
+        // such a holiday exists.  Note that this operation has no effect if
+        // 'date' is not a holiday in this calendar even if it is out of range.
 
     void removeHolidayCode(const bdet_Date& date, int holidayCode);
         // Remove from this calendar the specified 'holidayCode' for the
         // holiday having the specified 'date' if such a holiday having
-        // 'holidayCode' exists.  The behavior is undefined unless date is
-        // within the valid range of this calendar.  Note that this operation
-        // has no effect if 'date' is not a holiday in this calendar, or if
-        // the holiday at 'date' does not have 'holidayCode' associated with
-        // it.
+        // 'holidayCode' exists.  Note that this operation has no effect if
+        // 'date' is not a holiday in this calendar even if it is out of range,
+        // or if the holiday at 'date' does not have 'holidayCode' associated
+        // with it.
 
     void removeAll();
         // Remove all information from this calendar, leaving it with its
@@ -1495,6 +1491,8 @@ inline
 bdecs_Calendar::BusinessDayConstReverseIterator
 bdecs_Calendar::rbeginBusinessDays(const bdet_Date& date) const
 {
+    BSLS_ASSERT_SAFE(isInRange(date));
+
     return BusinessDayConstReverseIterator(endBusinessDays(date));
 }
 
@@ -1602,7 +1600,7 @@ const bdec_DayOfWeekSet& bdecs_Calendar::weekendDays() const
 inline
 bool operator==(const bdecs_Calendar& lhs, const bdecs_Calendar& rhs)
 {
-    bool result = lhs.d_packedCalendar == rhs.d_packedCalendar;
+    const bool result = lhs.d_packedCalendar == rhs.d_packedCalendar;
     BSLS_ASSERT(!result || lhs.d_nonBusinessDays == rhs.d_nonBusinessDays);
     return result;
 }
@@ -1610,7 +1608,7 @@ bool operator==(const bdecs_Calendar& lhs, const bdecs_Calendar& rhs)
 inline
 bool operator!=(const bdecs_Calendar& lhs, const bdecs_Calendar& rhs)
 {
-    bool result = lhs.d_packedCalendar != rhs.d_packedCalendar;
+    const bool result = lhs.d_packedCalendar != rhs.d_packedCalendar;
     BSLS_ASSERT(result || lhs.d_nonBusinessDays == rhs.d_nonBusinessDays);
     return result;
 }
@@ -1673,7 +1671,7 @@ bdecs_Calendar_BusinessDayConstIter::operator++()
 {
     BSLS_ASSERT(d_currentOffset >= 0);
     d_currentOffset =
-               d_nonBusinessDays_p->find0AtSmallestIndexGT(d_currentOffset);
+                  d_nonBusinessDays_p->find0AtSmallestIndexGT(d_currentOffset);
     return *this;
 }
 

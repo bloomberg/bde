@@ -107,11 +107,11 @@ bdecs_Calendar& bdecs_Calendar::operator=(const bdecs_PackedCalendar& rhs)
 
 void bdecs_Calendar::swap(bdecs_Calendar& other)
 {
-    // 'swap' is undefined for objects with non-equal allocators
+    // 'swap' is undefined for objects with non-equal allocators.
     BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
     using bsl::swap;
-    using BloombergLP::swap;  // gcc 3.4 needs some help with finding 'swap'
+    using BloombergLP::swap;  // gcc 3.4 needs some help with finding 'swap'.
 
     swap(d_packedCalendar, other.d_packedCalendar);
     swap(d_nonBusinessDays, other.d_nonBusinessDays);
@@ -142,20 +142,14 @@ void bdecs_Calendar::addDay(const bdet_Date& date)
 
 void bdecs_Calendar::addHoliday(const bdet_Date& date)
 {
-    // TBD BSLS_ASSERT(isInRange(date));
-
-    if (0 == d_packedCalendar.addHolidayIfInRange(date)) {
-        d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
-    }
+    d_packedCalendar.addHoliday(date);
+    d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
 }
 
 void bdecs_Calendar::addHolidayCode(const bdet_Date& date, int holidayCode)
 {
-    // TBD BSLS_ASSERT(isInRange(date));
-
-    if (0 == d_packedCalendar.addHolidayCodeIfInRange(date, holidayCode)) {
-        d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
-    }
+    d_packedCalendar.addHolidayCode(date, holidayCode);
+    d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
 }
 
 void bdecs_Calendar::addWeekendDay(bdet_DayOfWeek::Day weekendDay)
@@ -220,8 +214,6 @@ void bdecs_Calendar::unionNonBusinessDays(const bdecs_PackedCalendar& other)
 
 void bdecs_Calendar::removeHoliday(const bdet_Date& date)
 {
-    // TBD BSLS_ASSERT(isInRange(date));
-
     d_packedCalendar.removeHoliday(date);
     if (true == isInRange(date) && false == isWeekendDay(date)) {
         d_nonBusinessDays.set0(date - firstDate());
