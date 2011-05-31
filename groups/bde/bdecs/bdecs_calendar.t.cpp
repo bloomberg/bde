@@ -882,7 +882,7 @@ int main(int argc, char *argv[])
         // Plans:
         //   To address concern 1, we create a custom set of calendars and
         //   for each of them we obtain a 'bdecs_PackedCalendar' that
-        //   represents it.  We are then,creating a new calendar from its
+        //   represents it.  We are then creating a new calendar from its
         //   packed representation and we make sure they are equal comparing
         //   them.  Then we are going to modify the original calendar and,
         //   obtaining a new 'bdecs_PackedCalendar' that represents it, we
