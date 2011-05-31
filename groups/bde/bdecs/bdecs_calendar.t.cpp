@@ -1,4 +1,4 @@
-// bdecs_calendar.t.cpp          -*-C++-*-
+// bdecs_calendar.t.cpp                                               -*-C++-*-
 
 #include <bdecs_calendar.h>
 
@@ -881,13 +881,13 @@ int main(int argc, char *argv[])
         //
         // Plans:
         //   To address concern 1, we create a custom set of calendars and
-        //   for each of them we obtain a 'bdecs_PackedCalendar' that represents
-        //   it.  We are then,creating a new calendar from its packed
-        //   representation and we make sure they are equal comparing them.
-        //   Then we are going to modify the original calendar and, obtaining a
-        //   new 'bdecs_PackedCalendar' that represents it, we create a new
-        //   calendar from its new packed representation and make sure they are
-        //   equal comparing them.
+        //   for each of them we obtain a 'bdecs_PackedCalendar' that
+        //   represents it.  We are then,creating a new calendar from its
+        //   packed representation and we make sure they are equal comparing
+        //   them.  Then we are going to modify the original calendar and,
+        //   obtaining a new 'bdecs_PackedCalendar' that represents it, we
+        //   create a new calendar from its new packed representation and make
+        //   sure they are equal comparing them.
         //
         // Testing:
         //   const bdecs_PackedCalendar& packedCalendar() const
@@ -965,8 +965,8 @@ int main(int argc, char *argv[])
         //
         //   To address concern 2, we use the 'BEGIN_EXCEPTION_SAFE_TEST' and
         //   'END_EXCEPTION_SAFE_TEST' macros to generate memory exceptions and
-        //   verify that the value of the calendar object is rolled back when an
-        //   exception is thrown.
+        //   verify that the value of the calendar object is rolled back when
+        //   an exception is thrown.
         //
         // Testing:
         //   void swap(bdecs_Calendar *);
@@ -1064,8 +1064,8 @@ int main(int argc, char *argv[])
         //
         //   To address concern 2, we use the 'BEGIN_EXCEPTION_SAFE_TEST' and
         //   'END_EXCEPTION_SAFE_TEST' macros to generate memory exceptions and
-        //   verify that the value of the calendar object is rolled back when an
-        //   exception is thrown.
+        //   verify that the value of the calendar object is rolled back when
+        //   an exception is thrown.
         //
         // Testing:
         //   void intersectNonBusinessDays(const bdecs_Calendar&)
@@ -1170,8 +1170,8 @@ int main(int argc, char *argv[])
         //
         //   To address concern 2, we use the 'BEGIN_EXCEPTION_SAFE_TEST' and
         //   'END_EXCEPTION_SAFE_TEST' macros to generate memory exceptions and
-        //   verify that the value of the calendar object is rolled back when an
-        //   exception is thrown.
+        //   verify that the value of the calendar object is rolled back when
+        //   an exception is thrown.
         //
         // Testing:
         //   void intersectBusinessDays(const bdecs_Calendar&)
@@ -1336,28 +1336,28 @@ int main(int argc, char *argv[])
         // TESTING 'getNextBusinessDay':
         //
         // Concerns:
-        //   1. Both 'getNextBusinessDay' methods return the expected results if
-        //      the specified initial date is within the valid range of the
+        //   1. Both 'getNextBusinessDay' methods return the expected results
+        //      if the specified initial date is within the valid range of the
         //      calendar.
-        //   2. Both 'getNextBusinessDay' methods return the expected results if
-        //      the specified initial date is outside of the valid range of the
-        //      calendar.
+        //   2. Both 'getNextBusinessDay' methods return the expected results
+        //      if the specified initial date is outside of the valid range of
+        //      the calendar.
         //
         // Plan:
         //   In order to show that 'getNextBusinessDay(const bdet_Date&)' works
-        //   for all valid inputs, we set up a few calendar objects with various
-        //   weekend days and holidays.  Then we use all the dates that are
-        //   between 7 days prior to the first date and 7 days after the last
-        //   dates as test inputs for this method.  We then verify the results
-        //   by either using 'isBusinessDay' if the results are within the valid
-        //   range or finding the next weekend day if the result is outside of
-        //   the valid range.
+        //   for all valid inputs, we set up a few calendar objects with
+        //   various weekend days and holidays.  Then we use all the dates that
+        //   are between 7 days prior to the first date and 7 days after the
+        //   last dates as test inputs for this method.  We then verify the
+        //   results by either using 'isBusinessDay' if the results are within
+        //   the valid range or finding the next weekend day if the result is
+        //   outside of the valid range.
         //
         //   After we have verified that 'getNextBusinessDay(const bdet_Date&)'
         //   works, we apply the same test to 'getNextBusinessDay(const
-        //   bdet_Date& initialDate, int n)' where we let 'n' to be from 2 to 8.
-        //   Then we verify its results by calling 'getNextBusinessDay(const
-        //   bdet_Date&)' n times.
+        //   bdet_Date& initialDate, int n)' where we let 'n' to be from 2 to
+        //   8.  Then we verify its results by calling
+        //   'getNextBusinessDay(const bdet_Date&)' 'n' times.
         //
         // Testing:
         //   bdet_Date getNextBusinessDay(const bdet_Date&) const
@@ -1493,9 +1493,9 @@ int main(int argc, char *argv[])
         //   days.
         //
         //   To address concern 2, we use the tested
-        //   'isWeekendDay(bdet_DayOfWeek::Day)' method to verify the results of
-        //   'isWeekendDay(bdet_Date&)' by invoking both methods on all the days
-        //   of an arbitrarily-selected month and compare their results.
+        //   'isWeekendDay(bdet_DayOfWeek::Day)' method to verify the results
+        //   of 'isWeekendDay(bdet_Date&)' by invoking both methods on all the
+        //   days of an arbitrarily-selected month and compare their results.
         //
         // Testing:
         //   void addWeekendDays(const bdec_DayOfWeekSet& weekendDays)
@@ -1584,8 +1584,8 @@ int main(int argc, char *argv[])
         //
         //   To address concern 2, we use the 'BEGIN_EXCEPTION_SAFE_TEST' and
         //   'END_EXCEPTION_SAFE_TEST' macros to generate memory exceptions and
-        //   verify that the value of the calendar object is rolled back when an
-        //   exception is thrown.
+        //   verify that the value of the calendar object is rolled back when
+        //   an exception is thrown.
         //
         // Testing:
         //   void setValidRange(const bdet_Date&, const bdet_Date&)
@@ -1626,15 +1626,16 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1. 'beginBusinessDays' return the first business day if it exists
-        //      and 'endBusinessDays' returns one element past the last one.  If
-        //      there is no business day, 'beginBusinessDays' must be equal to
-        //      'endBusinessDays'.  In addition, 'beginBusinessDays(const
+        //      and 'endBusinessDays' returns one element past the last one.
+        //      If there is no business day, 'beginBusinessDays' must be equal
+        //      to 'endBusinessDays'.  In addition, 'beginBusinessDays(const
         //      bdet_Date&)' and 'endBusinessDays(const bdet_Date&)' return the
         //      first and one past the last element within the range specified
         //      by the date.
-        //   2. 'operator++' and 'operator--' move the iterator forward/backward
-        //      by one element.  'operator=' assigns an iterator to another one
-        //      of the same type and returns a reference to the iterator.
+        //   2. 'operator++' and 'operator--' move the iterator
+        //      forward/backward by one element.  'operator=' assigns an
+        //      iterator to another one of the same type and returns a
+        //      reference to the iterator.
         //   3. 'operator*' and 'operator->' return the actual value associated
         //      with the iterator.
         //   4. 'operator==' and 'operator!=' compare the values of the two
@@ -1646,8 +1647,8 @@ int main(int argc, char *argv[])
         // Plan:
         //   To address concern 1, we first create a set of calendar objects
         //   based on an arbitrarily selected data and exercise
-        //   'beginBusinessDays' and 'endBusinessDays'.  Next, for each of these
-        //   calendars objects, we remove all its holidays and weekends.
+        //   'beginBusinessDays' and 'endBusinessDays'.  Next, for each of
+        //   these calendars objects, we remove all its holidays and weekends.
         //   Starting from the two ends of its range and progress towards the
         //   middle, we add the first and last business days in the calendar as
         //   holidays and verify the results of these two methods.  We keep
@@ -1655,16 +1656,16 @@ int main(int argc, char *argv[])
         //   holidays.  To test 'beginBusinessDays(const bdet_Date&)' and
         //   'endBusinessDays(const bdet_Date&)', we set up a calendar object
         //   with a fixed set of holidays and weekend days.  We then
-        //   arbitrarily specify a set of dates (which include holidays, weekend
-        //   days, and business days) as the input for these two method and
-        //   verify they return the expected results.
+        //   arbitrarily specify a set of dates (which include holidays,
+        //   weekend days, and business days) as the input for these two method
+        //   and verify they return the expected results.
         //
         //   To address concern 2, we call the iterator's 'operator++' and
         //   'operator--' methods and make sure it moves forward/backward as
         //   expected.  To ensure that 'operator++' allows the iterator to
-        //   properly iterate over all business days, we verify, after each call
-        //   to 'operator++', that the date currently being referenced is a
-        //   business day and is greater than the previous business day.  We
+        //   properly iterate over all business days, we verify, after each
+        //   call to 'operator++', that the date currently being referenced is
+        //   a business day and is greater than the previous business day.  We
         //   also verify that the total number of business days counted using
         //   'operator++' matches that returned by 'numBusinessDays'.  Since
         //   'beginBusinessDays' and 'endBusinessDays' have been tested
@@ -1674,27 +1675,27 @@ int main(int argc, char *argv[])
         //   over the correct set of business days using 'operator++'.
         //
         //   To address concern 3, we call 'operator*' and 'operator->' on an
-        //   iterator pointing to a valid entry and verify that the return value
-        //   matches the value of the entry.
+        //   iterator pointing to a valid entry and verify that the return
+        //   value matches the value of the entry.
         //
-        //   To address concern 4, we first compare an iterator to itself.  Then
-        //   we will compare it with another iterator that points to the same
-        //   entry and make sure they are equal.  Finally we will compare the
-        //   iterator with an iterator that points to a different entry and make
-        //   sure they are not equal.
+        //   To address concern 4, we first compare an iterator to itself.
+        //   Then we will compare it with another iterator that points to the
+        //   same entry and make sure they are equal.  Finally we will compare
+        //   the iterator with an iterator that points to a different entry and
+        //   make sure they are not equal.
         //
         //   To address concern 5, we compare the results returned by the
         //   reverse iterators with the results returned by the forward
-        //   iterators moving backwards and make sure they are identical.  It is
-        //   not necessary to apply all the tests for the forward iterators to
-        //   these reverse iterators because they are implemented as the
+        //   iterators moving backwards and make sure they are identical.  It
+        //   is not necessary to apply all the tests for the forward iterators
+        //   to these reverse iterators because they are implemented as the
         //   'bsl::reverse_iterator<>' version of the forward iterators.  To
         //   test 'rbeginBusinessDays(const bdet_Date&)' and
         //   'rendBusinessDays(const bdet_Date&)', we set up a calendar object
-        //   with a fixed set of holidays and weekend days.  We then arbitrarily
-        //   specify a set of dates (which include holidays, weekend days, and
-        //   business days) as the input for these two method and verify they
-        //   return the expected results.
+        //   with a fixed set of holidays and weekend days.  We then
+        //   arbitrarily specify a set of dates (which include holidays,
+        //   weekend days, and business days) as the input for these two method
+        //   and verify they return the expected results.
         //
         //  Testing:
         //    BusinessDayIterator
@@ -2345,11 +2346,11 @@ int main(int argc, char *argv[])
         //   For each constructor we will create objects
         //     - Without passing in an allocator.  We will install an allocator
         //       as the default and verify that memory is drawn from it.
-        //     - With an allocator.  We will install an allocator as the default
-        //       and verify that memory is drawn from the allocator passed in
-        //       and not from the default allocator.
-        //     - In the presence of exceptions during memory allocations using a
-        //       'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //     - With an allocator.  We will install an allocator as the
+        //       default and verify that memory is drawn from the allocator
+        //       passed in and not from the default allocator.
+        //     - In the presence of exceptions during memory allocations using
+        //       a 'bslma_TestAllocator' and varying its *allocation* *limit*.
         //     - Where the object is constructed entirely in static memory
         //       (using a 'bslma_BufferAllocator') and never destroyed.
         //
@@ -2676,26 +2677,27 @@ int main(int argc, char *argv[])
         //       CORRUPTED - the data contains explicitly inconsistent fields.
         //   4. Verify that 'synchronizeCache' works properly.
         //      'synchronizeCache' is a private method which updates the
-        //      non-business day cache with information from the internal packed
-        //      calendar object.  It is used in several public methods of the
-        //      calendar class.  Since the implementation of 'bdexStreamIn' uses
-        //      'synchronizeCache' to update the internal non-business day
-        //      cache, by verifying that the non-business day cache is correctly
-        //      updated, we can conclude that 'synchronizeCache' is working
-        //      properly.
+        //      non-business day cache with information from the internal
+        //      packed calendar object.  It is used in several public methods
+        //      of the calendar class.  Since the implementation of
+        //      'bdexStreamIn' uses 'synchronizeCache' to update the internal
+        //      non-business day cache, by verifying that the non-business day
+        //      cache is correctly updated, we can conclude that
+        //      'synchronizeCache' is working properly.
         //
         // Plan:
         //   To address concern 1, perform a trivial direct (breathing) test of
-        //   the 'bdexStreamOut' and 'bdexStreamIn' methods.  Note that the rest
-        //   of the testing will use the stream operators.
+        //   the 'bdexStreamOut' and 'bdexStreamIn' methods.  Note that the
+        //   rest of the testing will use the stream operators.
         //
         //   To address concern 2, use the macros 'BEGIN_EXCEPTION_SAFE_TEST'
         //   and 'END_EXCEPTION_SAFE_TEST' to generate exceptions and verify
         //   that the destination object is rolled back in the case of an
-        //   exception.  These macros first set the allocation limit of the test
-        //   allocator to 0 and gradually increase it while exercising the
-        //   streaming functionality.  When an exception occurred, the exception
-        //   handler verifies that the destination object is unchanged.
+        //   exception.  These macros first set the allocation limit of the
+        //   test allocator to 0 and gradually increase it while exercising the
+        //   streaming functionality.  When an exception occurred, the
+        //   exception handler verifies that the destination object is
+        //   unchanged.
         //
         //   To address concern 3, specify a set S of unique object values with
         //   substantial and varied differences, ordered by increasing
@@ -2724,18 +2726,18 @@ int main(int argc, char *argv[])
         //     We will assume that the incomplete test fails every field,
         //     including a char (multi-byte representation).  Hence we need to
         //     produce values that are inconsistent with a valid value and
-        //     verify that they are detected.  Use the underlying stream package
-        //     to simulate an instance of a typical valid (control) stream and
-        //     verify that it can be streamed in successfully.  Then for each
-        //     data field in the stream (beginning with the version number),
-        //     provide one or more similar tests with that data field corrupted.
-        //     After each test, verify that the object is unchanged after
-        //     streaming.
+        //     verify that they are detected.  Use the underlying stream
+        //     package to simulate an instance of a typical valid (control)
+        //     stream and verify that it can be streamed in successfully.  Then
+        //     for each data field in the stream (beginning with the version
+        //     number), provide one or more similar tests with that data field
+        //     corrupted.  After each test, verify that the object is unchanged
+        //     after streaming.
         //
         //   To address concern 4, we must not only rely on 'operator==' when
         //   verifying the result of 'bdexStreamIn'.  We need to also verify
-        //   that the content of the non-business days cache matches that of the
-        //   original calendar object.
+        //   that the content of the non-business days cache matches that of
+        //   the original calendar object.
         //
         // Testing:
         //   int maxSupportedBdexVersion() const
@@ -3226,8 +3228,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1. The value represented by any instance can be assigned to any
-        //      other instance.  And the assignment operator returns a reference
-        //      to the destination object.
+        //      other instance.  And the assignment operator returns a
+        //      reference to the destination object.
         //   2. The 'rhs' value must not be affected by the operation.
         //   3. 'rhs' going out of scope has no effect on the value of 'lhs'
         //      after the assignment.
@@ -3249,16 +3251,16 @@ int main(int argc, char *argv[])
         //   return value of the assignment and Y itself equal YY.
         //
         //   To address concern 5, we create an object with the default
-        //   allocator and assigned to it an object with a test allocator.  Then
-        //   we verify that the memory of the new object is drawn from the
+        //   allocator and assigned to it an object with a test allocator.
+        //   Then we verify that the memory of the new object is drawn from the
         //   default allocator.
         //
-        //   To address concern 6, we use a test allocator and initially set the
-        //   allocation limit to 0.  Then we perform assignments while gradually
-        //   increasing the allocation limit.  This will trigger exceptions when
-        //   the assignments need to obtain memory.  Then in the exception
-        //   handler we verify that the values of the objects involved in the
-        //   assignment are unchanged.
+        //   To address concern 6, we use a test allocator and initially set
+        //   the allocation limit to 0.  Then we perform assignments while
+        //   gradually increasing the allocation limit.  This will trigger
+        //   exceptions when the assignments need to obtain memory.  Then in
+        //   the exception handler we verify that the values of the objects
+        //   involved in the assignment are unchanged.
         //
         // Testing:
         //   bdecs_Calendar& operator=(const bdecs_Calendar& rhs)
@@ -3528,8 +3530,8 @@ int main(int argc, char *argv[])
         //      no effect on the copy-constructed object.
         //   4. The object has its internal memory management system hooked up
         //      properly so that *all* internally allocated memory draws from a
-        //      user-supplied allocator whenever one is specified, and otherwise
-        //      the default one.
+        //      user-supplied allocator whenever one is specified, and
+        //      otherwise the default one.
         //
         // Plan:
         //   To address concern 1 - 3, specify a set S of object values with
@@ -3543,10 +3545,10 @@ int main(int argc, char *argv[])
         //   default and also supply a separate test allocator explicitly.  We
         //   will measure the total usage of both allocators before and after
         //   calling the copy constructor to ensure that no memory is allocated
-        //   from the default allocator.  Then we will call the copy constructor
-        //   to create another object using the default allocator and verify
-        //   that the amount of memory used is the same as that with the
-        //   supplied test allocator.
+        //   from the default allocator.  Then we will call the copy
+        //   constructor to create another object using the default allocator
+        //   and verify that the amount of memory used is the same as that with
+        //   the supplied test allocator.
         //
         //   It is not necessary to perform exception-safety test for the copy
         //   constructor because it is using only the class members' copy
@@ -3615,8 +3617,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   To address the concern, we set up a small set of calendar objects
-        //   and use these two functions to compare these calendars against each
-        //   other.
+        //   and use these two functions to compare these calendars against
+        //   each other.
         //
         // Testing:
         //   bool operator==(const bdecs_Calendar& lhs,
@@ -3666,18 +3668,18 @@ int main(int argc, char *argv[])
         //   'print' method of the internal packed calendar object by using a
         //   small set of calendar objects combined with some 'level' and
         //   'spacesPerLevel' values as test vectors.  Since 'operator<<' is
-        //   implemented based upon the 'print' method, we will check its output
-        //   against the 'print' method when the values of 'level' and
+        //   implemented based upon the 'print' method, we will check its
+        //   output against the 'print' method when the values of 'level' and
         //   'spacesPerLevel' match those used to implement 'operator<<'.  We
         //   will also verify that 'operator<<' returns the specified stream.
         //
         // Testing:
         //   bsl::ostream& bdecs_Calendar::print(
-        //                                   bsl::ostream& stream,
-        //                                   int           level,
-        //                                   int           spacesPerLevel) const
+        //                                 bsl::ostream& stream,
+        //                                 int           level,
+        //                                 int           spacesPerLevel) const;
         //    bsl::ostream& operator<<(bsl::ostream&         stream,
-        //                               const bdecs_Calendar& calendar)
+        //                             const bdecs_Calendar& calendar);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3760,8 +3762,8 @@ int main(int argc, char *argv[])
         // 'packedCalendar'.
         //
         // Concerns:
-        //   1. The 'beginXXXX', 'rbeginXXXX', 'endXXXX', and 'rendXXXX' methods
-        //      for 'HolidayIterator', 'HolidayCodeIterator' and
+        //   1. The 'beginXXXX', 'rbeginXXXX', 'endXXXX', and 'rendXXXX'
+        //      methods for 'HolidayIterator', 'HolidayCodeIterator' and
         //      'WeekendDayIterator' return the proper iterators.
         //   2. 'length', 'isInRange', 'firstDate', and 'lastDate' return the
         //      expected results for various type of calendar objects.
@@ -3783,10 +3785,10 @@ int main(int argc, char *argv[])
         //   the calendar and verify the results using 'isHoliday' and
         //   'isWeekendDay'.
         //
-        //   To address concern 6, we first count the number of business days in
-        //   a calendar by examining every day of the calendar.  We then use
-        //   this number to verify the results returned by 'numBusinessDays' and
-        //   'numNonBusinessDays'.
+        //   To address concern 6, we first count the number of business days
+        //   in a calendar by examining every day of the calendar.  We then use
+        //   this number to verify the results returned by 'numBusinessDays'
+        //   and 'numNonBusinessDays'.
         //
         // Testing:
         //   HolidayIterator beginHolidays() const
@@ -3990,7 +3992,8 @@ int main(int argc, char *argv[])
         // and not accidentally for some other reason.
         //
         // Concerns:
-        //   1. The parsing stops at the first incorrect character of expression
+        //   1. The parsing stops at the first incorrect character of
+        //      expression
         //   2. Absolute date parsing function accepts only valid dates
         //   3. a. Weekend days can be specified anywhere and set properly
         //      b. A duplicate weekend day will return a failure
@@ -4020,11 +4023,11 @@ int main(int argc, char *argv[])
         //
         //   To address concern 3, supply vectors setting weekend days at
         //   different positions in the test vectors and verify the results are
-        //   similar.  Verify that duplicates are handled correctly and no other
-        //   lowercase letters are accepted.
+        //   similar.  Verify that duplicates are handled correctly and no
+        //   other lowercase letters are accepted.
         //
-        //   To address concern 4, supply invalid vectors with a "relative" date
-        //   but no absolute date.
+        //   To address concern 4, supply invalid vectors with a "relative"
+        //   date but no absolute date.
         //
         //   To address concern 5, verify that the range is properly set when
         //   supplying different absolute and relative dates.
@@ -4209,8 +4212,10 @@ int main(int argc, char *argv[])
                          WDAY == X.numWeekendDaysInWeek());
             LOOP3_ASSERT(LINE, HOLI, X.numHolidays(),
                          HOLI == X.numHolidays());
-            LOOP4_ASSERT(LINE, DCOD, HCOD, X.numHolidayCodes(DCOD),
-                         HCOD == X.numHolidayCodes(DCOD));
+            if (X.isInRange(DCOD)) {
+                LOOP4_ASSERT(LINE, DCOD, HCOD, X.numHolidayCodes(DCOD),
+                             HCOD == X.numHolidayCodes(DCOD));
+            }
 
             // Testing the "remove all" facility
 
@@ -4226,7 +4231,6 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, 0 == Y.numBusinessDays());
                 LOOP_ASSERT(LINE, 0 == Y.numWeekendDaysInWeek());
                 LOOP_ASSERT(LINE, 0 == Y.numHolidays());
-                LOOP2_ASSERT(LINE, DCOD, 0 == Y.numHolidayCodes(DCOD));
             }
         }
       } break;
@@ -4272,9 +4276,9 @@ int main(int argc, char *argv[])
         //       a. produces the expected value (empty)
         //       b. leaves the object in a consistent state
         //
-        //   Note that there is no "stretching" in this object.  We are adopting
-        //   a black-box attitude while testing this function with regard to the
-        //   containers used by the object.
+        //   Note that there is no "stretching" in this object.  We are
+        //   adopting a black-box attitude while testing this function with
+        //   regard to the containers used by the object.
         //
         // Plan:
         //   Each 'bdecs_Calendar' object contains a 'bdecs_PackedCalendar'
@@ -4283,19 +4287,20 @@ int main(int argc, char *argv[])
         //   holidays or weekend days are added to the packed calendar object,
         //   they must also be marked in the cache as non-business days.
         //   Therefore, when testing methods such as 'addHoliday',
-        //   'addHolidayCode', and 'addWeekendDay', it is necessary to first use
-        //   the iterators to verify that the value is added, then use
+        //   'addHolidayCode', and 'addWeekendDay', it is necessary to first
+        //   use the iterators to verify that the value is added, then use
         //   'isNonBusinessDay' to verify that the cache has been properly
         //   updated.
         //
         //   To address concerns for 1, create an object using the default
         //   constructor
-        //       - without passing an allocator, in which case the object will
-        //         allocate memory using the default allocator.
-        //       - with an allocator, in which case the object will allocate
-        //         memory using the specified allocator.
-        //       - in the presence of exceptions during memory allocations using
-        //         a 'bslma_TestAllocator' and varying its allocation limit.
+        //     - without passing an allocator, in which case the object will
+        //       allocate memory using the default allocator.
+        //     - with an allocator, in which case the object will allocate
+        //       memory using the specified allocator.
+        //     - in the presence of exceptions during memory allocations
+        //       using a 'bslma_TestAllocator' and varying its allocation
+        //       limit.
         //   Use 'length' to verify that the newly-created calendar is empty.
         //   Use 'numBlocksTotal' of the default allocator and the specified
         //   allocator to verify that the constructor allocates memory from the
@@ -4303,19 +4308,20 @@ int main(int argc, char *argv[])
         //
         //   To address concerns for 2, create an object, use 'addDay' to add
         //   several days including duplicates and check if the range has been
-        //   properly extended with 'isInRange' and 'length'.  Use the exception
-        //   safety test macros to verify that when a memory exception is thrown
-        //   while calling 'addDay', this object is rolled back.  Finally, after
-        //   some weekend days are added, call 'addDay' to add a few more weeks
-        //   to the calendar and verify that the weekend days among the new days
-        //   being added are identified as non-business days.  The last test
-        //   will be done along with the tests for concerns for 3.
+        //   properly extended with 'isInRange' and 'length'.  Use the
+        //   exception safety test macros to verify that when a memory
+        //   exception is thrown while calling 'addDay', this object is rolled
+        //   back.  Finally, after some weekend days are added, call 'addDay'
+        //   to add a few more weeks to the calendar and verify that the
+        //   weekend days among the new days being added are identified as
+        //   non-business days.  The last test will be done along with the
+        //   tests for concerns for 3.
         //
         //   To address concerns for 3, create an object, exercise
         //   'addWeekendDay' to set weekend days and check if it is working as
-        //   expected using 'WeekendDayConstIterator'.  Also verify that all the
-        //   existing weekend days in the calendar are marked as non-business
-        //   days.
+        //   expected using 'WeekendDayConstIterator'.  Also verify that all
+        //   the existing weekend days in the calendar are marked as
+        //   non-business days.
         //
         //   To address concerns for 4, create an object, use 'addHoliday' to
         //   add several days including duplicates and check if the holidays
@@ -4323,10 +4329,10 @@ int main(int argc, char *argv[])
         //   that the holiday being added is marked as a non-business day.
         //
         //   To address concerns for 5, create an object, use 'addHolidayCode'
-        //   to add several days and codes including duplicates and check if the
-        //   holiday codes were correctly added using
-        //   'HolidayCodeConstIterator'.  Also verify that the holiday specified
-        //   is marked as a non-business day if necessary.
+        //   to add several days and codes including duplicates and check if
+        //   the holiday codes were correctly added using
+        //   'HolidayCodeConstIterator'.  Also verify that the holiday
+        //   specified is marked as a non-business day if necessary.
         //
         //   To address concerns for 6, create an object, exercise 'addDay',
         //   'addWeekendDay' 'addHoliday', 'addHolidayCode' at will, then call

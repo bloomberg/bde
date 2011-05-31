@@ -2342,7 +2342,7 @@ inline
 bdecs_PackedCalendar::HolidayConstIterator
 bdecs_PackedCalendar::beginHolidays(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_ASSERT_SAFE(isInRange(date));
 
     OffsetsConstIterator i = bsl::lower_bound(d_holidayOffsets.begin(),
                                               d_holidayOffsets.end(),
@@ -2391,7 +2391,7 @@ inline
 bdecs_PackedCalendar::HolidayConstIterator
 bdecs_PackedCalendar::endHolidays(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_ASSERT_SAFE(isInRange(date));
 
     OffsetsConstIterator i = bsl::lower_bound(d_holidayOffsets.begin(),
                                               d_holidayOffsets.end(),
@@ -2423,7 +2423,7 @@ bool bdecs_PackedCalendar::isBusinessDay(const bdet_Date& date) const
 inline
 bool bdecs_PackedCalendar::isHoliday(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_ASSERT_SAFE(isInRange(date));
 
     const int offset = date - d_firstDate;
     const OffsetsConstIterator offsetEnd = d_holidayOffsets.end();
@@ -2512,7 +2512,7 @@ inline
 bdecs_PackedCalendar::HolidayCodeConstReverseIterator
 bdecs_PackedCalendar::rbeginHolidayCodes(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_ASSERT_SAFE(isInRange(date));
 
     return HolidayCodeConstReverseIterator(endHolidayCodes(date));
 }
@@ -2536,7 +2536,7 @@ inline
 bdecs_PackedCalendar::HolidayConstReverseIterator
 bdecs_PackedCalendar::rbeginHolidays(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_ASSERT_SAFE(isInRange(date));
 
     return HolidayConstReverseIterator(endHolidays(date));
 }
@@ -2568,7 +2568,7 @@ inline
 bdecs_PackedCalendar::HolidayCodeConstReverseIterator
 bdecs_PackedCalendar::rendHolidayCodes(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_ASSERT_SAFE(isInRange(date));
 
     return HolidayCodeConstReverseIterator(beginHolidayCodes(date));
 }
@@ -2591,7 +2591,7 @@ inline
 bdecs_PackedCalendar::HolidayConstReverseIterator
 bdecs_PackedCalendar::rendHolidays(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_ASSERT_SAFE(isInRange(date));
 
     return HolidayConstReverseIterator(beginHolidays(date));
 }

@@ -547,8 +547,6 @@ void bdecs_PackedCalendar::addDay(const bdet_Date& date)
 
 void bdecs_PackedCalendar::addHoliday(const bdet_Date& date)
 {
-    // TBD BSLS_ASSERT(isInRange(date));
-
     addDayImp(&d_firstDate, &d_lastDate, &d_holidayOffsets, date);
     addHolidayImp(date - d_firstDate);
 
@@ -846,7 +844,7 @@ void bdecs_PackedCalendar::swap(bdecs_PackedCalendar *other)
 bdecs_PackedCalendar::HolidayCodeConstIterator
 bdecs_PackedCalendar::beginHolidayCodes(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT(isInRange(date));
+    BSLS_ASSERT(isInRange(date));
 
     const int offset = date - d_firstDate;
     const OffsetsConstIterator offsetBegin = d_holidayOffsets.begin();
@@ -867,7 +865,7 @@ bdecs_PackedCalendar::beginHolidayCodes(const bdet_Date& date) const
 bdecs_PackedCalendar::HolidayCodeConstIterator
 bdecs_PackedCalendar::endHolidayCodes(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT(isInRange(date));
+    BSLS_ASSERT(isInRange(date));
 
     const int offset = date - d_firstDate;
     const OffsetsConstIterator offsetBegin = d_holidayOffsets.begin();
@@ -889,7 +887,7 @@ bdecs_PackedCalendar::endHolidayCodes(const bdet_Date& date) const
 
 int bdecs_PackedCalendar::numHolidayCodes(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT(isInRange(date));
+    BSLS_ASSERT(isInRange(date));
 
     const OffsetsConstIterator it = bsl::lower_bound(d_holidayOffsets.begin(),
                                                      d_holidayOffsets.end(),

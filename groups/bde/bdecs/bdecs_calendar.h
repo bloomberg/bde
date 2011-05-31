@@ -1224,8 +1224,6 @@ inline
 void bdecs_Calendar::removeHolidayCode(const bdet_Date& date,
                                        int              holidayCode)
 {
-    // TBD BSLS_ASSERT_SAFE(isInRange(date));
-
     d_packedCalendar.removeHolidayCode(date, holidayCode);
 }
 
@@ -1411,8 +1409,6 @@ bool bdecs_Calendar::isWeekendDay(bdet_DayOfWeek::Day dayOfWeek) const
 inline
 bool bdecs_Calendar::isWeekendDay(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT_SAFE(isInRange(date));
-
     return isWeekendDay(date.dayOfWeek());
 }
 
@@ -1437,7 +1433,7 @@ int bdecs_Calendar::numBusinessDays() const
 inline
 int bdecs_Calendar::numHolidayCodes(const bdet_Date& date) const
 {
-    // TBD BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_ASSERT_SAFE(isInRange(date));
 
     return d_packedCalendar.numHolidayCodes(date);
 }
