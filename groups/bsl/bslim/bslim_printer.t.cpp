@@ -1027,8 +1027,8 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //LINE  LEVEL SPL EXPECTED OUTPUT
                 //----  ----- --- --------------
-                { L_,    2,    2, "      %c\n" },
-                { L_,    2,   -2, " %c"        },
+                { L_,    2,    2, "      '%c'\n" },
+                { L_,    2,   -2, " '%c'"        },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1702,8 +1702,8 @@ int main(int argc, char *argv[])
                           << "\n===================================" << endl;
 
         {
-            if (verbose) cout << "char" << endl
-                              << "----" << endl;
+            if (verbose) cout << "int" << endl
+                              << "---" << endl;
             static const struct {
                 int         d_lineNum;        // source line number
                 int         d_level;          // indentation level
@@ -1712,8 +1712,8 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //LINE  LEVEL SPL EXPECTED OUTPUT
                 //----  ----- --- --------------
-                { L_,    2,    2, "      %c\n" },
-                { L_,    2,   -2, " %c"        },
+                { L_,    2,    3, "         %d\n" },
+                { L_,    2,   -3, " %d"           }
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1725,12 +1725,72 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
 
                 ostringstream out;
-                char data = 'z';
+                int data = 448992;
                 Obj p(&out, LEVEL, SPL); p.print(data, 0);
 
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(), data);
                 const bsl::string EXPECTED(buf);
+                const bsl::string& ACTUAL = out.str();
+
+                if (veryVeryVerbose) {
+                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
+                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+                }
+                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+            }
+        }
+        {
+            if (verbose) cout << "char" << endl
+                              << "----" << endl;
+            static const struct {
+                int         d_lineNum;        // source line number
+                int         d_level;          // indentation level
+                int         d_spacesPerLevel; // spaces per indentation level
+                char        d_arg;            // argument to be printed
+                bsl::string d_expected;       // expected output format
+                bool        d_isHex;          // flag for print as hex
+            } DATA[] = {
+                //LINE  LEVEL SPL ARG   EXPECTED OUTPUT  IS HEX
+                //----  ----- --- ---   --------------   ------
+                { L_,    2,    2, 'a' , "      'a'\n"  , false  },
+                { L_,    2,   -2, '\'', " '\''"        , false  },
+                { L_,    2,    2, '\n', "      '\\n'\n", false  },
+                { L_,    2,    2, '\t', "      '\\t'\n", false  },
+                { L_,    2,    2, 0,    "      '\\0'\n", false  },
+                { L_,    2,    2, 16  , "      %s\n"   , true   },
+                { L_,    2,    2, 31  , "      %s\n"   , true   },
+                { L_,    2,    2, 32  , "      ' '\n"  , false  },
+                { L_,    2,    2, 126 , "      '~'\n"  , false  },
+                { L_,    2,    2, 127 , "      %s\n"   , true   }
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA;  ++i) {
+                const int LINE  = DATA[i].d_lineNum;
+                int LEVEL = DATA[i].d_level;
+                int SPL   = DATA[i].d_spacesPerLevel;
+                bool ISHEX = DATA[i].d_isHex;
+
+                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
+
+                ostringstream out;
+                char data = DATA[i].d_arg;
+                Obj p(&out, LEVEL, SPL); p.print(data, 0);
+
+                bsl::string EXPECTED;
+                if (ISHEX) {
+                    stringstream exp;
+                    exp << hex << showbase
+                        << static_cast<bsls_Types::UintPtr>(data);
+                    char buf[999];
+                    snprintf(buf, 999, DATA[i].d_expected.c_str(),
+                                                            exp.str().c_str());
+                    EXPECTED = buf;
+                }
+                else {
+                    EXPECTED = DATA[i].d_expected;
+                }
                 const bsl::string& ACTUAL = out.str();
 
                 if (veryVeryVerbose) {

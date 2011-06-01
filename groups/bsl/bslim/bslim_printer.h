@@ -718,6 +718,31 @@ struct Printer_PrintImp<bool, Printer_Selector::BSLIM_FUNDAMENTAL> {
         // effect.
 };
 
+template <>
+struct Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL> {
+    // This struct provides a specialization of 'Printer_PrintImp' for 'char'.
+    // It provides a 'print' method that streams the 'char' argument passed to
+    // it enclosed within quotes if it is an alpha-numeric character, or any of
+    // the special characters
+    // argument passed to it as the string 'true' or 'false', in accordance
+    // with the BDE 'print' method contract.
+
+    // CLASS METHODS
+    static void print(bsl::ostream& stream,
+                      char          data,
+                      int           level,
+                      int           spacesPerLevel);
+        // Format the specified 'data' (of fundamental type) to the specified
+        // output `stream' at (the absolute value of) the specified indentation
+        // `level', using the specified 'spacesPerLevel', the number of spaces
+        // per indentation level for this and all of its nested objects.  If
+        // `level' is negative, suppress indentation of the first line.  If
+        // `spacesPerLevel' is negative format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // `level').  If `stream' is not valid on entry, this operation has no
+        // effect.
+};
+
 template <class TYPE>
 struct Printer_PrintImp<TYPE, Printer_Selector::BSLIM_POINTER> {
     // This struct template is a partial specialization of 'Printer_PrintImp'
@@ -1051,6 +1076,40 @@ void Printer_PrintImp<bool, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
     stream << bsl::boolalpha
            << data;
     stream.flags(fmtFlags);
+
+    if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
+}
+
+inline
+void Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
+                                                  bsl::ostream& stream,
+                                                  char          data,
+                                                  int           ,
+                                                  int           spacesPerLevel)
+{
+    if ('\n' == data) {
+        stream << "'\\n'";
+    }
+    else if ('\t' == data) {
+        stream << "'\\t'";
+    }
+    else if ('\0' == data) {
+        stream << "'\\0'";
+    }
+    else if (data < 32 || 127 <= data) {
+        // print as hex
+        bsl::ios_base::fmtflags fmtFlags = stream.flags();
+        stream << bsl::hex
+               << bsl::showbase
+               << static_cast<bsls_Types::UintPtr>(data);
+        stream.flags(fmtFlags);
+    }
+    else {
+        // print within quotes
+        stream << "'" << data <<"'";
+    }
 
     if (spacesPerLevel >= 0) {
         stream << '\n';
