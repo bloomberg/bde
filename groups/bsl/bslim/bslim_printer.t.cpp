@@ -1802,13 +1802,19 @@ int main(int argc, char *argv[])
         // TESTING 'end'
         //
         // Concerns: 'end' prints the correct indentation for different values
-        // of 'level' and 'spacesPerLevel', and then prints ']'.
+        // of 'level' and 'spacesPerLevel' and ']' if 'suppressBracket' is
+        // 'false', and does not print the indentation and ']' otherwise. 'end'
+        // should also print a newline if 'spacesPerLevel' >= 0.
         //
         // Plan:
         //: 1 Create a table having fields for line number, level, spaces per
         //:   level, and expected output of 'end'.  For each set of values in
         //:   the table, ensure that the actual output of 'end' is the same as
-        //:   the expected output.
+        //:   the expected output when 'suppressBracket' is false.
+        //: 2 Create a table having fields for line number, level, spaces per
+        //:   level, and expected output of 'end'.  For each set of values in
+        //:   the table, ensure that the actual output of 'end' is the same as
+        //:   the expected output when 'suppressBracket' is true.
         //
         // Testing:
         //   void end() const;
@@ -1906,13 +1912,18 @@ int main(int argc, char *argv[])
         // TESTING 'start'
         //
         // Concerns: 'start' prints the correct indentation for different
-        // values of 'level' and 'spacesPerLevel', and then prints '['.
+        // values of 'level' and 'spacesPerLevel', and then prints '[' if
+        // 'suppressBracket' is 'false', and does not print '[' otherwise.
         //
         // Plan:
         //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'start'.  For each set of
-        //:   values in the table, ensure that the actual output of
-        //:   'start' is the same as the expected output.
+        //:   level, and expected output of 'start' when 'suppressBracket' is
+        //:   'false'.  For each set of values in the table, ensure that the
+        //:   actual output of 'start' is the same as the expected output.
+        //: 2 Create a table having fields for line number, level, spaces per
+        //:   level, and expected output of 'start' when 'suppressBracket' is
+        //:   'true'.  For each set of values in the table, ensure that the
+        //:   actual output of 'start' is the same as the expected output.
         //
         // Testing:
         //   void start() const;
