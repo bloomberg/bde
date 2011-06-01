@@ -7,7 +7,7 @@ my $pkg = "bdem";
 my $PKG = uc($pkg);
 my $xsdfile = "$pkg.xsd";
 my @optionComponents = qw(bdem_bdemencoderoptions bdem_bdemdecoderoptions
-                          bdem_berdecoderoptions);
+                          bdem_berdecoderoptions  bdem_berencoderoptions);
 
 # For each specified 'component' in the argument list, generate three names:
 # 'component.h', 'component.cpp', and 'component.t.cpp'.  Die unless all of the
@@ -98,7 +98,7 @@ sub mungeConfigSchemaFile($$)
 # Generate the option files from the .xsd file:
 my $writable = 1;
         
-0 == system("bas_codegen.pl $xsdfile -m msg -E -P $dummyPrefix") or
+0 == system("/bb/shared/bin/bas_codegen.pl $xsdfile --noAggregateConversion -m msg -E --testDrivers y -P $dummyPrefix") or
     die "bas_codegen.pl failed\n";
 
 foreach my $outputfile (@optionComponentFiles) {

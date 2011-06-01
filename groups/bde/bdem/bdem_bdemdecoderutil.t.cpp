@@ -1,4 +1,4 @@
-// bdem_bdemdecoderutil.t.cpp                  -*-C++-*-
+// bdem_bdemdecoderutil.t.cpp                                         -*-C++-*-
 
 #include <bdem_bdemdecoderutil.h>
 
@@ -32,6 +32,8 @@
 #include <bslalg_typetraits.h>            // for testing only
 
 #include <bsls_platform.h>                // for testing only
+#include <bsls_types.h>
+
 #ifdef BSLS_PLATFORM__OS_LINUX
 #define __STDC_LIMIT_MACROS 1
 #endif
@@ -8334,12 +8336,12 @@ namespace TestValueFunctions {
         // indicated by the specified 'index'.  Return 0 on success, and a
         // non-zero value otherwise with no effect on 'object'.  The behavior
         // is undefined unless index >= 0.
-    int loadTestValue(bsls_PlatformUtil::Int64 *object, int index);
+    int loadTestValue(bsls_Types::Int64 *object, int index);
         // Load into the specified 'object' a test value of 'long long' type
         // indicated by the specified 'index'.  Return 0 on success, and a
         // non-zero value otherwise with no effect on 'object'.  The behavior
         // is undefined unless index >= 0.
-    int loadTestValue(bsls_PlatformUtil::Uint64 *object, int index);
+    int loadTestValue(bsls_Types::Uint64 *object, int index);
         // Load into the specified 'object' a test value of
         // 'unsigned long long' type indicated by the specified 'index'.
         // Return 0 on success, and a non-zero value otherwise with no effect
@@ -8570,19 +8572,17 @@ int TestValueFunctions::loadTestValue(unsigned int *object, int index)
     return SUCCESS;
 }
 inline
-int TestValueFunctions::loadTestValue(bsls_PlatformUtil::Int64 *object,
-                                            int                       index)
+int TestValueFunctions::loadTestValue(bsls_Types::Int64 *object, int index)
 {
     BSLS_ASSERT_SAFE(index >= 0);
     *object = index;
     return SUCCESS;
 }
 inline
-int TestValueFunctions::loadTestValue(bsls_PlatformUtil::Uint64 *object,
-                                            int                        index)
+int TestValueFunctions::loadTestValue(bsls_Types::Uint64 *object, int index)
 {
     BSLS_ASSERT_SAFE(index >= 0);
-    *object = static_cast<bsls_PlatformUtil::Uint64>(index);
+    *object = static_cast<bsls_Types::Uint64>(index);
     return SUCCESS;
 }
 inline
@@ -10090,8 +10090,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) bsl::cout << "\tTesting 'bsl::vector<Uint64>'"
                                    << bsl::endl;
         {
-            typedef bsl::vector<bsls_PlatformUtil::Uint64> Type;
-            typedef             bsls_PlatformUtil::Uint64  EType;
+            typedef bsl::vector<bsls_Types::Uint64> Type;
+            typedef             bsls_Types::Uint64  EType;
             const int SIZES[]  = { 0, 1, 2, 3, 5 };
             const int NUM_DATA = sizeof SIZES / sizeof *SIZES;
             int tvi = 0;  // test value index
@@ -10332,8 +10332,8 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) bsl::cout << "\tTesting 'Uint64'" << bsl::endl;
         {
-            typedef bsls_PlatformUtil::Uint64 Type;
-            typedef bsls_PlatformUtil::Int64  Proxy;
+            typedef bsls_Types::Uint64 Type;
+            typedef bsls_Types::Int64  Proxy;
             static const struct {
                 int  d_lineNum;  // source line number
                 Type d_value;    // value to decode
@@ -10505,9 +10505,9 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) bsl::cout << "\tTesting INT64_ARRAY" << bsl::endl;
         {
-            typedef bsl::vector<bsls_PlatformUtil::Int64> Type;
+            typedef bsl::vector<bsls_Types::Int64> Type;
                                            // 'bdem' element type 'INT64_ARRAY'
-            typedef             bsls_PlatformUtil::Int64  EType;
+            typedef             bsls_Types::Int64  EType;
             const int SIZES[]  = { 0, 1, 2, 3, 5 };
             const int NUM_DATA = sizeof SIZES / sizeof *SIZES;
             int tvi = 0;  // test value index
@@ -10828,8 +10828,7 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) bsl::cout << "\tTesting INT64" << bsl::endl;
         {
-            typedef bsls_PlatformUtil::Int64 Type;  // 'bdem' element type
-                                                    // 'INT64'
+            typedef bsls_Types::Int64 Type;  // 'bdem' element type 'INT64'
             static const struct {
                 int  d_lineNum;  // source line number
                 Type d_value;    // value to encode
