@@ -162,8 +162,10 @@ int main(int argc, char *argv[])
         // TESTING swap
         //
         // Concerns:
+        //   ...
         //
         // Plan:
+        //   ...
         //
         // Testing:
         //   void swap(T *a, T *b);
@@ -179,7 +181,8 @@ int main(int argc, char *argv[])
         // Concerns:
         //   The 'swap' utility function works as intended.
         //
-        // Plan: ...
+        // Plan:
+        //   ...
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
