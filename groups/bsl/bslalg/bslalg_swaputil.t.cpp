@@ -78,6 +78,27 @@ namespace {
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 
+namespace SwapTestNspc {
+
+struct SwapTester {
+    bool swapped;
+
+    SwapTester()
+    : swapped(false)
+    {}
+};
+
+void swap(SwapTester& a, SwapTester& b)
+{
+    a.swapped = b.swapped = true;
+}
+
+}
+
+//=============================================================================
+//                             USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+//
 ///Usage
 ///-----
 // Let's suppose we have a class 'Container' in a namespace 'xyz' which stores
@@ -162,10 +183,18 @@ int main(int argc, char *argv[])
         // TESTING swap
         //
         // Concerns:
-        //   ...
+        //: 1 'bslalg_SwapUtil::swap' calls the 'swap' found by ADL in the
+        //:   namespace of a class for the class that provides its own 'swap'
+        //:   overload.
+        //: 2 'bslald_SwapUtil::swap' calls the generic 'bsl::swap' for a class
+        //:   that doesn't provide its own 'swap' overload.
         //
         // Plan:
-        //   ...
+        //: 1 Create two objects of type 'SwapTester' which provides its own
+        //:   overload of 'swap'.  Call the 'bslalg_SwapUtil::swap' on them and
+        //:   verify that the overloaded 'swap' has been called.
+        //: 2 Call 'bslalg_SwapUtil::swap' on two ints.  Since 'int' doesn't
+        //:   have its own 'swap' overload, the generic 'swap' has to be found.
         //
         // Testing:
         //   void swap(T *a, T *b);
@@ -173,6 +202,24 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTesting 'swap'\n");
 
+        SwapTestNspc::SwapTester a;
+        SwapTestNspc::SwapTester b;
+
+        ASSERT(!a.swapped);
+        ASSERT(!b.swapped);
+
+        bslalg_SwapUtil::swap(&a, &b);
+
+        ASSERT(a.swapped);
+        ASSERT(b.swapped);
+
+        int c = 10;
+        int d = 20;
+
+        bslalg_SwapUtil::swap(&c, &d);
+
+        ASSERT(c == 20);
+        ASSERT(d == 10);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -180,13 +227,18 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   The 'swap' utility function works as intended.
-        //
-        // Plan:
-        //   ...
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
+
+        int c = 10;
+        int d = 20;
+
+        bslalg_SwapUtil::swap(&c, &d);
+
+        ASSERT(c == 20);
+        ASSERT(d == 10);
 
       } break;
       default: {
