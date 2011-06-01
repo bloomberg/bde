@@ -1677,6 +1677,7 @@ int main(int argc, char *argv[])
         //
         // Concerns: That 'print'
         //: 1 prints fundamental types correctly.
+        //: 2 prints 'bool' types as alphabetical strings.
         //: 2 prints a newline character after printing the fundamental type if
         //:   'spacesPerLevel >= 0', and does not print a newline character
         //:   otherwise.
@@ -1684,6 +1685,10 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create a table having fields for line number, level, spaces per
         //:   level, and expected output of 'print' when called with a 'char'.
+        //:   For each set of values in the table, ensure that the actual
+        //:   output of 'print' is the same as the expected output.
+        //: 2 Create a table having fields for line number, level, spaces per
+        //:   level, and expected output of 'print' when called with a 'bool'.
         //:   For each set of values in the table, ensure that the actual
         //:   output of 'print' is the same as the expected output.
         //
@@ -1696,40 +1701,83 @@ int main(int argc, char *argv[])
                           << "\nTESTING 'print' (fundamental types)"
                           << "\n===================================" << endl;
 
-        static const struct {
-            int         d_lineNum;        // source line number
-            int         d_level;          // indentation level
-            int         d_spacesPerLevel; // spaces per indentation level
-            bsl::string d_expected;       // expected output format
-        } DATA[] = {
-            //LINE  LEVEL SPL EXPECTED OUTPUT
-            //----  ----- --- --------------
-            { L_,    2,    2, "      %c\n" },
-            { L_,    2,   -2, " %c"        },
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        {
+            if (verbose) cout << "char" << endl
+                              << "----" << endl;
+            static const struct {
+                int         d_lineNum;        // source line number
+                int         d_level;          // indentation level
+                int         d_spacesPerLevel; // spaces per indentation level
+                bsl::string d_expected;       // expected output format
+            } DATA[] = {
+                //LINE  LEVEL SPL EXPECTED OUTPUT
+                //----  ----- --- --------------
+                { L_,    2,    2, "      %c\n" },
+                { L_,    2,   -2, " %c"        },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int i = 0; i < NUM_DATA;  ++i) {
-            const int LINE  = DATA[i].d_lineNum;
-            int LEVEL = DATA[i].d_level;
-            int SPL   = DATA[i].d_spacesPerLevel;
+            for (int i = 0; i < NUM_DATA;  ++i) {
+                const int LINE  = DATA[i].d_lineNum;
+                int LEVEL = DATA[i].d_level;
+                int SPL   = DATA[i].d_spacesPerLevel;
 
-            if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
+                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
 
-            ostringstream out;
-            char data = 'z';
-            Obj p(&out, LEVEL, SPL); p.print(data, 0);
+                ostringstream out;
+                char data = 'z';
+                Obj p(&out, LEVEL, SPL); p.print(data, 0);
 
-            char buf[999];
-            snprintf(buf, 999, DATA[i].d_expected.c_str(), data);
-            const bsl::string EXPECTED(buf);
-            const bsl::string& ACTUAL = out.str();
+                char buf[999];
+                snprintf(buf, 999, DATA[i].d_expected.c_str(), data);
+                const bsl::string EXPECTED(buf);
+                const bsl::string& ACTUAL = out.str();
 
-            if (veryVeryVerbose) {
-                cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                     << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+                if (veryVeryVerbose) {
+                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
+                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+                }
+                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
             }
-            LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+        }
+        {
+            if (verbose) cout << "bool" << endl
+                              << "----" << endl;
+            static const struct {
+                int         d_lineNum;        // source line number
+                int         d_level;          // indentation level
+                int         d_spacesPerLevel; // spaces per indentation level
+                bsl::string d_expected;       // expected output format
+            } DATA[] = {
+                //LINE  LEVEL SPL EXPECTED OUTPUT
+                //----  ----- --- --------------
+                { L_,    2,    2, "      true\n" },
+                { L_,    2,   -2, " true"        },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA;  ++i) {
+                const int LINE  = DATA[i].d_lineNum;
+                int LEVEL = DATA[i].d_level;
+                int SPL   = DATA[i].d_spacesPerLevel;
+
+                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
+
+                ostringstream out;
+                bool data = true;
+                Obj p(&out, LEVEL, SPL); p.print(data, 0);
+
+                char buf[999];
+                snprintf(buf, 999, DATA[i].d_expected.c_str(), data);
+                const bsl::string EXPECTED(buf);
+                const bsl::string& ACTUAL = out.str();
+
+                if (veryVeryVerbose) {
+                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
+                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+                }
+                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+            }
         }
       } break;
       case 6: {
