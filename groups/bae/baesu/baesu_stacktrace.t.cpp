@@ -160,6 +160,10 @@ int main(int argc, char *argv[])
         // Output the stack trace object.
 
         stackTrace.print(cout, 1, 2);
+
+	// observe the default allocator was never used
+
+        ASSERT(0 == da.numAllocations());
       }  break;
       case 3: {
         // --------------------------------------------------------------------
@@ -288,9 +292,9 @@ int main(int argc, char *argv[])
                             "address = 0x12ab"                              NL
                             "library file name = \"/lib/libc.so\""          NL
                             "line number = 5"                               NL
+                            "mangled symbol name = \"_woof_1a\""            NL
                             "offset from symbol = 116"                      NL
                             "source file name = \"/a/b/c/sourceFile.cpp\""  NL
-                            "mangled symbol name = \"_woof_1a\""            NL
                             "symbol name = \"woof\""                        NL
                             "]"                                             NL
                             "]"                                             NL
@@ -301,10 +305,10 @@ int main(int argc, char *argv[])
                             "address = 0x34cd"                              NL
                             "library file name = \"/lib/libd.a\""           NL
                             "line number = 15"                              NL
+                            "mangled symbol name = \"_arf_1a\""             NL
                             "offset from symbol = 228"                      NL
                             "source file name = \"/a/b/c/"
                                                   "secondSourceFile.cpp\""  NL
-                            "mangled symbol name = \"_arf_1a\""             NL
                             "symbol name = \"arf\""                         NL
                             "]"                                             NL
                             "]"                                             NL
@@ -315,13 +319,13 @@ int main(int argc, char *argv[])
                             "address = NULL"                                NL
                             "library file name = \"\""                      NL
                             "line number = -1"                              NL
+                            "mangled symbol name = \"\""                    NL
 #ifdef BSLS_PLATFORM__CPU_32_BIT
                             "offset from symbol = 4294967295"               NL
 #else
                             "offset from symbol = 18446744073709551615"     NL
 #endif
                             "source file name = \"\""                       NL
-                            "mangled symbol name = \"\""                    NL
                             "symbol name = \"\""                            NL
                             "]"                                             NL
                             "]"                                             NL
@@ -332,19 +336,19 @@ int main(int argc, char *argv[])
                             "address = 0x12ab"                              NL
                             "library file name = \"/lib/libc.so\""          NL
                             "line number = 5"                               NL
+                            "mangled symbol name = \"_woof_1a\""            NL
                             "offset from symbol = 116"                      NL
                             "source file name = \"/a/b/c/sourceFile.cpp\""  NL
-                            "mangled symbol name = \"_woof_1a\""            NL
                             "symbol name = \"woof\""                        NL
                             "]"                                             NL
                             "["                                             NL
                             "address = 0x34cd"                              NL
                             "library file name = \"/lib/libd.a\""           NL
                             "line number = 15"                              NL
+                            "mangled symbol name = \"_arf_1a\""             NL
                             "offset from symbol = 228"                      NL
                             "source file name = \"/a/b/c/"
                                                   "secondSourceFile.cpp\""  NL
-                            "mangled symbol name = \"_arf_1a\""             NL
                             "symbol name = \"arf\""                         NL
                             "]"                                             NL
                             "]"                                             NL
@@ -355,10 +359,10 @@ int main(int argc, char *argv[])
                             "    address = 0x12ab"                          NL
                             "    library file name = \"/lib/libc.so\""      NL
                             "    line number = 5"                           NL
+                            "    mangled symbol name = \"_woof_1a\""        NL
                             "    offset from symbol = 116"                  NL
                             "    source file name = "
                                                "\"/a/b/c/sourceFile.cpp\""  NL
-                            "    mangled symbol name = \"_woof_1a\""        NL
                             "    symbol name = \"woof\""                    NL
                             "  ]"                                           NL
                             "]"                                             NL
@@ -369,20 +373,20 @@ int main(int argc, char *argv[])
                             "    address = 0x12ab"                          NL
                             "    library file name = \"/lib/libc.so\""      NL
                             "    line number = 5"                           NL
+                            "    mangled symbol name = \"_woof_1a\""        NL
                             "    offset from symbol = 116"                  NL
                             "    source file name = "
                                                "\"/a/b/c/sourceFile.cpp\""  NL
-                            "    mangled symbol name = \"_woof_1a\""        NL
                             "    symbol name = \"woof\""                    NL
                             "  ]"                                           NL
                             "  ["                                           NL
                             "    address = 0x34cd"                          NL
                             "    library file name = \"/lib/libd.a\""       NL
                             "    line number = 15"                          NL
+                            "    mangled symbol name = \"_arf_1a\""         NL
                             "    offset from symbol = 228"                  NL
                             "    source file name = \"/a/b/c/"
                                                   "secondSourceFile.cpp\""  NL
-                            "    mangled symbol name = \"_arf_1a\""         NL
                             "    symbol name = \"arf\""                     NL
                             "  ]"                                           NL
                             "]"                                             NL
@@ -393,9 +397,9 @@ int main(int argc, char *argv[])
                             "address = 0x12ab"                              SP
                             "library file name = \"/lib/libc.so\""          SP
                             "line number = 5"                               SP
+                            "mangled symbol name = \"_woof_1a\""            SP
                             "offset from symbol = 116"                      SP
                             "source file name = \"/a/b/c/sourceFile.cpp\""  SP
-                            "mangled symbol name = \"_woof_1a\""            SP
                             "symbol name = \"woof\""                        SP
                             "]"                                             SP
                             "]"
@@ -406,9 +410,9 @@ int main(int argc, char *argv[])
                             "address = 0x12ab"                              SP
                             "library file name = \"/lib/libc.so\""          SP
                             "line number = 5"                               SP
+                            "mangled symbol name = \"_woof_1a\""            SP
                             "offset from symbol = 116"                      SP
                             "source file name = \"/a/b/c/sourceFile.cpp\""  SP
-                            "mangled symbol name = \"_woof_1a\""            SP
                             "symbol name = \"woof\""                        SP
                             "]"                                             SP
                             "]"
