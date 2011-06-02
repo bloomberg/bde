@@ -221,10 +221,10 @@ public:
     // ACCESSORS
 	typedef STREAM& (Obj::*memberOutType)(STREAM&, int) const;
 };
-#endif
 
 template<class STREAM> STREAM&  (*inFunc)(STREAM&, int);
 template<class STREAM> STREAM& (*outFunc)(STREAM&, int) const;
+#endif
 
 
 typedef bdet_DatetimeTz  T1;  // Attribute 'datetimeTz'
@@ -527,6 +527,7 @@ int main(int argc, char *argv[])
                           << "BSLX STREAMING" << endl
                           << "==============" << endl;
 
+#if 0
         if (verbose) cout <<
                    "\nAssign the addresses of the 'bdex' methods to variables."
 				                                                       << endl;
@@ -535,7 +536,6 @@ int main(int argc, char *argv[])
 			 inFunc = &Obj::bdexStreamIn (In(),  1);
 			outFunc = &Obj::bdexStreamOut(Out(), 1);
 
-#if 0
             // Verify that the signatures and return types are standard.
 
             funcPtr     memberSwap = &Obj::swap;
@@ -550,8 +550,8 @@ int main(int argc, char *argv[])
             operatorPtr operatorAssignment = &Obj::operator=;
 
             (void)operatorAssignment;  // quash potential compiler warning
-#endif
         }
+#endif
 
         if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
         {
