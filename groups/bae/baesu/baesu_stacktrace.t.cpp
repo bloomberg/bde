@@ -120,6 +120,8 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         // --------------------------------------------------------------------
 
+        // Set up the default allocator so we can verify that it is unused.
+
         bslma_TestAllocator da;
         bslma_DefaultAllocatorGuard guard(&da);
 
@@ -161,7 +163,7 @@ int main(int argc, char *argv[])
 
         stackTrace.print(cout, 1, 2);
 
-	// observe the default allocator was never used
+        // observe the default allocator was never used
 
         ASSERT(0 == da.numAllocations());
       }  break;

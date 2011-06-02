@@ -26,7 +26,77 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// TBD
+// Set up the default allocator so we can verify that it is unused.
+//..
+//  bslma_TestAllocator da;
+//  bslma_DefaultAllocatorGuard guard(&da);
+//..
+// First, create a stack trace.  Note that when we don't specify an allocator
+// (recommended), the default allocator is not used -- rather, a heap bypass
+// allocator owned by the stack trace object is used.
+//..
+//  baesu_StackTrace stackTrace;
+//  ASSERT(0 == stackTrace.length());
+//..
+// Create two stack trace frames in the stack trace object and take references
+// to each of the two new frames.
+//..
+//  stackTrace.resize(2);
+//  ASSERT(2 == stackTrace.length());
+//  baesu_StackTraceFrame& mF0 = stackTrace[0];
+//  baesu_StackTraceFrame& mF1 = stackTrace[1];
+//..
+// Initialize values to the fields of the two new frames.
+//..
+//  mF0.setAddress((void *) 0x12ab);
+//  mF0.setLibraryFileName("/a/b/c/baesu_stacktrace.t.dbg_exc_mt");
+//  mF0.setLineNumber(5);
+//  mF0.setOffsetFromSymbol(116);
+//  mF0.setSourceFileName("/a/b/c/sourceFile.cpp");
+//  mF0.setMangledSymbolName("_woof_1a");
+//  mF0.setSymbolName("woof");
+//
+//  mF1.setAddress((void *) 0x34cd);
+//  mF1.setLibraryFileName("/lib/libd.a");
+//  mF1.setLineNumber(15);
+//  mF1.setOffsetFromSymbol(228);
+//  mF1.setSourceFileName("/a/b/c/secondSourceFile.cpp");
+//  mF1.setMangledSymbolName("_arf_1a");
+//  mF1.setSymbolName("arf");
+//..
+// Output the stack trace object.
+//..
+//  stackTrace.print(cout, 1, 2);
+//..
+// observe the default allocator was never used
+//..
+//  ASSERT(0 == da.numAllocations());
+//..
+///Usage Output
+///------------
+// The above usage produces the following output:
+//..
+//  [
+//    [
+//      address = 0x12ab
+//      library file name = "/a/b/c/baesu_stacktrace.t.dbg_exc_mt"
+//      line number = 5
+//      mangled symbol name = "_woof_1a"
+//      offset from symbol = 116
+//      source file name = "/a/b/c/sourceFile.cpp"
+//      symbol name = "woof"
+//    ]
+//    [
+//      address = 0x34cd
+//      library file name = "/lib/libd.a"
+//      line number = 15
+//      mangled symbol name = "_arf_1a"
+//      offset from symbol = 228
+//      source file name = "/a/b/c/secondSourceFile.cpp"
+//      symbol name = "arf"
+//    ]
+//  ]
+//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
