@@ -57,7 +57,7 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 namespace {
 
-struct LoaderTestImp : bsls_ProtocolTest<baetzo_Loader> {
+struct LoaderTestImp : bsls_ProtocolTestImp<baetzo_Loader> {
     int loadTimeZone(baetzo_Zoneinfo *, const char *) { return markDone(); }
 };
 
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
+    int veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -274,9 +274,16 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // PROTOCOL TEST:
-        //   We need to make sure that 'baetzo_Loader' protocol class is
-        //   properly defined according to protocol class rules defined in
-        //   'bsls_ProtocolTest' component.
+        //   We need to make sure that 'baetzo_Loader' satisfies the protocol
+        //   class requirements.
+        //
+        // Concerns:
+        //: 1 'baetzo_Loader' is an abstract class, i.e., no objects of the
+        //    'baetzo_Loader' class can be created.
+        //: 2 It has no data members.
+        //: 3 All of its members are pure virtual.
+        //: 4 It has a pure virtual destructor.
+        //: 5 All of its methods are publicly accessible.
         //
         // Plan:
         //   Use 'bslsl_protocoltest' component to test this protocol class.
@@ -288,7 +295,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        bsls_ProtocolTestDriver<LoaderTestImp> t(veryVerbose);
+=======
+        bsls_ProtocolTest<LoaderTestImp> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
@@ -313,7 +321,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

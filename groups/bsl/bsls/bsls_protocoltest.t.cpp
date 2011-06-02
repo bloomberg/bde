@@ -26,9 +26,9 @@ using namespace BloombergLP;
 //
 // [ 1] BREATHING TEST
 //
-// class bsls_ProtocolTestDriver:
-// [ 2] bsls_ProtocolTestDriver();
-// [ 2] ~bsls_ProtocolTestDriver();
+// class bsls_ProtocolTest:
+// [ 2] bsls_ProtocolTest();
+// [ 2] ~bsls_ProtocolTest();
 // [ 3] int failures();
 // [ 3] bool lastStatus();
 // [ 4] bool testAbstract();
@@ -41,11 +41,11 @@ using namespace BloombergLP;
 // [ 5] class bsls_ProtocolTest_MethodReturnType;
 // [ 5] class bsls_ProtocolTest_MethodReturnRefType;
 //
-// class bsls_ProtocolTest:
+// class bsls_ProtocolTestImp:
 // [ 6] void setTestStatus(bsls_ProtocolTest_Status *);
-// [ 6] exit();
-// [ 6] exitRef();
-// [ 6] exitVal();
+// [ 6] markDone();
+// [ 6] markDoneRef();
+// [ 6] markDoneVal();
 //
 // class bsls_ProtocolTest_Status:
 // [ 5] bsls_ProtocolTest_Status();
@@ -94,9 +94,9 @@ struct MyInterface {
     virtual int foo(int) const = 0;
 };
 
-struct MyInterfaceTest : bsls_ProtocolTest<MyInterface> {
-    const char *bar(char const *, char const *) { return exit(); }
-    int foo(int) const                          { return exit(); }
+struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
+    const char *bar(char const *, char const *) { return markDone(); }
+    int foo(int) const                          { return markDone(); }
 };
 
 // For testing 'testAbstract'.
@@ -104,8 +104,8 @@ struct NotAbstractInterface {
     void foo();
 };
 
-struct NotAbstractInterfaceTest : bsls_ProtocolTest<NotAbstractInterface> {
-    void foo() { exit(); }
+struct NotAbstractInterfaceTest : bsls_ProtocolTestImp<NotAbstractInterface> {
+    void foo() { markDone(); }
 };
 
 // For testing 'testNoDataMembers'.
@@ -116,7 +116,7 @@ struct WithDataFields {
     int a;
 };
 
-struct WithDataFieldsTest : bsls_ProtocolTest<WithDataFields> {
+struct WithDataFieldsTest : bsls_ProtocolTestImp<WithDataFields> {
 };
 
 // For testing 'testVirtualDestructor'.
@@ -124,8 +124,8 @@ struct NoVirtualDestructor {
     virtual void foo() = 0;
 };
 
-struct NoVirtualDestructorTest : bsls_ProtocolTest<NoVirtualDestructor> {
-    void foo() { exit(); }
+struct NoVirtualDestructorTest : bsls_ProtocolTestImp<NoVirtualDestructor> {
+    void foo() { markDone(); }
 };
 
 // For testing return value convertions to a reference to a non-copyable type
@@ -141,9 +141,9 @@ struct MyInterfaceNonVirtual {
     virtual void bar() = 0;
 };
 
-struct MyInterfaceNonVirtualTest : bsls_ProtocolTest<MyInterfaceNonVirtual> {
-    int foo(int) { return exit(); }
-    void bar()   { exit(); }
+struct MyInterfaceNonVirtualTest : bsls_ProtocolTestImp<MyInterfaceNonVirtual> {
+    int foo(int) { return markDone(); }
+    void bar()   { markDone(); }
 };
 
 struct MyInterfaceNonPublic {
@@ -151,9 +151,9 @@ struct MyInterfaceNonPublic {
     virtual int foo(int) = 0;
 };
 
-struct MyInterfaceNonPublicTest : bsls_ProtocolTest<MyInterfaceNonPublic> {
+struct MyInterfaceNonPublicTest : bsls_ProtocolTestImp<MyInterfaceNonPublic> {
     // This override must be public.
-    int foo(int) { return exit(); }
+    int foo(int) { return markDone(); }
 };
 
 struct MyInterfaceNonCopyableReturn {
@@ -161,8 +161,8 @@ struct MyInterfaceNonCopyableReturn {
 };
 
 struct MyInterfaceNonCopyableReturnTest
-    : bsls_ProtocolTest<MyInterfaceNonCopyableReturn> {
-    const NonCopyable& foo(int) { return exitRef(); }
+    : bsls_ProtocolTestImp<MyInterfaceNonCopyableReturn> {
+    const NonCopyable& foo(int) { return markDoneRef(); }
 };
 
 }  // close unnamed namespace
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-        bsls_ProtocolTestDriver<MyInterfaceTest> t;
+        bsls_ProtocolTest<MyInterfaceTest> t;
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
@@ -220,11 +220,11 @@ int main(int argc, char *argv[])
         //:    that don't satisfy concerns.
         //
         // Plan:
-        //:  1 Instantiate 'bsls_ProtocolTestDriver' with a protocol class
+        //:  1 Instantiate 'bsls_ProtocolTest' with a protocol class
         //:    with methods that satisfy protocol method concerns and verify
         //:    that 'BSLS_PROTOCOLTEST_ASSERT' reports no failures for those
         //:    methods.
-        //:  2 Instantiate 'bsls_ProtocolTestDriver' with a protocol class
+        //:  2 Instantiate 'bsls_ProtocolTest' with a protocol class
         //:    with methods that don't satisfy protocol method concerns and
         //:    verify 'BSLS_PROTOCOLTEST_ASSERT' reports failures for those
         //:    methods.  Intercept 'ASSERT' failures and prevent them from
@@ -241,7 +241,15 @@ int main(int argc, char *argv[])
                                 "'good' protocol\n");
 
         {
-            bsls_ProtocolTestDriver<MyInterfaceTest> t;
+            bsls_ProtocolTest<MyInterfaceTest> t;
+            BSLS_PROTOCOLTEST_ASSERT(t, foo(int()));
+            BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
+        }
+
+        if (veryVerbose) printf("\ttesting the macro in verbose mode\n");
+
+        {
+            bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
             BSLS_PROTOCOLTEST_ASSERT(t, foo(int()));
             BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
         }
@@ -254,7 +262,7 @@ int main(int argc, char *argv[])
             int oldTestStatus = testStatus;
             disableAssertOutput = true;
 
-            bsls_ProtocolTestDriver<MyInterfaceNonVirtualTest> t;
+            bsls_ProtocolTest<MyInterfaceNonVirtualTest> t;
 
             // non-virtual method, should get a failure
             BSLS_PROTOCOLTEST_ASSERT(t, foo(int()));
@@ -294,7 +302,7 @@ int main(int argc, char *argv[])
         //:    declares its methods correctly and verify the 'failures' and
         //:    'lastStatus' assume the proper values after calling the methods
         //:    of the protocol type.
-        //:  2 Instantiate 'bsls_ProtocolTestDriver' with a protocol type that
+        //:  2 Instantiate 'bsls_ProtocolTest' with a protocol type that
         //:    doesn't declare its methods virtual and verify that the count of
         //:    'failures' increases and 'lastStatus' is 'false'.
         //:  3 Verify that an attempt to indirectly call a non-public method of
@@ -313,13 +321,13 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("\ttesting 'good' protocol methods\n");
 
         {
-            bsls_ProtocolTestDriver<MyInterfaceTest> t;
+            bsls_ProtocolTest<MyInterfaceTest> t;
 
-            t->foo(int());
+            t.method()->foo(int());
             ASSERT(t.failures() == 0);
             ASSERT(t.lastStatus());
 
-            t->bar("", "");
+            t.method()->bar("", "");
             ASSERT(t.failures() == 0);
             ASSERT(t.lastStatus());
         }
@@ -328,21 +336,21 @@ int main(int argc, char *argv[])
                                 "fail\n");
 
         {
-            bsls_ProtocolTestDriver<MyInterfaceNonVirtualTest> t;
+            bsls_ProtocolTest<MyInterfaceNonVirtualTest> t;
 
             // verify failure
-            t->foo(int());
+            t.method()->foo(int());
             ASSERT(t.failures() == 1);
             ASSERT(!t.lastStatus());
 
             // try one more time
-            t->foo(int());
+            t.method()->foo(int());
             ASSERT(t.failures() == 2);
             ASSERT(!t.lastStatus());
 
             // now try to passing test and make sure it doesn't change the
             // count of 'failures'
-            t->bar();
+            t.method()->bar();
             ASSERT(t.failures() == 2);
             ASSERT(t.lastStatus());
         }
@@ -351,7 +359,7 @@ int main(int argc, char *argv[])
                                 "fail\n");
 
         {
-            bsls_ProtocolTestDriver<MyInterfaceNonPublicTest> t;
+            bsls_ProtocolTest<MyInterfaceNonPublicTest> t;
 
             // uncomment to get a compile-time error
             // t->foo(int());
@@ -362,9 +370,9 @@ int main(int argc, char *argv[])
                                 "object\n");
 
         {
-            bsls_ProtocolTestDriver<MyInterfaceNonCopyableReturnTest> t;
+            bsls_ProtocolTest<MyInterfaceNonCopyableReturnTest> t;
 
-            t->foo(int());
+            t.method()->foo(int());
             ASSERT(t.failures() == 0);
             ASSERT(t.lastStatus());
         }
@@ -374,43 +382,44 @@ int main(int argc, char *argv[])
         // TESTING PROTOCOL TEST BASE CLASS
         //
         // Concerns:
-        //:  1 An object derived from type 'bsls_ProtocolTest' can be
+        //:  1 An object derived from type 'bsls_ProtocolTestImp' can be
         //:    constructed.
         //:  2 'setTestDriver' establishes the connection between the
-        //:    'bsls_ProtocolTest' and 'bsls_ProtocolTestDriver'.
-        //:  3 'exit', 'exitRef' and 'exitVal' methods when called mark the
-        //:    test as "pass" and "fail" when not called.
-        //:  4 The type of the return value of 'exit', 'exitRef' and 'exitVal'
-        //:    is what we expect.
+        //:    'bsls_ProtocolTestImp' and 'bsls_ProtocolTest'.
+        //:  3 'markDone', 'markDoneRef' and 'markDoneVal' methods when called
+        //:    mark the test as "pass" and "fail" when not called.
+        //:  4 The type of the return value of 'markDone', 'markDoneRef' and
+        //:    'markDoneVal' is what we expect.
         //
         // Plan:
-        //:  1 Create an object of a class derived from 'bsls_ProtocolTest'.
+        //:  1 Create an object of a class derived from 'bsls_ProtocolTestImp'.
         //:    This is a protocol test object.
         //:  2 Connect the protocol test object with the test driver status
         //:    object using 'setTestStatus'.
-        //:  3 Mark the protocol test object as 'entered' by calling 'enter()'.
-        //:  4 Do not call any of the 'exit', 'exitRef' or 'exitVal' methods,
-        //:    and verify that on destruction the protocol test objects calls
-        //:    method 'fail()' of the test driver object (setting the 'failed'
-        //:    flag).
-        //:  5 Now do call 'exit', 'exitRef' and 'exitVal' individually, and
-        //:    verify that on destruction the protocol test objects does not
-        //:    call method 'fail()' of the test driver object.
-        //:  6 Verify that the return value type of 'exit', 'exitRef' and
-        //:    'exitVal' is what's expected.
+        //:  3 Mark the protocol test object as 'entered' by calling
+        //:    'markEnter()'.
+        //:  4 Do not call any of the 'markDone', 'markDoneRef' or
+        //:    'markDoneVal' methods, and verify that on destruction the
+        //:     protocol test objects calls method 'fail()' of the test
+        //:     driver object (setting the 'failed' flag).
+        //:  5 Now do call 'markDone', 'markDoneRef' and 'markDoneVal'
+        //:    individually, and verify that on destruction the protocol test
+        //:    objects does not call method 'fail()' of the test driver object.
+        //:  6 Verify that the return value type of 'markDone', 'markDoneRef'
+        //:    and 'markDoneVal' is what's expected.
         //
         // Testing:
-        //   class bsls_ProtocolTest;
+        //   class bsls_ProtocolTestImp;
         //   void setTestDriver(bsls_ProtocolTest_Status *);
-        //   exit();
-        //   exitRef();
-        //   exitVal();
+        //   markDone();
+        //   markDoneRef();
+        //   markDoneVal();
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING PROTOCOL TEST BASE CLASS\n"
                             "================================\n");
 
-        if (veryVerbose) printf("\tnot calling 'exit' fails the test\n");
+        if (veryVerbose) printf("\tnot calling 'markDone' fails the test\n");
 
         {
             bsls_ProtocolTest_Status testStatus;
@@ -419,13 +428,13 @@ int main(int argc, char *argv[])
             {
                 MyInterfaceTest testObj;
                 testObj.setTestStatus(&testStatus);
-                testObj.enter();
+                testObj.markEnter();
             }
 
             ASSERT(testStatus.failures() != 0);
         }
 
-        if (veryVerbose) printf("\tcalling 'exit' passes the test\n");
+        if (veryVerbose) printf("\tcalling 'markDone' passes the test\n");
 
         {
             bsls_ProtocolTest_Status testStatus;
@@ -434,14 +443,14 @@ int main(int argc, char *argv[])
             {
                 MyInterfaceTest testObj;
                 testObj.setTestStatus(&testStatus);
-                testObj.enter();
-                testObj.exit();
+                testObj.markEnter();
+                testObj.markDone();
             }
 
             ASSERT(testStatus.failures() == 0);
         }
 
-        if (veryVerbose) printf("\tcalling 'exitRef' passes the test\n");
+        if (veryVerbose) printf("\tcalling 'markDoneRef' passes the test\n");
 
         {
             bsls_ProtocolTest_Status testStatus;
@@ -450,14 +459,14 @@ int main(int argc, char *argv[])
             {
                 MyInterfaceTest testObj;
                 testObj.setTestStatus(&testStatus);
-                testObj.enter();
-                testObj.exitRef();
+                testObj.markEnter();
+                testObj.markDoneRef();
             }
 
             ASSERT(testStatus.failures() == 0);
         }
 
-        if (veryVerbose) printf("\tcalling 'exitVal' passes the test\n");
+        if (veryVerbose) printf("\tcalling 'markDoneVal' passes the test\n");
 
         {
             bsls_ProtocolTest_Status testStatus;
@@ -466,34 +475,35 @@ int main(int argc, char *argv[])
             {
                 MyInterfaceTest testObj;
                 testObj.setTestStatus(&testStatus);
-                testObj.enter();
-                testObj.exitVal(0);
+                testObj.markEnter();
+                testObj.markDoneVal(0);
             }
 
             ASSERT(testStatus.failures() == 0);
         }
 
-        if (veryVerbose) printf("\t'exit' has a proper return type "
+        if (veryVerbose) printf("\t'markDone' has a proper return type "
                                 "(compile-time)\n");
 
         {
             MyInterfaceTest testObj;
-            bsls_ProtocolTest_MethodReturnType proxy = testObj.exit();
+            bsls_ProtocolTest_MethodReturnType proxy = testObj.markDone();
         }
 
-        if (veryVerbose) printf("\t'exitRef' has a proper return type "
+        if (veryVerbose) printf("\t'markDoneRef' has a proper return type "
                                 "(compile-time)\n");
 
         {
             MyInterfaceTest testObj;
-            bsls_ProtocolTest_MethodReturnRefType proxy = testObj.exitRef();
+            bsls_ProtocolTest_MethodReturnRefType proxy
+                                                       = testObj.markDoneRef();
         }
 
-        if (veryVerbose) printf("\t'exitVal' has a proper return type\n");
+        if (veryVerbose) printf("\t'markDoneVal' has a proper return type\n");
 
         {
             MyInterfaceTest testObj;
-            int r = testObj.exitVal(10);
+            int r = testObj.markDoneVal(10);
 
             ASSERT(r == 10);
         }
@@ -508,7 +518,7 @@ int main(int argc, char *argv[])
         // Plan:
         //:  1 Verify that bsls_ProtocolTest_IsAbstract meta-function returns
         //:    the correct value for abstract and concrete classes.
-        //:  2 Verify that an object of bsls_ProtocolTest class can be a proxy
+        //:  2 Verify that an object of bsls_ProtocolTestImp class can be a proxy
         //:    (by overloading 'operator->()') to the protocol.
         //:  3 Verify that bsls_ProtocolTest_MethodReturnType provides proper
         //:    convertions to value and pointer types.
@@ -605,10 +615,11 @@ int main(int argc, char *argv[])
                 {
                     bsls_ProtocolTest_Dtor<MyInterfaceTest> dtorTest;
                     dtorTest.setTestStatus(&status);
-                    dtorTest.enter();
+                    dtorTest.markEnter();
                 }
 
-                // if dtorTest destructor called 'exit' than the test succeeded
+                // if dtorTest destructor called 'markDone' than the test
+                // succeeded
                 ASSERT(status.failures() == 0);
                 ASSERT(status.last());
 
@@ -627,7 +638,7 @@ int main(int argc, char *argv[])
                     bsls_ProtocolTest_Dtor<MyInterfaceTest> * dtorTest =
                         new (&o) bsls_ProtocolTest_Dtor<MyInterfaceTest>();
 
-                    dtorTest->enter();
+                    dtorTest->markEnter();
                     dtorTest->setTestStatus(&status);
                     dtorTest->MyInterfaceTest::~MyInterfaceTest();
                 }
@@ -654,17 +665,17 @@ int main(int argc, char *argv[])
         //:    properly after their execution.
         //
         // Plan:
-        //:  1 Instantiate 'bsls_ProtocolTestDriver' with an abstract class and
+        //:  1 Instantiate 'bsls_ProtocolTest' with an abstract class and
         //:    verify that 'testAbstract' returns 'true'.  Instantiate
         //:    'bsls_PrototolTestDriver' with a non-abstract class and verify
         //:    that 'testAbstract' returns 'false'.
-        //:  2 Instantiate 'bsls_ProtocolTestDriver' with a protocol having no
+        //:  2 Instantiate 'bsls_ProtocolTest' with a protocol having no
         //:    data fields and verify that 'testNoDataMembers' returns 'true'.
-        //:    Instantiate 'bsls_ProtocolTestDriver' with a protocol having
+        //:    Instantiate 'bsls_ProtocolTest' with a protocol having
         //:    data fields and verify that 'testNoDataMembers' returns 'false'.
-        //:  3 Instantiate 'bsls_ProtocolTestDriver' with a protocol having a
+        //:  3 Instantiate 'bsls_ProtocolTest' with a protocol having a
         //:    virtual destructor and verify that 'testVirtualDestructor'
-        //:    returns 'true'.  Instantiate 'bsls_ProtocolTestDriver' with a
+        //:    returns 'true'.  Instantiate 'bsls_ProtocolTest' with a
         //:    protocol withtout a virtual destructor and verify that
         //:    'testVirtualDestructor' returns 'false'.
         //
@@ -683,7 +694,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) printf("\t\twith abstract class\n");
 
             {
-                bsls_ProtocolTestDriver<MyInterfaceTest> t;
+                bsls_ProtocolTest<MyInterfaceTest> t;
                 ASSERT(t.testAbstract());
                 ASSERT(t.failures() == 0);
                 ASSERT(t.lastStatus());
@@ -692,7 +703,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) printf("\t\twith non-abstract class\n");
 
             {
-                bsls_ProtocolTestDriver<NotAbstractInterfaceTest> t;
+                bsls_ProtocolTest<NotAbstractInterfaceTest> t;
                 ASSERT(!t.testAbstract());
                 ASSERT(t.failures() == 1);
                 ASSERT(!t.lastStatus());
@@ -705,7 +716,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) printf("\t\twith protocol with no data fields\n");
 
             {
-                bsls_ProtocolTestDriver<MyInterfaceTest> t;
+                bsls_ProtocolTest<MyInterfaceTest> t;
                 ASSERT(t.testNoDataMembers());
                 ASSERT(t.failures() == 0);
                 ASSERT(t.lastStatus());
@@ -714,7 +725,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) printf("\t\twith protocol with data fields\n");
 
             {
-                bsls_ProtocolTestDriver<WithDataFieldsTest> t;
+                bsls_ProtocolTest<WithDataFieldsTest> t;
                 ASSERT(!t.testNoDataMembers());
                 ASSERT(t.failures() == 1);
                 ASSERT(!t.lastStatus());
@@ -728,7 +739,7 @@ int main(int argc, char *argv[])
                                     "destructor\n");
 
             {
-                bsls_ProtocolTestDriver<MyInterfaceTest> t;
+                bsls_ProtocolTest<MyInterfaceTest> t;
                 ASSERT(t.testVirtualDestructor());
                 ASSERT(t.failures() == 0);
                 ASSERT(t.lastStatus());
@@ -738,11 +749,20 @@ int main(int argc, char *argv[])
                                     "destructor\n");
 
             {
-                bsls_ProtocolTestDriver<NoVirtualDestructorTest> t;
+                bsls_ProtocolTest<NoVirtualDestructorTest> t;
                 ASSERT(!t.testVirtualDestructor());
                 ASSERT(t.failures() == 1);
                 ASSERT(!t.lastStatus());
             }
+        }
+
+        if (veryVerbose) printf("\tmanipulators in verbose mode\n");
+
+        {
+            bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
+            ASSERT(t.testAbstract());
+            ASSERT(t.testNoDataMembers());
+            ASSERT(t.testVirtualDestructor());
         }
       } break;
       case 3: {
@@ -754,7 +774,7 @@ int main(int argc, char *argv[])
         //:   that object.
         //
         // Plan:
-        //: 1 Create a default-constructed 'bsls_ProtocolTestDriver' object and
+        //: 1 Create a default-constructed 'bsls_ProtocolTest' object and
         //:   assign it to a 'const' reference.
         //: 2 Verify that accessors on the 'const' reference return proper
         //:   values.
@@ -767,7 +787,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("TESTING BASIC ACCESSORS\n"
                             "=======================\n");
 
-        bsls_ProtocolTestDriver<MyInterfaceTest> t;
+        bsls_ProtocolTest<MyInterfaceTest> t;
 
         ASSERT(t.failures() == 0);
         ASSERT(t.lastStatus());
@@ -779,22 +799,22 @@ int main(int argc, char *argv[])
         //   destructed.
         //
         // Concerns:
-        //: 1 The value constructor for 'bsls_ProtocolTestDriver' can create an
+        //: 1 The value constructor for 'bsls_ProtocolTest' can create an
         //:   object of a that class.
         //
         // Plan:
-        //: 1 Instantiate 'bsls_ProtocolTestDriver' with 'MyTestInterfaceTest'
+        //: 1 Instantiate 'bsls_ProtocolTest' with 'MyTestInterfaceTest'
         //:   and create an object of that type.
         //
         // Testing:
-        //   bsls_ProtocolTestDriver();
-        //   ~bsls_ProtocolTestDriver();
+        //   bsls_ProtocolTest();
+        //   ~bsls_ProtocolTest();
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING CONSTRUCTORS AND DESTRUCTORS\n"
                             "====================================\n");
 
-        bsls_ProtocolTestDriver<MyInterfaceTest> t;
+        bsls_ProtocolTest<MyInterfaceTest> t;
         testStatus = t.failures();
       } break;
       case 1: {
@@ -817,7 +837,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("BREATHING TEST\n"
                             "==============\n");
 
-        bsls_ProtocolTestDriver<MyInterfaceTest> t;
+        bsls_ProtocolTest<MyInterfaceTest> t;
 
         ASSERT(t.failures() == 0);
         ASSERT(t.lastStatus());
