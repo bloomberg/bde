@@ -58,7 +58,7 @@ static void aSsErT(int c, const char *s, int i)
 namespace {
 
 struct LoaderTestImp : bsls_ProtocolTest<baetzo_Loader> {
-    int loadTimeZone(baetzo_Zoneinfo *, const char *) { return exit(); }
+    int loadTimeZone(baetzo_Zoneinfo *, const char *) { return markDone(); }
 };
 
 }
@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        bsls_ProtocolTestDriver<LoaderTestImp> t;
+        bsls_ProtocolTestDriver<LoaderTestImp> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
