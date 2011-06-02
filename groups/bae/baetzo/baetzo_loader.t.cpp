@@ -1,21 +1,18 @@
 // baetzo_loader.t.cpp                                                -*-C++-*-
 #include <baetzo_loader.h>
 
-#include <baetzo_errorcode.h>
 #include <baetzo_zoneinfo.h>
 
 #include <bdet_datetime.h>
 
-#include <bdetu_dayofweek.h>
 #include <bdetu_epoch.h>
 
 #include <bsls_protocoltest.h>
 
 #include <bsl_iostream.h>
-#include <bsl_map.h>
 
 using namespace BloombergLP;
-using namespace std;
+using namespace bsl;
 
 //=============================================================================
 //                              TEST PLAN
@@ -41,7 +38,15 @@ static void aSsErT(int c, const char *s, int i)
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
+
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+// ============================================================================
+//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+
+#define LOOP_ASSERT(I,X) {                                                    \
+    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -244,7 +249,7 @@ int main(int argc, char *argv[])
                                                  nyTimeZone.beginTransitions();
     for (; tIt != nyTimeZone.endTransitions(); ++tIt) {
        bdet_Datetime transition =
-          bdetu_Epoch::convertFromTimeT64(tIt->utcTime());
+                               bdetu_Epoch::convertFromTimeT64(tIt->utcTime());
        const baetzo_LocalTimeDescriptor& descritor = tIt->descriptor();
        if (verbose) {
            bsl::cout << "transition to "
@@ -279,7 +284,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'baetzo_Loader' is an abstract class, i.e., no objects of the
-        //    'baetzo_Loader' class can be created.
+        //:   'baetzo_Loader' class can be created.
         //: 2 It has no data members.
         //: 3 All of its members are pure virtual.
         //: 4 It has a pure virtual destructor.
@@ -295,7 +300,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-=======
         bsls_ProtocolTest<LoaderTestImp> t(veryVerbose);
 
         ASSERT(t.testAbstract());
