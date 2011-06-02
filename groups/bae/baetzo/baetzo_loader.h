@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a protocol for obtaining information about a time zone.
 //
 //@CLASSES:
-//  baetzo_Loader: protocol for obtaining time zone information
+//  baetzo_Loader: protocol for obtaining time-zone information
 //
 //@SEE_ALSO: baetzo_zoneinfo, baetzo_datafileloader, baetzo_testloader
 //
@@ -24,15 +24,15 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In the following examples we demonstrate how to use a 'baetzo_Loader' to
-// load data for a time zone.
+// In the following examples we demonstrate the intended use of the
+// 'baetzo_Loader' protocol:
 //
 ///Example 1: Implementing 'baetzo_Loader'
 ///- - - - - - - - - - - - - - - - - - - -
-// This example demonstrates an implementation of 'baetzo_Loader' that can only
-// return data for "America/New_York".  Note that in general, an implementation
-// of 'baetzo_Loader' should obtain time-zone information from an external data
-// store (see 'baetzo_datafileloader').
+// This example demonstrates an implementation of 'baetzo_Loader' that can
+// return data for "America/New_York" only.  Note that in general, an
+// implementation of 'baetzo_Loader' should obtain time-zone information from
+// an external data store (see 'baetzo_datafileloader').
 //
 // First, we define the interface of our implementation:
 //..
@@ -75,7 +75,7 @@ BDES_IDENT("$Id: $")
 //                                 const char      *timeZoneId)
 //  {
 //..
-// Then, we check the 'timeZoneId' equals to "America/New_York' as this
+// Then, we check that the 'timeZoneId' value is "America/New_York' as this
 // implementation is designed to demonstrate only one time zone:
 //..
 //      if (0 != strcmp("America/New_York", timeZoneId)) {
@@ -167,7 +167,7 @@ BDES_IDENT("$Id: $")
 //                                               nyTimeZone.beginTransitions();
 //  for (; tIt != nyTimeZone.endTransitions(); ++tIt) {
 //     bdet_Datetime transition =
-//        bdetu_Epoch::convertFromTimeT64(tIt->utcTransitionTime());
+//                   bdetu_Epoch::convertFromTimeT64(tIt->utcTransitionTime());
 //     const baetzo_LocalTimeDescriptor& descriptor = tIt->descriptor();
 //
 //     bsl::cout << "transition to "
@@ -205,13 +205,13 @@ class baetzo_Zoneinfo;
                         // ===================
 
 class baetzo_Loader {
-    // This class provides a protocol (an abstract interface) for loading a
+    // This class provides a protocol (a pure abstract interface) for loading a
     // time zone object.
 
   public:
     // CREATORS
     virtual ~baetzo_Loader();
-        // Destroy this time zone loader.
+        // Destroy this object.
 
     // MANIPULATORS
     virtual int loadTimeZone(baetzo_Zoneinfo *result,
@@ -220,8 +220,9 @@ class baetzo_Loader {
         // time zone identified by the specified 'timeZoneId'.  Return 0 on
         // success, and a non-zero value otherwise.  A return status of
         // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
-        // 'timeZoneId' is not recognized.  If an error occurs during the
-        // operation, 'result' will be left in a valid but unspecified state.
+        // 'timeZoneId' is not recognized.  If an error occurs during this
+        // operation, 'result' will be left in a valid, but otherwise
+        // unspecified state.
 };
 
 // ============================================================================

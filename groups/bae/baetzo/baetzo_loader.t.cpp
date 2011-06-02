@@ -25,7 +25,7 @@ using namespace std;
 // We are testing a pure protocol class as.  We need to verify that (1) a
 // concrete derived class compiles and links.
 //-----------------------------------------------------------------------------
-// [ 1] PROTOCOL TEST:  Make sure derived class compiles and links.
+// [ 1] virtual int loadTimeZone(Zoneinfo *tz, const char *tzId) = 0;
 // [ 2] USAGE EXAMPLE
 //=============================================================================
 
@@ -279,11 +279,10 @@ int main(int argc, char *argv[])
         //   'bsls_ProtocolTest' component.
         //
         // Plan:
-        //   Use 'bsl_ProtocolTest' component to test this protocol class.
+        //   Use 'bslsl_protocoltest' component to test this protocol class.
         //
         // Testing:
-        //   virtual int loadTimeZone(baetzo_Zoneinfo *timeZone,
-        //                            const char      *timeZoneId) = 0;
+        //   virtual int loadTimeZone(Zoneinfo *tz, const char *tzId) = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
@@ -297,7 +296,7 @@ int main(int argc, char *argv[])
 
         BSLS_PROTOCOLTEST_ASSERT(t, loadTimeZone(0, 0));
 
-        testStatus = t.failures();
+        LOOP_ASSERT(t.failures(), !t.failures());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
