@@ -377,50 +377,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_EXCEPTIONUTIL
-#include <bsls_exceptionutil.h>
-#endif
-
-//////////////////////////////////////////////////////////////////////////
-// TBD BEGIN Move to new components
-/////////////////////////////////////////////////////////////////////////
-
-namespace BloombergLP {
-
-// Class to hold both an allocator and another data object.
-// Use inheritance to take advantage of the Empty Base Optimization (EBO).
-template <class ALLOC, class TYPE>
-class bslstl_AllocatorWrapper : public ALLOC {
-    TYPE d_data;
-
-  public:
-    typedef ALLOC allocator_type;
-    typedef TYPE  data_type;
-
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
-    template <class A, class... Args>
-    explicit bslstl_AllocatorWrapper(A&& a, Args&&... args)
-        : ALLOC(std::forward<A>(a)), d_data(std::forward<Args>(args)...) { }
-#else
-    template <class A, class T>
-    explicit bslstl_AllocatorWrapper(const A& a, const T& v)
-        : ALLOC(a), d_data(v) { }
-#endif
-
-    TYPE      & data()       { return d_data; }
-    TYPE const& data() const { return d_data; }
-
-    ALLOC      & allocator()       { return *this; }
-    ALLOC const& allocator() const { return *this; }
-
-};
-
-}  // close namespace BloombergLP
-
-//////////////////////////////////////////////////////////////////////////
-// TBD END Move to new components
-/////////////////////////////////////////////////////////////////////////
-
 namespace bsl {
 
 template <class TYPE, class ALLOC> class list;
@@ -569,6 +525,26 @@ class list {
     typedef typename AllocTraits::pointer         NodePtr;
     typedef typename AllocTraits::difference_type DiffType;
 
+    struct AllocAndSizeWrapper;
+    friend struct AllocAndSizeWrapper;
+
+    struct AllocAndSizeWrapper : public NodeAlloc {
+        // This struct is wrapper around the allocator and size data member.
+        // It takes advantage of the empty-base optimization (EBO) so that if
+        // the allocator is stateless, it takes up no space.
+        //
+        // TBD: This struct should eventually be replaced by the use of a
+        // general EBO-enabled component that provides a 'pair'-like
+        // interface.  (A properly-optimized 'tuple' would do the job.)
+
+        typedef typename AllocTraits::size_type size_type;
+        
+        size_type d_size;
+
+        explicit AllocAndSizeWrapper(const NodeAlloc& a, size_type s)
+            : NodeAlloc(a), d_size(s) { }
+    };
+
     class NodeProctor;
     friend class NodeProctor;
 
@@ -595,10 +571,8 @@ class list {
     };
 
     // PRIVATE DATA MEMBERS
-    NodePtr d_sentinel;
-    BloombergLP::bslstl_AllocatorWrapper<NodeAlloc,
-                                         typename AllocTraits::size_type>
-        d_alloc_and_size;
+    NodePtr             d_sentinel;
+    AllocAndSizeWrapper d_alloc_and_size;
 
     // PRIVATE MEMBER FUNCTIONS
     NodeAlloc& allocator();
@@ -939,7 +913,7 @@ template <class TYPE, class ALLOC>
 inline
 typename list<TYPE,ALLOC>::NodeAlloc& list<TYPE,ALLOC>::allocator()
 {
-    return d_alloc_and_size.allocator();
+    return d_alloc_and_size;  // Implicit cast to base class
 }
 
 template <class TYPE, class ALLOC>
@@ -947,7 +921,7 @@ inline
 const typename list<TYPE,ALLOC>::NodeAlloc&
 list<TYPE,ALLOC>::allocator() const
 {
-    return d_alloc_and_size.allocator();
+    return d_alloc_and_size;  // Implicit cast to base class
 }
 
 template <class TYPE, class ALLOC>
@@ -961,7 +935,7 @@ template <class TYPE, class ALLOC>
 inline
 typename list<TYPE,ALLOC>::AllocTraits::size_type& list<TYPE,ALLOC>::size_ref()
 {
-    return d_alloc_and_size.data();
+    return d_alloc_and_size.d_size;
 }
 
 template <class TYPE, class ALLOC>
@@ -969,7 +943,7 @@ inline
 const typename list<TYPE,ALLOC>::AllocTraits::size_type&
 list<TYPE,ALLOC>::size_ref() const
 {
-    return d_alloc_and_size.data();
+    return d_alloc_and_size.d_size;
 }
 
 template <class TYPE, class ALLOC>
@@ -1399,18 +1373,21 @@ void list<TYPE,ALLOC>::resize(size_type sz, const TYPE& c)
 template <class TYPE, class ALLOC>
 TYPE& list<TYPE,ALLOC>::front()
 {
+    BSLS_ASSERT_SAFE(size_ref() > 0);
     return head()->d_value;
 }
 
 template <class TYPE, class ALLOC>
 const TYPE& list<TYPE,ALLOC>::front() const
 {
+    BSLS_ASSERT_SAFE(size_ref() > 0);
     return head()->d_value;
 }
 
 template <class TYPE, class ALLOC>
 TYPE& list<TYPE,ALLOC>::back()
 {
+    BSLS_ASSERT_SAFE(size_ref() > 0);
     NodePtr last = d_sentinel->d_prev;
     return last->d_value;
 }
@@ -1418,6 +1395,7 @@ TYPE& list<TYPE,ALLOC>::back()
 template <class TYPE, class ALLOC>
 const TYPE& list<TYPE,ALLOC>::back() const
 {
+    BSLS_ASSERT_SAFE(size_ref() > 0);
     NodePtr last = d_sentinel->d_prev;
     return last->d_value;
 }
@@ -1486,6 +1464,7 @@ void list<TYPE,ALLOC>::emplace_front(const ARG1& a1, const ARG2& a2,
 template <class TYPE, class ALLOC>
 void list<TYPE,ALLOC>::pop_front()
 {
+    BSLS_ASSERT_SAFE(size_ref() > 0);
     erase(begin());
 }
 
@@ -1552,6 +1531,7 @@ void list<TYPE,ALLOC>::emplace_back(const ARG1& a1, const ARG2& a2,
 template <class TYPE, class ALLOC>
 void list<TYPE,ALLOC>::pop_back()
 {
+    BSLS_ASSERT_SAFE(size_ref() > 0);
     erase(--end());
 }
 
@@ -1741,6 +1721,8 @@ template <class TYPE, class ALLOC>
 typename list<TYPE,ALLOC>::iterator
 list<TYPE,ALLOC>::erase(const_iterator position)
 {
+    BSLS_ASSERT(position.d_nodeptr != d_sentinel);
+
     typename AllocTraits::pointer p = position.d_nodeptr;
     iterator ret(p->d_next);
 
