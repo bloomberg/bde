@@ -543,7 +543,7 @@ struct Local::StackTraceResolver::CurrentSegment {
 
     baesu_StackTraceFrame
                  **d_framePtrs_p;       // array of pointers into
-                                        // 'd_ioAllFrames' referring
+                                        // 'd_stackTrace_p' referring
                                         // only to those frames whose
                                         // 'address' fields point into
                                         // the current segment
@@ -585,7 +585,7 @@ struct Local::StackTraceResolver::CurrentSegment {
 
     const int      d_numFrames;         // not really local to the segment,
                                         // number of stack frames in
-                                        // '*resolver.d_ioAllFrames_p'
+                                        // '*resolver.d_stackTrace_p'
 
     // CREATORS
     CurrentSegment(int numFrames, bslma_Allocator *basicAllocator);
@@ -654,19 +654,18 @@ void Local::StackTraceResolver::CurrentSegment::reset()
 
 // PRIVATE CREATORS
 Local::StackTraceResolver::baesu_StackTraceResolverImpl(
-                            bsl::vector<baesu_StackTraceFrame> *ioFrames,
-                            bool                                demangle,
-                            bslma_Allocator                    *basicAllocator)
-: d_ioAllFrames_p(ioFrames)
+                                     baesu_StackTrace *stackTrace,
+                                     bool              demanglingPreferredFlag)
+: d_stackTrace_p(stackTrace)
 , d_scratchBuf_p(0)
 , d_symbolBuf_p(0)
-, d_demangle(demangle)
-, d_allocator_p(basicAllocator)
+, d_demangle(demanglingPreferredFlag)
+, d_hbpAlloc()
 {
-    d_scratchBuf_p = (char *) d_allocator_p->allocate(Local::SCRATCH_BUF_LEN);
-    d_symbolBuf_p  = (char *) d_allocator_p->allocate(Local::SYMBOL_BUF_LEN);
-    d_seg_p        = new (*d_allocator_p) CurrentSegment(ioFrames->size(),
-                                                         basicAllocator);
+    d_scratchBuf_p = (char *) d_hbpAlloc.allocate(Local::SCRATCH_BUF_LEN);
+    d_symbolBuf_p  = (char *) d_hbpAlloc.allocate(Local::SYMBOL_BUF_LEN);
+    d_seg_p        = new (d_hbpAlloc) CurrentSegment(stackTrace->length(),
+                                                     &d_hbpAlloc);
 }
 
 Local::StackTraceResolver::~baesu_StackTraceResolverImpl()
@@ -688,13 +687,13 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
             (char *) segmentPtr + segmentSize);
 
     int numSegEntries = 0;
-    for (int i = 0; i < (int) d_ioAllFrames_p->size(); ++i) {
-        const void *address = (*d_ioAllFrames_p)[i].address();
+    for (int i = 0; i < (int) d_stackTrace_p->length(); ++i) {
+        const void *address = (*d_stackTrace_p)[i].address();
 
         if (segmentPtr <= address && address <
                                            (char *) segmentPtr + segmentSize) {
             zprintf("address %p MATCH\n", address);
-            d_seg_p->d_framePtrs_p[numSegEntries] = &(*d_ioAllFrames_p)[i];
+            d_seg_p->d_framePtrs_p[numSegEntries] = &(*d_stackTrace_p)[i];
             d_seg_p->d_addresses_p[numSegEntries] = address;
             d_seg_p->d_framePtrs_p[numSegEntries]->setLibraryFileName(
                                                               libraryFileName);
@@ -707,7 +706,7 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     if (0 == numSegEntries) {
         return 0;                                                     // RETURN
     }
-    BSLS_ASSERT(numSegEntries <= (int) d_ioAllFrames_p->size());
+    BSLS_ASSERT(numSegEntries <= (int) d_stackTrace_p->length());
 
     d_seg_p->d_numAddresses = numSegEntries;
 
@@ -887,8 +886,8 @@ int Local::StackTraceResolver::loadSymbols()
                                                                   sym->st_name,
                                             d_scratchBuf_p,
                                             Local::SCRATCH_BUF_LEN,
-                                            d_allocator_p));
-                            if (frame.isMangledSymbolNameValid()) {
+                                            &d_hbpAlloc));
+                            if (frame.isMangledSymbolNameKnown()) {
                                 setFrameSymbolName(&frame);
                             }
 
@@ -903,7 +902,7 @@ int Local::StackTraceResolver::loadSymbols()
                                                           sourceFileNameOffset,
                                             d_scratchBuf_p,
                                             Local::SCRATCH_BUF_LEN,
-                                            d_allocator_p));
+                                            &d_hbpAlloc));
                             }
                         }
                     }
@@ -960,7 +959,7 @@ int Local::StackTraceResolver::processLoadedImage(
         }
     }
 #endif
-    name = bdeu_String::copy(name, d_allocator_p);
+    name = bdeu_String::copy(name, &d_hbpAlloc);
 
     zprintf("processing loaded image: fn:\"%s\", name:\"%s\" main:%d\n",
                         fileName ? fileName : "(null)", name ? name : "(null)",
@@ -1101,17 +1100,15 @@ extern "C" void *_DYNAMIC;    // global pointer that leads to the link map
 
 // CLASS METHODS
 int Local::StackTraceResolver::resolve(
-                            bsl::vector<baesu_StackTraceFrame> *ioFrames,
-                            bool                                demangle,
-                            bslma_Allocator                    *basicAllocator)
+                                     baesu_StackTrace *stackTrace,
+                                     bool              demanglingPreferredFlag)
 {
 #if defined(BSLS_PLATFORM__OS_HPUX)
 
     int rc;
 
-    Local::StackTraceResolver resolver(ioFrames,
-                                       demangle,
-                                       basicAllocator);
+    Local::StackTraceResolver resolver(stackTrace,
+                                       demanglingPreferredFlag);
 
     // The HPUX compiler, 'aCC', doesn't accept the -Bstatic option, suggesting
     // we are never statically linked on HPUX, so 'shl_get_r' should always
@@ -1157,7 +1154,7 @@ int Local::StackTraceResolver::resolve(
             numProgramHeaders = elfHeader.e_phnum;
             if (numProgramHeaders > maxNumProgramHeaders) {
                 programHeaders =
-                  (Local::ElfProgramHeader *) resolver.d_allocator_p->allocate(
+                  (Local::ElfProgramHeader *) resolver.d_hbpAlloc.allocate(
                           numProgramHeaders * sizeof(Local::ElfProgramHeader));
                 maxNumProgramHeaders = numProgramHeaders;
             }
@@ -1184,9 +1181,8 @@ int Local::StackTraceResolver::resolve(
 
 #elif defined(BSLS_PLATFORM__OS_LINUX)
 
-    Local::StackTraceResolver resolver(ioFrames,
-                                   demangle,
-                                   basicAllocator);
+    Local::StackTraceResolver resolver(stackTrace,
+                                       demanglingPreferredFlag);
 
     // 'dl_iterate_phdr' will iterate over all loaded files, the executable and
     // all the .so's.  It doesn't exist on Solaris.
@@ -1196,9 +1192,8 @@ int Local::StackTraceResolver::resolve(
 
 #elif defined(BSLS_PLATFORM__OS_SOLARIS)
 
-    Local::StackTraceResolver resolver(ioFrames,
-                                   demangle,
-                                   basicAllocator);
+    Local::StackTraceResolver resolver(stackTrace,
+                                       demanglingPreferredFlag);
 
     struct link_map *linkMap = 0;
 

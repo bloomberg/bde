@@ -1,12 +1,13 @@
 // baesu_stacktrace.cpp                                               -*-C++-*-
 #include <baesu_stacktrace.h>
 
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(baesu_stacktrace_cpp,"$Id$ $CSID$")
+
+#include <bslim_printer.h>
 #include <bsls_assert.h>
 
 #include <bsl_ostream.h>
-
-#include <bdes_ident.h>
-BDES_IDENT_RCSID(baesu_stacktrace_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
@@ -15,7 +16,16 @@ bsl::ostream& baesu_StackTrace::print(bsl::ostream& stream,
                                       int           level,
                                       int           spacesPerLevel) const
 {
-    // TBD
+    if (stream.bad()) {
+        return stream;                                                // RETURN
+    }
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    for (int i = 0; i < length(); ++i) {
+        (*this)[i].print(stream, level + 1, spacesPerLevel);
+    }
+    printer.end();
+
     return stream;
 }
 
@@ -24,12 +34,12 @@ bool operator==(const baesu_StackTrace& lhs,
                 const baesu_StackTrace& rhs)
 {
     if (lhs.length() != rhs.length()) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     for (int i = 0;  i < lhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {
-            return false;
+            return false;                                             // RETURN
         }
     }
 

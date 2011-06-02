@@ -1,4 +1,4 @@
-// baesu_stacktraceprintutil.t.cpp                                     -*-C++-*-
+// baesu_stacktraceprintutil.t.cpp                                    -*-C++-*-
 #include <baesu_stacktraceprintutil.h>
 
 #include <baesu_objectfileformat.h>
@@ -56,7 +56,6 @@ using bsl::flush;
 // [ 2] numFrames
 // [ 2] stackFrame
 // [ 2] printStackTrace
-// [ 3] operator<<, printTerse
 // [ 4] printStackTrace
 // [ 5] initializeFromAddressArray
 // [ 6] initializeFromStack
@@ -130,7 +129,7 @@ static void aSsErT(int c, const char *s, int i)
 
 namespace {
 
-typedef baesu_StackTracePrintUtil      Util;
+typedef baesu_StackTracePrintUtil      PrintUtil;
 
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0 };
@@ -257,6 +256,71 @@ void checkOutput(const bsl::string&               str,
     }
 }
 
+                                // -------
+                                // case 13
+                                // -------
+
+namespace CASE_13 {
+
+// Pointer to be set to inline '&PrintUtil::forTestingOnlyDump'.
+
+void top()
+{
+    typedef void (*TestDumpPtrType)(bsl::string *);
+    union {
+        TestDumpPtrType d_funcPtr;
+        UintPtr         d_uintPtr;
+    } testDumpUnion;
+
+    testDumpUnion.d_funcPtr = &PrintUtil::forTestingOnlyDump;
+    testDumpUnion.d_uintPtr = foilOptimizer(testDumpUnion.d_uintPtr);
+
+    bsl::string dump;
+    (*testDumpUnion.d_funcPtr)(&dump);
+
+    if (!FORMAT_ELF && !FORMAT_WINDOWS && DEBUG_ON) {
+        // Elf totally doesn't provide souce file names of global routines,
+        // Windows doesn't provide the source file name for an inline routine.
+
+        bsl::vector<const char *> matches;
+        matches.push_back("baesu_StackTracePrintUtil");
+        matches.push_back("forTestingOnlyDump");
+        matches.push_back(" source:baesu_stacktraceprintutil.h");
+        matches.push_back(" in baesu_stacktraceprintutil.t");
+        matches.push_back("top");
+        matches.push_back(" source:baesu_stacktraceprintutil.t.cpp");
+        matches.push_back(" in baesu_stacktraceprintutil.t");
+        matches.push_back("main");
+        matches.push_back(" source:baesu_stacktraceprintutil.t.cpp");
+        matches.push_back(" in baesu_stacktraceprintutil.t");
+        checkOutput(dump, matches);
+    }
+    else {
+        bsl::vector<const char *> matches;
+        matches.push_back("baesu_StackTracePrintUtil");
+        matches.push_back("forTestingOnlyDump");
+        matches.push_back("top");
+        matches.push_back("main");
+        checkOutput(dump, matches);
+    }
+
+    int lines = 0;
+    for (bsl::size_t pos = 0; pos < dump.length(); ++lines, ++pos) {
+        pos = dump.find('\n', pos);
+        if (bsl::string::npos == pos) {
+            break;
+        }
+        ASSERT('\n' == dump[pos]);
+    }
+    LOOP_ASSERT(lines, lines >= 3);
+
+    if (verbose || problem()) {
+        *out_p << dump;
+    }
+}
+
+}  // close namespace CASE_13
+
                                 // ------
                                 // case 8
                                 // ------
@@ -272,7 +336,7 @@ BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
     }
 
     bsl::stringstream ss;
-    Util::printStackTrace(ss);
+    PrintUtil::printStackTrace(ss);
     const bsl::string& dump = ss.str();
     const bsl::size_t NPOS = bsl::string::npos;
 
@@ -321,7 +385,7 @@ BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
 static int phonyCompare(const void *, const void *)
 {
     bsl::stringstream ss;
-    Util::printStackTrace(ss);
+    PrintUtil::printStackTrace(ss);
     const bsl::string& dump = ss.str();
     const bsl::size_t NPOS = bsl::string::npos;
 
@@ -520,42 +584,6 @@ void bottom(bslma_Allocator *alloc)
 
 }  // close namespace CASE_2
 
-                            // ------------------
-                            // case -1: benchmark
-                            // ------------------
-
-namespace CASE_MINUS_ONE {
-
-typedef int (*GetStackPointersFunc)(void **buffer,
-                                    int    maxFrames);
-GetStackPointersFunc funcPtr;
-
-enum {
-    RECURSION_DEPTH = 40,
-    MAX_FRAMES = 100
-};
-
-void recurser(int  iterations,
-              int *depth)
-{
-    if (--*depth <= 0) {
-        void *addresses[MAX_FRAMES];
-        for (int i = iterations; i > 0; --i) {
-            int frames = (*funcPtr)(addresses, MAX_FRAMES);
-            LOOP2_ASSERT(RECURSION_DEPTH, frames, RECURSION_DEPTH < frames);
-            LOOP2_ASSERT(RECURSION_DEPTH + 10, frames,
-                                                RECURSION_DEPTH + 10 > frames);
-        }
-    }
-    else {
-        recurser(iterations, depth);
-    }
-
-    ++*depth;         // prevent tail recursion optimization
-}
-
-}  // close namespace CASE_MINUS_ONE
-
 //=============================================================================
 //                                USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -566,6 +594,7 @@ void recurser(int  iterations,
 
 static
 void recurseAndPrintExample1(int *depth)
+    // Recurse the specified 'depth' number of times, then do a stack trace.
 {
     if (--*depth > 0) {
         // Recurse until '0 == *depth' before generating a stack trace.
@@ -640,6 +669,40 @@ int main(int argc, char *argv[])
       case 14: {
       }  break;
       case 13: {
+        // --------------------------------------------------------------------
+        // TESTING WITH A FUNCTION IN A .h FILE IN THE CALL STACK
+        //
+        // Concern:
+        //: 1 That the stacktrace performs correctly if one of the functions
+        //:   on the call stack is defined in a .h file.
+        //
+        // Plan:
+        //: 1 A static inline function, 'forTestingOnlyDump', is defined within
+        //:   this class.  It does a stack trace using 'operator<<' and stores
+        //:   the result to a string.
+        //: 2 'forTestingOnlyDump' must be called out of line to get it to
+        //:   leave a stack frame.  Since it is declared inline, the compiler
+        //:   will go to great lengths to inline it, especially in optimized
+        //:   mode.  Take a pointer to the function and call it through that
+        //:   pointer.
+        //: 3 If we just store the address of the function to a pointer and
+        //:   call through that pointer, the optimizer will sometimes *STILL*
+        //:   figure out what we are doing and inline the call.  Call
+        //:   'foilOptimizer', which does a transform on the function pointer
+        //:   that results in it being unchanged, that is too complex for the
+        //:   optimizer to understand.  Thus, the compiler has no choice but to
+        //:   call the routine out of line.
+        //: 4 On platforms / build modes that support source file names,
+        //:   verify that the source file name of the inline function is
+        //:   'baesu_stacktrace.h'.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TEST WITH INLINE FUNCTION\n"
+                             "=========================\n";
+
+        namespace TC = CASE_13;
+
+        TC::top();
       } break;
       case 12: {
       }  break;
@@ -734,18 +797,18 @@ int main(int argc, char *argv[])
         //:   1 That 'Obj::initializeFromAddressArray' works properly
         //:   2 That 'Obj::initializeFromStack' works properly
         //: 4 That the basic accessors work properly
-        //:   1 That 'Util::printStackTrace' works properly
+        //:   1 That 'PrintUtil::printStackTrace' works properly
         //:   2 That 'Obj::stackFrame' works properly
         //: 5 That no memory is allocated using the default allocator by either
         //:   of the two methods for initializing a stack trace object, or
-        //:   'Util::printStackTrace'.
+        //:   'PrintUtil::printStackTrace'.
         //
         // Plan:
         //: 1 Create and destroy an object.
         //:   1 Verify the allocator is not the default allocator.
         //: 2 Within a routine a couple of levels deep on the stack
         //:   1 Obtain a string containing the trace using
-        //:     'Util::printStackTrace' and verify that it contains the
+        //:     'PrintUtil::printStackTrace' and verify that it contains the
         //:     routines we expect to find on the stack.
         //:   2 Create a stack trace object and initialize it using
         //:     'Obj::initializeFromAddressArray'.  Verify using
@@ -769,8 +832,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == defaultAllocator.numAllocations());
       } break;
       case 1: {
-      } break;
-      case -1: {
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

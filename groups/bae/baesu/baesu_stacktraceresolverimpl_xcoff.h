@@ -37,6 +37,10 @@ BDES_IDENT("$Id: $")
 
 #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
+#ifndef INCLUDED_BAESU_STACKTRACE
+#include <baesu_stacktrace.h>
+#endif
+
 #ifndef INCLUDED_BAESU_STACKTRACEFRAME
 #include <baesu_stacktraceframe.h>
 #endif
@@ -45,16 +49,16 @@ BDES_IDENT("$Id: $")
 #include <baesu_stacktraceresolver_filehelper.h>
 #endif
 
+#ifndef INCLUDED_BDEMA_HEAPBYPASSALLOCATOR
+#include <bdema_heapbypassallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -118,22 +122,20 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
     baesu_StackTraceResolver_FileHelper
                           *d_helper;          // helper for reading files
 
-    bsl::vector<baesu_StackTraceFrame>
-                          *d_allFrames_p;     // pointer to vector of stack
-                                              // trace frames to be populated
-                                              // by resolution.  Note only the
-                                              // 'address' fields are
-                                              // initialized at the start, our
-                                              // goal is to initialize all the
-                                              // other fields.  Held, not
+    baesu_StackTrace      *d_stackTrace_p;    // pointer to stack trace object
+                                              // to be populated by resolution.
+                                              // Note only the 'address' fields
+                                              // are initialized at the start,
+                                              // our goal is to initialize all
+                                              // the other fields.  Held, not
                                               // owned.
 
     baesu_StackTraceFrame
-                         **d_segFramePtrs_p;  // pointers into
-                                              // 'd_allFrames_p' listing
-                                              // only those frames whose
-                                              // 'address' fields point into
-                                              // the current segment
+                         **d_segFramePtrs_p;  // pointers to stack trace frames
+                                              // contained in 'd_stackTrace_p'
+                                              // listing only those frames
+                                              // whose 'address' fields point
+                                              // into the current segment
 
     const void           **d_segAddresses_p;  // the 'address' fields from
                                               // 'd_segFramePtrs_p' in 1-1
@@ -148,15 +150,15 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
                                               // entries of 'd_segFramePtrs_p'
 
     int                    d_numCurrAddresses;// number of 'address' fields in
-                                              // 'd_allFrames_p' that point
+                                              // 'd_stackTrace_p' that point
                                               // into the current segment, also
                                               // the length of
                                               // 'd_segFramePtrs_p',
                                               // 'd_segAddresses_p', and
                                               // 'd_segAuxInfos_p', note all 3
                                               // are allocated to have
-                                              // 'd_allFrames_p->size()' (worst
-                                              // case) length
+                                              // 'd_stackTrace_p->length()'
+                                              // (worst case) length
 
     char                  *d_scratchBuf_p;    // scratch buffer
 
@@ -168,29 +170,32 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
                                               // address in memory for the
                                               // current segment
 
-    UintPtr                  d_archiveMemberOffset;
+    UintPtr                d_archiveMemberOffset;
                                               // archive member offset, or 0 if
                                               // the segment is not an archive
                                               // member
 
-    UintPtr                  d_archiveMemberSize;
+    UintPtr                d_archiveMemberSize;
                                               // archive member size, or size
                                               // of the whole file if the
                                               // segment is not an archive
                                               // member
 
-    UintPtr                  d_symTableOffset;// absolute offset of symbol
+    UintPtr                d_symTableOffset;  // absolute offset of symbol
                                               // table in the current file
 
-    UintPtr                  d_stringTableOffset;
+    UintPtr                d_stringTableOffset;
                                               // absolute offset of string
                                               // table in the current file
 
     bool                   d_demangle;        // flag indicating whether
                                               // demangling is to be done
 
-    bslma_Allocator       *d_allocator_p;     // allocator used to supply
-                                              // memory (held, not owned)
+    bdema_HeapBypassAllocator
+                           d_hbpAlloc;        // heap bypass allocator, all
+                                              // memory allocated by this
+                                              // object will be freed when this
+                                              // allocator is destroyed.
 
   private:
     // NOT IMPLEMENTED
@@ -199,10 +204,8 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
                                           const baesu_StackTraceResolverImpl&);
 
     // PRIVATE CREATORS
-    baesu_StackTraceResolverImpl(
-                           bsl::vector<baesu_StackTraceFrame> *stackFrames,
-                           bool                                demangle,
-                           bslma_Allocator                    *basicAllocator);
+    baesu_StackTraceResolverImpl(baesu_StackTrace *stackTrace,
+                                 bool              demangle);
         // Create an stack trace reolver that can populate other fields of the
         // specified 'stackFrames' object given previously populated 'address'
         // fields.  Specify 'demangle', which indicates whether demangling of
@@ -309,11 +312,15 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
         // that if 'archiveMemberName' is unspecified, the whole library file
         // has a single segment.
 
+    // PRIVATE ACCESSORS
+    bslma_Allocator *allocator();
+        // Return a pointer to this object's heap bypass allocator.
+
   public:
+    // PUBLIC CLASS METHODS
     static
-    int resolve(bsl::vector<baesu_StackTraceFrame> *stackFrames,
-                bool                                demangle,
-                bslma_Allocator                    *basicAllocator);
+    int resolve(baesu_StackTrace *stackTrace,
+                bool              demangle);
         // Populate information for the specified 'stackFrames', a vector of
         // stack trace frames in a stack trace object.  Specify 'demangle', to
         // determine whether demangling is to occur, and 'basicAllocator',
@@ -335,6 +342,15 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
                          // class baesu_StackTraceResolverImpl
                          // ----------------------------------
 
+// PRIVATE ACCESSORS
+inline
+bslma_Allocator *baesu_StackTraceResolverImpl<
+                                    baesu_ObjectFileFormat::Xcoff>::allocator()
+{
+    return &d_hbpAlloc;
+}
+
+// CLASS METHODS
 inline
 int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>::testFunc()
 {

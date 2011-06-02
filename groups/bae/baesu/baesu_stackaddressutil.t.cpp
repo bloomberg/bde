@@ -1,6 +1,8 @@
 // baesu_stackaddressutil.t.cpp                                       -*-C++-*-
 #include <baesu_stackaddressutil.h>
 
+#include <bsls_stopwatch.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -81,7 +83,7 @@ const bool lamePlatform = false;
 // GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace BAESU_STACKADDRESSUTIL_TEST_CASE_ONE {
+namespace CASE_ONE {
 
 volatile int recurseDepth = 50;
 
@@ -143,7 +145,7 @@ int recurser(volatile int *depth, ChainLink *cl_p)
     return sum;
 }
 
-}  // close namespace BAESU_STACKADDRESSUTIL_TEST_CASE_ONE
+}  // close namespace CASE_ONE
 
 bsl::string myHex(UintPtr up)
 {
@@ -154,7 +156,12 @@ bsl::string myHex(UintPtr up)
     return ss.str();
 }
 
-namespace BAESU_STACKADDRESSUTIL_TEST_CASE_THREE {
+                                // ------
+                                // CASE 3
+                                // ------
+
+namespace CASE_THREE {
+
 struct AddressEntry {
     UintPtr d_returnAddress;
     int     d_traceIndex;
@@ -277,7 +284,43 @@ int func0()
     return 0;
 }
 
-}  // close namespace BAESU_STACKADDRESSUTIL_TEST_CASE_THREE
+}  // close namespace CASE_THREE
+
+                            // ------------------
+                            // case -1: benchmark
+                            // ------------------
+
+namespace CASE_MINUS_ONE {
+
+typedef int (*GetStackPointersFunc)(void **buffer,
+                                    int    maxFrames);
+GetStackPointersFunc funcPtr;
+
+enum {
+    RECURSION_DEPTH = 40,
+    MAX_FRAMES = 100
+};
+
+void recurser(int  iterations,
+              int *depth)
+{
+    if (--*depth <= 0) {
+        void *addresses[MAX_FRAMES];
+        for (int i = iterations; i > 0; --i) {
+            int frames = (*funcPtr)(addresses, MAX_FRAMES);
+            LOOP2_ASSERT(RECURSION_DEPTH, frames, RECURSION_DEPTH < frames);
+            LOOP2_ASSERT(RECURSION_DEPTH + 10, frames,
+                                                RECURSION_DEPTH + 10 > frames);
+        }
+    }
+    else {
+        recurser(iterations, depth);
+    }
+
+    ++*depth;         // prevent tail recursion optimization
+}
+
+}  // close namespace CASE_MINUS_ONE
 
 //=============================================================================
 //                                   MAIN PROGRAM
@@ -311,7 +354,7 @@ int main(int argc, char *argv[])
                              "============================\n";
 
 #ifndef BSLS_PLATFORM__OS_WINDOWS
-        ASSERT(BAESU_STACKADDRESSUTIL_TEST_CASE_THREE::func5() > 0);
+        ASSERT(CASE_THREE::func5() > 0);
 #endif
       }  break;
       case 2: {
@@ -350,7 +393,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
-        namespace TC = BAESU_STACKADDRESSUTIL_TEST_CASE_ONE;
+        namespace TC = CASE_ONE;
 
         // Call 'recurseAndPrintExample3' with will recurse 'depth' times, then
         // print a stack trace.
@@ -362,6 +405,36 @@ int main(int argc, char *argv[])
         TC::recurser(&depth, &cl);
         ASSERT(TC::recurseDepth == depth);
       }  break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // BENCHMARK OF getStackAddresses
+        // --------------------------------------------------------------------
+
+        namespace TD = CASE_MINUS_ONE;
+
+        int depth = TD::RECURSION_DEPTH;
+
+#if   defined(BSLS_PLATFORM__OS_WINDOWS)
+        const int iterations = 100;
+#elif defined(BSLS_PLATFORM__OS_SOLARIS)
+        const int iterations = 1000;
+#else
+        const int iterations = 100 * 1000;
+#endif
+
+        bsls_Stopwatch sw;
+        TD::funcPtr = &baesu_StackAddressUtil::getStackAddresses;
+
+        sw.start(true);
+        TD::recurser(iterations, &depth);
+        sw.stop();
+
+        ASSERT(TD::RECURSION_DEPTH == depth);
+
+        cout << "getStackAddresses: user: " <<
+                                 sw.accumulatedUserTime() / iterations <<
+                   ", wall: " << sw.accumulatedWallTime() / iterations << endl;
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND.\n";
         testStatus = -1;

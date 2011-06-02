@@ -6,6 +6,7 @@ BDES_IDENT_RCSID(baesu_stacktraceprintutil_cpp,"$Id$ $CSID$")
 
 #include <baesu_stackaddressutil.h>
 #include <baesu_stacktrace.h>
+#include <baesu_stacktraceutil.h>
 
 #include <bsls_platform.h>
 
@@ -24,9 +25,10 @@ namespace BloombergLP {
                        // -------------------------------
 
 // CLASS METHOD
-void baesu_StackTracePrintUtil::printStackTrace(bsl::ostream& stream,
-                                                int           maxFrames,
-                                                bool          demangle)
+bsl::ostream& baesu_StackTracePrintUtil::printStackTrace(
+                                                       bsl::ostream& stream,
+                                                       int           maxFrames,
+                                                       bool          demangle)
 {
     enum {
         DEFAULT_MAX_FRAMES = 1024,
@@ -46,20 +48,22 @@ void baesu_StackTracePrintUtil::printStackTrace(bsl::ostream& stream,
                                                                  maxFrames);
     if (numAddresses <= 0 || numAddresses > maxFrames) {
         stream << "Stack Trace: Internal Error getting stack addresses\n";
-        return;                                                       // RETURN
+        return stream;                                                // RETURN
     }
 
     // Throw away the first frame, since it refers to this routine.
 
-    const int rc = st.initializeFromAddressArray(addresses    + IGNORE_FRAMES,
+    const int rc = baesu_StackTraceUtil::loadStackTraceFromAddressArray(
+                                                 &st,
+                                                 addresses    + IGNORE_FRAMES,
                                                  numAddresses - IGNORE_FRAMES,
                                                  demangle);
     if (rc) {
         stream << "Stack Trace: Internal Error initializing frames\n";
-        return;                                                       // RETURN
+        return stream;                                                // RETURN
     }
 
-    stream << st;
+    return baesu_StackTraceUtil::printFormatted(stream, st);
 }
 
 }  // close namespace BloombergLP
