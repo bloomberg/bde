@@ -10,6 +10,8 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
 
 #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 
+#include <bdema_heapbypassallocator.h>
+
 #include <bsls_platform.h>
 #include <bsls_platformutil.h>
 
@@ -147,19 +149,17 @@ bool Resolver_DllApi::loaded()
        // =============================================================
 
 int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
-                        bsl::vector<baesu_StackTraceFrame> *frames,
-                        bool                                demangle,
-                        bslma_Allocator                    *basicAllocator)
-    // Given the specified vector 'frames' of frames from the stack trace
-    // object which have the 'address()' fields valid and all other fields
-    // invalid, resolve the rest of the fields in the frames.  Each 'address'
-    // field must be initialized to the return instruction pointer from a
-    // subroutine that was on the stack when
-    // 'baesu_StackTrace::getStackPointers' was run.  Return 0 on success and a
-    // non-zero value otherwise.  Note that on Windows, demangling is not an
-    // option -- it always happens.
+						   baesu_StackTrace *stackTrace,
+						   bool              demangle)
+    // Given a specified stack trace object 'stackTrace' of stack trace frames
+    // with only their 'address' fields valid, set as many other fields of the
+    // frames as possible.  The 'demangle' argument is ignored, demangling
+    // always happens on Windows.  Return 0 if successful and a non-zero value
+    // otherwise.
 {
     typedef bsl::map<HMODULE, const char *> LibNameMap;
+
+    bdema_HeapBypassAllocator hbpAlloc;
 
     Resolver_DllApi api;
     if (!api.loaded()) {
@@ -182,9 +182,9 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
         return -301;                                                  // RETURN
     }
 
-    int numFrames = frames->size();
-    LibNameMap libNameMap(basicAllocator);
-    char *libNameBuf = (char *) basicAllocator->allocate(MAX_PATH);
+    int numFrames = stackTrace->length();
+    LibNameMap libNameMap(&hbpAlloc);
+    char *libNameBuf = (char *) hbpAlloc.allocate(MAX_PATH);
 
     enum {
         MAX_SYMBOL_BUF_NAME_LENGTH = 2000,
@@ -192,10 +192,10 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
                                     MAX_SYMBOL_BUF_NAME_LENGTH * sizeof(TCHAR),
         SIZEOF_STRUCT = SIZEOF_SEGMENT - sizeof(TCHAR)
     };
-    SYMBOL_INFO *sym = (SYMBOL_INFO*) basicAllocator->allocate(SIZEOF_SEGMENT);
+    SYMBOL_INFO *sym = (SYMBOL_INFO*) hbpAlloc.allocate(SIZEOF_SEGMENT);
 
     for(int i = 0; i < numFrames; ++i) {
-        baesu_StackTraceFrame *frame = &(*frames)[i];
+        baesu_StackTraceFrame *frame = &(*stackTrace)[i];
         DWORD64 address = (DWORD64) frame->address();
 
         IMAGEHLP_LINE64 line;
@@ -251,7 +251,7 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
                 // time looking up the same library again.  Leave the
                 // libraryFileName in the frame null.
 
-                libNameMap[hModule] = bdeu_String::copy("", basicAllocator);
+                libNameMap[hModule] = bdeu_String::copy("", &hbpAlloc);
             }
             else {
                 frame->setLibraryFileName(libNameBuf);

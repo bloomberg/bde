@@ -3,9 +3,9 @@
 
 #include <baesu_objectfileformat.h>
 
-#include <bdema_sequentialallocator.h>
 #include <bdeu_random.h>
 
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_types.h>
 
@@ -169,11 +169,12 @@ UintPtr bigRand()
     return (UintPtr) (bigRandSeed ^ lowBits);
 }
 
-void stuffRandomAddresses(bsl::vector<baesu_StackTraceFrame> *v)
+void stuffRandomAddresses(baesu_StackTrace *v)
 {
     const UintPtr delta = (UintPtr) 1 << ((sizeof(UintPtr) - 1) * 8);
     const int vecLength = 3 * 256 * 3 + 2048;
 
+    v->removeAll();
     v->resize(vecLength);
 
     int vIndex = 0;
@@ -203,12 +204,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    // Note we are using SequentialAllocator here -- this component does not
-    // free its memory, it relies upon its memory allocator to free it all
-    // upon destruction.
-
     bslma_TestAllocator ta;
-    bdema_SequentialAllocator sa(&ta);
+    bslma_TestAllocator da;
 
     switch (test) { case 0:
       case 2: {
@@ -226,20 +223,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Garbage Test\n"
                              "============\n";
 
-        bsl::vector<baesu_StackTraceFrame> traceVec;
-        stuffRandomAddresses(&traceVec);
+	baesu_StackTrace st;
+        stuffRandomAddresses(&st);
 
-        ASSERT(0 == Obj::resolve(&traceVec,
-                                 true,
-                                 &sa));
+        ASSERT(0 == Obj::resolve(&st, true));
 
-        for (int vecIndex = 0; vecIndex < (int) traceVec.size();
-                                                             vecIndex += 128) {
+        for (int si = 0; si < (int) st.length(); si += 128) {
             bsl::stringstream ss(&ta);
 
-            int vecIndexLim = bsl::min(vecIndex + 128, (int) traceVec.size());
-            for (int j = vecIndex; j < vecIndexLim; ++j) {
-                ss << traceVec[vecIndex] << endl;
+            int siLim = bsl::min(si + 128, (int) st.length());
+            for (int j = si; j < siLim; ++j) {
+                ss << st[si] << endl;
             }
         }
       }  break;
@@ -269,9 +263,9 @@ int main(int argc, char *argv[])
 
         typedef bsls_Types::UintPtr UintPtr;
 
-        bsl::vector<Frame> frames;
-        frames.resize(1);
-        frames[0].setAddress(addFixedOffset((UintPtr) &funcStaticOne));
+	baesu_StackTrace st;
+        st.resize(1);
+        st[0].setAddress(addFixedOffset((UintPtr) &funcStaticOne));
 
         // Optimizers can be just UNBELIEVABLY clever.  If you declare a
         // routine inline, it is VERY aggressive about figuring out a way to
@@ -295,35 +289,32 @@ int main(int argc, char *argv[])
         testFuncPtr = foilOptimizer(testFuncPtr);
 
         testFuncLine = (* (TestFuncPtr) testFuncPtr)();
-        frames[1].setAddress(addFixedOffset(testFuncPtr));
+        st[1].setAddress(addFixedOffset(testFuncPtr));
 #endif
 
-        for (unsigned i = 0; i < frames.size(); ++i) {
-            const baesu_StackTraceFrame& frame = frames[i];
+        for (unsigned i = 0; i < st.length(); ++i) {
+            const baesu_StackTraceFrame& frame = st[i];
 
-            ASSERT(!frame.isMangledSymbolNameValid());
-            ASSERT(!frame.isSymbolNameValid());
-            ASSERT(!frame.isLibraryFileNameValid());
-            ASSERT(!frame.isSourceFileNameValid());
-            ASSERT(!frame.isLineNumberValid());
+            ASSERT(!frame.isMangledSymbolNameKnown());
+            ASSERT(!frame.isSymbolNameKnown());
+            ASSERT(!frame.isLibraryFileNameKnown());
+            ASSERT(!frame.isSourceFileNameKnown());
+            ASSERT(!frame.isLineNumberKnown());
         }
 
-        Obj::resolve(&frames,
-                     true,
-                     &sa);
+        Obj::resolve(&st, true);
 
         if (veryVerbose) {
-            cout << "0): " << frames[0] << endl;
-            cout << "1): " << frames[1] << endl;
+            cout << "0): " << st[0] << endl;
         }
 
-        for (unsigned i = 0; i < frames.size(); ++i) {
-            const baesu_StackTraceFrame& frame = frames[i];
+        for (unsigned i = 0; i < st.length(); ++i) {
+            const baesu_StackTraceFrame& frame = st[i];
             bsl::string name;
 
-            ASSERT(frame.isMangledSymbolNameValid());
-            ASSERT(frame.isSymbolNameValid());
-            ASSERT(frame.isLibraryFileNameValid());
+            ASSERT(frame.isMangledSymbolNameKnown());
+            ASSERT(frame.isSymbolNameKnown());
+            ASSERT(frame.isLibraryFileNameKnown());
             name = frame.libraryFileName();
             LOOP_ASSERT(name, npos != name.find(
                                    "\\baesu_stacktraceresolverimpl_windows."));

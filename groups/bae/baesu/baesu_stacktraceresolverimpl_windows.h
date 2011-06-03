@@ -35,6 +35,10 @@ BDES_IDENT("$Id: $")
 #include <baesu_objectfileformat.h>
 #endif
 
+#ifndef INCLUDED_BAESU_STACKTRACE
+#include <baesu_stacktrace.h>
+#endif
+
 #ifndef INCLUDED_BAESU_STACKTRACEFRAME
 #include <baesu_stacktraceframe.h>
 #endif
@@ -75,15 +79,13 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows> {
 
   public:
     // CLASS METHODS
-    static int resolve(bsl::vector<baesu_StackTraceFrame> *outFrames,
-                       bool                                demangle,
-                       bslma_Allocator                    *basicAllocator);
-        // Given a specified vector 'outFrames' of stack trace frames with only
-        // their 'address' fields valid, set as many other fields of the frames
-        // as possible.  The 'demangle' argument is ignored, demangling always
-        // happens on Windows.  Specify 'basicAllocator' which will be used for
-        // all other memory allocation.  Return 0 if successful and a non-zero
-        // value otherwise.
+    static int resolve(baesu_StackTrace *stackTrace,
+                       bool              demangle);
+        // Given a specified stack trace object 'stackTrace' of stack trace
+        // frames with only their 'address' fields valid, set as many other
+        // fields of the frames as possible.  The 'demangle' argument is
+        // ignored, demangling always happens on Windows.  Return 0 if
+        // successful and a non-zero value otherwise.
 
     static inline
     int testFunc();
