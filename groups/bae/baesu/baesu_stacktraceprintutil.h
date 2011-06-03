@@ -61,23 +61,33 @@ BDES_IDENT("$Id: $")
 //      assert(5 == depth);
 //  }
 //..
-// The following output is produced by this example on AIX (note that the lines
-// were longer than 80 chars, so continuation is wrapped).
+// The following output is produced by this example on AIX (output for each
+// frame is single line -- note that the lines were longer than 80 chars, so
+// continuation is wrapped, that program name is truncated to 32 chars on AIX,
+// and that on Solaris, HPUX, or Linux, source file names and line numbers will
+// not be provided).
 //..
-//  (0) .recurseAndPrintUsage(int*)+0x60 at 0x10013060
-//           source:baesu_stacktrace.t.cpp:488 in baesu_stacktrace.t.dbg_exc_mt
-//  (1) .recurseAndPrintUsage(int*)+0x48 at 0x10013048
-//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
-//  (2) .recurseAndPrintUsage(int*)+0x48 at 0x10013048
-//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
-//  (3) .recurseAndPrintUsage(int*)+0x48 at 0x10013048
-//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
-//  (4) .recurseAndPrintUsage(int*)+0x48 at 0x10013048
-//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
-//  (5) .main+0x2e8 at 0x10000a68 source:baesu_stacktrace.t.cpp:575
-//                                             in baesu_stacktrace.t.dbg_exc_mt
-//  (6) .__start+0x9c at 0x100001ec source:crt0main.s in
-//                                                baesu_stacktrace.t.dbg_exc_mt
+//  (0): .recurseAndPrintExample1(int*)+0x58 at 0x10009be8
+//                 source:baesu_stacktraceprintutil.t.cpp:630 in
+//                 baesu_stacktraceprintutil.t.dbg_
+//  (1): .recurseAndPrintExample1(int*)+0x40 at 0x10009bd0
+//                 source:baesu_stacktraceprintutil.t.cpp:623 in
+//                 baesu_stacktraceprintutil.t.dbg_
+//  (2): .recurseAndPrintExample1(int*)+0x40 at 0x10009bd0
+//                 source:baesu_stacktraceprintutil.t.cpp:623 in
+//                 baesu_stacktraceprintutil.t.dbg_
+//  (3): .recurseAndPrintExample1(int*)+0x40 at 0x10009bd0
+//                 source:baesu_stacktraceprintutil.t.cpp:623 in
+//                 baesu_stacktraceprintutil.t.dbg_
+//  (4): .recurseAndPrintExample1(int*)+0x40 at 0x10009bd0
+//                 source:baesu_stacktraceprintutil.t.cpp:623 in
+//                 baesu_stacktraceprintutil.t.dbg_
+//  (5): .main+0x2d4 at 0x10000a2c
+//                 source:baesu_stacktraceprintutil.t.cpp:687 in
+//                 baesu_stacktraceprintutil.t.dbg_
+//  (6): .__start+0x6c at 0x1000020c
+//                 source:crt0main.s in
+//                 baesu_stacktraceprintutil.t.dbg_
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION

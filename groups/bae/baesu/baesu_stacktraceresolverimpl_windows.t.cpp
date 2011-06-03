@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Garbage Test\n"
                              "============\n";
 
-	baesu_StackTrace st;
+        baesu_StackTrace st;
         stuffRandomAddresses(&st);
 
         ASSERT(0 == Obj::resolve(&st, true));
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
 
         typedef bsls_Types::UintPtr UintPtr;
 
-	baesu_StackTrace st;
+        baesu_StackTrace st;
         st.resize(1);
         st[0].setAddress(addFixedOffset((UintPtr) &funcStaticOne));
 
