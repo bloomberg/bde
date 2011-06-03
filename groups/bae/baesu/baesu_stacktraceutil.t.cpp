@@ -55,24 +55,18 @@ using bsl::flush;
 //=============================================================================
 // TEST PLAN
 //
-// [ 1] default c'tor, d'tor
-// [ 2] manipulator and accessor
-// [ 2] loadStackTraceFrameAddressArray
-// [ 2] loadStackTraceFrameStack
-// [ 2] length
-// [ 3] printFormattted(stream, stackTraceFrame)
-// [ 3] printFormattted(stream, stackTrace)
-// [ 5] loadStackTraceFrameAddressArray
-// [ 6] loadStackTraceFrameStack
-// [ 7] deep stack trace
-// [ 9] function within shared lib
-// [10] multiple traces in one pass
-// [11] large symbols
-// [12] output of trace with fprintf rather than stream
-// [13] function in .h file on call stack
-// [14] line #'s and offsets
-// [16] usage 1
-// [17] usage 2
+// [ 1] loadStackTraceFromAddressArray
+// [ 1] loadStackTraceFrameStack
+// [ 2] printFormatted
+// [ 3] loadStackTraceFromAddressArray twice
+// [ 4] loadStackTraceFrameStack twice
+// [ 5] recursive deep twice
+// [ 6] multiple times
+// [ 7] large symbols
+// [ 8] output of trace with fprintf rather than stream
+// [ 9] line #'s and offsets
+// [10] usage 1
+// [11] usage 2
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -328,12 +322,12 @@ void testStackTrace(const baesu_StackTrace& st)
     }
 }
 
-                                // -------
-                                // case 12
-                                // -------
+                                // ------
+                                // case 8
+                                // ------
 
 static
-void case_12_top()
+void case_8_top()
 {
     FILE *fp = stderr;
     if (!PLAT_WIN && !verbose) {
@@ -385,121 +379,121 @@ void case_12_top()
 }
 
 static
-void case_12_recurse(int *depth)
+void case_8_recurse(int *depth)
 {
     if (--*depth <= 0) {
-        case_12_top();
+        case_8_top();
     }
     else {
-        case_12_recurse(depth);
+        case_8_recurse(depth);
     }
 
     ++*depth;
 }
 
-                                // -------
-                                // case 11
-                                // -------
+                                // ------
+                                // case 7
+                                // ------
 
 #ifdef BSLS_PLATFORM__OS_UNIX
 // The goal here is to create an identifier > 32,000 bytes
 // and < '((1 << 15) - 64)' bytes long.
 
-// SYM11_50 followed by '::' should expand to about 50 chars of identifier
-#define SYM11_50(A, B, C)                                                     \
+// SYM07_50 followed by '::' should expand to about 50 chars of identifier
+#define SYM07_50(A, B, C)                                                     \
     n23456789012345678901234567890123456789012345##A##B##C
 
-#define NS11_50(A, B, C)                                                      \
-    namespace SYM11_50(A, B, C) {
+#define NS07_50(A, B, C)                                                      \
+    namespace SYM07_50(A, B, C) {
 
-#define SYM11_1000(D, E)                                                      \
-    SYM11_50(D,E,a):: SYM11_50(D,E,f):: SYM11_50(D,E,k):: SYM11_50(D,E,p)::   \
-    SYM11_50(D,E,b):: SYM11_50(D,E,g):: SYM11_50(D,E,l):: SYM11_50(D,E,q)::   \
-    SYM11_50(D,E,c):: SYM11_50(D,E,h):: SYM11_50(D,E,m):: SYM11_50(D,E,r)::   \
-    SYM11_50(D,E,d):: SYM11_50(D,E,i):: SYM11_50(D,E,n):: SYM11_50(D,E,s)::   \
-    SYM11_50(D,E,e):: SYM11_50(D,E,j):: SYM11_50(D,E,o):: SYM11_50(D,E,t)
+#define SYM07_1000(D, E)                                                      \
+    SYM07_50(D,E,a):: SYM07_50(D,E,f):: SYM07_50(D,E,k):: SYM07_50(D,E,p)::   \
+    SYM07_50(D,E,b):: SYM07_50(D,E,g):: SYM07_50(D,E,l):: SYM07_50(D,E,q)::   \
+    SYM07_50(D,E,c):: SYM07_50(D,E,h):: SYM07_50(D,E,m):: SYM07_50(D,E,r)::   \
+    SYM07_50(D,E,d):: SYM07_50(D,E,i):: SYM07_50(D,E,n):: SYM07_50(D,E,s)::   \
+    SYM07_50(D,E,e):: SYM07_50(D,E,j):: SYM07_50(D,E,o):: SYM07_50(D,E,t)
 
-#define NS11_1000(D, E)                                                       \
-    NS11_50(D, E, a)  NS11_50(D, E, f)  NS11_50(D, E, k)  NS11_50(D, E, p)    \
-    NS11_50(D, E, b)  NS11_50(D, E, g)  NS11_50(D, E, l)  NS11_50(D, E, q)    \
-    NS11_50(D, E, c)  NS11_50(D, E, h)  NS11_50(D, E, m)  NS11_50(D, E, r)    \
-    NS11_50(D, E, d)  NS11_50(D, E, i)  NS11_50(D, E, n)  NS11_50(D, E, s)    \
-    NS11_50(D, E, e)  NS11_50(D, E, j)  NS11_50(D, E, o)  NS11_50(D, E, t)
+#define NS07_1000(D, E)                                                       \
+    NS07_50(D, E, a)  NS07_50(D, E, f)  NS07_50(D, E, k)  NS07_50(D, E, p)    \
+    NS07_50(D, E, b)  NS07_50(D, E, g)  NS07_50(D, E, l)  NS07_50(D, E, q)    \
+    NS07_50(D, E, c)  NS07_50(D, E, h)  NS07_50(D, E, m)  NS07_50(D, E, r)    \
+    NS07_50(D, E, d)  NS07_50(D, E, i)  NS07_50(D, E, n)  NS07_50(D, E, s)    \
+    NS07_50(D, E, e)  NS07_50(D, E, j)  NS07_50(D, E, o)  NS07_50(D, E, t)
 
-#define ENDNS11_1000   } } } } }   } } } } }   } } } } }   } } } } }
+#define ENDNS07_1000   } } } } }   } } } } }   } } } } }   } } } } }
 
-#define SYM11_10000(X)                                                        \
-    SYM11_1000(X, a)::SYM11_1000(X, d)::SYM11_1000(X, g)::SYM11_1000(X, j)::  \
-    SYM11_1000(X, b)::SYM11_1000(X, e)::SYM11_1000(X, h)::SYM11_1000(X, k)::  \
-    SYM11_1000(X, c)::SYM11_1000(X, f)
+#define SYM07_10000(X)                                                        \
+    SYM07_1000(X, a)::SYM07_1000(X, d)::SYM07_1000(X, g)::SYM07_1000(X, j)::  \
+    SYM07_1000(X, b)::SYM07_1000(X, e)::SYM07_1000(X, h)::SYM07_1000(X, k)::  \
+    SYM07_1000(X, c)::SYM07_1000(X, f)
 
-#define NS11_10000(X)                                                         \
-    NS11_1000(X, a)   NS11_1000(X, d)   NS11_1000(X, g)   NS11_1000(X, j)     \
-    NS11_1000(X, b)   NS11_1000(X, e)   NS11_1000(X, h)   NS11_1000(X, k)     \
-    NS11_1000(X, c)   NS11_1000(X, f)
+#define NS07_10000(X)                                                         \
+    NS07_1000(X, a)   NS07_1000(X, d)   NS07_1000(X, g)   NS07_1000(X, j)     \
+    NS07_1000(X, b)   NS07_1000(X, e)   NS07_1000(X, h)   NS07_1000(X, k)     \
+    NS07_1000(X, c)   NS07_1000(X, f)
 
-#define ENDNS11_10000                                                         \
-    ENDNS11_1000      ENDNS11_1000      ENDNS11_1000      ENDNS11_1000        \
-    ENDNS11_1000      ENDNS11_1000      ENDNS11_1000      ENDNS11_1000        \
-    ENDNS11_1000      ENDNS11_1000
+#define ENDNS07_10000                                                         \
+    ENDNS07_1000      ENDNS07_1000      ENDNS07_1000      ENDNS07_1000        \
+    ENDNS07_1000      ENDNS07_1000      ENDNS07_1000      ENDNS07_1000        \
+    ENDNS07_1000      ENDNS07_1000
 
-#define SYM11_32000                                                           \
-    SYM11_10000(a) :: SYM11_10000(b) :: SYM11_10000(c) ::                     \
-    SYM11_1000(d,a):: SYM11_1000(d,b)
+#define SYM07_32000                                                           \
+    SYM07_10000(a) :: SYM07_10000(b) :: SYM07_10000(c) ::                     \
+    SYM07_1000(d,a):: SYM07_1000(d,b)
 
-#define NS11_32000                                                            \
-    NS11_10000(a)     NS11_10000(b)     NS11_10000(c)                         \
-    NS11_1000(d,a)    NS11_1000(d,b)
+#define NS07_32000                                                            \
+    NS07_10000(a)     NS07_10000(b)     NS07_10000(c)                         \
+    NS07_1000(d,a)    NS07_1000(d,b)
 
-#define ENDNS11_32000                                                         \
-    ENDNS11_1000     ENDNS11_1000                                             \
-    ENDNS11_10000    ENDNS11_10000    ENDNS11_10000
+#define ENDNS07_32000                                                         \
+    ENDNS07_1000     ENDNS07_1000                                             \
+    ENDNS07_10000    ENDNS07_10000    ENDNS07_10000
 
-# define SYM11    SYM11_32000
-# define NS11     NS11_32000
-# define ENDNS11  ENDNS11_32000
-static const size_t case11MinLen = 32000;
+# define SYM07    SYM07_32000
+# define NS07     NS07_32000
+# define ENDNS07  ENDNS07_32000
+static const size_t case07MinLen = 32000;
 
 #else
 // WINDOWS
 
-# define SYM11_50(A, B, C)                                                    \
+# define SYM07_50(A, B, C)                                                    \
     n23456789012345678901234567890123456789012345##A##B##C
 
-# define NS11_50(A, B, C)                                                     \
-    namespace SYM11_50(A, B, C) {
+# define NS07_50(A, B, C)                                                     \
+    namespace SYM07_50(A, B, C) {
 
-# define SYM11_900(D, E)                                                      \
-    SYM11_50(D,E,a):: SYM11_50(D,E,f):: SYM11_50(D,E,k):: SYM11_50(D,E,p)::   \
-    SYM11_50(D,E,b):: SYM11_50(D,E,g):: SYM11_50(D,E,l):: SYM11_50(D,E,q)::   \
-    SYM11_50(D,E,c):: SYM11_50(D,E,h):: SYM11_50(D,E,m):: SYM11_50(D,E,r)::   \
-    SYM11_50(D,E,d):: SYM11_50(D,E,i):: SYM11_50(D,E,n):: SYM11_50(D,E,s)::   \
-    SYM11_50(D,E,e):: SYM11_50(D,E,j)
+# define SYM07_900(D, E)                                                      \
+    SYM07_50(D,E,a):: SYM07_50(D,E,f):: SYM07_50(D,E,k):: SYM07_50(D,E,p)::   \
+    SYM07_50(D,E,b):: SYM07_50(D,E,g):: SYM07_50(D,E,l):: SYM07_50(D,E,q)::   \
+    SYM07_50(D,E,c):: SYM07_50(D,E,h):: SYM07_50(D,E,m):: SYM07_50(D,E,r)::   \
+    SYM07_50(D,E,d):: SYM07_50(D,E,i):: SYM07_50(D,E,n):: SYM07_50(D,E,s)::   \
+    SYM07_50(D,E,e):: SYM07_50(D,E,j)
 
-# define NS11_900(D, E)                                                       \
-    NS11_50(D, E, a)  NS11_50(D, E, f)  NS11_50(D, E, k)  NS11_50(D, E, p)    \
-    NS11_50(D, E, b)  NS11_50(D, E, g)  NS11_50(D, E, l)  NS11_50(D, E, q)    \
-    NS11_50(D, E, c)  NS11_50(D, E, h)  NS11_50(D, E, m)  NS11_50(D, E, r)    \
-    NS11_50(D, E, d)  NS11_50(D, E, i)  NS11_50(D, E, n)  NS11_50(D, E, s)    \
-    NS11_50(D, E, e)  NS11_50(D, E, j)
+# define NS07_900(D, E)                                                       \
+    NS07_50(D, E, a)  NS07_50(D, E, f)  NS07_50(D, E, k)  NS07_50(D, E, p)    \
+    NS07_50(D, E, b)  NS07_50(D, E, g)  NS07_50(D, E, l)  NS07_50(D, E, q)    \
+    NS07_50(D, E, c)  NS07_50(D, E, h)  NS07_50(D, E, m)  NS07_50(D, E, r)    \
+    NS07_50(D, E, d)  NS07_50(D, E, i)  NS07_50(D, E, n)  NS07_50(D, E, s)    \
+    NS07_50(D, E, e)  NS07_50(D, E, j)
 
-# define ENDNS11_900   } } } } }   } } } } }   } } } } }   } } }
+# define ENDNS07_900   } } } } }   } } } } }   } } } } }   } } }
 
-# define SYM11    SYM11_900(a, b)::SYM11_900(a, c)::                          \
-                  SYM11_50(1,2,3)::SYM11_50(1,2,4)::SYM11_50(1,2,5)::         \
+# define SYM07    SYM07_900(a, b)::SYM07_900(a, c)::                          \
+                  SYM07_50(1,2,3)::SYM07_50(1,2,4)::SYM07_50(1,2,5)::         \
                   n23456789112345678921234567893123456
 
-# define NS11     NS11_900(a, b) NS11_900(a, c)                               \
-                  NS11_50(1,2,3)   NS11_50(1,2,4)   NS11_50(1,2,5)            \
+# define NS07     NS07_900(a, b) NS07_900(a, c)                               \
+                  NS07_50(1,2,3)   NS07_50(1,2,4)   NS07_50(1,2,5)            \
                   namespace n23456789112345678921234567893123456 {
 
-# define ENDNS11  ENDNS11_900 ENDNS11_900 } } } }
-static const size_t case11MinLen = 1999;
+# define ENDNS07  ENDNS07_900 ENDNS07_900 } } } }
+static const size_t case07MinLen = 1999;
 
 #endif
-# define SYM11Q(s)  #s
+# define SYM07Q(s)  #s
 
-NS11    // open namespace
+NS07    // open namespace
 
 static inline
 const char *nullGuard(const char *pc)
@@ -507,7 +501,7 @@ const char *nullGuard(const char *pc)
     return pc ? pc : "";
 }
 
-void case_11_top()
+void case_07_top()
 {
     size_t maxMangled   = 0;
     size_t maxDemangled = 0;
@@ -532,17 +526,17 @@ void case_11_top()
         P(maxMangled);    P(maxDemangled);
     }
 
-    if (maxMangled < case11MinLen) {
-        *out_p << "SYM11 = ";
-        *out_p << nullGuard(SYM11Q(SYM11));
+    if (maxMangled < case07MinLen) {
+        *out_p << "SYM07 = ";
+        *out_p << nullGuard(SYM07Q(SYM07));
         *out_p << bsl::endl;
         *out_p << "mangledSymbolName = '";
         *out_p << nullGuard(maxMangledStr);
         *out_p << "'\n";
     }
     if (!PLAT_WIN || DEBUG_ON) {
-        LOOP_ASSERT(maxMangled,   maxMangled   >= case11MinLen);
-        LOOP_ASSERT(maxDemangled, maxDemangled >= case11MinLen);
+        LOOP_ASSERT(maxMangled,   maxMangled   >= case07MinLen);
+        LOOP_ASSERT(maxDemangled, maxDemangled >= case07MinLen);
     }
 
     if (veryVerbose || problem()) {
@@ -550,13 +544,13 @@ void case_11_top()
     }
 }
 
-ENDNS11  // close namespace
+ENDNS07  // close namespace
 
                                 // ------
-                                // case 7
+                                // case 5
                                 // ------
 
-void case_7_top(bool demangle)
+void case_5_top(bool demangle)
 {
     ST st;
     bsls_Stopwatch sw;
@@ -580,7 +574,7 @@ void case_7_top(bool demangle)
 
             bool dot = '.' == *st[0].symbolName().c_str();
 
-            const char *match = ".case_7_top";
+            const char *match = ".case_5_top";
             match += !dot;
             int len = bsl::strlen(match);
             const char *sn = st[0].symbolName().c_str();
@@ -589,7 +583,7 @@ void case_7_top(bool demangle)
             LOOP2_ASSERT(sn, match,              bsl::strstr( sn, match));
 
             if (!FORMAT_ELF && DEBUG_ON) {
-                // 'case_7_top' is global -- elf can't find source file names
+                // 'case_5_top' is global -- elf can't find source file names
                 // for globals
 
                 const char *sfnMatch = "baesu_stacktraceutil.t.cpp";
@@ -603,7 +597,7 @@ void case_7_top(bool demangle)
                 LOOP2_ASSERT(sfn, sfnMatch, !bsl::strcmp(sfn, sfnMatch));
             }
 
-            match = ".case_7_bottom";
+            match = ".case_5_bottom";
             match += !dot;
             len = bsl::strlen(match);
 
@@ -634,7 +628,7 @@ void case_7_top(bool demangle)
                 ++recursersFound;
 
                 if (DEBUG_ON) {
-                    // 'case_7_bottom' is static, so the source file name will
+                    // 'case_5_bottom' is static, so the source file name will
                     // be known on elf, thus it will be known for all
                     // platforms.
 
@@ -660,14 +654,14 @@ void case_7_top(bool demangle)
 }
 
 static
-void case_7_bottom(bool demangle, int *depth)
+void case_5_bottom(bool demangle, int *depth)
 {
     if (--*depth <= 0) {
-        bdef_Function<void(*)(bool)> func = &case_7_top;
+        bdef_Function<void(*)(bool)> func = &case_5_top;
         func(demangle);
     }
     else {
-        case_7_bottom(demangle, depth);
+        case_5_bottom(demangle, depth);
     }
 
     ++*depth;
@@ -675,16 +669,16 @@ void case_7_bottom(bool demangle, int *depth)
 
 
                                 // ------
-                                // case 6
+                                // case 4
                                 // ------
 
-bool case_6_top_called = false;
+bool case_4_top_called = false;
 
 static
-void case_6_top(bool demangle)
+void case_4_top(bool demangle)
 {
-    if (case_6_top_called) return;
-    case_6_top_called = true;
+    if (case_4_top_called) return;
+    case_4_top_called = true;
 
     ST st;
     int rc = Util::loadStackTraceFromStack(&st, 100, demangle);
@@ -694,7 +688,7 @@ void case_6_top(bool demangle)
 
         bslma_TestAllocator ta;
         bsl::vector<const char *> matches(&ta);
-        matches.push_back("case_6_top");
+        matches.push_back("case_4_top");
         matches.push_back("middle");
         matches.push_back("bottom");
         matches.push_back("main");
@@ -709,7 +703,7 @@ void case_6_top(bool demangle)
     }
 }
 
-namespace CASE_6 {
+namespace CASE_4 {
 
 bool middleCalled = false;
 
@@ -718,16 +712,16 @@ void middle(bool demangle)
     if (middleCalled) return;
     middleCalled = true;
 
-    case_6_top_called = false;
+    case_4_top_called = false;
 
     for (int i = 0; i < 1024; ++i) {
         if (i & 0xabcd) {
-            case_6_top(demangle);
+            case_4_top(demangle);
             i += 1024 << 4;
         }
     }
 
-    ASSERT(case_6_top_called);
+    ASSERT(case_4_top_called);
 }
 
 bool bottomCalled = false;
@@ -750,16 +744,16 @@ void bottom(bool demangle, double x)
     ASSERT(middleCalled);
 }
 
-}  // close namespace CASE_6
+}  // close namespace CASE_4
 
                                 // ------
-                                // case 5
+                                // case 3
                                 // ------
 
 static bool calledCase5Top = false;
 
 static
-void case_5_Top(bool demangle)
+void case_3_Top(bool demangle)
 {
     if (calledCase5Top) return;
     calledCase5Top = true;
@@ -780,7 +774,7 @@ void case_5_Top(bool demangle)
 
         bslma_TestAllocator ta;
         bsl::vector<const char *> matches(&ta);
-        matches.push_back("case_5_Top");
+        matches.push_back("case_3_Top");
         matches.push_back("upperMiddle");
         matches.push_back("lowerMiddle");
         matches.push_back("bottom");
@@ -796,7 +790,7 @@ void case_5_Top(bool demangle)
     }
 }
 
-namespace CASE_5 {
+namespace CASE_3 {
 
 bool calledUpperMiddle = false;
 
@@ -810,7 +804,7 @@ void upperMiddle(bool demangle, int i)
     for (int j = 0; j < 100; ++j) {
         if (j & 16) {
             i *= i;
-            case_5_Top(demangle);
+            case_3_Top(demangle);
         }
     }
 
@@ -860,13 +854,13 @@ double bottom(bool demangle)
     return x;
 }
 
-}  // close namespace CASE_5
+}  // close namespace CASE_3
 
                                 // ------
-                                // case 3
+                                // case 2
                                 // ------
 
-namespace CASE_3 {
+namespace CASE_2 {
 
 bool called = false;
 
@@ -884,31 +878,40 @@ void top(bslma_Allocator *alloc)
     ST st;
     Util::loadStackTraceFromStack(&st);
 
-#if 0 // TBD
-    bsl::string strA(alloc);
     {
-        bsl::stringstream ssA(alloc);           stringstreamUsed = true;
-        bsl::ostream& ssARef = ssA << st;
-        ASSERT(&ssA == &ssARef);
+        bsl::string strA(alloc);
+        bsl::string strB(alloc);
         {
+            bsl::stringstream ssA(alloc);
+            bsl::ostream& ssARef = ssA << st;
+            ASSERT(&ssA == &ssARef);
+
             bslma_DefaultAllocatorGuard guard(alloc);
-
             strA = ssA.str();
+            checkOutput(strA, matches);
         }
-        checkOutput(strA, matches);
-    }
-#endif
 
-    bslma_DefaultAllocatorGuard guard(alloc);
+        {
+            bsl::stringstream ssB(alloc);
+            bsl::ostream& ssBRef = st.print(ssB, 0, -1);
+            ASSERT(&ssB == &ssBRef);
+
+            bslma_DefaultAllocatorGuard guard(alloc);
+            strB = ssB.str();
+            checkOutput(strB, matches);
+        }
+        ASSERT(strA == strB);
+    }
 
     {
-        bsl::stringstream ssB(alloc);
-        bsl::ostream& ssBRef = Util::printFormatted(ssB, st);
-        ASSERT(&ssB == &ssBRef);
-        checkOutput(ssB.str(), matches);
-    }
+        bsl::stringstream ssC(alloc);
+        bsl::ostream& ssCRef = Util::printFormatted(ssC, st);
 
-//  LOOP2_ASSERT(strA, strB, strA == strB);    // TBD
+        bslma_DefaultAllocatorGuard guard(alloc);
+
+        ASSERT(&ssC == &ssCRef);
+        checkOutput(ssC.str(), matches);
+    }
 }
 
 void bottom(bslma_Allocator *alloc)
@@ -927,13 +930,13 @@ void bottom(bslma_Allocator *alloc)
     ASSERT(called);
 }
 
-}  // close namespace CASE_3
+}  // close namespace CASE_2
 
                                 // ------
-                                // case 2
+                                // case 1
                                 // ------
 
-namespace CASE_2 {
+namespace CASE_1 {
 
 bool called = false;
 
@@ -1021,7 +1024,7 @@ void bottom(bslma_Allocator *alloc)
     ASSERT(called);
 }
 
-}  // close namespace CASE_2
+}  // close namespace CASE_1
 
 //=============================================================================
 //                                USAGE EXAMPLES
@@ -1177,7 +1180,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 17: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TWO
         //
@@ -1199,7 +1202,7 @@ int main(int argc, char *argv[])
         example2(&depth);
         ASSERT(5 == depth);
       } break;
-      case 16: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE ONE
         //
@@ -1220,9 +1223,7 @@ int main(int argc, char *argv[])
         example1(&depth);
         ASSERT(5 == depth);
       } break;
-      case 15: {
-      } break;
-      case 14: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING LINE #'S AND OFFSETS
         //
@@ -1321,9 +1322,7 @@ int main(int argc, char *argv[])
             }
         }
       }  break;
-      case 13: {
-      } break;
-      case 12: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING WITH FPRINTF
         //
@@ -1346,10 +1345,10 @@ int main(int argc, char *argv[])
                             "============\n");
 
         int depth = 5;
-        case_12_recurse(&depth);
+        case_8_recurse(&depth);
         ASSERT(5 == depth);
       }  break;
-      case 11: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING LARGE SYMBOLS
         //
@@ -1371,9 +1370,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "LARGE SYMBOL TESTING\n"
                              "====================\n";
 
-        SYM11::case_11_top();
+        SYM07::case_07_top();
       }  break;
-      case 10: {
+      case 6: {
         // --------------------------------------------------------------------
         // DOING STACK TRACE TWICE
         //
@@ -1397,32 +1396,23 @@ int main(int argc, char *argv[])
             startDepth = bsl::atoi(argv[2]);
         }
         int depth = startDepth;
-        case_7_bottom(false, &depth);    // no demangle
+        case_5_bottom(false, &depth);    // no demangle
         ASSERT(startDepth  == depth);
 
         depth *= 2;
         startDepth *= 2;
-        case_7_bottom(true,  &depth);    // demangle
+        case_5_bottom(true,  &depth);    // demangle
         ASSERT(startDepth  == depth);
 
-        CASE_6::bottomCalled = false;
-        CASE_6::bottom(false, 3.7);    // no demangling
-        ASSERT(CASE_6::bottomCalled);
+        CASE_4::bottomCalled = false;
+        CASE_4::bottom(false, 3.7);    // no demangling
+        ASSERT(CASE_4::bottomCalled);
 
-        CASE_6::bottomCalled = false;
-        CASE_6::bottom(true,  3.7);    // demangling
-        ASSERT(CASE_6::bottomCalled);
+        CASE_4::bottomCalled = false;
+        CASE_4::bottom(true,  3.7);    // demangling
+        ASSERT(CASE_4::bottomCalled);
       } break;
-      case 9: {
-      } break;
-      case 8: {
-        // --------------------------------------------------------------------
-        // CASE 8
-        //
-        // This test case has been retired.
-        // --------------------------------------------------------------------
-      } break;
-      case 7: {
+      case 5: {
         // --------------------------------------------------------------------
         // TEST OF RECURSIVE DEEP TRACE
         //
@@ -1432,7 +1422,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Deeply recurse within a routine, then call the routine
-        //:   'case_7_top', which will create a stack trace object and populate
+        //:   'case_5_top', which will create a stack trace object and populate
         //:   it using 'loadStackTraceFrameStack'.
         //: 2 Verify that the source file names and symbol names in the stack
         //:   trace object are as expected.
@@ -1450,13 +1440,13 @@ int main(int argc, char *argv[])
         }
         int depth = startDepth;
 
-        case_7_bottom(false, &depth);    // no demangle
+        case_5_bottom(false, &depth);    // no demangle
         ASSERT(startDepth == depth);
 
-        case_7_bottom(true,  &depth);    // demangle
+        case_5_bottom(true,  &depth);    // demangle
         ASSERT(startDepth == depth);
       } break;
-      case 6: {
+      case 4: {
         // --------------------------------------------------------------------
         // TEST OF loadStackTraceFrameStack
         //
@@ -1467,17 +1457,18 @@ int main(int argc, char *argv[])
         //: 1 Create a stack trace object, then populate it using
         //:   'loadStackTraceFrameStack'.
         //: 2 Do sanity checks on the stack trace object.
-        //: 3 Output the stack trace object to a stringstream using '<<'.
-        //: 3 Confirm that the expected routine names are in the string
-        //:   prodced by the stringstream, in the right order.
-        //: 4 Repeat the test twice, with and without demangling enabled.
+        //: 3 Output the stack trace object to a stringstream using
+        //:   'printFormatted'.
+        //: 4 Confirm that the expected routine names are in the string prodced
+        //:   by the stringstream, in the right order.
+        //: 5 Repeat the test twice, with and without demangling enabled.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
                         "TEST OF DIRECT CALL TO loadStackTraceFrameStack\n"
                         "===============================================\n";
 
-        namespace TC = CASE_6;
+        namespace TC = CASE_4;
 
         TC::bottomCalled = false;
         TC::bottom(false, 3.7);    // no demangling
@@ -1487,7 +1478,7 @@ int main(int argc, char *argv[])
         TC::bottom(true,  3.7);    // demangling
         ASSERT(TC::bottomCalled);
       } break;
-      case 5: {
+      case 3: {
         // --------------------------------------------------------------------
         // TEST OF STACK TRACE USING 'getStackAddresses' /
         //                                    'loadStackTraceFrameAddressArray'
@@ -1511,7 +1502,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST OF DIRECT CALL TO getStackAddresses\n"
                              "========================================\n";
 
-        namespace TC = CASE_5;
+        namespace TC = CASE_3;
 
         TC::calledBottom = false;
         (void) TC::bottom(false);    // no demangling
@@ -1521,40 +1512,33 @@ int main(int argc, char *argv[])
         (void) TC::bottom(true);     // demangling
         ASSERT(TC::calledBottom);
       } break;
-      case 4: {
-      } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
-        // PRINTFORMATTED AND STREAM TEST
+        // PRINT, OPERATOR<<, PRINTFORMATTED AND STREAM TEST
         //
         // Concerns:
         //: 1 That 'printFormatted' writes to the specified 'ostream'.
-        //: 2 That 'printFormatted' outputs exactly the same string.
-        //: 3 That the strings that are output are non-zero.
-        //: 4 That the streams returned are the same streams that are passed
+        //: 2 That the strings that are output are non-zero.
+        //: 3 That the streams returned are the same streams that are passed
         //:   in.
+        //: 4 That the output contains the expected routine
+        //:   names.
         //: 5 That neither function allocates any memory from the default
         //:   allocator.
         //
         // Plan:
         //: 1 Create a stack trace object.
         //: 2 Output the stack trace object to a stringstream using
-        //:   'printFormatted'.
+        //:   'print', 'operator<<', and 'printFormatted'.
         //:   1 Verify that the string produced contains the expected routine
         //:     names, in the right order.
-        //:   2 Verify that the reference returned by the 'printFormatted'
+        //:   2 Verify that the reference returned by the output function
         //:     operation refers to the stream passed in.
-        //: 3 Output the stack trace object to a stringstream using
-        //:   'printFormatted'.
-        //:   1 Verify that the string produced contains the expected routine
-        //:     names, in the right order.
-        //:   2 Verify that the reference returned by the 'printFormatted'
-        //:     refers to the stream passed in.
-        //: 4 Verify that the default allocator was not used by either
-        //:   operator.
+        //: 3 Verify that the default allocator was not used by any of these
+        //:   functions.
         // --------------------------------------------------------------------
 
-        namespace TC = CASE_3;
+        namespace TC = CASE_2;
 
         if (verbose) cout << "Print and Streamout Test\n"
                              "========================\n";
@@ -1563,38 +1547,26 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == defaultAllocator.numAllocations());
       } break;
-      case 2: {
+      case 1: {
         // --------------------------------------------------------------------
-        // MANIPULATOR AND ACCESSOR TEST
+        // LOADSTACKTRACEFROMADDRESSARRAY & LOADSTACKTRACEFROMSTACK TEST
         //
         // Concerns:
-        //: 1 That 'length' of a default constructed object is 0.
-        //: 2 That 'length' accurately reflects the # of frames.
-        //: 3 That the basic manipulators work properly.
-        //:   1 That 'Util::loadStackTraceFromAddressArray' works properly
-        //:   2 That 'Util::loadStackTraceFromStack' works properly
-        //: 4 That the basic accessors work properly
-        //:   1 That 'ST::operator[]' works properly
-        //: 5 That no memory is allocated using the default allocator by either
-        //:   of the two methods for initializing a stack trace object
-        //
+        //: 1 That 'loadStackTraceFromAddressArray' correctly loads and
+        //:   resolves addresses passed in.
+        //: 2 That 'loadStackTraceFromStack' correctly loads a stack trace
+        //:   directly from the stack.
         // Plan:
-        //: 1 Create and destroy an object.
-        //:   1 Verify the allocator is not the default allocator.
-        //: 2 Within a routine a couple of levels deep on the stack
-        //:   1 Create a stack trace object and initialize it using
-        //:     'Util::loadStackTraceFromAddressArray'.  Verify using
-        //:     'ST::operator[]' that the trace contains the routines
-        //:     expected.
-        //:   2 Create a stack trace object and initialize it using
-        //:     'Util::loadStackTraceFromStack'.  Verify using
-        //:     'ST::operator[]' that the trace contains the routines
-        //:     expected.
-        //: 3 Call 'numAllocations' on the default allocator to verify that no
-        //    memory allocation using that allocator has occurred.
+        //: 1 Get several subroutines deep on the stack.
+        //:   1 load a stack trace using
+        //:     'baesu_StackAddressUtil::getStackAddresses' and then initialize
+        //:     a stack trace using 'loadStackTraceFromAddressArray'.
+        //:   2 verify the subroutine names on the stack trace.
+        //:   3 load another stack trace using 'loadStackTraceFromStack'.
+        //:   4 verify the subroutine names on the stack trace.
         // --------------------------------------------------------------------
 
-        namespace TC = CASE_2;
+        namespace TC = CASE_1;
 
         if (verbose) cout << "Manipulator & Accessor Test\n"
                              "===========================\n";
@@ -1612,8 +1584,6 @@ int main(int argc, char *argv[])
         TC::bottom(&ta);
 
         ASSERT(0 == defaultAllocator.numAllocations());
-      } break;
-      case 1: {
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

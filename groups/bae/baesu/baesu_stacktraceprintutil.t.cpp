@@ -49,26 +49,11 @@ using bsl::flush;
 //=============================================================================
 // TEST PLAN
 //
-// [ 1] default c'tor, d'tor
-// [ 2] manipulator and accessor
-// [ 2] initializeFromAddressArray
-// [ 2] initializeFromStack
-// [ 2] numFrames
-// [ 2] stackFrame
+// [ 1] printStackTrace
 // [ 2] printStackTrace
-// [ 4] printStackTrace
-// [ 5] initializeFromAddressArray
-// [ 6] initializeFromStack
-// [ 7] deep stack trace
-// [ 9] function within shared lib
-// [10] multiple traces in one pass
-// [11] large symbols
-// [12] output of trace with fprintf rather than stream
-// [13] function in .h file on call stack
-// [14] line #'s and offsets
-// [15] usage 1
-// [16] usage 2
-// [17] usage 3
+// [ 3] routine in static library
+// [ 4] inline routine (called out of line) on stack
+// [ 5] usage
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -257,16 +242,16 @@ void checkOutput(const bsl::string&               str,
 }
 
                                 // -------
-                                // case 13
+                                // case 4
                                 // -------
 
-namespace CASE_13 {
+namespace CASE_4 {
 
 // Pointer to be set to inline '&PrintUtil::forTestingOnlyDump'.
 
 void top()
 {
-    typedef void (*TestDumpPtrType)(bsl::string *);
+    typedef void (*TestDumpPtrType)(bsl::string *string);
     union {
         TestDumpPtrType d_funcPtr;
         UintPtr         d_uintPtr;
@@ -275,32 +260,40 @@ void top()
     testDumpUnion.d_funcPtr = &PrintUtil::forTestingOnlyDump;
     testDumpUnion.d_uintPtr = foilOptimizer(testDumpUnion.d_uintPtr);
 
-    bsl::string dump;
+    bslma_TestAllocator ta;
+    bsl::string dump(&ta);
     (*testDumpUnion.d_funcPtr)(&dump);
 
     if (!FORMAT_ELF && !FORMAT_WINDOWS && DEBUG_ON) {
         // Elf totally doesn't provide souce file names of global routines,
         // Windows doesn't provide the source file name for an inline routine.
 
-        bsl::vector<const char *> matches;
+        bsl::vector<const char *> matches(&ta);
         matches.push_back("baesu_StackTracePrintUtil");
         matches.push_back("forTestingOnlyDump");
         matches.push_back(" source:baesu_stacktraceprintutil.h");
         matches.push_back(" in baesu_stacktraceprintutil.t");
+        matches.push_back("\n");
         matches.push_back("top");
         matches.push_back(" source:baesu_stacktraceprintutil.t.cpp");
         matches.push_back(" in baesu_stacktraceprintutil.t");
+        matches.push_back("\n");
         matches.push_back("main");
         matches.push_back(" source:baesu_stacktraceprintutil.t.cpp");
         matches.push_back(" in baesu_stacktraceprintutil.t");
+        matches.push_back("\n");
         checkOutput(dump, matches);
     }
     else {
-        bsl::vector<const char *> matches;
+        bsl::vector<const char *> matches(&ta);
         matches.push_back("baesu_StackTracePrintUtil");
         matches.push_back("forTestingOnlyDump");
+        matches.push_back("\n");
+        matches.push_back("CASE_4");
         matches.push_back("top");
+        matches.push_back("\n");
         matches.push_back("main");
+        matches.push_back("\n");
         checkOutput(dump, matches);
     }
 
@@ -319,10 +312,10 @@ void top()
     }
 }
 
-}  // close namespace CASE_13
+}  // close namespace CASE_4
 
                                 // ------
-                                // case 8
+                                // case 3
                                 // ------
 
 extern "C" {
@@ -335,9 +328,14 @@ BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
         return FALSE;                                                 // RETURN
     }
 
-    bsl::stringstream ss;
+    bslma_TestAllocator ta;
+    bsl::stringstream ss(&ta);
     PrintUtil::printStackTrace(ss);
-    const bsl::string& dump = ss.str();
+    bsl::string dump(&ta);
+    {
+        bslma_DefaultAllocatorGuard guard(&ta);
+        dump = ss.str();
+    }
     const bsl::size_t NPOS = bsl::string::npos;
 
     struct {
@@ -384,9 +382,14 @@ BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
 
 static int phonyCompare(const void *, const void *)
 {
-    bsl::stringstream ss;
+    bslma_TestAllocator ta;
+    bsl::stringstream ss(&ta);
     PrintUtil::printStackTrace(ss);
-    const bsl::string& dump = ss.str();
+    bsl::string dump(&ta);
+    {
+        bslma_DefaultAllocatorGuard guard(&ta);
+        dump = ss.str();
+    }
     const bsl::size_t NPOS = bsl::string::npos;
 
     struct {
@@ -432,10 +435,10 @@ static int phonyCompare(const void *, const void *)
 
 
                                     // ------
-                                    // case 4
+                                    // case 2
                                     // ------
 
-namespace CASE_4 {
+namespace CASE_2 {
 
 bool calledTop = false;
 
@@ -448,17 +451,33 @@ void top()
     bslma_TestAllocator ta;
     bsl::vector<const char *> matches(&ta);
     matches.push_back("top");
+    matches.push_back("\n");
     matches.push_back("highMiddle");
+    matches.push_back("\n");
     matches.push_back("lowMiddle");
+    matches.push_back("\n");
     matches.push_back("bottom");
+    matches.push_back("\n");
     matches.push_back("main");
+    matches.push_back("\n");
 
-    bsl::stringstream os;
+    bsl::stringstream os(&ta);
     baesu_StackTracePrintUtil::printStackTrace(os);
-    checkOutput(os.str(), matches);
+
+    bsl::string str(&ta);
+    {
+        bslma_DefaultAllocatorGuard guard(&ta);
+
+        // 'bsl::stringstream::str' may create temporaries if the string is
+        // large
+
+        str = os.str();
+    }
+
+    checkOutput(str, matches);
 
     if (verbose) {
-        *out_p << os.str();
+        *out_p << str;
     }
 }
 
@@ -522,13 +541,13 @@ int bottom()
     return i;
 }
 
-}  // close namespace CASE_4
+}  // close namespace CASE_2
 
                                 // ------
-                                // case 2
+                                // case 1
                                 // ------
 
-namespace CASE_2 {
+namespace CASE_1 {
 
 bool called = false;
 
@@ -550,7 +569,7 @@ void top(bslma_Allocator *alloc)
         {
             bslma_DefaultAllocatorGuard guard(alloc);
 
-            // 'bsl::string::str' may create temporaries if the string is
+            // 'bsl::stringstream::str' may create temporaries if the string is
             // large
 
             str = myStream.str();
@@ -558,7 +577,7 @@ void top(bslma_Allocator *alloc)
         checkOutput(str, matches);
 
         if (problem()) {
-            baesu_StackTracePrintUtil::printStackTrace(*out_p);
+            *out_p << str;
         }
     }
 }
@@ -582,7 +601,7 @@ void bottom(bslma_Allocator *alloc)
     ASSERT(called);
 }
 
-}  // close namespace CASE_2
+}  // close namespace CASE_1
 
 //=============================================================================
 //                                USAGE EXAMPLES
@@ -645,7 +664,7 @@ int main(int argc, char *argv[])
     out_p = verbose ? &cout : &dummyOstream;
 
     switch (test) { case 0:
-      case 15: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE ONE
         //
@@ -666,9 +685,7 @@ int main(int argc, char *argv[])
         recurseAndPrintExample1(&depth);
         ASSERT(5 == depth);
       } break;
-      case 14: {
-      }  break;
-      case 13: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING WITH A FUNCTION IN A .h FILE IN THE CALL STACK
         //
@@ -700,17 +717,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST WITH INLINE FUNCTION\n"
                              "=========================\n";
 
-        namespace TC = CASE_13;
+        namespace TC = CASE_4;
 
         TC::top();
       } break;
-      case 12: {
-      }  break;
-      case 11: {
-      }  break;
-      case 10: {
-      } break;
-      case 9: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING STACK TRACE WITH FUNCTION IN A SHARED LIBRARY
         //
@@ -750,20 +761,7 @@ int main(int argc, char *argv[])
 
 #endif
       } break;
-      case 8: {
-        // --------------------------------------------------------------------
-        // CASE 8
-        //
-        // This test case has been retired.
-        // --------------------------------------------------------------------
-      } break;
-      case 7: {
-      } break;
-      case 6: {
-      } break;
-      case 5: {
-      } break;
-      case 4: {
+      case 2: {
         // --------------------------------------------------------------------
         // 'printStackTrace' TEST
         //
@@ -780,49 +778,25 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'printStackTrace'\n"
                              "=========================\n";
 
-        namespace TC = CASE_4;
+        namespace TC = CASE_2;
 
         (void) TC::bottom();
       } break;
-      case 3: {
-      } break;
-      case 2: {
+      case 1: {
         // --------------------------------------------------------------------
-        // MANIPULATOR AND ACCESSOR TEST
+        // 'printStackTrace' TEST
         //
         // Concerns:
-        //: 1 That 'numFrames' of a default constructed object is 0.
-        //: 2 That 'numFrames' accurately reflects the # of frames.
-        //: 3 That the basic manipulators work properly.
-        //:   1 That 'Obj::initializeFromAddressArray' works properly
-        //:   2 That 'Obj::initializeFromStack' works properly
-        //: 4 That the basic accessors work properly
-        //:   1 That 'PrintUtil::printStackTrace' works properly
-        //:   2 That 'Obj::stackFrame' works properly
-        //: 5 That no memory is allocated using the default allocator by either
-        //:   of the two methods for initializing a stack trace object, or
-        //:   'PrintUtil::printStackTrace'.
+        //: 1 That 'printStackTrace' outputs a correct sequence of routine
+        //:   names.
         //
         // Plan:
-        //: 1 Create and destroy an object.
-        //:   1 Verify the allocator is not the default allocator.
-        //: 2 Within a routine a couple of levels deep on the stack
-        //:   1 Obtain a string containing the trace using
-        //:     'PrintUtil::printStackTrace' and verify that it contains the
-        //:     routines we expect to find on the stack.
-        //:   2 Create a stack trace object and initialize it using
-        //:     'Obj::initializeFromAddressArray'.  Verify using
-        //:     'Obj::stackFrame' that the trace contains the routines
-        //:     expected.
-        //:   3 Create a stack trace object and initialize it using
-        //:     'Obj::initializeFromStack'.  Verify using
-        //:     'Obj::stackFrame' that the trace contains the routines
-        //:     expected.
-        //: 3 Call 'numAllocations' on the default allocator to verify that no
-        //    memory allocation using that allocator has occurred.
+        //: 1 Several routines deep, do a stack trace to a string stream.
+        //: 2 Check that the right sequence of routine names is present in
+        //:   the string stream.
         // --------------------------------------------------------------------
 
-        namespace TC = CASE_2;
+        namespace TC = CASE_1;
 
         if (verbose) cout << "Manipulator & Accessor Test\n"
                              "===========================\n";
@@ -831,13 +805,13 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == defaultAllocator.numAllocations());
       } break;
-      case 1: {
-      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == defaultAllocator.numAllocations());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."

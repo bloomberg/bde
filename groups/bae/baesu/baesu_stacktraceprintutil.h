@@ -84,6 +84,14 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULTALLOCATORGUARD
+#include <bslma_defaultallocatorguard.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -130,11 +138,13 @@ struct baesu_StackTracePrintUtil {
 inline
 void baesu_StackTracePrintUtil::forTestingOnlyDump(bsl::string *string)
 {
-    bsl::ostringstream ss;
-
-    printStackTrace(ss);
-
-    *string = ss.str();
+    bslma_Allocator *a = string->get_allocator().mechanism();
+    bsl::ostringstream os(a);
+    printStackTrace(os);
+    {
+        bslma_DefaultAllocatorGuard guard(a);
+        *string = os.str();
+    }
 }
 
 }  // close namespace BloombergLP
