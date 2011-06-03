@@ -2092,7 +2092,16 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         int writeRet = MessageUtil::write(this->socket(), d_ovecs, msg);
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < writeRet)) {
+            // After completing the write we need to update the shared
+            // variable d_writeCacheSize (but not d_numBytesWritten).  But we
+            // gave up the lock before we called 'write' so we need to
+            // reacquire it.  Note that 'd_outgoingMsg' is guarded by the flag
+            // 'd_outgoingFlag' which is updated only in 'refillOutgoingMsg'.
+
             d_numBytesWritten += writeRet;
+
+            bcemt_LockGuard<bcemt_Mutex> innerGuard(&d_outgoingMutex);
+
             d_writeCacheSize -= writeRet;
         }
         else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == writeRet) {

@@ -35,6 +35,10 @@ BDES_IDENT("$Id: $")
 #include <bces_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -124,34 +128,37 @@ class bcemt_RWMutex {
     // MANIPULATORS
     void lockRead();
         // Lock this RW mutex for reading.  If there are no pending or active
-        // write locks, the call will return immediately; otherwise, it will
-        // block until all write locks have been released.  Note that 'unlock'
-        // must be used to release the lock.
+        // write locks, this method will return immediately; otherwise, it will
+        // block until all write locks have been released.  'unlock' must be
+        // called to release the lock.  The behavior is undefined if this
+        // method is called from a thread that already has a lock on this RW
+        // mutex.
 
     void lockWrite();
-        // Lock this RW mutex for writing.  The call will block until all
+        // Lock this RW mutex for writing.  This method will block until all
         // active read locks, and all pending or active write locks, have been
-        // released.  When this RW mutex is locked for writing, all read and
-        // write lock attempts will either fail or block until the lock is
-        // released.  Note that 'unlock' must be used to release the lock.
+        // released.  When this RW mutex is locked for writing, all lock
+        // attempts will either fail ('tryLockRead', 'tryLockWrite') or block
+        // ('lockRead', 'lockWrite') until the lock is released.  'unlock' must
+        // be called to release the lock.  The behavior is undefined if this
+        // method is called from a thread that already has a lock on this RW
+        // mutex.
 
     int tryLockRead();
         // Attempt to lock this RW mutex for reading.  Return 0 on success, and
-        // a non-zero value if this mutex is currently locked for writing, or
-        // if there are writers waiting for this lock.  Note that, if
-        // successful, 'unlock' must be used to release the lock.
+        // a non-zero value if this RW mutex is currently locked for writing,
+        // or if there are writers waiting for this lock.  If successful,
+        // 'unlock' must be called to release the lock.
 
     int tryLockWrite();
         // Attempt to lock this RW mutex for writing.  Return 0 on success, and
-        // a non-zero value if this mutex is already locked for reading or
-        // writing.  Note that, if successful, 'unlock' must be used to release
-        // the lock.
+        // a non-zero value if this RW mutex is already locked.  If successful,
+        // 'unlock' must be called to release the lock.
 
     void unlock();
-        // Release the lock that the calling thread holds on this RW mutex,
-        // whether it is a lock for reading or writing.  The behavior is
-        // undefined unless the calling thread currently has a lock on this
-        // mutex.
+        // Release the lock that the calling thread holds on this RW mutex.
+        // The behavior is undefined unless the calling thread currently has a
+        // lock on this RW mutex.
 };
 
 #ifdef BCES_PLATFORM__POSIX_THREADS
@@ -164,13 +171,13 @@ class bcemt_RWMutex {
 inline
 bcemt_RWMutexImpl<bces_Platform::PosixThreads>::bcemt_RWMutexImpl()
 {
-   pthread_rwlock_init(&d_lock, NULL);
+    pthread_rwlock_init(&d_lock, NULL);
 }
 
 inline
 bcemt_RWMutexImpl<bces_Platform::PosixThreads>::~bcemt_RWMutexImpl()
 {
-   pthread_rwlock_destroy(&d_lock);
+    pthread_rwlock_destroy(&d_lock);
 }
 
 // MANIPULATORS
@@ -178,35 +185,39 @@ inline
 void
 bcemt_RWMutexImpl<bces_Platform::PosixThreads>::lockRead()
 {
-   pthread_rwlock_rdlock(&d_lock);
+    const int rc = pthread_rwlock_rdlock(&d_lock);
+
+    BSLS_ASSERT(0 == rc);
 }
 
 inline
 void
 bcemt_RWMutexImpl<bces_Platform::PosixThreads>::lockWrite()
 {
-   pthread_rwlock_wrlock(&d_lock);
+    const int rc = pthread_rwlock_wrlock(&d_lock);
+
+    BSLS_ASSERT(0 == rc);
 }
 
 inline
 int
 bcemt_RWMutexImpl<bces_Platform::PosixThreads>::tryLockRead()
 {
-   return pthread_rwlock_tryrdlock(&d_lock) ? 1 : 0;
+    return pthread_rwlock_tryrdlock(&d_lock) ? 1 : 0;
 }
 
 inline
 int
 bcemt_RWMutexImpl<bces_Platform::PosixThreads>::tryLockWrite()
 {
-   return pthread_rwlock_trywrlock(&d_lock) ? 1 : 0;
+    return pthread_rwlock_trywrlock(&d_lock) ? 1 : 0;
 }
 
 inline
 void
 bcemt_RWMutexImpl<bces_Platform::PosixThreads>::unlock()
 {
-   pthread_rwlock_unlock(&d_lock);
+    pthread_rwlock_unlock(&d_lock);
 }
 
 #endif  // BCES_PLATFORM__POSIX_THREADS
@@ -230,31 +241,31 @@ bcemt_RWMutex::~bcemt_RWMutex()
 inline
 void bcemt_RWMutex::lockRead()
 {
-   d_impl.lockRead();
+    d_impl.lockRead();
 }
 
 inline
 void bcemt_RWMutex::lockWrite()
 {
-   d_impl.lockWrite();
+    d_impl.lockWrite();
 }
 
 inline
 int bcemt_RWMutex::tryLockRead()
 {
-   return d_impl.tryLockRead();
+    return d_impl.tryLockRead();
 }
 
 inline
 int bcemt_RWMutex::tryLockWrite()
 {
-   return d_impl.tryLockWrite();
+    return d_impl.tryLockWrite();
 }
 
 inline
 void bcemt_RWMutex::unlock()
 {
-   d_impl.unlock();
+    d_impl.unlock();
 }
 
 }  // close namespace BloombergLP
