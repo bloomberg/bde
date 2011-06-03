@@ -7,224 +7,127 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a set of portable utilities for generating a stack trace
+//@PURPOSE: Provide a description of a function call stack
 //
 //@CLASSES:
-//  baesu_StackTrace: mechanism for obtaining a stack trace of function calls
-//  baesu_StackTraceUtil: namespace for functions for printing a stack trace
+//  baesu_StackTrace: description of a function call stack
 //
-//@AUTHOR: Oleg Semenov, Bill Chapman
+//@AUTHOR: Bill Chapman (bchapman2)
 //
-//@SEE_ALSO: baesu_stacktraceframe, baesu_stackaddress
+//@SEE_ALSO: baesu_stacktraceframe, baesu_stacktraceutil,
+//           baesu_stacktraceprintutil, bdema_heapbypassallocator
 //
-//@DESCRIPTION: This component defines a platform-independent interface for
-// obtaining return addresses from the stack and resolving those addresses into
-// human-readable debug information.  Not all properties of the stack trace are
-// found on all platforms; the set of properties obtained for a stack trace are
-// platform-specific.  Function names and addresses are supported on all
-// platforms.  On Windows and AIX, source file names and line numbers are also
-// provided.  The methods provided by this utility always trace the stack of
-// the calling thread.  The class 'baesu_StackTrace' is a mechanism that
-// contains the stack trace and a memory allocator, and methods to either
-// gather address information from the stack, or take the address information
-// as a argument, and translate that address information into human-readable
-// debug information.  The class 'baesu_StackTraceUtil' contains a single
-// static method that prints a stack trace.
+//@DESCRIPTION: This component provides an unconstrained (value-semantic)
+// class, 'baesu_StackTrace', that is used to describe a function call-stack.
+// A stack trace object contains a sequence of 'baesu_StackTraceFrame's.  By
+// default, a 'baesu_StackTrace' object is supplied memory by an owned instance
+// of 'bdema_HeapBypassAllocator', though the client may specify another
+// allocator to be used in its place at construction.
 //
-///Usage Examples
-///-------------
-// The following examples illustrate 3 different ways to print a stack trace.
+///Usage
+///-----
+// Set up the default allocator so we can verify that it is unused.
+//..
+//  bslma_TestAllocator da;
+//  bslma_DefaultAllocatorGuard guard(&da);
+//..
+// First, create a stack trace.  Note that when we don't specify an allocator
+// (recommended), the default allocator is not used -- rather, a heap bypass
+// allocator owned by the stack trace object is used.
+//..
+//  baesu_StackTrace stackTrace;
+//  ASSERT(0 == stackTrace.length());
+//..
+// Create two stack trace frames in the stack trace object and take references
+// to each of the two new frames.
+//..
+//  stackTrace.resize(2);
+//  ASSERT(2 == stackTrace.length());
+//  baesu_StackTraceFrame& mF0 = stackTrace[0];
+//  baesu_StackTraceFrame& mF1 = stackTrace[1];
+//..
+// Initialize values to the fields of the two new frames.
+//..
+//  mF0.setAddress((void *) 0x12ab);
+//  mF0.setLibraryFileName("/a/b/c/baesu_stacktrace.t.dbg_exc_mt");
+//  mF0.setLineNumber(5);
+//  mF0.setOffsetFromSymbol(116);
+//  mF0.setSourceFileName("/a/b/c/sourceFile.cpp");
+//  mF0.setMangledSymbolName("_woof_1a");
+//  mF0.setSymbolName("woof");
 //
-///1. Using 'baesu_StackTraceUtil::printStackTrace'
-/// - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows the easiest way to write a stack trace to a stream, by
-// calling the static function 'baesu_StackTraceUtil::printStackTrace'.
-//
-// We declare a function, 'recurseAndPrintExample1', that will recurse several
-// times and then print a stack trace.
+//  mF1.setAddress((void *) 0x34cd);
+//  mF1.setLibraryFileName("/lib/libd.a");
+//  mF1.setLineNumber(15);
+//  mF1.setOffsetFromSymbol(228);
+//  mF1.setSourceFileName("/a/b/c/secondSourceFile.cpp");
+//  mF1.setMangledSymbolName("_arf_1a");
+//  mF1.setSymbolName("arf");
 //..
-//  static
-//  void recurseAndPrintExample1(int *depth)
-//  {
-//      if (--*depth > 0) {
+// Output the stack trace object.
 //..
-// Recurse until '0 == *depth' before generating a stack trace.
+//  stackTrace.print(cout, 1, 2);
 //..
-//          recurseAndPrintExample1(depth);
-//      }
-//      else {
+// observe the default allocator was never used
 //..
-// Calling 'printStackTrace' (a 'static' method) is the easiest way to print
-// out a stack trace.  In this case, the 'maxFrames' argument is unspecified,
-// defaulting to 1000, which is more than we need, and the 'demangle' argument
-// is unspecified, defaulting to 'true'.
+//  ASSERT(0 == da.numAllocations());
 //..
-//          baesu_StackTraceUtil::printStackTrace(cout);
-//      }
-//
-//      ++*depth;   // Prevent compiler from optimizing tail recursion as a
-//                  // loop.
-//  }
-//
-//  int main()
-//  {
-//      int depth = 5;
-//      recurseAndPrintExample1(&depth);
-//      assert(5 == depth);
-//  }
+///Usage Output
+///------------
+// The above usage produces the following output:
 //..
-// The following output is produced by this example on AIX (note that the lines
-// were longer than 80 chars, so continuation is wrapped.
-//..
-//  (0) .recurseAndPrintExample1(int*)+0x60 at 0x10013060
-//           source:baesu_stacktrace.t.cpp:488 in baesu_stacktrace.t.dbg_exc_mt
-//  (1) .recurseAndPrintExample1(int*)+0x48 at 0x10013048
-//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
-//  (2) .recurseAndPrintExample1(int*)+0x48 at 0x10013048
-//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
-//  (3) .recurseAndPrintExample1(int*)+0x48 at 0x10013048
-//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
-//  (4) .recurseAndPrintExample1(int*)+0x48 at 0x10013048
-//           source:baesu_stacktrace.t.cpp:479 in baesu_stacktrace.t.dbg_exc_mt
-//  (5) .main+0x2e8 at 0x10000a68 source:baesu_stacktrace.t.cpp:575
-//                                             in baesu_stacktrace.t.dbg_exc_mt
-//  (6) .__start+0x9c at 0x100001ec source:crt0main.s in
-//                                                baesu_stacktrace.t.dbg_exc_mt
-//..
-///2. Stack trace using the 'initializeStackTraceFromStack' method
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//..
-// This example employes the 'initializeStackTraceFromStack' method of
-// 'baesu_StackTrace', which is easy to use.  After it is called, the
-// 'baesu_StackTrace' object contains the stack trace which can be output to
-// any stream using '<<'.
-//..
-// static
-// void recurseAndPrintExample2(int *depth)
-//..
-// This function does the stack trace.
-//..
-// {
-//     if (--*depth > 0) {
-//..
-// Recurse until '0 == *depth' before generating a stack trace.
-//..
-//         recurseAndPrintExample2(depth);
-//     }
-//     else {
-//..
-// Here we create a 'StackTrace' object and call 'initializeFromStack' to load
-// the information from the stack of the current thread into the stack trace
-// object.  We then use the '<<' operator to print out the stack trace.  In
-// this case, 'maxFrames' is defaulting to 1000 and demangling is defaulting to
-// 'on'.  Note that the object 'st' takes very little room on the stack,
-// allocating most of its memory directly from virtual memory without going
-// through the heap, thus minimizing potential complications due to stack size
-// limits and possible heap corruption.
-//..
-//         baesu_StackTrace st;
-//         int rc = st.initializeFromStack();
-//..
-// 'initializeFromStack' will fail and there will be no frames on Windows
-// compiled with the optimizer.
-//..
-// #if !defined(BSLS_PLATFORM__OS_WINDOWS) || !defined(BDE_BUILD_TARGET_OPT)
-//         assert(0 == rc);
-//         assert(st.numFrames() >= 6);                    // main + 5 recurse
-// #endif
-// 
-//         *out_p << st;    // print it out
-//     }
-// 
-//     ++*depth;   // Prevent compiler from optimizing tail recursion as a
-//                 // loop.
-// }
-//..
-///3. Getting the addresses and then initiailizing from the address array
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This is the least easy way to get a stack trace.  It is necessary to create
-// an array of pointers to hold the return addresses from the stack, and this
-// may not be desirable if we are in a situation where there isn't much room on
-// the stack.  This approach may be desirable if one wants to quickly save the
-// addresses that are the basis for a stack trace, postponing the more
-// time-consuming translation of those addresses to more human-readable debug
-// information until later.
-//..
-//  static
-//  void recurseAndPrintExample3(int *depth)
-//  {
-//      if (--*depth > 0) {
-//..
-// Recurse until '0 == *depth' before generating a stack trace.
-//..
-//          recurseAndPrintExample3(depth);
-//      }
-//      else {
-//          enum { ARRAY_LENGTH = 50 };
-//          void *addresses[ARRAY_LENGTH];
-//          baesu_StackTrace st;
-//..
-// First, we call 'getStackAddresses' to get the stored return addresses from
-// the stack and load them into the array 'addresses'.  The call returns the
-// number of addresses saved into the array, which will be less than or equal
-// to 'ARRAY_LENGTH'.
-//..
-//          int numAddresses = baesu_StackAddressUtil::getStackAddresses(
-//                                                               addresses,
-//                                                               ARRAY_LENGTH);
-//..
-// Next we call 'initializeFromAddressArray' to initialize the information in
-// the stack trace object, such as function names, source file names, and line
-// numbers, if they are available.  The third argument, demangle, is 'true'.
-//..
-//          int rc = st.initializeFromAddressArray(addresses, numAddresses);
-//..
-// There will be no frames and 'initializeFromAddressArray' will fail if
-// optimized on Windows with the optimizer.
-//..
-//  #if !defined(BSLS_PLATFORM__OS_WINDOWS) || !defined(BDE_BUILD_TARGET_OPT)
-//          ASSERT(0 == rc);
-//          ASSERT(st.numFrames() >= 6);                    // main + 5 recurse
-//  #endif
-//..
-// Finally, wne can now print out the stack trace object using 'cout << st;',
-// or iterate through the stack trace frames, printing them out one by one.  In
-// this example, we want only function names, and not line numbers, source file
-// names, or library names, so we iterate through the stack trace frames and
-// print out only those properties.
-//..
-//          for (int i = 0; i < st.numFrames(); ++i) {
-//              const baesu_StackTraceFrame& frame = st.stackFrame(i);
-//  
-//              const char *sn = frame.symbolName().c_str();
-//              sn = sn ? sn : "--unknown--";
-//              *out_p << '(' << i << "): " << sn << endl;
-//          }
-//      }
-//  
-//      ++*depth;   // Prevent compiler from optimizing tail recursion as a
-//                  // loop.
-//  }
+//  [
+//    [
+//      address = 0x12ab
+//      library file name = "/a/b/c/baesu_stacktrace.t.dbg_exc_mt"
+//      line number = 5
+//      mangled symbol name = "_woof_1a"
+//      offset from symbol = 116
+//      source file name = "/a/b/c/sourceFile.cpp"
+//      symbol name = "woof"
+//    ]
+//    [
+//      address = 0x34cd
+//      library file name = "/lib/libd.a"
+//      line number = 15
+//      mangled symbol name = "_arf_1a"
+//      offset from symbol = 228
+//      source file name = "/a/b/c/secondSourceFile.cpp"
+//      symbol name = "arf"
+//    ]
+//  ]
 //..
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
-#endif
-
-#ifndef INCLUDED_BDEMA_HEAPBYPASSALLOCATOR
-#include <bdema_heapbypassallocator.h>
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
 #ifndef INCLUDED_BAESU_STACKTRACEFRAME
 #include <baesu_stacktraceframe.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
+#ifndef INCLUDED_BDEMA_HEAPBYPASSALLOCATOR
+#include <bdema_heapbypassallocator.h>
 #endif
 
-#ifndef INCLUDED_BSL_SSTREAM
-#include <bsl_sstream.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
+#include <bslalg_typetraitbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+#include <bslalg_typetraitusesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -233,182 +136,279 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                       // ======================
-                       // class baesu_StackTrace
-                       // ======================
+class bslma_Allocator;
+
+                          // ======================
+                          // class baesu_StackTrace
+                          // ======================
 
 class baesu_StackTrace {
-    // This class is a value class (but not a value-semantic type) that can
-    // contain a stack trace, and has methods with which to populate the stack
-    // trace information, either directly from the stack or from an array of
-    // addresses.  The stack trace can be printed out as an object using the
-    // '<<' operator, also, individual stack trace frames can be accessed via
-    // the 'stackFrame' operator.  The stack trace consists of a sequence of
-    // indexed stack trace frames, where the frames with lower indexes
-    // represent more recently called routines in the trace.
+    // This unconstrained (value-semantic) class describes a function call
+    // stack, represented as a sequence randomly-accesible
+    // 'baesu_StackTraceFrame' objects, each of which represents one function
+    // call on the stack.  Note that the default allocator used if none is
+    // specified to the constructor is the owned heap bypass allocator rather
+    // than the default allocator.
+    //
+    // This class:
+    //: o supports a complete set of *value* *semantic* operations
+    //:   o except for 'bdex' serialization
+    //: o is *exception-neutral*
+    //: o is *alias-safe*
+    //: o is 'const' *thread-safe*
+    // For terminology see 'bsldoc_glossary'.
 
-  public:
-    enum {
-        DEFAULT_MAX_FRAMES = 1000    // suggested default value for 'maxFrames'
-                                     // arguments
-    };
-
-  private:
     // DATA
-    bsl::vector<baesu_StackTraceFrame> *d_frames;    // pointer to owned vector
-                                                     // of stack trace frames
-                                                     // to contain debug
-                                                     // information
+    bdema_HeapBypassAllocator    d_hbpAlloc;     // only used if no alloc
+                                                 // specified at construction.
+                                                 // Note this must be declared
+                                                 // and constructed prior to
+                                                 // 'd_frames'.
 
-    bdema_HeapBypassAllocator           d_allocator; // allocator, for
-                                                     // allocating memory
-                                                     // directly from virtual
-                                                     // memory without going
-                                                     // through the heap
-
-  private:
-    // NOT IMPLEMENTED
-    baesu_StackTrace(const baesu_StackTrace&);
-    baesu_StackTrace& operator=(const baesu_StackTrace&);
+    bsl::vector<baesu_StackTraceFrame>
+                                 d_frames;       // sequence of stack trace
+                                                 // frames
 
   public:
-    // CLASS METHODS
-    static void forTestingOnlyDump(bsl::string *string);
-        // Do a stack trace and assign the output to '*string'.  Note that this
-        // is for testing only.
+    BSLALG_DECLARE_NESTED_TRAITS2(baesu_StackTrace,
+                                  bslalg_TypeTraitUsesBslmaAllocator,
+                                  bslalg_TypeTraitBitwiseMoveable);
 
     // CREATORS
-    baesu_StackTrace();
-        // Create an empty stack trace object.  Memory for this object will be
-        // supplied by an allocator of type 'bdema_HeapBypassAllocator',
-        // created and owned by this object.
+    explicit
+    baesu_StackTrace(bslma_Allocator *basicAllocator = 0);
+        // Create a 'baesu_StackTrace' object of 0 length.  Non-standard:
+        // Optionally specify 'basicAllocator'.  If 'basicAllocator' is not
+        // specified, than an owned instance of the heap-bypass allocator is
+        // used.  Note that the heap bypass allocator is used by default to
+        // avoid heap allocation in case the heap has been corrupted.
 
-    ~baesu_StackTrace();
-        // Destroy this stack object.
+    baesu_StackTrace(const baesu_StackTrace&  original,
+                     bslma_Allocator         *allocator = 0);
+        // Create a 'baesu_StackTrace' object having the same value as the
+        // specified 'original' object.  Non-standard: Optionally specify
+        // 'basicAllocator'.  If 'basicAllocator' is not specified, than an
+        // owned instance of the heap-bypass allocator is used.  Note that the
+        // heap bypass allocator is used by default to avoid heap allocation in
+        // case the heap has been corrupted.
+
+    // ~baesu_StackTrace();
+        // Destroy this object.  Note that this destructor is
+        // compiler-generated.
 
     // MANIPULATORS
-    bslma_Allocator *allocator();
-        // Return the address of this object's modifiable allocator, which is
-        // created upon creation of this object and destroyed, freeing any
-        // memory it has allocated, at the end of this object's lifetime.  Note
-        // that this is useful for allocating an address array to be used in
-        // conjunction with 'initializeFromAddressArray'.
+    baesu_StackTrace& operator=(const baesu_StackTrace& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 
-    int initializeFromAddressArray(void *addresses[],
-                                   int   numAddresses,
-                                   bool  demangle = true);
-        // Populate this object with stack trace information from the stack,
-        // given a specifid array 'addresses' of at least 'numAddresses'
-        // instruction pointers from the stack that were obtained by calling
-        // 'getStackPointers'.  Optionally specify 'demangle' indicating
-        // whether or not demangling is to occur.  Return 0 on success and a
-        // non-zero value otherwise.  The behavior is undefined if
-        // 'addresses == 0' or if 'addresses' contains fewer than
-        // 'numAddresses' addresses.  Note that demangling sometimes involves
-        // calling 'malloc', and that demangling is always performed on the
-        // Windows platform regardless of the value of 'demangle'.  Also note
-        // that any frames previously contained in this object are discarded.
+    baesu_StackTraceFrame& operator[](int index);
+        // Return a reference providing modifiable access to the stack trace
+        // frame at the specified 'index' in this object.  The behavior is
+        // undefined unless '0 <= index < length()'.
 
-    int initializeFromStack(int  maxFrames = DEFAULT_MAX_FRAMES,
-                            bool demangle  = true);
-        // Populate this object with information about the current thread's
-        // program stack.  Optionally specify 'maxFrames' indicating the
-        // maximum number of frames to take from the top of the stack, if it is
-        // not specified, the limit is 'DEFAULT_MAX_FRAMES'.  Optionally
-        // specify 'demangle' to indicate whether function names are to be
-        // demangled.  The behavior is undefined unless 'maxFrames >= 0'.
-        // Return 0 on success and a non-zero value otherwise.  Note that
-        // demangling involves calling 'malloc'.  Finally note that any frames
-        // previously contained in this object are discarded.
+    void removeAll();
+        // Remove all stack trace frames from this object.  After this
+        // operation, 'length' will return 0.
+
+    void resize(int newLength);
+        // Add default constructed stack trace frames to or remove stack trace
+        // frames from the end of this stack trace object such that, after the
+        // operation, 'length() == newLength'.  Stack trace frames whose
+        // indices are in the range '0 <= index < min(length, newLength) will
+        // be unchanged.  The behavior is undefined unless '0 <= newLength'.
+
+    void swap(baesu_StackTrace& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as 'other'.
 
     // ACCESSORS
-    const baesu_StackTraceFrame& stackFrame(int index) const;
-        // Return a reference to the 'index'th stack trace frame contained in
-        // this object.  An index of 0 refers to the frame on top of the stack,
-        // the most recently called routine, an index of '1' refers to the
-        // frame representing the routine that called that one, and so on.  The
-        // behavior is undefined unless '0 <= index < numFrames()'.
+    const baesu_StackTraceFrame& operator[](int index) const;
+        // Return a reference providing non-modifiable access to the stack
+        // trace frame at the specified 'index' in this object.  The behavior
+        // is undefined unless '0 <= index < length()'.
 
-    int numFrames() const;
+    bslma_Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the owned heap
+        // bypass allocator is used.
+
+    int length() const;
         // Return the number of stack trace frames contained in this object.
 
-    bsl::ostream& printTerse(bsl::ostream& stream) const;
-        // Print the stack trace frames described by this object to the
-        // specified output 'stream', one frame per line, and return a
-        // reference to 'stream'.  Note that if this object is empty, this
-        // operation has no effect.
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output 'stream' in
+        // a human-readable format, and return a reference to 'stream'.
+        // Optionally specify an initial indentation 'level', whose absolute
+        // value is incremented recursively for nested objects.  If 'level' is
+        // specified, optionally specify 'spacesPerLevel', whose absolute
+        // value indicates the number of spaces per indentation level for this
+        // and all of its nested objects.  If 'level' is negative, suppress
+        // indentation of the first line.  If 'spacesPerLevel' is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by 'level').  If 'stream' is not
+        // valid on entry, this operation has no effect.  Note that the
+        // format is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
+bool operator==(const baesu_StackTrace& lhs,
+                const baesu_StackTrace& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'baesu_StackTrace' objects have the
+    // same value if they have the save length, and all of their corresponding
+    // stack trace frames have the same value.
+
+bool operator!=(const baesu_StackTrace& lhs,
+                const baesu_StackTrace& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'baesu_StackTrace' objects do
+    // not have the same value if they do not have the same length, or any of
+    // the stack trace frames contained in 'lhs' is not the same as the
+    // corresponding stack trace frame in 'rhs'.
+
 bsl::ostream& operator<<(bsl::ostream&           stream,
-                         const baesu_StackTrace& stackTrace);
-    // Print any stack trace contained in the specified 'stackTrace' to the
-    // specified 'stream', returning 'stream'.
+                         const baesu_StackTrace& object);
+    // Write the value of the specified 'object' to the specified
+    // output 'stream' in a single-line format, and return a reference to
+    // 'stream'.  If 'stream' is not valid on entry, this operation has no
+    // effect.  Note that this human-readable format is not fully specified
+    // and can change without notice.  Also note that this method has the same
+    // behavior as 'object.print(stream, 0, -1)' with the attribute names
+    // elided.
 
-                       // ==========================
-                       // class baesu_StackTraceUtil
-                       // ==========================
+// FREE FUNCTIONS
+void swap(baesu_StackTrace& a, baesu_StackTrace& b);
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+    // This function provides the no-throw exception-safety guarantee.  The
+    // behavior is undefined unless the two objects were created with the same
+    // allocator.
 
-struct baesu_StackTraceUtil {
-    // This 'struct' serves as a namespace for static methods that use
-    // 'baesu_StackTrace'.
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
 
-    enum {
-        DEFAULT_MAX_FRAMES = 1000    // suggested default value for 'maxFrames'
-                                     // arguments
-    };
+                         // ----------------------
+                         // class baesu_StackTrace
+                         // ----------------------
 
-    // CLASS METHODS
-    static
-    void printStackTrace(bsl::ostream& stream,
-                         int           maxFrames = DEFAULT_MAX_FRAMES,
-                         bool          demangle = true);
-        // Obtain a trace of the stack and print it to the specified 'stream'.
-        // Optionally specify 'maxFrames' indicating the maximum number of
-        // frames from the top of the stack that will be printed.  Optionally
-        // specify 'demangle', indicating whether function names will be
-        // demangled.  If an error occurs, print a 1-line error message to
-        // 'stream'.  The behavior is undefined unless 'maxFrames >= 0'.
-        // Note that demangling, if specified, could involve calling 'malloc',
-        // and that symbol names are always demangled on the Windows platform.
-};
-
-//=============================================================================
-//                         INLINE FUNCTION DEFINITIONS
-//=============================================================================
-
-                             // ----------------------
-                             // class baesu_StackTrace
-                             // ----------------------
-
-// CLASS METHODS
+// CREATORS
+inline
+baesu_StackTrace::baesu_StackTrace(bslma_Allocator *basicAllocator)
+: d_hbpAlloc()
+, d_frames(basicAllocator ? basicAllocator : &d_hbpAlloc)
+{
+}
 
 inline
-void baesu_StackTrace::forTestingOnlyDump(bsl::string *string)
+baesu_StackTrace::baesu_StackTrace(const baesu_StackTrace&  original,
+                                   bslma_Allocator         *basicAllocator)
+: d_hbpAlloc()
+, d_frames(original.d_frames,
+           basicAllocator ? basicAllocator : &d_hbpAlloc)
 {
-    bsl::stringstream ss;
-
-    baesu_StackTraceUtil::printStackTrace(ss);
-
-    *string = ss.str();
 }
 
 // MANIPULATORS
 inline
-bslma_Allocator *baesu_StackTrace::allocator()
+baesu_StackTrace& baesu_StackTrace::operator=(const baesu_StackTrace& rhs)
 {
-    return &d_allocator;
+    d_frames = rhs.d_frames;
+
+    return *this;
+}
+
+inline
+baesu_StackTraceFrame& baesu_StackTrace::operator[](int index)
+{
+    BSLS_ASSERT_SAFE(index >= 0);
+    BSLS_ASSERT_SAFE(index < length());
+
+    return d_frames[index];
+}
+
+inline
+void baesu_StackTrace::removeAll()
+{
+    d_frames.clear();
+}
+
+inline
+void baesu_StackTrace::resize(int newLength)
+{
+    BSLS_ASSERT_SAFE(newLength >= 0);
+
+    d_frames.resize(newLength);
+}
+
+inline
+void baesu_StackTrace::swap(baesu_StackTrace& other)
+{
+    // 'swap' is undefined for objects with non-equal allocators.
+
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    d_frames.swap(other.d_frames);
+}
+
+// ACCESSORS
+inline
+const baesu_StackTraceFrame& baesu_StackTrace::operator[](int index) const
+{
+    BSLS_ASSERT_SAFE(index >= 0);
+    BSLS_ASSERT_SAFE(index < length());
+
+    return d_frames[index];
+}
+
+inline
+bslma_Allocator *baesu_StackTrace::allocator() const
+{
+    return d_frames.get_allocator().mechanism();
+}
+
+inline
+int baesu_StackTrace::length() const
+{
+    return d_frames.size();
+}
+
+// FREE OPERATORS
+inline
+bool operator!=(const baesu_StackTrace& lhs,
+                const baesu_StackTrace& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream& operator<<(bsl::ostream&           stream,
+                         const baesu_StackTrace& object)
+{
+    object.print(stream, 0, -1);
+
+    return stream;
+}
+
+// FREE FUNCTIONS
+inline
+void swap(baesu_StackTrace& a, baesu_StackTrace& b)
+{
+    a.swap(b);
 }
 
 }  // close namespace BloombergLP
 
 #endif
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
+//      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ---------------------------------

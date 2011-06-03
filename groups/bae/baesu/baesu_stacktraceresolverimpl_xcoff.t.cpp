@@ -13,7 +13,6 @@
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-#include <bsl_vector.h>
 
 #ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF
 
@@ -216,27 +215,28 @@ UintPtr bigRand()
     return (UintPtr) bigRandSeed ^ lowBits;
 }
 
-void stuffRandomAddresses(bsl::vector<baesu_StackTraceFrame> *v)
+void stuffRandomAddresses(baesu_StackTrace *st)
 {
     const UintPtr delta = (UintPtr) 1 << ((sizeof(UintPtr) - 1) * 8);
-    const int vecLength = 3 * 256 * 3 + 2048;
+    const int stLength = 3 * 256 * 3 + 2048;
 
-    v->resize(vecLength);
+    st->removeAll();
+    st->resize(stLength);
 
-    int vIndex = 0;
+    int stIndex = 0;
     for (int i = -1; i <= 1; ++i) {
         UintPtr u = i;
         for (int j = 0; j < 256; ++j, u += delta) {
-            (*v)[vIndex++].setAddress((void *) u);
-            (*v)[vIndex++].setAddress((void *) ~u);
-            (*v)[vIndex++].setAddress((void *) -u);
+            (*st)[stIndex++].setAddress((void *) u);
+            (*st)[stIndex++].setAddress((void *) ~u);
+            (*st)[stIndex++].setAddress((void *) -u);
         }
     }
 
-    ASSERT(vecLength - 2048 == vIndex);
+    ASSERT(stLength - 2048 == stIndex);
 
-    while (vIndex < vecLength) {
-        (*v)[vIndex++].setAddress((void *) bigRand());
+    while (stIndex < stLength) {
+        (*st)[stIndex++].setAddress((void *) bigRand());
     }
 }
 
@@ -250,13 +250,6 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    // Note we are using SequentialAllocator here -- this component does not
-    // free its memory, it relies upon its memory allocator to free it all
-    // upon destruction.
-
-    bslma_TestAllocator ta;
-    bdema_SequentialAllocator sa(&ta);
-
     switch (test) { case 0:
       case 2: {
         // --------------------------------------------------------------------
@@ -264,29 +257,27 @@ int main(int argc, char *argv[])
         //
         // Concerns: That the resolver won't segfault given garbage data.
         //
-        // Plan: seed a long vector of StackTraceFrames with garbase addresses,
-        //  then resolve the vector, seeing if it segfaults or returns an
-        //  error.  Then stream out the frames to see if any problems are
-        //  encountered streaming out.
+        // Plan: seed a stack trace with many garbase addresses, then resolve
+        //  the stack trace, seeing if it segfaults or returns an error.  Then
+        //  stream out the frames to see if any problems are encountered
+        //  streaming out.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Garbage Test\n"
                              "============\n";
 
-        bsl::vector<baesu_StackTraceFrame> traceVec;
-        stuffRandomAddresses(&traceVec);
+        baesu_StackTrace st;
+        stuffRandomAddresses(&st);
 
-        ASSERT(0 == Obj::resolve(&traceVec,
-                                 true,
-                                 &sa));
-        
-        for (int vecIndex = 0; vecIndex < (int) traceVec.size();
-                                                             vecIndex += 128) {
-            bsl::stringstream ss(&ta);
+        ASSERT(0 == Obj::resolve(&st,
+                                 true));
 
-            int vecIndexLim = bsl::min(vecIndex + 128, (int) traceVec.size());
-            for (int j = vecIndex; j < vecIndexLim; ++j) {
-                ss << traceVec[vecIndex] << endl;
+        for (int stIndex = 0; stIndex < (int) st.length(); stIndex += 128) {
+            bsl::stringstream ss;
+
+            int stIndexLim = bsl::min(stIndex + 128, (int) st.length());
+            for (int j = stIndex; j < stIndexLim; ++j) {
+                ss << st[stIndex] << endl;
             }
         }
       }  break;
@@ -318,10 +309,10 @@ int main(int argc, char *argv[])
 #endif
 
         for (bool demangle = false; true; demangle = true) {
-            bsl::vector<Frame> frames(&sa);
+            baesu_StackTrace frames;
             frames.resize(5);
-            frames.at(0).setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
-            frames.at(1).setAddress(addFixedOffset((UintPtr) &funcStaticOne));
+            frames[0].setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
+            frames[1].setAddress(addFixedOffset((UintPtr) &funcStaticOne));
 
             // The optizer is just UNBELIEVABLY clever.  If you declare a
             // routine inline, it is VERY aggressive about figuring out a way
@@ -338,7 +329,7 @@ int main(int argc, char *argv[])
             testFuncPtr = foilOptimizer(testFuncPtr);
 
             int testFuncLine = (* (int (*)()) testFuncPtr)();
-            frames.at(2).setAddress(addFixedOffset(testFuncPtr));
+            frames[2].setAddress(addFixedOffset(testFuncPtr));
 
             frames[3].setAddress(addFixedOffset((UintPtr)
                  &baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>::
@@ -353,33 +344,32 @@ int main(int argc, char *argv[])
             int line;
             const char *name;
 
-            for (int i = 0; i < frames.size(); ++i) {
-                ASSERT(!frames.at(i).isMangledSymbolNameValid());
-                ASSERT(!frames.at(i).isSymbolNameValid());
-                ASSERT(!frames.at(i).isLibraryFileNameValid());
-                ASSERT(!frames.at(i).isSourceFileNameValid());
-                ASSERT(!frames.at(i).isLineNumberValid());
+            for (int i = 0; i < frames.length(); ++i) {
+                ASSERT(!frames[i].isMangledSymbolNameKnown());
+                ASSERT(!frames[i].isSymbolNameKnown());
+                ASSERT(!frames[i].isLibraryFileNameKnown());
+                ASSERT(!frames[i].isSourceFileNameKnown());
+                ASSERT(!frames[i].isLineNumberKnown());
             }
 
             Obj::resolve(&frames,
-                         demangle,
-                         &sa);
+                         demangle);
 
             if (veryVerbose) {
                 cout << "Pass " << (int) demangle << endl;
 
-                for (int i = 0; i < frames.size(); ++i) {
-                    cout << '(' << i << "): " << frames.at(i) << endl;
+                for (int i = 0; i < frames.length(); ++i) {
+                    cout << '(' << i << "): " << frames[i] << endl;
                 }
             }
 
-            for (int i = 0; i < frames.size(); ++i) {
-                LOOP_ASSERT(i, frames.at(i).isMangledSymbolNameValid());
-                LOOP_ASSERT(i, frames.at(i).isSymbolNameValid());
-                LOOP_ASSERT(i, frames.at(i).isLibraryFileNameValid());
+            for (int i = 0; i < frames.length(); ++i) {
+                LOOP_ASSERT(i, frames[i].isMangledSymbolNameKnown());
+                LOOP_ASSERT(i, frames[i].isSymbolNameKnown());
+                LOOP_ASSERT(i, frames[i].isLibraryFileNameKnown());
                 if (debug && 4 != i) {
-                    LOOP_ASSERT(i, frames.at(i).isSourceFileNameValid());
-                    line = frames.at(i).lineNumber();
+                    LOOP_ASSERT(i, frames[i].isSourceFileNameKnown());
+                    line = frames[i].lineNumber();
                     LOOP2_ASSERT(i, line, line > 0);
                     if (2 == i) {
                         // check that the line number we got within 'testFunc'
@@ -391,28 +381,28 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) P(frames.at(0).libraryFileName());
-            ASSERT(safeCmp(frames.at(0).libraryFileName().c_str(),
+            if (verbose) P(frames[0].libraryFileName());
+            ASSERT(safeCmp(frames[0].libraryFileName().c_str(),
                            "baesu_stacktraceresolverimpl_xcoff.t.",
                            32));
-            for (int i = 1; i < frames.size(); ++i) {
+            for (int i = 1; i < frames.length(); ++i) {
                 if (4 == i) {
-                    if (verbose) P(frames.at(4).libraryFileName());
-                    LOOP2_ASSERT(i, frames.at(4).libraryFileName(),
-                             npos != frames.at(4).libraryFileName().find(
+                    if (verbose) P(frames[4].libraryFileName());
+                    LOOP2_ASSERT(i, frames[4].libraryFileName(),
+                             npos != frames[4].libraryFileName().find(
                                                                 "/lib/libc."));
-                    ASSERT('/' == frames.at(4).libraryFileName()[0]);
+                    ASSERT('/' == frames[4].libraryFileName()[0]);
                 }
                 else {
-                    LOOP2_ASSERT(i, frames.at(i).libraryFileName(),
-                                      frames.at(0).libraryFileName() ==
-                                               frames.at(i).libraryFileName());
+                    LOOP2_ASSERT(i, frames[i].libraryFileName(),
+                                      frames[0].libraryFileName() ==
+                                               frames[i].libraryFileName());
                 }
             }
 
             if (debug) {
-                for (int i = 0; i < frames.size(); ++i) {
-                    name = frames.at(i).sourceFileName().c_str();
+                for (int i = 0; i < frames.length(); ++i) {
+                    name = frames[i].sourceFileName().c_str();
                     LOOP_ASSERT(i, 4 == i || (name && *name));
                     if (name) {
                         const char *pc = name + bsl::strlen(name);
@@ -440,30 +430,30 @@ int main(int argc, char *argv[])
                 }
             }
 
-            LOOP_ASSERT(frames.at(0).symbolName(),
-                      npos != frames.at(0).symbolName().find("funcGlobalOne"));
-            LOOP_ASSERT(frames.at(1).symbolName(),
-                      npos != frames.at(1).symbolName().find("funcStaticOne"));
-            LOOP_ASSERT(frames.at(0).mangledSymbolName(),
-               npos != frames.at(0).mangledSymbolName().find("funcGlobalOne"));
-            LOOP_ASSERT(frames.at(1).mangledSymbolName(),
-               npos != frames.at(1).mangledSymbolName().find("funcStaticOne"));
-            LOOP_ASSERT(frames.at(2).symbolName(),
-                           npos != frames.at(2).symbolName().find("testFunc"));
-            LOOP_ASSERT(frames.at(2).mangledSymbolName(),
-                    npos != frames.at(2).mangledSymbolName().find("testFunc"));
-            LOOP_ASSERT(frames.at(3).mangledSymbolName(),
-                     npos != frames.at(3).mangledSymbolName().find("resolve"));
-            LOOP_ASSERT(frames.at(4).mangledSymbolName(),
-                       npos != frames.at(4).mangledSymbolName().find("qsort"));
+            LOOP_ASSERT(frames[0].symbolName(),
+                      npos != frames[0].symbolName().find("funcGlobalOne"));
+            LOOP_ASSERT(frames[1].symbolName(),
+                      npos != frames[1].symbolName().find("funcStaticOne"));
+            LOOP_ASSERT(frames[0].mangledSymbolName(),
+               npos != frames[0].mangledSymbolName().find("funcGlobalOne"));
+            LOOP_ASSERT(frames[1].mangledSymbolName(),
+               npos != frames[1].mangledSymbolName().find("funcStaticOne"));
+            LOOP_ASSERT(frames[2].symbolName(),
+                           npos != frames[2].symbolName().find("testFunc"));
+            LOOP_ASSERT(frames[2].mangledSymbolName(),
+                    npos != frames[2].mangledSymbolName().find("testFunc"));
+            LOOP_ASSERT(frames[3].mangledSymbolName(),
+                     npos != frames[3].mangledSymbolName().find("resolve"));
+            LOOP_ASSERT(frames[4].mangledSymbolName(),
+                       npos != frames[4].mangledSymbolName().find("qsort"));
 
             if (demangle) {
-                LOOP_ASSERT(frames.at(0).symbolName(),
-                           frames.at(0).symbolName() == ".funcGlobalOne(int)");
-                LOOP_ASSERT(frames.at(1).symbolName(),
-                           frames.at(1).symbolName() == ".funcStaticOne(int)");
-                LOOP_ASSERT(frames.at(2).symbolName(),
-                             frames.at(2).symbolName() == "BloombergLP::"
+                LOOP_ASSERT(frames[0].symbolName(),
+                           frames[0].symbolName() == ".funcGlobalOne(int)");
+                LOOP_ASSERT(frames[1].symbolName(),
+                           frames[1].symbolName() == ".funcStaticOne(int)");
+                LOOP_ASSERT(frames[2].symbolName(),
+                             frames[2].symbolName() == "BloombergLP::"
                                    "baesu_StackTraceResolverImpl<BloombergLP::"
                                "baesu_ObjectFileFormat::Xcoff>::.testFunc()");
                 {
@@ -472,13 +462,13 @@ int main(int argc, char *argv[])
                                    "baesu_StackTraceResolverImpl<BloombergLP::"
                                    "baesu_ObjectFileFormat::Xcoff>::.resolve(";
                     int matchLen = bsl::strlen(match);
-                    LOOP_ASSERT(frames.at(3).symbolName(),
-                                     safeCmp(frames.at(3).symbolName().c_str(),
+                    LOOP_ASSERT(frames[3].symbolName(),
+                                     safeCmp(frames[3].symbolName().c_str(),
                                              match,
                                              matchLen));
                 }
-                LOOP_ASSERT(frames.at(4).symbolName(),
-                                        frames.at(4).symbolName() == ".qsort");
+                LOOP_ASSERT(frames[4].symbolName(),
+                                        frames[4].symbolName() == ".qsort");
 
                 break;
             }

@@ -22,8 +22,12 @@ BDES_IDENT("$Id: $")
 // (text) memory location of the first instruction to be executed upon
 // returning from a called routine.
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
                         // ============================
@@ -38,13 +42,13 @@ struct baesu_StackAddressUtil {
 
     // On some platforms, 'getStackAddresses' finds a frame representing
     // 'getStackAddresses' itself.  This frame is usually unwanted.
-    // 'IGNORE_FRAMES' instructs the caller as to whether the first frame is
-    // such an unwanted frame.
+    // 'BAESU_IGNORE_FRAMES' instructs the caller as to whether the first frame
+    // is such an unwanted frame.
 
 #if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_WINDOWS)
-    enum { IGNORE_FRAMES = 1 };
+    enum { BAESU_IGNORE_FRAMES = 1 };
 #else
-    enum { IGNORE_FRAMES = 0 };
+    enum { BAESU_IGNORE_FRAMES = 0 };
 #endif
 
     // CLASS METHODS
@@ -63,7 +67,10 @@ struct baesu_StackAddressUtil {
         // recent calls occur in the array before calls which took place before
         // them.  Return the number of stack frames stored into 'buffer' on
         // success, and a negative value otherwise.  The behavior is undefined
-        // unless 'buffer' has room for at least 'maxFrames' addresses.
+        // unless 'buffer' has room for at least 'maxFrames' addresses.  Note
+        // that this routine may fill 'buffer' with garbage if the stack is
+        // corrupt, or on Windows if some stack frames represent optimized
+        // routines.
 };
 
 }  // close namespace BloombergLP

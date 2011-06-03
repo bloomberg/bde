@@ -90,8 +90,8 @@ BDES_IDENT("$Id: $")
 //    BSLS_ASSERT(1 == count);
 //..
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM

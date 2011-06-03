@@ -31,12 +31,16 @@ BDES_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
 #ifndef INCLUDED_BAESU_OBJECTFILEFORMAT
 #include <baesu_objectfileformat.h>
+#endif
+
+#ifndef INCLUDED_BAESU_STACKTRACE
+#include <baesu_stacktrace.h>
 #endif
 
 #ifndef INCLUDED_BAESU_STACKTRACEFRAME
@@ -47,8 +51,8 @@ BDES_IDENT("$Id: $")
 #include <baesu_stacktraceresolver_filehelper.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
+#ifndef INCLUDED_BDEMA_HEAPBYPASSALLOCATOR
+#include <bdema_heapbypassallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -92,9 +96,13 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf> {
                                             // segments)
 
     // DATA
-    bsl::vector<baesu_StackTraceFrame>
-                      *d_ioAllFrames_p;     // pointer to vector of frames in
-                                            // the StackTrace object
+    baesu_StackTrace  *d_stackTrace_p;      // pointer to stack trace object.
+                                            // The frames contained in this
+                                            // have their 'address' fields and
+                                            // nothing else initialized upon
+                                            // entry to 'resolve', which infers
+                                            // as many other fields of them as
+                                            // possible.
 
     CurrentSegment    *d_seg_p;             // pointer to the 'CurrentSegment'
                                             // struct
@@ -105,8 +113,8 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf> {
 
     bool               d_demangle;          // whether we demangle names
 
-    bslma_Allocator   *d_allocator_p;       // allocator used to supply memory,
-                                            // held, not owned
+    bdema_HeapBypassAllocator
+                       d_hbpAlloc;          // heap bypass allocator -- owned
 
   private:
     // NOT IMPLEMENTED
@@ -116,17 +124,12 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf> {
 
   private:
     // PRIVATE CREATORS
-    baesu_StackTraceResolverImpl(
-                           bsl::vector<baesu_StackTraceFrame> *ioFrames_p,
-                           bool                                demangle,
-                           bslma_Allocator                    *basicAllocator);
+    baesu_StackTraceResolverImpl(baesu_StackTrace *stackTrace,
+                                 bool              demanglingPreferredFlag);
         // Create an stack trace reolver that can populate other fields of the
-        // specified 'ioFrames' object given previously populated 'address'
+        // specified '*stackTrace' object given previously populated 'address'
         // fields.  Specify 'demangle', which indicates whether demangling of
-        // symbols is to occur, and 'basicAllocator', which is to be used for
-        // memory allocation.  Note that the behavior is undefined if
-        // 'basicAllocator' is 0 or unspecified, the intention is that it
-        // should be of type 'bdema_HeapByPassAllocator'.
+        // symbols is to occur.
 
     ~baesu_StackTraceResolverImpl();
         // Destroy this object.
@@ -143,7 +146,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf> {
                        void       *segmentPtr,
                        UintPtr     segmentSize,
                        const char *libraryFileName);
-        // Identify which stack trace frames in '*d_allFrames_p' are in the
+        // Identify which stack trace frames in '*d_stackTrace_p' are in the
         // segment pointed at by the specified 'segmentPtr' of the specified
         // 'segmentSize', and initialize as many fields of those stack trace
         // frames as possible.  The segment is defined in the executable file
@@ -160,15 +163,13 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf> {
 
   public:
     // CLASS METHOD
-    static int resolve(bsl::vector<baesu_StackTraceFrame> *ioFrames,
-                       bool                                demangle,
-                       bslma_Allocator                    *basicAllocator);
-        // Populate information for the specified 'ioFrames', a vector of stack
-        // trace frames in a stack trace object.  Specify 'demangle', to
-        // determine whether demangling is to occur, and 'basicAllocator',
-        // which is to be used for memory allocation.  The behavior is
-        // undefined unless all the 'address' field in 'stackFrames' are valid
-        // and other fields are invalid, and 'basicAllocator != 0'.
+    static int resolve(baesu_StackTrace *stackTrace,
+                       bool              demanglingPreferredFlag);
+        // Populate information for the specified '*stackTrace', which contains
+        // a sequence of randomly-accessible stack trace frames.  Specify
+        // 'demanglingPreferredFlag', to determine whether demangling is to
+        // occur.  The behavior is undefined unless all the 'address' field in
+        // '*stackTrace' are valid and other fields are invalid.
 
     // MANIPULATOR
     int processLoadedImage(const char *fileName,

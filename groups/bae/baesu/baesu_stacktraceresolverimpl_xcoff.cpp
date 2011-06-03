@@ -608,21 +608,21 @@ struct Local::StackTraceResolver::AuxInfo {
     UintPtr d_includesStartIndex;  // start of range of symbol table
                                    // entries corresponding to include
                                    // files
-                                
+
     UintPtr d_includesEndIndex;    // end of above
-                                
+
     UintPtr d_functionStartIndex;  // start of range of indexes for
                                    // function we are looking up
-                                
+
     UintPtr d_functionEndIndex;    // end of range of indexes for
                                    // function we are looking up
 
     UintPtr d_lineNumberOffset;    // offset into line number table
                                    // corresponding to this symbol
-        
+
     int     d_lineNumberBase;      // amount to adust the line number if
                                    // it's relative
-        
+
     bool    d_symEntValid;         // whether 'd_symEnt' is valid
 
     bool    d_sourceSymEntValid;   // whether 'd_sourceSymEnt' is valid
@@ -659,11 +659,10 @@ struct Local::StackTraceResolver::LoadAuxInfosInfo {
 
 // PRIVATE CREATORS
 Local::StackTraceResolver::baesu_StackTraceResolverImpl(
-                            bsl::vector<baesu_StackTraceFrame> *stackFrames,
-                            bool                                demangle,
-                            bslma_Allocator                    *basicAllocator)
+                                              baesu_StackTrace *stackTrace,
+                                              bool              demangle)
 : d_helper(0)
-, d_allFrames_p(stackFrames)
+, d_stackTrace_p(stackTrace)
 , d_segFramePtrs_p(0)
 , d_segAddresses_p(0)
 , d_segAuxInfos_p(0)
@@ -676,24 +675,22 @@ Local::StackTraceResolver::baesu_StackTraceResolverImpl(
 , d_symTableOffset(0)
 , d_stringTableOffset(0)
 , d_demangle(demangle)
-, d_allocator_p(basicAllocator)
+, d_hbpAlloc()
 {
-    BSLS_ASSERT(basicAllocator);
+    int totalNumFrames = stackTrace->length();
 
-    int totalNumFrames = stackFrames->size();
-
-    d_segAddresses_p = (const void **) d_allocator_p->allocate(
+    d_segAddresses_p = (const void **) allocator()->allocate(
                                               sizeof(void *) * totalNumFrames);
     memset(d_segAddresses_p, 0, sizeof(void *) * totalNumFrames);
 
     d_segFramePtrs_p = (baesu_StackTraceFrame **)
-                      d_allocator_p->allocate(sizeof(void *) * totalNumFrames);
+                        allocator()->allocate(sizeof(void *) * totalNumFrames);
 
-    d_segAuxInfos_p = (AuxInfo *) d_allocator_p->allocate(
+    d_segAuxInfos_p = (AuxInfo *) allocator()->allocate(
                                              sizeof(AuxInfo) * totalNumFrames);
 
-    d_scratchBuf_p = (char *) d_allocator_p->allocate(Local::SCRATCH_BUF_LEN);
-    d_symbolBuf_p  = (char *) d_allocator_p->allocate(Local::SYMBOL_BUF_LEN);
+    d_scratchBuf_p = (char *) allocator()->allocate(Local::SCRATCH_BUF_LEN);
+    d_symbolBuf_p  = (char *) allocator()->allocate(Local::SYMBOL_BUF_LEN);
 }
 
 Local::StackTraceResolver::~baesu_StackTraceResolverImpl()
@@ -1330,10 +1327,10 @@ const char *Local::StackTraceResolver::getSourceName(
                                               sourceAuxEnt->x_file._x.x_offset,
                                   d_scratchBuf_p,
                                   Local::SCRATCH_BUF_LEN,
-                                  d_allocator_p)
+                                  allocator())
            : bdeu_String::copy(sourceAuxEnt->x_file.x_fname,
                                FILNMLEN,
-                               d_allocator_p);
+                               allocator());
 }
 
 const char *Local::StackTraceResolver::getSymbolName(const SYMENT *symEnt)
@@ -1342,7 +1339,7 @@ const char *Local::StackTraceResolver::getSymbolName(const SYMENT *symEnt)
 
 #ifdef __XCOFF32__
     if (0 != symEnt->n_zeroes) {
-        srcName = bdeu_String::copy(symEnt->n_name, SYMNMLEN, d_allocator_p);
+        srcName = bdeu_String::copy(symEnt->n_name, SYMNMLEN, allocator());
     }
 #endif
 
@@ -1350,7 +1347,7 @@ const char *Local::StackTraceResolver::getSymbolName(const SYMENT *symEnt)
         srcName = d_helper->loadString(d_stringTableOffset + symEnt->n_offset,
                                        d_scratchBuf_p,
                                        Local::SCRATCH_BUF_LEN,
-                                       d_allocator_p);
+                                       allocator());
     }
 
     return srcName;
@@ -1369,21 +1366,21 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
             (char *) segmentPtr + segmentSize, displayFileName,
             archiveMemberName ? archiveMemberName : "nul");
 
-    int totalNumFrames = d_allFrames_p->size();
+    int totalNumFrames = d_stackTrace_p->length();
     zprintf("num all addresses = %d\n", totalNumFrames);
 
     memset(d_segAuxInfos_p, 0, sizeof(AuxInfo) * d_numCurrAddresses);
 
     d_numCurrAddresses = 0;
     for (int i = 0; i < totalNumFrames; ++i) {
-        const void *address = (*d_allFrames_p)[i].address();
+        const void *address = (*d_stackTrace_p)[i].address();
 
         // Identify the stack frames that are defined in this object file.
 
         if (address >= segmentPtr && address <
                                            (char *) segmentPtr + segmentSize) {
             zprintf("address %p MATCH\n", address);
-            d_segFramePtrs_p[d_numCurrAddresses] = &(*d_allFrames_p)[i];
+            d_segFramePtrs_p[d_numCurrAddresses] = &(*d_stackTrace_p)[i];
             d_segAddresses_p[d_numCurrAddresses] = address;
             ++d_numCurrAddresses;
         }
@@ -1395,7 +1392,7 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
         return 0;                                                     // RETURN
     }
 
-    displayFileName = bdeu_String::copy(displayFileName, d_allocator_p);
+    displayFileName = bdeu_String::copy(displayFileName, allocator());
 
     const UintPtr baseAddress = (UintPtr) segmentPtr;
 
@@ -1502,7 +1499,7 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
         if (auxInfo->d_symEntValid) {
             const char *symbolName = getSymbolName(&auxInfo->d_symEnt);
             frame->setMangledSymbolName(bdeu_String::copy(symbolName,
-                                                          d_allocator_p));
+                                                          allocator()));
             zprintf("Loaded symbol name: %s\n", frame->mangledSymbolName());
 
             Name *name = 0;
@@ -1526,7 +1523,7 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
             if (name) {
                 char *text = name->Text();
                 zprintf("Demangled to %s\n", text);
-                frame->setSymbolName(bdeu_String::copy(text, d_allocator_p));
+                frame->setSymbolName(bdeu_String::copy(text, allocator()));
             }
             else {
                 zprintf("Did not demangle: %s\n", frame->mangledSymbolName());
@@ -1608,17 +1605,14 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
 }
 
 // PUBLIC CLASS METHODS
-int Local::StackTraceResolver::resolve(
-                            bsl::vector<baesu_StackTraceFrame> *stackFrames,
-                            bool                                demangle,
-                            bslma_Allocator                    *basicAllocator)
+int Local::StackTraceResolver::resolve(baesu_StackTrace *stackTrace,
+                                       bool              demangle)
 {
-    Local::StackTraceResolver resolver(stackFrames,
-                                       demangle,
-                                       basicAllocator);
+    Local::StackTraceResolver resolver(stackTrace,
+                                       demangle);
 
     enum { BUF_SIZE = (8 << 10) - 64 };
-    char *ldInfoBuf = (char *) resolver.d_allocator_p->allocate(BUF_SIZE);
+    char *ldInfoBuf = (char *) resolver.allocator()->allocate(BUF_SIZE);
 
     int rc = loadquery(L_GETINFO, ldInfoBuf, BUF_SIZE);
     if (-1 == rc) {
@@ -1632,8 +1626,8 @@ int Local::StackTraceResolver::resolve(
         // break statement at the end of the loop when we finish the linked
         // list of segments.
 
-        int i = stackFrames->size() - 1;
-        while (i >= 0 && (*stackFrames)[i].isSymbolNameValid()) {
+        int i = stackTrace->length() - 1;
+        while (i >= 0 && (*stackTrace)[i].isSymbolNameKnown()) {
             --i;
         }
         if (i < 0) {
@@ -1683,9 +1677,9 @@ int Local::StackTraceResolver::resolve(
     // if a source file name is ".file", it's incorrect -- this happens with
     // shared libraries at least some of the time
 
-    for (int i = 0; i < (int) stackFrames->size(); ++i) {
-        if (!bsl::strcmp((*stackFrames)[i].sourceFileName().c_str(), ".file")){
-            (*stackFrames)[i].setSourceFileName("");
+    for (int i = 0; i < (int) stackTrace->length(); ++i) {
+        if (!bsl::strcmp((*stackTrace)[i].sourceFileName().c_str(), ".file")){
+            (*stackTrace)[i].setSourceFileName("");
         }
     }
 
