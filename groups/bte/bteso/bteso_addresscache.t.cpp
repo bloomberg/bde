@@ -177,48 +177,54 @@ const int NUM_CALLS = 20;
 enum { DEFAULT = 0, CACHE, PUTENV, CACHE_AND_PUTENV };
 
 static
-void resolve(bcemt_Mutex *updateMutex,
-             double      *totalSystemTime,
-             double      *totalUserTime,
-             double      *totalWallTime,
-             string      *hostname,
-             int         *option)
+void resolve(bcemt_Mutex    *updateMutex,
+             double         *totalSystemTime,
+             double         *totalUserTime,
+             double         *totalWallTime,
+             vector<string> *hostname,
+             int            *option)
 {
     bteso_IPv4Address address;
 
     bsls_Stopwatch timer;
     timer.start();
-    switch (*option) {
-      case DEFAULT: {
-        for (int i = 0; i < NUM_CALLS; ++i) {
-            int rc = bteso_ResolveUtil::getAddressDefault(&address,
-                                                          hostname->c_str());
-            BSLS_ASSERT(!rc);
+
+    for (vector<string>::const_iterator it = hostname->begin();
+         it != hostname->end();
+         ++it)
+    {
+        switch (*option) {
+          case DEFAULT: {
+            for (int i = 0; i < NUM_CALLS; ++i) {
+                int rc = bteso_ResolveUtil::getAddressDefault(&address,
+                                                              it->c_str());
+                BSLS_ASSERT(!rc);
+            }
+          } break;
+          case CACHE: {
+            for (int i = 0; i < NUM_CALLS; ++i) {
+                int rc = bteso_ResolveUtil::getAddress(&address,
+                                                       it->c_str());
+                BSLS_ASSERT(!rc);
+            }
+          } break;
+          case PUTENV: {
+            for (int i = 0; i < NUM_CALLS; ++i) {
+                putenv("NSORDER=bind,local");
+                int rc = bteso_ResolveUtil::getAddressDefault(&address,
+                                                              it->c_str());
+                BSLS_ASSERT(!rc);
+            }
+          } break;
+          case CACHE_AND_PUTENV: {
+            for (int i = 0; i < NUM_CALLS; ++i) {
+                putenv("NSORDER=bind,local");
+                int rc = bteso_ResolveUtil::getAddress(&address,
+                                                       it->c_str());
+                BSLS_ASSERT(!rc);
+            }
+          } break;
         }
-      } break;
-      case CACHE: {
-        for (int i = 0; i < NUM_CALLS; ++i) {
-            int rc = bteso_ResolveUtil::getAddress(&address,
-                                                   hostname->c_str());
-            BSLS_ASSERT(!rc);
-        }
-      } break;
-      case PUTENV: {
-        for (int i = 0; i < NUM_CALLS; ++i) {
-            putenv("NSORDER=bind,local");
-            int rc = bteso_ResolveUtil::getAddressDefault(&address,
-                                                          hostname->c_str());
-            BSLS_ASSERT(!rc);
-        }
-      } break;
-      case CACHE_AND_PUTENV: {
-        for (int i = 0; i < NUM_CALLS; ++i) {
-            putenv("NSORDER=bind,local");
-            int rc = bteso_ResolveUtil::getAddress(&address,
-                                                   hostname->c_str());
-            BSLS_ASSERT(!rc);
-        }
-      } break;
     }
     timer.stop();
 
@@ -502,7 +508,13 @@ int main(int argc, char *argv[])
         const int OPTION[] = {PUTENV, CACHE_AND_PUTENV};
         const int NUM_OPTION = sizeof OPTION / sizeof *OPTION;
 
-        bsl::string hostname = "nylxdev1";
+        bsl::vector<bsl::string> hostnames;
+        hostnames.push_back("sundev1");
+        hostnames.push_back("nylxdev1");
+        hostnames.push_back("ibm1");
+        hostnames.push_back("hp1");
+        hostnames.push_back("nysbldo1");
+
         bteso_ResolveUtil::setResolveByNameCallback(resolveByName);
 
         for (int ti = 0; ti < NUM_OPTION; ++ti) {
@@ -522,7 +534,7 @@ int main(int argc, char *argv[])
                                                               &totalSystemTime,
                                                               &totalUserTime,
                                                               &totalWallTime,
-                                                              &hostname,
+                                                              &hostnames,
                                                               &OPT);
 
                 bcep_FixedThreadPool pool(THREAD, 2000);
@@ -540,8 +552,6 @@ int main(int argc, char *argv[])
 
             }
         }
-
-
 
       } break;
       default: {

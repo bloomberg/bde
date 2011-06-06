@@ -117,8 +117,8 @@ BDES_IDENT("$Id: $")
 //  assert(bteso_IPv4Address("172.17.1.20", 0) == ipv4);
 //..
 
-#ifndef INCLUDED_BAESCM_VERSION
-#include <baescm_version.h>
+#ifndef INCLUDED_BTESCM_VERSION
+#include <btescm_version.h>
 #endif
 
 #ifndef INCLUDED_BTESO_RESOLVEUTIL
