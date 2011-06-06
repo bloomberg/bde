@@ -23,7 +23,6 @@
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
 
-// TBD move this into its own component?
 template <class TYPE>
 void invokeAdlSwap(TYPE& a, TYPE& b)
     // Exchange the values of the specified 'a' and 'b' objects using the
@@ -97,7 +96,7 @@ using bsl::ostream;
 //: o An object's value is independent of the allocator used to supply memory.
 //: o Injected exceptions are safely propagated during memory allocation.
 //: o Precondition violations are detected in appropriate build modes.
-//: o TBD: All memory allocation must come from the supplied object allocator,
+//: o All memory allocation must come from the supplied object allocator,
 //:   never directly from the default allocator (i.e., no "temporaries").
 //:   Since the default allocator may be corrupt when stack traces are done,
 //:   stack trace frame objects are supplied with a special, dedicated
@@ -248,9 +247,6 @@ typedef bsl::string T7;  // 'symbolName'
 //                     GLOBAL CONSTANTS USED FOR TESTING
 // ----------------------------------------------------------------------------
 // Define 'bsl::string' value long enough to ensure dynamic memory allocation.
-
-// JSL: Do we want to move this string to the component of bsl::string itself?
-// JSL: e.g.,  #define BSLSTL_LONG_STRING ...   TBD!
 
 #ifdef BSLS_PLATFORM__CPU_32_BIT
 #define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
@@ -612,7 +608,7 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 // JSL: change the name to 'bslma_TestAllocatorMonitor'.
 
 class bslma_TestAllocatorMonitor {
-    // TBD
+    // Move this to its own component
 
     // DATA
     int                              d_lastInUse;
@@ -622,6 +618,7 @@ class bslma_TestAllocatorMonitor {
 
   public:
     // CREATORS
+    explicit
     bslma_TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
         // TBD
 
@@ -668,7 +665,7 @@ bslma_TestAllocatorMonitor::~bslma_TestAllocatorMonitor()
 inline
 bool bslma_TestAllocatorMonitor::isInUseSame() const
 {
-#if TBD // Why cannot deallocate memory in use at monitor creation?
+#if 0   // Why cannot deallocate memory in use at monitor creation?
         // Problem arose in swap-based assignment.
     BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
 #endif
@@ -1215,7 +1212,7 @@ int main(int argc, char *argv[])
                     if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
                         LOOP2_ASSERT(LINE1, LINE2, oam.isInUseUp());
                     }
-#if TBD // Inappropriate test for swap-based assignment
+#if 0 // Inappropriate test for swap-based assignment
                     else if ('Y' == MEMDST2) {
                         LOOP2_ASSERT(LINE1, LINE2, oam.isInUseSame());
                     }
@@ -2371,7 +2368,7 @@ int main(int argc, char *argv[])
         //:
         //: 7 The output 'operator<<' returns the supplied 'ostream'.
         //:
-        //: 8 TBD Neither 'print' method nor the output 'operator<<' use
+        //: 8 Neither 'print' method nor the output 'operator<<' use
         //:   the default allocator.
         //
         // Plan:

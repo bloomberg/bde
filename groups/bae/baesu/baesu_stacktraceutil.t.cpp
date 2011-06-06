@@ -7,6 +7,7 @@
 
 #include <bdef_function.h>
 #include <bdema_sequentialallocator.h>
+#include <bdesu_fileutil.h>
 #include <bdeu_string.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -186,14 +187,13 @@ typedef bsls_Types::IntPtr     IntPtr;
 static int verbose;
 static int veryVerbose;
 
+static bslma_TestAllocator ota;
+static bdema_SequentialAllocator ta(&ota);
+static bslma_TestAllocator defaultAllocator;
+
 bsl::ostream *out_p;    // pointer to either 'cout' or a dummy stringstream
                         // that is never output, depending on the value of
                         // 'verbose'.
-
-bool stringstreamUsed;  // stringstreams allocate temporaries with the default
-                        // allocator, so if we use any stringstreams we should
-                        // not consider it an error if the default allocator
-                        // has been used
 
 static const bsl::size_t npos = bsl::string::npos;
 
@@ -329,7 +329,7 @@ void testStackTrace(const baesu_StackTrace& st)
 static
 void case_8_top()
 {
-    FILE *fp = stderr;
+    FILE *fp = stdout;
     if (!PLAT_WIN && !verbose) {
         fp = fopen("/dev/null", "w");
         ASSERT(fp);
@@ -343,7 +343,7 @@ void case_8_top()
             testStackTrace(st);
 
             for (int i = 0; i < st.length(); ++i) {
-                const baesu_StackTraceFrame frame = st[i];
+                const baesu_StackTraceFrame& frame = st[i];
                 const char *lnBegin = frame.libraryFileName().c_str();
                 const char *ln = lnBegin + bsl::strlen(lnBegin);
                 while (ln > lnBegin && '/' != ln[-1] && '\\' != ln[-1]) {
@@ -693,9 +693,13 @@ void case_4_top(bool demangle)
         matches.push_back("bottom");
         matches.push_back("main");
 
-        bsl::stringstream os;                   stringstreamUsed = true;
+        bsl::stringstream os(&ta);
         Util::printFormatted(os, st);
-        const bsl::string& str = os.str();
+        bsl::string str(&ta);
+        {
+            bslma_DefaultAllocatorGuard guard(&ta);
+            str = os.str();
+        }
         checkOutput(str, matches);
         problem();    // set 'out_p' if problem
 
@@ -780,9 +784,13 @@ void case_3_Top(bool demangle)
         matches.push_back("bottom");
         matches.push_back("main");
 
-        bsl::stringstream os;                   stringstreamUsed = true;
+        bsl::stringstream os(&ta);
         Util::printFormatted(os, st);
-        const bsl::string& str = os.str();
+        bsl::string str(&ta);
+        {
+            bslma_DefaultAllocatorGuard guard(&ta);
+            str = os.str();
+        }
         checkOutput(str, matches);
         if (verbose || problem()) {
             *out_p << str;
@@ -1160,10 +1168,6 @@ int main(int argc, char *argv[])
 
     // see if we can avoid calling 'malloc' from here on out
 
-    bslma_TestAllocator ota;
-    bdema_SequentialAllocator ta(&ota);
-
-    bslma_TestAllocator defaultAllocator;
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     // 'dummyOstream' is a way of achieving the equivalent of opening /dev/null
@@ -1172,11 +1176,9 @@ int main(int argc, char *argv[])
     bsl::stringstream dummyOstream(&ta);
     if (verbose) {
         out_p = &cout;
-        stringstreamUsed = false;
     }
     else {
         out_p = &dummyOstream;
-        stringstreamUsed = true;
     }
 
     switch (test) { case 0:
@@ -1591,9 +1593,7 @@ int main(int argc, char *argv[])
       }
     }
 
-    if (!stringstreamUsed) {
-        ASSERT(0 == defaultAllocator.numAllocations());
-    }
+    ASSERT(0 == defaultAllocator.numAllocations());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."

@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
         mF0.setSourceFileName("/a/b/c/sourceFile.cpp");
         mF0.setMangledSymbolName("_woof_1a");
         mF0.setSymbolName("woof");
-        
+
         mF1.setAddress((void *) 0x34cd);
         mF1.setLibraryFileName("/lib/libd.a");
         mF1.setLineNumber(15);
