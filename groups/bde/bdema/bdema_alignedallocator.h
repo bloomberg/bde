@@ -89,9 +89,10 @@ BSLS_IDENT("$Id$")
 //..
 //  // MANIPULATORS
 //  void *bdema_PosixMemAlignAllocator::allocateAligned(size_type size,
-//                                                      size_type alignment)
+//                                                      int       alignment)
 //  {
 //      BSLS_ASSERT_SAFE(0 <= size);
+//      BSLS_ASSERT_SAFE(0 <= alignement);
 //      BSLS_ASSERT_SAFE(0 == (alignement % 2));
 //      BSLS_ASSERT_SAFE(0 == (alignement % sizeof(void *)));
 //
@@ -142,7 +143,7 @@ class bdema_AlignedAllocator : public bslma_Allocator {
 
   public:
     // MANIPULATORS
-    virtual void *allocateAligned(size_type size, size_type alignment)
+    virtual void *allocateAligned(size_type size, int alignment)
                                         BSLS_ANNOTATION_WARN_UNUSED_RESULT = 0;
         // Return the address of a newly allocated block of memory of at
         // least the specified positive 'size' (in bytes), sufficiently
@@ -151,9 +152,9 @@ class bdema_AlignedAllocator : public bslma_Allocator {
         // allocator cannot return the requested number of bytes, then it
         // throws an 'std::bad_alloc' exception, or abort if in a
         // non-exception build.  The behavior is undefined unless
-        // '0 <= size' and 'alignment' is both a multiple of 'sizeof(void *)'
-        // and a power of two.  Note that the underlying 'posix_memalign'
-        // function is *not* called when 'size' is 0.
+        // '0 <= size', '0 <= alignment' and 'alignment' is both a multiple of
+        // 'sizeof(void *)' and a power of two.  Note that the underlying
+        // 'posix_memalign' function is *not* called when 'size' is 0.
 };
 
 }   // close namespace BloombergLP
