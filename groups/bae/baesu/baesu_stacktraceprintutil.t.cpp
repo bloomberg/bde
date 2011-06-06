@@ -114,7 +114,8 @@ static void aSsErT(int c, const char *s, int i)
 
 namespace {
 
-typedef baesu_StackTracePrintUtil      PrintUtil;
+typedef baesu_StackTracePrintUtil           PrintUtil;
+typedef baesu_StackTracePrintUtil_Test      PrintUtilTest;
 
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0 };
@@ -251,13 +252,13 @@ namespace CASE_4 {
 
 void top()
 {
-    typedef void (*TestDumpPtrType)(bsl::string *string);
+    typedef void (*PrintStackTraceToStringPtrType)(bsl::string *string);
     union {
-        TestDumpPtrType d_funcPtr;
-        UintPtr         d_uintPtr;
+        PrintStackTraceToStringPtrType d_funcPtr;
+        UintPtr                        d_uintPtr;
     } testDumpUnion;
 
-    testDumpUnion.d_funcPtr = &PrintUtil::forTestingOnlyDump;
+    testDumpUnion.d_funcPtr = &PrintUtilTest::printStackTraceToString;
     testDumpUnion.d_uintPtr = foilOptimizer(testDumpUnion.d_uintPtr);
 
     bslma_TestAllocator ta;
@@ -269,8 +270,8 @@ void top()
         // Windows doesn't provide the source file name for an inline routine.
 
         bsl::vector<const char *> matches(&ta);
-        matches.push_back("baesu_StackTracePrintUtil");
-        matches.push_back("forTestingOnlyDump");
+        matches.push_back("baesu_StackTracePrintUtil_Test");
+        matches.push_back("printStackTraceToString");
         matches.push_back(" source:baesu_stacktraceprintutil.h");
         matches.push_back(" in baesu_stacktraceprintutil.t");
         matches.push_back("\n");
@@ -286,8 +287,8 @@ void top()
     }
     else {
         bsl::vector<const char *> matches(&ta);
-        matches.push_back("baesu_StackTracePrintUtil");
-        matches.push_back("forTestingOnlyDump");
+        matches.push_back("baesu_StackTracePrintUtil_Test");
+        matches.push_back("printStackTraceToString");
         matches.push_back("\n");
         matches.push_back("CASE_4");
         matches.push_back("top");

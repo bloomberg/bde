@@ -125,10 +125,6 @@ struct baesu_StackTracePrintUtil {
     // description of a stack trace.
 
     // CLASS METHODS
-    static void forTestingOnlyDump(bsl::string *string);
-        // Do a stack trace and assign the output to '*string'.  Note that this
-        // is for testing only.
-
     static bsl::ostream& printStackTrace(
                                  bsl::ostream& stream,
                                  int           maxFrames = -1,
@@ -144,17 +140,31 @@ struct baesu_StackTracePrintUtil {
         // and symbol names are always demangled on the Windows platform.
 };
 
+                   // ====================================
+                   // class baesu_StackTracePrintUtil_Test
+                   // ====================================
+
+struct baesu_StackTracePrintUtil_Test {
+    // This 'struct' is not for use by clients of this component, it just
+    // exists for testing within this component.
+
+    // CLASS METHODS
+    static void printStackTraceToString(bsl::string *string);
+        // Do a stack trace and assign the output to 'string'.  Note that this
+        // is for testing only.
+};
+
 // CLASS METHOD
 inline
-void baesu_StackTracePrintUtil::forTestingOnlyDump(bsl::string *string)
+void baesu_StackTracePrintUtil_Test::printStackTraceToString(
+                                                           bsl::string *string)
 {
     bslma_Allocator *a = string->get_allocator().mechanism();
-    bsl::ostringstream os(a);
-    printStackTrace(os);
-    {
-        bslma_DefaultAllocatorGuard guard(a);
-        *string = os.str();
-    }
+    bslma_DefaultAllocatorGuard guard(a);
+
+    bsl::ostringstream os;
+    baesu_StackTracePrintUtil::printStackTrace(os);
+    *string = os.str();
 }
 
 }  // close namespace BloombergLP
