@@ -309,7 +309,8 @@ namespace BloombergLP {
                         // class bslstl_StringArgument
                         // ===========================
 
-class bslstl_StringArgument : public bslstl_StringArgument_Data
+template <typename CHAR_TYPE>
+class bslstl_StringArgument : public bslstl_StringArgument_Data<CHAR_TYPE>
     // This class, having non-standard copy semantics, provides a reference to
     // a sequence of non-modifiable characters, i.e., a 'const' string.  A
     // 'bslstl_StringArgument' supports a hybrid of reference and pointer
@@ -327,9 +328,9 @@ class bslstl_StringArgument : public bslstl_StringArgument_Data
 {
   public:
     // PUBLIC TYPES
-    typedef const char *iterator;        // type of non-'const' iterator
-    typedef const char *const_iterator;  // type of 'const' iterator
-    typedef const char  value_type;      // type of objects iterated over
+    typedef const CHAR_TYPE *iterator;        // type of non-'const' iterator
+    typedef const CHAR_TYPE *const_iterator;  // type of 'const' iterator
+    typedef const CHAR_TYPE  value_type;      // type of objects iterated over
         // Iterator types ('iterator' and 'const_iterator') and value type
         // ('value_type') for STL-compatible iterators.
 
@@ -339,7 +340,7 @@ class bslstl_StringArgument : public bslstl_StringArgument_Data
         // Create an unbound string reference.  An unbound string reference is
         // not bound to any string.
 
-    bslstl_StringArgument(const char *data, int length);
+    bslstl_StringArgument(const CHAR_TYPE *data, int length);
         // Create a string reference bound to the string at the specified
         // 'data' address and extending for the specified 'length' characters.
         // The string indicated by 'data' and 'length', if any, must remain
@@ -358,15 +359,15 @@ class bslstl_StringArgument : public bslstl_StringArgument_Data
         // end'.  Note that the bound string, if any, need not be
         // null-terminated and may contain null ('\0') characters.
 
-    bslstl_StringArgument(const char *data);
+    bslstl_StringArgument(const CHAR_TYPE *data);
         // Create a string reference bound to the string at the specified
         // 'data' address and extending for 'std::strlen(data)' characters.
         // The string at the 'data' address, if any, must remain valid for as
         // long as it is bound to this string reference.  The behavior is
         // undefined unless 'data' is 0, or 'data' is null-terminated.
 
-    bslstl_StringArgument(const native_std::string& str);
-    bslstl_StringArgument(const bsl::string& str);
+    bslstl_StringArgument(const native_std::basic_string<CHAR_TYPE>& str);
+    bslstl_StringArgument(const bsl::basic_string<CHAR_TYPE>& str);
         // Create a string reference bound to the string at the specified
         // 'string.data()' address and extending for 'string.size()'
         // characters.  The string indicated by 'string.data()' and
@@ -392,7 +393,7 @@ class bslstl_StringArgument : public bslstl_StringArgument_Data
         // string reference.  The string bound to 'rhs', if any, must remain
         // valid for as long as it is bound to this string reference.
 
-    void assign(const char *data, int length);
+    void assign(const CHAR_TYPE *data, int length);
         // Bind this string reference to the string at the specified 'data'
         // address and extending for the specified 'length' characters, or make
         // this string reference unbound if both 'data' and 'length' are 0.
@@ -412,14 +413,14 @@ class bslstl_StringArgument : public bslstl_StringArgument_Data
         // Note that the bound string, if any, need not be null-terminated and
         // may contain null ('\0') characters.
 
-    void assign(const char *data);
+    void assign(const CHAR_TYPE *data);
         // Bind this string reference to the string at the specified 'data'
         // address and extending for 'std::strlen(data)' characters.  The
         // string at the 'data' address, if any, must remain valid for as long
         // as it is bound to this string reference.  The behavior is undefined
         // unless 'data' is not 0, or 'data' is null-terminated.
 
-    void assign(const bsl::string& str);
+    void assign(const bsl::basic_string<CHAR_TYPE>& str);
         // Bind this string reference to the string at the specified
         // 'string.data()' address and extending for 'string.size()'
         // characters.  The string indicated by 'string.data()' and
@@ -427,7 +428,7 @@ class bslstl_StringArgument : public bslstl_StringArgument_Data
         // string reference.  Note that the bound string, if any, need not be
         // null-terminated and may contain null ('\0') characters.
 
-    void assign(const bslstl_StringArgument& stringArg);
+    void assign(const bslstl_StringArgument<CHAR_TYPE>& stringArg);
         // Assign to this string reference the binding of the specified
         // 'stringArg'.  The string bound to 'stringArg', if any, must remain
         // valid for as long as it is bound to this string reference.
@@ -436,7 +437,7 @@ class bslstl_StringArgument : public bslstl_StringArgument_Data
         // Make this string reference unbound.
 
     // ACCESSORS
-    const char& operator[](int index) const;
+    const CHAR_TYPE& operator[](int index) const;
         // Return a reference to the non-modifiable character at the specified
         // 'index' in the string bound to this string reference.  The reference
         // remains valid for as long as the string currently bound to this
@@ -444,9 +445,10 @@ class bslstl_StringArgument : public bslstl_StringArgument_Data
         // '0 <= index < length()'.  Note that this operator must not be used
         // on an unbound string reference.
 
-    operator native_std::string() const;
-        // Return an 'std::string' (synonymous with 'native_std::string')
-        // having the value of the string bound to this string reference.
+    operator native_std::basic_string<CHAR_TYPE>() const;
+        // Return an 'std::basic_string' (synonymous with
+        // 'native_std::basic_string') having the value of the string bound to
+        // this string reference.
 
     const_iterator begin() const;
         // Return an (STL-compatible) iterator to the non-modifiable first
@@ -466,7 +468,7 @@ class bslstl_StringArgument : public bslstl_StringArgument_Data
         // bound to this string reference is the empty string, or if this
         // string reference is unbound.
 
-    const char *data() const;
+    const CHAR_TYPE *data() const;
         // Return the address of the non-modifiable leading character (if any)
         // of the string bound to this string reference, or 0 if this string
         // reference is unbound.  The address, if non-null, remains valid for
@@ -485,116 +487,242 @@ class bslstl_StringArgument : public bslstl_StringArgument_Data
 };
 
 // FREE OPERATORS
-bool operator==(const bslstl_StringArgument& lhs,
-                const bslstl_StringArgument& rhs);
-bool operator==(const bsl::string& lhs, const bslstl_StringArgument& rhs);
-bool operator==(const bslstl_StringArgument& lhs,
-                const native_std::string& rhs);
-bool operator==(const native_std::string& lhs,
-                const bslstl_StringArgument& rhs);
-bool operator==(const bslstl_StringArgument& lhs, const bsl::string& rhs);
-bool operator==(const char *lhs, const bslstl_StringArgument& rhs);
-bool operator==(const bslstl_StringArgument& lhs, const char *rhs);
+template <typename CHAR_TYPE>
+bool operator==(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator==(const bsl::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator==(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const native_std::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator==(const native_std::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator==(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bsl::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator==(const CHAR_TYPE *lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator==(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const CHAR_TYPE *rhs);
     // Return 'true' if the strings indicated by the specified 'lhs' and 'rhs'
     // have the same lexicographic value, and 'false' otherwise.  Two strings
     // have the same lexicographic value if they are the same length and the
     // values at each respective character position are the same.  Null strings
     // are treated *as* *if* they were the empty string.
 
-bool operator!=(const bslstl_StringArgument& lhs,
-                const bslstl_StringArgument& rhs);
-bool operator!=(const bsl::string& lhs, const bslstl_StringArgument& rhs);
-bool operator!=(const bslstl_StringArgument& lhs, const bsl::string& rhs);
-bool operator!=(const bslstl_StringArgument& lhs,
-                const native_std::string& rhs);
-bool operator!=(const native_std::string& lhs,
-                const bslstl_StringArgument& rhs);
-bool operator!=(const char *lhs, const bslstl_StringArgument& rhs);
-bool operator!=(const bslstl_StringArgument& lhs, const char *rhs);
+template <typename CHAR_TYPE>
+bool operator!=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator!=(const bsl::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator!=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bsl::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator!=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const native_std::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator!=(const native_std::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator!=(const CHAR_TYPE *lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator!=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const CHAR_TYPE *rhs);
     // Return 'true' if the strings indicated by the specified 'lhs' and 'rhs'
     // do not have the same lexicographic value, and 'false' otherwise.  Two
     // strings do not have the same lexicographic value if they differ in
     // length or differ in at least one respective character position.  Null
     // strings are treated *as* *if* they were the empty string.
 
-bool operator<(const bslstl_StringArgument& lhs,
-               const bslstl_StringArgument& rhs);
-bool operator<(const bsl::string& lhs, const bslstl_StringArgument& rhs);
-bool operator<(const bslstl_StringArgument& lhs, const bsl::string& rhs);
-bool operator<(const bslstl_StringArgument& lhs,
-               const native_std::string& rhs);
-bool operator<(const native_std::string& lhs,
-               const bslstl_StringArgument& rhs);
-bool operator<(const char *lhs, const bslstl_StringArgument& rhs);
-bool operator<(const bslstl_StringArgument& lhs, const char *rhs);
+template <typename CHAR_TYPE>
+bool operator<(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<(const bsl::basic_string<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const bsl::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const native_std::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<(const native_std::basic_string<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<(const CHAR_TYPE *lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const CHAR_TYPE *rhs);
     // Return 'true' if the string indicated by the specified 'lhs' is
     // lexicographically less than the string indicated by the specified 'rhs',
     // and 'false' otherwise.  Null strings are treated *as* *if* they were the
     // empty string.
 
-bool operator>(const bslstl_StringArgument& lhs,
-               const bslstl_StringArgument& rhs);
-bool operator>(const bsl::string& lhs, const bslstl_StringArgument& rhs);
-bool operator>(const bslstl_StringArgument& lhs, const bsl::string& rhs);
-bool operator>(const bslstl_StringArgument& lhs,
-               const native_std::string& rhs);
-bool operator>(const native_std::string& lhs,
-               const bslstl_StringArgument& rhs);
-bool operator>(const char *lhs, const bslstl_StringArgument& rhs);
-bool operator>(const bslstl_StringArgument& lhs, const char *rhs);
+template <typename CHAR_TYPE>
+bool operator>(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>(const bsl::basic_string<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const bsl::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const native_std::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>(const native_std::basic_string<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>(const CHAR_TYPE *lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const CHAR_TYPE *rhs);
     // Return 'true' if the string indicated by the specified 'lhs' is
     // lexicographically greater than the string indicated by the specified
     // 'rhs', and 'false' otherwise.  Null strings are treated *as* *if* they
     // were the empty string.
 
-bool operator<=(const bslstl_StringArgument& lhs,
-                const bslstl_StringArgument& rhs);
-bool operator<=(const bsl::string& lhs, const bslstl_StringArgument& rhs);
-bool operator<=(const bslstl_StringArgument& lhs, const bsl::string& rhs);
-bool operator<=(const bslstl_StringArgument& lhs,
-                const native_std::string& rhs);
-bool operator<=(const native_std::string& lhs,
-                const bslstl_StringArgument& rhs);
-bool operator<=(const char *lhs, const bslstl_StringArgument& rhs);
-bool operator<=(const bslstl_StringArgument& lhs, const char *rhs);
+template <typename CHAR_TYPE>
+bool operator<=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<=(const bsl::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bsl::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const native_std::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<=(const native_std::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<=(const CHAR_TYPE *lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator<=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const CHAR_TYPE *rhs);
     // Return 'true' if the string indicated by the specified 'lhs' is
     // lexicographically less than or equal to the string indicated by the
     // specified 'rhs', and 'false' otherwise.  Null strings are treated *as*
     // *if* they were the empty string.
 
-bool operator>=(const bslstl_StringArgument& lhs,
-                const bslstl_StringArgument& rhs);
-bool operator>=(const bsl::string& lhs, const bslstl_StringArgument& rhs);
-bool operator>=(const bslstl_StringArgument& lhs, const bsl::string& rhs);
-bool operator>=(const bslstl_StringArgument& lhs,
-                const native_std::string& rhs);
-bool operator>=(const native_std::string& lhs,
-                const bslstl_StringArgument& rhs);
-bool operator>=(const char *lhs, const bslstl_StringArgument& rhs);
-bool operator>=(const bslstl_StringArgument& lhs, const char *rhs);
+template <typename CHAR_TYPE>
+bool operator>=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>=(const bsl::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bsl::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const native_std::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>=(const native_std::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>=(const CHAR_TYPE *lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bool operator>=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const CHAR_TYPE *rhs);
     // Return 'true' if the string indicated by the specified 'lhs' is
     // lexicographically greater than or equal to the string indicated by the
     // specified 'rhs', and 'false' otherwise.  Null strings are treated *as*
     // *if* they were the empty string.
 
-bsl::string operator+(const bslstl_StringArgument& lhs,
-                      const bslstl_StringArgument& rhs);
-bsl::string operator+(const bsl::string& lhs,
-                      const bslstl_StringArgument& rhs);
-bsl::string operator+(const bslstl_StringArgument& lhs,
-                      const bsl::string& rhs);
-bsl::string operator+(const native_std::string& lhs,
-                      const bslstl_StringArgument& rhs);
-bsl::string operator+(const bslstl_StringArgument& lhs,
-                      const native_std::string& rhs);
-bsl::string operator+(const char *lhs, const bslstl_StringArgument& rhs);
-bsl::string operator+(const bslstl_StringArgument& lhs, const char *rhs);
+template <typename CHAR_TYPE>
+bsl::basic_string<CHAR_TYPE>
+    operator+(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+              const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bsl::basic_string<CHAR_TYPE>
+    operator+(const bsl::basic_string<CHAR_TYPE>& lhs,
+              const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bsl::basic_string<CHAR_TYPE>
+    operator+(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+              const bsl::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bsl::basic_string<CHAR_TYPE>
+    operator+(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+              const native_std::basic_string<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bsl::basic_string<CHAR_TYPE>
+    operator+(const native_std::basic_string<CHAR_TYPE>& lhs,
+              const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bsl::basic_string<CHAR_TYPE>
+    operator+(const CHAR_TYPE *lhs,
+              const bslstl_StringArgument<CHAR_TYPE>& rhs);
+
+template <typename CHAR_TYPE>
+bsl::basic_string<CHAR_TYPE>
+    operator+(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+              const CHAR_TYPE *rhs);
     // Return an 'bsl::string' having the value of the concatenation of the
     // strings indicated by the specified 'lhs' and rhs'.  Null strings are
     // treated *as* *if* they were the empty string.
 
-std::ostream& operator<<(std::ostream&                stream,
-                         const bslstl_StringArgument& stringArg);
+template <typename CHAR_TYPE>
+std::basic_ostream<CHAR_TYPE>&
+    operator<<(std::basic_ostream<CHAR_TYPE>&           stream,
+               const bslstl_StringArgument<CHAR_TYPE>&  stringArg);
     // Write the string bound to the specified 'stringArg' to the specified
     // output 'stream' and return a reference to the modifiable 'stream'.
 
@@ -607,157 +735,189 @@ std::ostream& operator<<(std::ostream&                stream,
                         // ---------------------------
 
 // CREATORS
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument::bslstl_StringArgument()
-: bslstl_StringArgument_Data(0, 0)
+bslstl_StringArgument<CHAR_TYPE>::bslstl_StringArgument()
+: bslstl_StringArgument_Data<CHAR_TYPE>(0, 0)
 {
 }
 
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument::bslstl_StringArgument(const char *data, int length)
-: bslstl_StringArgument_Data(data, data + length)
+bslstl_StringArgument<CHAR_TYPE>::bslstl_StringArgument(const CHAR_TYPE *data,
+                                                        int length)
+: bslstl_StringArgument_Data<CHAR_TYPE>(data, data + length)
 {
     BSLS_ASSERT_SAFE(0 <= length);
     BSLS_ASSERT_SAFE(data || 0 == length);
 }
 
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument::bslstl_StringArgument(const_iterator begin,
-                                             const_iterator end)
-: bslstl_StringArgument_Data(begin, end)
+bslstl_StringArgument<CHAR_TYPE>::bslstl_StringArgument(const_iterator begin,
+                                                        const_iterator end)
+: bslstl_StringArgument_Data<CHAR_TYPE>(begin, end)
 {
 }
 
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument::bslstl_StringArgument(const char *data)
-: bslstl_StringArgument_Data(data, data + std::strlen(data))
+bslstl_StringArgument<CHAR_TYPE>::bslstl_StringArgument(const CHAR_TYPE *data)
+: bslstl_StringArgument_Data<CHAR_TYPE>(data, data + std::strlen(data))
 {
 }
 
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument::bslstl_StringArgument(const bsl::string& str)
-: bslstl_StringArgument_Data(str.data(), str.data() + str.length())
+bslstl_StringArgument<CHAR_TYPE>::bslstl_StringArgument(
+                                       const bsl::basic_string<CHAR_TYPE>& str)
+: bslstl_StringArgument_Data<CHAR_TYPE>(str.data(), str.data() + str.length())
 {
 }
 
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument::bslstl_StringArgument(const native_std::string& str)
-: bslstl_StringArgument_Data(str.data(), str.data() + str.length())
+bslstl_StringArgument<CHAR_TYPE>::bslstl_StringArgument(
+                                const native_std::basic_string<CHAR_TYPE>& str)
+: bslstl_StringArgument_Data<CHAR_TYPE>(str.data(), str.data() + str.length())
 {
 }
 
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument::bslstl_StringArgument(
-                                         const bslstl_StringArgument& original)
-: bslstl_StringArgument_Data(original.d_begin, original.d_end)
+bslstl_StringArgument<CHAR_TYPE>::bslstl_StringArgument(
+                              const bslstl_StringArgument<CHAR_TYPE>& original)
+: bslstl_StringArgument_Data<CHAR_TYPE>(original.d_begin, original.d_end)
 {
 }
 
 // MANIPULATORS
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument& bslstl_StringArgument::operator=(
+bslstl_StringArgument<CHAR_TYPE>& bslstl_StringArgument<CHAR_TYPE>::operator=(
                                               const bslstl_StringArgument& rhs)
 {
-    d_begin = rhs.d_begin;
-    d_end   = rhs.d_end;
+    this->d_begin = rhs.d_begin;
+    this->d_end   = rhs.d_end;
     return *this;
 }
 
+template <typename CHAR_TYPE>
 inline
-void bslstl_StringArgument::assign(const char *data, int length)
+void bslstl_StringArgument<CHAR_TYPE>::assign(const CHAR_TYPE *data,
+                                              int length)
 {
     BSLS_ASSERT_SAFE(0 <= length);
     BSLS_ASSERT_SAFE(data || 0 == length);
 
-    d_begin = data;
-    d_end   = data + length;
+    this->d_begin = data;
+    this->d_end   = data + length;
 }
 
+template <typename CHAR_TYPE>
 inline
-void bslstl_StringArgument::assign(const_iterator begin, const_iterator end)
+void bslstl_StringArgument<CHAR_TYPE>::assign(const_iterator begin,
+                                              const_iterator end)
 {
-    d_begin = begin;
-    d_end   = end;
+    this->d_begin = begin;
+    this->d_end   = end;
 }
 
+template <typename CHAR_TYPE>
 inline
-void bslstl_StringArgument::assign(const char *data)
+void bslstl_StringArgument<CHAR_TYPE>::assign(const CHAR_TYPE *data)
 {
-    d_begin = data;
-    d_end   = data ? data + std::strlen(data) : 0;
+    this->d_begin = data;
+    this->d_end   = data ? data + std::strlen(data) : 0;
 }
 
+template <typename CHAR_TYPE>
 inline
-void bslstl_StringArgument::assign(const bsl::string& str)
+void bslstl_StringArgument<CHAR_TYPE>::assign(
+                                       const bsl::basic_string<CHAR_TYPE>& str)
 {
-    d_begin = str.data();
-    d_end   = str.data() + str.length();
+    this->d_begin = str.data();
+    this->d_end   = str.data() + str.length();
 }
 
+template <typename CHAR_TYPE>
 inline
-void bslstl_StringArgument::assign(const bslstl_StringArgument& stringArg)
+void bslstl_StringArgument<CHAR_TYPE>::assign(
+                             const bslstl_StringArgument<CHAR_TYPE>& stringArg)
 {
-    d_begin = stringArg.d_begin;
-    d_end   = stringArg.d_end;
+    this->d_begin = stringArg.d_begin;
+    this->d_end   = stringArg.d_end;
 }
 
+template <typename CHAR_TYPE>
 inline
-void bslstl_StringArgument::clear()
+void bslstl_StringArgument<CHAR_TYPE>::clear()
 {
-    d_begin = 0;
-    d_end   = 0;
+    this->d_begin = 0;
+    this->d_end   = 0;
 }
 
 // ACCESSORS
+template <typename CHAR_TYPE>
 inline
-const char& bslstl_StringArgument::operator[](int index) const
+const CHAR_TYPE& bslstl_StringArgument<CHAR_TYPE>::operator[](int index) const
 {
     BSLS_ASSERT_SAFE(0 <= index);
-    BSLS_ASSERT_SAFE(     index < static_cast<int>(d_end - d_begin));
+    BSLS_ASSERT_SAFE(index < static_cast<int>(this->d_end - this->d_begin));
 
-    return d_begin[index];
+    return this->d_begin[index];
 }
 
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument::operator native_std::string() const
+bslstl_StringArgument<CHAR_TYPE>::
+                           operator native_std::basic_string<CHAR_TYPE>() const
 {
-    return native_std::string(d_begin, d_end);
+    return native_std::basic_string<CHAR_TYPE>(this->d_begin, this->d_end);
 }
 
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument::const_iterator bslstl_StringArgument::begin() const
+typename bslstl_StringArgument<CHAR_TYPE>::const_iterator
+    bslstl_StringArgument<CHAR_TYPE>::begin() const
 {
-    return d_begin;
+    return this->d_begin;
 }
 
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument::const_iterator bslstl_StringArgument::end() const
+typename bslstl_StringArgument<CHAR_TYPE>::const_iterator
+    bslstl_StringArgument<CHAR_TYPE>::end() const
 {
-    return d_end;
+    return this->d_end;
 }
 
+template <typename CHAR_TYPE>
 inline
-const char *bslstl_StringArgument::data() const
+const CHAR_TYPE *bslstl_StringArgument<CHAR_TYPE>::data() const
 {
-    return d_begin;
+    return this->d_begin;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool bslstl_StringArgument::empty() const
+bool bslstl_StringArgument<CHAR_TYPE>::empty() const
 {
-    return d_begin == d_end;
+    return this->d_begin == this->d_end;
 }
 
+template <typename CHAR_TYPE>
 inline
-int bslstl_StringArgument::length() const
+int bslstl_StringArgument<CHAR_TYPE>::length() const
 {
-    return static_cast<int>(d_end - d_begin);
+    return static_cast<int>(this->d_end - this->d_begin);
 }
 
 // FREE OPERATORS
+template <typename CHAR_TYPE>
 inline
-bool operator==(const bslstl_StringArgument& lhs,
-                const bslstl_StringArgument& rhs)
+bool operator==(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
     const int len = lhs.length();
 
@@ -768,287 +928,410 @@ bool operator==(const bslstl_StringArgument& lhs,
     return 0 == len || 0 == std::memcmp(lhs.data(), rhs.data(), len);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator==(const bsl::string& lhs, const bslstl_StringArgument& rhs)
+bool operator==(const bsl::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) == rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) == rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator==(const bslstl_StringArgument& lhs, const bsl::string& rhs)
+bool operator==(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bsl::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs == bslstl_StringArgument(rhs);
+    return lhs == bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator==(const native_std::string& lhs,
-                const bslstl_StringArgument& rhs)
+bool operator==(const native_std::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) == rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) == rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator==(const bslstl_StringArgument& lhs,
-                const native_std::string& rhs)
+bool operator==(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const native_std::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs == bslstl_StringArgument(rhs);
+    return lhs == bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator==(const char *lhs, const bslstl_StringArgument& rhs)
+bool operator==(const CHAR_TYPE *lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) == rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) == rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator==(const bslstl_StringArgument& lhs, const char *rhs)
+bool operator==(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const CHAR_TYPE *rhs)
 {
-    return lhs == bslstl_StringArgument(rhs);
+    return lhs == bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator!=(const bslstl_StringArgument& lhs,
-                const bslstl_StringArgument& rhs)
+bool operator!=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
     return !(lhs == rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator!=(const bsl::string& lhs, const bslstl_StringArgument& rhs)
+bool operator!=(const bsl::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) != rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) != rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator!=(const bslstl_StringArgument& lhs, const bsl::string& rhs)
+bool operator!=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bsl::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs != bslstl_StringArgument(rhs);
+    return lhs != bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator!=(const native_std::string& lhs,
-                const bslstl_StringArgument& rhs)
+bool operator!=(const native_std::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) != rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) != rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator!=(const bslstl_StringArgument& lhs,
-                const native_std::string& rhs)
+bool operator!=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const native_std::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs != bslstl_StringArgument(rhs);
+    return lhs != bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator!=(const char *lhs, const bslstl_StringArgument& rhs)
+bool operator!=(const CHAR_TYPE *lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) != rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) != rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator!=(const bslstl_StringArgument& lhs, const char *rhs)
+bool operator!=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const CHAR_TYPE *rhs)
 {
-    return lhs != bslstl_StringArgument(rhs);
+    return lhs != bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<(const bsl::string& lhs, const bslstl_StringArgument& rhs)
+bool operator<(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) < rhs;
+    return std::lexicographical_compare(lhs.begin(), lhs.end(),
+                                        rhs.begin(), rhs.end());
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<(const bslstl_StringArgument& lhs, const bsl::string& rhs)
+bool operator<(const bsl::basic_string<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return lhs < bslstl_StringArgument(rhs);
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) < rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<(const native_std::string& lhs, const bslstl_StringArgument& rhs)
+bool operator<(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const bsl::basic_string<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) < rhs;
+    return lhs < bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<(const bslstl_StringArgument& lhs, const native_std::string& rhs)
+bool operator<(const native_std::basic_string<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return lhs < bslstl_StringArgument(rhs);
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) < rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<(const char *lhs, const bslstl_StringArgument& rhs)
+bool operator<(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const native_std::basic_string<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) < rhs;
+    return lhs < bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<(const bslstl_StringArgument& lhs, const char *rhs)
+bool operator<(const CHAR_TYPE *lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return lhs < bslstl_StringArgument(rhs);
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) < rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>(const bsl::string& lhs, const bslstl_StringArgument& rhs)
+bool operator<(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const CHAR_TYPE *rhs)
 {
-    return bslstl_StringArgument(lhs) > rhs;
+    return lhs < bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>(const bslstl_StringArgument& lhs, const bsl::string& rhs)
+bool operator>(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return lhs > bslstl_StringArgument(rhs);
+    return std::lexicographical_compare(rhs.begin(), rhs.end(),
+                                        lhs.begin(), lhs.end());
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>(const native_std::string& lhs, const bslstl_StringArgument& rhs)
+bool operator>(const bsl::basic_string<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) > rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) > rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>(const bslstl_StringArgument& lhs, const native_std::string& rhs)
+bool operator>(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const bsl::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs > bslstl_StringArgument(rhs);
+    return lhs > bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>(const char *lhs, const bslstl_StringArgument& rhs)
+bool operator>(const native_std::basic_string<CHAR_TYPE>& lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) > rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) > rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>(const bslstl_StringArgument& lhs, const char *rhs)
+bool operator>(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const native_std::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs > bslstl_StringArgument(rhs);
+    return lhs > bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<=(const bslstl_StringArgument& lhs,
-                const bslstl_StringArgument& rhs)
+bool operator>(const CHAR_TYPE *lhs,
+               const bslstl_StringArgument<CHAR_TYPE>& rhs)
+{
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) > rhs;
+}
+
+template <typename CHAR_TYPE>
+inline
+bool operator>(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+               const CHAR_TYPE *rhs)
+{
+    return lhs > bslstl_StringArgument<CHAR_TYPE>(rhs);
+}
+
+template <typename CHAR_TYPE>
+inline
+bool operator<=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
     return !(lhs > rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<=(const bsl::string& lhs, const bslstl_StringArgument& rhs)
+bool operator<=(const bsl::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) <= rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) <= rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<=(const bslstl_StringArgument& lhs, const bsl::string& rhs)
+bool operator<=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bsl::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs <= bslstl_StringArgument(rhs);
+    return lhs <= bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<=(const native_std::string& lhs,
-                const bslstl_StringArgument& rhs)
+bool operator<=(const native_std::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) <= rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) <= rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<=(const bslstl_StringArgument& lhs,
-                const native_std::string& rhs)
+bool operator<=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const native_std::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs <= bslstl_StringArgument(rhs);
+    return lhs <= bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<=(const char *lhs, const bslstl_StringArgument& rhs)
+bool operator<=(const CHAR_TYPE *lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) <= rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) <= rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator<=(const bslstl_StringArgument& lhs, const char *rhs)
+bool operator<=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const CHAR_TYPE *rhs)
 {
-    return lhs <= bslstl_StringArgument(rhs);
+    return lhs <= bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>=(const bslstl_StringArgument& lhs,
-                const bslstl_StringArgument& rhs)
+bool operator>=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
     return !(lhs < rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>=(const bsl::string& lhs, const bslstl_StringArgument& rhs)
+bool operator>=(const bsl::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) >= rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) >= rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>=(const bslstl_StringArgument& lhs, const bsl::string& rhs)
+bool operator>=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const bsl::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs >= bslstl_StringArgument(rhs);
+    return lhs >= bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>=(const native_std::string& lhs,
-                const bslstl_StringArgument& rhs)
+bool operator>=(const native_std::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) >= rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) >= rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>=(const bslstl_StringArgument& lhs,
-                const native_std::string& rhs)
+bool operator>=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const native_std::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs >= bslstl_StringArgument(rhs);
+    return lhs >= bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>=(const char *lhs, const bslstl_StringArgument& rhs)
+bool operator>=(const CHAR_TYPE *lhs,
+                const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) >= rhs;
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) >= rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bool operator>=(const bslstl_StringArgument& lhs, const char *rhs)
+bool operator>=(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+                const CHAR_TYPE *rhs)
 {
-    return lhs >= bslstl_StringArgument(rhs);
+    return lhs >= bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
-inline
-bsl::string operator+(const bsl::string& lhs, const bslstl_StringArgument& rhs)
+template <typename CHAR_TYPE>
+bsl::basic_string<CHAR_TYPE>
+    operator+(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+              const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) + rhs;
+    bsl::basic_string<CHAR_TYPE> result;
+
+    result.reserve(lhs.length() + rhs.length());
+    result.assign(lhs.begin(), lhs.end());
+    result.append(rhs.begin(), rhs.end());
+
+    return result;
 }
 
+template <typename CHAR_TYPE>
 inline
-bsl::string operator+(const bslstl_StringArgument& lhs, const bsl::string& rhs)
+bsl::basic_string<CHAR_TYPE>
+    operator+(const bsl::basic_string<CHAR_TYPE>& lhs,
+              const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return lhs + bslstl_StringArgument(rhs);
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) + rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bsl::string operator+(const native_std::string& lhs,
-                      const bslstl_StringArgument&    rhs)
+bsl::basic_string<CHAR_TYPE>
+    operator+(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+              const bsl::basic_string<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) + rhs;
+    return lhs + bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bsl::string operator+(const bslstl_StringArgument&    lhs,
-                      const native_std::string& rhs)
+bsl::basic_string<CHAR_TYPE>
+    operator+(const native_std::basic_string<CHAR_TYPE>& lhs,
+              const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return lhs + bslstl_StringArgument(rhs);
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) + rhs;
 }
 
+template <typename CHAR_TYPE>
 inline
-bsl::string operator+(const char *lhs, const bslstl_StringArgument& rhs)
+bsl::basic_string<CHAR_TYPE>
+    operator+(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+              const native_std::basic_string<CHAR_TYPE>& rhs)
 {
-    return bslstl_StringArgument(lhs) + rhs;
+    return lhs + bslstl_StringArgument<CHAR_TYPE>(rhs);
 }
 
+template <typename CHAR_TYPE>
 inline
-bsl::string operator+(const bslstl_StringArgument& lhs, const char *rhs)
+bsl::basic_string<CHAR_TYPE>
+    operator+(const CHAR_TYPE *lhs,
+              const bslstl_StringArgument<CHAR_TYPE>& rhs)
 {
-    return lhs + bslstl_StringArgument(rhs);
+    return bslstl_StringArgument<CHAR_TYPE>(lhs) + rhs;
+}
+
+template <typename CHAR_TYPE>
+inline
+bsl::basic_string<CHAR_TYPE>
+    operator+(const bslstl_StringArgument<CHAR_TYPE>& lhs,
+              const CHAR_TYPE *rhs)
+{
+    return lhs + bslstl_StringArgument<CHAR_TYPE>(rhs);
+}
+
+template <typename CHAR_TYPE>
+std::basic_ostream<CHAR_TYPE>&
+    operator<<(std::basic_ostream<CHAR_TYPE>&           stream,
+               const bslstl_StringArgument<CHAR_TYPE>&  stringArg)
+{
+    return stream.write(stringArg.data(), stringArg.length());
 }
 
 }  // close namespace BloombergLP
@@ -1059,8 +1342,8 @@ bsl::string operator+(const bslstl_StringArgument& lhs, const char *rhs)
 
 namespace bsl {
 
-template <>
-struct hash<BloombergLP::bslstl_StringArgument> {
+template <typename CHAR_TYPE>
+struct hash<BloombergLP::bslstl_StringArgument<CHAR_TYPE> > {
     // This template specialization enables use of 'bslstl_StringArgument'
     // within STL hash containers, for example,
     // 'bsl::hash_set<bslstl_StringArgument>' and
@@ -1068,10 +1351,45 @@ struct hash<BloombergLP::bslstl_StringArgument> {
 
     // ACCESSORS
     std::size_t
-    operator()(const BloombergLP::bslstl_StringArgument& stringArg) const;
+    operator()(const BloombergLP::bslstl_StringArgument<CHAR_TYPE>&
+                                                              stringArg) const;
         // Return a hash corresponding to the string bound to the specified
         // 'stringArg'.
 };
+
+// ACCESSORS
+template <typename CHAR_TYPE>
+std::size_t hash<BloombergLP::bslstl_StringArgument<CHAR_TYPE> >::operator()(
+          const BloombergLP::bslstl_StringArgument<CHAR_TYPE>& stringArg) const
+{
+    const CHAR_TYPE *string  = stringArg.data();
+    std::size_t stringLength = stringArg.length();
+
+    // The following implementation was cloned from bdeu_hashutil.cpp, but
+    // without the unneeded modulo operation.
+
+    const unsigned int ADDEND       = 1013904223U;
+    const unsigned int MULTIPLICAND =    1664525U;
+    const unsigned int MASK         = 4294967295U;
+
+    const CHAR_TYPE *end = string + stringLength;
+    std::size_t r   = 0;
+
+    if (4 == sizeof(int)) {
+        while (string != end) {
+            r ^= *string++;
+            r = r * MULTIPLICAND + ADDEND;
+        }
+    }
+    else {
+        while (string != end) {
+            r ^= *string++;
+            r = (r * MULTIPLICAND + ADDEND) & MASK;
+        }
+    }
+
+    return r;
+}
 
 }  // close namespace bsl
 

@@ -149,7 +149,7 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-typedef bslstl_StringArgument Obj;
+typedef bslstl_StringArgument<char> Obj;
 
 static const char *EMPTY_STRING     = "";
 static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
@@ -171,7 +171,7 @@ static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
 //..
 //  #include <algorithm>
 //
-    int getNumBlanks(const bslstl_StringArgument& stringArg)
+    int getNumBlanks(const bslstl_StringArgument<char>& stringArg)
 //      // Return the number of blank (' ') characters in the string bound to
 //      // the specified 'stringArg'; return 0 if 'stringArg' is unbound.
     {
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
     int numBlanks = getNumBlanks("");
     ASSERT(0 == numBlanks);
 //
-    bslstl_StringArgument unbound;
+    bslstl_StringArgument<char> unbound;
     numBlanks = getNumBlanks(unbound);
     ASSERT(0 == numBlanks);
 //..
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
 // In the following, the 'line' string reference is bound to first line of
 // 'poem':
 //..
-    bslstl_StringArgument line(poem, 29);
+    bslstl_StringArgument<char> line(poem, 29);
     numBlanks = getNumBlanks(line);
     ASSERT(5  == numBlanks);
     ASSERT(29 == line.length());
@@ -289,8 +289,8 @@ int main(int argc, char *argv[])
     const bsl::string poemString(poem);
     numBlanks = getNumBlanks(poemString);
     ASSERT(42 == numBlanks);
-    ASSERT(bslstl_StringArgument(poemString) == poemString);
-    ASSERT(bslstl_StringArgument(poemString) == poemString.c_str());
+    ASSERT(bslstl_StringArgument<char>(poemString) == poemString);
+    ASSERT(bslstl_StringArgument<char>(poemString) == poemString.c_str());
 //..
 // Finally, we illustrate binding a 'bslstl_StringArgument' to a string that
 // contains null ('\0') characters.  First we populate the 'poemWithNulls'
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
 // In the following, 'poemWithNulls' is seen to have the same number of blank
 // characters as the original 'poem':
 //..
-    numBlanks = getNumBlanks(bslstl_StringArgument(poemWithNulls, poemLength));
+    numBlanks = getNumBlanks(bslstl_StringArgument<char>(poemWithNulls, poemLength));
     ASSERT(42 == numBlanks);
 //..
       } break;

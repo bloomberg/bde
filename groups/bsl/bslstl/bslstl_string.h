@@ -194,6 +194,7 @@ namespace BloombergLP {
                      // class bslstl_StringArgument_Data
                      // ================================
 
+template <typename CHAR_TYPE>
 class bslstl_StringArgument_Data
     // This is a base class for 'bslstl_StringArgument'.  It's defined here to
     // break a circular dependency between 'bslstl_StringArgument' and
@@ -204,15 +205,15 @@ class bslstl_StringArgument_Data
 {
   protected:
     // PRIVATE DATA
-    const char *d_begin;  // address of first character in bound string
-                          // (held, not owned), or 0 if unbound
+    const CHAR_TYPE *d_begin;  // address of first character in bound string
+                               // (held, not owned), or 0 if unbound
 
-    const char *d_end;    // address one past last character in bound string,
-                          // or 0 if unbound
+    const CHAR_TYPE *d_end; // address one past last character in bound string,
+                            // or 0 if unbound
 
   protected:
     // CREATORS
-    bslstl_StringArgument_Data(const char *begin, const char *end);
+    bslstl_StringArgument_Data(const CHAR_TYPE *begin, const CHAR_TYPE *end);
         // Construct a 'bslstl_StringArgument_Data' object with the specified
         // 'begin' and 'end' pointers to the start and end of a string.  The
         // behavior is undefined unless 'begin <= end'.  Both 'begin' and 'end'
@@ -220,11 +221,11 @@ class bslstl_StringArgument_Data
 
   public:
     // ACCESSORS
-    const char *begin() const;
+    const CHAR_TYPE *begin() const;
         // Return the pointer to the start of the string.  Note that the return
         // value can be 'NULL', in which case 'end()' returns 'NULL' as well.
 
-    const char *end() const;
+    const CHAR_TYPE *end() const;
         // Return the pointer past the end of the string.  Note that the return
         // value can be 'NULL, in which case 'begin()' returns 'NULL' as well.
 };
@@ -846,7 +847,8 @@ class basic_string
         // memory.  If 'allocator' is not specified, then a default-constructed
         // allocator is used.
 
-    basic_string(const BloombergLP::bslstl_StringArgument_Data& strArg,
+    basic_string(const BloombergLP::bslstl_StringArgument_Data<CHAR_TYPE>&
+                                                                        strArg,
                  const ALLOCATOR& allocator = ALLOCATOR());
         // Create a string that has the same value as the specified 'strArg'
         // string argument.  The resulting string will contain the same
@@ -1874,9 +1876,11 @@ namespace BloombergLP {
                      // --------------------------------
 
 // CREATORS
+template <typename CHAR_TYPE>
 inline
-bslstl_StringArgument_Data::bslstl_StringArgument_Data(const char *begin,
-                                                       const char *end)
+bslstl_StringArgument_Data<CHAR_TYPE>
+    ::bslstl_StringArgument_Data(const CHAR_TYPE *begin,
+                                 const CHAR_TYPE *end)
 : d_begin(begin)
 , d_end(end)
 {
@@ -1884,14 +1888,16 @@ bslstl_StringArgument_Data::bslstl_StringArgument_Data(const char *begin,
 }
 
 // ACCESSORS
+template <typename CHAR_TYPE>
 inline
-const char *bslstl_StringArgument_Data::begin() const
+const CHAR_TYPE *bslstl_StringArgument_Data<CHAR_TYPE>::begin() const
 {
     return d_begin;
 }
 
+template <typename CHAR_TYPE>
 inline
-const char *bslstl_StringArgument_Data::end() const
+const CHAR_TYPE *bslstl_StringArgument_Data<CHAR_TYPE>::end() const
 {
     return d_end;
 }
@@ -2824,8 +2830,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-    const BloombergLP::bslstl_StringArgument_Data& strArg,
-    const ALLOCATOR&                               allocator)
+    const BloombergLP::bslstl_StringArgument_Data<CHAR_TYPE>& strArg,
+    const ALLOCATOR&                                          allocator)
 : Imp()
 , BloombergLP::bslstl_ContainerBase<allocator_type>(allocator)
 {
