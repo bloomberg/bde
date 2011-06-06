@@ -13,27 +13,27 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Bill Chapman
 //
-//@SEE_ALSO: baesu_StackTrace, baesu_StackTraceFrame, baesu_StackTracePrintUtil
+//@SEE_ALSO: baesu_stacktrace, baesu_stacktraceframe, baesu_stacktraceprintutil
 //
 //@DESCRIPTION: This component provides a namespace for functions used in
-// obtaining and printing a stack trace.  The simplest way to stream out a
-// stack trace is by calling 'baesu_StackTracePrintUtil::printStackTrace', but
-// other methods are available here.
+// obtaining and printing a stack trace.  Note that clients interested in the
+// simplest way of obtaining a stack trace will usually prefer to use the
+// 'baesu_stacktraceprintutil' component rather than this one.
 //
 ///Usage Examples
 ///--------------
 // The following examples illustrate 2 different ways to load and print a stack
 // trace using 'baesu_StackTraceUtil.
 //
-// Example 1: loading stack trace with 'loadStackTraceFromStack':
+// Example 1: Loading a Stack Trace with 'loadStackTraceFromStack':
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// After the 'loadStackTraceFromStack' function is called, the stack trace
-// object contains the stack trace, which can be output using 'printFormatted'.
+// This example demonstrates using 'loadStackTraceFromStack' to load a stack
+// trace.  After the 'loadStackTraceFromStack' function is called, the stack
+// trace object contains the stack trace, which can be output using
+// 'printFormatted'.
 //..
 //  void example1(int *depth)
-//..
-// Recurse the specified 'depth' number of times, then do a stack trace.
-//..
+//      // Recurse the specified 'depth' times, then print a stack trace.
 //  {
 //      if (--*depth > 0) {
 //..
@@ -48,11 +48,11 @@ BDES_IDENT("$Id: $")
 // trace object.  We then use the 'printFormatted' function to print out the
 // stack trace.
 //
-// In this call to 'loadStackTraceFromStack', 'maxFrames' is defaulting to 1024
-// and demangling defaults to 'true', meaning that the function will attempt to
-// demangle function names.  Note that the object 'stackTrace' takes very
-// little room on the stack, allocating most of its memory directly from
-// virtual memory without going through the heap, minimizing potential
+// In this call to 'loadStackTraceFromStack', 'maxFrames' defaultings to 1024
+// and 'demanglingPreferredFlag' defaults to 'true', meaning that the function
+// will attempt to demangle function names.  Note that the object 'stackTrace'
+// takes very little room on the stack, allocating most of its memory directly
+// from virtual memory without going through the heap, minimizing potential
 // complications due to stack size limits and possible heap corruption.
 //..
 //          baesu_StackTrace stackTrace;
@@ -94,9 +94,8 @@ BDES_IDENT("$Id: $")
 // human-readable debug information until later.
 //..
 //  static void example2(int *depth)
-//..
-// Recurse the specified 'depth' number of times, then do a stack trace.
-//..
+//      // Recurse the specified 'depth' number of times, then do a stack
+//      // trace.
 //  {
 //      if (--*depth > 0) {
 //..
@@ -129,11 +128,11 @@ BDES_IDENT("$Id: $")
 //                                                               numAddresses);
 //          assert(0 == rc);
 //..
-// Finally, wne can now print out the stack trace object using
-// 'printFormatted', or iterate through the stack trace frames, printing them
-// out one by one.  In this example, we want only function names, and not line
-// numbers, source file names, or library names, so we iterate through the
-// stack trace frames and print out only the property we want.
+// Finally, we can now print out the stack trace object using 'printFormatted',
+// or iterate through the stack trace frames, printing them out one by one.  In
+// this example, we want only function names, and not line numbers, source file
+// names, or library names, so we iterate through the stack trace frames and
+// print out only the properties we want.
 //..
 //          for (int i = 0; i < stackTrace.length(); ++i) {
 //              const baesu_StackTraceFrame& frame = stackTrace[i];
@@ -180,10 +179,7 @@ class bslma_Allocator;
 struct baesu_StackTraceUtil {
     // This 'struct' is a namespace for a collection of functions that are
     // useful for obtaining a stack trace, specifically, for initializing a
-    // stack trace object and printing it.  The main purpose of this component
-    // is to support the 'baesu_StackTracePrintUtil' component, though a stack
-    // trace can be obtained, with more effort, by calling methods in this
-    // component directly as in the usage examples.
+    // stack trace object and printing it.
 
     static
     int loadStackTraceFromAddressArray(
@@ -237,13 +233,13 @@ struct baesu_StackTraceUtil {
         // Write the value of the specified 'stackTraceFrame' to the specified
         // output 'stream' in a human-readable format, on a single line, and
         // return a reference to 'stream'.  The name of the symbol is
-        // represented by 'symbolName', if known; otherwise it is represented
-        // by 'mangledSymbolName', if known; otherwise, it is represented by
-        // "--unknown--".  Other attributes are written only if their values
-        // are known.  If 'stream' is not valid on entry, this operation has no
-        // effect.  Note that the format is not fully specified, and can change
-        // without notice.  Note that this is attempted to be done without
-        // using the default allocator.
+        // represented by the 'symbolName' property of 'stackTraceFrame', if
+        // known; otherwise it is represented by the 'mangledSymbolName'
+        // property, if known; otherwise, it is represented by "--unknown--".
+        // Other frame attributes are written only if their values are known.
+        // Note that the format is not fully specified, and can change without
+        // notice.  Also note that this is attempted to be done without using
+        // the default allocator.
 };
 
 }  // close namespace BloombergLP

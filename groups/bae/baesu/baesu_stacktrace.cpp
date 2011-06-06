@@ -16,13 +16,10 @@ bsl::ostream& baesu_StackTrace::print(bsl::ostream& stream,
                                       int           level,
                                       int           spacesPerLevel) const
 {
-    if (stream.bad()) {
-        return stream;                                                // RETURN
-    }
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
     for (int i = 0; i < length(); ++i) {
-        (*this)[i].print(stream, level + 1, spacesPerLevel);
+        d_frames[i].print(stream, level + 1, spacesPerLevel);
     }
     printer.end();
 

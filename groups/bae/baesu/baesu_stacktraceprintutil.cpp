@@ -26,19 +26,22 @@ namespace BloombergLP {
 
 // CLASS METHOD
 bsl::ostream& baesu_StackTracePrintUtil::printStackTrace(
-                                                       bsl::ostream& stream,
-                                                       int           maxFrames,
-                                                       bool          demangle)
+                                         bsl::ostream& stream,
+                                         int           maxFrames,
+                                         bool          demanglingPreferredFlag)
 {
     enum {
         DEFAULT_MAX_FRAMES = 1024,
-        IGNORE_FRAMES      = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES + 1
+        IGNORE_FRAMES      = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES
     };
 
     if (maxFrames < 0) {
         maxFrames = DEFAULT_MAX_FRAMES;
     }
-    maxFrames += IGNORE_FRAMES;    // allocate extra frame(s) to be ignored
+
+    // allocate extra frame(s) to be ignored
+
+    maxFrames += IGNORE_FRAMES;
 
     baesu_StackTrace st;
 
@@ -54,10 +57,10 @@ bsl::ostream& baesu_StackTracePrintUtil::printStackTrace(
     // Throw away the first frame, since it refers to this routine.
 
     const int rc = baesu_StackTraceUtil::loadStackTraceFromAddressArray(
-                                                 &st,
-                                                 addresses    + IGNORE_FRAMES,
-                                                 numAddresses - IGNORE_FRAMES,
-                                                 demangle);
+                                                  &st,
+                                                  addresses    + IGNORE_FRAMES,
+                                                  numAddresses - IGNORE_FRAMES,
+                                                  demanglingPreferredFlag);
     if (rc) {
         stream << "Stack Trace: Internal Error initializing frames\n";
         return stream;                                                // RETURN

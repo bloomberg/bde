@@ -19,34 +19,40 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides an unconstrained (value-semantic)
 // class, 'baesu_StackTrace', that is used to describe a function call-stack.
-// A stack trace object contains a sequence of 'baesu_StackTraceFrame's.  By
-// default, a 'baesu_StackTrace' object is supplied memory by an owned instance
-// of 'bdema_HeapBypassAllocator', though the client may specify another
-// allocator to be used in its place at construction.
+// A stack trace object contains a sequence of 'baesu_StackTraceFrame' objects.
+// By default, a 'baesu_StackTrace' object is supplied memory by an owned
+// instance of 'bdema_HeapBypassAllocator', though the client may specify
+// another allocator to be used in its place at construction.
 //
 ///Usage
 ///-----
-// Set up the default allocator so we can verify that it is unused.
+// In the following example we demonstrate how to create a 'baesu_stacktrace'
+// object, then both modify and access its value.
+//
+// A 'baesu_StackTrace' object, by default, gets its memory from an owned
+// instance of 'bdema_HeapBypassAllocator'.  To demonstrate this we start by
+// setting the default allocator to a test allocator so we can verify that it
+// is unused.
 //..
-//  bslma_TestAllocator da;
-//  bslma_DefaultAllocatorGuard guard(&da);
+//  bslma_TestAllocator defaultAllocator;
+//  bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 //..
-// First, create a stack trace.  Note that when we don't specify an allocator
-// (recommended), the default allocator is not used -- rather, a heap bypass
-// allocator owned by the stack trace object is used.
+// Next, we create a stack trace object.  Note that when we don't specify an
+// allocator (recommended), the default allocator is not used -- rather, a heap
+// bypass allocator owned by the stack trace object is used.
 //..
 //  baesu_StackTrace stackTrace;
-//  ASSERT(0 == stackTrace.length());
+//  assert(0 == stackTrace.length());
 //..
-// Create two stack trace frames in the stack trace object and take references
-// to each of the two new frames.
+// Then we create two stack trace frames in the stack trace object and obtain
+// references to each of the two new frames.
 //..
 //  stackTrace.resize(2);
-//  ASSERT(2 == stackTrace.length());
+//  assert(2 == stackTrace.length());
 //  baesu_StackTraceFrame& mF0 = stackTrace[0];
 //  baesu_StackTraceFrame& mF1 = stackTrace[1];
 //..
-// Initialize values to the fields of the two new frames.
+// Next we set values to the two frames.
 //..
 //  mF0.setAddress((void *) 0x12ab);
 //  mF0.setLibraryFileName("/a/b/c/baesu_stacktrace.t.dbg_exc_mt");
@@ -64,13 +70,13 @@ BDES_IDENT("$Id: $")
 //  mF1.setMangledSymbolName("_arf_1a");
 //  mF1.setSymbolName("arf");
 //..
-// Output the stack trace object.
+// Next we print the stack trace object.
 //..
 //  stackTrace.print(cout, 1, 2);
 //..
-// observe the default allocator was never used
+// Finally, we observe the default allocator was never used
 //..
-//  ASSERT(0 == da.numAllocations());
+//  assert(0 == defaultAllocator.numAllocations());
 //..
 ///Usage Output
 ///------------
@@ -146,9 +152,9 @@ class baesu_StackTrace {
     // This unconstrained (value-semantic) class describes a function call
     // stack, represented as a sequence randomly-accesible
     // 'baesu_StackTraceFrame' objects, each of which represents one function
-    // call on the stack.  Note that the default allocator used if none is
-    // specified to the constructor is the owned heap bypass allocator rather
-    // than the default allocator.
+    // call on the stack.  Note that if no allocator is supplied at
+    // construction (recommended), an owned instance of
+    // 'bdema_HeapBypassAllocator' is used to supply memory.
     //
     // This class:
     //: o supports a complete set of *value* *semantic* operations
@@ -177,20 +183,20 @@ class baesu_StackTrace {
     // CREATORS
     explicit
     baesu_StackTrace(bslma_Allocator *basicAllocator = 0);
-        // Create a 'baesu_StackTrace' object of 0 length.  Non-standard:
-        // Optionally specify 'basicAllocator'.  If 'basicAllocator' is not
-        // specified, than an owned instance of the heap-bypass allocator is
-        // used.  Note that the heap bypass allocator is used by default to
-        // avoid heap allocation in case the heap has been corrupted.
-
-    baesu_StackTrace(const baesu_StackTrace&  original,
-                     bslma_Allocator         *allocator = 0);
-        // Create a 'baesu_StackTrace' object having the same value as the
-        // specified 'original' object.  Non-standard: Optionally specify
+        // Create a 'baesu_StackTrace' object of 0 length.  Optionally specify
         // 'basicAllocator'.  If 'basicAllocator' is not specified, than an
         // owned instance of the heap-bypass allocator is used.  Note that the
         // heap bypass allocator is used by default to avoid heap allocation in
         // case the heap has been corrupted.
+
+    baesu_StackTrace(const baesu_StackTrace&  original,
+                     bslma_Allocator         *allocator = 0);
+        // Create a 'baesu_StackTrace' object having the same value as the
+        // specified 'original' object.  Optionally specify 'basicAllocator'.
+        // If 'basicAllocator' is not specified, than an owned instance of the
+        // heap-bypass allocator is used.  Note that the heap bypass allocator
+        // is used by default to avoid heap allocation in case the heap has
+        // been corrupted.
 
     // ~baesu_StackTrace();
         // Destroy this object.  Note that this destructor is

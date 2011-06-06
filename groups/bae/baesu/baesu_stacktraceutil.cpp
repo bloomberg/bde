@@ -27,17 +27,21 @@ BDES_IDENT_RCSID(baesu_stacktraceutil_cpp,"$Id$ $CSID$")
 #endif
 
 namespace {
-    enum { LIBRARY_NAME_LIMIT = 40 };
+namespace Local {
+    enum { LIBRARY_NAME_LIMIT = 40 };   // Library file names longer than
+                                        // this are just printed as the
+                                        // basename, otherwise the full path is
+                                        // printed.
+}  // close namespace Local
 }  // close unnamed namespace
 
 static
 const char *findBasename(const char *pathName)
-    // Find in the specified 'pathName' the
-    // first character following the last pathName separator character (i.e.,
-    // '/' or '\\') and return its address.  If there are no separator
-    // characters, return the address of the first character of 'pathName'.  If
-    // the last character of 'pathName' is a separator charactor, return the
-    // address of the terminating '\0'.
+    // Find in the specified 'pathName' the first character following the last
+    // pathName separator character (i.e., '/' or '\\') and return its address.
+    // If there are no separator characters, return the address of the first
+    // character of 'pathName'.  If the last character of 'pathName' is a
+    // separator charactor, return the address of the terminating '\0'.
 {
     const char *ptr = pathName + bsl::strlen(pathName);
 
@@ -114,7 +118,7 @@ int baesu_StackTraceUtil::loadStackTraceFromStack(
 }
 
 bsl::ostream& baesu_StackTraceUtil::printFormatted(
-                                            bsl::ostream& stream,
+                                            bsl::ostream&           stream,
                                             const baesu_StackTrace& stackTrace)
 {
     for (int i = 0; i < stackTrace.length(); ++i) {
@@ -144,6 +148,7 @@ bsl::ostream& baesu_StackTraceUtil::printFormatted(
                     : imsnk ? stackTraceFrame.mangledSymbolName().c_str()
                             :  "--unknown--");
 
+    bsl::ios_base::fmtflags save = stream.flags();
     stream << bsl::hex;
     if (stackTraceFrame.isOffsetFromSymbolKnown()) {
         stream << "+0x" << stackTraceFrame.offsetFromSymbol();
@@ -151,7 +156,7 @@ bsl::ostream& baesu_StackTraceUtil::printFormatted(
     if (stackTraceFrame.isAddressKnown()) {
         stream << " at 0x" << (bsls_Types::UintPtr) stackTraceFrame.address();
     }
-    stream << bsl::dec;
+    stream.flags(save);
 
     if (stackTraceFrame.isSourceFileNameKnown()) {
 #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
@@ -170,7 +175,8 @@ bsl::ostream& baesu_StackTraceUtil::printFormatted(
 
     if (stackTraceFrame.isLibraryFileNameKnown()) {
         stream << " in " <<
-              (LIBRARY_NAME_LIMIT > stackTraceFrame.libraryFileName().length()
+           (Local::LIBRARY_NAME_LIMIT >
+                                     stackTraceFrame.libraryFileName().length()
                     ? stackTraceFrame.libraryFileName().c_str()
                     : findBasename(stackTraceFrame.libraryFileName().c_str()));
     }

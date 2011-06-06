@@ -667,7 +667,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 5: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE ONE
+        // USAGE EXAMPLE
         //
         // Concerns:
         //  That the usage example works.
@@ -676,8 +676,8 @@ int main(int argc, char *argv[])
         //  stack trace works.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TEST OF USAGE EXAMPLE 1\n"
-                             "=======================\n";
+        if (verbose) cout << "TEST OF USAGE EXAMPLE\n"
+                             "=====================\n";
 
         // Call 'recurseAndPrintExample1' with will recurse 'depth' times, then
         // print a stack trace.
