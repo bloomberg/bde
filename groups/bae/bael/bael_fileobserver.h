@@ -157,16 +157,6 @@ BDES_IDENT("$Id: $")
 //..
 // Notice that the filename is changed on rotation only in the second case.
 //
-// There is a possibility that the new log file has the same name as the
-// rotated file.  This often occurs when the filename pattern has a timestamp
-// that does not have resolution in seconds (e.g., "a.log.%Y%M%D") or it can be
-// done on purpose by using a pattern such as "a.log%%".  To resolve this, a
-// ".1" suffix will be appended to the rotated file.  If a file with a ".N"
-// suffix already exists, rename the existing file with the suffix ".N+1"
-// (recursively).  The maximum number of log files that can be kept this way is
-// 256.  After 256 file rotations, the file with the extension ".256" will be
-// removed.
-//
 ///Thread-Safety
 ///-------------
 // All methods of 'bael_FileObserver' are thread-safe, and can be called
@@ -399,7 +389,7 @@ class bael_FileObserver : public bael_Observer {
         // in local time is not enabled.
 
     int enableFileLogging(const char *logFilenamePattern,
-                          bool        timestampFlag = false);
+                          bool        appendTimestampFlag = false);
         // Enable logging of all messages published to this file observer to
         // a file indicated by the specified 'logFilenamePattern' and the
         // optionally-specified 'appendTimestampFlag'.  The basename of

@@ -523,6 +523,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 6: {
+#if 0
         // --------------------------------------------------------------------
         // ROTATE WHEN OPENING EXISTING FILE
         //
@@ -603,8 +604,10 @@ int main(int argc, char *argv[])
             }
         }
 
+#endif
       } break;
       case 5: {
+#if 0
         // --------------------------------------------------------------------
         // TESTING LOG FILE ROLLING
         //
@@ -739,6 +742,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------

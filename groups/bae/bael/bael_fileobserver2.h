@@ -144,18 +144,6 @@ BDES_IDENT("$Id: $")
 //..
 // Notice that the filename is changed on rotation only in the second case.
 //
-// There is a possibility that the new log file has the same name as the
-// rotated file, causing a name collision.  This often occurs when the filename
-// pattern has a timestamp that does not have resolution in seconds (e.g.,
-// "a.log.%Y%M%D") or it can be done on purpose by using a pattern such as
-// "a.log%%".  To resolve this, a ".1" suffix will be appended to the rotated
-// file.  If a file with a ".N" suffix already exists, rename the existing file
-// with the suffix ".N+1" (recursively), until 'N == maxFileChainSuffix'.
-// 'maxFileChainSuffix' can be set with the 'setMaxFileChainSuffix' method, and
-// the default value is 32.  The file with the suffix ".maxFileChainSuffix"
-// will be removed.  Note that the 'setMaxFileChainSuffix' has no effect if
-// there is no name collision on rotation.
-//
 ///Thread-Safety
 ///-------------
 // All methods of 'bael_FileObserver2' are thread-safe, and can be called
@@ -307,16 +295,6 @@ class bael_FileObserver2 : public bael_Observer {
                                                        // lifetime before
                                                        // rotation
 
-    int                    d_maxFileChainSuffix;       // maximum suffix number
-                                                       // when rolling files
-
-#ifdef BSLS_PLATFORM__CMP_SUN
-    int                    d_startingLogFileSize;      // size of the log file
-                                                       // when it was opened
-                                                       // (needed only for CC
-                                                       // compiler on Sun)
-#endif
-
   private:
     // NOT IMPLEMENTED
     bael_FileObserver2(const bael_FileObserver2&);
@@ -342,15 +320,6 @@ class bael_FileObserver2 : public bael_Observer {
         // 'enableFileLogging' is invoked with 'appendTimestampFlag' set to
         // 'false'.  The log file is renamed by appending a timestamp to the
         // log filename.
-        //
-        // Another situation where renaming will occur is when the new log file
-        // will have the same filename as the rotated log file.  In this case,
-        // rename the rotated file by appending a suffix ".1", and, if a file
-        // already exists with the suffix ".N", rename the existing file with
-        // the suffix ".N+1" (recursively).  See the "Rotated File Naming"
-        // section under @DESCRIPTION in the component-level documentation for
-        // details on the filenames of the rotated log files.  The behavior is
-        // undefined unless any necessary lock is acquired.
 
     void rotateIfNecessary(const bdet_Datetime& timestamp);
         // Perform log file rotation if the specified 'timestamp' indicates
@@ -465,11 +434,6 @@ class bael_FileObserver2 : public bael_Observer {
         // of this file observer to the specified 'logFileFunctor'.  Note that
         // a default format is in effect until this method is called.
 
-    void setMaxFileChainSuffix(int value);
-        // Set the maximum suffix number that would be added when a file is
-        // rolled due to a name collision.  The behavior is undefined unless
-        // 'value > 0'.
-
     // ACCESSORS
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
@@ -499,10 +463,6 @@ class bael_FileObserver2 : public bael_Observer {
         // may become incorrect when the difference between the local time and
         // UTC time changes (e.g., when transitioning into or out of daylight
         // savings time).
-
-    int maxFileChainSuffix() const;
-        // Returns the maximum file chain suffix that can be made with file
-        // rolling.
 };
 
 }  // close namespace BloombergLP

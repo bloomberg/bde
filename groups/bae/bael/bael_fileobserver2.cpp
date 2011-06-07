@@ -250,19 +250,6 @@ void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
 
 int bael_FileObserver2::openLogFile()
 {
-#ifdef BSLS_PLATFORM__CMP_SUN
-    // For the CC compiler on Sun, when opening a file that already exists,
-    // 'ofstream::tellp' will give the number of characters from the end of the
-    // existing file.  Therefore, it is necessary to keep track of the original
-    // file size for rotation on size test.  This is not necessary for other
-    // compilers.
-
-    d_startingLogFileSize = bdesu_FileUtil::getFileSize(d_logFileName.c_str());
-    if (d_startingLogFileSize < 0) {
-        d_startingLogFileSize = 0;
-    }
-#endif
-
     d_logFileStream.open(d_logFileName.c_str(), bsl::ios::out|bsl::ios::app);
     if (d_logFileStream.is_open()) {
         d_logFileStream.clear();
@@ -306,14 +293,6 @@ void bael_FileObserver2::rotateFile()
                    d_localTimeOffset,
                    d_isOpenWithTimestampFlag);
 
-    if (bdesu_FileUtil::exists(d_logFileName.c_str())) {
-        if(0 != bdesu_FileUtil::rollFileChain(d_logFileName.c_str(),
-                                              d_maxFileChainSuffix)) {
-            fprintf(stderr, "Cannot roll log file: %s\n",
-                    d_logFileName.c_str());
-        }
-    }
-
     openLogFile();
 }
 
@@ -330,16 +309,8 @@ void bael_FileObserver2::rotateIfNecessary(const bdet_Datetime& timestamp)
         // 'tellp' returns -1 on failure.  Rotate the log file if either
         // 'tellp' fails, or the rotation size is exceeded.
 
-#ifdef BSLS_PLATFORM__CMP_SUN
-        // Adding the original file size to 'tellp' is needed only for Sun's CC
-        // compiler.
-
-        bsl::streampos pos = d_logFileStream.tellp();
-        if (pos < 0 || d_startingLogFileSize + pos > d_rotationSize * 1024) {
-#else
         if (static_cast<bsls_Types::Uint64>(d_logFileStream.tellp()) >
             static_cast<bsls_Types::Uint64>(d_rotationSize) * 1024) {
-#endif
 
             rotateFile();
             return;                                                   // RETURN
@@ -366,10 +337,6 @@ bael_FileObserver2::bael_FileObserver2(bslma_Allocator *basicAllocator)
 , d_publishInLocalTime(false)
 , d_rotationSize(0)
 , d_rotationLifetime(0)
-, d_maxFileChainSuffix(32)
-#ifdef BSLS_PLATFORM__CMP_SUN
-, d_startingLogFileSize(0)
-#endif
 {
 }
 
@@ -484,14 +451,6 @@ void bael_FileObserver2::setLogFileFunctor(
     d_logFileFunctor = logFileFunctor;
 }
 
-void bael_FileObserver2::setMaxFileChainSuffix(int value)
-{
-    BSLS_ASSERT(0 < value);
-
-    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    d_maxFileChainSuffix = value;
-}
-
 // ACCESSORS
 bool bael_FileObserver2::isFileLoggingEnabled() const
 {
@@ -542,12 +501,6 @@ bdet_DatetimeInterval bael_FileObserver2::localTimeOffset() const
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     return d_localTimeOffset;
-}
-
-int bael_FileObserver2::maxFileChainSuffix() const
-{
-    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    return d_maxFileChainSuffix;
 }
 
 }  // close namespace BloombergLP
