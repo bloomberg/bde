@@ -507,10 +507,10 @@ class Printer {
         // construction.
 
     void end(bool suppressBracket = false) const;
-        // If the optionally specified 'suppressBracket' is false, print to the
-        // output stream supplied at construction a closing square bracket,
-        // indented by 'absLevel() * spacesPerLevel()' blank spaces.  If
-        // 'spacesPerLevel() >= 0', print a newline character.
+        // If 'spacesPerLevel() >= 0', print a newline character.  If the
+        // optionally specified 'suppressBracket' is false, print to the output
+        // stream supplied at construction a closing square bracket, indented
+        // by 'absLevel() * spacesPerLevel()' blank spaces.
 
     template <class TYPE>
     void print(const TYPE& data, const char *name) const;
