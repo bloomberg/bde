@@ -7,17 +7,17 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a portable utility for printing a stack trace.
+//@PURPOSE: Provide portable utilities for printing a stack trace.
 //
 //@CLASSES:
-//  baesu_StackTracePrintUtil: namespace for function to print a stack trace
+//  baesu_StackTracePrintUtil: namespace for functions that print a stack trace
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
-//@SEE ALSO: baesu_StackTraceUtil
+//@SEE ALSO: baesu_stacktraceutil
 //
-//@DESCRIPTION: This component defines a namespace class containing a static
-// platform-independent function that will print a stack trace to a supplied
+//@DESCRIPTION: This component defines a namespace class containing static
+// platform-independent functions that will print a stack trace to a supplied
 // stream.  Not all properties of a stack trace are printed on all platforms
 // because the set of properties describing a stack trace that are obtainable
 // varies according to the platform and build parameters.  For example, on
@@ -34,18 +34,18 @@ BDES_IDENT("$Id: $")
 // static function 'baesu_StackTraceUtil::printStackTrace'.
 //..
 //  static
-//  void recurseAndPrintUsage(int *depth)
-//      // First, recurse to the specified 'depth' number of times, then print
-//      // out the stack trace to 'cout'.
+//  void recurseAndPrintStack(int *depth)
+//      // First, recurse to the specified 'depth', then print out the stack
+//      // trace to 'cout'.
 //  {
 //      if (--*depth > 0) {
-//          recurseAndPrintUsage(depth);
+//          recurseAndPrintStack(depth);
 //      }
 //      else {
 //..
 // Call 'printStackTrace' to print out a stack trace.  In this case, the
-// 'maxFrames' argument is unspecified, defaulting to 1000 (which is a lot more
-// than we need) and the 'demanglingPreferredFlag' argument is unspecified,
+// 'maxFrames' argument is unspecified, defaulting to 1000 (which is more than
+// we need) and the 'demanglingPreferredFlag' argument is unspecified,
 // defaulting to 'true'.
 //..
 //          baesu_StackTracePrintUtil::printStackTrace(cout);
@@ -64,7 +64,7 @@ BDES_IDENT("$Id: $")
 //..
 // The following output is produced by this example on AIX (output for each
 // frame is single line -- note that the lines were longer than 80 chars, so
-// continuation is wrapped), and that program name is truncated to 32
+// continuation is wrapped), and that the program name is truncated to 32
 // characters.
 //..
 //  (0): BloombergLP::baesu_StackTracePrintUtil::.printStackTrace(
@@ -137,13 +137,13 @@ struct baesu_StackTracePrintUtil {
         // Obtain a trace of the stack and print it to the specified 'stream'.
         // Optionally specify 'maxFrames' indicating the maximum number of
         // frames from the top of the stack that will be printed.  If
-        // 'maxFrames' is not specified, a value of at least 1024 is assumed.
+        // 'maxFrames' is not specified, a value of at least 1024 is used.
         // Optionally specify 'demanglingPreferredFlag', indicating whether to
         // attempt to demangle function names.  If an error occurs, print a
         // 1-line error message to 'stream'.  The behavior is undefined unless
-        // 'maxFrames >= 0'.  Note that demangling, if specified, could involve
-        // calling 'malloc', and symbol names are always demangled on the
-        // Windows platform.
+        // 'maxFrames >= 0'.  Note that attempting to demangle symbol names
+        // could involve calling 'malloc', and symbol names are always
+        // demangled on the Windows platform.
 };
 
                    // ====================================
@@ -156,9 +156,19 @@ struct baesu_StackTracePrintUtil_Test {
 
     // CLASS METHODS
     static void printStackTraceToString(bsl::string *string);
-        // Do a stack trace and assign the output to 'string'.  Note that this
-        // is for testing only.
+        // Obtain a stack trace and assign a description of the stack to the
+        // specified 'string'.  Note that this is for testing only, and it must
+        // be inline in an include file to test source file name resolution of
+        // a routine in an include file.
 };
+
+// ===========================================================================
+//                       INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                    // -------------------------------------
+                    // struct baesu_StackTracePrintUtil_Test
+                    // -------------------------------------
 
 // CLASS METHOD
 inline
