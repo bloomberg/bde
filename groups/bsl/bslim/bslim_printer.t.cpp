@@ -1677,17 +1677,25 @@ int main(int argc, char *argv[])
         //
         // Concerns: That 'print'
         //: 1 prints fundamental types correctly.
-        //: 2 prints 'bool' types as alphabetical strings.
-        //: 2 prints a newline character after printing the fundamental type if
+        //: 2 prints 'char' types
+        //:   - enclosed within single quotes when printable
+        //:   - in hexadecimal format when non-printable
+        //:   - as strings in case of special characters '\n', '\t' and '\0'.
+        //: 3 prints 'bool' types as alphabetical strings.
+        //: 4 prints a newline character after printing the fundamental type if
         //:   'spacesPerLevel >= 0', and does not print a newline character
         //:   otherwise.
         //
         // Plan:
         //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'print' when called with a 'char'.
+        //:   level, and expected output of 'print' when called with an 'int'.
         //:   For each set of values in the table, ensure that the actual
         //:   output of 'print' is the same as the expected output.
         //: 2 Create a table having fields for line number, level, spaces per
+        //:   level, and expected output of 'print' when called with a 'char'.
+        //:   For each set of values in the table, ensure that the actual
+        //:   output of 'print' is the same as the expected output.
+        //: 3 Create a table having fields for line number, level, spaces per
         //:   level, and expected output of 'print' when called with a 'bool'.
         //:   For each set of values in the table, ensure that the actual
         //:   output of 'print' is the same as the expected output.
