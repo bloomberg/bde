@@ -215,8 +215,8 @@ class bteso_AddressCacheEntry {
     typedef bcema_SharedPtr<const bteso_AddressCacheData> DataPtr;
 
   private:
-    DataPtr     d_data;  // pointer to cached data
-    bcemt_Mutex d_lock;  // access synchronization
+    DataPtr             d_data;  // pointer to cached data
+    mutable bcemt_Mutex d_lock;  // access synchronization
 
   public:
     // CREATORS
@@ -239,20 +239,20 @@ class bteso_AddressCacheEntry {
     void setData(DataPtr value);
         // Set 'd_data' to refer to the same data as 'value'.
 
-    void lock();
+    void lock() const;
         // Acquire a lock on this object.  If this object is currently locked
         // by a different thread, then suspend execution of the current thread
         // until a lock can be acquired.  The behavior is undefined if the
         // calling thread already owns the lock on this object, and may result
         // in deadlock.
 
-    void unlock();
+    void unlock() const;
         // Release a lock on this object that was previously acquired through a
         // call to 'lock', or a successful call to 'tryLock', enabling another
         // thread to acquire a lock on this object.  The behavior is undefined
         // unless the calling thread currently owns the lock on this object.
 
-    int tryLock();
+    int tryLock() const;
         // Attempt to acquire a lock on this object.  Return 0 on success, and
         // a non-zero value if this object is already locked by a different
         // thread.  The behavior is undefined if the calling thread already
@@ -320,8 +320,8 @@ class bteso_AddressCache {
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    bteso_AddressCache(ResolveByNameCallback  resolverCallback =
-                             bteso_ResolveUtil::defaultResolveByNameCallback(),
+    bteso_AddressCache(bslma_Allocator       *basicAllocator = 0);
+    bteso_AddressCache(ResolveByNameCallback  resolverCallback,
                        bslma_Allocator       *basicAllocator = 0);
         // Create a 'bteso_AddressCache' object.  Optionally, specify
         // 'resolverCallback' to be used to resolve the address if hostname is
@@ -354,9 +354,14 @@ class bteso_AddressCache {
     void setTimeToLiveInSeconds(int value);
         // Set the time a cached data may exist before it expires.  Note that
         // this function does *not* affect data that is already cached.  The
-        // behavior is undefined if 'value < 0'.
+        // behavior is undefined unless 'value < 0'.
 
     // ACCESSOR
+    bslma_Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
     int lookupAddress(bsl::vector<bteso_IPv4Address> *result,
                       const char                     *hostname,
                       int                             numAddresses) const;
@@ -403,19 +408,19 @@ void bteso_AddressCacheEntry::setData(DataPtr value)
 }
 
 inline
-void bteso_AddressCacheEntry::lock()
+void bteso_AddressCacheEntry::lock() const
 {
     d_lock.lock();
 }
 
 inline
-void bteso_AddressCacheEntry::unlock()
+void bteso_AddressCacheEntry::unlock() const
 {
     d_lock.unlock();
 }
 
 inline
-int bteso_AddressCacheEntry::tryLock()
+int bteso_AddressCacheEntry::tryLock() const
 {
     return d_lock.tryLock();
 }
@@ -445,11 +450,19 @@ bteso_AddressCache::ResolveByNameCallback
 inline
 void bteso_AddressCache::setTimeToLiveInSeconds(int value)
 {
+    BSLS_ASSERT_SAFE(0 < value);
+
     bcemt_WriteLockGuard<bcemt_RWMutex> writeLockGuard(&d_rwLock);
     d_timeToLiveInSeconds = value;
 }
 
 // ACCESSORS
+inline
+bslma_Allocator *bteso_AddressCache::allocator() const
+{
+    return d_allocator_p;
+}
+
 inline
 bteso_AddressCache::ResolveByNameCallback
                                    bteso_AddressCache::resolverCallback() const

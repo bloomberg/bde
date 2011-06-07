@@ -6,10 +6,16 @@ BDES_IDENT_RCSID("bteso_addresscache.cpp","$Id$ $CSID$")
 
 #include <bcemt_lockguard.h>
 
+#include <bcemt_threadattributes.h>  // For testing only
+#include <bcemt_threadutil.h>  // For testing only
+#include <bces_atomictypes.h>  // For testing only
+#include <bsls_byteorder.h>  // For testing only
+
 #include <bdetu_systemtime.h>
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
+#include <bslma_default.h>
 
 namespace BloombergLP {
 
@@ -84,13 +90,22 @@ bteso_AddressCacheEntry::bteso_AddressCacheEntry(
                         // ------------------------
 
 // CREATORS
-bteso_AddressCache::bteso_AddressCache(ResolveByNameCallback  resolverCallback,
-                                       bslma_Allocator       *basicAllocator)
-: d_cache()
+bteso_AddressCache::bteso_AddressCache(bslma_Allocator *basicAllocator)
+: d_cache(basicAllocator)
 , d_timeToLiveInSeconds(3600)
 , d_rwLock()
 , d_resolverCallback(bteso_ResolveUtil::defaultResolveByNameCallback())
-, d_allocator_p(bdema_Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
+{
+}
+
+bteso_AddressCache::bteso_AddressCache(ResolveByNameCallback  resolverCallback,
+                                       bslma_Allocator       *basicAllocator)
+: d_cache(basicAllocator)
+, d_timeToLiveInSeconds(3600)
+, d_rwLock()
+, d_resolverCallback(resolverCallback)
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
 }
 
@@ -257,6 +272,7 @@ int bteso_AddressCache::lookupAddress(
     BSLS_ASSERT(0 < numAddresses);
 
     bteso_AddressCacheEntry::DataPtr dataPtr;
+
     {
         bcemt_ReadLockGuard<bcemt_RWMutex> readLockGuard(&d_rwLock);
         AddressMap::const_iterator it = d_cache.find(hostname);
@@ -266,7 +282,12 @@ int bteso_AddressCache::lookupAddress(
         dataPtr = it->second.data();
     }
 
+    if (0 == dataPtr.ptr()) {
+        return -1;                                                    // RETURN
+    }
+
     int size = bsl::min(numAddresses, (int)dataPtr->addresses().size());
+    result->resize(size);
     std::vector<bteso_IPv4Address>::const_iterator src =
                                                   dataPtr->addresses().begin();
     std::vector<bteso_IPv4Address>::iterator dst = result->begin();
