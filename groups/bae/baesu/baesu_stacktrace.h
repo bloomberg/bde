@@ -26,7 +26,7 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In the following example we demonstrate how to create a 'baesu_stacktrace'
+// In the following example we demonstrate how to create a 'baesu_StackTrace'
 // object, then both modify and access its value.
 //
 // A 'baesu_StackTrace' object, by default, gets its memory from an owned
@@ -165,15 +165,14 @@ class baesu_StackTrace {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    bdema_HeapBypassAllocator    d_hbpAlloc;     // used if no allocator is
-                                                 // specified at construction.
-                                                 // Note this must be declared
-                                                 // and constructed prior to
-                                                 // 'd_frames'.
+    bdema_HeapBypassAllocator    d_hbpAlloc;  // used if no allocator is
+                                              // supplied at construction.
+                                              // Note this must be declared and
+                                              // constructed prior to
+                                              // 'd_frames'.
 
     bsl::vector<baesu_StackTraceFrame>
-                                 d_frames;       // sequence of stack trace
-                                                 // frames
+                                 d_frames;    // sequence of stack trace frames
 
   public:
     BSLALG_DECLARE_NESTED_TRAITS2(baesu_StackTrace,

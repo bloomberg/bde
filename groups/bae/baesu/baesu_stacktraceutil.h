@@ -25,8 +25,8 @@ BDES_IDENT("$Id: $")
 // The following examples illustrate 2 different ways to load and print a stack
 // trace using 'baesu_StackTraceUtil.
 //
-/// Example 1: Loading a Stack Trace with 'loadStackTraceFromStack':
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Loading a Stack Trace with 'loadStackTraceFromStack':
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates using 'loadStackTraceFromStack' to load a stack
 // trace.  After the 'loadStackTraceFromStack' function is called, the stack
 // trace object contains a description of the stack, which can be output in a
@@ -133,9 +133,9 @@ BDES_IDENT("$Id: $")
 //..
 // Finally, we can print out the stack trace object using 'printFormatted', or
 // iterate through the stack trace frames, printing them out one by one.  In
-// this example, we want only function names, and not line numbers, source file
-// names, or library names, so we iterate through the stack trace frames and
-// print out only the properties we want.
+// this example, we want to output only function names, and not line numbers,
+// source file names, or library names, so we iterate through the stack trace
+// frames and print out only the properties we want.
 //..
 //          for (int i = 0; i < stackTrace.length(); ++i) {
 //              const baesu_StackTraceFrame& frame = stackTrace[i];
