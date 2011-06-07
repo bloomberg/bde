@@ -353,10 +353,10 @@ BSLS_IDENT("$Id: $")
 //
 //    private:
 //      // DATA
-//      bsl::string d_localDate;  // date, local to the timezone indicated by
-//                                // 'd_offset'
+//      int d_localDate;  // date in YYYYMMDD format, local to the timezone
+//                        // indicated by 'd_offset'
 //
-//      int         d_offset;     // offset from GMT (in minutes)
+//      int d_offset;     // offset from GMT (in minutes)
 //
 //    public:
 //      // ...
