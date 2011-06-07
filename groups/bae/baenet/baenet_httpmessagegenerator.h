@@ -228,6 +228,8 @@ class baenet_HttpMessageGenerator {
     MessageDataCallback      d_messageDataCallback;
     bool                     d_useChunkEncoding;
 
+    //MRM
+
     // PRIVATE CLASS FUNCTIONS
     static void generateStartLine(bsl::ostream&                 stream,
                                   const baenet_HttpRequestLine& startLine);
