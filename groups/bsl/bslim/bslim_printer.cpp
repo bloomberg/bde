@@ -16,16 +16,6 @@ namespace bslim {
                         // -------------
 
 // PRIVATE ACCESSORS
-void Printer::printIndentation() const
-{
-    if (d_spacesPerLevel < 0) {
-        *d_stream_p << ' ';
-    }
-    else {
-        *d_stream_p << bsl::setw(d_spacesPerLevel * d_levelPlusOne) << "";
-    }
-}
-
 void Printer::printEndIndentation() const
 {
     if (d_spacesPerLevel < 0) {
@@ -33,6 +23,16 @@ void Printer::printEndIndentation() const
     }
     else {
         *d_stream_p << bsl::setw(d_spacesPerLevel * d_level) << "";
+    }
+}
+
+void Printer::printIndentation() const
+{
+    if (d_spacesPerLevel < 0) {
+        *d_stream_p << ' ';
+    }
+    else {
+        *d_stream_p << bsl::setw(d_spacesPerLevel * d_levelPlusOne) << "";
     }
 }
 
@@ -53,6 +53,23 @@ Printer::~Printer()
 }
 
 // ACCESSORS
+int Printer::absLevel() const
+{
+    return d_level;
+}
+
+void Printer::end(bool suppressBracket) const
+{
+    if (!suppressBracket) {
+        printEndIndentation();
+        *d_stream_p << ']';
+    }
+
+    if (d_spacesPerLevel >= 0) {
+        *d_stream_p << '\n';
+    }
+}
+
 void Printer::printHexAddr(const void *address, const char *name) const
 {
     printIndentation();
@@ -65,6 +82,11 @@ void Printer::printHexAddr(const void *address, const char *name) const
                           address,
                           -d_levelPlusOne,
                           d_spacesPerLevel);
+}
+
+int Printer::spacesPerLevel() const
+{
+    return d_spacesPerLevel;
 }
 
 void Printer::start(bool suppressBracket) const
@@ -84,31 +106,9 @@ void Printer::start(bool suppressBracket) const
     }
 }
 
-void Printer::end(bool suppressBracket) const
-{
-    if (!suppressBracket) {
-        printEndIndentation();
-        *d_stream_p << ']';
-    }
-
-    if (d_spacesPerLevel >= 0) {
-        *d_stream_p << '\n';
-    }
-}
-
-int Printer::absLevel() const
-{
-    return d_level;
-}
-
 bool Printer::suppressInitialIndentFlag() const
 {
     return d_suppressInitialIndentFlag;
-}
-
-int Printer::spacesPerLevel() const
-{
-    return d_spacesPerLevel;
 }
 
 }  // close namespace bslim
