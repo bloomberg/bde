@@ -2197,7 +2197,7 @@ int baenet_HttpParserUtil::parseStartLine(baenet_HttpStatusLine  *result,
         return BAENET_FAILURE;
     }
 
-    result->statusCode() = (baenet_HttpStatusCode::Value) code;
+    result->statusCode() = code;
 
     skipWhitespace(&p, end);
 
