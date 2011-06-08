@@ -15,7 +15,7 @@ BSLS_IDENT("$Id$")
 //@SEE_ALSO:
 //  bdema_posixmemalignallocator
 //
-//@AUTHOR: Andrew Paprocki (apaprock)
+//@AUTHOR: Andrew Paprocki (apaprock), Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component extends the base-level protocol (pure abstract
 // interface) class, 'bslma_Allocator', providing the ability to allocate
@@ -23,6 +23,17 @@ BSLS_IDENT("$Id$")
 // documented by this protocol are similar to those afforded by
 // POSIX 'posix_memalign': sufficiently aligned memory is guaranteed for any
 // object of a given size and alignment.
+//..
+//   ,----------------------.
+//  ( bdema_AlignedAllocator )
+//   `----------------------'
+//               |       allocateAligned
+//               V
+//       ,---------------.
+//      ( bslma_Allocator )
+//       `---------------'
+//                       allocate
+//                       deallocate
 //..
 //
 ///Usage
@@ -68,7 +79,7 @@ BSLS_IDENT("$Id$")
 //          // effect on any outstanding allocated memory.
 //
 //      // MANIPULATORS
-//      virtual void *allocateAligned(bsl::size_type size, int alignment);
+//      virtual void *allocateAligned(size_type size, size_type alignment);
 //          // Return the address of a newly allocated block of memory of at
 //          // least the specified positive 'size' (in bytes), sufficiently
 //          // aligned such that '0 == (address & (alignement - 1)).  If 'size'
@@ -95,25 +106,26 @@ BSLS_IDENT("$Id$")
 // typical usage in this case):
 //..
 //  // MANIPULATORS
+//  void *MyAlignedAllocator::allocate(size_type size)
 //  void *MyAlignedAllocator::allocateAligned(size_type size,
 //                                            size_type alignment)
 //  {
 //      BSLS_ASSERT_SAFE(0 <= size);
 //      BSLS_ASSERT_SAFE(0 <= alignement);
-//      BSLS_ASSERT_SAFE(0 == ((bsl::log(alignement)/bsl::log(2)) % 2));
+//      BSLS_ASSERT_SAFE(1 == bdes_BitUtil::numSetOne64(alignment));
 //      BSLS_ASSERT_SAFE(0 == (alignement % sizeof(void *)));
 //
 //      void *ret;
 //
-//  #ifdef BSLS_PLATFORM_WINDOWS
-//      int rc = ::posix_memalign(&ret, alignment, size);
-//      if (0 != rc) {
+//  #ifdef BSLS_PLATFORM__OS_WINDOWS
+//      errno = 0;
+//      *ret = _aligned_malloc(size, alignment);
+//      if (0 != errno) {
 //          bslma_Allocator::throwBadAlloc();
 //      }
 //  #else
-//      errno = 0;
-//      void *ret = _aligned_malloc(size, alignment);
-//      if (0 != errno) {
+//      int rc = ::posix_memalign(&ret, alignment, size);
+//      if (0 != rc) {
 //          bslma_Allocator::throwBadAlloc();
 //      }
 //  #endif
@@ -123,6 +135,9 @@ BSLS_IDENT("$Id$")
 //
 //  void MyAlignedAllocator::deallocate(void *address)
 //  {
+//      if (0 == address) {
+//          return;                                                   // RETURN
+//      }
 //  #ifdef BSLS_PLATFORM_WINDOWS
 //      _aligned_free(address);
 //  #else
@@ -195,8 +210,13 @@ class bdema_AlignedAllocator : public bslma_Allocator {
         // throws an 'bsl::bad_alloc' exception, or abort if in a
         // non-exception build.  The behavior is undefined unless
         // '0 <= size', '0 <= alignment' and 'alignment' is both a multiple of
-        // 'sizeof(void *)' and a power of two.  Note that the underlying
-        // 'posix_memalign' function is *not* called when 'size' is 0.
+        // 'sizeof(void *)' and a power of two.  
+    
+    virtual void deallocate(void *address);
+        // Return the memory block at the specified 'address' back to this
+        // allocator.  If 'address' is 0, this function has no effect.  The
+        // behavior is undefined unless 'address' was allocated using this
+        // allocator object and has not already been deallocated.
 };
 
 }   // close namespace BloombergLP

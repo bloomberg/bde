@@ -1,9 +1,15 @@
 // bdema_alignedallocator.t.cpp                                       -*-C++-*-
 #include <bdema_alignedallocator.h>
 
+#include <bdes_bitutil.h>
+
+#include <bsls_platform.h>
 #include <bsls_protocoltest.h>
 
 #include <bsl_iostream.h>
+
+#include <bsl_cerrno.h>
+
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -60,7 +66,7 @@ namespace {
 
 struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
     void *allocateAligned(size_type, int) { return markDone(); }
-    int   deallocate(void* )              { return markDone(); }
+    void  deallocate(void* )              {        markDone(); }
 };
 
 }
@@ -111,12 +117,13 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
             // effect on any outstanding allocated memory.
   
         // MANIPULATORS
-        virtual void *allocateAligned(bsl::size_type size, int alignment);
+        virtual void *allocateAligned(size_type size, size_type alignment);
             // Return the address of a newly allocated block of memory of at
             // least the specified positive 'size' (in bytes), sufficiently
             // aligned such that '0 == (address & (alignement - 1)).  If 'size'
             // is 0, a null pointer is returned with no other effect.  If this
             // allocator cannot return the requested number of bytes, then it
+            // H
             // throws an 'bsl::bad_alloc' exception, or abort if in a
             // non-exception build.  The behavior is undefined unless 
             // '0 <=  size' and 'alignment' is both a multiple of 
@@ -142,21 +149,21 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
                                               size_type alignment)
     {
         BSLS_ASSERT_SAFE(0 <= size);
-        BSLS_ASSERT_SAFE(0 <= alignement);
-        BSLS_ASSERT_SAFE(0 == ((bsl::log(alignement)/bsl::log(2)) % 2));
-        BSLS_ASSERT_SAFE(0 == (alignement % sizeof(void *)));
+        BSLS_ASSERT_SAFE(0 <= alignment);
+        BSLS_ASSERT_SAFE(1 == bdes_BitUtil::numSetOne64(alignment));
+        BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
   
         void *ret;
   
-    #ifdef BSLS_PLATFORM_WINDOWS
-        int rc = ::posix_memalign(&ret, alignment, size);
-        if (0 != rc) {
+    #ifdef BSLS_PLATFORM__OS_WINDOWS
+        errno = 0;
+        *ret = _aligned_malloc(size, alignment);
+        if (0 != errno) {
             bslma_Allocator::throwBadAlloc();
         }
     #else
-        errno = 0;
-        void *ret = _aligned_malloc(size, alignment);
-        if (0 != errno) {
+        int rc = ::posix_memalign(&ret, alignment, size);
+        if (0 != rc) {
             bslma_Allocator::throwBadAlloc();
         }
     #endif
@@ -166,6 +173,9 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
   
     void MyAlignedAllocator::deallocate(void *address)
     {
+        if (0 == address) {
+            return;                                                   // RETURN
+        }
     #ifdef BSLS_PLATFORM_WINDOWS
         _aligned_free(address);
     #else
