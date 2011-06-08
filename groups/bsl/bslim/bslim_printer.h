@@ -728,6 +728,10 @@ struct Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL> {
     // with the BDE 'print' method contract.
 
     // CLASS METHODS
+    static bool isPrintable(char character);
+        // Return true if the specified 'character' lies in the range [32,127),
+        // and return false otherwise.
+
     static void print(bsl::ostream& stream,
                       char          data,
                       int           level,
@@ -1083,33 +1087,41 @@ void Printer_PrintImp<bool, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
 }
 
 inline
+bool Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL>::isPrintable(
+                                                                char character)
+{
+    return (32 <= character) && (character < 127);
+}
+
+inline
 void Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
                                                   bsl::ostream& stream,
                                                   char          data,
                                                   int           ,
                                                   int           spacesPerLevel)
 {
-    if ('\n' == data) {
-        stream << "'\\n'";
-    }
-    else if ('\t' == data) {
-        stream << "'\\t'";
-    }
-    else if ('\0' == data) {
-        stream << "'\\0'";
-    }
-    else if (data < 32 || 127 <= data) {
-        // print as hex
-        bsl::ios_base::fmtflags fmtFlags = stream.flags();
-        stream << bsl::hex
-               << bsl::showbase
-               << static_cast<bsls_Types::UintPtr>(data);
-        stream.flags(fmtFlags);
-    }
-    else {
+#define HANDLE_CONTROL_CHAR(value) case value: stream << #value; break;
+    if (isPrintable(data)) {
         // print within quotes
         stream << "'" << data <<"'";
     }
+    else {
+        switch(data) {
+            HANDLE_CONTROL_CHAR('\n');
+            HANDLE_CONTROL_CHAR('\t');
+            HANDLE_CONTROL_CHAR('\0');
+
+            default:
+                // print as hex
+                bsl::ios_base::fmtflags fmtFlags = stream.flags();
+                stream << bsl::hex
+                       << bsl::showbase
+                       << static_cast<bsls_Types::UintPtr>(data);
+                stream.flags(fmtFlags);
+
+        }
+    }
+#undef HANDLE_CONTROL_CHAR
 
     if (spacesPerLevel >= 0) {
         stream << '\n';
