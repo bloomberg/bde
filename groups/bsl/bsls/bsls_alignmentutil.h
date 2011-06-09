@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 // We can implement the 'naturallyAlign' helper function easily using the
 // methods defined in this class:
 //..
-//  void *naturallyAlign(void **currentAddress, int size)
+//  void *naturallyAlign(void **currentAddress, std::size_t size)
 //  {
 //      int   alignment = bsls_AlignmentUtil::calculateAlignmentFromSize(size);
 //      int   offset    = bsls_AlignmentUtil::calculateAlignmentOffset(
@@ -256,7 +256,7 @@ struct bsls_AlignmentUtil {
         // requirement.
 
     // CLASS METHODS
-    static int calculateAlignmentFromSize(int size);
+    static int calculateAlignmentFromSize(std::size_t size);
         // Return the *natural* alignment for a memory block of the specified
         // size -- i.e., the largest power of 2 that evenly divides 'size', up
         // to a maximum of 'BSLS_MAX_ALIGNMENT'.  It is guaranteed that this
@@ -294,7 +294,7 @@ struct bsls_AlignmentUtil {
         // boundary (i.e., the numerical value of 'address' is evenly
         // divisible by 8), and 'false' otherwise.
 
-    static int roundUpToMaximalAlignment(int size);
+    static int roundUpToMaximalAlignment(std::size_t size);
         // Return the specified 'size' (in bytes) rounded up to the smallest
         // integral multiple of the maximum alignment.  The behavior is
         // undefined unless '0 <= size' and
@@ -311,7 +311,7 @@ struct bsls_AlignmentUtil {
 
 // CLASS METHODS
 inline
-int bsls_AlignmentUtil::calculateAlignmentFromSize(int size)
+int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t size)
 {
     BSLS_ASSERT_SAFE(1 <= size);
 
@@ -413,7 +413,7 @@ bool bsls_AlignmentUtil::is8ByteAligned(const void *address)
 }
 
 inline
-int bsls_AlignmentUtil::roundUpToMaximalAlignment(int size)
+int bsls_AlignmentUtil::roundUpToMaximalAlignment(std::size_t size)
 {
     BSLS_ASSERT_SAFE(0 <= size);
     BSLS_ASSERT_SAFE(     size <= INT_MAX - BSLS_MAX_ALIGNMENT + 1);

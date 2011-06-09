@@ -9,11 +9,12 @@
 
 #include <bsls_types.h>  // for testing only
 
+#include <iostream>
+#include <limits>
+
 #include <cstddef>  // offsetof() macro
-#include <climits>  // MAX_INT
 #include <cstdlib>  // atoi()
 #include <cstring>
-#include <iostream>
 
 using namespace BloombergLP;
 using namespace std;
@@ -693,18 +694,18 @@ int main(int argc, char *argv[])
             // relevant 'BSLS_ASSERT' macro is enabled.
 
             static struct {
-                int         d_lineNumber;
-                const char *d_assertBuildType;
-                char        d_expectedResult;
-                int         d_input;
-                int         d_expected;
+                int          d_lineNumber;
+                const char  *d_assertBuildType;
+                char         d_expectedResult;
+                std::size_t  d_input;
+                int          d_expected;
             } const DATA[] = {
                 // LINE  TYPE  RESULT  SIZE  ALIGN
                 // ----  ----  ------  ----  -----
-                {  L_,   "S",  'F',    -1,      0 },
                 {  L_,   "S",  'F',     0,      0 },
                 {  L_,   "S",  'P',     1,      1 },
-                {  L_,   "S",  'P',    INT_MAX, 1 }
+                {  L_,   "S",  'P',
+       std::numeric_limits<std::size_t>::max(), 1 }
             };
             const int DATA_SIZE = sizeof DATA / sizeof *DATA;
 
@@ -730,7 +731,8 @@ int main(int argc, char *argv[])
 
                 // The relevant assert is active in this build
                 try {
-                    int a = bsls_AlignmentUtil::calculateAlignmentFromSize(
+                    int a = 0;
+                    a = bsls_AlignmentUtil::calculateAlignmentFromSize(
                                                                          SIZE);
                     LOOP_ASSERT(LINE, bsls_AssertTest::tryProbe(RESULT));
 
