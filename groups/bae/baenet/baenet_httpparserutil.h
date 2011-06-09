@@ -127,13 +127,6 @@ struct baenet_HttpParserUtil {
         BAENET_REACHED_EOF        = 1
       , BAENET_END_OF_HEADER      = 2
       , BAENET_MAX_BYTES_EXCEEDED = 3
-
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-      , REACHED_EOF        = BAENET_REACHED_EOF
-      , END_OF_HEADER      = BAENET_END_OF_HEADER
-      , MAX_BYTES_EXCEEDED = BAENET_MAX_BYTES_EXCEEDED
-#endif
-
     };
 
     // FUNCTIONS

@@ -59,51 +59,6 @@
   </restriction>
 </simpleType>
 
-<simpleType name='HttpStatusCode'>
-  <restriction base='string'>
-    <enumeration value='baenet_Continue' bdem:id='100'/>
-    <enumeration value='baenet_Switching Protocols' bdem:id='101'/>
-    <enumeration value='baenet_OK' bdem:id='200'/>
-    <enumeration value='baenet_Created' bdem:id='201'/>
-    <enumeration value='baenet_Accepted' bdem:id='202'/>
-    <enumeration value='baenet_Non-Authoritative Information' bdem:id='203'/>
-    <enumeration value='baenet_No Content' bdem:id='204'/>
-    <enumeration value='baenet_Reset Content' bdem:id='205'/>
-    <enumeration value='baenet_Partial Content' bdem:id='206'/>
-    <enumeration value='baenet_Multiple Choices' bdem:id='300'/>
-    <enumeration value='baenet_Moved Permanently' bdem:id='301'/>
-    <enumeration value='baenet_Found' bdem:id='302'/>
-    <enumeration value='baenet_See Other' bdem:id='303'/>
-    <enumeration value='baenet_Not Modified' bdem:id='304'/>
-    <enumeration value='baenet_Use Proxy' bdem:id='305'/>
-    <enumeration value='baenet_Temporary Redirect' bdem:id='307'/>
-    <enumeration value='baenet_Bad Request' bdem:id='400'/>
-    <enumeration value='baenet_Unauthorized' bdem:id='401'/>
-    <enumeration value='baenet_Payment Required' bdem:id='402'/>
-    <enumeration value='baenet_Forbidden' bdem:id='403'/>
-    <enumeration value='baenet_Not Found' bdem:id='404'/>
-    <enumeration value='baenet_Method Not Allowed' bdem:id='405'/>
-    <enumeration value='baenet_Not Acceptable' bdem:id='406'/>
-    <enumeration value='baenet_Proxy Authentication Required' bdem:id='407'/>
-    <enumeration value='baenet_Request Time-out' bdem:id='408'/>
-    <enumeration value='baenet_Conflict' bdem:id='409'/>
-    <enumeration value='baenet_Gone' bdem:id='410'/>
-    <enumeration value='baenet_Length Required' bdem:id='411'/>
-    <enumeration value='baenet_Precondition Failed' bdem:id='412'/>
-    <enumeration value='baenet_Request Entity Too Large' bdem:id='413'/>
-    <enumeration value='baenet_Request-URI Too Large' bdem:id='414'/>
-    <enumeration value='baenet_Unsupported Media Type' bdem:id='415'/>
-    <enumeration value='baenet_Requested range not satisfiable' bdem:id='416'/>
-    <enumeration value='baenet_Expectation Failed' bdem:id='417'/>
-    <enumeration value='baenet_Internal Server Error' bdem:id='500'/>
-    <enumeration value='baenet_Not Implemented' bdem:id='501'/>
-    <enumeration value='baenet_Bad Gateway' bdem:id='502'/>
-    <enumeration value='baenet_Service Unavailable' bdem:id='503'/>
-    <enumeration value='baenet_Gateway Time-out' bdem:id='504'/>
-    <enumeration value='baenet_HTTP Version not supported' bdem:id='505'/>
-  </restriction>
-</simpleType>
-
 <simpleType name='HttpStatusCodeCategory'>
   <restriction base='string'>
     <enumeration value='Informational' bdem:id='1'>
@@ -160,7 +115,7 @@
 <sequence>
     <element name='MajorVersion' type='int' default='1'/>
     <element name='MinorVersion' type='int' default='1'/>
-    <element name='Status-Code' type='http:HttpStatusCode'/>
+    <element name='Status-Code' type='int' default='200'/>
     <element name='Reason-Phrase' type='string'/>
 </sequence>
 </complexType>
