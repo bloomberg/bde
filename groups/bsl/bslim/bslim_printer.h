@@ -433,6 +433,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointer.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -545,6 +549,39 @@ class Printer {
         // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
         // undefined if 'TYPE' is a 'char *', but not a null-terminated string.
 
+    template <class TYPE>
+    void printAttribute(const char *name, const TYPE& data) const;
+        // Format to the output stream supplied at construction the specified
+        // 'data', prefixed by the specified 'name'.  Format 'data' based on
+        // the parameterized 'TYPE':
+        //
+        //: o If 'TYPE' is a fundamental type, output 'data' to the stream.
+        //:
+        //: o If 'TYPE' is a pointer type (other than 'char *' or 'void *'),
+        //:   print the address value of 'data' in hexadecimal format, then
+        //:   format the object at that address if 'data' is not 0, and print
+        //:   the string "NULL" otherwise.  There will be a compile-time error
+        //:   if 'data' is a pointer to a user-defined type that does not
+        //:   provide a standard 'print' method.
+        //:
+        //: o If 'TYPE' is 'char *', print 'data' to the stream as a null-
+        //:   terminated C-style string enclosed in quotes if 'data' is not 0,
+        //:   and print the string "NULL" otherwise.
+        //:
+        //: o If 'TYPE' is 'void *', print the address value of 'data' in
+        //:   hexadecimal format if it is not 0, and print the string "NULL"
+        //:   otherwise.
+        //:
+        //: o If 'TYPE' is any other type, call the standard 'print' method on
+        //:   'data', specifying one additional level of indentation than the
+        //:   current one.  There will be a compile-time error if 'TYPE' does
+        //:   not provide a standard 'print' method.
+        //
+        // If 'spacesPerLevel() < 0', format 'data' on a single line.
+        // If 'spacesPerLevel() >= 0', indent 'data' by
+        // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
+        // undefined if 'TYPE' is a 'char *', but not a null-terminated string.
+
     template <class TYPE, class PRINT_FUNCTOR>
     void printForeign(const TYPE&           data,
                       const PRINT_FUNCTOR&  printFunctionObject,
@@ -579,6 +616,38 @@ class Printer {
         // 'spacesPerLevel() >= 0', indent by
         // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
         // undefined unless 'TYPE' is a pointer type.
+
+    template <class TYPE>
+    void printValue(const TYPE& data) const;
+        // Format to the output stream supplied at construction the specified
+        // 'data'.  Format 'data' based on the parameterized 'TYPE':
+        //
+        //: o If 'TYPE' is a fundamental type, output 'data' to the stream.
+        //:
+        //: o If 'TYPE' is a pointer type (other than 'char *' or 'void *'),
+        //:   print the address value of 'data' in hexadecimal format, then
+        //:   format the object at that address if 'data' is not 0, and print
+        //:   the string "NULL" otherwise.  There will be a compile-time error
+        //:   if 'data' is a pointer to a user-defined type that does not
+        //:   provide a standard 'print' method.
+        //:
+        //: o If 'TYPE' is 'char *', print 'data' to the stream as a null-
+        //:   terminated C-style string enclosed in quotes if 'data' is not 0,
+        //:   and print the string "NULL" otherwise.
+        //:
+        //: o If 'TYPE' is 'void *', print the address value of 'data' in
+        //:   hexadecimal format if it is not 0, and print the string "NULL"
+        //:   otherwise.
+        //:
+        //: o If 'TYPE' is any other type, call the standard 'print' method on
+        //:   'data', specifying one additional level of indentation than the
+        //:   current one.  There will be a compile-time error if 'TYPE' does
+        //:   not provide a standard 'print' method.
+        //
+        // If 'spacesPerLevel() < 0', format 'data' on a single line.
+        // If 'spacesPerLevel() >= 0', indent 'data' by
+        // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
+        // undefined if 'TYPE' is a 'char *', but not a null-terminated string.
 
     int spacesPerLevel() const;
         // Return the number of whitespace characters to output for each
@@ -939,6 +1008,13 @@ void Printer::print(const TYPE& data, const char *name) const
                           d_spacesPerLevel);
 }
 
+template <class TYPE>
+void Printer::printAttribute(const char *name, const TYPE& data) const
+{
+    BSLS_ASSERT_SAFE(name != 0);
+    print(data, name);
+}
+
 template <class TYPE, class PRINT_FUNCTOR>
 void Printer::printForeign(const TYPE&           data,
                            const PRINT_FUNCTOR&  printFunctionObject,
@@ -1031,6 +1107,12 @@ void Printer::printOrNull<volatile void *>(volatile void *const&  address,
 {
     const volatile void *const& temp = address;
     printOrNull(temp, name);
+}
+
+template <class TYPE>
+void Printer::printValue(const TYPE& data) const
+{
+    print(data, 0);
 }
 
                         // ---------------------
