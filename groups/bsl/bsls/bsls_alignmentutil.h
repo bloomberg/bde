@@ -188,9 +188,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_CLIMITS
-#include <climits>           // 'INT_MAX'
-#define INCLUDED_CLIMITS
+#ifndef INCLUDED_LIMITS
+#include <limits>           // 'std::numeric_limits'
+#define INCLUDED_LIMITS
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -297,8 +297,11 @@ struct bsls_AlignmentUtil {
     static int roundUpToMaximalAlignment(std::size_t size);
         // Return the specified 'size' (in bytes) rounded up to the smallest
         // integral multiple of the maximum alignment.  The behavior is
-        // undefined unless '0 <= size' and
-        // 'size <= INT_MAX - BSLS_MAX_ALIGNMENT + 1'.
+        // undefined unless '0 <= size' and 'size' satisfies:
+        //..
+        //  size <= std::numeric_limits<std::size_t>::max()
+        //          - BSLS_MAX_ALIGNMENT + 1
+        //..
 };
 
 // ============================================================================
@@ -416,7 +419,8 @@ inline
 int bsls_AlignmentUtil::roundUpToMaximalAlignment(std::size_t size)
 {
     BSLS_ASSERT_SAFE(0 <= size);
-    BSLS_ASSERT_SAFE(     size <= INT_MAX - BSLS_MAX_ALIGNMENT + 1);
+    BSLS_ASSERT_SAFE(     size <= std::numeric_limits<std::size_t>::max()
+                                  - BSLS_MAX_ALIGNMENT + 1);
 
     return ((size + BSLS_MAX_ALIGNMENT - 1) / BSLS_MAX_ALIGNMENT)
                                                           * BSLS_MAX_ALIGNMENT;

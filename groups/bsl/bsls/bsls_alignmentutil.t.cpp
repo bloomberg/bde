@@ -45,12 +45,12 @@ using namespace std;
 // [ 2] static MaxAlignedType
 //
 // CLASS METHODS
-// [ 3] static int calculateAlignmentFromSize(int size);
+// [ 3] static int calculateAlignmentFromSize(std::size_t size);
 // [ 4] static int calculateAlignmentOffset(void *, int);
 // [ 5] static bool is2ByteAligned(const void *);
 // [ 5] static bool is4ByteAligned(const void *);
 // [ 5] static bool is8ByteAligned(const void *);
-// [ 6] static int roundUpToMaximalAlignment(int size);
+// [ 6] static int roundUpToMaximalAlignment(std::size_t);
 //-----------------------------------------------------------------------------
 // [ 7] USAGE EXAMPLE -- Ensure the usage example compiles and works.
 //=============================================================================
@@ -143,7 +143,7 @@ struct Test8BytesAlignedType {
 // We can implement the 'naturallyAlign' helper function easily using the
 // methods defined in this class:
 //..
-    void *naturallyAlign(void **currentAddress, int size)
+    void *naturallyAlign(void **currentAddress, std::size_t size)
     {
         int   alignment = bsls_AlignmentUtil::calculateAlignmentFromSize(size);
         int   offset    = bsls_AlignmentUtil::calculateAlignmentOffset(
@@ -376,7 +376,7 @@ int main(int argc, char *argv[])
         //   argument up to the nearest multiple of 'sizeof(MaxAlign)'.
         //
         // Testing:
-        //   static int roundUpToMaximalAlignment(int size);
+        //   static int roundUpToMaximalAlignment(std::size size);
         // --------------------------------------------------------------------
 
         ASSERT(0 == Class::roundUpToMaximalAlignment(0));
@@ -589,7 +589,7 @@ int main(int argc, char *argv[])
                                                                       ALIGN);
                     LOOP_ASSERT(LINE, bsls_AssertTest::tryProbe(RESULT));
 
-//                    LOOP4_ASSERT(LINE, SIZE, ALIGN, a, ALIGN == a);
+//                  LOOP4_ASSERT(LINE, ADDRESS, ALIGN, a, ALIGN == a);
                 }
                 catch (const bsls_AssertTestException& e) {
                     LOOP_ASSERT(LINE, bsls_AssertTest::catchProbe(RESULT,
@@ -623,7 +623,7 @@ int main(int argc, char *argv[])
         //   Area test over meaningful range of inputs.
         //
         // Testing:
-        //   int bsls_AlignmentUtil::calculateAlignmentFromSize(int);
+        //   int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
