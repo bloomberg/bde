@@ -7,13 +7,11 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#include <limits.h>
+#include <bsl_limits.h>
 
-#if   defined(BCES_PLATFORM__POSIX_THREADS)
+#if    defined(BCES_PLATFORM__POSIX_THREADS)
 # include <pthread.h>
-#elif defined(BCES_PLATFORM__WIN32_THREADS)
-# include <windows.h>
-#else
+#elif !defined(BCES_PLATFORM__WIN32_THREADS)
 # error unrecognized threading platform
 #endif
 
@@ -27,8 +25,8 @@ namespace BloombergLP {
 
 int bcemt_Default::defaultThreadStackSize()
 {
-    if (!defaultThreadStackSizeSet) {
-        defaultThreadStackSize = bcemt_Default::nativeDefaultThreadStackSize();
+    if (0 == defaultThreadStackSizeSet) {
+        defaultThreadStackSize = nativeDefaultThreadStackSize();
         defaultThreadStackSizeSet = true;
     }
 
@@ -40,24 +38,28 @@ int bcemt_Default::nativeDefaultThreadStackSize()
 #ifdef BCES_PLATFORM__POSIX_THREADS
 # ifndef BSLS_PLATFORM__OS_SOLARIS
 
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
-    bsl::size_t threadStackSize;
-    int rc = pthread_attr_getstacksize(&attr, &threadStackSize);
-    BSLS_ASSERT(0 == rc);
-    pthread_attr_destroy(&attr);
+    bsl::size_t threadStackSize = 0;
 
-#   ifdef PTHREAD_STACK_MIN
+    {
+        pthread_attr_t attr;
+
+        pthread_attr_init(&attr);
+        int rc = pthread_attr_getstacksize(&attr, &threadStackSize);
+        BSLS_ASSERT(0 == rc);
+        pthread_attr_destroy(&attr);
+    }
+
+#  ifdef PTHREAD_STACK_MIN
     BSLS_ASSERT(threadStackSize >= PTHREAD_STACK_MIN);
-#   else
+#  endif
+
     BSLS_ASSERT(threadStackSize > 0);
-#   endif
-    BSLS_ASSERT(threadStackSize <= INT_MAX);
+    BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(INT_MAX));
 
     return threadStackSize;
 
 # else
-    // Solaris
+    // Solaris -- 1 megabyte on 32 bit, 2 megabytes on 64 bit
 
     enum { SOLARIS_DEFAULT_STACK_SIZE = 256 * 1024 * sizeof(void *) };
     return SOLARIS_DEFAULT_STACK_SIZE;
@@ -66,13 +68,15 @@ int bcemt_Default::nativeDefaultThreadStackSize()
 #else
     // Windows
 
-    enum { WINDOWS_DEFAULT_STACK_SIZE = 0x100000 };
+    enum { WINDOWS_DEFAULT_STACK_SIZE = 0x100000 };    // 1 megabyte always
     return WINDOWS_DEFAULT_STACK_SIZE;
 #endif
 }
 
 int bcemt_Default::recommendedDefaultThreadStackSize()
 {
+    // 1 megabyte on 32 bit, 2 megabytes on 64 bit, constant across platforms
+
     enum { RECOMMENDED_DEFAULT_STACKSIZE = 256 * 1024 * sizeof(void *) };
     return RECOMMENDED_DEFAULT_STACKSIZE;
 }
@@ -83,8 +87,8 @@ void bcemt_Default::setDefaultThreadStackSize(int stackSize)
         // TBD: do we want to do this?  In 'bcemt_threadattributes.h' is says
         // if the stack size of an attribute is set to a negative value the
         // platform's default should be used.  I think we should stick with
-        // this and avoid ever having a ridiculous value for the default thread
-        // stack size.
+        // this and avoid ever having a ridiculous value returned by
+        // 'defaultThreadStackSize'.
 
         stackSize = nativeDefaultThreadStackSize();
     }
