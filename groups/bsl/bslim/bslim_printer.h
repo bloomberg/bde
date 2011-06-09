@@ -70,12 +70,12 @@ BSLS_IDENT("$Id: $")
 // as described above.  'Printer' objects are instantiated with the target
 // stream to be written to, and the values of the indentation level of the
 // data, 'level', and the spaces per level, 'spacesPerLevel'.  The methods
-// provided by 'Printer', 'print', 'printOrNull', 'printHexAddr' and
-// 'printForeign', use these values for formatting.  The 'start' and 'end'
-// methods print the enclosing brackets of the output.  In order to generate
-// the standard output format, 'start' should be called before any of the other
-// methods, and 'end' should be called after all the other methods have been
-// called.
+// provided by 'Printer', 'printAttribute', 'printValue', 'printOrNull',
+// 'printHexAddr' and 'printForeign', use these values for formatting.  The
+// 'start' and 'end' methods print the enclosing brackets of the output.  In
+// order to generate the standard output format, 'start' should be called
+// before any of the other methods, and 'end' should be called after all the
+// other methods have been called.
 //
 ///Usage
 ///-----
@@ -119,8 +119,8 @@ BSLS_IDENT("$Id: $")
 //
 //      bslim::Printer printer(&stream, level, spacesPerLevel);
 //      printer.start();
-//      printer.print(d_timestamp, "timestamp");
-//      printer.print(d_processID, "process ID");
+//      printer.printAttribute("timestamp", d_timestamp);
+//      printer.printAttribute("process ID", d_processID);
 //      printer.end();
 //
 //      return stream;
@@ -269,8 +269,8 @@ BSLS_IDENT("$Id: $")
 //
 //      Printer printer(&stream, level, spacesPerLevel);
 //      printer.start();
-//      printer.print(obj.getAttribute1(), "Attribute1");
-//      printer.print(obj.getAttribute2(), "Attribute2");
+//      printer.printAttribute("Attribute2", obj.getAttribute1());
+//      printer.printAttribute("Attribute2", obj.getAttribute2());
 //      printer.end();
 //
 //      return stream;
@@ -309,7 +309,7 @@ BSLS_IDENT("$Id: $")
 //      printer.printForeign(d_attributeA,
 //                           &ThirdPartyClassUtil::print,
 //                           "AttributeA");
-//      printer.print(d_attributeB, "AttributeB");
+//      printer.printAttribute("AttributeB", d_attributeB);
 //      printer.end();
 //
 //      return stream;

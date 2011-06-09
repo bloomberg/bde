@@ -207,8 +207,8 @@ bsl::ostream& RecordAttributes::print(bsl::ostream& stream,
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.print(d_timestamp, "timestamp");
-    printer.print(d_processID, "process ID");
+    printer.printAttribute("timestamp", d_timestamp);
+    printer.printAttribute("process ID", d_processID);
     printer.end();
 
     return stream;
@@ -304,8 +304,8 @@ ThirdPartyClassUtil::print(bsl::ostream&          stream,
 
     Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.print(obj.getAttribute1(), "Attribute1");
-    printer.print(obj.getAttribute2(), "Attribute2");
+    printer.printAttribute("Attribute2", obj.getAttribute1());
+    printer.printAttribute("Attribute2", obj.getAttribute2());
     printer.end();
 
     return stream;
@@ -338,7 +338,7 @@ bsl::ostream& MyClass::print(bsl::ostream& stream,
     printer.printForeign(d_attributeA,
                          &ThirdPartyClassUtil::print,
                          "AttributeA");
-    printer.print(d_attributeB, "AttributeB");
+    printer.printAttribute("AttributeB", d_attributeB);
     printer.end();
 
     return stream;
@@ -419,7 +419,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -435,7 +435,7 @@ int main(int argc, char *argv[])
                                   << "===============" << endl;
 
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING EXCEPTION NEUTRALITY
         //
@@ -460,7 +460,7 @@ int main(int argc, char *argv[])
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING 'printForeign'
         //
@@ -576,7 +576,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING 'printHexAddr'
         //
@@ -684,7 +684,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING 'printHexAddr' (indentation and name)
         //
@@ -754,7 +754,7 @@ int main(int argc, char *argv[])
             LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING 'printOrNull' (null pointers)
         //
@@ -884,7 +884,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING CLASS METHODS: 'printOrNull' (non-null pointer types)
         //
@@ -1142,7 +1142,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING 'printOrNull' (indentation and name)
         //
@@ -1199,6 +1199,67 @@ int main(int argc, char *argv[])
 
             char buf[999];
             snprintf(buf, 999, DATA[i].d_expected.c_str(), *data);
+            const bsl::string EXPECTED(buf);
+            const bsl::string& ACTUAL = out.str();
+
+            if (veryVeryVerbose) {
+                cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
+                     << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+            }
+            LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'print' (null pointers)
+        //
+        // Concerns:
+        //: 1 That 'printAttribute' and 'printValue' call 'print' correctly.
+        //
+        // Plan:
+        //: 1 Create a table having fields for line number, level, spaces per
+        //:   level, and expected output when 'printAttribute' and
+        //:   'printValue' are called.  For each set of values in the table,
+        //:   ensure that the actual outputs are the same as the expected
+        //:   outputs.
+        //
+        // Testing:
+        //   template<class TYPE>
+        //   void printAttribute(const char *name, const TYPE& data) const;
+        //   template<class TYPE>
+        //   void printValue(const TYPE& data) const;
+        // --------------------------------------------------------------------
+        if (verbose)
+        cout << endl
+             << "TESTING 'printAttribute' and 'printValue'" << endl
+             << "=========================================" << endl;
+        static const struct {
+            int         d_lineNum;        // source line number
+            int         d_level;          // indentation level
+            int         d_spacesPerLevel; // spaces per indentation level
+            bsl::string d_expected;       // expected output format
+        } DATA[] = {
+            //LINE  LEVEL SPL EXPECTED OUTPUT
+            //----  ----- --- ---------------
+            { L_,    2,    3, "         data = %d\n         %d\n" },
+            { L_,    2,   -3, " data = %d %d"                     },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA;  ++i) {
+            const int LINE  = DATA[i].d_lineNum;
+            int LEVEL = DATA[i].d_level;
+            int SPL   = DATA[i].d_spacesPerLevel;
+
+            if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
+
+            ostringstream out;
+            int data = 448992;
+            Obj p(&out, LEVEL, SPL);
+            p.printAttribute("data", data); p.printValue(data);
+
+            char buf[999];
+            snprintf(buf, 999, DATA[i].d_expected.c_str(), data, data);
             const bsl::string EXPECTED(buf);
             const bsl::string& ACTUAL = out.str();
 
