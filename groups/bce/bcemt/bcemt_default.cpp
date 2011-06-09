@@ -3,6 +3,7 @@
 
 #include <bces_platform.h>
 
+#include <bslmf_assert.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -19,18 +20,18 @@
 BDES_IDENT_RCSID(bcemt_default_cpp,"$Id$ $CSID$")
 
 static bool defaultThreadStackSizeSet = false;
-static int  defaultThreadStackSize;
+static int  defaultThreadStackSizeValue;
 
 namespace BloombergLP {
 
 int bcemt_Default::defaultThreadStackSize()
 {
     if (0 == defaultThreadStackSizeSet) {
-        defaultThreadStackSize = nativeDefaultThreadStackSize();
+        defaultThreadStackSizeValue = nativeDefaultThreadStackSize();
         defaultThreadStackSizeSet = true;
     }
 
-    return defaultThreadStackSize;
+    return defaultThreadStackSizeValue;
 }
 
 int bcemt_Default::nativeDefaultThreadStackSize()
@@ -77,6 +78,10 @@ int bcemt_Default::recommendedDefaultThreadStackSize()
 {
     // 1 megabyte on 32 bit, 2 megabytes on 64 bit, constant across platforms
 
+#ifdef PTHREAD_STACK_MIN
+    BSLMF_ASSERT(RECOMMENDED_DEFAULT_STACKSIZE >= PTHREAD_STACK_MIN);
+#endif
+
     enum { RECOMMENDED_DEFAULT_STACKSIZE = 256 * 1024 * sizeof(void *) };
     return RECOMMENDED_DEFAULT_STACKSIZE;
 }
@@ -100,7 +105,7 @@ void bcemt_Default::setDefaultThreadStackSize(int stackSize)
     }
 #endif
 
-    defaultThreadStackSize = stackSize;
+    defaultThreadStackSizeValue = stackSize;
     defaultThreadStackSizeSet = true;
 }
 
