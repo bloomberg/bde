@@ -260,10 +260,17 @@ class btemt_Channel {
     int                             d_outgoingFlag;          // outgoingMsg
                                                              // is loaded
 
-    int                             d_writeCacheSize;        // number of bytes
+    int                             d_enqueuedWriteCacheSize;// number of bytes
                                                              // currently
                                                              // enqueued for
-                                                             // write
+                                                             // write in
+                                                             // d_outgoingBlob
+
+    volatile int                    d_writeMsgCacheSize;     // number of bytes
+                                                             // currently
+                                                             // being written
+                                                             // (or in
+                                                             // d_outgoingMsg) 
 
     volatile bool                   d_hiWatermarkHitFlag;    // already full
 
@@ -1703,10 +1710,10 @@ void btemt_Channel::writeCb(ChannelHandle self)
             bcemt_LockGuard<bcemt_Mutex> oGuard(&d_outgoingMutex);
 
             d_numBytesWritten += writeRet;
-            d_writeCacheSize -= writeRet;
-            if (d_hiWatermarkHitFlag &&
-                    d_writeCacheSize <= d_writeCacheLowWat)
-            {
+            d_writeMsgCacheSize -= writeRet;
+
+            if (d_hiWatermarkHitFlag && d_enqueuedWriteCacheSize
+                                 + d_writeMsgCacheSize <= d_writeCacheLowWat) {
                 d_hiWatermarkHitFlag = false;
                 oGuard.release()->unlock();
                 d_channelStateCb(d_channelId, d_sourceId,
@@ -1814,7 +1821,8 @@ btemt_Channel::btemt_Channel(
 , d_currentMsg()
 , d_minBytesBeforeNextCb(config.minIncomingMessageSize())
 , d_outgoingFlag(0)
-, d_writeCacheSize(0)
+, d_enqueuedWriteCacheSize(0)
+, d_writeMsgCacheSize(0)
 , d_hiWatermarkHitFlag(false)
 , d_channelType(channelType)
 , d_enableReadFlag(false)
@@ -2021,20 +2029,22 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
 
     d_numBytesRequestedToBeWritten += dataLength;
 
+    const int writeCacheSize = d_enqueuedWriteCacheSize + d_writeMsgCacheSize;
+
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                       d_writeCacheSize > d_writeCacheHiWat)) {
+                                         writeCacheSize > d_writeCacheHiWat)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return CACHE_HIWAT;
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                        d_writeCacheSize > enqueueWatermark)) {
+                                          writeCacheSize > enqueueWatermark)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return ENQUEUE_WAT;
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                          d_writeCacheSize + dataLength > d_writeCacheHiWat)) {
+                            writeCacheSize + dataLength > d_writeCacheHiWat)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         if(!d_hiWatermarkHitFlag) {
             d_hiWatermarkHitFlag = true;
@@ -2061,8 +2071,6 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    d_writeCacheSize += dataLength;
-
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 == d_outgoingFlag)) {
         // This message is the first and only in the outgoing queue.  Note that
         // if 'blob' were a 'bcema_SharedPtr<bcema_Blob> msg' instead, we could
@@ -2086,23 +2094,16 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         BSLS_ASSERT(0 == d_outgoingMsg.userDataField1());
         BSLS_ASSERT(0 == d_outgoingMsg.userDataField2());
 
+        d_writeMsgCacheSize += dataLength;
+
         oGuard.release()->unlock();
 
         // Let's first attempt to write the blob directly using iovec.
         int writeRet = MessageUtil::write(this->socket(), d_ovecs, msg);
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < writeRet)) {
-            // After completing the write we need to update the shared
-            // variable d_writeCacheSize (but not d_numBytesWritten).  But we
-            // gave up the lock before we called 'write' so we need to
-            // reacquire it.  Note that 'd_outgoingMsg' is guarded by the flag
-            // 'd_outgoingFlag' which is updated only in 'refillOutgoingMsg'.
 
             d_numBytesWritten += writeRet;
-
-            bcemt_LockGuard<bcemt_Mutex> innerGuard(&d_outgoingMutex);
-
-            d_writeCacheSize -= writeRet;
         }
         else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == writeRet) {
             // In case writeRet < 0, then either the socket is dead, or would
@@ -2122,6 +2123,8 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
             notifyChannelDown(self, bteso_Flag::BTESO_SHUTDOWN_SEND, false);
             return CHANNEL_DOWN;
         }
+
+        d_writeMsgCacheSize -= writeRet;
 
         if (dataLength == writeRet) {
             // We succeeded in writing the whole message.  We did release the
@@ -2166,6 +2169,8 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
+    d_enqueuedWriteCacheSize += dataLength;
+
     // There are already outgoing messages in the 'd_outgoingMsg' and perhaps
     // 'd_outgoingBlob', so we simply have to append those buffers into
     // 'd_outgoingBlob'.  Note that we are still holding the lock.
@@ -2197,7 +2202,10 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
 
     // Generate a 'HIWAT' alert if the new cache size limit is smaller than the
     // existing cache size and a 'HIWAT' alert has not already been generated.
-    if (!d_hiWatermarkHitFlag && d_writeCacheSize >= numBytes) {
+    
+    const int writeCacheSize = d_enqueuedWriteCacheSize + d_writeMsgCacheSize;
+
+    if (!d_hiWatermarkHitFlag && writeCacheSize >= numBytes) {
         d_hiWatermarkHitFlag = true;
         bdef_Function<void (*)()> functor(bdef_BindUtil::bindA(
                     d_allocator_p
@@ -2209,13 +2217,14 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
 
         d_eventManager_p->execute(functor);
     }
-    else if (d_writeCacheSize < numBytes) {
+    else if (writeCacheSize < numBytes) {
         // Otherwise, if the write cache size limit is now greater than the
         // current cache size, clear the hi-watermark hit flag so additional
         // alerts will be generated.
 
         d_hiWatermarkHitFlag = false;
     }
+
     d_writeCacheHiWat = numBytes;
     return 0;
 }
