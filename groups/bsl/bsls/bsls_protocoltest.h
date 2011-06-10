@@ -79,25 +79,25 @@ BSLS_IDENT("$Id: $")
 //..
 // // --------------------------------------------------------------------
 // // PROTOCOL TEST:
-// //   Test the conformance of MyInterface to the protocol concerns.
+// //   Test the conformance of 'MyInterface' to the protocol concerns.
 // //
 // // Concerns:
-// //: 1 MyInterface protocol is an abstract class, i.e., no objects of
-// //:   MyInterface protocol class can be created
-// //: 2 MyInterface hos no data members
-// //: 3 all methods of MyInterface are pure virtual
-// //: 4 MyInterface has a pure virtual destructor
-// //: 5 all methods of MyInterface are publicly accessible
+// //: 1 'MyInterface' protocol is an abstract class, i.e., no objects of
+// //:   'MyInterface' protocol class can be created
+// //: 2 'MyInterface' has no data members
+// //: 3 all methods of 'MyInterface' are pure virtual
+// //: 4 'MyInterface' has a pure virtual destructor
+// //: 5 all methods of 'MyInterface' are publicly accessible
 // //
 // // Plan:
 // //  Use 'bsl_ProtocolTest' component to test the following subset of the
-// //  MyInterface protocol concerns:
-// //: 1 MyInterface protocol is an abstract class, i.e., no objects of
-// //:   MyInterface protocol class can be created
-// //: 2 MyInterface hos no data members
-// //: 3 each of the known and tested methods of MyInterface is virtual
-// //: 4 MyInterface has a virtual destructor
-// //: 5 each of the known and tested methods of MyInterface is publicly
+// //  'MyInterface' protocol concerns:
+// //: 1 'MyInterface' protocol is an abstract class, i.e., no objects of
+// //:   'MyInterface' protocol class can be created
+// //: 2 'MyInterface' has no data members
+// //: 3 each of the known and tested methods of 'MyInterface' is virtual
+// //: 4 'MyInterface' has a virtual destructor
+// //: 5 each of the known and tested methods of 'MyInterface' is publicly
 // //    accessible
 // // --------------------------------------------------------------------
 //..
@@ -668,33 +668,20 @@ bool bsls_ProtocolTest<BSLS_TESTIMP>::testVirtualDestructor()
     trace("test if the protocol has a virtual destructor");
     startTest();
 
-    union InPlaceObject {
-        char  buffer[sizeof(bsls_ProtocolTest_Dtor<BSLS_TESTIMP>)];
-        void *alignment;
+    // Can't use an automatic buffer and the placement new for an object of
+    // type bsls_ProtocolTest_Dtor<BSLS_TESTIMP> here, because bslma_Allocator
+    // defines its own placement new, making it impossible to test
+    // bslma_Allocator protocol this way.
 
-        bsls_ProtocolTest_Dtor<BSLS_TESTIMP> *object()
-        {
-            return reinterpret_cast<bsls_ProtocolTest_Dtor<BSLS_TESTIMP> *>(
-                                             reinterpret_cast<void *>(buffer));
-        }
+    // Prepare a test
+    bsls_ProtocolTest_Dtor<BSLS_TESTIMP> * obj =
+                                    new bsls_ProtocolTest_Dtor<BSLS_TESTIMP>();
+    BSLS_TESTIMP * base = obj;
+    obj->setTestStatus(&d_status);
 
-        BSLS_TESTIMP *impl()
-        {
-            return object();
-        }
-    };
-
-    InPlaceObject o;
-
-    // Prepare a test object by manually creating it in-place.
-
-    new (o.object()) bsls_ProtocolTest_Dtor<BSLS_TESTIMP>();
-    o.object()->setTestStatus(&d_status);
-
-    // Perform the test.
-
-    o.object()->markEnter();
-    o.impl()->~BSLS_TESTIMP();
+    // Run the test.
+    obj->markEnter();
+    delete base;
 
     // 'bsls_ProtocolTest_Dtor::~bsls_ProtocolTest_Dtor' will be called only if
     // the destructor was declared 'virtual' in the interface, but
