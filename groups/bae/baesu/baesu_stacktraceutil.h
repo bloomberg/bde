@@ -118,7 +118,7 @@ BDES_IDENT("$Id: $")
 //          int numAddresses = baesu_StackAddressUtil::getStackAddresses(
 //                                                               addresses,
 //                                                               ARRAY_LENGTH);
-//	    assert(numAddresses <= ARRAY_LENGTH);
+//          assert(numAddresses <= ARRAY_LENGTH);
 //..
 // Next we call 'loadStackTraceFrameAddressArray' to initialize the information
 // in the stack trace object, such as function names, source file names, and
