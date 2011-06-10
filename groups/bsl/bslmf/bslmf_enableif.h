@@ -21,17 +21,29 @@ BSLS_IDENT("$Id: $")
 // fail in a way compatible with the C++ SFINAE rules, and so remove that
 // (potential) instantiation as a candidate from the overload set.
 //
+///Visual Studio Workaround
+///------------------------
+// Because of a bug, documented here:
+// http://connect.microsoft.com/VisualStudio/feedback/details/332179/
+// The Visual Studio compiler may not correctly associate a function
+// declaration that uses 'bslmf_EnableIf' with that functions definition, if
+// the definition is not inline to the declaration.   This bug effects at
+// least Visual Studio 2008 and 2010.  The work-around is to implement
+// functions using 'bslmf_EnableIf' in-line with their declaration.
+//
 ///Usage
-//------
+///-----
 // The following snippets of code illustrate basic use of the 'bslmf_EnableIf'
 // meta-function.  We will demonstrate how to use this utility to control
 // overload sets with three increasingly complex examples. 
 //
+///Example 1: Implementing a Simple Function with 'bslmf_EnableIf'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For the first example we will implement a simple 'Swap' function template
 // to exchange two arbitrary values, as if declared as below:
 //..
 //  template<class T>
-//  void DummySwap(T& a, T&b)
+//  void DummySwap(T& a, T& b)
 //      // Exchange the values of the specified objects, 'a' and 'b'.
 //  {
 //      T temp(a);
@@ -47,7 +59,8 @@ BSLS_IDENT("$Id: $")
 //  template<class T>
 //  struct HasMemberSwap {
 //      // This traits class indicates whether the specified template type
-//      // paramater 'T' has a public 'swap' method to exchange values.
+//      // parameter 'T' has a public 'swap' method to exchange values.
+//
 //      static const bool VALUE = false;
 //  };
 //..
@@ -67,14 +80,14 @@ BSLS_IDENT("$Id: $")
 // difference between two declarations.
 //..
 //  template<class T>
-//  typename  bslmf_EnableIf<HasMemberSwap<T>::VALUE>::type
+//  typename bslmf_EnableIf<HasMemberSwap<T>::VALUE>::type
 //  Swap(T& a, T& b)
 //  {
 //      a.swap(b);
 //  }
 //
 //  template<class T>
-//  typename  bslmf_EnableIf<not HasMemberSwap<T>::VALUE>::type
+//  typename bslmf_EnableIf<not HasMemberSwap<T>::VALUE>::type
 //  Swap(T& a, T& b)
 //  {
 //      T temp(a);
@@ -89,11 +102,13 @@ BSLS_IDENT("$Id: $")
 //  template<class T>
 //  class MyContainer {
 //      // This is a simple container implementation for demonstration purposes
-//      // that is modelled after 'std::vector'.
-//      T *d_storage;
-//      std::size_t d_length;
+//      // that is modeled after 'std::vector'.
 //
-//      // Copy operations are declared private and not defined.
+//      // DATA
+//      T           *d_storage;
+//      std::size_t  d_length;
+//
+//      // NOT IMPLEMENTED
 //      MyContainer(const MyContainer&);
 //      MyContainer& operator=(const MyContainer&);
 //
@@ -172,19 +187,22 @@ BSLS_IDENT("$Id: $")
 //  {
 //      MyContainer<int> x(3, 14);
 //      MyContainer<int> y(2, 78);
-//      ASSERT(14 == x.size());
-//      ASSERT( 3 == x.front());
-//      ASSERT(78 == y.size());
-//      ASSERT( 2 == y.front());
+//      assert(14 == x.size());
+//      assert( 3 == x.front());
+//      assert(78 == y.size());
+//      assert( 2 == y.front());
 //
 //      Swap(x, y);
 //
-//      ASSERT(78 == x.size());
-//      ASSERT( 2 == x.front());
-//      ASSERT(14 == y.size());
-//      ASSERT( 3 == y.front());
+//      assert(78 == x.size());
+//      assert( 2 == x.front());
+//      assert(14 == y.size());
+//      assert( 3 == y.front());
 //  }
 //..
+//
+///Example 2: Using the 'bslmf_EnableIf' Result Type
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // For the next example, we will demonstrate the use of the second template
 // parameter in the 'bslmf_EnableIf' template, which serves as the "result"
 // type if the test condition passes.  Assume we want to write a generic
@@ -213,7 +231,7 @@ BSLS_IDENT("$Id: $")
 //                          TO>::type *
 //  smart_cast(FROM *from)
 //      // Return the specified 'from' pointer value cast as a pointer to type
-//      // 'TO'.  Behvior is undefined unless such a conversion is valid.
+//      // 'TO'.  Behavior is undefined unless such a conversion is valid.
 //  {
 //      return static_cast<TO *>(from);
 //  }
@@ -261,15 +279,18 @@ BSLS_IDENT("$Id: $")
 //      B *pB2 = smart_cast<B>(pC);
 //      C *pC2 = smart_cast<C>(pB);
 //
-//      ASSERT(&object == pA2);
-//      ASSERT(&object == pB2);
-//      ASSERT(&object == pC2);
+//      assert(&object == pA2);
+//      assert(&object == pB2);
+//      assert(&object == pC2);
 //
 //      // These lines would fail to compile
 //      // A *pA3 = smart_cast<A>(pB);
 //      // C *pC3 = smart_cast<C>(pA);
 //  }
 //..
+//
+///Example 3: Controlling Constructor Selection with 'bslmf_EnableIf'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The final example demonstrates controlling the selection of a constructor
 // template in a class with (potentially) many constructors.  We define a
 // simple container template based on 'std::vector', that illustrates a problem
@@ -291,11 +312,13 @@ BSLS_IDENT("$Id: $")
 //  template<class T>
 //  class MyVector {
 //      // This is a simple container implementation for demonstration purposes
-//      // that is modelled after 'std::vector'.
-//      T *d_storage;
-//      std::size_t d_length;
+//      // that is modeled after 'std::vector'.
+// 
+//      // DATA
+//      T           *d_storage;
+//      std::size_t  d_length;
 //
-//      // Copy operations are declared private and not defined.
+//      // NOT IMPLEMENTED
 //      MyVector(const MyVector&);
 //      MyVector& operator=(const MyVector&);
 //
@@ -326,8 +349,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that there is no easy test for whether a type is an iterator, so we
 // assume any attempt to call a constructor with two arguments that are not
-// fundamental (such as int) must be pasing iterators.  Now that we have
-// defined the class template, we implent its methods:
+// fundamental (such as int) must be passing iterators.  Now that we have
+// defined the class template, we implement its methods:
 //..
 //  template<class T>
 //  MyVector<T>::MyVector(const T& value, int n)
@@ -385,14 +408,14 @@ BSLS_IDENT("$Id: $")
 //      const MyVector<unsigned int> x(&TEST_DATA[0], &TEST_DATA[5]);
 //      const MyVector<unsigned int> y(13, 42);
 //
-//      ASSERT(5 == x.size());
+//      assert(5 == x.size());
 //      for(int i = 0; i != 5; ++i) {
-//          ASSERT(TEST_DATA[i] == x[i]);
+//          assert(TEST_DATA[i] == x[i]);
 //      }
 //
-//      ASSERT(42 == y.size());
+//      assert(42 == y.size());
 //      for(int i = 0; i != 42; ++i) {
-//          ASSERT(13 == y[i]);
+//          assert(13 == y[i]);
 //      }
 //  }
 //..
@@ -409,13 +432,14 @@ struct bslmf_EnableIf {
     // This metafunction class defines a type alias, 'type', to the specified
     // type-parameter 'BSLMA_TYPE' if, and only if, 'BSLMA_CONDITION' is
     // 'true'.
+
     typedef BSLMA_TYPE type;
 };
 
 template<class BSLMA_TYPE>
 struct bslmf_EnableIf <false, BSLMA_TYPE> {
-    // This partial specialization of the metafnction class guarantees that no
-    // type alias 'type' is supplied when the specified boolean value is
+    // This partial specialization of the meta-function class guarantees that
+    // no type alias 'type' is supplied when the specified boolean value is
     // 'false'.  Note that this class definition is intentionally empty.
 };
 
@@ -431,4 +455,3 @@ struct bslmf_EnableIf <false, BSLMA_TYPE> {
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
-
