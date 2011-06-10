@@ -16,26 +16,32 @@ BDES_IDENT("$Id: $")
 //
 //@SEE ALSO: baesu_stacktraceutil
 //
-//@DESCRIPTION: This component defines a namespace class containing static
-// platform-independent functions that will print a stack trace to a supplied
-// stream.  Not all properties of a stack trace are printed on all platforms
-// because the set of properties describing a stack trace that are obtainable
-// varies according to the platform and build parameters.  For example, on
-// Solaris, Linux, and HP-UX, source file names and line numbers are not
-// provided.  Function names and addresses are provided on all platforms.  The
-// 'printStackTrace' function always prints a description of the stack of the
-// calling thread.
+//@DESCRIPTION: This component defines a namespace 'struct',
+// 'baesu_StackTracePrintUtil', containing static platform-independent
+// functions that will print a stack trace to a supplied stream.  Not all
+// properties of a stack trace are printed on all platforms because the set of
+// properties describing a stack trace that are obtainable varies according to
+// the platform and build parameters.  For example, on Solaris, Linux, and
+// HP-UX, source file names and line numbers are not provided.  Function names
+// and addresses are provided on all platforms.  The 'printStackTrace' function
+// always prints a description of the stack of the calling thread.
 //
-///Usage Example
-///-------------
-// The following examples illustrate how to print a stack trace.
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example: Printing a Stack Trace
+///- - - - - - - - - - - - - - - -
+// The following example illustrates how to print a stack trace.
 //
 // This example shows how to print a stack trace to a stream, by calling the
 // static function 'baesu_StackTraceUtil::printStackTrace'.
+//
+// First we define a recursive function 'recurseAndPrintStack':
 //..
 //  static
 //  void recurseAndPrintStack(int *depth)
-//      // First, recurse to the specified 'depth', then print out the stack
+//      // Now, recurse to the specified 'depth', then print out the stack
 //      // trace to 'cout'.
 //  {
 //      if (--*depth > 0) {
@@ -43,10 +49,10 @@ BDES_IDENT("$Id: $")
 //      }
 //      else {
 //..
-// Call 'printStackTrace' to print out a stack trace.  In this case, the
-// 'maxFrames' argument is unspecified, defaulting to 1000 (which is more than
-// we need) and the 'demanglingPreferredFlag' argument is unspecified,
-// defaulting to 'true'.
+// Now we invoke the function 'printStackTrace' to print out a stack trace.  In
+// this case, the 'maxFrames' argument is unspecified, defaulting to 1000
+// (which is more than we need) and the 'demanglingPreferredFlag' argument is
+// unspecified, defaulting to 'true'.
 //..
 //          baesu_StackTracePrintUtil::printStackTrace(cout);
 //      }
@@ -62,10 +68,10 @@ BDES_IDENT("$Id: $")
 //      assert(5 == depth);
 //  }
 //..
-// The following output is produced by this example on AIX (output for each
-// frame is single line -- note that the lines were longer than 80 chars, so
-// continuation is wrapped), and that the program name is truncated to 32
-// characters.
+// Finally, invoking the program in this example, on AIX, produces the
+// following output.  Output for each frame is single line.  Note that the
+// lines were longer than 80 chars, so continuation is wrapped, and that the
+// program name is truncated to 32 characters.
 //..
 //  (0): BloombergLP::baesu_StackTracePrintUtil::.printStackTrace(
 //                 std::basic_ostream<char,std::char_traits<char> >&,
@@ -151,15 +157,15 @@ struct baesu_StackTracePrintUtil {
                    // ====================================
 
 struct baesu_StackTracePrintUtil_Test {
-    // This 'struct' is not for use by clients of this component, it just
-    // exists for testing within this component.
+    // This 'struct' is not for use by clients of this component; it exists
+    // only for testing purposes.
 
     // CLASS METHODS
     static void printStackTraceToString(bsl::string *string);
         // Obtain a stack trace and assign a description of the stack to the
-        // specified 'string'.  Note that this is for testing only, and it must
-        // be inline in an include file to test source file name resolution of
-        // a routine in an include file.
+        // specified 'string'.  Note that this method is for testing only: it
+        // must be inline in an include file to test source file name
+        // resolution of a routine in an include file.
 };
 
 // ===========================================================================

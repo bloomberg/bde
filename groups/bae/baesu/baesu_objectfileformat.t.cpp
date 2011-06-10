@@ -2,6 +2,8 @@
 
 #include <baesu_objectfileformat.h>
 
+#include <bslmf_issame.h>
+
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>     // atoi()
 
@@ -57,6 +59,12 @@ static void aSsErT(int c, const char *s, int i)
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
 //=============================================================================
+// GLOBAL HELPER TYPES, CLASSES, and CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+typedef baesu_ObjectFileFormat          Obj;
+
+//=============================================================================
 //                    HELPER FUNCTIONS FOR USAGE EXAMPLE
 //=============================================================================
 
@@ -104,8 +112,10 @@ int typeTest(const baesu_ObjectFileFormat::Windows &)
 // process, any compile-time tests we come up with should probably reside
 // directly in the header or implementation file.
 //--------------------------------------------------------------------------
-// [ 1] Ensure that ThreadPolicy is set.
-// [ 1] Ensure that exactly one of each THREADS type is set.
+// [ 1] Ensure that if a 'RESOLVER' id is defined, it has the value '1'.
+// [ 2] Ensure that exactly one of the 'RESOLVER' ids is defined.
+// [ 3] That 'Obj::Policy' is appropriate for the platform.
+// [ 4] That 'Obj::Policy' is approrpiate for the 'RESOLVER' id.
 //==========================================================================
 
 int main(int argc, char *argv[]) {
@@ -116,53 +126,152 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 1: {
+      case 4: {
         // --------------------------------------------------------------------
-        // Usage Example:
-        //   Make sure that /baesu_ObjectFileFormat::ResolverPolicy' is defined
-        //   to be 'Elf', 'Xcoff', or 'Windows', and that exactly one of
-        //   'BAESU_OBJECTFILEFORMAT_RESOLVER_{ELF,XCOFF,WINDOWS}' is defined.
+        // TYPETEST TEST
+        //
+        // Concerns:
+        //   That the resolver policy exists and is appropriate.
+        //
+        // Plan:
+        //   Use the template function 'typeTest' to identify which resolver
+        //   policy is set.
         // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "Usage Example" <<
-                             endl << "-------------" << endl;
-
-        // First, verify ResolverPolicy
-
-        baesu_ObjectFileFormat::Elf     elfPolicy;
-        baesu_ObjectFileFormat::Xcoff   xcoffPolicy;
-        baesu_ObjectFileFormat::Windows windowsPolicy;
 
         baesu_ObjectFileFormat::Policy policy;
         ASSERT(typeTest(policy) > 0);
 
-        // Finally, verify 1 'BAESU_OBJECTFILEFORMAT_RESOLVER_*' #define
-        // exists
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+        ASSERT(1 == typeTest(policy));
+#endif
+
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+        ASSERT(2 == typeTest(policy));
+#endif
+
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+        ASSERT(3 == typeTest(policy));
+#endif
+      }  break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // PROPER RESOLVER POLICY DEFINED
+        //
+        // Concerns:
+        //   That all resolver policies exist, and that 'Obj::Policy' is
+        //   appropriately defined for the platform.
+        //
+        // Plan:
+        //   Use 'bslmf_IsSame' to verify types match appropriately.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Proper resolver policy defined\n"
+                             "==============================\n";
+
+#if defined(BSLS_PLATFORM__OS_SOLARIS) || \
+    defined(BSLS_PLATFORM__OS_LINUX)   || \
+    defined(BSLS_PLATFORM__OS_HPUX)
+
+        ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
+
+#endif
+
+#if defined(BSLS_PLATFORM__OS_AIX)
+
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
+        ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
+
+#endif
+
+#if defined(BSLS_PLATFORM__OS_WINDOWS)
+
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
+        ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
+
+#endif
+      }  break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // UNIQUE #define DEFINED
+        //
+        // Concerns:
+        //   Ensure that exactly one object file format #define is defined.
+        //
+        // Plan:
+        //   Increment a count once for each object file format #define and
+        //   then verify it's been incremented once.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Unique #define defined\n"
+                             "======================\n";
 
         int count = 0;
 
 #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
         ++count;
-        policy = elfPolicy;
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_ELF);
-        ASSERT(1 == typeTest(policy));
 #endif
 
 #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
         ++count;
-        policy = xcoffPolicy;
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF);
-        ASSERT(2 == typeTest(policy));
 #endif
 
 #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
         ++count;
-        policy = windowsPolicy;
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
-        ASSERT(3 == typeTest(policy));
 #endif
 
         ASSERT(1 == count);
+      }  break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // IDENTIFIER TEST
+        //
+        // Concern:
+        //   That that 'RESOLVER' identifiers, when defined, have the value
+        //   '1'.
+        //
+        // Plan:
+        //   For each identifier, when it's defined, do a comparison.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Usage Example\n"
+                             "=============\n";
+
+#if defined(BSLS_PLATFORM__OS_SOLARIS) || \
+    defined(BSLS_PLATFORM__OS_LINUX)   || \
+    defined(BSLS_PLATFORM__OS_HPUX)
+
+        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_ELF);
+
+# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
+     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#  error multiple file formats defined
+# endif
+
+#elif defined(BSLS_PLATFORM__OS_AIX)
+
+        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF);
+
+# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#  error multiple file formats defined
+# endif
+
+#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+
+        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
+
+# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#  error multiple file formats defined
+# endif
+
+#else
+# error unrecognized platform
+#endif
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
