@@ -165,6 +165,29 @@ struct MyInterfaceNonCopyableReturnTest
     const NonCopyable& foo(int) { return markDoneRef(); }
 };
 
+struct DummyAllocator {
+    // Make sure the protocol test works with types which override operator
+    // new.
+
+    virtual ~DummyAllocator() {}
+
+    void *operator new(std::size_t size)
+    {
+        return ::operator new(size);
+    }
+
+    void operator delete(void *p)
+    {
+        ::operator delete(p);
+    }
+
+    // placement new and delete
+    void *operator new(std::size_t, DummyAllocator *);
+    void operator delete(void *, DummyAllocator *);
+};
+
+struct DummyAllocatorTest : bsls_ProtocolTestImp<DummyAllocator> {};
+
 }  // close unnamed namespace
 
 // ============================================================================
@@ -753,6 +776,16 @@ int main(int argc, char *argv[])
                 ASSERT(!t.testVirtualDestructor());
                 ASSERT(t.failures() == 1);
                 ASSERT(!t.lastStatus());
+            }
+
+            if (veryVerbose) printf("\t\twith protocol which has an operator "
+                                    "new\n");
+
+            {
+                bsls_ProtocolTest<DummyAllocatorTest> t;
+                ASSERT(t.testVirtualDestructor());
+                ASSERT(t.failures() == 0);
+                ASSERT(t.lastStatus());
             }
         }
 

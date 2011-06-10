@@ -279,19 +279,26 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // PROTOCOL TEST:
-        //   We need to make sure that 'baetzo_Loader' satisfies the protocol
-        //   class requirements.
+        //   Test the conformance of baetzo_Loader to the protocol concerns.
         //
         // Concerns:
-        //: 1 'baetzo_Loader' is an abstract class, i.e., no objects of the
-        //:   'baetzo_Loader' class can be created.
-        //: 2 It has no data members.
-        //: 3 All of its members are pure virtual.
-        //: 4 It has a pure virtual destructor.
-        //: 5 All of its methods are publicly accessible.
+        //: 1 baetzo_Loader protocol is an abstract class, i.e., no objects of
+        //:   baetzo_Loader protocol class can be created
+        //: 2 baetzo_Loader hos no data members
+        //: 3 all methods of baetzo_Loader are pure virtual
+        //: 4 baetzo_Loader has a pure virtual destructor
+        //: 5 all methods of baetzo_Loader are publicly accessible
         //
         // Plan:
-        //   Use 'bslsl_protocoltest' component to test this protocol class.
+        //  Use 'bsl_ProtocolTest' component to test the following subset of
+        //  the baetzo_Loader protocol concerns:
+        //: 1 baetzo_Loader protocol is an abstract class, i.e., no objects of
+        //:   baetzo_Loader protocol class can be created
+        //: 2 baetzo_Loader hos no data members
+        //: 3 each of the known and tested methods of baetzo_Loader is virtual
+        //: 4 baetzo_Loader has a virtual destructor
+        //: 5 each of the known and tested methods of baetzo_Loader is publicly
+        //    accessible
         //
         // Testing:
         //   virtual int loadTimeZone(Zoneinfo *tz, const char *tzId) = 0;
