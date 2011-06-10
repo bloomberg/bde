@@ -79,6 +79,20 @@ BSLS_IDENT("$Id$")
 //          // effect on any outstanding allocated memory.
 //
 //      // MANIPULATORS
+//      virtual void *allocate(size_type size);
+//          // Return a newly allocated block of memory of (at least) the
+//          // specified positive 'size' (in bytes).  If 'size' is 0, a null
+//          // pointer is returned with no other effect.  If this allocator
+//          // cannot return the requested number of bytes, then it will throw
+//          // an 'std::bad_alloc' exception in an exception-enabled build, or
+//          // else it will abort the program in a non-exception build.  The
+//          // behavior is undefined unless '0 <= size'.   Note that the
+//          // alignment of the address returned conforms to the platform
+//          // requirement for any object of the specified 'size'.  Also note
+//          // that global 'operator new' is *not* called when 'size' is 0 (in
+//          // order to avoid having to acquire a lock, and potential
+//          // contention in multi-threaded programs).
+//
 //      virtual void *allocateAligned(size_type size, size_type alignment);
 //          // Return the address of a newly allocated block of memory of at
 //          // least the specified positive 'size' (in bytes), sufficiently
@@ -88,16 +102,13 @@ BSLS_IDENT("$Id$")
 //          // throws an 'bsl::bad_alloc' exception, or abort if in a
 //          // non-exception build.  The behavior is undefined unless 
 //          // '0 <=  size' and 'alignment' is both a multiple of 
-//          // 'sizeof(void *)' and a power of two.  Note that the underlying
-//          // 'posix_memalign' function is *not* called when 'size' is 0.
+//          // 'sizeof(void *)' and a power of two.
 //
 //      virtual void deallocate(void *address);
 //          // Return the memory block at the specified 'address' back to this
 //          // allocator.  If 'address' is 0, this function has no effect.  The
 //          // behavior is undefined unless 'address' was allocated using this
-//          // allocator object and has not already been deallocated.  Note
-//          // that the underlying 'posix_memalign' function is *not* called
-//          // when 'address' is 0.
+//          // allocator object and has not already been deallocated.
 //  };
 //  // ...
 //..
@@ -106,14 +117,28 @@ BSLS_IDENT("$Id$")
 // typical usage in this case):
 //..
 //  // MANIPULATORS
-//  void *MyAlignedAllocator::allocate(size_type size)
+//  void *MyAlignedAllocator::allocate(size_type size) 
+//  {
+//      BSLS_ASSERT_SAFE(0 <= size);
+//      if (0 == size) {
+//          return 0;                                                 // RETURN
+//      }
+//      
+//      int alignment = bsls_AlignmentUtil::calculateAlignmentFromSize(size);
+//      return allocateAligned(size, alignment);
+//  }
+//
 //  void *MyAlignedAllocator::allocateAligned(size_type size,
 //                                            size_type alignment)
 //  {
 //      BSLS_ASSERT_SAFE(0 <= size);
 //      BSLS_ASSERT_SAFE(0 <= alignement);
-//      BSLS_ASSERT_SAFE(1 == bdes_BitUtil::numSetOne64(alignment));
+//      BSLS_ASSERT_SAFE(1 == (alignment & (alignment - 1)));
 //      BSLS_ASSERT_SAFE(0 == (alignement % sizeof(void *)));
+//
+//      if (0 == size) {
+//          return 0;                                                 // RETURN
+//      }
 //
 //      void *ret;
 //
@@ -142,13 +167,13 @@ BSLS_IDENT("$Id$")
 //      _aligned_free(address);
 //  #else
 //      ::free(address);
+//  #endif
 //  }
 //..
 // Finally, we instantiate an object of type 'MyAlignedAllocator':
 //..
 //  MyAlignedAllocator myAlignedAllocator;
 //..
-//
 ///Example 2: Using a 'bdema_AlignedAllocator'.
 ///- - - - - - - - - - - - - - - - - - - - - -
 // In this example we use an object of type 'MyAlignedAllocator', defined
@@ -169,7 +194,7 @@ BSLS_IDENT("$Id$")
 // Finally, we verify that the obtained address actually is aligned as
 // expected:
 //..
-//  assert(buffer & (bsls_Allocator::size_type)4096 - 1);
+//  assert(reinterpret_cast<bsl::size_t> (address) & (bsl::size_t)4096 - 1);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -212,7 +237,7 @@ class bdema_AlignedAllocator : public bslma_Allocator {
         // '0 <= size', '0 <= alignment' and 'alignment' is both a multiple of
         // 'sizeof(void *)' and a power of two.  
     
-    virtual void deallocate(void *address);
+    virtual void deallocate(void *address) = 0;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this function has no effect.  The
         // behavior is undefined unless 'address' was allocated using this

@@ -1,15 +1,13 @@
 // bdema_alignedallocator.t.cpp                                       -*-C++-*-
 #include <bdema_alignedallocator.h>
 
-#include <bdes_bitutil.h>
-
 #include <bsls_platform.h>
 #include <bsls_protocoltest.h>
 
 #include <bsl_iostream.h>
 
 #include <bsl_cerrno.h>
-
+#include <stdlib.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -24,7 +22,7 @@ using namespace bsl;
 // obtains the behavior specified by the protocol from the concrete subclass.
 //-----------------------------------------------------------------------------
 // [ 1] virtual void *allocateAligned(size_type size, int alignment);
-// [ 1] virtual void deallcate(void *address);
+// [ 1] virtual void deallocate(void *address);
 // [ 2] USAGE EXAMPLE
 //=============================================================================
 
@@ -65,6 +63,7 @@ static void aSsErT(int c, const char *s, int i)
 namespace {
 
 struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
+    void *allocate(int)                   { return markDone(); }
     void *allocateAligned(size_type, int) { return markDone(); }
     void  deallocate(void* )              {        markDone(); }
 };
@@ -117,13 +116,26 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
             // effect on any outstanding allocated memory.
   
         // MANIPULATORS
+        virtual void *allocate(size_type size);
+            // Return a newly allocated block of memory of (at least) the
+            // specified positive 'size' (in bytes).  If 'size' is 0, a null
+            // pointer is returned with no other effect.  If this allocator
+            // cannot return the requested number of bytes, then it will throw
+            // a 'std::bad_alloc' exception in an exception-enabled build, or
+            // else will abort the program in a non-exception build.  The
+            // behavior is undefined unless '0 <= size'.  Note that the
+            // alignment of the address returned is the maximum alignment for
+            // any type defined on this platform.  Also note that global
+            // 'operator new' is *not* called when 'size' is 0 (in order to
+            // avoid having to acquire a lock, and potential contention in
+            // multi-threaded programs).
+
         virtual void *allocateAligned(size_type size, size_type alignment);
             // Return the address of a newly allocated block of memory of at
             // least the specified positive 'size' (in bytes), sufficiently
-            // aligned such that '0 == (address & (alignement - 1)).  If 'size'
+            // aligned such that '0 == (address & (alignment - 1)).  If 'size'
             // is 0, a null pointer is returned with no other effect.  If this
             // allocator cannot return the requested number of bytes, then it
-            // H
             // throws an 'bsl::bad_alloc' exception, or abort if in a
             // non-exception build.  The behavior is undefined unless 
             // '0 <=  size' and 'alignment' is both a multiple of 
@@ -144,14 +156,39 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
 // inlined, as they would not be inlined when invoked from the base class (the
 // typical usage in this case):
 //..
+    // CREATORS
+    MyAlignedAllocator::MyAlignedAllocator()
+    {
+    }
+    
+    MyAlignedAllocator::~MyAlignedAllocator()
+    {
+    }
+
+    
     // MANIPULATORS
+    void *MyAlignedAllocator::allocate(size_type size) 
+    {
+        BSLS_ASSERT_SAFE(0 <= size);
+        if (0 == size) {
+            return 0;                                                 // RETURN
+        }
+        
+        int alignment = bsls_AlignmentUtil::calculateAlignmentFromSize(size);
+        return allocateAligned(size, alignment);
+    }
+  
     void *MyAlignedAllocator::allocateAligned(size_type size,
                                               size_type alignment)
     {
         BSLS_ASSERT_SAFE(0 <= size);
         BSLS_ASSERT_SAFE(0 <= alignment);
-        BSLS_ASSERT_SAFE(1 == bdes_BitUtil::numSetOne64(alignment));
+        BSLS_ASSERT_SAFE(1 == (alignment & (alignment - 1)));
         BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
+  
+        if (0 == size) {
+            return 0;                                                 // RETURN
+        }
   
         void *ret;
   
@@ -180,13 +217,13 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
         _aligned_free(address);
     #else
         ::free(address);
+    #endif
     }
 //..
 // Finally, we instantiate an object of type 'MyAlignedAllocator':
 //..
     MyAlignedAllocator myAlignedAllocator;
 //..
-//
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -233,7 +270,7 @@ int main(int argc, char *argv[])
 // Finally, we verify that the obtained address actually is aligned as
 // expected:
 //..
-    assert(buffer & (bsls_Allocator::size_type)4096 - 1);
+    ASSERT(reinterpret_cast<bsl::size_t> (address) & (bsl::size_t)4096 - 1);
 //..
 
 
@@ -251,20 +288,30 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'bdema_AlignedAllocator' is an abstract class, i.e., no objects
         //:    of the 'bdema_AlignedAllocator' class can be created.
-        //: 2 It has no data members.
-        //: 3 All of its members are pure virtual.
-        //: 4 It has a pure virtual destructor.
-        //: 5 All of its methods are publicly accessible.
+        //: 2 'bdema_AlignedAllocator' has no data members.
+        //: 3 All members of 'bdema_AlignedAllocator' are pure virtual.
+        //: 4 'bdema_AlignedAllocator' has a pure virtual destructor.
+        //: 5 All of 'bdema_AlignedAllocator' methods are publicly accessible.
         //: 6 The class inherits publicly from 'bsls_Allocator'.
         //
         // Plan:
-        //: 1 Use 'bslsl_protocoltest' component to test this protocol class.
-        //:   (C-1..5)
-        //: 2 Convert implicitly the address of a concrete implementation of
-        //:   'bdema_AlignedAllocator' object into an address to
-        //:   'bsls_Allocator' to test that this protocol inherits publicly
-        //:   form 'bsls_Allocator'.  (C-6)
-        //
+        //: 1 Use 'bsl_ProtocolTest' component to test the following subset of
+        //:   the 'bdema_AlignedAllocator' protocol concerns:
+        //:   
+        //:   1 'bdema_AlignedAllocator' protocol is an abstract class, i.e.,
+        //:      no objects of 'bdema_AlignedAllocator' protocol class can be
+        //:      created.
+        //:   2 'bdema_AlignedAllocator' has no data members.
+        //:   3 Each of the known and tested methods of 
+        //:     'bdema_AlignedAllocator' is virtual.
+        //:   4 'bdema_AlignedAllocator' has a virtual destructor.
+        //:   5 Each of the known and tested methods of 
+        //:     'bdema_AlignedAllocator' is publicly accessible.
+        //: 
+        //: 2 Assign a the address of a 'bdema_AlignedAllocator' to a
+        //:   'bsls_Allocator *' variable, to verify that
+        //:   'bdema_AlignedAllocator' correctly inherited from
+        //:   'bslma_Allocator' .
         // Testing:
         //   virtual void *allocate(size_type size, int alignment) = 0;
         //   virtual void dellocate(void *address) = 0;
@@ -279,14 +326,15 @@ int main(int argc, char *argv[])
         ASSERT(t.testNoDataMembers());
         ASSERT(t.testVirtualDestructor());
 
-        BSLS_PROTOCOLTEST_ASSERT(t, loadTimeZone(0, 0));
+        BSLS_PROTOCOLTEST_ASSERT(t, allocateAligned(0, 0));
+        BSLS_PROTOCOLTEST_ASSERT(t, deallocate(0));
 
         LOOP_ASSERT(t.failures(), !t.failures());
 
         // Reuse the concrete implmentation of the usage example.
  
-        MyPosixMemAlignAllocator alignAllocator;
-        bsls_Assert *allocator = &alignAllocator;
+        MyAlignedAllocator alignAllocator;
+        bslma_Allocator *allocator = &alignAllocator;
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
