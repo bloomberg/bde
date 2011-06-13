@@ -37,6 +37,7 @@ BDES_IDENT_RCSID(baenet_httpgeneratorutil_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
+#include <bsl_cstdio.h>
 
 namespace BloombergLP {
 

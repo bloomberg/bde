@@ -349,6 +349,8 @@ int baenet_HttpMessageGenerator::startEntity(
                                 const HEADER_TYPE&         header,
                                 const MessageDataCallback& messageDataCallback)
 {
+    int rc;
+
     d_messageDataCallback = messageDataCallback;
     BSLS_ASSERT_SAFE(d_messageDataCallback);
 
