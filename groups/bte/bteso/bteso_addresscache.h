@@ -81,7 +81,8 @@ BDES_IDENT("$Id: $")
 // resolver callback.  When using 'bteso_ResolveUtil::setResolverCallback'
 // method, we need a free function instead of a member function of a class.
 //
-// First, we declared a static variable that will point to a cache:
+// First, we declared a static variable in the global scope that will point to
+// a cache:
 //..
 // static bteso_AddressCache* s_addressCachePtr;
 //..
@@ -99,8 +100,8 @@ BDES_IDENT("$Id: $")
 //                                              errorCode);
 // }
 //..
-// Next, we create a cache that will be used by the free function, and assign
-// the static pointer to refer to this cache.
+// Next, we create a cache (in a local function scope) that will be used by the
+// free function, and assign the static pointer to refer to this cache.
 //..
 //  bteso_AddressCache addressCache;
 //  s_addressCachePtr = &addressCache;
