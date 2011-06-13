@@ -270,7 +270,7 @@ class btemt_Channel {
     volatile int                    d_activeWriteCacheSize;  // number of bytes
                                                              // currently
                                                              // being written
-                                                             // (or in
+                                                             // (including in
                                                              // d_outgoingMsg)
 
     volatile bool                   d_hiWatermarkHitFlag;    // already full
@@ -1714,8 +1714,9 @@ void btemt_Channel::writeCb(ChannelHandle self)
             d_numBytesWritten += writeRet;
             d_activeWriteCacheSize -= writeRet;
 
-            if (d_hiWatermarkHitFlag && d_enqueuedWriteCacheSize
-                                 + d_activeWriteCacheSize <= d_writeCacheLowWat) {
+            if (d_hiWatermarkHitFlag
+             && (d_enqueuedWriteCacheSize
+                             + d_activeWriteCacheSize <= d_writeCacheLowWat)) {
                 d_hiWatermarkHitFlag = false;
                 oGuard.release()->unlock();
                 d_channelStateCb(d_channelId, d_sourceId,
