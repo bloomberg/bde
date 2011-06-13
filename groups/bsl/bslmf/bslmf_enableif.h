@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
-//@SEE_ALSO: 
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component contains the class template 'bslma_EnableIf', a
 // "meta-function" that can cause a deduced function template instantiation to
@@ -23,10 +23,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Visual Studio Workaround
 ///------------------------
-// Because of a bug, documented here:
+// Because of a Visual Studio bug, described here:
 // http://connect.microsoft.com/VisualStudio/feedback/details/332179/
-// The Visual Studio compiler may not correctly associate a function
-// declaration that uses 'bslmf_EnableIf' with that functions definition, if
+// The Microsoft Visual Studio compiler may not correctly associate a function
+// declaration that uses 'bslmf_EnableIf' with that function's definition, if
 // the definition is not inline to the declaration.   This bug effects at
 // least Visual Studio 2008 and 2010.  The work-around is to implement
 // functions using 'bslmf_EnableIf' in-line with their declaration.
@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // The following snippets of code illustrate basic use of the 'bslmf_EnableIf'
 // meta-function.  We will demonstrate how to use this utility to control
-// overload sets with three increasingly complex examples. 
+// overload sets with three increasingly complex examples.
 //
 ///Example 1: Implementing a Simple Function with 'bslmf_EnableIf'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -116,7 +116,7 @@ BSLS_IDENT("$Id: $")
 //      MyContainer(const T& value, int n);
 //          // Create a 'MyContainer' object having the specified 'n' copies of
 //          // the specified 'value'.
-//          
+//
 //      ~MyContainer();
 //          // Destroy this container and all of its elements, reclaiming any
 //          // allocated memory.
@@ -125,7 +125,7 @@ BSLS_IDENT("$Id: $")
 //          // Exchange the contents of 'this' container with those of the
 //          // specified 'other'.  No memory will be allocated, and no
 //          // exceptions are thrown.
-//          
+//
 //      const T& front() const;
 //          // Return a reference with 'const' access to the first element in
 //          // this container.
@@ -313,7 +313,7 @@ BSLS_IDENT("$Id: $")
 //  class MyVector {
 //      // This is a simple container implementation for demonstration purposes
 //      // that is modeled after 'std::vector'.
-// 
+//
 //      // DATA
 //      T           *d_storage;
 //      std::size_t  d_length;
@@ -326,7 +326,7 @@ BSLS_IDENT("$Id: $")
 //      MyVector(const T& value, int n);
 //          // Create a 'MyVector' object having the specified 'n' copies of
 //          // the specified 'value'.
-//          
+//
 //      template<typename FORWARD_ITERATOR>
 //      MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
 //                  typename bslmf_EnableIf<
@@ -334,7 +334,7 @@ BSLS_IDENT("$Id: $")
 //                                                              >::type * = 0);
 //          // Create a 'MyVector' object having the same sequence of values as
 //          // found in range described by the iterators '[first, last)'.
-//          
+//
 //      ~MyVector();
 //          // Destroy this container and all of its elements, reclaiming any
 //          // allocated memory.
