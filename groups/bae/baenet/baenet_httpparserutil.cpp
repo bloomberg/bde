@@ -49,6 +49,7 @@ enum {
 const bsl::char_traits<char>::int_type eof = bsl::char_traits<char>::eof();
     // End-of-file character.
 
+// See RFC 2616 section 2.2, grammar rule "token".
 static const char atomCharsTable[256]=
 {
     1 , //   0   0
@@ -97,7 +98,7 @@ static const char atomCharsTable[256]=
     1 , //  43  2b - +
     0 , //  44  2c - ,
     1 , //  45  2d - -
-    0 , //  46  2e - .
+    1 , //  46  2e - .
     0 , //  47  2f - /
     1 , //  48  30 - 0
     1 , //  49  31 - 1
@@ -2463,11 +2464,101 @@ int baenet_HttpParserUtil::parseFieldValue(baenet_HttpContentType *result,
     return BAENET_SUCCESS;
 }
 
-int baenet_HttpParserUtil::parseFieldValue(baenet_HttpViaRecord   *,
-                                           const bdeut_StringRef&)
-{
-    enum { BAENET_NOT_IMPLEMENTED = 0 };
-    return BAENET_NOT_IMPLEMENTED;
+int baenet_HttpParserUtil::parseFieldValue(baenet_HttpViaRecord   *result,
+                                           const bdeut_StringRef&  str)
+{   
+    enum {
+        BAENET_SUCCESS        =  0,
+        BAENET_UNEXPECTED_EOF = -1,
+        BAENET_FAILURE        = -2
+    };
+
+    BSLS_ASSERT(result);
+
+    const char *begin = str.begin();
+    const char *end   = str.end();
+
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(end);
+    BSLS_ASSERT(begin <= end);
+
+    if (begin == end) {
+        return BAENET_UNEXPECTED_EOF;
+    }
+
+    skipCommentsAndFoldedWhitespace(&begin, end);
+
+    bdeut_StringRef first;
+    parseAtom(&first, &begin, end);
+
+    skipCommentsAndFoldedWhitespace(&begin, end);
+
+    if (begin == end) {
+        return BAENET_UNEXPECTED_EOF;
+    }
+
+    if ('/' == *begin) {
+        ++begin;  // skip '/'
+
+        skipCommentsAndFoldedWhitespace(&begin, end);
+
+        if (begin == end) {
+            return BAENET_UNEXPECTED_EOF;
+        }
+
+        bdeut_StringRef next;
+        parseAtom(&next, &begin, end);
+
+        skipCommentsAndFoldedWhitespace(&begin, end);
+
+        result->protocolName()    = first;
+        result->protocolVersion() = next;
+    }
+    else {
+        result->protocolVersion() = first;
+    }
+
+    if (begin == end) {
+        return BAENET_UNEXPECTED_EOF;
+    }
+
+    const char *p = begin;
+
+    while (p != end && !whitespaceCharsTable[(int)*p] && ':' != *p) {
+        ++p;
+    }
+
+    result->viaHost().name().assign(begin, p);
+
+    skipWhitespace(&p, end);
+
+    if (p == end) {
+        return BAENET_SUCCESS;
+    }
+
+    if (':' == *p) {
+        ++p;  // skip ':'
+
+        skipWhitespace(&p, end);
+
+        int port;
+
+        if (0 != parseInt(&port, &p, end)) {
+            return BAENET_FAILURE;
+        }
+
+        result->viaHost().port().makeValue(port);
+
+        skipWhitespace(&p, end);
+    }
+
+    if (p == end) {
+        return BAENET_SUCCESS;
+    }
+
+    result->comment().makeValue().assign(p, end);
+
+    return BAENET_SUCCESS;
 }
 
 int baenet_HttpParserUtil::parseFieldValue(baenet_HttpHost        *result,

@@ -2,6 +2,7 @@
 #include <baenet_httpparserutil.h>
 
 #include <baenet_httpcontenttype.h>
+#include <baenet_httpviarecord.h>
 
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
@@ -87,6 +88,96 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 4: {
+        // --------------------------------------------------------------------
+        // TEST PARSING OF VIA
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << bsl::endl
+                               << "TEST PARSING OF VIA RECORD" << bsl::endl
+                               << "==========================" << bsl::endl;
+
+        const int SUCCESS        =  0;
+        const int UNEXPECTED_EOF = -1;
+        const int FAILURE        = -2;
+              
+        static const struct {
+            int         d_lineNum;
+            const char *d_string;
+            int         d_expectedReturn;
+            const char *d_protocolName;
+            const char *d_protocolVersion;
+            const char *d_hostName;
+            int         d_hostPort;
+            const char *d_comment;
+        } DATA[] = {
+          { L_,  "",                    -1,      0,     0,     0,  0,     0 },
+          { L_,  "HTTP/",               -1,      0,     0,     0,  0,     0 },
+          { L_,  "1.1",                 -1,      0,     0,     0,  0,     0 },
+          { L_,  "1.1 abc",              0,      0, "1.1", "abc", -1,     0 },
+          { L_,  "HTTP/1.1 abc",         0, "HTTP", "1.1", "abc", -1,     0 },
+          { L_,  "HTTP/1.1 abc:80",      0, "HTTP", "1.1", "abc", 80,     0 },
+          { L_,  "HTTP/1.1 abc:80 def",  0, "HTTP", "1.1", "abc", 80, "def" },
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    LINE            = DATA[i].d_lineNum;
+            const string STRING          = DATA[i].d_string;
+            const int    EXPECTED_RETURN = DATA[i].d_expectedReturn;
+
+            const char *begin            = STRING.data();
+            const char *end              = begin + STRING.length();
+            const char *originalBegin    = begin;
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(STRING) P(EXPECTED_RETURN)
+            }
+
+            typedef bdeut_StringRef StringRef;
+
+            bdeut_StringRef      input(begin, end);
+            baenet_HttpViaRecord result;
+ 
+            int retCode = baenet_HttpParserUtil::parseFieldValue(&result,
+                                                                 input);
+            if (veryVeryVerbose) {
+                P(result);
+            }
+
+            LOOP2_ASSERT(LINE, retCode, EXPECTED_RETURN == retCode);
+
+            if (SUCCESS == EXPECTED_RETURN) {
+                if (DATA[i].d_protocolName != 0) {
+                    ASSERT(!result.protocolName().isNull());
+                    if (!result.protocolName().isNull()) {
+                        ASSERT(result.protocolName().value() == 
+                               DATA[i].d_protocolName);
+                    }
+                }
+
+                ASSERT(result.protocolVersion() == DATA[i].d_protocolVersion);
+                ASSERT(result.viaHost().name()  == DATA[i].d_hostName);
+
+                if (DATA[i].d_hostPort >= 0) {
+                    ASSERT(!result.viaHost().port().isNull());
+                    if (!result.viaHost().port().isNull()) {
+                        ASSERT(result.viaHost().port().value() == 
+                               DATA[i].d_hostPort);
+                    }
+                }
+
+                if (DATA[i].d_comment != 0) {
+                    ASSERT(!result.comment().isNull());
+                    if (!result.comment().isNull()) {
+                        ASSERT(result.comment().value() == 
+                               DATA[i].d_comment);
+                    }
+                }
+            }
+        }
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TEST PARSING OF CONTENT TYPE

@@ -144,6 +144,7 @@ class baenet_HttpMessageParser {
 
     // PRIVATE DATA MEMBERS
     bcema_Blob                          d_data;
+    bcema_BlobBufferFactory            *d_blobBufferFactory_p;
     baenet_HttpEntityProcessor         *d_entityProcessor_p;
     HeaderSharedPtr                     d_header_sp;
     baenet_HttpMessageType::Value       d_messageType;
@@ -178,6 +179,18 @@ class baenet_HttpMessageParser {
         // 'messageType', and 'basicAllocator'.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.
 
+    baenet_HttpMessageParser(
+                baenet_HttpEntityProcessor    *entityProcessor,
+                baenet_HttpMessageType::Value  messageType,
+                bcema_BlobBufferFactory       *blobBufferFactory,
+                bslma_Allocator               *basicAllocator = 0);
+        // Create an HTTP parser for the specified 'messageType' that calls
+        // the specified 'entityProcessor' as portions of the entity are
+        // processed.  Allocate blob buffers using the specified 
+        // 'blobBufferFactory'.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
     ~baenet_HttpMessageParser();
         // Destroy this object.
 
@@ -187,6 +200,24 @@ class baenet_HttpMessageParser {
         // specified 'errorStream'.  Return 0 on success, and a non-zero value
         // otherwise.  The behavior is undefined if 'onEndData' has been
         // called.
+
+    int addData(bsl::ostream& errorStream, bsl::streambuf *source);
+        // Add all available data from the specified 'source' to the parser.
+        // Write error messages on the specified 'errorStream'.  Return 0 on
+        // success, and a non-zero value otherwise.  The behavior is undefined
+        // if 'onEndData' has been called.  The behavior is also undefined
+        // unless this object was supplied a blob buffer factory at the time
+        // of construction.
+
+    int addData(bsl::ostream&   errorStream, 
+                bsl::streambuf *source, 
+                int             numBytes);
+        // Add the specified 'numBytes' read from the specified 'source' to
+        // the parser.  Write all error messages to the specified 
+        // 'errorStream'.  Return 0 on success, and a non-zero value 
+        // otherwise.  The behavior is undefined if 'onEndData' has been 
+        // called.  The behavior is also undefined unless this object was 
+        // supplied a blob buffer factory at the time of construction.
 
     int onEndData(bsl::ostream& errorStream);
         // Indicate that the message stream has been terminated.  Write error

@@ -7,8 +7,6 @@
 #endif
 BDES_IDENT("$Id: $")
 
-
-
 //@PURPOSE: Provide a mechanism for generating HTTP messages.
 //
 //@CLASSES:
@@ -29,111 +27,219 @@ BDES_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following snippets of code illustrate the usage of this component.
-// Suppose we are implementing a simple HTTP server that serves files to
-// clients.  The following 'handleRequest' function accepts the name of the
-// requested file and also a pointer to a streambuf to send the response to:
+// Suppose we are implementing a simple HTTP server.  We need a function that
+// writes response data to the client, and we need a function that constructs
+// the HTTP response.  First, let's define a function that writes data to the
+// client.  The connection is represented as a 'bsl::streambuf'.
 //..
-//  void handleRequest(const char     *requestedFileName,
-//                     bsl::streambuf *connectionToClient);
+//   void writeToConnection(bsl::streambuf    *connection,
+//                          const bcema_Blob&  data)
+//   {
+//       // Write the specified HTTP 'data' fragment to the specified 
+//       // 'connection'.
+//
+//       bdex_ByteOutStreamFormatter bosf(connection);
+//       bcema_BlobUtil::write(bosf, data);
+//   }
 //..
-// We also need a 'handleError' function that we will define later:
+// Next, let's define a function that accepts the response and writes the
+// formatted HTTP data to the client.
 //..
-//  void handleError(bsl::streambuf               *connectionToClient,
-//                   baenet_HttpStatusCode::Value  code,
-//                   const char                   *reason,
-//                   bcema_BlobBufferFactory      *blobBufferFactory);
+//   int deliverResponse(bsl::streambuf                     *connection,
+//                       bcema_BlobBufferFactory            *blobBufferFactory,
+//                       const baenet_HttpStatusCode::Value  statusCode,
+//                       const char                         *reason,
+//                       const bcema_Blob&                   body)
+//   {
+//       // Write to the specified 'connection' an HTTP/1.1 response 
+//       // identified by the specified 'statusCode' and 'reason' consisting
+//       // of the specified 'numChunks' of data in the specified 'chunk'
+//       // array.  Allocate blob buffers using the specified 
+//       // 'blobBufferFactory'.  Return 0 on success and a non-zero value 
+//       // otherwise.
+//   
+//       int rc;
+//   
+//       baenet_HttpMessageGenerator generator(blobBufferFactory);
+//   
+//       baenet_HttpStatusLine       statusLine;
+//       baenet_HttpResponseHeader   header;
+//   
+//       statusLine.majorVersion() = 1;
+//       statusLine.minorVersion() = 1;
+//       statusLine.statusCode()   = statusCode;
+//       statusLine.reasonPhrase() = reason;
+//   
+//       header.basicFields().contentLength() = body.length();
+//   
+//       rc = generator.startEntity(statusLine,
+//                                  header,
+//                                  bdef_BindUtil::bind(
+//                                                 &writeToConnection,
+//                                                 connection,
+//                                                 bdef_PlaceHolders::_1));
+//       if (0 != rc) {
+//           return rc;
+//       }
+//   
+//       rc = generator.addEntityData(body);
+//       if (0 != rc) {
+//           return rc;
+//       }
+//   
+//      return generator.endEntity();
+//   } 
 //..
-// We need a callback function that we can use to send the response to the
-// client:
+// Finally, define a function that accepts a response and writes the formatted
+// HTTP data using the chunked transfer encoding.
 //..
-//  void sendResponseToClient(bsl::streambuf    *connectionToClient,
-//                            const bcema_Blob&  data)
-//  {
-//      bdex_ByteOutStreamFormatter bosf(connectionToClient);
-//      bcema_BlobUtil::write(bosf, data);
-//  }
+//   int deliverResponse(bsl::streambuf*                     connection,
+//                       bcema_BlobBufferFactory            *blobBufferFactory,
+//                       const baenet_HttpStatusCode::Value  statusCode,
+//                       const char                         *reason,
+//                       const bcema_Blob*                   chunk,
+//                       int                                 numChunks)
+//   {
+//       // Write to the specified 'connection' an HTTP/1.1 response 
+//       // identified by the specified 'statusCode' and 'reason' consisting 
+//       // of the specified 'numChunks' of data in the specified 'chunk' 
+//       // array.  Transfer the entity using chunked transfer encoding.  
+//       // Allocate blob buffers using the specified 'blobBufferFactory'.  
+//       // Return 0 on success and a non-zero value otherwise.
+//   
+//       int rc;
+//   
+//       baenet_HttpMessageGenerator generator(blobBufferFactory);
+//   
+//       baenet_HttpStatusLine       statusLine;
+//       baenet_HttpResponseHeader   header;
+//   
+//       statusLine.majorVersion() = 1;
+//       statusLine.minorVersion() = 1;
+//       statusLine.statusCode()   = statusCode;
+//       statusLine.reasonPhrase() = reason;
+//   
+//       header.basicFields().contentLength() = 0;
+//   
+//       header.basicFields().transferEncoding().push_back(
+//                            baenet_HttpTransferEncoding::BAENET_CHUNKED);
+//   
+//       rc = generator.startEntity(statusLine,
+//                                  header,
+//                                  bdef_BindUtil::bind(
+//                                                 &writeToConnection,
+//                                                 connection,
+//                                                 bdef_PlaceHolders::_1));
+//       if (0 != rc) {
+//           return rc;
+//       }
+//   
+//       for (int i = 0; i < numChunks; ++i) {    
+//           rc = generator.addEntityData(chunk[i]);
+//           if (0 != rc) {
+//               return rc;
+//           }
+//       }
+//   
+//       return generator.endEntity();
+//   }
 //..
-// The implementation of the 'handleRequest' function is shown below:
+// The following snippets illustrate how to call these functions to use
+// 'baenet_HttpMessageGenerator' to generate HTTP messages.
 //..
-//  void handleRequest(const char              *requestedFileName,
-//                     bsl::streambuf          *connectionToClient,
-//                     bcema_BlobBufferFactory *blobBufferFactory)
-//  {
-//      bsl::fstream file(requestedFileName);
+//   int rc;
+//   
+//   bcema_PooledBlobBufferFactory blobBufferFactory(1024, &ta);
 //
-//      if (!file.is_open()) {
-//          handleError(connectionToClient,
-//                      baenet_HttpStatusCode::NOT_FOUND,
-//                      "File not found",
-//                      blobBufferFactory);
-//          return;
-//      }
+//   // Encode a response using the identity transfer encoding.
 //
-//      baenet_HttpMessageGenerator generator(blobBufferFactory);
-//      baenet_HttpResponseHeader   header;
-//      baenet_HttpStatusLine       statusLine;
+//   {
+//       bcema_Blob response(&blobBufferFactory);
+//       bcema_Blob responseBody(&blobBufferFactory);
 //
-//      statusLine.statusCode()   = baenet_HttpStatusCode::OK;
-//      statusLine.reasonPhrase() = "Here is the file";
+//       {
+//           const char DATA[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 //
-//      header.generalFields().transferEncoding()
-//                                = baenet_HttpTransferEncoding::BAENET_CHUNKED;
+//           bcesb_OutBlobStreamBuf osb(&responseBody);
+//           osb.sputn(DATA, sizeof DATA - 1);
+//           osb.pubsync();
+//       }
 //
-//      int retCode = generator.startEntity(statusLine,
-//                                          header,
-//                                          bdef_BindUtil::bind(
-//                                                       &sendResponseToClient,
-//                                                       connectionToClient,
-//                                                       _1));
-//      assert(0 == retCode);
+//       bcesb_OutBlobStreamBuf responseBuffer(&response);
 //
-//      while (0 <= file.rdbuf()->sgetc()) {
-//          bdex_ByteInStreamFormatter bisf(file.rdbuf());
-//          bcema_Blob                 data;
+//       rc = deliverResponse(&responseBuffer,
+//                            &blobBufferFactory,
+//                            baenet_HttpStatusCode::BAENET_OK,
+//                            "OK",
+//                            responseBody);
+//       ASSERT(0 == rc);
 //
-//          bcema_BlobUtil::read(bisf, &data, 1024);
+//       responseBuffer.pubsync();
+//       ASSERT(0 != response.length());
 //
-//          retCode = generator.addEntityData(data);
-//          assert(0 == retCode);
-//      }
+//       if (veryVerbose) {
+//           bsl::cout << "\n\nDelivered response:\n"
+//                     << bcema_BlobUtilAsciiDumper(&response) 
+//                     << bsl::endl;
+//       }
+//   }
 //
-//      retCode = generator.endEntity();
-//      assert(0 == retCode);
-//  }
-//..
-// The 'handleRequest' function above demonstrates the usage of this component
-// with entity data.  The following 'handleError' function demonstrates the
-// usage of this component without entity data:
-//..
-//  void handleError(bsl::streambuf               *connectionToClient,
-//                   baenet_HttpStatusCode::Value  code,
-//                   const char                   *reason,
-//                   bcema_BlobBufferFactory      *blobBufferFactory)
-//  {
-//      baenet_HttpMessageGenerator generator(blobBufferFactory);
-//      baenet_HttpResponseHeader   header;
-//      baenet_HttpStatusLine       statusLine;
+//   // Encode a response using the chunked transfer encoding.
 //
-//      statusLine.statusCode()   = code;
-//      statusLine.reasonPhrase() = reason;
+//   {
+//       bcema_Blob              response(&blobBufferFactory);
+//       bsl::vector<bcema_Blob> chunkList;
+//       const int               NUM_CHUNKS = 3;
 //
-//      header.entityFields().contentLength() = 0;
+//       {
+//           for (int i = 0; i < NUM_CHUNKS; ++i)
+//           {
+//               const char DATA[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+//               const int  SIZE   = sizeof DATA - 1;
 //
-//      int retCode = generator.startEntity(statusLine,
-//                                          header,
-//                                          bdef_BindUtil::bind(
-//                                                       &sendResponseToClient,
-//                                                       connectionToClient,
-//                                                       _1));
-//      assert(0 == retCode);
+//               bcema_SharedPtr<char> bufferStorage = 
+//                    bcema_SharedPtrUtil::
+//                    createInplaceUninitializedBuffer(SIZE, &ta);
 //
-//      retCode = generator.endEntity();
-//      assert(0 == retCode);
-//  }
+//               bcema_BlobBuffer buffer;
+//               buffer.reset(bufferStorage, SIZE);
+//
+//               bsl::memcpy(buffer.data(), DATA, SIZE);
+//
+//               bcema_Blob chunk;
+//               chunk.appendDataBuffer(buffer);
+//
+//               chunkList.push_back(chunk);
+//           }
+//       }
+//
+//       bcesb_OutBlobStreamBuf responseBuffer(&response);
+//
+//       rc = deliverResponse(&responseBuffer,
+//                            &blobBufferFactory,
+//                            baenet_HttpStatusCode::BAENET_OK,
+//                            "OK",
+//                            &chunkList[0],
+//                            chunkList.size());
+//       ASSERT(0 == rc);
+//
+//       responseBuffer.pubsync();
+//       ASSERT(0 != response.length());
+//
+//       if (veryVerbose) {
+//           bsl::cout << "\n\nDelivered response:\n"
+//                     << bcema_BlobUtilAsciiDumper(&response) 
+//                     << bsl::endl;
+//       }
+//   }
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
+#endif
+
+#ifndef INCLUDED_BAENET_HTTPGENERATORUTIL
+#include <baenet_httpgeneratorutil.h>
 #endif
 
 #ifndef INCLUDED_BAENET_HTTPTRANSFERENCODING
@@ -144,97 +250,36 @@ BDES_IDENT("$Id: $")
 #include <bcema_blob.h>
 #endif
 
-#ifndef INCLUDED_BCESB_BLOBSTREAMBUF
-#include <bcesb_blobstreambuf.h>
-#endif
-
-#ifndef INCLUDED_BDEAT_ARRAYFUNCTIONS
-#include <bdeat_arrayfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDEAT_ENUMFUNCTIONS
-#include <bdeat_enumfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDEAT_NULLABLEVALUEFUNCTIONS
-#include <bdeat_nullablevaluefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDEAT_TYPECATEGORY
-#include <bdeat_typecategory.h>
-#endif
-
-#ifndef INCLUDED_BDEF_BIND
-#include <bdef_bind.h>
-#endif
-
 #ifndef INCLUDED_BDEF_FUNCTION
 #include <bdef_function.h>
-#endif
-
-#ifndef INCLUDED_BDEF_MEMFN
-#include <bdef_memfn.h>
-#endif
-
-#ifndef INCLUDED_BDEF_PLACEHOLDER
-#include <bdef_placeholder.h>
-#endif
-
-#ifndef INCLUDED_BDEUT_STRINGREF
-#include <bdeut_stringref.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
-#include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
-
 namespace BloombergLP {
 
 class bslma_Allocator;
-class bdet_Datetime;
-class bdet_DatetimeTz;
-
-class baenet_HttpContentType;
-class baenet_HttpHost;
-class baenet_HttpRequestLine;
-class baenet_HttpStatusLine;
-class baenet_HttpViaRecord;
 
                      // =================================
                      // class baenet_HttpMessageGenerator
                      // =================================
 
 class baenet_HttpMessageGenerator {
-    // This class is used to generate an HTTP message.  Currently only identity
-    // encoding is supported.  In the future, chunked encoding will be
-    // supported.
+    // This class is used to generate an HTTP message.
 
   public:
     // TYPES
     typedef bdef_Function<void(*)(const bcema_Blob& data)> MessageDataCallback;
+        // Defines a type alias for the functor invoked when a fragment of the
+        // HTTP message is generated.
 
   private:
     // PRIVATE DATA MEMBERS
-    bcema_BlobBufferFactory *d_blobBufferFactory_p;
-    MessageDataCallback      d_messageDataCallback;
-    bool                     d_useChunkEncoding;
-
-    //MRM
-
-    // PRIVATE CLASS FUNCTIONS
-    static void generateStartLine(bsl::ostream&                 stream,
-                                  const baenet_HttpRequestLine& startLine);
-    static void generateStartLine(bsl::ostream&                stream,
-                                  const baenet_HttpStatusLine& startLine);
+    bcema_BlobBufferFactory            *d_blobBufferFactory_p;
+    MessageDataCallback                 d_messageDataCallback;
+    baenet_HttpTransferEncoding::Value  d_transferEncoding;
 
   private:
     // NOT IMPLEMENTED
@@ -259,12 +304,9 @@ class baenet_HttpMessageGenerator {
                     const HEADER_TYPE&         header,
                     const MessageDataCallback& messageDataCallback);
         // Start a new entity using the specified 'startLine' and the specified
-        // 'header'.  Use the specified 'messageDataCallback' to send back the
-        // HTTP message.  If 'header.basicFields().transferEncoding()'
-        // evaluates to 'HttpTransferEncoding::BAENET_CHUNKED' then data must
-        // be called back in chunks with the appropriate hex value prepended
-        // (as defined in RFC2616).  Return 0 on success, and a non-zero value
-        // otherwise.
+        // 'header'.  Invoke the specified 'messageDataCallback' after each
+        // fragment of the HTTP message is formatted.  Return 0 on success, 
+        // and a non-zero value otherwise. 
 
     int addEntityData(const bcema_Blob& data);
         // Add the specified entity 'data' to the current message.  Return 0 on
@@ -273,83 +315,6 @@ class baenet_HttpMessageGenerator {
     int endEntity();
         // End the current entity.  Return 0 on success, and a non-zero value
         // otherwise.
-};
-
-// ---  Anything below this line is implementation specific.  Do not use.  ----
-
-              // ===============================================
-              // class baenet_HttpMessageGenerator_GenerateField
-              // ===============================================
-
-class baenet_HttpMessageGenerator_GenerateField {
-    // This helper class is used to generate a field as a string.
-
-    // PRIVATE DATA MEMBERS
-    bsl::ostream *d_stream_p;
-
-    // PRIVATE MANIPULATORS
-    template <typename TYPE>
-    int executeImp(const TYPE&            object,
-                   const bdeut_StringRef& fieldName,
-                   bdeat_TypeCategory::Array);
-
-    template <typename TYPE>
-    int executeImp(const TYPE&            object,
-                   const bdeut_StringRef& fieldName,
-                   bdeat_TypeCategory::NullableValue);
-
-    template <typename TYPE>
-    int executeImp(const TYPE&            object,
-                   const bdeut_StringRef& fieldName,
-                   bdeat_TypeCategory::Enumeration);
-
-  private:
-    // NOT IMPLEMENTED
-    baenet_HttpMessageGenerator_GenerateField(
-                             const baenet_HttpMessageGenerator_GenerateField&);
-    baenet_HttpMessageGenerator_GenerateField& operator=(
-                             const baenet_HttpMessageGenerator_GenerateField&);
-
-  public:
-    // CREATORS
-    explicit baenet_HttpMessageGenerator_GenerateField(bsl::ostream *stream);
-
-    ~baenet_HttpMessageGenerator_GenerateField();
-
-    // MANIPULATORS
-    template <typename TYPE>
-    int operator()(const TYPE&  object,
-                   const char  *fieldName,
-                   int          fieldNameLength);
-
-    template <typename TYPE, typename INFO_TYPE>
-    int operator()(const TYPE&      object,
-                   const INFO_TYPE& info);
-
-    template <typename TYPE>
-    int execute(const TYPE&            object,
-                const bdeut_StringRef& fieldName);
-
-    int execute(const int&             object,
-                const bdeut_StringRef& fieldName);
-
-    int execute(const bsl::string&     object,
-                const bdeut_StringRef& fieldName);
-
-    int execute(const bdet_Datetime&   object,
-                const bdeut_StringRef& fieldName);
-
-    int execute(const bdet_DatetimeTz& object,
-                const bdeut_StringRef& fieldName);
-
-    int execute(const baenet_HttpHost& object,
-                const bdeut_StringRef& fieldName);
-
-    int execute(const baenet_HttpContentType& object,
-                const bdeut_StringRef&        fieldName);
-
-    int execute(const baenet_HttpViaRecord& object,
-                const bdeut_StringRef&      fieldName);
 };
 
 // ============================================================================
@@ -361,14 +326,13 @@ class baenet_HttpMessageGenerator_GenerateField {
                      // ---------------------------------
 
 // CREATORS
-
 inline
 baenet_HttpMessageGenerator::baenet_HttpMessageGenerator(
                                     bcema_BlobBufferFactory *blobBufferFactory,
                                     bslma_Allocator         *basicAllocator)
 : d_blobBufferFactory_p(blobBufferFactory)
 , d_messageDataCallback(basicAllocator)
-, d_useChunkEncoding(false)
+, d_transferEncoding(baenet_HttpTransferEncoding::BAENET_IDENTITY)
 {
     BSLS_ASSERT_SAFE(d_blobBufferFactory_p);
 }
@@ -379,15 +343,12 @@ baenet_HttpMessageGenerator::~baenet_HttpMessageGenerator()
 }
 
 // MANIPULATORS
-
 template <typename STARTLINE_TYPE, typename HEADER_TYPE>
 int baenet_HttpMessageGenerator::startEntity(
                                 const STARTLINE_TYPE&      startLine,
                                 const HEADER_TYPE&         header,
                                 const MessageDataCallback& messageDataCallback)
 {
-    enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
-
     d_messageDataCallback = messageDataCallback;
     BSLS_ASSERT_SAFE(d_messageDataCallback);
 
@@ -395,187 +356,31 @@ int baenet_HttpMessageGenerator::startEntity(
                                header.basicFields().transferEncoding().size());
 
     if (2 <= numTransferEncodings) {
-        return BAENET_FAILURE;
+        return -1;
     }
 
-    d_useChunkEncoding = (0 == numTransferEncodings)
-                         ? false
-                         : (baenet_HttpTransferEncoding::BAENET_CHUNKED
-                                == header.basicFields().transferEncoding()[0]);
+    if (1 == numTransferEncodings) {
+        d_transferEncoding = header.basicFields().transferEncoding()[0];
+    }
 
-    if (d_useChunkEncoding) {
-        return BAENET_FAILURE;  //  chunked encoding not yet supported
+    if (d_transferEncoding == baenet_HttpTransferEncoding::BAENET_CHUNKED) {
+        if (header.basicFields().contentLength().isNull() || 
+            header.basicFields().contentLength().value()  != 0) 
+        {
+            return -2;
+        }
     }
 
     bcema_Blob data(d_blobBufferFactory_p);
-
-    {
-        bcesb_OutBlobStreamBuf osb(&data);
-        bsl::ostream           os(&osb);
-
-        baenet_HttpMessageGenerator::generateStartLine(os, startLine);
-
-        baenet_HttpMessageGenerator_GenerateField generateField(&os);
-
-        if (0 != header.accessFields(generateField)) {
-            return BAENET_FAILURE;
-        }
-
-        os << "\r\n";  // terminate header
+    rc = baenet_HttpGeneratorUtil::generateHeader(&data, startLine, header);
+    if (0 != rc) {
+        return rc;
     }
 
     d_messageDataCallback(data);
-
-    return BAENET_SUCCESS;
+    return 0;
 }
-
-              // -----------------------------------------------
-              // class baenet_HttpMessageGenerator_GenerateField
-              // -----------------------------------------------
-
-// PRIVATE MANIPULATORS
-
-template <typename TYPE>
-int baenet_HttpMessageGenerator_GenerateField::executeImp(
-                                              const TYPE&            object,
-                                              const bdeut_StringRef& fieldName,
-                                              bdeat_TypeCategory::Array)
-{
-    enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
-
-    const int size = static_cast<int>(bdeat_ArrayFunctions::size(object));
-
-    if (0 == size) {
-        return BAENET_SUCCESS;  // common case
-    }
-
-    typedef typename
-    bdeat_ArrayFunctions::ElementType<TYPE>::Type      ElementType;
-    typedef bdef_Function<int (*)(const ElementType&)> Functor;
-
-    typedef baenet_HttpMessageGenerator_GenerateField TargetClass;
-    typedef bdef_MemFnInstance<int (TargetClass::*)(const ElementType&,
-                                                    const bdeut_StringRef&),
-                               TargetClass*>          MemFn;
-
-    MemFn memFn(&TargetClass::execute, this);
-
-    using bdef_PlaceHolders::_1;
-
-    Functor generateFieldFunctor = bdef_BindUtil::bind(memFn,
-                                                       _1,
-                                                       fieldName);
-
-    for (int i = 0; i < size; ++i) {
-        if (0 != bdeat_ArrayFunctions::accessElement(object,
-                                                     generateFieldFunctor,
-                                                     i)) {
-            return BAENET_FAILURE;
-        }
-    }
-
-    return BAENET_SUCCESS;
-}
-
-template <typename TYPE>
-int baenet_HttpMessageGenerator_GenerateField::executeImp(
-                                             const TYPE&            object,
-                                             const bdeut_StringRef& fieldName,
-                                             bdeat_TypeCategory::NullableValue)
-{
-    enum { BAENET_SUCCESS = 0 };
-
-    if (bdeat_NullableValueFunctions::isNull(object)) {
-        return BAENET_SUCCESS;
-    }
-
-    typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
-    typedef bdef_Function<int (*)(const ValueType&)>    Functor;
-
-    typedef baenet_HttpMessageGenerator_GenerateField TargetClass;
-    typedef bdef_MemFnInstance<int (TargetClass::*)(const ValueType&,
-                                                    const bdeut_StringRef&),
-                               TargetClass*>          MemFn;
-
-    MemFn memFn(&TargetClass::execute, this);
-
-    using bdef_PlaceHolders::_1;
-
-    Functor generateFieldFunctor = bdef_BindUtil::bind(memFn,
-                                                       _1,
-                                                       fieldName);
-
-    return bdeat_NullableValueFunctions::accessValue(object,
-                                                     generateFieldFunctor);
-}
-
-template <typename TYPE>
-int baenet_HttpMessageGenerator_GenerateField::executeImp(
-                                              const TYPE&            object,
-                                              const bdeut_StringRef& fieldName,
-                                              bdeat_TypeCategory::Enumeration)
-{
-    enum { BAENET_SUCCESS = 0 };
-
-    bsl::string value;
-
-    bdeat_EnumFunctions::toString(&value, object);
-
-    (*d_stream_p) << fieldName << ": " << value << "\r\n";
-
-    return BAENET_SUCCESS;
-}
-
-// CREATORS
-
-inline
-baenet_HttpMessageGenerator_GenerateField::
-                baenet_HttpMessageGenerator_GenerateField(bsl::ostream *stream)
-: d_stream_p(stream)
-{
-}
-
-inline
-baenet_HttpMessageGenerator_GenerateField::
-                                   ~baenet_HttpMessageGenerator_GenerateField()
-{
-}
-
-// MANIPULATORS
-
-template <typename TYPE>
-inline
-int baenet_HttpMessageGenerator_GenerateField::operator()(
-                                                  const TYPE&  object,
-                                                  const char  *fieldName,
-                                                  int          fieldNameLength)
-{
-    return execute(object, bdeut_StringRef(fieldName, fieldNameLength));
-}
-
-template <typename TYPE, typename INFO_TYPE>
-inline
-int baenet_HttpMessageGenerator_GenerateField::operator()(
-                                                       const TYPE&      object,
-                                                       const INFO_TYPE& info)
-{
-    bdeut_StringRef fieldName(info.name(), info.nameLength());
-    return execute(object, fieldName);
-}
-
-template <typename TYPE>
-inline
-int baenet_HttpMessageGenerator_GenerateField::execute(
-                                              const TYPE&            object,
-                                              const bdeut_StringRef& fieldName)
-{
-    typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
-
-    return executeImp(object, fieldName, TypeCategory());
-}
-
+ 
 }  // close namespace BloombergLP
 
 #endif
