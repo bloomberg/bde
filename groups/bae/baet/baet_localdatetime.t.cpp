@@ -610,7 +610,7 @@ int main(int argc, char *argv[])
         // Values used in several stream tests.
         // -----------------------------------
 
-        const int VERSION = Obj::maxSupportedBdexVersion();
+        const int MAX_VERSION = Obj::maxSupportedBdexVersion();
 
         bdet_DatetimeTz defaultDtz;
 
@@ -680,49 +680,61 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
         {
-            for (int ui = 0; ui < NUM_VALUES; ++ui) {
-                if (veryVerbose) { T_ T_ P(ui) }
+            for (int version = 1; version < MAX_VERSION; ++version) {
+                    if (veryVerbose) { T_ T_ P(version) }
 
-                bslma_TestAllocator oau("oau", veryVeryVeryVerbose);
+                for (int ui = 0; ui < NUM_VALUES; ++ui) {
+                    if (veryVerbose) { T_ T_ P(ui) }
+    
+                    bslma_TestAllocator oau("oau", veryVeryVeryVerbose);
+                    Obj       mU(VALUES[ui], &oau); const Obj& U = mU;
+                    const Obj  Z(VALUES[ui], &oau);
+    
+                    Out out;
+                    LOOP_ASSERT(ui, &out == &(U.bdexStreamOut(out, version)));
+    
+                    const char *const OD  = out.data();
+                    const int         LOD = out.length();
+    
+                    In in(OD, LOD);
+                    in.setSuppressVersionCheck(1);
+    
+                    LOOP_ASSERT(U, in);
+                    LOOP_ASSERT(U, !in.isEmpty());
+                    In &testInStream = in;  // for macros below
+    
+                    // Verify that each new value overwrites every old value
+                    // and that the input stream is emptied, but remains valid.
+    
+                    for (int vi = 0; vi < NUM_VALUES; ++vi) {
+                        if (veryVerbose) { T_ T_ P(vi) }
+    
+                        bslma_TestAllocator oav("oav", veryVeryVeryVerbose);
+    
+                        Obj mV(VALUES[vi], &oav); const Obj& V = mV;
 
-                Obj mU(VALUES[ui], &oau); const Obj& U = mU;
+                        bslma_TestAllocator da("default", veryVeryVeryVerbose);
+                        bdema_DefaultAllocatorGuard guard(&da);
 
-                Out out;
-                LOOP_ASSERT(ui, &out == &(U.bdexStreamOut(out, VERSION)));
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oav) {
+                        BEGIN_BDEX_EXCEPTION_TEST {
+    
+                            in.reset();
+                            LOOP_ASSERT(vi,
+                                        &in == &(mV.bdexStreamIn(in,
+                                                                 version)));
+    
+                        } END_BDEX_EXCEPTION_TEST
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
-
-                In in(OD, LOD);
-                    // Must reset 'in' on each iteration of inner loop.
-                in.setSuppressVersionCheck(1);
-
-                LOOP_ASSERT(U, in);
-                LOOP_ASSERT(U, !in.isEmpty());
-                In &testInStream = in;  // for macros below
-
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
-
-                for (int vi = 0; vi < NUM_VALUES; ++vi) {
-                    if (veryVerbose) { T_ T_ P(vi) }
-
-                    bslma_TestAllocator oav("oav", veryVeryVeryVerbose);
-
-                    Obj mV(VALUES[vi], &oav); const Obj& V = mV;
-
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oav) {
-                    BEGIN_BDEX_EXCEPTION_TEST {
-
-                        in.reset();
-                        LOOP_ASSERT(vi,
-                                    &in == &(mV.bdexStreamIn(in, VERSION)));
-
-                    } END_BDEX_EXCEPTION_TEST
-                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                    LOOP2_ASSERT(ui, vi, U == V);
-                    LOOP2_ASSERT(ui, vi, in);
-                    LOOP2_ASSERT(ui, vi, in.isEmpty());
+                        LOOP3_ASSERT(version, ui, vi, U == Z);
+                        LOOP3_ASSERT(version, ui, vi, V == Z);
+                        LOOP3_ASSERT(version, ui, vi, in);
+                        LOOP3_ASSERT(version, ui, vi, in.isEmpty());
+                        LOOP3_ASSERT(version, ui, vi,
+                                     0 == da.numAllocations());
+                         
+                    }
                 }
             }
         }
