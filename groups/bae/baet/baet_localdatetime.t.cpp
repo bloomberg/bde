@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
         //: 4 For both 'bdexStreamOut' and 'bdexStreamIn' methods, the
         //:   specified 'stream' is left in an invalid state, with no other
         //:   effect, if the specified 'version' is outside the range
-        //:   '[ 1 .. maxSupportedBdexVersion ]'.
+        //:   '[1 .. maxSupportedBdexVersion]'.
         //:
         //: 5 Both 'bdexStreamOut' and 'bdexStreamIn' methods must return with
         //:   no effect, if the specified 'stream' is initially invalid.
@@ -599,10 +599,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
         {
-            if (verbose) cout << "\tusing object syntax:" << endl;
+            if (veryVerbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
             ASSERT(1 == X.maxSupportedBdexVersion());
-            if (verbose) cout << "\tusing class method syntax:" << endl;
+            if (veryVerbose) cout << "\tusing class method syntax:" << endl;
             ASSERT(1 == Obj::maxSupportedBdexVersion());
         }
 
@@ -611,8 +611,6 @@ int main(int argc, char *argv[])
         // -----------------------------------
 
         const int VERSION = Obj::maxSupportedBdexVersion();
-
-        bslma_TestAllocator testAllocator("tA", veryVeryVeryVerbose);
 
         bdet_DatetimeTz defaultDtz;
 
@@ -685,7 +683,9 @@ int main(int argc, char *argv[])
             for (int ui = 0; ui < NUM_VALUES; ++ui) {
                 if (veryVerbose) { T_ T_ P(ui) }
 
-                Obj mU(VALUES[ui], &testAllocator); const Obj& U = mU;
+                bslma_TestAllocator oau("oau", veryVeryVeryVerbose);
+
+                Obj mU(VALUES[ui], &oau); const Obj& U = mU;
 
                 Out out;
                 LOOP_ASSERT(ui, &out == &(U.bdexStreamOut(out, VERSION)));
@@ -707,16 +707,17 @@ int main(int argc, char *argv[])
                 for (int vi = 0; vi < NUM_VALUES; ++vi) {
                     if (veryVerbose) { T_ T_ P(vi) }
 
-                    Obj mV(VALUES[vi], &testAllocator); const Obj& V = mV;
+                    bslma_TestAllocator oav("oav", veryVeryVeryVerbose);
 
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    Obj mV(VALUES[vi], &oav); const Obj& V = mV;
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oav) {
                     BEGIN_BDEX_EXCEPTION_TEST {
+
                         in.reset();
                         LOOP_ASSERT(vi,
-                                    &in == &(bdex_InStreamFunctions::streamIn(
-                                                                  testInStream,
-                                                                  mV,
-                                                                  VERSION)));
+                                    &in == &(mV.bdexStreamIn(in, VERSION)));
+
                     } END_BDEX_EXCEPTION_TEST
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                     LOOP2_ASSERT(ui, vi, U == V);
@@ -765,14 +766,16 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) { T_ T_ P(i) }
 
-                Obj mU(VALUES[i], &testAllocator); const Obj& U = mU;
+                bslma_TestAllocator oa("oa", veryVeryVeryVerbose);
+
+                Obj mU(VALUES[i], &oa); const Obj& U = mU;
 
                 Out out;
                 out.invalidate();
                 LOOP_ASSERT(i, !out);
                 const void *data   = out.data();
                 int         length = out.length();
-		
+                
                 LOOP_ASSERT(i, &out == &(U.bdexStreamOut(out, VERSION)));
                 LOOP_ASSERT(i, !out);
                 LOOP_ASSERT(i, data   == out.data());
@@ -783,12 +786,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tOn incomplete (but otherwise valid) data."
                           << endl;
         {
-            // Each object unique has unique attributes w.r.t. objects to be
-            // compared (e.g., W1, X1, Y1).  Note that 'smallDtz', 'someDtz',
-            // and 'largeDtz' differ in each constituent attribute and that
-            // each 'timeZoneId' is unique.  Thus, partially constructed 'tn'
-            // objects will match their target value only 'tn' is completed
-            // assembled.
+            // Each object has unique attributes w.r.t. objects to be compared
+            // (e.g., W1, X1, Y1).  Note that 'smallDtz', 'someDtz', and
+            // 'largeDtz' differ in each constituent attribute and that each
+            // 'timeZoneId' is unique.  Thus, partially constructed 'tn'
+            // objects will match their target value only when 'tn' is
+            // completed assembled.
 
             const Obj W1(smallDtz, "");
             const Obj X1( someDtz, "a");
@@ -825,6 +828,9 @@ int main(int argc, char *argv[])
                       t1.bdexStreamIn(in, VERSION);
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i,
                                                           someDiff(X1, t1));
+                      LOOP_ASSERT(i, bdet_DatetimeTz::isValid(
+                                          t1.datetimeTz().dateTz().localDate(),
+                                          t1.datetimeTz().offset()));
 
                       t2.bdexStreamIn(in, VERSION);
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W2 == t2);
@@ -914,11 +920,11 @@ int main(int argc, char *argv[])
 
               Obj t1(W1), t2(W2), t3(W3);
 
-	      t1.bdexStreamIn(in, VERSION);
+              t1.bdexStreamIn(in, VERSION);
               ASSERT( out);
-	      t2.bdexStreamIn(in, VERSION);
+              t2.bdexStreamIn(in, VERSION);
               ASSERT( out);
-	      t3.bdexStreamIn(in, VERSION);
+              t3.bdexStreamIn(in, VERSION);
               ASSERT(!out);
 
               // Check the validity of the target objects, 'tn', with some
