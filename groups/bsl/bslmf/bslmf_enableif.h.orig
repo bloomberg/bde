@@ -74,7 +74,10 @@ BSLS_IDENT("$Id: $")
 // appear to differ only in their return type, which would normally raise an
 // ambiguity error.  This works, and is in fact required, in this case as the
 // "enable-if" conditions are mutually exclusive, so that only one overload
-// will ever be present in an overload set.
+// will ever be present in an overload set.  Also note that we use the token
+// 'not' rather than the operator '!' to call attention to the negation.  This
+// is purely a style issue, as a lone '!' is too easy to miss as the only
+// difference between two declarations.
 //..
 //  template<class T>
 //  typename bslmf_EnableIf<HasMemberSwap<T>::VALUE>::type
@@ -84,7 +87,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  template<class T>
-//  typename bslmf_EnableIf< ! HasMemberSwap<T>::VALUE>::type
+//  typename bslmf_EnableIf<not HasMemberSwap<T>::VALUE>::type
 //  Swap(T& a, T& b)
 //  {
 //      T temp(a);
