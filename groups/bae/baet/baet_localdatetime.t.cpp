@@ -6,6 +6,8 @@
 #include <bdex_testinstreamexception.h>  // for testing only
 #include <bdex_testoutstream.h>          // for testing only
 
+#include <bdema_defaultallocatorguard.h>
+
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
@@ -429,57 +431,64 @@ int main(int argc, char *argv[])
       case 10: {
         // --------------------------------------------------------------------
         // BSLX STREAMING
-        //   Ensure that we can serialize the value of any object of the class,
-        //   and then deserialize that value back into any object of the class.
+        //   Ensure that we can serialize the value of any object of the class
+        //   via its 'bdexStreamOut' method, and then deserialize that value
+        //   back into any object of the class, via its 'bdexStreamIn' method.
         //
         // Concerns:
         //: 1 The signature and return type of 'bdexStreamOut', 'bdexStreamIn',
         //:   and 'maxSupportedBdexVersion' are standard.
         //:
-        //: 2 Both 'bdexStreamOut' and 'bdexStreamIn' methods return a
-        //:   reference with modifiable access to the specified 'stream'.
+        //: 2 The 'maxSupportedBdexVersion' method returns the expected value.
         //:
-        //: 3 The 'maxSupportedBdexVersion' method returns the expected value.
+        //: 3 For all supported versions, any sequence of valid values can be
+        //:   externalized using the 'bdexStreamOut' method.
         //:
-        //: 4 For both 'bdexStreamOut' and 'bdexStreamIn' methods, the
-        //:   specified 'stream' is left in an invalid state, with no other
-        //:   effect, if the specified 'version' is outside the range
-        //:   '[1 .. maxSupportedBdexVersion]'.
+        //: 4 For all supported versions, any valid value on the wire can
+        //:   unexternalized by 'bdexStreamIn' into an object having that
+        //:   value, irrespective of the initial value of the object.
         //:
-        //: 5 Both 'bdexStreamOut' and 'bdexStreamIn' methods must return with
-        //:   no effect, if the specified 'stream' is initially invalid.
+        //: 5 Both stream methods always return a reference with modifiable
+        //:   access to the specified 'stream'.
         //:
-        //: 6 TBD: If 'stream' becomes invalid during an invocation of
-        //:   'bdexStreamIn', the object is left in a valid state (possibly
-        //:   modified).
+        //: 6 For both stream methods, the specified 'stream' is left in an
+        //:   invalid state, with no other effect, if the specified 'version'
+        //:   is outside the range '[1 .. maxSupportedBdexVersion]'.
         //:
-        //: 7 The 'bdexStreamIn' method must be exception neutral (i.e., no
-        //:   memory leaked, the object left in valid, though specified, state)
-        //:   with respect to input and memory allocation exceptions.
+        //: 7 Both stream methods must return with no effect, if the specified
+        //:   'stream' is invalid on entry.
         //:
-        //: 8 For all supported versions, any sequence of valid values can be
-        //:   externalized using the 'bdexStreamOut' method and reconstructed
-        //:   using the 'bdexStreamIn' method for all supported matching
-        //:   versions.
+        //: 8 If 'stream' becomes invalid during an invocation of
+        //:   'bdexStreamIn', the object is left in a valid state, but possibly
+        //:   modified, state.
         //:
-        //: 9 The wire format of this object is be the concatenation of the the
+        //: 9 If an exception is thrown during a call to the 'bdexStreamIn'
+        //:   method, the object is left in an unspecified but valid state.
+        //:   In no event is memory leaked.
+        //:
+        //:10 The wire format of this object is be the concatenation of the the
         //:   wire formats of its constituent attributes, in the order of their
         //:   declaration.  (TBD)
         //:
-        //:10 The specified 'version' is not part of the wire format generated
-        //:   by the 'bdexStreamOut' method and is not expected by the
+        //:11 The specified 'version' is not part of the wire format generated
+        //:   by the 'bdexStreamOut' method, and is not expected by the
         //:   'bdexStreamIn' method.
         //:
-        //:11 The 'bdexStreamIn' method leaves the object unchanged, when the
+        //:12 The 'bdexStreamIn' method leaves the object unchanged, when the
         //:   specified 'stream' is empty.
         //:
-        //:12 The 'bdexStreamIn' method leaves the object unchanged, when the
-        //:   specified 'stream' contains well-formed data that violates object
-        //:   constraints.
+        //:13 The 'bdexStreamIn' method leaves the object in a valid but
+        //:   unspecified state, when the specified 'stream' contains
+        //:   well-formed data that violates object constraints.
         //:
-        //:13 The 'bdexStreamIn' method leaves the object in a valid (but
+        //:14 The 'bdexStreamIn' method leaves the object in a valid (but
         //:   unspecified) state when the specified 'stream' contains valid but
         //:   incomplete data.
+        //:
+        //:15 QoI: No memory is allocated by the object by 'bdexStreamOut'.
+        //:
+        //:16 QoI: All memory allocated by 'bdexStreamIn' is from the object
+        //:   allocator.
         //
         // Plan:
         //: 1 Use the addresses of the (templated) 'bdexStreamIn' and
@@ -487,12 +496,16 @@ int main(int argc, char *argv[])
         //:   'bdex_TestOutStream types, respectively, to initialize
         //:   member-function pointers each having the standard signature and
         //:   return type for the for these member-functions.  Use the
-        //:   'maxSupportedBdexVersion' static function to initialze a function
-        //:   pointer having the standard signature and return type for that
-        //:   function.  (C-1)
+        //:   'maxSupportedBdexVersion' static function to initialize a
+        //:   function pointer having the standard signature and return type
+        //:   for that function.  (C-1)
         //:
         //: 2 Compare the return value of the 'maxSupportedBdexVersion' to the
-        //:   expected value for this implementation.  (C-3)
+        //:   expected value for this implementation.  (C-2)
+        //:
+        //: 3 In test cases with both valid and invalid input, compare the
+        //:   return values of 'bdexStreamIn' and 'bdexStreamOut' methods with
+        //:   their specified 'stream'. (C-5)
         //:
         //: 3 Specify a set 'S' of unique object values with substantial and
         //:   varied differences.  For each value in 'S', construct an object
@@ -500,26 +513,27 @@ int main(int argc, char *argv[])
         //:   'x1,   x2, ..., xN'.  Attempt to affect every aspect of white-box
         //:   state by altering each 'xi' in a unique way.  Let the union of
         //:   all such objects be the set 'T', programmatically represented by
-        //:   the 'VALUES' array of object.s
+        //:   the 'VALUES' array of objects.
         //:
         //: 4 Using all combinations of '(u, v)' in 'T X T', stream-out the
         //:   value of u into a buffer and stream it back into (an independent
-        //:   object of) 'v', and assert that 'u == v'.  (C-8) Compare the
+        //:   object of) 'v', and assert that 'u == v'.  (C-3) Compare the
         //:   return value of the each 'bdexStreamIn' and 'bdexStreamOut'
-        //:   method call with the supplied 'stream'.  (C-2)
+        //:   method call with the supplied 'stream'.  (C-4)
         //:
-        //: 5 Wrap 'bdexStreamIn' calls with the standard
-        //:   'BEGIN_BDEX_EXCEPTION_TEST' and 'END_BDEX_EXCEPTION_TEST' macros
-        //:   to confirm exception neutrality.  (C-7)
+        //: 5 Throughout this test case, wrap 'bdexStreamIn' calls with the
+        //:   standard 'BEGIN_BDEX_EXCEPTION_TEST' and
+        //:   'END_BDEX_EXCEPTION_TEST' macros to confirm exception neutrality.
+        //:   (C-7)
         //:
         //: 6 For each 'x' in 'T', attempt to stream into (a temporary copy of)
         //:   'x' from an empty (but valid) and then invalid stream.  Verify
         //:   after each try that the object is unchanged and that the stream
-        //:   is invalid.  (C-5, C-11) For each 'x' in 'T' attempt to stream
+        //:   is invalid.  (C-7, C-12) For each 'x' in 'T' attempt to stream
         //:   'x' into an initially invalid stream.  Check that the stream is
         //:   unchanged.  For each stream operation (both in and out), compare
         //:   the return value of the each 'bdexStreamIn' and 'bdexStreamOut'
-        //:   method call with the supplied 'stream'.  (C-2)
+        //:   method call with the supplied 'stream'.  (C-5)
         //:
         //: 7 Write three distinct objects to an output stream buffer of total
         //:   length 'N'.  For each partial stream length from 0 to 'N - 1',
@@ -532,7 +546,7 @@ int main(int argc, char *argv[])
         //:   assigning a known value to that copy; allow the original object
         //:   to leave scope without further modification, so that the
         //:   destructor asserts internal object invariants appropriately.
-        //:   (C-13)
+        //:   (C-14)
         //:
         //: 8 TBD: Iteratively write three distinct objects to an output
         //:   stream buffer, instructing the output stream to make the next
@@ -542,30 +556,30 @@ int main(int argc, char *argv[])
         //:   case, the reconstruction of the object from the stream must
         //:   return normally up to the point at which the error was introduced
         //:   (known) and, after that point, an invalid stream, with valid
-        //:   though unspecified objects.  (C-6)
+        //:   though unspecified objects.  (C-8)
         //:
         //: 9 For every supported version, check that an object can be streamed
         //:   and reconstructed (streamed) successfully.  For version numbers
         //:   below and above the supported range (i.e., 0 and
         //:   'maxBdexVersion() + 1), confirm that these operations have no
         //:   effect and the initially valid stream is left in an invalid
-        //:   state.  (C-4)
+        //:   state.  (C-6)
         //:
         //:10 For every object 'x' in 'T' create two outstream: one via the
         //:   object's 'bdexStreamOut' method, and the other by explicitly
         //:   outstreaming each constituent attribute (in order of
-        //:   declaration).  (C-9) Confirm that the outstream created via
+        //:   declaration).  (C-10) Confirm that the outstream created via
         //:   individual attributes can be used to reconstruct the object, with
         //:   no data left unread. This accounts for all of the information
         //:   conveyed from the original to the duplicate object; thus, no
-        //:   version information was sent.  (C-10).
+        //:   version information was sent.  (C-11).
         //:
         //:11 This class imposes no restrictions on the values of its
         //:   constituent attributes.  If an instream contains data that is
         //:   well-formed but in violation of object constraints, the
         //:   'bdexStreamIn' method of that constituent attribute will fail and
         //:   leave this object in some valid, though unspecified, state.
-        //:   (C-12)
+        //:   (C-13)
         //
         // Testing:
         //   static int maxSupportedBdexVersion();
@@ -606,9 +620,9 @@ int main(int argc, char *argv[])
             ASSERT(1 == Obj::maxSupportedBdexVersion());
         }
 
-        // -----------------------------------
+        // ------------------------------------
         // Values used in several stream tests.
-        // -----------------------------------
+        // ------------------------------------
 
         const int MAX_VERSION = Obj::maxSupportedBdexVersion();
 
@@ -643,87 +657,94 @@ int main(int argc, char *argv[])
                             { V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB };
         const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-#if TBD  // Needed?
         if (verbose) cout << "\nDirect initial trial of 'streamOut' and"
                              " (valid) 'streamIn' functionality." << endl;
+        //TBD: What does this *test*?
         {
-            bslma_TestAllocator testAllocator("tA", veryVeryVeryVerbose);
+            for (int version = 1; version < MAX_VERSION; ++version) {
+                if (veryVerbose) { T_ T_ P(version) }
 
-            const Obj X(bdet_DatetimeTz(bdet_Datetime(2011, 5, 3, 15),
-                                        -4 * 60),
-                        "a_" SUFFICIENTLY_LONG_STRING,
-                        &testAllocator);
-            if (veryVerbose) { cout << "\t   Value being streamed: "; P(X); }
+                bslma_TestAllocator testAllocator("tA", veryVeryVeryVerbose);
 
-            Out out;
-            X.bdexStreamOut(out, VERSION);
+                const Obj X(bdet_DatetimeTz(bdet_Datetime(2011, 5, 3, 15),
+                                            -4 * 60),
+                            "a_" SUFFICIENTLY_LONG_STRING,
+                            &testAllocator);
+                if (veryVerbose) { cout << "\t   Value being streamed: ";
+                                   P(X); }
+                Out out;
+                ASSERT(&out == &(X.bdexStreamOut(out, version)));
 
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
 
-            In in(OD, LOD);  ASSERT(in);  ASSERT(!in.isEmpty());
-            in.setSuppressVersionCheck(1);
+                In in(OD, LOD);  ASSERT(in);  ASSERT(!in.isEmpty());
+                in.setSuppressVersionCheck(1);
 
-            Obj t(&testAllocator);  ASSERT(X != t);
+                Obj t(&testAllocator);  ASSERT(X != t);
 
-            if (veryVerbose) { cout << "\tValue being overwritten: "; P(t); }
-            ASSERT(X != t);
+                if (veryVerbose) { cout << "\tValue being overwritten: ";
+                                   P(t); }
+                ASSERT(X != t);
 
-            t.bdexStreamIn(in, VERSION);
-            ASSERT(in);
-            ASSERT(in.isEmpty());
+                t.bdexStreamIn(in, version);
+                ASSERT(in);
+                ASSERT(in.isEmpty());
 
-            if (veryVerbose) { cout << "\t  Value after overwrite: "; P(t); }
-            ASSERT(X == t);
+                if (veryVerbose) { cout << "\t  Value after overwrite: ";
+                                   P(t); }
+                ASSERT(X == t);
+            }
         }
-#endif
 
         if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
         {
             for (int version = 1; version < MAX_VERSION; ++version) {
-                    if (veryVerbose) { T_ T_ P(version) }
+                if (veryVerbose) { T_ T_ P(version) }
 
                 for (int ui = 0; ui < NUM_VALUES; ++ui) {
                     if (veryVerbose) { T_ T_ P(ui) }
-    
+
                     bslma_TestAllocator oau("oau", veryVeryVeryVerbose);
                     Obj       mU(VALUES[ui], &oau); const Obj& U = mU;
                     const Obj  Z(VALUES[ui], &oau);
-    
+
                     Out out;
                     LOOP_ASSERT(ui, &out == &(U.bdexStreamOut(out, version)));
-    
+
                     const char *const OD  = out.data();
                     const int         LOD = out.length();
-    
+
                     In in(OD, LOD);
                     in.setSuppressVersionCheck(1);
-    
+
                     LOOP_ASSERT(U, in);
                     LOOP_ASSERT(U, !in.isEmpty());
-                    In &testInStream = in;  // for macros below
-    
+                    In &testInStream = in; // for 'BEGIN_BDEX_EXCEPTION_TEST'
+                                           // macro below
+
                     // Verify that each new value overwrites every old value
                     // and that the input stream is emptied, but remains valid.
-    
+
                     for (int vi = 0; vi < NUM_VALUES; ++vi) {
                         if (veryVerbose) { T_ T_ P(vi) }
-    
+
                         bslma_TestAllocator oav("oav", veryVeryVeryVerbose);
-    
+
                         Obj mV(VALUES[vi], &oav); const Obj& V = mV;
 
-                        bslma_TestAllocator da("default", veryVeryVeryVerbose);
+                        bslma_TestAllocator         da("default",
+                                                       veryVeryVeryVerbose);
                         bdema_DefaultAllocatorGuard guard(&da);
 
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oav) {
                         BEGIN_BDEX_EXCEPTION_TEST {
-    
+
                             in.reset();
                             LOOP_ASSERT(vi,
                                         &in == &(mV.bdexStreamIn(in,
                                                                  version)));
-    
+
                         } END_BDEX_EXCEPTION_TEST
                         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -733,7 +754,7 @@ int main(int argc, char *argv[])
                         LOOP3_ASSERT(version, ui, vi, in.isEmpty());
                         LOOP3_ASSERT(version, ui, vi,
                                      0 == da.numAllocations());
-                         
+
                     }
                 }
             }
@@ -741,60 +762,78 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tOn empty and invalid input streams." << endl;
         {
-            // testing empty and invalid streams
-            Out out;
+            Out               out;
             const char *const OD  = out.data();
             const int         LOD = out.length();
             ASSERT(0 == LOD);
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                In in(OD, LOD);  In& testInStream = in;
-                LOOP_ASSERT(i, in);
-                LOOP_ASSERT(i, in.isEmpty());
+            for (int version = 1; version < MAX_VERSION; ++version) {
+                if (veryVerbose) { T_ T_ P(version) }
 
-                // Ensure that reading from an empty or invalid input stream
-                // leaves the stream invalid and the target object unchanged.
+                for (int i = 0; i < NUM_VALUES; ++i) {
+                    In in(OD, LOD);  In& testInStream = in;
+                    LOOP_ASSERT(i, in);
+                    LOOP_ASSERT(i, in.isEmpty());
 
-                const Obj X(VALUES[i]);  Obj t(X);  LOOP_ASSERT(i, X == t);
+                    // Ensure that reading from an empty or invalid input
+                    // stream leaves the stream invalid and the target object
+                    // unchanged.
 
-                BEGIN_BDEX_EXCEPTION_TEST {
-                  in.reset();
-                  LOOP_ASSERT(i, in);
+                    const Obj X(VALUES[i]);  Obj t1(X), t2(X);
+                                             LOOP_ASSERT(i, X == t1);
+                                             LOOP_ASSERT(i, X == t2);
 
-                  // read from empty
-                  LOOP_ASSERT(i, &in == &(t.bdexStreamIn(in, VERSION)));
-                  LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t);
+                    BEGIN_BDEX_EXCEPTION_TEST {
+                      in.reset();
+                      LOOP_ASSERT(i, in);
 
-                  // read from (the now) invalid stream
-                  LOOP_ASSERT(i, &in == &(t.bdexStreamIn(in, VERSION)));
-                  LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t);
+                      // read from empty
+                      LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, version)));
+                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t1);
 
-                } END_BDEX_EXCEPTION_TEST
+                      // read from (the now) invalid stream
+                      LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, version)));
+                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t2);
+
+                    } END_BDEX_EXCEPTION_TEST
+                }
             }
         }
 
         if (verbose) cout << "\tOn invalid out streams." << endl;
         {
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                if (veryVerbose) { T_ T_ P(i) }
+            for (int version = 1; version < MAX_VERSION; ++version) {
+                if (veryVerbose) { T_ T_ P(version) }
 
-                bslma_TestAllocator oa("oa", veryVeryVeryVerbose);
+                for (int i = 0; i < NUM_VALUES; ++i) {
+                    if (veryVerbose) { T_ T_ P(i) }
 
-                Obj mU(VALUES[i], &oa); const Obj& U = mU;
+                    bslma_TestAllocator         oa("oa", veryVeryVeryVerbose);
+                    bslma_TestAllocator         da("default",
+                                                   veryVeryVeryVerbose);
+                    bdema_DefaultAllocatorGuard guard(&da);
 
-                Out out;
-                out.invalidate();
-                LOOP_ASSERT(i, !out);
-                const void *data   = out.data();
-                int         length = out.length();
-                
-                LOOP_ASSERT(i, &out == &(U.bdexStreamOut(out, VERSION)));
-                LOOP_ASSERT(i, !out);
-                LOOP_ASSERT(i, data   == out.data());
-                LOOP_ASSERT(i, length == out.length());
+                    Obj mU(VALUES[i], &oa); const Obj& U = mU;
+
+                    Out out;
+                    out.invalidate();
+                    LOOP_ASSERT(i, !out);
+                    const void *data   = out.data();
+                    int         length = out.length();
+
+                    LOOP2_ASSERT(version, i,
+                                 &out == &(U.bdexStreamOut(out, version)));
+                    LOOP2_ASSERT(version, i,
+                                 !out);
+                    LOOP2_ASSERT(version, i,
+                                 data   == out.data());
+                    LOOP2_ASSERT(version, i,
+                                 length == out.length());
+                    LOOP2_ASSERT(version, i,
+                                 0 == da.numAllocations());
+                }
             }
         }
-
         if (verbose) cout << "\tOn incomplete (but otherwise valid) data."
                           << endl;
         {
@@ -804,6 +843,8 @@ int main(int argc, char *argv[])
             // 'timeZoneId' is unique.  Thus, partially constructed 'tn'
             // objects will match their target value only when 'tn' is
             // completed assembled.
+
+            const int VERSION = 1;
 
             const Obj W1(smallDtz, "");
             const Obj X1( someDtz, "a");
@@ -837,41 +878,41 @@ int main(int argc, char *argv[])
                   Obj t1(W1), t2(W2), t3(W3);
 
                   if (i < LOD1) {
-                      t1.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i,
                                                           someDiff(X1, t1));
                       LOOP_ASSERT(i, bdet_DatetimeTz::isValid(
                                           t1.datetimeTz().dateTz().localDate(),
                                           t1.datetimeTz().offset()));
 
-                      t2.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W2 == t2);
 
-                      t3.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
-
-                  } else if (i < LOD2) {
-                      t1.bdexStreamIn(in, VERSION);
+                  }
+                  else if (i < LOD2) {
+                      LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X1 == t1);
 
-                      t2.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i,
                                                           someDiff(X2, t2));
                       LOOP_ASSERT(i, bdet_DatetimeTz::isValid(
                                           t2.datetimeTz().dateTz().localDate(),
                                           t2.datetimeTz().offset()));
 
-                      t3.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
-
-                  } else {
-                      t1.bdexStreamIn(in, VERSION);
+                  }
+                  else {
+                      LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X1 == t1);
 
-                      t2.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X2 == t2);
 
-                      t3.bdexStreamIn(in, VERSION);
+                      LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i,
                                                           someDiff(X3, t3));
                       LOOP_ASSERT(i, bdet_DatetimeTz::isValid(
@@ -895,7 +936,7 @@ int main(int argc, char *argv[])
             }
         }
 
-#if TBD
+#if TBD  // Check 'makeNextInvalid' method.
         if (verbose) cout << "\tOn complete data in an invalidated stream."
                           << endl;
         {
@@ -905,6 +946,8 @@ int main(int argc, char *argv[])
             // each 'timeZoneId' is unique.  Thus, partially constructed 'tn'
             // objects will match their target value only 'tn' is completed
             // assembled.
+
+            const int VERSION = 1;
 
             const Obj W1(smallDtz, "");
             const Obj X1( someDtz, "a");
@@ -919,11 +962,12 @@ int main(int argc, char *argv[])
             const Obj Y3(smallDtz, "iiiiiiii");
 
             Out out;
-            
+
             X1.bdexStreamOut(out, VERSION);
-            X2.bdexStreamOut(out, VERSION);
+            ASSERT(&out == &(X1.bdexStreamOut(out, VERSION)));
+            ASSERT(&out == &(X2.bdexStreamOut(out, VERSION)));
             out.makeNextInvalid();
-            X3.bdexStreamOut(out, VERSION);
+            ASSERT(&out == &(X3.bdexStreamOut(out, VERSION)));
 
             In in(out.data(), out.length());  In& testInStream = in;
             in.setSuppressVersionCheck(1);
@@ -932,11 +976,11 @@ int main(int argc, char *argv[])
 
               Obj t1(W1), t2(W2), t3(W3);
 
-              t1.bdexStreamIn(in, VERSION);
+              ASSERT(&in == &(t1.bdexStreamIn(in, VERSION)));
               ASSERT( out);
-              t2.bdexStreamIn(in, VERSION);
+              ASSERT(&in == &(t2.bdexStreamIn(in, VERSION)));
               ASSERT( out);
-              t3.bdexStreamIn(in, VERSION);
+              ASSERT(&in == &(t3.bdexStreamIn(in, VERSION)));
               ASSERT(!out);
 
               // Check the validity of the target objects, 'tn', with some
@@ -974,7 +1018,7 @@ int main(int argc, char *argv[])
             Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
             In in(OD, LOD);  ASSERT(in);
             in.setSuppressVersionCheck(1);
-            t.bdexStreamIn(in, VERSION);
+		    ASSERT(&in == &(t.bdexStreamIn(in, version)));
             ASSERT(in);
                              ASSERT(W != t);  ASSERT(X != t);  ASSERT(Y == t);
         }
@@ -994,7 +1038,7 @@ int main(int argc, char *argv[])
             In in(OD, LOD);  ASSERT(in);
             in.setSuppressVersionCheck(1);
             in.setQuiet(!veryVerbose);
-            t.bdexStreamIn(in, version);
+		    ASSERT(&in == &(t.bdexStreamIn(in, version)));
             ASSERT(!in);
                              ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
         }
@@ -1013,7 +1057,7 @@ int main(int argc, char *argv[])
             In in(OD, LOD);  ASSERT(in);
             in.setSuppressVersionCheck(1);
             in.setQuiet(!veryVerbose);
-            t.bdexStreamIn(in, version);
+		    ASSERT(&in == &(t.bdexStreamIn(in, version)));
             ASSERT(!in);
                              ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
         }
@@ -1025,8 +1069,8 @@ int main(int argc, char *argv[])
             Out out;
             ASSERT(out);
             ASSERT(0 == out.length());
-     
-            Y.bdexStreamOut(out, version);
+
+            ASSERT(&out == &(Y.bdexStreamOut(out, version)));
             ASSERT(out);
             ASSERT(0 != out.length());
         }
@@ -1038,8 +1082,8 @@ int main(int argc, char *argv[])
             Out out;
             ASSERT(out);
             ASSERT(0 == out.length());
-     
-            Y.bdexStreamOut(out, version);
+
+            ASSERT(&out == &(Y.bdexStreamOut(out, version)));
             ASSERT(!out);
             ASSERT(0 == out.length());
         }
@@ -1050,8 +1094,8 @@ int main(int argc, char *argv[])
             Out out;
             ASSERT(out);
             ASSERT(0 == out.length());
-     
-            Y.bdexStreamOut(out, version);
+
+            ASSERT(&out == &(Y.bdexStreamOut(out, version)));
             ASSERT(!out);
             ASSERT(0 == out.length());
         }
@@ -1061,13 +1105,13 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_VALUES; ++i) {
 
                 Obj       mX(VALUES[i]);  const Obj& X = mX;
-                const int VER = 1;
+                const int VERSION = 1;
 
                 if (veryVerbose) { T_ P(X) }
 
-                Out outO;  X.bdexStreamOut(outO, VER);
+                Out outO;  X.bdexStreamOut(outO, VERSION);
 
-                Out outA;  X.datetimeTz().bdexStreamOut(outA, VER);
+                Out outA;  X.datetimeTz().bdexStreamOut(outA, VERSION);
                            outA.putString(X.timeZoneId());
 
                 LOOP_ASSERT(i, outA.length() == outO.length());
@@ -1078,7 +1122,7 @@ int main(int argc, char *argv[])
                 Obj mY;  const Obj& Y = mY;
                 In in(outA.data(), outA.length());
                 in.setSuppressVersionCheck(1);
-                mY.bdexStreamIn(in, VER);
+		        ASSERT(&in == &(mY.bdexStreamIn(in, VERSION)));
 
                 LOOP_ASSERT(i, in.isEmpty());
                 LOOP_ASSERT(i, X == Y);

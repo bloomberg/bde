@@ -14,7 +14,8 @@ BDES_IDENT("$Id: $ $CSID: $")
 //
 //@AUTHOR: Stefano Pacifico (spacifico1),
 //         Mike Giroux (mgiroux),
-//         Henry Verschell (hverschell)
+//         Henry Verschell (hverschell),
+//         Steven Breitstein (sbreitstein)
 //
 //@SEE_ALSO: bdet_datetimetz
 //
