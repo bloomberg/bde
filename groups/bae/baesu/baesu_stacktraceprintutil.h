@@ -30,10 +30,8 @@ BDES_IDENT("$Id: $")
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example: Printing a Stack Trace
+///Example 1: Printing a Stack Trace
 ///- - - - - - - - - - - - - - - -
-// The following example illustrates how to print a stack trace.
-//
 // This example shows how to print a stack trace to a stream, by calling the
 // static function 'baesu_StackTraceUtil::printStackTrace'.
 //
@@ -41,8 +39,8 @@ BDES_IDENT("$Id: $")
 //..
 //  static
 //  void recurseAndPrintStack(int *depth)
-//      // Now, recurse to the specified 'depth', then print out the stack
-//      // trace to 'cout'.
+//      // Recurse to the specified 'depth', then print out the stack trace to
+//      // 'cout'.
 //  {
 //      if (--*depth > 0) {
 //          recurseAndPrintStack(depth);
