@@ -92,49 +92,49 @@ using namespace bsl;
 //:   o swap
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [  ] static int maxSupportedBdexVersion();
+// [11] static int maxSupportedBdexVersion();
 //
 // CREATORS
-// [  ] baet_LocalDatetime(bslma_Allocator *bA = 0);
-// [  ] baet_LocalDatetime(DatetimeTz& d, const char *t, *bA = 0);
-// [  ] baet_LocalDatetime(const baet_LocalDatetime& o, *bA = 0);
+// [ 2] baet_LocalDatetime(bslma_Allocator *bA = 0);
+// [ 3] baet_LocalDatetime(DatetimeTz& d, const char *t, *bA = 0);
+// [ 7] baet_LocalDatetime(const baet_LocalDatetime& o, *bA = 0);
 //
 // MANIPULATORS
-// [  ] baet_LocalDatetime& operator=(const baet_LocalDatetime& rhs);
-// [  ] setDatetimeTz(const bdet_DatetimeTz& value);
-// [  ] setTimeZoneId(const char *value);
-// [  ] swap(baet_LocalDatetime& other);
-// [  ] STREAM& bdexStreamIn(STREAM& stream, int version);
+// [ 9] baet_LocalDatetime& operator=(const baet_LocalDatetime& rhs);
+// [ 2] setDatetimeTz(const bdet_DatetimeTz& value);
+// [ 2] setTimeZoneId(const char *value);
+//
+// [ 8] swap(baet_LocalDatetime& other);
+// [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 //
 // ACCESSORS
-// [  ] bslma_Allocator *allocator() const;
-// [  ] const bdet_DatetimeTz& datetimeTz() const;
-// [  ] const bsl::string& timeZoneId() const;
+// [ 4] bslma_Allocator *allocator() const;
+// [ 4] const bdet_DatetimeTz& datetimeTz() const;
+// [ 4] const bsl::string& timeZoneId() const;
 //
-// [  ] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
-// [  ] STREAM& bdexStreamOut(STREAM& stream, int version) const;
+// [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
+// [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 //
 // FREE OPERATORS
-// [  ] bool operator==(const baet_LocalDatetime& lhs, rhs);
-// [  ] bool operator!=(const baet_LocalDatetime& lhs, rhs);
-// [  ] operator<<(ostream& s, const baet_LocalDatetime& d);
+// [ 6] bool operator==(const baet_LocalDatetime& lhs, rhs);
+// [ 6] bool operator!=(const baet_LocalDatetime& lhs, rhs);
+// [ 5] operator<<(ostream& s, const baet_LocalDatetime& d);
 //
 // FREE FUNCTIONS
-// [  ] swap(baet_LocalDatetime& a, b);
+// [ 8] swap(baet_LocalDatetime& a, b);
 // ----------------------------------------------------------------------------
-// [  ] BREATHING TEST
-// [  ] USAGE EXAMPLE
-// [  ] CONCERN: This test driver is reusable w/other, similar components.
-// [  ] CONCERN: In no case does memory come from the global allocator.
-// [  ] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
-// [  ] CONCERN: All accessor methods are declared 'const'.
-// [  ] CONCERN: String arguments can be either 'char *' or 'string'.
-// [  ] CONCERN: All memory allocation is from the object's allocator.
-// [  ] CONCERN: All memory allocation is exception neutral.
-// [  ] CONCERN: Object value is independent of the object allocator.
-// [  ] CONCERN: There is no temporary allocation from any allocator.
-// [  ] CONCERN: Precondition violations are detected when enabled.
-// [  ] Reserved for 'bslx' streaming.
+// [ 1] BREATHING TEST
+// [11] USAGE EXAMPLE
+// [ *] CONCERN: This test driver is reusable w/other, similar components.
+// [ *] CONCERN: In no case does memory come from the global allocator.
+// [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
+// [ 5] CONCERN: All accessor methods are declared 'const'.
+// [ 3] CONCERN: String arguments can be either 'char *' or 'string'.
+// [ 9] CONCERN: All memory allocation is from the object's allocator.
+// [ 9] CONCERN: All memory allocation is exception neutral.
+// [ 9] CONCERN: Object value is independent of the object allocator.
+// [ 9] CONCERN: There is no temporary allocation from any allocator.
+// [ 8] CONCERN: Precondition violations are detected when enabled.
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -485,10 +485,11 @@ int main(int argc, char *argv[])
         //:   unspecified) state when the specified 'stream' contains valid but
         //:   incomplete data.
         //:
-        //:15 QoI: No memory is allocated by the object by 'bdexStreamOut'.
+        //:15 QoI: No memory is allocated by the object by the 'bdexStreamOut'
+        //:   method.
         //:
-        //:16 QoI: All memory allocated by 'bdexStreamIn' is from the object
-        //:   allocator.
+        //:16 QoI: All memory allocated by the 'bdexStreamIn' method is from
+        //:   the object allocator.
         //
         // Plan:
         //: 1 Use the addresses of the (templated) 'bdexStreamIn' and
@@ -580,6 +581,13 @@ int main(int argc, char *argv[])
         //:   'bdexStreamIn' method of that constituent attribute will fail and
         //:   leave this object in some valid, though unspecified, state.
         //:   (C-13)
+        //:
+        //:12 In each test using the 'bdexStreamIn' or 'bdexStreamOut' method
+        //:   install 'bslma_TestAllocator' object as the default allocator.
+        //:   After each 'bdexStreamIn' and 'bdexStreamOut' invocation check
+        //:   that the default allocator was not used.  Additionally, after
+        //:   'bdexStreamOut' invocation, check that the object allocator was
+        //:   not used.  (C15, C-16)
         //
         // Testing:
         //   static int maxSupportedBdexVersion();
@@ -699,6 +707,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
         {
+            bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+            bdema_DefaultAllocatorGuard guard(&da);
+
             for (int version = 1; version < MAX_VERSION; ++version) {
                 if (veryVerbose) { T_ T_ P(version) }
 
@@ -709,8 +720,11 @@ int main(int argc, char *argv[])
                     Obj       mU(VALUES[ui], &oau); const Obj& U = mU;
                     const Obj  Z(VALUES[ui], &oau);
 
-                    Out out;
+                    Out                        out;
+                    bslma_TestAllocatorMonitor oaum(oau), dam(da);
                     LOOP_ASSERT(ui, &out == &(U.bdexStreamOut(out, version)));
+                    LOOP_ASSERT(ui, oaum.isTotalSame());
+                    LOOP_ASSERT(ui,  dam.isTotalSame());
 
                     const char *const OD  = out.data();
                     const int         LOD = out.length();
@@ -733,17 +747,16 @@ int main(int argc, char *argv[])
 
                         Obj mV(VALUES[vi], &oav); const Obj& V = mV;
 
-                        bslma_TestAllocator         da("default",
-                                                       veryVeryVeryVerbose);
-                        bdema_DefaultAllocatorGuard guard(&da);
 
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oav) {
                         BEGIN_BDEX_EXCEPTION_TEST {
 
                             in.reset();
+                            bslma_TestAllocatorMonitor dam(da);
                             LOOP_ASSERT(vi,
                                         &in == &(mV.bdexStreamIn(in,
                                                                  version)));
+                            LOOP3_ASSERT(version, ui, vi, dam.isTotalSame());
 
                         } END_BDEX_EXCEPTION_TEST
                         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -752,9 +765,6 @@ int main(int argc, char *argv[])
                         LOOP3_ASSERT(version, ui, vi, V == Z);
                         LOOP3_ASSERT(version, ui, vi, in);
                         LOOP3_ASSERT(version, ui, vi, in.isEmpty());
-                        LOOP3_ASSERT(version, ui, vi,
-                                     0 == da.numAllocations());
-
                     }
                 }
             }
@@ -762,6 +772,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tOn empty and invalid input streams." << endl;
         {
+            bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+            bdema_DefaultAllocatorGuard guard(&da);
+
             Out               out;
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -788,12 +801,18 @@ int main(int argc, char *argv[])
                       LOOP_ASSERT(i, in);
 
                       // read from empty
+                      bslma_TestAllocatorMonitor dam1(da);
                       LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, version)));
-                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t1);
+                      LOOP_ASSERT(i, dam1.isTotalSame());
+                      LOOP_ASSERT(i, !in);
+                      LOOP_ASSERT(i, X == t1);
 
                       // read from (the now) invalid stream
+                      bslma_TestAllocatorMonitor dam2(da);
                       LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, version)));
-                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t2);
+                      LOOP_ASSERT(i, dam2.isTotalSame());
+                      LOOP_ASSERT(i, !in);
+                      LOOP_ASSERT(i, X == t2);
 
                     } END_BDEX_EXCEPTION_TEST
                 }
@@ -821,22 +840,23 @@ int main(int argc, char *argv[])
                     const void *data   = out.data();
                     int         length = out.length();
 
-                    LOOP2_ASSERT(version, i,
-                                 &out == &(U.bdexStreamOut(out, version)));
-                    LOOP2_ASSERT(version, i,
-                                 !out);
-                    LOOP2_ASSERT(version, i,
-                                 data   == out.data());
-                    LOOP2_ASSERT(version, i,
-                                 length == out.length());
-                    LOOP2_ASSERT(version, i,
-                                 0 == da.numAllocations());
+                    bslma_TestAllocatorMonitor oam(oa), dam(da);
+                    LOOP2_ASSERT(version, i, &out ==
+                                             &(U.bdexStreamOut(out, version)));
+                    LOOP2_ASSERT(version, i, dam.isTotalSame());
+                    LOOP2_ASSERT(version, i, oam.isTotalSame());
+                    LOOP2_ASSERT(version, i, !out);
+                    LOOP2_ASSERT(version, i, data   == out.data());
+                    LOOP2_ASSERT(version, i, length == out.length());
                 }
             }
         }
         if (verbose) cout << "\tOn incomplete (but otherwise valid) data."
                           << endl;
         {
+            bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+            bdema_DefaultAllocatorGuard guard(&da);
+
             // Each object has unique attributes w.r.t. objects to be compared
             // (e.g., W1, X1, Y1).  Note that 'smallDtz', 'someDtz', and
             // 'largeDtz' differ in each constituent attribute and that each
@@ -878,43 +898,69 @@ int main(int argc, char *argv[])
                   Obj t1(W1), t2(W2), t3(W3);
 
                   if (i < LOD1) {
+                      bslma_TestAllocatorMonitor dam1(da);
                       LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i,
-                                                          someDiff(X1, t1));
+                      LOOP_ASSERT(i, dam1.isTotalSame());
+                      LOOP_ASSERT(i, !in);
+                      LOOP_ASSERT(i, someDiff(X1, t1));
+
                       LOOP_ASSERT(i, bdet_DatetimeTz::isValid(
                                           t1.datetimeTz().dateTz().localDate(),
                                           t1.datetimeTz().offset()));
 
+                      bslma_TestAllocatorMonitor dam2(da);
                       LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W2 == t2);
+                      LOOP_ASSERT(i, dam2.isTotalSame());
+                      LOOP_ASSERT(i, !in);
+                      LOOP_ASSERT(i, W2 == t2);
 
+                      bslma_TestAllocatorMonitor dam3(da);
                       LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
+                      LOOP_ASSERT(i, dam3.isTotalSame());
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
                   }
                   else if (i < LOD2) {
+                      bslma_TestAllocatorMonitor dam1(da);
                       LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X1 == t1);
+                      LOOP_ASSERT(i, dam1.isTotalSame());
+                      LOOP_ASSERT(i, in);
+                      LOOP_ASSERT(i, X1 == t1);
 
+                      bslma_TestAllocatorMonitor dam2(da);
                       LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i,
-                                                          someDiff(X2, t2));
+                      LOOP_ASSERT(i, dam2.isTotalSame());
+                      LOOP_ASSERT(i, !in);
+                      LOOP_ASSERT(i, someDiff(X2, t2));
+
                       LOOP_ASSERT(i, bdet_DatetimeTz::isValid(
                                           t2.datetimeTz().dateTz().localDate(),
                                           t2.datetimeTz().offset()));
 
+                      bslma_TestAllocatorMonitor dam3(da);
                       LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
+                      LOOP_ASSERT(i, dam3.isTotalSame());
+                      LOOP_ASSERT(i, !in);
+                      LOOP_ASSERT(i, W3 == t3);
                   }
                   else {
+                      bslma_TestAllocatorMonitor dam1(da);
                       LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X1 == t1);
+                      LOOP_ASSERT(i, dam1.isTotalSame());
+                      LOOP_ASSERT(i, in);
+                      LOOP_ASSERT(i, X1 == t1);
 
+                      bslma_TestAllocatorMonitor dam2(da);
                       LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X2 == t2);
+                      LOOP_ASSERT(i, dam2.isTotalSame());
+                      LOOP_ASSERT(i, in);
+                      LOOP_ASSERT(i, X2 == t2);
 
+                      bslma_TestAllocatorMonitor dam3(da);
                       LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i,
-                                                          someDiff(X3, t3));
+                      LOOP_ASSERT(i, dam3.isTotalSame());
+                      LOOP_ASSERT(i, !in);
+                      LOOP_ASSERT(i, someDiff(X3, t3));
+
                       LOOP_ASSERT(i, bdet_DatetimeTz::isValid(
                                           t3.datetimeTz().dateTz().localDate(),
                                           t3.datetimeTz().offset()));
@@ -999,105 +1045,134 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        if (verbose) cout << "\tOn invalid version:" << endl;
-
-        const Obj W;               // default value
-        const Obj X(someDtz, "A"); // original (control) value
-        const Obj Y(someDtz, "B"); // new (streamed-out) value
-
-        if (verbose) cout << "\t\tGood Version on instream" << endl;
+        if (verbose) cout << "\tOn invalid versions" << endl;
         {
-            const char version = 1;
+            bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma_TestAllocator         oa("object",  veryVeryVeryVerbose);
+            bdema_DefaultAllocatorGuard dag(&da);
 
-            Out out;
-            Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new" value
-            out.putString(Y.timeZoneId());        // 2. Stream out "new" value
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const Obj W(&oa);               // default value
+            const Obj X(someDtz, "A", &oa); // original (control) value
+            const Obj Y(someDtz, "B", &oa); // new (streamed-out) value
 
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-		    ASSERT(&in == &(t.bdexStreamIn(in, version)));
-            ASSERT(in);
-                             ASSERT(W != t);  ASSERT(X != t);  ASSERT(Y == t);
-        }
+            if (veryVerbose) cout << "\t\tGood Version on instream" << endl;
+            {
+                const char version = 1;
 
-        if (verbose) cout << "\t\tBad versions on instream." << endl;
-        {
-            const char version = 0; // too small ('version' must be >= 1)
+                Out out;
+                Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new"
+                                                      //    value
+                out.putString(Y.timeZoneId());        // 2. Stream out "new"
+                                                      //    value
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
 
-            Out out;
-            Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new" value
-            out.putString(Y.timeZoneId());        // 2. Stream out "new" value
+                Obj t(X);  ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
+                In in(OD, LOD);  ASSERT(in);
+                in.setSuppressVersionCheck(1);
+                bslma_TestAllocatorMonitor dam(da);
+                ASSERT(&in == &(t.bdexStreamIn(in, version)));
+                ASSERT(dam.isTotalSame());
+                ASSERT(in);
+                ASSERT(W != t); ASSERT(X != t);  ASSERT(Y == t);
+            }
 
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+            if (veryVerbose) cout << "\t\tBad versions on instream." << endl;
+            {
+                const char version = 0; // too small ('version' must be >= 1)
 
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-		    ASSERT(&in == &(t.bdexStreamIn(in, version)));
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
+                Out out;
+                Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new"
+                                                      //    value
+                out.putString(Y.timeZoneId());        // 2. Stream out "new"
+                                                      //    value
 
-        {
-            const char version = 2 ; // too large (current version is 1)
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
 
-            Out out;
-            Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new" value
-            out.putString(Y.timeZoneId());        // 2. Stream out "new" value
+                Obj t(X);  ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
+                In in(OD, LOD);  ASSERT(in);
+                in.setSuppressVersionCheck(1);
+                in.setQuiet(!veryVerbose);
+                bslma_TestAllocatorMonitor dam(da);
+                ASSERT(&in == &(t.bdexStreamIn(in, version)));
+                ASSERT(dam.isTotalSame());
+                ASSERT(!in);
+                ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
+            }
 
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+            {
+                const char version = 2 ; // too large (current version is 1)
 
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-		    ASSERT(&in == &(t.bdexStreamIn(in, version)));
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
+                Out out;
+                Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new"
+                                                      //    value
+                out.putString(Y.timeZoneId());        // 2. Stream out "new"
+                                                      //    value
 
-        if (verbose) cout << "\t\tGood Version on outstream" << endl;
-        {
-            const char version = 1;
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
 
-            Out out;
-            ASSERT(out);
-            ASSERT(0 == out.length());
+                Obj t(X);  ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
 
-            ASSERT(&out == &(Y.bdexStreamOut(out, version)));
-            ASSERT(out);
-            ASSERT(0 != out.length());
-        }
+                In in(OD, LOD);  ASSERT(in);
+                in.setSuppressVersionCheck(1);
+                in.setQuiet(!veryVerbose);
+                bslma_TestAllocatorMonitor dam(da);
+                ASSERT(&in == &(t.bdexStreamIn(in, version)));
+                ASSERT(dam.isTotalSame());
+                ASSERT(!in);
+                ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
+            }
 
-        if (verbose) cout << "\t\tBad versions on instream." << endl;
-        {
-            const char version = 0; // too small ('version' must be >= 1)
+            if (veryVerbose) cout << "\t\tGood Version on outstream" << endl;
+            {
+                const char version = 1;
 
-            Out out;
-            ASSERT(out);
-            ASSERT(0 == out.length());
+                bslma_TestAllocator sa("scratch", veryVeryVeryVerbose);
 
-            ASSERT(&out == &(Y.bdexStreamOut(out, version)));
-            ASSERT(!out);
-            ASSERT(0 == out.length());
-        }
+                Out out(&sa);
+                ASSERT(out);
+                ASSERT(0 == out.length());
 
-        {
-            const char version = 2 ; // too large (current max version is 1)
+                bslma_TestAllocatorMonitor oam(oa), dam(da);
+                ASSERT(&out == &(Y.bdexStreamOut(out, version)));
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+                ASSERT(out);
+                ASSERT(0 != out.length());
+            }
 
-            Out out;
-            ASSERT(out);
-            ASSERT(0 == out.length());
+            if (veryVerbose) cout << "\t\tBad versions on instream." << endl;
+            {
+                const char version = 0; // too small ('version' must be >= 1)
 
-            ASSERT(&out == &(Y.bdexStreamOut(out, version)));
-            ASSERT(!out);
-            ASSERT(0 == out.length());
+                Out out;
+                ASSERT(out);
+                ASSERT(0 == out.length());
+
+                bslma_TestAllocatorMonitor oam(oa), dam(da);
+                ASSERT(&out == &(Y.bdexStreamOut(out, version)));
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+                ASSERT(!out);
+                ASSERT(0 == out.length());
+            }
+
+            {
+                const char version = 2 ; // too large, current max version is 1
+
+                Out out;
+                ASSERT(out);
+                ASSERT(0 == out.length());
+
+                bslma_TestAllocatorMonitor oam(oa), dam(da);
+                ASSERT(&out == &(Y.bdexStreamOut(out, version)));
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+                ASSERT(!out);
+                ASSERT(0 == out.length());
+            }
         }
 
         if (verbose) cout << "\nWire format direct tests." << endl;
@@ -1122,7 +1197,7 @@ int main(int argc, char *argv[])
                 Obj mY;  const Obj& Y = mY;
                 In in(outA.data(), outA.length());
                 in.setSuppressVersionCheck(1);
-		        ASSERT(&in == &(mY.bdexStreamIn(in, VERSION)));
+                ASSERT(&in == &(mY.bdexStreamIn(in, VERSION)));
 
                 LOOP_ASSERT(i, in.isEmpty());
                 LOOP_ASSERT(i, X == Y);

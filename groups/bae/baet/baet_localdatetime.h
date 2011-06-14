@@ -161,6 +161,8 @@ class baet_LocalDatetime {
                                   bslalg_TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
+                        // Aspects
+
     static int maxSupportedBdexVersion();
         // Return the most current 'bdex' streaming version number supported by
         // this class.  (See the package-group-level documentation for more
@@ -207,6 +209,8 @@ class baet_LocalDatetime {
         // Set the 'timeZoneId' attribute of this object to the specified
         // 'value'.
 
+                        // Aspects
+
     void swap(baet_LocalDatetime& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
@@ -226,17 +230,19 @@ class baet_LocalDatetime {
         // 'bdex' streaming of value-semantic types and containers.)
 
     // ACCESSORS
-    bslma_Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the currently
-        // installed default allocator is used.
-
     const bdet_DatetimeTz& datetimeTz() const;
         // Return the value of the 'datetimeTz' attribute of this object.
 
     const bsl::string& timeZoneId() const;
         // Return a reference providing non-modifiable access to the
         // 'timeZoneId' attribute of this object.
+
+                        // Aspects
+
+    bslma_Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -305,6 +311,8 @@ void swap(baet_LocalDatetime& a, baet_LocalDatetime& b);
                         // ------------------------
 
 // CLASS METHODS
+                        // Aspects
+
 inline
 int baet_LocalDatetime::maxSupportedBdexVersion()
 {
@@ -359,6 +367,8 @@ void baet_LocalDatetime::setTimeZoneId(const char *value)
     d_timeZoneId.assign(value);
 }
 
+                        // Aspects
+
 inline
 void baet_LocalDatetime::swap(baet_LocalDatetime& other)
 {
@@ -403,6 +413,8 @@ const bsl::string& baet_LocalDatetime::timeZoneId() const
 {
     return d_timeZoneId;
 }
+
+                        // Aspects
 
 template <class STREAM>
 STREAM& baet_LocalDatetime::bdexStreamOut(STREAM& stream, int version) const

@@ -15,6 +15,8 @@ namespace BloombergLP {
                            // ------------------------
 
 // ACCESSORS
+                        // Aspects
+
 bsl::ostream& baet_LocalDatetime::print(bsl::ostream& stream,
                                         int           level,
                                         int           spacesPerLevel) const
