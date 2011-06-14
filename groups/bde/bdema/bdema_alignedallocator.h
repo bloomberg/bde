@@ -35,7 +35,6 @@ BSLS_IDENT("$Id$")
 //                       allocate
 //                       deallocate
 //..
-//
 ///Usage
 ///-----
 // In the following examples we demonstrate how to use a
