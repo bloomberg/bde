@@ -252,7 +252,7 @@ class Vector_ImpBase {
 
     VALUE_TYPE *data();
         // Return the address of the modifiable first element in this vector,
-        // or a valid, but non-dereferencable pointer value if this vector is
+        // or a valid, but non-dereferenceable pointer value if this vector is
         // empty.
 
     //ACCESSORS
@@ -327,7 +327,7 @@ class Vector_ImpBase {
 
     const VALUE_TYPE *data() const;
         // Return the address of the non-modifiable first element in this
-        // vector, or a valid, but non-dereferencable pointer value if this
+        // vector, or a valid, but non-dereferenceable pointer value if this
         // vector is empty.
 
 };
@@ -1313,25 +1313,26 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
 
 template<class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
                     = BloombergLP::bslmf_IsFundamental<BSLSTL_ITERATOR>::VALUE>
-struct bslstl_DeduceIteratorCategory {
+struct Vector_DeduceIteratorCategory {
     typedef typename bsl::iterator_traits<BSLSTL_ITERATOR>::iterator_category
                                                                           type;
 };
 
 template<class BSLSTL_ITERATOR>
-struct bslstl_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
+struct Vector_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
     typedef BloombergLP::bslmf_Nil type;
 };
 
 
 template<class BSLSTL_ITERATOR>
-struct bslstl_IsRandomAccessIterator : BloombergLP::bslmf_IsSame<
-                 typename bslstl_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
+struct Vector_IsRandomAccessIterator :
+       BloombergLP::bslmf_IsSame<
+         typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
                                                bsl::random_access_iterator_tag>
 {
 };
 
- 
+
 struct Vector_RangeCheck {
     // This utility class provides a test-support facility to diagnose when a
     // pair of iterators do *not* form a valid range.  This support is offered
@@ -1339,15 +1340,15 @@ struct Vector_RangeCheck {
     // valid iterators into the same range forming a "reverse" range.  Note
     // that these two functions declared using 'bslmf_EnableIf' must be
     // defined inline in the class definition due to a bug in the Microsoft
-    // C++ compiler.
+    // C++ compiler (see 'bslmf_enableif').
 
     template<class BSLSTL_ITERATOR>
     static
     typename BloombergLP::bslmf_EnableIf<
-            !bslstl_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
-                    IsInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
-       // Return 'false' as we know of no way to identify an input iterator
-       // range that is guaranteed to be invalid.
+           !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
+    isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
+        // Return 'false' as we know of no way to identify an input iterator
+        // range that is guaranteed to be invalid.
     {
         return false;
     }
@@ -1355,11 +1356,11 @@ struct Vector_RangeCheck {
     template<class BSLSTL_ITERATOR>
     static
     typename BloombergLP::bslmf_EnableIf<
-             bslstl_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
-        IsInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
-      // Return 'true' if 'first <= last', and 'false' otherwise.  Behavior is
-      // undefined unless both 'first' and 'last' are valid iterators that
-      // refer to the same range.  
+           Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
+    isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
+        // Return 'true' if 'first <= last', and 'false' otherwise.  Behavior
+        // is undefined unless both 'first' and 'last' are valid iterators that
+        // refer to the same range.
     {
         return last < first;
     }
@@ -1369,7 +1370,7 @@ struct Vector_RangeCheck {
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 // See IMPLEMENTATION NOTES in the .cpp before modifying anything below.
- 
+
                           // --------------------
                           // class Vector_ImpBase
                           // --------------------
@@ -1687,7 +1688,8 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
                                            BloombergLP::bslmf_AnyType)
 {
     // Dispatch based on iterator category.
-    BSLS_ASSERT_SAFE(!Vector_RangeCheck::IsInvalidRange(first, last));
+    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+
     typedef typename bsl::iterator_traits<INPUT_ITER>::iterator_category Tag;
     this->privateInsert(position, first, last, Tag());
 }
@@ -1710,9 +1712,9 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsert(
     // size in advance (as with 'forward_iterator_tag') because input
     // iterators can only be traversed once.
 
-     BSLS_ASSERT_SAFE(!Vector_RangeCheck::IsInvalidRange(first, last));
-     
-     if (first == last) {
+    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+
+    if (first == last) {
         // Avoid creating a 'temp' vector in that case.
 
         return;                                                       // RETURN
@@ -1752,8 +1754,8 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsert(
 {
     // Specialization for all iterators except input iterators.
     // Size can be computed in advance.
-    BSLS_ASSERT_SAFE(!Vector_RangeCheck::IsInvalidRange(first, last));
- 
+    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+
     const iterator& pos = const_cast<iterator>(position);
 
     const size_type maxSize = max_size();
@@ -2023,7 +2025,8 @@ inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::assign(INPUT_ITER first,
                                                INPUT_ITER last)
 {
-    BSLS_ASSERT_SAFE(!Vector_RangeCheck::IsInvalidRange(first, last));
+    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+
     if (!this->empty()) {
         erase(this->begin(), this->end());
     }
@@ -2224,8 +2227,8 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator position,
 {
     BSLS_ASSERT_SAFE(this->begin() <= position);
     BSLS_ASSERT_SAFE(position      <= this->end());
-    BSLS_ASSERT_SAFE(!Vector_RangeCheck::IsInvalidRange(first, last));
- 
+    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+
     // If 'first' and 'last' are integral, then they are not iterators and we
     // should call 'insert(position, first, last)', where 'first' is actually
     // a misnamed count, and 'last' is a misnamed value.  We can assume that

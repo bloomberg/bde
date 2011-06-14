@@ -340,8 +340,8 @@ void dbg_print(const char* s, const T& val, const char* nl)
     fflush(stdout);
 }
 
-BSLMF_ASSERT(!bslstl_IsRandomAccessIterator<int>::VALUE);
-BSLMF_ASSERT(bslstl_IsRandomAccessIterator<bsl::vector<char>::iterator>::VALUE);
+BSLMF_ASSERT(!Vector_IsRandomAccessIterator<int>::VALUE);
+BSLMF_ASSERT(Vector_IsRandomAccessIterator<bsl::vector<char>::iterator>::VALUE);
 
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
