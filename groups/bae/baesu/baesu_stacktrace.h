@@ -17,12 +17,12 @@ BDES_IDENT("$Id: $")
 //@SEE_ALSO: baesu_stacktraceframe, baesu_stacktraceutil,
 //           baesu_stacktraceprintutil, bdema_heapbypassallocator
 //
-//@DESCRIPTION: This component provides an unconstrained (value-semantic)
-// class, 'baesu_StackTrace', that is used to describe a function call-stack.
-// A stack trace object contains a sequence of 'baesu_StackTraceFrame' objects.
-// By default, a 'baesu_StackTrace' object is supplied memory by an owned
-// instance of 'bdema_HeapBypassAllocator', though the client may specify
-// another allocator to be used in its place at construction.
+//@DESCRIPTION: This component provides a (value-semantic) class,
+// 'baesu_StackTrace', that is used to describe a function call-stack.  A stack
+// trace object contains a sequence of 'baesu_StackTraceFrame' objects.  By
+// default, a 'baesu_StackTrace' object is supplied memory by an owned instance
+// of 'bdema_HeapBypassAllocator', though the client may specify another
+// allocator to be used in its place at construction.
 //
 ///Usage
 ///-----
@@ -42,23 +42,23 @@ BDES_IDENT("$Id: $")
 //  bslma_TestAllocator da;
 //  bslma_DefaultAllocatorGuard guard(&da);
 //..
-// Next, create a stack trace.  Note that when we don't specify an allocator
-// (recommended), the default allocator is not used -- rather, a heap bypass
+// Next, we create a stack trace object.  Note that when we don't specify an
+// allocator, the default allocator is not used -- rather, a heap bypass
 // allocator owned by the stack trace object is used.  The heap bypass
-// allocator is recommended because this component is usually used for
-// obtaining debug information, and the possibility of heap corruption can't be
-// ruled out.  The heap bypass allocator obtains its memory directly from
-// virtual memory rather than going through the heap, avoiding potential
-// complications due to heap corruption.
+// allocator is recommended because this component is often used to obtain
+// debug information in instances where an error has occurred, and the
+// possibility of heap corruption can't be ruled out.  The heap bypass
+// allocator obtains its memory directly from virtual memory rather than going
+// through the heap, avoiding potential complications due to heap corruption.
 //..
 //  baesu_StackTrace stackTrace;
-//  ASSERT(0 == stackTrace.length());
+//  assert(0 == stackTrace.length());
 //..
 // Then, we 'resize' the stack-trace object to contain two default-constructed
 // frames, and take references to each of the two new frames.
 //..
 //  stackTrace.resize(2);
-//  ASSERT(2 == stackTrace.length());
+//  assert(2 == stackTrace.length());
 //  baesu_StackTraceFrame& frame0 = stackTrace[0];
 //  baesu_StackTraceFrame& frame1 = stackTrace[1];
 //..
@@ -82,22 +82,22 @@ BDES_IDENT("$Id: $")
 //..
 // Then, we verify the frames have the values we expect.
 //..
-//  ASSERT((void *) 0x12ab == frame0.address());
-//  ASSERT("/a/b/c/baesu_stacktrace.t.dbg_exc_mt" ==
+//  assert((void *) 0x12ab == frame0.address());
+//  assert("/a/b/c/baesu_stacktrace.t.dbg_exc_mt" ==
 //                                               frame0.libraryFileName());
-//  ASSERT(5 == frame0.lineNumber());
-//  ASSERT(116 == frame0.offsetFromSymbol());
-//  ASSERT("/a/b/c/sourceFile.cpp" == frame0.sourceFileName());
-//  ASSERT("_woof_1a" == frame0.mangledSymbolName());
-//  ASSERT("woof" == frame0.symbolName());
+//  assert(5 == frame0.lineNumber());
+//  assert(116 == frame0.offsetFromSymbol());
+//  assert("/a/b/c/sourceFile.cpp" == frame0.sourceFileName());
+//  assert("_woof_1a" == frame0.mangledSymbolName());
+//  assert("woof" == frame0.symbolName());
 //
-//  ASSERT((void *) 0x34cd == frame1.address());
-//  ASSERT("/lib/libd.a" == frame1.libraryFileName());
-//  ASSERT(15 == frame1.lineNumber());
-//  ASSERT(228 == frame1.offsetFromSymbol());
-//  ASSERT("/a/b/c/secondSourceFile.cpp" == frame1.sourceFileName());
-//  ASSERT("_arf_1a" == frame1.mangledSymbolName());
-//  ASSERT("arf" == frame1.symbolName());
+//  assert((void *) 0x34cd == frame1.address());
+//  assert("/lib/libd.a" == frame1.libraryFileName());
+//  assert(15 == frame1.lineNumber());
+//  assert(228 == frame1.offsetFromSymbol());
+//  assert("/a/b/c/secondSourceFile.cpp" == frame1.sourceFileName());
+//  assert("_arf_1a" == frame1.mangledSymbolName());
+//  assert("arf" == frame1.symbolName());
 //..
 // Next, we output the stack trace object.
 //..
@@ -105,10 +105,8 @@ BDES_IDENT("$Id: $")
 //..
 // Finally, we observe the default allocator was never used.
 //..
-//  ASSERT(0 == da.numAllocations());
+//  assert(0 == da.numAllocations());
 //..
-///Usage Output
-///------------
 // The above usage produces the following output:
 //..
 //  [
@@ -178,11 +176,10 @@ class bslma_Allocator;
                           // ======================
 
 class baesu_StackTrace {
-    // This unconstrained (value-semantic) class describes a function call
-    // stack, represented as a sequence randomly-accesible
-    // 'baesu_StackTraceFrame' objects, each of which represents one function
-    // call on the stack.  Note that if no allocator is supplied at
-    // construction (recommended), an owned instance of
+    // This value-semantic class describes a function call stack, represented
+    // as a sequence of randomly-accesible 'baesu_StackTraceFrame' objects,
+    // each of which represents one function call on the stack.  Note that if
+    // no allocator is supplied at construction, an owned instance of
     // 'bdema_HeapBypassAllocator' is used to supply memory.
     //
     // This class:
