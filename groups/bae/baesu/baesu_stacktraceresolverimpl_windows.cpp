@@ -149,8 +149,8 @@ bool Resolver_DllApi::loaded()
        // =============================================================
 
 int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
-                                                   baesu_StackTrace *stackTrace,
-                                                   bool              demangle)
+                                                  baesu_StackTrace *stackTrace,
+                                                  bool              demangle)
     // Given a specified stack trace object 'stackTrace' of stack trace frames
     // with only their 'address' fields valid, set as many other fields of the
     // frames as possible.  The 'demangle' argument is ignored, demangling
@@ -166,7 +166,7 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
         return -291;                                                  // RETURN
     }
 
-    // TBD: remove SYMOPT_DEBUG
+    // TBD: remove SYMOPT_DEBUG?
 
     (*api.d_symSetOptions)(SYMOPT_NO_PROMPTS | SYMOPT_LOAD_LINES
                                        | SYMOPT_DEFERRED_LOADS | SYMOPT_DEBUG);

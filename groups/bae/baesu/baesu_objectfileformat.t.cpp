@@ -73,7 +73,8 @@ typedef baesu_ObjectFileFormat          Obj;
 // current platform and 0 otherwise.
 
 template <typename TYPE>
-int typeTest(const TYPE &) {
+int typeTest(const TYPE &)
+{
     return 0;
 }
 
@@ -118,8 +119,8 @@ int typeTest(const baesu_ObjectFileFormat::Windows &)
 // [ 4] That 'Obj::Policy' is approrpiate for the 'RESOLVER' id.
 //==========================================================================
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
 

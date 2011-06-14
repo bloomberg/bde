@@ -734,7 +734,8 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     memset(&dynSymHdr, 0, sizeof(Local::ElfSectionHeader));
     memset(&dynStrHdr, 0, sizeof(Local::ElfSectionHeader));
 
-    // reading the section headers TBD one by one is slow!
+    // Possible speedup: read all the section headers at once instead of one
+    // at a time.
 
     int numSections = elfHeader.e_shnum;
     UintPtr sectionHeaderSize = elfHeader.e_shentsize;
