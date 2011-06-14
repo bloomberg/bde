@@ -453,6 +453,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BSL_CCTYPE
+#include <bsl_cctype.h>
+#endif
+
 namespace BloombergLP {
 namespace bslim {
 
@@ -797,10 +801,6 @@ struct Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL> {
     // with the BDE 'print' method contract.
 
     // CLASS METHODS
-    static bool isPrintable(char character);
-        // Return true if the specified 'character' lies in the range [32,127),
-        // and return false otherwise.
-
     static void print(bsl::ostream& stream,
                       char          data,
                       int           level,
@@ -1169,13 +1169,6 @@ void Printer_PrintImp<bool, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
 }
 
 inline
-bool Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL>::isPrintable(
-                                                                char character)
-{
-    return (32 <= character) && (character < 127);
-}
-
-inline
 void Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
                                                   bsl::ostream& stream,
                                                   char          data,
@@ -1183,7 +1176,7 @@ void Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
                                                   int           spacesPerLevel)
 {
 #define HANDLE_CONTROL_CHAR(value) case value: stream << #value; break;
-    if (isPrintable(data)) {
+    if (bsl::isprint(data)) {
         // print within quotes
         stream << "'" << data <<"'";
     }
