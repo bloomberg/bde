@@ -662,7 +662,7 @@ bsl::ostream& bdem_BerEncoder::logStream()
 template <typename TYPE>
 int bdem_BerEncoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
 {
-    BSLS_ASSERT_SAFE(d_streamBuf == 0);
+    BSLS_ASSERT(!d_streamBuf);
 
     d_streamBuf = streamBuf;
     d_severity  = BDEM_BER_SUCCESS;

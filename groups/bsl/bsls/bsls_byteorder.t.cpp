@@ -7,6 +7,7 @@
 #include <bsls_types.h> 
 
 #include <cstdlib>     // atoi()
+#include <cstdio>      // printf()
 #include <iostream>
 
 #ifdef BSLS_PLATFORM__OS_UNIX   // htons(), htonl(), ntohs(), ntohl()
