@@ -518,9 +518,9 @@ class Printer {
 
     template <class TYPE>
     void print(const TYPE& data, const char *name) const;
-        // Format to the output stream supplied at construction the specified
-        // 'data', prefixed by the specified 'name' if 'name' is not 0.  Format
-        // 'data' based on the parameterized 'TYPE':
+        // [!DEPRECATED!] Format to the output stream supplied at construction
+        // the specified 'data', prefixed by the specified 'name' if 'name' is
+        // not 0.  Format 'data' based on the parameterized 'TYPE':
         //
         //: o If 'TYPE' is a fundamental type, output 'data' to the stream.
         //:
@@ -659,8 +659,8 @@ class Printer {
         // Print to the output stream supplied at construction
         // 'absLevel() * spacesPerLevel()' blank spaces if the
         // 'suppressInitialIndentFlag' is 'false', and suppress the initial
-        // indentation otherwise.  Print an opening square bracket if the
-        // optionally specified 'suppressBracket' is false.
+        // indentation otherwise.  If the optionally specified
+        // 'suppressBracket' is false, print an opening square bracket.
 
     bool suppressInitialIndentFlag() const;
         // Return 'true' if the initial output indentation will be

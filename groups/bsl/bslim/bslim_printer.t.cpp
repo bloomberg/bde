@@ -42,6 +42,8 @@ using namespace bslim;
 // [ 5] end() const;
 // [10] template<class TYPE>
 //         void print(const TYPE& data, const char *name) const;
+// [11] template<class TYPE>
+//         void printAttribute(const char *name, const TYPE& data) const;
 // [16] template <class TYPE, class PRINT_FUNCTOR>
 //         void printForeign(const TYPE&           data,
 //                           const PRINT_FUNCTOR&  printFunctionObject,
@@ -49,6 +51,8 @@ using namespace bslim;
 // [15] void printHexAddr(const void *address, const char *name) const;
 // [13] template <class TYPE>
 //      void printOrNull(const TYPE& address, const char *name) const;
+// [11] template<class TYPE>
+//         void printValue(const TYPE& data) const;
 // [ 2] spacesPerLevel() const;
 // [ 4] start() const;
 // [ 2] suppressInitialIndentFlag() const;
