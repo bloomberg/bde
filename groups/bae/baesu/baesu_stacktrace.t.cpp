@@ -120,50 +120,79 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        // Set up the default allocator so we can verify that it is unused.
+        // First, we set up a test allocator as default allocator.  A
+        // 'baesu_StackTrace' object, by default, gets all its memory from an
+        // owned instance of 'bdema_HeapBypassAllocator'.  To demonstrate this
+        // we start by setting the default allocator to a test allocator so we
+        // can verify later that it was unused:
 
         bslma_TestAllocator da;
         bslma_DefaultAllocatorGuard guard(&da);
 
-        // First, create a stack trace.  Note that when we don't specify an
+        // Next, create a stack trace.  Note that when we don't specify an
         // allocator (recommended), the default allocator is not used --
         // rather, a heap bypass allocator owned by the stack trace object is
-        // used.
+        // used.  The heap bypass allocator is recommended because this
+        // component is usually used for obtaining debug information, and the
+        // possibility of heap corruption can't be ruled out.  The heap bypass
+        // allocator obtains its memory directly from virtual memory rather
+        // than going through the heap, avoiding potential complications due to
+        // heap corruption.
 
         baesu_StackTrace stackTrace;
         ASSERT(0 == stackTrace.length());
 
-        // Create two stack trace frames in the stack trace object and take
-        // references to each of the two new frames.
+        // Then, we 'resize' the stack-trace object to contain two
+        // default-constructed frames, and take references to each of the two
+        // new frames.
 
         stackTrace.resize(2);
         ASSERT(2 == stackTrace.length());
-        baesu_StackTraceFrame& mF0 = stackTrace[0];
-        baesu_StackTraceFrame& mF1 = stackTrace[1];
+        baesu_StackTraceFrame& frame0 = stackTrace[0];
+        baesu_StackTraceFrame& frame1 = stackTrace[1];
 
-        // Initialize values to the fields of the two new frames.
+        // Next, we set the values of the fields of the two new frames.
 
-        mF0.setAddress((void *) 0x12ab);
-        mF0.setLibraryFileName("/a/b/c/baesu_stacktrace.t.dbg_exc_mt");
-        mF0.setLineNumber(5);
-        mF0.setOffsetFromSymbol(116);
-        mF0.setSourceFileName("/a/b/c/sourceFile.cpp");
-        mF0.setMangledSymbolName("_woof_1a");
-        mF0.setSymbolName("woof");
+        frame0.setAddress((void *) 0x12ab);
+        frame0.setLibraryFileName("/a/b/c/baesu_stacktrace.t.dbg_exc_mt");
+        frame0.setLineNumber(5);
+        frame0.setOffsetFromSymbol(116);
+        frame0.setSourceFileName("/a/b/c/sourceFile.cpp");
+        frame0.setMangledSymbolName("_woof_1a");
+        frame0.setSymbolName("woof");
 
-        mF1.setAddress((void *) 0x34cd);
-        mF1.setLibraryFileName("/lib/libd.a");
-        mF1.setLineNumber(15);
-        mF1.setOffsetFromSymbol(228);
-        mF1.setSourceFileName("/a/b/c/secondSourceFile.cpp");
-        mF1.setMangledSymbolName("_arf_1a");
-        mF1.setSymbolName("arf");
+        frame1.setAddress((void *) 0x34cd);
+        frame1.setLibraryFileName("/lib/libd.a");
+        frame1.setLineNumber(15);
+        frame1.setOffsetFromSymbol(228);
+        frame1.setSourceFileName("/a/b/c/secondSourceFile.cpp");
+        frame1.setMangledSymbolName("_arf_1a");
+        frame1.setSymbolName("arf");
 
-        // Output the stack trace object.
+        // Then, we verify the frames have the values we expect.
+
+        ASSERT((void *) 0x12ab == frame0.address());
+        ASSERT("/a/b/c/baesu_stacktrace.t.dbg_exc_mt" ==
+                                                     frame0.libraryFileName());
+        ASSERT(5 == frame0.lineNumber());
+        ASSERT(116 == frame0.offsetFromSymbol());
+        ASSERT("/a/b/c/sourceFile.cpp" == frame0.sourceFileName());
+        ASSERT("_woof_1a" == frame0.mangledSymbolName());
+        ASSERT("woof" == frame0.symbolName());
+
+        ASSERT((void *) 0x34cd == frame1.address());
+        ASSERT("/lib/libd.a" == frame1.libraryFileName());
+        ASSERT(15 == frame1.lineNumber());
+        ASSERT(228 == frame1.offsetFromSymbol());
+        ASSERT("/a/b/c/secondSourceFile.cpp" == frame1.sourceFileName());
+        ASSERT("_arf_1a" == frame1.mangledSymbolName());
+        ASSERT("arf" == frame1.symbolName());
+
+        // Next, we output the stack trace object.
 
         stackTrace.print(cout, 1, 2);
 
-        // observe the default allocator was never used
+        // Finally, we observe the default allocator was never used.
 
         ASSERT(0 == da.numAllocations());
       }  break;

@@ -26,57 +26,86 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// In this section we show the intended usage of this component.
+//
+///Example 1: Configuring a stack-trace value
+/// - - - - - - - - - - - - - - - - - - - - -
 // In the following example we demonstrate how to create a 'baesu_StackTrace'
 // object, then both modify and access its value.
 //
-// A 'baesu_StackTrace' object, by default, gets its memory from an owned
+// First, we set up a test allocator as default allocator.  A
+// 'baesu_StackTrace' object, by default, gets all its memory from an owned
 // instance of 'bdema_HeapBypassAllocator'.  To demonstrate this we start by
-// setting the default allocator to a test allocator so we can verify that it
-// is unused:
+// setting the default allocator to a test allocator so we can verify later
+// that it was unused:
 //..
-//  bslma_TestAllocator defaultAllocator;
-//  bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+//  bslma_TestAllocator da;
+//  bslma_DefaultAllocatorGuard guard(&da);
 //..
-// Next, we create a stack trace object.  Note that when we don't specify an
-// allocator (recommended), the default allocator is not used -- rather, a heap
-// bypass allocator owned by the stack trace object is used.
+// Next, create a stack trace.  Note that when we don't specify an allocator
+// (recommended), the default allocator is not used -- rather, a heap bypass
+// allocator owned by the stack trace object is used.  The heap bypass
+// allocator is recommended because this component is usually used for
+// obtaining debug information, and the possibility of heap corruption can't be
+// ruled out.  The heap bypass allocator obtains its memory directly from
+// virtual memory rather than going through the heap, avoiding potential
+// complications due to heap corruption.
 //..
 //  baesu_StackTrace stackTrace;
-//  assert(0 == stackTrace.length());
+//  ASSERT(0 == stackTrace.length());
 //..
-// Then we create two stack trace frames in the stack trace object and obtain
-// references to each of these two new frames:
+// Then, we 'resize' the stack-trace object to contain two default-constructed
+// frames, and take references to each of the two new frames.
 //..
 //  stackTrace.resize(2);
-//  assert(2 == stackTrace.length());
-//  baesu_StackTraceFrame& mF0 = stackTrace[0];
-//  baesu_StackTraceFrame& mF1 = stackTrace[1];
+//  ASSERT(2 == stackTrace.length());
+//  baesu_StackTraceFrame& frame0 = stackTrace[0];
+//  baesu_StackTraceFrame& frame1 = stackTrace[1];
 //..
-// Next we set values to the two frames:
+// Next, we set the values of the fields of the two new frames.
 //..
-//  mF0.setAddress((void *) 0x12ab);
-//  mF0.setLibraryFileName("/a/b/c/baesu_stacktrace.t.dbg_exc_mt");
-//  mF0.setLineNumber(5);
-//  mF0.setOffsetFromSymbol(116);
-//  mF0.setSourceFileName("/a/b/c/sourceFile.cpp");
-//  mF0.setMangledSymbolName("_woof_1a");
-//  mF0.setSymbolName("woof");
+//  frame0.setAddress((void *) 0x12ab);
+//  frame0.setLibraryFileName("/a/b/c/baesu_stacktrace.t.dbg_exc_mt");
+//  frame0.setLineNumber(5);
+//  frame0.setOffsetFromSymbol(116);
+//  frame0.setSourceFileName("/a/b/c/sourceFile.cpp");
+//  frame0.setMangledSymbolName("_woof_1a");
+//  frame0.setSymbolName("woof");
 //
-//  mF1.setAddress((void *) 0x34cd);
-//  mF1.setLibraryFileName("/lib/libd.a");
-//  mF1.setLineNumber(15);
-//  mF1.setOffsetFromSymbol(228);
-//  mF1.setSourceFileName("/a/b/c/secondSourceFile.cpp");
-//  mF1.setMangledSymbolName("_arf_1a");
-//  mF1.setSymbolName("arf");
+//  frame1.setAddress((void *) 0x34cd);
+//  frame1.setLibraryFileName("/lib/libd.a");
+//  frame1.setLineNumber(15);
+//  frame1.setOffsetFromSymbol(228);
+//  frame1.setSourceFileName("/a/b/c/secondSourceFile.cpp");
+//  frame1.setMangledSymbolName("_arf_1a");
+//  frame1.setSymbolName("arf");
 //..
-// Next we print the stack trace object:
+// Then, we verify the frames have the values we expect.
+//..
+//  ASSERT((void *) 0x12ab == frame0.address());
+//  ASSERT("/a/b/c/baesu_stacktrace.t.dbg_exc_mt" ==
+//                                               frame0.libraryFileName());
+//  ASSERT(5 == frame0.lineNumber());
+//  ASSERT(116 == frame0.offsetFromSymbol());
+//  ASSERT("/a/b/c/sourceFile.cpp" == frame0.sourceFileName());
+//  ASSERT("_woof_1a" == frame0.mangledSymbolName());
+//  ASSERT("woof" == frame0.symbolName());
+//
+//  ASSERT((void *) 0x34cd == frame1.address());
+//  ASSERT("/lib/libd.a" == frame1.libraryFileName());
+//  ASSERT(15 == frame1.lineNumber());
+//  ASSERT(228 == frame1.offsetFromSymbol());
+//  ASSERT("/a/b/c/secondSourceFile.cpp" == frame1.sourceFileName());
+//  ASSERT("_arf_1a" == frame1.mangledSymbolName());
+//  ASSERT("arf" == frame1.symbolName());
+//..
+// Next, we output the stack trace object.
 //..
 //  stackTrace.print(cout, 1, 2);
 //..
-// Finally, we observe the default allocator was never used:
+// Finally, we observe the default allocator was never used.
 //..
-//  assert(0 == defaultAllocator.numAllocations());
+//  ASSERT(0 == da.numAllocations());
 //..
 ///Usage Output
 ///------------
@@ -186,7 +215,7 @@ class baesu_StackTrace {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // then an owned instance of the heap-bypass allocator is used.  Note
         // that the heap bypass allocator is used by default to avoid heap
-        // allocation in case the heap has been corrupted.
+        // allocation in instances where the heap may have been corrupted.
 
     baesu_StackTrace(const baesu_StackTrace&  original,
                      bslma_Allocator         *allocator = 0);
@@ -194,8 +223,8 @@ class baesu_StackTrace {
         // specified 'original' object.  Optionally specify 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, then an owned
         // instance of the heap-bypass allocator is used.  Note that the heap
-        // bypass allocator is used by default to avoid heap allocation in case
-        // the heap has been corrupted.
+        // bypass allocator is used by default to avoid heap allocation in
+        // instances where the heap may have been corrupted.
 
     // ~baesu_StackTrace();
         // Destroy this object.  Note that this destructor is
@@ -234,15 +263,15 @@ class baesu_StackTrace {
         // trace frame at the specified 'index'.  The behavior is undefined
         // unless '0 <= index < length()'.
 
-    bslma_Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the owned heap
-        // bypass allocator is used.
-
     int length() const;
         // Return the number of stack trace frames contained in this object.
 
                         // Aspects
+
+    bslma_Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the owned heap
+        // bypass allocator is used.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
