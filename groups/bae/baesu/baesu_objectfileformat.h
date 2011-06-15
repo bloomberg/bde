@@ -29,65 +29,56 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// 'typeTest' is a template function that will return 1 if passed an object of
-// types 'baesu_ObjectFileFormat::{Elf,Xcoff,Windows}' appropriate for the
-// current platform and 0 otherwise.
+//..
+// 'typeTest' is a template function that will return non-zero if passed an
+// object of types 'baesu_ObjectFileFormat::{Elf,Xcoff,Windows}' appropriate
+// for the current platform and 0 otherwise.
 //..
 //  template <typename TYPE>
-//  int typeTest(const TYPE &) {
+//  int typeTest(const TYPE &)
+//  {
 //      return 0;
 //  }
-//
-//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
 //
 //  int typeTest(const baesu_ObjectFileFormat::Elf &)
 //  {
 //      return 1;
 //  }
 //
-//  #endif
-//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-//
 //  int typeTest(const baesu_ObjectFileFormat::Xcoff &)
 //  {
-//      return 1;
+//      return 2;
 //  }
-//
-//  #endif
-//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 //
 //  int typeTest(const baesu_ObjectFileFormat::Windows &)
 //  {
-//      return 1;
+//      return 3;
 //  }
 //
+//  int main() ...
+//..
+// We define an object 'policy' of type 'baesu_ObjectFileFormat::Policy', which
+// will be of type '...::Elf', '...::Xcoff', or '...::Windows' appropriate for
+// the platform.
+//..
+//      baesu_ObjectFileFormat::Policy policy;
+//..
+// We now test it using 'typeTest':
+//..
+//      assert(typeTest(policy) > 0);
+//
+//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+//      assert(1 == typeTest(policy));
 //  #endif
 //
-//  int main()
-//  {
-//..
-// First, verify ResolverPolicy
-//..
-//    baesu_ObjectFileFormat::ResolverPolicy policy;
-//    BSLS_ASSERT(1 == typeTest(policy));
-//..
-// Finally, verify exactly 1 'BAESU_OBJECTFILEFORMAT_RESOLVER_*' #define
-// exists
-//..
-//    int count = 0;
-//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
-//    ++count;
-//    BSLS_ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_ELF);
-//  #endif
 //  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-//    ++count;
-//    BSLS_ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF);
+//      assert(2 == typeTest(policy));
 //  #endif
+//
 //  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
-//    ++count;
-//    BSLS_ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
+//      assert(3 == typeTest(policy));
 //  #endif
-//    BSLS_ASSERT(1 == count);
+//  }
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION

@@ -68,9 +68,9 @@ typedef baesu_ObjectFileFormat          Obj;
 //                    HELPER FUNCTIONS FOR USAGE EXAMPLE
 //=============================================================================
 
-// 'typeTest' is a template function that will return 1 if passed an object of
-// types 'baesu_ObjectFileFormat::{Elf,Xcoff,Windows}' appropriate for the
-// current platform and 0 otherwise.
+// 'typeTest' is a template function that will return non-zero if passed an
+// object of types 'baesu_ObjectFileFormat::{Elf,Xcoff,Windows}' appropriate
+// for the current platform and 0 otherwise.
 
 template <typename TYPE>
 int typeTest(const TYPE &)
@@ -78,30 +78,20 @@ int typeTest(const TYPE &)
     return 0;
 }
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
-
 int typeTest(const baesu_ObjectFileFormat::Elf &)
 {
     return 1;
 }
-
-#endif
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
 int typeTest(const baesu_ObjectFileFormat::Xcoff &)
 {
     return 2;
 }
 
-#endif
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
-
 int typeTest(const baesu_ObjectFileFormat::Windows &)
 {
     return 3;
 }
-
-#endif
 
 //==========================================================================
 //                             TEST PLAN
@@ -129,7 +119,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // TYPETEST TEST
+        // TYPETEST TEST / USAGE
         //
         // Concerns:
         //   That the resolver policy exists and is appropriate.
@@ -232,10 +222,13 @@ int main(int argc, char *argv[])
         //
         // Concern:
         //   That that 'RESOLVER' identifiers, when defined, have the value
-        //   '1'.
+        //   '1', that they are appropriate for the platform, and that never
+        //   are there more than one defined at a time.
         //
         // Plan:
-        //   For each identifier, when it's defined, do a comparison.
+        //   For each platform set, check that the appropriate object file
+        //   format '#define' is defined, the others are not, and that the
+        //   '#define' that is defined evaluates to '1'.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Usage Example\n"

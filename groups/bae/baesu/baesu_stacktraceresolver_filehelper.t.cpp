@@ -131,6 +131,9 @@ int main(int argc, char *argv[])
     // int veryVerbose = argc > 3;
     // int veryVeryVerbose = argc > 4;
 
+    // Note that we only have to create a tmp file on Unix platforms -- this
+    // component is not used and thus is not tested on Windows.
+
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
    || defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     const char *tmpDirName       = "/tmp";
@@ -153,7 +156,9 @@ int main(int argc, char *argv[])
         // Concern: Demonstrate the use of
         //  'baesu_StackTraceResolver_FileHelper'.
         //
-        // Plan: call 'readExact' and 'loadString' and verify the results.
+        // Plan:
+        //   Create a file, open a helper on it, call 'readExact' and
+        //   'loadString' and verify the results.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -247,11 +252,17 @@ int main(int argc, char *argv[])
       }  break;
       case 3: {
         // --------------------------------------------------------------------
-        // loadString TEST
+        // 'loadString' TEST
         //
-        // Concern: That 'readBytes' works as specced.
+        // Concern:
+        //  That 'loadString' works as designed.
         //
-        // Plan: Create a file and do a read.
+        // Plan:
+        //  Create a file, open a helper on it, and call 'loadString' under
+        //  the following 3 conditions: the string is entirely within the file
+        //  and shorter than the passed buffer, the string is not terminated
+        //  before the end of the file, and the string is longer than the
+        //  passed buffer.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "loadString Test\n"
@@ -371,11 +382,16 @@ int main(int argc, char *argv[])
       }  break;
       case 2: {
         // --------------------------------------------------------------------
-        // readBytes TEST
+        // 'readBytes' TEST
         //
-        // Concern: That 'readBytes' works as specced.
+        // Concern:
+        //  That 'readBytes' works as specced, whether or not it attempts to
+        //  read past the end of the file.
         //
-        // Plan: Create a file and do a read.
+        // Plan:
+        //  Create a file, open it with a helper object and call 'readBytes'
+        //  twice, once to complete a read within the file and one to do a read
+        //  that runs into the end of the file.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "readBytes Test\n"
@@ -433,12 +449,16 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // Breathing Test
+        // 'readExact' test.
         //
-        // Concern: The basic functionality of this class works.
+        // Concern:
+        //   That 'readExact' performs as designed.
         //
-        // Plan: Create a file and do a read.
-        //
+        // Plan:
+        //   Write to a file, open with with a helper, do a read within the
+        //   the file and verify that it succeeds and reads the correct data,
+        //   and do a read past the end of the file and verify that the read
+        //   fails as it should.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Breathing Test\n"

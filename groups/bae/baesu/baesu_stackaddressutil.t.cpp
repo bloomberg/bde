@@ -91,20 +91,13 @@ enum {
     BUFFER_LENGTH = 1000
 };
 
-struct ChainLink {
-    int        d_i;
-    ChainLink *d_next;
-
-    ChainLink(int i, ChainLink *next) : d_i(i), d_next(next) {}
-        // Create a 'ChainLink' object with a value of the specified 'i' and
-        // and a link pointing at the specified '*next'.
-};
-
-int recurser(volatile int *depth, ChainLink *cl_p)
+void recurser(volatile int *depth)
 {
-    int sum = 0;
 
-    if (--*depth <= 0) {
+    if (--*depth > 0) {
+        recurser(depth);
+    }
+    else {
         void *buffer[BUFFER_LENGTH];
         int numAddresses;
 
@@ -130,31 +123,12 @@ int recurser(volatile int *depth, ChainLink *cl_p)
             ASSERT(0 == buffer[i]);
         }
     }
-    else {
-        ChainLink cl(2, cl_p);
-        for (ChainLink *p = &cl; p; p = p->d_next) {
-             sum += p->d_i;
-             p->d_i *= sum - 5;
-        }
-
-        sum *= recurser(depth, &cl);
-    }
 
     ++*depth;           // Prevent compilers from optimizing tail recursion as
                         // a loop.
-    return sum;
 }
 
 }  // close namespace CASE_ONE
-
-bsl::string myHex(UintPtr up)
-{
-    bsl::stringstream ss;
-    ss.setf(bsl::ios_base::hex, bsl::ios_base::basefield);
-    ss.setf(bsl::ios_base::showbase);
-    ss << up;
-    return ss.str();
-}
 
                                 // ------
                                 // CASE 3
@@ -170,6 +144,15 @@ struct AddressEntry {
 bool operator<(const AddressEntry lhs, const AddressEntry rhs)
 {
     return lhs.d_returnAddress < rhs.d_returnAddress;
+}
+
+static bsl::string myHex(UintPtr up)
+{
+    bsl::stringstream ss;
+    ss.setf(bsl::ios_base::hex, bsl::ios_base::basefield);
+    ss.setf(bsl::ios_base::showbase);
+    ss << up;
+    return ss.str();
 }
 
 static int findIndex(AddressEntry *entries, int numAddresses, UintPtr funcP)
@@ -338,22 +321,27 @@ int main(int argc, char *argv[])
         // FINDING RIGHT FUNCTIONS TEST CASE
         //
         // Concerns:
-        //  That 'getStackAddresses' finds the functions we expect it to.
+        //   That 'getStackAddresses' finds the functions we expect it to.
         //
         // Plan:
-        //  Make sure that the addresses we obtain are between the address
-        //  of the function we expect it to be in and the address of the next
-        //  known function.
-        //  This test case just seems to fail on Windows, something to do with
-        //  '&' not working correctly, possibly because the compiler is
-        //  creating 'thunks' which just call the routine.  I wish they
-        //  wouldn't do that.
+        //   Have a sequence of functions on the stack, and take pointers to
+        //   those functions using '&<function name>', put those pointers into
+        //   an array.  Collect the return addresses from the stack and put
+        //   those addresses into an array of records, also storing an int in
+        //   each record to identify which routine we expect the address to
+        //   be in.  Sort the array of records.  It then becomes possible to
+        //   verify which return address is within which routine.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Finding Right Functions Test\n"
                              "============================\n";
 
 #ifndef BSLS_PLATFORM__OS_WINDOWS
+        // This test case just seems to fail on Windows, something to do with
+        // '&' not working correctly, possibly because the compiler is creating
+        // 'thunk' functions which just call the actual routine.  I wish they
+        // wouldn't do that.
+
         ASSERT(CASE_THREE::func5() > 0);
 #endif
       }  break;
@@ -378,16 +366,22 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE THREE
+        // BREATHING TEST
         //
         // Concerns:
-        //   That the usage example that uses 'getStackAddresses' and
-        //   'initializeFromAddressArray' works.
+        //   That 'getStackAddresses' properly populates the passed array with
+        //   non-null values as appropriate, and leaves other values of the
+        //   array untouched, and that 'getStackAddresses' won't write past the
+        //   end of the array it is passed.
         //
         // Plan:
-        //   Call the routines in the usage example to observe that the stack
-        //   trace works.
-        //
+        //   Recurse many times, call 'getStackAddresses', and check that the
+        //   elements are either null or non-null as expected.  Do this twice,
+        //   once in the case where the array is more than long enough to
+        //   accomodate the entire stack depth, and once in the case where the
+        //   array length passed is too short to hold the entire stack, and
+        //   verify that elements past the specified length of the array are
+        //   unaffected.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST\n"
@@ -401,8 +395,7 @@ int main(int argc, char *argv[])
         veryVerbose = bsl::max(0, veryVerbose);
         TC::recurseDepth += veryVerbose;
         int depth = TC::recurseDepth;
-        TC::ChainLink cl(15, 0);
-        TC::recurser(&depth, &cl);
+        TC::recurser(&depth);
         ASSERT(TC::recurseDepth == depth);
       }  break;
       case -1: {

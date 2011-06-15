@@ -12,7 +12,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   baesu_StackAddressUtil: utilities for obtaining addresses from the stack
 //
-//@SEE_ALSO: baesu_stacktrace, baesu_stacktraceframe
+//@SEE_ALSO: baesu_stacktrace, baesu_stacktraceframe, baesu_stacktraceutil
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
