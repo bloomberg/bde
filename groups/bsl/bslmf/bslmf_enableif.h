@@ -328,9 +328,23 @@ BSLS_IDENT("$Id: $")
 //      MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
 //                  typename bslmf_EnableIf<
 //                                !bslmf_IsFundamental<FORWARD_ITERATOR>::VALUE
-//                                                              >::type * = 0);
+//                                                              >::type * = 0)
 //          // Create a 'MyVector' object having the same sequence of values as
 //          // found in range described by the iterators '[first, last)'.
+//          // Note that this function is currently defined inline to work
+//          // around an issue with the Microsoft Visual Studio compiler.
+//
+//      {
+//          d_length = 0;
+//          for (FORWARD_ITERATOR cursor = first; cursor != last; ++cursor) {
+//               ++d_length;
+//          }
+//
+//         d_storage = new T[d_length];
+//         for (int i = 0; i != d_length; ++i) {
+//            d_storage[i] = *first++;
+//         }
+//      }
 //
 //      ~MyVector();
 //          // Destroy this container and all of its elements, reclaiming any
@@ -357,24 +371,6 @@ BSLS_IDENT("$Id: $")
 //      for (int i = 0; i !=n; ++i) {
 //          d_storage[i] = value;
 //      }
-//  }
-//
-//  template<class T>
-//  template<typename FORWARD_ITERATOR>
-//  MyVector<T>::MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
-//                        typename bslmf_EnableIf<
-//                                !bslmf_IsFundamental<FORWARD_ITERATOR>::VALUE
-//                                                                   >::type *)
-//  {
-//     d_length = 0;
-//     for (FORWARD_ITERATOR cursor = first; cursor != last; ++cursor) {
-//         ++d_length;
-//     }
-//
-//     d_storage = new T[d_length];
-//     for (int i = 0; i != d_length; ++i) {
-//        d_storage[i] = *first++;
-//     }
 //  }
 //
 //  template<class T>
