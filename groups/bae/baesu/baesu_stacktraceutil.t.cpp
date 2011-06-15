@@ -308,7 +308,7 @@ void testStackTrace(const baesu_StackTrace& st)
             LOOP_ASSERT(i, frame.isOffsetFromSymbolKnown());
 
             UintPtr offset = frame.offsetFromSymbol();
-            const unsigned maxOffset = PLAT_HP ? 0x600 : 1024;
+            const unsigned maxOffset = PLAT_HP ? 2048 : 1024;
             LOOP2_ASSERT(i, offset, offset > 0);
             LOOP2_ASSERT(i, offset, reachedMain || offset < maxOffset);
         }

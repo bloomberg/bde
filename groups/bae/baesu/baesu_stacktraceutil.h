@@ -45,7 +45,8 @@ BDES_IDENT("$Id: $")
 //          traceExample1();
 //      }
 //
-//      ++*depth;   // Prevent compiler from optimizing tail recursion as a loop.
+//      ++*depth;   // Prevent compiler from optimizing tail recursion as a
+//                  // loop.
 //  }
 //..
 // Then, we define 'traceExample1', which will print a stack trace:
