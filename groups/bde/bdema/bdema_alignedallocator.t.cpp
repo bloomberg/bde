@@ -68,7 +68,7 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
     void  deallocate(void* )              {        markDone(); }
 };
 
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -101,6 +101,7 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
         // system-supplied 'posix_memalign' and 'free' on UNIX, or
         // '_aligned_malloc' and '_aligned_free' on Windows.
 
+      private:
         // NOT IMPLEMENTED
         MyAlignedAllocator(const MyAlignedAllocator&);
         MyAlignedAllocator& operator=(const MyAlignedAllocator&);
@@ -121,55 +122,44 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
             // specified positive 'size' (in bytes).  If 'size' is 0, a null
             // pointer is returned with no other effect.  If this allocator
             // cannot return the requested number of bytes, then it will throw
-            // a 'std::bad_alloc' exception in an exception-enabled build, or
-            // else will abort the program in a non-exception build.  The
-            // behavior is undefined unless '0 <= size'.  Note that the
-            // alignment of the address returned is the maximum alignment for
-            // any type defined on this platform.  Also note that global
-            // 'operator new' is *not* called when 'size' is 0 (in order to
-            // avoid having to acquire a lock, and potential contention in
-            // multi-threaded programs).
+            // an 'std::bad_alloc' exception in an exception-enabled build, or
+            // else it will abort the program in a non-exception build.  The
+            // behavior is undefined unless '0 <= size'.   Note that the
+            // alignment of the address returned conforms to the platform
+            // requirement for any object of the specified 'size'.  Also note
+            // that global 'operator new' is *not* called when 'size' is 0 (in
+            // order to avoid having to acquire a lock, and potential
+            // contention in multi-threaded programs).
 
         virtual void *allocateAligned(size_type size, size_type alignment);
             // Return the address of a newly allocated block of memory of at
             // least the specified positive 'size' (in bytes), sufficiently
-            // aligned such that '0 == (address & (alignment - 1)).  If 'size'
-            // is 0, a null pointer is returned with no other effect.  If this
-            // allocator cannot return the requested number of bytes, then it
-            // throws an 'bsl::bad_alloc' exception, or abort if in a
-            // non-exception build.  The behavior is undefined unless
-            // '0 <=  size' and 'alignment' is both a multiple of
-            // 'sizeof(void *)' and a power of two.  Note that the underlying
-            // 'posix_memalign' function is *not* called when 'size' is 0.
+            // aligned such that the returned 'address' satisfies
+            // '0 == (address & (alignment - 1)).  If 'size' is 0, a null
+            // pointer is returned with no other effect.  If this allocator
+            // cannot return the requested number of bytes, then it throws an
+            // 'bsl::bad_alloc' exception, or abort if in a non-exception
+            // build.  The behavior is undefined unless '0 <=  size' and
+            // 'alignment' is both a multiple of 'sizeof(void *)' and a power
+            // of two.
 
         virtual void deallocate(void *address);
             // Return the memory block at the specified 'address' back to this
             // allocator.  If 'address' is 0, this function has no effect.  The
             // behavior is undefined unless 'address' was allocated using this
-            // allocator object and has not already been deallocated.  Note
-            // that the underlying 'posix_memalign' function is *not* called
-            // when 'address' is 0.
+            // allocator object and has not already been deallocated.
     };
     // ...
 //..
-// Now, we define the virtual methods of 'MyAlignedAllocator', non
-// inlined, as they would not be inlined when invoked from the base class (the
-// typical usage in this case):
+// Now, we define the virtual methods of 'MyAlignedAllocator'.  Note that these
+// definitions are not 'inline', as they would not be inlined when invoked from
+// the base class (the typical usage in this case):
 //..
-    // CREATORS
-    MyAlignedAllocator::MyAlignedAllocator()
-    {
-    }
-
-    MyAlignedAllocator::~MyAlignedAllocator()
-    {
-    }
-
-
     // MANIPULATORS
     void *MyAlignedAllocator::allocate(size_type size)
     {
         BSLS_ASSERT_SAFE(0 <= size);
+
         if (0 == size) {
             return 0;                                                 // RETURN
         }
@@ -183,7 +173,7 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
     {
         BSLS_ASSERT_SAFE(0 <= size);
         BSLS_ASSERT_SAFE(0 <= alignment);
-        BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
+        BSLS_ASSERT_SAFE(1 == (alignment & (alignment - 1)));
         BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
 
         if (0 == size) {
@@ -256,13 +246,13 @@ int main(int argc, char *argv[])
 // in the previous example to obtain memory aligned on a page boundary,
 // assuming pages of 4096 bytes.
 //
-// First, we obtain a 'MyAlignedAllocator' reference to 'myP' we constructed in
-// the previous example:
+// First, we obtain a 'bdema_AlignedAllocator' pointer to 'myAlignedAllocator'
+// we constructed in the previous example:
 //..
     bdema_AlignedAllocator *alignedAllocator = &myAlignedAllocator;
 //..
-// Now, we allocate a buffer of 1024 bytes of memory and make sure that it is
-// aligned on a 4096 boundary:
+// Now, we allocate a buffer of 1024 bytes of memory and indicatesure that it
+// is aligned on a 4096 boundary:
 //
 //..
     char *address = (char *) alignedAllocator->allocateAligned(1024, 4096);
@@ -270,11 +260,10 @@ int main(int argc, char *argv[])
 // Finally, we verify that the obtained address actually is aligned as
 // expected:
 //..
-    ASSERT(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
+    assert(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
                                                            address,
                                                            (bsl::size_t)4096));
 //..
-
 
         if (verbose) cout << endl << "TESTING USAGE EXAMPLE" << endl
                                   << "=====================" << endl;
