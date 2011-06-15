@@ -5,6 +5,7 @@
 #include <bslmf_isconvertible.h>
 #include <bslmf_isfundamental.h>
 #include <bslmf_ispolymorphic.h>
+#include <bslmf_issame.h>
 
 // limit ourselves to the "C" library for packages below 'bslstl'
 #include <iso646.h>  // required only by the Microsoft compiler
@@ -111,6 +112,33 @@ void dbg_print(const char* s, const T& val, const char* nl) {
 }
 
 //=============================================================================
+//                    GLOBAL TEST TYPES AND FUNCTIONS
+//-----------------------------------------------------------------------------
+
+class DummyClass {
+};
+
+template <bool COND>
+void testFunction() {}
+
+template <bool COND>
+typename bslmf_EnableIf<COND, void>::type testFunction(){}
+
+
+template <bool COND>
+typename bslmf_EnableIf<COND, int>::type testMutuallyExclusiveFunction()
+{
+    return 1;
+}
+
+template <bool COND>
+typename bslmf_EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
+{
+    return 2;
+}
+
+
+//=============================================================================
 //                GLOBAL TYPES AND FUNCTIONS FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
@@ -118,7 +146,7 @@ void dbg_print(const char* s, const T& val, const char* nl) {
 //------
 // The following snippets of code illustrate basic use of the 'bslmf_EnableIf'
 // meta-function.  We will demonstrate how to use this utility to control
-// overload sets with three increasingly complex examples. 
+// overload sets with three increasingly complex examples.
 //
 // For the first example we will implement a simple 'Swap' function template
 // to exchange two arbitrary values, as if declared as below:
@@ -140,7 +168,7 @@ void dbg_print(const char* s, const T& val, const char* nl) {
     template<class T>
     struct HasMemberSwap {
         // This traits class indicates whether the specified template type
-        // paramater 'T' has a public 'swap' method to exchange values.
+        // parameter 'T' has a public 'swap' method to exchange values.
         static const bool VALUE = false;
     };
 //..
@@ -154,10 +182,7 @@ void dbg_print(const char* s, const T& val, const char* nl) {
 // appear to differ only in their return type, which would normally raise an
 // ambiguity error.  This works, and is in fact required, in this case as the
 // "enable-if" conditions are mutually exclusive, so that only one overload
-// will ever be present in an overload set.  Also note that we use the token
-// 'not' rather than the operator '!' to call attention to the negation.  This
-// is purely a style issue, as a lone '!' is too easy to miss as the only
-// difference between two declarations.
+// will ever be present in an overload set.
 //..
     template<class T>
     typename bslmf_EnableIf<HasMemberSwap<T>::VALUE>::type
@@ -167,7 +192,7 @@ void dbg_print(const char* s, const T& val, const char* nl) {
     }
 
     template<class T>
-    typename bslmf_EnableIf<not HasMemberSwap<T>::VALUE>::type
+    typename bslmf_EnableIf< ! HasMemberSwap<T>::VALUE>::type
     Swap(T& a, T& b)
     {
         T temp(a);
@@ -182,7 +207,7 @@ void dbg_print(const char* s, const T& val, const char* nl) {
     template<class T>
     class MyContainer {
         // This is a simple container implementation for demonstration purposes
-        // that is modelled after 'std::vector'.
+        // that is modeled after 'std::vector'.
         T *d_storage;
         size_t d_length;
 
@@ -194,7 +219,7 @@ void dbg_print(const char* s, const T& val, const char* nl) {
         MyContainer(const T& value, int n);
             // Create a 'MyContainer' object having the specified 'n' copies of
             // the specified 'value'.
-            
+
         ~MyContainer();
             // Destroy this container and all of its elements, reclaiming any
             // allocated memory.
@@ -203,7 +228,7 @@ void dbg_print(const char* s, const T& val, const char* nl) {
             // Exchange the contents of 'this' container with those of the
             // specified 'other'.  No memory will be allocated, and no
             // exceptions are thrown.
-            
+
         const T& front() const;
             // Return a reference with 'const' access to the first element in
             // this container.
@@ -306,7 +331,7 @@ void dbg_print(const char* s, const T& val, const char* nl) {
                             TO>::type *
     smart_cast(FROM *from)
         // Return the specified 'from' pointer value cast as a pointer to type
-        // 'TO'.  Behvior is undefined unless such a conversion is valid.
+        // 'TO'.  Behavior is undefined unless such a conversion is valid.
     {
         return static_cast<TO *>(from);
     }
@@ -384,7 +409,7 @@ void dbg_print(const char* s, const T& val, const char* nl) {
     template<class T>
     class MyVector {
         // This is a simple container implementation for demonstration purposes
-        // that is modelled after 'std::vector'.
+        // that is modeled after 'std::vector'.
         T *d_storage;
         size_t d_length;
 
@@ -396,7 +421,7 @@ void dbg_print(const char* s, const T& val, const char* nl) {
         MyVector(const T& value, int n);
             // Create a 'MyVector' object having the specified 'n' copies of
             // the specified 'value'.
-            
+
         template<typename FORWARD_ITERATOR>
         MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
                     typename bslmf_EnableIf<
@@ -415,7 +440,7 @@ void dbg_print(const char* s, const T& val, const char* nl) {
               d_storage[i] = *first++;
            }
         }
-            
+
         ~MyVector();
             // Destroy this container and all of its elements, reclaiming any
             // allocated memory.
@@ -430,8 +455,8 @@ void dbg_print(const char* s, const T& val, const char* nl) {
 //..
 // Note that there is no easy test for whether a type is an iterator, so we
 // assume any attempt to call a constructor with two arguments that are not
-// fundamental (such as int) must be pasing iterators.  Now that we have
-// defined the class template, we implent its methods:
+// fundamental (such as int) must be passing iterators.  Now that we have
+// defined the class template, we implement its methods:
 //..
     template<class T>
     MyVector<T>::MyVector(const T& value, int n)
@@ -519,7 +544,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n"
                             "USAGE EXAMPLE 3\n"
                             "===============\n");
-        
+
         TestContainerConstructor();
       } break;
       case 3: {
@@ -541,7 +566,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n"
                             "USAGE EXAMPLE 2\n"
                             "===============\n");
-        
+
         TestSmartCast();
       } break;
       case 2: {
@@ -563,7 +588,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n"
                             "USAGE EXAMPLE 1\n"
                             "===============\n");
-        
+
         TestSwap();
       } break;
       case 1: {
@@ -572,10 +597,39 @@ int main(int argc, char *argv[])
         //   Test the 'bslmf_EnableIf' meta-function.
         //
         // Concerns:
-        //  TBD
-        //
+        //:  1 If the supplied boolean template parameter is true, then
+        //:    'bslmf_EnableIf' provides a type named 'type' matching the
+        //:     second template parameter.
+        //:
+        //:  2 If the supplied boolean template parameter is 'false', then
+        //:    'bslmf_EnableIf' does not provide a type named 'type'.
         // Plan:
-        //  TBD
+        //:  1 For a series of possible types, instantiate 'bslmf_EnableIf'
+        //:    with a first parameter 'true' and the second parameter of the
+        //:    test type.  Verify that 'bslmf_EnableIf' defines a type 'type'
+        //:    matching the second template parameter type. (C-1)
+        //:
+        //:  2 Create a two instances of a template function parameterized on
+        //:    a boolean, one returning 1, the other returning 2.  If 'true'
+        //:    is supplied as the template parameter, only the first function
+        //:    is part of the overload set, if 'false' is then only the second
+        //:    function is part of the overload set.  Call the template
+        //:    function with both 'true' and 'false', verify that there is no
+        //:    compilation error, and that the return value is 1 and 2
+        //:    respectively (for 'true' and 'false). (C-2)
+        //:
+        //:  3 Create a two instances of a template function parameterized on
+        //:    a boolean, the first simply returns void, and the second returns
+        //:    a 'bslmf_EnableIf' supplied the boolean parameter value. (C-2)
+        //:
+        //:    1 Instantiate this template function for 'false' to verify
+        //:      enable-if removes the second implementation from the overload
+        //:      set.
+        //:
+        //:    2 Manually verify that if the template function is instantiated
+        //:      for 'true' that enable-if leaves the second implementation in
+        //:      the overload set, resulting in a compiler diagnostic (for an
+        //:      ambiguous function declaration).
         //
         // Testing:
         //   bslmf_EnableIf<CONDITION, RESULT_TYPE>
@@ -584,6 +638,71 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n"
                             "bslmf_EnableIf\n"
                             "==============\n");
+
+        if (veryVerbose) printf("\nTest the return type\n");
+
+        {
+            {
+                const bool R =
+                    bslmf_IsSame<bool,
+                                 bslmf_EnableIf<true, bool>::type >::VALUE;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                    bslmf_IsSame<int,
+                                 bslmf_EnableIf<true, int>::type >::VALUE;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                    bslmf_IsSame<void *,
+                                 bslmf_EnableIf<true, void *>::type >::VALUE;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                    bslmf_IsSame<const void *,
+                           bslmf_EnableIf<true, const void *>::type >::VALUE;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                  bslmf_IsSame<const volatile void *,
+                    bslmf_EnableIf<true, const volatile void *>::type >::VALUE;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                  bslmf_IsSame<DummyClass,
+                    bslmf_EnableIf<true, DummyClass>::type >::VALUE;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                  bslmf_IsSame<DummyClass&,
+                    bslmf_EnableIf<true, DummyClass&>::type >::VALUE;
+                ASSERT(R);
+            }
+        }
+
+        if (veryVerbose) {
+            printf("\nTest whether enabelif modifies the overload set\n");
+        }
+        {
+
+            ASSERT(1 == testMutuallyExclusiveFunction<true>());
+            ASSERT(2 == testMutuallyExclusiveFunction<false>());
+        }
+        if (veryVerbose) {
+            printf("\nManually test if enableif modifies the overload set\n");
+        }
+        {
+            testFunction<false>();
+            // This should fail to compile if un-commented.
+            // testFunction<true>();
+
+        }
 
      } break;
      default: {
@@ -607,4 +726,3 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
- 
