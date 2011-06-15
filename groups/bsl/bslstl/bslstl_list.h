@@ -646,11 +646,12 @@ class list {
     explicit list(const ALLOC& = ALLOC());
     explicit list(size_type n);
     list(size_type n, const TYPE& value, const ALLOC& = ALLOC());
+
     template <class InputIter>
-      list(InputIter first, InputIter last, const ALLOC& = ALLOC(),
+      list(InputIter first, InputIter last, const ALLOC& a = ALLOC(),
            typename BloombergLP::bslmf_EnableIf<
                !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
-           >::type * = 0);
+           >::type * = 0)
         // Construct a list list containing copies of the elements in the
         // specified range '[first, last)'.  Does not participate in overload
         // resolution unless 'InputIter' is an iterator type.
@@ -663,6 +664,14 @@ class list {
         // 'bslmf_IsArithmetic' (a currently unimplemented metafunction that
         // would include enums) instead of 'bslmf_IsFundamental' in the
         // 'bslmf_EnableIf' expression.
+    : d_alloc_and_size(a, size_type(-1))
+    {
+        // '*this' is in an invalid but destructible state (size == -1).
+        list tmp(allocator());
+        tmp.assign(first, last); // 'tmp's destructor will clean up on throw.
+        quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
+    }
+
     list(const list& x);
     list(const list&, const ALLOC&);
 #ifdef BDE_CXX0X_RVALUES
@@ -682,7 +691,7 @@ class list {
     void assign(InputIter first, InputIter last,
                 typename BloombergLP::bslmf_EnableIf<
                     !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
-                >::type * = 0);
+                >::type * = 0)
         // Replace the contents of this list with copies of the elements in
         // the specified range '[first, last)'.  Does not participate in
         // overload resolution unless 'InputIter' is an iterator type.
@@ -695,6 +704,21 @@ class list {
         // 'bslmf_IsArithmetic' (a currently unimplemented metafunction that
         // would include enums) instead of 'bslmf_IsFundamental' in the
         // 'bslmf_EnableIf' expression.
+    {
+        iterator i = this->begin();
+        iterator e = this->end();
+
+        for (; first != last && i != e; ++first, ++i) {
+            *i = *first;
+        }
+
+        erase(i, e);
+
+        for (; first != last; ++first) {
+            emplace(e, *first);
+        }
+    }
+
     void assign(size_type n, const TYPE& t);
 //  void assign(initializer_list<TYPE>);
 
@@ -790,11 +814,12 @@ class list {
 #endif
     iterator insert(const_iterator position, const TYPE& x);
     iterator insert(const_iterator position, size_type n, const TYPE& x);
+
     template <class InputIter>
     iterator insert(const_iterator position, InputIter first, InputIter last,
                     typename BloombergLP::bslmf_EnableIf<
                         !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
-                    >::type * = 0);
+                    >::type * = 0)
         // Insert the specified range '[first, last)' into this list at the
         // specified 'position' and return an iterator to the first inserted
         // element or 'position' if the range is empty.  Does not participate
@@ -808,6 +833,19 @@ class list {
         // 'bslmf_IsArithmetic' (a currently unimplemented metafunction that
         // would include enums) instead of 'bslmf_IsFundamental' in the
         // 'bslmf_EnableIf' expression.
+    {
+        if (first == last) {
+            return position.unconst();
+        }
+
+        // Remember the position of the first insertion
+        iterator ret = insert(position, *first);
+        for (++first; first != last; ++first) {
+            insert(position, *first);
+        }
+
+        return ret;
+    }
 
 //  iterator insert(const_iterator position, initializer_list<TYPE> il);
 
@@ -1050,20 +1088,6 @@ list<TYPE,ALLOC>::list(size_type n, const TYPE& value, const ALLOC& a)
 }
 
 template <class TYPE, class ALLOC>
-  template <class InputIter>
-list<TYPE,ALLOC>::list(InputIter first, InputIter last, const ALLOC& a,
-                       typename BloombergLP::bslmf_EnableIf<
-                           !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
-                       >::type *)
-    : d_alloc_and_size(a, size_type(-1))
-{
-    // '*this' is in an invalid but destructible state (size == -1).
-    list tmp(allocator());
-    tmp.assign(first, last); // 'tmp's destructor will clean up on throw.
-    quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
-}
-
-template <class TYPE, class ALLOC>
 list<TYPE,ALLOC>::list(const list& x)
     : d_alloc_and_size(
        AllocTraits::select_on_container_copy_construction(x.allocator()),
@@ -1196,28 +1220,6 @@ list<TYPE,ALLOC>& list<TYPE,ALLOC>::operator=(list&& x)
 #endif // BDE_CXX0X_RVALUES
 
 //    list& operator=(initializer_list<TYPE>);
-
-template <class TYPE, class ALLOC>
-  template <class InputIter>
-void
-list<TYPE,ALLOC>::assign(InputIter first, InputIter last,
-                         typename BloombergLP::bslmf_EnableIf<
-                           !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
-                         >::type *)
-{
-    iterator i = this->begin();
-    iterator e = this->end();
-
-    for (; first != last && i != e; ++first, ++i) {
-        *i = *first;
-    }
-
-    erase(i, e);
-
-    for (; first != last; ++first) {
-        emplace(e, *first);
-    }
-}
 
 template <class TYPE, class ALLOC>
 void list<TYPE,ALLOC>::assign(size_type n, const TYPE& t)
@@ -1685,29 +1687,6 @@ list<TYPE,ALLOC>::insert(const_iterator position,
     iterator ret = emplace(position, x);
     for (--n; n > 0; --n) {
         emplace(position, x);
-    }
-
-    return ret;
-}
-
-template <class TYPE, class ALLOC>
-    template <class InputIter>
-typename list<TYPE,ALLOC>::iterator
-list<TYPE,ALLOC>::insert(const_iterator position,
-                         InputIter      first,
-                         InputIter      last,
-                         typename BloombergLP::bslmf_EnableIf<
-                           !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
-                         >::type *)
-{
-    if (first == last) {
-        return position.unconst();
-    }
-
-    // Remember the position of the first insertion
-    iterator ret = insert(position, *first);
-    for (++first; first != last; ++first) {
-        insert(position, *first);
     }
 
     return ret;
