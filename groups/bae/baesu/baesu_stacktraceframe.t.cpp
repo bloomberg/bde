@@ -23,6 +23,7 @@
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
 
+// TBD move this into its own component?
 template <class TYPE>
 void invokeAdlSwap(TYPE& a, TYPE& b)
     // Exchange the values of the specified 'a' and 'b' objects using the
@@ -96,7 +97,7 @@ using bsl::ostream;
 //: o An object's value is independent of the allocator used to supply memory.
 //: o Injected exceptions are safely propagated during memory allocation.
 //: o Precondition violations are detected in appropriate build modes.
-//: o All memory allocation must come from the supplied object allocator,
+//: o TBD: All memory allocation must come from the supplied object allocator,
 //:   never directly from the default allocator (i.e., no "temporaries").
 //:   Since the default allocator may be corrupt when stack traces are done,
 //:   stack trace frame objects are supplied with a special, dedicated
@@ -247,6 +248,9 @@ typedef bsl::string T7;  // 'symbolName'
 //                     GLOBAL CONSTANTS USED FOR TESTING
 // ----------------------------------------------------------------------------
 // Define 'bsl::string' value long enough to ensure dynamic memory allocation.
+
+// JSL: Do we want to move this string to the component of bsl::string itself?
+// JSL: e.g.,  #define BSLSTL_LONG_STRING ...   TBD!
 
 #ifdef BSLS_PLATFORM__CPU_32_BIT
 #define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
@@ -608,7 +612,7 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 // JSL: change the name to 'bslma_TestAllocatorMonitor'.
 
 class bslma_TestAllocatorMonitor {
-    // Move this to its own component
+    // TBD
 
     // DATA
     int                              d_lastInUse;
@@ -618,7 +622,6 @@ class bslma_TestAllocatorMonitor {
 
   public:
     // CREATORS
-    explicit
     bslma_TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
         // TBD
 
@@ -665,7 +668,7 @@ bslma_TestAllocatorMonitor::~bslma_TestAllocatorMonitor()
 inline
 bool bslma_TestAllocatorMonitor::isInUseSame() const
 {
-#if 0   // Why cannot deallocate memory in use at monitor creation?
+#if TBD // Why cannot deallocate memory in use at monitor creation?
         // Problem arose in swap-based assignment.
     BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
 #endif
@@ -747,48 +750,82 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
-
 ///Usage
 ///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // In this example, we create two 'baesu_StackTraceFrame' objects, modify their
-// properties, and compare them.  First, we create the objects 'a' and 'b':
+// properties, and compare them.
+//
+// First, we (default) create the two objects, 'a' and 'b', and verify that:
+// they have the same value:
 //..
     baesu_StackTraceFrame a, b;
-
     ASSERT(a == b);
 //..
-// Next, we verify all values are initialized by the constructor to invalid
-// values.
+// Then, we verify all values were initialized by the constructor to the
+// "unknown" values:
 //..
-    ASSERT(!a.isAddressKnown());
-    ASSERT(!a.isLibraryFileNameKnown());
-    ASSERT(!a.isLineNumberKnown());
-    ASSERT(!a.isMangledSymbolNameKnown());
-    ASSERT(!a.isOffsetFromSymbolKnown());
-    ASSERT(!a.isSourceFileNameKnown());
-    ASSERT(!a.isSymbolNameKnown());
-
+    ASSERT(false == a.isAddressKnown());
+    ASSERT(false == a.isLibraryFileNameKnown());
+    ASSERT(false == a.isLineNumberKnown());
+    ASSERT(false == a.isMangledSymbolNameKnown());
+    ASSERT(false == a.isOffsetFromSymbolKnown());
+    ASSERT(false == a.isSourceFileNameKnown());
+    ASSERT(false == a.isSymbolNameKnown());
+//..
+// Next, we assign a value to the 'lineNumber' attribute of 'a' and verify that
+// attribute has changed and that 'a' is no longer equal to 'b':
+//..
     a.setLineNumber(5);
-    ASSERT(a.isLineNumberKnown());
-
+    ASSERT(true == a.isLineNumberKnown());
+    ASSERT(5    == a.lineNumber());
+    ASSERT(a    != b);
+//..
+// Next, make the same change to 'b', and thereby restore it's equality to 'a':
+//..
+    b.setLineNumber(5);
+    ASSERT(true == b.isLineNumberKnown());
+    ASSERT(5    == b.lineNumber());
+    ASSERT(a    == b);
+//..
+// Next, we update the 'address' attribute of 'a', and use the 'address'
+// accessor method to obtain the value needed to the update of 'b' to equal
+// 'a':
+//..
+    a.setAddress((char *) 0x12345678);
     ASSERT(a != b);
 
-    b.setLineNumber(5);
-    ASSERT(b.isLineNumberKnown());
-
-    ASSERT(a == b);
-
-    a.setAddress((char *) 0x12345678);
     b.setAddress(a.address());
-    ASSERT(a.isAddressKnown());
-    ASSERT(b.isAddressKnown());
-
+    ASSERT(true                == a.isAddressKnown());
+    ASSERT(true                == b.isAddressKnown());
+    ASSERT((char *) 0x12345678 == a.address());
+    ASSERT((char *) 0x12345678 == b.address());
+    ASSERT(a.address()         == b.address());
+    ASSERT(a                   == b);
+//..
+// Finally, we exercise this sequence of operations for two other attributes,
+// 'symbolName' and 'sourceFileName':
+//..
     a.setSymbolName("woof");
+    ASSERT(a    != b);
+
     b.setSymbolName(a.symbolName());
+    ASSERT(true == a.isSymbolNameKnown());
+    ASSERT(true == b.isSymbolNameKnown());
+    ASSERT(0    == std::strcmp("woof", a.symbolName().c_str()));
+    ASSERT(0    == std::strcmp("woof", b.symbolName().c_str()));
+    ASSERT(a    == b);
 
     a.setSourceFileName("woof.cpp");
+    ASSERT(a != b);
     b.setSourceFileName(a.sourceFileName());
-
+    ASSERT(a.isSourceFileNameKnown());
+    ASSERT(b.isSourceFileNameKnown());
+    ASSERT(0 == std::strcmp("woof.cpp", a.sourceFileName().c_str()));
+    ASSERT(0 == std::strcmp("woof.cpp", b.sourceFileName().c_str()));
     ASSERT(a == b);
 //..
 
@@ -1212,7 +1249,7 @@ int main(int argc, char *argv[])
                     if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
                         LOOP2_ASSERT(LINE1, LINE2, oam.isInUseUp());
                     }
-#if 0 // Inappropriate test for swap-based assignment
+#if TBD // Inappropriate test for swap-based assignment
                     else if ('Y' == MEMDST2) {
                         LOOP2_ASSERT(LINE1, LINE2, oam.isInUseSame());
                     }
@@ -2368,7 +2405,7 @@ int main(int argc, char *argv[])
         //:
         //: 7 The output 'operator<<' returns the supplied 'ostream'.
         //:
-        //: 8 Neither 'print' method nor the output 'operator<<' use
+        //: 8 TBD Neither 'print' method nor the output 'operator<<' use
         //:   the default allocator.
         //
         // Plan:
