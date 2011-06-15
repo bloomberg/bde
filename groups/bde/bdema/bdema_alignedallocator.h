@@ -120,6 +120,15 @@ BSLS_IDENT("$Id$")
 // definitions are not 'inline', as they would not be inlined when invoked from
 // the base class (the typical usage in this case):
 //..
+//  // CREATORS
+//  MyAlignedAllocator::MyAlignedAllocator()
+//  {
+//  }
+//
+//  MyAlignedAllocator::~MyAlignedAllocator()
+//  {
+//  }
+//
 //  // MANIPULATORS
 //  void *MyAlignedAllocator::allocate(size_type size)
 //  {

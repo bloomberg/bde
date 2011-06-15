@@ -155,6 +155,15 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
 // definitions are not 'inline', as they would not be inlined when invoked from
 // the base class (the typical usage in this case):
 //..
+    // CREATORS
+    MyAlignedAllocator::MyAlignedAllocator()
+    {
+    }
+
+    MyAlignedAllocator::~MyAlignedAllocator()
+    {
+    }
+
     // MANIPULATORS
     void *MyAlignedAllocator::allocate(size_type size)
     {
@@ -173,7 +182,7 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
     {
         BSLS_ASSERT_SAFE(0 <= size);
         BSLS_ASSERT_SAFE(0 <= alignment);
-        BSLS_ASSERT_SAFE(1 == (alignment & (alignment - 1)));
+        BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
         BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
 
         if (0 == size) {
@@ -260,7 +269,7 @@ int main(int argc, char *argv[])
 // Finally, we verify that the obtained address actually is aligned as
 // expected:
 //..
-    assert(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
+    ASSERT(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
                                                            address,
                                                            (bsl::size_t)4096));
 //..
@@ -324,8 +333,8 @@ int main(int argc, char *argv[])
 
         // Reuse the concrete implementation of the usage example.
 
-        MyAlignedAllocator alignAllocator;
-        bslma_Allocator *allocator = &alignAllocator;
+        MyAlignedAllocator alignedAllocator;
+        bslma_Allocator *allocator = &alignedAllocator;
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
