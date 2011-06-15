@@ -31,13 +31,10 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
                                    int           level,
                                    int           spacesPerLevel) const
 {
-    if (stream.bad()) {
-        return stream;                                                // RETURN
-    }
-
     bdeu_Print::indent(stream, level, spacesPerLevel);
 
-    // Write to a temporary stream having width 0 in case the caller has done
+    // Format the output to a buffer first instead of inserting into 'stream'
+    // directly to improve performance and in case the caller has done
     // something like:
     //..
     //  os << bsl::setw(20) << myDatetime;
@@ -48,12 +45,7 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
     const int SIZE = 128;  // Size the buffer to be able to hold a *bad* date.
     char buffer[SIZE];
 
-    bdesb_FixedMemOutStreamBuf sb(buffer, SIZE);
-    bsl::ostream os(&sb);
-
-    os << date() << '_' << time();
-
-    buffer[sb.length()] = '\0';
+    printToBuffer(buffer, SIZE);
 
     stream << buffer;
 
@@ -64,10 +56,9 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
     return stream;
 }
 
-void bdet_Datetime::printToBuf(int *resultLen, char *resultBuf, int size)
+int bdet_Datetime::printToBuffer(char *result, int size) const
 {
-    BSLS_ASSERT(resultLen);
-    BSLS_ASSERT(resultBuf);
+    BSLS_ASSERT(result);
     BSLS_ASSERT(0 <= size);
 
     int y, m, d;
@@ -81,16 +72,16 @@ void bdet_Datetime::printToBuf(int *resultLen, char *resultBuf, int size)
 #define snprintf _snprintf
 #endif
 
-    *resultLen = snprintf(resultBuf,
-                          size,
-                          "%02d%s%04d_%02d:%02d:%02d.%03d",
-                          d,
-                          month,
-                          y,
-                          hour,
-                          min,
-                          sec,
-                          mSec);
+    return snprintf(result,
+                    size,
+                    "%02d%s%04d_%02d:%02d:%02d.%03d",
+                    d,
+                    month,
+                    y,
+                    hour,
+                    min,
+                    sec,
+                    mSec);
 
 #if defined(BSLS_PLATFORM__CMP_MSVC)
 #undef snprintf

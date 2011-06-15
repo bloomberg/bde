@@ -115,7 +115,7 @@ BDES_IDENT("$Id: $")
 //   %s - current second (two digits with leading zeros)
 //   %% - the empty string
 //..
-// For example, a log filename pattern of "task.log.%Y%M%D_%h%m%s" may yield
+// For example, a log filename pattern of "task.log.%Y%M%D_%h%m%s" will yield
 // the a filename of "task.log.20110501_123000" if the file is opened on
 // '01-May-2011 12:30:00'.
 //
@@ -135,12 +135,12 @@ BDES_IDENT("$Id: $")
 //
 ///Rotated File Naming
 ///- - - - - - - - - -
-// When a file rotation occurs, the current log file is closed, renamed if
-// necessary, and a new log file will be opened.  The log file will be renamed
-// if the log filename pattern does not contain a '%'-escape sequence, and the
-// 'appendTimestampFlag' argument is set to 'false' when 'enableFileLogging' is
-// called.  A timestamp will be appended to the log file.  Otherwise, the log
-// file is simple closed and a new log file is opened during rotation.
+// When file rotation occurs, a new log filename is generated using the pattern
+// and 'appendTimestampFlag' supplied to 'enableFileLogging'.  If the filename
+// pattern supplied to 'enableFileLogging' does not contain an escape sequence
+// and 'appendTimestampFlag' was false, the newly generated filename must be
+// the same as the existing log file.  In that instance the old log file is
+// renamed by appending a timestamp.
 //
 // The table below demonstrates the names of the log files opened at
 // '2011-May-11 12:30:00' based on the filename patterns and whether

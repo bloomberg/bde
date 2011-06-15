@@ -1,4 +1,12 @@
 // bael_recordstringformatter.cpp                                     -*-C++-*-
+
+///Implementation Notes
+///--------------------
+// Using the insertion operator (operator <<) with an 'ostream' introduces
+// significant performance overhead.  For this reason, the 'operator()' method
+// is implemented by writing the formatted string to a buffer before
+// inserting to a stream.
+
 #include <bael_recordstringformatter.h>
 
 #include <bdes_ident.h>
@@ -42,16 +50,15 @@ static void appendToString(bsl::string *result, int value)
 #endif
 
     snprintf(buffer, sizeof buffer, "%d", value);
-    *result += buffer;
 
 #if defined(BSLS_PLATFORM__CMP_MSVC)
 #undef snprintf
 #endif
 
+    *result += buffer;
 }
 
-static void appendToString(bsl::string *result,
-                           bsls_Types::Uint64 value)
+static void appendToString(bsl::string *result, bsls_Types::Uint64 value)
     // Convert the specified 'value' into ASCII characters and append it to the
     // specified 'result.
 {
@@ -164,8 +171,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
               } break;
               case 'd': {
                 char buffer[32];
-                int length;
-                timestamp.printToBuf(&length, buffer, sizeof buffer);
+                int length = timestamp.printToBuffer(buffer, sizeof buffer);
 
                 output += buffer;
               } break;
