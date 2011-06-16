@@ -515,7 +515,7 @@ class Printer {
         // construction.
 
     void end(bool suppressBracket = false) const;
-        // If 'spacesPerLevel() >= 0', print a newline character too the output
+        // If 'spacesPerLevel() >= 0', print a newline character to the output
         // stream supplied at construction.  If the optionally specified
         // 'suppressBracket' is false, print a closing square bracket, indented
         // by 'absLevel() * spacesPerLevel()' blank spaces.
