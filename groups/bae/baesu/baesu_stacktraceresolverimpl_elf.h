@@ -190,7 +190,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf> {
         // not to be called by external users of this component, it is only
         // public so a static routine in the implementation file can call it.
 
-    static inline
+    static
     int testFunc();
         // For testing only.  Do some random garbage and return a line number
         // within this routine.
