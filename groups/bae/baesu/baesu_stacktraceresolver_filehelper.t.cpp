@@ -25,9 +25,15 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------
-// CLASS METHODS
+// CREATORS
+// [ 1] baesu_StackTraceResolver_FileHelper
+// [ 1] ~baesu_StackTraceResolver_FileHelper
+//
+// ACCESSORS
+// [ 1] readExact
+// [ 2] readBytes
+// [ 3] loadString
 //-----------------------------------------------------------------------------
-// [ 1] BREATHING TEST
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO

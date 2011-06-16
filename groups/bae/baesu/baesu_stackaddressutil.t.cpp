@@ -1,6 +1,7 @@
 // baesu_stackaddressutil.t.cpp                                       -*-C++-*-
 #include <baesu_stackaddressutil.h>
 
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_algorithm.h>
@@ -11,6 +12,14 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+// 'getStackAddresses' will not be able to trace through our stack frames if
+// we're optimized on Windows
+
+# pragma optimize("", off)
+
+#endif
+
 using namespace BloombergLP;
 using bsl::cin;
 using bsl::cout;
@@ -20,6 +29,12 @@ using bsl::flush;
 
 //=============================================================================
 // TEST PLAN
+//-----------------------------------------------------------------------------
+// [-1] Speed benchmark of getStackAddresses
+// [ 1] Breathing test
+// [ 2] getStackAddresses(0, 0)
+// [ 3] 'getStackAddresses' finds right functions
+// [ 4] Usage example
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -245,8 +260,8 @@ int func1()
         }
 
         Q(Stack:);
-        for (unsigned u = 0; u < numAddresses; ++u) {
-            P_(u); P(buffer[u]);
+        for (int i = 0; i < numAddresses; ++i) {
+            P_(i); P(buffer[i]);
         }
     }
 
