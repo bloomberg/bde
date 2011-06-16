@@ -1012,6 +1012,7 @@ template <class TYPE>
 void Printer::printAttribute(const char *name, const TYPE& data) const
 {
     BSLS_ASSERT_SAFE(0 != name);
+
     print(data, name);
 }
 
@@ -1178,22 +1179,22 @@ void Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
 #define HANDLE_CONTROL_CHAR(value) case value: stream << #value; break;
     if (bsl::isprint(data)) {
         // print within quotes
+
         stream << "'" << data <<"'";
     }
     else {
         switch(data) {
-            HANDLE_CONTROL_CHAR('\n');
-            HANDLE_CONTROL_CHAR('\t');
-            HANDLE_CONTROL_CHAR('\0');
+          HANDLE_CONTROL_CHAR('\n');
+          HANDLE_CONTROL_CHAR('\t');
+          HANDLE_CONTROL_CHAR('\0');
 
-            default:
-                // print as hex
-                bsl::ios_base::fmtflags fmtFlags = stream.flags();
-                stream << bsl::hex
-                       << bsl::showbase
-                       << static_cast<bsls_Types::UintPtr>(data);
-                stream.flags(fmtFlags);
-
+          default:
+            // print as hex
+            bsl::ios_base::fmtflags fmtFlags = stream.flags();
+            stream << bsl::hex
+                   << bsl::showbase
+                   << static_cast<bsls_Types::UintPtr>(data);
+            stream.flags(fmtFlags);
         }
     }
 #undef HANDLE_CONTROL_CHAR
