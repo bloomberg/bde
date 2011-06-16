@@ -515,9 +515,9 @@ class Printer {
         // construction.
 
     void end(bool suppressBracket = false) const;
-        // If 'spacesPerLevel() >= 0', print a newline character.  If the
-        // optionally specified 'suppressBracket' is false, print to the output
-        // stream supplied at construction a closing square bracket, indented
+        // If 'spacesPerLevel() >= 0', print to the output stream supplied at
+        // construction a newline character.  If the optionally specified
+        // 'suppressBracket' is false, print a closing square bracket, indented
         // by 'absLevel() * spacesPerLevel()' blank spaces.
 
     template <class TYPE>
@@ -664,7 +664,7 @@ class Printer {
         // 'absLevel() * spacesPerLevel()' blank spaces if the
         // 'suppressInitialIndentFlag' is 'false', and suppress the initial
         // indentation otherwise.  If the optionally specified
-        // 'suppressBracket' is false, print an opening square bracket.
+        // 'suppressBracket' is 'false', print an opening square bracket.
 
     bool suppressInitialIndentFlag() const;
         // Return 'true' if the initial output indentation will be
@@ -1011,7 +1011,7 @@ void Printer::print(const TYPE& data, const char *name) const
 template <class TYPE>
 void Printer::printAttribute(const char *name, const TYPE& data) const
 {
-    BSLS_ASSERT_SAFE(name != 0);
+    BSLS_ASSERT_SAFE(0 != name);
     print(data, name);
 }
 

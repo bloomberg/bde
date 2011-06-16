@@ -1215,7 +1215,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'print' (null pointers)
+        // TESTING 'printAttribute' and 'printValue'
         //
         // Concerns:
         //: 1 That 'printAttribute' and 'printValue' call 'print' correctly.
