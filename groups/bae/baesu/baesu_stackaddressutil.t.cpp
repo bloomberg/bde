@@ -172,21 +172,27 @@ static int findIndex(const void *retAddress)
 // will call 'getAddresses' and verify that the addresses returned correspond
 // to the functions we expect them to.
 
-#define CASE4_FUNC(nMinus1, n)                            \
-    int func ## n()                                       \
-    {                                                     \
-        double ret = 28.6 * bsl::sin(M_PI / 3.7);         \
-        ret += ((ret + 2.7) * ret) / 1.8;                 \
-        ret += func ## nMinus1() * 3;                     \
-        return (int) ret;                                 \
-    }
-
 int func1();
-CASE4_FUNC(1, 2)
-CASE4_FUNC(2, 3)
-CASE4_FUNC(3, 4)
-CASE4_FUNC(4, 5)
-CASE4_FUNC(5, 6)
+int func2()
+{
+    return 2 * func1();
+}
+int func3()
+{
+    return 3 * func2();
+}
+int func4()
+{
+    return 4 * func3();
+}
+int func5()
+{
+    return 5 * func4();
+}
+int func6()
+{
+    return 6 * func5();
+}
 
 // Next, we define the macro FUNC_ADDRESS, which will take as an arg a
 // '&<function name>' and return a pointer to the actual beginning of the
