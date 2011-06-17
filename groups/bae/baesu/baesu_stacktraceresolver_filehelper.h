@@ -185,19 +185,22 @@ class baesu_StackTraceResolver_FileHelper {
         // a zero-terminated string from the specified absolute file 'offset',
         // using the specified 'scratchBuf' of specified length
         // 'scratchBufLength' as temporary storage before the new string is
-        // allocated.  Return the pointer to the newly allocated string.  Note
-        // that if the string is longer than 'scratchBufLength - 1', it is
-        // truncated.
+        // allocated.  Return the pointer to the newly allocated string.  The
+        // behavior is undefined unless 'scratchBuf != 0' and
+        // 'scratchBufLength >= 1'.  Note that if the string is longer than
+        // 'scratchBufLength - 1', it is truncated.
 
     UintPtr readBytes(void *buf, UintPtr numBytes, Offset offset) const;
         // Read into the specified 'buf' up to the specified 'numBytes' of data
         // starting at the specified 'offset' in the current ELF or XCOFF file.
-        // Return the number of bytes read, which can be zero.
+        // Return the number of bytes read, which can be zero.  The behavior is
+        // undefined unless 'buf != 0' and 'offset >= 0'.
 
     int readExact(void *buf, UintPtr numBytes, Offset offset) const;
         // Read into the specified 'buf' exactly the spacified 'numBytes' of
         // data starting at the specified 'offset' in the current ELF or XCOFF
-        // file.  Return 0 on success, or a negative value otherwise.
+        // file.  Return 0 on success, or a negative value otherwise.  The
+        // behavior is undefined unless 'buf != 0' and 'offset >= 0'.
 };
 
 // ===========================================================================
@@ -214,6 +217,9 @@ int baesu_StackTraceResolver_FileHelper::readExact(void    *buf,
                                                    UintPtr  numBytes,
                                                    Offset   offset) const
 {
+    BSLS_ASSERT_SAFE(buf);
+    BSLS_ASSERT_SAFE(offset >= 0);
+
     UintPtr res = readBytes(buf, numBytes, offset);
     return res != numBytes ? -1 : 0;
 }

@@ -54,6 +54,9 @@ char *baesu_StackTraceResolver_FileHelper::loadString(
     // 0 terminated string, copy the string into it, and return a pointer to
     // the buffer.
 
+    BSLS_ASSERT_SAFE(scratchBuf);
+    BSLS_ASSERT_SAFE(scratchBufLength > 0);
+
     enum {
         START_LEN = 256
     };
@@ -90,7 +93,8 @@ bsls_Types::UintPtr baesu_StackTraceResolver_FileHelper::readBytes(
                                                          UintPtr  numBytes,
                                                          Offset   offset) const
 {
-    BSLS_ASSERT_SAFE(numBytes >= 0);
+    BSLS_ASSERT_SAFE(buf);
+    BSLS_ASSERT_SAFE(offset >= 0);
 
     Offset seekDest = FileUtil::seek(d_fd,
                                      offset,
