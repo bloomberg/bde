@@ -1,4 +1,4 @@
-// bdem_bdemencoderutil.h                  -*-C++-*-
+// bdem_bdemencoderutil.h                                             -*-C++-*-
 #ifndef INCLUDED_BDEM_BDEMENCODERUTIL
 #define INCLUDED_BDEM_BDEMENCODERUTIL
 
@@ -229,10 +229,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
 #endif
 
 #ifndef INCLUDED_BDET_DATETIMETZ
