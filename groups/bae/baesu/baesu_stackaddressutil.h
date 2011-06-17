@@ -21,6 +21,158 @@ BDES_IDENT("$Id: $")
 // current thread's function call stack.  Each return address points to the
 // (text) memory location of the first instruction to be executed upon
 // returning from a called routine.
+//
+///Usage
+///-----
+// In this section we show the intended usage of this component.
+//
+///Example 1: Obtaining return addresses and verifying their validity
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we demonstrate how to obtain a collection of
+// function return addresses using 'getStackAddresses'.
+//
+// First, we define 'AddressEntry', which will contain a pointer to the
+// beginning of a function and an index corresponding to the function.  The '<'
+// operator is defined so that a vector of address entries can be sorted in the
+// order of the function addresses.  The address entries will be populated so
+// that the entry containing '&funcN' when 'N' is an integer will have an index
+// of 'N'.
+//..
+//  struct AddressEntry {
+//      void *d_funcAddress;
+//      int   d_index;
+//
+//      // CREATORS
+//      AddressEntry(void *funcAddress, int index)
+//      : d_funcAddress(funcAddress)
+//      , d_index(index)
+//      {}
+//
+//      bool operator<(const AddressEntry rhs) const
+//      {
+//          return d_funcAddress < rhs.d_funcAddress;
+//      }
+//  };
+//..
+// Then, we define 'entries', a vector of address entries.  This will be
+// populated such that a given entry will contain function address '&funcN' and
+// index 'N'.  The elements will be sorted according to function address.
+//..
+//  bsl::vector<AddressEntry> entries;
+//..
+// Next, we define 'findIndex':
+//..
+//  static int findIndex(const void *retAddress)
+//      // Given the specfied 'retAddress' which should point to code within
+//      // one of the functions described by the sorted vector 'entries',
+//      // identify the index of the function containing that return address.
+//  {
+//      unsigned u = 0;
+//      while (u < entries.size()-1 &&
+//                                  retAddress >= entries[u+1].d_funcAddress) {
+//          ++u;
+//      }
+//      assert(u < entries.size());
+//      assert(retAddress >= entries[u].d_funcAddress);
+//
+//      int ret = entries[u].d_index;
+//
+//      return ret;
+//  }
+//..
+// Then, we define a chain of functions that will call each other and do some
+// random calculation to generate some code, and eventually call 'func1' which
+// will call 'getAddresses' and verify that the addresses returned correspond
+// to the functions we expect them to.
+//..
+//  #define CASE4_FUNC(nMinus1, n)                            \
+//      int func ## n()                                       \
+//      {                                                     \
+//          double ret = 28.6 * bsl::sin(M_PI / 3.7);         \
+//          ret += ((ret + 2.7) * ret) / 1.8;                 \
+//          ret += func ## nMinus1() * 3;                     \
+//          return (int) ret;                                 \
+//      }
+//
+//  int func1();
+//  CASE4_FUNC(1, 2)
+//  CASE4_FUNC(2, 3)
+//  CASE4_FUNC(3, 4)
+//  CASE4_FUNC(4, 5)
+//  CASE4_FUNC(5, 6)
+//..
+// Next, we define the macro FUNC_ADDRESS, which will take as an arg a
+// '&<function name>' and return a pointer to the actual beginning of the
+// function's code, which is a non-trivial and platform-dependent exercise.
+// (Note: this doesn't work on Windows).
+//..
+//  #if   defined(BSLS_PLATFORM__OS_HPUX)
+//  # define FUNC_ADDRESS(p) (((void **) (void *) (p))[sizeof(void *) == 4])
+//  #elif defined(BSLS_PLATFORM__OS_AIX)
+//  # define FUNC_ADDRESS(p) (((void **) (void *) (p))[0])
+//  #else
+//  # define FUNC_ADDRESS(p) ((void *) (p))
+//  #endif
+//..
+// Then, we define 'func1', which is the last of the chain of our functions
+// that is called, which will do most of our work.
+//..
+//  int func1()
+//      // Call 'getAddresses' and verify that the returned set of addresses
+//      // matches our expectations.
+//  {
+//..
+// Next, we populate and sort the 'entries' table, a sorted array of
+// 'AddressEntry' objects that will allow 'findIndex' to look up within which
+// function a given return address can be found.
+//..
+//      entries.clear();
+//      entries.push_back(AddressEntry(0, 0));
+//      entries.push_back(AddressEntry(FUNC_ADDRESS(&func1), 1));
+//      entries.push_back(AddressEntry(FUNC_ADDRESS(&func2), 2));
+//      entries.push_back(AddressEntry(FUNC_ADDRESS(&func3), 3));
+//      entries.push_back(AddressEntry(FUNC_ADDRESS(&func4), 4));
+//      entries.push_back(AddressEntry(FUNC_ADDRESS(&func5), 5));
+//      entries.push_back(AddressEntry(FUNC_ADDRESS(&func6), 6));
+//      bsl::sort(entries.begin(), entries.end());
+//..
+// Then, we obtain the stack addresses with 'getStackAddresses'.
+//..
+//      enum { BUFFER_LENGTH = 100 };
+//      void *buffer[BUFFER_LENGTH];
+//      bsl::memset(buffer, 0, sizeof(buffer));
+//      int numAddresses = baesu_StackAddressUtil::getStackAddresses(
+//                                                              buffer,
+//                                                              BUFFER_LENGTH);
+//      assert(numAddresses >= (int) entries.size());
+//      assert(numAddresses < BUFFER_LENGTH);
+//      assert(0 != buffer[numAddresses-1]);
+//      assert(0 == buffer[numAddresses]);
+//..
+// Finally, we go through several of the first addresses returned in 'buffer'
+// and verify that each address corresponds to the routine we expect it to.
+//
+// Note that on some, but not all, platforms there is an extra 'narcissic'
+// frame describing 'getStackAddresses' itself at the beginning of 'buffer'.
+// By starting our iteration through 'buffer' at 'BAESU_IGNORE_FRAMES', we
+// guarantee that the first address we examine will be in 'func1' on all
+// platforms.
+//..
+//      int funcIdx  = 1;
+//      int stackIdx = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES;
+//      for (; funcIdx < (int) entries.size(); ++funcIdx, ++stackIdx) {
+//          assert(stackIdx < numAddresses);
+//          assert(funcIdx == findIndex(buffer[stackIdx]));
+//      }
+//
+//      return 3;    // random value
+//  }
+//
+//  int main()
+//  {
+//      func6();
+//  }
+//..
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
@@ -30,9 +182,9 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
-                        // ============================
-                        // class baesu_StackAddressUtil
-                        // ============================
+                       // ============================
+                       // class baesu_StackAddressUtil
+                       // ============================
 
 namespace BloombergLP {
 

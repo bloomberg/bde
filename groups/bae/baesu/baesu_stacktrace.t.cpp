@@ -12,7 +12,38 @@ using namespace bsl;
 
 //=============================================================================
 // TEST PLAN
+//-----------------------------------------------------------------------------
+// CREATORS
+// [ 1] baesu_StackTrace
+// [ 1] baesu_StackTrace(const baesu_StackTrace&)
+// [ 1] ~baesu_StackTrace
 //
+// MANIPULATORS
+// [ 1] operator[]
+// [ 2] operator[]
+// [ 1] operator=
+// [ 1] removeAll
+// [ 1] resize
+// [ 2] resize
+// [ 1] swap
+//
+// ACCESSORS
+// [ 1] operator[]
+// [ 1] length
+//
+// ASPECTS
+// [ 1] allocator
+// [ 3] print
+//
+// FREE OPERATORS
+// [ 1] operator==
+// [ 1] operator!=
+// [ 3] operator<<
+//
+// FREE FUNCTIONS
+// [ 1] swap
+//
+// [ 4] usage
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -1004,6 +1035,30 @@ int main(int argc, char *argv[])
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
         ASSERT(1 == (X == Y));        ASSERT(0 == (X != Y));
         ASSERT(0 == (X == Z));        ASSERT(1 == (X != Z));
+
+        Obj mU(X, X.allocator());    const Obj& U = mU;
+        ASSERT(3 == U.length());
+        ASSERT(U == X);
+
+        bsl::swap(mU[0], mU[2]);
+
+        ASSERT(U != X);
+        ASSERT(X[0] == FA);    ASSERT(X[1] == FB);    ASSERT(X[2] == FC);
+        ASSERT(U[0] == FC);    ASSERT(U[1] == FB);    ASSERT(U[2] == FA);
+
+        mU.swap(mX);
+        ASSERT(3 == U.length());
+        ASSERT(3 == X.length());
+        ASSERT(U != X);
+        ASSERT(U[0] == FA);    ASSERT(U[1] == FB);    ASSERT(U[2] == FC);
+        ASSERT(X[0] == FC);    ASSERT(X[1] == FB);    ASSERT(X[2] == FA);
+
+        swap(mU, mX);
+        ASSERT(3 == U.length());
+        ASSERT(3 == X.length());
+        ASSERT(U != X);
+        ASSERT(X[0] == FA);    ASSERT(X[1] == FB);    ASSERT(X[2] == FC);
+        ASSERT(U[0] == FC);    ASSERT(U[1] == FB);    ASSERT(U[2] == FA);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
