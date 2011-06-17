@@ -42,7 +42,7 @@
 // 'getStackAddresses' will not be able to trace through our stack frames if
 // we're optimized on Windows
 
-#pragma optimize("", off)
+# pragma optimize("", off)
 
 #endif
 
@@ -55,7 +55,7 @@ using bsl::flush;
 
 //=============================================================================
 // TEST PLAN
-//
+//-----------------------------------------------------------------------------
 // [ 1] loadStackTraceFromAddressArray
 // [ 1] loadStackTraceFrameStack
 // [ 2] printFormatted

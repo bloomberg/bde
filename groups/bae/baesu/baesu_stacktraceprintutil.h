@@ -145,9 +145,9 @@ struct baesu_StackTracePrintUtil {
         // Optionally specify 'demanglingPreferredFlag', indicating whether to
         // attempt to demangle function names.  If an error occurs, print a
         // 1-line error message to 'stream'.  The behavior is undefined unless
-        // 'maxFrames >= 0'.  Note that attempting to demangle symbol names
-        // could involve calling 'malloc', and symbol names are always
-        // demangled on the Windows platform.
+        // 'maxFrames >= 0 || maxFrames == -1'.  Note that attempting to
+        // demangle symbol names could involve calling 'malloc', and symbol
+        // names are always demangled on the Windows platform.
 };
 
                    // ====================================

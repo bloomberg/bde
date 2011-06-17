@@ -25,9 +25,15 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------
-// CLASS METHODS
+// CREATORS
+// [ 1] baesu_StackTraceResolver_FileHelper
+// [ 1] ~baesu_StackTraceResolver_FileHelper
+//
+// ACCESSORS
+// [ 1] readExact
+// [ 2] readBytes
+// [ 3] loadString
 //-----------------------------------------------------------------------------
-// [ 1] BREATHING TEST
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -149,16 +155,20 @@ int main(int argc, char *argv[])
     switch(test) { case 0:
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
    || defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-      case 4: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
-        // Concern: Demonstrate the use of
-        //  'baesu_StackTraceResolver_FileHelper'.
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Create a file, open a helper on it, call 'readExact' and
-        //   'loadString' and verify the results.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -250,12 +260,26 @@ int main(int argc, char *argv[])
         }
         bdesu_FileUtil::remove(fileNameBuffer);
       }  break;
-      case 3: {
+      case 5: {
         // --------------------------------------------------------------------
         // 'loadString' TEST
         //
         // Concern:
-        //  That 'loadString' works as designed.
+        //: 1 The method is able to load a string of various size.
+        //:
+        //: 2 The method will not read over 'scratchBufLength' number of
+        //:   characters.
+        //:
+        //: 3 Setting 'scratchBufLength' is 0 makes the method read 0 bytes.
+        //:
+        //: 4 The method behave as expected even if 'offset' is larger than
+        //:   the file size.
+        //:
+        //: 5 The method is declared as 'const'.
+        //:
+        //: 6 Any memory allocation is from the supplied 'basicAllocator'.
+        //:
+        //: 7 Any memory allocation is exception neutral.
         //
         // Plan:
         //  Create a file, open a helper on it, and call 'loadString' under
@@ -263,6 +287,9 @@ int main(int argc, char *argv[])
         //  and shorter than the passed buffer, the string is not terminated
         //  before the end of the file, and the string is longer than the
         //  passed buffer.
+        //
+        // Testing:
+        //   char *loadString(Offset offset, char *scratchBuf, int len, *bA);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "loadString Test\n"
@@ -380,18 +407,34 @@ int main(int argc, char *argv[])
         ta.deallocate(result);
         bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
       }  break;
-      case 2: {
+      case 4: {
         // --------------------------------------------------------------------
         // 'readBytes' TEST
         //
         // Concern:
-        //  That 'readBytes' works as specced, whether or not it attempts to
-        //  read past the end of the file.
+        //: 1 The method read no more than 'numBytes'.
+        //:
+        //: 2 The method return the number of bytes read as expected.
+        //:
+        //: 3 The method can read 0 byte.
+        //:
+        //: 4 The method succeed even if it attempts to read past the end of
+        //:   the file.
+        //:
+        //: 5 The method behave as expected even if 'offset' is larger than
+        //:   the file size.
+        //:
+        //: 6 The method is declared const.
+        //:
+        //: 7 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //  Create a file, open it with a helper object and call 'readBytes'
         //  twice, once to complete a read within the file and one to do a read
         //  that runs into the end of the file.
+        //
+        // Testing:
+        //   UintPtr readBytes(void *buf, UintPtr numBytes, Offset offset);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "readBytes Test\n"
@@ -447,18 +490,30 @@ int main(int argc, char *argv[])
 
         ASSERT(!bsl::strcmp("0123456789+-", buf));
       }  break;
-      case 1: {
+      case 3: {
         // --------------------------------------------------------------------
         // 'readExact' test.
         //
         // Concern:
-        //   That 'readExact' performs as designed.
+        //: 1 The method read exactly 'numBytes'.
+        //:
+        //: 2 The method return a negative value if unable to read 'numBytes'
+        //:   number of bytes.
+        //:
+        //: 3 The method start reading from 'offset'.
+        //:
+        //: 4 The method is declared const.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //   Write to a file, open with with a helper, do a read within the
         //   the file and verify that it succeeds and reads the correct data,
         //   and do a read past the end of the file and verify that the read
         //   fails as it should.
+        //
+        // Testing:
+        //   int readExact(void *buf, UintPtr numBytes, Offset offset) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Breathing Test\n"
@@ -509,6 +564,37 @@ int main(int argc, char *argv[])
 
         rc = helper.readExact(buf, 100, 64 * 10);
         ASSERT(0 != rc);
+      }  break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // CTOR & DTOR
+        //
+        // Concerns:
+        //: 1 The supplied file is opened as expected.
+        //:
+        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   baesu_StackTraceResolver_FileHelper(const char *fileName);
+        //   ~baesu_StackTraceResolver_FileHelper();
+        // --------------------------------------------------------------------
+      }  break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
       }  break;
 #else
       case 1: {
