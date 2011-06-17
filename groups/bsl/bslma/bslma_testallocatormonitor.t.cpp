@@ -1,8 +1,6 @@
 // bslma_testallocatormonitor.t.cpp
 #include <bslma_testallocatormonitor.h>
 
-#include <bsl_string.h>
-
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bslmf_assert.h>
@@ -109,56 +107,84 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-class MyClass
+class MyMemoryUser
 {
-    // This class takes an allocator and uses it minimally (one byte is
-    // (allocated on construction and deallocated on destruction) in support
-    // of the "Usage" example.
+    // This class, written in support of the "Usage Example", takes an
+    // allocator and uses it to acquire, hold, and return memory.
 
     // DATA
-    void            *d_data_p;
+    int              d_size;
+    void            *d_held_p;
     bslma_Allocator *d_allocator_p;
 
   public:
     // CREATORS
-    explicit MyClass(bslma_Allocator *basicAllocator = 0);
-    ~MyClass();
+    MyMemoryUser(bslma_Allocator *basicAllocator = 0);
+        // Create a 'MyMemoryUser' object holding 0 bytes of allocated memory.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless 'size >= 0'.
+
+    explicit MyMemoryUser(int size, bslma_Allocator *basicAllocator = 0);
+        // Create a 'MyMemoryUser' object holding the specified 'size' bytes of
+        // allocated memory.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // 'size >= 0'.
+
+    ~MyMemoryUser();
+        // Destroy this object.
+
+    // MANIPULATORS
+    void setMemorySize(int size);
+        // Set the size of the held allocated memory to the specified 'size'.  
+        // Previously held memory is returned to the allocator.  The behavior
+        // is undefined unless 'size >= 0'.
+
+    // ACCESSORS
+    int memorySize() const;
+        // Return the size of the currently held memory.
 };
 
 // CREATORS
-MyClass::MyClass(bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+inline
+MyMemoryUser::MyMemoryUser(bslma_Allocator *basicAllocator)
+: d_size(0) 
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
-    d_data_p = d_allocator_p->allocate(1);
 }
 
-MyClass::~MyClass()
+inline
+MyMemoryUser::MyMemoryUser(int size, bslma_Allocator *basicAllocator)
+: d_size(size) 
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
-    d_allocator_p->deallocate(d_data_p);
+    d_held_p = d_allocator_p->allocate(d_size);
 }
 
-typedef MyClass Obj;
+inline
+MyMemoryUser::~MyMemoryUser()
+{
+    d_allocator_p->deallocate(d_held_p);
+}
 
-// ============================================================================
-//                     GLOBAL CONSTANTS USED FOR TESTING
-// ----------------------------------------------------------------------------
+// MANIPULATORS
+inline
+void MyMemoryUser::setMemorySize(int size)
+{
+    d_allocator_p->deallocate(d_held_p);
+    d_size   = size;
+    d_held_p = d_allocator_p->allocate(d_size);
+}
 
-// Define 'bsl::string' value long enough to ensure dynamic memory allocation.
+// ACCESSORS
+inline
+int MyMemoryUser::memorySize() const
+{
+    return d_size;
+}
 
-// JSL: Do we want to move this string to the component of bsl::string itself?
-// JSL: e.g.,  #define BSLSTL_LONG_STRING ...   TBD!
-
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-#define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
-#else  // 64_BIT
-#define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \
-                                 "123456789012345678901234567890123"
-#endif
-BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
-
-const char *const LONG_STRING    = "a_"   SUFFICIENTLY_LONG_STRING;
-const char *const LONGER_STRING  = "ab_"  SUFFICIENTLY_LONG_STRING;
-const char *const LONGEST_STRING = "abc_" SUFFICIENTLY_LONG_STRING;
+typedef MyMemoryUser Obj;
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -226,7 +252,7 @@ int main(int argc, char *argv[])
 // allocator, and subjects the object the relevant operations.
 //..
         {
-            Obj obj(&oa);
+            Obj obj(1, &oa);
 
             // Use 'obj'.
             // . . .
@@ -248,6 +274,7 @@ int main(int argc, char *argv[])
     }
 //..
 //
+#if 0
 ///Example 2: Strings
 //..
     {
@@ -274,6 +301,7 @@ int main(int argc, char *argv[])
         ASSERT(true == oam2.isMaxSame());   // no memory was released
         ASSERT(true == oam2.isInUseSame()); // no memory was released
     }
+#endif
 //..
 
       } break;
