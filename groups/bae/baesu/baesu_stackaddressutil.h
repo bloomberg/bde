@@ -72,8 +72,8 @@ BDES_IDENT("$Id: $")
 //                                  retAddress >= entries[u+1].d_funcAddress) {
 //          ++u;
 //      }
-//      ASSERT(u < entries.size());
-//      ASSERT(retAddress >= entries[u].d_funcAddress);
+//      assert(u < entries.size());
+//      assert(retAddress >= entries[u].d_funcAddress);
 //
 //      int ret = entries[u].d_index;
 //
@@ -144,10 +144,10 @@ BDES_IDENT("$Id: $")
 //      int numAddresses = baesu_StackAddressUtil::getStackAddresses(
 //                                                              buffer,
 //                                                              BUFFER_LENGTH);
-//      ASSERT(numAddresses >= (int) entries.size());
-//      ASSERT(numAddresses < BUFFER_LENGTH);
-//      ASSERT(0 != buffer[numAddresses-1]);
-//      ASSERT(0 == buffer[numAddresses]);
+//      assert(numAddresses >= (int) entries.size());
+//      assert(numAddresses < BUFFER_LENGTH);
+//      assert(0 != buffer[numAddresses-1]);
+//      assert(0 == buffer[numAddresses]);
 //..
 // Finally, we go through several of the first addresses returned in 'buffer'
 // and verify that each address corresponds to the routine we expect it to.
@@ -161,8 +161,8 @@ BDES_IDENT("$Id: $")
 //      int funcIdx  = 1;
 //      int stackIdx = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES;
 //      for (; funcIdx < (int) entries.size(); ++funcIdx, ++stackIdx) {
-//          ASSERT(stackIdx < numAddresses);
-//          ASSERT(funcIdx == findIndex(buffer[stackIdx]));
+//          assert(stackIdx < numAddresses);
+//          assert(funcIdx == findIndex(buffer[stackIdx]));
 //      }
 //
 //      return 3;    // random value

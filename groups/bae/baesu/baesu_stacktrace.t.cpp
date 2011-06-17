@@ -1038,7 +1038,7 @@ int main(int argc, char *argv[])
 
         Obj mU(X, X.allocator());    const Obj& U = mU;
         ASSERT(3 == U.length());
-	ASSERT(U == X);
+        ASSERT(U == X);
 
         bsl::swap(mU[0], mU[2]);
 
@@ -1046,16 +1046,16 @@ int main(int argc, char *argv[])
         ASSERT(X[0] == FA);    ASSERT(X[1] == FB);    ASSERT(X[2] == FC);
         ASSERT(U[0] == FC);    ASSERT(U[1] == FB);    ASSERT(U[2] == FA);
 
-	mU.swap(mX);
-	ASSERT(3 == U.length());
-	ASSERT(3 == X.length());
+        mU.swap(mX);
+        ASSERT(3 == U.length());
+        ASSERT(3 == X.length());
         ASSERT(U != X);
         ASSERT(U[0] == FA);    ASSERT(U[1] == FB);    ASSERT(U[2] == FC);
         ASSERT(X[0] == FC);    ASSERT(X[1] == FB);    ASSERT(X[2] == FA);
 
-	swap(mU, mX);
-	ASSERT(3 == U.length());
-	ASSERT(3 == X.length());
+        swap(mU, mX);
+        ASSERT(3 == U.length());
+        ASSERT(3 == X.length());
         ASSERT(U != X);
         ASSERT(X[0] == FA);    ASSERT(X[1] == FB);    ASSERT(X[2] == FC);
         ASSERT(U[0] == FC);    ASSERT(U[1] == FB);    ASSERT(U[2] == FA);
