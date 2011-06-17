@@ -145,10 +145,21 @@ void aSsErTq(int c, const char *s, int i) {
 // Allow compilation of individual test-cases (for test drivers that take a
 // very long time to compile).  Specify '-DSINGLE_TEST=<testcase>' to compile
 // only the '<testcase>' test case.
-#if defined(BSLS_PLATFORM__CMP_SUN) && defined(BDE_BUILD_TARGET_OPT)
-#define TEST_IS_ENABLED(num) 0
-#else
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
+
+// Sun compilers have issues with this test driver, so we disable some test
+// cases in some situations.
+#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BDE_BUILD_TARGET_OPT)
+// We have to skip all cases when building optimized on Sun, or the compiler
+// runs out of memory.
+#undef TEST_IS_ENABLED
+#define TEST_IS_ENABLED(num) 0
+#elif BSLS_PLATFORM__CMP_VER_MAJOR>=0x5100
+// We have to skip case 5 for cc-5.10, or the compiler runs out of memory.
+#undef TEST_IS_ENABLED
+#define TEST_IS_ENABLED(num) ((defined(SINGLE_TEST) && SINGLE_TEST == (num)) || (5 != (num)))
+#endif
 #endif
 
 //=============================================================================
@@ -1074,7 +1085,7 @@ int main(int argc, char *argv[])
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
+    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case USAGE_EXAMPLE: {

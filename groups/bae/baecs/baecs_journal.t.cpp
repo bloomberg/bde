@@ -1196,7 +1196,7 @@ void Case16::addBlob(const bcema_Blob &blob) {
     w.start();
     ASSERT(0 == newJournal->addRecord(&newHandle, blob));
     w.stop();
-    if (w.elapsedTime() > 0.4) // 400 ms
+    if (verbose && w.elapsedTime() > 0.4) // 400 ms
     {
         P(w.elapsedTime());
     }
@@ -1325,11 +1325,13 @@ int Case16::run(double commitInterval)
     while(!d_haltFlag
           && d_numRecordsAdded < NUM_PRODUCERS * NUM_PRODUCED_RECORDS)
     {
-        cout << "Added: " << d_numRecordsAdded
-            << " Removed: " << d_numRecordsRemoved
-            << " In queue: " << d_queue_p->length()
-            << " Total: " << NUM_PRODUCERS * NUM_PRODUCED_RECORDS
-            << bsl::endl;
+        if (verbose) {
+            cout << "Added: " << d_numRecordsAdded
+                << " Removed: " << d_numRecordsRemoved
+                << " In queue: " << d_queue_p->length()
+                << " Total: " << NUM_PRODUCERS * NUM_PRODUCED_RECORDS
+                << bsl::endl;
+        }
         bcemt_ThreadUtil::microSleep(0, 1);
 #if 0
 

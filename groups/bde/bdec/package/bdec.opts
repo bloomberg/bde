@@ -1,0 +1,3 @@
+*                       _       OPTS_FILE       = bdec.opts
+
+!! windows-Windows_NT-amd64-*-cl	64	TESTDRIVER_BDEBUILD_CXXFLAGS = $(subst /O2,,$(BDEBUILD_CXXFLAGS))
