@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 // class provides a several predicate accessor methods: one reports 'true' if
 // there is an increase in its value, the other reports 'true' if its value has
 // not changed, and, if the static value might decrease over time, one that
-// reports 'true' if its value has decreased. 
+// reports 'true' if its value has decreased.
 //
 ///Usage
 ///-----
