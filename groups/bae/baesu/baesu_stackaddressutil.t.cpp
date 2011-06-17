@@ -544,7 +544,15 @@ int main(int argc, char *argv[])
         // case 4 for use as a usage example.
         //
         // Concerns:
-        //   That 'getStackAddresses' finds the functions we expect it to.
+        //: 1 The method finds the functions we expect it to.
+        //:
+        //: 2 The returned addresses are in the right order.
+        //:
+        //: 3 The method returns non-zero on error.
+        //:
+        //: 4 The method won't write past the end of the array it is passed.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //   Have a sequence of functions on the stack, and take pointers to
@@ -554,6 +562,9 @@ int main(int argc, char *argv[])
         //   each record to identify which routine we expect the address to
         //   be in.  Sort the array of records.  It then becomes possible to
         //   verify which return address is within which routine.
+        //
+        // Testing:
+        //   int getStackAddresses(void **buffer, int maxFrames);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Finding Right Functions Test\n"
@@ -573,12 +584,15 @@ int main(int argc, char *argv[])
         // ZEROES TEST CASE
         //
         // Concerns:
-        //   That 'getStackAddresses(0, 0)' doesn't segFault.
+        //: 1 'getStackAddresses(0, 0)' doesn't segFault.
         //
         // Plan:
         //   Call 'getStackAddresses(0, 0)'.  In the debugger, verify that on
         //   Linux, the first call calls 'backtrace' and the second call calls
         //   neither 'dlopen' nor 'malloc'.
+        //
+        // Testing:
+        //   CONCERN: 'getStackAddresses(0, 0)' doesn't segFault.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "getStackAddresses(0, 0) TEST\n"
@@ -590,12 +604,11 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //   That 'getStackAddresses' properly populates the passed array with
-        //   non-null values as appropriate, and leaves other values of the
-        //   array untouched, and that 'getStackAddresses' won't write past the
-        //   end of the array it is passed.
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
         //   Recurse many times, call 'getStackAddresses', and check that the
@@ -605,6 +618,9 @@ int main(int argc, char *argv[])
         //   array length passed is too short to hold the entire stack, and
         //   verify that elements past the specified length of the array are
         //   unaffected.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST\n"

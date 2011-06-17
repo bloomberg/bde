@@ -670,10 +670,15 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //  That the usage example works.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
-        // Plan: call the routines in the usage example to observe that the
-        //  stack trace works.
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TEST OF USAGE EXAMPLE\n"
@@ -764,16 +769,34 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'printStackTrace' TEST
+        // CLASS METHOD 'printStackTrace'
         //
         // Concerns:
-        //: 1 That 'printStackTrace' works properly.
+        //: 1 The method outputs a correct sequence of routine names.
+        //:
+        //: 2 The number of frames printed does not exceed 'maxFrame'
+        //:
+        //: 3 Names are attempted to be demangled if 'demanglingPreferredFlag'
+        //:   is 'true', and are not demangled otherwise.
+        //:
+        //: 4 'demanglingPreferredFlag' defaults to 'true'.
+        //:
+        //: 5 The method correctly returns the given 'stream'.
+        //:
+        //: 6 Any allocated memory is released at the end of the method.
+        //:
+        //: 7 An error message is correctly printed when an error occurs.
+        //:
+        //: 8 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Call 'printStackTrace()' to print a stack trace to a
         //:   stringstream.
         //: 2 Verify that the string created by the stringstream has the
         //:   expected routine names.
+        //
+        // Testing:
+        //   bsl::ostream& printStackTrace(ostream& s, int max, bool demangle);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing 'printStackTrace'\n"
@@ -785,16 +808,20 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'printStackTrace' TEST
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 That 'printStackTrace' outputs a correct sequence of routine
-        //:   names.
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
         //: 1 Several routines deep, do a stack trace to a string stream.
         //: 2 Check that the right sequence of routine names is present in
         //:   the string stream.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         namespace TC = CASE_1;
