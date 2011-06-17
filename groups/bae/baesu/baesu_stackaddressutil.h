@@ -80,31 +80,54 @@ BDES_IDENT("$Id: $")
 //      return ret;
 //  }
 //..
+// We do some black magic here to confuse optimizers
+//..
+//  int distractingGlobalFunc()
+//      // Call a global function not in this file so that the optimizer can't
+//      // figure out what's going on with all these static functions.
+//      // All 'getStackAddresses' will do here is return 0, but the optimizer
+//      // doesn't know that.
+//  {
+//      return 1 + baesu_StackAddressUtil::getStackAddresses(0, 0);
+//  }
+//..
+// The functions must be static on Windows, '&' doesn't work very well on
+// Windows for global routines.  We prefer not to make them global when
+// possible, since that makes it harder for optimizing compilers to make
+// assumptions about them and short-circuit them.
+//..
+//  #undef   WINSTAT
+//  #if defined(BSLS_PLATFORM__OS_WINDOWS)
+//  # define WINSTAT static
+//  #else
+//  # define WINSTAT
+//  #endif
+//..
 // Then, we define a chain of functions that will call each other and do some
 // random calculation to generate some code, and eventually call 'func1' which
 // will call 'getAddresses' and verify that the addresses returned correspond
 // to the functions we expect them to.
 //..
-//  int func1();
-//  int func2()
+//  WINSTAT int func1();
+//  WINSTAT int func2()
 //  {
-//      return 2 * func1();
+//      return 2 * func1() * distractingGlobalFunc();
 //  }
-//  int func3()
+//  WINSTAT int func3()
 //  {
-//      return 3 * func2();
+//      return 3 * func2() * distractingGlobalFunc();
 //  }
-//  int func4()
+//  WINSTAT int func4()
 //  {
-//      return 4 * func3();
+//      return 4 * func3() * distractingGlobalFunc();
 //  }
-//  int func5()
+//  WINSTAT int func5()
 //  {
-//      return 5 * func4();
+//      return 5 * func4() * distractingGlobalFunc();
 //  }
-//  int func6()
+//  WINSTAT int func6()
 //  {
-//      return 6 * func5();
+//      return 6 * func5() * distractingGlobalFunc();
 //  }
 //..
 // Next, we define the macro FUNC_ADDRESS, which will take as an arg a

@@ -37,6 +37,8 @@
 # pragma comment(lib, "user32.lib")
 # include <windows.h>
 
+# pragma optimize("", off)
+
 #endif
 
 using namespace BloombergLP;
