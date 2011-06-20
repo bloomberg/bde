@@ -451,25 +451,21 @@ struct bdema_ManagedPtr_ReferenceType<void> {
             // private struct bdema_ManagedPtr_UnspecifiedBoolHelper
             // =====================================================
 
+template<class BDEMA_MANAGED_TYPE>
 struct bdema_ManagedPtr_UnspecifiedBoolHelper {
     // This 'struct' provides a member, 'd_member', whose pointer-to-member is
-    // used to convert a managed pointer to an "unspecified boolean type".
+    // used to convert a managed pointer to an "unspecified boolean type".  The
+    // specified 'BDEMA_MANAGED_TYPE' type parameter ensures that different
+    // types can be used by distint classes using this dummy type to support
+    // boolean conversion, otherwise two distinct types (or
+    // template instantiations) would compare equal through 'operator=='
+    // seeing the implicit conversion to this type.
 
     int d_member;
         // This data member is used solely for taking its address to return a
         // non-null pointer-to-member.  Note that the *value* of 'd_member' is
         // not used.
 };
-
-typedef int bdema_ManagedPtr_UnspecifiedBoolHelper::*
-                                              bdema_ManagedPtr_UnspecifiedBool;
-    // 'bdema_ManagedPtr_UnspecifiedBool' is an alias for a pointer-to-member
-    // of the 'bdema_ManagedPtr_UnspecifiedBoolHelper' class.  This (opaque)
-    // type can be used as an "unspecified boolean type" for converting a
-    // managed pointer to 'bool' in contexts such as 'if (mp) { ... }' without
-    // actually having a conversion to 'bool' or being less-than comparable
-    // (either of which would also enable undesirable implicit comparisons of
-    // managed pointers to 'int' and less-than comparisons).
 
                            // ======================
                            // class bdema_ManagedPtr
@@ -499,6 +495,17 @@ class bdema_ManagedPtr {
     // PRIVATE TYPES
     typedef bdema_ManagedPtrDeleter          Deleter;
     typedef bdema_ManagedPtrDeleter::Deleter DeleterFunc;
+
+    typedef int bdema_ManagedPtr_UnspecifiedBoolHelper
+                                             <bdema_ManagedPtr<BDEMA_TYPE> >::*
+                                              bdema_ManagedPtr_UnspecifiedBool;
+    // 'bdema_ManagedPtr_UnspecifiedBool' is an alias for a pointer-to-member
+    // of the 'bdema_ManagedPtr_UnspecifiedBoolHelper' class.  This (opaque)
+    // type can be used as an "unspecified boolean type" for converting a
+    // managed pointer to 'bool' in contexts such as 'if (mp) { ... }' without
+    // actually having a conversion to 'bool' or being less-than comparable
+    // (either of which would also enable undesirable implicit comparisons of
+    // managed pointers to 'int' and less-than comparisons).
 
     //DATA
     bdema_ManagedPtr_Members d_members;
