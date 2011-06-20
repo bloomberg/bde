@@ -10,62 +10,112 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
-// TEST PLAN
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// The component under test implements a single (value-semantic) container
+// class.
+//
+// Primary Manipulators:
+//: o 'append'
+//: o 'removeAll'
+//
+// Basic Accessors:
+//: o 'allocator' (orthogonal to value)
+//: o 'length'
+//: o 'operator[]'
+//
+// This particular attribute class also provides a value constructor capable of
+// creating an object in any state relevant for thorough testing, obviating the
+// primitive generator function, 'gg', normally used for this purpose.  We will
+// therefore follow our standard 10-case approach to testing value-semantic
+// types except that we will test the value constructor in case 3 (in lieu of
+// the generator function), with the default constructor and primary
+// manipulators tested fully in case 2.
+//
+// Certain standard value-semantic-type test cases are omitted:
+//: o [10] -- BSLX streaming is not (yet) implemented for this class.
+//
+// Global Concerns:
+//: o ACCESSOR methods are declared 'const'.
+//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
+//: o No memory is ever allocated from the global allocator.
+//: o Any allocated memory is always from the object allocator.
+//: o An object's value is independent of the allocator used to supply memory.
+//: o Injected exceptions are safely propagated during memory allocation.
+//: o Precondition violations are detected in appropriate build modes.
+//
+// Global Assumptions:
+//: o All explicit memory allocations are presumed to use the global, default,
+//:   or object allocator.
+//: o ACCESSOR methods are 'const' thread-safe.
+//: o Individual attribute types are presumed to be *alias-safe*; hence, only
+//:   certain methods require the testing of this property:
+//:   o copy-assignment
+//:   o swap
+// ----------------------------------------------------------------------------
 // CREATORS
-// [ 1] baesu_StackTrace
-// [ 1] baesu_StackTrace(const baesu_StackTrace&)
-// [ 1] ~baesu_StackTrace
+// [  ] baesu_StackTrace(bslma_Allocator *bA = 0);
+// [  ] baesu_StackTrace(const baesu_StackTrace& o, *bA = 0);
 //
 // MANIPULATORS
-// [ 1] operator[]
-// [ 2] operator[]
-// [ 1] operator=
-// [ 1] removeAll
-// [ 1] resize
-// [ 2] resize
-// [ 1] swap
+// [  ] baesu_StackTrace& operator=(const baesu_StackTrace& rhs);
+// [  ] baesu_StackTraceFrame& operator[](int index);
+// [  ] void append(const baesu_StackTraceFrame& value);
+// [  ] void removeAll();
+// [  ] void resize(int newLength);
+// [  ] void swap(baesu_StackTrace& other);
 //
 // ACCESSORS
-// [ 1] operator[]
-// [ 1] length
+// [  ] const baesu_StackTraceFrame& operator[](int index) const;
+// [  ] int length() const;
 //
-// ASPECTS
-// [ 1] allocator
-// [ 3] print
-//
-// FREE OPERATORS
-// [ 1] operator==
-// [ 1] operator!=
-// [ 3] operator<<
-//
-// FREE FUNCTIONS
-// [ 1] swap
-//
-// [ 4] usage
-//-----------------------------------------------------------------------------
+// [  ] bslma_Allocator *allocator() const;
+// [  ] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 
-//=============================================================================
-// STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// FREE OPERATORS
+// [  ] bool operator==(const baesu_StackTrace& lhs, rhs);
+// [  ] bool operator!=(const baesu_StackTrace& lhs, rhs);
+// [  ] operator<<(ostream& s, const baesu_StackTrace& o);
+
+// FREE FUNCTIONS
+// [  ]void swap(baesu_StackTrace& a, b);
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [  ] USAGE EXAMPLE
+
+// [ *] CONCERN: This test driver is reusable w/other, similar components.
+// [ *] CONCERN: In no case does memory come from the global allocator.
+// [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
+// [ 5] CONCERN: All accessor methods are declared 'const'.
+// [ 3] CONCERN: String arguments can be either 'char *' or 'string'.
+// [ 9] CONCERN: All memory allocation is from the object's allocator.
+// [ 9] CONCERN: All memory allocation is exception neutral.
+// [ 9] CONCERN: Object value is independent of the object allocator.
+// [ 9] CONCERN: There is no temporary allocation from any allocator.
+// [ 8] CONCERN: Precondition violations are detected when enabled.
+// [10] Reserved for 'bslx' streaming.
+
+// ============================================================================
+//                    STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
-{
+static void aSsErT(int c, const char *s, int i) {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-//=============================================================================
-// STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) {                                                    \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
@@ -89,9 +139,9 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\n";                                               \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-// SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                  SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
@@ -99,45 +149,167 @@ static void aSsErT(int c, const char *s, int i)
 #define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
 
-//=============================================================================
-// GLOBAL HELPER #DEFINES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-// GLOBAL HELPER TYPES, CLASSES, and CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
-typedef baesu_StackTrace               Obj;
-typedef baesu_StackTraceFrame          Frame;
+// ============================================================================
+//                     GLOBAL TYPEDEFS FOR TESTING
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-// GLOBAL HELPER VARIABLES FOR TESTING
-//-----------------------------------------------------------------------------
+typedef baesu_StackTrace      Obj;
+typedef baesu_StackTraceFrame Frame;
 
-static int verbose;
-static int veryVerbose;
-static int veryVeryVerbose;
-static int veryVeryVeryVerbose;
+// ============================================================================
+//                                 TYPE TRAITS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-// GLOBAL HELPER FUNCTIONS FOR TESTING
-//=============================================================================
+BSLMF_ASSERT((bslalg_HasTrait<Obj,
+                              bslalg_TypeTraitBitwiseMoveable>::VALUE));
+BSLMF_ASSERT((bslalg_HasTrait<Obj,
+                              bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
 
-//=============================================================================
-// MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     GLOBAL CONSTANTS USED FOR TESTING
+// ----------------------------------------------------------------------------
+
+// Define 'bsl::string' value long enough to ensure dynamic memory allocation.
+
+// JSL: Do we want to move this string to the component of bsl::string itself?
+// JSL: e.g.,  #define BSLSTL_LONG_STRING ...   TBD!
+
+#ifdef BSLS_PLATFORM__CPU_32_BIT
+#define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
+#else  // 64_BIT
+#define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \
+                                 "123456789012345678901234567890123"
+#endif
+BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
+
+const char *const LONG_STRING    = "a_"   SUFFICIENTLY_LONG_STRING;
+const char *const LONGER_STRING  = "ab_"  SUFFICIENTLY_LONG_STRING;
+const char *const LONGEST_STRING = "abc_" SUFFICIENTLY_LONG_STRING;
+
+// ============================================================================
+//                               TEST APPARATUS
+// ----------------------------------------------------------------------------
+// JSL: REMOVE THIS after it is moved to the test allocator.
+// JSL: change the name to 'bslma_TestAllocatorMonitor'.
+
+class bslma_TestAllocatorMonitor {
+    // TBD
+
+    // DATA
+    int                              d_lastInUse;
+    int                              d_lastMax;
+    int                              d_lastTotal;
+    const bslma_TestAllocator *const d_allocator_p;
+
+  public:
+    // CREATORS
+    bslma_TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
+        // TBD
+
+    ~bslma_TestAllocatorMonitor();
+        // TBD
+
+    // ACCESSORS
+    bool isInUseSame() const;
+        // TBD
+
+    bool isInUseUp() const;
+        // TBD
+
+    bool isMaxSame() const;
+        // TBD
+
+    bool isMaxUp() const;
+        // TBD
+
+    bool isTotalSame() const;
+        // TBD
+
+    bool isTotalUp() const;
+        // TBD
+};
+
+// CREATORS
+inline
+bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
+                                     const bslma_TestAllocator& basicAllocator)
+: d_lastInUse(basicAllocator.numBlocksInUse())
+, d_lastMax(basicAllocator.numBlocksMax())
+, d_lastTotal(basicAllocator.numBlocksTotal())
+, d_allocator_p(&basicAllocator)
+{
+}
+
+inline
+bslma_TestAllocatorMonitor::~bslma_TestAllocatorMonitor()
+{
+}
+
+// ACCESSORS
+inline
+bool bslma_TestAllocatorMonitor::isInUseSame() const
+{
+    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
+
+    return d_allocator_p->numBlocksInUse() == d_lastInUse;
+}
+
+inline
+bool bslma_TestAllocatorMonitor::isInUseUp() const
+{
+    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
+
+    return d_allocator_p->numBlocksInUse() != d_lastInUse;
+}
+
+inline
+bool bslma_TestAllocatorMonitor::isMaxSame() const
+{
+    return d_allocator_p->numBlocksMax() == d_lastMax;
+}
+
+inline
+bool bslma_TestAllocatorMonitor::isMaxUp() const
+{
+    return d_allocator_p->numBlocksMax() != d_lastMax;
+}
+
+inline
+bool bslma_TestAllocatorMonitor::isTotalSame() const
+{
+    return d_allocator_p->numBlocksTotal() == d_lastTotal;
+}
+
+inline
+bool bslma_TestAllocatorMonitor::isTotalUp() const
+{
+    return d_allocator_p->numBlocksTotal() != d_lastTotal;
+}
+
+// ============================================================================
+//                            MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose             = argc > 2;
-    veryVerbose         = argc > 3;
-    veryVeryVerbose     = argc > 4;
-    veryVeryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    cout << "TEST CASE " << test << endl;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator ta("ta", veryVeryVeryVerbose);
+    // CONCERN: This test driver is reusable w/other, similar components.
+
+    // CONCERN: In no case does memory come from the global allocator.
 
     bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma_Default::setGlobalAllocator(&globalAllocator);
@@ -149,85 +321,132 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        // First, we set up a test allocator as default allocator.  A
-        // 'baesu_StackTrace' object, by default, gets all its memory from an
-        // owned instance of 'bdema_HeapBypassAllocator'.  To demonstrate this
-        // we start by setting the default allocator to a test allocator so we
-        // can verify later that it was unused:
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+///Usage
+///-----
+// In this section we show the intended usage of this component.
+//
+///Example 1: Configuring a stack-trace value
+/// - - - - - - - - - - - - - - - - - - - - -
+// In the following example we demonstrate how to create a 'baesu_StackTrace'
+// object, then both modify and access its value.
+//
+// First, we set up a test allocator as default allocator.  A
+// 'baesu_StackTrace' object, by default, gets all its memory from an owned
+// instance of 'bdema_HeapBypassAllocator'.  To demonstrate this we start by
+// setting the default allocator to a test allocator so we can verify later
+// that it was unused:
+//..
+    bslma_TestAllocator         da;
+    bslma_DefaultAllocatorGuard guard(&da);
+//..
+// Next, we create a stack trace object.  Note that when we don't specify an
+// allocator, the default allocator is not used -- rather, a heap bypass
+// allocator owned by the stack trace object is used.  The heap bypass
+// allocator is recommended because this component is often used to obtain
+// debug information in instances where an error has occurred, and the
+// possibility of heap corruption can't be ruled out.  The heap bypass
+// allocator obtains its memory directly from virtual memory rather than going
+// through the heap, avoiding potential complications due to heap corruption.
+//..
+    baesu_StackTrace stackTrace;
+    ASSERT(0 == stackTrace.length());
+//..
+// Then, we 'resize' the stack-trace object to contain two default-constructed
+// frames, and take references to each of the two new frames.
+//..
+    stackTrace.resize(2);
+    ASSERT(2 == stackTrace.length());
+    baesu_StackTraceFrame& frame0 = stackTrace[0];
+    baesu_StackTraceFrame& frame1 = stackTrace[1];
+//..
+// Next, we set the values of the fields of the two new frames.
+//..
+    frame0.setAddress((void *) 0x12ab);
+    frame0.setLibraryFileName("/a/b/c/baesu_stacktrace.t.dbg_exc_mt");
+    frame0.setLineNumber(5);
+    frame0.setOffsetFromSymbol(116);
+    frame0.setSourceFileName("/a/b/c/sourceFile.cpp");
+    frame0.setMangledSymbolName("_woof_1a");
+    frame0.setSymbolName("woof");
 
-        bslma_TestAllocator da;
-        bslma_DefaultAllocatorGuard guard(&da);
+    frame1.setAddress((void *) 0x34cd);
+    frame1.setLibraryFileName("/lib/libd.a");
+    frame1.setLineNumber(15);
+    frame1.setOffsetFromSymbol(228);
+    frame1.setSourceFileName("/a/b/c/secondSourceFile.cpp");
+    frame1.setMangledSymbolName("_arf_1a");
+    frame1.setSymbolName("arf");
+//..
+// Then, we verify the frames have the values we expect.
+//..
+    ASSERT((void *) 0x12ab               == frame0.address());
+    ASSERT("/a/b/c/baesu_stacktrace.t.dbg_exc_mt"
+                                         == frame0.libraryFileName());
+    ASSERT(  5                           == frame0.lineNumber());
+    ASSERT(116                           == frame0.offsetFromSymbol());
+    ASSERT("/a/b/c/sourceFile.cpp"       == frame0.sourceFileName());
+    ASSERT("_woof_1a"                    == frame0.mangledSymbolName());
+    ASSERT("woof"                        == frame0.symbolName());
 
-        // Next, create a stack trace.  Note that when we don't specify an
-        // allocator (recommended), the default allocator is not used --
-        // rather, a heap bypass allocator owned by the stack trace object is
-        // used.  The heap bypass allocator is recommended because this
-        // component is usually used for obtaining debug information, and the
-        // possibility of heap corruption can't be ruled out.  The heap bypass
-        // allocator obtains its memory directly from virtual memory rather
-        // than going through the heap, avoiding potential complications due to
-        // heap corruption.
+    ASSERT((void *) 0x34cd               == frame1.address());
+    ASSERT("/lib/libd.a"                 == frame1.libraryFileName());
+    ASSERT( 15                           == frame1.lineNumber());
+    ASSERT(228                           == frame1.offsetFromSymbol());
+    ASSERT("/a/b/c/secondSourceFile.cpp" == frame1.sourceFileName());
+    ASSERT("_arf_1a"                     == frame1.mangledSymbolName());
+    ASSERT("arf"                         == frame1.symbolName());
+//..
+// Next, we output the stack trace object.
+//..
+    stackTrace.print(cout, 1, 2);
+//..
+// Finally, we observe the default allocator was never used.
+//..
+    ASSERT(0 == da.numAllocations());
+//..
+// The above usage produces the following output:
+//..
+//  [
+//    [
+//      address = 0x12ab
+//      library file name = "/a/b/c/baesu_stacktrace.t.dbg_exc_mt"
+//      line number = 5
+//      mangled symbol name = "_woof_1a"
+//      offset from symbol = 116
+//      source file name = "/a/b/c/sourceFile.cpp"
+//      symbol name = "woof"
+//    ]
+//    [
+//      address = 0x34cd
+//      library file name = "/lib/libd.a"
+//      line number = 15
+//      mangled symbol name = "_arf_1a"
+//      offset from symbol = 228
+//      source file name = "/a/b/c/secondSourceFile.cpp"
+//      symbol name = "arf"
+//    ]
+//  ]
+//..
 
-        baesu_StackTrace stackTrace;
-        ASSERT(0 == stackTrace.length());
-
-        // Then, we 'resize' the stack-trace object to contain two
-        // default-constructed frames, and take references to each of the two
-        // new frames.
-
-        stackTrace.resize(2);
-        ASSERT(2 == stackTrace.length());
-        baesu_StackTraceFrame& frame0 = stackTrace[0];
-        baesu_StackTraceFrame& frame1 = stackTrace[1];
-
-        // Next, we set the values of the fields of the two new frames.
-
-        frame0.setAddress((void *) 0x12ab);
-        frame0.setLibraryFileName("/a/b/c/baesu_stacktrace.t.dbg_exc_mt");
-        frame0.setLineNumber(5);
-        frame0.setOffsetFromSymbol(116);
-        frame0.setSourceFileName("/a/b/c/sourceFile.cpp");
-        frame0.setMangledSymbolName("_woof_1a");
-        frame0.setSymbolName("woof");
-
-        frame1.setAddress((void *) 0x34cd);
-        frame1.setLibraryFileName("/lib/libd.a");
-        frame1.setLineNumber(15);
-        frame1.setOffsetFromSymbol(228);
-        frame1.setSourceFileName("/a/b/c/secondSourceFile.cpp");
-        frame1.setMangledSymbolName("_arf_1a");
-        frame1.setSymbolName("arf");
-
-        // Then, we verify the frames have the values we expect.
-
-        ASSERT((void *) 0x12ab == frame0.address());
-        ASSERT("/a/b/c/baesu_stacktrace.t.dbg_exc_mt" ==
-                                                     frame0.libraryFileName());
-        ASSERT(5 == frame0.lineNumber());
-        ASSERT(116 == frame0.offsetFromSymbol());
-        ASSERT("/a/b/c/sourceFile.cpp" == frame0.sourceFileName());
-        ASSERT("_woof_1a" == frame0.mangledSymbolName());
-        ASSERT("woof" == frame0.symbolName());
-
-        ASSERT((void *) 0x34cd == frame1.address());
-        ASSERT("/lib/libd.a" == frame1.libraryFileName());
-        ASSERT(15 == frame1.lineNumber());
-        ASSERT(228 == frame1.offsetFromSymbol());
-        ASSERT("/a/b/c/secondSourceFile.cpp" == frame1.sourceFileName());
-        ASSERT("_arf_1a" == frame1.mangledSymbolName());
-        ASSERT("arf" == frame1.symbolName());
-
-        // Next, we output the stack trace object.
-
-        stackTrace.print(cout, 1, 2);
-
-        // Finally, we observe the default allocator was never used.
-
-        ASSERT(0 == da.numAllocations());
       }  break;
-      case 3: {
+      case 103: {
+#if 0
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
@@ -553,8 +772,11 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
             }
         }
+#endif
+
       } break;
-      case 2: {
+      case 102: {
+#if 0
         // --------------------------------------------------------------------
         // DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR
         //   Ensure that we can use the default constructor to create an
@@ -808,8 +1030,10 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(CONFIG, 0 == da.numBlocksTotal());
             }
         }
+#endif
+
       } break;
-      case 1: {
+      case 101: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This case exercises (but does not fully test) basic functionality.
@@ -1059,6 +1283,253 @@ int main(int argc, char *argv[])
         ASSERT(U != X);
         ASSERT(X[0] == FA);    ASSERT(X[1] == FB);    ASSERT(X[2] == FC);
         ASSERT(U[0] == FC);    ASSERT(U[1] == FB);    ASSERT(U[2] == FA);
+
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //   Create four instances of the array using both the default and copy
+        //   constructors.  Exercise these objects using primary manipulators,
+        //   basic accessors, equality operators, and the assignment operator.
+        //   Invoke the primary manipulator [1&5], copy constructor [2&8], and 
+        //   assignment operator [9&10] in situations where the internal data 
+        //   (i) does *not* and (ii) *does* have to resize.  Try aliasing with
+        //   with assignment for a non-empty instance [11] and allow the result
+        //   to leave scope, enabling the destructor to assert internal object 
+        //   invariants.  Display object values frequently in verbose mode:
+        //
+        //: 1 Create an object x1 (default ctor).      { x1: }
+        //: 2 Create a second object x2 (copy from x1).{ x1: x2: }
+        //: 3 Append an element value A to x1.         { x1:A x2: }
+        //: 4 Append the same element value A to x2.   { x1:A x2:A }
+        //: 5 Append another element value B to x2.    { x1:A x2:AB }
+        //: 6 Remove all elements from x1.             { x1: x2:AB }
+        //: 7 Create a third object x3 (default ctor). { x1: x2:AB x3: }
+        //: 8 Create a fourth object x4 (copy from x2).{ x1: x2:AB x3: x4:AB }
+        //: 9 Assign x2 = x1 (non-empty becomes empty).{ x1: x2: x3: x4:AB }
+        //:10 Assign x3 = x4 (empty becomes non-empty).{ x1: x2: x3:AB x4:AB }
+        //:11 Assign x4 = x4 (aliasing).               { x1: x2: x3:AB x4:AB }
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
+
+        bslma_TestAllocator testAllocator(veryVeryVeryVerbose);
+
+        Frame A;
+        A.setAddress((void *) 0x12ab);
+        A.setLibraryFileName("/a/b/c/baesu_stacktrace.t.dbg_exc_mt");
+        A.setLineNumber(5);
+        A.setOffsetFromSymbol(116);
+        A.setSourceFileName("/a/b/c/sourceFile.cpp");
+        A.setMangledSymbolName("_woof_1a");
+        A.setSymbolName("woof");
+
+        Frame B;
+        B.setAddress((void *) 0x34cd);
+        B.setLibraryFileName("/lib/libd.a");
+        B.setLineNumber(15);
+        B.setOffsetFromSymbol(228);
+        B.setSourceFileName("/a/b/c/secondSourceFile.cpp");
+        B.setMangledSymbolName("_arf_1a");
+        B.setSymbolName("arf");
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 1) Create an object 'x1' (default ctor)."
+                             "\t\t\t{ x1: }" << endl;
+        Obj mX1(&testAllocator);  const Obj& X1 = mX1;
+        if (verbose) { cout << '\t';  P(X1); }
+
+        if (verbose) cout << "\ta) Check initial state of 'x1'." << endl;
+        ASSERT(0 == X1.length());
+
+        if (verbose) cout <<
+                          "\tb) Try equality operators: 'x1 <op> x1'." << endl;
+        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout <<
+                         "\n 2) Create a second object 'x2' (copy from 'x1';)."
+                         "\t\t{ x1: x2: }" << endl;
+
+        Obj mX2(X1, &testAllocator);  const Obj& X2 = mX2;
+        if (verbose) { cout << '\t';  P(X2); }
+
+        if (verbose) cout << "\ta) Check the initial state of 'x2'." << endl;
+        ASSERT(0 == X2.length());
+
+        if (verbose) cout <<
+                    "\tb) Try equality operators: 'x2 <op> x1', 'x2'." << endl;
+        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 3) Append an element value 'A' to 'x1')."
+                             "\t\t\t{ x1:A x2: }" << endl;
+        mX1.append(A);
+        if (verbose) { cout << '\t';  P(X1); }
+
+        if (verbose) cout << "\ta) Check new state of 'x1'." << endl;
+        ASSERT(1 == X1.length());
+        ASSERT(A == X1[0]);
+
+        if (verbose) cout <<
+                    "\tb) Try equality operators: 'x1 <op> x1', 'x2'." << endl;
+        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
+        ASSERT((X1 == X2) == 0);          ASSERT((X1 != X2) == 1);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 4) Append the same element value 'A' to 'x2')."
+                             "\t\t{ x1:A x2:A }" << endl;
+        mX2.append(A);
+        if (verbose) { cout << '\t';  P(X2); }
+
+        if (verbose) cout << "\ta) Check new state of x2." << endl;
+        ASSERT(1 == X2.length());
+        ASSERT(A == X2[0]);
+
+        if (verbose) cout <<
+                    "\tb) Try equality operators: 'x2 <op> x1', 'x2'." << endl;
+        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 5) Append another element value 'B' to 'x2')."
+                             "\t\t{ x1:A x2:AB }" << endl;
+        mX2.append(B);
+        if (verbose) { cout << '\t';  P(X2); }
+
+        if (verbose) cout << "\ta) Check new state of 'x2'." << endl;
+        ASSERT(2 == X2.length());
+        ASSERT(A == X2[0]);
+        ASSERT(B == X2[1]);
+
+        if (verbose) cout <<
+                    "\tb) Try equality operators: 'x2 <op> x1', 'x2'." << endl;
+        ASSERT((X2 == X1) == 0);          ASSERT((X2 != X1) == 1);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 6) Remove all elements from x1."
+                             "\t\t\t{ x1: x2:AB }" << endl;
+        mX1.removeAll();
+        if (verbose) { cout << '\t';  P(X1); }
+
+        if (verbose) cout << "\ta) Check new state of 'x1'." << endl;
+        ASSERT(0 == X1.length());
+
+        if (verbose) cout <<
+            "\tb) Try equality operators: 'x1 <op> x1', 'x2'." << endl;
+        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
+        ASSERT((X1 == X2) == 0);          ASSERT((X1 != X2) == 1);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 7) Create a third object 'x3' (default ctor)."
+                             "\t\t{ x1: x2:AB x3: }" << endl;
+
+        Obj mX3(&testAllocator);  const Obj& X3 = mX3;
+        if (verbose) { cout << '\t';  P(X3); }
+
+        if (verbose) cout << "\ta) Check new state of x3." << endl;
+        ASSERT(0 == X3.length());
+
+        if (verbose) cout <<
+              "\tb) Try equality operators: 'x3 <op> x1', 'x2', 'x3'." << endl;
+        ASSERT((X3 == X1) == 1);          ASSERT((X3 != X1) == 0);
+        ASSERT((X3 == X2) == 0);          ASSERT((X3 != X2) == 1);
+        ASSERT((X3 == X3) == 1);          ASSERT((X3 != X3) == 0);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout <<
+                            "\n 8) Create a fourth object 'x4' (copy of 'x2')."
+                            "\t\t{ x1: x2:01 x3: x4:01 }" << endl;
+
+        Obj mX4(X2, &testAllocator);  const Obj& X4 = mX4;
+        if (verbose) { cout << '\t';  P(X4); }
+
+        if (verbose) cout << "\ta) Check new state of 'x4'." << endl;
+
+        ASSERT(2 == X4.length());
+        ASSERT(A == X4[0]);
+        ASSERT(B == X4[1]);
+
+        if (verbose) cout <<
+        "\tb) Try equality operators: 'x4 <op> x1', 'x2', 'x3', 'x4'." << endl;
+        ASSERT((X4 == X1) == 0);          ASSERT((X4 != X1) == 1);
+        ASSERT((X4 == X2) == 1);          ASSERT((X4 != X2) == 0);
+        ASSERT((X4 == X3) == 0);          ASSERT((X4 != X3) == 1);
+        ASSERT((X4 == X4) == 1);          ASSERT((X4 != X4) == 0);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout <<
+                          "\n 9) Assign 'x2' = 'x1' (non-empty becomes empty)."
+                          "\t\t{ x1: x2: x3: x4:AB }" << endl;
+
+        mX2 = X1;
+        if (verbose) { cout << '\t';  P(X2); }
+
+        if (verbose) cout << "\ta) Check new state of x2." << endl;
+        ASSERT(0 == X2.length());
+
+        if (verbose) cout <<
+        "\tb) Try equality operators: 'x2 <op> x1', 'x2', 'x3', 'x4'." << endl;
+        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
+        ASSERT((X2 == X3) == 1);          ASSERT((X2 != X3) == 0);
+        ASSERT((X2 == X4) == 0);          ASSERT((X2 != X4) == 1);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout <<
+                          "\n10) Assign 'x3' = 'x4' (empty becomes non-empty)."
+                          "\t\t{ x1: x2: x3:01 x4:01 }" << endl;
+
+        mX3 = X4;
+        if (verbose) { cout << '\t';  P(X3); }
+
+        if (verbose) cout << "\ta) Check new state of 'x3'." << endl;
+        ASSERT(2 == X3.length());
+        ASSERT(A == X3[0]);
+        ASSERT(B == X3[1]);
+
+        if (verbose) cout <<
+        "\tb) Try equality operators: 'x3 <op> x1', 'x2', 'x3', 'x4'." << endl;
+        ASSERT((X3 == X1) == 0);          ASSERT((X3 != X1) == 1);
+        ASSERT((X3 == X2) == 0);          ASSERT((X3 != X2) == 1);
+        ASSERT((X3 == X3) == 1);          ASSERT((X3 != X3) == 0);
+        ASSERT((X3 == X4) == 1);          ASSERT((X3 != X4) == 0);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n11) Assign 'x4' = 'x4' (aliasing)."
+                             "\t\t\t\t{ x1: x2: x3:01 x4:01 }" << endl;
+
+        mX4 = X4;
+        if (verbose) { cout << '\t';  P(X4); }
+
+        if (verbose) cout << "\ta) Check new state of 'x4'." << endl;
+        ASSERT(2 == X4.length());
+        ASSERT(A == X4[0]);
+        ASSERT(B == X4[1]);
+
+        if (verbose) cout <<
+        "\tb) Try equality operators: 'x4 <op> x1', 'x2', 'x3', 'x4'." << endl;
+        ASSERT((X4 == X1) == 0);          ASSERT((X4 != X1) == 1);
+        ASSERT((X4 == X2) == 0);          ASSERT((X4 != X2) == 1);
+        ASSERT((X4 == X3) == 1);          ASSERT((X4 != X3) == 0);
+        ASSERT((X4 == X4) == 1);          ASSERT((X4 != X4) == 0);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -1066,13 +1537,13 @@ int main(int argc, char *argv[])
       }
     }
 
-    // It's very important this component not use the default allocator.
+    // CONCERN: In no case does memory come from the global allocator.
 
-    ASSERT(0 == defaultAllocator.numAllocations());
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "."
-             << endl;
+        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
 
     return testStatus;

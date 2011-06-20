@@ -27,8 +27,7 @@ bsl::ostream& baesu_StackTrace::print(bsl::ostream& stream,
 }
 
 // FREE OPERATORS
-bool operator==(const baesu_StackTrace& lhs,
-                const baesu_StackTrace& rhs)
+bool operator==(const baesu_StackTrace& lhs, const baesu_StackTrace& rhs)
 {
     if (lhs.length() != rhs.length()) {
         return false;                                                 // RETURN
