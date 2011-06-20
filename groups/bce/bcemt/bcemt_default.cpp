@@ -10,9 +10,11 @@
 
 #include <bsl_limits.h>
 
-#if    defined(BCES_PLATFORM__POSIX_THREADS)
+#if   defined(BCES_PLATFORM__POSIX_THREADS)
 # include <pthread.h>
-#elif !defined(BCES_PLATFORM__WIN32_THREADS)
+#elif defined(BCES_PLATFORM__WIN32_THREADS)
+# include <windows.h>
+#else
 # error unrecognized threading platform
 #endif
 
@@ -36,41 +38,79 @@ int bcemt_Default::defaultThreadStackSize()
 
 int bcemt_Default::nativeDefaultThreadStackSize()
 {
-#ifdef BCES_PLATFORM__POSIX_THREADS
-# ifndef BSLS_PLATFORM__OS_SOLARIS
+#if defined(BCES_PLATFORM__POSIX_THREADS)
+# ifdef BSLS_PLATFORM__OS_SOLARIS
 
-    bsl::size_t threadStackSize = 0;
-
-    {
-        pthread_attr_t attr;
-
-        pthread_attr_init(&attr);
-        int rc = pthread_attr_getstacksize(&attr, &threadStackSize);
-        BSLS_ASSERT(0 == rc);
-        pthread_attr_destroy(&attr);
-    }
-
-#  ifdef PTHREAD_STACK_MIN
-    BSLS_ASSERT(threadStackSize >= PTHREAD_STACK_MIN);
-#  endif
-
-    BSLS_ASSERT(threadStackSize > 0);
-    BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(INT_MAX));
-
-    return threadStackSize;
-
-# else
-    // Solaris -- 1 megabyte on 32 bit, 2 megabytes on 64 bit
+    // 1 megabyte on 32 bit, 2 megabytes on 64 bit
 
     enum { SOLARIS_DEFAULT_STACK_SIZE = 256 * 1024 * sizeof(void *) };
     return SOLARIS_DEFAULT_STACK_SIZE;
 
-# endif
-#else
-    // Windows
+# else
 
-    enum { WINDOWS_DEFAULT_STACK_SIZE = 0x100000 };    // 1 megabyte always
-    return WINDOWS_DEFAULT_STACK_SIZE;
+    // non-Solaris POSIX
+
+    static bsl::size_t threadStackSize = 0;
+
+    if (0 == threadStackSize) {
+        {
+            pthread_attr_t attr;
+
+            pthread_attr_init(&attr);
+            int rc = pthread_attr_getstacksize(&attr, &threadStackSize);
+            BSLS_ASSERT(0 == rc);
+            pthread_attr_destroy(&attr);
+        }
+
+#  ifdef PTHREAD_STACK_MIN
+        BSLS_ASSERT(threadStackSize >= PTHREAD_STACK_MIN);
+#  endif
+
+#  ifdef BSLS_PLATFORM__OS_HPUX
+        // Default size reported by pthreads is the sum of two equal stack
+        // sizes, we want our 'stack size' to mean the size of just one stack.
+        // This will be doubled back again in 'create'.
+
+        threadStackSize /= 2;
+#  endif
+
+        BSLS_ASSERT(threadStackSize > 0);
+        int maxint = bsl::numeric_limits<int>::max();
+        BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(maxint));
+    }
+
+    return (int) threadStackSize;
+
+# endif
+
+#elif defined(BCES_PLATFORM__WIN32_THREADS)
+
+    enum { WINDOWS_DEFAULT_STACK_SIZE = 0x100000 };    // 1 megabyte
+
+    static bsl::size_t threadStackSize = 0;
+
+    if (0 == threadStackSize) {
+        threadStackSize = WINDOWS_DEFAULT_STACK_SIZE;
+
+        // obtain default stack reserve size from the PE header
+        char *imageBase = (char *)GetModuleHandle(NULL);
+        if (imageBase) {
+            IMAGE_OPTIONAL_HEADER *header =
+               (IMAGE_OPTIONAL_HEADER *) (imageBase
+                   + ((IMAGE_DOS_HEADER *) imageBase)->e_lfanew
+                   + sizeof (IMAGE_NT_SIGNATURE) + sizeof (IMAGE_FILE_HEADER));
+            threadStackSize = header->SizeOfStackReserve;
+        }
+
+        BSLS_ASSERT(threadStackSize > 0);
+        int maxint = bsl::numeric_limits<int>::max();
+        BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(maxint));
+    }
+
+    return (int) threadStackSize;
+
+#else
+# error unrecognized threading platform
 #endif
 }
 
@@ -78,11 +118,12 @@ int bcemt_Default::recommendedDefaultThreadStackSize()
 {
     // 1 megabyte on 32 bit, 2 megabytes on 64 bit, constant across platforms
 
+    enum { RECOMMENDED_DEFAULT_STACKSIZE = 256 * 1024 * sizeof(void *) };
+
 #ifdef PTHREAD_STACK_MIN
     BSLMF_ASSERT(RECOMMENDED_DEFAULT_STACKSIZE >= PTHREAD_STACK_MIN);
 #endif
 
-    enum { RECOMMENDED_DEFAULT_STACKSIZE = 256 * 1024 * sizeof(void *) };
     return RECOMMENDED_DEFAULT_STACKSIZE;
 }
 

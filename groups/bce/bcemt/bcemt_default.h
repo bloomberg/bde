@@ -29,25 +29,37 @@ BDES_IDENT("$Id: $")
 ///-----
 // In this section we show intended usage of this component.
 //
+///Example 1:
+/// - - - - -
 // The default thread stack size defaults to the native default
 //..
-//  const int native       = bcemt_Default::nativeDefaultThreadStackSize();
-//  const int defaultValue = bcemt_Default::defaultThreadStackSize();
-//  assert(native == defaultValue);
-//  assert(native > 0);
+// First, we examine the native thread stack size:
 //..
-// The caller can override the default value to be another one using
-// 'setDefaultThreadStackSize'.
+//  const int native = bcemt_Default::nativeDefaultThreadStackSize();
+//  ASSERT(native > 0);
 //..
-//  bcemt_Default::setDefaultThreadStackSize(1234000);
-//  assert(1234000 == bcemt_Default::defaultThreadStackSize());
+// Then, we set 'setSize' to some size other than the native size:
 //..
-// Attempting to set the default thread stack size too low results in its being
-// rounded up to the minimum required by the underlying threads implementation.
+//  int setSize = 1 << 18;
+//  if (native == setSize) {
+//      setSize *= 2;
+//  }
 //..
-//  bcemt_Default::setDefaultThreadStackSize(0);
-//  const int newStackSize = bcemt_Default::defaultThreadStackSize();
-//  assert(newStackSize > 0);
+// Next, we verify that when 'defaultThreadStackSize' is called, it returns the
+// native size:
+//..
+//  ASSERT(bcemt_Default::defaultThreadStackSize() != setSize);
+//  ASSERT(bcemt_Default::defaultThreadStackSize() == native);
+//..
+// Then, we set the default size to a size other than the native size.
+//..
+//  bcemt_Default::setDefaultThreadStackSize(setSize);
+//..
+// Finally, we verify that the default thread stack size has been set to the
+// value we specified:
+//..
+//  ASSERT(bcemt_Default::defaultThreadStackSize() == setSize);
+//  ASSERT(bcemt_Default::defaultThreadStackSize() != native);
 //..
 
 #ifndef INCLUDED_BCESCM_VERSION

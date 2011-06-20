@@ -17,6 +17,12 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 // [1] Breathing Test
+// [2] recommendedDefaultThreadStackSize
+// [3] nativeDefaultThreadStackSize
+// [3] setDefaultThreadStackSize
+// [3] defaultThreadStackSize
+// [3] Usage
+// [4] results constant across multiple calls
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -76,22 +82,136 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 4: {
+        // --------------------------------------------------------------------
+        // MULTIPLE CALLS YIELD SAME RESULT
+        //
+        // Concern:
+        //   Some of these calls may cache their results.  Make sure they are
+        //   returning the same value when called multiple times.
+        //
+        // Plan:
+        //   Call the routines multiple times and compare values.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "MULTIPLE CALLS YIELD SAME RESULT\n"
+                             "================================\n";
+
+        const int native = Obj::nativeDefaultThreadStackSize();
+        ASSERT(native > 0);
+
+        for (int i = 0; i < 10; ++i) {
+            ASSERT(native == Obj::nativeDefaultThreadStackSize());
+            ASSERT(native == Obj::defaultThreadStackSize());
+        }
+
+        const int setSize = native * 2;
+
+        Obj::setDefaultThreadStackSize(setSize);
+
+        for (int i = 0; i < 10; ++i) {
+            ASSERT(setSize == Obj::defaultThreadStackSize());
+        }
+
+        Obj::setDefaultThreadStackSize(native);
+
+        for (int i = 0; i < 10; ++i) {
+            ASSERT(native == Obj::defaultThreadStackSize());
+        }
+      }  break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // SETTING THE THREAD STACK SIZE / USAGE
+        //
+        // Concern:
+        //   That 'setDefaultThreadStackSize' is able to set the default thread
+        //   stack size.
+        //
+        // Plan:
+        //   Call 'setDefaultThreadStackSize' with a value that is not equal to
+        //   'nativeDefaultThreadStackSize' and then verify that the result of
+        //   'defaultThreadStackSize' has been set to the new value.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "SETTING THE THREAD STACK SIZE\n"
+                             "=============================\n";
+
+        // First, we examine the native thread stack size:
+
+        const int native = bcemt_Default::nativeDefaultThreadStackSize();
+        ASSERT(native > 0);
+
+        // Then, we set 'setSize' to some size other than the native size:
+
+        int setSize = 1 << 18;
+        if (native == setSize) {
+            setSize *= 2;
+        }
+
+        // Next, we verify that when 'defaultThreadStackSize' is called, it
+        // returns the native size:
+
+        ASSERT(bcemt_Default::defaultThreadStackSize() != setSize);
+        ASSERT(bcemt_Default::defaultThreadStackSize() == native);
+
+        // Then, we set the default size to a size other than the native size.
+
+        bcemt_Default::setDefaultThreadStackSize(setSize);
+
+        // Finally, we verify that the default thread stack size has been set
+        // to the value we specified:
+
+        ASSERT(bcemt_Default::defaultThreadStackSize() == setSize);
+        ASSERT(bcemt_Default::defaultThreadStackSize() != native);
+      }  break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // RECOMMENDED THREAD STACK SIZE
+        //
+        // Concern:
+        //   That 'recommendedThreadStackSize' returns a reasonable value and
+        //   that the stack size can be set to that value on all platforms.
+        //
+        // Plan:
+        //   Call 'recommendedDefaultThreadStackSize' and verify that the value
+        //   is non-negative.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "RECOMMENDED THREAD STACK SIZE\n"
+                             "=============================\n";
+
+        const int recommended = Obj::recommendedDefaultThreadStackSize();
+        ASSERT(recommended > 0);
+        ASSERT(recommended < INT_MAX);
+
+        Obj::setDefaultThreadStackSize(recommended);
+
+        ASSERT(Obj::defaultThreadStackSize() == recommended);
+      }  break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concern:
-        //   That 'defaultThreadStackSize' equals 'nativeThreadStackSize'.
+        //   That, if 'setDefaultThreadStackSize' hasn't been called, that
+        //   'defaultThreadStackSize' equals 'nativeThreadStackSize'.o
+        //
+        // Plan:
+        //   Call 'defaultThreadStackSize' and 'nativeThreadStackSize' without
+        //   having called  'setDefaultThreadStackSize', and verify that they
+        //   return the same value.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
-        const size_t dflt = Obj::defaultThreadStackSize();
-        ASSERT(Obj::nativeDefaultThreadStackSize() == dflt);
+        const bsl::size_t defaultSize = Obj::defaultThreadStackSize();
+        ASSERT(Obj::nativeDefaultThreadStackSize() == (int) defaultSize);
 
-        ASSERT(dflt > 0);
-        ASSERT(dflt < INT_MAX);
+        ASSERT(defaultSize > 0);
+        ASSERT(defaultSize < INT_MAX);
+
+        if (verbose) P(defaultSize);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
