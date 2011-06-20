@@ -414,7 +414,8 @@ windows-        shr BDE_DCL_EXPORT  = " "
 #        -Wc,--ignore_fptr_lang_linkage
 # DRQS 18912346: HP needs -D__STDC_LIMIT_MACROS to define LLONG_MIN/MAX and ULLONG_MAX
 # 20100330 - we need -D_HP_SOURCE so bb_inttypes.h defines ulonglong_t and longlong_t for a_comdb2
-!! unix-HP_UX-*-*-* _   DEF_CXXFLAGS    = -AA -z +W749 +Ovolatile=__unordered -Wc,--ignore_fptr_lang_linkage -D_SYS_SYSMACROS_INCLUDED -D__STDC_LIMIT_MACROS -D_HP_SOURCE
+# DRQS 23276327: added -Wc,--no_nonconst_ref_anachronism
+!! unix-HP_UX-*-*-* _   DEF_CXXFLAGS    = -AA -z +W749 +Ovolatile=__unordered -Wc,--ignore_fptr_lang_linkage -D_SYS_SYSMACROS_INCLUDED -D__STDC_LIMIT_MACROS -D_HP_SOURCE -Wc,--no_nonconst_ref_anachronism
 
 # IMPORTANT: use of stat and utime to preserve timestamps on the processed file!
 !! windows-     _   PROCESS_INC = perl -e "$$d=pop(@ARGV); $$o=$$d; $$/=undef; while ($$i=shift @ARGV) { $$mtime=((stat $$i)[9]); open I,$$i; if (-d $$d) { $$i=~m|([\w.]+)$$| and $$o=$$d.'\\'.$$1 }; open O,'>'.$$o; $$c=<I>; $$c=~s/^    static ([^({;]+;)$$/    ::GROUP::_DCL static $$1/mg; print O $$c; close I; close O; utime $$mtime,$$mtime,$$o; }; print \"\tpreprocessed to $$d\n\"" --
@@ -939,13 +940,13 @@ unix-                   _   CC      = $(RETRY_ON_SIGNAL) cc -DUSE_REAL_MALLOC $(
 !! unix-AIX-*-*-xlc-10.0 _   CC      = $(XLC_LIBPATH) $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(XLC_LOCATION)/vac/bin/xlc   $(CC64FLAGS) -qxflag=NoKeepDebugMetaTemplateType
 !! unix-AIX-*-*-xlc-10.0 mt   CC     = $(XLC_LIBPATH) $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(XLC_LOCATION)/vac/bin/xlc_r $(CC64FLAGS) -qxflag=NoKeepDebugMetaTemplateType
 
-!! unix-SunOS-*-*-gcc   _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/opt/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-SunOS-*-*-gcc-4.1.1 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/swtlib/gcc-4.1.1/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-SunOS-*-*-gcc-4.2.0 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbcm/infrastructure/etc/g++-4.2.0 -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-SunOS-*-*-gcc-4.3.0 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.0/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-SunOS-*-*-gcc-4.3.2 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.2/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-AIX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /bbs/opt/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-HP_UX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /opt/swt/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-SunOS-*-*-gcc   _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/opt/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-SunOS-*-*-gcc-4.1.1 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/swtlib/gcc-4.1.1/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-SunOS-*-*-gcc-4.2.0 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbcm/infrastructure/etc/g++-4.2.0 -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-SunOS-*-*-gcc-4.3.0 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.0/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-SunOS-*-*-gcc-4.3.2 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.2/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-AIX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /bbs/opt/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-HP_UX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /opt/swt/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 !! unix-Linux-*-*-gcc   _   CC      = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 !! unix-FreeBSD-*-*-gcc   _   CC      = $(RETRY_ON_SIGNAL) /usr/bin/gcc $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 windows-        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /nologo /W3 /D"WIN32" /D"_WINDOWS" /D"_MBCS" /D"NOMINMAX" /DNOGDI $(CC64FLAGS)
@@ -996,15 +997,15 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 !! unix-AIX-*-*-xlc-10.0 _   CXX     = LIBPATH=$(XLC_LOCATION)/lib $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(XLC_LOCATION)/vacpp/bin/xlC $(CC64FLAGS)
 !! unix-AIX-*-*-xlc-10.0 mt  CXX     = LIBPATH=$(XLC_LOCATION)/lib $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(XLC_LOCATION)/vacpp/bin/xlC_r $(CC64FLAGS)
 
-!! unix-SunOS-*-*-gcc   _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/opt/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-SunOS-*-*-gcc-4.1.1 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/swtlib/gcc-4.1.1/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-SunOS-*-*-gcc-4.2.0 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbcm/infrastructure/etc/g++-4.2.0 -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-SunOS-*-*-gcc-4.3.0 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.0/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-SunOS-*-*-gcc-4.3.2 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.2/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-SunOS-*-*-gcc   _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/opt/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-SunOS-*-*-gcc-4.1.1 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/swtlib/gcc-4.1.1/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-SunOS-*-*-gcc-4.2.0 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbcm/infrastructure/etc/g++-4.2.0 $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-SunOS-*-*-gcc-4.3.0 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.0/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-SunOS-*-*-gcc-4.3.2 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.2/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
-!! unix-AIX-*-*-gcc _   CXX         = $(RETRY_ON_SIGNAL) /bbs/opt/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-AIX-*-*-gcc _   CXX         = $(RETRY_ON_SIGNAL) /bbs/opt/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
-!! unix-HP_UX-*-*-gcc _   CXX         = $(RETRY_ON_SIGNAL) /opt/swt/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-HP_UX-*-*-gcc _   CXX         = $(RETRY_ON_SIGNAL) /opt/swt/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
 !! unix-FreeBSD-*-*-gcc   _   CXX         = $(RETRY_ON_SIGNAL) g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
