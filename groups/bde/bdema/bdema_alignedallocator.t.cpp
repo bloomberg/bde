@@ -86,7 +86,8 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
 // aligned memory.  In order for the 'bdema_AlignedAllocator' interface to be
 // useful, we must supply a concrete allocator that implements it.
 //
-// In this example, we demonstrate how to adapt 'posix_memalign' to this
+// In this example, we demonstrate how to adapt 'posix_memalign' on Linux and
+// AIX, 'memalign' on SunOS and '_aligned_malloc' on Windows, to this
 // protocol base class:
 //
 // First, we specify the interface of the concrete implementation of
@@ -98,8 +99,9 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
     class MyAlignedAllocator: public bdema_AlignedAllocator {
         // This class is a sample concrete implementation of the
         // 'bdema_AlignedAllocator' protocol that provides direct access to the
-        // system-supplied 'posix_memalign' and 'free' on UNIX, or
-        // '_aligned_malloc' and '_aligned_free' on Windows.
+        // system-supplied 'posix_memalign' and 'free' on Linux and AIX
+        // platforms, 'memalign' and 'free' on SunOS, or '_aligned_malloc' and
+        // '_aligned_free' on Windows.
 
       private:
         // NOT IMPLEMENTED
@@ -189,12 +191,17 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
             return 0;                                                 // RETURN
         }
 
-        void *ret;
+        void *ret = 0;
 
     #ifdef BSLS_PLATFORM__OS_WINDOWS
         errno = 0;
-        *ret = _aligned_malloc(size, alignment);
+        ret = _aligned_malloc(size, alignment);
         if (0 != errno) {
+            bslma_Allocator::throwBadAlloc();
+        }
+    #elif defined BSLS_PLATFORM__OS_SOLARIS
+        ret = memalign(alignment, size);
+        if (0 == ret) {
             bslma_Allocator::throwBadAlloc();
         }
     #else
@@ -203,7 +210,6 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
             bslma_Allocator::throwBadAlloc();
         }
     #endif
-
         return ret;
     }
 
@@ -249,6 +255,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
+        if (verbose) cout << endl << "TESTING USAGE EXAMPLE" << endl
+                                  << "=====================" << endl;
+
 ///Example 2: Using a 'bdema_AlignedAllocator'.
 ///- - - - - - - - - - - - - - - - - - - - - -
 // In this example we use an object of type 'MyAlignedAllocator', defined
@@ -273,11 +282,6 @@ int main(int argc, char *argv[])
                                                            address,
                                                            (bsl::size_t)4096));
 //..
-
-        if (verbose) cout << endl << "TESTING USAGE EXAMPLE" << endl
-                                  << "=====================" << endl;
-
-
       } break;
       case 1: {
         // --------------------------------------------------------------------

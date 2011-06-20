@@ -51,7 +51,8 @@ BSLS_IDENT("$Id$")
 // aligned memory.  In order for the 'bdema_AlignedAllocator' interface to be
 // useful, we must supply a concrete allocator that implements it.
 //
-// In this example, we demonstrate how to adapt 'posix_memalign' to this
+// In this example, we demonstrate how to adapt 'posix_memalign' on Linux and
+// AIX, 'memalign' on SunOS and '_aligned_malloc' on Windows, to this
 // protocol base class:
 //
 // First, we specify the interface of the concrete implementation of
@@ -63,8 +64,9 @@ BSLS_IDENT("$Id$")
 //  class MyAlignedAllocator: public bdema_AlignedAllocator {
 //      // This class is a sample concrete implementation of the
 //      // 'bdema_AlignedAllocator' protocol that provides direct access to the
-//      // system-supplied 'posix_memalign' and 'free' on UNIX, or
-//      // '_aligned_malloc' and '_aligned_free' on Windows.
+//      // system-supplied 'posix_memalign' and 'free' on Linux and AIX
+//      // platforms, 'memalign' and 'free' on SunOS, or '_aligned_malloc' and
+//      // '_aligned_free' on Windows.
 //
 //    private:
 //      // NOT IMPLEMENTED
@@ -154,12 +156,17 @@ BSLS_IDENT("$Id$")
 //          return 0;                                                 // RETURN
 //      }
 //
-//      void *ret;
+//      void *ret = 0;
 //
 //  #ifdef BSLS_PLATFORM__OS_WINDOWS
 //      errno = 0;
-//      *ret = _aligned_malloc(size, alignment);
+//      ret = _aligned_malloc(size, alignment);
 //      if (0 != errno) {
+//          bslma_Allocator::throwBadAlloc();
+//      }
+//  #elif defined BSLS_PLATFORM__OS_SOLARIS
+//      ret = memalign(alignment, size);
+//      if (0 == ret) {
 //          bslma_Allocator::throwBadAlloc();
 //      }
 //  #else
@@ -199,8 +206,8 @@ BSLS_IDENT("$Id$")
 //..
 //  bdema_AlignedAllocator *alignedAllocator = &myAlignedAllocator;
 //..
-// Now, we allocate a buffer of 1024 bytes of memory and indicatesure that it
-// is aligned on a 4096 boundary:
+// Now, we allocate a buffer of 1024 bytes of memory and indicate that it
+// should be aligned on a 4096 boundary:
 //
 //..
 //  char *address = (char *) alignedAllocator->allocateAligned(1024, 4096);
@@ -243,13 +250,14 @@ class bdema_AlignedAllocator : public bslma_Allocator {
                                         BSLS_ANNOTATION_WARN_UNUSED_RESULT = 0;
         // Return the address of a newly allocated block of memory of at
         // least the specified positive 'size' (in bytes), sufficiently
-        // aligned such that '0 == (address & (alignment -1)).  If 'size'
-        // is 0, a null pointer is returned with no other effect.  If this
-        // allocator cannot return the requested number of bytes, then it
-        // throws an 'bsl::bad_alloc' exception, or abort if in a
-        // non-exception build.  The behavior is undefined unless
-        // '0 <= size', '0 <= alignment' and 'alignment' is both a multiple of
-        // 'sizeof(void *)' and a power of two.
+        // aligned such that the returned 'address' satisfies
+        // '0 == (address & (alignment - 1)).  If 'size' is 0, a null
+        // pointer is returned with no other effect.  If this allocator
+        // cannot return the requested number of bytes, then it throws an
+        // 'bsl::bad_alloc' exception, or abort if in a non-exception
+        // build.  The behavior is undefined unless '0 <=  size' and
+        // 'alignment' is both a multiple of 'sizeof(void *)' and a power
+        // of two.
 };
 
 }  // close namespace BloombergLP
