@@ -80,37 +80,42 @@ BDES_IDENT("$Id: $")
 //      return ret;
 //  }
 //..
+// Have a volatile global in calculations to discourange optimizers from
+// inlining.
+//..
+//  volatile int volatileGlobal = 2;
+//..
 // Then, we define a chain of functions that will call each other and do some
 // random calculation to generate some code, and eventually call 'func1' which
 // will call 'getAddresses' and verify that the addresses returned correspond
 // to the functions we expect them to.
 //..
-//  int func1();
-//  int func2()
+//  static int func1();
+//  static int func2()
 //  {
-//      return 2 * func1();
+//      return volatileGlobal * 2 * func1();
 //  }
-//  int func3()
+//  static int func3()
 //  {
-//      return 3 * func2();
+//      return volatileGlobal * 3 * func2();
 //  }
-//  int func4()
+//  static int func4()
 //  {
-//      return 4 * func3();
+//      return volatileGlobal * 4 * func3();
 //  }
-//  int func5()
+//  static int func5()
 //  {
-//      return 5 * func4();
+//      return volatileGlobal * 5 * func4();
 //  }
-//  int func6()
+//  static int func6()
 //  {
-//      return 6 * func5();
+//      return volatileGlobal * 6 * func5();
 //  }
 //..
 // Next, we define the macro FUNC_ADDRESS, which will take as an arg a
 // '&<function name>' and return a pointer to the actual beginning of the
 // function's code, which is a non-trivial and platform-dependent exercise.
-// (Note: this doesn't work on Windows).
+// (Note: this doesn't work on Windows for global routines).
 //..
 //  #if   defined(BSLS_PLATFORM__OS_HPUX)
 //  # define FUNC_ADDRESS(p) (((void **) (void *) (p))[sizeof(void *) == 4])

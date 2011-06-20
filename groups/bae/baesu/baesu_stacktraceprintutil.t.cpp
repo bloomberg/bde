@@ -2,7 +2,7 @@
 #include <baesu_stacktraceprintutil.h>
 
 #include <baesu_objectfileformat.h>
-#include <baesu_stackaddressutil.h>
+#include <baesu_stackaddressutil.h>    // 'getStackAddresses(0,0)'
 
 #include <bdef_function.h>
 #include <bdema_sequentialallocator.h>
@@ -36,6 +36,8 @@
 
 # pragma comment(lib, "user32.lib")
 # include <windows.h>
+
+# pragma optimize("", off)
 
 #endif
 
@@ -541,6 +543,11 @@ int bottom()
 
     return i;
 }
+
+// Make global ptrs to the static routines to prevent optimizer inlinng them.
+
+void (*highMiddlePtr)(int) = &highMiddle;
+int  (*bottomPtr)()        = &bottom;
 
 }  // close namespace CASE_2
 
