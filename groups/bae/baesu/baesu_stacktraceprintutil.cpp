@@ -8,6 +8,7 @@ BDES_IDENT_RCSID(baesu_stacktraceprintutil_cpp,"$Id$ $CSID$")
 #include <baesu_stacktrace.h>
 #include <baesu_stacktraceutil.h>
 
+#include <bsls_assert.h>
 #include <bsls_platform.h>
 
 #if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_OPT)
@@ -30,6 +31,8 @@ bsl::ostream& baesu_StackTracePrintUtil::printStackTrace(
                                          int           maxFrames,
                                          bool          demanglingPreferredFlag)
 {
+    BSLS_ASSERT(0 <= maxFrames || -1 == maxFrames);
+
     enum {
         DEFAULT_MAX_FRAMES = 1024,
         IGNORE_FRAMES      = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES

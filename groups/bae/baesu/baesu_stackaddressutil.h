@@ -230,10 +230,10 @@ struct baesu_StackAddressUtil {
         // recent calls occur in the array before calls which took place before
         // them.  Return the number of stack frames stored into 'buffer' on
         // success, and a negative value otherwise.  The behavior is undefined
-        // unless 'buffer' has room for at least 'maxFrames' addresses.  Note
-        // that this routine may fill 'buffer' with garbage if the stack is
-        // corrupt, or on Windows if some stack frames represent optimized
-        // routines.
+        // unless 'maxFrames >= 0' and 'buffer' has room for at least
+        // 'maxFrames' addresses.  Note that this routine may fill 'buffer'
+        // with garbage if the stack is corrupt, or on Windows if some stack
+        // frames represent optimized routines.
 };
 
 }  // close namespace BloombergLP

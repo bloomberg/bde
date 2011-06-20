@@ -192,6 +192,8 @@ namespace BloombergLP {
 int baesu_StackAddressUtil::getStackAddresses(void **buffer,
                                               int    maxFrames)
 {
+    BSLS_ASSERT(0 <= maxFrames);
+
     struct AixFrame {
         AixFrame  *d_nextFrame;
         void      *d_pad;
@@ -261,6 +263,8 @@ void freeCallBack(void *allocator, void *segmentPtr)
 int baesu_StackAddressUtil::getStackAddresses(void **buffer,
                                               int    maxFrames)
 {
+    BSLS_ASSERT(0 <= maxFrames);
+
     int rc;
     bdema_HeapBypassAllocator allocator;
 
@@ -321,6 +325,8 @@ int baesu_StackAddressUtil::getStackAddresses(void **buffer,
 int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
                                               int       maxFrames)
 {
+    BSLS_ASSERT(0 <= maxFrames);
+
     if (0 >= maxFrames) {
         // Call 'backtrace' to make sure that it has been dynamically loaded
         // if it wasn't already.  Note the first time 'backtrace' is called,
@@ -385,6 +391,8 @@ extern "C" char *baesu_StackAddressUtil_flushAndGetFP();
 int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
                                               int       maxFrames)
 {
+    BSLS_ASSERT(0 <= maxFrames);
+
     // 'STACK_BIAS' is a sparc constant defined in '/usr/include/sys/stack.h'.
     // The type 'frame' is a struct declared in '<sys/frame.h>'.
 
@@ -443,6 +451,8 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
 int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
                                               int       maxFrames)
 {
+    BSLS_ASSERT(0 <= maxFrames);
+
     U::WinDbgHelpFuncHandle api;
     if (0 != loadDll(&api)) {
         return 0;                                                     // RETURN

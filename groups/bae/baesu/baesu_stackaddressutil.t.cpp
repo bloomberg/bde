@@ -1,6 +1,7 @@
 // baesu_stackaddressutil.t.cpp                                       -*-C++-*-
 #include <baesu_stackaddressutil.h>
 
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
@@ -30,12 +31,12 @@ using bsl::flush;
 //=============================================================================
 // TEST PLAN
 //-----------------------------------------------------------------------------
-// [-1] Speed benchmark of getStackAddresses
-// [ 1] Breathing test
-// [ 2] getStackAddresses(0, 0)
-// [ 3] 'getStackAddresses' finds right functions
-// [ 4] Usage example
+// [ 3]  int getStackAddresses(void **buffer, int maxFrames);
 //-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 4] USAGE EXAMPLE
+// [ 2] getStackAddresses(0, 0)
+// [-1] Speed benchmark of getStackAddresses
 
 //=============================================================================
 // STANDARD BDE ASSERT TEST MACRO
@@ -79,6 +80,15 @@ static void aSsErT(int c, const char *s, int i)
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+//=============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//-----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 //=============================================================================
 // GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
@@ -510,22 +520,30 @@ int main(int argc, char *argv[])
     verbose  = argc > 2;
     veryVerbose = argc > 3 ? (bsl::atoi(argv[3]) ? bsl::atoi(argv[3]) : 1) : 0;
 
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // FINDING RIGHT FUNCTIONS TEST CASE
+        // USAGE EXAMPLE
         //
         // Concerns:
-        //   That 'getStackAddresses' finds the functions we expect it to.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Have a sequence of records, each of which contains the address of
-        //   the beginning of a function's code and an index corresponding to
-        //   that function.  These functions are arranged in a chain to call
-        //   each other and the final one of the chain calls
-        //   'getStackAddresses' and looks up the return addresses obtain in
-        //   the sequence of records to verify that the addresses are within
-        //   the functions we expect them to be in.
+        //: 1 Have a sequence of records, each of which contains the address of
+        //:   the beginning of a function's code and an index corresponding to
+        //:   that function.
+        //:
+        //: 2 These functions are arranged in a chain to call each other and
+        //:   the final one of the chain calls 'getStackAddresses' and looks up
+        //:   the return addresses obtain in the sequence of records to verify
+        //:   that the addresses are within the functions we expect them to be
+        //:   in.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Finding Right Functions Test\n"
@@ -542,7 +560,7 @@ int main(int argc, char *argv[])
       }  break;
       case 3: {
         // --------------------------------------------------------------------
-        // FINDING RIGHT FUNCTIONS TEST CASE
+        // CLASS METHOD 'getStackAddresses'
         //
         // Note: this was the original test that 'getStackAddresses' was
         // finding the proper functions.  This test was later simplified into
@@ -555,18 +573,18 @@ int main(int argc, char *argv[])
         //:
         //: 3 The method returns non-zero on error.
         //:
-        //: 4 The method won't write past the end of the array it is passed.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //   Have a sequence of functions on the stack, and take pointers to
-        //   those functions using '&<function name>', put those pointers into
-        //   an array.  Collect the return addresses from the stack and put
-        //   those addresses into an array of records, also storing an int in
-        //   each record to identify which routine we expect the address to
-        //   be in.  Sort the array of records.  It then becomes possible to
-        //   verify which return address is within which routine.
+        //: 1 Have a sequence of functions on the stack, and take pointers to
+        //:   those functions using '&<function name>', put those pointers into
+        //:   an array.
+        //:
+        //: 2 Collect the return addresses from the stack and put those
+        //:   addresses into an array of records, also storing an int in each
+        //:   record to identify which routine we expect the address to be in.
+        //:   Sort the array of records.  It then becomes possible to verify
+        //:   which return address is within which routine.
         //
         // Testing:
         //   int getStackAddresses(void **buffer, int maxFrames);
@@ -583,6 +601,19 @@ int main(int argc, char *argv[])
 
         ASSERT(CASE_THREE::func5() > 0);
 #endif
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\tgetStackAddresses" << endl;
+            {
+                void *buf[0];
+                ASSERT_PASS(baesu_StackAddressUtil::getStackAddresses(buf, 0));
+                ASSERT_FAIL(
+                           baesu_StackAddressUtil::getStackAddresses(buf, -1));
+            }
+        }
       }  break;
       case 2: {
         // --------------------------------------------------------------------
@@ -592,9 +623,9 @@ int main(int argc, char *argv[])
         //: 1 'getStackAddresses(0, 0)' doesn't segFault.
         //
         // Plan:
-        //   Call 'getStackAddresses(0, 0)'.  In the debugger, verify that on
-        //   Linux, the first call calls 'backtrace' and the second call calls
-        //   neither 'dlopen' nor 'malloc'.
+        //: 1 Call 'getStackAddresses(0, 0)'.  In the debugger, verify that on
+        //:   Linux, the first call calls 'backtrace' and the second call calls
+        //:   neither 'dlopen' nor 'malloc'.
         //
         // Testing:
         //   CONCERN: 'getStackAddresses(0, 0)' doesn't segFault.
@@ -614,15 +645,18 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The class is sufficiently functional to enable comprehensive
         //:   testing in subsequent test cases.
+        //:
+        //: 2 The method won't write past the end of the array it is passed.
         //
         // Plan:
-        //   Recurse many times, call 'getStackAddresses', and check that the
-        //   elements are either null or non-null as expected.  Do this twice,
-        //   once in the case where the array is more than long enough to
-        //   accomodate the entire stack depth, and once in the case where the
-        //   array length passed is too short to hold the entire stack, and
-        //   verify that elements past the specified length of the array are
-        //   unaffected.
+        //: 1 Recurse many times, call 'getStackAddresses', and check that the
+        //:   elements are either null or non-null as expected.
+        //:
+        //: 2 Do this twice, once in the case where the array is more than long
+        //:   enough to accomodate the entire stack depth, and once in the case
+        //:   where the array length passed is too short to hold the entire
+        //:   stack, and verify that elements past the specified length of the
+        //:   array are unaffected.
         //
         // Testing:
         //   BREATHING TEST

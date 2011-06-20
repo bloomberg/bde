@@ -7,6 +7,8 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_asserttest.h>
+
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -26,14 +28,16 @@ using namespace bsl;  // automatically added by script
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] baesu_StackTraceResolver_FileHelper
-// [ 1] ~baesu_StackTraceResolver_FileHelper
+// [ 2] baesu_StackTraceResolver_FileHelper
+// [ 2] ~baesu_StackTraceResolver_FileHelper
 //
 // ACCESSORS
-// [ 1] readExact
-// [ 2] readBytes
-// [ 3] loadString
+// [ 3] readExact
+// [ 4] readBytes
+// [ 5] loadString
 //-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 6] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -69,11 +73,21 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                       SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
+
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+//=============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//-----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
    || defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
@@ -84,12 +98,11 @@ static void aSsErT(int c, const char *s, int i)
 typedef bdesu_FileUtil                      FileUtil;
 typedef FileUtil::FileDescriptor            FdType;    // shorthand for file
                                                        // descriptor
-typedef baesu_StackTraceResolver_FileHelper Helper;
+typedef baesu_StackTraceResolver_FileHelper Obj;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
 static
 int getProcessId()
 {
@@ -134,8 +147,10 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
+    int veryVerbose = argc > 3;
     // int veryVeryVerbose = argc > 4;
+
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     // Note that we only have to create a tmp file on Unix platforms -- this
     // component is not used and thus is not tested on Windows.
@@ -175,94 +190,95 @@ int main(int argc, char *argv[])
                          "baesu_StackTraceResolver_FileHelper usage example\n"
                          "=================================================\n";
 
-        bslma_TestAllocator ta;
+//..
+    bslma_TestAllocator ta;
 
-        char fileNameBuffer[100];
-        sprintf(fileNameBuffer,
-                "/tmp/baesu_StackTraceResolver_FileHelper.usage.%d.txt",
-                getProcessId());
+    char fileNameBuffer[100];
+    sprintf(fileNameBuffer,
+            "/tmp/baesu_StackTraceResolver_FileHelper.usage.%d.txt",
+            getProcessId());
+//..
+// Make sure file does not already exist.
+//..
+    bdesu_FileUtil::remove(fileNameBuffer);
+//..
+// Next, Create the file and open a file descriptor to it.  The boolean
+// flags indicate that the file is writable, and not previously existing
+// (and therefore must be created).
+//..
+    FdType fd = FileUtil::open(fileNameBuffer,
+                               true,          // writable
+                               false);        // doesn't already exist
+    ASSERT(FileUtil::INVALID_FD != fd);
+//..
+// 64 char long string
+//..
+    const char *testString64 =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                                        "0123456789+-";
+//..
+// Populate the file with known data, with a zero byte at a known offset.
+//..
+    int rc;
+    for (int i = 0; i < 20; ++i) {
+        rc = FileUtil::write(fd, testString64, 64);
+        ASSERT(64 == rc);
+    }
 
-        // Make sure file does not already exist.
+    enum { OFFSET_OF_ZERO_BYTE = 7 * 64 };
 
-        bdesu_FileUtil::remove(fileNameBuffer);
+    rc = (int) FileUtil::seek(fd,
+                              OFFSET_OF_ZERO_BYTE,
+                              FileUtil::BDESU_SEEK_FROM_BEGINNING);
+    ASSERT(OFFSET_OF_ZERO_BYTE == rc);
 
-        // Next, Create the file and open a file descriptor to it.  The boolean
-        // flags indicate that the file is writable, and not previously
-        // existing (and therefore must be created).
+    rc = FileUtil::write(fd, "", 1);        // write the zero byte
+    ASSERT(1 == rc);
 
-        FdType fd = FileUtil::open(fileNameBuffer,
-                                   true,          // writable
-                                   false);        // doesn't already exist
-        ASSERT(FileUtil::INVALID_FD != fd);
+    rc = FileUtil::close(fd);
+    ASSERT(0 == rc);
 
-        // 64 char long string
+    {
+        baesu_StackTraceResolver_FileHelper helper(fileNameBuffer);
 
-        const char *testString64 =
-                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                                            "0123456789+-";
-
-        // Populate the file with known data, with a zero byte at a known
-        // offset.
-
-        int rc;
-        for (int i = 0; i < 20; ++i) {
-            rc = FileUtil::write(fd, testString64, 64);
-            ASSERT(64 == rc);
-        }
-
-        enum { OFFSET_OF_ZERO_BYTE = 7 * 64 };
-
-        rc = (int) FileUtil::seek(fd,
-                                  OFFSET_OF_ZERO_BYTE,
-                                  FileUtil::BDESU_SEEK_FROM_BEGINNING);
-        ASSERT(OFFSET_OF_ZERO_BYTE == rc);
-
-        rc = FileUtil::write(fd, "", 1);        // write the zero byte
-        ASSERT(1 == rc);
-
-        rc = FileUtil::close(fd);
+        char buf[100];
+        memset(buf, 0, sizeof(buf));
+        rc = helper.readExact(buf,
+                              6,                    // # chars to read
+                              128);                 // offset
         ASSERT(0 == rc);
+        ASSERT(!strcmp(buf, "abcdef"));
+//..
+// 'readExact' past EOF fails
+//..
+        rc = helper.readExact(buf,
+                              6,                    // # chars to read
+                              64 * 40);             // offset
+        ASSERT(0 != rc);
+//..
+// 'loadString' will read a zero terminated string at a given offset,
+// using a buffer passed in, and allocating memory for a new copy of
+// the string.
+//..
+        memset(buf, 'a', sizeof(buf));
+        char *result = helper.loadString(OFFSET_OF_ZERO_BYTE - 12,
+                                         buf,
+                                         sizeof(buf),
+                                         &ta);
 
-        {
-            baesu_StackTraceResolver_FileHelper helper(fileNameBuffer);
-
-            char buf[100];
-            memset(buf, 0, sizeof(buf));
-            rc = helper.readExact(buf,
-                                  6,                    // # chars to read
-                                  128);                 // offset
-            ASSERT(0 == rc);
-            ASSERT(!strcmp(buf, "abcdef"));
-
-            // 'readExact' past EOF fails
-
-            rc = helper.readExact(buf,
-                                  6,                    // # chars to read
-                                  64 * 40);             // offset
-            ASSERT(0 != rc);
-
-            // 'loadString' will read a zero terminated string at a given
-            // offset, using a buffer passed in, and allocating memory for a
-            // new copy of the string.
-
-            memset(buf, 'a', sizeof(buf));
-            char *result = helper.loadString(OFFSET_OF_ZERO_BYTE - 12,
-                                             buf,
-                                             sizeof(buf),
-                                             &ta);
-
-            ASSERT(12 == bsl::strlen(result));
-            ASSERT(!bsl::strcmp("0123456789+-", result));
-
-            // clean up
-
-            ta.deallocate(result);
-        }
-        bdesu_FileUtil::remove(fileNameBuffer);
+        ASSERT(12 == bsl::strlen(result));
+        ASSERT(!bsl::strcmp("0123456789+-", result));
+//..
+// clean up
+//..
+        ta.deallocate(result);
+    }
+    bdesu_FileUtil::remove(fileNameBuffer);
+//..
       }  break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'loadString' TEST
+        // CLASS METHOD 'loadString'
         //
         // Concern:
         //: 1 The method is able to load a string of various size.
@@ -270,23 +286,27 @@ int main(int argc, char *argv[])
         //: 2 The method will not read over 'scratchBufLength' number of
         //:   characters.
         //:
-        //: 3 Setting 'scratchBufLength' is 0 makes the method read 0 bytes.
-        //:
-        //: 4 The method behave as expected even if 'offset' is larger than
+        //: 3 The method behave as expected even if 'offset' is larger than
         //:   the file size.
         //:
-        //: 5 The method is declared as 'const'.
+        //: 4 The method is declared as 'const'.
         //:
-        //: 6 Any memory allocation is from the supplied 'basicAllocator'.
+        //: 5 Any memory allocation is from the supplied 'basicAllocator'.
         //:
-        //: 7 Any memory allocation is exception neutral.
+        //: 6 Any memory allocation is exception neutral.
+        //:
+        //: 7 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //  Create a file, open a helper on it, and call 'loadString' under
-        //  the following 3 conditions: the string is entirely within the file
-        //  and shorter than the passed buffer, the string is not terminated
-        //  before the end of the file, and the string is longer than the
-        //  passed buffer.
+        //: 1 Create a file, open a helper on it, and call 'loadString' under
+        //:   the following 3 conditions: the string is entirely within the
+        //:   file and shorter than the passed buffer, the string is not
+        //:   terminated before the end of the file, and the string is longer
+        //:   than the passed buffer.
+        //:
+        //: 2 Use the 'BSLS_ASSERTTEST_*' macros to verify that, in appropriate
+        //:   build modes, defensive checks are triggered for invalid
+        //:   arguments.
         //
         // Testing:
         //   char *loadString(Offset offset, char *scratchBuf, int len, *bA);
@@ -336,80 +356,101 @@ int main(int argc, char *argv[])
         rc = FileUtil::close(fd);
         ASSERT(0 == rc);
 
-        Helper helper(fileNameBuffer);
+        if (verbose) cout << "\nloadString" << endl;
+        {
+            const Obj X(fileNameBuffer);
 
-        char scratchBuf[2000];
-        bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
+            char scratchBuf[2000];
+            bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
 
-        // short strings
+            // short strings
 
-        char *result = helper.loadString(7 * 64 - 12,
-                                         scratchBuf,
-                                         sizeof(scratchBuf),
-                                         &ta);
-        ASSERT(!bsl::strcmp("0123456789+-", result));
+            char *result = X.loadString(7 * 64 - 12,
+                                        scratchBuf,
+                                        sizeof(scratchBuf),
+                                        &ta);
+            ASSERT(!bsl::strcmp("0123456789+-", result));
 
-        memset(result, 0, strlen(result) + 1);
-        ta.deallocate(result);
-        bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
+            memset(result, 0, strlen(result) + 1);
+            ta.deallocate(result);
+            bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
 
-        // short string reaching EOF with no zero termination
+            // short string reaching EOF with no zero termination
 
-        result = helper.loadString(20 * 64 - 12,
-                                   scratchBuf,
-                                   sizeof(scratchBuf),
-                                   &ta);
-        ASSERT(!bsl::strcmp("0123456789+-", result));
+            result = X.loadString(20 * 64 - 12,
+                                  scratchBuf,
+                                  sizeof(scratchBuf),
+                                  &ta);
+            ASSERT(!bsl::strcmp("0123456789+-", result));
 
-        memset(result, 0, strlen(result) + 1);
-        ta.deallocate(result);
-        bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
+            memset(result, 0, strlen(result) + 1);
+            ta.deallocate(result);
+            bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
 
-        // big strings
+            // big strings
 
-        char cmpBuf[2000];
-        for (int i = 0; i < 6; ++i) {
-            bsl::strcpy(cmpBuf + i * 64, testString64);
+            char cmpBuf[2000];
+            for (int i = 0; i < 6; ++i) {
+                bsl::strcpy(cmpBuf + i * 64, testString64);
+            }
+            ASSERT(64 * 6 == bsl::strlen(cmpBuf));
+
+            result = X.loadString(64,
+                                  scratchBuf,
+                                  sizeof(scratchBuf),
+                                  &ta);
+            ASSERT(!bsl::strcmp(cmpBuf, result));
+
+            memset(result, 0, strlen(result) + 1);
+            ta.deallocate(result);
+            bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
+
+            // big string reaching EOF with no zero termination
+
+            result = X.loadString((20 - 6) * 64,
+                                  scratchBuf,
+                                  sizeof(scratchBuf),
+                                  &ta);
+            ASSERT(!bsl::strcmp(cmpBuf, result));
+
+            memset(result, 0, strlen(result) + 1);
+            ta.deallocate(result);
+            bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
+
+            // exhausting size of scratchBuf without reaching zero termination
+
+            result = X.loadString((20 - 6) * 64,
+                                  scratchBuf,
+                                  27,
+                                  &ta);
+            LOOP_ASSERT(result,
+                        !bsl::strcmp("abcdefghijklmnopqrstuvwxyz", result));
+
+            memset(result, 0, strlen(result) + 1);
+            ta.deallocate(result);
+            bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
         }
-        ASSERT(64 * 6 == bsl::strlen(cmpBuf));
 
-        result = helper.loadString(64,
-                                   scratchBuf,
-                                   sizeof(scratchBuf),
-                                   &ta);
-        ASSERT(!bsl::strcmp(cmpBuf, result));
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
 
-        memset(result, 0, strlen(result) + 1);
-        ta.deallocate(result);
-        bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
+            if (veryVerbose) cout << "\tloadString" << endl;
+            {
+                char buf[1];
+                const Obj X(fileNameBuffer);
+                char *result;
+                ASSERT_PASS(result = X.loadString(0, buf, 1, &ta));
+                ta.deallocate(result);
 
-        // big string reaching EOF with no zero termination
-
-        result = helper.loadString((20 - 6) * 64,
-                                   scratchBuf,
-                                   sizeof(scratchBuf),
-                                   &ta);
-        ASSERT(!bsl::strcmp(cmpBuf, result));
-
-        memset(result, 0, strlen(result) + 1);
-        ta.deallocate(result);
-        bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
-
-        // exhausting size of scratchBuf without reaching zero termination
-
-        result = helper.loadString((20 - 6) * 64,
-                                   scratchBuf,
-                                   27,
-                                   &ta);
-        LOOP_ASSERT(result,!bsl::strcmp("abcdefghijklmnopqrstuvwxyz", result));
-
-        memset(result, 0, strlen(result) + 1);
-        ta.deallocate(result);
-        bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
+                ASSERT_FAIL(result = X.loadString(0,   0, 1, &ta));
+                ASSERT_FAIL(result = X.loadString(0, buf, 0, &ta));
+            }
+        }
       }  break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'readBytes' TEST
+        // CLASS METHOD 'readBytes'
         //
         // Concern:
         //: 1 The method read no more than 'numBytes'.
@@ -429,9 +470,13 @@ int main(int argc, char *argv[])
         //: 7 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //  Create a file, open it with a helper object and call 'readBytes'
-        //  twice, once to complete a read within the file and one to do a read
-        //  that runs into the end of the file.
+        //: 1 Use a table based approach, create a file, open it with a helper
+        //:   object and call 'readBytes' with varying arguments.  Verify that
+        //:   the results are as expected.
+        //:
+        //: 2 Use the 'BSLS_ASSERTTEST_*' macros to verify that, in appropriate
+        //:   build modes, defensive checks are triggered for invalid
+        //:   arguments.
         //
         // Testing:
         //   UintPtr readBytes(void *buf, UintPtr numBytes, Offset offset);
@@ -471,28 +516,77 @@ int main(int argc, char *argv[])
         int rc = FileUtil::close(fd);
         ASSERT(0 == rc);
 
-        Helper helper(fileNameBuffer);
+        if (verbose) cout << "\nTesting 'readBytes'" << endl;
 
-        char buf[1000];
-        bsl::memset(buf, 0, sizeof(buf));
+        static const struct {
+            int                  d_line;
+            bsls_Types::UintPtr  d_numBytes;
+            FileUtil::Offset     d_offset;
+            int                  d_eofFlag;  // reading pass EOF
+            const char          *d_result;
+        } DATA[] = {
+            //LINE  SIZE         OFFSET  FLAG   EXPECTED
+            //----  ----         ------  ----   --------
 
-        rc = helper.readBytes(buf, 10, 64);
-        ASSERT(10 == rc);
+            { L_,      0,             0,  'N',  "" },
+            { L_,      1,             0,  'N',  "a" },
+            { L_,     10,             0,  'N',  "abcdefghij" },
+            { L_,     10,            64,  'N',  "abcdefghij" },
+            { L_,      1,   64 * 10 - 1,  'N',  "-" },
+            { L_,     12,  64 * 10 - 12,  'N',  "0123456789+-" },
+            { L_,      0,       64 * 11,  'N',  "" },
+            { L_,      1,       64 * 10,  'Y',  "" },
+            { L_,     90,  64 * 10 - 12,  'Y',  "0123456789+-" },
+        };
 
-        ASSERT(!bsl::strcmp("abcdefghij", buf));
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bsl::memset(buf, 0, sizeof(buf));
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int                 LINE      = DATA[ti].d_line;
+            const bsls_Types::UintPtr SIZE      = DATA[ti].d_numBytes;
+            const FileUtil::Offset    OFFSET    = DATA[ti].d_offset;
+            const char                EOF_FLAG  = DATA[ti].d_eofFlag;
+            const char *const         EXP_RES   = DATA[ti].d_result;
+            const bsls_Types::UintPtr EXP_RC    = strlen(EXP_RES);
 
-        // test 'readBytes' handles EOF properly
+            const char FILL_CHAR = '@';
+            char       buf[100];
+            bsl::memset(buf, FILL_CHAR, sizeof(buf));
 
-        rc = helper.readBytes(buf, 100, 64 * 10 - 12);
-        ASSERT(12 == rc);
+            const Obj X(fileNameBuffer);
 
-        ASSERT(!bsl::strcmp("0123456789+-", buf));
+            const bsls_Types::UintPtr RC = X.readBytes(buf, SIZE, OFFSET);
+            LOOP_ASSERT(LINE, EXP_RC == RC);
+
+            if ('N' == EOF_FLAG) {
+                LOOP_ASSERT(LINE, SIZE == EXP_RC);
+            }
+            else {
+                LOOP_ASSERT(LINE, SIZE > EXP_RC);
+            }
+
+            LOOP_ASSERT(LINE, !bsl::memcmp(EXP_RES, buf, EXP_RC));
+            LOOP_ASSERT(LINE, FILL_CHAR == buf[EXP_RC]);
+                                                           // Check for overrun
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\treadBytes" << endl;
+            {
+                char buf[100];
+                const Obj X(fileNameBuffer);
+                ASSERT_PASS(X.readBytes(buf, 0, 0));
+                ASSERT_FAIL(X.readBytes(0,   0, 0));
+                ASSERT_FAIL(X.readBytes(buf, 0, -1));
+            }
+        }
       }  break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'readExact' test.
+        // CLASS METHOD 'readExact'.
         //
         // Concern:
         //: 1 The method read exactly 'numBytes'.
@@ -507,17 +601,20 @@ int main(int argc, char *argv[])
         //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //   Write to a file, open with with a helper, do a read within the
-        //   the file and verify that it succeeds and reads the correct data,
-        //   and do a read past the end of the file and verify that the read
-        //   fails as it should.
+        //: 1 Use a table based approach, create a file, open it with a helper
+        //:   object and call 'readBytes' with varying arguments.  Verify that
+        //:   the results are as expected.
+        //:
+        //: 2 Use the 'BSLS_ASSERTTEST_*' macros to verify that, in appropriate
+        //:   build modes, defensive checks are triggered for invalid
+        //:   arguments.
         //
         // Testing:
         //   int readExact(void *buf, UintPtr numBytes, Offset offset) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Breathing Test\n"
-                          << "==============\n";
+        if (verbose) cout << "CLASS METHOD 'readExact'\n"
+                          << "========================\n";
 
         char fileNameBuffer[256];
         bsl::sprintf(fileNameBuffer, fileNameTemplate, test, getProcessId());
@@ -529,7 +626,7 @@ int main(int argc, char *argv[])
 
         bdesu_FileUtil::remove(fileNameBuffer);
 
-        // Next, Create the file and open a file descriptor to it.  The boolean
+        // Next, create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
         // existing (and therefore must be created).
 
@@ -550,20 +647,68 @@ int main(int argc, char *argv[])
         int rc = FileUtil::close(fd);
         ASSERT(0 == rc);
 
-        Helper helper(fileNameBuffer);
+        if (verbose) cout << "\nTesting 'readExact'" << endl;
 
-        char buf[100];
-        bsl::memset(buf, 0, sizeof(buf));
+        static const struct {
+            int                  d_line;
+            bsls_Types::UintPtr  d_numBytes;
+            FileUtil::Offset     d_offset;
+            int                  d_eofFlag;  // reading pass EOF
+            const char          *d_result;
+        } DATA[] = {
+            //LINE  SIZE         OFFSET  FLAG   EXPECTED
+            //----  ----         ------  ----   --------
 
-        rc = helper.readExact(buf, 10, 64 * 10 - 12);
-        ASSERT(0 == rc);
+            { L_,      0,             0,  'N',  "" },
+            { L_,      1,             0,  'N',  "a" },
+            { L_,     10,             0,  'N',  "abcdefghij" },
+            { L_,     10,            64,  'N',  "abcdefghij" },
+            { L_,      1,   64 * 10 - 1,  'N',  "-" },
+            { L_,     12,  64 * 10 - 12,  'N',  "0123456789+-" },
+            { L_,      0,       64 * 11,  'N',  "" },
+            { L_,      1,       64 * 10,  'Y',  "" }, // read past EOF fails
+            { L_,     90,        64 * 9,  'Y',  "" }, // read past EOF fails
+        };
 
-        ASSERT(!bsl::strcmp("0123456789", buf));
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        // read past EOF fails
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int                 LINE     = DATA[ti].d_line;
+            const bsls_Types::UintPtr SIZE     = DATA[ti].d_numBytes;
+            const FileUtil::Offset    OFFSET   = DATA[ti].d_offset;
+            const char                EOF_FLAG = DATA[ti].d_eofFlag;
+            const char *const         EXP_RES   = DATA[ti].d_result;
 
-        rc = helper.readExact(buf, 100, 64 * 10);
-        ASSERT(0 != rc);
+            const char FILL_CHAR = '@';
+            char       buf[100];
+            bsl::memset(buf, FILL_CHAR, sizeof(buf));
+
+            const Obj X(fileNameBuffer);
+
+            rc = X.readExact(buf, SIZE, OFFSET);
+            if ('N' == EOF_FLAG) {
+                LOOP_ASSERT(LINE, 0 == rc);
+                LOOP_ASSERT(LINE, !bsl::memcmp(EXP_RES, buf, SIZE));
+                LOOP_ASSERT(LINE, FILL_CHAR == buf[SIZE]); // Check for overrun
+            }
+            else {
+                LOOP_ASSERT(LINE, 0 > rc);
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\treadExact" << endl;
+            {
+                char buf[100];
+                const Obj X(fileNameBuffer);
+                ASSERT_SAFE_PASS(X.readExact(buf, 0, 0));
+                ASSERT_SAFE_FAIL(X.readExact(0,   0, 0));
+                ASSERT_SAFE_FAIL(X.readExact(buf, 0, -1));
+            }
+        }
       }  break;
       case 2: {
         // --------------------------------------------------------------------
@@ -575,11 +720,59 @@ int main(int argc, char *argv[])
         //: 2 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
+        //: 1 Use the 'BSLS_ASSERTTEST_*' macros to verify that, in appropriate
+        //:   build modes, defensive checks are triggered for invalid
+        //:   arguments.
         //
         // Testing:
         //   baesu_StackTraceResolver_FileHelper(const char *fileName);
         //   ~baesu_StackTraceResolver_FileHelper();
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "CTOR & DTOR\n"
+                          << "===========\n";
+
+        char fileNameBuffer[256];
+        bsl::sprintf(fileNameBuffer, fileNameTemplate, test, getProcessId());
+        if (verbose) cout << "Filename: " << fileNameBuffer << endl;
+
+        FileGuard fg(fileNameBuffer);
+
+        // Then, make sure file does not already exist.
+
+        bdesu_FileUtil::remove(fileNameBuffer);
+
+        // Next, create the file and open a file descriptor to it.  The boolean
+        // flags indicate that the file is writable, and not previously
+        // existing (and therefore must be created).
+
+        FdType fd = FileUtil::open(fileNameBuffer,
+                                   true,              // writable
+                                   false);            // doesn't already exist
+        ASSERT(FileUtil::INVALID_FD != fd);
+
+        // 64 char long string
+
+        const char *testString64 =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
+
+        FileUtil::write(fd, testString64, 64);
+
+        int rc = FileUtil::close(fd);
+        ASSERT(0 == rc);
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\tconstructor" << endl;
+            {
+                ASSERT_PASS(Obj((const char *)fileNameBuffer));
+                ASSERT_FAIL(Obj("bogus"));
+                ASSERT_FAIL(Obj(NULL));
+            }
+        }
+
       }  break;
       case 1: {
         // --------------------------------------------------------------------
@@ -595,6 +788,54 @@ int main(int argc, char *argv[])
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "Breathing Test\n"
+                          << "==============\n";
+
+        char fileNameBuffer[256];
+        bsl::sprintf(fileNameBuffer, fileNameTemplate, test, getProcessId());
+        if (verbose) cout << "Filename: " << fileNameBuffer << endl;
+
+        FileGuard fg(fileNameBuffer);
+
+        // Then, make sure file does not already exist.
+
+        bdesu_FileUtil::remove(fileNameBuffer);
+
+        // Next, create the file and open a file descriptor to it.  The boolean
+        // flags indicate that the file is writable, and not previously
+        // existing (and therefore must be created).
+
+        FdType fd = FileUtil::open(fileNameBuffer,
+                                   true,              // writable
+                                   false);            // doesn't already exist
+        ASSERT(FileUtil::INVALID_FD != fd);
+
+        // 64 char long string
+
+        const char *testString64 =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
+
+        for (int i = 0; i < 10; ++i) {
+            FileUtil::write(fd, testString64, 64);
+        }
+
+        int rc = FileUtil::close(fd);
+        ASSERT(0 == rc);
+
+        {
+            const Obj X(fileNameBuffer);
+
+            char buf[100];
+            rc = X.readExact(buf, 1, 0);
+            ASSERT('a' == buf[0]);
+            ASSERT(0 == rc);
+
+            rc = X.readBytes(buf, 1, 0);
+            ASSERT('a' == buf[0]);
+            ASSERT(1 == rc);
+        }
+
       }  break;
 #else
       case 1: {
