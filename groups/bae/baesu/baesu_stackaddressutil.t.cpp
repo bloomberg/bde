@@ -167,60 +167,42 @@ static int findIndex(const void *retAddress)
     return ret;
 }
 
-// We do some black magic here to confuse optimizers
+// Have a volatile global in calculations to discourange optimizers from
+// inlining.
 
-int distractingGlobalFunc()
-    // Call a global function not in this module so that the optimizer can't
-    // figure out what's going on with all these static functions.
-    // All 'getStackAddresses' will do here is return 0, but the optimizer
-    // doesn't know that.
-{
-    return 1 + baesu_StackAddressUtil::getStackAddresses(0, 0);
-}
-
-// The functions must be static on Windows, '&' doesn't work very well on
-// Windows for global routines.  We prefer not to make them global when
-// possible, since that makes it harder for optimizing compilers to make
-// assumptions about them and short-circuit them.
-
-#undef   WINSTAT
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
-# define WINSTAT static
-#else
-# define WINSTAT
-#endif
+volatile int volatileGlobal = 2;
 
 // Then, we define a chain of functions that will call each other and do some
 // random calculation to generate some code, and eventually call 'func1' which
 // will call 'getAddresses' and verify that the addresses returned correspond
 // to the functions we expect them to.
 
-WINSTAT int func1();
-WINSTAT int func2()
+static int func1();
+static int func2()
 {
-    return 2 * func1() * distractingGlobalFunc();
+    return volatileGlobal * 2 * func1();
 }
-WINSTAT int func3()
+static int func3()
 {
-    return 3 * func2() * distractingGlobalFunc();
+    return volatileGlobal * 3 * func2();
 }
-WINSTAT int func4()
+static int func4()
 {
-    return 4 * func3() * distractingGlobalFunc();
+    return volatileGlobal * 4 * func3();
 }
-WINSTAT int func5()
+static int func5()
 {
-    return 5 * func4() * distractingGlobalFunc();
+    return volatileGlobal * 5 * func4();
 }
-WINSTAT int func6()
+static int func6()
 {
-    return 6 * func5() * distractingGlobalFunc();
+    return volatileGlobal * 6 * func5();
 }
 
 // Next, we define the macro FUNC_ADDRESS, which will take as an arg a
 // '&<function name>' and return a pointer to the actual beginning of the
 // function's code, which is a non-trivial and platform-dependent exercise.
-// (Note: this doesn't work on Windows).
+// (Note: this doesn't work on Windows for global routines).
 
 #if   defined(BSLS_PLATFORM__OS_HPUX)
 # define FUNC_ADDRESS(p) (((void **) (void *) (p))[sizeof(void *) == 4])

@@ -707,6 +707,10 @@ void case_4_top(bool demangle)
     }
 }
 
+// Take a global ptr to 'case_4_top' to discourage optimizer from inlining it.
+
+void (*case_4_top_ptr)(bool) = &case_4_top;
+
 namespace CASE_4 {
 
 bool middleCalled = false;
@@ -797,6 +801,10 @@ void case_3_Top(bool demangle)
         }
     }
 }
+
+// Take a global ptr to 'case_3_top' to prevent optimizer inlining it.
+
+void (*case_3_Top_Ptr)(bool) = &case_3_Top;
 
 namespace CASE_3 {
 
