@@ -133,7 +133,7 @@ BDES_IDENT("$Id: $")
 // Next, we define the macro FUNC_ADDRESS, which will take as an arg a
 // '&<function name>' and return a pointer to the actual beginning of the
 // function's code, which is a non-trivial and platform-dependent exercise.
-// (Note: this doesn't work on Windows).
+// (Note: this doesn't work on Windows for global routines).
 //..
 //  #if   defined(BSLS_PLATFORM__OS_HPUX)
 //  # define FUNC_ADDRESS(p) (((void **) (void *) (p))[sizeof(void *) == 4])
