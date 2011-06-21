@@ -227,9 +227,8 @@ class baesu_StackTrace {
         // bypass allocator is used by default to avoid heap allocation in
         // instances where the heap may have been corrupted.
 
-    // ~baesu_StackTrace();
-        // Destroy this object.  Note that this destructor is
-        // compiler-generated.
+    //! ~baesu_StackTrace() = default();
+        // Destroy this object.
 
     // MANIPULATORS
     baesu_StackTrace& operator=(const baesu_StackTrace& rhs);
