@@ -209,7 +209,8 @@ int main(int argc, char *argv[])
         ASSERT(Obj::nativeDefaultThreadStackSize() == (int) defaultSize);
 
         ASSERT(defaultSize > 0);
-        ASSERT(defaultSize < INT_MAX);
+        int maxint = bsl::numeric_limits<int>::max();
+        ASSERT(defaultSize <= static_cast<bsl::size_t>(maxint));
 
         if (verbose) P(defaultSize);
       } break;
