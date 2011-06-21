@@ -113,7 +113,8 @@ using namespace bsl;
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -281,6 +282,7 @@ class bslma_TestAllocatorMonitor {
 
   public:
     // CREATORS
+    explicit
     bslma_TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
         // TBD
 
@@ -464,7 +466,7 @@ int ggg(Obj *object, const char *spec, int verboseFlag = 1)
                 cout << "Error, bad character ('" << spec[i] << "') in spec \""
                      << spec << "\" at position " << i << '.' << endl;
             }
-            return i;  // Discontinue processing this spec.
+            return i;  // Discontinue processing this spec.           // RETURN
         }
    }
    return SUCCESS;
@@ -486,22 +488,29 @@ Obj g(const char *spec)
 }
 
 class EqualityTester {
-private:
-        const Obj   *A;
-        const Obj   *B;
-public:
-        EqualityTester(const Obj *a, const Obj *b);
-        ~EqualityTester();
+
+  // DATA
+  private:
+    const Obj   *A;
+    const Obj   *B;
+
+  public:
+    // CREATORS
+    EqualityTester(const Obj *a, const Obj *b);
+    ~EqualityTester();
+
 };
 
 // CREATORS
-inline EqualityTester::EqualityTester(const Obj *a, const Obj *b)
+inline
+EqualityTester::EqualityTester(const Obj *a, const Obj *b)
 : A(a)
 , B(b)
 {
 }
 
-inline EqualityTester::~EqualityTester()
+inline
+EqualityTester::~EqualityTester()
 {
         ASSERT(*A == *B);
 }
@@ -554,7 +563,7 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show the intended usage of this component.
 //
-///Example 1: Configuring a stack-trace value
+///Example 1: Configuring a Stack-Trace Value
 /// - - - - - - - - - - - - - - - - - - - - -
 // In the following example we demonstrate how to create a 'baesu_StackTrace'
 // object, then both modify and access its value.
@@ -1168,6 +1177,1474 @@ int main(int argc, char *argv[])
         ASSERT(U[0] == FC);    ASSERT(U[1] == FB);    ASSERT(U[2] == FA);
 
       } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING PRINT METHOD
+        //   The print method formats the value of the object directly from
+        //   the underlying state information according to supplied arguments.
+        //   Ensure that the method formats properly for:
+        //     - empty and non-empty values
+        //     - negative, 0, and positive levels.
+        //     - 0 and non-zero spaces per level.
+        // Plan:
+        //   For each of an enumerated set of object, 'level', and
+        //   'spacesPerLevel' values, ordered by increasing object length, use
+        //   'ostrstream' to 'print' that object's value, using the tabulated
+        //   parameters, to two separate character buffers each with different
+        //   initial values.  Compare the contents of these buffers with the
+        //   literal expected output format and verify that the characters
+        //   beyond the null characters are unaffected in both buffers.
+        //
+        // Testing:
+        //   ostream& print(ostream& stream, int level, int spacesPerLevel);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PRINT" << endl
+                          << "=====" << endl;
+
+        if (verbose) cout << "Tested in case 5." << endl;
+
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // 'operator[]'
+        //
+        // Concern:
+        //: 1 The 'operator[]' method must be able to modify its indexed
+        //:   element when used as an lvalue, but must not modify its indexed
+        //:   element when used as an rvalue.
+        //
+        // Plan:
+        //: 1 Use the enumeration technique to a depth of 5 for both the normal
+        //:   and alias cases.  Data is tabulated explicitly for the 'replace'
+        //:   method that takes a range from a source array (or itself, for the
+        //:   aliasing test); the "scalar" 'replace' test selects a subset of
+        //:   the table by testing 'if (1 == NE)' where 'NE' is the tabulated
+        //:   number of elements to replace.  'operator[]' is also tested using
+        //:   the scalar 'replace' data, but using explicit assignment to
+        //:   achieve the "expected" result.
+        //:   o Since 'baesu_StackTrace' does not currently provide a 'replace'
+        //:     method, those tests are omitted.
+        //:   o In the "canonical state" (black-box) tests, we confirm that the
+        //:     source is unmodified by the method call, and that its
+        //:     subsequent destruction has no effect on the destination object.
+        //:   o In all cases we want to make sure that after the application of
+        //:     the operation, the object is allowed to go out of scope
+        //:     directly to enable the destructor to assert object invariants.
+        //:   o Each object constructed should be wrapped in separate BSLMA
+        //:     test assert macros and use 'gg' as an optimization.
+        //
+        // Testing:
+        //   baesu_StackTraceFrame& operator[](int index);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "'operator[]'" << endl
+                          << "============" << endl;
+
+        if (verbose) cout << "\nNo Aliasing" << endl;
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                const char *d_daSpec;   // initial (destination) array
+                int         d_di;       // index at which to replace into da
+                const char *d_saSpec;   // source array
+                int         d_si;       // index at which to replace from sa
+                int         d_ne;       // number of elements to replace
+                const char *d_expSpec;  // expected array value
+            } DATA[] = {
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 0
+                { L_,   "",      0,  "",      0,  0, ""      },
+
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 1
+                { L_,   "A",     0,  "",      0,  0, "A"     },
+                { L_,   "A",     1,  "",      0,  0, "A"     },
+
+                { L_,   "",      0,  "B",     0,  0, ""      },
+                { L_,   "",      0,  "B",     1,  0, ""      },
+
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 2
+                { L_,   "AB",    0,  "",      0,  0, "AB"    },
+                { L_,   "AB",    1,  "",      0,  0, "AB"    },
+                { L_,   "AB",    2,  "",      0,  0, "AB"    },
+
+                { L_,   "A",     0,  "B",     0,  0, "A"     },
+                { L_,   "A",     0,  "B",     0,  1, "B"     },
+                { L_,   "A",     0,  "B",     1,  0, "A"     },
+                { L_,   "A",     1,  "B",     0,  0, "A"     },
+                { L_,   "A",     1,  "B",     1,  0, "A"     },
+
+                { L_,   "",      0,  "AB",    0,  0, ""      },
+                { L_,   "",      0,  "AB",    1,  0, ""      },
+                { L_,   "",      0,  "AB",    2,  0, ""      },
+
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 3
+                { L_,   "ABC",   0,  "",      0,  0, "ABC"   },
+                { L_,   "ABC",   1,  "",      0,  0, "ABC"   },
+                { L_,   "ABC",   2,  "",      0,  0, "ABC"   },
+                { L_,   "ABC",   3,  "",      0,  0, "ABC"   },
+
+                { L_,   "AB",    0,  "C",     0,  0, "AB"    },
+                { L_,   "AB",    0,  "C",     0,  1, "CB"    },
+                { L_,   "AB",    0,  "C",     1,  0, "AB"    },
+                { L_,   "AB",    1,  "C",     0,  0, "AB"    },
+                { L_,   "AB",    1,  "C",     0,  1, "AC"    },
+                { L_,   "AB",    1,  "C",     1,  0, "AB"    },
+                { L_,   "AB",    2,  "C",     0,  0, "AB"    },
+                { L_,   "AB",    2,  "C",     1,  0, "AB"    },
+
+                { L_,   "A",     0,  "BC",    0,  0, "A"     },
+                { L_,   "A",     0,  "BC",    0,  1, "B"     },
+                { L_,   "A",     0,  "BC",    1,  0, "A"     },
+                { L_,   "A",     0,  "BC",    1,  1, "C"     },
+                { L_,   "A",     0,  "BC",    2,  0, "A"     },
+                { L_,   "A",     1,  "BC",    0,  0, "A"     },
+                { L_,   "A",     1,  "BC",    1,  0, "A"     },
+                { L_,   "A",     1,  "BC",    2,  0, "A"     },
+
+                { L_,   "",      0,  "ABC",   0,  0, ""      },
+                { L_,   "",      0,  "ABC",   1,  0, ""      },
+                { L_,   "",      0,  "ABC",   2,  0, ""      },
+                { L_,   "",      0,  "ABC",   3,  0, ""      },
+
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 4
+                { L_,   "ABCD",  0,  "",      0,  0, "ABCD"  },
+                { L_,   "ABCD",  1,  "",      0,  0, "ABCD"  },
+                { L_,   "ABCD",  2,  "",      0,  0, "ABCD"  },
+                { L_,   "ABCD",  3,  "",      0,  0, "ABCD"  },
+                { L_,   "ABCD",  4,  "",      0,  0, "ABCD"  },
+
+                { L_,   "ABC",   0,  "D",     0,  0, "ABC"   },
+                { L_,   "ABC",   0,  "D",     0,  1, "DBC"   },
+                { L_,   "ABC",   0,  "D",     1,  0, "ABC"   },
+                { L_,   "ABC",   1,  "D",     0,  0, "ABC"   },
+                { L_,   "ABC",   1,  "D",     0,  1, "ADC"   },
+                { L_,   "ABC",   1,  "D",     1,  0, "ABC"   },
+                { L_,   "ABC",   2,  "D",     0,  0, "ABC"   },
+                { L_,   "ABC",   2,  "D",     0,  1, "ABD"   },
+                { L_,   "ABC",   2,  "D",     1,  0, "ABC"   },
+                { L_,   "ABC",   3,  "D",     0,  0, "ABC"   },
+                { L_,   "ABC",   3,  "D",     1,  0, "ABC"   },
+
+                { L_,   "AB",    0,  "CD",    0,  0, "AB"    },
+                { L_,   "AB",    0,  "CD",    0,  1, "CB"    },
+                { L_,   "AB",    0,  "CD",    0,  2, "CD"    },
+                { L_,   "AB",    0,  "CD",    1,  0, "AB"    },
+                { L_,   "AB",    0,  "CD",    1,  1, "DB"    },
+                { L_,   "AB",    0,  "CD",    2,  0, "AB"    },
+                { L_,   "AB",    1,  "CD",    0,  0, "AB"    },
+                { L_,   "AB",    1,  "CD",    0,  1, "AC"    },
+                { L_,   "AB",    1,  "CD",    1,  0, "AB"    },
+                { L_,   "AB",    1,  "CD",    1,  1, "AD"    },
+                { L_,   "AB",    1,  "CD",    2,  0, "AB"    },
+                { L_,   "AB",    2,  "CD",    0,  0, "AB"    },
+                { L_,   "AB",    2,  "CD",    1,  0, "AB"    },
+                { L_,   "AB",    2,  "CD",    2,  0, "AB"    },
+
+                { L_,   "A",     0,  "BCD",   0,  0, "A"     },
+                { L_,   "A",     0,  "BCD",   0,  1, "B"     },
+                { L_,   "A",     0,  "BCD",   1,  0, "A"     },
+                { L_,   "A",     0,  "BCD",   1,  1, "C"     },
+                { L_,   "A",     0,  "BCD",   2,  0, "A"     },
+                { L_,   "A",     0,  "BCD",   2,  1, "D"     },
+                { L_,   "A",     0,  "BCD",   3,  0, "A"     },
+                { L_,   "A",     1,  "BCD",   0,  0, "A"     },
+                { L_,   "A",     1,  "BCD",   1,  0, "A"     },
+                { L_,   "A",     1,  "BCD",   2,  0, "A"     },
+                { L_,   "A",     1,  "BCD",   3,  0, "A"     },
+
+                { L_,   "",      0,  "ABCD",  0,  0, ""      },
+                { L_,   "",      0,  "ABCD",  1,  0, ""      },
+                { L_,   "",      0,  "ABCD",  2,  0, ""      },
+                { L_,   "",      0,  "ABCD",  3,  0, ""      },
+                { L_,   "",      0,  "ABCD",  4,  0, ""      },
+
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 5
+                { L_,   "ABCDE", 0,  "",      0,  0, "ABCDE" },
+                { L_,   "ABCDE", 1,  "",      0,  0, "ABCDE" },
+                { L_,   "ABCDE", 2,  "",      0,  0, "ABCDE" },
+                { L_,   "ABCDE", 3,  "",      0,  0, "ABCDE" },
+                { L_,   "ABCDE", 4,  "",      0,  0, "ABCDE" },
+                { L_,   "ABCDE", 5,  "",      0,  0, "ABCDE" },
+
+                { L_,   "ABCD",  0,  "E",     0,  0, "ABCD"  },
+                { L_,   "ABCD",  0,  "E",     0,  1, "EBCD"  },
+                { L_,   "ABCD",  0,  "E",     1,  0, "ABCD"  },
+                { L_,   "ABCD",  1,  "E",     0,  0, "ABCD"  },
+                { L_,   "ABCD",  1,  "E",     0,  1, "AECD"  },
+                { L_,   "ABCD",  1,  "E",     1,  0, "ABCD"  },
+                { L_,   "ABCD",  2,  "E",     0,  0, "ABCD"  },
+                { L_,   "ABCD",  2,  "E",     0,  1, "ABED"  },
+                { L_,   "ABCD",  2,  "E",     1,  0, "ABCD"  },
+                { L_,   "ABCD",  3,  "E",     0,  0, "ABCD"  },
+                { L_,   "ABCD",  3,  "E",     0,  1, "ABCE"  },
+                { L_,   "ABCD",  3,  "E",     1,  0, "ABCD"  },
+                { L_,   "ABCD",  4,  "E",     0,  0, "ABCD"  },
+                { L_,   "ABCD",  4,  "E",     1,  0, "ABCD"  },
+
+                { L_,   "ABC",   0,  "DE",    0,  0, "ABC"   },
+                { L_,   "ABC",   0,  "DE",    0,  1, "DBC"   },
+                { L_,   "ABC",   0,  "DE",    0,  2, "DEC"   },
+                { L_,   "ABC",   0,  "DE",    1,  0, "ABC"   },
+                { L_,   "ABC",   0,  "DE",    1,  1, "EBC"   },
+                { L_,   "ABC",   0,  "DE",    2,  0, "ABC"   },
+                { L_,   "ABC",   1,  "DE",    0,  0, "ABC"   },
+                { L_,   "ABC",   1,  "DE",    0,  1, "ADC"   },
+                { L_,   "ABC",   1,  "DE",    0,  2, "ADE"   },
+                { L_,   "ABC",   1,  "DE",    1,  0, "ABC"   },
+                { L_,   "ABC",   1,  "DE",    1,  1, "AEC"   },
+                { L_,   "ABC",   1,  "DE",    2,  0, "ABC"   },
+                { L_,   "ABC",   2,  "DE",    0,  0, "ABC"   },
+                { L_,   "ABC",   2,  "DE",    0,  1, "ABD"   },
+                { L_,   "ABC",   2,  "DE",    1,  0, "ABC"   },
+                { L_,   "ABC",   2,  "DE",    1,  1, "ABE"   },
+                { L_,   "ABC",   2,  "DE",    2,  0, "ABC"   },
+                { L_,   "ABC",   3,  "DE",    0,  0, "ABC"   },
+                { L_,   "ABC",   3,  "DE",    1,  0, "ABC"   },
+                { L_,   "ABC",   3,  "DE",    2,  0, "ABC"   },
+
+                { L_,   "AB",    0,  "CDE",   0,  0, "AB"    },
+                { L_,   "AB",    0,  "CDE",   0,  1, "CB"    },
+                { L_,   "AB",    0,  "CDE",   0,  2, "CD"    },
+                { L_,   "AB",    0,  "CDE",   1,  0, "AB"    },
+                { L_,   "AB",    0,  "CDE",   1,  1, "DB"    },
+                { L_,   "AB",    0,  "CDE",   2,  0, "AB"    },
+                { L_,   "AB",    0,  "CDE",   2,  1, "EB"    },
+                { L_,   "AB",    0,  "CDE",   3,  0, "AB"    },
+                { L_,   "AB",    1,  "CDE",   0,  0, "AB"    },
+                { L_,   "AB",    1,  "CDE",   0,  1, "AC"    },
+                { L_,   "AB",    1,  "CDE",   1,  0, "AB"    },
+                { L_,   "AB",    1,  "CDE",   1,  1, "AD"    },
+                { L_,   "AB",    1,  "CDE",   2,  0, "AB"    },
+                { L_,   "AB",    1,  "CDE",   2,  1, "AE"    },
+                { L_,   "AB",    1,  "CDE",   3,  0, "AB"    },
+                { L_,   "AB",    2,  "CDE",   0,  0, "AB"    },
+                { L_,   "AB",    2,  "CDE",   1,  0, "AB"    },
+                { L_,   "AB",    2,  "CDE",   2,  0, "AB"    },
+                { L_,   "AB",    2,  "CDE",   3,  0, "AB"    },
+
+                { L_,   "A",     0,  "BCDE",  0,  0, "A"     },
+                { L_,   "A",     0,  "BCDE",  0,  1, "B"     },
+                { L_,   "A",     0,  "BCDE",  1,  0, "A"     },
+                { L_,   "A",     0,  "BCDE",  1,  1, "C"     },
+                { L_,   "A",     0,  "BCDE",  2,  0, "A"     },
+                { L_,   "A",     0,  "BCDE",  2,  1, "D"     },
+                { L_,   "A",     0,  "BCDE",  3,  0, "A"     },
+                { L_,   "A",     0,  "BCDE",  3,  1, "E"     },
+                { L_,   "A",     0,  "BCDE",  4,  0, "A"     },
+                { L_,   "A",     1,  "BCDE",  0,  0, "A"     },
+                { L_,   "A",     1,  "BCDE",  1,  0, "A"     },
+                { L_,   "A",     1,  "BCDE",  2,  0, "A"     },
+                { L_,   "A",     1,  "BCDE",  3,  0, "A"     },
+                { L_,   "A",     1,  "BCDE",  4,  0, "A"     },
+
+                { L_,   "",      0,  "ABCDE", 0,  0, ""      },
+                { L_,   "",      0,  "ABCDE", 1,  0, ""      },
+                { L_,   "",      0,  "ABCDE", 2,  0, ""      },
+                { L_,   "",      0,  "ABCDE", 3,  0, ""      },
+                { L_,   "",      0,  "ABCDE", 4,  0, ""      },
+                { L_,   "",      0,  "ABCDE", 5,  0, ""      },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            int oldDepth = -1;
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int   LINE   = DATA[ti].d_lineNum;
+                const char *D_SPEC = DATA[ti].d_daSpec;
+                const int   DI     = DATA[ti].d_di;
+                const char *S_SPEC = DATA[ti].d_saSpec;
+                const int   SI     = DATA[ti].d_si;
+                const int   NE     = DATA[ti].d_ne;
+                const char *E_SPEC = DATA[ti].d_expSpec;
+
+                const int   DEPTH  = (int) strlen(D_SPEC) + strlen(S_SPEC);
+                if (DEPTH > oldDepth) {
+                    oldDepth = DEPTH;
+                    if (verbose) { cout << '\t';  P(DEPTH); }
+                }
+
+                const Obj DD(g(D_SPEC));          // control for destination
+                const Obj SS(g(S_SPEC));          // control for source
+                const Obj EE(g(E_SPEC));          // control for expected value
+
+                if (veryVerbose) {
+                    cout << "\t  =================================="
+                                "==================================" << endl;
+                    cout << "\t  "; P_(D_SPEC); P_(DI); P_(S_SPEC);
+                                                P_(SI); P_(NE); P(E_SPEC);
+                    cout << "\t\t"; P(DD);
+                    cout << "\t\t"; P(SS);
+                    cout << "\t\t"; P(EE);
+
+                    cout << "\t\t\t---------- BLACK BOX ----------" << endl;
+                }
+
+                if (veryVerbose) cout << "\t\toperator[](index)" << endl;
+                if (1 == NE) {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    Obj x(DD, &testAllocator);  const Obj &X = x;
+                    {
+                        Obj s(SS, &testAllocator);  const Obj &S = s;
+                        if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
+                        x[DI] = s[SI];                  // source non-'const'
+                        if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
+                        LOOP_ASSERT(LINE, EE == X);
+                        LOOP_ASSERT(LINE, SS == S);     // source unchanged?
+                    }
+                    LOOP_ASSERT(LINE, EE == X);  // source is out of scope
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                }
+
+                if (veryVerbose) {
+                    cout << "\t\t\t---------- WHITE BOX ----------" << endl;
+                }
+
+                Obj x(&testAllocator);  const Obj &X = x;
+
+                const int STRETCH_SIZE = 50;
+
+                stretchRemoveAll(&x, STRETCH_SIZE);
+
+                if (veryVerbose) cout << "\t\toperator[](int index)" << endl;
+                if (1 == NE) {
+                    x.removeAll();  gg(&x, D_SPEC);
+                    if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
+                    { Q(debug)  P_(DI) P_(x.length()) P_(SI) P(SS.length()) }
+                    x[DI] = SS[SI];
+                    if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
+                    LOOP_ASSERT(LINE, EE == X);
+                }
+            }
+        }
+
+        //---------------------------------------------------------------------
+
+        if (verbose) cout <<
+            "\nTesting x.replace(di, sa, si, ne) et. al. (aliasing)" << endl;
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                const char *d_xSpec;    // initial array (= srcArray)
+                int         d_di;       // index at which to insert into x
+                int         d_si;       // index at which to insert from x
+                int         d_ne;       // number of elements to insert
+                const char *d_expSpec;  // expected array value
+            } DATA[] = {
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 0
+                { L_,   "",      0,  0,  0,  ""      },
+
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 1
+                { L_,   "A",     0,  0,  0,  "A"     },
+                { L_,   "A",     0,  0,  1,  "A"     },
+                { L_,   "A",     0,  1,  0,  "A"     },
+
+                { L_,   "A",     1,  0,  0,  "A"     },
+                { L_,   "A",     1,  1,  0,  "A"     },
+
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 2
+                { L_,   "AB",    0,  0,  0,  "AB"    },
+                { L_,   "AB",    0,  0,  1,  "AB"    },
+                { L_,   "AB",    0,  0,  2,  "AB"    },
+                { L_,   "AB",    0,  1,  0,  "AB"    },
+                { L_,   "AB",    0,  1,  1,  "BB"    },
+                { L_,   "AB",    0,  2,  0,  "AB"    },
+
+                { L_,   "AB",    1,  0,  0,  "AB"    },
+                { L_,   "AB",    1,  0,  1,  "AA"    },
+                { L_,   "AB",    1,  1,  0,  "AB"    },
+                { L_,   "AB",    1,  1,  1,  "AB"    },
+                { L_,   "AB",    1,  2,  0,  "AB"    },
+
+                { L_,   "AB",    2,  0,  0,  "AB"    },
+                { L_,   "AB",    2,  1,  0,  "AB"    },
+                { L_,   "AB",    2,  2,  0,  "AB"    },
+
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 3
+                { L_,   "ABC",   0,  0,  0,  "ABC"   },
+                { L_,   "ABC",   0,  0,  1,  "ABC"   },
+                { L_,   "ABC",   0,  0,  2,  "ABC"   },
+                { L_,   "ABC",   0,  0,  3,  "ABC"   },
+                { L_,   "ABC",   0,  1,  0,  "ABC"   },
+                { L_,   "ABC",   0,  1,  1,  "BBC"   },
+                { L_,   "ABC",   0,  1,  2,  "BCC"   },
+                { L_,   "ABC",   0,  2,  0,  "ABC"   },
+                { L_,   "ABC",   0,  2,  1,  "CBC"   },
+                { L_,   "ABC",   0,  3,  0,  "ABC"   },
+
+                { L_,   "ABC",   1,  0,  0,  "ABC"   },
+                { L_,   "ABC",   1,  0,  1,  "AAC"   },
+                { L_,   "ABC",   1,  0,  2,  "AAB"   },
+                { L_,   "ABC",   1,  1,  0,  "ABC"   },
+                { L_,   "ABC",   1,  1,  1,  "ABC"   },
+                { L_,   "ABC",   1,  1,  2,  "ABC"   },
+                { L_,   "ABC",   1,  2,  0,  "ABC"   },
+                { L_,   "ABC",   1,  2,  1,  "ACC"   },
+                { L_,   "ABC",   1,  3,  0,  "ABC"   },
+
+                { L_,   "ABC",   2,  0,  0,  "ABC"   },
+                { L_,   "ABC",   2,  0,  1,  "ABA"   },
+                { L_,   "ABC",   2,  1,  0,  "ABC"   },
+                { L_,   "ABC",   2,  1,  1,  "ABB"   },
+                { L_,   "ABC",   2,  2,  0,  "ABC"   },
+                { L_,   "ABC",   2,  2,  1,  "ABC"   },
+                { L_,   "ABC",   2,  3,  0,  "ABC"   },
+
+                { L_,   "ABC",   3,  0,  0,  "ABC"   },
+                { L_,   "ABC",   3,  1,  0,  "ABC"   },
+                { L_,   "ABC",   3,  2,  0,  "ABC"   },
+                { L_,   "ABC",   3,  3,  0,  "ABC"   },
+
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 4
+                { L_,   "ABCD",  0,  0,  0,  "ABCD"  },
+                { L_,   "ABCD",  0,  0,  1,  "ABCD"  },
+                { L_,   "ABCD",  0,  0,  2,  "ABCD"  },
+                { L_,   "ABCD",  0,  0,  3,  "ABCD"  },
+                { L_,   "ABCD",  0,  0,  4,  "ABCD"  },
+                { L_,   "ABCD",  0,  1,  0,  "ABCD"  },
+                { L_,   "ABCD",  0,  1,  1,  "BBCD"  },
+                { L_,   "ABCD",  0,  1,  2,  "BCCD"  },
+                { L_,   "ABCD",  0,  1,  3,  "BCDD"  },
+                { L_,   "ABCD",  0,  2,  0,  "ABCD"  },
+                { L_,   "ABCD",  0,  2,  1,  "CBCD"  },
+                { L_,   "ABCD",  0,  2,  2,  "CDCD"  },
+                { L_,   "ABCD",  0,  3,  0,  "ABCD"  },
+                { L_,   "ABCD",  0,  3,  1,  "DBCD"  },
+                { L_,   "ABCD",  0,  4,  0,  "ABCD"  },
+
+                { L_,   "ABCD",  1,  0,  0,  "ABCD"  },
+                { L_,   "ABCD",  1,  0,  1,  "AACD"  },
+                { L_,   "ABCD",  1,  0,  2,  "AABD"  },
+                { L_,   "ABCD",  1,  0,  3,  "AABC"  },
+                { L_,   "ABCD",  1,  1,  0,  "ABCD"  },
+                { L_,   "ABCD",  1,  1,  1,  "ABCD"  },
+                { L_,   "ABCD",  1,  1,  2,  "ABCD"  },
+                { L_,   "ABCD",  1,  1,  3,  "ABCD"  },
+                { L_,   "ABCD",  1,  2,  0,  "ABCD"  },
+                { L_,   "ABCD",  1,  2,  1,  "ACCD"  },
+                { L_,   "ABCD",  1,  2,  2,  "ACDD"  },
+                { L_,   "ABCD",  1,  3,  0,  "ABCD"  },
+                { L_,   "ABCD",  1,  3,  1,  "ADCD"  },
+                { L_,   "ABCD",  1,  4,  0,  "ABCD"  },
+
+                { L_,   "ABCD",  2,  0,  0,  "ABCD"  },
+                { L_,   "ABCD",  2,  0,  1,  "ABAD"  },
+                { L_,   "ABCD",  2,  0,  2,  "ABAB"  },
+                { L_,   "ABCD",  2,  1,  0,  "ABCD"  },
+                { L_,   "ABCD",  2,  1,  1,  "ABBD"  },
+                { L_,   "ABCD",  2,  1,  2,  "ABBC"  },
+                { L_,   "ABCD",  2,  2,  0,  "ABCD"  },
+                { L_,   "ABCD",  2,  2,  1,  "ABCD"  },
+                { L_,   "ABCD",  2,  2,  2,  "ABCD"  },
+                { L_,   "ABCD",  2,  3,  0,  "ABCD"  },
+                { L_,   "ABCD",  2,  3,  1,  "ABDD"  },
+                { L_,   "ABCD",  2,  4,  0,  "ABCD"  },
+
+                { L_,   "ABCD",  3,  0,  0,  "ABCD"  },
+                { L_,   "ABCD",  3,  0,  1,  "ABCA"  },
+                { L_,   "ABCD",  3,  1,  0,  "ABCD"  },
+                { L_,   "ABCD",  3,  1,  1,  "ABCB"  },
+                { L_,   "ABCD",  3,  2,  0,  "ABCD"  },
+                { L_,   "ABCD",  3,  2,  1,  "ABCC"  },
+                { L_,   "ABCD",  3,  3,  0,  "ABCD"  },
+                { L_,   "ABCD",  3,  3,  1,  "ABCD"  },
+                { L_,   "ABCD",  3,  4,  0,  "ABCD"  },
+
+                { L_,   "ABCD",  4,  0,  0,  "ABCD"  },
+                { L_,   "ABCD",  4,  1,  0,  "ABCD"  },
+                { L_,   "ABCD",  4,  2,  0,  "ABCD"  },
+                { L_,   "ABCD",  4,  3,  0,  "ABCD"  },
+                { L_,   "ABCD",  4,  4,  0,  "ABCD"  },
+
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 5
+                { L_,   "ABCDE", 0,  0,  0,  "ABCDE" },
+                { L_,   "ABCDE", 0,  0,  1,  "ABCDE" },
+                { L_,   "ABCDE", 0,  0,  2,  "ABCDE" },
+                { L_,   "ABCDE", 0,  0,  3,  "ABCDE" },
+                { L_,   "ABCDE", 0,  0,  4,  "ABCDE" },
+                { L_,   "ABCDE", 0,  0,  5,  "ABCDE" },
+                { L_,   "ABCDE", 0,  1,  0,  "ABCDE" },
+                { L_,   "ABCDE", 0,  1,  1,  "BBCDE" },
+                { L_,   "ABCDE", 0,  1,  2,  "BCCDE" },
+                { L_,   "ABCDE", 0,  1,  3,  "BCDDE" },
+                { L_,   "ABCDE", 0,  1,  4,  "BCDEE" },
+                { L_,   "ABCDE", 0,  2,  0,  "ABCDE" },
+                { L_,   "ABCDE", 0,  2,  1,  "CBCDE" },
+                { L_,   "ABCDE", 0,  2,  2,  "CDCDE" },
+                { L_,   "ABCDE", 0,  2,  3,  "CDEDE" },
+                { L_,   "ABCDE", 0,  3,  0,  "ABCDE" },
+                { L_,   "ABCDE", 0,  3,  1,  "DBCDE" },
+                { L_,   "ABCDE", 0,  3,  2,  "DECDE" },
+                { L_,   "ABCDE", 0,  4,  0,  "ABCDE" },
+                { L_,   "ABCDE", 0,  4,  1,  "EBCDE" },
+                { L_,   "ABCDE", 0,  5,  0,  "ABCDE" },
+
+                { L_,   "ABCDE", 1,  0,  0,  "ABCDE" },
+                { L_,   "ABCDE", 1,  0,  1,  "AACDE" },
+                { L_,   "ABCDE", 1,  0,  2,  "AABDE" },
+                { L_,   "ABCDE", 1,  0,  3,  "AABCE" },
+                { L_,   "ABCDE", 1,  0,  4,  "AABCD" },
+                { L_,   "ABCDE", 1,  1,  0,  "ABCDE" },
+                { L_,   "ABCDE", 1,  1,  1,  "ABCDE" },
+                { L_,   "ABCDE", 1,  1,  2,  "ABCDE" },
+                { L_,   "ABCDE", 1,  1,  3,  "ABCDE" },
+                { L_,   "ABCDE", 1,  1,  4,  "ABCDE" },
+                { L_,   "ABCDE", 1,  2,  0,  "ABCDE" },
+                { L_,   "ABCDE", 1,  2,  1,  "ACCDE" },
+                { L_,   "ABCDE", 1,  2,  2,  "ACDDE" },
+                { L_,   "ABCDE", 1,  2,  3,  "ACDEE" },
+                { L_,   "ABCDE", 1,  3,  0,  "ABCDE" },
+                { L_,   "ABCDE", 1,  3,  1,  "ADCDE" },
+                { L_,   "ABCDE", 1,  3,  2,  "ADEDE" },
+                { L_,   "ABCDE", 1,  4,  0,  "ABCDE" },
+                { L_,   "ABCDE", 1,  4,  1,  "AECDE" },
+                { L_,   "ABCDE", 1,  5,  0,  "ABCDE" },
+
+                { L_,   "ABCDE", 2,  0,  0,  "ABCDE" },
+                { L_,   "ABCDE", 2,  0,  1,  "ABADE" },
+                { L_,   "ABCDE", 2,  0,  2,  "ABABE" },
+                { L_,   "ABCDE", 2,  0,  3,  "ABABC" },
+                { L_,   "ABCDE", 2,  1,  0,  "ABCDE" },
+                { L_,   "ABCDE", 2,  1,  1,  "ABBDE" },
+                { L_,   "ABCDE", 2,  1,  2,  "ABBCE" },
+                { L_,   "ABCDE", 2,  1,  3,  "ABBCD" },
+                { L_,   "ABCDE", 2,  2,  0,  "ABCDE" },
+                { L_,   "ABCDE", 2,  2,  1,  "ABCDE" },
+                { L_,   "ABCDE", 2,  2,  2,  "ABCDE" },
+                { L_,   "ABCDE", 2,  2,  3,  "ABCDE" },
+                { L_,   "ABCDE", 2,  3,  0,  "ABCDE" },
+                { L_,   "ABCDE", 2,  3,  1,  "ABDDE" },
+                { L_,   "ABCDE", 2,  3,  2,  "ABDEE" },
+                { L_,   "ABCDE", 2,  4,  0,  "ABCDE" },
+                { L_,   "ABCDE", 2,  4,  1,  "ABEDE" },
+                { L_,   "ABCDE", 2,  5,  0,  "ABCDE" },
+
+                { L_,   "ABCDE", 3,  0,  0,  "ABCDE" },
+                { L_,   "ABCDE", 3,  0,  1,  "ABCAE" },
+                { L_,   "ABCDE", 3,  0,  2,  "ABCAB" },
+                { L_,   "ABCDE", 3,  1,  0,  "ABCDE" },
+                { L_,   "ABCDE", 3,  1,  1,  "ABCBE" },
+                { L_,   "ABCDE", 3,  1,  2,  "ABCBC" },
+                { L_,   "ABCDE", 3,  2,  0,  "ABCDE" },
+                { L_,   "ABCDE", 3,  2,  1,  "ABCCE" },
+                { L_,   "ABCDE", 3,  2,  2,  "ABCCD" },
+                { L_,   "ABCDE", 3,  3,  0,  "ABCDE" },
+                { L_,   "ABCDE", 3,  3,  1,  "ABCDE" },
+                { L_,   "ABCDE", 3,  3,  2,  "ABCDE" },
+                { L_,   "ABCDE", 3,  4,  0,  "ABCDE" },
+                { L_,   "ABCDE", 3,  4,  1,  "ABCEE" },
+                { L_,   "ABCDE", 3,  5,  0,  "ABCDE" },
+
+                { L_,   "ABCDE", 4,  0,  0,  "ABCDE" },
+                { L_,   "ABCDE", 4,  0,  1,  "ABCDA" },
+                { L_,   "ABCDE", 4,  1,  0,  "ABCDE" },
+                { L_,   "ABCDE", 4,  1,  1,  "ABCDB" },
+                { L_,   "ABCDE", 4,  2,  0,  "ABCDE" },
+                { L_,   "ABCDE", 4,  2,  1,  "ABCDC" },
+                { L_,   "ABCDE", 4,  3,  0,  "ABCDE" },
+                { L_,   "ABCDE", 4,  3,  1,  "ABCDD" },
+                { L_,   "ABCDE", 4,  4,  0,  "ABCDE" },
+                { L_,   "ABCDE", 4,  4,  1,  "ABCDE" },
+                { L_,   "ABCDE", 4,  5,  0,  "ABCDE" },
+
+                { L_,   "ABCDE", 5,  0,  0,  "ABCDE" },
+                { L_,   "ABCDE", 5,  1,  0,  "ABCDE" },
+                { L_,   "ABCDE", 5,  2,  0,  "ABCDE" },
+                { L_,   "ABCDE", 5,  3,  0,  "ABCDE" },
+                { L_,   "ABCDE", 5,  4,  0,  "ABCDE" },
+                { L_,   "ABCDE", 5,  5,  0,  "ABCDE" },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            int oldDepth = -1;
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int   LINE   = DATA[ti].d_lineNum;
+                const char *X_SPEC = DATA[ti].d_xSpec;
+                const int   DI     = DATA[ti].d_di;
+                const int   SI     = DATA[ti].d_si;
+                const int   NE     = DATA[ti].d_ne;
+                const char *E_SPEC = DATA[ti].d_expSpec;
+
+                const int   DEPTH  = strlen(X_SPEC);
+                if (DEPTH > oldDepth) {
+                    oldDepth = DEPTH;
+                    if (verbose) { cout << '\t';  P(DEPTH); }
+                }
+
+                Obj DD(g(X_SPEC));              // control for destination
+                Obj EE(g(E_SPEC));              // control for expected value
+
+                if (veryVerbose) {
+                    cout << "\t  =================================="
+                                "==================================" << endl;
+                    cout << "\t  "; P_(X_SPEC); P_(DI);
+                                                P_(SI); P_(NE); P(E_SPEC);
+                    cout << "\t\t"; P(DD);
+                    cout << "\t\t"; P(EE);
+
+
+                    cout << "\t\t\t---------- BLACK BOX ----------" << endl;
+                }
+
+                if (veryVerbose) cout << "\t\toperator[](index)" << endl;
+                if (1 == NE) {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    Obj x(DD, &testAllocator);  const Obj &X = x;
+                    if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
+                    x[DI] = X[SI];
+                    if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
+                    LOOP_ASSERT(LINE, EE == X);
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                }
+
+                if (veryVerbose) {
+                    cout << "\t\t\t---------- WHITE BOX ----------" << endl;
+                }
+
+                Obj x(&testAllocator);  const Obj &X = x;
+
+                const int STRETCH_SIZE = 50;
+
+                stretchRemoveAll(&x, STRETCH_SIZE);
+
+                if (veryVerbose) cout << "\t\toperator[](item)" << endl;
+                if (1 == NE) {
+                    x.removeAll();  gg(&x, X_SPEC);
+                    if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
+                    x[DI] = X[SI];
+                    if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
+                    LOOP_ASSERT(LINE, EE == X);
+                }
+            }
+        }
+
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // APPEND
+        //
+        // Concerns:
+        //: 1 The source is left unaffected (apart from aliasing).
+        //: 2 The subsequent existing of the source has no effect on the
+        //:    result object (apart from aliasing).
+        //: 3 The function is alias safe.
+        //: 4 The function is exception neutral (w.r.t. allocation).
+        //: 5 The function preserves object invariants.
+        //: 6 The function is independent of internal representation.
+        //
+        // Note that all (contingent) reallocations occur strictly before the
+        // essential implementation of each method.  Therefore, C-1, C-2, and
+        // C-4 above are valid for objects in the "canonical state", but need
+        // not be repeated when C-6 ("white-box test") is addressed.
+        //
+        // Plan:
+        //: 1 Use the data tables and protocols conventionally used for testing
+        //:   containers; however, as the only supported mentod is 'append"
+        //:   for an item, most of these tests are removed.
+        //: 2 Use the enumeration technique to a depth of 5 for both the normal
+        //:  and alias cases.  Data is tabulated explicitly for the 'insert'
+        //:  method that takes a range from a source array (or itself, for the
+        //:  aliasing test); other methods are tested using a subset of the
+        //:  full test vector table.  In particular, the 'append' methods use
+        //:  data where the destination index equals the destination length
+        //:  ('strlen(D_SPEC) == DI').  All methods using the entire source
+        //:  object use test data where the source length equals the number of
+        //:  elements ('strlen(S_SPEC) == NE'), while the "scalar" methods use
+        //:  data where the number of elements equals 1 ('1 == NE').  In
+        //:  addition, the 'remove' methods switch the 'd-array' and 'expected'
+        //:  values from the 'insert' table.
+        //: o In the "canonical state" (black-box) tests, we confirm that the
+        //:   source is unmodified by the method call, and that its subsequent
+        //:   destruction has no effect on the destination object.
+        //: o In all cases we want to make sure that after the application of
+        //:   the operation, the object is allowed to go out of scope directly
+        //:   to enable the destructor to assert object invariants.
+        //: o Each object constructed should be wrapped in separate BSLMA test
+        //:   assert macros and use 'gg' as an optimization.
+        //
+        // Testing:
+        //   void append(const baesu_StackTraceFrame& value);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "APPEND" << endl
+                          << "======" << endl;
+        if (verbose) cout << "\nWithout Aliasing" << endl;
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                const char *d_daSpec;   // initial (destination) array
+                int         d_di;       // index at which to insert into da
+                const char *d_saSpec;   // source array
+                int         d_si;       // index at which to insert from sa
+                int         d_ne;       // number of elements to insert
+                const char *d_expSpec;  // expected array value
+            } DATA[] = {
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 0
+                { L_,   "",      0,  "",      0,  0, ""      },
+
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 1
+                { L_,   "A",     0,  "",      0,  0, "A"     },
+                { L_,   "A",     1,  "",      0,  0, "A"     },
+
+                { L_,   "",      0,  "A",     0,  0, ""      },
+                { L_,   "",      0,  "A",     0,  1, "A"     },
+                { L_,   "",      0,  "A",     1,  0, ""      },
+
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 2
+                { L_,   "AB",    0,  "",      0,  0, "AB"    },
+                { L_,   "AB",    1,  "",      0,  0, "AB"    },
+                { L_,   "AB",    2,  "",      0,  0, "AB"    },
+
+                { L_,   "A",     0,  "B",     0,  0, "A"     },
+                { L_,   "A",     0,  "B",     0,  1, "BA"    },
+                { L_,   "A",     0,  "B",     1,  0, "A"     },
+                { L_,   "A",     1,  "B",     0,  0, "A"     },
+                { L_,   "A",     1,  "B",     0,  1, "AB"    },
+                { L_,   "A",     1,  "B",     1,  0, "A"     },
+
+                { L_,   "",      0,  "AB",    0,  0, ""      },
+                { L_,   "",      0,  "AB",    0,  1, "A"     },
+                { L_,   "",      0,  "AB",    0,  2, "AB"    },
+                { L_,   "",      0,  "AB",    1,  0, ""      },
+                { L_,   "",      0,  "AB",    1,  1, "B"     },
+                { L_,   "",      0,  "AB",    2,  0, ""      },
+
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 3
+                { L_,   "ABC",   0,  "",      0,  0, "ABC"   },
+                { L_,   "ABC",   1,  "",      0,  0, "ABC"   },
+                { L_,   "ABC",   2,  "",      0,  0, "ABC"   },
+                { L_,   "ABC",   3,  "",      0,  0, "ABC"   },
+
+                { L_,   "AB",    0,  "C",     0,  0, "AB"    },
+                { L_,   "AB",    0,  "C",     0,  1, "CAB"   },
+                { L_,   "AB",    0,  "C",     1,  0, "AB"    },
+                { L_,   "AB",    1,  "C",     0,  0, "AB"    },
+                { L_,   "AB",    1,  "C",     0,  1, "ACB"   },
+                { L_,   "AB",    1,  "C",     1,  0, "AB"    },
+                { L_,   "AB",    2,  "C",     0,  0, "AB"    },
+                { L_,   "AB",    2,  "C",     0,  1, "ABC"   },
+                { L_,   "AB",    2,  "C",     1,  0, "AB"    },
+
+                { L_,   "A",     0,  "BC",    0,  0, "A"     },
+                { L_,   "A",     0,  "BC",    0,  1, "BA"    },
+                { L_,   "A",     0,  "BC",    0,  2, "BCA"   },
+                { L_,   "A",     0,  "BC",    1,  0, "A"     },
+                { L_,   "A",     0,  "BC",    1,  1, "CA"    },
+                { L_,   "A",     0,  "BC",    2,  0, "A"     },
+                { L_,   "A",     1,  "BC",    0,  0, "A"     },
+                { L_,   "A",     1,  "BC",    0,  1, "AB"    },
+                { L_,   "A",     1,  "BC",    0,  2, "ABC"   },
+                { L_,   "A",     1,  "BC",    1,  0, "A"     },
+                { L_,   "A",     1,  "BC",    1,  1, "AC"    },
+                { L_,   "A",     1,  "BC",    2,  0, "A"     },
+
+                { L_,   "",      0,  "ABC",   0,  0, ""      },
+                { L_,   "",      0,  "ABC",   0,  1, "A"     },
+                { L_,   "",      0,  "ABC",   0,  2, "AB"    },
+                { L_,   "",      0,  "ABC",   0,  3, "ABC"   },
+                { L_,   "",      0,  "ABC",   1,  0, ""      },
+                { L_,   "",      0,  "ABC",   1,  1, "B"     },
+                { L_,   "",      0,  "ABC",   1,  2, "BC"    },
+                { L_,   "",      0,  "ABC",   2,  0, ""      },
+                { L_,   "",      0,  "ABC",   2,  1, "C"     },
+                { L_,   "",      0,  "ABC",   3,  0, ""      },
+
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 4
+                { L_,   "ABCD",  0,  "",      0,  0, "ABCD"  },
+                { L_,   "ABCD",  1,  "",      0,  0, "ABCD"  },
+                { L_,   "ABCD",  2,  "",      0,  0, "ABCD"  },
+                { L_,   "ABCD",  3,  "",      0,  0, "ABCD"  },
+                { L_,   "ABCD",  4,  "",      0,  0, "ABCD"  },
+
+                { L_,   "ABC",   0,  "D",     0,  0, "ABC"   },
+                { L_,   "ABC",   0,  "D",     0,  1, "DABC"  },
+                { L_,   "ABC",   0,  "D",     1,  0, "ABC"   },
+                { L_,   "ABC",   1,  "D",     0,  0, "ABC"   },
+                { L_,   "ABC",   1,  "D",     0,  1, "ADBC"  },
+                { L_,   "ABC",   1,  "D",     1,  0, "ABC"   },
+                { L_,   "ABC",   2,  "D",     0,  0, "ABC"   },
+                { L_,   "ABC",   2,  "D",     0,  1, "ABDC"  },
+                { L_,   "ABC",   2,  "D",     1,  0, "ABC"   },
+                { L_,   "ABC",   3,  "D",     0,  0, "ABC"   },
+                { L_,   "ABC",   3,  "D",     0,  1, "ABCD"  },
+                { L_,   "ABC",   3,  "D",     1,  0, "ABC"   },
+
+                { L_,   "AB",    0,  "CD",    0,  0, "AB"    },
+                { L_,   "AB",    0,  "CD",    0,  1, "CAB"   },
+                { L_,   "AB",    0,  "CD",    0,  2, "CDAB"  },
+                { L_,   "AB",    0,  "CD",    1,  0, "AB"    },
+                { L_,   "AB",    0,  "CD",    1,  1, "DAB"   },
+                { L_,   "AB",    0,  "CD",    2,  0, "AB"    },
+                { L_,   "AB",    1,  "CD",    0,  0, "AB"    },
+                { L_,   "AB",    1,  "CD",    0,  1, "ACB"   },
+                { L_,   "AB",    1,  "CD",    0,  2, "ACDB"  },
+                { L_,   "AB",    1,  "CD",    1,  0, "AB"    },
+                { L_,   "AB",    1,  "CD",    1,  1, "ADB"   },
+                { L_,   "AB",    1,  "CD",    2,  0, "AB"    },
+                { L_,   "AB",    2,  "CD",    0,  0, "AB"    },
+                { L_,   "AB",    2,  "CD",    0,  1, "ABC"   },
+                { L_,   "AB",    2,  "CD",    0,  2, "ABCD"  },
+                { L_,   "AB",    2,  "CD",    1,  0, "AB"    },
+                { L_,   "AB",    2,  "CD",    1,  1, "ABD"   },
+                { L_,   "AB",    2,  "CD",    2,  0, "AB"    },
+
+                { L_,   "A",     0,  "BCD",   0,  0, "A"     },
+                { L_,   "A",     0,  "BCD",   0,  1, "BA"    },
+                { L_,   "A",     0,  "BCD",   0,  2, "BCA"   },
+                { L_,   "A",     0,  "BCD",   0,  3, "BCDA"  },
+                { L_,   "A",     0,  "BCD",   1,  0, "A"     },
+                { L_,   "A",     0,  "BCD",   1,  1, "CA"    },
+                { L_,   "A",     0,  "BCD",   1,  2, "CDA"   },
+                { L_,   "A",     0,  "BCD",   2,  0, "A"     },
+                { L_,   "A",     0,  "BCD",   2,  1, "DA"    },
+                { L_,   "A",     0,  "BCD",   3,  0, "A"     },
+                { L_,   "A",     1,  "BCD",   0,  0, "A"     },
+                { L_,   "A",     1,  "BCD",   0,  1, "AB"    },
+                { L_,   "A",     1,  "BCD",   0,  2, "ABC"   },
+                { L_,   "A",     1,  "BCD",   0,  3, "ABCD"  },
+                { L_,   "A",     1,  "BCD",   1,  0, "A"     },
+                { L_,   "A",     1,  "BCD",   1,  1, "AC"    },
+                { L_,   "A",     1,  "BCD",   1,  2, "ACD"   },
+                { L_,   "A",     1,  "BCD",   2,  0, "A"     },
+                { L_,   "A",     1,  "BCD",   2,  1, "AD"    },
+                { L_,   "A",     1,  "BCD",   3,  0, "A"     },
+
+                { L_,   "",      0,  "ABCD",  0,  0, ""      },
+                { L_,   "",      0,  "ABCD",  0,  1, "A"     },
+                { L_,   "",      0,  "ABCD",  0,  2, "AB"    },
+                { L_,   "",      0,  "ABCD",  0,  3, "ABC"   },
+                { L_,   "",      0,  "ABCD",  0,  4, "ABCD"  },
+                { L_,   "",      0,  "ABCD",  1,  0, ""      },
+                { L_,   "",      0,  "ABCD",  1,  1, "B"     },
+                { L_,   "",      0,  "ABCD",  1,  2, "BC"    },
+                { L_,   "",      0,  "ABCD",  1,  3, "BCD"   },
+                { L_,   "",      0,  "ABCD",  2,  0, ""      },
+                { L_,   "",      0,  "ABCD",  2,  1, "C"     },
+                { L_,   "",      0,  "ABCD",  2,  2, "CD"    },
+                { L_,   "",      0,  "ABCD",  3,  0, ""      },
+                { L_,   "",      0,  "ABCD",  3,  1, "D"     },
+                { L_,   "",      0,  "ABCD",  4,  0, ""      },
+
+                //line  d-array di   s-array si  ne  expected
+                //----  ------- --   ------- --  --  --------   Depth = 5
+                { L_,   "ABCDE", 0,  "",      0,  0, "ABCDE" },
+                { L_,   "ABCDE", 1,  "",      0,  0, "ABCDE" },
+                { L_,   "ABCDE", 2,  "",      0,  0, "ABCDE" },
+                { L_,   "ABCDE", 3,  "",      0,  0, "ABCDE" },
+                { L_,   "ABCDE", 4,  "",      0,  0, "ABCDE" },
+                { L_,   "ABCDE", 5,  "",      0,  0, "ABCDE" },
+
+                { L_,   "ABCD",  0,  "E",     0,  0, "ABCD"  },
+                { L_,   "ABCD",  0,  "E",     0,  1, "EABCD" },
+                { L_,   "ABCD",  0,  "E",     1,  0, "ABCD"  },
+                { L_,   "ABCD",  1,  "E",     0,  0, "ABCD"  },
+                { L_,   "ABCD",  1,  "E",     0,  1, "AEBCD" },
+                { L_,   "ABCD",  1,  "E",     1,  0, "ABCD"  },
+                { L_,   "ABCD",  2,  "E",     0,  0, "ABCD"  },
+                { L_,   "ABCD",  2,  "E",     0,  1, "ABECD" },
+                { L_,   "ABCD",  2,  "E",     1,  0, "ABCD"  },
+                { L_,   "ABCD",  3,  "E",     0,  0, "ABCD"  },
+                { L_,   "ABCD",  3,  "E",     0,  1, "ABCED" },
+                { L_,   "ABCD",  3,  "E",     1,  0, "ABCD"  },
+                { L_,   "ABCD",  4,  "E",     0,  0, "ABCD"  },
+                { L_,   "ABCD",  4,  "E",     0,  1, "ABCDE" },
+                { L_,   "ABCD",  4,  "E",     1,  0, "ABCD"  },
+
+                { L_,   "ABC",   0,  "DE",    0,  0, "ABC"   },
+                { L_,   "ABC",   0,  "DE",    0,  1, "DABC"  },
+                { L_,   "ABC",   0,  "DE",    0,  2, "DEABC" },
+                { L_,   "ABC",   0,  "DE",    1,  0, "ABC"   },
+                { L_,   "ABC",   0,  "DE",    1,  1, "EABC"  },
+                { L_,   "ABC",   0,  "DE",    2,  0, "ABC"   },
+                { L_,   "ABC",   1,  "DE",    0,  0, "ABC"   },
+                { L_,   "ABC",   1,  "DE",    0,  1, "ADBC"  },
+                { L_,   "ABC",   1,  "DE",    0,  2, "ADEBC" },
+                { L_,   "ABC",   1,  "DE",    1,  0, "ABC"   },
+                { L_,   "ABC",   1,  "DE",    1,  1, "AEBC"  },
+                { L_,   "ABC",   1,  "DE",    2,  0, "ABC"   },
+                { L_,   "ABC",   2,  "DE",    0,  0, "ABC"   },
+                { L_,   "ABC",   2,  "DE",    0,  1, "ABDC"  },
+                { L_,   "ABC",   2,  "DE",    0,  2, "ABDEC" },
+                { L_,   "ABC",   2,  "DE",    1,  0, "ABC"   },
+                { L_,   "ABC",   2,  "DE",    1,  1, "ABEC"  },
+                { L_,   "ABC",   2,  "DE",    2,  0, "ABC"   },
+                { L_,   "ABC",   3,  "DE",    0,  0, "ABC"   },
+                { L_,   "ABC",   3,  "DE",    0,  1, "ABCD"  },
+                { L_,   "ABC",   3,  "DE",    0,  2, "ABCDE" },
+                { L_,   "ABC",   3,  "DE",    1,  0, "ABC"   },
+                { L_,   "ABC",   3,  "DE",    1,  1, "ABCE"  },
+                { L_,   "ABC",   3,  "DE",    2,  0, "ABC"   },
+
+                { L_,   "AB",    0,  "CDE",   0,  0, "AB"    },
+                { L_,   "AB",    0,  "CDE",   0,  1, "CAB"   },
+                { L_,   "AB",    0,  "CDE",   0,  2, "CDAB"  },
+                { L_,   "AB",    0,  "CDE",   0,  3, "CDEAB" },
+                { L_,   "AB",    0,  "CDE",   1,  0, "AB"    },
+                { L_,   "AB",    0,  "CDE",   1,  1, "DAB"   },
+                { L_,   "AB",    0,  "CDE",   1,  2, "DEAB"  },
+                { L_,   "AB",    0,  "CDE",   2,  0, "AB"    },
+                { L_,   "AB",    0,  "CDE",   2,  1, "EAB"   },
+                { L_,   "AB",    0,  "CDE",   3,  0, "AB"    },
+                { L_,   "AB",    1,  "CDE",   0,  0, "AB"    },
+                { L_,   "AB",    1,  "CDE",   0,  1, "ACB"   },
+                { L_,   "AB",    1,  "CDE",   0,  2, "ACDB"  },
+                { L_,   "AB",    1,  "CDE",   0,  3, "ACDEB" },
+                { L_,   "AB",    1,  "CDE",   1,  0, "AB"    },
+                { L_,   "AB",    1,  "CDE",   1,  1, "ADB"   },
+                { L_,   "AB",    1,  "CDE",   1,  2, "ADEB"  },
+                { L_,   "AB",    1,  "CDE",   2,  0, "AB"    },
+                { L_,   "AB",    1,  "CDE",   2,  1, "AEB"   },
+                { L_,   "AB",    1,  "CDE",   3,  0, "AB"    },
+                { L_,   "AB",    2,  "CDE",   0,  0, "AB"    },
+                { L_,   "AB",    2,  "CDE",   0,  1, "ABC"   },
+                { L_,   "AB",    2,  "CDE",   0,  2, "ABCD"  },
+                { L_,   "AB",    2,  "CDE",   0,  3, "ABCDE" },
+                { L_,   "AB",    2,  "CDE",   1,  0, "AB"    },
+                { L_,   "AB",    2,  "CDE",   1,  1, "ABD"   },
+                { L_,   "AB",    2,  "CDE",   1,  2, "ABDE"  },
+                { L_,   "AB",    2,  "CDE",   2,  0, "AB"    },
+                { L_,   "AB",    2,  "CDE",   2,  1, "ABE"   },
+                { L_,   "AB",    2,  "CDE",   3,  0, "AB"    },
+
+                { L_,   "A",     0,  "BCDE",  0,  0, "A"     },
+                { L_,   "A",     0,  "BCDE",  0,  1, "BA"    },
+                { L_,   "A",     0,  "BCDE",  0,  2, "BCA"   },
+                { L_,   "A",     0,  "BCDE",  0,  3, "BCDA"  },
+                { L_,   "A",     0,  "BCDE",  1,  0, "A"     },
+                { L_,   "A",     0,  "BCDE",  1,  1, "CA"    },
+                { L_,   "A",     0,  "BCDE",  1,  2, "CDA"   },
+                { L_,   "A",     0,  "BCDE",  2,  0, "A"     },
+                { L_,   "A",     0,  "BCDE",  2,  1, "DA"    },
+                { L_,   "A",     0,  "BCDE",  3,  0, "A"     },
+                { L_,   "A",     1,  "BCDE",  0,  0, "A"     },
+                { L_,   "A",     1,  "BCDE",  0,  1, "AB"    },
+                { L_,   "A",     1,  "BCDE",  0,  2, "ABC"   },
+                { L_,   "A",     1,  "BCDE",  0,  3, "ABCD"  },
+                { L_,   "A",     1,  "BCDE",  1,  0, "A"     },
+                { L_,   "A",     1,  "BCDE",  1,  1, "AC"    },
+                { L_,   "A",     1,  "BCDE",  1,  2, "ACD"   },
+                { L_,   "A",     1,  "BCDE",  2,  0, "A"     },
+                { L_,   "A",     1,  "BCDE",  2,  1, "AD"    },
+                { L_,   "A",     1,  "BCDE",  3,  0, "A"     },
+
+                { L_,   "",      0,  "ABCDE", 0,  0, ""      },
+                { L_,   "",      0,  "ABCDE", 0,  1, "A"     },
+                { L_,   "",      0,  "ABCDE", 0,  2, "AB"    },
+                { L_,   "",      0,  "ABCDE", 0,  3, "ABC"   },
+                { L_,   "",      0,  "ABCDE", 0,  4, "ABCD"  },
+                { L_,   "",      0,  "ABCDE", 0,  5, "ABCDE" },
+                { L_,   "",      0,  "ABCDE", 1,  0, ""      },
+                { L_,   "",      0,  "ABCDE", 1,  1, "B"     },
+                { L_,   "",      0,  "ABCDE", 1,  2, "BC"    },
+                { L_,   "",      0,  "ABCDE", 1,  3, "BCD"   },
+                { L_,   "",      0,  "ABCDE", 1,  4, "BCDE"  },
+                { L_,   "",      0,  "ABCDE", 2,  0, ""      },
+                { L_,   "",      0,  "ABCDE", 2,  1, "C"     },
+                { L_,   "",      0,  "ABCDE", 2,  2, "CD"    },
+                { L_,   "",      0,  "ABCDE", 2,  3, "CDE"   },
+                { L_,   "",      0,  "ABCDE", 3,  0, ""      },
+                { L_,   "",      0,  "ABCDE", 3,  1, "D"     },
+                { L_,   "",      0,  "ABCDE", 3,  2, "DE"    },
+                { L_,   "",      0,  "ABCDE", 4,  0, ""      },
+                { L_,   "",      0,  "ABCDE", 4,  1, "E"     },
+                { L_,   "",      0,  "ABCDE", 5,  0, ""      },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            int oldDepth = -1;
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int   LINE   = DATA[ti].d_lineNum;
+                const char *D_SPEC = DATA[ti].d_daSpec;
+                const int   DI     = DATA[ti].d_di;
+                const char *S_SPEC = DATA[ti].d_saSpec;
+                const int   SI     = DATA[ti].d_si;
+                const int   NE     = DATA[ti].d_ne;
+                const char *E_SPEC = DATA[ti].d_expSpec;
+
+                const int   DEPTH  = (int) strlen(D_SPEC) + strlen(S_SPEC);
+                if (DEPTH > oldDepth) {
+                    oldDepth = DEPTH;
+                    if (verbose) { cout << '\t';  P(DEPTH); }
+                }
+
+                const Obj DD(g(D_SPEC));          // control for destination
+                const Obj SS(g(S_SPEC));          // control for source
+                const Obj EE(g(E_SPEC));          // control for expected value
+
+                if (veryVerbose) {
+                    cout << "\t  =================================="
+                                "==================================" << endl;
+                    cout << "\t  "; P_(D_SPEC); P_(DI); P_(S_SPEC);
+                                                P_(SI); P_(NE); P(E_SPEC);
+                    cout << "\t\t"; P(DD);
+                    cout << "\t\t"; P(SS);
+                    cout << "\t\t"; P(EE);
+
+                    cout << "\t\t\t---------- BLACK BOX ----------" << endl;
+                }
+
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                if (veryVerbose) cout << "\t\tappend(item)" << endl;
+                if ((int)strlen(D_SPEC) == DI && 1 == NE) {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    Obj x(DD, &testAllocator);  const Obj &X = x;
+                    {
+                        Obj s(SS, &testAllocator);  const Obj &S = s;
+                        if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
+                        x.append(s[SI]);                // source non-'const'
+                        if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
+                        LOOP_ASSERT(LINE, EE == X);
+                        LOOP_ASSERT(LINE, SS == S);     // source unchanged?
+                    }
+                    LOOP_ASSERT(LINE, EE == X);  // source is out of scope
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                }
+
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                if (veryVerbose) {
+                    cout << "\t\t\t---------- WHITE BOX ----------" << endl;
+                }
+
+                Obj x(&testAllocator);  const Obj &X = x;
+
+                const int STRETCH_SIZE = 50;
+
+                stretchRemoveAll(&x, STRETCH_SIZE);
+
+                const int NUM_BLOCKS = testAllocator.numBlocksTotal();
+                const int NUM_BYTES  = testAllocator.numBytesInUse();
+
+                if (veryVerbose) cout << "\t\tappend(item)" << endl;
+                if ((int)strlen(D_SPEC) == DI && 1 == NE) {
+                    x.removeAll();  gg(&x, D_SPEC);
+                    if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
+                    x.append(SS[SI]);
+                    if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
+                    LOOP_ASSERT(LINE, EE == X);
+                }
+            }
+        }
+
+        //---------------------------------------------------------------------
+
+        if (verbose) cout << "\nWith Aliasing" << endl;
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                const char *d_xSpec;    // initial array (= srcArray)
+                int         d_di;       // index at which to insert into x
+                int         d_si;       // index at which to insert from x
+                int         d_ne;       // number of elements to insert
+                const char *d_expSpec;  // expected array value
+            } DATA[] = {
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 0
+                { L_,   "",      0,   0,  0,  ""      },
+
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 1
+                { L_,   "A",     0,   0,  0,  "A"     },
+                { L_,   "A",     0,   0,  1,  "AA"    },
+                { L_,   "A",     0,   1,  0,  "A"     },
+
+                { L_,   "A",     1,   0,  0,  "A"     },
+                { L_,   "A",     1,   0,  1,  "AA"    },
+                { L_,   "A",     1,   1,  0,  "A"     },
+
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 2
+                { L_,   "AB",    0,   0,  0,  "AB"    },
+                { L_,   "AB",    0,   0,  1,  "AAB"   },
+                { L_,   "AB",    0,   0,  2,  "ABAB"  },
+                { L_,   "AB",    0,   1,  0,  "AB"    },
+                { L_,   "AB",    0,   1,  1,  "BAB"   },
+                { L_,   "AB",    0,   2,  0,  "AB"    },
+
+                { L_,   "AB",    1,   0,  0,  "AB"    },
+                { L_,   "AB",    1,   0,  1,  "AAB"   },
+                { L_,   "AB",    1,   0,  2,  "AABB"  },
+                { L_,   "AB",    1,   1,  0,  "AB"    },
+                { L_,   "AB",    1,   1,  1,  "ABB"   },
+                { L_,   "AB",    1,   2,  0,  "AB"    },
+
+                { L_,   "AB",    2,   0,  0,  "AB"    },
+                { L_,   "AB",    2,   0,  1,  "ABA"   },
+                { L_,   "AB",    2,   0,  2,  "ABAB"  },
+                { L_,   "AB",    2,   1,  0,  "AB"    },
+                { L_,   "AB",    2,   1,  1,  "ABB"   },
+                { L_,   "AB",    2,   2,  0,  "AB"    },
+
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 3
+                { L_,   "ABC",   0,   0,  0,  "ABC"     },
+                { L_,   "ABC",   0,   0,  1,  "AABC"    },
+                { L_,   "ABC",   0,   0,  2,  "ABABC"   },
+                { L_,   "ABC",   0,   0,  3,  "ABCABC"  },
+                { L_,   "ABC",   0,   1,  0,  "ABC"     },
+                { L_,   "ABC",   0,   1,  1,  "BABC"    },
+                { L_,   "ABC",   0,   1,  2,  "BCABC"   },
+                { L_,   "ABC",   0,   2,  0,  "ABC"     },
+                { L_,   "ABC",   0,   2,  1,  "CABC"    },
+                { L_,   "ABC",   0,   3,  0,  "ABC"     },
+
+                { L_,   "ABC",   1,   0,  0,  "ABC"     },
+                { L_,   "ABC",   1,   0,  1,  "AABC"    },
+                { L_,   "ABC",   1,   0,  2,  "AABBC"   },
+                { L_,   "ABC",   1,   0,  3,  "AABCBC"  },
+                { L_,   "ABC",   1,   1,  0,  "ABC"     },
+                { L_,   "ABC",   1,   1,  1,  "ABBC"    },
+                { L_,   "ABC",   1,   1,  2,  "ABCBC"   },
+                { L_,   "ABC",   1,   2,  0,  "ABC"     },
+                { L_,   "ABC",   1,   2,  1,  "ACBC"    },
+                { L_,   "ABC",   1,   3,  0,  "ABC"     },
+
+                { L_,   "ABC",   2,   0,  0,  "ABC"     },
+                { L_,   "ABC",   2,   0,  1,  "ABAC"    },
+                { L_,   "ABC",   2,   0,  2,  "ABABC"   },
+                { L_,   "ABC",   2,   0,  3,  "ABABCC"  },
+                { L_,   "ABC",   2,   1,  0,  "ABC"     },
+                { L_,   "ABC",   2,   1,  1,  "ABBC"    },
+                { L_,   "ABC",   2,   1,  2,  "ABBCC"   },
+                { L_,   "ABC",   2,   2,  0,  "ABC"     },
+                { L_,   "ABC",   2,   2,  1,  "ABCC"    },
+                { L_,   "ABC",   2,   3,  0,  "ABC"     },
+
+                { L_,   "ABC",   3,   0,  0,  "ABC"     },
+                { L_,   "ABC",   3,   0,  1,  "ABCA"    },
+                { L_,   "ABC",   3,   0,  2,  "ABCAB"   },
+                { L_,   "ABC",   3,   0,  3,  "ABCABC"  },
+                { L_,   "ABC",   3,   1,  0,  "ABC"     },
+                { L_,   "ABC",   3,   1,  1,  "ABCB"    },
+                { L_,   "ABC",   3,   1,  2,  "ABCBC"   },
+                { L_,   "ABC",   3,   2,  0,  "ABC"     },
+                { L_,   "ABC",   3,   2,  1,  "ABCC"    },
+                { L_,   "ABC",   3,   3,  0,  "ABC"     },
+
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 4
+                { L_,   "ABCD",  0,   0,  0,  "ABCD"      },
+                { L_,   "ABCD",  0,   0,  1,  "AABCD"     },
+                { L_,   "ABCD",  0,   0,  2,  "ABABCD"    },
+                { L_,   "ABCD",  0,   0,  3,  "ABCABCD"   },
+                { L_,   "ABCD",  0,   0,  4,  "ABCDABCD"  },
+                { L_,   "ABCD",  0,   1,  0,  "ABCD"      },
+                { L_,   "ABCD",  0,   1,  1,  "BABCD"     },
+                { L_,   "ABCD",  0,   1,  2,  "BCABCD"    },
+                { L_,   "ABCD",  0,   1,  3,  "BCDABCD"   },
+                { L_,   "ABCD",  0,   2,  0,  "ABCD"      },
+                { L_,   "ABCD",  0,   2,  1,  "CABCD"     },
+                { L_,   "ABCD",  0,   2,  2,  "CDABCD"    },
+                { L_,   "ABCD",  0,   3,  0,  "ABCD"      },
+                { L_,   "ABCD",  0,   3,  1,  "DABCD"     },
+                { L_,   "ABCD",  0,   4,  0,  "ABCD"      },
+
+                { L_,   "ABCD",  1,   0,  0,  "ABCD"      },
+                { L_,   "ABCD",  1,   0,  1,  "AABCD"     },
+                { L_,   "ABCD",  1,   0,  2,  "AABBCD"    },
+                { L_,   "ABCD",  1,   0,  3,  "AABCBCD"   },
+                { L_,   "ABCD",  1,   0,  4,  "AABCDBCD"  },
+                { L_,   "ABCD",  1,   1,  0,  "ABCD"      },
+                { L_,   "ABCD",  1,   1,  1,  "ABBCD"     },
+                { L_,   "ABCD",  1,   1,  2,  "ABCBCD"    },
+                { L_,   "ABCD",  1,   1,  3,  "ABCDBCD"   },
+                { L_,   "ABCD",  1,   2,  0,  "ABCD"      },
+                { L_,   "ABCD",  1,   2,  1,  "ACBCD"     },
+                { L_,   "ABCD",  1,   2,  2,  "ACDBCD"    },
+                { L_,   "ABCD",  1,   3,  0,  "ABCD"      },
+                { L_,   "ABCD",  1,   3,  1,  "ADBCD"     },
+                { L_,   "ABCD",  1,   4,  0,  "ABCD"      },
+
+                { L_,   "ABCD",  2,   0,  0,  "ABCD"      },
+                { L_,   "ABCD",  2,   0,  1,  "ABACD"     },
+                { L_,   "ABCD",  2,   0,  2,  "ABABCD"    },
+                { L_,   "ABCD",  2,   0,  3,  "ABABCCD"   },
+                { L_,   "ABCD",  2,   0,  4,  "ABABCDCD"  },
+                { L_,   "ABCD",  2,   1,  0,  "ABCD"      },
+                { L_,   "ABCD",  2,   1,  1,  "ABBCD"     },
+                { L_,   "ABCD",  2,   1,  2,  "ABBCCD"    },
+                { L_,   "ABCD",  2,   1,  3,  "ABBCDCD"   },
+                { L_,   "ABCD",  2,   2,  0,  "ABCD"      },
+                { L_,   "ABCD",  2,   2,  1,  "ABCCD"     },
+                { L_,   "ABCD",  2,   2,  2,  "ABCDCD"    },
+                { L_,   "ABCD",  2,   3,  0,  "ABCD"      },
+                { L_,   "ABCD",  2,   3,  1,  "ABDCD"     },
+                { L_,   "ABCD",  2,   4,  0,  "ABCD"      },
+
+                { L_,   "ABCD",  3,   0,  0,  "ABCD"      },
+                { L_,   "ABCD",  3,   0,  1,  "ABCAD"     },
+                { L_,   "ABCD",  3,   0,  2,  "ABCABD"    },
+                { L_,   "ABCD",  3,   0,  3,  "ABCABCD"   },
+                { L_,   "ABCD",  3,   0,  4,  "ABCABCDD"  },
+                { L_,   "ABCD",  3,   1,  0,  "ABCD"      },
+                { L_,   "ABCD",  3,   1,  1,  "ABCBD"     },
+                { L_,   "ABCD",  3,   1,  2,  "ABCBCD"    },
+                { L_,   "ABCD",  3,   1,  3,  "ABCBCDD"   },
+                { L_,   "ABCD",  3,   2,  0,  "ABCD"      },
+                { L_,   "ABCD",  3,   2,  1,  "ABCCD"     },
+                { L_,   "ABCD",  3,   2,  2,  "ABCCDD"    },
+                { L_,   "ABCD",  3,   3,  0,  "ABCD"      },
+                { L_,   "ABCD",  3,   3,  1,  "ABCDD"     },
+                { L_,   "ABCD",  3,   4,  0,  "ABCD"      },
+
+                { L_,   "ABCD",  4,   0,  0,  "ABCD"      },
+                { L_,   "ABCD",  4,   0,  1,  "ABCDA"     },
+                { L_,   "ABCD",  4,   0,  2,  "ABCDAB"    },
+                { L_,   "ABCD",  4,   0,  3,  "ABCDABC"   },
+                { L_,   "ABCD",  4,   0,  4,  "ABCDABCD"  },
+                { L_,   "ABCD",  4,   1,  0,  "ABCD"      },
+                { L_,   "ABCD",  4,   1,  1,  "ABCDB"     },
+                { L_,   "ABCD",  4,   1,  2,  "ABCDBC"    },
+                { L_,   "ABCD",  4,   1,  3,  "ABCDBCD"   },
+                { L_,   "ABCD",  4,   2,  0,  "ABCD"      },
+                { L_,   "ABCD",  4,   2,  1,  "ABCDC"     },
+                { L_,   "ABCD",  4,   2,  2,  "ABCDCD"    },
+                { L_,   "ABCD",  4,   3,  0,  "ABCD"      },
+                { L_,   "ABCD",  4,   3,  1,  "ABCDD"     },
+                { L_,   "ABCD",  4,   4,  0,  "ABCD"      },
+
+                //line  x-array di   si  ne  expected
+                //----  ------- --   --  --  --------   Depth = 5
+                { L_,   "ABCDE", 0,   0,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 0,   0,  1,  "AABCDE"     },
+                { L_,   "ABCDE", 0,   0,  2,  "ABABCDE"    },
+                { L_,   "ABCDE", 0,   0,  3,  "ABCABCDE"   },
+                { L_,   "ABCDE", 0,   0,  4,  "ABCDABCDE"  },
+                { L_,   "ABCDE", 0,   0,  5,  "ABCDEABCDE" },
+                { L_,   "ABCDE", 0,   1,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 0,   1,  1,  "BABCDE"     },
+                { L_,   "ABCDE", 0,   1,  2,  "BCABCDE"    },
+                { L_,   "ABCDE", 0,   1,  3,  "BCDABCDE"   },
+                { L_,   "ABCDE", 0,   1,  4,  "BCDEABCDE"  },
+                { L_,   "ABCDE", 0,   2,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 0,   2,  1,  "CABCDE"     },
+                { L_,   "ABCDE", 0,   2,  2,  "CDABCDE"    },
+                { L_,   "ABCDE", 0,   2,  3,  "CDEABCDE"   },
+                { L_,   "ABCDE", 0,   3,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 0,   3,  1,  "DABCDE"     },
+                { L_,   "ABCDE", 0,   3,  2,  "DEABCDE"    },
+                { L_,   "ABCDE", 0,   4,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 0,   4,  1,  "EABCDE"     },
+                { L_,   "ABCDE", 0,   5,  0,  "ABCDE"      },
+
+                { L_,   "ABCDE", 1,   0,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 1,   0,  1,  "AABCDE"     },
+                { L_,   "ABCDE", 1,   0,  2,  "AABBCDE"    },
+                { L_,   "ABCDE", 1,   0,  3,  "AABCBCDE"   },
+                { L_,   "ABCDE", 1,   0,  4,  "AABCDBCDE"  },
+                { L_,   "ABCDE", 1,   0,  5,  "AABCDEBCDE" },
+                { L_,   "ABCDE", 1,   1,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 1,   1,  1,  "ABBCDE"     },
+                { L_,   "ABCDE", 1,   1,  2,  "ABCBCDE"    },
+                { L_,   "ABCDE", 1,   1,  3,  "ABCDBCDE"   },
+                { L_,   "ABCDE", 1,   1,  4,  "ABCDEBCDE"  },
+                { L_,   "ABCDE", 1,   2,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 1,   2,  1,  "ACBCDE"     },
+                { L_,   "ABCDE", 1,   2,  2,  "ACDBCDE"    },
+                { L_,   "ABCDE", 1,   2,  3,  "ACDEBCDE"   },
+                { L_,   "ABCDE", 1,   3,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 1,   3,  1,  "ADBCDE"     },
+                { L_,   "ABCDE", 1,   3,  2,  "ADEBCDE"    },
+                { L_,   "ABCDE", 1,   4,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 1,   4,  1,  "AEBCDE"     },
+                { L_,   "ABCDE", 1,   5,  0,  "ABCDE"      },
+
+                { L_,   "ABCDE", 2,   0,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 2,   0,  1,  "ABACDE"     },
+                { L_,   "ABCDE", 2,   0,  2,  "ABABCDE"    },
+                { L_,   "ABCDE", 2,   0,  3,  "ABABCCDE"   },
+                { L_,   "ABCDE", 2,   0,  4,  "ABABCDCDE"  },
+                { L_,   "ABCDE", 2,   0,  5,  "ABABCDECDE" },
+                { L_,   "ABCDE", 2,   1,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 2,   1,  1,  "ABBCDE"     },
+                { L_,   "ABCDE", 2,   1,  2,  "ABBCCDE"    },
+                { L_,   "ABCDE", 2,   1,  3,  "ABBCDCDE"   },
+                { L_,   "ABCDE", 2,   1,  4,  "ABBCDECDE"  },
+                { L_,   "ABCDE", 2,   2,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 2,   2,  1,  "ABCCDE"     },
+                { L_,   "ABCDE", 2,   2,  2,  "ABCDCDE"    },
+                { L_,   "ABCDE", 2,   2,  3,  "ABCDECDE"   },
+                { L_,   "ABCDE", 2,   3,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 2,   3,  1,  "ABDCDE"     },
+                { L_,   "ABCDE", 2,   3,  2,  "ABDECDE"    },
+                { L_,   "ABCDE", 2,   4,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 2,   4,  1,  "ABECDE"     },
+                { L_,   "ABCDE", 2,   5,  0,  "ABCDE"      },
+
+                { L_,   "ABCDE", 3,   0,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 3,   0,  1,  "ABCADE"     },
+                { L_,   "ABCDE", 3,   0,  2,  "ABCABDE"    },
+                { L_,   "ABCDE", 3,   0,  3,  "ABCABCDE"   },
+                { L_,   "ABCDE", 3,   0,  4,  "ABCABCDDE"  },
+                { L_,   "ABCDE", 3,   0,  5,  "ABCABCDEDE" },
+                { L_,   "ABCDE", 3,   1,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 3,   1,  1,  "ABCBDE"     },
+                { L_,   "ABCDE", 3,   1,  2,  "ABCBCDE"    },
+                { L_,   "ABCDE", 3,   1,  3,  "ABCBCDDE"   },
+                { L_,   "ABCDE", 3,   1,  4,  "ABCBCDEDE"  },
+                { L_,   "ABCDE", 3,   2,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 3,   2,  1,  "ABCCDE"     },
+                { L_,   "ABCDE", 3,   2,  2,  "ABCCDDE"    },
+                { L_,   "ABCDE", 3,   2,  3,  "ABCCDEDE"   },
+                { L_,   "ABCDE", 3,   3,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 3,   3,  1,  "ABCDDE"     },
+                { L_,   "ABCDE", 3,   3,  2,  "ABCDEDE"    },
+                { L_,   "ABCDE", 3,   4,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 3,   4,  1,  "ABCEDE"     },
+                { L_,   "ABCDE", 3,   5,  0,  "ABCDE"      },
+
+                { L_,   "ABCDE", 4,   0,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 4,   0,  1,  "ABCDAE"     },
+                { L_,   "ABCDE", 4,   0,  2,  "ABCDABE"    },
+                { L_,   "ABCDE", 4,   0,  3,  "ABCDABCE"   },
+                { L_,   "ABCDE", 4,   0,  4,  "ABCDABCDE"  },
+                { L_,   "ABCDE", 4,   0,  5,  "ABCDABCDEE" },
+                { L_,   "ABCDE", 4,   1,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 4,   1,  1,  "ABCDBE"     },
+                { L_,   "ABCDE", 4,   1,  2,  "ABCDBCE"    },
+                { L_,   "ABCDE", 4,   1,  3,  "ABCDBCDE"   },
+                { L_,   "ABCDE", 4,   1,  4,  "ABCDBCDEE"  },
+                { L_,   "ABCDE", 4,   2,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 4,   2,  1,  "ABCDCE"     },
+                { L_,   "ABCDE", 4,   2,  2,  "ABCDCDE"    },
+                { L_,   "ABCDE", 4,   2,  3,  "ABCDCDEE"   },
+                { L_,   "ABCDE", 4,   3,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 4,   3,  1,  "ABCDDE"     },
+                { L_,   "ABCDE", 4,   3,  2,  "ABCDDEE"    },
+                { L_,   "ABCDE", 4,   4,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 4,   4,  1,  "ABCDEE"     },
+                { L_,   "ABCDE", 4,   5,  0,  "ABCDE"      },
+
+                { L_,   "ABCDE", 5,   0,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 5,   0,  1,  "ABCDEA"     },
+                { L_,   "ABCDE", 5,   0,  2,  "ABCDEAB"    },
+                { L_,   "ABCDE", 5,   0,  3,  "ABCDEABC"   },
+                { L_,   "ABCDE", 5,   0,  4,  "ABCDEABCD"  },
+                { L_,   "ABCDE", 5,   0,  5,  "ABCDEABCDE" },
+                { L_,   "ABCDE", 5,   1,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 5,   1,  1,  "ABCDEB"     },
+                { L_,   "ABCDE", 5,   1,  2,  "ABCDEBC"    },
+                { L_,   "ABCDE", 5,   1,  3,  "ABCDEBCD"   },
+                { L_,   "ABCDE", 5,   1,  4,  "ABCDEBCDE"  },
+                { L_,   "ABCDE", 5,   2,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 5,   2,  1,  "ABCDEC"     },
+                { L_,   "ABCDE", 5,   2,  2,  "ABCDECD"    },
+                { L_,   "ABCDE", 5,   2,  3,  "ABCDECDE"   },
+                { L_,   "ABCDE", 5,   3,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 5,   3,  1,  "ABCDED"     },
+                { L_,   "ABCDE", 5,   3,  2,  "ABCDEDE"    },
+                { L_,   "ABCDE", 5,   4,  0,  "ABCDE"      },
+                { L_,   "ABCDE", 5,   4,  1,  "ABCDEE"     },
+                { L_,   "ABCDE", 5,   5,  0,  "ABCDE"      },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            int oldDepth = -1;
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int   LINE   = DATA[ti].d_lineNum;
+                const char *X_SPEC = DATA[ti].d_xSpec;
+                const int   DI     = DATA[ti].d_di;
+                const int   SI     = DATA[ti].d_si;
+                const int   NE     = DATA[ti].d_ne;
+                const char *E_SPEC = DATA[ti].d_expSpec;
+
+                const int   DEPTH  = (int)strlen(X_SPEC);
+                if (DEPTH > oldDepth) {
+                    oldDepth = DEPTH;
+                    if (verbose) { cout << '\t';  P(DEPTH); }
+                }
+
+                const Obj DD(g(X_SPEC));          // control for destination
+                const Obj EE(g(E_SPEC));          // control for expected value
+
+                if (veryVerbose) {
+                    cout << "\t  =================================="
+                                "==================================" << endl;
+                    cout << "\t  "; P_(X_SPEC); P_(DI);
+                                                P_(SI); P_(NE); P(E_SPEC);
+                    cout << "\t\t"; P(DD);
+                    cout << "\t\t"; P(EE);
+
+
+                    cout << "\t\t\t---------- BLACK BOX ----------" << endl;
+                }
+
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                if (veryVerbose) cout << "\t\tappend(item)" << endl;
+                if ((int)strlen(X_SPEC) == DI && 1 == NE) {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    Obj x(DD, &testAllocator);  const Obj &X = x;
+                    if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
+                    x.append(X[SI]);
+                    if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
+                    LOOP_ASSERT(LINE, EE == X);
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                }
+
+                if (veryVerbose) {
+                    cout << "\t\t\t---------- WHITE BOX ----------" << endl;
+                }
+
+                Obj x(&testAllocator);  const Obj &X = x;
+
+                const int STRETCH_SIZE = 50;
+
+                stretchRemoveAll(&x, STRETCH_SIZE);
+
+                const int NUM_BLOCKS = testAllocator.numBlocksTotal();
+                const int NUM_BYTES  = testAllocator.numBytesInUse();
+
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                if (veryVerbose) cout << "\t\tappend(item)" << endl;
+                if ((int)strlen(X_SPEC) == DI && 1 == NE) {
+                    x.removeAll();  gg(&x, X_SPEC);
+                    if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
+                    x.append(X[SI]);
+                    if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
+                    LOOP_ASSERT(LINE, EE == X);
+                }
+
+#if TBD
+                LOOP_ASSERT(LINE,
+                            NUM_BLOCKS == testAllocator.numBlocksTotal());
+                LOOP_ASSERT(LINE,
+                            NUM_BYTES  == testAllocator.numBytesInUse());
+#endif
+            }
+        }
+
+      } break;
       case 12: {
         // --------------------------------------------------------------------
         // RESIZE
@@ -1209,7 +2686,7 @@ int main(int argc, char *argv[])
             const Element I_VALUE       = VA;
             const Element DEFAULT_VALUE = Element();
 
-            static const char *SPECS[] = { 
+            static const char *SPECS[] = {
                 "",                  //  0
                 "A",                 //  1
                 "AA",                //  2
@@ -1689,7 +3166,7 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(SPEC, N, W == X);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                    {                           
+                    {
                         if (veryVeryVerbose) { cout <<
                                             "\t\t\tBuffer Allocator" << endl; }
                         char memory[1024 * 1024]; // TBD: find lower bound?

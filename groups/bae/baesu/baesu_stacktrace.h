@@ -28,7 +28,7 @@ BDES_IDENT("$Id: $")
 ///-----
 // In this section we show the intended usage of this component.
 //
-///Example 1: Configuring a stack-trace value
+///Example 1: Configuring a Stack-Trace Value
 /// - - - - - - - - - - - - - - - - - - - - -
 // In the following example we demonstrate how to create a 'baesu_StackTrace'
 // object, then both modify and access its value.
@@ -45,12 +45,11 @@ BDES_IDENT("$Id: $")
 // Next, we create a stack trace object.  Note that when we don't specify an
 // allocator, the default allocator is not used -- rather, a heap bypass
 // allocator owned by the stack trace object is used.  The heap bypass
-// allocator is the default and is recommended because this component is often
-// used to obtain debug information in instances where an error has occurred,
-// and there is a possibility that the heap has been corrupted.  The heap
-// bypass allocator obtains its memory directly from virtual memory rather than
-// going through the heap, avoiding potential complications due to heap
-// corruption.
+// allocator is recommended because this component is often used to obtain
+// debug information in instances where an error has occurred, and the
+// possibility of heap corruption can't be ruled out.  The heap bypass
+// allocator obtains its memory directly from virtual memory rather than going
+// through the heap, avoiding potential complications due to heap corruption.
 //..
 //  baesu_StackTrace stackTrace;
 //  assert(0 == stackTrace.length());
@@ -202,9 +201,6 @@ class baesu_StackTrace {
                                  d_frames;    // sequence of stack trace frames
 
   public:
-    friend bool operator==(const baesu_StackTrace&,
-                           const baesu_StackTrace&);
-
     BSLALG_DECLARE_NESTED_TRAITS2(baesu_StackTrace,
                                   bslalg_TypeTraitUsesBslmaAllocator,
                                   bslalg_TypeTraitBitwiseMoveable);
@@ -219,7 +215,7 @@ class baesu_StackTrace {
         // allocation in instances where the heap may have been corrupted.
 
     baesu_StackTrace(const baesu_StackTrace&  original,
-                     bslma_Allocator         *allocator = 0);
+                     bslma_Allocator         *basicAllocator = 0);
         // Create a 'baesu_StackTrace' object having the same value as the
         // specified 'original' object.  Optionally specify 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, then an owned
@@ -227,7 +223,7 @@ class baesu_StackTrace {
         // bypass allocator is used by default to avoid heap allocation in
         // instances where the heap may have been corrupted.
 
-    //! ~baesu_StackTrace() = default();
+    //! ~baesu_StackTrace() = default;
         // Destroy this object.
 
     // MANIPULATORS
@@ -251,7 +247,7 @@ class baesu_StackTrace {
         // Add default constructed stack trace frames to, or remove stack trace
         // frames from, the end of this stack trace object such that, after the
         // operation, 'length() == newLength'.  Stack trace frames whose
-        // indices are in the range '0 <= index < min(length, newLength) will
+        // indices are in the range '0 <= index < min(length, newLength)' will
         // be unchanged.  The behavior is undefined unless '0 <= newLength'.
 
                         // Aspects
@@ -363,8 +359,7 @@ baesu_StackTrace& baesu_StackTrace::operator=(const baesu_StackTrace& rhs)
 inline
 baesu_StackTraceFrame& baesu_StackTrace::operator[](int index)
 {
-    BSLS_ASSERT_SAFE(index >= 0);
-    BSLS_ASSERT_SAFE(index < length());
+    BSLS_ASSERT_SAFE((unsigned) index < length());
 
     return d_frames[index];
 }
@@ -403,8 +398,7 @@ void baesu_StackTrace::swap(baesu_StackTrace& other)
 inline
 const baesu_StackTraceFrame& baesu_StackTrace::operator[](int index) const
 {
-    BSLS_ASSERT_SAFE(index >= 0);
-    BSLS_ASSERT_SAFE(index < length());
+    BSLS_ASSERT_SAFE((unsigned) index < length());
 
     return d_frames[index];
 }
@@ -423,13 +417,8 @@ int baesu_StackTrace::length() const
 
 // FREE OPERATORS
 inline
-bool operator==(const baesu_StackTrace& lhs, const baesu_StackTrace& rhs)
-{
-    return lhs.d_frames == rhs.d_frames;
-}
-
-inline
-bool operator!=(const baesu_StackTrace& lhs, const baesu_StackTrace& rhs)
+bool operator!=(const baesu_StackTrace& lhs,
+                const baesu_StackTrace& rhs)
 {
     return !(lhs == rhs);
 }
