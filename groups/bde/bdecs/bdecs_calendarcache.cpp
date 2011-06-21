@@ -1,4 +1,4 @@
-// bdecs_calendarcache.cpp            -*-C++-*-
+// bdecs_calendarcache.cpp                                            -*-C++-*-
 #include <bdecs_calendarcache.h>
 
 #include <bdes_ident.h>
@@ -14,16 +14,16 @@ BDES_IDENT_RCSID(bdecs_calendarcache_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 #include <bslma_rawdeleterproctor.h>
 
+#include <bsls_assert.h>
+
 #include <bsl_functional.h>
 #include <bsl_string.h>
 
 namespace BloombergLP {
 
-
                         // ==============================
                         // class bdecs_CalendarCacheEntry
                         // ==============================
-
 
 class bdecs_CalendarCacheEntry {
     // This class implements an entry in the calendar cache.  It contains the
@@ -88,6 +88,9 @@ const bdecs_Calendar *bdecs_CalendarCacheEntry::calendar(
                                                   bdecs_CalendarLoader *loader,
                                                   const char           *name)
 {
+    BSLS_ASSERT(loader);
+    BSLS_ASSERT(name);
+
     if (d_forceReloadFlag) {
         bdecs_PackedCalendar packedCalendar(d_allocator_p);
         int ret = loader->load(&packedCalendar, name);
@@ -113,6 +116,9 @@ const bdecs_Calendar *bdecs_CalendarCacheEntry::calendar(
                                              const char               *name,
                                              const bdet_TimeInterval&  timeout)
 {
+    BSLS_ASSERT(loader);
+    BSLS_ASSERT(name);
+
     if ((bdetu_SystemTime::nowAsDatetimeGMT() - d_loadTime).seconds() >=
                                                            timeout.seconds()) {
 
@@ -129,11 +135,9 @@ inline void bdecs_CalendarCacheEntry::invalidate()
     d_forceReloadFlag = true;
 }
 
-
                         // -------------------------
                         // class bdecs_CalendarCache
                         // -------------------------
-
 
 // CREATORS
 bdecs_CalendarCache::bdecs_CalendarCache(bdecs_CalendarLoader *loader,
@@ -147,6 +151,7 @@ bdecs_CalendarCache::bdecs_CalendarCache(bdecs_CalendarLoader *loader,
 , d_useTimeOutFlag(false)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
+    BSLS_ASSERT(loader);
 }
 
 bdecs_CalendarCache::bdecs_CalendarCache(
@@ -163,6 +168,7 @@ bdecs_CalendarCache::bdecs_CalendarCache(
 , d_useTimeOutFlag(true)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
+    BSLS_ASSERT(loader);
 }
 
 bdecs_CalendarCache::~bdecs_CalendarCache()
@@ -236,7 +242,6 @@ void bdecs_CalendarCache::invalidateAll()
     }
 }
 
-
                         // -----------------------------
                         // class bdecs_CalendarCacheIter
                         // -----------------------------
@@ -293,7 +298,6 @@ bdecs_CalendarCache_PairRef bdecs_CalendarCacheIter::operator*() const
                                                   d_loader_p,
                                                   d_iterator->first.c_str())));
 }
-
 
 }  // close namespace BloombergLP
 
