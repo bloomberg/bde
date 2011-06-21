@@ -1050,7 +1050,7 @@ void bottom(bslma_Allocator *alloc)
                                     // Usage 2
                                     // -------
 
-// Example 2: loading the stack trace from an array of stack addresses.
+// Example 2: Loading a Stack Trace From an Array of Stack Addresses.
 
 // In this example, we demonstrate obtaining return addresses from the stack
 // using 'baesu_StackAddressUtil', and later using them to load a
@@ -1065,6 +1065,8 @@ void bottom(bslma_Allocator *alloc)
 // First, we define a routine 'recurseExample2' which will recurse the
 // specified 'depth' times, then call 'traceExample2'.
 
+void traceExample2();    // forward declaration
+
 static void recurseExample2(int *depth)
     // Recurse the specified 'depth' number of times, then call
     // 'traceExample2', which will print a stack trace.
@@ -1073,8 +1075,6 @@ static void recurseExample2(int *depth)
         recurseExample2(depth);
     }
     else {
-        void traceExample2();
-
         traceExample2();
     }
 
@@ -1091,10 +1091,10 @@ void traceExample2()
     enum { ARRAY_LENGTH = 50 };
     void *addresses[ARRAY_LENGTH];
 
-    // Next, we call 'getStackAddresses' to get the stored return addresses
-    // from the stack and load them into the array 'addresses'.  The call
-    // returns the number of addresses saved into the array, which will be less
-    // than or equal to 'ARRAY_LENGTH'.
+    // Next, we call 'baesu_StackAddressUtil::getStackAddresses' to get the
+    // stored return addresses from the stack and load them into the array
+    // 'addresses'.  The call returns the number of addresses saved into the
+    // array, which will be less than or equal to 'ARRAY_LENGTH'.
 
     int numAddresses = baesu_StackAddressUtil::getStackAddresses(
                                                          addresses,
@@ -1133,8 +1133,10 @@ void traceExample2()
 
 // Example 1: loading stack trace with 'loadStackTraceFromStack':
 
-// First, we define a routine 'recurseExample1' which will recurse the
+// We start by defining a routine 'recurseExample1' which will recurse the
 // specified 'depth' times, then call 'traceExample1'.
+
+void traceExample1();    // forward declaration
 
 void recurseExample1(int *depth)
     // Recurse the specified 'depth' number of times, then call
@@ -1144,28 +1146,29 @@ void recurseExample1(int *depth)
         recurseExample1(depth);
     }
     else {
-        void traceExample1();
-
         traceExample1();
     }
 
     ++*depth;   // Prevent compiler from optimizing tail recursion as a loop.
 }
 
-// Then, we define 'traceExample1', which will print a stack trace:
+// Then, we define the function 'traceExample1', which will print a stack
+// trace:
 
 void traceExample1()
 {
-// Next, we create a 'baesu_StackTrace' object and call
+// Now, we create a 'baesu_StackTrace' object and call
 // 'loadStackTraceFrameStack' to load the information from the stack of the
 // current thread into the stack trace object.
 //
-// In this call to 'loadStackTraceFromStack', 'maxFrames' defaults to 1024 and
-// 'demanglingPreferredFlag' defaults to 'true', meaning that the function will
+// In this call to 'loadStackTraceFromStack', we use the default value of
+// 'maxFrames', which is at least 1024 and the default value for
+// 'demanglingPreferredFlag', which is 'true', meaning that the operation will
 // attempt to demangle function names.  Note that the object 'stackTrace' takes
-// very little room on the stack, allocating most of its memory directly from
-// virtual memory without going through the heap, minimizing potential
-// complications due to stack-size limits and possible heap corruption.
+// very little room on the stack, and by default allocates most of its memory
+// directly from virtual memory without going through the heap, minimizing
+// potential complications due to stack-size limits and possible heap
+// corruption.
 
     baesu_StackTrace stackTrace;
     int rc = baesu_StackTraceUtil::loadStackTraceFromStack(&stackTrace);

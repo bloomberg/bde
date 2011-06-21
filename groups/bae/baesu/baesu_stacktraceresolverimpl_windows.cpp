@@ -168,7 +168,9 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
 
     (*api.d_symSetOptions)(SYMOPT_NO_PROMPTS | SYMOPT_LOAD_LINES
                                        | SYMOPT_DEFERRED_LOADS);
-//                                     | SYMOPT_DEFERRED_LOADS | SYMOPT_DEBUG);
+
+    //                                 | SYMOPT_DEFERRED_LOADS | SYMOPT_DEBUG);
+
     HANDLE hProcess = GetCurrentProcess();
 
     // Thanks to SYMOPT_DEFERRED_LOADS no manual enumeration of libraries is

@@ -17,7 +17,7 @@ BDES_IDENT("$Id: $")
 //@SEE_ALSO: baesu_stacktraceframe, baesu_stacktraceutil,
 //           baesu_stacktraceprintutil, bdema_heapbypassallocator
 //
-//@DESCRIPTION: This component provides a (value-semantic) class,
+//@DESCRIPTION: This component provides a (value-semantic) container class,
 // 'baesu_StackTrace', that is used to describe a function call-stack.  A stack
 // trace object contains a sequence of 'baesu_StackTraceFrame' objects.  By
 // default, a 'baesu_StackTrace' object is supplied memory by an owned instance
@@ -39,17 +39,18 @@ BDES_IDENT("$Id: $")
 // setting the default allocator to a test allocator so we can verify later
 // that it was unused:
 //..
-//  bslma_TestAllocator da;
+//  bslma_TestAllocator         da;
 //  bslma_DefaultAllocatorGuard guard(&da);
 //..
 // Next, we create a stack trace object.  Note that when we don't specify an
 // allocator, the default allocator is not used -- rather, a heap bypass
 // allocator owned by the stack trace object is used.  The heap bypass
-// allocator is recommended because this component is often used to obtain
-// debug information in instances where an error has occurred, and the
-// possibility of heap corruption can't be ruled out.  The heap bypass
-// allocator obtains its memory directly from virtual memory rather than going
-// through the heap, avoiding potential complications due to heap corruption.
+// allocator is the default and is recommended because this component is often
+// used to obtain debug information in instances where an error has occurred,
+// and there is a possibility that the heap has been corrupted.  The heap
+// bypass allocator obtains its memory directly from virtual memory rather than
+// going through the heap, avoiding potential complications due to heap
+// corruption.
 //..
 //  baesu_StackTrace stackTrace;
 //  assert(0 == stackTrace.length());
@@ -82,22 +83,22 @@ BDES_IDENT("$Id: $")
 //..
 // Then, we verify the frames have the values we expect.
 //..
-//  assert((void *) 0x12ab == frame0.address());
-//  assert("/a/b/c/baesu_stacktrace.t.dbg_exc_mt" ==
-//                                               frame0.libraryFileName());
-//  assert(5 == frame0.lineNumber());
-//  assert(116 == frame0.offsetFromSymbol());
-//  assert("/a/b/c/sourceFile.cpp" == frame0.sourceFileName());
-//  assert("_woof_1a" == frame0.mangledSymbolName());
-//  assert("woof" == frame0.symbolName());
+//  assert((void *) 0x12ab               == frame0.address());
+//  assert("/a/b/c/baesu_stacktrace.t.dbg_exc_mt"
+//                                       == frame0.libraryFileName());
+//  assert(  5                           == frame0.lineNumber());
+//  assert(116                           == frame0.offsetFromSymbol());
+//  assert("/a/b/c/sourceFile.cpp"       == frame0.sourceFileName());
+//  assert("_woof_1a"                    == frame0.mangledSymbolName());
+//  assert("woof"                        == frame0.symbolName());
 //
-//  assert((void *) 0x34cd == frame1.address());
-//  assert("/lib/libd.a" == frame1.libraryFileName());
-//  assert(15 == frame1.lineNumber());
-//  assert(228 == frame1.offsetFromSymbol());
+//  assert((void *) 0x34cd               == frame1.address());
+//  assert("/lib/libd.a"                 == frame1.libraryFileName());
+//  assert( 15                           == frame1.lineNumber());
+//  assert(228                           == frame1.offsetFromSymbol());
 //  assert("/a/b/c/secondSourceFile.cpp" == frame1.sourceFileName());
-//  assert("_arf_1a" == frame1.mangledSymbolName());
-//  assert("arf" == frame1.symbolName());
+//  assert("_arf_1a"                     == frame1.mangledSymbolName());
+//  assert("arf"                         == frame1.symbolName());
 //..
 // Next, we output the stack trace object.
 //..
@@ -201,6 +202,9 @@ class baesu_StackTrace {
                                  d_frames;    // sequence of stack trace frames
 
   public:
+    friend bool operator==(const baesu_StackTrace&,
+                           const baesu_StackTrace&);
+
     BSLALG_DECLARE_NESTED_TRAITS2(baesu_StackTrace,
                                   bslalg_TypeTraitUsesBslmaAllocator,
                                   bslalg_TypeTraitBitwiseMoveable);
@@ -237,6 +241,9 @@ class baesu_StackTrace {
         // frame at the specified 'index'.  The behavior is undefined unless
         // '0 <= index < length()'.
 
+    void append(const baesu_StackTraceFrame& value);
+        // Append to this sequence the specified 'value'.
+
     void removeAll();
         // Remove all stack trace frames from this object.  After this
         // operation, 'length' will return 0.
@@ -247,6 +254,8 @@ class baesu_StackTrace {
         // operation, 'length() == newLength'.  Stack trace frames whose
         // indices are in the range '0 <= index < min(length, newLength) will
         // be unchanged.  The behavior is undefined unless '0 <= newLength'.
+
+                        // Aspects
 
     void swap(baesu_StackTrace& other);
         // Efficiently exchange the value of this object with the value of the
@@ -288,15 +297,13 @@ class baesu_StackTrace {
 };
 
 // FREE OPERATORS
-bool operator==(const baesu_StackTrace& lhs,
-                const baesu_StackTrace& rhs);
+bool operator==(const baesu_StackTrace& lhs, const baesu_StackTrace& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'baesu_StackTrace' objects have the
     // same value if they have the save length, and all of their corresponding
     // stack trace frames have the same value.
 
-bool operator!=(const baesu_StackTrace& lhs,
-                const baesu_StackTrace& rhs);
+bool operator!=(const baesu_StackTrace& lhs, const baesu_StackTrace& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'baesu_StackTrace' objects do
     // not have the same value if they do not have the same length, or any of
@@ -357,9 +364,16 @@ baesu_StackTrace& baesu_StackTrace::operator=(const baesu_StackTrace& rhs)
 inline
 baesu_StackTraceFrame& baesu_StackTrace::operator[](int index)
 {
-    BSLS_ASSERT_SAFE((unsigned) index < length());
+    BSLS_ASSERT_SAFE(index >= 0);
+    BSLS_ASSERT_SAFE(index < length());
 
     return d_frames[index];
+}
+
+inline
+void baesu_StackTrace::append(const baesu_StackTraceFrame& value)
+{
+    d_frames.push_back(value);
 }
 
 inline
@@ -390,7 +404,8 @@ void baesu_StackTrace::swap(baesu_StackTrace& other)
 inline
 const baesu_StackTraceFrame& baesu_StackTrace::operator[](int index) const
 {
-    BSLS_ASSERT_SAFE((unsigned) index < length());
+    BSLS_ASSERT_SAFE(index >= 0);
+    BSLS_ASSERT_SAFE(index < length());
 
     return d_frames[index];
 }
@@ -409,8 +424,13 @@ int baesu_StackTrace::length() const
 
 // FREE OPERATORS
 inline
-bool operator!=(const baesu_StackTrace& lhs,
-                const baesu_StackTrace& rhs)
+bool operator==(const baesu_StackTrace& lhs, const baesu_StackTrace& rhs)
+{
+    return lhs.d_frames == rhs.d_frames;
+}
+
+inline
+bool operator!=(const baesu_StackTrace& lhs, const baesu_StackTrace& rhs)
 {
     return !(lhs == rhs);
 }
