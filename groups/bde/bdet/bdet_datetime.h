@@ -551,7 +551,7 @@ class bdet_Datetime {
         // Efficiently write the value of this object to the specified 'result'
         // buffer of at least the specified 'numBytes'.  Return the number of
         // characters (not including the null character) that would have been
-        // written if the limit due to 'numBytes' is not imposed.  'result' is
+        // written if the limit due to 'numBytes' were not imposed.  'result' is
         // null-terminated unless 'numBytes' is 0.  The behavior is undefined
         // unless '0 <= numBytes' and 'result' refers to at least 'numBytes'
         // contiguous bytes.
