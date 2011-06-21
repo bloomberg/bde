@@ -26,22 +26,6 @@ bsl::ostream& baesu_StackTrace::print(bsl::ostream& stream,
     return stream;
 }
 
-// FREE OPERATORS
-bool operator==(const baesu_StackTrace& lhs, const baesu_StackTrace& rhs)
-{
-    if (lhs.length() != rhs.length()) {
-        return false;                                                 // RETURN
-    }
-
-    for (int i = 0;  i < lhs.length(); ++i) {
-        if (lhs[i] != rhs[i]) {
-            return false;                                             // RETURN
-        }
-    }
-
-    return true;
-}
-
 }  // close namespace BloombergLP
 
 // ----------------------------------------------------------------------------

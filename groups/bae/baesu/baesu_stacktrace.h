@@ -200,6 +200,9 @@ class baesu_StackTrace {
     bsl::vector<baesu_StackTraceFrame>
                                  d_frames;    // sequence of stack trace frames
 
+    friend bool operator==(const baesu_StackTrace&,
+                           const baesu_StackTrace&);
+
   public:
     BSLALG_DECLARE_NESTED_TRAITS2(baesu_StackTrace,
                                   bslalg_TypeTraitUsesBslmaAllocator,
@@ -330,6 +333,17 @@ void swap(baesu_StackTrace& a, baesu_StackTrace& b);
                          // class baesu_StackTrace
                          // ----------------------
 
+                            // -----------------
+                            // Level 0 Functions
+                            // -----------------
+
+// ACCESSORS
+inline
+bslma_Allocator *baesu_StackTrace::allocator() const
+{
+    return d_frames.get_allocator().mechanism();
+}
+
 // CREATORS
 inline
 baesu_StackTrace::baesu_StackTrace(bslma_Allocator *basicAllocator)
@@ -359,7 +373,8 @@ baesu_StackTrace& baesu_StackTrace::operator=(const baesu_StackTrace& rhs)
 inline
 baesu_StackTraceFrame& baesu_StackTrace::operator[](int index)
 {
-    BSLS_ASSERT_SAFE((unsigned) index < length());
+    BSLS_ASSERT_SAFE(index >= 0);
+    BSLS_ASSERT_SAFE(index < length());
 
     return d_frames[index];
 }
@@ -398,15 +413,10 @@ void baesu_StackTrace::swap(baesu_StackTrace& other)
 inline
 const baesu_StackTraceFrame& baesu_StackTrace::operator[](int index) const
 {
-    BSLS_ASSERT_SAFE((unsigned) index < length());
+    BSLS_ASSERT_SAFE(index >= 0);
+    BSLS_ASSERT_SAFE(index < length());
 
     return d_frames[index];
-}
-
-inline
-bslma_Allocator *baesu_StackTrace::allocator() const
-{
-    return d_frames.get_allocator().mechanism();
 }
 
 inline
@@ -416,6 +426,12 @@ int baesu_StackTrace::length() const
 }
 
 // FREE OPERATORS
+inline
+bool operator==(const baesu_StackTrace& lhs, const baesu_StackTrace& rhs)
+{
+    return lhs.d_frames == rhs.d_frames;
+}
+
 inline
 bool operator!=(const baesu_StackTrace& lhs,
                 const baesu_StackTrace& rhs)
