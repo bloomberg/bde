@@ -1,8 +1,11 @@
 // baesu_stacktrace.t.cpp                                             -*-C++-*-
 #include <baesu_stacktrace.h>
 
+#include <bslma_bufferallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -97,6 +100,12 @@ using namespace bsl;
 // [ 9] CONCERN: There is no temporary allocation from any allocator.
 // [ 8] CONCERN: Precondition violations are detected when enabled.
 // [10] Reserved for 'bslx' streaming.
+//
+// [ 3] void stretch(baesu_StackTrace *object, int size);
+// [ 3] void stretchRemoveAll(baesu_StackTrace *o, int size);
+// [ 3] int ggg(baesu_StackTrace *o, const char *s, int vF = 1);
+// [ 3] baesu_StackTrace& gg(baesu_StackTrace *o, const char *s);
+// [ 8] baesu_StackTrace   g(const char *spec);
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -162,6 +171,68 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef baesu_StackTrace      Obj;
 typedef baesu_StackTraceFrame Frame;
+typedef Frame                 Element;
+
+const Frame VALUES[]   = {
+
+    Frame((void *)0x1234,
+         "lib0.a",
+           10,
+         "_woof_0",
+           50,
+         "sourceFile0.cpp",
+         "woof0"),
+
+    Frame((void *)0xabcd,
+         "lib1.a",
+         110,
+         "_woof_1",
+         150,
+         "/a/sourceFile1.cpp",
+         "woof1"),
+
+    Frame((void *)0xabcd,
+         "lib2.a",
+         210,
+         "sourceFile2.cpp",
+         250,
+         "_woof_2",
+         "woof2"),
+
+    Frame((void *)0xcdef,
+         "lib3.a",
+         310,
+         "/a/b/sourceFile3.cpp",
+         350,
+         "_woof_3",
+         "woof3"),
+
+    Frame((void *)0xef01,
+         "lib4.a",
+         410,
+         "/a/b/c/sourceFile4.cpp",
+         450,
+         "_woof_4",
+         "woof4"),
+
+    Frame((void *)0x0123,
+         "lib5.a",
+         510,
+         "/a/b/c/d/sourceFile5.cpp",
+         550,
+         "_woof_5",
+         "woof5")
+};
+
+//const Frame VALUES[]   = { V0, V1, V2, V3, V4, V5 };  // avoid 'DEFAULT_VALUE'
+const int   NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+const Element &V0 = VALUES[0],  &VA = V0, // 'V0', 'V1', ... are used in
+              &V1 = VALUES[1],  &VB = V1, // conjunction with the 'VALUES'
+              &V2 = VALUES[2],  &VC = V2, // array.
+              &V3 = VALUES[3],  &VD = V3, // 'VA', 'VB', ... are used in
+              &V4 = VALUES[4],  &VE = V4; // conjuction with 'g' and 'gg'.
+
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -293,6 +364,148 @@ bool bslma_TestAllocatorMonitor::isTotalUp() const
     return d_allocator_p->numBlocksTotal() != d_lastTotal;
 }
 
+//=============================================================================
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+void stretch(Obj *object, int size)
+   // Using only primary manipulators, extend the length of the specified
+   // 'object' by the specified size.  The resulting value is not specified.
+   // The behavior is undefined unless 0 <= size.
+{
+    ASSERT(object);
+    ASSERT(0 <= size);
+    for (int i = 0; i < size; ++i) {
+        object->append(V0);
+    }
+    ASSERT(object->length() >= size);
+}
+
+void stretchRemoveAll(Obj *object, int size)
+   // Using only primary manipulators, extend the capacity of the specified
+   // 'object' to (at least) the specified size; then remove all elements
+   // leaving 'object' empty.  The behavior is undefined unless 0 <= size.
+{
+    ASSERT(object);
+    ASSERT(0 <= size);
+    stretch(object, size);
+    object->removeAll();
+    ASSERT(0 == object->length());
+}
+
+void outerP(const char *leader, const Obj &X)
+    // This function is used to avert an uncaught exception on Windows during
+    // bdema exception testing.  This can happen, e.g., in test cases with
+    // large DATA sets.
+{
+    cout << leader; P(X);
+}
+
+//=============================================================================
+//              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
+//-----------------------------------------------------------------------------
+// The following functions interpret the given 'spec' in order from left to
+// right to configure the object according to a custom language.  Uppercase
+// letters '[A .. E]' correspond to arbitrary (but unique) 'Element' values to
+// be appended to the 'Obj' object.  A tilde ('~') indicates that the logical
+// (but not necessarily physical) state of the object is to be set to its
+// initial, empty state (via the 'removeAll' method).
+//
+// LANGUAGE SPECIFICATION:
+// -----------------------
+//
+// <SPEC>       ::= <EMPTY>   | <LIST>
+//
+// <EMPTY>      ::=
+//
+// <LIST>       ::= <ITEM>    | <ITEM><LIST>
+//
+// <ITEM>       ::= <ELEMENT> | <REMOVE_ALL>
+//
+// <ELEMENT>    ::= 'A' | 'B' | 'C' | 'D' | 'E'
+//                                      // unique but otherwise arbitrary
+// <REMOVE_ALL> ::= '~'
+//
+// Spec String  Description
+// -----------  ---------------------------------------------------------------
+// ""           Has no effect; leaves the object empty.
+// "A"          Append the value corresponding to A.
+// "AA"         Append two values both corresponding to A.
+// "ABC"        Append three values corresponding to A, B and C.
+// "ABC~"       Append three values corresponding to A, B and C and then
+//              remove all the elements (set array length to 0).  Note that
+//              this spec yields an object that is logically equivalent
+//              (but not necessarily identical internally) to one
+//              yielded by ("").
+// "ABC~DE"     Append three values corresponding to A, B, and C; empty
+//              the object; and append values corresponding to D and E.
+//
+//-----------------------------------------------------------------------------
+
+int ggg(Obj *object, const char *spec, int verboseFlag = 1)
+    // Configure the specified 'object' according to the specified 'spec',
+    // using only the primary manipulator function 'append' and white-box
+    // manipulator 'removeAll'.  Optionally specify a zero 'verboseFlag' to
+    // suppress 'spec' syntax error messages.  Return the index of the first
+    // invalid character, and a negative value otherwise.  Note that this
+    // function is used to implement 'gg' as well as allow for verification of
+    // syntax error detection.
+{
+    enum { SUCCESS = -1 };
+    for (int i = 0; spec[i]; ++i) {
+        if ('A' <= spec[i] && spec[i] <= 'E') {
+            object->append(VALUES[spec[i] - 'A']);
+        }
+        else if ('~' == spec[i]) {
+            object->removeAll();
+        }
+        else {
+            if (verboseFlag) {
+                cout << "Error, bad character ('" << spec[i] << "') in spec \""
+                     << spec << "\" at position " << i << '.' << endl;
+            }
+            return i;  // Discontinue processing this spec.
+        }
+   }
+   return SUCCESS;
+}
+
+Obj& gg(Obj *object, const char *spec)
+    // Return, by reference, the specified object with its value adjusted
+    // according to the specified 'spec'.
+{
+    ASSERT(ggg(object, spec) < 0);
+    return *object;
+}
+
+Obj g(const char *spec)
+    // Return, by value, a new object corresponding to the specified 'spec'.
+{
+    Obj object((bslma_Allocator *)0);
+    return gg(&object, spec);
+}
+
+class EqualityTester {
+private:
+        const Obj   *A;
+        const Obj   *B;
+public:
+        EqualityTester(const Obj *a, const Obj *b);
+        ~EqualityTester();
+};
+
+// CREATORS
+inline EqualityTester::EqualityTester(const Obj *a, const Obj *b)
+: A(a)
+, B(b)
+{
+}
+
+inline EqualityTester::~EqualityTester()
+{
+        ASSERT(*A == *B);
+}
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -318,7 +531,7 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 4: {
+      case 99: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -445,336 +658,6 @@ int main(int argc, char *argv[])
 //..
 
       }  break;
-      case 103: {
-#if 0
-        // --------------------------------------------------------------------
-        // PRINT AND OUTPUT OPERATOR
-        //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
-        //
-        // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 7 The output 'operator<<' returns the supplied 'ostream'.
-        //
-        // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5, 7)
-        //:
-        //:   1 Define twelve carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the
-        //:     two formatting parameters, along with the expected output
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
-        //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
-        //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', unless the parameters are,
-        //:       arbitrarily, (-9, -9), in which case 'operator<<' will be
-        //:       invoked instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 7)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3)
-        //
-        // Testing:
-        //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
-        //   operator<<(ostream& s, const baetzo_LocalTimeDescriptor& d);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "PRINT AND OUTPUT OPERATOR" << endl
-                          << "=========================" << endl;
-
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
-        {
-            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
-            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
-
-            // Verify that the signatures and return types are standard.
-
-            funcPtr     printMember = &Obj::print;
-            operatorPtr operatorOp  = operator<<;
-
-            (void)printMember;  // quash potential compiler warnings
-            (void)operatorOp;
-        }
-
-        Frame mFA(&ta);      const Frame& FA = mFA;
-        mFA.setAddress((void *) 0x12ab);
-        mFA.setLibraryFileName("/lib/libc.so");
-        mFA.setLineNumber(5);
-        mFA.setOffsetFromSymbol(116);
-        mFA.setSourceFileName("/a/b/c/sourceFile.cpp");
-        mFA.setMangledSymbolName("_woof_1a");
-        mFA.setSymbolName("woof");
-
-        Frame mFB(&ta);      const Frame& FB = mFB;
-        mFB.setAddress((void *) 0x34cd);
-        mFB.setLibraryFileName("/lib/libd.a");
-        mFB.setLineNumber(15);
-        mFB.setOffsetFromSymbol(228);
-        mFB.setSourceFileName("/a/b/c/secondSourceFile.cpp");
-        mFB.setMangledSymbolName("_arf_1a");
-        mFB.setSymbolName("arf");
-
-        Frame mFD(&ta);      const Frame& FD = mFD;
-
-        if (verbose) cout <<
-             "\nCreate a table of distinct value/format combinations." << endl;
-
-        const struct {
-            int         d_line;           // source line number
-            int         d_level;
-            int         d_spacesPerLevel;
-
-            const char *d_ggStr;
-
-            const char *d_expected_p;
-        } DATA[] = {
-
-#define NL "\n"
-#define SP " "
-
-        // ------------------------------------------------------------------
-        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
-        // ------------------------------------------------------------------
-
-        //LINE L SPL  ggStr EXP
-        //---- - ---  ----- ---
-
-        { L_,  0,  0, "a",  "["                                             NL
-                            "["                                             NL
-                            "address = 0x12ab"                              NL
-                            "library file name = \"/lib/libc.so\""          NL
-                            "line number = 5"                               NL
-                            "mangled symbol name = \"_woof_1a\""            NL
-                            "offset from symbol = 116"                      NL
-                            "source file name = \"/a/b/c/sourceFile.cpp\""  NL
-                            "symbol name = \"woof\""                        NL
-                            "]"                                             NL
-                            "]"                                             NL
-                                                                            },
-
-        { L_,  0,  0, "b",  "["                                             NL
-                            "["                                             NL
-                            "address = 0x34cd"                              NL
-                            "library file name = \"/lib/libd.a\""           NL
-                            "line number = 15"                              NL
-                            "mangled symbol name = \"_arf_1a\""             NL
-                            "offset from symbol = 228"                      NL
-                            "source file name = \"/a/b/c/"
-                                                  "secondSourceFile.cpp\""  NL
-                            "symbol name = \"arf\""                         NL
-                            "]"                                             NL
-                            "]"                                             NL
-                                                                            },
-
-        { L_,  0,  0, "d",  "["                                             NL
-                            "["                                             NL
-                            "address = NULL"                                NL
-                            "library file name = \"\""                      NL
-                            "line number = -1"                              NL
-                            "mangled symbol name = \"\""                    NL
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-                            "offset from symbol = 4294967295"               NL
-#else
-                            "offset from symbol = 18446744073709551615"     NL
-#endif
-                            "source file name = \"\""                       NL
-                            "symbol name = \"\""                            NL
-                            "]"                                             NL
-                            "]"                                             NL
-                                                                            },
-
-        { L_,  0,  0, "ab", "["                                             NL
-                            "["                                             NL
-                            "address = 0x12ab"                              NL
-                            "library file name = \"/lib/libc.so\""          NL
-                            "line number = 5"                               NL
-                            "mangled symbol name = \"_woof_1a\""            NL
-                            "offset from symbol = 116"                      NL
-                            "source file name = \"/a/b/c/sourceFile.cpp\""  NL
-                            "symbol name = \"woof\""                        NL
-                            "]"                                             NL
-                            "["                                             NL
-                            "address = 0x34cd"                              NL
-                            "library file name = \"/lib/libd.a\""           NL
-                            "line number = 15"                              NL
-                            "mangled symbol name = \"_arf_1a\""             NL
-                            "offset from symbol = 228"                      NL
-                            "source file name = \"/a/b/c/"
-                                                  "secondSourceFile.cpp\""  NL
-                            "symbol name = \"arf\""                         NL
-                            "]"                                             NL
-                            "]"                                             NL
-                                                                            },
-
-        { L_,  0,  2, "a",  "["                                             NL
-                            "  ["                                           NL
-                            "    address = 0x12ab"                          NL
-                            "    library file name = \"/lib/libc.so\""      NL
-                            "    line number = 5"                           NL
-                            "    mangled symbol name = \"_woof_1a\""        NL
-                            "    offset from symbol = 116"                  NL
-                            "    source file name = "
-                                               "\"/a/b/c/sourceFile.cpp\""  NL
-                            "    symbol name = \"woof\""                    NL
-                            "  ]"                                           NL
-                            "]"                                             NL
-                                                                            },
-
-        { L_,  0,  2, "ab", "["                                             NL
-                            "  ["                                           NL
-                            "    address = 0x12ab"                          NL
-                            "    library file name = \"/lib/libc.so\""      NL
-                            "    line number = 5"                           NL
-                            "    mangled symbol name = \"_woof_1a\""        NL
-                            "    offset from symbol = 116"                  NL
-                            "    source file name = "
-                                               "\"/a/b/c/sourceFile.cpp\""  NL
-                            "    symbol name = \"woof\""                    NL
-                            "  ]"                                           NL
-                            "  ["                                           NL
-                            "    address = 0x34cd"                          NL
-                            "    library file name = \"/lib/libd.a\""       NL
-                            "    line number = 15"                          NL
-                            "    mangled symbol name = \"_arf_1a\""         NL
-                            "    offset from symbol = 228"                  NL
-                            "    source file name = \"/a/b/c/"
-                                                  "secondSourceFile.cpp\""  NL
-                            "    symbol name = \"arf\""                     NL
-                            "  ]"                                           NL
-                            "]"                                             NL
-                                                                            },
-
-        { L_,  0, -1, "a",  "["                                             SP
-                            "["                                             SP
-                            "address = 0x12ab"                              SP
-                            "library file name = \"/lib/libc.so\""          SP
-                            "line number = 5"                               SP
-                            "mangled symbol name = \"_woof_1a\""            SP
-                            "offset from symbol = 116"                      SP
-                            "source file name = \"/a/b/c/sourceFile.cpp\""  SP
-                            "symbol name = \"woof\""                        SP
-                            "]"                                             SP
-                            "]"
-                                                                            },
-
-        { L_, -9, -9, "a",  "["                                             SP
-                            "["                                             SP
-                            "address = 0x12ab"                              SP
-                            "library file name = \"/lib/libc.so\""          SP
-                            "line number = 5"                               SP
-                            "mangled symbol name = \"_woof_1a\""            SP
-                            "offset from symbol = 116"                      SP
-                            "source file name = \"/a/b/c/sourceFile.cpp\""  SP
-                            "symbol name = \"woof\""                        SP
-                            "]"                                             SP
-                            "]"
-                                                                            },
-
-#undef NL
-#undef SP
-
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        if (verbose) cout << "\nTesting with various print specifications."
-                          << endl;
-        {
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE   = DATA[ti].d_line;
-                const int         L      = DATA[ti].d_level;
-                const int         SPL    = DATA[ti].d_spacesPerLevel;
-                const char       *GGSTR  = DATA[ti].d_ggStr;
-                const char *const EXP    = DATA[ti].d_expected_p;
-
-                if (veryVerbose) { T_ P_(L) P_(SPL) P(GGSTR) }
-
-                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
-
-                Obj mX;         const Obj& X = mX;
-
-                mX.resize(bsl::strlen(GGSTR));
-                for (int xi = 0; xi < X.length(); ++xi) {
-                    char c = GGSTR[xi];
-                    switch (c) {
-                      case 'a': {
-                        mX[xi] = FA;
-                      }  break;
-                      case 'b': {
-                        mX[xi] = FB;
-                      }  break;
-                      case 'd': {
-                        mX[xi] = FD;
-                      }  break;
-                      default: {
-                        LOOP3_ASSERT(LINE, GGSTR, c,
-                                            0 && "unrecognized char in GGSTR");
-                        continue;
-                      }
-                    }
-                }
-
-                ostringstream os(&ta);
-
-                if (-9 == L && -9 == SPL) {
-
-                    // Verify supplied stream is returned by reference.
-
-                    LOOP_ASSERT(LINE, &os == &(os << X));
-
-                    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
-                }
-                else {
-
-                    // Verify supplied stream is returned by reference.
-
-                    LOOP_ASSERT(LINE, &os == &X.print(os, L, SPL));
-
-                    if (veryVeryVerbose) { T_ T_ Q(print) }
-                }
-
-                // Verify output is formatted as expected.  Note that the
-                // 'str()' method of 'os' will return a string by value, which
-                // will use the default allocator.
-
-                bslma_DefaultAllocatorGuard tmpGuard(&ta);
-
-                if (veryVeryVerbose) { P(os.str()) }
-
-                LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
-            }
-        }
-#endif
-
-      } break;
       case 102: {
 #if 0
         // --------------------------------------------------------------------
@@ -1285,6 +1168,1967 @@ int main(int argc, char *argv[])
         ASSERT(U[0] == FC);    ASSERT(U[1] == FB);    ASSERT(U[2] == FA);
 
       } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // RESIZE
+        //
+        // Concerns:
+        //: 1 The resulting length is correct and the resulting element values
+        //:   are correct when:
+        //:   o 'new length <  initial length'
+        //:   o 'new length == initial length'
+        //:   o 'new length >  initial length'
+        //:
+        //: 2 We are also concerned that the test data include sufficient
+        //:   differences in initial and final length that resizing is
+        //:   guaranteed to occur.  Beyond that, no explicit "white box" test
+        //:   is required.
+        //
+        // Plan:
+        //: 1 Specify a set 'A' of lengths.  For each 'a1' in 'A' construct an
+        //:   object 'x' of length 'a1' with each element in 'x' initialized to
+        //:   an arbitrary but known value 'V'.  For each 'a2' in 'A' use the
+        //:   'resize' method to set the length of 'x' and potentially remove
+        //:   or set element values as per the method's contract.  Use the
+        //:   basic accessors to verify the length and element values of the
+        //:   modified object 'x'.
+        //
+        // Testing:
+        //   void resize(int newLength);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "RESIZE" << endl
+                          << "======" << endl;
+
+        if (verbose) cout << "\nTesting 'resize(int)'" << endl;
+        {
+            const int lengths[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17 };
+            const int NUM_TESTS = sizeof lengths / sizeof lengths[0];
+
+            const Element I_VALUE       = VA;
+            const Element DEFAULT_VALUE = Element();
+
+            static const char *SPECS[] = { 
+                "",                  //  0
+                "A",                 //  1
+                "AA",                //  2
+                "AAA",               //  3
+                "AAAA",              //  4
+                "AAAAA",             //  5
+
+                "AAAAAAA",           //  7
+                "AAAAAAAA",          //  8
+                "AAAAAAAAA",         //  9
+
+                "AAAAAAAAAAAAAAA",   // 15
+                "AAAAAAAAAAAAAAAA",  // 16
+                "AAAAAAAAAAAAAAAAA", // 17
+
+                 0 // Null string required as last element.
+            };
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            for (int i = 0; i < NUM_TESTS; ++i) {
+                const int   a1   = lengths[i];
+                const char *SPEC = SPECS[i]; LOOP_ASSERT(i,
+                                                         a1 == strlen(SPEC));
+                const Obj   o1   = g(SPEC);
+
+                if (verbose) { cout << "\t"; P(a1); }
+                for (int j = 0; j < NUM_TESTS; ++j) {
+                    const int a2 = lengths[j];
+                    if (veryVerbose) { cout << "\t\t"; P(a2); }
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    Obj mX(o1, &testAllocator);
+                    const Obj &X = mX;
+                    if (veryVerbose) P(X);
+                    LOOP2_ASSERT(i, j, a1 == X.length());
+                    mX.resize(a2);
+                    if (veryVerbose) P(X);
+                    LOOP2_ASSERT(i, j, a2 == X.length());
+                    for (int k = 0; k < a2; ++k) {
+                        if (k < a1) {
+                            LOOP3_ASSERT(i, j, k, I_VALUE == X[k]);
+                        }
+                        else {
+                            LOOP3_ASSERT(i, j, k, DEFAULT_VALUE == X[k]);
+                        }
+                    }
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                }
+            }
+        }
+
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // INITIAL LENGTH CONSTRUCTORS
+        //
+        // Concerns:
+        //   N/A
+        //
+        // Plan:
+        //   N/A
+        //
+        // Testing:
+        //   Reserved for intial-length constructors.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "INITIAL LENGTH CONSTRUCTORS" << endl
+                          << "===========================" << endl;
+
+        if (verbose) cout << "Not yet implemented." << endl;
+
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // BSLX STREAMING
+        //   Ensure that we can serialize the value of any object of the class,
+        //   and then deserialize that value back into any object of the class.
+        //
+        // Concerns:
+        //   N/A
+        //
+        // Plan:
+        //   N/A
+        //
+        // Testing:
+        //   Reserved for 'bslx' streaming.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BSLX STREAMING" << endl
+                          << "==============" << endl;
+
+        if (verbose) cout << "Not yet implemented." << endl;
+
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // ASSIGNMENT OPERATOR
+        //
+        // Concerns:
+        //: 1  The value represented by any instance can be assigned to any
+        //:    other instance regardless of how either value is represented
+        //:    internally.
+        //: 2  The 'rhs' value must not be affected by the operation.
+        //: 3  'rhs' going out of scope has no effect on the value of 'lhs'
+        //:     after the assignment.
+        //: 4  Aliasing '(x = x)': The assignment operator must always work --
+        //:    even when the 'lhs' and 'rhs' are identically the same object.
+        //: 5  The assignment operator must be neutral with respect to memory
+        //:    allocation exceptions.
+        //
+        // Plan:
+        //: 1 Specify a set 'S' of unique object values with substantial and
+        //:   varied differences, ordered by increasing length.  For each value
+        //:   in 'S', construct an object 'x' along with a sequence of
+        //:   similarly constructed duplicates 'x1', 'x2', ..., 'xN'.  Attempt
+        //:   to affect every aspect of white-box state by altering each 'xi'
+        //:   in a unique way.  Let the union of all such objects be the set
+        //:   'T'.
+        //:
+        //: 2 To address C-1, C-2, and C-5, construct tests 'u = v' for all
+        //:   '(u, v)' in 'T X T'.  Using canonical controls 'UU' and 'VV',
+        //:   assert before the assignment that 'UU == u', 'VV == v', and
+        //:   'v == u' iff 'VV == UU'.  After the assignment, assert that
+        //:   'VV == u', 'VV == v', and, for grins, that 'v == u'.  Let 'v' go
+        //:   out of scope and confirm that 'VV == u'.  All of these tests are
+        //:   performed within the 'bslma' exception testing apparatus.
+        //:
+        //: 3 As a separate exercise, we address C-4 and C-5 by constructing
+        //:   tests 'y = y' for all 'y' in 'T'.  Using a canonical control 'X',
+        //:   we will verify that 'X == y' before and after the assignment,
+        //:   again within the 'bslma' exception testing apparatus.
+        //
+        // Testing:
+        //   baesu_StackTrace& operator=(const baesu_StackTrace& rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "COPY-ASSIGNMENT OPERATOR" << endl
+                          << "========================" << endl;
+
+        if (verbose) cout <<
+            "\nAssign cross product of values with varied representations."
+                                                                       << endl;
+        {
+            static const char *SPECS[] = { // len: 0 - 5, 7, 8, 9,
+                "",        "A",    "BC",     "CDE",    "DEAB",   "EABCD",
+                "AEDCBAE",         "CBAEDCBA",         "EDCBAEDCB",
+            0}; // Null string required as last element.
+
+            static const int EXTEND[] = {
+                0, 1, 2, 3, 4, 5, 7, 8, 9,
+            };
+            const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            int uOldLen = -1;
+            for (int ui = 0; SPECS[ui]; ++ui) {
+                const char *const U_SPEC = SPECS[ui];
+                const int uLen = (int)strlen(U_SPEC);
+
+                if (verbose) {
+                    cout << "\tFor lhs objects of length " << uLen << ":\t";
+                    P(U_SPEC);
+                }
+
+                LOOP_ASSERT(U_SPEC, uOldLen < uLen);  // strictly increasing
+                uOldLen = uLen;
+
+                const Obj UU = g(U_SPEC);               // control
+                LOOP_ASSERT(ui, uLen == UU.length());   // same lengths
+
+                // int vOldLen = -1;
+                for (int vi = 0; SPECS[vi]; ++vi) {
+                    const char *const V_SPEC = SPECS[vi];
+                    const int vLen = (int)strlen(V_SPEC);
+
+                    if (veryVerbose) {
+                        cout << "\t\tFor rhs objects of length " << vLen
+                                                                 << ":\t";
+                        P(V_SPEC);
+                    }
+
+                    const Obj VV = g(V_SPEC);           // control
+
+                    const int Z = ui == vi; // flag indicating same values
+
+                    for (int uj = 0; uj < NUM_EXTEND; ++uj) {
+                        const int U_N = EXTEND[uj];
+                        for (int vj = 0; vj < NUM_EXTEND; ++vj) {
+                            const int V_N = EXTEND[vj];
+
+                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
+                            const int AL = testAllocator.allocationLimit();
+                            testAllocator.setAllocationLimit(-1);
+                            Obj mU(&testAllocator); stretchRemoveAll(&mU, U_N);
+                            const Obj& U = mU; gg(&mU, U_SPEC);
+                            {
+                            //--^
+                            Obj mV(&testAllocator); stretchRemoveAll(&mV, V_N);
+                            const Obj& V = mV; gg(&mV, V_SPEC);
+
+                            static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
+                            if (veryVeryVerbose||veryVerbose && firstFew > 0) {
+                                cout << "\t| "; P_(U_N); P_(V_N); P_(U); P(V);
+                                --firstFew;
+                            }
+
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, UU == U);
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, Z==(V==U));
+
+                            testAllocator.setAllocationLimit(AL);
+                            mU = V; // test assignment here
+
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,  V == U);
+                            //--v
+                            }
+                            // 'mV' (and therefore 'V') now out of scope
+                            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                        }
+                    }
+                }
+            }
+        }
+
+        if (verbose) cout << "\nTesting self assignment (Aliasing)." << endl;
+        {
+            static const char *SPECS[] = { // len: 0 - 5, 7, 8, 9, 15, 16, 17
+                "",      "A",      "BC",     "CDE",    "DEAB",   "EABCD",
+                "ABCDEAB",         "ABCDEABC",         "ABCDEABCD",
+                "ABCDEABCDEABCDE", "ABCDEABCDEABCDEA", "ABCDEABCDEABCDEAB",
+            0}; // Null string required as last element.
+
+            static const int EXTEND[] = {
+                0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17
+            };
+            const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            int oldLen = -1;
+            for (int ti = 0; SPECS[ti]; ++ti) {
+                const char *const SPEC = SPECS[ti];
+                const int curLen = (int)strlen(SPEC);
+
+                if (verbose) {
+                    cout << "\tFor an object of length " << curLen << ":\t";
+                    P(SPEC);
+                }
+                LOOP_ASSERT(SPEC, oldLen < curLen);  // strictly increasing
+                oldLen = curLen;
+
+                const Obj X = g(SPEC);                  // control
+                LOOP_ASSERT(ti, curLen == X.length());  // same lengths
+
+                for (int tj = 0; tj < NUM_EXTEND; ++tj) {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    const int AL = testAllocator.allocationLimit();
+                    testAllocator.setAllocationLimit(-1);
+
+                    const int N = EXTEND[tj];
+                    Obj mY(&testAllocator);  stretchRemoveAll(&mY, N);
+                    const Obj& Y = mY;       gg(&mY, SPEC);
+
+                    if (veryVerbose) { cout << "\t\t"; P_(N); P(Y); }
+
+                    LOOP2_ASSERT(SPEC, N, Y == Y);
+                    LOOP2_ASSERT(SPEC, N, X == Y);
+
+                    testAllocator.setAllocationLimit(AL);
+                    mY = Y; // test assignment here
+
+                    LOOP2_ASSERT(SPEC, N, Y == Y);
+                    LOOP2_ASSERT(SPEC, N, X == Y);
+
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                }
+            }
+        }
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // GENERATOR FUNCTION 'g':
+        //   Since 'g' is implemented almost entirely using 'gg', we need to
+        //   verify only that the arguments are properly forwarded, that 'g'
+        //   does not affect the test allocator, and that 'g' returns an
+        //   object by value.
+        //
+        // Plan:
+        //   For each 'SPEC' in a short list of specifications, compare the
+        //   object returned (by value) from the generator function, 'g(SPEC)'
+        //   with the value of a newly constructed 'OBJECT' configured using
+        //   'gg(&OBJECT, SPEC)'.  Compare the results of calling the
+        //   allocator's 'numBlocksTotal' and 'numBytesInUse' methods before
+        //   and after calling 'g' in order to demonstrate that 'g' has no
+        //   effect on the test allocator.  Finally, use 'sizeof' to confirm
+        //   that the (temporary) returned by 'g' differs in size from that
+        //   returned by 'gg'.
+        //
+        // Testing:
+        //   baesu_StackTrace   g(const char *spec);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "GENERATOR FUNCTION 'g'" << endl
+                          << "======================" << endl;
+
+        static const char *SPECS[] = {
+            "", "~", "A", "B", "C", "D", "E", "A~B~C~D~E", "ABCDE", "ABC~DE",
+        0}; // Null string required as last element.
+
+        bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+        if (verbose) cout <<
+            "\nCompare values produced by 'g' and 'gg' for various inputs."
+                                                                       << endl;
+        for (int ti = 0; SPECS[ti]; ++ti) {
+            const char *spec = SPECS[ti];
+            if (veryVerbose) { P_(ti);  P(spec); }
+            Obj mX(&testAllocator);  gg(&mX, spec);  const Obj& X = mX;
+            if (veryVerbose) {
+                cout << "\t g = " << g(spec) << endl;
+                cout << "\tgg = " << X       << endl;
+            }
+            const int TOTAL_BLOCKS_BEFORE = testAllocator.numBlocksTotal();
+            const int IN_USE_BYTES_BEFORE = testAllocator.numBytesInUse();
+            LOOP_ASSERT(ti, X == g(spec));
+            const int TOTAL_BLOCKS_AFTER = testAllocator.numBlocksTotal();
+            const int IN_USE_BYTES_AFTER = testAllocator.numBytesInUse();
+            LOOP_ASSERT(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
+            LOOP_ASSERT(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
+        }
+
+        if (verbose) cout << "\nConfirm return-by-value." << endl;
+        {
+            const char *spec = "ABCDE";
+
+            ASSERT(sizeof(Obj) == sizeof g(spec));      // compile-time fact
+
+            Obj x(&testAllocator);                      // runtime tests
+            Obj& r1 = gg(&x, spec);
+            Obj& r2 = gg(&x, spec);
+            const Obj& r3 = g(spec);
+            const Obj& r4 = g(spec);
+            ASSERT(&r2 == &r1);
+            ASSERT(&x  == &r1);
+            ASSERT(&r4 != &r3);
+            ASSERT(&x  != &r3);
+        }
+
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // COPY CONSTRUCTOR
+        //   Ensure that we can create a distinct object of the class from any
+        //   other one, such that the two objects have the same value.
+        //
+        // Concerns:
+        //: 1 The new object's value is the same as that of the original object
+        //:   (relying on the previously tested equality operators).
+        //: 2 All internal representations of a given value can be used to
+        //:   create a new object of equivalent value.
+        //: 3 The value of the original object is left unaffected.
+        //: 4 Subsequent changes in or destruction of the source object have no
+        //:   effect on the copy-constructed object.
+        //: 5 The function is exception neutral w.r.t. memory allocation.
+        //: 6 The object has its internal memory management system hooked up
+        //:   properly so that *all* internally allocated memory draws from a
+        //:   user-supplied allocator whenever one is specified.
+        //
+        // Plan:
+        //: 1 To address C-1, C2, and C-3, specify a set 'S' of object values
+        //:   with substantial and varied differences, ordered by increasing
+        //:   length.  For each value in 'S', initialize objects 'w' and 'x',
+        //:   copy construct y from 'x' and use 'operator==' to verify that
+        //:   both 'x' and 'y' subsequently have the same value as 'w'.  Let
+        //:   'x' go out of scope and again verify that 'w == x'.  Repeat this
+        //:   test with 'x' having the same *logical* value, but perturbed so
+        //:   as to have potentially different internal representations.
+        //:
+        //: 2 To address C-5, we will perform each of the above tests in the
+        //:   presence of exceptions during memory allocations using a
+        //:   'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //:
+        //: 3 To address C-6, we will repeat the above tests:
+        //:   1 When passing in no allocator.
+        //:   2 When passing in a null pointer: (bslma_Allocator *)0.
+        //:   3 When passing in a test allocator (see concern 5).
+        //:   4 Where the object is constructed entirely in static memory
+        //:     (using a 'bslma_BufferAllocator') and never destroyed.
+        //:   5 After the (dynamically allocated) source object is deleted and
+        //:     its footprint erased (see concern 4).
+        //
+        // Testing:
+         //  baesu_StackTrace(const baesu_StackTrace& o, *bA = 0);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "COPY CONSTRUCTOR" << endl
+                          << "================" << endl;
+        if (verbose) cout <<
+            "\nCopy construct values with varied representations." << endl;
+        {
+            static const char *SPECS[] = { // len: 0 - 5, 7, 8, 9, 15, 16, 17
+                "",      "A",      "BC",     "CDE",    "DEAB",   "EABCD",
+                "ABCDEAB",         "ABCDEABC",         "ABCDEABCD",
+                "ABCDEABCDEABCDE", "ABCDEABCDEABCDEA", "ABCDEABCDEABCDEAB",
+            0}; // Null string required as last element.
+
+            static const int EXTEND[] = {
+                0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17
+            };
+            const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            int oldLen = -1;
+            for (int ti = 0; SPECS[ti]; ++ti) {
+                const char *const SPEC   = SPECS[ti];
+                const int         curLen = (int)strlen(SPEC);
+
+                if (verbose) {
+                    cout << "\tFor an object of length " << curLen << ":\t";
+                    P(SPEC);
+                }
+
+                LOOP_ASSERT(SPEC, oldLen < curLen); // strictly increasing
+                oldLen = curLen;
+
+                // Create control object w.
+                Obj mW(&testAllocator); gg(&mW, SPEC); const Obj& W = mW;
+                LOOP_ASSERT(ti, curLen == W.length()); // same lengths
+                if (veryVerbose) { cout << "\t"; P(W); }
+
+                // Stretch capacity of x object by different amounts.
+
+                for (int ei = 0; ei < NUM_EXTEND; ++ei) {
+                    const int N = EXTEND[ei];
+                    if (veryVerbose) { cout << "\t\t"; P(N) }
+
+                    Obj *pX = new Obj(&testAllocator);
+                    Obj &mX = *pX;              stretchRemoveAll(&mX, N);
+                    const Obj& X = mX;          gg(&mX, SPEC);
+                    if (veryVerbose) { cout << "\t\t"; P(X); }
+
+                    {
+                        if (veryVeryVerbose) { cout <<
+                                                "\t\t\tNo Allocator" << endl; }
+                        const Obj Y0(X);
+                        if (veryVerbose) { cout << "\t\t\t"; P(Y0); }
+                        LOOP2_ASSERT(SPEC, N, W == Y0);
+                        LOOP2_ASSERT(SPEC, N, W == X);
+                    }
+
+                    {
+                        if (veryVeryVerbose) { cout <<
+                                              "\t\t\tNull Allocator" << endl; }
+                        const Obj Y1(X, (bslma_Allocator *) 0);
+                        if (veryVerbose) { cout << "\t\t\t"; P(Y1); }
+                        LOOP2_ASSERT(SPEC, N, W == Y1);
+                        LOOP2_ASSERT(SPEC, N, W == X);
+                    }
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                        if (veryVeryVerbose) { cout <<
+                                              "\t\t\tTest Allocator" << endl; }
+                        const Obj Y2(X, &testAllocator);
+                        if (veryVerbose) { cout << "\t\t\t"; P(Y2); }
+                        LOOP2_ASSERT(SPEC, N, W == Y2);
+                        LOOP2_ASSERT(SPEC, N, W == X);
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    {                           
+                        if (veryVeryVerbose) { cout <<
+                                            "\t\t\tBuffer Allocator" << endl; }
+                        char memory[1024 * 1024]; // TBD: find lower bound?
+                        bslma_BufferAllocator a(memory, sizeof memory);
+                        Obj *Y = new(a.allocate(sizeof(Obj))) Obj(X, &a);
+                        if (veryVerbose) { cout << "\t\t\t"; P(*Y); }
+                        LOOP2_ASSERT(SPEC, N, W == *Y);
+                        LOOP2_ASSERT(SPEC, N, W == X);
+                    }
+
+                    {
+                        if (veryVeryVerbose) { cout <<
+                                   "\t\t\tWith 'original' destroyed" << endl; }
+                        const Obj Y2(X, &testAllocator);
+
+                        // testAllocator will erase the footprint of pX
+                        // preventing further reference to this object.
+
+                        delete pX;
+                        if (veryVerbose) { cout << "\t\t\t"; P(Y2); }
+                        LOOP2_ASSERT(SPEC, N, W == Y2);
+                        //LOOP2_ASSERT(SPEC, N, W == X);// This work before!!
+                    }
+                }
+            }
+        }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // EQUALITY-COMPARISON OPERATORS
+        //   Ensure that '==' and '!=' are the operational definition of value.
+        //
+        // TESTING EQUALITY OPERATORS:
+        //   Since 'operators==' is implemented in terms of basic accessors,
+        //   it is sufficient to verify only that a difference in value of any
+        //   one basic accessor for any two given objects implies inequality.
+        //   However, to test that no other internal state information is
+        //   being considered, we want also to verify that 'operator==' reports
+        //   true when applied to any two objects whose internal
+        //   representations may be different yet still represent the same
+        //   (logical) value:
+        //      - d_size
+        //      - the (corresponding) amount of dynamically allocated memory
+        //
+        // Also check that:
+        //: o The equality operator's signature and return type are standard.
+        //: o The inequality operator's signature and return type are standard.
+        //
+        // Plan:
+        //: 1 First, specify a set 'S' of unique object values having various
+        //:   minor or subtle differences, ordered by non-decreasing length.
+        //:   Verify the correctness of 'operator==' and 'operator!='
+        //:   (returning either 'true' or 'false') using all elements '(u, v)'
+        //:   of the cross product 'S X S'.
+        //:
+        //: 2 Next, specify a second set 'S' containing a representative
+        //:   variety of (black-box) box values ordered by increasing (logical)
+        //:   length.  For each value in S', construct an object 'x' along with
+        //:   a sequence of similarly constructed duplicates 'x1', 'x2', ...,
+        //:   'xN'.  Attempt to affect every aspect of white-box state by
+        //:   altering each 'xi' in a unique way.  Verify correctness of
+        //:   'operator==' and 'operator!=' by asserting that each element in
+        //:   '{ x, x1, x2, ..., xN }' is equivalent to every other element.
+        //:
+        //: 3 Use the respective addresses of 'operator==' and 'operator!=' to
+        //:   initialize function pointers having the appropriate signatures
+        //:   and return types for the two homogeneous, free equality-
+        //:   comparison operators defined in this component.
+        //
+        // Testing:
+        //   bool operator==(const baesu_StackTrace& lhs, rhs);
+        //   bool operator!=(const baesu_StackTrace& lhs, rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "EQUALITY-COMPARISON OPERATORS" << endl
+                          << "=============================" << endl;
+
+
+        if (verbose) cout <<
+            "\nCompare each pair of similar values (u, v) in S X S." << endl;
+        {
+            static const char *SPECS[] = {
+                "",
+                "A",      "B",
+                "AA",     "AB",     "BB",     "BA",
+                "AAA",    "BAA",    "ABA",    "AAB",
+                "AAAA",   "BAAA",   "ABAA",   "AABA",   "AAAB",
+                "AAAAA",  "BAAAA",  "ABAAA",  "AABAA",  "AAABA",  "AAAAB",
+                "AAAAAA", "BAAAAA", "AABAAA", "AAABAA", "AAAAAB",
+                "AAAAAAA",          "BAAAAAA",          "AAAAABA",
+                "AAAAAAAA",         "ABAAAAAA",         "AAAAABAA",
+                "AAAAAAAAA",        "AABAAAAAA",        "AAAAABAAA",
+                "AAAAAAAAAA",       "AAABAAAAAA",       "AAAAABAAAA",
+            0}; // Null string required as last element.
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            int oldLen = -1;
+            for (int ti = 0; SPECS[ti]; ++ti) {
+                const char *const U_SPEC = SPECS[ti];
+                const int curLen = (int)strlen(U_SPEC);
+
+                Obj mU(&testAllocator); gg(&mU, U_SPEC); const Obj& U = mU;
+                LOOP_ASSERT(ti, curLen == U.length()); // same lengths
+
+                if (curLen != oldLen) {
+                    if (verbose) cout << "\tUsing lhs objects of length "
+                                  << curLen << '.' << endl;
+                    LOOP_ASSERT(U_SPEC, oldLen <= curLen); // non-decreasing
+                    oldLen = curLen;
+                }
+
+                if (veryVerbose) { P_(ti); P_(U_SPEC); P(U); }
+
+                for (int tj = 0; SPECS[tj]; ++tj) {
+                    const char *const V_SPEC = SPECS[tj];
+                    Obj mV(&testAllocator); gg(&mV, V_SPEC); const Obj& V = mV;
+
+                    if (veryVerbose) { cout << "  "; P_(tj); P_(V_SPEC); P(V);}
+                    const int isSame = ti == tj;
+                    LOOP2_ASSERT(ti, tj,  isSame == (U == V));
+                    LOOP2_ASSERT(ti, tj, !isSame == (U != V));
+                }
+            }
+        }
+
+        if (verbose) cout << "\nCompare objects of equal value having "
+                             "potentially different internal state." << endl;
+        {
+            static const char *SPECS[] = { // len: 0 - 5, 7, 8, 9, 15, 16, 17
+                "",      "A",      "AB",     "ABC",    "ABCD",   "ABCDE",
+                "ABCDEAB",         "ABCDEABC",         "ABCDEABCD",
+                "ABCDEABCDEABCDE", "ABCDEABCDEABCDEA", "ABCDEABCDEABCDEAB",
+            0}; // Null string required as last element.
+
+            static const int EXTEND[] = {
+                0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17
+            };
+            const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            int oldLen = -1;
+            for (int ti = 0; SPECS[ti]; ++ti) {
+                const char *const SPEC = SPECS[ti];
+                const int curLen = (int)strlen(SPEC);
+
+                if (curLen != oldLen) {
+                    if (verbose) cout << "\tUsing objects having (logical) "
+                                         "length " << curLen << '.' << endl;
+                    LOOP_ASSERT(SPEC, oldLen < curLen); // strictly increasing
+                    oldLen = curLen;
+                }
+
+                Obj mX(&testAllocator); gg(&mX, SPEC); const Obj& X = mX;
+                LOOP_ASSERT(ti, curLen == X.length()); // same lengths
+                if (veryVerbose) { cout << "\t\t"; P_(ti); P_(SPEC); P(X)}
+
+                for (int u = 0; u < NUM_EXTEND; ++u) {
+                    const int U_N = EXTEND[u];
+                    Obj mU(&testAllocator);  stretchRemoveAll(&mU, U_N);
+                    const Obj& U = mU;       gg(&mU, SPEC);
+
+                    if (veryVerbose) { cout << "\t\t\t"; P_(U_N); P(U)}
+
+                    // compare canonical representation with every variation
+
+                    LOOP2_ASSERT(SPEC, U_N, 1 == (U == X));
+                    LOOP2_ASSERT(SPEC, U_N, 1 == (X == U));
+                    LOOP2_ASSERT(SPEC, U_N, 0 == (U != X));
+                    LOOP2_ASSERT(SPEC, U_N, 0 == (X != U));
+
+                    for (int v = 0; v < NUM_EXTEND; ++v) {
+                        const int V_N = EXTEND[v];
+                        Obj mV(&testAllocator);  stretchRemoveAll(&mV, V_N);
+                        const Obj& V = mV;       gg(&mV, SPEC);
+
+                        static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
+                        if (veryVeryVerbose || veryVerbose && firstFew > 0) {
+                            cout << "\t| "; P_(U_N); P_(V_N); P_(U); P(V);
+                            --firstFew;
+                        }
+
+                        // compare every variation with every other one
+
+                        LOOP3_ASSERT(SPEC, U_N, V_N, 1 == (U == V));
+                        LOOP3_ASSERT(SPEC, U_N, V_N, 0 == (U != V));
+                    }
+                }
+            }
+        }
+
+        if (verbose) cout <<
+                "\nAssign the address of each operator to a variable." << endl;
+        {
+            typedef bool (*operatorPtr)(const Obj&, const Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            operatorPtr operatorEq = operator==;
+            operatorPtr operatorNe = operator!=;
+
+            (void)operatorEq;  // quash potential compiler warnings
+            (void)operatorNe;
+        }
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // PRINT AND OUTPUT OPERATOR
+        //   Ensure that the value of the object can be formatted appropriately
+        //   on an 'ostream' in some standard, human-readable form.
+        //
+        // Concerns:
+        //: 1 The 'print' method writes the value to the specified 'ostream'.
+        //:
+        //: 2 The 'print' method writes the value in the intended format.
+        //:
+        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
+        //:   but with each "attributeName = " elided.
+        //:
+        //: 4 The 'print' method signature and return type are standard.
+        //:
+        //: 5 The 'print' method returns the supplied 'ostream'.
+        //:
+        //: 6 The output 'operator<<' signature and return type are standard.
+        //:
+        //: 7 The output 'operator<<' returns the supplied 'ostream'.
+        //
+        // Plan:
+        //: 1 Use the addresses of the 'print' member function and 'operator<<'
+        //:   free function defined in this component to initialize,
+        //:   respectively, member-function and free-function pointers having
+        //:   the appropriate signatures and return types.  (C-4)
+        //:
+        //: 2 Using the table-driven technique:  (C-1..3, 5, 7)
+        //:
+        //:   1 Define twelve carefully selected combinations of (two) object
+        //:     values ('A' and 'B'), having distinct values for each
+        //:     corresponding salient attribute, and various values for the
+        //:     two formatting parameters, along with the expected output
+        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
+        //:     1 { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
+        //:     2 { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
+        //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
+        //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
+        //:
+        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
+        //:
+        //:     1 Using a 'const' 'Obj', supply each object value and pair of
+        //:       formatting parameters to 'print', unless the parameters are,
+        //:       arbitrarily, (-9, -9), in which case 'operator<<' will be
+        //:       invoked instead.
+        //:
+        //:     2 Use a standard 'ostringstream' to capture the actual output.
+        //:
+        //:     3 Verify the address of what is returned is that of the
+        //:       supplied stream.  (C-5, 7)
+        //:
+        //:     4 Compare the contents captured in P-2.2.2 with what is
+        //:       expected.  (C-1..3)
+        //
+        // Testing:
+        //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
+        //   operator<<(ostream& s, const baetzo_LocalTimeDescriptor& d);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PRINT AND OUTPUT OPERATOR" << endl
+                          << "=========================" << endl;
+
+        if (verbose) cout << "\nAssign the addresses of 'print' and "
+                             "the output 'operator<<' to variables." << endl;
+        {
+            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
+            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            funcPtr     printMember = &Obj::print;
+            operatorPtr operatorOp  = operator<<;
+
+            (void)printMember;  // quash potential compiler warnings
+            (void)operatorOp;
+        }
+
+        bslma_TestAllocator ta("object", veryVeryVeryVerbose);
+
+        Frame mFA(&ta);      const Frame& FA = mFA;
+        mFA.setAddress((void *) 0x12ab);
+        mFA.setLibraryFileName("/lib/libc.so");
+        mFA.setLineNumber(5);
+        mFA.setOffsetFromSymbol(116);
+        mFA.setSourceFileName("/a/b/c/sourceFile.cpp");
+        mFA.setMangledSymbolName("_woof_1a");
+        mFA.setSymbolName("woof");
+
+        Frame mFB(&ta);      const Frame& FB = mFB;
+        mFB.setAddress((void *) 0x34cd);
+        mFB.setLibraryFileName("/lib/libd.a");
+        mFB.setLineNumber(15);
+        mFB.setOffsetFromSymbol(228);
+        mFB.setSourceFileName("/a/b/c/secondSourceFile.cpp");
+        mFB.setMangledSymbolName("_arf_1a");
+        mFB.setSymbolName("arf");
+
+        Frame mFD(&ta);      const Frame& FD = mFD;
+
+        if (verbose) cout <<
+             "\nCreate a table of distinct value/format combinations." << endl;
+
+        const struct {
+            int         d_line;           // source line number
+            int         d_level;
+            int         d_spacesPerLevel;
+
+            const char *d_ggStr;
+
+            const char *d_expected_p;
+        } DATA[] = {
+
+#define NL "\n"
+#define SP " "
+
+        // ------------------------------------------------------------------
+        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
+        // ------------------------------------------------------------------
+
+        //LINE L SPL  ggStr EXP
+        //---- - ---  ----- ---
+
+        { L_,  0,  0, "a",  "["                                             NL
+                            "["                                             NL
+                            "address = 0x12ab"                              NL
+                            "library file name = \"/lib/libc.so\""          NL
+                            "line number = 5"                               NL
+                            "mangled symbol name = \"_woof_1a\""            NL
+                            "offset from symbol = 116"                      NL
+                            "source file name = \"/a/b/c/sourceFile.cpp\""  NL
+                            "symbol name = \"woof\""                        NL
+                            "]"                                             NL
+                            "]"                                             NL
+                                                                            },
+
+        { L_,  0,  0, "b",  "["                                             NL
+                            "["                                             NL
+                            "address = 0x34cd"                              NL
+                            "library file name = \"/lib/libd.a\""           NL
+                            "line number = 15"                              NL
+                            "mangled symbol name = \"_arf_1a\""             NL
+                            "offset from symbol = 228"                      NL
+                            "source file name = \"/a/b/c/"
+                                                  "secondSourceFile.cpp\""  NL
+                            "symbol name = \"arf\""                         NL
+                            "]"                                             NL
+                            "]"                                             NL
+                                                                            },
+
+        { L_,  0,  0, "d",  "["                                             NL
+                            "["                                             NL
+                            "address = NULL"                                NL
+                            "library file name = \"\""                      NL
+                            "line number = -1"                              NL
+                            "mangled symbol name = \"\""                    NL
+#ifdef BSLS_PLATFORM__CPU_32_BIT
+                            "offset from symbol = 4294967295"               NL
+#else
+                            "offset from symbol = 18446744073709551615"     NL
+#endif
+                            "source file name = \"\""                       NL
+                            "symbol name = \"\""                            NL
+                            "]"                                             NL
+                            "]"                                             NL
+                                                                            },
+
+        { L_,  0,  0, "ab", "["                                             NL
+                            "["                                             NL
+                            "address = 0x12ab"                              NL
+                            "library file name = \"/lib/libc.so\""          NL
+                            "line number = 5"                               NL
+                            "mangled symbol name = \"_woof_1a\""            NL
+                            "offset from symbol = 116"                      NL
+                            "source file name = \"/a/b/c/sourceFile.cpp\""  NL
+                            "symbol name = \"woof\""                        NL
+                            "]"                                             NL
+                            "["                                             NL
+                            "address = 0x34cd"                              NL
+                            "library file name = \"/lib/libd.a\""           NL
+                            "line number = 15"                              NL
+                            "mangled symbol name = \"_arf_1a\""             NL
+                            "offset from symbol = 228"                      NL
+                            "source file name = \"/a/b/c/"
+                                                  "secondSourceFile.cpp\""  NL
+                            "symbol name = \"arf\""                         NL
+                            "]"                                             NL
+                            "]"                                             NL
+                                                                            },
+
+        { L_,  0,  2, "a",  "["                                             NL
+                            "  ["                                           NL
+                            "    address = 0x12ab"                          NL
+                            "    library file name = \"/lib/libc.so\""      NL
+                            "    line number = 5"                           NL
+                            "    mangled symbol name = \"_woof_1a\""        NL
+                            "    offset from symbol = 116"                  NL
+                            "    source file name = "
+                                               "\"/a/b/c/sourceFile.cpp\""  NL
+                            "    symbol name = \"woof\""                    NL
+                            "  ]"                                           NL
+                            "]"                                             NL
+                                                                            },
+
+        { L_,  0,  2, "ab", "["                                             NL
+                            "  ["                                           NL
+                            "    address = 0x12ab"                          NL
+                            "    library file name = \"/lib/libc.so\""      NL
+                            "    line number = 5"                           NL
+                            "    mangled symbol name = \"_woof_1a\""        NL
+                            "    offset from symbol = 116"                  NL
+                            "    source file name = "
+                                               "\"/a/b/c/sourceFile.cpp\""  NL
+                            "    symbol name = \"woof\""                    NL
+                            "  ]"                                           NL
+                            "  ["                                           NL
+                            "    address = 0x34cd"                          NL
+                            "    library file name = \"/lib/libd.a\""       NL
+                            "    line number = 15"                          NL
+                            "    mangled symbol name = \"_arf_1a\""         NL
+                            "    offset from symbol = 228"                  NL
+                            "    source file name = \"/a/b/c/"
+                                                  "secondSourceFile.cpp\""  NL
+                            "    symbol name = \"arf\""                     NL
+                            "  ]"                                           NL
+                            "]"                                             NL
+                                                                            },
+
+        { L_,  0, -1, "a",  "["                                             SP
+                            "["                                             SP
+                            "address = 0x12ab"                              SP
+                            "library file name = \"/lib/libc.so\""          SP
+                            "line number = 5"                               SP
+                            "mangled symbol name = \"_woof_1a\""            SP
+                            "offset from symbol = 116"                      SP
+                            "source file name = \"/a/b/c/sourceFile.cpp\""  SP
+                            "symbol name = \"woof\""                        SP
+                            "]"                                             SP
+                            "]"
+                                                                            },
+
+        { L_, -9, -9, "a",  "["                                             SP
+                            "["                                             SP
+                            "address = 0x12ab"                              SP
+                            "library file name = \"/lib/libc.so\""          SP
+                            "line number = 5"                               SP
+                            "mangled symbol name = \"_woof_1a\""            SP
+                            "offset from symbol = 116"                      SP
+                            "source file name = \"/a/b/c/sourceFile.cpp\""  SP
+                            "symbol name = \"woof\""                        SP
+                            "]"                                             SP
+                            "]"
+                                                                            },
+
+#undef NL
+#undef SP
+
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (verbose) cout << "\nTesting with various print specifications."
+                          << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE   = DATA[ti].d_line;
+                const int         L      = DATA[ti].d_level;
+                const int         SPL    = DATA[ti].d_spacesPerLevel;
+                const char       *GGSTR  = DATA[ti].d_ggStr;
+                const char *const EXP    = DATA[ti].d_expected_p;
+
+                if (veryVerbose) { T_ P_(L) P_(SPL) P(GGSTR) }
+
+                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
+
+                Obj mX;         const Obj& X = mX;
+
+                mX.resize(bsl::strlen(GGSTR));
+                for (int xi = 0; xi < X.length(); ++xi) {
+                    char c = GGSTR[xi];
+                    switch (c) {
+                      case 'a': {
+                        mX[xi] = FA;
+                      }  break;
+                      case 'b': {
+                        mX[xi] = FB;
+                      }  break;
+                      case 'd': {
+                        mX[xi] = FD;
+                      }  break;
+                      default: {
+                        LOOP3_ASSERT(LINE, GGSTR, c,
+                                            0 && "unrecognized char in GGSTR");
+                        continue;
+                      }
+                    }
+                }
+
+                ostringstream os(&ta);
+
+                if (-9 == L && -9 == SPL) {
+
+                    // Verify supplied stream is returned by reference.
+
+                    LOOP_ASSERT(LINE, &os == &(os << X));
+
+                    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
+                }
+                else {
+
+                    // Verify supplied stream is returned by reference.
+
+                    LOOP_ASSERT(LINE, &os == &X.print(os, L, SPL));
+
+                    if (veryVeryVerbose) { T_ T_ Q(print) }
+                }
+
+                // Verify output is formatted as expected.  Note that the
+                // 'str()' method of 'os' will return a string by value, which
+                // will use the default allocator.
+
+                bslma_DefaultAllocatorGuard tmpGuard(&ta);
+
+                if (veryVeryVerbose) { P(os.str()) }
+
+                LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
+            }
+        }
+
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // BASIC ACCESSORS:
+        //   Having implemented an effective generation mechanism, we now
+        //   would like to test thoroughly the basic accessor functions:
+        //: o 'length'
+        //: o 'operator[]'
+        // Also, we want to ensure that various internal state representations
+        // for a given value produce identical results.
+        //
+        // Plan:
+        //: 1 Specify a set 'S' of representative object values ordered by
+        //:   increasing length.
+        //: 2 For each value 'w' in 'S', initialize a newly constructed object
+        //:   'x' with 'w' using 'gg' and verify that each basic accessor
+        //:   returns the expected result.
+        //: 3 Reinitialize and repeat the same test on an existing object 'y'
+        //:   after perturbing 'y' so as to achieve an internal state
+        //:   representation of 'w' that is potentially different from that of
+        //:   'x'.
+        //
+        // Testing:
+        //   int length() const;
+        //   const double& operator[](int index) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BASIC ACCESSORS" << endl
+                          << "===============" << endl;
+
+        if (verbose) cout << "\nTesting 'length' & 'operator[]'" << endl;
+        {
+            const int SZ = 10;
+            const struct {
+                int         d_lineNum;          // source line number
+                const char *d_spec_p;           // specification string
+                int         d_length;           // expected length
+                Element     d_elements[SZ];     // expected element values
+            } DATA[] = {
+                //line  spec            length  elements
+                //----  --------------  ------  ------------------------
+                { L_,   "",             0,      { }                     },
+                { L_,   "A",            1,      { VA }                  },
+                { L_,   "B",            1,      { VB }                  },
+                { L_,   "AB",           2,      { VA, VB }              },
+                { L_,   "BC",           2,      { VB, VC }              },
+                { L_,   "BCA",          3,      { VB, VC, VA }          },
+                { L_,   "CAB",          3,      { VC, VA, VB }          },
+                { L_,   "CDAB",         4,      { VC, VD, VA, VB }      },
+                { L_,   "DABC",         4,      { VD, VA, VB, VC }      },
+                { L_,   "ABCDE",        5,      { VA, VB, VC, VD, VE }  },
+                { L_,   "EDCBA",        5,      { VE, VD, VC, VB, VA }  },
+                { L_,   "ABCDEAB",      7,      { VA, VB, VC, VD, VE,
+                                                  VA, VB }              },
+                { L_,   "BACDEABC",     8,      { VB, VA, VC, VD, VE,
+                                                  VA, VB, VC }          },
+                { L_,   "CBADEABCD",    9,      { VC, VB, VA, VD, VE,
+                                                  VA, VB, VC, VD }      },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            Obj mY(&testAllocator);  // object with extended internal capacity
+            const int EXTEND = 50; stretch(&mY, EXTEND); ASSERT(mY.length());
+            if (veryVerbose) cout << "\tEXTEND = " << EXTEND << endl;
+
+            int oldLen= -1;
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int            LINE   = DATA[ti].d_lineNum;
+                const char *const    SPEC   = DATA[ti].d_spec_p;
+                const int            LENGTH = DATA[ti].d_length;
+                const Element *const e      = DATA[ti].d_elements;
+                const int            curLen = LENGTH;
+
+                Obj mX(&testAllocator);
+
+                const Obj& X = gg(&mX, SPEC);   // canonical organization
+                mY.removeAll();
+                const Obj& Y = gg(&mY, SPEC);   // has extended capacity
+
+                LOOP_ASSERT(ti, curLen == X.length()); // same lengths
+
+                if (curLen != oldLen) {
+                    if (verbose) cout << "\ton objects of length "
+                                      << curLen << ':' << endl;
+                    LOOP_ASSERT(LINE, oldLen <= curLen);  // non-decreasing
+                    oldLen = curLen;
+                }
+
+                if (verbose) cout << "\t\tSpec = \"" << SPEC << '"' << endl;
+                if (veryVerbose) { cout << "\t\t\t"; P(X);
+                                   cout << "\t\t\t"; P(Y); }
+
+                LOOP_ASSERT(LINE, LENGTH == X.length());
+                LOOP_ASSERT(LINE, LENGTH == Y.length());
+                int i;
+                for (i = 0; i < LENGTH; ++i) {
+                    LOOP2_ASSERT(LINE, i, e[i] == X[i]);
+                    LOOP2_ASSERT(LINE, i, e[i] == Y[i]);
+                }
+                for (; i < SZ; ++i) {
+                    LOOP2_ASSERT(LINE, i, Element() == e[i]);
+                }
+            }
+        }
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // PRIMITIVE GENERATOR FUNCTION 'gg'
+        //   Test the primitive generator function, 'gg', and other helper
+        //   functions using the (previously tested) primary manipulators.
+        //
+        // Concerns:
+        //: 1 We have to verify:
+        //:   1 that valid generator syntax produces expected results, and
+        //:   2 that invalid syntax is detected and reported.
+        //:
+        //: 2 We want also to make trustworthy some additional test helper
+        //:   functionality that we will use within the first 10 test cases:
+        //:   o 'stretch': Tested separately to observe stretch occurs.
+        //:   o 'stretchRemoveAll': Deliberately implemented using 'stretch'.
+        //:
+        //: 3 Finally, we want to make sure that we can rationalize the
+        //:   internal memory management with respect to the primary
+        //:   manipulators (i.e., precisely when new blocks are allocated and
+        //:   deallocated).
+        //:   o TBD: The we don't have access to the allocation strategy of
+        //:     the underlying 'bsl::vector<Obj>'.
+        //
+        // Plan:
+        //: 1 For each of an enumerated sequence of 'spec' values, ordered by
+        //:   increasing 'spec' length, use the primitive generator function
+        //:   'gg' to set the state of a newly created object.  Verify that
+        //:   'gg' returns a valid reference to the modified argument object
+        //:   and, using basic accessors, that the value of the object is as
+        //:   expected.  Repeat the test for a longer 'spec' generated by
+        //:   prepending a string ending in a '~' character (denoting
+        //:   'removeAll').  Note that we are testing the parser only; the
+        //:   primary manipulators are already assumed to work.
+        //:
+        //: 2 To verify that the stretching functions work as expected (and to
+        //:   cross-check that internal memory is being managed as intended),
+        //:   create a depth-ordered enumeration of initial values and sizes by
+        //:   which to extend the initial value.  Record as expected values the
+        //:   total number of memory blocks allocated during the first and
+        //:   second modifications of each object.  For each test vector,
+        //:   construct two identical objects 'X' and 'Y' and bring each to the
+        //:   initial state.  Assert that the memory allocation for the two
+        //:   operations are identical and consistent with the first expected
+        //:   value.  Next apply the 'stretch' and 'stretchRemoveAll' functions
+        //:   to 'X' and 'Y' (respectively) and again compare the memory
+        //:   allocation characteristics for the two functions.  Note that we
+        //:   will track the *total* number of *blocks* allocated as well as
+        //:   the *current* number of *bytes* in use -- this to measure
+        //:   different aspects of operation while remaining insensitive to the
+        //:   array 'Element' size.
+        //
+        // Testing:
+        //   void stretch(baesu_StackTrace *object, int size);
+        //   void stretchRemoveAll(baesu_StackTrace *o, int size);
+        //   int ggg(baesu_StackTrace *o, const char *s, int vF = 1);
+        //   baesu_StackTrace& gg(baesu_StackTrace *o, const char *s);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PRIMITIVE GENERATOR FUNCTION 'gg'" << endl
+                          << "=================================" << endl;
+
+        if (verbose) cout << "\nTesting generator on valid specs." << endl;
+        {
+            const int SZ = 10;
+            const struct {  // non-'static', else default allocator leaks
+                            // and asserts on destruction
+
+                int         d_lineNum;       // source line number
+                const char *d_spec_p;        // specification string
+                int         d_length;        // expected length
+                Element     d_elements[SZ];  // expected value
+            } DATA[] = {
+                //line  spec            length  elements
+                //----  --------------  ------  ------------------------
+                { L_,   "",             0,      { }                     },
+
+                { L_,   "A",            1,      { VA }                  },
+                { L_,   "B",            1,      { VB }                  },
+                { L_,   "~",            0,      { }                     },
+
+                { L_,   "CD",           2,      { VC, VD }              },
+                { L_,   "E~",           0,      { }                     },
+                { L_,   "~E",           1,      { VE }                  },
+                { L_,   "~~",           0,      { }                     },
+
+                { L_,   "ABC",          3,      { VA, VB, VC }          },
+                { L_,   "~BC",          2,      { VB, VC }              },
+                { L_,   "A~C",          1,      { VC }                  },
+                { L_,   "AB~",          0,      { }                     },
+                { L_,   "~~C",          1,      { VC }                  },
+                { L_,   "~B~",          0,      { }                     },
+                { L_,   "A~~",          0,      { }                     },
+                { L_,   "~~~",          0,      { }                     },
+
+                { L_,   "ABCD",         4,      { VA, VB, VC, VD }      },
+                { L_,   "~BCD",         3,      { VB, VC, VD }          },
+                { L_,   "A~CD",         2,      { VC, VD }              },
+                { L_,   "AB~D",         1,      { VD }                  },
+                { L_,   "ABC~",         0,      { }                     },
+
+                { L_,   "ABCDE",        5,      { VA, VB, VC, VD, VE }  },
+                { L_,   "~BCDE",        4,      { VB, VC, VD, VE }      },
+                { L_,   "AB~DE",        2,      { VD, VE }              },
+                { L_,   "ABCD~",        0,      { }                     },
+                { L_,   "A~C~E",        1,      { VE }                  },
+                { L_,   "~B~D~",        0,      { }                     },
+
+                { L_,   "~CBA~~ABCDE",  5,      { VA, VB, VC, VD, VE }  },
+
+                { L_,   "ABCDE~CDEC~E", 1,      { VE }                  },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+            int oldLen = -1;
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int            LINE   = DATA[ti].d_lineNum;
+                const char *const    SPEC   = DATA[ti].d_spec_p;
+                const int            LENGTH = DATA[ti].d_length;
+                const Element *const e      = DATA[ti].d_elements;
+                const int            curLen = (int)strlen(SPEC);
+
+
+                Obj mX(&testAllocator);
+                const Obj& X = gg(&mX, SPEC);   // original spec
+
+                static const char *const MORE_SPEC = "~ABCDEABCDEABCDEABCDE~";
+                char buf[100]; strcpy(buf, MORE_SPEC); strcat(buf, SPEC);
+
+                Obj mY(&testAllocator);
+                const Obj& Y = gg(&mY, buf);    // extended spec
+
+                if (curLen != oldLen) {
+                    if (verbose) cout << "\tof length "
+                                      << curLen << ':' << endl;
+                    LOOP_ASSERT(LINE, oldLen <= curLen);  // non-decreasing
+                    oldLen = curLen;
+                }
+
+                if (veryVerbose) {
+                    cout << "\t\t   Spec = \"" << SPEC << '"' << endl;
+                    cout << "\t\tBigSpec = \"" << buf << '"' << endl;
+                    cout << "\t\t\t"; P(X);
+                    cout << "\t\t\t"; P(Y);
+                }
+
+                LOOP_ASSERT(LINE, LENGTH == X.length());
+                LOOP_ASSERT(LINE, LENGTH == Y.length());
+                for (int i = 0; i < LENGTH; ++i) {
+                    LOOP2_ASSERT(LINE, i, e[i] == X[i]);
+                    LOOP2_ASSERT(LINE, i, e[i] == Y[i]);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nTesting generator on invalid specs." << endl;
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                const char *d_spec_p;   // specification string
+                int         d_index;    // offending character index
+            } DATA[] = {
+                //line  spec            index
+                //----  -------------   -----
+                { L_,   "",             -1,     }, // control
+
+                { L_,   "~",            -1,     }, // control
+                { L_,   " ",             0,     },
+                { L_,   ".",             0,     },
+                { L_,   "F",             0,     },
+
+                { L_,   "AE",           -1,     }, // control
+                { L_,   "aE",            0,     },
+                { L_,   "Ae",            1,     },
+                { L_,   ".~",            0,     },
+                { L_,   "~!",            1,     },
+                { L_,   "  ",            0,     },
+
+                { L_,   "ABC",          -1,     }, // control
+                { L_,   " BC",           0,     },
+                { L_,   "A C",           1,     },
+                { L_,   "AB ",           2,     },
+                { L_,   "?#:",           0,     },
+                { L_,   "   ",           0,     },
+
+                { L_,   "ABCDE",        -1,     }, // control
+                { L_,   "aBCDE",         0,     },
+                { L_,   "ABcDE",         2,     },
+                { L_,   "ABCDe",         4,     },
+                { L_,   "AbCdE",         1,     },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bslma_TestAllocator testAllocator("oa-validSpecs",
+                                              veryVeryVeryVerbose);
+
+            int oldLen = -1;
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int         LINE   = DATA[ti].d_lineNum;
+                const char *const SPEC   = DATA[ti].d_spec_p;
+                const int         INDEX  = DATA[ti].d_index;
+                const int         curLen = (int)strlen(SPEC);
+
+                Obj mX(&testAllocator);
+
+                if (curLen != oldLen) {
+                    if (verbose) cout << "\tof length "
+                                      << curLen << ':' << endl;
+                    LOOP_ASSERT(LINE, oldLen <= curLen);  // non-decreasing
+                    oldLen = curLen;
+                }
+
+                if (veryVerbose) cout <<
+                    "\t\tSpec = \"" << SPEC << '"' << endl;
+
+                int result = ggg(&mX, SPEC, veryVerbose);
+
+                LOOP_ASSERT(LINE, INDEX == result);
+            }
+        }
+
+        if (verbose) cout <<
+            "\nTesting 'stretch' and 'stretchRemoveAll'." << endl;
+        {
+            static const struct {
+                int         d_lineNum;       // source line number
+                const char *d_spec_p;        // specification string
+                int         d_size;          // amount to grow (also length)
+                int         d_firstResize;   // total blocks allocated
+                int         d_secondResize;  // total blocks allocated
+
+                // Note: total blocks (first/second Resize) and whether or not
+                // 'removeAll' deallocates memory depends on 'Element' type.
+
+            } DATA[] = {
+                //line  spec            size    firstResize     secondResize
+                //----  -------------   ----    -----------     ------------
+                { L_,   "",             0,      0,              0       },
+
+                { L_,   "",             1,      0,              0       },
+                { L_,   "A",            0,      0,              0       },
+
+                { L_,   "",             2,      0,              1       },
+                { L_,   "A",            1,      0,              1       },
+                { L_,   "AB",           0,      1,              0       },
+
+                { L_,   "",             3,      0,              2       },
+                { L_,   "A",            2,      0,              2       },
+                { L_,   "AB",           1,      1,              1       },
+                { L_,   "ABC",          0,      2,              0       },
+
+                { L_,   "",             4,      0,              2       },
+                { L_,   "A",            3,      0,              2       },
+                { L_,   "AB",           2,      1,              1       },
+                { L_,   "ABC",          1,      2,              0       },
+                { L_,   "ABCD",         0,      2,              0       },
+
+                { L_,   "",             5,      0,              3       },
+                { L_,   "A",            4,      0,              3       },
+                { L_,   "AB",           3,      1,              2       },
+                { L_,   "ABC",          2,      2,              1       },
+                { L_,   "ABCD",         1,      2,              1       },
+                { L_,   "ABCDE",        0,      3,              0       },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bslma_TestAllocator testAllocator("oa-stretch",
+                                              veryVeryVeryVerbose);
+
+            int oldDepth = -1;
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int LINE         = DATA[ti].d_lineNum;
+                const char *const SPEC = DATA[ti].d_spec_p;
+                const int size         = DATA[ti].d_size;
+                const int firstResize  = DATA[ti].d_firstResize;
+                const int secondResize = DATA[ti].d_secondResize;
+                const int curLen       = (int)strlen(SPEC);
+                const int curDepth     = curLen + size;
+
+                Obj mX(&testAllocator);  const Obj& X = mX;
+                Obj mY(&testAllocator);  const Obj& Y = mY;
+
+                if (curDepth != oldDepth) {
+                    if (verbose) cout << "\ton test vectors of depth "
+                                      << curDepth << '.' << endl;
+                    LOOP_ASSERT(LINE, oldDepth <= curDepth); // non-decreasing
+                    oldDepth = curDepth;
+                }
+
+                if (veryVerbose) {
+                    cout << "\t\t"; P_(SPEC); P(size);
+                    P_(firstResize); P_(secondResize);
+                    P_(curLen);      P(curDepth);
+                }
+
+                // Create identical objects using the 'gg' function.
+                {
+                    int blocks1A = testAllocator.numBlocksTotal();
+                    int  bytes1A = testAllocator.numBytesInUse();
+
+                    gg(&mX, SPEC);
+
+                    int blocks2A = testAllocator.numBlocksTotal();
+                    int  bytes2A = testAllocator.numBytesInUse();
+
+                    gg(&mY, SPEC);
+
+                    int blocks3A = testAllocator.numBlocksTotal();
+                    int  bytes3A = testAllocator.numBytesInUse();
+
+                    int blocks12A = blocks2A - blocks1A;
+                    int  bytes12A =  bytes2A -  bytes1A;
+
+                    int blocks23A = blocks3A - blocks2A;
+                    int  bytes23A =  bytes3A -  bytes2A;
+
+                    if (veryVerbose) { P_( bytes12A);  P_(bytes23A);
+                                       P_(blocks12A);  P(blocks23A); }
+
+                    LOOP_ASSERT(LINE, curLen == X.length()); // same lengths
+                    LOOP_ASSERT(LINE, curLen == Y.length()); // same lengths
+
+#if TDB
+                    {Q(debug-first); P_(firstResize) P(blocks12A);}
+                    LOOP_ASSERT(LINE, firstResize == blocks12A);
+#endif
+
+                    LOOP_ASSERT(LINE, blocks12A == blocks23A);
+                    LOOP_ASSERT(LINE,  bytes12A ==  bytes23A);
+                }
+
+                // Apply both functions under test to the respective objects.
+                {
+
+                    int blocks1B = testAllocator.numBlocksTotal();
+                    int  bytes1B = testAllocator.numBytesInUse();
+
+                    stretch(&mX, size);
+
+                    int blocks2B = testAllocator.numBlocksTotal();
+                    int  bytes2B = testAllocator.numBytesInUse();
+
+                    stretchRemoveAll(&mY, size);
+
+                    int blocks3B = testAllocator.numBlocksTotal();
+                    int  bytes3B = testAllocator.numBytesInUse();
+
+                    int blocks12B = blocks2B - blocks1B;
+                    int  bytes12B =  bytes2B -  bytes1B;
+
+                    int blocks23B = blocks3B - blocks2B;
+                    int  bytes23B =  bytes3B -  bytes2B;
+
+                    if (veryVerbose) { P_( bytes12B); P_(bytes23B);
+                                       P_(blocks12B); P(blocks23B); }
+
+                    LOOP_ASSERT(LINE, curDepth == X.length());
+                    LOOP_ASSERT(LINE,        0 == Y.length());
+
+#if TBD
+                    {Q(debug-second); P_(secondResize); P(blocks12B);}
+                    LOOP_ASSERT(LINE, secondResize == blocks12B);
+#endif
+
+                    LOOP_ASSERT(LINE, blocks12B == blocks23B); // Always true.
+
+                    LOOP_ASSERT(LINE,  bytes12B >=  bytes23B); // Equal for
+                                                               // POD; else '>'
+                                                               // or '>=.
+                }
+            }
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // PRIMARY MANIPULATORS (BOOTSTRAP): The basic concern is that the
+        //   default constructor, the destructor, and, under normal conditions
+        //   (i.e., no aliasing), the primary manipulators:
+        //: o 'append' (black-box)
+        //: o 'removeAll' (white-box)
+        // operate as expected.
+        //
+        // Concerns:
+        //: 1 The default constructor
+        //:   1 creates the correct initial value.
+        //:   2 is exception neutral with respect to memory allocation.
+        //:   3 has the internal memory management system hooked up properly so
+        //:     that *all* internally allocated memory draws from the same
+        //:     user-supplied allocator whenever one is specified.
+        //:
+        //: 2 The destructor properly deallocates all allocated memory to its
+        //:   corresponding allocator from any attainable state.
+        //:
+        //: 3 The 'append' method:
+        //:   1 produces the expected value.
+        //:   2 increases capacity as needed.
+        //:   3 maintains valid internal state.
+        //:   4 is exception neutral with respect to memory allocation.
+        //:
+        //: 4 The 'removeAll' method:
+        //:   1 produces the expected value (empty).
+        //:   2 properly destroys each contained element value.
+        //:   3 maintains valid internal state.
+        //:   4 does not allocate memory.
+        //
+        // Plan:
+        //: 1 To address C-1.1, C-1.2, and C-1.3 create an object using the
+        //:   default constructor:
+        //:   1 with and without passing in an allocator.
+        //:   2 in the presence of exceptions during memory allocations using a
+        //:     'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //:   3 where the object is constructed entirely in static memory
+        //:     (using a 'bslma_BufferAllocator') and never destroyed.
+        //:
+        //: 2 To address C-3.1, C-3.2, and C-3.3, construct a series of
+        //:   independent objects, ordered by increasing length.  In each test,
+        //:   allow the object to leave scope without further modification, so
+        //:   that the destructor asserts internal object invariants
+        //:   appropriately.  After the final append operation in each test,
+        //:   use the (untested) basic accessors to cross-check the value of
+        //:   the object and the 'bslma_TestAllocator' to confirm whether a
+        //:   resize has occurred.
+        //:
+        //: 3 To address C-4.1, C-4.2, and C-4.3, construct a similar test,
+        //:   replacing 'append' with 'removeAll'; this time, however, use the
+        //:   test allocator to record 'numBlocksInUse' rather than
+        //:   'numBlocksTotal'.
+        //:
+        //: 2 To address C-2, C-3.4, and C-4.4, create a small "area" test that
+        //:   exercises the construction and destruction of objects of various
+        //:   lengths and capacities in the presence of memory allocation
+        //:   exceptions.  Two separate tests will be performed.  Let 'S' be
+        //:   the sequence of integers '[0 .. N - 1]':
+        //:
+        //:   1 For each 'i' in 'S', use the default constructor and 'append'
+        //:     to create an instance of length 'i', confirm its value (using
+        //:     basic accessors), and let it leave scope.
+        //:
+        //:   2 For each '(i, j)' in 'S X S', use 'append' to create an
+        //:     instance of length 'i', use 'removeAll' to erase its value and
+        //:     confirm (with 'length'), use append to set the instance to a
+        //:     value of length 'j', verify the value, and allow the instance
+        //:     to leave scope.
+        //:
+        //:   The first test acts as a "control" in that 'removeAll' is not
+        //:   called; if only the second test produces an error, we know that
+        //:   'removeAll' is to blame.  We will rely on 'bslma_TestAllocator'
+        //:   and purify to address concern 2, and on the object invariant
+        //:   assertions in the destructor to address C-3.4 and C-4.4.
+        //
+        // Testing:
+        //   baesu_StackTrace(bslma_Allocator *bA = 0);
+        //   void append(int item); // bootstrap:  no aliasing
+        //   void removeAll();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PRIMARY MANIPULATORS" << endl
+                          << "====================" << endl;
+
+
+
+        bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
+
+        if (verbose) cout << "\nTesting default ctor (thoroughly)." << endl;
+
+        if (verbose) cout << "\tTesting ctor with no parameters." << endl;
+        {
+            const Obj X;
+            if (veryVerbose) { cout << "\t\t"; P(X); }
+            ASSERT(0 == X.length());
+        }
+
+        if (verbose) cout << "\nTesting 'append' with default ctor." << endl;
+        {
+            if (verbose) cout << "\tOn an object of initial length 0." << endl;
+            Obj mX;  const Obj& X = mX;
+            if (veryVerbose) { cout << "\t\t"; P(X); }
+
+            mX.append(V0);
+            if (veryVerbose) { cout << "\t\t"; P(X); }
+            ASSERT(1 == X.length());
+            ASSERT(V0 == X[0]);
+        }
+        {
+            if (verbose) cout << "\tOn an object of initial length 1." << endl;
+            Obj mX;  const Obj& X = mX;
+            if (veryVerbose) { cout << "\t\t"; P(X); }
+            mX.append(V0);
+
+            if (veryVerbose) { cout << "\t\t"; P(X); }
+            mX.append(V1);
+            if (veryVerbose) { cout << "\t\t"; P(X); }
+            ASSERT(2 == X.length());
+            ASSERT(V0 == X[0]);
+            ASSERT(V1 == X[1]);
+        }
+
+        if (verbose) cout << "\tWithout passing in an allocator." << endl;
+        {
+            const Obj X((bslma_Allocator *)0);
+            if (veryVerbose) { cout << "\t\t"; P(X); }
+            ASSERT(0 == X.length());
+        }
+        if (verbose) cout << "\tPassing in an allocator." << endl;
+
+        if (verbose) cout << "\t\tWith no exceptions." << endl;
+        {
+            const Obj X(&testAllocator);
+            if (veryVerbose) { cout << "\t\t"; P(X); }
+            ASSERT(0 == X.length());
+        }
+
+        if (verbose) cout << "\t\tWith exceptions." << endl;
+        {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+            if (veryVerbose) cout <<
+                "\tTesting Exceptions In Default Ctor" << endl;
+            const Obj X(&testAllocator);
+            if (veryVerbose) { cout << "\t\t"; P(X); }
+            ASSERT(0 == X.length());
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        }
+
+        if (verbose) cout << "\tIn place using a buffer allocator." << endl;
+        {
+            char memory[1024];
+            bslma_BufferAllocator a(memory, sizeof memory);
+            void *doNotDelete = new(a.allocate(sizeof(Obj))) Obj(&a);
+            ASSERT(doNotDelete);
+
+            // No destructor is called; will produce memory leak in purify
+            // if internal allocators are not hooked up properly.
+        }
+
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting 'append' (bootstrap)." << endl;
+        {
+            if (verbose) cout << "\tOn an object of initial length 0." << endl;
+            Obj mX(&testAllocator);  const Obj& X = mX;
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\tBEFORE: "; P_(B); P_(BB); P(X); }
+            mX.append(V0);
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\t AFTER: "; P_(A); P_(AA); P(X); }
+            ASSERT(BB + 1 == AA); // ADJUST-ED
+            ASSERT(B  + 1 == A);  // ADJUST-ED
+            ASSERT(1 == X.length());
+            ASSERT(V0 == X[0]);
+        }
+        {
+            if (verbose) cout << "\tOn an object of initial length 1." << endl;
+            Obj mX(&testAllocator);  const Obj& X = mX;
+            mX.append(V0);
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\tBEFORE: "; P_(B); P(X); }
+            mX.append(V1);
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\t AFTER: "; P_(A); P(X); }
+            ASSERT(2 == X.length());
+            ASSERT(BB + 1 == AA); // ADJUST
+            ASSERT(B  - 0 == A);  // ADJUST
+            ASSERT(V0 == X[0]);
+            ASSERT(V1 == X[1]);
+        }
+        {
+            if (verbose) cout << "\tOn an object of initial length 2." << endl;
+            Obj mX(&testAllocator);  const Obj& X = mX;
+            mX.append(V0); mX.append(V1);
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\tBEFORE: "; P_(B); P(X); }
+            mX.append(V2);
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\t AFTER: "; P_(A); P(X); }
+            ASSERT(BB + 1 == AA); // ADJUST
+            ASSERT(B  - 0 == A);  // ADJUST
+            ASSERT(3 == X.length());
+            ASSERT(V0 == X[0]);
+            ASSERT(V1 == X[1]);
+            ASSERT(V2 == X[2]);
+        }
+        {
+            if (verbose) cout << "\tOn an object of initial length 3." << endl;
+            Obj mX(&testAllocator);  const Obj& X = mX;
+            mX.append(V0); mX.append(V1); mX.append(V2);
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\tBEFORE: "; P_(B); P_(BB); P(X); }
+            mX.append(V3);
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\t AFTER: "; P_(A); P_(AA); P(X); }
+            ASSERT(BB + 1 == AA); // ADJUST-ED
+            ASSERT(B  + 1 == A);  // ADJUST-ED
+            ASSERT(4 == X.length());
+            ASSERT(V0 == X[0]);
+            ASSERT(V1 == X[1]);
+            ASSERT(V2 == X[2]);
+            ASSERT(V3 == X[3]);
+        }
+        {
+            if (verbose) cout << "\tOn an object of initial length 4." << endl;
+            Obj mX(&testAllocator);  const Obj& X = mX;
+            mX.append(V0); mX.append(V1); mX.append(V2); mX.append(V3);
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B  = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\tBEFORE: "; P_(B); P_(BB); P(X); }
+            mX.append(V4);
+            const int AA = testAllocator.numBlocksTotal();
+            const int A  = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\t AFTER: "; P_(A); P_(AA); P(X); }
+            ASSERT(BB + 3 == AA); // ADJUST-ED
+            ASSERT(B  + 1 == A);  // ADJUST-ED
+            ASSERT(5 == X.length());
+            ASSERT(V0 == X[0]);
+            ASSERT(V1 == X[1]);
+            ASSERT(V2 == X[2]);
+            ASSERT(V3 == X[3]);
+            ASSERT(V4 == X[4]);
+        }
+
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting 'removeAll'." << endl;
+        {
+            if (verbose) cout << "\tOn an object of initial length 0." << endl;
+            Obj mX(&testAllocator);  const Obj& X = mX;
+            ASSERT(0 == X.length());
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\tBEFORE: "; P_(B); P(X); }
+            mX.removeAll();
+            const int AA = testAllocator.numBlocksTotal();
+            const int A = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\t AFTER: "; P_(A); P(X); }
+            ASSERT(BB == AA);   // always
+            ASSERT(B - 0 == A); // ADJUST
+            ASSERT(0 == X.length());
+        }
+        {
+            if (verbose) cout << "\tOn an object of initial length 1." << endl;
+            Obj mX(&testAllocator);  const Obj& X = mX;
+            mX.append(V0);
+            ASSERT(1 == X.length());
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\tBEFORE: "; P_(B); P(X); }
+            mX.removeAll();
+            const int AA = testAllocator.numBlocksTotal();
+            const int A = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\t AFTER: "; P_(A); P(X); }
+            ASSERT(BB == AA);    // always
+            ASSERT(B - 0 == A);  // ADJUST
+            ASSERT(0 == X.length());
+        }
+        {
+            if (verbose) cout << "\tOn an object of initial length 2." << endl;
+            Obj mX(&testAllocator);  const Obj& X = mX;
+            mX.append(V0); mX.append(V1);
+            ASSERT(2 == X.length());
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\tBEFORE: "; P_(B); P(X); }
+            mX.removeAll();
+            const int AA = testAllocator.numBlocksTotal();
+            const int A = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\t AFTER: "; P_(A); P(X); }
+            ASSERT(BB == AA);    // always
+            ASSERT(B - 0 == A);  // ADJUST
+            ASSERT(0 == X.length());
+        }
+        {
+            if (verbose) cout << "\tOn an object of initial length 3." << endl;
+            Obj mX(&testAllocator);  const Obj& X = mX;
+            mX.append(V0); mX.append(V1); mX.append(V2);
+            ASSERT(3 == X.length());
+
+            const int BB = testAllocator.numBlocksTotal();
+            const int B = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\tBEFORE: "; P_(B); P(X); }
+            mX.removeAll();
+            const int AA = testAllocator.numBlocksTotal();
+            const int A = testAllocator.numBlocksInUse();
+            if (veryVerbose) { cout << "\t\t AFTER: "; P_(A); P(X); }
+            ASSERT(BB == AA);    // always
+            ASSERT(B - 0 == A);  // ADJUST
+            ASSERT(0 == X.length());
+        }
+
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+          "\nTesting the destructor and exception neutrality." << endl;
+
+        if (verbose) cout << "\tWith 'append' only" << endl;
+        {
+            // For each length 'i' up to some modest limit:
+            //: 1 create an instance
+            //: 2 append '{ V0, V1, V2, V3, V4, V0, ... }'  up to length 'i'
+            //: 3 verify initial length and contents
+            //: 4 allow the instance to leave scope
+
+            const int NUM_TRIALS = 10;
+            for (int i = 0; i < NUM_TRIALS; ++i) { // i is the length
+                if (verbose) cout <<
+                    "\t\tOn an object of length " << i << '.' << endl;
+
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                int k; // loop index
+
+                Obj mX(&testAllocator);  const Obj& X = mX;             // 1.
+                for (k = 0; k < i; ++k) {                               // 2.
+                    mX.append(VALUES[k % NUM_VALUES]);
+                }
+
+                LOOP_ASSERT(i, i == X.length());                        // 3.
+                for (k = 0; k < i; ++k) {
+                    LOOP2_ASSERT(i, k, VALUES[k % NUM_VALUES] == X[k]);
+                }
+
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                  // 4.
+            }
+        }
+
+        if (verbose) cout << "\tWith 'append' and 'removeAll'" << endl;
+        {
+            // For each pair of lengths '(i, j)' up to some modest limit:
+            //: 1 create an instance
+            //: 2 append 'V0' values up to a length of 'i'
+            //: 3 verify initial length and contents
+            //: 4 removeAll contents from instance
+            //: 5 verify length is 0
+            //: 6 append '{ V0, V1, V2, V3, V4, V0, ... }'  up to length 'j'
+            //: 7 verify new length and contents
+            //: 8 allow the instance to leave scope
+
+            const int NUM_TRIALS = 10;
+            for (int i = 0; i < NUM_TRIALS; ++i) { // i is first length
+                if (verbose) cout <<
+                    "\t\tOn an object of initial length " << i << '.' << endl;
+
+                for (int j = 0; j < NUM_TRIALS; ++j) { // j is second length
+                    if (veryVerbose) cout <<
+                        "\t\t\tAnd with final length " << j << '.' << endl;
+
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    int k; // loop index
+
+                    Obj mX(&testAllocator);  const Obj& X = mX;         // 1.
+                    for (k = 0; k < i; ++k) {                           // 2.
+                        mX.append(V0);
+                    }
+
+                    LOOP2_ASSERT(i, j, i == X.length());                // 3.
+                    for (k = 0; k < i; ++k) {
+                        LOOP3_ASSERT(i, j, k, V0 == X[k]);
+                    }
+
+                    mX.removeAll();                                     // 4.
+                    LOOP2_ASSERT(i, j, 0 == X.length());                // 5.
+
+                    for (k = 0; k < j; ++k) {                           // 6.
+                        mX.append(VALUES[k % NUM_VALUES]);
+                    }
+
+                    LOOP2_ASSERT(i, j, j == X.length());                // 7.
+                    for (k = 0; k < j; ++k) {
+                        LOOP3_ASSERT(i, j, k, VALUES[k % NUM_VALUES] == X[k]);
+                    }
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END              // 8.
+                }
+            }
+        }
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -1298,11 +3142,11 @@ int main(int argc, char *argv[])
         //   Create four instances of the array using both the default and copy
         //   constructors.  Exercise these objects using primary manipulators,
         //   basic accessors, equality operators, and the assignment operator.
-        //   Invoke the primary manipulator [1&5], copy constructor [2&8], and 
-        //   assignment operator [9&10] in situations where the internal data 
+        //   Invoke the primary manipulator [1&5], copy constructor [2&8], and
+        //   assignment operator [9&10] in situations where the internal data
         //   (i) does *not* and (ii) *does* have to resize.  Try aliasing with
         //   with assignment for a non-empty instance [11] and allow the result
-        //   to leave scope, enabling the destructor to assert internal object 
+        //   to leave scope, enabling the destructor to assert internal object
         //   invariants.  Display object values frequently in verbose mode:
         //
         //: 1 Create an object x1 (default ctor).      { x1: }
