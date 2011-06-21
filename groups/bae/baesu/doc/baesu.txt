@@ -1,0 +1,60 @@
+ baesu.txt
+
+@PURPOSE: Provide a portable facility for obtaining & printing a stack trace
+
+@AUTHOR: Bill Chapman (bchapman2)
+
+@DESCRIPTION: The 'baesu' package provides a facility for obtaining and
+ printing a stack trace at run time.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'baesu' package has 10 components having five levels of dependency.  The
+ table below shows the hierarchical ordering of the components.  The package
+ prefix and underscore ('baesu_') are omitted from the full component names
+ for layout efficiency.  The ordering within each level is simply alphabetical
+ and has no architectural significance.
+..
+  Level 5: stacktraceprintutil
+
+  Level 4: stacktraceutil
+
+  Level 3: stacktraceresolverimpl_elf        stacktraceresolverimpl_windows
+           stacktraceresolverimpl_xcoff
+
+  Level 2: stacktrace
+
+  Level 1: stacktraceframe                   stacktraceresolver_filehelper
+
+  Level 0: objectfileformat                  stackaddressutil
+..
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'baesu'.  Components
+ intended for internal use within the package and not intended for direct use
+ by package clients are marked with '*'.
+..
+  'baesu_stacktraceprintutil'   - the simplest means of printing a stack trace
+
+  'baesu_stacktraceutil'        - means of providing a more custom stack trace
+
+  'baesu_stacktraceframe'       - value type describing 1 frame of stack trace
+
+  'baesu_stacktrace'            - sequence of stack trace frames
+
+  'baesu_stackaddressutil'      - means of getting return addresses from stack
+
+  'baesu_stacktraceresolverimpl_elf*'
+                                - resolver for Elf format executables
+
+  'baesu_stacktraceresolverimpl_windows*'
+                                - resolver for Windows format executables
+
+  'baesu_stacktraceresolverimpl_xcoff*'
+                                - resolver for Xcoff format executables (AIX)
+
+  'baesu_stacktraceresolver_filehelper*'
+                                - utility for file io for Elf & Xcoff resovlers
+
+  'baesu_objectfileformat*'     - #defines and typedef driving OMF
+..
