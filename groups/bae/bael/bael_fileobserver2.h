@@ -125,7 +125,7 @@ BDES_IDENT("$Id: $")
 // When file rotation occurs, a new log filename is generated using the pattern
 // and 'appendTimestampFlag' supplied to 'enableFileLogging'.  If the filename
 // pattern supplied to 'enableFileLogging' does not contain an escape sequence
-// and 'appendTimestampFlage' was false, the newly generated filename must be
+// and 'appendTimestampFlag' was false, the newly generated filename must be
 // the same as the existing log file.  In that instance the old log file is
 // renamed by appending a timestamp.
 //

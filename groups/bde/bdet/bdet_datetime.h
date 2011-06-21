@@ -547,14 +547,14 @@ class bdet_Datetime {
         // human-readable format is not fully specified, and can change
         // without notice.
 
-    int printToBuffer(char *result, int size) const;
-        // Efficiently write the value of this object to the specified output
-        // buffer 'result' that can contain the specified 'size' number of
-        // characters.  Return the number of characters (not including the null
-        // character) that would have been written if the limit due to 'size'
-        // is not imposed.  'result' is null-terminated unless 'size' is 0.
-        // The behavior is undefined unless '0 <= size' and result refers to at
-        // least 'size' contiguous bytes.
+    int printToBuffer(char *result, int numBytes) const;
+        // Efficiently write the value of this object to the specified 'result'
+        // buffer of at least the specified 'numBytes'.  Return the number of
+        // characters (not including the null character) that would have been
+        // written if the limit due to 'numBytes' is not imposed.  'result' is
+        // null-terminated unless 'numBytes' is 0.  The behavior is undefined
+        // unless '0 <= numBytes' and 'result' refers to at least 'numBytes'
+        // contiguous bytes.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;

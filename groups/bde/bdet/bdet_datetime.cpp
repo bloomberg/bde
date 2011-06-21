@@ -42,10 +42,12 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
     // The user-specified width will be effective when 'buffer' is written to
     // the 'stream' (below).
 
-    const int SIZE = 128;  // Size the buffer to be able to hold a *bad* date.
+    const int SIZE = 128;   // Size the buffer to be able to hold a *bad* date.
     char buffer[SIZE];
 
-    printToBuffer(buffer, SIZE);
+    int rc = printToBuffer(buffer, SIZE);
+
+    BSLS_ASSERT(22 == rc);  // The datetime format contains 22 characters
 
     stream << buffer;
 
@@ -56,10 +58,10 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
     return stream;
 }
 
-int bdet_Datetime::printToBuffer(char *result, int size) const
+int bdet_Datetime::printToBuffer(char *result, int numBytes) const
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(0 <= size);
+    BSLS_ASSERT(0 <= numBytes);
 
     int y, m, d;
     date().getYearMonthDay(&y, &m, &d);
@@ -73,7 +75,7 @@ int bdet_Datetime::printToBuffer(char *result, int size) const
 #endif
 
     return snprintf(result,
-                    size,
+                    numBytes,
                     "%02d%s%04d_%02d:%02d:%02d.%03d",
                     d,
                     month,

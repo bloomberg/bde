@@ -390,10 +390,9 @@ class bael_FileObserver : public bael_Observer {
 
     int enableFileLogging(const char *logFilenamePattern,
                           bool        appendTimestampFlag = false);
-        // Enable logging of all messages published to this file observer to
-        // a file indicated by the specified 'logFilenamePattern' and the
-        // optionally-specified 'appendTimestampFlag'.  The basename of
-        // 'logFilenamePattern' may contain '%'-escape sequences that are
+        // Enable logging of all messages published to this file observer to a
+        // file indicated by the specified 'logFilenamePattern'.  The basename
+        // of 'logFilenamePattern' may contain '%'-escape sequences that are
         // interpreted as follows:
         //..
         //   %Y - current year (four digits with leading zeros)
@@ -408,18 +407,17 @@ class bael_FileObserver : public bael_Observer {
         // Each time a log file is opened by this file observer (upon a
         // successful call to this method and following each log file rotation)
         // the name of the log file is derived from 'logFilenamePattern' by
-        // interpolating the above recognized '%'-escape sequences.
-        // Optionally, if the basename of 'logFilenamePattern' does *not*
-        // contain any of the '%'-escape sequences recognized by this method,
-        // specify 'appendTimestampFlag' to indicate whether the extension
-        // '.%Y%M%D_%h%m%s'(the current timestamp) should be appended to the
-        // filename.  If 'appendTimestampFlag' is 'false' and
+        // interpolating the above recognized '%'-escape sequences.  Optionally
+        // specify 'appendTimestampFlag' indicating that  a timestamp of the
+        // form ".%Y%M%D_%h%m%s" should be appended to the log filename in
+        // instances where 'logFilenamePattern' does not contain a '%'-escape
+        // sequence.  If 'appendTimestampFlag' is 'false' and
         // 'logFilenamePattern' does not contain a recognized '%'-escape
-        // sequence, a timestamp will be appended to the file *only* when it is
-        // rotated (see the "Log File Rotation" section under @DESCRIPTION in
-        // the component-level documentation for details).
-        // 'appendTimestampFlag' has no effect if 'logFilenamePattern' contains
-        // a recognized '%'-escape sequence.
+        // sequence, a timestamp will be appended to the file, but only when it
+        // is rotated (see the "Log File Rotation" section under @DESCRIPTION
+        // in the component-level documentation).  'appendTimestampFlag' has no
+        // effect if 'logFilenamePattern' contains a recognized '%'-escape
+        // sequence.
         //
         // Return 0 on success, a positive value if file logging is already
         // enabled, and a negative value for any I/O error.
