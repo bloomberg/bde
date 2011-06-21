@@ -28,7 +28,7 @@ BDES_IDENT("$Id: $")
 ///-----
 // In this section we show the intended usage of this component.
 //
-///Example 1: Configuring a stack-trace value
+///Example 1: Configuring a Stack-Trace Value
 /// - - - - - - - - - - - - - - - - - - - - -
 // In the following example we demonstrate how to create a 'baesu_StackTrace'
 // object, then both modify and access its value.
@@ -215,7 +215,7 @@ class baesu_StackTrace {
         // allocation in instances where the heap may have been corrupted.
 
     baesu_StackTrace(const baesu_StackTrace&  original,
-                     bslma_Allocator         *allocator = 0);
+                     bslma_Allocator         *basicAllocator = 0);
         // Create a 'baesu_StackTrace' object having the same value as the
         // specified 'original' object.  Optionally specify 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, then an owned
@@ -223,9 +223,8 @@ class baesu_StackTrace {
         // bypass allocator is used by default to avoid heap allocation in
         // instances where the heap may have been corrupted.
 
-    // ~baesu_StackTrace();
-        // Destroy this object.  Note that this destructor is
-        // compiler-generated.
+    //! ~baesu_StackTrace() = default;
+        // Destroy this object.
 
     // MANIPULATORS
     baesu_StackTrace& operator=(const baesu_StackTrace& rhs);
@@ -248,7 +247,7 @@ class baesu_StackTrace {
         // Add default constructed stack trace frames to, or remove stack trace
         // frames from, the end of this stack trace object such that, after the
         // operation, 'length() == newLength'.  Stack trace frames whose
-        // indices are in the range '0 <= index < min(length, newLength) will
+        // indices are in the range '0 <= index < min(length, newLength)' will
         // be unchanged.  The behavior is undefined unless '0 <= newLength'.
 
                         // Aspects
