@@ -101,46 +101,52 @@ void swap(SwapTester& a, SwapTester& b)
 //
 ///Usage
 ///-----
-// Let's suppose we have a class 'Container' in a namespace 'xyz' which stores
-// some expensive to copy data.  It implements a custom version of the 'swap'
-// algorithm to efficiently swap the data between a two objects this class.
+///Example 1: using 'bslalg_SwapUtil::swap'
+/// - - - - - - - - - - - - - - - - - - - -
+// In this section we show the intended usage of this component.  We start by
+// defining a class 'Container' in the 'xyz' namespace.  Further we assume that 
+// 'Container' has some expensive-to-copy data, so we provide a custom 'swap'
+// algorithm to efficiently swap the data between a two objects this class by
+// defining a 'swap' method and a 'swap' free function.
 //..
 namespace xyz {
-    class Container {
-      private:
-        int d_expensiveData;
 
-      public:
-        void swap(Container& other);
-    };
+class Container {
+  private:
+    int d_expensiveData;
 
-    void swap(Container& a, Container& b);
+  public:
+    void swap(Container& other);
+};
+
+void swap(Container& a, Container& b);
+
 }
 //..
 // Note that the free function 'swap' is overloaded in the namespace of the
 // class 'Container', which is 'xyz'.
 //
-// The implementation of 'swap' method and free function look like this:
+// Next, we implemente the 'swap' method using the 'bslalg_SwapUtil::swap' to
+// swap the individual data elements:
 //..
 inline
 void xyz::Container::swap(Container& other)
 {
-    // either do this:
-    // using bsl::swap;
-    // swap(d_expensiveData, other.d_expensiveData);
-
-    // or this:
     bslalg_SwapUtil::swap(&d_expensiveData, &other.d_expensiveData);
 }
-
+//..
+// Note that calling 'bslalg_SwapUtil::swap' is equivalent to making the
+// 'bsl::swap' available in the current scope by doing 'using bsl::swap' and
+// making a subsequent call to an unqualified 'swap' function.
+//
+// Then, we implement the 'swap' free function:
+//..
 inline
 void xyz::swap(Container& a, Container& b)
 {
     a.swap(b);
 }
 //..
-// Calling 'bslalg_SwapUtil::swap' is exactly equivalent to doing
-// 'using bsl::swap' and then calling an unqualified 'swap'.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -165,17 +171,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-        // Now, if we have two objects of type 'Container':
-        //..
-        xyz::Container c1, c2;
-        //..
-        // and we want to swap them, we can just use the 'bslalg_SwapUtil' and
-        // not care about the details of the 'bsl::swap' usage.
-        //..
-        bslalg_SwapUtil::swap(&c1, &c2);
-        //..
-        // The above code will correctly call 'xyz::swap' overload for the
-        // 'Container' class.
+// Finally we can use 'bslalg_SwapUtil::swap' to swap two objects of class
+// 'xyz::Container':
+//..
+xyz::Container c1, c2;
+
+bslalg_SwapUtil::swap(&c1, &c2);
+//..
+// The above code correctly calls the 'xyz::swap' overload for the 'Container'
+// class.
 
       } break;
       case 2: {
