@@ -26,15 +26,6 @@ BDES_IDENT_RCSID(baesu_stacktraceutil_cpp,"$Id$ $CSID$")
 #pragma optimize("", off)
 #endif
 
-namespace {
-namespace Local {
-    enum { LIBRARY_NAME_LIMIT = 40 };   // Library file names longer than
-                                        // this are just printed as the
-                                        // basename, otherwise the full path is
-                                        // printed.
-}  // close namespace Local
-}  // close unnamed namespace
-
 static
 const char *findBasename(const char *pathName)
     // Find in the specified 'pathName' the first character following the last
@@ -96,7 +87,12 @@ int baesu_StackTraceUtil::loadStackTraceFromStack(
     if (maxFrames < 0) {
         maxFrames = DEFAULT_MAX_FRAMES;
     }
-    maxFrames += IGNORE_FRAMES;    // allocate extra frame(s) to be ignored
+
+    // The value 'IGNORE_FRAMES' indicates the number of additional frames to
+    // be ignored because they contained function calls within the stack trace
+    // facility.
+
+    maxFrames += IGNORE_FRAMES;
 
     void **addresses = (void **)
                      result->allocator()->allocate(maxFrames * sizeof(void *));
@@ -108,8 +104,6 @@ int baesu_StackTraceUtil::loadStackTraceFromStack(
     if (numAddresses <= 0 || numAddresses > maxFrames) {
         return -1;                                                    // RETURN
     }
-
-    // Throw away the first frame, since it refers to this routine.
 
     return loadStackTraceFromAddressArray(result,
                                           addresses    + IGNORE_FRAMES,
@@ -134,9 +128,10 @@ bsl::ostream& baesu_StackTraceUtil::printFormatted(
                                   bsl::ostream&                stream,
                                   const baesu_StackTraceFrame& stackTraceFrame)
 {
-    if (stream.bad()) {
-        return stream;                                                // RETURN
-    }
+    enum { LIBRARY_NAME_LIMIT = 40 };   // Library file names longer than
+                                        // this are just printed as the
+                                        // basename, otherwise the full path is
+                                        // printed.
 
     // Choose from 'symbolName', 'mangledSymbolName', and "--unknown--",
     // in that order, according to availablity.
@@ -159,11 +154,12 @@ bsl::ostream& baesu_StackTraceUtil::printFormatted(
     stream.flags(save);
 
     if (stackTraceFrame.isSourceFileNameKnown()) {
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
-        // source file info is only available for statics on Elf
+        //  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+        //      // source file info is only available for statics on Elf
+        //
+        //      stream << " static";
+        //  #endif
 
-        stream << " static";
-#endif
         const char *basename =
                         findBasename(stackTraceFrame.sourceFileName().c_str());
         stream << " source:" << (*basename ? basename : "--unknown--");
@@ -175,8 +171,7 @@ bsl::ostream& baesu_StackTraceUtil::printFormatted(
 
     if (stackTraceFrame.isLibraryFileNameKnown()) {
         stream << " in " <<
-           (Local::LIBRARY_NAME_LIMIT >
-                                     stackTraceFrame.libraryFileName().length()
+               (LIBRARY_NAME_LIMIT > stackTraceFrame.libraryFileName().length()
                     ? stackTraceFrame.libraryFileName().c_str()
                     : findBasename(stackTraceFrame.libraryFileName().c_str()));
     }

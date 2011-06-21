@@ -45,11 +45,12 @@ BDES_IDENT("$Id: $")
 // Next, we create a stack trace object.  Note that when we don't specify an
 // allocator, the default allocator is not used -- rather, a heap bypass
 // allocator owned by the stack trace object is used.  The heap bypass
-// allocator is recommended because this component is often used to obtain
-// debug information in instances where an error has occurred, and the
-// possibility of heap corruption can't be ruled out.  The heap bypass
-// allocator obtains its memory directly from virtual memory rather than going
-// through the heap, avoiding potential complications due to heap corruption.
+// allocator is the default and is recommended because this component is often
+// used to obtain debug information in instances where an error has occurred,
+// and there is a possibility that the heap has been corrupted.  The heap
+// bypass allocator obtains its memory directly from virtual memory rather than
+// going through the heap, avoiding potential complications due to heap
+// corruption.
 //..
 //  baesu_StackTrace stackTrace;
 //  assert(0 == stackTrace.length());
@@ -201,6 +202,9 @@ class baesu_StackTrace {
                                  d_frames;    // sequence of stack trace frames
 
   public:
+    friend bool operator==(const baesu_StackTrace&,
+                           const baesu_StackTrace&);
+
     BSLALG_DECLARE_NESTED_TRAITS2(baesu_StackTrace,
                                   bslalg_TypeTraitUsesBslmaAllocator,
                                   bslalg_TypeTraitBitwiseMoveable);
@@ -360,7 +364,8 @@ baesu_StackTrace& baesu_StackTrace::operator=(const baesu_StackTrace& rhs)
 inline
 baesu_StackTraceFrame& baesu_StackTrace::operator[](int index)
 {
-    BSLS_ASSERT_SAFE((unsigned) index < length());
+    BSLS_ASSERT_SAFE(index >= 0);
+    BSLS_ASSERT_SAFE(index < length());
 
     return d_frames[index];
 }
@@ -399,7 +404,8 @@ void baesu_StackTrace::swap(baesu_StackTrace& other)
 inline
 const baesu_StackTraceFrame& baesu_StackTrace::operator[](int index) const
 {
-    BSLS_ASSERT_SAFE((unsigned) index < length());
+    BSLS_ASSERT_SAFE(index >= 0);
+    BSLS_ASSERT_SAFE(index < length());
 
     return d_frames[index];
 }
@@ -418,8 +424,13 @@ int baesu_StackTrace::length() const
 
 // FREE OPERATORS
 inline
-bool operator!=(const baesu_StackTrace& lhs,
-                const baesu_StackTrace& rhs)
+bool operator==(const baesu_StackTrace& lhs, const baesu_StackTrace& rhs)
+{
+    return lhs.d_frames == rhs.d_frames;
+}
+
+inline
+bool operator!=(const baesu_StackTrace& lhs, const baesu_StackTrace& rhs)
 {
     return !(lhs == rhs);
 }

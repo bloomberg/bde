@@ -28,10 +28,10 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// In this section we show theo intended usage of this component.
 //
 ///Example 1: Printing a Stack Trace
-///- - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - -
 // This example shows how to print a stack trace to a stream, by calling the
 // static function 'baesu_StackTraceUtil::printStackTrace'.
 //
@@ -48,9 +48,9 @@ BDES_IDENT("$Id: $")
 //      else {
 //..
 // Now we invoke the function 'printStackTrace' to print out a stack trace.  In
-// this case, the 'maxFrames' argument is unspecified, defaulting to 1000
-// (which is more than we need) and the 'demanglingPreferredFlag' argument is
-// unspecified, defaulting to 'true'.
+// this case, the 'maxFrames' argument is unspecified, and defaults to at least
+// 1024 (which is more than we need) and the 'demanglingPreferredFlag' argument
+// is unspecified, and defaults to 'true'.
 //..
 //          baesu_StackTracePrintUtil::printStackTrace(cout);
 //      }

@@ -17,21 +17,24 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace for functions used in
 // obtaining and printing a stack trace.  Note that clients interested in
-// printing a stack trace will usually prefer to use the
-// 'baesu_stacktraceprintutil' component rather than this one.
+// simply printing a stack trace are encouraged to use the
+// 'baesu_stacktraceprintutil' component instead.
 //
 ///Usage
 ///-----
 // This section illustrates intended usage for this component.  The following
-// examples illustrate two different ways to load and print a stack trace using
+// examples demonstrate two ways to load and print a stack trace using
 // 'baesu_StackTraceUtil', in particular, using 'loadStackTraceFromStack' and
 // 'loadStackTraceFromAddresses'.
 //
-///Example 1: Loading a Stack Trace using 'loadStackTraceFromStack'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function 'recurseExample1' which will recurse the
+///Example 1: loading stack trace with 'loadStackTraceFromStack':
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+// We start by defining a routine 'recurseExample1' which will recurse the
 // specified 'depth' times, then call 'traceExample1'.
 //..
+//  void traceExample1();    // forward declaration
+//
 //  void recurseExample1(int *depth)
 //      // Recurse the specified 'depth' number of times, then call
 //      // 'traceExample1'.
@@ -40,8 +43,6 @@ BDES_IDENT("$Id: $")
 //          recurseExample1(depth);
 //      }
 //      else {
-//          void traceExample1();
-//
 //          traceExample1();
 //      }
 //
@@ -49,21 +50,24 @@ BDES_IDENT("$Id: $")
 //                  // loop.
 //  }
 //..
-// Then, we define 'traceExample1', which will print a stack trace:
+// Then, we define the function 'traceExample1', which will print a stack
+// trace:
 //..
 //  void traceExample1()
 //  {
 //..
-// Next, we create a 'baesu_StackTrace' object and call
+// Now, we create a 'baesu_StackTrace' object and call
 // 'loadStackTraceFrameStack' to load the information from the stack of the
 // current thread into the stack trace object.
 //
-// In this call to 'loadStackTraceFromStack', 'maxFrames' defaults to 1024 and
-// 'demanglingPreferredFlag' defaults to 'true', meaning that the function will
+// In this call to 'loadStackTraceFromStack', we use the default value of
+// 'maxFrames', which is at least 1024 and the default value for
+// 'demanglingPreferredFlag', which is 'true', meaning that the operation will
 // attempt to demangle function names.  Note that the object 'stackTrace' takes
-// very little room on the stack, allocating most of its memory directly from
-// virtual memory without going through the heap, minimizing potential
-// complications due to stack-size limits and possible heap corruption.
+// very little room on the stack, and by default allocates most of its memory
+// directly from virtual memory without going through the heap, minimizing
+// potential complications due to stack-size limits and possible heap
+// corruption.
 //..
 //      baesu_StackTrace stackTrace;
 //      int rc = baesu_StackTraceUtil::loadStackTraceFromStack(&stackTrace);
@@ -72,7 +76,7 @@ BDES_IDENT("$Id: $")
 // Finally, we use 'printFormatted' to stream out the stack trace, one frame
 // per line, in a concise, human-friendly format.
 //..
-//      baesu_StackTraceUtil::printFormatted(cout, stackTrace);
+//      baesu_StackTraceUtil::printFormatted(*out_p, stackTrace);
 //  }
 //..
 // The output from the preceding example on Solaris is as follows (lines have
@@ -90,8 +94,9 @@ BDES_IDENT("$Id: $")
 // Note that on AIX or Windows, source file name and line number information
 // will also be displayed.
 //
-///Example 2: loading the stack trace from an array of stack addresses
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Loading a Stack Trace From an Array of Stack Addresses.
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
 // In this example, we demonstrate obtaining return addresses from the stack
 // using 'baesu_StackAddressUtil', and later using them to load a
 // 'baesu_StackTrace' object with a description of the stack.  This approach
@@ -105,6 +110,8 @@ BDES_IDENT("$Id: $")
 // First, we define a routine 'recurseExample2' which will recurse the
 // specified 'depth' times, then call 'traceExample2'.
 //..
+//  void traceExample2();    // forward declaration
+//
 //  static void recurseExample2(int *depth)
 //      // Recurse the specified 'depth' number of times, then call
 //      // 'traceExample2', which will print a stack trace.
@@ -113,29 +120,27 @@ BDES_IDENT("$Id: $")
 //          recurseExample2(depth);
 //      }
 //      else {
-//          void traceExample2();
-//
 //          traceExample2();
 //      }
 //
 //      ++*depth;   // Prevent compiler from optimizing tail recursion as a
 //                  // loop.
 //  }
-//
+//..
 //  void traceExample2()
 //  {
 //..
 // Then, within 'traceExample2', we create a stack trace object and an array
 // 'addresses' to hold some addresses.
-////
+//..
 //      baesu_StackTrace stackTrace;
 //      enum { ARRAY_LENGTH = 50 };
 //      void *addresses[ARRAY_LENGTH];
 //..
-// Next, we call 'getStackAddresses' to get the stored return addresses from
-// the stack and load them into the array 'addresses'.  The call returns the
-// number of addresses saved into the array, which will be less than or equal
-// to 'ARRAY_LENGTH'.
+// Next, we call 'baesu_StackAddressUtil::getStackAddresses' to get the stored
+// return addresses from the stack and load them into the array 'addresses'.
+// The call returns the number of addresses saved into the array, which will be
+// less than or equal to 'ARRAY_LENGTH'.
 //..
 //      int numAddresses = baesu_StackAddressUtil::getStackAddresses(
 //                                                           addresses,
@@ -164,7 +169,7 @@ BDES_IDENT("$Id: $")
 //          const char *symbol = frame.isSymbolNameKnown()
 //                             ? frame.symbolName().c_str()
 //                             : "--unknown__";
-//          cout << '(' << i << "): " << symbol << endl;
+//          *out_p << '(' << i << "): " << symbol << endl;
 //      }
 //  }
 //..
@@ -198,8 +203,7 @@ class bslma_Allocator;
 
 struct baesu_StackTraceUtil {
     // This 'struct' is a namespace for a collection of functions that are
-    // useful for obtaining a stack trace, specifically, for initializing a
-    // stack trace object and printing it.
+    // useful for initializing and printing a stack trace object.
 
     static
     int loadStackTraceFromAddressArray(
@@ -230,9 +234,9 @@ struct baesu_StackTraceUtil {
         // Populate the specified 'result' object with information about the
         // current thread's program stack.  Optionally specify 'maxFrames' to
         // indicate the maximum number of frames to take from the top of the
-        // stack.  If 'maxFrames' is not specified, the limit is at least 1024.
-        // Optionally specify 'demanglingPreferredFlag' to indicate whether to
-        // attempt to perform demangling, if possible.  If
+        // stack.  If 'maxFrames' is not specified, the default limit is at
+        // least 1024.  Optionally specify 'demanglingPreferredFlag' to
+        // indicate whether to attempt to perform demangling, if possible.  If
         // 'demanglingPreferredFlag' is not specfied, demangling is attempted,
         // however, demangling is always performed on the Windows platform and
         // never performed on Solaris using the CC compiler regardless of the
