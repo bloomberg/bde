@@ -10,6 +10,8 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_platformutil.h>
 #include <bsls_stopwatch.h>
@@ -51,12 +53,13 @@ using bsl::flush;
 //=============================================================================
 // TEST PLAN
 //-----------------------------------------------------------------------------
-// [ 1] printStackTrace
-// [ 2] printStackTrace
-// [ 3] routine in static library
-// [ 4] inline routine (called out of line) on stack
-// [ 5] usage
+// CLASS METHOD
+// [ 2] bsl::ostream& printStackTrace(ostream& s, int max, bool demangle);
 //-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 5] USAGE EXAMPLE
+// [ 3] CONCERN: 'printStackTrace' works for routine in static library
+// [ 4] CONCERN: 'printStackTrace' works for inline routine on stack
 
 //=============================================================================
 // STANDARD BDE ASSERT TEST MACRO
@@ -105,6 +108,15 @@ static void aSsErT(int c, const char *s, int i)
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+//=============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//-----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 //=============================================================================
 // GLOBAL HELPER #DEFINES FOR TESTING
@@ -651,7 +663,7 @@ int main(int argc, char *argv[])
     verbose     = argc > 2;
     veryVerbose = argc > 3;
 
-    cout << "TEST CASE " << test << endl;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     // make sure the shared lib containing 'malloc' is loaded
 
@@ -710,11 +722,13 @@ int main(int argc, char *argv[])
         //: 1 A static inline function, 'forTestingOnlyDump', is defined within
         //:   this class.  It does a stack trace using 'operator<<' and stores
         //:   the result to a string.
+        //:
         //: 2 'forTestingOnlyDump' must be called out of line to get it to
         //:   leave a stack frame.  Since it is declared inline, the compiler
         //:   will go to great lengths to inline it, especially in optimized
         //:   mode.  Take a pointer to the function and call it through that
         //:   pointer.
+        //:
         //: 3 If we just store the address of the function to a pointer and
         //:   call through that pointer, the optimizer will sometimes *STILL*
         //:   figure out what we are doing and inline the call.  Call
@@ -722,9 +736,13 @@ int main(int argc, char *argv[])
         //:   that results in it being unchanged, that is too complex for the
         //:   optimizer to understand.  Thus, the compiler has no choice but to
         //:   call the routine out of line.
+        //:
         //: 4 On platforms / build modes that support source file names,
         //:   verify that the source file name of the inline function is
         //:   'baesu_stacktrace.h'.
+        //
+        // Testing:
+        //   CONCERN: 'printStackTrace' works for inline routine on stack
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TEST WITH INLINE FUNCTION\n"
@@ -746,6 +764,7 @@ int main(int argc, char *argv[])
         //: 1 Create a routine that will do a stack trace.  Pass a pointer to
         //:   it to a shared library routine that we know will call our
         //:   routine.
+        //:
         //: 2 Within our routine, do a stack trace, and examine it to verify
         //:   that the shared library routine name and the shared library name
         //:   appear appropriately.
@@ -754,6 +773,9 @@ int main(int argc, char *argv[])
         //  result in the comparison function we provide being called once
         //  within libc.  On windows, use 'EnumWindows' function from
         //  'user32.dll' for the same purpose.
+        //
+        // Testing:
+        //   CONCERN: 'printStackTrace' works for routine in static library
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
@@ -799,8 +821,13 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Call 'printStackTrace()' to print a stack trace to a
         //:   stringstream.
+        //:
         //: 2 Verify that the string created by the stringstream has the
         //:   expected routine names.
+        //:
+        //: 3 Use the 'BSLS_ASSERTTEST_*' macros to verify that, in appropriate
+        //:   build modes, defensive checks are triggered for invalid
+        //:   arguments.
         //
         // Testing:
         //   bsl::ostream& printStackTrace(ostream& s, int max, bool demangle);
@@ -809,9 +836,25 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'printStackTrace'\n"
                              "=========================\n";
 
-        namespace TC = CASE_2;
+        {
+            namespace TC = CASE_2;
 
-        (void) TC::bottom();
+            (void) TC::bottom();
+
+            ASSERT(0 == defaultAllocator.numAllocations());
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\tprintStackTrace" << endl;
+            {
+                bsl::stringstream ss(&ta);
+                ASSERT_PASS(PrintUtil::printStackTrace(ss, -1));
+                ASSERT_FAIL(PrintUtil::printStackTrace(ss, -2));
+            }
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -824,6 +867,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Several routines deep, do a stack trace to a string stream.
+        //:
         //: 2 Check that the right sequence of routine names is present in
         //:   the string stream.
         //
