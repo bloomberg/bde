@@ -562,39 +562,39 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Configuring a Stack-Trace Value
 /// - - - - - - - - - - - - - - - - - - - - -
-// In the following example we demonstrate how to create a 'baesu_StackTrace'
-// object, then both modify and access its value.
+// In this example we demonstrate how to create a 'baesu_StackTrace' object,
+// and then to both modify and access its value.
 //
 // First, we set up a test allocator as default allocator.  A
 // 'baesu_StackTrace' object, by default, gets all its memory from an owned
-// instance of 'bdema_HeapBypassAllocator'.  To demonstrate this we start by
-// setting the default allocator to a test allocator so we can verify later
-// that it was unused:
+// instance of 'bdema_HeapBypassAllocator'.  To demonstrate this default
+// behavior we start by setting the default allocator to a test allocator so we
+// can verify later that it was unused:
 //..
     bslma_TestAllocator         da;
     bslma_DefaultAllocatorGuard guard(&da);
 //..
-// Next, we create a stack trace object.  Note that when we don't specify an
-// allocator, the default allocator is not used -- rather, a heap bypass
-// allocator owned by the stack trace object is used.  The heap bypass
+// Then, we create a stack trace object.  Note that when we don't specify an
+// allocator, the default allocator is not used -- rather, a heap-bypass
+// allocator owned by the stack trace object is used.  The heap-bypass
 // allocator is recommended because this component is often used to obtain
-// debug information in instances where an error has occurred, and the
-// possibility of heap corruption can't be ruled out.  The heap bypass
+// debug information in situations where an error has occurred, and the
+// possibility of heap corruption can't be ruled out.  The heap-bypass
 // allocator obtains its memory directly from virtual memory rather than going
 // through the heap, avoiding potential complications due to heap corruption.
 //..
     baesu_StackTrace stackTrace;
     ASSERT(0 == stackTrace.length());
 //..
-// Then, we 'resize' the stack-trace object to contain two default-constructed
-// frames, and take references to each of the two new frames.
+// Next, we 'resize' the stack-trace object to contain two default-constructed
+// frames, and take references to each of the two new frames:
 //..
     stackTrace.resize(2);
     ASSERT(2 == stackTrace.length());
     baesu_StackTraceFrame& frame0 = stackTrace[0];
     baesu_StackTraceFrame& frame1 = stackTrace[1];
 //..
-// Next, we set the values of the fields of the two new frames.
+// Then, we set the values of the fields of the two new frames.
 //..
     frame0.setAddress((void *) 0x12ab);
     frame0.setLibraryFileName("/a/b/c/baesu_stacktrace.t.dbg_exc_mt");
@@ -612,7 +612,7 @@ int main(int argc, char *argv[])
     frame1.setMangledSymbolName("_arf_1a");
     frame1.setSymbolName("arf");
 //..
-// Then, we verify the frames have the values we expect.
+// Next, we verify the frames have the values we expect:
 //..
     ASSERT((void *) 0x12ab               == frame0.address());
     ASSERT("/a/b/c/baesu_stacktrace.t.dbg_exc_mt"
@@ -631,7 +631,7 @@ int main(int argc, char *argv[])
     ASSERT("_arf_1a"                     == frame1.mangledSymbolName());
     ASSERT("arf"                         == frame1.symbolName());
 //..
-// Next, we output the stack trace object.
+// Next, we output the stack trace object:
 //..
     stackTrace.print(cout, 1, 2);
 //..
@@ -689,7 +689,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CAPACITY-RESERVING CONSTRUCTOR AND METHOD
         //
-        // Concerns: 
+        // Concerns:
         //   N/A
         //
         // Plan:
@@ -713,7 +713,7 @@ int main(int argc, char *argv[])
         //   exchange the values at any valid pair of index positions while
         //   leaving all other elements unaffected.
         //
-        // Concerns: 
+        // Concerns:
         //   N/A
         //
         // Plan:
@@ -740,7 +740,7 @@ int main(int argc, char *argv[])
         // (15) is provided to preserve the order of test cases w.r.t. to
         // reference test driver.
         //
-        // Concerns: 
+        // Concerns:
         //   N/A
         //
         // Plan:
