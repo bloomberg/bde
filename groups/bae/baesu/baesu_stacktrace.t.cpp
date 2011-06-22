@@ -556,6 +556,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
+
 ///Usage
 ///-----
 // In this section we show the intended usage of this component.
@@ -567,16 +568,16 @@ int main(int argc, char *argv[])
 //
 // First, we set up a test allocator as default allocator.  A
 // 'baesu_StackTrace' object, by default, gets all its memory from an owned
-// instance of 'bdema_HeapBypassAllocator'.  To demonstrate this default
-// behavior we start by setting the default allocator to a test allocator so we
-// can verify later that it was unused:
+// 'bdema_HeapBypassAllocator' object.  To demonstrate this default behavior we
+// start by setting the default allocator to a test allocator so we can verify
+// later that it was unused:
 //..
     bslma_TestAllocator         da;
     bslma_DefaultAllocatorGuard guard(&da);
 //..
-// Then, we create a stack trace object.  Note that when we don't specify an
+// Then, we create a stack-trace object.  Note that when we don't specify an
 // allocator, the default allocator is not used -- rather, a heap-bypass
-// allocator owned by the stack trace object is used.  The heap-bypass
+// allocator owned by the stack-trace object is used.  The heap-bypass
 // allocator is recommended because this component is often used to obtain
 // debug information in situations where an error has occurred, and the
 // possibility of heap corruption can't be ruled out.  The heap-bypass
@@ -631,7 +632,7 @@ int main(int argc, char *argv[])
     ASSERT("_arf_1a"                     == frame1.mangledSymbolName());
     ASSERT("arf"                         == frame1.symbolName());
 //..
-// Next, we output the stack trace object:
+// Next, we output the stack-trace object:
 //..
     stackTrace.print(cout, 1, 2);
 //..
