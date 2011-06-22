@@ -215,8 +215,8 @@ BSLS_IDENT("$Id$")
 //  MyAlignedAllocator myAlignedAllocator;
 //  bdema_AlignedAllocator *alignedAllocator = &myAlignedAllocator;
 //..
-// Now, we allocate a buffer of 1024 bytes of memory and indicate that it
-// should be aligned on a 4096 boundary:
+// Now, assuming a page size of 4K, we allocate a buffer of 1024 bytes of
+// memory and indicate that it should be aligned on a 4096 boundary:
 //..
 //  char *address = (char *) alignedAllocator->allocateAligned(1024, 4096);
 //..
