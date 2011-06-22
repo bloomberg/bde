@@ -16,16 +16,6 @@ namespace bslim {
                         // -------------
 
 // PRIVATE ACCESSORS
-void Printer::printIndentation() const
-{
-    if (d_spacesPerLevel < 0) {
-        *d_stream_p << ' ';
-    }
-    else {
-        *d_stream_p << bsl::setw(d_spacesPerLevel * d_levelPlusOne) << "";
-    }
-}
-
 void Printer::printEndIndentation() const
 {
     if (d_spacesPerLevel < 0) {
@@ -33,6 +23,16 @@ void Printer::printEndIndentation() const
     }
     else {
         *d_stream_p << bsl::setw(d_spacesPerLevel * d_level) << "";
+    }
+}
+
+void Printer::printIndentation() const
+{
+    if (d_spacesPerLevel < 0) {
+        *d_stream_p << ' ';
+    }
+    else {
+        *d_stream_p << bsl::setw(d_spacesPerLevel * d_levelPlusOne) << "";
     }
 }
 
@@ -53,6 +53,23 @@ Printer::~Printer()
 }
 
 // ACCESSORS
+int Printer::absLevel() const
+{
+    return d_level;
+}
+
+void Printer::end(bool suppressBracket) const
+{
+    if (!suppressBracket) {
+        printEndIndentation();
+        *d_stream_p << ']';
+    }
+
+    if (d_spacesPerLevel >= 0) {
+        *d_stream_p << '\n';
+    }
+}
+
 void Printer::printHexAddr(const void *address, const char *name) const
 {
     printIndentation();
@@ -67,7 +84,12 @@ void Printer::printHexAddr(const void *address, const char *name) const
                           d_spacesPerLevel);
 }
 
-void Printer::start() const
+int Printer::spacesPerLevel() const
+{
+    return d_spacesPerLevel;
+}
+
+void Printer::start(bool suppressBracket) const
 {
     if (!suppressInitialIndentFlag()) {
         const int absSpacesPerLevel = d_spacesPerLevel < 0
@@ -75,35 +97,18 @@ void Printer::start() const
                                       :  d_spacesPerLevel;
         *d_stream_p << bsl::setw(absSpacesPerLevel * d_level) << "";
     }
-    *d_stream_p << '[';
-    if (d_spacesPerLevel >= 0) {
-        *d_stream_p << '\n';
+
+    if (!suppressBracket) {
+        *d_stream_p << '[';
+        if (d_spacesPerLevel >= 0) {
+            *d_stream_p << '\n';
+        }
     }
-}
-
-void Printer::end() const
-{
-    printEndIndentation();
-
-    *d_stream_p << ']';
-    if (d_spacesPerLevel >= 0) {
-        *d_stream_p << '\n';
-    }
-}
-
-int Printer::absLevel() const
-{
-    return d_level;
 }
 
 bool Printer::suppressInitialIndentFlag() const
 {
     return d_suppressInitialIndentFlag;
-}
-
-int Printer::spacesPerLevel() const
-{
-    return d_spacesPerLevel;
 }
 
 }  // close namespace bslim
