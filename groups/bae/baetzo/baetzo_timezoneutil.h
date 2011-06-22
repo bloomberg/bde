@@ -653,12 +653,13 @@ struct baetzo_TimeZoneUtil {
         // the specified 'localTime' (i.e., 'localTime.offset()') is consistent
         // with the actual local time offset, as indicated by time zone data,
         // at the UTC time 'localTime.gmtDatetime()' in the time zone indicated
-        // by the specified 'timeZoneId', and 'false' otherwise.  Note that
-        // this operation verifies that the properties of the provided local
-        // time are consistent with the time zone data.  Return 0 on success,
-        // and a non-zero value with 'false' loaded into 'result' otherwise.  A
-        // return value of 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates
-        // that 'timeZoneId' is not recognized.
+        // by the specified 'timeZoneId', and 'false' otherwise.  Return 0 on
+        // success, and a non-zero value with 'false' loaded into 'result'
+        // otherwise.  A return value of
+        // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // 'timeZoneId' is not recognized.  Note that this operation verifies
+        // that the properties of the provided local time are consistent with
+        // the time zone data.
 
     static int validateLocalTime(bool                      *result,
                                  const baet_LocalDatetime&  localTime);
@@ -669,12 +670,12 @@ struct baetzo_TimeZoneUtil {
         // consistent with the actual local time offset, as indicated by time
         // zone data, at the UTC time 'localTime.dateTimeTz().gmtDatetime()' in
         // the time zone inidicated by 'localTime.timeZoneId()', and 'false'
-        // otherwise.  Note that this operation verifies that the properties of
-        // the provided local time are consistent with the time zone data.
-        // Return 0 on success, and a non-zero value with 'false' loaded into
-        // 'result' otherwise.  A return value of
+        // otherwise.  Return 0 on success, and a non-zero value with 'false'
+        // loaded into 'result' otherwise.  A return value of
         // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
-        // 'timeZoneId' is not recognized.
+        // 'timeZoneId' is not recognized.  Note that this operation verifies
+        // that the properties of the provided local time are consistent with
+        // the time zone data.
 
 };
 
