@@ -1,7 +1,9 @@
-// bdem_beruniversaltagnumber.cpp  -*-C++-*-
+// bdem_beruniversaltagnumber.t.cpp                                   -*-C++-*-
 #include <bdem_beruniversaltagnumber.h>
 
 #include <bdeat_arrayfunctions.h>
+
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -2499,8 +2501,8 @@ int main(int argc, char *argv[])
         typedef unsigned char uchar;
         typedef unsigned short ushort;
         typedef unsigned int uint;
-        typedef bsls_PlatformUtil::Int64 int64;
-        typedef bsls_PlatformUtil::Uint64 uint64;
+        typedef bsls_Types::Int64 int64;
+        typedef bsls_Types::Uint64 uint64;
         typedef bsl::vector<char> vectorChar;
         typedef test::CustomizedString CustString;
         typedef test::MyEnumeration::Value MyEnum;
@@ -2620,12 +2622,12 @@ int main(int argc, char *argv[])
             TC::Value    d_category;
             Class::Value d_expectedResult;
         } DATA[] = {
-            { TC::BDEAT_ARRAY_CATEGORY           , Class::BDEM_BER_SEQUENCE    },
-            { TC::BDEAT_CHOICE_CATEGORY          , Class::BDEM_BER_SEQUENCE    },
+            { TC::BDEAT_ARRAY_CATEGORY         , Class::BDEM_BER_SEQUENCE    },
+            { TC::BDEAT_CHOICE_CATEGORY        , Class::BDEM_BER_SEQUENCE    },
 //            { TC::CUSTOMIZED_TYPE_CATEGORY , ? },
-            { TC::BDEAT_ENUMERATION_CATEGORY     , Class::BDEM_BER_ENUMERATION },
+            { TC::BDEAT_ENUMERATION_CATEGORY   , Class::BDEM_BER_ENUMERATION },
 //            { TC::NULLABLE_VALUE_CATEGORY  ,  ? },
-            { TC::BDEAT_SEQUENCE_CATEGORY        , Class::BDEM_BER_SEQUENCE    },
+            { TC::BDEAT_SEQUENCE_CATEGORY      , Class::BDEM_BER_SEQUENCE    },
         };
 
         static const int DATA_SIZE = sizeof DATA / sizeof DATA[0];

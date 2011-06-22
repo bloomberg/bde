@@ -1,8 +1,8 @@
-// bdecs_packedcalendar.t.cpp          -*-C++-*-
+// bdecs_packedcalendar.t.cpp                                         -*-C++-*-
 
 #include <bdecs_packedcalendar.h>
 
-#include <bdema_bufferedsequentialallocator.h>   // for testing only
+#include <bdema_bufferedsequentialallocator.h>  // for testing only
 #include <bdex_instreamfunctions.h>             // for testing only
 #include <bdex_outstreamfunctions.h>            // for testing only
 #include <bdex_testoutstream.h>                 // for testing only
@@ -1121,8 +1121,10 @@ DEFINE_TEST_CASE(23) {
 
             if (veryVerbose) { T_ P_(LINE) P_(YEAR) P_(MONTH) P(DAY) }
 
-            LOOP_ASSERT(LINE,
-                        !calendar.isHoliday(bdet_Date(YEAR, MONTH, DAY)));
+            if (calendar.isInRange(bdet_Date(YEAR, MONTH, DAY))) {
+                LOOP_ASSERT(LINE,
+                            !calendar.isHoliday(bdet_Date(YEAR, MONTH, DAY)));
+            }
         }
 
         load(iss, &calendar);
@@ -1154,10 +1156,12 @@ DEFINE_TEST_CASE(23) {
             const int MONTH    = DATA[ti].d_month;
             const int DAY      = DATA[ti].d_day;
 
-            printHolidayNamesForGivenDate(bsl::cout,
-                                          calendar,
-                                          bdet_Date(YEAR, MONTH, DAY),
-                                          holidayNames);
+            if (veryVerbose) {
+                printHolidayNamesForGivenDate(bsl::cout,
+                                              calendar,
+                                              bdet_Date(YEAR, MONTH, DAY),
+                                              holidayNames);
+            }
         }
 
         bsl::ostringstream oss1;
@@ -2416,7 +2420,9 @@ DEFINE_TEST_CASE(18) {
         mX.setValidRange(DATES[2], DATES[NUM_DATES-3]);
         for (int i = 0; i < NUM_DATES; ++i) {
             mX.addHolidayIfInRange(DATES[i]);
-            LOOP_ASSERT(i, mX.isHoliday(DATES[i]) == mX.isInRange(DATES[i]));
+            if (mX.isInRange(DATES[i])) {
+                LOOP_ASSERT(i, mX.isHoliday(DATES[i]));
+            }
         }
 
         mX.removeAll();
@@ -2424,8 +2430,8 @@ DEFINE_TEST_CASE(18) {
         for (int i = 0; i < NUM_DATES; ++i) {
             int code = 1;
             mX.addHolidayCodeIfInRange(DATES[i], code);
-            LOOP_ASSERT(i, mX.isHoliday(DATES[i]) == mX.isInRange(DATES[i]));
             if (mX.isInRange(DATES[i])) {
+                LOOP_ASSERT(i, mX.isHoliday(DATES[i]));
                 Obj::HolidayCodeConstIterator it =
                                                 mX.beginHolidayCodes(DATES[i]);
                 LOOP_ASSERT(i, it != mX.endHolidayCodes(DATES[i]));
@@ -2693,10 +2699,12 @@ DEFINE_TEST_CASE(16) {
                         // '[RANGES[startDateIndex] ... RANGES[j] - 1' should
                         // be in the valid range of the calendar.
 
-                        LOOP3_ASSERT(startDateIndex, j, k,
-                         X.isInRange(HOLIDAYS[k]) == X.isHoliday(HOLIDAYS[k]));
+                        if (X.isInRange(HOLIDAYS[k])) {
+                            LOOP3_ASSERT(startDateIndex, j, k,
+                                         X.isHoliday(HOLIDAYS[k]));
+                        }
                     }
-                    if (X.isHoliday(HOLIDAYS[k])) {
+                    if (X.isInRange(HOLIDAYS[k]) && X.isHoliday(HOLIDAYS[k])) {
                         ++holidayCount;  // count expected holidays
                     }
                 }
@@ -5265,12 +5273,14 @@ DEFINE_TEST_CASE(4) {
                 Obj mX(&testAllocator);
                 const Obj& X = mX;
                 ASSERT(X.beginHolidays() == X.beginHolidays());
-                ASSERT(X.endHolidays() == X.endHolidays());
+                ASSERT(X.endHolidays()   == X.endHolidays());
                 ASSERT(X.beginHolidays() == X.endHolidays());
 
                 for (int j = 0; j < NUM_DATA; ++j) {
                     mX.addHoliday(*DATA[j]);
                 }
+
+                mX.setValidRange(bdet_Date(1, 1, 3), bdet_Date(9999, 12, 30));
 
                 // Test 'beginHolidays' using a date before the first holiday.
 
@@ -5346,12 +5356,14 @@ DEFINE_TEST_CASE(4) {
                 Obj mX(&testAllocator);
                 const Obj& X = mX;
                 ASSERT(X.rbeginHolidays() == X.rbeginHolidays());
-                ASSERT(X.rendHolidays() == X.rendHolidays());
+                ASSERT(X.rendHolidays()   == X.rendHolidays());
                 ASSERT(X.rbeginHolidays() == X.rendHolidays());
 
                 for (int j = 0; j < NUM_DATA; ++j) {
                     mX.addHoliday(*DATA[j]);
                 }
+
+                mX.setValidRange(bdet_Date(1, 1, 3), bdet_Date(9999, 12, 30));
 
                 // Test 'rbeginHolidays' using a date after the last holiday.
 
@@ -5754,14 +5766,14 @@ DEFINE_TEST_CASE(4) {
             for (int nb = 0; nb <= NUM_DATA; ++nb) {
                 Obj mX(&testAllocator);
                 const Obj& X = mX;
-                bdet_Date D(2000, 1 , 1);
+                bdet_Date D(2000, 1, 1);
 
                 if (verbose) cout << "\nTesting with a size of " << nb << "."
                                   << endl;
 
                 if (veryVerbose) cout << "\tgenerating object" << endl;
                 for (int j = 0; j < nb; ++j) {
-                    mX.addHolidayCode(D , *DATA[j]);
+                    mX.addHolidayCode(D, *DATA[j]);
 
                     if (veryVeryVerbose) {
                         T_; P_(*DATA[j]);
@@ -5776,9 +5788,14 @@ DEFINE_TEST_CASE(4) {
 
                 // Breathing test.
 
+                if (!X.isInRange(D)) {
+                    continue;
+                }
+
                 LOOP_ASSERT(nb, X.beginHolidayCodes(D) ==
                                                        X.beginHolidayCodes(D));
-                LOOP_ASSERT(nb, X.endHolidayCodes(D) == X.endHolidayCodes(D));
+                LOOP_ASSERT(nb, X.endHolidayCodes(D) ==
+                                                         X.endHolidayCodes(D));
                 LOOP_ASSERT(nb, !nb || X.beginHolidayCodes(D) !=
                                                          X.endHolidayCodes(D));
                 LOOP_ASSERT(nb,  nb || X.beginHolidayCodes(D) ==
@@ -6459,8 +6476,10 @@ DEFINE_TEST_CASE(3) {
                          WDAY == X.numWeekendDaysInWeek());
             LOOP3_ASSERT(LINE, HOLI, X.numHolidays(),
                          HOLI == X.numHolidays());
-            LOOP4_ASSERT(LINE, DCOD, HCOD, X.numHolidayCodes(DCOD),
-                         HCOD == X.numHolidayCodes(DCOD));
+            if (X.isInRange(DCOD)) {
+                LOOP4_ASSERT(LINE, DCOD, HCOD, X.numHolidayCodes(DCOD),
+                             HCOD == X.numHolidayCodes(DCOD));
+            }
 
             // Testing the "remove all" facility
 
@@ -6476,7 +6495,6 @@ DEFINE_TEST_CASE(3) {
                 LOOP_ASSERT(LINE, 0 == Y.numBusinessDays());
                 LOOP_ASSERT(LINE, 0 == Y.numWeekendDaysInWeek());
                 LOOP_ASSERT(LINE, 0 == Y.numHolidays());
-                LOOP2_ASSERT(LINE, DCOD, 0 == Y.numHolidayCodes(DCOD));
             }
         }
         {
@@ -6995,14 +7013,6 @@ DEFINE_TEST_CASE(2) {
             ASSERT(0 == X.isInRange(bdet_Date(2000, 1, 15)));
             ASSERT(0 == X.isInRange(bdet_Date(2000, 2, 1)));
             ASSERT(X.endHolidays() == X.beginHolidays());
-            ASSERT(X.endHolidayCodes(bdet_Date(1999,1,1)) ==
-                   X.beginHolidayCodes(bdet_Date(1999,1,1)));
-            ASSERT(X.endHolidayCodes(bdet_Date(2000,1,1)) ==
-                   X.beginHolidayCodes(bdet_Date(2000,1,1)));
-            ASSERT(X.endHolidayCodes(bdet_Date(2000,1,15)) ==
-                   X.beginHolidayCodes(bdet_Date(2000,1,15)));
-            ASSERT(X.endHolidayCodes(bdet_Date(2000,2,1)) ==
-                   X.beginHolidayCodes(bdet_Date(2000,2,1)));
 
             mX.addHoliday(bdet_Date(2000,1,1));
             mX.addHolidayCode(bdet_Date(2000,1,1), 1);
@@ -8074,7 +8084,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-#define CASE(NUMBER)                                                           \
+#define CASE(NUMBER)                                                          \
   case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
         CASE(23);
         CASE(22);
