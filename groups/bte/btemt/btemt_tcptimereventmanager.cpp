@@ -87,7 +87,8 @@ class btemt_TcpTimerEventManager_Request {
         REGISTER_TIMER,                // invoke 'registerTimer'
         RESCHEDULE_TIMER,              // invoke 'rescheduleTimer'
         IS_REGISTERED,                 // invoke 'isRegistered'.
-        NUM_SOCKET_EVENTS              // invoke 'numSocketEvents'.
+        NUM_SOCKET_EVENTS,             // invoke 'numSocketEvents'.
+        CAN_REGISTER_SOCKET            // invoke 'canRegisterSocket'.
     };
 
   private:
@@ -491,13 +492,12 @@ void btemt_TcpTimerEventManager_Request::waitForResult()
       case NO_OP:
       case IS_REGISTERED:
       case NUM_SOCKET_EVENTS:
-      {
+      case CAN_REGISTER_SOCKET: {
         while (-1 == d_result) {
             d_condition_p->wait(d_mutex_p);
         }
       } break;
-      case REGISTER_TIMER:
-      {
+      case REGISTER_TIMER: {
         while (!d_timerId) {
             d_condition_p->wait(d_mutex_p);
         }
@@ -808,6 +808,17 @@ void btemt_TcpTimerEventManager::controlCb()
                 int result =
                     d_manager_p->numSocketEvents(req->socketHandle());
                 req->setResult(result);
+                req->signal();
+            } break;
+            case btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKET: {
+                bool result = true;
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                result = bteso_DefaultEventManager<bteso_Platform::SELECT>(
+                                             d_manager_p)->canRegisterSocket();
+#endif
+
+                req->setResult((int) result);
                 req->signal();
             } break;
             case btemt_TcpTimerEventManager_Request::IS_REGISTERED: {
@@ -1529,6 +1540,40 @@ void btemt_TcpTimerEventManager::deregisterAll()
 }
 
 // ACCESSORS
+bool btemt_TcpTimerEventManager::canRegisterSocket() const
+{
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    if (bcemt_ThreadUtil::isEqual(bcemt_ThreadUtil::self(), d_dispatcher)) {
+        return d_manager_p->canRegisterSocket();                      // RETURN
+    }
+
+    bcemt_Mutex mutex;
+    bcemt_Condition condition;
+
+    btemt_TcpTimerEventManager_Request *req =
+        new (d_requestPool) btemt_TcpTimerEventManager_Request(
+                       btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKET,
+                       &condition,
+                       &mutex,
+                       d_allocator_p);
+    d_requestQueue.pushBack(req);
+    BSLS_ASSERT(req->result() == -1);
+    bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
+
+    int ret = d_controlChannel.clientWrite();
+    if (0 > ret) {
+        d_requestQueue.popBack();
+        d_requestPool.deleteObjectRaw(req);
+        return false;                                                 // RETURN
+    }
+    req->waitForResult();
+    bool result = req->result();
+    d_requestPool.deleteObjectRaw(req);
+    return result;
+#else
+    return true;
+#endif
+}
 
 int btemt_TcpTimerEventManager::isRegistered(
         const bteso_SocketHandle::Handle& handle,

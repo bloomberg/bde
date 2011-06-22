@@ -2233,29 +2233,42 @@ btemt_ChannelPool::allocateEventManager()
     }
 
     int result = 0;
+
+    while (!d_managers[result]->canBeRegistered()) {
+        ++result;
+        if (result >= numManagers) {
+            return 0;                                                 // RETURN
+        }
+    }
+
     // If metrics are being collected, use those metrics to determine the
     // event manager with the lowest work-load.
+
     if (d_collectTimeMetrics) {
         int minMetrics =
                      d_managers[result]->timeMetrics()->percentage(CPU_BOUND);
         minMetrics += d_managers[result]->numEvents();
-        for (int i = 1; i < numManagers; ++i) {
+        for (int i = result + 1; i < numManagers; ++i) {
             int currentMetrics =
                           d_managers[i]->timeMetrics()->percentage(CPU_BOUND);
             currentMetrics += d_managers[i]->numEvents();
-            if (currentMetrics < minMetrics) {
+            if (currentMetrics < minMetrics
+             && d_managers[i]->canBeRegistered()) {
                 result = i;
                 minMetrics = currentMetrics;
             }
         }
     }
     else {
+
         // If metrics are not being collected, choose the event manager with
         // the fewest registered events.
-        int minEvents = d_managers[0]->numTotalSocketEvents();
-        for (int i = 1; i < numManagers; ++i) {
+
+        int minEvents = d_managers[result]->numTotalSocketEvents();
+        for (int i = result + 1; i < numManagers; ++i) {
             int numEvents = d_managers[i]->numTotalSocketEvents();
-            if (numEvents < minEvents) {
+            if (numEvents < minEvents
+             && d_managers[i]->canBeRegistered()) {
                 minEvents = numEvents;
                 result    = i;
             }
