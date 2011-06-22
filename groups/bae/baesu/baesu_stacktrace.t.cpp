@@ -543,7 +543,7 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -671,7 +671,7 @@ int main(int argc, char *argv[])
 //..
 
       }  break;
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
         //   Ensure that, when member and free 'swap' are implemented, we can
@@ -827,7 +827,6 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
                                                                        << endl;
-        const int SZ = 10;
         const struct {
             int         d_lineNum;          // source line number
             const char *d_spec_p;           // specification string
@@ -1009,7 +1008,7 @@ int main(int argc, char *argv[])
         }
 
       }  break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // INTERNAL DATA ACCESS METHODS
         //
@@ -1030,7 +1029,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Not yet implemented." << endl;
 
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // CAPACITY-RESERVING CONSTRUCTOR AND METHOD
         //
@@ -1052,7 +1051,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Not yet implemented." << endl;
 
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // SWAP ELEMENTS
         //   We are concerned that, for an object of any length, 'swap' must
@@ -1076,7 +1075,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Not yet implemented." << endl;
 
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // PRINT METHOD
         //   The 'print' method formats the value of the object directly from
@@ -2631,9 +2630,10 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_TESTS; ++i) {
                 const int   a1   = lengths[i];
-                const char *SPEC = SPECS[i]; LOOP_ASSERT(i,
-                                                         a1 == strlen(SPEC));
+                const char *SPEC = SPECS[i];
                 const Obj   o1   = g(SPEC);
+
+                LOOP_ASSERT(i, a1 == (int) strlen(SPEC));
 
                 if (verbose) { cout << "\t"; P(a1); }
                 for (int j = 0; j < NUM_TESTS; ++j) {
@@ -2815,7 +2815,8 @@ int main(int argc, char *argv[])
                             const Obj& V = mV; gg(&mV, V_SPEC);
 
                             static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
-                            if (veryVeryVerbose||veryVerbose && firstFew > 0) {
+                            if (veryVeryVerbose ||
+                                               (veryVerbose && firstFew > 0)) {
                                 cout << "\t| "; P_(U_N); P_(V_N); P_(U); P(V);
                                 --firstFew;
                             }
@@ -3268,7 +3269,7 @@ int main(int argc, char *argv[])
                         const Obj& V = mV;       gg(&mV, SPEC);
 
                         static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
-                        if (veryVeryVerbose || veryVerbose && firstFew > 0) {
+                        if (veryVeryVerbose || (veryVerbose && firstFew > 0)) {
                             cout << "\t| "; P_(U_N); P_(V_N); P_(U); P(V);
                             --firstFew;
                         }
