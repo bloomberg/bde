@@ -29,10 +29,13 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-//..
-// 'typeTest' is a template function that will return non-zero if passed an
-// object of types 'baesu_ObjectFileFormat::{Elf,Xcoff,Windows}' appropriate
-// for the current platform and 0 otherwise.
+// In this section we show the intended usage of this component.
+//
+///Example 1: Accessing 'baesu_ObjectFileFormat' Information at Run Time
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The templated (specialized) 'typeTest' function returns a unique, non-zero
+// value when passed an object of types
+// 'baesu_ObjectFileFormat::{Elf,Xcoff,Windows}', and 0 otherwise.
 //..
 //  template <typename TYPE>
 //  int typeTest(const TYPE &)
@@ -137,7 +140,7 @@ struct baesu_ObjectFileFormat {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
