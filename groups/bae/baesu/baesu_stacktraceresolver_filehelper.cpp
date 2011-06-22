@@ -26,6 +26,7 @@ baesu_StackTraceResolver_FileHelper::baesu_StackTraceResolver_FileHelper(
                                                           const char *fileName)
 {
     BSLS_ASSERT(fileName);
+
     d_fd = bdesu_FileUtil::open(fileName,
                                 false,    // not writable
                                 true);    // already exists
