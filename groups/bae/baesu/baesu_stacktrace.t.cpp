@@ -13,6 +13,26 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+// ============================================================================
+//                          ADL SWAP TEST HELPER
+// ----------------------------------------------------------------------------
+
+// TBD move this into its own component?
+template <class TYPE>
+void invokeAdlSwap(TYPE& a, TYPE& b)
+    // Exchange the values of the specified 'a' and 'b' objects using the
+    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
+    // is undefined unless 'a' and 'b' were created with the same allocator.
+{
+    BSLS_ASSERT_OPT(a.allocator() == b.allocator());
+
+    using namespace bsl;
+    swap(a, b);
+}
+
+// The following 'using' directives must come *after* the definition of
+// 'invokeAdlSwap' (above).
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -102,7 +122,7 @@ using namespace bsl;
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [10]  Reserved for 'bslx' streaming.
-// [11]  Reserved for intial-length constructors.
+// [11]  Reserved for initial-length constructors.
 // [16]  Reserved for swap element methods.
 // [17]  Reserved for capacity-reserving constructor and method.
 // [18]  Reserved for internal data access methods.
@@ -230,14 +250,13 @@ const Frame VALUES[]   = {
          "woof5")
 };
 
-//const Frame VALUES[]   = { V0, V1, V2, V3, V4, V5 };  // avoid 'DEFAULT_VALUE'
 const int   NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
 const Element &V0 = VALUES[0],  &VA = V0, // 'V0', 'V1', ... are used in
               &V1 = VALUES[1],  &VB = V1, // conjunction with the 'VALUES'
               &V2 = VALUES[2],  &VC = V2, // array.
               &V3 = VALUES[3],  &VD = V3, // 'VA', 'VB', ... are used in
-              &V4 = VALUES[4],  &VE = V4; // conjuction with 'g' and 'gg'.
+              &V4 = VALUES[4],  &VE = V4; // conjunction with 'g' and 'gg'.
 
 
 // ============================================================================
@@ -784,7 +803,6 @@ int main(int argc, char *argv[])
                           << "SWAP MEMBER AND FREE FUNCTIONS" << endl
                           << "==============================" << endl;
 
-#if TBD
         if (verbose) cout <<
                 "\nAssign the address of each function to a variable." << endl;
         {
@@ -809,23 +827,42 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
                                                                        << endl;
-        const int NUM_DATA                     = DEFAULT_NUM_DATA;
-        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+        const int SZ = 10;
+        const struct {
+            int         d_lineNum;          // source line number
+            const char *d_spec_p;           // specification string
+        } DATA[] = {
+            //line  spec
+            //----  -----------
+            { L_,   ""          },
+            { L_,   "A"         },
+            { L_,   "B"         },
+            { L_,   "AB"        },
+            { L_,   "BC"        },
+            { L_,   "BCA"       },
+            { L_,   "CAB"       },
+            { L_,   "CDAB"      },
+            { L_,   "DABC"      },
+            { L_,   "ABCDE"     },
+            { L_,   "EDCBA"     },
+            { L_,   "ABCDEAB"   },
+            { L_,   "BACDEABC"  },
+            { L_,   "CBADEABCD" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         bool anyObjectMemoryAllocatedFlag = false;  // We later check that
                                                     // this test allocates
                                                     // some object memory.
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE1   = DATA[ti].d_line;
-            const char        MEM1    = DATA[ti].d_mem;
-            const int         OFFSET1 = DATA[ti].d_utcOffsetInSeconds;
-            const bool        FLAG1   = DATA[ti].d_dstInEffectFlag;
-            const char *const DESC1   = DATA[ti].d_description;
+        for (int ti = 0; ti < NUM_DATA ; ++ti) {
+            const int            LINE1   = DATA[ti].d_lineNum;
+            const char *const    SPEC1   = DATA[ti].d_spec_p;
 
             bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                  Obj mW(OFFSET1, FLAG1, DESC1, &oa);  const Obj& W = mW;
+                  Obj mW(&oa);
+            const Obj& W = gg(&mW, SPEC1);
             const Obj XX(W, &scratch);
 
             if (veryVerbose) { T_ P_(LINE1) P_(W) P(XX) }
@@ -861,24 +898,15 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE1, oam.isTotalSame());
             }
 
-            // Verify expected ('Y'/'N') object-memory allocations.
-
-            if ('?' != MEM1) {
-                LOOP3_ASSERT(LINE1, MEM1, oa.numBlocksInUse(),
-                           ('N' == MEM1) == (0 == oa.numBlocksInUse()));
-            }
-
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int         LINE2   = DATA[tj].d_line;
-                const char        MEM2    = DATA[tj].d_mem;
-                const int         OFFSET2 = DATA[tj].d_utcOffsetInSeconds;
-                const bool        FLAG2   = DATA[tj].d_dstInEffectFlag;
-                const char *const DESC2   = DATA[tj].d_description;
+                const int            LINE2   = DATA[tj].d_lineNum;
+                const char *const    SPEC2   = DATA[tj].d_spec_p;
 
-                      Obj mX(XX, &oa);  const Obj& X = mX;
+                      Obj  mX(XX, &oa);  const Obj& X = mX;
 
-                      Obj mY(OFFSET2, FLAG2, DESC2, &oa);  const Obj& Y = mY;
-                const Obj YY(Y, &scratch);
+                      Obj  mY(&oa);
+                const Obj&  Y = gg(&mY, SPEC2);
+                const Obj  YY(Y, &scratch);
 
                 if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
@@ -924,17 +952,14 @@ int main(int argc, char *argv[])
         {
             // 'A' values: Should cause memory allocation if possible.
 
-            const int  A1   = UTC_MIN;
-            const bool A2   = true;
-            const char A3[] = "a_" SUFFICIENTLY_LONG_STRING;
-
             bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
                   Obj mX(&oa);  const Obj& X = mX;
             const Obj XX(X, &scratch);
 
-                  Obj mY(A1, A2, A3, &oa);  const Obj& Y = mY;
+                  Obj mY(&oa);
+           const Obj&  Y = gg(&mY, "ABCD");
             const Obj YY(Y, &scratch);
 
             if (veryVerbose) { T_ P_(X) P(Y) }
@@ -982,7 +1007,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL(swap(mA, mZ));
             }
         }
-#endif
 
       }  break;
       case 18: {
@@ -1020,9 +1044,10 @@ int main(int argc, char *argv[])
         //   Reserved for capacity-reserving constructor and method.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                        << "CAPACITY RESERVING CONSTRUCTOR and METHODS" << endl
-                        << "==========================================" << endl;
+        if (verbose) cout
+                       << endl
+                       << "CAPACITY RESERVING CONSTRUCTOR and METHODS" << endl
+                       << "==========================================" << endl;
 
         if (verbose) cout << "Not yet implemented." << endl;
 
@@ -1727,7 +1752,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Use the data tables and protocols conventionally used for testing
-        //:   containers; however, as the only supported mentod is 'append"
+        //:   containers; however, as the only supported method is 'append"
         //:   for an item, most of these tests are removed.
         //: 2 Use the enumeration technique to a depth of 5 for both the normal
         //:  and alias cases.  Data is tabulated explicitly for the 'insert'
@@ -2618,7 +2643,7 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //   Reserved for intial-length constructors.
+        //   Reserved for initial-length constructors.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3037,7 +3062,7 @@ int main(int argc, char *argv[])
                     {
                         if (veryVeryVerbose) { cout <<
                                             "\t\t\tBuffer Allocator" << endl; }
-                        char memory[1024 * 1024]; // TBD: find lower bound?
+                        char memory[1024 * 1024];
                         bslma_BufferAllocator a(memory, sizeof memory);
                         Obj *Y = new(a.allocate(sizeof(Obj))) Obj(X, &a);
                         if (veryVerbose) { cout << "\t\t\t"; P(*Y); }
@@ -3586,7 +3611,7 @@ int main(int argc, char *argv[])
         //: 1 The basic accessors must return their expected values.
         //: 2 Various internal state representations
         //:   for a given value must produce identical results.
-        //: 3 The 'allocator()' method must return a pointer to a 
+        //: 3 The 'allocator()' method must return a pointer to a
         //:   'bdema_HeapBypassAllocator' object for objects constructed with 0
         //:   as the specified allocator, or with no specified allocator.
         //
@@ -4037,7 +4062,6 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, curLen == Y.length()); // same lengths
 
 #if TDB
-                    {Q(debug-first); P_(firstResize) P(blocks12A);}
                     LOOP_ASSERT(LINE, firstResize == blocks12A);
 #endif
 
@@ -4074,7 +4098,6 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE,        0 == Y.length());
 
 #if TBD
-                    {Q(debug-second); P_(secondResize); P(blocks12B);}
                     LOOP_ASSERT(LINE, secondResize == blocks12B);
 #endif
 
@@ -4600,8 +4623,9 @@ int main(int argc, char *argv[])
         ASSERT((X1 == X2) == 0);          ASSERT((X1 != X2) == 1);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 4) Append the same element value 'A' to 'x2')."
-                             "\t\t{ x1:A x2:A }" << endl;
+        if (verbose) cout
+                         << "\n 4) Append the same element value 'A' to 'x2')."
+                            "\t\t{ x1:A x2:A }" << endl;
         mX2.append(A);
         if (verbose) { cout << '\t';  P(X2); }
 
