@@ -1,12 +1,14 @@
 // bdema_alignedallocator.t.cpp                                       -*-C++-*-
 #include <bdema_alignedallocator.h>
 
+#include <bsls_alignmentutil.h>
 #include <bsls_platform.h>
 #include <bsls_protocoltest.h>
 
 #include <bsl_iostream.h>
 
 #include <bsl_cerrno.h>
+
 #include <stdlib.h>
 
 using namespace BloombergLP;
@@ -20,10 +22,15 @@ using namespace bsl;
 // We are testing a pure protocol class.  We need to verify that (1) a
 // concrete derived class compiles and links, and (2) that a usage example
 // obtains the behavior specified by the protocol from the concrete subclass.
+// We also need to ensure that this class derives from the 'bslma_Allocator'
+// class.
 //-----------------------------------------------------------------------------
+// [ 1] virtual void allocate(size_type size);
 // [ 1] virtual void *allocateAligned(size_type size, int alignment);
 // [ 1] virtual void deallocate(void *address);
+//-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
+// [ 1] CONCERN: The protocol derives from 'bslma_Allocator'.
 //=============================================================================
 
 //=============================================================================
@@ -63,9 +70,9 @@ static void aSsErT(int c, const char *s, int i)
 namespace {
 
 struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
-    void *allocate(int)                   { return markDone(); }
-    void *allocateAligned(size_type, int) { return markDone(); }
-    void  deallocate(void* )              {        markDone(); }
+    void *allocate(int)                     { return markDone(); }
+    void *allocateAligned(bsl::size_t, int) { return markDone(); }
+    void  deallocate(void* )                {        markDone(); }
 };
 
 }  // close unnamed namespace
@@ -75,9 +82,7 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
 //-----------------------------------------------------------------------------
 ///Usage
 ///-----
-// In the following examples we demonstrate how to use a
-// 'bdema_AlignedAllocator' to allocate memory aligned according to a specified
-// boundary.
+// This section sillustrates intended usage of this component.
 //
 ///Example 1: Implementing 'bdema_AlignedAllocator'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -133,17 +138,17 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
             // order to avoid having to acquire a lock, and potential
             // contention in multi-threaded programs).
 
-        virtual void *allocateAligned(size_type size, size_type alignment);
+        virtual void *allocateAligned(bsl::size_t size, size_type alignment);
             // Return the address of a newly allocated block of memory of at
             // least the specified positive 'size' (in bytes), sufficiently
             // aligned such that the returned 'address' satisfies
-            // '0 == (address & (alignment - 1)).  If 'size' is 0, a null
-            // pointer is returned with no other effect.  If this allocator
-            // cannot return the requested number of bytes, then it throws an
-            // 'bsl::bad_alloc' exception, or abort if in a non-exception
-            // build.  The behavior is undefined unless '0 <=  size' and
-            // 'alignment' is both a multiple of 'sizeof(void *)' and a power
-            // of two.
+            // '0 == (address & (alignment - 1))'.  If 'size' is 0, a null
+            // pointer is returned with no other effect.  If the requested
+            // number of appropriately aligned bytes cannot be returned, then a
+            // 'bsl::bad_alloc' exception is thrown, or in a non-exception
+            // build the program is terminated.  The behavior is undefined
+            // unless 'alignment' is both a multiple of 'sizeof(void *)' and an
+            // integral non-negative power of two.
 
         virtual void deallocate(void *address);
             // Return the memory block at the specified 'address' back to this
@@ -151,11 +156,10 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
             // behavior is undefined unless 'address' was allocated using this
             // allocator object and has not already been deallocated.
     };
-    // ...
+//  // ...
 //..
-// Now, we define the virtual methods of 'MyAlignedAllocator'.  Note that these
-// definitions are not 'inline', as they would not be inlined when invoked from
-// the base class (the typical usage in this case):
+// Then, we implement the creators, trivially, as this class contains no
+// instance data members.
 //..
     // CREATORS
     MyAlignedAllocator::MyAlignedAllocator()
@@ -165,7 +169,11 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
     MyAlignedAllocator::~MyAlignedAllocator()
     {
     }
-
+//..
+// Now, we define the virtual methods of 'MyAlignedAllocator'.  Note that these
+// definitions are not 'inline', as they would not be inlined when invoked from
+// the base class (the typical usage in this case):
+//..
     // MANIPULATORS
     void *MyAlignedAllocator::allocate(size_type size)
     {
@@ -179,10 +187,9 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
         return allocateAligned(size, alignment);
     }
 
-    void *MyAlignedAllocator::allocateAligned(size_type size,
-                                              size_type alignment)
+    void *MyAlignedAllocator::allocateAligned(bsl::size_t size,
+                                              size_type   alignment)
     {
-        BSLS_ASSERT_SAFE(0 <= size);
         BSLS_ASSERT_SAFE(0 <= alignment);
         BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
         BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
@@ -210,6 +217,7 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
             bslma_Allocator::throwBadAlloc();
         }
     #endif
+
         return ret;
     }
 
@@ -225,9 +233,14 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
     #endif
     }
 //..
-// Finally, we instantiate an object of type 'MyAlignedAllocator':
+// Finally, we define a function 'f' that instantiates an object of type
+// 'MyAlignedAllocator':
 //..
-    MyAlignedAllocator myAlignedAllocator;
+    void f() {
+        MyAlignedAllocator a;
+    }
+//..
+// Note that the memory is not released when the allocator goes out of scope.
 //..
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -258,29 +271,32 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TESTING USAGE EXAMPLE" << endl
                                   << "=====================" << endl;
 
-///Example 2: Using a 'bdema_AlignedAllocator'.
-///- - - - - - - - - - - - - - - - - - - - - -
-// In this example we use an object of type 'MyAlignedAllocator', defined
-// in the previous example to obtain memory aligned on a page boundary,
-// assuming pages of 4096 bytes.
+///Example 2: Using the 'bdema_AlignedAllocator' protocol
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we illustrate how to use the 'bdema_AlignedAllocator'
+// protocol to allocate memory that is aligned to the beginning of a memory
+// page.  Page aligned memory is read more efficiently, as it does not cross
+// page boundaries, avoiding page faults.  Page aligned memory is also commonly
+// used, to store headers containing bitmaps describing the properties of the
+// subsequent blocks of memory, or it is sometimes required by DMA access of
+// device drivers.
 //
-// First, we obtain a 'bdema_AlignedAllocator' pointer to 'myAlignedAllocator'
-// we constructed in the previous example:
+// First, we create an aligned allocator 'myAlignedAllocator' using the class
+// 'MyAlignedAllocator' defined in the previous example, and obtain a
+// 'bdema_AlignedAllocator' pointer to it:
 //..
+    MyAlignedAllocator myAlignedAllocator;
     bdema_AlignedAllocator *alignedAllocator = &myAlignedAllocator;
 //..
-// Now, we allocate a buffer of 1024 bytes of memory and indicatesure that it
-// is aligned on a 4096 boundary:
-//
+// Now, we allocate a buffer of 1024 bytes of memory and indicate that it
+// should be aligned on a 4096 boundary:
 //..
     char *address = (char *) alignedAllocator->allocateAligned(1024, 4096);
 //..
 // Finally, we verify that the obtained address actually is aligned as
 // expected:
 //..
-    ASSERT(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
-                                                           address,
-                                                           (bsl::size_t)4096));
+    ASSERT(0 == ((bsl::size_t)address & (4096 - 1)));
 //..
       } break;
       case 1: {
@@ -312,17 +328,21 @@ int main(int argc, char *argv[])
         //:   5 Each of the known and tested methods of
         //:     'bdema_AlignedAllocator' is publicly accessible.
         //:
-        //: 2 Assign a the address of a 'bdema_AlignedAllocator' to a
+        //: 2 Assign an address of type 'bdema_AlignedAllocator' to a
         //:   'bsls_Allocator *' variable, to verify that
-        //:   'bdema_AlignedAllocator' correctly inherited from
+        //:   'bdema_AlignedAllocator' publicly inherited from
         //:   'bslma_Allocator' .
         // Testing:
-        //   virtual void *allocate(size_type size, int alignment) = 0;
+        //   virtual void *allocate(size_type size) = 0;
+        //   virtual void *allocateAligned(bsl::size_tsize, int alignment) = 0;
         //   virtual void deallocate(void *address) = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
+
+        if (verbose) cout << "\nTest the protocol with 'bsls_ProtocolTest'"
+                          << endl;
 
         bsls_ProtocolTest<AlignedAllocatorTestImp> t(veryVerbose);
 
@@ -330,15 +350,16 @@ int main(int argc, char *argv[])
         ASSERT(t.testNoDataMembers());
         ASSERT(t.testVirtualDestructor());
 
+        BSLS_PROTOCOLTEST_ASSERT(t, allocate(0));
         BSLS_PROTOCOLTEST_ASSERT(t, allocateAligned(0, 0));
         BSLS_PROTOCOLTEST_ASSERT(t, deallocate(0));
 
         LOOP_ASSERT(t.failures(), !t.failures());
 
-        // Reuse the concrete implementation of the usage example.
-
-        MyAlignedAllocator alignedAllocator;
-        bslma_Allocator *allocator = &alignedAllocator;
+        if (verbose) cout <<
+           "\nTest 'bdema_AlignedAllocator' derives from 'bslma_Allocator'"
+                                                                       << endl;
+        bslma_Allocator *dummy = (bdema_AlignedAllocator *) 0;
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

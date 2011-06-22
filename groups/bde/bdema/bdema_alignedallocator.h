@@ -19,8 +19,8 @@ BSLS_IDENT("$Id$")
 //
 //@DESCRIPTION: This component extends the base-level protocol (pure abstract
 // interface) class, 'bslma_Allocator', providing the ability to allocate
-// raw memory with a specified alignment.  The following inheritance hierarchy
-// diagram shows the classes involved and their methods:
+// raw memory with a specified alignment.  The following inheritance diagram
+// shows the classes involved and their methods:
 //..
 //   ,----------------------.
 //  ( bdema_AlignedAllocator )
@@ -40,9 +40,7 @@ BSLS_IDENT("$Id$")
 //
 ///Usage
 ///-----
-// In the following examples we demonstrate how to use a
-// 'bdema_AlignedAllocator' to allocate memory aligned according to a specified
-// boundary.
+// This section sillustrates intended usage of this component.
 //
 ///Example 1: Implementing 'bdema_AlignedAllocator'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -98,17 +96,17 @@ BSLS_IDENT("$Id$")
 //          // order to avoid having to acquire a lock, and potential
 //          // contention in multi-threaded programs).
 //
-//      virtual void *allocateAligned(size_type size, size_type alignment);
+//      virtual void *allocateAligned(bsl::size_t size, size_type alignment);
 //          // Return the address of a newly allocated block of memory of at
 //          // least the specified positive 'size' (in bytes), sufficiently
 //          // aligned such that the returned 'address' satisfies
-//          // '0 == (address & (alignment - 1)).  If 'size' is 0, a null
-//          // pointer is returned with no other effect.  If this allocator
-//          // cannot return the requested number of bytes, then it throws an
-//          // 'bsl::bad_alloc' exception, or abort if in a non-exception
-//          // build.  The behavior is undefined unless '0 <=  size' and
-//          // 'alignment' is both a multiple of 'sizeof(void *)' and a power
-//          // of two.
+//          // '0 == (address & (alignment - 1))'.  If 'size' is 0, a null
+//          // pointer is returned with no other effect.  If the requested
+//          // number of appropriately aligned bytes cannot be returned, then a
+//          // 'bsl::bad_alloc' exception is thrown, or in a non-exception
+//          // build the program is terminated.  The behavior is undefined
+//          // unless 'alignment' is both a multiple of 'sizeof(void *)' and an
+//          // integral non-negative power of two.
 //
 //      virtual void deallocate(void *address);
 //          // Return the memory block at the specified 'address' back to this
@@ -118,9 +116,8 @@ BSLS_IDENT("$Id$")
 //  };
 //  // ...
 //..
-// Now, we define the virtual methods of 'MyAlignedAllocator'.  Note that these
-// definitions are not 'inline', as they would not be inlined when invoked from
-// the base class (the typical usage in this case):
+// Then, we implement the creators, trivially, as this class contains no
+// instance data members.
 //..
 //  // CREATORS
 //  MyAlignedAllocator::MyAlignedAllocator()
@@ -130,7 +127,11 @@ BSLS_IDENT("$Id$")
 //  MyAlignedAllocator::~MyAlignedAllocator()
 //  {
 //  }
-//
+//..
+// Now, we define the virtual methods of 'MyAlignedAllocator'.  Note that these
+// definitions are not 'inline', as they would not be inlined when invoked from
+// the base class (the typical usage in this case):
+//..
 //  // MANIPULATORS
 //  void *MyAlignedAllocator::allocate(size_type size)
 //  {
@@ -144,12 +145,11 @@ BSLS_IDENT("$Id$")
 //      return allocateAligned(size, alignment);
 //  }
 //
-//  void *MyAlignedAllocator::allocateAligned(size_type size,
-//                                            size_type alignment)
+//  void *MyAlignedAllocator::allocateAligned(bsl::size_t size,
+//                                            size_type   alignment)
 //  {
-//      BSLS_ASSERT_SAFE(0 <= size);
 //      BSLS_ASSERT_SAFE(0 <= alignment);
-//      BSLS_ASSERT_SAFE(1 == (alignment & (alignment - 1)));
+//      BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
 //      BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
 //
 //      if (0 == size) {
@@ -191,33 +191,41 @@ BSLS_IDENT("$Id$")
 //  #endif
 //  }
 //..
-// Finally, we instantiate an object of type 'MyAlignedAllocator':
+// Finally, we define a function 'f' that instantiates an object of type
+// 'MyAlignedAllocator':
+//..
+//  void f() {
+//      MyAlignedAllocator a;
+//  }
+//..
+// Note that the memory is not released when the allocator goes out of scope.
+//
+///Example 2: Using the 'bdema_AlignedAllocator' protocol
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we illustrate how to use the 'bdema_AlignedAllocator'
+// protocol to allocate memory that is aligned to the beginning of a memory
+// page.  Page aligned memory is read more efficiently, as it does not cross
+// page boundaries, avoiding page faults.  Page aligned memory is also commonly
+// used, to store headers containing bitmaps describing the properties of the
+// subsequent blocks of memory, or it is sometimes required by DMA access of
+// device drivers.
+//
+// First, we create an aligned allocator 'myAlignedAllocator' using the class
+// 'MyAlignedAllocator' defined in the previous example, and obtain a
+// 'bdema_AlignedAllocator' pointer to it:
 //..
 //  MyAlignedAllocator myAlignedAllocator;
-//..
-///Example 2: Using a 'bdema_AlignedAllocator'.
-///- - - - - - - - - - - - - - - - - - - - - -
-// In this example we use an object of type 'MyAlignedAllocator', defined
-// in the previous example to obtain memory aligned on a page boundary,
-// assuming pages of 4096 bytes.
-//
-// First, we obtain a 'bdema_AlignedAllocator' pointer to 'myAlignedAllocator'
-// we constructed in the previous example:
-//..
 //  bdema_AlignedAllocator *alignedAllocator = &myAlignedAllocator;
 //..
 // Now, we allocate a buffer of 1024 bytes of memory and indicate that it
 // should be aligned on a 4096 boundary:
-//
 //..
 //  char *address = (char *) alignedAllocator->allocateAligned(1024, 4096);
 //..
 // Finally, we verify that the obtained address actually is aligned as
 // expected:
 //..
-//  assert(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
-//                                                         address,
-//                                                         (bsl::size_t)4096));
+//  assert(0 == ((bsl::size_t)address & (4096 - 1)));
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -246,18 +254,18 @@ class bdema_AlignedAllocator : public bslma_Allocator {
 
   public:
     // MANIPULATORS
-    virtual void *allocateAligned(size_type size, size_type alignment)
+    virtual void *allocateAligned(bsl::size_t size, size_type alignment)
                                         BSLS_ANNOTATION_WARN_UNUSED_RESULT = 0;
         // Return the address of a newly allocated block of memory of at
         // least the specified positive 'size' (in bytes), sufficiently
         // aligned such that the returned 'address' satisfies
-        // '0 == (address & (alignment - 1)).  If 'size' is 0, a null
-        // pointer is returned with no other effect.  If this allocator
-        // cannot return the requested number of bytes, then it throws an
-        // 'bsl::bad_alloc' exception, or abort if in a non-exception
-        // build.  The behavior is undefined unless '0 <=  size' and
-        // 'alignment' is both a multiple of 'sizeof(void *)' and a power
-        // of two.
+        // '0 == (address & (alignment - 1))'.  If 'size' is 0, a null pointer
+        // is returned with no other effect.  If the requested number of
+        // appropriately aligned bytes cannot be returned, then a
+        // 'bsl::bad_alloc' exception is thrown, or in a non-exception build
+        // the program is terminated.  The behavior is undefined unless
+        // 'alignment' is both a multiple of 'sizeof(void *)' and an integral
+        // non-negative power of two.
 };
 
 }  // close namespace BloombergLP
