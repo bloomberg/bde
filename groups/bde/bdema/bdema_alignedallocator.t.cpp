@@ -82,7 +82,7 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
 //-----------------------------------------------------------------------------
 ///Usage
 ///-----
-// This section sillustrates intended usage of this component.
+// This section illustrates intended usage of this component.
 //
 ///Example 1: Implementing 'bdema_AlignedAllocator'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -275,11 +275,9 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we illustrate how to use the 'bdema_AlignedAllocator'
 // protocol to allocate memory that is aligned to the beginning of a memory
-// page.  Page aligned memory is read more efficiently, as it does not cross
-// page boundaries, avoiding page faults.  Page aligned memory is also commonly
-// used, to store headers containing bitmaps describing the properties of the
-// subsequent blocks of memory, or it is sometimes required by DMA access of
-// device drivers.
+// page.  Third party libraries, for example device drivers that perform DMA
+// access of device drivers, or some extreme optimizations to reduce the
+// number of page faults, might require page aligned allocations.
 //
 // First, we create an aligned allocator 'myAlignedAllocator' using the class
 // 'MyAlignedAllocator' defined in the previous example, and obtain a
@@ -288,8 +286,8 @@ int main(int argc, char *argv[])
     MyAlignedAllocator myAlignedAllocator;
     bdema_AlignedAllocator *alignedAllocator = &myAlignedAllocator;
 //..
-// Now, we allocate a buffer of 1024 bytes of memory and indicate that it
-// should be aligned on a 4096 boundary:
+// Now, assuming a page size of 4K, we allocate a buffer of 1024 bytes of
+// memory and indicate that it should be aligned on a 4096 boundary:
 //..
     char *address = (char *) alignedAllocator->allocateAligned(1024, 4096);
 //..
