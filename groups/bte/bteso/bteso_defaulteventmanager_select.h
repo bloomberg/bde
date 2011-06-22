@@ -1,4 +1,4 @@
-// bteso_defaulteventmanager_select.h -*-C++-*-
+// bteso_defaulteventmanager_select.h                                 -*-C++-*-
 #ifndef INCLUDED_BTESO_DEFAULTEVENTMANAGER_SELECT
 #define INCLUDED_BTESO_DEFAULTEVENTMANAGER_SELECT
 
@@ -12,32 +12,32 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Andrei Basov (abasov)
 //
 //@CLASSES:
-//  bteso_DefaultEventManager_SelectRaw:
-//                            'select'-based multiplexer with limited capacity
+//  bteso_DefaultEventManager_SelectRaw: 'select'-based multiplexer
 //  bteso_DefaultEventManager<bteso_Platform::SELECT>:
 //             'select'-based socket-event multiplexer with unlimited capacity
-//
 //
 //@SEE_ALSO: bteso_eventmanager bteso_defaulteventmanager
 //
 //@DESCRIPTION: This component provides socket-event multiplexers implemented
 // using the 'select' system call available on platforms conforming to
 // POSIX.1g.
+//
 // Generally speaking, a platform imposes a limit on the number of socket
-// handles that can be registered with 'select'.  This limit can be as low
-// as 64 (e.g., Windows) or as high as 1024 (e.g., Solaris).  In any case,
-// this limit is a compile time constant (and, therefore, cannot be increased
-// at run time).  However, it is often required to handle more than this
-// maximum number of simultaneous connections.  One approach is to create
-// another thread associated with another set of socket handles.  Another
-// is to spin around multiple sets of socket handles with pre-determined
-// spin period.  Thereby, two multiplexers are provided by this component:
-// 'bteso_DefaultEventManager_SelectRaw' is a capacity-limited 'select'-based
-// multiplexer, and 'bteso_DefaultEventManager<bteso_Platform::SELECT>' is
-// a spinning event manager with unlimited capacity.  A threaded strategy
-// can be easily implemented with raw event managers.  The spinning
-// multiplexer adheres to 'bteso_EventManager' protocol whereas the raw event
-// manager doesn't.
+// handles that can be registered with 'select'.  This limit, which is a
+// compile time constant (and, therefore, cannot be increased at run time), can
+// be as low as 64 (e.g., Windows) or as high as 1024 (e.g., Solaris).
+// However, it is often required to handle more than this maximum number of
+// simultaneous connections.  Currently, we this component does not provide a
+// solution to this problem but provides an accessor function,
+// 'canRegisterSocket', that allows clients to identify if this event manager
+// is at the socket registeration limit.
+//
+// This component provides two multiplexers.  The
+// 'bteso_DefaultEventManager_SelectRaw' provides the implementation for
+// the 'select' based event manager and should not be used directly by
+// clients.  The 'bteso_DefaultEventManager<bteso_Platform::SELECT>' event
+// manager uses 'bteso_DefaultEventManager_SelectRaw' and should be used by
+// clients.
 //
 ///Thread-safety
 ///-------------
@@ -90,14 +90,6 @@ BDES_IDENT("$Id: $")
 //  | isRegistered             |        O(1)         |        O(S)          |
 //  +=======================================================================+
 //..
-//
-// WARNING: The performance of the spinning implementation,
-// 'bteso_DefaultEventManager<bteso_Platform::SELECT>', may decrease
-// *significantly* if the number of registered sockets is more than the number
-// of socket handles supported by an underlying system (given by
-// 'bteso_DefaultEventManager_SelectRaw::BTESO_MAX_NUM_HANDLES'), and,
-// depending on an application requirements and design, a threaded approach may
-// be more appropriate.
 //
 ///USAGE EXAMPLE
 ///-------------
@@ -318,6 +310,10 @@ class bteso_DefaultEventManager_SelectRaw {
         // will not be invoked should 'event' occur.
 
     // ACCESSORS
+    bool canRegisterSocket() const;
+        // Return 'true' if this event manager can register an additional
+        // socket, and 'false' otherwise.
+
     int isRegistered(const bteso_SocketHandle::Handle& handle,
                      const bteso_EventType::Type       event) const;
         // Return 1 if the specified 'event' is registered with this event
@@ -456,6 +452,10 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
         // handle.
 
     // ACCESSORS
+    bool canRegisterSocket() const;
+        // Return 'true' if this event manager can register an additional
+        // socket, and 'false' otherwise.
+
     int isRegistered(const bteso_SocketHandle::Handle& handle,
                      const bteso_EventType::Type       event) const;
         // Return 1 if the specified 'event' is registered with this event

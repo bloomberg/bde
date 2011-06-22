@@ -60,6 +60,7 @@ typedef bteso_DefaultEventManager<bteso_Platform::SELECT> Obj;
 // [ 9] bteso_DefaultEventManager_SelectRaw::dispatch
 //
 // ACCESSORS
+// [17] bteso_DefaultEventManager_SelectRaw::canRegisterSocket
 // [ 3] bteso_DefaultEventManager_SelectRaw::numSocketEvents
 // [ 3] bteso_DefaultEventManager_SelectRaw::numEvents
 // [ 3] bteso_DefaultEventManager_SelectRaw::isRegistered
@@ -78,6 +79,7 @@ typedef bteso_DefaultEventManager<bteso_Platform::SELECT> Obj;
 // [15] dispatch
 //
 // ACCESSORS
+// [17] canRegisterSocket
 // [10] numSocketEvents
 // [10] numEvents
 // [10] isRegistered
@@ -345,310 +347,7 @@ int main(int argc, char *argv[])
                                  bteso_TimeMetrics::BTESO_CPU_BOUND);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case -4: {
-        // -----------------------------------------------------------------
-        // PERFORMANCE TESTING 'registerSocketEvent':
-        //   Get performance data.
-        //
-        // Plan:
-        //   Open multiple sockets and register a read event for each
-        //   socket, calculate the average time taken to register a read
-        //   event for a given number of registered read event.
-        //
-        // Testing:
-        //   'registerSocketEvent' performance data
-        // -----------------------------------------------------------------
-        enum {
-            MAX_NUM_HANDLES =
-                bteso_DefaultEventManager_SelectRaw::BTESO_MAX_NUM_HANDLES,
-            DEFAULT_NUM_PAIRS        = 2 * MAX_NUM_HANDLES,  // should be more
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
-
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
-
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
-        {
-            const char *FILENAME = "selectRegister.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            Obj mX(&timeMetric);  // Note: no test allocator --
-                                  // performance testing
-            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
-                      numPairs, numMeasurements,  controlFlag);
-            outFile.close();
-        }
-      } break;
-      case -3: {
-        // -----------------------------------------------------------------
-        // TESTING PERFORMANCE OF 'dispatch' METHOD:
-        //   Get performance data.
-        //
-        // Plan:
-        //   Set up multiple connections and register a read event for each
-        //   connection, calculate the average time it takes to dispatch a
-        //   read event for a given number of registered sockets.
-        //
-        // Testing:
-        //   'dispatch' performance data
-        // -----------------------------------------------------------------
-        enum {
-            MAX_NUM_HANDLES =
-                bteso_DefaultEventManager_SelectRaw::BTESO_MAX_NUM_HANDLES,
-            DEFAULT_NUM_PAIRS        = 2 * MAX_NUM_HANDLES,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
-
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
-
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-                << "PERFORMANCE TESTING 'dispatch'" << endl
-                << "==============================" << endl;
-        {
-            const char *FILENAME = "selectDispatch.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            Obj mX(&timeMetric);  // Note: no test allocator --
-                                  // performance testing
-            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
-                      numPairs, numMeasurements,
-                      controlFlag);
-            outFile.close();
-        }
-      } break;
-      case -2: {
-        // -----------------------------------------------------------------
-        // TESTING PERFORMANCE '_SelectRaw::registerSocketEvent' METHOD:
-        //   Get performance data.
-        //
-        // Plan:
-        //   Open multiple sockets and register a read event for each
-        //   socket, calculate the average time taken to register a read
-        //   event for a given number of registered read event.
-        //
-        // Testing:
-        //   bteso_DefaultEventManager_SelectRaw::registerSocketEvent
-        // -----------------------------------------------------------------
-        enum {
-            MAX_NUM_HANDLES =
-                bteso_DefaultEventManager_SelectRaw::BTESO_MAX_NUM_HANDLES,
-            DEFAULT_NUM_PAIRS        = MAX_NUM_HANDLES,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
-
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
-
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-            if (numPairs > MAX_NUM_HANDLES) {
-                numPairs = MAX_NUM_HANDLES;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING '_SelectRaw::registerSocketEvent'" << endl
-            << "=====================================================" << endl;
-        {
-            const char *FILENAME = "selectRawRegister.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            RawEventManagerTest mX(&timeMetric);  // Note: no test allocator --
-                                                  // performance testing
-            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
-                      numPairs, numMeasurements,  controlFlag);
-            outFile.close();
-        }
-
-      } break;
-      case -1: {
-        // -----------------------------------------------------------------
-        // TESTING PERFORMANCE OF '_SelectRaw::dispatch' METHOD:
-        //   Get performance data.
-        //
-        // Plan:
-        //   Set up multiple connections and register a read event for each
-        //   connection, calculate the average time it takes to dispatch a
-        //   read event for a given number of registered sockets.
-        //
-        // Testing:
-        //   bteso_DefaultEventManager_SelectRaw::dispatch
-        // -----------------------------------------------------------------
-        enum {
-            MAX_NUM_HANDLES =
-                bteso_DefaultEventManager_SelectRaw::BTESO_MAX_NUM_HANDLES,
-            DEFAULT_NUM_PAIRS        = (MAX_NUM_HANDLES - 4) / 2,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
-
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
-
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-            if (numPairs > MAX_NUM_HANDLES) {
-                numPairs = MAX_NUM_HANDLES;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-                << "PERFORMANCE TESTING '_SelectRaw::dispatch'" << endl
-                << "==========================================" << endl;
-        {
-            const char *FILENAME = "selectRawDispatch.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            RawEventManagerTest mX(&timeMetric);  // Note: no test allocator --
-                                                  // performance testing
-
-            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
-                      numPairs, numMeasurements,
-                      controlFlag);
-            outFile.close();
-        }
-
-      } break;
-      case 17: {
+      case 18: {
         // -----------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -670,6 +369,53 @@ int main(int argc, char *argv[])
             cout << "For a comprehensive usage example, see " << endl
                  << "'bteso_defaulteventmanager_poll' component." << endl;
 
+      } break;
+      case 17: {
+        // -----------------------------------------------------------------
+        // TESTING 'canRegisterSocket'
+        //
+        // Plan:
+        //
+        // Testing:
+        //   bool canRegisterSoccket() const;
+        // -----------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING 'canRegisterSocket'" << endl
+                          << "===========================" << endl;
+
+        {
+            Obj mX;  const Obj& X = mX;
+            if (veryVerbose) { P(FD_SETSIZE); }
+
+            vector<bteso_SocketHandle::Handle> sockets;
+            sockets.resize(FD_SETSIZE);
+
+            int       errorCode = 0;
+#ifdef BTESO_PLATFORM__BSD_SOCKETS
+            for (int i = 0; sockets[i] < FD_SETSIZE; ++i) {
+#elif defined BTESO_PLATFORM__WIN_SOCKETS
+            for (int i = 0; i < FD_SETSIZE; ++i) {
+#endif
+
+                bdef_Function<void (*)()> cb;
+                bteso_SocketImpUtil::open<bteso_IPv4Address>(
+                                      &sockets[i],
+                                      bteso_SocketImpUtil::BTESO_SOCKET_STREAM,
+                                      &errorCode);
+                ASSERT(0 == errorCode);
+
+                if (veryVerbose) { P(i) P(sockets[i]) }
+
+                mX.registerSocketEvent(sockets[i],
+                                       bteso_EventType::BTESO_CONNECT,
+                                       cb);
+            }
+
+            for (int i = 0; i < FD_SETSIZE; ++i) {
+                bteso_SocketImpUtil::close(sockets[i], &errorCode);
+                ASSERT(0 == errorCode);
+            }
+        }
       } break;
       case 16: {
         // -----------------------------------------------------------------
@@ -1857,6 +1603,309 @@ bteso_DefaultEventManager_SelectRaw::compareFdSets(testSet, controlSet));
             Obj mX(&timeMetric, &testAllocator);
         }
 
+      } break;
+      case -1: {
+        // -----------------------------------------------------------------
+        // TESTING PERFORMANCE OF '_SelectRaw::dispatch' METHOD:
+        //   Get performance data.
+        //
+        // Plan:
+        //   Set up multiple connections and register a read event for each
+        //   connection, calculate the average time it takes to dispatch a
+        //   read event for a given number of registered sockets.
+        //
+        // Testing:
+        //   bteso_DefaultEventManager_SelectRaw::dispatch
+        // -----------------------------------------------------------------
+        enum {
+            MAX_NUM_HANDLES =
+                bteso_DefaultEventManager_SelectRaw::BTESO_MAX_NUM_HANDLES,
+            DEFAULT_NUM_PAIRS        = (MAX_NUM_HANDLES - 4) / 2,
+            DEFAULT_NUM_MEASUREMENTS = 10
+        };
+
+        int numPairs = DEFAULT_NUM_PAIRS;
+        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+
+        if (2 < argc) {
+            int pairs = atoi(argv[2]);
+            if (0 > pairs) {
+                verbose = 0;
+                numPairs = -pairs;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
+            }
+            else {
+                numPairs = pairs;
+            }
+            if (numPairs > MAX_NUM_HANDLES) {
+                numPairs = MAX_NUM_HANDLES;
+            }
+        }
+
+        if (3 < argc) {
+            int measurements = atoi(argv[3]);
+            if (0 > measurements) {
+                veryVerbose = 0;
+                numMeasurements = -measurements;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
+            }
+            else {
+                numMeasurements = measurements;
+            }
+        }
+
+        if (verbose)
+            cout << endl
+                << "PERFORMANCE TESTING '_SelectRaw::dispatch'" << endl
+                << "==========================================" << endl;
+        {
+            const char *FILENAME = "selectRawDispatch.dat";
+
+            ofstream outFile(FILENAME, ios_base::out);
+            if (!outFile) {
+                cout << "Cannot open " << FILENAME << " for writing."
+                     << endl;
+                return -1;
+            }
+
+            if (veryVerbose) {
+                P(numPairs);
+                P(numMeasurements);
+            }
+
+            RawEventManagerTest mX(&timeMetric);  // Note: no test allocator --
+                                                  // performance testing
+
+            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
+                      numPairs, numMeasurements,
+                      controlFlag);
+            outFile.close();
+        }
+
+      } break;
+      case -2: {
+        // -----------------------------------------------------------------
+        // TESTING PERFORMANCE '_SelectRaw::registerSocketEvent' METHOD:
+        //   Get performance data.
+        //
+        // Plan:
+        //   Open multiple sockets and register a read event for each
+        //   socket, calculate the average time taken to register a read
+        //   event for a given number of registered read event.
+        //
+        // Testing:
+        //   bteso_DefaultEventManager_SelectRaw::registerSocketEvent
+        // -----------------------------------------------------------------
+        enum {
+            MAX_NUM_HANDLES =
+                bteso_DefaultEventManager_SelectRaw::BTESO_MAX_NUM_HANDLES,
+            DEFAULT_NUM_PAIRS        = MAX_NUM_HANDLES,
+            DEFAULT_NUM_MEASUREMENTS = 10
+        };
+
+        int numPairs = DEFAULT_NUM_PAIRS;
+        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+
+        if (2 < argc) {
+            int pairs = atoi(argv[2]);
+            if (0 > pairs) {
+                verbose = 0;
+                numPairs = -pairs;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
+            }
+            else {
+                numPairs = pairs;
+            }
+            if (numPairs > MAX_NUM_HANDLES) {
+                numPairs = MAX_NUM_HANDLES;
+            }
+        }
+
+        if (3 < argc) {
+            int measurements = atoi(argv[3]);
+            if (0 > measurements) {
+                veryVerbose = 0;
+                numMeasurements = -measurements;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
+            }
+            else {
+                numMeasurements = measurements;
+            }
+        }
+
+        if (verbose)
+            cout << endl
+            << "PERFORMANCE TESTING '_SelectRaw::registerSocketEvent'" << endl
+            << "=====================================================" << endl;
+        {
+            const char *FILENAME = "selectRawRegister.dat";
+
+            ofstream outFile(FILENAME, ios_base::out);
+            if (!outFile) {
+                cout << "Cannot open " << FILENAME << " for writing."
+                     << endl;
+                return -1;
+            }
+
+            if (veryVerbose) {
+                P(numPairs);
+                P(numMeasurements);
+            }
+
+            RawEventManagerTest mX(&timeMetric);  // Note: no test allocator --
+                                                  // performance testing
+            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
+                      numPairs, numMeasurements,  controlFlag);
+            outFile.close();
+        }
+
+      } break;
+      case -3: {
+        // -----------------------------------------------------------------
+        // TESTING PERFORMANCE OF 'dispatch' METHOD:
+        //   Get performance data.
+        //
+        // Plan:
+        //   Set up multiple connections and register a read event for each
+        //   connection, calculate the average time it takes to dispatch a
+        //   read event for a given number of registered sockets.
+        //
+        // Testing:
+        //   'dispatch' performance data
+        // -----------------------------------------------------------------
+        enum {
+            MAX_NUM_HANDLES =
+                bteso_DefaultEventManager_SelectRaw::BTESO_MAX_NUM_HANDLES,
+            DEFAULT_NUM_PAIRS        = 2 * MAX_NUM_HANDLES,
+            DEFAULT_NUM_MEASUREMENTS = 10
+        };
+
+        int numPairs = DEFAULT_NUM_PAIRS;
+        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+
+        if (2 < argc) {
+            int pairs = atoi(argv[2]);
+            if (0 > pairs) {
+                verbose = 0;
+                numPairs = -pairs;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
+            }
+            else {
+                numPairs = pairs;
+            }
+        }
+
+        if (3 < argc) {
+            int measurements = atoi(argv[3]);
+            if (0 > measurements) {
+                veryVerbose = 0;
+                numMeasurements = -measurements;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
+            }
+            else {
+                numMeasurements = measurements;
+            }
+        }
+
+        if (verbose)
+            cout << endl
+                << "PERFORMANCE TESTING 'dispatch'" << endl
+                << "==============================" << endl;
+        {
+            const char *FILENAME = "selectDispatch.dat";
+
+            ofstream outFile(FILENAME, ios_base::out);
+            if (!outFile) {
+                cout << "Cannot open " << FILENAME << " for writing."
+                     << endl;
+                return -1;
+            }
+
+            if (veryVerbose) {
+                P(numPairs);
+                P(numMeasurements);
+            }
+
+            Obj mX(&timeMetric);  // Note: no test allocator --
+                                  // performance testing
+            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
+                      numPairs, numMeasurements,
+                      controlFlag);
+            outFile.close();
+        }
+      } break;
+      case -4: {
+        // -----------------------------------------------------------------
+        // PERFORMANCE TESTING 'registerSocketEvent':
+        //   Get performance data.
+        //
+        // Plan:
+        //   Open multiple sockets and register a read event for each
+        //   socket, calculate the average time taken to register a read
+        //   event for a given number of registered read event.
+        //
+        // Testing:
+        //   'registerSocketEvent' performance data
+        // -----------------------------------------------------------------
+        enum {
+            MAX_NUM_HANDLES =
+                bteso_DefaultEventManager_SelectRaw::BTESO_MAX_NUM_HANDLES,
+            DEFAULT_NUM_PAIRS        = 2 * MAX_NUM_HANDLES,  // should be more
+            DEFAULT_NUM_MEASUREMENTS = 10
+        };
+
+        int numPairs = DEFAULT_NUM_PAIRS;
+        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+
+        if (2 < argc) {
+            int pairs = atoi(argv[2]);
+            if (0 > pairs) {
+                verbose = 0;
+                numPairs = -pairs;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
+            }
+            else {
+                numPairs = pairs;
+            }
+        }
+
+        if (3 < argc) {
+            int measurements = atoi(argv[3]);
+            if (0 > measurements) {
+                veryVerbose = 0;
+                numMeasurements = -measurements;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
+            }
+            else {
+                numMeasurements = measurements;
+            }
+        }
+
+        if (verbose)
+            cout << endl
+            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
+            << "=========================================" << endl;
+        {
+            const char *FILENAME = "selectRegister.dat";
+
+            ofstream outFile(FILENAME, ios_base::out);
+            if (!outFile) {
+                cout << "Cannot open " << FILENAME << " for writing."
+                     << endl;
+                return -1;
+            }
+
+            if (veryVerbose) {
+                P(numPairs);
+                P(numMeasurements);
+            }
+
+            Obj mX(&timeMetric);  // Note: no test allocator --
+                                  // performance testing
+            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
+                      numPairs, numMeasurements,  controlFlag);
+            outFile.close();
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

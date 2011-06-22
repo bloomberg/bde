@@ -143,10 +143,10 @@ bteso_DefaultEventManager_SelectRaw::compareFdSets(const fd_set& lhs,
             }
         }
 
-                if (j == numSockets) {
-                        // A socket handle, s, is in 'lhs' and not in 'rhs'.
-                        return 1;
-                }
+        if (j == numSockets) {
+            // A socket handle, s, is in 'lhs' and not in 'rhs'.
+            return 1;
+        }
     }
     return 0;
 #endif
@@ -579,6 +579,15 @@ void bteso_DefaultEventManager_SelectRaw::deregisterAll() {
 }
 
 // ACCESSORS
+bool bteso_DefaultEventManager_SelectRaw::canRegisterSocket() const
+{
+#ifdef BTESO_PLATFORM__WIN_SOCKETS
+    return bsl::max(d_numRead, d_numWrite) < BTESO_MAX_NUM_HANDLES;
+#else
+    return true;
+#endif
+}
+
 const bteso_EventManager::Callback&
 bteso_DefaultEventManager_SelectRaw::callback(int index) const
 {
@@ -674,12 +683,17 @@ void bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterAll() {
 }
 
 // ACCESSORS
+bool bteso_DefaultEventManager<bteso_Platform::SELECT>::canRegisterSocket()
+                                                                          const
+{
+    return d_impl.canRegisterSocket();
+}
+
 int bteso_DefaultEventManager<bteso_Platform::SELECT>::isRegistered(
     const bteso_SocketHandle::Handle& handle,
     const bteso_EventType::Type       event) const
 {
     return d_impl.isRegistered(handle, event);
-
 }
 
 int bteso_DefaultEventManager<bteso_Platform::SELECT>::numEvents() const
