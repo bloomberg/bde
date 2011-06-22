@@ -314,7 +314,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_utility.h>
 #endif
 
-#define NO_SFINAE
+//#define NO_SFINAE
 
 namespace BloombergLP {
 
@@ -449,7 +449,7 @@ class bdema_ManagedPtr_Members {
                   // =============================================
                   // private struct bdema_ManagedPtr_ReferenceType
                   // =============================================
-#if !defined(BDEMA_MANAGEDPTR_TEST_WITHOUT_REF_TRICK)
+
 template <class BDEMA_TYPE>
 struct bdema_ManagedPtr_ReferenceType {
     // This class defines some basic traits used by 'bdema_ManagedPtr'.
@@ -459,7 +459,6 @@ struct bdema_ManagedPtr_ReferenceType {
     typedef BDEMA_TYPE& Reference;
     BSLMF_ASSERT(true);
 };
-#endif
 
 template <class BDEMA_TYPE>
 struct bdema_ManagedPtr_ReferenceType<BDEMA_TYPE &> {
@@ -564,7 +563,7 @@ class bdema_ManagedPtr {
     typedef native_std::nullptr_t nullptr_t;
 #endif
 
-    struct unspecified {}; // private type to guarantee bslma_EnableIf disambiguates
+    struct unspecified {}; // private type to guarantee bslmf_EnableIf disambiguates
 
     //DATA
     bdema_ManagedPtr_Members d_members;
@@ -643,7 +642,7 @@ class bdema_ManagedPtr {
     template<class BDEMA_TARGET_TYPE>
 #if !defined (NO_SFINAE)
     explicit bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr, typename 
-                       bslma_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *, 
+                       bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *, 
                                                           BDEMA_TYPE *>::VALUE,
                                       unspecified>::type * = 0);
 #else
@@ -656,14 +655,12 @@ class bdema_ManagedPtr {
         // if 'ptr' == 0.  The behavior is undefined if 'ptr' is already
         // managed by another managed pointer.
 
-#if !defined(BDEMA_MANAGEDPTR_TEST_WITHOUT_REF_TRICK)
     bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
         // Construct a 'bdema_ManagedPtr' and transfer the value and ownership
         // from the managed pointer referred-to by the specified 'ref' object
         // to this managed pointer.  Note that the managed pointer referred-to
         // by 'ref' will be re-initialized to an unset state.  This constructor
         // is used to construct from a managed pointer rvalue.
-#endif
 
     bdema_ManagedPtr(bdema_ManagedPtr& original);
         // Construct a 'bdema_ManagedPtr' and transfer the value and ownership
@@ -726,7 +723,6 @@ class bdema_ManagedPtr {
         // AJM : Note that even aliased null pointers do not execute a deleter.
 
     // MANIPULATORS
-#if !defined(BDEMA_MANAGEDPTR_TEST_WITHOUT_REF_TRICK)
     operator bdema_ManagedPtr_Ref<BDEMA_TYPE>();
     template <class OTHER>
     operator bdema_ManagedPtr_Ref<OTHER>();
@@ -736,16 +732,18 @@ class bdema_ManagedPtr {
         // reference.
         // TBD AJM notes that the test driver does not exercise case where
         // conversion is needed.
-#endif
 
     void load(nullptr_t =0);
     template<class BDEMA_TARGET_TYPE>
 #if !defined (NO_SFINAE)
-    void load(BDEMA_TARGET_TYPE *ptr,
-              typename bslma_EnableIf<
-                        bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
-                                            BDEMA_TYPE *>::VALUE,
-                        unspecified>::type * = 0);
+    //void load(BDEMA_TARGET_TYPE *ptr,
+    //          typename bslmf_EnableIf<
+    //                    bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
+    //                                        BDEMA_TYPE *>::VALUE,
+    //                    unspecified>::type * = 0);
+    typename bslmf_EnableIf<
+        bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>::VALUE>::type
+    load(BDEMA_TARGET_TYPE *ptr);
 #else
     void load(BDEMA_TARGET_TYPE *ptr);
 #endif
@@ -820,14 +818,12 @@ class bdema_ManagedPtr {
         // be copied, so at destruction, that, rather than ~BDEMA_TYPE(), will
         // be called.
 
-#if !defined(BDEMA_MANAGEDPTR_TEST_WITHOUT_REF_TRICK)
     bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
         // Transfer the value and ownership from the specified 'ref' managed
         // pointer to this managed pointer.  Note that 'ref' will be
         // re-initialized to an unset state and that the previous contents of
         // this pointer (if any) are destroyed unless this pointer and 'ref'
         // point to the same object.
-#endif
 
     void clear();
         // Destroy the current managed object (if any) and re-initialize this
@@ -867,7 +863,6 @@ class bdema_ManagedPtr {
         // associated with this managed pointer.
 };
 
-#if !defined(BDEMA_MANAGEDPTR_TEST_WITHOUT_REF_TRICK)
                      // ==================================
                      // private class bdema_ManagedPtr_Ref
                      // ==================================
@@ -910,7 +905,7 @@ public:
 
     bdema_ManagedPtr_Members *base() const;
 };
-#endif
+
                     // =====================================
                     // struct bdema_ManagedPtrFactoryDeleter
                     // =====================================
@@ -986,7 +981,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(nullptr_t)
 template<class BDEMA_TYPE>
 template<class BDEMA_TARGET_TYPE>
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE * ptr,
-        typename bslma_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
+        typename bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                                     BDEMA_TYPE *>::VALUE,
                                 unspecified>::type *)
 {
@@ -1011,7 +1006,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr)
          reinterpret_cast<DeleterFunc>(&DeleterFactory::deleter));
 }
 
-#if !defined(BDEMA_MANAGEDPTR_TEST_WITHOUT_REF_TRICK)
 template <class BDEMA_TYPE>
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
                                           bdema_ManagedPtr_Ref<BDEMA_TYPE> ref)
@@ -1021,7 +1015,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
         ref->rawClear();
     }
 }
-#endif
 
 template <class BDEMA_TYPE>
 inline
@@ -1204,15 +1197,20 @@ template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE>
 inline
 #if !defined (NO_SFINAE)
-void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
-          typename bslma_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
-                                                      BDEMA_TYPE *>::VALUE,
-                                  unspecified>::type *)
+//void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
+//          typename bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
+//                                                      BDEMA_TYPE *>::VALUE,
+//                                  unspecified>::type *)
+typename bslmf_EnableIf<
+           bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>::VALUE>::type
+bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr)
 {
 #else
 void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr)
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>::VALUE));
+    BSLMF_ASSERT((
+                bslmf_IsConvertible<BDEMA_TARGET_TYPE *,BDEMA_TYPE *>::VALUE));
+
 #endif
     reset(ptr, ptr, bslma_Default::allocator(),
           reinterpret_cast<DeleterFunc>(
@@ -1333,7 +1331,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::operator=(bdema_ManagedPtr<OTHER>& rhs)
     return *this;
 }
 
-#if !defined(BDEMA_MANAGEDPTR_TEST_WITHOUT_REF_TRICK)
 template <class BDEMA_TYPE>
 inline
 bdema_ManagedPtr<BDEMA_TYPE>&
@@ -1362,7 +1359,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::operator bdema_ManagedPtr_Ref<OTHER>()
 {
     return bdema_ManagedPtr_Ref<OTHER>(&d_members, this->ptr());
 }
-#endif
 
 // ACCESSORS
 template <class BDEMA_TYPE>
@@ -1409,7 +1405,6 @@ BDEMA_TYPE *bdema_ManagedPtr<BDEMA_TYPE>::ptr() const
                       // private class bdema_ManagedPtr_Ref
                       // ----------------------------------
 
-#if !defined(BDEMA_MANAGEDPTR_TEST_WITHOUT_REF_TRICK)
 // CREATOR
 template <class BDEMA_TYPE>
 inline
@@ -1451,7 +1446,6 @@ bdema_ManagedPtr_Members *bdema_ManagedPtr_Ref<BDEMA_TYPE>::base() const
 {
     return d_base_p;
 }
-#endif
 
                        // -----------------------------
                        // class bdema_ManagedPtrDeleter

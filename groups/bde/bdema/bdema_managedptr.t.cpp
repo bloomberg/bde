@@ -184,10 +184,11 @@ class MyTestObject {
 
 MyTestObject::MyTestObject(int *counter)
 : d_deleteCounter_p(counter)
+, d_value()
 {
-    for (unsigned i = 0; i < sizeof(d_value) / sizeof(d_value[0]); ++i) {
-        d_value[i] = 0;
-    }
+//    for (unsigned i = 0; i < sizeof(d_value) / sizeof(d_value[0]); ++i) {
+//        d_value[i] = 0;
+//    }
 }
 
 MyTestObject::~MyTestObject()
@@ -206,6 +207,8 @@ volatile int* MyTestObject::deleteCounter() const
     return d_deleteCounter_p;
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 class MyDerivedObject : public MyTestObject
 {
   public:
@@ -218,6 +221,8 @@ MyDerivedObject::MyDerivedObject(int *counter)
 : MyTestObject(counter)
 {
 }
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class MySecondDerivedObject : public MyTestObject
 {
@@ -301,8 +306,8 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
         int numdels = 0;
 
         {
-            B *b_p = 0;
-            A *a_p = b_p;
+//            B *b_p = 0;
+//            A *a_p = b_p;
     //..
     // are legal expressions, then the statements
     //..
@@ -1914,6 +1919,49 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
+     } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // TESTING ADDITIONAL CONCERNS
+        //
+        // Concerns:
+        //: 1 Two 'bdema_ManagedPtr<T>' objects should not be comparable with
+		//:   the equality operator.
+		//
+        //: 2 Two objects of different instantiations of the 'bdema_ManagedPtr'
+		//:   class template should not be comparable with the equality
+		//:   operator
+        //
+        // Plan:
+        //   The absence of a specific operator will be tested by failing to
+		//   compile test code using that operator.  These tests will be
+		//   configured to compile only when specific macros are defined as
+		//   part of the build configuration, and not routinely tested.
+        //
+        // Testing:
+        //   This test is checking for the *absence* of 'operator=='.
+        // --------------------------------------------------------------------
+//#define BDEMA_MANAGEDPTR_TEST_FLAG_1
+//#define BDEMA_MANAGEDPTR_TEST_FLAG_2
+
+#if defined BDEMA_MANAGEDPTR_TEST_FLAG_1
+		bdema_ManagedPtr<int> x;
+		bdema_ManagedPtr<int> y;
+		// The following two lines should fail to compile
+		ASSERT(x == y);
+		ASSERT(x != y);
+#endif
+
+#if defined BDEMA_MANAGEDPTR_TEST_FLAG_2
+		bdema_ManagedPtr<int> a;
+		bdema_ManagedPtr<double> b;
+		// The following two lines should fail to compile
+		ASSERT(a == b);
+		ASSERT(a != b);
+
+		ASSERT(b == a);
+		ASSERT(b != a);
+#endif
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
