@@ -13,7 +13,7 @@ BDES_IDENT("$Id: $")
 //        bteso_InetStreamSocket: implementation of TCP-based stream-sockets
 // bteso_InetStreamSocketFactory: factory for TCP-based stream-sockets
 //
-//@SEE_ALSO: bteso_ipv4address
+//@SEE_ALSO: bteso_streamsocket, bteso_ipv4address, btesos_tcpconnector
 //
 //@AUTHOR: Paul Staniforth
 //
@@ -61,14 +61,41 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this usage example, we will show how to create a
-// 'bteso_StreamSocket<bteso_IPv4Address>' given that a valid socket handle is
-// available.  Such a handle may be available from a third-party library (such
-// as Xlib).  Having a stream socket is highly desirable in this case since its
-// availability enables the reuse of BTE.  First, create a factory and a socket
-// handle 'fd':
+// In this section we show intended usage of this component
+//
+///Example 1: Create a New Stream Socket
+///- - - - - - - - - - - - - - - - - - -
+// We can use 'bteso_InetStreamSocketFactory' to allocate a new TCP-based
+// stream socket.
+//
+// First, we create a 'bteso_InetStreamSocketFactory' object:
 //..
 //  bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+//..
+// Then, we create a stream socket:
+//..
+//  bteso_StreamSocket<bteso_IPv4Address> *mySocket = factory.allocate();
+//  assert(mySocket);
+//..
+// 'mySocket' can now be used for TCP communication.
+//
+// Finally, when we're done, we recycle the socket:
+//..
+//  factory.deallocate(mySocket);
+//..
+//
+///Example 2: Create a 'bteso_StreamSocket' Object From Existing Socket Handle
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Alternatively, we can use 'bteso_InetStreamSocketFactory' to allocate a
+// 'bteso_StreamSocket' object that attaches to an existing socket handle.
+// This socket handle may be created from a third-party library (such as
+// OpenSSL).  Using a 'bteso_StreamSocket' object rather than the socket handle
+// directly is highly desirable as it enables the use of other BTE components
+// on the socket.  In this example, the socket handle is created from the
+// 'bteso_socketimputil' component for illustrative purpose.
+//
+// First, we create a socket handle 'fd':
+//..
 //  bteso_SocketHandle::Handle fd;
 //  int nativeErrNo = 0;
 //  bteso_SocketImpUtil::open<bteso_IPv4Address>(
@@ -77,15 +104,22 @@ BDES_IDENT("$Id: $")
 //                                    &nativeErrNo);
 //  assert(0 == nativeErrNo);
 //..
-// Next, allocate a socket attached to 'fd':
+// Then, we create factory:
+//..
+//  bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+//..
+// Next, we allocate a stream socket attached to 'fd':
 //..
 //  bteso_StreamSocket<bteso_IPv4Address> *mySocket = factory.allocate(fd);
 //  assert(mySocket);
 //..
-// Now any BTE component, that uses 'bteso_StreamSocket<bteso_IPv4Address> can
-// use 'mySocket'.  When we're done, we recycle the socket:
+// Notice that 'fd' is passed into the 'allocate' method as an argument.  Any
+// BTE component that uses 'bteso_StreamSocket<bteso_IPv4Address>' can now be
+// used on 'mySocket'.
+//
+// Finally, when we're done, we recycle the socket:
 //..
-//  factory->deallocate(mySocket);
+//  factory.deallocate(mySocket);
 //..
 
 #ifndef INCLUDED_BTESCM_VERSION
