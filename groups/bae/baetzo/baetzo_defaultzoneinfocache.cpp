@@ -72,6 +72,14 @@ baetzo_ZoneinfoCache *baetzo_DefaultZoneinfoCache::instance()
     return singletonCachePtr;
 }
 
+baetzo_ZoneinfoCache *baetzo_DefaultZoneinfoCache::setDefaultCacheRaw(
+                                                   baetzo_ZoneinfoCache *cache)
+{
+    baetzo_ZoneinfoCache *previous = singletonCachePtr;
+    singletonCachePtr = cache;
+    return previous;
+}
+
 // CLASS METHODS
 const char *baetzo_DefaultZoneinfoCache::defaultZoneinfoDataLocation()
 {
@@ -123,9 +131,6 @@ baetzo_ZoneinfoCache *baetzo_DefaultZoneinfoCache::setDefaultCache(
                                                    baetzo_ZoneinfoCache *cache)
 {
     BSLS_ASSERT_SAFE(cache);
-
-    // We must call 'instance' here to ensure the default default-instance is
-    // created if it has not been previously been created.
 
     baetzo_ZoneinfoCache *previous = singletonCachePtr;
     singletonCachePtr = cache;

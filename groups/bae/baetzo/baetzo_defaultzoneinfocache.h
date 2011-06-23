@@ -225,10 +225,23 @@ struct baetzo_DefaultZoneinfoCache {
     // This struct provides a namespace for functions that manage and access
     // the default time-zone data cache.
 
+  private:
+    // PRIVATE FRIENDS
+    friend class baetzo_DefaultZoneinfoCacheScopedGuard;
+
     // PRIVATE CLASS METHODS
     static baetzo_ZoneinfoCache *instance();
         // Return the address of the currently configured modifiable default
         // time-zone information (Zoneinfo) cache object.
+
+    static baetzo_ZoneinfoCache *setDefaultCacheRaw(
+                                                  baetzo_ZoneinfoCache *cache);
+        // Set the address of the default 'baetzo_ZoneinfoCache' object to the
+        // specified 'cache'.  Return the address of the default cache object
+        // that was in effect before calling this method.  The behavior is
+        // undefined unless this method is *not* called from one thread while
+        // another thread is attempting to access the default time zone cache
+        // instance (i.e., this method is *not* thread-safe).
 
   public:
     // CLASS METHODS
@@ -335,7 +348,7 @@ baetzo_ZoneinfoCache *baetzo_DefaultZoneinfoCache::defaultCache(
 inline
 baetzo_DefaultZoneinfoCacheScopedGuard::baetzo_DefaultZoneinfoCacheScopedGuard(
                                                    baetzo_ZoneinfoCache *cache)
-: d_previousCache_p(baetzo_DefaultZoneinfoCache::setDefaultCache(cache))
+: d_previousCache_p(baetzo_DefaultZoneinfoCache::setDefaultCacheRaw(cache))
 {
 }
 
@@ -343,7 +356,7 @@ inline
 baetzo_DefaultZoneinfoCacheScopedGuard::
 ~baetzo_DefaultZoneinfoCacheScopedGuard()
 {
-    baetzo_DefaultZoneinfoCache::setDefaultCache(d_previousCache_p);
+    baetzo_DefaultZoneinfoCache::setDefaultCacheRaw(d_previousCache_p);
 }
 
 }  // close namespace BloombergLP
