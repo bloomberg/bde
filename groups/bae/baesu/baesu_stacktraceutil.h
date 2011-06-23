@@ -27,9 +27,8 @@ BDES_IDENT("$Id: $")
 // 'baesu_StackTraceUtil' using (1) 'loadStackTraceFromStack' and
 // (2) 'loadStackTraceFromAddresses'.
 //
-///Example 1: Loading Stack Trace With 'loadStackTraceFromStack':
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//
+///Example 1: Loading Stack Trace With 'loadStackTraceFromStack'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we use the 'loadStackTraceFromStack' function to load a
 // 'baesu_StackTrace' object with a description of the current thread's
 // function-call stack.
@@ -98,9 +97,8 @@ BDES_IDENT("$Id: $")
 // Note that on AIX or Windows, source file name and line number information
 // will also be displayed.
 //
-///Example 2: Loading a Stack Trace From an Array of Stack Addresses.
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//
+///Example 2: Loading a Stack Trace From an Array of Stack Addresses
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate obtaining return addresses from the stack
 // using 'baesu_StackAddressUtil', and later using them to load a
 // 'baesu_StackTrace' object with a description of the stack.  This approach
