@@ -543,7 +543,7 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 21: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -671,7 +671,7 @@ int main(int argc, char *argv[])
 //..
 
       }  break;
-      case 20: {
+      case 19: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
         //   Ensure that, when member and free 'swap' are implemented, we can
@@ -1008,7 +1008,7 @@ int main(int argc, char *argv[])
         }
 
       }  break;
-      case 19: {
+      case 18: {
         // --------------------------------------------------------------------
         // INTERNAL DATA ACCESS METHODS
         //
@@ -1029,7 +1029,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Not yet implemented." << endl;
 
       } break;
-      case 18: {
+      case 17: {
         // --------------------------------------------------------------------
         // CAPACITY-RESERVING CONSTRUCTOR AND METHOD
         //
@@ -1051,7 +1051,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Not yet implemented." << endl;
 
       } break;
-      case 17: {
+      case 16: {
         // --------------------------------------------------------------------
         // SWAP ELEMENTS
         //   We are concerned that, for an object of any length, 'swap' must
@@ -1073,33 +1073,6 @@ int main(int argc, char *argv[])
                           << "============" << endl;
 
         if (verbose) cout << "Not yet implemented." << endl;
-
-      } break;
-      case 16: {
-        // --------------------------------------------------------------------
-        // PRINT METHOD
-        //   The 'print' method formats the value of the object directly from
-        //   the underlying state information according to supplied arguments.
-        //
-        // Note that the 'print' method is now tested in case 5.  This case
-        // (15) is provided to preserve the order of test cases w.r.t. to
-        // reference test driver.
-        //
-        // Concerns:
-        //   N/A
-        //
-        // Plan:
-        //   N/A
-        //
-        // Testing:
-        //   N/A
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "PRINT" << endl
-                          << "=====" << endl;
-
-        if (verbose) cout << "Tested in case 5." << endl;
 
       } break;
       case 15: {
