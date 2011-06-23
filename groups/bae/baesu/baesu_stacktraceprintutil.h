@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide portable utilities for printing a stack trace.
+//@PURPOSE: Provide portable utilities for performing / printing a stack trace.
 //
 //@CLASSES:
 //  baesu_StackTracePrintUtil: namespace for functions that print a stack trace
@@ -18,24 +18,31 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a namespace 'struct',
 // 'baesu_StackTracePrintUtil', containing static platform-independent
-// functions that will print a stack trace to a supplied stream.  Not all
-// properties of a stack trace are printed on all platforms because the set of
-// properties describing a stack trace that are obtainable varies according to
-// the platform and build parameters.  For example, on Solaris, Linux, and
-// HP-UX, source file names and line numbers are not provided.  Function names
-// and addresses are provided on all platforms.  The 'printStackTrace' function
-// always prints a description of the stack of the calling thread.
+// functions that will perform a stack trace and print it to a supplied stream.
+// Not all properties of a stack trace are printed on all platforms because the
+// set of properties describing a stack trace that are obtainable varies
+// according to both the platform and build parameters.  For example, on
+// Solaris, Linux, and HP-UX, source file names and line numbers are not
+// provided.  Function names and addresses are provided on all platforms.  The
+// 'printStackTrace' function always prints a description of the stack of the
+// calling thread.
 //
 ///Usage
 ///-----
-// In this section we show theo intended usage of this component.
+// This section illustrates the intended usage of this component.
 //
 ///Example 1: Printing a Stack Trace
 ///- - - - - - - - - - - - - - - - -
-// This example shows how to print a stack trace to a stream, by calling the
-// static function 'baesu_StackTraceUtil::printStackTrace'.
+// This example shows how to obtain a stack trace and print it to a stream, all
+// by calling just the static function 'baesu_StackTraceUtil::printStackTrace'.
 //
-// First we define a recursive function 'recurseAndPrintStack':
+// First, we define a recursive function 'recurseAndPrintStack' that recurses
+// to the specified 'depth', then calls
+// 'baesu_StackTracePrintUtil::printStackTrace' to obtain a stack trace and
+// print it to 'cout'.  When we call 'printStackTrace', neither of the optional
+// arguments corresponding to 'maxFrames' or 'demanglingPreferredFlag' are
+// supplied; 'maxFrames' defaults to at least 1024 (which is more than we
+// need), and 'demanglingPreferredFlag' defaults to 'true'.
 //..
 //  static
 //  void recurseAndPrintStack(int *depth)
@@ -46,57 +53,53 @@ BDES_IDENT("$Id: $")
 //          recurseAndPrintStack(depth);
 //      }
 //      else {
-//..
-// Now we invoke the function 'printStackTrace' to print out a stack trace.  In
-// this case, the 'maxFrames' argument is unspecified, and defaults to at least
-// 1024 (which is more than we need) and the 'demanglingPreferredFlag' argument
-// is unspecified, and defaults to 'true'.
-//..
 //          baesu_StackTracePrintUtil::printStackTrace(cout);
 //      }
-//
+//  
 //      ++*depth;   // Prevent compiler from optimizing tail recursion as a
 //                  // loop.
 //  }
-//
+//..
+// Then, we call 'recurseAndPrintStack' from the main program.
+//..
 //  int main()
 //  {
 //      int depth = 5;
-//      recurseAndPrintUsage(&depth);
+//      recurseAndPrintStack(&depth);
 //      assert(5 == depth);
 //  }
 //..
-// Finally, invoking the program in this example, on AIX, produces the
-// following output.  Output for each frame is single line.  Note that the
-// lines were longer than 80 chars, so continuation is wrapped, and that the
-// program name is truncated to 32 characters.
+// Now, invoking the main program on AIX produces the following output:
 //..
 //  (0): BloombergLP::baesu_StackTracePrintUtil::.printStackTrace(
-//                 std::basic_ostream<char,std::char_traits<char> >&,
-//                 int,bool)+0x140 at 0x10009d68
-//                 source:baesu_stacktraceprintutil.cpp:51 in
-//                 baesu_stacktraceprintutil.t.dbg_
-//  (1): .recurseAndPrintExample1(int*)+0x58 at 0x10009be8
-//                 source:baesu_stacktraceprintutil.t.cpp:630 in
-//                 baesu_stacktraceprintutil.t.dbg_
-//  (2): .recurseAndPrintExample1(int*)+0x40 at 0x10009bd0
-//                 source:baesu_stacktraceprintutil.t.cpp:623 in
-//                 baesu_stacktraceprintutil.t.dbg_
-//  (3): .recurseAndPrintExample1(int*)+0x40 at 0x10009bd0
-//                 source:baesu_stacktraceprintutil.t.cpp:623 in
-//                 baesu_stacktraceprintutil.t.dbg_
-//  (4): .recurseAndPrintExample1(int*)+0x40 at 0x10009bd0
-//                 source:baesu_stacktraceprintutil.t.cpp:623 in
-//                 baesu_stacktraceprintutil.t.dbg_
-//  (5): .recurseAndPrintExample1(int*)+0x40 at 0x10009bd0
-//                 source:baesu_stacktraceprintutil.t.cpp:623 in
-//                 baesu_stacktraceprintutil.t.dbg_
-//  (6): .main+0x2d4 at 0x10000a2c
-//                 source:baesu_stacktraceprintutil.t.cpp:687 in
-//                 baesu_stacktraceprintutil.t.dbg_
-//  (7): .__start+0x6c at 0x1000020c
-//                 source:crt0main.s in
-//                 baesu_stacktraceprintutil.t.dbg_
+//       std::basic_ostream<char,std::char_traits<char> >&,int,bool)+0x170 at
+//       0x1000a2c8 source:baesu_stacktraceprintutil.cpp:52 in
+//       baesu_stacktraceprintutil.t.dbg_
+//  (1): .recurseAndPrintStack(int*)+0x58 at 0x1000a118
+//       source:baesu_stacktraceprintutil.t.cpp:652 in
+//       baesu_stacktraceprintutil.t.dbg_
+//  (2): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+//       source:baesu_stacktraceprintutil.t.cpp:650
+//       in baesu_stacktraceprintutil.t.dbg_
+//  (3): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+//       source:baesu_stacktraceprintutil.t.cpp:650 in
+//       baesu_stacktraceprintutil.t.dbg_
+//  (4): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+//       source:baesu_stacktraceprintutil.t.cpp:650 in
+//       baesu_stacktraceprintutil.t.dbg_
+//  (5): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+//       source:baesu_stacktraceprintutil.t.cpp:650 in
+//       baesu_stacktraceprintutil.t.dbg_
+//  (6): .main+0x2f4 at 0x10000a4c source:baesu_stacktraceprintutil.t.cpp:724
+//       in baesu_stacktraceprintutil.t.dbg_
+//  (7): .__start+0x6c at 0x1000020c source:crt0main.s in
+//       baesu_stacktraceprintutil.t.dbg_
+//..
+// Finally, we observe the following about the above output to 'cout'.  Notice
+// that since the actual output would write each stack trace frame all on a
+// single line, and all the lines here were longer than 80 characters, it has
+// been manually edited to wrap and have every line be less than 80 columns.
+// Also note the program name is truncated to 32 characters in length.
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -130,8 +133,8 @@ namespace BloombergLP {
                      // ===============================
 
 struct baesu_StackTracePrintUtil {
-    // This 'struct' serves as a namespace for static methods that print a
-    // description of a stack trace.
+    // This 'struct' serves as a namespace for static methods that perform and
+    // print a description of a stack trace.
 
     // CLASS METHODS
     static bsl::ostream& printStackTrace(
@@ -142,12 +145,14 @@ struct baesu_StackTracePrintUtil {
         // Optionally specify 'maxFrames' indicating the maximum number of
         // frames from the top of the stack that will be printed.  If
         // 'maxFrames' is not specified, a value of at least 1024 is used.
-        // Optionally specify 'demanglingPreferredFlag', indicating whether to
-        // attempt to demangle function names.  If an error occurs, print a
-        // 1-line error message to 'stream'.  The behavior is undefined unless
-        // 'maxFrames >= 0 || maxFrames == -1'.  Note that attempting to
-        // demangle symbol names could involve calling 'malloc', and symbol
-        // names are always demangled on the Windows platform.
+        // Optionally specify 'demanglingPreferredFlag', indicating a
+        // preference whether to attempt to demangle function names.  If
+        // 'damanglingPreferredFlag' is not specified, an attempt to demangle
+        // is assumed.  If an error occurs, a single-line error message is
+        // printed to 'stream'.  The behavior is undefined unless
+        // '-1 <= maxFrames'.  Note that attempting to demangle symbol names
+        // could involve calling 'malloc', and that symbol names are always
+        // demangled on the Windows platform.
 };
 
                    // ====================================
@@ -155,15 +160,15 @@ struct baesu_StackTracePrintUtil {
                    // ====================================
 
 struct baesu_StackTracePrintUtil_Test {
-    // This 'struct' is not for use by clients of this component; it exists
-    // only for testing purposes.
+    // This 'struct' is not intended for use by clients of this component; it
+    // exists only for testing purposes.
 
     // CLASS METHODS
     static void printStackTraceToString(bsl::string *string);
         // Obtain a stack trace and assign a description of the stack to the
-        // specified 'string'.  Note that this method is for testing only: it
-        // must be inline in an include file to test source file name
-        // resolution of a routine in an include file.
+        // specified 'string'.  Note that this method is for testing only, and
+        // must be declared inline in an include file in order to test source
+        // file name resolution of a routine in an include file.
 };
 
 // ===========================================================================

@@ -631,27 +631,39 @@ void bottom(bslma_Allocator *alloc)
                                     // Usage 1
                                     // -------
 
+// First, we define a recursive function 'recurseAndPrintStack' that recurses
+// to the specified 'depth', then calls
+// 'baesu_StackTracePrintUtil::printStackTrace' to obtain a stack trace and
+// print it to 'cout'.  When we call 'printStackTrace', neither of the optional
+// arguments corresponding to 'maxFrames' or 'demanglingPreferredFlag' are
+// supplied; 'maxFrames' defaults to at least 1024 (which is more than we
+// need), and 'demanglingPreferredFlag' defaults to 'true'.
+
 static
-void recurseAndPrintExample1(int *depth)
-    // Recurse the specified 'depth' number of times, then do a stack trace.
+void recurseAndPrintStack(int *depth)
+    // Recurse to the specified 'depth', then print out the stack trace to
+    // 'cout'.
 {
     if (--*depth > 0) {
-        // Recurse until '0 == *depth' before generating a stack trace.
-
-        recurseAndPrintExample1(depth);
+        recurseAndPrintStack(depth);
     }
     else {
-        // Call 'printStackTrace' to print out a stack trace.  In this case,
-        // the 'maxFrames' argument is unspecified, defaulting to 1000 which is
-        // more than we need and the 'demangle' argument is unspecified,
-        // defaulting to 'on'.
-
         baesu_StackTracePrintUtil::printStackTrace(*out_p);
     }
 
     ++*depth;   // Prevent compiler from optimizing tail recursion as a
                 // loop.
 }
+
+// Then, we call 'recurseAndPrintStack' from the main program.
+
+// Now, invoking the main program on AIX produces the following output:
+
+// Finally, we observe the following about the above output to 'cout'.  Notice
+// that as the actual output would write each stack trace frame all on a single
+// line, and all the lines here were longer than 80 characters, it has been
+// manually edited to wrap and fit neatly within 79 character lines.  Also note
+// the program name is truncated to 32 characters in length.
 
 //=============================================================================
 // MAIN PROGRAM
@@ -707,7 +719,7 @@ int main(int argc, char *argv[])
         // print a stack trace.
 
         int depth = 5;
-        recurseAndPrintExample1(&depth);
+        recurseAndPrintStack(&depth);
         ASSERT(5 == depth);
       } break;
       case 4: {
