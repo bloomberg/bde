@@ -128,7 +128,7 @@ BDES_IDENT("$Id: $")
 //      ++*depth;   // Prevent compiler from optimizing tail recursion as a
 //                  // loop.
 //  }
-//..
+//
 //  void traceExample2()
 //  {
 //..
