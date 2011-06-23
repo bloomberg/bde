@@ -685,7 +685,8 @@ int main(int argc, char *argv[])
 
           // TBD
           ASSERT(timerId);
-          ASSERT(0 == manager.enable());
+          int rc = manager.enable();
+          ASSERT(0 == rc);
 
           for (int i = 0; i < 10; ++i) {
               int item = workQueue.popFront();
