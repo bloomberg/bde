@@ -13,7 +13,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Bill Chapman
 //
-//@SEE_ALSO: baesu_stacktrace, baesu_stacktraceprintutil
+//@SEE_ALSO: baesu_stacktraceprintutil
 //
 //@DESCRIPTION: This component provides a namespace for functions used in
 // obtaining and printing a stack trace.  Note that clients interested in
@@ -23,12 +23,16 @@ BDES_IDENT("$Id: $")
 ///Usage
 ///-----
 // This section illustrates intended usage for this component.  The following
-// examples demonstrate two ways to load and print a stack trace using
-// 'baesu_StackTraceUtil', in particular, using 'loadStackTraceFromStack' and
-// 'loadStackTraceFromAddresses'.
+// examples demonstrate two distinct ways to load and print a stack trace using
+// 'baesu_StackTraceUtil' using (1) 'loadStackTraceFromStack' and
+// (2) 'loadStackTraceFromAddresses'.
 //
-///Example 1: loading stack trace with 'loadStackTraceFromStack':
+///Example 1: Loading Stack Trace With 'loadStackTraceFromStack':
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+// In this example we use the 'loadStackTraceFromStack' function to load a
+// 'baesu_StackTrace' object with a description of the current thread's
+// function-call stack.
 //
 // We start by defining a routine 'recurseExample1' which will recurse the
 // specified 'depth' times, then call 'traceExample1'.
