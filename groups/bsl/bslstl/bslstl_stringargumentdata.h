@@ -50,11 +50,22 @@ class bslstl_StringArgumentData
 
   public:
     // CREATORS
+    bslstl_StringArgumentData();
+        // Construct a value-initialized 'bslstl_StringArgumentData' object
+        // with both 'd_begin' and 'd_end' pointers assigned a 'NULL' value.
+
     bslstl_StringArgumentData(const CHAR_TYPE *begin, const CHAR_TYPE *end);
         // Construct a 'bslstl_StringArgumentData' object with the specified
         // 'begin' and 'end' pointers to the start and end of a string.  The
         // behavior is undefined unless 'begin <= end'.  Both 'begin' and 'end'
         // can be NULL.
+
+    //! bslstl_StringArgumentData(const bslstl_StringArgumentData&) = default;
+    //! ~bslstl_StringArgumentData() = default;
+
+    // MANIPULATORS
+    //! bslstl_StringArgumentData& operator=(const bslstl_StringArgumentData&)
+    //                                                               = default;
 
     // ACCESSORS
     const CHAR_TYPE *begin() const;
@@ -77,9 +88,17 @@ class bslstl_StringArgumentData
 // CREATORS
 template <typename CHAR_TYPE>
 inline
+bslstl_StringArgumentData<CHAR_TYPE>::bslstl_StringArgumentData()
+: d_begin(0)
+, d_end(0)
+{
+}
+
+template <typename CHAR_TYPE>
+inline
 bslstl_StringArgumentData<CHAR_TYPE>
     ::bslstl_StringArgumentData(const CHAR_TYPE *begin,
-                                 const CHAR_TYPE *end)
+                                const CHAR_TYPE *end)
 : d_begin(begin)
 , d_end(end)
 {
