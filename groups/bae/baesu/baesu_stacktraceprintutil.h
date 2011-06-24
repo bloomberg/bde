@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide portable utilities for performing / printing a stack trace.
+//@PURPOSE: Provide a single function to perform and print a stack trace.
 //
 //@CLASSES:
 //  baesu_StackTracePrintUtil: namespace for functions that print a stack trace
@@ -34,7 +34,8 @@ BDES_IDENT("$Id: $")
 ///Example 1: Printing a Stack Trace
 ///- - - - - - - - - - - - - - - - -
 // This example shows how to obtain a stack trace and print it to a stream, all
-// by calling just the static function 'baesu_StackTraceUtil::printStackTrace'.
+// by calling just the static function
+// 'baesu_StackTracePrintUtil::printStackTrace'.
 //
 // First, we define a recursive function 'recurseAndPrintStack' that recurses
 // to the specified 'depth', then calls

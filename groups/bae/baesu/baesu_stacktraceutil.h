@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide platform-independent utilities for obtaining a stack trace.
+//@PURPOSE: Provide low-level utilities for obtaining & printing a stack trace.
 //
 //@CLASSES: baesu_StackTraceUtil
 //
