@@ -70,9 +70,11 @@ static void aSsErT(int c, const char *s, int i)
 namespace {
 
 struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
-    void *allocate(int)                     { return markDone(); }
-    void *allocateAligned(bsl::size_t, int) { return markDone(); }
-    void  deallocate(void* )                {        markDone(); }
+    typedef bsls_Allocator::size_type size_type;
+    
+    void *allocate(size_type)                     { return markDone(); }
+    void *allocateAligned(bsl::size_t, size_type) { return markDone(); }
+    void  deallocate(void* )                      {        markDone(); }
 };
 
 }  // close unnamed namespace
