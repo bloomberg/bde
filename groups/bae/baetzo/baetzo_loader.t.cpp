@@ -20,9 +20,12 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // We are testing a pure protocol class as.  We need to verify that (1) a
-// concrete derived class compiles and links.
+// concrete derived class compiles and links, and (2) that a usage example
+// obtains the behavior specified by the protocol from the concrete
+// subclass.
 //-----------------------------------------------------------------------------
 // [ 1] virtual int loadTimeZone(Zoneinfo *tz, const char *tzId) = 0;
+//-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 //=============================================================================
 
@@ -74,8 +77,7 @@ struct LoaderTestImp : bsls_ProtocolTestImp<baetzo_Loader> {
 
 ///Usage
 ///-----
-// In the following examples we demonstrate how to use a 'baetzo_Loader' to
-// load data for a time zone.
+// This section illustrates intended usage of this component.
 //
 ///Example 1: Implementing 'baetzo_Loader'
 ///- - - - - - - - - - - - - - - - - - - -
@@ -83,12 +85,12 @@ struct LoaderTestImp : bsls_ProtocolTestImp<baetzo_Loader> {
 // return data for "America/New_York".
 //
 // Note that in general, an implementation of 'baetzo_Loader' should obtain
-// time-zone information from an external data store (see
+// time-zone information from an external data source (see
 // 'baetzo_datafileloader').
 //
 // First, we define the interface of our implementation:
 //..
-    class MyLoaderImpl : public baetzo_Loader {
+    class MyLoaderImp : public baetzo_Loader {
         // This class provides a concrete implementation of the 'baetzo_Loader'
         // protocol (an abstract interface) for obtaining a time zone.  This
         // test implementation contains only partial data of the
@@ -97,10 +99,10 @@ struct LoaderTestImp : bsls_ProtocolTestImp<baetzo_Loader> {
 
       public:
         // CREATORS
-        MyLoaderImpl();
-            // Create a 'MyLoaderImpl' object.
+        MyLoaderImp();
+            // Create a 'MyLoaderImp' object.
 
-        ~MyLoaderImpl();
+        ~MyLoaderImp();
             // Destroy this object.
 
         // MANIPULATORS
@@ -111,19 +113,20 @@ struct LoaderTestImp : bsls_ProtocolTestImp<baetzo_Loader> {
             // 'timeZoneId'.  Return 0 on success, and non-zero otherwise.
     };
 //..
-// Then, we implement the constructor and the destructor:
+// Then, we implement the creators, trivially, as this class contains no
+// instance data members.
 //..
-    MyLoaderImpl::MyLoaderImpl()
+    MyLoaderImp::MyLoaderImp()
     {
     }
 
-    MyLoaderImpl::~MyLoaderImpl()
+    MyLoaderImp::~MyLoaderImp()
     {
     }
 //..
 // Next, we implement the 'loadTimeZone' function:
 //..
-    int MyLoaderImpl::loadTimeZone(baetzo_Zoneinfo *result,
+    int MyLoaderImp::loadTimeZone(baetzo_Zoneinfo *result,
                                    const char      *timeZoneId)
     {
 //..
@@ -180,9 +183,12 @@ struct LoaderTestImp : bsls_ProtocolTestImp<baetzo_Loader> {
         return 0;
     }
 //..
-// Finally, we create a 'MyLoaderImpl' object.
+// Finally, we define a function 'f' that instantiates an object of type
+// 'MyLoaderImp':
 //..
-    MyLoaderImpl myLoader;
+    void f() {
+        MyLoaderImp a;
+    }
 //..
 
 //=============================================================================
@@ -191,42 +197,49 @@ struct LoaderTestImp : bsls_ProtocolTestImp<baetzo_Loader> {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING USAGE EXAMPLE" << endl
-                                  << "=====================" << endl;
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
 
 ///Example 2: Using a 'baetzo_Loader'
 /// - - - - - - - - - - - - - - - - -
-// In this example we use a 'MyLoaderImpl' to load the data for one time zone,
+// In this example we use a 'MyLoaderImp' to load the data for one time zone,
 // and print the time transitions, contained in the obtained time zone data, to
 // standard output.  Note that, the implementation of this example is for
 // illustrative purpose only, and in general, clients should use an
 // implementation that loads data from an external data source (e.g.,
 // 'baetzo_datafileloader').
 //
-// First, we obtain a 'MyLoaderImpl' reference to 'myLoader' we constructed in
-// the previous example:
+// First, we create a loader 'myLoader' using the class 'MyLoaderImp'
+// defined in the previous example, and obtain a 'bdema_AlignedAllocator'
+// pointer to it:
 //..
+    MyLoaderImp myLoader;
     baetzo_Loader& loader = myLoader;
 //..
 // Next, we load the time zone data for New York:
@@ -282,23 +295,31 @@ int main(int argc, char *argv[])
         //   Test the conformance of baetzo_Loader to the protocol concerns.
         //
         // Concerns:
-        //: 1 baetzo_Loader protocol is an abstract class, i.e., no objects of
-        //:   baetzo_Loader protocol class can be created
-        //: 2 baetzo_Loader hos no data members
-        //: 3 all methods of baetzo_Loader are pure virtual
-        //: 4 baetzo_Loader has a pure virtual destructor
-        //: 5 all methods of baetzo_Loader are publicly accessible
+        //: 1 'baetzo_Loader' protocol is an abstract class, i.e., no objects
+        //:    of the 'baetzo_Loader' class can be created.
+        //:
+        //: 2 'baetzo_Loader' has no data members.
+        //:
+        //: 3 All members of 'baetzo_Loader' are pure virtual.
+        //:
+        //: 4 'baetzo_Loader' has a pure virtual destructor.
+        //:
+        //: 5 All methods of 'baetzo_Loader' are publicly accessible.
         //
         // Plan:
         //  Use 'bsl_ProtocolTest' component to test the following subset of
         //  the baetzo_Loader protocol concerns:
-        //: 1 baetzo_Loader protocol is an abstract class, i.e., no objects of
-        //:   baetzo_Loader protocol class can be created
-        //: 2 baetzo_Loader hos no data members
-        //: 3 each of the known and tested methods of baetzo_Loader is virtual
-        //: 4 baetzo_Loader has a virtual destructor
-        //: 5 each of the known and tested methods of baetzo_Loader is publicly
-        //    accessible
+        //: 1 'baetzo_Loader' protocol is an abstract class, i.e., no objects of
+        //:   'baetzo_Loader' protocol class can be created
+        //:
+        //: 2 'baetzo_Loader' has no data members
+        //:
+        //: 3 Each of the known and tested methods of baetzo_Loader is virtual.
+        //:
+        //: 4 'baetzo_Loader' has a virtual destructor.
+        //:
+        //: 5 Each of the known and tested methods of 'baetzo_Loader' is
+        //:   publicly accessible.
         //
         // Testing:
         //   virtual int loadTimeZone(Zoneinfo *tz, const char *tzId) = 0;
@@ -306,6 +327,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
+
+        if (verbose) cout << "\nTest the protocol with 'bsls_ProtocolTest'"
+                          << endl;
 
         bsls_ProtocolTest<LoaderTestImp> t(veryVerbose);
 
