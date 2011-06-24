@@ -272,7 +272,7 @@ class baetzo_ZoneinfoCache {
         // identifier is not supported, and a negative value if the operation
         // does not succeed for any other reason.  If the returned address is
         // non-zero, the Zoneinfo object returned is guaranteed to be
-        // well-formed (i.e., 'baetzo_ZoneinfoUtil::isWellFormed will return
+        // well-formed (i.e., 'baetzo_ZoneinfoUtil::isWellFormed' will return
         // 'true' if called with the returned value), and remain valid for
         // the lifetime of this object.  The behavior is undefined if 'rc' is
         // 0.

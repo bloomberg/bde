@@ -62,7 +62,7 @@ std::size_t Vector_Util::computeNewCapacity(std::size_t newLength,
             // We overflowed, e.g., on a 32-bit platform; 'newCapacity' is
             // larger than 2^31.  Terminate the loop.
 
-            return maxSize;
+            return maxSize;                                           // RETURN
         }
     }
     return capacity > maxSize ? maxSize : capacity;
