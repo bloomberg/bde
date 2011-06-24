@@ -4304,7 +4304,6 @@ int main(int argc, char *argv[])
             mX.append(V1);
             if (veryVerbose) { cout << "\t\t AFTER: "; P(X); }
 
-            ASSERT(tam.isTotalUp());
             ASSERT(tam.isInUseSame() || tam.isInUseUp());
             ASSERT(2  == X.length());
             ASSERT(V0 == X[0]);
@@ -4321,7 +4320,6 @@ int main(int argc, char *argv[])
             mX.append(V2);
             if (veryVerbose) { cout << "\t\t AFTER: "; P(X); }
 
-            ASSERT(tam.isTotalUp());
             ASSERT(tam.isInUseSame() || tam.isInUseUp());
             ASSERT(3 == X.length());
             ASSERT(V0 == X[0]);
@@ -4339,7 +4337,6 @@ int main(int argc, char *argv[])
             mX.append(V3);
             if (veryVerbose) { cout << "\t\t AFTER: "; P(X); }
 
-            ASSERT(tam.isTotalUp());
             ASSERT(tam.isInUseSame() || tam.isInUseUp());
             ASSERT(4 == X.length());
             ASSERT(V0 == X[0]);
@@ -4358,7 +4355,6 @@ int main(int argc, char *argv[])
             mX.append(V4);
             if (veryVerbose) { cout << "\t\t AFTER: "; P(X); }
 
-            ASSERT(tam.isTotalUp());
             ASSERT(tam.isInUseSame() || tam.isInUseUp());
             ASSERT( 5 == X.length());
             ASSERT(V0 == X[0]);
