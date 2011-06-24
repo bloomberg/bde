@@ -271,19 +271,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-/*
-#ifndef INCLUDED_BSLS_NATIVESTD
-#include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSL_HASH_SET
-#include <bsl_hash_set.h>
-#endif
-
-*/
-
 #ifndef INCLUDED_BSLSTL_STRING
 #include <bslstl_string.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_STRINGARGUMENTDATA
+#include <bslstl_stringargumentdata.h>
 #endif
 
 #ifndef INCLUDED_IOSFWD
@@ -298,13 +291,6 @@ BSLS_IDENT("$Id: $")
 #include <cstring>              // for 'std::strlen', 'std::memcmp'
 #endif
 
-/*
-#ifndef INCLUDED_STRING
-#include <string>               // for 'std::string'
-#define INCLUDED_STRING
-#endif
-*/
-
 namespace BloombergLP {
 
                       // ================================
@@ -313,7 +299,7 @@ namespace BloombergLP {
 
 template <typename CHAR_TYPE>
 class bslstl_StringArgument_Base
-    : public bslstl_StringArgument_Data<CHAR_TYPE>
+    : public bslstl_StringArgumentData<CHAR_TYPE>
     // This class, having non-standard copy semantics, provides a reference to
     // a sequence of non-modifiable characters, i.e., a 'const' string.  A
     // 'bslstl_StringArgument_Base' supports a hybrid of reference and pointer
@@ -329,6 +315,9 @@ class bslstl_StringArgument_Base
     // construction, a 'bslstl_StringArgument_Base' may be bound to another
     // string (via 'operator=' or 'assign').
 {
+  private:
+    typedef bslstl_StringArgumentData<CHAR_TYPE> Base;
+
   public:
     // PUBLIC TYPES
     typedef const CHAR_TYPE *iterator;        // type of non-'const' iterator
@@ -748,7 +737,7 @@ typedef bslstl_StringArgument_Base<wchar_t> bslstl_WStringArgument;
 template <typename CHAR_TYPE>
 inline
 bslstl_StringArgument_Base<CHAR_TYPE>::bslstl_StringArgument_Base()
-: bslstl_StringArgument_Data<CHAR_TYPE>(0, 0)
+: Base(0, 0)
 {
 }
 
@@ -757,7 +746,7 @@ inline
 bslstl_StringArgument_Base<CHAR_TYPE>::bslstl_StringArgument_Base(
         const CHAR_TYPE *data,
         int length)
-: bslstl_StringArgument_Data<CHAR_TYPE>(data, data + length)
+: Base(data, data + length)
 {
     BSLS_ASSERT_SAFE(0 <= length);
     BSLS_ASSERT_SAFE(data || 0 == length);
@@ -768,7 +757,7 @@ inline
 bslstl_StringArgument_Base<CHAR_TYPE>::bslstl_StringArgument_Base(
         const_iterator begin,
         const_iterator end)
-: bslstl_StringArgument_Data<CHAR_TYPE>(begin, end)
+: Base(begin, end)
 {
 }
 
@@ -776,7 +765,7 @@ template <typename CHAR_TYPE>
 inline
 bslstl_StringArgument_Base<CHAR_TYPE>::bslstl_StringArgument_Base(
                                                          const CHAR_TYPE *data)
-: bslstl_StringArgument_Data<CHAR_TYPE>(data, data + std::strlen(data))
+: Base(data, data + std::strlen(data))
 {
 }
 
@@ -784,7 +773,7 @@ template <typename CHAR_TYPE>
 inline
 bslstl_StringArgument_Base<CHAR_TYPE>::bslstl_StringArgument_Base(
                                        const bsl::basic_string<CHAR_TYPE>& str)
-: bslstl_StringArgument_Data<CHAR_TYPE>(str.data(), str.data() + str.length())
+: Base(str.data(), str.data() + str.length())
 {
 }
 
@@ -792,7 +781,7 @@ template <typename CHAR_TYPE>
 inline
 bslstl_StringArgument_Base<CHAR_TYPE>::bslstl_StringArgument_Base(
                                 const native_std::basic_string<CHAR_TYPE>& str)
-: bslstl_StringArgument_Data<CHAR_TYPE>(str.data(), str.data() + str.length())
+: Base(str.data(), str.data() + str.length())
 {
 }
 
@@ -800,7 +789,7 @@ template <typename CHAR_TYPE>
 inline
 bslstl_StringArgument_Base<CHAR_TYPE>::bslstl_StringArgument_Base(
                          const bslstl_StringArgument_Base<CHAR_TYPE>& original)
-: bslstl_StringArgument_Data<CHAR_TYPE>(original.d_begin, original.d_end)
+: Base(original.begin(), original.end())
 {
 }
 
@@ -811,8 +800,7 @@ bslstl_StringArgument_Base<CHAR_TYPE>&
     bslstl_StringArgument_Base<CHAR_TYPE>::operator=(
                                          const bslstl_StringArgument_Base& rhs)
 {
-    this->d_begin = rhs.d_begin;
-    this->d_end   = rhs.d_end;
+    Base::operator=(rhs);
     return *this;
 }
 
@@ -824,8 +812,7 @@ void bslstl_StringArgument_Base<CHAR_TYPE>::assign(const CHAR_TYPE *data,
     BSLS_ASSERT_SAFE(0 <= length);
     BSLS_ASSERT_SAFE(data || 0 == length);
 
-    this->d_begin = data;
-    this->d_end   = data + length;
+    *this = bslstl_StringArgument(data, data + length);
 }
 
 template <typename CHAR_TYPE>
@@ -833,16 +820,14 @@ inline
 void bslstl_StringArgument_Base<CHAR_TYPE>::assign(const_iterator begin,
                                                   const_iterator end)
 {
-    this->d_begin = begin;
-    this->d_end   = end;
+    *this = bslstl_StringArgument(begin, end);
 }
 
 template <typename CHAR_TYPE>
 inline
 void bslstl_StringArgument_Base<CHAR_TYPE>::assign(const CHAR_TYPE *data)
 {
-    this->d_begin = data;
-    this->d_end   = data ? data + std::strlen(data) : 0;
+    *this = bslstl_StringArgument(data, data ? data + std::strlen(data) : 0);
 }
 
 template <typename CHAR_TYPE>
@@ -850,8 +835,7 @@ inline
 void bslstl_StringArgument_Base<CHAR_TYPE>::assign(
                                        const bsl::basic_string<CHAR_TYPE>& str)
 {
-    this->d_begin = str.data();
-    this->d_end   = str.data() + str.length();
+    *this = bslstl_StringArgument(str.data(), str.data() + str.length());
 }
 
 template <typename CHAR_TYPE>
@@ -859,16 +843,14 @@ inline
 void bslstl_StringArgument_Base<CHAR_TYPE>::assign(
                         const bslstl_StringArgument_Base<CHAR_TYPE>& stringArg)
 {
-    this->d_begin = stringArg.d_begin;
-    this->d_end   = stringArg.d_end;
+    *this = stringArg;
 }
 
 template <typename CHAR_TYPE>
 inline
 void bslstl_StringArgument_Base<CHAR_TYPE>::clear()
 {
-    this->d_begin = 0;
-    this->d_end   = 0;
+    *this = bslstl_StringArgument(0, 0);
 }
 
 // ACCESSORS
@@ -878,9 +860,9 @@ const CHAR_TYPE& bslstl_StringArgument_Base<CHAR_TYPE>::
     operator[](int index) const
 {
     BSLS_ASSERT_SAFE(0 <= index);
-    BSLS_ASSERT_SAFE(index < static_cast<int>(this->d_end - this->d_begin));
+    BSLS_ASSERT_SAFE(index < static_cast<int>(end() - begin()));
 
-    return this->d_begin[index];
+    return begin()[index];
 }
 
 template <typename CHAR_TYPE>
@@ -888,7 +870,7 @@ inline
 bslstl_StringArgument_Base<CHAR_TYPE>::
                            operator native_std::basic_string<CHAR_TYPE>() const
 {
-    return native_std::basic_string<CHAR_TYPE>(this->d_begin, this->d_end);
+    return native_std::basic_string<CHAR_TYPE>(begin(), end());
 }
 
 template <typename CHAR_TYPE>
@@ -896,7 +878,7 @@ inline
 typename bslstl_StringArgument_Base<CHAR_TYPE>::const_iterator
     bslstl_StringArgument_Base<CHAR_TYPE>::begin() const
 {
-    return this->d_begin;
+    return Base::begin();
 }
 
 template <typename CHAR_TYPE>
@@ -904,28 +886,28 @@ inline
 typename bslstl_StringArgument_Base<CHAR_TYPE>::const_iterator
     bslstl_StringArgument_Base<CHAR_TYPE>::end() const
 {
-    return this->d_end;
+    return Base::end();
 }
 
 template <typename CHAR_TYPE>
 inline
 const CHAR_TYPE *bslstl_StringArgument_Base<CHAR_TYPE>::data() const
 {
-    return this->d_begin;
+    return begin();
 }
 
 template <typename CHAR_TYPE>
 inline
 bool bslstl_StringArgument_Base<CHAR_TYPE>::empty() const
 {
-    return this->d_begin == this->d_end;
+    return begin() == end();
 }
 
 template <typename CHAR_TYPE>
 inline
 int bslstl_StringArgument_Base<CHAR_TYPE>::length() const
 {
-    return static_cast<int>(this->d_end - this->d_begin);
+    return static_cast<int>(end() - begin());
 }
 
 // FREE OPERATORS
