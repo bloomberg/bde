@@ -11,6 +11,15 @@ BDES_IDENT_RCSID(bdet_datetime_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
+#include <bsls_assert.h>
+
+static const char *const MONTHS[] = {
+    0,
+    "JAN", "FEB", "MAR", "APR",
+    "MAY", "JUN", "JUL", "AUG",
+    "SEP", "OCT", "NOV", "DEC"
+};
+
 namespace BloombergLP {
 
                         // -------------------
@@ -22,13 +31,10 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
                                    int           level,
                                    int           spacesPerLevel) const
 {
-    if (stream.bad()) {
-        return stream;
-    }
-
     bdeu_Print::indent(stream, level, spacesPerLevel);
 
-    // Write to a temporary stream having width 0 in case the caller has done
+    // Format the output to a buffer first instead of inserting into 'stream'
+    // directly to improve performance and in case the caller has done
     // something like:
     //..
     //  os << bsl::setw(20) << myDatetime;
@@ -36,15 +42,12 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
     // The user-specified width will be effective when 'buffer' is written to
     // the 'stream' (below).
 
-    const int SIZE = 128;  // Size the buffer to be able to hold a *bad* date.
+    const int SIZE = 128;   // Size the buffer to be able to hold a *bad* date.
     char buffer[SIZE];
 
-    bdesb_FixedMemOutStreamBuf sb(buffer, SIZE);
-    bsl::ostream os(&sb);
+    int rc = printToBuffer(buffer, SIZE);
 
-    os << date() << '_' << time();
-
-    buffer[sb.length()] = '\0';
+    BSLS_ASSERT(22 == rc);  // The datetime format contains 22 characters
 
     stream << buffer;
 
@@ -53,6 +56,39 @@ bsl::ostream& bdet_Datetime::print(bsl::ostream& stream,
     }
 
     return stream;
+}
+
+int bdet_Datetime::printToBuffer(char *result, int numBytes) const
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(0 <= numBytes);
+
+    int y, m, d;
+    date().getYearMonthDay(&y, &m, &d);
+
+    const char *const month = MONTHS[m];
+    int hour, min, sec, mSec;
+    time().getTime(&hour, &min, &sec, &mSec);
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
+    return snprintf(result,
+                    numBytes,
+                    "%02d%s%04d_%02d:%02d:%02d.%03d",
+                    d,
+                    month,
+                    y,
+                    hour,
+                    min,
+                    sec,
+                    mSec);
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#undef snprintf
+#endif
+
 }
 
 // FREE OPERATORS
