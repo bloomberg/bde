@@ -1092,45 +1092,101 @@ int main(int argc, char *argv[])
       } break;
     case 13: {
         // --------------------------------------------------------------------
-        // BASIC MEMORY ALLOCATION TEST
+        // 'poolTimerMemory' PERFORMANCE TESTING
+        //
+        // Concerns:
+        //: 1 Using the 'poolTimerMemory' flag while constructing a time
+        //:   queue provides a performance benefit.
         //
         // Plan:
+        //: 1 Specify two constant values, 'NUM_INNER_ITERATIONS' and
+        //:   'NUM_OUTER_TRANSITIONS' specifying the number of timers to be
+        //:   registered in a batch and how many such batches should be
+        //:   registered respectively.
+        //:
+        //: 2 Starting from 'now' construct a set of random timers ('timers')
+        //:   that will be registered with the time queue.
+        //:
+        //: 3 Identify intermediate times ('popTimes') when timers will be
+        //:   popped from the time queue.
+        //:
+        //: 4 Create a time queue, 'X', without specifying the
+        //:   'poolTimerMemory' flag, and specifying a test allocator.  For
+        //:   each value from [0..NUM_OUTER_ITERATIONS]:
+        //:
+        //:   1 Start a stop watch to record the time taken.
+        //:
+        //:   2 Add 'NUM_INNER_ITERATIONS' timers from the 'timers' vector.
+        //:
+        //:   3 Sleep for a certain interval to let the timers expire.
+        //:
+        //:   4 Pop all timers that have expired.
+        //:
+        //:   5 Stop the stop watch and record elapsed time.
+        //:
+        //: 5 Repeat Plan-4.1-5 for a time queue created by specifying the
+        //:   'poolTimerMemory' flag.
+        //:
+        //: 6 In verbose mode print out the time taken by both time queues and
+        //:   also the memory allocation characteristics as specified by their
+        //:   respective test allocators.
         //
         // Testing:
+        //   'poolTimerMemory' flag performance testing
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "Basic memory allocation test" << endl
-                 << "============================" << endl;
+                 << "Performance test using 'poolTimerMemory' flag" << endl
+                 << "=============================================" << endl;
 
         const char VA[] = "A";
+
+#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_SOLARIS)
+        // Specifying larger number of iterations causes these platforms to
+        // take a really long time to complete the test.
+
         const int NUM_OUTER_ITERATIONS = 1000;
         const int NUM_INNER_ITERATIONS = 50;
-        bslma_TestAllocator na1, na2, scratch;
+#else
+        const int NUM_OUTER_ITERATIONS = 10000;
+        const int NUM_INNER_ITERATIONS = 100;
+#endif
+        bslma_TestAllocator na1, na2;
 
-        bsls_Stopwatch s;
-        bdet_TimeInterval TIME = bdetu_SystemTime::now() + 10000;
+        const int NUM_TOTAL_ITERATIONS =
+                                   NUM_OUTER_ITERATIONS * NUM_INNER_ITERATIONS;
 
-        int               isNewTop;
-        bdet_TimeInterval newMinTime;
-        int               newLength;
-        vector<int>       handles(NUM_INNER_ITERATIONS * NUM_OUTER_ITERATIONS);
-        vector<Item>      items(NUM_INNER_ITERATIONS * NUM_OUTER_ITERATIONS);
+        bdet_TimeInterval         TIME = bdetu_SystemTime::now();
+        int                       isNewTop;
+        bdet_TimeInterval         newMinTime;
+        int                       newLength;
+        vector<int>               handles(NUM_TOTAL_ITERATIONS);
+        vector<Item>              items(NUM_TOTAL_ITERATIONS);
+        vector<bdet_TimeInterval> timers(NUM_TOTAL_ITERATIONS, TIME);
+        vector<bdet_TimeInterval> popTimes(NUM_OUTER_ITERATIONS, TIME);
 
         srand(time(0));
+
+        for (int i = 0, k = 0; i < NUM_OUTER_ITERATIONS; ++i) {
+            for (int j = 0; j < NUM_INNER_ITERATIONS; ++j, ++k) {
+                timers[k].addMilliseconds(rand() % NUM_TOTAL_ITERATIONS);
+            }
+            popTimes[i].addMilliseconds(i * NUM_INNER_ITERATIONS);
+        }
+
+        bsls_Stopwatch s;
         s.start();
         {
             Obj mX(&na1); const Obj& X = mX;
             for (int j = 0, t = 0; j < NUM_OUTER_ITERATIONS; ++j) {
                 for (int k = 0; k < NUM_INNER_ITERATIONS; ++k, ++t) {
-                    int handle;
-                    handle = mX.add(TIME + t, VA, &isNewTop, &newLength);
-                    handles[k] = handle;
+                    handles[k] = mX.add(timers[k], VA, &isNewTop, &newLength);
                 }
 
-                const int LEN = rand() % t;
-                mX.popLE(TIME + LEN, &items, &newLength, &newMinTime);
+                bcemt_ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
+
+                mX.popLE(popTimes[j], &items, &newLength, &newMinTime);
             }
         }
         s.stop();
@@ -1139,22 +1195,18 @@ int main(int argc, char *argv[])
             P(s.elapsedTime())
         }
 
-        TIME = bdetu_SystemTime::now() + 10000;
-
         s.reset();
         s.start();
         {
             Obj mX(true, &na2); const Obj& X = mX;
             for (int j = 0, t = 0; j < NUM_OUTER_ITERATIONS; ++j) {
                 for (int k = 0; k < NUM_INNER_ITERATIONS; ++k, ++t) {
-                    int handle;
-                    handle = mX.add(TIME + t,
-                                    VA, &isNewTop, &newLength);
-                    handles[k] = handle;
+                    handles[k] = mX.add(timers[k], VA, &isNewTop, &newLength);
                 }
 
-                const int LEN = rand() % t;
-                mX.popLE(TIME + LEN, &items, &newLength, &newMinTime);
+                bcemt_ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
+
+                mX.popLE(popTimes[j], &items, &newLength, &newMinTime);
             }
         }
         s.stop();
