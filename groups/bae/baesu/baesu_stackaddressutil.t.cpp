@@ -608,7 +608,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\tgetStackAddresses" << endl;
             {
-                void *buf[0];
+                void *buf[1];
                 ASSERT_PASS(baesu_StackAddressUtil::getStackAddresses(buf, 0));
                 ASSERT_FAIL(
                            baesu_StackAddressUtil::getStackAddresses(buf, -1));
