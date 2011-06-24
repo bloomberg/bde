@@ -882,7 +882,6 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
         if (d_timerQueue.length()) {
             const int SIZE = 4096;
             char      BUFFER[SIZE];
-            bsl::memset(BUFFER, 0, SIZE);
             bdema_BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
 
             bsl::vector<bcec_TimeQueueItem<bdef_Function<void (*)()> > >
