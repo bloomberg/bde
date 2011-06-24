@@ -63,14 +63,14 @@ BDES_IDENT("$Id: $")
 // 'loadStackTraceFrameStack' to load the information from the stack of the
 // current thread into the stack trace object.
 //
-// In this call to 'loadStackTraceFromStack', we use the default value of
-// 'maxFrames', which is at least 1024 and the default value for
-// 'demanglingPreferredFlag', which is 'true', meaning that the operation will
-// attempt to demangle function names.  Note that the object 'stackTrace' takes
-// very little room on the stack, and by default allocates most of its memory
-// directly from virtual memory without going through the heap, minimizing
-// potential complications due to stack-size limits and possible heap
-// corruption.
+// In this call to 'loadStackTraceFromStack', neither of the optional arguments
+// corresponding to 'maxFrames' or 'demanglingPreferredFlag' are supplied;
+// 'maxFrames' defaults to at least 1024 (which is more than we need), and
+// 'demanglingPreferredFlag' defaults to 'true'.  Note that the object
+// 'stackTrace' takes very little room on the stack, and by default allocates
+// most of its memory directly from virtual memory without going through the
+// heap, minimizing potential complications due to stack-size limits and
+// possible heap corruption.
 //..
 //      baesu_StackTrace stackTrace;
 //      int rc = baesu_StackTraceUtil::loadStackTraceFromStack(&stackTrace);
@@ -82,8 +82,7 @@ BDES_IDENT("$Id: $")
 //      baesu_StackTraceUtil::printFormatted(*out_p, stackTrace);
 //  }
 //..
-// The output from the preceding example on Solaris is as follows (lines have
-// been truncated to fit a 79 column source file).
+// The output from the preceding example on Solaris is as follows:
 //..
 // (0): traceExample1()+0x28 at 0x327d0 in baesu_stacktraceutil.t.dbg_exc_mt
 // (1): recurseExample1(int*)+0x54 at 0x32e30 in baesu_stacktraceutil.t.dbg_exc
@@ -94,8 +93,9 @@ BDES_IDENT("$Id: $")
 // (6): main+0x24c at 0x36c10 in baesu_stacktraceutil.t.dbg_exc_mt
 // (7): _start+0x5c at 0x31d4c in baesu_stacktraceutil.t.dbg_exc_mt
 //..
-// Note that on AIX or Windows, source file name and line number information
-// will also be displayed.
+// Note the lines have been truncated to fit this 79 column source file, and
+// that on AIX or Windows, source file name and line number information will
+// also be displayed.
 //
 ///Example 2: Loading a Stack Trace From an Array of Stack Addresses
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -128,27 +128,31 @@ BDES_IDENT("$Id: $")
 //      ++*depth;   // Prevent compiler from optimizing tail recursion as a
 //                  // loop.
 //  }
-//
+//..
+// Then, we define 'traceExample2', which will print a trace of the current
+// function-call stack to 'cout':
+//..
 //  void traceExample2()
 //  {
 //..
-// Then, within 'traceExample2', we create a stack trace object and an array
+// Next, within 'traceExample2', we create a stack trace object and an array
 // 'addresses' to hold some addresses.
 //..
 //      baesu_StackTrace stackTrace;
 //      enum { ARRAY_LENGTH = 50 };
 //      void *addresses[ARRAY_LENGTH];
 //..
-// Next, we call 'baesu_StackAddressUtil::getStackAddresses' to get the stored
+// Then, we call 'baesu_StackAddressUtil::getStackAddresses' to get the stored
 // return addresses from the stack and load them into the array 'addresses'.
 // The call returns the number of addresses saved into the array, which will be
-// less than or equal to 'ARRAY_LENGTH'.
+// less than or equal to the value supplied for the 'maxFrames' argument (in
+// this case 'ARRAY_LENGTH').
 //..
 //      int numAddresses = baesu_StackAddressUtil::getStackAddresses(
 //                                                           addresses,
 //                                                           ARRAY_LENGTH);
 //..
-// Then, we call 'loadStackTraceFromAddressArray' to initialize the information
+// Now, we call 'loadStackTraceFromAddressArray' to initialize the information
 // in the stack trace object, such as function names, source file names, and
 // line numbers, if they are available.  The optional argument,
 // 'demanglingPreferredFlag', defaults to 'true'.
@@ -159,11 +163,11 @@ BDES_IDENT("$Id: $")
 //                                                               numAddresses);
 //      assert(0 == rc);
 //..
-// Finally, we can print out the stack trace object using 'printFormatted', or
-// iterate through the stack trace frames, printing them out one by one.  In
-// this example, we want instead to output only function names, and not line
-// numbers, source file names, or library names, so we iterate through the
-// stack trace frames and print out only the properties we want.
+// Finally, we could print out the stack trace object using 'printFormatted',
+// or iterate through the stack trace frames, printing them out one by one.  In
+// this example, we choose to output only function names, and not line numbers,
+// source file names, or library names, so we iterate through the stack trace
+// frames and print out only the properties we want.
 //..
 //      for (int i = 0; i < stackTrace.length(); ++i) {
 //          const baesu_StackTraceFrame& frame = stackTrace[i];
