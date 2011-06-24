@@ -2194,7 +2194,7 @@ int main(int argc, char *argv[])
             const T1& utcOffsetInSeconds = X.utcOffsetInSeconds();
             LOOP2_ASSERT(A1, utcOffsetInSeconds, A1 == utcOffsetInSeconds);
 
-            ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
+            ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
 
         if (veryVerbose) { T_ Q(dstInEffectFlag) }
@@ -2206,7 +2206,7 @@ int main(int argc, char *argv[])
             const T2& dstInEffectFlag = X.dstInEffectFlag();
             LOOP2_ASSERT(A2, dstInEffectFlag, A2 == dstInEffectFlag);
 
-            ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
+            ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
 
         if (veryVerbose) { T_ Q(description) }
@@ -2218,7 +2218,7 @@ int main(int argc, char *argv[])
             const T3& description = X.description();
             LOOP2_ASSERT(A3, description, A3 == description);
 
-            ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
+            ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
 
         // Double check that some object memory was allocated.

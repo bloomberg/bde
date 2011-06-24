@@ -293,7 +293,7 @@ bool operator==(const baetzo_LocalTimeDescriptor& lhs,
                 const baetzo_LocalTimeDescriptor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'baetzo_LocalTimeDescriptor' objects
-    // have the same value if the corresponding values of their
+    // have the same value if all of the corresponding values of their
     // 'utcOffsetInSeconds', 'dstInEffectFlag', and 'description' attributes
     // are the same.
 
@@ -301,7 +301,7 @@ bool operator!=(const baetzo_LocalTimeDescriptor& lhs,
                 const baetzo_LocalTimeDescriptor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'baetzo_LocalTimeDescriptor'
-    // objects do not have the same value if the corresponding values of
+    // objects do not have the same value if any of the corresponding values of
     // their 'utcOffsetInSeconds', 'dstInEffectFlag', or 'description'
     // attributes are not the same.
 
@@ -465,7 +465,9 @@ inline
 bool operator!=(const baetzo_LocalTimeDescriptor& lhs,
                 const baetzo_LocalTimeDescriptor& rhs)
 {
-    return !(lhs == rhs);
+    return lhs.utcOffsetInSeconds() != rhs.utcOffsetInSeconds()
+        || lhs.dstInEffectFlag()    != rhs.dstInEffectFlag()
+        || lhs.description()        != rhs.description();
 }
 
 // FREE FUNCTIONS
