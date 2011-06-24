@@ -623,6 +623,150 @@ void populateMessage(bcema_Blob      *msg,
 }
 
 //-----------------------------------------------------------------------------
+// CASE 37
+//-----------------------------------------------------------------------------
+
+namespace CASE37 {
+
+Obj       *channelPool;
+int        channelId;
+onst int  CACHE_HI_WAT = 6000;
+bcemt_Barrier *barrier;
+
+void poolStateCb(int            state,
+                 int            source,
+                 int            severity)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              serverId,
+                    int              state,
+                    void            *arg,
+                    int             *id,
+                    bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Channel state callback called with"
+                  << " Channel Id: " << channelId
+                  << " Server Id: "  << serverId
+                  << " State: " << state << bsl::endl;
+    }
+    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
+        *id = channelId;
+        barrier->wait();
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     bcema_Blob      *msg,
+                     int              channelId,
+                     void            *arg)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Blob Based Read Cb called with"
+                  << " Channel Id: " << channelId
+                  << " of length: "  << msg->length() << bsl::endl;
+    }
+    *needed = 1;
+    msg->removeAll();
+}
+
+int write(int nBytes)
+{
+    bcema_Blob blob(&blobFactory);
+    blob.setLength(nBytes);
+    return channelPool->write(channelId, blob);
+}
+
+enum  {
+    ERROR_IMPOSSIBLE_WRITE_SUCCEEDED = 1,
+    ERROR_MAX_POSSIBLE_WRITE_FAILED = 2
+};
+
+int check()
+{
+    int rc;
+
+    // try to write too much
+
+    rc = write(CACHE_HI_WAT + 1);
+    MTLOOP_ASSERT(rc, rc);
+    if (!rc) return ERROR_IMPOSSIBLE_WRITE_SUCCEEDED;
+
+    // try to write max possible
+
+    rc = write(CACHE_HI_WAT);
+    MTLOOP_ASSERT(rc, !rc);
+    if (rc) return ERROR_MAX_POSSIBLE_WRITE_FAILED;
+
+    return 0;
+}
+
+void delay(int delay)
+{
+    int i;
+    for (i = 0; i < delay; ++i);
+}
+
+// signal allow writer threads to start writing from the same time (to
+// increase concurrency), barrier could be another way but might be too heavy.
+
+static bces_AtomicInt sig = 0;
+void signalerThread()
+{
+    while(1) {
+        ++sig;
+
+        delay(delayBetweenWrites);
+    }
+}
+
+void writerThread(unsigned threadIndex)
+{
+    int failures = 0;
+    int consecutiveFailures = 0;
+    int iter;
+    int oldSignal = 0;
+
+    bcema_Blob blob(&blobFactory);
+    for (iter = 0; iter < maxWritesPerThread &&
+                   consecutiveFailures < maxConsecutiveFailures; ++iter) {
+
+        int randVal = rand_r(&threadIndex);
+        int nBytes  = minMsgSize + randVal % (maxMsgSize - minMsgSize + 1);
+        blob.setLength(nBytes);
+
+        while(sig <= oldSignal);
+        oldSignal = sig;
+
+        int rc = channelPool->write(channelId, blob);
+        MTLOOP_ASSERT(rc, !rc);
+
+        if (rc == 0) {
+            consecutiveFailures = 0;
+        }
+        else {
+            ++consecutiveFailures;
+            ++failures;
+        }
+    }
+
+    barrier->wait();
+}
+
+}
+
+//-----------------------------------------------------------------------------
 // CASE 36
 //-----------------------------------------------------------------------------
 
@@ -7661,15 +7805,104 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 37: {
+        using namespace CASE37;
+
+        btemt_ChannelPoolConfiguration config;
+        config.setMaxThreads(1);
+        config.setMaxConnections(100);
+        config.setReadTimeout(5.0);       // in seconds
+        config.setMetricsInterval(10.0);  // seconds
+        config.setWriteCacheWatermarks(0, CACHE_HI_WAT);
+        if (verbose) {
+          P(config);
+        }
+
+        bcemt_Barrier channelCbBarrier(2);
+        btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                       bdef_BindUtil::bind(&channelStateCb,
+                                                           _1, _2, _3, _4,
+                                                           &channelId,
+                                                           &channelCbBarrier));
+
+        btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+        btemt_ChannelPool::BlobBasedReadCallback dataCb(&blobBasedReadCb);
+
+        const int SIZE = 1024;
+        bcema_PooledBlobBufferFactory f(SIZE);
+        bcema_Blob b(&f);
+
+        btemt_ChannelPool mX(channelCb, dataCb, poolCb, config);
+        btemt_ChannelPool mY(channelCb, dataCb, poolCb, config);
+
+        channelPool = &mY;
+
+        ASSERT(0 == mX.start());
+        ASSERT(0 == mY.start());
+
+        bteso_IPv4Address serverAddr;
+        const int SOURCE_ID = 1700;
+        const int SERVER_ID = 1701;
+
+        ASSERT(0 == mX.listen(serverAddr, 5, SERVER_ID));
+
+        ASSERT(0 == mX.getServerAddress(&serverAddr, SERVER_ID));
+
+        int rc = mY.connect(serverAddr,
+                            5,
+                            bdet_TimeInterval(1),
+                            SOURCE_ID);
+        ASSERT(!rc);
+
+        channelCbBarrier.wait();
+        channelCbBarrier.wait();
+
+        const int NT = 5;
+        bcemt_Barrier currBarrier(NT + 1);
+        barrier = &currBarrier;
+
+        // signalerThread
+        bcemt_ThreadUtil::Handle handle;
+        rc = bcemt_ThreadUtil::create(&handle, &signalerThread);
+        ASSERT(!rc);
+
+        // fork threads
+        for (int i = 0; i < NT; ++i) {
+          bcemt_ThreadUtil::Handle handle;
+          rc = bcemt_ThreadUtil::create(&handle,
+                                        bdef_BindUtil::bind(&writerThread, i));
+          ASSERT(!rc);
+        }
+         
+      } break;
       case 36: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 25245489
         //
         // Concerns:
+        //: 1 The writeMessage contained a race condition where two threads
+        //:   when writing at the same time could concurrently be updating the
+        //:   internal 'd_writeCacheSize' variable (which controls the size
+        //:   of the current write buffer), without synchronization resulting
+        //:   'd_writeCacheSize' containing an invalid value.  If the value
+        //:   exceeded the cache high watermark then writes would start
+        //:   failing.
         //
         // Plan:
+        //: Reproducing this bug was extremely difficult as this happens
+        //: within the implementation class 'btemt_Channel' and there is no
+        //: was no easy way to access it.  So we create multiple threads that
+        //: write random data on a channel with random intervals of spinning.
+        //: The hope is that with sufficient attempts the value of
+        //: 'd_writeCacheSize' would become invalid.  This condition can be
+        //: checked by trying to write data of length cache hi watermark (and 
+        //: then one plus the cache hi watermark).  The former should succeed
+        //: and the latter should fail.  If both conditions do not return the
+        //: expected return code then we have reproduced the bug.
         //
         // Testing:
+        //  DRQS 25245489
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nDRQS 25245489"
