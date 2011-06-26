@@ -177,7 +177,8 @@ using bsl::ostream;
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -281,18 +282,18 @@ struct DefaultDataRow {
 static
 const DefaultDataRow DEFAULT_DATA[] =
 {
-    //LINE MEM  ADDRESS \
-    //---- ---  --------\
-    //          LIB_FILE_NAME\
-    //          -------------\
-    //          LINENO\
-    //          ------\
-    //          MNGLD_SYM_NAME\
-    //          ---------------\
-    //          OFFSET\
-    //          ------\
-    //          SRC_FILE_NAME\
-    //          -------------\
+    //LINE MEM  ADDRESS
+    //---- ---  --------
+    //          LIB_FILE_NAME
+    //          -------------
+    //          LINENO
+    //          ------
+    //          MNGLD_SYM_NAME
+    //          --------------
+    //          OFFSET
+    //          ------
+    //          SRC_FILE_NAME
+    //          -------------
     //          SYM_NAME
     //          --------
 
@@ -612,7 +613,6 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 // JSL: change the name to 'bslma_TestAllocatorMonitor'.
 
 class bslma_TestAllocatorMonitor {
-    // TBD
 
     // DATA
     int                              d_lastInUse;
@@ -622,30 +622,23 @@ class bslma_TestAllocatorMonitor {
 
   public:
     // CREATORS
+    explicit
     bslma_TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
-        // TBD
 
     ~bslma_TestAllocatorMonitor();
-        // TBD
 
     // ACCESSORS
     bool isInUseSame() const;
-        // TBD
 
     bool isInUseUp() const;
-        // TBD
 
     bool isMaxSame() const;
-        // TBD
 
     bool isMaxUp() const;
-        // TBD
 
     bool isTotalSame() const;
-        // TBD
 
     bool isTotalUp() const;
-        // TBD
 };
 
 // CREATORS
@@ -668,8 +661,10 @@ bslma_TestAllocatorMonitor::~bslma_TestAllocatorMonitor()
 inline
 bool bslma_TestAllocatorMonitor::isInUseSame() const
 {
-#if TBD // Why cannot deallocate memory in use at monitor creation?
-        // Problem arose in swap-based assignment.
+#if 0
+    // Why cannot deallocate memory in use at monitor creation?
+    // Problem arose in swap-based assignment.
+
     BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
 #endif
 
@@ -1249,7 +1244,9 @@ int main(int argc, char *argv[])
                     if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
                         LOOP2_ASSERT(LINE1, LINE2, oam.isInUseUp());
                     }
-#if TBD // Inappropriate test for swap-based assignment
+#if 0
+                    // Inappropriate test for swap-based assignment
+
                     else if ('Y' == MEMDST2) {
                         LOOP2_ASSERT(LINE1, LINE2, oam.isInUseSame());
                     }
@@ -1556,7 +1553,7 @@ int main(int argc, char *argv[])
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int   LINE2           = DATA[tj].d_line;
-                const char  MEM2            = DATA[tj].d_mem;
+                // const char  MEM2            = DATA[tj].d_mem;
                 const T1    ADDRESS2        = DATA[tj].d_address;
                 const char *LIB_FILE_NAME2  = DATA[tj].d_libraryFileName;
                 const T3    LINENO2         = DATA[tj].d_lineNumber;

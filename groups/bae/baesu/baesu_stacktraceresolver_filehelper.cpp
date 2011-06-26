@@ -25,6 +25,8 @@ namespace BloombergLP {
 baesu_StackTraceResolver_FileHelper::baesu_StackTraceResolver_FileHelper(
                                                           const char *fileName)
 {
+    BSLS_ASSERT(fileName);
+
     d_fd = bdesu_FileUtil::open(fileName,
                                 false,    // not writable
                                 true);    // already exists
@@ -54,8 +56,8 @@ char *baesu_StackTraceResolver_FileHelper::loadString(
     // 0 terminated string, copy the string into it, and return a pointer to
     // the buffer.
 
-    BSLS_ASSERT_SAFE(scratchBuf);
-    BSLS_ASSERT_SAFE(scratchBufLength > 0);
+    BSLS_ASSERT(scratchBuf);
+    BSLS_ASSERT(scratchBufLength > 0);
 
     enum {
         START_LEN = 256
@@ -93,8 +95,8 @@ bsls_Types::UintPtr baesu_StackTraceResolver_FileHelper::readBytes(
                                                          UintPtr  numBytes,
                                                          Offset   offset) const
 {
-    BSLS_ASSERT_SAFE(buf);
-    BSLS_ASSERT_SAFE(offset >= 0);
+    BSLS_ASSERT(buf);
+    BSLS_ASSERT(offset >= 0);
 
     Offset seekDest = FileUtil::seek(d_fd,
                                      offset,

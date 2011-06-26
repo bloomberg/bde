@@ -145,12 +145,11 @@ unix-                   _       RETRY       = $(BDE_BINDIR)retry $(RETRY_OPT)
 !! unix-Cygwin          _       RETRY       =
 !! windows-             _       RETRY       =
 
-unix-                   _       RETRY_ON_EXIT   = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -x!0 --
+unix-                   _       RETRY_ON_EXIT   = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -x'!0' --
 !! unix-Cygwin          _       RETRY_ON_EXIT   =
 !! windows-             _       RETRY_ON_EXIT   =
 
-unix-                   _       RETRY_ON_SIGNAL = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -s!0 --
-
+unix-                   _       RETRY_ON_SIGNAL = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -s'!0' --
 !! unix-Cygwin          _       RETRY_ON_SIGNAL =
 !! windows-             _       RETRY_ON_SIGNAL =
 

@@ -8,15 +8,12 @@ BDES_IDENT_RCSID(baesu_stacktraceprintutil_cpp,"$Id$ $CSID$")
 #include <baesu_stacktrace.h>
 #include <baesu_stacktraceutil.h>
 
+#include <bsls_assert.h>
 #include <bsls_platform.h>
 
 #if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_OPT)
 #pragma optimize("", off)
 #endif
-
-// Note that the 'class' 'baesu_StackTrace' contains a pointer to a vector that
-// is owned, rather than containing the vector directly, so that the vector,
-// when created, can take a pointer to 'd_allocator'.
 
 namespace BloombergLP {
 
@@ -30,6 +27,8 @@ bsl::ostream& baesu_StackTracePrintUtil::printStackTrace(
                                          int           maxFrames,
                                          bool          demanglingPreferredFlag)
 {
+    BSLS_ASSERT(0 <= maxFrames || -1 == maxFrames);
+
     enum {
         DEFAULT_MAX_FRAMES = 1024,
         IGNORE_FRAMES      = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES
@@ -39,7 +38,9 @@ bsl::ostream& baesu_StackTracePrintUtil::printStackTrace(
         maxFrames = DEFAULT_MAX_FRAMES;
     }
 
-    // allocate extra frame(s) to be ignored
+    // The value 'IGNORE_FRAMES' indicates the number of additional frames to
+    // be ignored because they contained function calls within the stack trace
+    // facility.
 
     maxFrames += IGNORE_FRAMES;
 
@@ -53,8 +54,6 @@ bsl::ostream& baesu_StackTracePrintUtil::printStackTrace(
         stream << "Stack Trace: Internal Error getting stack addresses\n";
         return stream;                                                // RETURN
     }
-
-    // Throw away the first frame, since it refers to this routine.
 
     const int rc = baesu_StackTraceUtil::loadStackTraceFromAddressArray(
                                                   &st,
