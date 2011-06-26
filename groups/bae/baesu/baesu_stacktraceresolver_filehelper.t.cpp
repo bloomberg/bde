@@ -439,9 +439,9 @@ int main(int argc, char *argv[])
             {
                 char buf[1];
                 const Obj X(fileNameBuffer);
-                char *result;
+                char *result = 0;
                 ASSERT_PASS(result = X.loadString(0, buf, 1, &ta));
-                ta.deallocate(result);
+                if (result) ta.deallocate(result);
 
                 ASSERT_FAIL(result = X.loadString(0,   0, 1, &ta));
                 ASSERT_FAIL(result = X.loadString(0, buf, 0, &ta));
