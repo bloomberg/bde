@@ -258,7 +258,6 @@ const Element &V0 = VALUES[0],  &VA = V0, // 'V0', 'V1', ... are used in
               &V3 = VALUES[3],  &VD = V3, // 'VA', 'VB', ... are used in
               &V4 = VALUES[4],  &VE = V4; // conjunction with 'g' and 'gg'.
 
-
 // ============================================================================
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
@@ -1006,7 +1005,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL(swap(mA, mZ));
             }
         }
-
       }  break;
       case 18: {
         // --------------------------------------------------------------------
@@ -2993,13 +2991,13 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCopy construct values with varied representations." << endl;
         {
-            static const char *SPECS[] = { // len: 0 - 5, 7, 8, 9, 15, 16, 17
+            const char *SPECS[] = { // len: 0 - 5, 7, 8, 9, 15, 16, 17
                 "",      "A",      "BC",     "CDE",    "DEAB",   "EABCD",
                 "ABCDEAB",         "ABCDEABC",         "ABCDEABCD",
                 "ABCDEABCDEABCDE", "ABCDEABCDEABCDEA", "ABCDEABCDEABCDEAB",
             0}; // Null string required as last element.
 
-            static const int EXTEND[] = {
+            const int EXTEND[] = {
                 0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17
             };
             const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
@@ -3065,7 +3063,7 @@ int main(int argc, char *argv[])
                     {
                         if (veryVeryVerbose) { cout <<
                                             "\t\t\tBuffer Allocator" << endl; }
-                        char memory[1024 * 1024];
+                        char memory[128 * 1024];
                         bslma_BufferAllocator a(memory, sizeof memory);
                         Obj *Y = new(a.allocate(sizeof(Obj))) Obj(X, &a);
                         if (veryVerbose) { cout << "\t\t\t"; P(*Y); }
@@ -4515,7 +4513,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -4762,7 +4759,6 @@ int main(int argc, char *argv[])
         ASSERT((X4 == X4) == 1);          ASSERT((X4 != X4) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
