@@ -164,7 +164,7 @@ BSLS_IDENT("$Id$")
 //      if (0 != errno) {
 //          bslma_Allocator::throwBadAlloc();
 //      }
-//  #elif defined BSLS_PLATFORM__OS_SOLARIS
+//  #elif defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_HPUX)
 //      ret = memalign(alignment, size);
 //      if (0 == ret) {
 //          bslma_Allocator::throwBadAlloc();
