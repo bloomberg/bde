@@ -222,6 +222,30 @@ int baetzo_TimeZoneUtil::addInterval(
                                  utcTime);
 }
 
+
+int baetzo_TimeZoneUtil::validateLocalTime(
+                                            bool                   *result,
+                                            const bdet_DatetimeTz&  localTime,
+                                            const char             *timeZoneId)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(timeZoneId);
+
+    baetzo_LocalTimePeriod timePeriod;
+    int rc = loadLocalTimePeriodForUtc(&timePeriod,
+                                       timeZoneId,
+                                       localTime.gmtDatetime());
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    const int offset          = timePeriod.descriptor().utcOffsetInSeconds();
+    const int offsetInMinutes = offset / 60;
+
+    *result = (localTime.offset() == offsetInMinutes);
+    return 0;
+                                                                              }
+
 }  // close namespace BloombergLP
 
 // ----------------------------------------------------------------------------

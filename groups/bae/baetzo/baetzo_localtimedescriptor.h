@@ -61,48 +61,48 @@ BDES_IDENT("$Id: $")
 // First, we define a 'baetzo_LocalTimeDescriptor' object that characterizes
 // the local time in effect for New York Daylight-Saving Time in 2010:
 //..
-// enum { NEW_YORK_DST_OFFSET = -4 * 60 * 60 };  // -4 hours in seconds
+//  enum { NEW_YORK_DST_OFFSET = -4 * 60 * 60 };  // -4 hours in seconds
 //
-// baetzo_LocalTimeDescriptor newYorkDst(NEW_YORK_DST_OFFSET, true, "EDT");
+//  baetzo_LocalTimeDescriptor newYorkDst(NEW_YORK_DST_OFFSET, true, "EDT");
 //
-// assert(NEW_YORK_DST_OFFSET == newYorkDst.utcOffsetInSeconds());
-// assert(               true == newYorkDst.dstInEffectFlag());
-// assert(              "EDT" == newYorkDst.description());
+//  assert(NEW_YORK_DST_OFFSET == newYorkDst.utcOffsetInSeconds());
+//  assert(               true == newYorkDst.dstInEffectFlag());
+//  assert(              "EDT" == newYorkDst.description());
 //..
 // Then, we create a 'bdet_Datetime' representing the time
 // "Jul 20, 2010 11:00" in New York:
 //..
-// bdet_Datetime newYorkDatetime(2010, 7, 20, 11, 0, 0);
+//  bdet_Datetime newYorkDatetime(2010, 7, 20, 11, 0, 0);
 //..
 // Next, we convert 'newYorkDatetime' to its corresponding UTC value using the
 // 'newYorkDst' descriptor (created above); note that, when converting from a
 // local time to a UTC time, the *signed* offset from UTC is *subtracted* from
 // the local time:
 //..
-// bdet_Datetime utcDatetime = newYorkDatetime;
-// utcDatetime.addSeconds(-newYorkDst.utcOffsetInSeconds());
+//  bdet_Datetime utcDatetime = newYorkDatetime;
+//  utcDatetime.addSeconds(-newYorkDst.utcOffsetInSeconds());
 //..
 // Then, we verify that the result corresponds to the expected UTC time,
 // "Jul 20, 2010 15:00":
 //..
-// assert(bdet_Datetime(2010, 7, 20, 15, 0, 0) == utcDatetime);
+//  assert(bdet_Datetime(2010, 7, 20, 15, 0, 0) == utcDatetime);
 //..
 // Next, we define a 'baetzo_LocalTimeDescriptor' object that describes the
 // local time in effect for Rome in the summer of 2010:
 //..
-// enum { ROME_DST_OFFSET = 2 * 60 * 60 };  // 2 hours in seconds
+//  enum { ROME_DST_OFFSET = 2 * 60 * 60 };  // 2 hours in seconds
 //
-// baetzo_LocalTimeDescriptor romeDst(ROME_DST_OFFSET, true, "CEST");
+//  baetzo_LocalTimeDescriptor romeDst(ROME_DST_OFFSET, true, "CEST");
 //
-// assert(ROME_DST_OFFSET == romeDst.utcOffsetInSeconds());
-// assert(           true == romeDst.dstInEffectFlag());
-// assert(         "CEST" == romeDst.description());
+//  assert(ROME_DST_OFFSET == romeDst.utcOffsetInSeconds());
+//  assert(           true == romeDst.dstInEffectFlag());
+//  assert(         "CEST" == romeDst.description());
 //..
 // Now, we convert 'utcDatetime' to its corresponding local-time value in Rome
 // using the 'romeDst' descriptor (created above):
 //..
-// bdet_Datetime romeDatetime = utcDatetime;
-// romeDatetime.addSeconds(romeDst.utcOffsetInSeconds());
+//  bdet_Datetime romeDatetime = utcDatetime;
+//  romeDatetime.addSeconds(romeDst.utcOffsetInSeconds());
 //..
 // Notice that, when converting from UTC time to local time, the signed
 // offset from UTC is *added* to UTC time rather than subtracted.
@@ -110,7 +110,7 @@ BDES_IDENT("$Id: $")
 // Finally, we verify that the result corresponds to the expected local time,
 // "Jul 20, 2010 17:00":
 //..
-// assert(bdet_Datetime(2010, 7, 20, 17, 0, 0) == romeDatetime);
+//  assert(bdet_Datetime(2010, 7, 20, 17, 0, 0) == romeDatetime);
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -156,9 +156,9 @@ class baetzo_LocalTimeDescriptor {
     // invariants are identically the constraints on the individual attributes.
     //
     // This class:
-    //: o supports a complete set of *value* *semantic* operations
+    //: o supports a complete set of *value-semantic* operations
     //:   o except for 'bdex' serialization
-    //: o is *exception-neutral*
+    //: o is *exception-neutral* (agnostic) TBD 
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
     // For terminology see 'bsldoc_glossary'.
@@ -198,7 +198,7 @@ class baetzo_LocalTimeDescriptor {
                                bool                    dstInEffectFlag,
                                const bdeut_StringRef&  description,
                                bslma_Allocator        *basicAllocator = 0);
-        // Create a local time descriptor object having the specified
+        // Create a 'baetzo_LocalTimeDescriptor' object having the specified
         // 'utcOffsetInSeconds', 'dstInEffectFlag', and 'description' attribute
         // values.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -242,6 +242,8 @@ class baetzo_LocalTimeDescriptor {
         // specified 'value'.  The behavior is undefined unless
         // '-86399 <= value <= 86399'.
 
+                                  // Aspects
+
     void swap(baetzo_LocalTimeDescriptor& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
@@ -267,7 +269,7 @@ class baetzo_LocalTimeDescriptor {
         // Return the value of the 'utcOffsetInSeconds' attribute of this
         // object.  Note that this value is in the range '[-86399 .. 86399]'.
 
-                        // Aspects
+                                  // Aspects
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -382,7 +384,8 @@ inline
 baetzo_LocalTimeDescriptor& baetzo_LocalTimeDescriptor::operator=(
                                          const baetzo_LocalTimeDescriptor& rhs)
 {
-    d_description        = rhs.d_description;  // must be first
+    d_description        = rhs.d_description;         // first for strong
+                                                      // exception guarantee
     d_utcOffsetInSeconds = rhs.d_utcOffsetInSeconds;
     d_dstInEffectFlag    = rhs.d_dstInEffectFlag;
     return *this;
@@ -411,11 +414,11 @@ void baetzo_LocalTimeDescriptor::setUtcOffsetInSeconds(int value)
     d_utcOffsetInSeconds = value;
 }
 
+                                  // Aspects
+
 inline
 void baetzo_LocalTimeDescriptor::swap(baetzo_LocalTimeDescriptor& other)
 {
-    // 'swap' is undefined for objects with non-equal allocators.
-
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
     bsl::swap(d_description,        other.d_description);
@@ -476,11 +479,11 @@ void swap(baetzo_LocalTimeDescriptor& a, baetzo_LocalTimeDescriptor& b)
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
