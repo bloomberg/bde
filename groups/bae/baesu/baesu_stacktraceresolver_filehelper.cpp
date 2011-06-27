@@ -71,18 +71,19 @@ char *baesu_StackTraceResolver_FileHelper::loadString(
             readLen = maxString;
         }
 
-        int bytes = readBytes(scratchBuf, readLen, offset);
-        if (bytes <= 0) {
+        UintPtr bytes = readBytes(scratchBuf, readLen, offset);
+        if (0 == bytes) {
             // We can't read.  Return "".
 
             stringLen = 0;
             break;
         }
 
-        BSLS_ASSERT(bytes <= readLen);
+        BSLS_ASSERT((int) bytes <= readLen);
         scratchBuf[bytes] = 0;
-        stringLen = bsl::strlen(scratchBuf);
-        if (stringLen < bytes || bytes < readLen || maxString == readLen) {
+        stringLen = (int) bsl::strlen(scratchBuf);
+        if (stringLen < (int) bytes || (int) bytes < readLen ||
+                                                        maxString == readLen) {
             break;
         }
     }
@@ -105,7 +106,7 @@ bsls_Types::UintPtr baesu_StackTraceResolver_FileHelper::readBytes(
         return 0;                                                     // RETURN
     }
 
-    IntPtr res = FileUtil::read(d_fd, buf, numBytes);
+    int res = FileUtil::read(d_fd, buf, (int) numBytes);
     return (res <= 0 ? 0 : res);
 }
 
