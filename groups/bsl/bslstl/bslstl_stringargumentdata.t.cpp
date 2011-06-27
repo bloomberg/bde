@@ -18,14 +18,20 @@ using namespace BloombergLP;
 // The component under test provides an in-core pointer-semantic object.
 //-----------------------------------------------------------------------------
 // CREATORS
+// [ 2] bslstl_StringArgumentData();
+// [ 2] bslstl_StringArgumentData(const char *begin, const char *end);
+// [ 7] bslstl_StringArgumentData(const bslstl_StringArgumentData& other);
 //
 // MANIPULATORS
+// [ 9] operator=(const bslstl_StringArgumentData& other);
 //
 // ACCESSORS
+// [ 3] const_iterator begin() const;
+// [ 3] const_iterator end() const;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE
+// [10] USAGE EXAMPLE
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACROS
@@ -151,7 +157,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 99: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -182,8 +188,7 @@ int main(int argc, char *argv[])
         // TESTING ASSIGNMENT OPERATOR:
         //
         // Testing:
-        //   bslstl_StringArgumentData& operator=(
-        //                             const bslstl_StringArgumentData& other);
+        //   operator=(const bslstl_StringArgumentData& other);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting the copy-assignment operator"
@@ -275,8 +280,8 @@ int main(int argc, char *argv[])
         // TESTING DIRECT ACCESSORS:
         //
         // Testing:
-        //      const_iterator begin() const;
-        //      const_iterator end() const;
+        //   const_iterator begin() const;
+        //   const_iterator end() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting direct accessors"
@@ -312,7 +317,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING BASIC MANIPULATORS (BOOTSTRAP):
+        // TESTING BASIC MANIPULATORS:
         //
         // Testing:
         //   bslstl_StringArgumentData();
