@@ -11,8 +11,10 @@ namespace BloombergLP {
 #ifdef BSLS_PLATFORM__CPU_POWERPC
 
 /// IMPLEMENTATION NOTES
-///- - - - - - - - - - -
+///---------------------
 //
+///64-bit Integer Arguments
+/// - - - - - - - - - - - -
 // In 32bit mode on PowerPC, 64bit arguments are passed in two consecutive
 // registers.  Functions implemented in xlC inline assembly that receive 64bit
 // arguments need to load both parts of a 64bit value from two separate
@@ -32,7 +34,9 @@ namespace BloombergLP {
 //   bces_AtomicUtilImpl_PowerpcSetInt64
 //   bces_AtomicUtilImpl_PowerpcAddInt64
 //
-// Use of PowerPC synchronizaion instructions to implement memory consistency
+///Use of 'sync' Vs. 'isync'
+/// - - - - - - - - - - - - - 
+// Use of PowerPC synchronization instructions to implement memory consistency
 // guarantees: the PowerPC architecture manual may imply that the lightweight
 // 'isync' instruction may be sufficient to achieve the sequential memory
 // consistency guarantee instead of a heavyweight 'sync' instruction.  However
