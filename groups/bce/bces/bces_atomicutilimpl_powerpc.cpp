@@ -10,6 +10,41 @@ namespace BloombergLP {
 
 #ifdef BSLS_PLATFORM__CPU_POWERPC
 
+/// IMPLEMENTATION NOTES
+///- - - - - - - - - - -
+//
+// In 32bit mode on PowerPC, 64bit arguments are passed in two consecutive
+// registers.  Functions implemented in xlC inline assembly that receive 64bit
+// arguments need to load both parts of a 64bit value from two separate
+// registers into a single register.  But it's not possible to accomplish
+// directly using the xlC inline assembly because it requires mapping a single
+// 64bit argument to a pair of registers and xlC doesn't support it.  To work
+// around this limitation, the following trick is used.  A function gets
+// declared with a prototype having one 64bit parameter, but implemented with a
+// prototype having two 32bit parameters.  The function declaration and the
+// implementation have different parameter types, and in order for them to link
+// correctly, the parameter type information needs to be erased.  This is
+// accomplished with the 'EXTERN_C_32' macro, which in 32bit mode declares the
+// function as 'extern "C"' and removes the types of parameters from its
+// prototype.
+//
+// For example, see functions:
+//   bces_AtomicUtilImpl_PowerpcSetInt64
+//   bces_AtomicUtilImpl_PowerpcAddInt64
+//
+// Use of PowerPC synchronizaion instructions to implement memory consistency
+// guarantees: the PowerPC architecture manual may imply that the lightweight
+// 'isync' instruction may be sufficient to achieve the sequential memory
+// consistency guarantee instead of a heavyweight 'sync' instruction.  However
+// there are subtle issues and bugs in the architecture that effectively
+// require the use of 'sync'.  See the following two documents for the
+// blueprint implementations of the C++ memory consistency guarantees on the
+// PowerPC platform:
+//
+// http://www.rdrop.com/users/paulmck/scalability/paper/N2745r.2011.03.04a.html
+// http://www.rdrop.com/users/paulmck/scalability/paper/
+//                                                    N2745rP5.2010.02.19a.html
+
         // *** both 32 and 64 bit implementations ***
 
 extern "C"
