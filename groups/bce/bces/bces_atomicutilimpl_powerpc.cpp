@@ -35,7 +35,7 @@ namespace BloombergLP {
 //   bces_AtomicUtilImpl_PowerpcAddInt64
 //
 ///Use of 'sync' Vs. 'isync'
-/// - - - - - - - - - - - - - 
+///- - - - - - - - - - - - -
 // Use of PowerPC synchronization instructions to implement memory consistency
 // guarantees: the PowerPC architecture manual may imply that the lightweight
 // 'isync' instruction may be sufficient to achieve the sequential memory
