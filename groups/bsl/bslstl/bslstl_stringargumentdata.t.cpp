@@ -29,6 +29,10 @@ using namespace BloombergLP;
 // [ 3] const_iterator begin() const;
 // [ 3] const_iterator end() const;
 //
+// FREE OPERATORS
+// [ 5] bool operator==(const StringArgumentData& lhs, rhs);
+// [ 5] bool operator!=(const StringArgumentData& lhs, rhs);
+//
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] USAGE EXAMPLE
@@ -180,8 +184,6 @@ int main(int argc, char *argv[])
         size_t hash = computeHash(bslstl_StringArgumentData<char>(
                                                       str, str + sizeof(str)));
         ASSERT(hash == 3354902561U);
-
-        printf("%u\n", hash);
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -272,6 +274,61 @@ int main(int argc, char *argv[])
       case 6: {
       } break;
       case 5: {
+        // --------------------------------------------------------------------
+        // TESTING COMPARISON OPERATORS:
+        //
+        // Testing:
+        //   bool operator==(const StringArgumentData& lhs, rhs);
+        //   bool operator!=(const StringArgumentData& lhs, rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Comparison Operators"
+                            "\n============================\n");
+
+        static const struct {
+            int         d_line;
+            const char *d_str;
+        } DATA[] = {
+            //line string
+            //---- ------
+
+            { L_,  ""                           },
+            { L_,  "a"                          },
+            { L_,  "aa"                         },
+            { L_,  "aaa"                        },
+            { L_,  "aaaa"                       },
+            { L_,  "aaaaa"                      },
+            { L_,  "aaaaaa"                     },
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int LINE = DATA[i].d_line;
+            const char *STR = DATA[i].d_str;
+
+            bslstl_StringArgumentData<char> X(STR, STR + strlen(STR));
+            bslstl_StringArgumentData<char> Y(STR, STR + strlen(STR));
+
+            // test 'operator=='
+            LOOP_ASSERT(LINE, X == Y);
+
+            // modify values slightly
+            bslstl_StringArgumentData<char> Y1(STR, STR + strlen(STR) - 1);
+            LOOP_ASSERT(LINE, X != Y1);
+
+            bslstl_StringArgumentData<char> Y2(STR + 1, STR + strlen(STR) - 1);
+            LOOP_ASSERT(LINE, X != Y2);
+
+            // compare with a previous value
+            if (i > 0) {
+                const char *STRPREV = DATA[i - 1].d_str;
+                bslstl_StringArgumentData<char> Z(STRPREV,
+                                                  STRPREV + strlen(STRPREV));
+
+                LOOP_ASSERT(LINE, X != Z);
+            }
+        }
       } break;
       case 4: {
       } break;

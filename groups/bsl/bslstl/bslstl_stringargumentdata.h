@@ -77,6 +77,19 @@ class bslstl_StringArgumentData
         // value can be 'NULL, in which case 'begin()' returns 'NULL' as well.
 };
 
+// FREE OPERATORS
+template <typename CHAR_TYPE>
+bool operator==(const bslstl_StringArgumentData<CHAR_TYPE>& lhs,
+                const bslstl_StringArgumentData<CHAR_TYPE>& rhs);
+    // Return 'true' if the 'begin' and 'end' pointers of 'lhs' and 'rhs'
+    // compare equal and 'false' otherwise.
+
+template <typename CHAR_TYPE>
+bool operator!=(const bslstl_StringArgumentData<CHAR_TYPE>& lhs,
+                const bslstl_StringArgumentData<CHAR_TYPE>& rhs);
+    // Return 'true' if either the 'begin' or 'end' pointers of 'lhs' and 'rhs'
+    // do not compare equal and 'false' otherwise.
+
 // ==========================================================================
 //                      TEMPLATE FUNCTION DEFINITIONS
 // ==========================================================================
@@ -119,6 +132,23 @@ inline
 const CHAR_TYPE *bslstl_StringArgumentData<CHAR_TYPE>::end() const
 {
     return d_end;
+}
+
+// FREE OPERATORS
+template <typename CHAR_TYPE>
+inline
+bool operator==(const bslstl_StringArgumentData<CHAR_TYPE>& lhs,
+                const bslstl_StringArgumentData<CHAR_TYPE>& rhs)
+{
+    return lhs.begin() == rhs.begin() && lhs.end() == rhs.end();
+}
+
+template <typename CHAR_TYPE>
+inline
+bool operator!=(const bslstl_StringArgumentData<CHAR_TYPE>& lhs,
+                const bslstl_StringArgumentData<CHAR_TYPE>& rhs)
+{
+    return !(lhs == rhs);
 }
 
 }  // close enterprise namespace
