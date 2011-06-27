@@ -1050,13 +1050,13 @@ void bottom(bslma_Allocator *alloc)
                                     // Usage 2
                                     // -------
 
-// Example 2: Loading a Stack Trace From an Array of Stack Addresses.
+// Example 2: Loading a Stack-Trace From an Array of Stack Addresses.
 
 // In this example, we demonstrate obtaining return addresses from the stack
 // using 'baesu_StackAddressUtil', and later using them to load a
 // 'baesu_StackTrace' object with a description of the stack.  This approach
 // may be desirable if one wants to quickly save the addresses that are the
-// basis for a stack trace, postponing the more time-consuming translation of
+// basis for a stack-trace, postponing the more time-consuming translation of
 // those addresses to more human-readable debug information until later.  To do
 // this, we create an array of pointers to hold the return addresses from the
 // stack, which may not be desirable if we are in a situation where there isn't
@@ -1069,7 +1069,7 @@ void traceExample2();    // forward declaration
 
 static void recurseExample2(int *depth)
     // Recurse the specified 'depth' number of times, then call
-    // 'traceExample2', which will print a stack trace.
+    // 'traceExample2', which will print a stack-trace.
 {
     if (--*depth > 0) {
         recurseExample2(depth);
@@ -1084,7 +1084,7 @@ static void recurseExample2(int *depth)
 
 void traceExample2()
 {
-    // Then, within 'traceExample2', we create a stack trace object and an
+    // Then, within 'traceExample2', we create a stack-trace object and an
     // array 'addresses' to hold some addresses.
 
     baesu_StackTrace stackTrace;
@@ -1101,7 +1101,7 @@ void traceExample2()
                                                          ARRAY_LENGTH);
 
     // Then, we call 'loadStackTraceFromAddressArray' to initialize the
-    // information in the stack trace object, such as function names, source
+    // information in the stack-trace object, such as function names, source
     // file names, and line numbers, if they are available.  The optional
     // argument, 'demanglingPreferredFlag', defaults to 'true'.
 
@@ -1111,11 +1111,13 @@ void traceExample2()
                                                              numAddresses);
     ASSERT(0 == rc);
 
-    // Finally, we can print out the stack trace object using 'printFormatted',
-    // or iterate through the stack trace frames, printing them out one by one.
+    // Finally, we can print out the stack-trace object using 'printFormatted',
+    // or iterate through the stack-trace frames, printing them out one by one.
     // In this example, we want instead to output only function names, and not
     // line numbers, source file names, or library names, so we iterate through
-    // the stack trace frames and print out only the properties we want.
+    // the stack-trace frames and print out only the properties we want.  Note
+    // that if a string is unknown, it is represented as "", here we print it
+    // out as "--unknown--" to let the user see that the name was unresolved.
 
     for (int i = 0; i < stackTrace.length(); ++i) {
         const baesu_StackTraceFrame& frame = stackTrace[i];
@@ -1131,10 +1133,10 @@ void traceExample2()
                                  // Usage 1
                                  // -------
 
-// Example 1: loading stack trace with 'loadStackTraceFromStack':
+// Example 1: loading stack-trace directly from the stack.
 
-// We start by defining a routine 'recurseExample1' which will recurse the
-// specified 'depth' times, then call 'traceExample1'.
+// We start by defining a routine, 'recurseExample1', that will recurse the
+// specified 'depth' times, then call 'traceExample1':
 
 void traceExample1();    // forward declaration
 
@@ -1152,14 +1154,13 @@ void recurseExample1(int *depth)
     ++*depth;   // Prevent compiler from optimizing tail recursion as a loop.
 }
 
-// Then, we define the function 'traceExample1', which will print a stack
-// trace:
+// Then, we define the function 'traceExample1', that will print a stack-trace:
 
 void traceExample1()
 {
 // Now, we create a 'baesu_StackTrace' object and call
 // 'loadStackTraceFrameStack' to load the information from the stack of the
-// current thread into the stack trace object.
+// current thread into the stack-trace object.
 //
 // In this call to 'loadStackTraceFromStack', we use the default value of
 // 'maxFrames', which is at least 1024 and the default value for
@@ -1174,8 +1175,8 @@ void traceExample1()
     int rc = baesu_StackTraceUtil::loadStackTraceFromStack(&stackTrace);
     ASSERT(0 == rc);
 
-// Finally, we use 'printFormatted' to stream out the stack trace, one frame
-// per line, in a concise, human-friendly format.
+// Finally, we use 'printFormatted' to stream out the stack-trace, one frame
+// per line, in a concise, human-readable format.
 
     baesu_StackTraceUtil::printFormatted(*out_p, stackTrace);
 }
