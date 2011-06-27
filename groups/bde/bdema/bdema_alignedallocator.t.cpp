@@ -26,7 +26,7 @@ using namespace bsl;
 // class.
 //-----------------------------------------------------------------------------
 // [ 1] virtual void allocate(size_type size);
-// [ 1] virtual void *allocateAligned(size_type size, int alignment);
+// [ 1] virtual void *allocateAligned(bsl::size_t, size_type);
 // [ 1] virtual void deallocate(void *address);
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -71,7 +71,7 @@ namespace {
 
 struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
     typedef bslma_Allocator::size_type size_type;
-    
+
     void *allocate(size_type)                     { return markDone(); }
     void *allocateAligned(bsl::size_t, size_type) { return markDone(); }
     void  deallocate(void* )                      {        markDone(); }
@@ -250,9 +250,11 @@ struct AlignedAllocatorTestImp : bsls_ProtocolTestImp<bdema_AlignedAllocator> {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -260,18 +262,20 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs on all platforms as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
-        if (verbose) cout << endl << "TESTING USAGE EXAMPLE" << endl
-                                  << "=====================" << endl;
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
 
 ///Example 2: Using the 'bdema_AlignedAllocator' protocol
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -308,10 +312,15 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'bdema_AlignedAllocator' is an abstract class, i.e., no objects
         //:    of the 'bdema_AlignedAllocator' class can be created.
+        //:
         //: 2 'bdema_AlignedAllocator' has no data members.
+        //:
         //: 3 All members of 'bdema_AlignedAllocator' are pure virtual.
+        //:
         //: 4 'bdema_AlignedAllocator' has a pure virtual destructor.
+        //:
         //: 5 All of 'bdema_AlignedAllocator' methods are publicly accessible.
+        //:
         //: 6 The class inherits publicly from 'bsls_Allocator'.
         //
         // Plan:
@@ -321,10 +330,14 @@ int main(int argc, char *argv[])
         //:   1 'bdema_AlignedAllocator' protocol is an abstract class, i.e.,
         //:      no objects of 'bdema_AlignedAllocator' protocol class can be
         //:      created.
+        //:
         //:   2 'bdema_AlignedAllocator' has no data members.
+        //:
         //:   3 Each of the known and tested methods of
         //:     'bdema_AlignedAllocator' is virtual.
+        //:
         //:   4 'bdema_AlignedAllocator' has a virtual destructor.
+        //:
         //:   5 Each of the known and tested methods of
         //:     'bdema_AlignedAllocator' is publicly accessible.
         //:
@@ -332,9 +345,10 @@ int main(int argc, char *argv[])
         //:   'bsls_Allocator *' variable, to verify that
         //:   'bdema_AlignedAllocator' publicly inherited from
         //:   'bslma_Allocator' .
+        //
         // Testing:
         //   virtual void *allocate(size_type size) = 0;
-        //   virtual void *allocateAligned(bsl::size_tsize, int alignment) = 0;
+        //   virtual void *allocateAligned(bsl::size_t, size_type) = 0;
         //   virtual void deallocate(void *address) = 0;
         // --------------------------------------------------------------------
 
