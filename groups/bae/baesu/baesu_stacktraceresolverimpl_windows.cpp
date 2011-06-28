@@ -15,6 +15,8 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_platformutil.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_vector.h>
 
@@ -144,6 +146,21 @@ bool Resolver_DllApi::loaded()
 
 }  // close unnamed namespace
 
+static void reportError(const char *string)
+{
+    DWORD lastError = GetLastError();
+
+    static bool report;
+    static bool firstTime = true;
+    if (firstTime) {
+        report = !!bsl::getenv("BAESU_STACKTRACERESOLVERIMPL_WINDOWS_REPORT");
+    }
+
+    if (report) {
+        bsl::cerr << string << lastError << bsl::endl;
+    }
+}
+
        // =============================================================
        // baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>
        // =============================================================
@@ -212,6 +229,10 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
             frame->setSourceFileName(line.FileName);
             frame->setLineNumber(line.LineNumber);
         }
+        else {
+            reportError("stack trace resovler error: symGetLineFromAddr64"
+                        " error code: ");
+        }
         ZeroMemory(sym, SIZEOF_SEGMENT);
         sym->SizeOfStruct = SIZEOF_STRUCT;
         sym->MaxNameLen = MAX_SYMBOL_BUF_NAME_LENGTH;
@@ -227,6 +248,10 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
             frame->setMangledSymbolName(sym->Name);
             frame->setSymbolName(frame->mangledSymbolName());
             frame->setOffsetFromSymbol((bsl::size_t) offsetFromSymbol);
+        }
+        else {
+            reportError("stack trace resovler error: symFromAddr"
+                        " error code: ");
         }
         HMODULE hModule = NULL;
         MEMORY_BASIC_INFORMATION mbi;
