@@ -78,7 +78,7 @@ int bces_AtomicUtilImpl_Amd64SwapInt(volatile int *aInt,
 {
     __asm__ __volatile__ (
                           "lock xchgl %1,%0\n\t"
-                          : "+m"(*aInt), "+r"(val)
+                          : "=m"(*aInt), "+r"(val)
                           :
                           : "memory" );
     return val;

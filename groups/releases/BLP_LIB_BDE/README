@@ -1,0 +1,64 @@
+BDE Distribution README
+-----------------------
+
+NOTE: This release is a test of the source distribution release mechanism only.
+
+This README applies to both source and binary distributions.
+
+
+Contents
+--------
+
+The following files and directories are provided in all distributions:
+
+  MANIFEST         - Library versions contained in this distribution
+  Makefile         - Master makefile. See README.INSTALL
+  README           - This document
+  README.INSTALL   - How to build and install the BDE libraries
+  README.PLATFORMS - Supported platforms
+  README.EXAMPLES  - How to build the example application
+  VERSION          - Overall version of this distribution
+
+  src      - (Source distributions) Directory containing source code
+             (Binary distributions) Directory containing makefile definitions
+  doc      - Directory containing per-library documentation
+  examples - Directory containing example application code and makefile
+
+Although binary distributions do not contain the BDE source, they do include
+the makefiles so that applications may use convenience macros defined in them.
+
+In a binary distribution, or after a default installation from source, the
+following additional directories will also be present:
+
+  lib      - Directory containing per-platform library subdirectories
+  include  - Directory containing per-library header file subdirectories
+
+Note that source and binary distributions of the same release are structurally
+compatible with each other and may be unpacked into the same location without
+conflicting.
+
+
+Recommended Reading List
+------------------------
+
+The following documents provide essential information on this release. Please
+read them in order to learn about building and installing BDE libraries, 
+supported platforms, and building applications using BDE.
+
+README.INSTALL
+  Details how to build the libraries included within this release. The list of
+  included libraries and their versions is provided in the MANIFEST.
+
+README.PLATFORMS
+  Lists supported platforms of this release
+
+README.EXAMPLES
+  Describes how to build and run the applications in the 'examples' directory.
+  In addition, the 'Makefile' in the 'examples' directory serves as an example
+  for using this release to build BDE applications.
+
+
+Contact
+-------
+
+Please report any issues to John Lakos.

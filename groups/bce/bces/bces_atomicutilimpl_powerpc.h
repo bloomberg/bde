@@ -13,7 +13,7 @@ BDES_IDENT("$Id: $")
 //   bces_AtomicUtilImpl<bsls_Platform::CpuPowerpc>: namespace for atomic
 //   operations on 32-/64-bit powerpc architectures
 //
-//@AUTHOR: Ilougino Rocha (irocha)
+//@AUTHOR: Ilougino Rocha (irocha), Alexei Zakharov (azakhar1)
 //
 //@DESCRIPTION: This component provides a full specialization of
 // 'bces_AtomicUtilImpl' for 32-/64-bit powerpc architectures.  The component
@@ -46,7 +46,9 @@ BDES_IDENT("$Id: $")
 #include <bsls_platformutil.h>
 #endif
 
+
 #ifdef BSLS_PLATFORM__CPU_POWERPC
+
 #ifdef BSLS_PLATFORM__CMP_IBM
 // builtins.h is xlc-specific.
 #ifndef INCLUDED_BUILTINS
@@ -63,137 +65,123 @@ long __fetch_and_addlp(volatile long *, long);
 
 namespace BloombergLP {
 
-extern "C" {
-
-#ifdef BSLS_PLATFORM__CPU_64_BIT
-    int bces_AtomicUtilImpl_PowerpcSwapInt(volatile int *aInt, int val);
+#if defined(BSLS_PLATFORM__CPU_64_BIT)
+#   define EXTERN_C_32
 #else
-    bsls_PlatformUtil::Int64 bces_AtomicUtilImpl_PowerpcGetInt64Relaxed(
-                                    const volatile bsls_PlatformUtil::Int64 *);
-    void  bces_AtomicUtilImpl_PowerpcSetInt64Relaxed(
-                                       volatile bsls_PlatformUtil::Int64 *aInt,
-                                       bsls_PlatformUtil::Int64           val);
-
-    bsls_PlatformUtil::Int64 bces_AtomicUtilImpl_PowerpcAddInt64Relaxed(
-                                       volatile bsls_PlatformUtil::Int64 *aInt,
-                                       bsls_PlatformUtil::Int64           val);
-
-    bsls_PlatformUtil::Int64 bces_AtomicUtilImpl_PowerpcGetInt64(
-                                    const volatile bsls_PlatformUtil::Int64 *);
+#   define EXTERN_C_32 extern "C"
 #endif
 
-    int bces_AtomicUtilImpl_PowerpcAddInt(volatile int *aInt, int val);
+                  // -------------------------------------
+                  // bces_AtomicUtilImpl_Powerpc functions
+                  // -------------------------------------
 
-    int bces_AtomicUtilImpl_PowerpcTestAndSwap(volatile int *aInt,
-                                               int           cmpVal,
-                                               int           swapVal);
+    // *** get function ***
 
-    bsls_PlatformUtil::Int64  bces_AtomicUtilImpl_PowerpcSwapInt64(
+extern "C"
+int bces_AtomicUtilImpl_PowerpcGetInt(const volatile int *);
+
+extern "C"
+bsls_PlatformUtil::Int64
+    bces_AtomicUtilImpl_PowerpcGetInt64(
+                                 const volatile bsls_PlatformUtil::Int64 *val);
+
+EXTERN_C_32
+bsls_PlatformUtil::Int64
+    bces_AtomicUtilImpl_PowerpcGetInt64Relaxed(
+                                 const volatile bsls_PlatformUtil::Int64 *val);
+
+    // *** set functions ***
+
+extern "C"
+void bces_AtomicUtilImpl_PowerpcSetInt(volatile int *aInt, int val);
+
+extern "C"
+void bces_AtomicUtilImpl_PowerpcSetInt64(
                                        volatile bsls_PlatformUtil::Int64 *aInt,
                                        bsls_PlatformUtil::Int64           val);
 
-    bsls_PlatformUtil::Int64 bces_AtomicUtilImpl_PowerpcAddInt64(
+EXTERN_C_32
+void bces_AtomicUtilImpl_PowerpcSetInt64Relaxed(
                                        volatile bsls_PlatformUtil::Int64 *aInt,
                                        bsls_PlatformUtil::Int64           val);
 
-    bsls_PlatformUtil::Int64 bces_AtomicUtilImpl_PowerpcTestAndSwap64(
+    // *** add functions ***
+
+extern "C"
+int bces_AtomicUtilImpl_PowerpcAddInt(volatile int *aInt, int val);
+
+int bces_AtomicUtilImpl_PowerpcAddIntRelaxed(volatile int *aInt, int val);
+
+extern "C"
+bsls_PlatformUtil::Int64
+    bces_AtomicUtilImpl_PowerpcAddInt64(
+                                       volatile bsls_PlatformUtil::Int64 *aInt,
+                                       bsls_PlatformUtil::Int64           val);
+
+EXTERN_C_32
+bsls_PlatformUtil::Int64
+    bces_AtomicUtilImpl_PowerpcAddInt64Relaxed(
+                                       volatile bsls_PlatformUtil::Int64 *aInt,
+                                       bsls_PlatformUtil::Int64           val);
+
+    // *** swap functions ***
+
+extern "C"
+int bces_AtomicUtilImpl_PowerpcSwapInt(volatile int *aInt, int val);
+
+extern "C"
+bsls_PlatformUtil::Int64
+    bces_AtomicUtilImpl_PowerpcSwapInt64(
+                                       volatile bsls_PlatformUtil::Int64 *aInt,
+                                       bsls_PlatformUtil::Int64           val);
+
+    // *** test and swap functions ***
+
+extern "C"
+int bces_AtomicUtilImpl_PowerpcTestAndSwap(volatile int *aInt,
+                                           int           cmpVal,
+                                           int           swapVal);
+
+extern "C"
+bsls_PlatformUtil::Int64
+    bces_AtomicUtilImpl_PowerpcTestAndSwap64(
                                    volatile bsls_PlatformUtil::Int64 *aInt,
                                    bsls_PlatformUtil::Int64           cmpVal,
                                    bsls_PlatformUtil::Int64           swapVal);
 
-    void bces_AtomicUtilImpl_PowerpcSpinLock(volatile int *aSpin);
-    int  bces_AtomicUtilImpl_PowerpcSpinTryLock(volatile int *aSpin,
-                                                int           retries);
-    void bces_AtomicUtilImpl_PowerpcSpinUnlock(volatile int *aSpin);
-    void bces_AtomicUtilImpl_PowerpcSetInt64(
-                                       volatile bsls_PlatformUtil::Int64 *aInt,
-                                       bsls_PlatformUtil::Int64           val);
-}
+    // *** spin lock functions ***
 
-#if BSLS_PLATFORM__CMP_VER_MAJOR >= 0xa00
-    // xlc10: can't inline anything because of DRQS 16073004
+extern "C"
+void bces_AtomicUtilImpl_PowerpcSpinLock(volatile int *aSpin);
 
-    int bces_AtomicUtilImpl_PowerpcGetInt(const volatile int *);
-    int bces_AtomicUtilImpl_PowerpcSwapInt(volatile int *aInt, int val);
+extern "C"
+int  bces_AtomicUtilImpl_PowerpcSpinTryLock(volatile int *aSpin,
+                                            int           retries);
+
+extern "C"
+void bces_AtomicUtilImpl_PowerpcSpinUnlock(volatile int *aSpin);
+
+                  // =====================================
+                  // bces_AtomicUtilImpl_Powerpc functions
+                  // =====================================
 
 #if defined(BSLS_PLATFORM__CPU_64_BIT)
-    bsls_PlatformUtil::Int64 bces_AtomicUtilImpl_PowerpcGetInt64(
-                                    const volatile bsls_PlatformUtil::Int64 *);
-void bces_AtomicUtilImpl_PowerpcSetInt64(
-                                       volatile bsls_PlatformUtil::Int64 *aInt,
-                                       bsls_PlatformUtil::Int64           val);
-#endif
-
-#else
-    // xlc 8
-
-    inline
-    int bces_AtomicUtilImpl_PowerpcGetInt(const volatile int *value)
-    {
-        int result;
-        __asm__ __volatile__ (
-                 "sync\n\t"
-                 "1:\n\t"
-                 "lwarx %0, %2, %1\n\t" // see note in .cpp
-                 "cmpw %0, %0\n" // create data dependency for load/load order
-                 "bne- 1b\n\t"   // never taken
-                 "isync\n\t"
-               : "=r"(result)
-               : "r"(value), "i"(0)
-               : "cr0", "ctr");
-        return result;
-    }
-
-#if !defined(BSLS_PLATFORM__CPU_64_BIT)
-    inline
-    int bces_AtomicUtilImpl_PowerpcSwapInt(volatile int *aInt, int val)
-    {
-        int result;
-        __asm__ __volatile__(
-                 "lwsync\n\t"
-                 "1:\n\t"
-                 "lwarx %0, %3, %1\n\t"
-                 "stwcx. %2, %3, %1\n\t"
-                 "bne- 1b\n\t"
-                 "isync"
-              : "=&r"(result)
-              : "r"(aInt), "r"(val), "i"(0)
-              : "cr0", "ctr");
-        return result;
-    }
-
-#else
-    inline
-    bsls_PlatformUtil::Int64 bces_AtomicUtilImpl_PowerpcGetInt64(
-                                const volatile bsls_PlatformUtil::Int64 *value)
-    {
-        bsls_PlatformUtil::Int64 result;
-        __asm__ __volatile__(
-                 "sync\n\t"
-                 "1:\n\t"
-                 "ldarx %0, %2, %1\n\t" // see note in .cpp
-                 "cmpd %0, %0\n\t" // create fake dependency for ordering
-                 "bne- 1b\n\t"     // never taken
-                 "isync"
-               : "=r"(result)
-               : "r"(value), "i"(0)
-               : "cr0", "ctr");
-        return result;
-    }
-
-#endif
-
-#endif
 
 inline
-int bces_AtomicUtilImpl_PowerpcAddIntRelaxed(volatile int *aInt, int val)
+bsls_PlatformUtil::Int64
+    bces_AtomicUtilImpl_PowerpcGetInt64Relaxed(
+                                 const volatile bsls_PlatformUtil::Int64 * val)
 {
-    return __fetch_and_add(aInt, val) + val;
+    return *val;
 }
 
-void bces_AtomicUtilImpl_PowerpcSetInt(volatile int *aInt, int val);
-
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+inline
+void bces_AtomicUtilImpl_PowerpcSetInt64Relaxed(
+                                       volatile bsls_PlatformUtil::Int64 *aInt,
+                                       bsls_PlatformUtil::Int64           val)
+{
+    *aInt = val;
+}
 
 inline
 bsls_PlatformUtil::Int64
@@ -204,13 +192,17 @@ bces_AtomicUtilImpl_PowerpcAddInt64Relaxed(
     return __fetch_and_addlp((volatile long *)aInt, (long)val) + val;
 }
 
-#else
-
-bsls_PlatformUtil::Int64
-bces_AtomicUtilImpl_PowerpcAddInt64Relaxed(
-                                       volatile bsls_PlatformUtil::Int64 *aInt,
-                                       bsls_PlatformUtil::Int64           val);
 #endif
+
+inline
+int bces_AtomicUtilImpl_PowerpcAddIntRelaxed(volatile int *aInt, int val)
+{
+    return __fetch_and_add(aInt, val) + val;
+}
+
+                          // --------------------------
+                          // struct bces_AtomicUtilImpl
+                          // --------------------------
 
 template <typename PLATFORM> struct bces_AtomicUtilImpl;
 
@@ -486,6 +478,10 @@ struct bces_AtomicUtilImpl<bsls_Platform::CpuPowerpc> {
         // behavior is undefined if 'aSpin' is 0.
 };
 
+                          // ==========================
+                          // struct bces_AtomicUtilImpl
+                          // ==========================
+
 inline
 void bces_AtomicUtilImpl<bsls_Platform::CpuPowerpc>::initInt(
              bces_AtomicUtilImpl<bsls_Platform::CpuPowerpc>::Int *aInt,
@@ -713,11 +709,7 @@ void bces_AtomicUtilImpl<bsls_Platform::CpuPowerpc>::setInt64Relaxed(
                    bces_AtomicUtilImpl<bsls_Platform::CpuPowerpc>::Int64 *aInt,
                    bsls_PlatformUtil::Int64                               val)
 {
-#ifdef BSLS_PLATFORM__CPU_64_BIT
-    aInt->d_value = val;
-#else
     bces_AtomicUtilImpl_PowerpcSetInt64Relaxed(&aInt->d_value, val);
-#endif
 }
 
 inline
@@ -790,11 +782,7 @@ bsls_PlatformUtil::Int64
 bces_AtomicUtilImpl<bsls_Platform::CpuPowerpc>::getInt64Relaxed(
          const bces_AtomicUtilImpl<bsls_Platform::CpuPowerpc>::Int64& aPointer)
 {
-#ifdef BSLS_PLATFORM__CPU_64_BIT
-    return aPointer.d_value;
-#else
     return bces_AtomicUtilImpl_PowerpcGetInt64Relaxed(&aPointer.d_value);
-#endif
 }
 
 inline
@@ -841,13 +829,15 @@ void bces_AtomicUtilImpl<bsls_Platform::CpuPowerpc>::spinUnlock(
 
 }  // close namespace BloombergLP
 
-#endif
+#undef EXTERN_C_32
+
+#endif  // BSLS_PLATFORM__CPU_POWERPC
 
 #endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
