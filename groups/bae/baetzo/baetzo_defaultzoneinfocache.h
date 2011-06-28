@@ -234,15 +234,6 @@ struct baetzo_DefaultZoneinfoCache {
         // Return the address of the currently configured modifiable default
         // time-zone information (Zoneinfo) cache object.
 
-    static baetzo_ZoneinfoCache *setDefaultCacheRaw(
-                                                  baetzo_ZoneinfoCache *cache);
-        // Set the address of the default 'baetzo_ZoneinfoCache' object to the
-        // specified 'cache'.  Return the address of the default cache object
-        // that was in effect before calling this method.  The behavior is
-        // undefined unless this method is *not* called from one thread while
-        // another thread is attempting to access the default time zone cache
-        // instance (i.e., this method is *not* thread-safe).
-
   public:
     // CLASS METHODS
     static baetzo_ZoneinfoCache *defaultCache(baetzo_ZoneinfoCache *cache = 0);
@@ -276,16 +267,14 @@ struct baetzo_DefaultZoneinfoCache {
     static baetzo_ZoneinfoCache *setDefaultCache(baetzo_ZoneinfoCache *cache);
         // Set the address of the default 'baetzo_ZoneinfoCache' object to the
         // specified 'cache'.  Return the address of the default cache object
-        // that was in effect before calling this method.  The behavior is
-        // undefined unless (1) 'cache' remains valid until no more operations
-        // are performed in the process on the default cache or a subsequent
-        // call to 'setDefaultCache', and (2) this method is *not* called from
-        // one thread while another thread is attempting to access the default
-        // time zone cache instance (i.e., this method is *not* thread-safe).
-        // Note that this method is intended for use *only* by the *owner* of
-        // 'main' (and for testing purposes) where the caller affirmatively
-        // takes responsibility for the behavior of all clients of the default
-        // time zone cache.
+        // that was set by a previous call to this method, or 0 if no call to
+        // this method was executed befor.  The behavior is undefined unless
+        // this method is *not* called from one thread while another thread is
+        // attempting to access the default time zone cache instance (i.e.,
+        // this method is *not* thread-safe).  Note that this method is
+        // intended for use *only* by the *owner* of 'main' (and for testing
+        // purposes) where the caller affirmatively takes responsibility for
+        // the behavior of all clients of the default time zone cache.
 };
 
                  // ============================================
@@ -348,7 +337,7 @@ baetzo_ZoneinfoCache *baetzo_DefaultZoneinfoCache::defaultCache(
 inline
 baetzo_DefaultZoneinfoCacheScopedGuard::baetzo_DefaultZoneinfoCacheScopedGuard(
                                                    baetzo_ZoneinfoCache *cache)
-: d_previousCache_p(baetzo_DefaultZoneinfoCache::setDefaultCacheRaw(cache))
+: d_previousCache_p(baetzo_DefaultZoneinfoCache::setDefaultCache(cache))
 {
 }
 
@@ -356,7 +345,7 @@ inline
 baetzo_DefaultZoneinfoCacheScopedGuard::
 ~baetzo_DefaultZoneinfoCacheScopedGuard()
 {
-    baetzo_DefaultZoneinfoCache::setDefaultCacheRaw(d_previousCache_p);
+    baetzo_DefaultZoneinfoCache::setDefaultCache(d_previousCache_p);
 }
 
 }  // close namespace BloombergLP

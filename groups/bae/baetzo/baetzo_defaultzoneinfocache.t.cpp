@@ -686,10 +686,11 @@ int main(int argc, char *argv[])
         //:   'cache' is specified and non-0.
         //:
         //: 2 The installed global allocator does not allocate memory if
-        //:   'defaultCache' was previously called with no argument.
+        //:   'defaultCache' was previously called once with no argument.
         //:
         //: 3 The installed global allocator does not allocate memory if
-        //:   'setDefaultCache' was previously called.
+        //:   'setDefaultCache' was previously called, passing a non-0
+        //:   argument.
         //:
         //: 4 The installed global allocator does allocate memory if
         //:  'defaultCache' is called with no argument and 'defaultCache' was
@@ -700,11 +701,15 @@ int main(int argc, char *argv[])
         //:
         //: 6 Return the address of a valid 'baetzo_ZoneinfoCache' if 0 is
         //:   passed in or no argument is specified, and 'setDefaultCache' was
-        //:   not previously invoked.
+        //:   not previously invoked with a non-0 argument.
         //:
         //: 7 Return the address of 'baetzo_ZoneinfoCache' set with a previous
         //:   call of 'setDefaultCache' if 0 is passed in or no argument is
         //:   specified.
+        //:
+        //: 8 Return the address of a valid 'baetzo_ZoneinfoCache' if 0 or no
+        //:   argument are passed and 'setDefaultCache' was invoked with a 0
+        //:   argument. 
         //
         // Plan:
         //: 1 Invoking this method passing the address of a cache object, and
@@ -712,14 +717,20 @@ int main(int argc, char *argv[])
         //:   allocated by the global allocator.  (C-1, 5)
         //:
         //: 2 Invoke this method without passing the address of a cache object
-        //:   and verify that a new cache object is allocated by the global
-        //:   allocator and its address is returned.  Also verify that the same
-        //:   address is returned if 0 is passed.  (C-4, 2, 6)
+        //:   and verify that a new default default-cache object is allocated
+        //:   by the global allocator and its address is returned.  Also verify
+        //:   that the same address is returned if 0 is passed.  (C-4, 2, 6)
         //:
         //: 3 Invoke this method with no arguments or specifying 0, after
         //:   setting a default cache with 'setDefaultCache', and verify that
         //:   the cache returned is the one set with 'setDefaultCache' and that
         //:   the global allocator does not allocate memory.  (C-3, 7)
+        //:
+        //: 4 Invoke this method with no arguments or specifying 0, after
+        //:   setting to 0 the default cache with 'setDefaultCache', and verify
+        //:   that the cache returned is the same default default-cache
+        //:   returned at point 2 and that the global allocator does not
+        //:   allocate memory.  (C-3, 7-8)
         //
         // Testing:
         //   defaultCache(baetzo_ZoneinfoCache *cache = 0)
@@ -730,6 +741,8 @@ int main(int argc, char *argv[])
 
         baetzo_TestLoader loader;
         baetzo_ZoneinfoCache cache(&loader);
+
+        baetzo_ZoneinfoCache *SYSTEM_DEFAULT = 0;
 
         if (verbose) cout << "\nPassing in a cache object and testing GA"
                           << endl;
@@ -745,13 +758,13 @@ int main(int argc, char *argv[])
                           << endl;
         {
             const int GA_NUM_BYTES = globalAllocator.numBytesInUse();
-            const baetzo_ZoneinfoCache *RESULT = Obj::defaultCache();
-            LOOP2_ASSERT(L_, RESULT, 0 != RESULT);
+            SYSTEM_DEFAULT = Obj::defaultCache();
+            LOOP2_ASSERT(L_, SYSTEM_DEFAULT, 0 != SYSTEM_DEFAULT);
             LOOP_ASSERT (L_, GA_NUM_BYTES < globalAllocator.numBytesInUse());
 
             const int GA_NUM_BYTES2 = globalAllocator.numBytesInUse();
-            const baetzo_ZoneinfoCache *RESULT2 = Obj::defaultCache(0);
-            LOOP2_ASSERT(L_, RESULT2, RESULT == RESULT);
+            const baetzo_ZoneinfoCache *RESULT = Obj::defaultCache(0);
+            LOOP2_ASSERT(L_, RESULT, RESULT == SYSTEM_DEFAULT);
             LOOP_ASSERT (L_, GA_NUM_BYTES2 == globalAllocator.numBytesInUse());
         }
 
@@ -777,6 +790,24 @@ int main(int argc, char *argv[])
             RESULT = Obj::defaultCache(&tempCache);
             LOOP2_ASSERT(L_, RESULT, &tempCache == RESULT);
             LOOP_ASSERT (L_, GA_NUM_BYTES4 == globalAllocator.numBytesInUse());
+        }
+        
+        if (verbose) cout << "\nTesting after 'setDefaultCache(0)'"
+                          << endl;
+        {
+            const int GA_NUM_BYTES = globalAllocator.numBytesInUse();
+            Obj::setDefaultCache(0);
+            LOOP_ASSERT (L_, GA_NUM_BYTES == globalAllocator.numBytesInUse());
+
+            const int GA_NUM_BYTES2 = globalAllocator.numBytesInUse();
+            const baetzo_ZoneinfoCache *RESULT = Obj::defaultCache();
+            LOOP2_ASSERT(L_, RESULT, SYSTEM_DEFAULT == RESULT);
+            LOOP_ASSERT (L_, GA_NUM_BYTES2 == globalAllocator.numBytesInUse());
+
+            const int GA_NUM_BYTES3 = globalAllocator.numBytesInUse();
+            RESULT = Obj::defaultCache(0);
+            LOOP2_ASSERT(L_, RESULT, SYSTEM_DEFAULT == RESULT);
+            LOOP_ASSERT (L_, GA_NUM_BYTES3 == globalAllocator.numBytesInUse());
         }
 
       } break;
@@ -844,7 +875,6 @@ int main(int argc, char *argv[])
                 baetzo_ZoneinfoCache cache(&loader);
 
                 ASSERT_SAFE_PASS(Obj::setDefaultCache(&cache));
-                ASSERT_SAFE_FAIL(Obj::setDefaultCache(0));
             }
         }
       } break;
@@ -909,7 +939,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "Testing with 'BDE_ZONEINFO_ROOT_PATH' set to an "
-                          << "existing path not containing Zoneinfo data"
+                          << "existing path not containing Zoneinfo data "
+                          << "(expected to log a complaint)"
                           << endl;
         {
             putenv((char *) "BDE_ZONEINFO_ROOT_PATH=/usr/bin/");
@@ -1099,19 +1130,16 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        baetzo_ZoneinfoCache *dummy1 = (baetzo_ZoneinfoCache *) 0x01;
-        baetzo_ZoneinfoCache *dummy2 = (baetzo_ZoneinfoCache *) 0x02;
+        baetzo_ZoneinfoCache *DUMMY1 = (baetzo_ZoneinfoCache *) 0x01;
+        baetzo_ZoneinfoCache *DUMMY2 = (baetzo_ZoneinfoCache *) 0x02;
 
-        if (veryVerbose) cout << endl << "Testing the default-default cache"
-                              << endl;
+        if (verbose) cout << endl << "Testing the system default cache"
+                          << endl;
 
-        if (veryVeryVerbose) cout << "Initializing default cache in a "
-                                     "separate block testing the locality of "
-                                     "the objects" << endl;
-        {
-            ASSERT(0 != Obj::defaultCache());
-        }
-
+        const baetzo_ZoneinfoCache *SYSTEMDEFAULTCACHE = Obj::defaultCache();
+        ASSERT(0 != SYSTEMDEFAULTCACHE);
+        ASSERT(SYSTEMDEFAULTCACHE == Obj::defaultCache());
+        
         if(veryVerbose) cout << "Loading Etc/UTC" << endl;
         {
             const char *ID = "Etc/UTC";
@@ -1123,7 +1151,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            if(veryVerbose) cout << "Loading America/New_York" << endl;
+            if(veryVerbose) cout << "\nLoading America/New_York" << endl;
             const char *ID = "America/New_York";
             ASSERT(0 == Obj::defaultCache()->lookupZoneinfo(ID));
 
@@ -1132,22 +1160,30 @@ int main(int argc, char *argv[])
             ASSERT(236 == TZ->numTransitions());
         }
 
+        if (verbose) cout << "\nTesting user defind default caches"
+                          << endl;
+        
         ASSERT(0 != Obj::defaultCache(0));
-        ASSERT(dummy1 == Obj::defaultCache(dummy1));
-        ASSERT(dummy2 == Obj::defaultCache(dummy2));
+        ASSERT(DUMMY1 == Obj::defaultCache(DUMMY1));
+        ASSERT(DUMMY2 == Obj::defaultCache(DUMMY2));
 
-        ASSERT(0 != Obj::setDefaultCache(dummy1));
-        ASSERT(dummy1 == Obj::defaultCache());
-        ASSERT(dummy1 == Obj::defaultCache(0));
-        ASSERT(dummy1 == Obj::defaultCache(dummy1));
-        ASSERT(dummy2 == Obj::defaultCache(dummy2));
+        ASSERT(0 == Obj::setDefaultCache(DUMMY1));
+        ASSERT(DUMMY1 == Obj::defaultCache());
+        ASSERT(DUMMY1 == Obj::defaultCache(0));
+        ASSERT(DUMMY1 == Obj::defaultCache(DUMMY1));
+        ASSERT(DUMMY2 == Obj::defaultCache(DUMMY2));
 
-        ASSERT(dummy1 == Obj::setDefaultCache(dummy2));
-        ASSERT(dummy2 == Obj::defaultCache());
-        ASSERT(dummy2 == Obj::defaultCache(0));
-        ASSERT(dummy1 == Obj::defaultCache(dummy1));
-        ASSERT(dummy2 == Obj::defaultCache(dummy2));
+        ASSERT(DUMMY1 == Obj::setDefaultCache(DUMMY2));
+        ASSERT(DUMMY2 == Obj::defaultCache());
+        ASSERT(DUMMY2 == Obj::defaultCache(0));
+        ASSERT(DUMMY1 == Obj::defaultCache(DUMMY1));
+        ASSERT(DUMMY2 == Obj::defaultCache(DUMMY2));
 
+        ASSERT(DUMMY2 == Obj::setDefaultCache(0));
+        ASSERT(DUMMY1 == Obj::defaultCache(DUMMY1));
+        ASSERT(DUMMY2 == Obj::defaultCache(DUMMY2));
+        ASSERT(SYSTEMDEFAULTCACHE == Obj::defaultCache());
+        
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
