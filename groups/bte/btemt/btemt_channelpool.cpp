@@ -1919,20 +1919,17 @@ void btemt_Channel::disableRead(ChannelHandle self)
                                   d_eventManager_p->dispatcherThreadHandle()));
     BSLS_ASSERT(this == self.ptr());
 
+    deregisterSocketRead(self);
     if (d_readTimeoutTimerId) {
-        // Else we competed with invokeChannelDown, but note that
-        // invokeChannelDown is also executed in the dispatcherThread, so there
-        // is no race with d_readTimeoutTimerId.
-
-        deregisterSocketRead(self);
         d_eventManager_p->deregisterTimer(d_readTimeoutTimerId);
         d_readTimeoutTimerId = 0;
-        d_enableReadFlag = false;
-
-        d_channelStateCb(d_channelId, d_sourceId,
-                         btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
-                         d_userData);
     }
+    d_enableReadFlag = false;
+
+    d_channelStateCb(d_channelId,
+                     d_sourceId,
+                     btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
+                     d_userData);
 }
 
 int btemt_Channel::initiateReadSequence(ChannelHandle self)
