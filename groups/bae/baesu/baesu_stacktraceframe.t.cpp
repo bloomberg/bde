@@ -2175,8 +2175,8 @@ int main(int argc, char *argv[])
 
         // Attribute 1 Values: 'address'
 
-        const T1 A1 = (T1)0xbeefbeee;                   // baseline
-        const T1 B1 = (T1)0xbeefbeef;
+        const T1 A1 = (T1) (unsigned) 0xbeefbeee;                   // baseline
+        const T1 B1 = (T1) (unsigned) 0xbeefbeef;
 
         // Attribute 2 Values: 'libraryFileName'
 
@@ -2488,8 +2488,8 @@ int main(int argc, char *argv[])
 
         // Attribute 1 Values: 'address'
 
-        const T1 A1 = (T1) 0xabcdef01;
-        const T1 B1 = (T1) 0x12345678;
+        const T1 A1 = (T1) (unsigned) 0xabcdef01;
+        const T1 B1 = (T1) (unsigned) 0x12345678;
 
         // Attribute 2 Values: 'libraryFileName'
 
