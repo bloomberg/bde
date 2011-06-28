@@ -1919,10 +1919,29 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 24968477
+        //  Ensure that the bug where d_numSessions is decremented in stop and
+        //  then again when the session handle is destroyed.
+        //
+        // Concerns:
+        //: 1 d_numSessions is not decremented twice after a call to 'stop'.
         //
         // Plan:
+        //: 1 Create a session pool object, mX, and listen on a port on the
+        //:   local machine. 
+        //:
+        //: 2 Define NUM_SESSIONS with a value of 2 as the number of sessions
+        //:   to be created.
+        //:
+        //: 3 Open NUM_SESSIONS sockets and 'connect' to the port number on
+        //:   which the session pool is listening.
+        //:
+        //: 4 Confirm that numSessions on mX returns NUM_SESSIONS.
+        //:
+        //: 5 Call 'stop' on the session pool and confirm that numSessions
+        //:   returns 0.
         //
         // Testing:
+        //  DRQS 24968477
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "DRQS 24968477" << bsl::endl
@@ -1944,16 +1963,17 @@ int main(int argc, char *argv[])
                                                _1, _2, _3, _4,
                                                &barrier));
 
-        btemt_SessionPool sessionPool(config, poolStateCb, false);
+        btemt_SessionPool mX(config, poolStateCb, false);
+        const btemt_SessionPool& X = mX;
 
-        ASSERT(0 == sessionPool.start());
+        ASSERT(0 == mX.start());
 
         int           handle;
         TesterFactory sessionFactory;
-        int rc = sessionPool.listen(&handle, callback, 0, 5, &sessionFactory);
+        int rc = mX.listen(&handle, callback, 0, 5, &sessionFactory);
         ASSERT(!rc);
 
-        const int PORTNUM = sessionPool.portNumber(handle);
+        const int PORTNUM = X.portNumber(handle);
 
         bteso_IPv4Address ADDRESS("127.0.0.1", PORTNUM);
 
@@ -1970,12 +1990,12 @@ int main(int argc, char *argv[])
 
         barrier.wait();
 
-        int ns = sessionPool.numSessions();
+        int ns = X.numSessions();
         LOOP_ASSERT(ns, NUM_SESSIONS == ns);
 
-        ASSERT(0 == sessionPool.stop());
+        ASSERT(0 == mX.stop());
 
-        ns = sessionPool.numSessions();
+        ns = X.numSessions();
         LOOP_ASSERT(ns, 0 == ns);
 
         for (int i = 0; i < NUM_SESSIONS; ++i) {
