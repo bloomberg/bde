@@ -628,10 +628,14 @@ void populateMessage(bcema_Blob      *msg,
 
 namespace CASE37 {
 
-Obj       *channelPool;
-int        channelId;
-onst int  CACHE_HI_WAT = 6000;
-bcemt_Barrier *barrier;
+Obj           *s_channelPool_p;
+int            s_channelId;
+const int      CACHE_HI_WAT = 60000000;
+const int      NUM_THREADS  = 10;
+const int      PER_THREAD_WRITE = 250000;
+bcemt_Barrier *s_barrier_p;
+
+bcema_PooledBlobBufferFactory blobFactory(256);
 
 void poolStateCb(int            state,
                  int            source,
@@ -650,7 +654,6 @@ void channelStateCb(int              channelId,
                     int              serverId,
                     int              state,
                     void            *arg,
-                    int             *id,
                     bcemt_Barrier   *barrier)
 {
     if (veryVerbose) {
@@ -661,7 +664,7 @@ void channelStateCb(int              channelId,
                   << " State: " << state << bsl::endl;
     }
     if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
-        *id = channelId;
+        s_channelId = channelId;
         barrier->wait();
     }
 }
@@ -681,87 +684,19 @@ void blobBasedReadCb(int             *needed,
     msg->removeAll();
 }
 
-int write(int nBytes)
-{
-    bcema_Blob blob(&blobFactory);
-    blob.setLength(nBytes);
-    return channelPool->write(channelId, blob);
-}
-
-enum  {
-    ERROR_IMPOSSIBLE_WRITE_SUCCEEDED = 1,
-    ERROR_MAX_POSSIBLE_WRITE_FAILED = 2
-};
-
-int check()
-{
-    int rc;
-
-    // try to write too much
-
-    rc = write(CACHE_HI_WAT + 1);
-    MTLOOP_ASSERT(rc, rc);
-    if (!rc) return ERROR_IMPOSSIBLE_WRITE_SUCCEEDED;
-
-    // try to write max possible
-
-    rc = write(CACHE_HI_WAT);
-    MTLOOP_ASSERT(rc, !rc);
-    if (rc) return ERROR_MAX_POSSIBLE_WRITE_FAILED;
-
-    return 0;
-}
-
-void delay(int delay)
-{
-    int i;
-    for (i = 0; i < delay; ++i);
-}
-
-// signal allow writer threads to start writing from the same time (to
-// increase concurrency), barrier could be another way but might be too heavy.
-
-static bces_AtomicInt sig = 0;
-void signalerThread()
-{
-    while(1) {
-        ++sig;
-
-        delay(delayBetweenWrites);
-    }
-}
-
 void writerThread(unsigned threadIndex)
 {
-    int failures = 0;
-    int consecutiveFailures = 0;
-    int iter;
-    int oldSignal = 0;
-
     bcema_Blob blob(&blobFactory);
-    for (iter = 0; iter < maxWritesPerThread &&
-                   consecutiveFailures < maxConsecutiveFailures; ++iter) {
+    blob.setLength(PER_THREAD_WRITE);
 
-        int randVal = rand_r(&threadIndex);
-        int nBytes  = minMsgSize + randVal % (maxMsgSize - minMsgSize + 1);
-        blob.setLength(nBytes);
+    s_barrier_p->wait();
 
-        while(sig <= oldSignal);
-        oldSignal = sig;
+    bcemt_ThreadUtil::microSleep(100);
 
-        int rc = channelPool->write(channelId, blob);
+    for (int i = 0; i < 10; i++) {
+        int rc = s_channelPool_p->write(s_channelId, blob);
         MTLOOP_ASSERT(rc, !rc);
-
-        if (rc == 0) {
-            consecutiveFailures = 0;
-        }
-        else {
-            ++consecutiveFailures;
-            ++failures;
-        }
     }
-
-    barrier->wait();
 }
 
 }
@@ -7822,7 +7757,6 @@ int main(int argc, char *argv[])
         btemt_ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdef_BindUtil::bind(&channelStateCb,
                                                            _1, _2, _3, _4,
-                                                           &channelId,
                                                            &channelCbBarrier));
 
         btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
@@ -7836,7 +7770,7 @@ int main(int argc, char *argv[])
         btemt_ChannelPool mX(channelCb, dataCb, poolCb, config);
         btemt_ChannelPool mY(channelCb, dataCb, poolCb, config);
 
-        channelPool = &mY;
+        s_channelPool_p = &mY;
 
         ASSERT(0 == mX.start());
         ASSERT(0 == mY.start());
@@ -7858,23 +7792,41 @@ int main(int argc, char *argv[])
         channelCbBarrier.wait();
         channelCbBarrier.wait();
 
-        const int NT = 5;
-        bcemt_Barrier currBarrier(NT + 1);
-        barrier = &currBarrier;
-
-        // signalerThread
-        bcemt_ThreadUtil::Handle handle;
-        rc = bcemt_ThreadUtil::create(&handle, &signalerThread);
-        ASSERT(!rc);
+        bcemt_Barrier currBarrier(NUM_THREADS + 1);
+        s_barrier_p = &currBarrier;
 
         // fork threads
-        for (int i = 0; i < NT; ++i) {
-          bcemt_ThreadUtil::Handle handle;
-          rc = bcemt_ThreadUtil::create(&handle,
+        bcemt_ThreadUtil::Handle handles[NUM_THREADS];
+        for (int i = 0; i < NUM_THREADS; ++i) {
+          rc = bcemt_ThreadUtil::create(&handles[i],
                                         bdef_BindUtil::bind(&writerThread, i));
           ASSERT(!rc);
         }
-         
+
+        bcema_Blob blob(&blobFactory);
+        blob.setLength(PER_THREAD_WRITE * 40);
+
+        s_barrier_p->wait();
+
+        rc = s_channelPool_p->write(s_channelId, blob);
+        MTLOOP_ASSERT(rc, !rc);
+
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            ASSERT(0 == bcemt_ThreadUtil::join(handles[i]));
+        }
+
+        // wait for all the writes to complete
+        bcemt_ThreadUtil::microSleep(0, 5);
+
+        const int LEN = (CACHE_HI_WAT - 1) / 16;
+        blob.setLength(LEN);
+        for (int i = 0; i < 16; ++i) {
+            rc = s_channelPool_p->write(s_channelId, blob);
+            if (rc) {
+                LOOP2_ASSERT(rc, i, !rc);
+                break;
+            }
+        }
       } break;
       case 36: {
         // --------------------------------------------------------------------

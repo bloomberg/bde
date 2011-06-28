@@ -267,7 +267,7 @@ class btemt_Channel {
                                                              // write in
                                                            // d_writeQueuedData
 
-    volatile int                    d_activeWriteCacheSize;  // number of bytes
+    bces_AtomicInt                  d_activeWriteCacheSize;  // number of bytes
                                                              // currently
                                                              // being written
                                                              // (including in
@@ -1564,8 +1564,9 @@ int btemt_Channel::refillOutgoingMsg()
     d_writeActiveData.setSharedData(tmp);
 #else
     d_writeQueuedData.swap(d_writeActiveData.sharedData());
-//     d_enqueuedWriteCacheSize = 0;
-//     d_activeWriteCacheSize   = d_writeActiveData.sharedData()->length();
+    d_enqueuedWriteCacheSize = 0;
+    d_activeWriteCacheSize.relaxedAdd(
+                                     d_writeActiveData.sharedData()->length());
 #endif
 
     return 1;
@@ -1716,11 +1717,11 @@ void btemt_Channel::writeCb(ChannelHandle self)
             bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
 
             d_numBytesWritten += writeRet;
-            d_activeWriteCacheSize -= writeRet;
+            d_activeWriteCacheSize.relaxedAdd(-writeRet);
 
             if (d_hiWatermarkHitFlag
              && (d_enqueuedWriteCacheSize
-                             + d_activeWriteCacheSize <= d_writeCacheLowWat)) {
+               + d_activeWriteCacheSize.relaxedLoad() <= d_writeCacheLowWat)) {
                 d_hiWatermarkHitFlag = false;
                 oGuard.release()->unlock();
                 d_channelStateCb(d_channelId, d_sourceId,
@@ -2038,7 +2039,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
     d_numBytesRequestedToBeWritten += dataLength;
 
     const int writeCacheSize =
-                             d_enqueuedWriteCacheSize + d_activeWriteCacheSize;
+               d_enqueuedWriteCacheSize + d_activeWriteCacheSize.relaxedLoad();
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                          writeCacheSize > d_writeCacheHiWat)) {
@@ -2103,7 +2104,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         BSLS_ASSERT(0 == d_writeActiveData.userDataField1());
         BSLS_ASSERT(0 == d_writeActiveData.userDataField2());
 
-        d_activeWriteCacheSize += dataLength;
+        d_activeWriteCacheSize.relaxedAdd(dataLength);
 
         oGuard.release()->unlock();
 
@@ -2133,7 +2134,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
             return CHANNEL_DOWN;
         }
 
-        d_activeWriteCacheSize -= writeRet;
+        d_activeWriteCacheSize.relaxedAdd(-writeRet);
 
         if (dataLength == writeRet) {
             // We succeeded in writing the whole message.  We did release the
@@ -2213,7 +2214,7 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
     // existing cache size and a 'HIWAT' alert has not already been generated.
     
     const int writeCacheSize =
-                             d_enqueuedWriteCacheSize + d_activeWriteCacheSize;
+               d_enqueuedWriteCacheSize + d_activeWriteCacheSize.relaxedLoad();
 
     if (!d_hiWatermarkHitFlag && writeCacheSize >= numBytes) {
         d_hiWatermarkHitFlag = true;
