@@ -2613,19 +2613,19 @@ int baenet_HttpParserUtil::parseChunkHeader(int            *result,
     BSLS_ASSERT(numBytesConsumed);
     BSLS_ASSERT(buffer);
 
-    bsl::char_traits<char>::int_type c = buffer->sgetc();
+    bsl::char_traits<char>::int_type c = buffer->sbumpc();
     ++*numBytesConsumed;
 
     // ignore leading CRLF
 
     if (CR == c) {
-        c = buffer->snextc();
+        c = buffer->sbumpc();
         ++*numBytesConsumed;
 
         if (LF != c) {
             return eof == c ? (int)BAENET_REACHED_EOF : (int)BAENET_FAILURE;
         }
-        c = buffer->snextc();
+        c = buffer->sbumpc();
         ++*numBytesConsumed;
     }
 
@@ -2637,7 +2637,7 @@ int baenet_HttpParserUtil::parseChunkHeader(int            *result,
     while (eof != c && NOT_HEX != hexCharTable[c]) {
         value <<= 4;
         value += hexCharTable[c];
-        c = buffer->snextc();
+        c = buffer->sbumpc();
         ++bytesRead;
     }
     *numBytesConsumed += bytesRead;
@@ -2651,14 +2651,14 @@ int baenet_HttpParserUtil::parseChunkHeader(int            *result,
     // implementations to ignore them if they are not going to be supported.
 
     while (eof != c && CR != c) {
-        c = buffer->snextc();
+        c = buffer->sbumpc();
         ++*numBytesConsumed;
     }
 
     if (eof == c) {
         return BAENET_REACHED_EOF;
     }
-    c = buffer->snextc();
+    c = buffer->sbumpc();
     ++*numBytesConsumed;
 
     if (eof == c) {
