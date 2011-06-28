@@ -153,6 +153,8 @@ static void reportError(const char *string)
     static bool report;
     static bool firstTime = true;
     if (firstTime) {
+        firstTime = false;
+
         report = !!bsl::getenv("BAESU_STACKTRACERESOLVERIMPL_WINDOWS_REPORT");
     }
 
