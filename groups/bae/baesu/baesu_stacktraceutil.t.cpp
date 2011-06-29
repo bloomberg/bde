@@ -313,7 +313,7 @@ void testStackTrace(const baesu_StackTrace& st)
             LOOP2_ASSERT(i, offset, reachedMain || offset < maxOffset);
         }
 
-        if (!FORMAT_ELF && DEBUG_ON) {
+        if (!FORMAT_ELF && DEBUG_ON && !reachedMain) {
             ASSERT(frame.isSourceFileNameKnown());
             ASSERT(frame.lineNumber() > 0);
         }
