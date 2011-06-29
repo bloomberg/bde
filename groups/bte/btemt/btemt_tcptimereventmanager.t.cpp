@@ -818,18 +818,24 @@ int main(int argc, char *argv[])
               Obj mB(Obj::BTEMT_NO_HINT, &testAllocator);
               Obj mC(Obj::BTEMT_NO_HINT, true, &testAllocator);
               Obj mD(Obj::BTEMT_NO_HINT, false, &testAllocator);
-              Obj mE(&dummyEventManager, &testAllocator);
+              Obj mE(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
+              Obj mF(Obj::BTEMT_NO_HINT, false, false, &testAllocator);
+              Obj mG(&dummyEventManager, &testAllocator);
 
               const Obj& A = mA;
               const Obj& B = mB;
               const Obj& C = mC;
               const Obj& D = mD;
               const Obj& E = mE;
+              const Obj& F = mF;
+              const Obj& G = mG;
               ASSERT(true  == A.hasTimeMetrics());
               ASSERT(true  == B.hasTimeMetrics());
               ASSERT(true  == C.hasTimeMetrics());
               ASSERT(false == D.hasTimeMetrics());
               ASSERT(false == E.hasTimeMetrics());
+              ASSERT(false == F.hasTimeMetrics());
+              ASSERT(false == G.hasTimeMetrics());
           }
           {
               if (veryVerbose) {
@@ -970,7 +976,7 @@ int main(int argc, char *argv[])
           //
           // Plan:
           //   Execute a recording functor from multiple threads, both when
-          //   channel pool is running and when it is not.
+         //   channel pool is running and when it is not.
           //
           // Testing:
           //   void execute(const bdef_Function<void (*)()>& functor);
@@ -1339,50 +1345,54 @@ int main(int argc, char *argv[])
             cout << "TESING 'enable', 'disable' AND 'registerTimer'" << endl
                  << "==============================================" << endl;
         {
-            Obj mX(&testAllocator);   const Obj& X = mX;
-            ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
+            for (int k = 0; k < 2; ++k) {
+                Obj mX(Obj::BTEMT_NO_HINT, false, (bool) k, &testAllocator);
+                const Obj& X = mX;
 
-            enum { NUM_TIMERS  = 100000, NUM_ATTEMPTS = 10 };
-            bsl::vector<bdet_TimeInterval> timeValues(NUM_TIMERS);
-            bdet_TimeInterval offset(3.0);
-            bdet_TimeInterval delta(0.5); // 1/2 seconds
-            int flags[NUM_TIMERS];
+                ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
 
-            for (int i = 0; i < NUM_TIMERS; ++i) {
-                flags[i] = 0;
-                timeValues[i] = bdetu_SystemTime::now();
-                timeValues[i] += offset;
+                enum { NUM_TIMERS  = 100000, NUM_ATTEMPTS = 10 };
+                bsl::vector<bdet_TimeInterval> timeValues(NUM_TIMERS);
+                bdet_TimeInterval offset(3.0);
+                bdet_TimeInterval delta(0.5); // 1/2 seconds
+                int flags[NUM_TIMERS];
 
-                bdef_Function<void (*)()> functor(
+                for (int i = 0; i < NUM_TIMERS; ++i) {
+                    flags[i] = 0;
+                    timeValues[i] = bdetu_SystemTime::now();
+                    timeValues[i] += offset;
+
+                    bdef_Function<void (*)()> functor(
                         bdef_BindUtil::bind(&timerCallback,
                                             &flags[i], &timeValues[i],
                                             delta, i, false));
-                mX.registerTimer(timeValues[i], functor);
-            }
-            if (veryVerbose) {
-                cout << "\t\tRegistered " << NUM_TIMERS << " timers." << endl;
-            }
-            for (int i = 0; i < NUM_ATTEMPTS; ++i) {
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                    mX.registerTimer(timeValues[i], functor);
+                }
+                if (veryVerbose) {
+                    cout << "\t\tRegistered " << NUM_TIMERS
+                         << " timers." << endl;
+                }
+                for (int i = 0; i < NUM_ATTEMPTS; ++i) {
+                    bslma_TestAllocator da;
+                    bslma_DefaultAllocatorGuard dag(&da);
 
-                LOOP_ASSERT(i, 0 == mX.disable());
-                LOOP_ASSERT(i, 0 == X.isEnabled());
-                LOOP_ASSERT(i, 0 == mX.enable());
-                LOOP_ASSERT(i, 1 == X.isEnabled());
+                    LOOP_ASSERT(i, 0 == mX.disable());
+                    LOOP_ASSERT(i, 0 == X.isEnabled());
+                    LOOP_ASSERT(i, 0 == mX.enable());
+                    LOOP_ASSERT(i, 1 == X.isEnabled());
 
-                LOOP_ASSERT(i, 0 == da.numBytesInUse());
-            }
-            bcemt_ThreadUtil::sleep(
+                    LOOP_ASSERT(i, 0 == da.numBytesInUse());
+                }
+                bcemt_ThreadUtil::sleep(
                 timeValues[NUM_TIMERS - 1] - bdetu_SystemTime::now() + delta);
 
-            ASSERT(0 == mX.disable());
-            for (int i = 0; i < NUM_TIMERS; ++i) {
-                LOOP_ASSERT(i, 1 == flags[i]);
-
+                ASSERT(0 == mX.disable());
+                for (int i = 0; i < NUM_TIMERS; ++i) {
+                    LOOP_ASSERT(i, 1 == flags[i]);
+                }
+                ASSERT(0 == X.numTimers());
+                ASSERT(0 == X.numEvents());
             }
-            ASSERT(0 == X.numTimers());
-            ASSERT(0 == X.numEvents());
         }
       } break;
       case 4: {
@@ -1400,38 +1410,42 @@ int main(int argc, char *argv[])
             cout << "TESING 'registerTimer'" << endl
                  << "======================" << endl;
         {
-            Obj mX(&testAllocator);   const Obj& X = mX;
-            ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
+            for (int k = 0; k < 2; ++k) {
+                Obj mX(Obj::BTEMT_NO_HINT, false, (bool) k, &testAllocator);
+                const Obj& X = mX;
 
-            enum { NUM_TIMERS  = 10000 };
-            bdet_TimeInterval timeValues[NUM_TIMERS];
-            bdet_TimeInterval delta(0.5); // 1/2 seconds
-            int flags[NUM_TIMERS];
+                ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
 
-            for (int i = 0; i < NUM_TIMERS; ++i) {
-                flags[i] = 0;
-                timeValues[i] = bdetu_SystemTime::now();
-                bdef_Function<void (*)()> functor(
+                enum { NUM_TIMERS  = 10000 };
+                bdet_TimeInterval timeValues[NUM_TIMERS];
+                bdet_TimeInterval delta(0.5); // 1/2 seconds
+                int flags[NUM_TIMERS];
+
+                for (int i = 0; i < NUM_TIMERS; ++i) {
+                    flags[i] = 0;
+                    timeValues[i] = bdetu_SystemTime::now();
+                    bdef_Function<void (*)()> functor(
                         bdef_BindUtil::bind(&timerCallback,
                                             &flags[i], &timeValues[i],
                                             delta, i, true));
 
-                void *id = mX.registerTimer(timeValues[i],
-                                            functor);
-                LOOP_ASSERT(i, id);
-            }
-            if (veryVerbose) {
-                cout << "\t\tRegistered " << NUM_TIMERS << " timers." << endl;
-            }
-            bcemt_ThreadUtil::sleep(delta);
+                    void *id = mX.registerTimer(timeValues[i],
+                                                functor);
+                    LOOP_ASSERT(i, id);
+                }
+                if (veryVerbose) {
+                    cout << "\t\tRegistered " << NUM_TIMERS
+                         << " timers." << endl;
+                }
+                bcemt_ThreadUtil::sleep(delta);
 
-            ASSERT(0 == mX.disable());
-            for (int i = 0; i < NUM_TIMERS; ++i) {
-                LOOP_ASSERT(i, 1 == flags[i]);
-
+                ASSERT(0 == mX.disable());
+                for (int i = 0; i < NUM_TIMERS; ++i) {
+                    LOOP_ASSERT(i, 1 == flags[i]);
+                }
+                ASSERT(0 == X.numTimers());
+                ASSERT(0 == X.numEvents());
             }
-            ASSERT(0 == X.numTimers());
-            ASSERT(0 == X.numEvents());
         }
       } break;
       case 3: {
@@ -1457,7 +1471,9 @@ int main(int argc, char *argv[])
                  << endl;
         {
             enum { NUM_THREADS = 10 };
-            Obj mX(&testAllocator);   const Obj& X = mX;
+            Obj mX(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
+            const Obj& X = mX;
+
             ASSERT(0 == mX.isEnabled());
             bcemt_ThreadUtil::Handle workers[NUM_THREADS];
 
@@ -1496,7 +1512,8 @@ int main(int argc, char *argv[])
                  << endl;
         {
             enum { NUM_THREADS = 10 };
-            Obj mX(&testAllocator);   const Obj& X = mX;
+            Obj mX(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
+            const Obj& X = mX;
             ASSERT(0 == mX.enable()); ASSERT(X.isEnabled());
             bcemt_ThreadUtil::Handle workers[NUM_THREADS];
 
