@@ -108,7 +108,7 @@ BDES_IDENT("$Id: $")
 //      assert(0 == retCode);
 //..
 // Now, read the file into 1K buffers, transmitting each buffer as a "chunk"
-// in the HTTP data stream.  Transmit the final "chunk" we no more data can
+// in the HTTP data stream.  Transmit the final "chunk" when no more data can
 // be read from the file.
 //..
 //      bool isFinalFlag;
