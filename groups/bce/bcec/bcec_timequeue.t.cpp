@@ -2679,6 +2679,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bcec_TimeQueue(bslma_Allocator *allocator=0);
+        //   bcec_TimeQueue(bool poolTimerMem, bslma_Allocator *allocator=0);
         //   ~bcec_TimeQueue();
         //   void* add(const bdet_TimeInterval& time, const DATA& data, ...
         //   int length() const;
@@ -2719,7 +2720,18 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-            Obj mX(&ta); const Obj& X = mX;
+
+            Obj mA;                 const Obj& A = mA;
+            Obj mB(&ta);            const Obj& B = mB;
+            Obj mC(true);           const Obj& C = mC;
+            Obj mD(false, &ta);     const Obj& D = mD;
+            Obj mE(8);              const Obj& E = mE;
+            Obj mF(24, &ta);        const Obj& F = mF;
+            Obj mG(10, true);       const Obj& G = mG;
+            Obj mH(17, false, &ta); const Obj& H = mH;
+
+            Obj *OBJS[] = { &mA, &mB, &mC, &mD, &mE, &mF, &mG, &mH };
+            const int NUM_OBJS = sizeof OBJS / sizeof *OBJS;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE        = VALUES[i].d_lineNum;
@@ -2729,23 +2741,27 @@ int main(int argc, char *argv[])
                 const int   ISNEWTOP    = VALUES[i].d_isNewTop;
                 const bdet_TimeInterval TIME(SECS,NSECS);
 
-                int isNewTop;
-                bdet_TimeInterval newMinTime;
-                int newLength;
-                int  handle;
-                handle = mX.add(TIME, VAL, &isNewTop, &newLength);
-                if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
-                    T_();  P_(isNewTop); P(newMinTime); P_(newLength);
-                    P(X.length());
+                for (int j = 0; j < NUM_OBJS; ++j) {
+                    Obj& mX = *OBJS[j]; const Obj& X = mX;
+
+                    int isNewTop;
+                    bdet_TimeInterval newMinTime;
+                    int newLength;
+                    int  handle;
+                    handle = mX.add(TIME, VAL, &isNewTop, &newLength);
+                    if (veryVerbose) {
+                        T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
+                        T_();  P_(isNewTop); P(newMinTime); P_(newLength);
+                        P(X.length());
+                    }
+                    LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
+                    LOOP_ASSERT(LINE, (i+1) == newLength);
+                    LOOP_ASSERT(LINE, (i+1) == X.length());
+                    LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
                 }
-                LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
-                LOOP_ASSERT(LINE, (i+1) == newLength);
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
             }
         }
-        ASSERT(0 == defaultAlloc.numAllocations());
+        ASSERT(0 == defaultAlloc.numBytesInUse());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
         if (veryVeryVerbose) { P(ta); }
@@ -2774,7 +2790,18 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-            Obj mX(&ta);  const Obj& X = mX;
+
+            Obj mA;                 const Obj& A = mA;
+            Obj mB(&ta);            const Obj& B = mB;
+            Obj mC(true);           const Obj& C = mC;
+            Obj mD(false, &ta);     const Obj& D = mD;
+            Obj mE(8);              const Obj& E = mE;
+            Obj mF(24, &ta);        const Obj& F = mF;
+            Obj mG(10, true);       const Obj& G = mG;
+            Obj mH(17, false, &ta); const Obj& H = mH;
+
+            Obj *OBJS[] = { &mA, &mB, &mC, &mD, &mE, &mF, &mG, &mH };
+            const int NUM_OBJS = sizeof OBJS / sizeof *OBJS;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE        = VALUES[i].d_lineNum;
@@ -2784,22 +2811,26 @@ int main(int argc, char *argv[])
                 const int   ISNEWTOP    = VALUES[i].d_isNewTop;
                 const bdet_TimeInterval TIME(SECS,NSECS);
 
-                int isNewTop;
-                int newLength;
+                for (int j = 0; j < NUM_OBJS; ++j) {
+                    Obj& mX = *OBJS[j]; const Obj& X = mX;
 
-                int handle;
-                handle = mX.add(TIME, VAL, &isNewTop, &newLength);
-                if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
-                    T_();  P_(isNewTop); P_(newLength); P(X.length());
+                    int isNewTop;
+                    int newLength;
+
+                    int handle;
+                    handle = mX.add(TIME, VAL, &isNewTop, &newLength);
+                    if (veryVerbose) {
+                        T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
+                        T_();  P_(isNewTop); P_(newLength); P(X.length());
+                    }
+                    LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
+                    LOOP_ASSERT(LINE, (i+1) == newLength);
+                    LOOP_ASSERT(LINE, (i+1) == X.length());
+                    LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
                 }
-                LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
-                LOOP_ASSERT(LINE, (i+1) == newLength);
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
             }
         }
-        ASSERT(0 == defaultAlloc.numAllocations());
+        ASSERT(0 == defaultAlloc.numBytesInUse());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
         if (veryVeryVerbose) { P(ta); }
