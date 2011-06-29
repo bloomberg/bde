@@ -72,17 +72,8 @@ void bces_AtomicUtilImpl_Amd64SetInt(volatile int *aInt, int val)
                           : "memory" );
 }
 
-inline
 int bces_AtomicUtilImpl_Amd64SwapInt(volatile int *aInt,
-                                     int           val)
-{
-    __asm__ __volatile__ (
-                          "lock xchgl %1,%0\n\t"
-                          : "=m"(*aInt), "+r"(val)
-                          :
-                          : "memory" );
-    return val;
-}
+                                     int           val);
 
 inline
 int bces_AtomicUtilImpl_Amd64GetInt(volatile const int *aInt)
