@@ -55,10 +55,17 @@ struct Resolver_DllApi {
     // TYPES
     typedef DWORD __stdcall SymSetOptionsProc(DWORD);
     typedef BOOL  __stdcall SymInitializeProc(HANDLE, PCSTR, BOOL);
-    typedef BOOL  __stdcall SymFromAddrProc(HANDLE,
+#ifdef BSLS_PLATFORM__CPU_32_BIT
+	typedef BOOL  __stdcall SymFromAddrProc(HANDLE,
                                             DWORD64,
                                             PDWORD64,
                                             PSYMBOL_INFO);
+#else
+	typedef BOOL  __stdcall SymGetSymFromAddr64Proc(HANDLE,
+		                                            DWORD64,
+													PDWORD64,
+													PIMAGEHLP_SYMBOL64);
+#endif
     typedef BOOL  __stdcall SymGetLineFromAddr64Proc(HANDLE,
                                                      DWORD64,
                                                      PDWORD,
@@ -74,8 +81,13 @@ struct Resolver_DllApi {
 
     SymInitializeProc                *d_symInitialize; // 'SymInitialize' func
 
-    SymFromAddrProc                  *d_symFromAddr;   // 'SymFromAddr' func
-
+#ifdef BSLS_PLATFORM__CPU_32_BIT
+	SymFromAddrProc                  *d_symFromAddr;   // 'SymFromAddr' func
+#else
+    SymGetSymFromAddr64Proc          *d_symGetSymFromAddr64;
+	                                                   // 'SymGetSymFromAddr64'
+                                                       // func
+#endif
     SymGetLineFromAddr64Proc         *d_symGetLineFromAddr64;
                                                  // 'SymGetLineFromAddr64' func
 
@@ -112,17 +124,26 @@ Resolver_DllApi::Resolver_DllApi()
                                GetProcAddress(d_moduleHandle, "SymSetOptions");
     d_symInitialize = (SymInitializeProc *)
                                GetProcAddress(d_moduleHandle, "SymInitialize");
+#ifdef BSLS_PLATFORM__CPU_32_BIT
     d_symFromAddr = (SymFromAddrProc *)
                                  GetProcAddress(d_moduleHandle, "SymFromAddr");
-    d_symGetLineFromAddr64 = (SymGetLineFromAddr64Proc *)
+#else
+    d_symGetSymFromAddr64 = (SymGetSymFromAddr64Proc *)
+		                 GetProcAddress(d_moduleHandle, "SymGetSymFromAddr64");
+#endif
+	d_symGetLineFromAddr64 = (SymGetLineFromAddr64Proc *)
                         GetProcAddress(d_moduleHandle, "SymGetLineFromAddr64");
     d_symCleanup = (SymCleanupProc *)
                                   GetProcAddress(d_moduleHandle, "SymCleanup");
 
     if   (NULL == d_symSetOptions
        || NULL == d_symInitialize
-       || NULL == d_symFromAddr
-       || NULL == d_symGetLineFromAddr64
+#ifdef BSLS_PLATFORM__CPU_32_BIT
+	   || NULL == d_symFromAddr
+#else
+	   || NULL == d_symGetSymFromAddr64
+#endif
+	   || NULL == d_symGetLineFromAddr64
        || NULL == d_symCleanup) {
         FreeLibrary(d_moduleHandle);
         d_moduleHandle = NULL;
@@ -212,13 +233,17 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
     LibNameMap libNameMap(&hbpAlloc);
     char *libNameBuf = (char *) hbpAlloc.allocate(MAX_PATH);
 
-    enum {
-        MAX_SYMBOL_BUF_NAME_LENGTH = 2000,
-        SIZEOF_SEGMENT = sizeof(SYMBOL_INFO) +
-                                    MAX_SYMBOL_BUF_NAME_LENGTH * sizeof(TCHAR),
-        SIZEOF_STRUCT = SIZEOF_SEGMENT - sizeof(TCHAR)
-    };
+	enum { MAX_SYMBOL_BUF_NAME_LENGTH = 2000 };
+#ifdef BSLS_PLATFORM__CPU_32_BIT
+	enum { SIZEOF_SEGMENT = sizeof(SYMBOL_INFO) +
+                                  MAX_SYMBOL_BUF_NAME_LENGTH * sizeof(TCHAR) };
     SYMBOL_INFO *sym = (SYMBOL_INFO*) hbpAlloc.allocate(SIZEOF_SEGMENT);
+#else
+	enum { SIZEOF_SEGMENT = sizeof(IMAGEHLP_SYMBOL64) +
+                                  MAX_SYMBOL_BUF_NAME_LENGTH * sizeof(TCHAR) };
+    IMAGEHLP_SYMBOL64 *sym = (IMAGEHLP_SYMBOL64 *)
+                                             hbpAlloc.allocate(SIZEOF_SEGMENT);
+#endif
 
     for(int i = 0; i < numFrames; ++i) {
         baesu_StackTraceFrame *frame = &(*stackTrace)[i];
@@ -241,15 +266,23 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
             reportError("stack trace resovler error: symGetLineFromAddr64"
                         " error code: ");
         }
-        ZeroMemory(sym, SIZEOF_SEGMENT);
-        sym->SizeOfStruct = SIZEOF_STRUCT;
-        sym->MaxNameLen = MAX_SYMBOL_BUF_NAME_LENGTH;
-        DWORD64 offsetFromSymbol;
+        DWORD64 offsetFromSymbol = 0;
+		ZeroMemory(sym, SIZEOF_SEGMENT);
+        sym->SizeOfStruct = sizeof(*sym);
+		sym->MaxNameLength = MAX_SYMBOL_BUF_NAME_LENGTH;
+#ifdef BSLS_PLATFORM__CPU_32_BIT
         rc = (*api.d_symFromAddr)(hProcess,
                                   address,
                                   &offsetFromSymbol,
                                   sym);
-        if (rc) {
+#else
+		BSLS_ASSERT(sizeof(void *) == 8);
+		rc = (*api.d_symGetSymFromAddr64)(hProcess,
+			                              address,
+					    	    		  &offsetFromSymbol,
+						    			  sym);
+#endif
+		if (rc) {
             // windows is always demangled
 
             ((TCHAR *) sym)[SIZEOF_SEGMENT - 1] = 0;
@@ -258,10 +291,16 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
             frame->setOffsetFromSymbol((bsl::size_t) offsetFromSymbol);
         }
         else {
-            reportError("stack trace resovler error: symFromAddr"
+#ifdef BSLS_PLATFORM__CPU_32_BIT
+            reportError("stack trace resovler error: SymFromAddr"
                         " error code: ");
-        }
-        HMODULE hModule = NULL;
+#else
+			reportError("stack trace resovler error: SymGetSymFromAddr64"
+                        " error code: ");
+#endif
+		}
+
+		HMODULE hModule = NULL;
         MEMORY_BASIC_INFORMATION mbi;
         if (VirtualQuery((LPCVOID) address, &mbi, sizeof(mbi))) {
             hModule = (HMODULE)(mbi.AllocationBase);

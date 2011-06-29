@@ -12,6 +12,7 @@
 
 #include <bslmf_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
 #include <bsl_cstdlib.h>     // atoi
@@ -235,6 +236,8 @@ static void aSsErT(int c, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 typedef baesu_StackTraceFrame Obj;
+
+typedef bsls_Types::UintPtr   UintPtr;
 
 // Attribute Types
 typedef const void *T1;  // 'address'
@@ -2488,8 +2491,10 @@ int main(int argc, char *argv[])
 
         // Attribute 1 Values: 'address'
 
-        const T1 A1 = (T1) (unsigned) 0xabcdef01;
-        const T1 B1 = (T1) (unsigned) 0x12345678;
+		unsigned a1_32 = 0xabcdef01;
+		UintPtr  a1_64 = a1_32;
+		const T1 A1 = (T1) a1_64;
+        const T1 B1 = (T1) 0x12345678UL;
 
         // Attribute 2 Values: 'libraryFileName'
 
