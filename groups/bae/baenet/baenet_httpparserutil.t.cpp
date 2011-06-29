@@ -392,6 +392,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST PARSING OF CHUNK HEADER LINE
         // --------------------------------------------------------------------
+        // Concern: the stream buffer is advanced by the number of bytes read
+        // Test Plan: sample the read position before and after every call to
+        // 'parseChunkHeader', and when the return code is successful, ensure
+        // the stream buffer is advanced by the value loaded into the 
+        // 'numBytesConsumed' argument.
         //
         // Concern: hexCharTable[] may be invalid
         // Test Plan: call parser with a string: "X\r\n" for all possible
@@ -440,10 +445,20 @@ int main(int argc, char *argv[])
             int            result = 0;
             int            consumed = 0;
             bsl::stringbuf input(buf);
+            int            inputPos = input.pubseekoff(0, 
+                                                       bsl::ios_base::cur,
+                                                       bsl::ios_base::in);
             int            retCode = baenet_HttpParserUtil::parseChunkHeader(
                                                                   &result,
                                                                   &consumed,
                                                                   &input);
+            if (0 == retCode) {
+                int finalInputPos = input.pubseekoff(0, 
+                                                     bsl::ios_base::cur,
+                                                     bsl::ios_base::in);
+                LOOP2_ASSERT(c, retCode, finalInputPos == inputPos + consumed);
+            }
+
             bsl::istringstream in(buf);
             int n;
             in >> bsl::hex;
@@ -534,11 +549,22 @@ int main(int argc, char *argv[])
             }
             int            result = 0, consumed = 0;
             bsl::stringbuf input(STRING);
+            int            inputPos = input.pubseekoff(0, 
+                                                       bsl::ios_base::cur,
+                                                       bsl::ios_base::in);
             int            retCode = baenet_HttpParserUtil::parseChunkHeader(
                                                                   &result,
                                                                   &consumed,
                                                                   &input);
             LOOP2_ASSERT(LINE, retCode, EXPECTED_RETURN == retCode);
+
+            if (0 == retCode) {
+                int finalInputPos = input.pubseekoff(0, 
+                                                     bsl::ios_base::cur,
+                                                     bsl::ios_base::in);
+                LOOP2_ASSERT(LINE, retCode, finalInputPos == 
+                                            inputPos + consumed);
+            }
 
             if (SUCCESS == retCode) {
                 LOOP2_ASSERT(LINE, consumed, EXPECTED_CONSUMED == consumed);
