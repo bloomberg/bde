@@ -48,14 +48,14 @@ BDES_IDENT("$Id: $")
 ///----------------------
 // Clients can provide a memory hint to 'bcec_TimeQueue' asking it to pool the
 // memory that it uses for the timers in it's internal data structures.  Note
-// that providing a generic pool allocator to be used for all allocations
-// cannot be done as 'bcec_TimeQueue' contains multiple data structures
-// having differing memory requirements, and a pool providing memory in one
-// size blocks does not work well.  The performance benefit from pooling the
-// timer memory varies across platforms but in the normal use case where
-// many timers are registered and fired multiple times the processing time of
-// adding and removing timers improves by 2 - 10 %.  The total number of
-// memory allocations also drop significantly while using the flag.
+// that it is inefficient to provide a generic pool allocator as
+// 'bcec_TimeQueue' contains multiple data structures having differing memory
+// requirements.  The performance benefit from pooling the timer memory varies
+// across platforms but in the normal use case where many timers are registered
+// and fired multiple times the processing time of adding and removing timers
+// improves by 2 - 10 %.  The total number of memory allocations also drop
+// significantly if 'poolTimerMemory' is 'true', however, it may result in
+// higher peak memory depending on the usage pattern of the queue.
 //
 ///Thread Safety
 ///-------------
