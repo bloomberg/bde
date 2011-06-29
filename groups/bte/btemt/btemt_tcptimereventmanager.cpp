@@ -880,7 +880,9 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
 
         // Process expired timers in increasing time order.
         if (d_timerQueue.length()) {
-            const int SIZE = 4096;
+            const int NUM_TIMERS = 32;
+            const int SIZE =
+             sizeof(bcec_TimeQueueItem<bdef_Function<void (*)()>) * NUM_TIMERS;
             char      BUFFER[SIZE];
             bdema_BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
 
