@@ -150,15 +150,21 @@ static void reportError(const char *string)
 {
     DWORD lastError = GetLastError();
 
-    static bool report;
+    static int reportTimes = 0;
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
 
-        report = !!bsl::getenv("BAESU_STACKTRACERESOLVERIMPL_WINDOWS_REPORT");
+        const char *nrString =
+              bsl::getenv("BAESU_STACKTRACERESOLVERIMPL_WINDOWS_REPORT_TIMES");
+        if (nrString) {
+            reportTimes = bsl::atoi(nrString);
+        }
     }
 
-    if (report) {
+    if (reportTimes > 0) {
+        --reportTimes;
+
         bsl::cerr << string << lastError << bsl::endl;
     }
 }
