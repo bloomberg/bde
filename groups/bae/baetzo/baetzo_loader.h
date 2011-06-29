@@ -151,7 +151,7 @@ BDES_IDENT("$Id: $")
 //..
 //  baetzo_Loader& loader = myLoader;
 //..
-// Next, we load the time zone data for New York:
+// Now, we load the time zone data for New York:
 //..
 //  baetzo_Zoneinfo nyTimeZone;
 //  if (0 != loader.loadTimeZone(&nyTimeZone, "America/New_York")) {
@@ -159,7 +159,7 @@ BDES_IDENT("$Id: $")
 //     return -1;
 //  }
 //..
-// Now, we verify some basic properties of the time zone:
+// Then, we verify some basic properties of the time zone:
 //..
 //  assert("America/New_York" == nyTimeZone.identifier());
 //..

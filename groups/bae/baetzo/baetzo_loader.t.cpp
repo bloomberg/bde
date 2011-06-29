@@ -19,11 +19,16 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// We are testing a pure protocol class as.  We need to verify that (1) a
-// concrete derived class compiles and links, and (2) that a usage example
-// obtains the behavior specified by the protocol from the concrete
-// subclass.
+// The component under test defines a protocol class [...]
+//
+// Global Concerns:
+//: o The test driver is robust w.r.t. reuse in other, similar components.
+//: o It is possible to create a concrete implementation the protocol.
 //-----------------------------------------------------------------------------
+// CREATORS
+// [ 1] virtual ~baetzo_Loader();
+//
+// MANIPULATORS
 // [ 1] virtual int loadTimeZone(Zoneinfo *tz, const char *tzId) = 0;
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -60,12 +65,17 @@ static void aSsErT(int c, const char *s, int i)
 #define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
 #define L_ __LINE__                           // current Line number
 
+// ============================================================================
+//                     GLOBAL TYPEDEFS FOR TESTING
+// ----------------------------------------------------------------------------
+typedef baetzo_Loader Obj;
+
 //=============================================================================
 //                      CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
 namespace {
 
-struct LoaderTestImp : bsls_ProtocolTestImp<baetzo_Loader> {
+struct ObjTestImp : bsls_ProtocolTestImp<Obj> {
     int loadTimeZone(baetzo_Zoneinfo *, const char *) { return markDone(); }
 };
 
@@ -242,7 +252,7 @@ int main(int argc, char *argv[])
     MyLoaderImp myLoader;
     baetzo_Loader& loader = myLoader;
 //..
-// Next, we load the time zone data for New York:
+// Now, we load the time zone data for New York:
 //..
     baetzo_Zoneinfo nyTimeZone;
     if (0 != loader.loadTimeZone(&nyTimeZone, "America/New_York")) {
@@ -250,7 +260,7 @@ int main(int argc, char *argv[])
        return -1;
     }
 //..
-// Now, we verify some basic properties of the time zone:
+// Then, we verify some basic properties of the time zone:
 //..
     ASSERT("America/New_York" == nyTimeZone.identifier());
 //..
@@ -292,54 +302,76 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // PROTOCOL TEST:
-        //   Test the conformance of baetzo_Loader to the protocol concerns.
+        //   Ensure this class is a properly defined protocol.
         //
         // Concerns:
-        //: 1 'baetzo_Loader' protocol is an abstract class, i.e., no objects
-        //:    of the 'baetzo_Loader' class can be created.
+        //: 1 The protocol is an abstract class, and therefore no objects
+        //:   of this class can be created.
         //:
-        //: 2 'baetzo_Loader' has no data members.
+        //: 2 The protocol class has no data members.
         //:
-        //: 3 All members of 'baetzo_Loader' are pure virtual.
+        //: 3 The protocol class has a pure virtual destructor.
         //:
-        //: 4 'baetzo_Loader' has a pure virtual destructor.
+        //: 4 All members of the protocol class are pure virtual.
         //:
-        //: 5 All methods of 'baetzo_Loader' are publicly accessible.
+        //: 5 All methods of the protocol class are publicly accessible.
         //
         // Plan:
-        //  Use 'bsl_ProtocolTest' component to test the following subset of
-        //  the baetzo_Loader protocol concerns:
-        //: 1 'baetzo_Loader' protocol is an abstract class, i.e., no objects of
-        //:   'baetzo_Loader' protocol class can be created
+        //: 1 Define a concrete derived implementation, 'ObjTestImp' of the
+        //:   protocol.
         //:
-        //: 2 'baetzo_Loader' has no data members
+        //: 2 Create an object of the 'bsls_ProtocolTest' class parameterized
+        //:   with 'ObjTestImp'.
         //:
-        //: 3 Each of the known and tested methods of baetzo_Loader is virtual.
+        //: 3 Use the 'bsls_ProtocolTest' object to verify that the protocol is
+        //:   an abstract class.  (C-1)
         //:
-        //: 4 'baetzo_Loader' has a virtual destructor.
+        //: 4 Use the 'bsls_ProtocolTest' object to verify that the protocol
+        //:   has no data members.  (C-2)
         //:
-        //: 5 Each of the known and tested methods of 'baetzo_Loader' is
-        //:   publicly accessible.
+        //: 5 Use the 'bsls_ProtocolTest' object to verify that the protocol
+        //:   has a virtual destructor.  (C-3)
+        //:
+        //: 6 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that:
+        //:
+        //:   1 All the methods of the protocol class are virtual.  (C-4)
+        //:
+        //:   2 All the methods of the protocol class are publicly accessible.
+        //:     (C-5)
         //
         // Testing:
+        //   virtual ~baetzo_Loader();
         //   virtual int loadTimeZone(Zoneinfo *tz, const char *tzId) = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        if (verbose) cout << "\nTest the protocol with 'bsls_ProtocolTest'"
+        if (verbose) cout << "\nCreate an object of the 'bsls_ProtocolTest'"
+                             " class parameterized with 'ObjTestImp'"
                           << endl;
 
-        bsls_ProtocolTest<LoaderTestImp> t(veryVerbose);
+        bsls_ProtocolTest<ObjTestImp> t(veryVerbose);
+
+        if (verbose) cout << "\nVerify that the protocol is an abstract class."
+                          << endl;
 
         ASSERT(t.testAbstract());
+
+        if (verbose) cout << "\nVerify that the protocol has no data members."
+                          << endl;
         ASSERT(t.testNoDataMembers());
+
+        if (verbose) cout << "\nVerify that the protocol has a virtual dtor."
+                          << endl;
         ASSERT(t.testVirtualDestructor());
 
-        BSLS_PROTOCOLTEST_ASSERT(t, loadTimeZone(0, 0));
 
-        LOOP_ASSERT(t.failures(), !t.failures());
+        if (verbose) cout << "\nVerify that each method is virtual and"
+                             " publicly accessible."
+                          << endl;
+
+        BSLS_PROTOCOLTEST_ASSERT(t, loadTimeZone(0, 0));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
