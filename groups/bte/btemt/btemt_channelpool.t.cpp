@@ -629,7 +629,7 @@ void populateMessage(bcema_Blob      *msg,
 namespace CASE37 {
 
 Obj       *channelPool;
-int        channelId;
+int        s_channelId;
 const int  CACHE_HI_WAT = 6000000;
 
 bcema_PooledBlobBufferFactory blobFactory(256);
@@ -642,9 +642,7 @@ int maxMsgSize = 32000;
 
 bcemt_Barrier *barrier;
 
-void poolStateCb(int            state,
-                 int            source,
-                 int            severity)
+void poolStateCb(int state, int source, int severity)
 {
     if (veryVerbose) {
         bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
@@ -671,6 +669,7 @@ void channelStateCb(int              channelId,
     }
     if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
         *id = channelId;
+        s_channelId = channelId;
         barrier->wait();
     }
 }
@@ -701,7 +700,7 @@ int write(int nBytes)
 {
     bcema_Blob blob(&blobFactory);
     blob.setLength(nBytes);
-    return channelPool->write(channelId, blob);
+    return channelPool->write(s_channelId, blob);
 }
 
 enum  {
@@ -775,7 +774,7 @@ void writerThread(unsigned threadIndex)
         while(sig <= oldSignal);
         oldSignal = sig;
 
-        int rc = channelPool->write(channelId, blob);
+        int rc = channelPool->write(s_channelId, blob);
         LOOP_ASSERT(rc, !rc);
 
         if (rc == 0) {
@@ -7771,6 +7770,9 @@ int main(int argc, char *argv[])
       case 37: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 25245489
+        //   Reproducing that even when numNeeded is specified as 0 channel
+        //   pool can continue reading because it fails to disableRead in all
+        //   cases.  After reproduction check that the fix corrects the bug.
         //
         // Concerns:
         //: 1 The writeMessage contained a race condition where two threads
@@ -7797,9 +7799,10 @@ int main(int argc, char *argv[])
         //  DRQS 25245489
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nDRQS 25245489"
-                          << "\n============="
-                          << endl;
+        if (verbose)
+            cout << "\nREPRODUCING DRQS 20199908"
+                 << "\n========================="
+                 << endl;
 
         using namespace CASE37;
 
@@ -7813,7 +7816,8 @@ int main(int argc, char *argv[])
             P(config);
         }
 
-        bcemt_Barrier channelCbBarrier(2);
+        bcemt_Barrier   channelCbBarrier(2);
+        int             channelId;
         btemt_ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdef_BindUtil::bind(&channelStateCb,
                                                            _1, _2, _3, _4,
