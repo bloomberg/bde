@@ -1182,7 +1182,6 @@ typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
     if (d_nextFreeNode_p) {
         node = d_nextFreeNode_p;
         Node *next = node->d_next_p;
-        // TBD: Is this a bug ? What if node is 0 after the swap ?
         while (node != d_nextFreeNode_p.testAndSwap(node, next)) {
             node = d_nextFreeNode_p;
             next = node->d_next_p;
