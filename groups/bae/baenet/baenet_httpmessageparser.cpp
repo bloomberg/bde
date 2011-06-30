@@ -79,7 +79,7 @@ bool canHaveMessageBody(const baenet_HttpStartLine& startLine)
         return false;
     }
 
-    int statusCode = static_cast<int>(startLine.statusLine().statusCode());
+    int statusCode = startLine.statusLine().statusCode();
 
     if ((100 <= statusCode && statusCode <= 199)
      || 204 == statusCode || 304 == statusCode) {

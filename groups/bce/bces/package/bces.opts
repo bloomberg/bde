@@ -13,12 +13,5 @@ unix-SunOS-sparc-*-cc           _       DEF_CXXFLAGS        = $(SPARC_BCES_CXXFL
 
 unix-SunOS-sparc-*-gcc          _       DEF_CXXFLAGS        = -mv8plus -Wa,-xarch=v8plus
 
-# Additional assembly language source file
-unix-AIX-*-*-xlc        _       EXTRA_BCES_SRCS = bces_atomicutilimpl_powerpc.ibm.s
-!! unix-AIX-*-*-xlc     64      EXTRA_BCES_SRCS = bces_atomicutilimpl_powerpc.ibm64.s
-# Additional assembly language object file
-unix-AIX-*-*-xlc        _       EXTRA_BCES_OBJS = bces_atomicutilimpl_powerpc.ibm.o
-!! unix-AIX-*-*-xlc     64      EXTRA_BCES_OBJS = bces_atomicutilimpl_powerpc.ibm64.o
-
 unix-HP_UX-*-*-acc      _       DEF_CXXFLAGS = +Ovolatile=__unordered
 unix-HP_UX-*-*-acc      64      DEF_CXXFLAGS = +Ovolatile=__unordered
