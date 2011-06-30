@@ -4,8 +4,6 @@
 
 #include <stdio.h>      // 'printf'
 
-using namespace BloombergLP;
-
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
@@ -78,7 +76,7 @@ namespace {
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace SwapTestNspc {
+namespace BloombergLP {
 
 struct SwapTester {
     bool swapped;
@@ -88,12 +86,31 @@ struct SwapTester {
     {}
 };
 
+inline
 void swap(SwapTester& a, SwapTester& b)
 {
     a.swapped = b.swapped = true;
 }
 
+struct SwapContainer
+{
+    SwapTester m_t;
+
+    void swap(SwapContainer & other)
+    {
+        bslalg_SwapUtil::swap(&m_t, &other.m_t);
+    }
+};
+
+inline
+void swap(SwapContainer & a, SwapContainer & b)
+{
+    a.swap(b);
 }
+
+}
+
+using namespace BloombergLP;
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -206,8 +223,8 @@ bslalg_SwapUtil::swap(&c1, &c2);
 
         if (verbose) printf("\nTesting 'swap'\n");
 
-        SwapTestNspc::SwapTester a;
-        SwapTestNspc::SwapTester b;
+        SwapTester a;
+        SwapTester b;
 
         ASSERT(!a.swapped);
         ASSERT(!b.swapped);
@@ -224,6 +241,18 @@ bslalg_SwapUtil::swap(&c1, &c2);
 
         ASSERT(c == 20);
         ASSERT(d == 10);
+
+        if (verbose) printf("\nTesting 'swap' for a 'container' class\n");
+
+        SwapContainer ca;
+        SwapContainer cb;
+        ASSERT(!ca.m_t.swapped);
+        ASSERT(!cb.m_t.swapped);
+
+        bslalg_SwapUtil::swap(&ca, &cb);
+
+        ASSERT(ca.m_t.swapped);
+        ASSERT(cb.m_t.swapped);
       } break;
       case 1: {
         // --------------------------------------------------------------------
