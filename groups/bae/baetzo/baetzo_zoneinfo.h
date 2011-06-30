@@ -48,7 +48,6 @@ BDES_IDENT("$Id: $")
 ///'baetzo_Zoneinfo'
 ///-----------------
 // A 'baetzo_Zoneinfo' contains:
-//
 //: o the time zone identifier (e.g., "America/New_York" or "Asia/Tokyo")
 //:
 //: o the ordered sequence of 'baetzo_ZoneinfoTransition' objects,
@@ -185,7 +184,7 @@ BDES_IDENT("$Id: $")
 //..
 // Then, we access the descriptor associated with the transition to which 'it'
 // refers, and calculate the offset from UTC rounded to the minute:
-// ..
+//..
 //      const baetzo_ZoneinfoTransition& transition = *it;
 //      const int offsetInMinutes =
 //                           transition.descriptor().utcOffsetInSeconds() / 60;
@@ -202,7 +201,6 @@ BDES_IDENT("$Id: $")
 //      return bdet_DatetimeTz(temp, offsetInMinutes);
 //  }
 //..
-//
 // Suppose, now, we want to convert UTC time to the corresponding local time in
 // New York.  We can do so using the previously defined function
 // 'utcToLocalTime' and reusing the 'baetzo_Zoneinfo' object, 'newYorkTimeZone'
@@ -610,6 +608,7 @@ void swap(baetzo_Zoneinfo& a, baetzo_Zoneinfo& b);
                         // -------------------------------
                         // class baetzo_ZoneinfoTransition
                         // -------------------------------
+
 // PRIVATE CREATORS
 inline
 baetzo_ZoneinfoTransition::baetzo_ZoneinfoTransition(
