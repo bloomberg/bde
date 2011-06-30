@@ -2491,9 +2491,13 @@ int main(int argc, char *argv[])
 
         // Attribute 1 Values: 'address'
 
-		unsigned a1_32 = 0xabcdef01;
-		UintPtr  a1_64 = a1_32;
-		const T1 A1 = (T1) a1_64;
+        // Note: on Windows 64 bit, 'const T1 A1 = (UintPtr) (unsigned) 0xab..'
+        // didn't work -- it signed extended!!!  For some reason actually
+        // assigning to intermediate variables stops the sign extension.
+
+        const unsigned a1_32 = 0xabcdef01;
+        const UintPtr  a1_64 = a1_32;
+        const T1 A1 = (T1) a1_64;
         const T1 B1 = (T1) 0x12345678UL;
 
         // Attribute 2 Values: 'libraryFileName'

@@ -56,15 +56,18 @@ struct Resolver_DllApi {
     typedef DWORD __stdcall SymSetOptionsProc(DWORD);
     typedef BOOL  __stdcall SymInitializeProc(HANDLE, PCSTR, BOOL);
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-	typedef BOOL  __stdcall SymFromAddrProc(HANDLE,
+    // For some reason, 'symFromAddr' doesn't work right on 64 bit, so we
+    // #ifdef everything and use 'SymGetSymFromAddr64'.
+
+    typedef BOOL  __stdcall SymFromAddrProc(HANDLE,
                                             DWORD64,
                                             PDWORD64,
                                             PSYMBOL_INFO);
 #else
-	typedef BOOL  __stdcall SymGetSymFromAddr64Proc(HANDLE,
-		                                            DWORD64,
-													PDWORD64,
-													PIMAGEHLP_SYMBOL64);
+    typedef BOOL  __stdcall SymGetSymFromAddr64Proc(HANDLE,
+                                                    DWORD64,
+                                                    PDWORD64,
+                                                    PIMAGEHLP_SYMBOL64);
 #endif
     typedef BOOL  __stdcall SymGetLineFromAddr64Proc(HANDLE,
                                                      DWORD64,
@@ -82,10 +85,10 @@ struct Resolver_DllApi {
     SymInitializeProc                *d_symInitialize; // 'SymInitialize' func
 
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-	SymFromAddrProc                  *d_symFromAddr;   // 'SymFromAddr' func
+    SymFromAddrProc                  *d_symFromAddr;   // 'SymFromAddr' func
 #else
     SymGetSymFromAddr64Proc          *d_symGetSymFromAddr64;
-	                                                   // 'SymGetSymFromAddr64'
+                                                       // 'SymGetSymFromAddr64'
                                                        // func
 #endif
     SymGetLineFromAddr64Proc         *d_symGetLineFromAddr64;
@@ -129,9 +132,9 @@ Resolver_DllApi::Resolver_DllApi()
                                  GetProcAddress(d_moduleHandle, "SymFromAddr");
 #else
     d_symGetSymFromAddr64 = (SymGetSymFromAddr64Proc *)
-		                 GetProcAddress(d_moduleHandle, "SymGetSymFromAddr64");
+                         GetProcAddress(d_moduleHandle, "SymGetSymFromAddr64");
 #endif
-	d_symGetLineFromAddr64 = (SymGetLineFromAddr64Proc *)
+    d_symGetLineFromAddr64 = (SymGetLineFromAddr64Proc *)
                         GetProcAddress(d_moduleHandle, "SymGetLineFromAddr64");
     d_symCleanup = (SymCleanupProc *)
                                   GetProcAddress(d_moduleHandle, "SymCleanup");
@@ -139,11 +142,11 @@ Resolver_DllApi::Resolver_DllApi()
     if   (NULL == d_symSetOptions
        || NULL == d_symInitialize
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-	   || NULL == d_symFromAddr
+       || NULL == d_symFromAddr
 #else
-	   || NULL == d_symGetSymFromAddr64
+       || NULL == d_symGetSymFromAddr64
 #endif
-	   || NULL == d_symGetLineFromAddr64
+       || NULL == d_symGetLineFromAddr64
        || NULL == d_symCleanup) {
         FreeLibrary(d_moduleHandle);
         d_moduleHandle = NULL;
@@ -168,6 +171,9 @@ bool Resolver_DllApi::loaded()
 }  // close unnamed namespace
 
 static void reportError(const char *string)
+    // If an environment variable is set, report the result of 'GetLastError'
+    // to 'cerr', but only do it a limited number of times (test case 2 causes
+    // a huge number of these errors).
 {
     DWORD lastError = GetLastError();
 
@@ -233,13 +239,13 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
     LibNameMap libNameMap(&hbpAlloc);
     char *libNameBuf = (char *) hbpAlloc.allocate(MAX_PATH);
 
-	enum { MAX_SYMBOL_BUF_NAME_LENGTH = 2000 };
+    enum { MAX_SYMBOL_BUF_NAME_LENGTH = 2000 };
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-	enum { SIZEOF_SEGMENT = sizeof(SYMBOL_INFO) +
+    enum { SIZEOF_SEGMENT = sizeof(SYMBOL_INFO) +
                                   MAX_SYMBOL_BUF_NAME_LENGTH * sizeof(TCHAR) };
     SYMBOL_INFO *sym = (SYMBOL_INFO*) hbpAlloc.allocate(SIZEOF_SEGMENT);
 #else
-	enum { SIZEOF_SEGMENT = sizeof(IMAGEHLP_SYMBOL64) +
+    enum { SIZEOF_SEGMENT = sizeof(IMAGEHLP_SYMBOL64) +
                                   MAX_SYMBOL_BUF_NAME_LENGTH * sizeof(TCHAR) };
     IMAGEHLP_SYMBOL64 *sym = (IMAGEHLP_SYMBOL64 *)
                                              hbpAlloc.allocate(SIZEOF_SEGMENT);
@@ -267,22 +273,22 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
                         " error code: ");
         }
         DWORD64 offsetFromSymbol = 0;
-		ZeroMemory(sym, SIZEOF_SEGMENT);
+        ZeroMemory(sym, SIZEOF_SEGMENT);
         sym->SizeOfStruct = sizeof(*sym);
-		sym->MaxNameLength = MAX_SYMBOL_BUF_NAME_LENGTH;
+        sym->MaxNameLength = MAX_SYMBOL_BUF_NAME_LENGTH;
 #ifdef BSLS_PLATFORM__CPU_32_BIT
         rc = (*api.d_symFromAddr)(hProcess,
                                   address,
                                   &offsetFromSymbol,
                                   sym);
 #else
-		BSLS_ASSERT(sizeof(void *) == 8);
-		rc = (*api.d_symGetSymFromAddr64)(hProcess,
-			                              address,
-					    	    		  &offsetFromSymbol,
-						    			  sym);
+        BSLS_ASSERT(sizeof(void *) == 8);
+        rc = (*api.d_symGetSymFromAddr64)(hProcess,
+                                          address,
+                                          &offsetFromSymbol,
+                                          sym);
 #endif
-		if (rc) {
+        if (rc) {
             // windows is always demangled
 
             ((TCHAR *) sym)[SIZEOF_SEGMENT - 1] = 0;
@@ -295,12 +301,12 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
             reportError("stack trace resovler error: SymFromAddr"
                         " error code: ");
 #else
-			reportError("stack trace resovler error: SymGetSymFromAddr64"
+            reportError("stack trace resovler error: SymGetSymFromAddr64"
                         " error code: ");
 #endif
-		}
+        }
 
-		HMODULE hModule = NULL;
+        HMODULE hModule = NULL;
         MEMORY_BASIC_INFORMATION mbi;
         if (VirtualQuery((LPCVOID) address, &mbi, sizeof(mbi))) {
             hModule = (HMODULE)(mbi.AllocationBase);
