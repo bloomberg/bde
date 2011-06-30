@@ -920,7 +920,7 @@ int main(int argc, char *argv[])
                     os << DATA[i];
                     os << bsl::flush;
                 }
-  
+
                 int ret = parser.addData(bsl::cerr, &osb);
                 LOOP_ASSERT(i, 0 == ret);
             }
@@ -959,7 +959,7 @@ int main(int argc, char *argv[])
         baenet_HttpMessageParser parser(
                                        &entityProcessor,
                                        baenet_HttpMessageType::BAENET_REQUEST,
-                                       &factory); 
+                                       &factory);
         {
             for (int i = 0; i < NUM_DATA; ++i) {
                 bcema_Blob blob(&factory);
@@ -976,7 +976,7 @@ int main(int argc, char *argv[])
         }
         {
             for (int i = 0; i < NUM_DATA; ++i) {
-                bsl::stringbuf osb; 
+                bsl::stringbuf osb;
                 {
                     bsl::ostream os(&osb);
 

@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
         const int SUCCESS        =  0;
         const int UNEXPECTED_EOF = -1;
         const int FAILURE        = -2;
-              
+
         static const struct {
             int         d_lineNum;
             const char *d_string;
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 
             bdeut_StringRef      input(begin, end);
             baenet_HttpViaRecord result;
- 
+
             int retCode = baenet_HttpParserUtil::parseFieldValue(&result,
                                                                  input);
             if (veryVeryVerbose) {
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
                 if (DATA[i].d_protocolName != 0) {
                     ASSERT(!result.protocolName().isNull());
                     if (!result.protocolName().isNull()) {
-                        ASSERT(result.protocolName().value() == 
+                        ASSERT(result.protocolName().value() ==
                                DATA[i].d_protocolName);
                     }
                 }
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
                 if (DATA[i].d_hostPort >= 0) {
                     ASSERT(!result.viaHost().port().isNull());
                     if (!result.viaHost().port().isNull()) {
-                        ASSERT(result.viaHost().port().value() == 
+                        ASSERT(result.viaHost().port().value() ==
                                DATA[i].d_hostPort);
                     }
                 }
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
                 if (DATA[i].d_comment != 0) {
                     ASSERT(!result.comment().isNull());
                     if (!result.comment().isNull()) {
-                        ASSERT(result.comment().value() == 
+                        ASSERT(result.comment().value() ==
                                DATA[i].d_comment);
                     }
                 }
@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
         // Concern: the stream buffer is advanced by the number of bytes read
         // Test Plan: sample the read position before and after every call to
         // 'parseChunkHeader', and when the return code is successful, ensure
-        // the stream buffer is advanced by the value loaded into the 
+        // the stream buffer is advanced by the value loaded into the
         // 'numBytesConsumed' argument.
         //
         // Concern: hexCharTable[] may be invalid
@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
             int            result = 0;
             int            consumed = 0;
             bsl::stringbuf input(buf);
-            int            inputPos = input.pubseekoff(0, 
+            int            inputPos = input.pubseekoff(0,
                                                        bsl::ios_base::cur,
                                                        bsl::ios_base::in);
             int            retCode = baenet_HttpParserUtil::parseChunkHeader(
@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
                                                                   &consumed,
                                                                   &input);
             if (0 == retCode) {
-                int finalInputPos = input.pubseekoff(0, 
+                int finalInputPos = input.pubseekoff(0,
                                                      bsl::ios_base::cur,
                                                      bsl::ios_base::in);
                 LOOP2_ASSERT(c, retCode, finalInputPos == inputPos + consumed);
@@ -549,7 +549,7 @@ int main(int argc, char *argv[])
             }
             int            result = 0, consumed = 0;
             bsl::stringbuf input(STRING);
-            int            inputPos = input.pubseekoff(0, 
+            int            inputPos = input.pubseekoff(0,
                                                        bsl::ios_base::cur,
                                                        bsl::ios_base::in);
             int            retCode = baenet_HttpParserUtil::parseChunkHeader(
@@ -559,10 +559,10 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(LINE, retCode, EXPECTED_RETURN == retCode);
 
             if (0 == retCode) {
-                int finalInputPos = input.pubseekoff(0, 
+                int finalInputPos = input.pubseekoff(0,
                                                      bsl::ios_base::cur,
                                                      bsl::ios_base::in);
-                LOOP2_ASSERT(LINE, retCode, finalInputPos == 
+                LOOP2_ASSERT(LINE, retCode, finalInputPos ==
                                             inputPos + consumed);
             }
 

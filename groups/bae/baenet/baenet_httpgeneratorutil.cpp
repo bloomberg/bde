@@ -11,8 +11,8 @@ BDES_IDENT_RCSID(baenet_httpgeneratorutil_cpp,"$Id$ $CSID$")
 #include <baenet_httpstatusline.h>
 #include <baenet_httpviarecord.h>
 
-#include <baenet_httprequestheader.h>  
-#include <baenet_httpresponseheader.h> 
+#include <baenet_httprequestheader.h>
+#include <baenet_httpresponseheader.h>
 
 #include <bcema_blob.h>
 #include <bcema_blobutil.h>
@@ -409,8 +409,8 @@ int HeaderFieldGenerator::execute(const baenet_HttpViaRecord& object,
         (*d_stream_p) << object.protocolName() << '/';
     }
 
-    (*d_stream_p) << object.protocolVersion() 
-                  << ' ' 
+    (*d_stream_p) << object.protocolVersion()
+                  << ' '
                   << object.viaHost().name();
 
     if (!object.viaHost().port().isNull()) {
@@ -431,7 +431,7 @@ int HeaderFieldGenerator::execute(const baenet_HttpViaRecord& object,
                      // ------------------------------
                      // class baenet_HttpGeneratorUtil
                      // ------------------------------
- 
+
 int baenet_HttpGeneratorUtil::generateHeader(
         bcema_Blob                      *result,
         const baenet_HttpRequestLine&    requestLine,
@@ -449,12 +449,12 @@ int baenet_HttpGeneratorUtil::generateHeader(
     bsl::ostream os(destination);
 
     os << baenet_HttpRequestMethod::toString(requestLine.method())
-       << ' ' 
+       << ' '
        << requestLine.requestUri()
-       << " HTTP/" 
+       << " HTTP/"
        << requestLine.majorVersion()
-       << '.' 
-       << requestLine.minorVersion() 
+       << '.'
+       << requestLine.minorVersion()
        << "\r\n";
 
     if (!os) {
@@ -475,7 +475,7 @@ int baenet_HttpGeneratorUtil::generateHeader(
 
     return 0;
 }
-  
+
 int baenet_HttpGeneratorUtil::generateHeader(
         bcema_Blob                       *result,
         const baenet_HttpStatusLine&      statusLine,
@@ -492,14 +492,14 @@ int baenet_HttpGeneratorUtil::generateHeader(
 {
     bsl::ostream os(destination);
 
-    os << "HTTP/" 
+    os << "HTTP/"
        << statusLine.majorVersion()
-       << '.' 
+       << '.'
        << statusLine.minorVersion()
-       << ' ' 
+       << ' '
        << statusLine.statusCode()
-       << ' ' 
-       << statusLine.reasonPhrase() 
+       << ' '
+       << statusLine.reasonPhrase()
        << "\r\n";
 
     if (!os) {
@@ -532,7 +532,7 @@ int baenet_HttpGeneratorUtil::generateBody(bcema_Blob *result,
                                            const void *data,
                                            int         numBytes)
 {
-    bcema_BlobUtil::append(result,  
+    bcema_BlobUtil::append(result,
                            static_cast<const char*>(data),
                            0,
                            numBytes);
@@ -543,7 +543,7 @@ int baenet_HttpGeneratorUtil::generateBody(bsl::streambuf    *destination,
                                            const bcema_Blob&  data)
 {
     bdex_ByteOutStreamFormatter bosf(destination);
-    bcema_BlobUtil::write(bosf, data); 
+    bcema_BlobUtil::write(bosf, data);
 
     if (!bosf) {
         return -1;
@@ -568,7 +568,7 @@ int baenet_HttpGeneratorUtil::generateBody(bsl::streambuf *destination,
 }
 
 int baenet_HttpGeneratorUtil::generateBody(
-        bcema_Blob                         *result, 
+        bcema_Blob                         *result,
         const bcema_Blob&                   data,
         baenet_HttpTransferEncoding::Value  encoding,
         bool                                isFinal)
@@ -599,7 +599,7 @@ int baenet_HttpGeneratorUtil::generateBody(
 }
 
 int baenet_HttpGeneratorUtil::generateBody(
-        bcema_Blob                         *result, 
+        bcema_Blob                         *result,
         const void                         *data,
         int                                 length,
         baenet_HttpTransferEncoding::Value  encoding,
@@ -615,9 +615,9 @@ int baenet_HttpGeneratorUtil::generateBody(
 
             bcema_BlobUtil::append(result, header, 0, headerLength);
 
-            bcema_BlobUtil::append(result, 
+            bcema_BlobUtil::append(result,
                                    static_cast<const char*>(data),
-                                   0, 
+                                   0,
                                    length);
 
             bcema_BlobUtil::append(result, "\r\n", 0, 2);
@@ -636,7 +636,7 @@ int baenet_HttpGeneratorUtil::generateBody(
 }
 
 int baenet_HttpGeneratorUtil::generateBody(
-        bsl::streambuf                     *destination, 
+        bsl::streambuf                     *destination,
         const bcema_Blob&                   data,
         baenet_HttpTransferEncoding::Value  encoding,
         bool                                isFinal)
@@ -672,7 +672,7 @@ int baenet_HttpGeneratorUtil::generateBody(
         }
 
         if (isFinal) {
-            const char TRAILER[] = "0\r\n\r\n"; 
+            const char TRAILER[] = "0\r\n\r\n";
             bsl::streamsize numBytesWritten;
             numBytesWritten = destination->sputn(TRAILER, sizeof TRAILER - 1);
             if (numBytesWritten != sizeof TRAILER - 1) {
@@ -688,7 +688,7 @@ int baenet_HttpGeneratorUtil::generateBody(
 }
 
 int baenet_HttpGeneratorUtil::generateBody(
-        bsl::streambuf                     *destination, 
+        bsl::streambuf                     *destination,
         const void                         *data,
         int                                 length,
         baenet_HttpTransferEncoding::Value  encoding,
@@ -723,7 +723,7 @@ int baenet_HttpGeneratorUtil::generateBody(
         }
 
         if (isFinal) {
-            const char TRAILER[] = "0\r\n\r\n"; 
+            const char TRAILER[] = "0\r\n\r\n";
             bsl::streamsize numBytesWritten;
             numBytesWritten = destination->sputn(TRAILER, sizeof TRAILER - 1);
             if (numBytesWritten != sizeof TRAILER - 1) {

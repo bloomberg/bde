@@ -46,10 +46,10 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The component under tests provides utilities to generate HTTP messages. 
-// This test driver ensures that this component generates valid HTTP headers 
-// as defined in RFC 2616.  It also ensure that this component generates 
-// properly "chunked" content when the "chunked" transfer encoding is 
+// The component under tests provides utilities to generate HTTP messages.
+// This test driver ensures that this component generates valid HTTP headers
+// as defined in RFC 2616.  It also ensure that this component generates
+// properly "chunked" content when the "chunked" transfer encoding is
 // specified.  To excercise the utilites four data sets are used.
 //
 // Data Set     Description
@@ -60,7 +60,7 @@ using namespace BloombergLP;
 // 3            Fully defined header, non-zero length content
 //
 // Where "minimally correct" refers to a header containing only those fields
-// required by RFC 2616, and "fully defined" refers to a header containing 
+// required by RFC 2616, and "fully defined" refers to a header containing
 // every field specified in RFC 2616 plus additional HTTP extension headers
 // defined by this test driver.
 //
@@ -74,7 +74,7 @@ using namespace BloombergLP;
 // [2]      int generateHeader(bsl::streambuf                   *destination,
 //                             const baenet_HttpRequestLine&     requestLine,
 //                             const baenet_HttpRequestHeader&   header);
-//  
+//
 // [3,8,10] int generateHeader(bcema_Blob                       *result,
 //                             const baenet_HttpStatusLine&      statusLine,
 //                             const baenet_HttpResponseHeader&  header);
@@ -97,23 +97,23 @@ using namespace BloombergLP;
 //                           const void                         *data,
 //                           int                                 numBytes);
 //
-// [6]      int generateBody(bcema_Blob                         *result, 
+// [6]      int generateBody(bcema_Blob                         *result,
 //                           const bcema_Blob&                   data,
 //                           baenet_HttpTransferEncoding::Value  encoding,
 //                           bool                                isFinalFlag);
 //
-// [6-10]   int generateBody(bcema_Blob                         *result, 
+// [6-10]   int generateBody(bcema_Blob                         *result,
 //                           const void                         *data,
 //                           int                                 length,
 //                           baenet_HttpTransferEncoding::Value  encoding,
 //                           bool                                isFinalFlag);
 //
-// [6]      int generateBody(bsl::streambuf                     *destination, 
+// [6]      int generateBody(bsl::streambuf                     *destination,
 //                           const bcema_Blob&                   data,
 //                           baenet_HttpTransferEncoding::Value  encoding,
 //                           bool                                isFinalFlag);
 //
-// [6]      int generateBody(bsl::streambuf                     *destination, 
+// [6]      int generateBody(bsl::streambuf                     *destination,
 //                           const void                         *data,
 //                           int                                 length,
 //                           baenet_HttpTransferEncoding::Value  encoding,
@@ -253,8 +253,8 @@ class RequestAssembler : public baenet_HttpEntityProcessor {
         BSLS_ASSERT(startLine.isRequestLineValue());
 
         *d_requestLine_p = startLine.requestLine();
-        
-        baenet_HttpRequestHeader *requestHeader = 
+
+        baenet_HttpRequestHeader *requestHeader =
             reinterpret_cast<baenet_HttpRequestHeader*>(header.ptr());
         BSLS_ASSERT(requestHeader);
 
@@ -327,8 +327,8 @@ class ResponseAssembler : public baenet_HttpEntityProcessor {
         BSLS_ASSERT(startLine.isStatusLineValue());
 
         *d_statusLine_p = startLine.statusLine();
-        
-        baenet_HttpResponseHeader *responseHeader = 
+
+        baenet_HttpResponseHeader *responseHeader =
             reinterpret_cast<baenet_HttpResponseHeader*>(header.ptr());
         BSLS_ASSERT(responseHeader);
 
@@ -402,9 +402,9 @@ void generateData(bcema_Blob *result, int offset, int size, int dataSet)
     }
 }
 
-void generateData(bsl::streambuf *destination, 
-                  int             offset, 
-                  int             size, 
+void generateData(bsl::streambuf *destination,
+                  int             offset,
+                  int             size,
                   int             dataSet)
 {
     for (int i = 0; i < size; ++i) {
@@ -419,7 +419,7 @@ void defineHeader(baenet_HttpRequestLine   *requestLine,
     typedef baenet_HttpRequestMethod RM;
 
     bdet_Datetime nowAsDatetime = bdetu_SystemTime::nowAsDatetimeGMT();
-        
+
     // The HTML Parser does not parse the milliseconds field.
     nowAsDatetime.setMillisecond(0);
 
@@ -487,7 +487,7 @@ void defineHeader(baenet_HttpRequestLine   *requestLine,
 
             header->basicFields().via().push_back(via);
         }
-       
+
         header->basicFields().warning() = "199 alpha \"test1\"";
 
         header->basicFields().allow().push_back(RM::BAENET_GET);
@@ -501,12 +501,12 @@ void defineHeader(baenet_HttpRequestLine   *requestLine,
 
         header->basicFields().contentLocation() = "resource.html";
 
-        header->basicFields().contentMd5() = 
+        header->basicFields().contentMd5() =
                                      "e72c504dc16c8fcd2fe8c74bb492affa";
 
         header->basicFields().contentRange() = "bytes 0-499/1234";
 
-        baenet_HttpContentType& contentType = 
+        baenet_HttpContentType& contentType =
                                        header->basicFields().contentType()
                                                             .makeValue();
         contentType.type()    = "application";
@@ -541,10 +541,10 @@ void defineHeader(baenet_HttpRequestLine   *requestLine,
         host.port() = 80;
 
         header->requestFields().ifMatch()           = "*";
-        header->requestFields().ifModifiedSince()   = now; 
+        header->requestFields().ifModifiedSince()   = now;
         header->requestFields().ifNoneMatch()       = "*";
         header->requestFields().ifRange()           = "*";
-        header->requestFields().ifUnmodifiedSince() = now;  
+        header->requestFields().ifUnmodifiedSince() = now;
 
         header->requestFields().maxForwards() = 10;
 
@@ -556,11 +556,11 @@ void defineHeader(baenet_HttpRequestLine   *requestLine,
 
         header->requestFields().te() = "trailers, deflate";
 
-        header->requestFields().userAgent() = 
+        header->requestFields().userAgent() =
                                     "CERN-LineMode/2.15 libwww/2.17b3";
 
         // Define extension header fields.
-        
+
         header->extendedFields().addFieldValue("X-BBG-ALPHA", "1");
         header->extendedFields().addFieldValue("X-BBG-BETA",  "2");
         header->extendedFields().addFieldValue("X-BBG-GAMMA", "3");
@@ -574,14 +574,14 @@ void defineHeader(baenet_HttpStatusLine     *statusLine,
     typedef baenet_HttpRequestMethod RM;
 
     bdet_Datetime nowAsDatetime = bdetu_SystemTime::nowAsDatetimeGMT();
-        
+
     // The HTML Parser does not parse the milliseconds field.
     nowAsDatetime.setMillisecond(0);
 
     bdet_DatetimeTz now = bdet_DatetimeTz(nowAsDatetime, 0);
 
     // Define the status line.
-    
+
     statusLine->majorVersion() = HTTP_MAJOR_VERSION;
     statusLine->minorVersion() = HTTP_MINOR_VERSION;
 
@@ -636,7 +636,7 @@ void defineHeader(baenet_HttpStatusLine     *statusLine,
 
             header->basicFields().via().push_back(via);
         }
-       
+
         header->basicFields().warning() = "199 alpha \"test1\"";
 
         header->basicFields().allow().push_back(RM::BAENET_GET);
@@ -650,12 +650,12 @@ void defineHeader(baenet_HttpStatusLine     *statusLine,
 
         header->basicFields().contentLocation() = "resource.html";
 
-        header->basicFields().contentMd5() = 
+        header->basicFields().contentMd5() =
                                      "e72c504dc16c8fcd2fe8c74bb492affa";
 
         header->basicFields().contentRange() = "bytes 0-499/1234";
 
-        baenet_HttpContentType& contentType = 
+        baenet_HttpContentType& contentType =
                                        header->basicFields().contentType()
                                                             .makeValue();
         contentType.type()    = "application";
@@ -665,7 +665,7 @@ void defineHeader(baenet_HttpStatusLine     *statusLine,
         header->basicFields().lastModified() = now;
 
         // Define the response header fields.
-        
+
         header->responseFields().acceptRanges() = "bytes";
 
         header->responseFields().age() = 60;
@@ -676,7 +676,7 @@ void defineHeader(baenet_HttpStatusLine     *statusLine,
 
         header->responseFields().proxyAuthenticate() = "challange";
 
-        header->responseFields().retryAfter() = 
+        header->responseFields().retryAfter() =
                                       "Fri, 31 Dec 1999 23:59:59 GMT";
 
         header->responseFields().server() = "CERN/3.0 libwww/2.17";
@@ -686,7 +686,7 @@ void defineHeader(baenet_HttpStatusLine     *statusLine,
         header->responseFields().wwwAuthenticate() = "challenge";
 
         // Define extension header fields.
-        
+
         header->extendedFields().addFieldValue("X-BBG-ALPHA", "1");
         header->extendedFields().addFieldValue("X-BBG-BETA",  "2");
         header->extendedFields().addFieldValue("X-BBG-GAMMA", "3");
@@ -755,7 +755,7 @@ int parseChunkedBody(bcema_Blob *result, const bcema_Blob& body)
         }
 
         char chunk[CONTENT_LENGTH];
-        ASSERT(sizeof chunk >= chunkSize); 
+        ASSERT(sizeof chunk >= chunkSize);
 
         if (chunkSize > 0) {
             int numBytesRead = isb.sgetn(chunk, chunkSize);
@@ -776,17 +776,17 @@ int parseChunkedBody(bcema_Blob *result, const bcema_Blob& body)
 ///Example 1: Writing an HTTP file server
 /// - - - - - - - - - - - - - - - - - - -
 // Suppose we are implementing a simple HTTP server that is responsible for
-// delivering the contents of a file to a client.  For simplicity, let's 
+// delivering the contents of a file to a client.  For simplicity, let's
 // assume the existence of mechanisms that enable the server implementation to
 // parse a message arriving on a connection into a requested filename.  Given
-// that assumption, let's now declare a simple server API.  The following 
+// that assumption, let's now declare a simple server API.  The following
 // 'handleRequest' function accepts the name of the requested file and also a
 // pointer to a stream buffer to which to send the response.
 //..
   void handleRequest(bsl::streambuf     *connectionToClient,
                      const bsl::string&  filename);
 //..
-// We also need a 'handleError' function that, instead of delivering the 
+// We also need a 'handleError' function that, instead of delivering the
 // contents of a file, delivers some sort of error error to the client.
 //..
   void handleError(bsl::streambuf     *connectionToClient,
@@ -821,7 +821,7 @@ void handleRequest(bsl::streambuf     *connectionToClient,
     statusLine.statusCode()   = baenet_HttpStatusCode::BAENET_OK;
     statusLine.reasonPhrase() = "OK";
 
-    header.basicFields().transferEncoding().push_back( 
+    header.basicFields().transferEncoding().push_back(
                               baenet_HttpTransferEncoding::BAENET_CHUNKED);
 
     int retCode = baenet_HttpGeneratorUtil::generateHeader(
@@ -841,7 +841,7 @@ void handleRequest(bsl::streambuf     *connectionToClient,
 
         bcema_BlobUtil::read(bisf, &data, 1024);
 
-        isFinalFlag = 
+        isFinalFlag =
                   (file.peek() == bsl::fstream::traits_type::eof());
 
         retCode = baenet_HttpGeneratorUtil::generateBody(
@@ -854,7 +854,7 @@ void handleRequest(bsl::streambuf     *connectionToClient,
     while (!isFinalFlag);
 }
 //..
-// Finally, let's implement the 'handleError' function to synchronously 
+// Finally, let's implement the 'handleError' function to synchronously
 // construct an HTTP entity that describes the error loading the file from
 // disk.
 //..
@@ -912,9 +912,9 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        // See 'handleRequest' and 'handleError' under the section 'GLOBAL 
+        // See 'handleRequest' and 'handleError' under the section 'GLOBAL
         // HELPER FUNCTIONS'.
-             
+
     } break;
     case 10: {
         // --------------------------------------------------------------------
@@ -924,15 +924,15 @@ int main(int argc, char *argv[])
         //  1 For each data set described in the test overview:
         //
         //    1 Define an HTTP response value from the current input data set.
-        //      Explicitly state the header indicates the content is 
-        //      chunk-encoded.  Ensure the response does not have the same 
+        //      Explicitly state the header indicates the content is
+        //      chunk-encoded.  Ensure the response does not have the same
         //      value as the default value.
         //
         //    2 Generate an HTTP data stream from the HTTP response into a blob
         //      using chunked transfer encoding.
         //
         //    3 Add the contents of the blob to the message parsing mechanism,
-        //      and ensure the parsed response has the same value as the 
+        //      and ensure the parsed response has the same value as the
         //      originally defined response.
         //
         // Testing:
@@ -941,7 +941,7 @@ int main(int argc, char *argv[])
         //                 const baenet_HttpStatusLine&       requestLine,
         //                 const baenet_HttpResponseHeader&   header);
         //
-        //   static int generateBody(bcema_Blob               *result, 
+        //   static int generateBody(bcema_Blob               *result,
         //                 const void                         *data,
         //                 int                                 length,
         //                 baenet_HttpTransferEncoding::Value  encoding,
@@ -969,7 +969,7 @@ int main(int argc, char *argv[])
 
             ASSERT(statusLine1 != statusLine2);
             ASSERT(header1     != header2);
-            ASSERT((0          == DATA[dataSet].d_contentLength) == 
+            ASSERT((0          == DATA[dataSet].d_contentLength) ==
                    (0          == compare(body1, body2)));
 
             bool isCompleteFlag = false;
@@ -985,16 +985,16 @@ int main(int argc, char *argv[])
                               &blobBufferFactory);
 
             bcema_Blob message(&blobBufferFactory);
-            rc = baenet_HttpGeneratorUtil::generateHeader(&message, 
+            rc = baenet_HttpGeneratorUtil::generateHeader(&message,
                                                           statusLine1,
                                                           header1);
             ASSERT(0 == rc);
 
-            for (int bufferIndex = 0; 
+            for (int bufferIndex = 0;
                      bufferIndex < body1.numDataBuffers();
                    ++bufferIndex)
             {
-                const bcema_BlobBuffer& blobBuffer = 
+                const bcema_BlobBuffer& blobBuffer =
                                             body1.buffer(bufferIndex);
 
                 int isFinal = bufferIndex == body1.numDataBuffers() - 1;
@@ -1005,7 +1005,7 @@ int main(int argc, char *argv[])
                                  : blobBuffer.size();
 
                 rc = baenet_HttpGeneratorUtil::generateBody(
-                        &message, 
+                        &message,
                         data,
                         size,
                         baenet_HttpTransferEncoding::BAENET_CHUNKED,
@@ -1015,7 +1015,7 @@ int main(int argc, char *argv[])
 
             if (body1.length() == 0) {
                 rc = baenet_HttpGeneratorUtil::generateBody(
-                        &message, 
+                        &message,
                         0,
                         0,
                         baenet_HttpTransferEncoding::BAENET_CHUNKED,
@@ -1043,15 +1043,15 @@ int main(int argc, char *argv[])
         //  1 For each data set described in the test overview:
         //
         //    1 Define an HTTP request value from the current input data set.
-        //      Explicitly state the header indicates the content is 
-        //      chunk-encoded.  Ensure the request does not have the same 
+        //      Explicitly state the header indicates the content is
+        //      chunk-encoded.  Ensure the request does not have the same
         //      value as the default value.
         //
         //    2 Generate an HTTP data stream from the HTTP request into a blob
         //      using chunked transfer encoding.
         //
         //    3 Add the contents of the blob to the message parsing mechanism,
-        //      and ensure the parsed request has the same value as the 
+        //      and ensure the parsed request has the same value as the
         //      originally defined request.
         //
         // Testing:
@@ -1060,7 +1060,7 @@ int main(int argc, char *argv[])
         //                 const baenet_HttpRequestLine&       requestLine,
         //                 const baenet_HttpRequestHeader&     header);
         //
-        //   static int generateBody(bcema_Blob               *result, 
+        //   static int generateBody(bcema_Blob               *result,
         //                 const void                         *data,
         //                 int                                 length,
         //                 baenet_HttpTransferEncoding::Value  encoding,
@@ -1088,7 +1088,7 @@ int main(int argc, char *argv[])
 
             ASSERT(requestLine1 != requestLine2);
             ASSERT(header1      != header2);
-            ASSERT((0           == DATA[dataSet].d_contentLength) == 
+            ASSERT((0           == DATA[dataSet].d_contentLength) ==
                    (0           == compare(body1, body2)));
 
             bool isCompleteFlag = false;
@@ -1104,16 +1104,16 @@ int main(int argc, char *argv[])
                               &blobBufferFactory);
 
             bcema_Blob message(&blobBufferFactory);
-            rc = baenet_HttpGeneratorUtil::generateHeader(&message, 
+            rc = baenet_HttpGeneratorUtil::generateHeader(&message,
                                                           requestLine1,
                                                           header1);
             ASSERT(0 == rc);
 
-            for (int bufferIndex = 0; 
+            for (int bufferIndex = 0;
                      bufferIndex < body1.numDataBuffers();
                    ++bufferIndex)
             {
-                const bcema_BlobBuffer& blobBuffer = 
+                const bcema_BlobBuffer& blobBuffer =
                                             body1.buffer(bufferIndex);
 
                 int isFinal = bufferIndex == body1.numDataBuffers() - 1;
@@ -1124,7 +1124,7 @@ int main(int argc, char *argv[])
                                  : blobBuffer.size();
 
                 rc = baenet_HttpGeneratorUtil::generateBody(
-                        &message, 
+                        &message,
                         data,
                         size,
                         baenet_HttpTransferEncoding::BAENET_CHUNKED,
@@ -1134,7 +1134,7 @@ int main(int argc, char *argv[])
 
             if (body1.length() == 0) {
                 rc = baenet_HttpGeneratorUtil::generateBody(
-                        &message, 
+                        &message,
                         0,
                         0,
                         baenet_HttpTransferEncoding::BAENET_CHUNKED,
@@ -1152,7 +1152,7 @@ int main(int argc, char *argv[])
             ASSERT(requestLine1   == requestLine2);
             ASSERT(header1        == header2);
             ASSERT(0              == compare(body1, body2));
-        }   
+        }
     } break;
     case 8: {
         // --------------------------------------------------------------------
@@ -1162,14 +1162,14 @@ int main(int argc, char *argv[])
         //  1 For each data set described in the test overview:
         //
         //    1 Define an HTTP response value from the current input data set,
-        //      and ensure the response does not have the same value as the 
+        //      and ensure the response does not have the same value as the
         //      default value.
         //
         //    2 Generate an HTTP data stream from the HTTP response into a blob
         //      using the identity transfer encoding.
         //
         //    3 Add the contents of the blob to the message parsing mechanism,
-        //      and ensure the parsed response has the same value as the 
+        //      and ensure the parsed response has the same value as the
         //      originally defined sponse.
         //
         // Testing:
@@ -1198,7 +1198,7 @@ int main(int argc, char *argv[])
 
             ASSERT(statusLine1 != statusLine2);
             ASSERT(header1     != header2);
-            ASSERT((0          == DATA[dataSet].d_contentLength) == 
+            ASSERT((0          == DATA[dataSet].d_contentLength) ==
                    (0          == compare(body1, body2)));
 
             bool isCompleteFlag = false;
@@ -1214,7 +1214,7 @@ int main(int argc, char *argv[])
                               &blobBufferFactory);
 
             bcema_Blob message(&blobBufferFactory);
-            rc = baenet_HttpGeneratorUtil::generateHeader(&message, 
+            rc = baenet_HttpGeneratorUtil::generateHeader(&message,
                                                           statusLine1,
                                                           header1);
             ASSERT(0 == rc);
@@ -1242,14 +1242,14 @@ int main(int argc, char *argv[])
         //  1 For each data set described in the test overview:
         //
         //    1 Define an HTTP request value from the current input data set,
-        //      and ensure the request does not have the same value as the 
+        //      and ensure the request does not have the same value as the
         //      default value.
         //
         //    2 Generate an HTTP data stream from the HTTP request into a blob
         //      using the identity transfer encoding.
         //
         //    3 Add the contents of the blob to the message parsing mechanism,
-        //      and ensure the parsed request has the same value as the 
+        //      and ensure the parsed request has the same value as the
         //      originally defined request.
         //
         // Testing:
@@ -1278,7 +1278,7 @@ int main(int argc, char *argv[])
 
             ASSERT(requestLine1 != requestLine2);
             ASSERT(header1      != header2);
-            ASSERT((0           == DATA[dataSet].d_contentLength) == 
+            ASSERT((0           == DATA[dataSet].d_contentLength) ==
                    (0           == compare(body1, body2)));
 
             bool isCompleteFlag = false;
@@ -1294,7 +1294,7 @@ int main(int argc, char *argv[])
                               &blobBufferFactory);
 
             bcema_Blob message(&blobBufferFactory);
-            rc = baenet_HttpGeneratorUtil::generateHeader(&message, 
+            rc = baenet_HttpGeneratorUtil::generateHeader(&message,
                                                           requestLine1,
                                                           header1);
             ASSERT(0 == rc);
@@ -1312,17 +1312,17 @@ int main(int argc, char *argv[])
             ASSERT(requestLine1   == requestLine2);
             ASSERT(header1        == header2);
             ASSERT(0              == compare(body1, body2));
-        }   
+        }
     } break;
     case 6: {
         // --------------------------------------------------------------------
         // CONCERN: 'generateBody' with the chunked transfer encoding
         //
         // Plan:
-        //  1 For each data set described in the test overview: 
+        //  1 For each data set described in the test overview:
         //
         //    1 Define an HTTP entity body from the current input data set,
-        //      and ensure the request does not have the same value as the 
+        //      and ensure the request does not have the same value as the
         //      default value.
         //
         //    2 Generate an HTTP data stream from the HTTP entity body
@@ -1330,31 +1330,31 @@ int main(int argc, char *argv[])
         //      being tested.
         //
         //    3 Using previously tested message parsing utilities,
-        //      and ensure the parsed entity body has the same value as the 
+        //      and ensure the parsed entity body has the same value as the
         //      originally defined entity body.
         //
         // Testing:
         //   static int generateBody(
-        //                  bcema_Blob                         *result, 
+        //                  bcema_Blob                         *result,
         //                  const bcema_Blob&                   data,
         //                  baenet_HttpTransferEncoding::Value  encoding,
         //                  bool                                isFinalFlag);
         //
         //  static int generateBody(
-        //                  bcema_Blob                         *result, 
+        //                  bcema_Blob                         *result,
         //                  const void                         *data,
         //                  int                                 length,
         //                  baenet_HttpTransferEncoding::Value  encoding,
         //                  bool                                isFinalFlag);
         //
         //  static int generateBody(
-        //                  bsl::streambuf                     *destination, 
+        //                  bsl::streambuf                     *destination,
         //                  const bcema_Blob&                   data,
         //                  baenet_HttpTransferEncoding::Value  encoding,
         //                  bool                                isFinalFlag);
         //
         //  static int generateBody(
-        //                  bsl::streambuf                     *destination, 
+        //                  bsl::streambuf                     *destination,
         //                  const void                         *data,
         //                  int                                 length,
         //                  baenet_HttpTransferEncoding::Value  encoding,
@@ -1375,7 +1375,7 @@ int main(int argc, char *argv[])
                 defineBody(&src, dataSet);
 
                 bcema_Blob body(&blobBufferFactory);
-                rc = baenet_HttpGeneratorUtil::generateBody(&body, 
+                rc = baenet_HttpGeneratorUtil::generateBody(&body,
                                                             src,
                                                             TE::BAENET_CHUNKED,
                                                             true);
@@ -1393,13 +1393,13 @@ int main(int argc, char *argv[])
                 defineBody(&src, dataSet);
 
                 bcema_Blob body(&blobBufferFactory);
-                
 
-                for (int bufferIndex = 0; 
+
+                for (int bufferIndex = 0;
                          bufferIndex < src.numDataBuffers();
                        ++bufferIndex)
                 {
-                    const bcema_BlobBuffer& blobBuffer = 
+                    const bcema_BlobBuffer& blobBuffer =
                                                 src.buffer(bufferIndex);
 
                     int isFinal = bufferIndex == src.numDataBuffers() - 1;
@@ -1410,7 +1410,7 @@ int main(int argc, char *argv[])
                                      : blobBuffer.size();
 
                     rc = baenet_HttpGeneratorUtil::generateBody(
-                            &body, 
+                            &body,
                             data,
                             size,
                             baenet_HttpTransferEncoding::BAENET_CHUNKED,
@@ -1420,14 +1420,14 @@ int main(int argc, char *argv[])
 
                 if (src.length() == 0) {
                     rc = baenet_HttpGeneratorUtil::generateBody(
-                            &body, 
+                            &body,
                             0,
                             0,
                             baenet_HttpTransferEncoding::BAENET_CHUNKED,
                             true);
                     ASSERT(0 == rc);
                 }
-                
+
                 rc = parseChunkedBody(&dst, body);
                 ASSERT(0 == rc);
                 ASSERT(0 == compare(src, dst));
@@ -1442,7 +1442,7 @@ int main(int argc, char *argv[])
                 bcema_Blob body(&blobBufferFactory);
                 bcesb_OutBlobStreamBuf osb(&body);
 
-                rc = baenet_HttpGeneratorUtil::generateBody(&osb, 
+                rc = baenet_HttpGeneratorUtil::generateBody(&osb,
                                                             src,
                                                             TE::BAENET_CHUNKED,
                                                             true);
@@ -1464,11 +1464,11 @@ int main(int argc, char *argv[])
                 bcema_Blob body(&blobBufferFactory);
                 bcesb_OutBlobStreamBuf osb(&body);
 
-                for (int bufferIndex = 0; 
+                for (int bufferIndex = 0;
                          bufferIndex < src.numDataBuffers();
                        ++bufferIndex)
                 {
-                    const bcema_BlobBuffer& blobBuffer = 
+                    const bcema_BlobBuffer& blobBuffer =
                                                 src.buffer(bufferIndex);
 
                     int isFinal = bufferIndex == src.numDataBuffers() - 1;
@@ -1479,7 +1479,7 @@ int main(int argc, char *argv[])
                                      : blobBuffer.size();
 
                     rc = baenet_HttpGeneratorUtil::generateBody(
-                            &osb, 
+                            &osb,
                             data,
                             size,
                             baenet_HttpTransferEncoding::BAENET_CHUNKED,
@@ -1489,7 +1489,7 @@ int main(int argc, char *argv[])
 
                 if (src.length() == 0) {
                     rc = baenet_HttpGeneratorUtil::generateBody(
-                            &osb, 
+                            &osb,
                             0,
                             0,
                             baenet_HttpTransferEncoding::BAENET_CHUNKED,
@@ -1498,7 +1498,7 @@ int main(int argc, char *argv[])
                 }
 
                 osb.pubsync();
-                
+
                 rc = parseChunkedBody(&dst, body);
                 ASSERT(0 == rc);
                 ASSERT(0 == compare(src, dst));
@@ -1561,8 +1561,8 @@ int main(int argc, char *argv[])
                     defineBody(&sb, dataSet);
                     src = sb.str();
                 }
-                
-                rc = baenet_HttpGeneratorUtil::generateBody(&dst, 
+
+                rc = baenet_HttpGeneratorUtil::generateBody(&dst,
                                                             src.c_str(),
                                                             src.size());
                 ASSERT(0 == rc);
@@ -1590,7 +1590,7 @@ int main(int argc, char *argv[])
                     src = sb.str();
                 }
 
-                rc = baenet_HttpGeneratorUtil::generateBody(&dst, 
+                rc = baenet_HttpGeneratorUtil::generateBody(&dst,
                                                             src.c_str(),
                                                             src.size());
                 ASSERT(0 == rc);
@@ -1609,24 +1609,24 @@ int main(int argc, char *argv[])
         // Plan:
         //  1 For each data set described in the test overview:
         //
-        //    1 Define an HTTP response header value from the current input 
+        //    1 Define an HTTP response header value from the current input
         //      data set, and ensure the response header value is not the same
         //      value as the default value.
-        //   
-        //    2 Generate an HTTP data stream from the HTTP response header 
+        //
+        //    2 Generate an HTTP data stream from the HTTP response header
         //      value into a customization of 'bsl::streambuf'.
         //
-        //    3 Add the contents of the stream buffer to the message parsing 
+        //    3 Add the contents of the stream buffer to the message parsing
         //      mechanism, and ensure the parsed response header has the same
         //      value as the originally defined response header.
         //
-        // Testing: 
+        // Testing:
         //   static int generateHeader(
         //                      bsl::streambuf                  *destination,
         //                      const baenet_HttpStatusLine&     statusLine,
         //                      const baenet_HttpResponseHeader& header);
         // --------------------------------------------------------------------
-        
+
         int rc;
 
         for (int dataSet = 0; dataSet < NUM_DATA; ++dataSet) {
@@ -1636,7 +1636,7 @@ int main(int argc, char *argv[])
             baenet_HttpResponseHeader     header1;
             baenet_HttpResponseHeader     header2;
             bcema_Blob                    body1(&blobBufferFactory);
-            bcema_Blob                    body2(&blobBufferFactory); 
+            bcema_Blob                    body2(&blobBufferFactory);
 
             defineHeader(&statusLine1, &header1, dataSet);
 
@@ -1655,7 +1655,7 @@ int main(int argc, char *argv[])
                               &blobBufferFactory);
 
             bcema_Blob message(&blobBufferFactory);
-            rc = baenet_HttpGeneratorUtil::generateHeader(&message, 
+            rc = baenet_HttpGeneratorUtil::generateHeader(&message,
                                                           statusLine1,
                                                           header1);
             ASSERT(0 == rc);
@@ -1680,24 +1680,24 @@ int main(int argc, char *argv[])
         // Plan:
         //  1 For each data set described in the test overview:
         //
-        //    1 Define an HTTP response header value from the current input 
+        //    1 Define an HTTP response header value from the current input
         //      data set, and ensure the response header value is not the same
         //      value as the default value.
-        //   
-        //    2 Generate an HTTP data stream from the HTTP response header 
+        //
+        //    2 Generate an HTTP data stream from the HTTP response header
         //      value into a blob.
         //
         //    3 Add the blob to the message parsing mechanism, and ensure the
-        //      parsed response header has the same value as the originally 
+        //      parsed response header has the same value as the originally
         //      defined response header.
         //
-        // Testing: 
+        // Testing:
         //   static int generateHeader(
         //                      bcema_Blob                       *result,
         //                      const baenet_HttpStatusLine&      statusLine,
         //                      const baenet_HttpResponseHeader&  header);
         // --------------------------------------------------------------------
-        
+
         int rc;
 
         for (int dataSet = 0; dataSet < NUM_DATA; ++dataSet) {
@@ -1726,7 +1726,7 @@ int main(int argc, char *argv[])
                               &blobBufferFactory);
 
             bcema_Blob message(&blobBufferFactory);
-            rc = baenet_HttpGeneratorUtil::generateHeader(&message, 
+            rc = baenet_HttpGeneratorUtil::generateHeader(&message,
                                                           statusLine1,
                                                           header1);
             ASSERT(0 == rc);
@@ -1745,101 +1745,30 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'generateHeader' to streambufs from request headers
         //
         // Concerns:
-        //  1 The utility under test generates a valid HTTP/1.1 request header 
+        //  1 The utility under test generates a valid HTTP/1.1 request header
         //    for a variety of input data sets.
         //
         // Plan:
         //  1 For each data set described in the test overview:
         //
-        //    1 Define an HTTP request header value from the current input 
+        //    1 Define an HTTP request header value from the current input
         //      data set, and ensure the request header value is not the same
         //      value as the default value.
-        //   
-        //    2 Generate an HTTP data stream from the HTTP request header 
+        //
+        //    2 Generate an HTTP data stream from the HTTP request header
         //      value into a customization of 'bsl::streambuf'.
         //
-        //    3 Add the contents of the stream buffer to the message parsing 
+        //    3 Add the contents of the stream buffer to the message parsing
         //      mechanism, and ensure the parsed request header has the same
         //      value as the originally defined request header.
         //
-        // Testing: 
+        // Testing:
         //   static int generateHeader(
         //                      bsl::streambuf                  *destination,
         //                      const baenet_HttpRequestLine&    requestLine,
         //                      const baenet_HttpRequestHeader&  header);
         // --------------------------------------------------------------------
-        
-        int rc;
 
-        for (int dataSet = 0; dataSet < NUM_DATA; ++dataSet) {
-            bcema_PooledBlobBufferFactory blobBufferFactory(BUFFER_SIZE);
-            baenet_HttpRequestLine        requestLine1;
-            baenet_HttpRequestLine        requestLine2;
-            baenet_HttpRequestHeader      header1;
-            baenet_HttpRequestHeader      header2;
-            bcema_Blob                    body1(&blobBufferFactory);
-            bcema_Blob                    body2(&blobBufferFactory); 
-
-            defineHeader(&requestLine1, &header1, dataSet);
-
-            ASSERT(requestLine1 != requestLine2);
-            ASSERT(header1      != header2);
-
-            bool isCompleteFlag = false;
-            RequestAssembler requestAssembler(&bsl::cout,
-                                              &requestLine2,
-                                              &header2,
-                                              &body2,
-                                              &isCompleteFlag);
-            baenet_HttpMessageParser parser(
-                              &requestAssembler,
-                              baenet_HttpMessageType::BAENET_REQUEST,
-                              &blobBufferFactory);
-
-            bcema_Blob message(&blobBufferFactory);
-            rc = baenet_HttpGeneratorUtil::generateHeader(&message, 
-                                                          requestLine1,
-                                                          header1);
-            ASSERT(0 == rc);
-
-            rc = parser.addData(bsl::cout, message);
-            ASSERT(0 == rc);
-
-            ASSERT(isCompleteFlag == DATA[dataSet].d_contentLength == 0);
-            ASSERT(requestLine1   == requestLine2);
-            ASSERT(header1        == header2);
-            ASSERT(0              == compare(body1, body2));
-        }
-      } break;
-      case 1: {
-        // --------------------------------------------------------------------
-        // CLASS METHOD 'generateHeader' to blobs from request headers
-        //
-        // Concerns:
-        //  1 The utility under test generates a valid HTTP/1.1 request header 
-        //    for a variety of input data sets.
-        //
-        // Plan:
-        //  1 For each data set described in the test overview:
-        //
-        //    1 Define an HTTP request header value from the current input 
-        //      data set, and ensure the request header value is not the same
-        //      value as the default value.
-        //   
-        //    2 Generate an HTTP data stream from the HTTP request header 
-        //      value into a blob.
-        //
-        //    3 Add the blob to the message parsing mechanism, and ensure the
-        //      parsed request header has the same value as the originally 
-        //      defined request header.
-        //
-        // Testing: 
-        //   static int generateHeader(
-        //                      bcema_Blob                      *result,
-        //                      const baenet_HttpRequestLine&    requestLine,
-        //                      const baenet_HttpRequestHeader&  header);
-        // --------------------------------------------------------------------
-        
         int rc;
 
         for (int dataSet = 0; dataSet < NUM_DATA; ++dataSet) {
@@ -1868,7 +1797,78 @@ int main(int argc, char *argv[])
                               &blobBufferFactory);
 
             bcema_Blob message(&blobBufferFactory);
-            rc = baenet_HttpGeneratorUtil::generateHeader(&message, 
+            rc = baenet_HttpGeneratorUtil::generateHeader(&message,
+                                                          requestLine1,
+                                                          header1);
+            ASSERT(0 == rc);
+
+            rc = parser.addData(bsl::cout, message);
+            ASSERT(0 == rc);
+
+            ASSERT(isCompleteFlag == DATA[dataSet].d_contentLength == 0);
+            ASSERT(requestLine1   == requestLine2);
+            ASSERT(header1        == header2);
+            ASSERT(0              == compare(body1, body2));
+        }
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // CLASS METHOD 'generateHeader' to blobs from request headers
+        //
+        // Concerns:
+        //  1 The utility under test generates a valid HTTP/1.1 request header
+        //    for a variety of input data sets.
+        //
+        // Plan:
+        //  1 For each data set described in the test overview:
+        //
+        //    1 Define an HTTP request header value from the current input
+        //      data set, and ensure the request header value is not the same
+        //      value as the default value.
+        //
+        //    2 Generate an HTTP data stream from the HTTP request header
+        //      value into a blob.
+        //
+        //    3 Add the blob to the message parsing mechanism, and ensure the
+        //      parsed request header has the same value as the originally
+        //      defined request header.
+        //
+        // Testing:
+        //   static int generateHeader(
+        //                      bcema_Blob                      *result,
+        //                      const baenet_HttpRequestLine&    requestLine,
+        //                      const baenet_HttpRequestHeader&  header);
+        // --------------------------------------------------------------------
+
+        int rc;
+
+        for (int dataSet = 0; dataSet < NUM_DATA; ++dataSet) {
+            bcema_PooledBlobBufferFactory blobBufferFactory(BUFFER_SIZE);
+            baenet_HttpRequestLine        requestLine1;
+            baenet_HttpRequestLine        requestLine2;
+            baenet_HttpRequestHeader      header1;
+            baenet_HttpRequestHeader      header2;
+            bcema_Blob                    body1(&blobBufferFactory);
+            bcema_Blob                    body2(&blobBufferFactory);
+
+            defineHeader(&requestLine1, &header1, dataSet);
+
+            ASSERT(requestLine1 != requestLine2);
+            ASSERT(header1      != header2);
+
+            bool isCompleteFlag = false;
+            RequestAssembler requestAssembler(&bsl::cout,
+                                              &requestLine2,
+                                              &header2,
+                                              &body2,
+                                              &isCompleteFlag);
+            baenet_HttpMessageParser parser(
+                              &requestAssembler,
+                              baenet_HttpMessageType::BAENET_REQUEST,
+                              &blobBufferFactory);
+
+            bcema_Blob message(&blobBufferFactory);
+            rc = baenet_HttpGeneratorUtil::generateHeader(&message,
                                                           requestLine1,
                                                           header1);
             ASSERT(0 == rc);

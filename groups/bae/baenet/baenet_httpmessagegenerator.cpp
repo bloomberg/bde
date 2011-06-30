@@ -58,8 +58,8 @@ int baenet_HttpMessageGenerator::startEntity(
     }
 
     if (d_transferEncoding == baenet_HttpTransferEncoding::BAENET_CHUNKED) {
-        if (header.basicFields().contentLength().isNull() || 
-            header.basicFields().contentLength().value()  != 0) 
+        if (header.basicFields().contentLength().isNull() ||
+            header.basicFields().contentLength().value()  != 0)
         {
             return -2;
         }
@@ -97,8 +97,8 @@ int baenet_HttpMessageGenerator::startEntity(
     }
 
     if (d_transferEncoding == baenet_HttpTransferEncoding::BAENET_CHUNKED) {
-        if (header.basicFields().contentLength().isNull() || 
-            header.basicFields().contentLength().value()  != 0) 
+        if (header.basicFields().contentLength().isNull() ||
+            header.basicFields().contentLength().value()  != 0)
         {
             return -2;
         }
@@ -119,7 +119,7 @@ int baenet_HttpMessageGenerator::addEntityData(const bcema_Blob& data)
     typedef baenet_HttpTransferEncoding TE;
 
     if (d_transferEncoding == TE::BAENET_IDENTITY) {
-        // The identity encoding, by definition, does not transform the 
+        // The identity encoding, by definition, does not transform the
         // body.  We can avoid the cost of copying blob buffers in calling
         // 'baenet_HttpGeneratorUtil::generateBody' by simply invoke the
         // callback with the argument directly.
@@ -128,7 +128,7 @@ int baenet_HttpMessageGenerator::addEntityData(const bcema_Blob& data)
     }
     else {
         bcema_Blob chunk(d_blobBufferFactory_p);
-        int rc = baenet_HttpGeneratorUtil::generateBody(&chunk, 
+        int rc = baenet_HttpGeneratorUtil::generateBody(&chunk,
                                                         data,
                                                         d_transferEncoding,
                                                         false);
@@ -148,7 +148,7 @@ int baenet_HttpMessageGenerator::endEntity()
 
     if (d_transferEncoding == TE::BAENET_CHUNKED) {
         bcema_Blob chunk(d_blobBufferFactory_p);
-        int rc = baenet_HttpGeneratorUtil::generateBody(&chunk, 
+        int rc = baenet_HttpGeneratorUtil::generateBody(&chunk,
                                                         0,
                                                         0,
                                                         d_transferEncoding,

@@ -2466,7 +2466,7 @@ int baenet_HttpParserUtil::parseFieldValue(baenet_HttpContentType *result,
 
 int baenet_HttpParserUtil::parseFieldValue(baenet_HttpViaRecord   *result,
                                            const bdeut_StringRef&  str)
-{   
+{
     enum {
         BAENET_SUCCESS        =  0,
         BAENET_UNEXPECTED_EOF = -1,

@@ -186,7 +186,7 @@ class baenet_HttpMessageParser {
                 bslma_Allocator               *basicAllocator = 0);
         // Create an HTTP parser for the specified 'messageType' that calls
         // the specified 'entityProcessor' as portions of the entity are
-        // processed.  Allocate blob buffers using the specified 
+        // processed.  Allocate blob buffers using the specified
         // 'blobBufferFactory'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
@@ -209,14 +209,14 @@ class baenet_HttpMessageParser {
         // unless this object was supplied a blob buffer factory at the time
         // of construction.
 
-    int addData(bsl::ostream&   errorStream, 
-                bsl::streambuf *source, 
+    int addData(bsl::ostream&   errorStream,
+                bsl::streambuf *source,
                 int             numBytes);
         // Add the specified 'numBytes' read from the specified 'source' to
-        // the parser.  Write all error messages to the specified 
-        // 'errorStream'.  Return 0 on success, and a non-zero value 
-        // otherwise.  The behavior is undefined if 'onEndData' has been 
-        // called.  The behavior is also undefined unless this object was 
+        // the parser.  Write all error messages to the specified
+        // 'errorStream'.  Return 0 on success, and a non-zero value
+        // otherwise.  The behavior is undefined if 'onEndData' has been
+        // called.  The behavior is also undefined unless this object was
         // supplied a blob buffer factory at the time of construction.
 
     int onEndData(bsl::ostream& errorStream);

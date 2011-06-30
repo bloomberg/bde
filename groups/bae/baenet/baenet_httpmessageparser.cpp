@@ -214,7 +214,7 @@ int baenet_HttpMessageParser::parseHeaderField(
     isb.reset(&d_data);  // this is a kludge to avoid invariant assertion
                          // failure on destruction of blob stream buffer
 
-    trim(&fieldValue); 
+    trim(&fieldValue);
 
     if (0 != d_header_sp->addField(fieldName, fieldValue)) {
         errorStream << "Failed to add field: '" << fieldName
@@ -568,8 +568,8 @@ int baenet_HttpMessageParser::addData(bsl::ostream&   errorStream,
     return 0;
 }
 
-int baenet_HttpMessageParser::addData(bsl::ostream&   errorStream, 
-                                      bsl::streambuf *source, 
+int baenet_HttpMessageParser::addData(bsl::ostream&   errorStream,
+                                      bsl::streambuf *source,
                                       int             numBytes)
 {
     enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
