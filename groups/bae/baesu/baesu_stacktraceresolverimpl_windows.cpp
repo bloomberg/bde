@@ -275,14 +275,15 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
         DWORD64 offsetFromSymbol = 0;
         ZeroMemory(sym, SIZEOF_SEGMENT);
         sym->SizeOfStruct = sizeof(*sym);
-        sym->MaxNameLength = MAX_SYMBOL_BUF_NAME_LENGTH;
 #ifdef BSLS_PLATFORM__CPU_32_BIT
+        sym->MaxNameLen = MAX_SYMBOL_BUF_NAME_LENGTH;
         rc = (*api.d_symFromAddr)(hProcess,
                                   address,
                                   &offsetFromSymbol,
                                   sym);
 #else
         BSLS_ASSERT(sizeof(void *) == 8);
+        sym->MaxNameLength = MAX_SYMBOL_BUF_NAME_LENGTH;
         rc = (*api.d_symGetSymFromAddr64)(hProcess,
                                           address,
                                           &offsetFromSymbol,
