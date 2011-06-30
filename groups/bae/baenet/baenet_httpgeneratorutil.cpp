@@ -497,7 +497,7 @@ int baenet_HttpGeneratorUtil::generateHeader(
        << '.' 
        << statusLine.minorVersion()
        << ' ' 
-       << (int)statusLine.statusCode()
+       << statusLine.statusCode()
        << ' ' 
        << statusLine.reasonPhrase() 
        << "\r\n";
