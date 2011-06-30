@@ -164,7 +164,7 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
-#ifndef INCLUDED_BAENET_HTTPTRANSERENCODING
+#ifndef INCLUDED_BAENET_HTTPTRANSFERENCODING
 #include <baenet_httptransferencoding.h>
 #endif
 
