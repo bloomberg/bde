@@ -1,7 +1,5 @@
 *                      _       OPTS_FILE       = bdesu.opts
 
-### !! unix-HP_UX-*-*-*    _       STL_LDFLAGS     = -Wl,+noobjdebug
-
 !! windows-Windows_NT-amd64-*-cl	64	TESTDRIVER_BDEBUILD_CXXFLAGS = $(subst /O2,,$(BDEBUILD_CXXFLAGS))
 
 #-lsocket needed for bdesu_FileUtil::isRegularFile test
