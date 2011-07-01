@@ -145,12 +145,11 @@ unix-                   _       RETRY       = $(BDE_BINDIR)retry $(RETRY_OPT)
 !! unix-Cygwin          _       RETRY       =
 !! windows-             _       RETRY       =
 
-unix-                   _       RETRY_ON_EXIT   = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -x!0 --
+unix-                   _       RETRY_ON_EXIT   = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -x'!0' --
 !! unix-Cygwin          _       RETRY_ON_EXIT   =
 !! windows-             _       RETRY_ON_EXIT   =
 
-unix-                   _       RETRY_ON_SIGNAL = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -s!0 --
-
+unix-                   _       RETRY_ON_SIGNAL = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -s'!0' --
 !! unix-Cygwin          _       RETRY_ON_SIGNAL =
 !! windows-             _       RETRY_ON_SIGNAL =
 
@@ -414,7 +413,8 @@ windows-        shr BDE_DCL_EXPORT  = " "
 #        -Wc,--ignore_fptr_lang_linkage
 # DRQS 18912346: HP needs -D__STDC_LIMIT_MACROS to define LLONG_MIN/MAX and ULLONG_MAX
 # 20100330 - we need -D_HP_SOURCE so bb_inttypes.h defines ulonglong_t and longlong_t for a_comdb2
-!! unix-HP_UX-*-*-* _   DEF_CXXFLAGS    = -AA -z +W749 +Ovolatile=__unordered -Wc,--ignore_fptr_lang_linkage -D_SYS_SYSMACROS_INCLUDED -D__STDC_LIMIT_MACROS -D_HP_SOURCE
+# DRQS 23276327: added -Wc,--no_nonconst_ref_anachronism
+!! unix-HP_UX-*-*-* _   DEF_CXXFLAGS    = -AA -z +W749 +Ovolatile=__unordered -Wc,--ignore_fptr_lang_linkage -D_SYS_SYSMACROS_INCLUDED -D__STDC_LIMIT_MACROS -D_HP_SOURCE -Wc,--no_nonconst_ref_anachronism
 
 # IMPORTANT: use of stat and utime to preserve timestamps on the processed file!
 !! windows-     _   PROCESS_INC = perl -e "$$d=pop(@ARGV); $$o=$$d; $$/=undef; while ($$i=shift @ARGV) { $$mtime=((stat $$i)[9]); open I,$$i; if (-d $$d) { $$i=~m|([\w.]+)$$| and $$o=$$d.'\\'.$$1 }; open O,'>'.$$o; $$c=<I>; $$c=~s/^    static ([^({;]+;)$$/    ::GROUP::_DCL static $$1/mg; print O $$c; close I; close O; utime $$mtime,$$mtime,$$o; }; print \"\tpreprocessed to $$d\n\"" --

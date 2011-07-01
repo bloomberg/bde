@@ -112,7 +112,7 @@ void baenet_HttpMessageGenerator::generateStartLine(
 {
     stream << "HTTP/" << startLine.majorVersion()
            << '.' << startLine.minorVersion()
-           << ' ' << (int)startLine.statusCode()
+           << ' ' << startLine.statusCode()
            << ' ' << startLine.reasonPhrase() << "\r\n";
 }
 

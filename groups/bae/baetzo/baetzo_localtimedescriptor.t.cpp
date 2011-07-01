@@ -414,6 +414,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Incorporate usage example from header into test driver, remove
         //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1849,7 +1850,7 @@ int main(int argc, char *argv[])
         //: 1 Use the addresses of the 'print' member function and 'operator<<'
         //:   free function defined in this component to initialize,
         //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4)
+        //:   the appropriate signatures and return types.  (C-4, 6)
         //:
         //: 2 Using the table-driven technique:  (C-1..3, 5, 7)
         //:
@@ -3186,7 +3187,7 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
