@@ -547,6 +547,15 @@ class bdet_Datetime {
         // human-readable format is not fully specified, and can change
         // without notice.
 
+    int printToBuffer(char *result, int numBytes) const;
+        // Efficiently write the value of this object to the specified 'result'
+        // buffer of at least the specified 'numBytes'.  Return the number of
+        // characters (not including the null character) that would have been
+        // written if the limit due to 'numBytes' were not imposed.  'result' is
+        // null-terminated unless 'numBytes' is 0.  The behavior is undefined
+        // unless '0 <= numBytes' and 'result' refers to at least 'numBytes'
+        // contiguous bytes.
+
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // Write this value to the specified output 'stream' using the
@@ -930,11 +939,11 @@ STREAM& bdet_Datetime::bdexStreamIn(STREAM& stream, int version)
             bdet_Time timeTmp;
             dateTmp.bdexStreamIn(stream, 1);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             timeTmp.bdexStreamIn(stream, 1);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             d_date = dateTmp;
             d_time = timeTmp;

@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baetzo_localtimeperiod_cpp,"$Id$ $CSID$")
 
-#include <bdeu_print.h>
+#include <bslim_printer.h>
 
 #include <bsl_ostream.h>
 
@@ -25,17 +25,12 @@ bsl::ostream& baetzo_LocalTimePeriod::print(bsl::ostream& stream,
         return stream;                                                // RETURN
     }
 
-    bdeu_Print::indent(stream, level, spacesPerLevel);
-
-    stream << "[ "
-           << d_descriptor   << ", "
-           << d_utcStartTime << " - "
-           << d_utcEndTime
-           << " ]";
-
-    if (spacesPerLevel >= 0) {
-        stream << '\n';
-    }
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    printer.print(d_descriptor,   "descriptor");
+    printer.print(d_utcStartTime, "utcStartTime");
+    printer.print(d_utcEndTime,   "utcEndTime");
+    printer.end();
 
     return stream;
 }

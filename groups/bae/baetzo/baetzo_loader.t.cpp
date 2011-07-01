@@ -57,8 +57,8 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 namespace {
 
-struct LoaderTestImp : bsls_ProtocolTest<baetzo_Loader> {
-    int loadTimeZone(baetzo_Zoneinfo *, const char *) { return exit(); }
+struct LoaderTestImp : bsls_ProtocolTestImp<baetzo_Loader> {
+    int loadTimeZone(baetzo_Zoneinfo *, const char *) { return markDone(); }
 };
 
 }
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
+    int veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -274,12 +274,26 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // PROTOCOL TEST:
-        //   We need to make sure that 'baetzo_Loader' protocol class is
-        //   properly defined according to protocol class rules defined in
-        //   'bsls_ProtocolTest' component.
+        //   Test the conformance of baetzo_Loader to the protocol concerns.
+        //
+        // Concerns:
+        //: 1 baetzo_Loader protocol is an abstract class, i.e., no objects of
+        //:   baetzo_Loader protocol class can be created
+        //: 2 baetzo_Loader hos no data members
+        //: 3 all methods of baetzo_Loader are pure virtual
+        //: 4 baetzo_Loader has a pure virtual destructor
+        //: 5 all methods of baetzo_Loader are publicly accessible
         //
         // Plan:
-        //   Use 'bsl_ProtocolTest' component to test this protocol class.
+        //  Use 'bsl_ProtocolTest' component to test the following subset of
+        //  the baetzo_Loader protocol concerns:
+        //: 1 baetzo_Loader protocol is an abstract class, i.e., no objects of
+        //:   baetzo_Loader protocol class can be created
+        //: 2 baetzo_Loader hos no data members
+        //: 3 each of the known and tested methods of baetzo_Loader is virtual
+        //: 4 baetzo_Loader has a virtual destructor
+        //: 5 each of the known and tested methods of baetzo_Loader is publicly
+        //    accessible
         //
         // Testing:
         //   virtual int loadTimeZone(baetzo_Zoneinfo *timeZone,
@@ -289,15 +303,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        bsls_ProtocolTestDriver<LoaderTestImp> t;
+        bsls_ProtocolTest<LoaderTestImp> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
         ASSERT(t.testVirtualDestructor());
 
         BSLS_PROTOCOLTEST_ASSERT(t, loadTimeZone(0, 0));
-
-        testStatus = t.failures();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

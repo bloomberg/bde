@@ -248,22 +248,34 @@ class btemt_Channel {
     btes_Iovec                      d_ovecs[MAX_IOVEC_SIZE]; // local buffer,
                                                              // stack-allocated
 
-    bcema_SharedPtr<bcema_Blob>     d_outgoingBlob;          // outgoing msgs,
+    bcema_SharedPtr<bcema_Blob>     d_writeEnqueuedData;     // outgoing msgs,
                                                              // concatenated
 
-    btemt_BlobMsg                   d_outgoingMsg;           // first msg to go
+    btemt_BlobMsg                   d_writeActiveData;       // first msg to go
 
-    bcemt_Mutex                     d_outgoingMutex;         // synching access
-                                                             // to outgoing
-                                                             // elements
+    bcemt_Mutex                     d_writeMutex;            // synching access
+                                                             // to the 'write'
+                                                             // data members
+                                                             // (variables
+                                                             // 'd_write*', and
+                                                          // 'd_isWriteActive'.
+                                                                              
 
-    int                             d_outgoingFlag;          // outgoingMsg
-                                                             // is loaded
+    bool                            d_isWriteActive;         // a thread is
+                                                             // actively
+                                                             // writing
 
-    int                             d_writeCacheSize;        // number of bytes
+    int                             d_writeEnqueuedCacheSize;// number of bytes
                                                              // currently
                                                              // enqueued for
-                                                             // write
+                                                             // write in
+                                                         // d_writeEnqueuedData
+
+    bces_AtomicInt                  d_writeActiveCacheSize;  // number of bytes
+                                                             // currently
+                                                             // being written
+                                                             // (including in
+                                                          // d_writeActiveData)
 
     volatile bool                   d_hiWatermarkHitFlag;    // already full
 
@@ -315,21 +327,23 @@ class btemt_Channel {
                               d_numBytesWritten;  // bytes written to channel,
                                                   // modification synchronized
                                                   // with output to channel
-                                                  // (i.e., 'd_outgoingMutex'
-                                                  // and 'd_outgoingFlag')
+                                                  // (i.e., 'd_writeMutex'
+                                                  // and 'd_isWriteActive')
 
     volatile bsls_PlatformUtil::Int64
                               d_numBytesRequestedToBeWritten;
                                                   // bytes requested to be
                                                   // written to channel;
                                                   // modification synchronized
-                                                  // with 'd_outgoingMutex'
+                                                  // with 'd_writeMutex'
 
     // Memory allocation section (pointers held, not owned)
     bcema_PooledBufferChainFactory *d_chainFactory_p;     // for d_currentMsg
-    bcema_BlobBufferFactory        *d_writeBlobFactory_p; // for d_outgoingMsg,
+    bcema_BlobBufferFactory        *d_writeBlobFactory_p; // for
+                                                          // d_writeActiveData,
                                                           // and
-                                                          // d_outgoingBlob
+                                                         // d_writeEnqueuedData
+
     // DO NOT CHANGE THE ORDER OF THESE TWO DATA MEMBERS
     bcema_BlobBufferFactory        *d_readBlobFactory_p;  // for d_blobReadData
     bcema_Blob                      d_blobReadData;       // blob for read data
@@ -460,14 +474,15 @@ class btemt_Channel {
         // Write the first message(s) enqueued for this channel to the
         // underlying 'StreamSocket'.  If more data is available for writing
         // (either because the write did not completely succeed, or because it
-        // did but more data is available in the 'd_outgoingBlob'), register a
-        // call to 'writeCb' as soon as space is available.  Also ensure that
-        // the channel state callback has been called if this channel is down.
-        // This callback is registered with write events for the socket
-        // underlying this channel, and is invoked when an outgoing message
-        // needs to be written and space is available in the socket's write
-        // buffers.  Note that this function should always be executed in the
-        // dispatcher thread of the event manager associated with this channel.
+        // did but more data is available in the 'd_writeEnqueuedData'),
+        // register a call to 'writeCb' as soon as space is available.  Also
+        // ensure that the channel state callback has been called if this
+        // channel is down.  This callback is registered with write events for
+        // the socket underlying this channel, and is invoked when an outgoing
+        // message needs to be written and space is available in the socket's
+        // write buffers.  Note that this function should always be executed in
+        // the dispatcher thread of the event manager associated with this
+        // channel.
 
     // FRIENDS
     friend class btemt_ChannelPool;
@@ -1527,32 +1542,36 @@ void btemt_Channel::readTimeoutCb(ChannelHandle self)
 
 int btemt_Channel::refillOutgoingMsg()
 {
-    BSLS_ASSERT(0 == d_outgoingMsg.data()->numBuffers());
-    BSLS_ASSERT(0 == d_outgoingMsg.userDataField1());
-    BSLS_ASSERT(0 == d_outgoingMsg.userDataField2());
+    BSLS_ASSERT(0 == d_writeActiveData.data()->numBuffers());
+    BSLS_ASSERT(0 == d_writeActiveData.userDataField1());
+    BSLS_ASSERT(0 == d_writeActiveData.userDataField2());
 
-    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_outgoingMutex);
-    BSLS_ASSERT(1 == d_outgoingFlag);
+    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
+    BSLS_ASSERT(d_isWriteActive);
 
-    if (d_outgoingBlob->length() == 0) {
+    if (0 == d_writeEnqueuedData->length()) {
         // There isn't any pending data.  This must be done while holding the
         // lock because o/w some other thread could come in just after
-        // returning and before 'd_outgoingFlag = 0' is done by the caller, and
-        // enqueue into 'd_outgoingBlob' instead of 'd_outgoingMsg', letting a
-        // subsequent call violate the order-preserving property of messages.
+        // returning and before 'd_isWriteActive = 0' is done by the caller,
+        // and enqueue into 'd_writeEnqueuedData' instead of
+        // 'd_writeActiveData', letting a subsequent call violate the
+        // order-preserving property of messages.
 
-        d_outgoingFlag = 0;
+        d_isWriteActive = false;
         return 0;
     }
 
-    // Otherwise, swap 'd_outgoingBlob' and 'd_outgoingMsg'.
+    // Otherwise, swap 'd_writeEnqueuedData' and 'd_writeActiveData'.
 
 #if 0
-    bcema_SharedPtr<bcema_Blob> tmp = d_outgoingBlob;
-    d_outgoingBlob = d_outgoingMsg.sharedData();
-    d_outgoingMsg.setSharedData(tmp);
+    bcema_SharedPtr<bcema_Blob> tmp = d_writeEnqueuedData;
+    d_writeEnqueuedData = d_writeActiveData.sharedData();
+    d_writeActiveData.setSharedData(tmp);
 #else
-    d_outgoingBlob.swap(d_outgoingMsg.sharedData());
+    d_writeEnqueuedData.swap(d_writeActiveData.sharedData());
+    d_writeEnqueuedCacheSize = 0;
+    d_writeActiveCacheSize.relaxedAdd(
+                                     d_writeActiveData.sharedData()->length());
 #endif
 
     return 1;
@@ -1578,7 +1597,7 @@ void btemt_Channel::registerReadTimeoutCallback(bdet_TimeInterval    timeout,
 
 void btemt_Channel::registerWriteCb(ChannelHandle self)
 {
-    // This callback is executed whenever data is available in 'd_outgoingMsg'.
+    // This callback is executed whenever data is available in 'd_writeActiveData'.
     if (0 != protectAndCheckCallback(self, CLOSED_SEND_MASK)) {
         return;
     }
@@ -1622,19 +1641,19 @@ void btemt_Channel::writeCb(ChannelHandle self)
     // need to acquire the lock (in 'refillOutgoingMsg').  When this method is
     // called, there should always be data available in the outgoing message.
 
-    // BSLS_ASSERT(1 == d_outgoingFlag); // not atomic anymore
+    // BSLS_ASSERT(d_isWriteActive); // not atomic anymore
 
     // The portion of the current outgoing message not yet written is indicated
     // by the first user data field (current buffer index) and second user data
     // field (offset in current buffer of first byte not written).
 
-    bcema_Blob *blob = d_outgoingMsg.data();
+    bcema_Blob *blob = d_writeActiveData.data();
     BSLS_ASSERT(blob);
     BSLS_ASSERT(0 < blob->length());
     int numBuffers    = blob->numDataBuffers();
     BSLS_ASSERT(0 < numBuffers);
-    int currentBuffer = d_outgoingMsg.userDataField1();
-    int currentOffset = d_outgoingMsg.userDataField2();
+    int currentBuffer = d_writeActiveData.userDataField1();
+    int currentOffset = d_writeActiveData.userDataField2();
 
     bsls_PerformanceHint::prefetchForReading(
                            blob->buffer(currentBuffer).data() + currentOffset);
@@ -1700,13 +1719,14 @@ void btemt_Channel::writeCb(ChannelHandle self)
         // Otherwise proceed with reporting.
 
         { // Lock, just for updating the stats.
-            bcemt_LockGuard<bcemt_Mutex> oGuard(&d_outgoingMutex);
+            bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
 
             d_numBytesWritten += writeRet;
-            d_writeCacheSize -= writeRet;
-            if (d_hiWatermarkHitFlag &&
-                    d_writeCacheSize <= d_writeCacheLowWat)
-            {
+            d_writeActiveCacheSize.relaxedAdd(-writeRet);
+
+            if (d_hiWatermarkHitFlag
+             && (d_writeEnqueuedCacheSize
+               + d_writeActiveCacheSize.relaxedLoad() <= d_writeCacheLowWat)) {
                 d_hiWatermarkHitFlag = false;
                 oGuard.release()->unlock();
                 d_channelStateCb(d_channelId, d_sourceId,
@@ -1739,22 +1759,22 @@ void btemt_Channel::writeCb(ChannelHandle self)
             // The current buffer and offset of the outgoing message may
             // have changed.  This must be recorded.
 
-            d_outgoingMsg.setUserDataField1(currentBuffer);
-            d_outgoingMsg.setUserDataField2(currentOffset);
+            d_writeActiveData.setUserDataField1(currentBuffer);
+            d_writeActiveData.setUserDataField2(currentOffset);
         }
         else {
             BSLS_ASSERT(0 == currentOffset);
 
-            // There is no more data to write from 'd_outgoingMsg'.  Empty
+            // There is no more data to write from 'd_writeActiveData'.  Empty
             // the outgoing message since all the data there has been
             // written.
 
-            d_outgoingMsg.data()->removeAll();
-            d_outgoingMsg.setUserDataField1(0);
-            d_outgoingMsg.setUserDataField2(0);
+            d_writeActiveData.data()->removeAll();
+            d_writeActiveData.setUserDataField1(0);
+            d_writeActiveData.setUserDataField2(0);
 
             // We must try again with the next messages in the queue, so
-            // now we need to lock to gain access to the d_outgoingBlob.
+            // now we need to lock to gain access to the d_writeEnqueuedData.
             // This is done in 'refillOutgoingMsg'.
 
             if (isChannelDown(CLOSED_SEND_MASK) || !refillOutgoingMsg()) {
@@ -1768,7 +1788,7 @@ void btemt_Channel::writeCb(ChannelHandle self)
             // invariant that 'bufSize' corresponds to the data length of the
             // current buffer.
 
-            blob          = d_outgoingMsg.data();
+            blob          = d_writeActiveData.data();
             numBuffers    = blob->numDataBuffers();
             currentBuffer = 0;
             currentOffset = 0;
@@ -1813,8 +1833,9 @@ btemt_Channel::btemt_Channel(
 , d_numUsedIVecs(0)
 , d_currentMsg()
 , d_minBytesBeforeNextCb(config.minIncomingMessageSize())
-, d_outgoingFlag(0)
-, d_writeCacheSize(0)
+, d_isWriteActive(false)
+, d_writeEnqueuedCacheSize(0)
+, d_writeActiveCacheSize(0)
 , d_hiWatermarkHitFlag(false)
 , d_channelType(channelType)
 , d_enableReadFlag(false)
@@ -1864,14 +1885,15 @@ btemt_Channel::btemt_Channel(
     bcema_SharedPtr<bcema_Blob> outBlob;
     outBlob.createInplace(d_allocator_p, d_writeBlobFactory_p, d_allocator_p);
 
-    d_outgoingMsg.setChannelId(d_channelId);
-    d_outgoingMsg.setSharedData(outBlob);
-    d_outgoingMsg.setUserDataField1(0);
-    d_outgoingMsg.setUserDataField2(0);
+    d_writeActiveData.setChannelId(d_channelId);
+    d_writeActiveData.setSharedData(outBlob);
+    d_writeActiveData.setUserDataField1(0);
+    d_writeActiveData.setUserDataField2(0);
 
     // Create outgoing blob.
-    d_outgoingBlob.createInplace(d_allocator_p,
-                                 d_writeBlobFactory_p, d_allocator_p);
+    d_writeEnqueuedData.createInplace(d_allocator_p,
+                                      d_writeBlobFactory_p,
+                                      d_allocator_p);
 }
 
 btemt_Channel::~btemt_Channel()
@@ -1899,20 +1921,17 @@ void btemt_Channel::disableRead(ChannelHandle self)
                                   d_eventManager_p->dispatcherThreadHandle()));
     BSLS_ASSERT(this == self.ptr());
 
+    deregisterSocketRead(self);
     if (d_readTimeoutTimerId) {
-        // Else we competed with invokeChannelDown, but note that
-        // invokeChannelDown is also executed in the dispatcherThread, so there
-        // is no race with d_readTimeoutTimerId.
-
-        deregisterSocketRead(self);
         d_eventManager_p->deregisterTimer(d_readTimeoutTimerId);
         d_readTimeoutTimerId = 0;
-        d_enableReadFlag = false;
-
-        d_channelStateCb(d_channelId, d_sourceId,
-                         btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
-                         d_userData);
     }
+    d_enableReadFlag = false;
+
+    d_channelStateCb(d_channelId,
+                     d_sourceId,
+                     btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
+                     d_userData);
 }
 
 int btemt_Channel::initiateReadSequence(ChannelHandle self)
@@ -2010,31 +2029,35 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
     // Grab the lock.  Note that we shouldn't release the lock until the
     // message is enqueued for write.  If there are no other messages enqueued,
     // it is enough to set the outgoing flag because that will force any other
-    // message to be enqueued to 'd_outgoingBlob', while this message can
-    // proceed with 'd_outgoingMsg' which is disjoint.  Note that in that case,
-    // the 'writeCb' method is not running so there is no race condition
-    // possible with 'd_outgoingMsg'.  If there are other messages enqueued, we
-    // need to append at the end of 'd_outgoingBlob' and must retain the lock
-    // until this is completed to guarantee the integrity of outgoing messages.
+    // message to be enqueued to 'd_writeEnqueuedData', while this message can
+    // proceed with 'd_writeActiveData' which is disjoint.  Note that in that
+    // case, the 'writeCb' method is not running so there is no race condition
+    // possible with 'd_writeActiveData'.  If there are other messages
+    // enqueued, we need to append at the end of 'd_writeEnqueuedData' and must
+    // retain the lock until this is completed to guarantee the integrity of
+    // outgoing messages.
 
-    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_outgoingMutex);
+    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
 
     d_numBytesRequestedToBeWritten += dataLength;
 
+    const int writeCacheSize =
+               d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                       d_writeCacheSize > d_writeCacheHiWat)) {
+                                         writeCacheSize > d_writeCacheHiWat)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return CACHE_HIWAT;
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                        d_writeCacheSize > enqueueWatermark)) {
+                                          writeCacheSize > enqueueWatermark)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return ENQUEUE_WAT;
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                          d_writeCacheSize + dataLength > d_writeCacheHiWat)) {
+                            writeCacheSize + dataLength > d_writeCacheHiWat)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         if(!d_hiWatermarkHitFlag) {
             d_hiWatermarkHitFlag = true;
@@ -2061,14 +2084,12 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    d_writeCacheSize += dataLength;
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 == d_outgoingFlag)) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
         // This message is the first and only in the outgoing queue.  Note that
         // if 'blob' were a 'bcema_SharedPtr<bcema_Blob> msg' instead, we could
-        // simply assign 'd_outgoingMsg = msg' (which would assign the shared
-        // pointer to the blob) but this would have the problem that we could
-        // not know if the blob of 'msg' was created with the proper blob
+        // simply assign 'd_writeActiveData = msg' (which would assign the
+        // shared pointer to the blob) but this would have the problem that we
+        // could not know if the blob of 'msg' was created with the proper blob
         // buffer factory or allocator, and also this might not preserve the
         // capacity (in buffers) of the outgoing message.  It might also
         // introduce extra (non-data) buffers into the blob of the outgoing
@@ -2079,12 +2100,14 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
 
         // Signal that there is now a message scheduled for writing.
 
-        d_outgoingFlag = 1; // This must be done before releasing the lock.
+        d_isWriteActive = true; // This must be done before releasing the lock.
 
-        BSLS_ASSERT(0 != d_outgoingMsg.data());
-        BSLS_ASSERT(0 == d_outgoingMsg.data()->numBuffers());
-        BSLS_ASSERT(0 == d_outgoingMsg.userDataField1());
-        BSLS_ASSERT(0 == d_outgoingMsg.userDataField2());
+        BSLS_ASSERT(0 != d_writeActiveData.data());
+        BSLS_ASSERT(0 == d_writeActiveData.data()->numBuffers());
+        BSLS_ASSERT(0 == d_writeActiveData.userDataField1());
+        BSLS_ASSERT(0 == d_writeActiveData.userDataField2());
+
+        d_writeActiveCacheSize.relaxedAdd(dataLength);
 
         oGuard.release()->unlock();
 
@@ -2093,7 +2116,6 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < writeRet)) {
             d_numBytesWritten += writeRet;
-            d_writeCacheSize -= writeRet;
         }
         else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == writeRet) {
             // In case writeRet < 0, then either the socket is dead, or would
@@ -2114,15 +2136,17 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
             return CHANNEL_DOWN;
         }
 
+        d_writeActiveCacheSize.relaxedAdd(-writeRet);
+
         if (dataLength == writeRet) {
             // We succeeded in writing the whole message.  We did release the
             // lock, however, and maybe another thread enqueued some data to
             // the outgoing blob in the meantime.  If that is the case, then,
             // we must refill the outgoing message.
 
-            d_outgoingMsg.data()->removeAll();
-            d_outgoingMsg.setUserDataField1(0);
-            d_outgoingMsg.setUserDataField2(0);
+            d_writeActiveData.data()->removeAll();
+            d_writeActiveData.setUserDataField1(0);
+            d_writeActiveData.setUserDataField2(0);
 
             if (!refillOutgoingMsg()) {
                 // There isn't any pending data, our work here is done.
@@ -2134,13 +2158,13 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
             // If we did not succeed, then enqueue the rest into the outgoing
             // message.  Note that 'loadBlob' will trim off the last buffer.
 
-            bcema_Blob *msgBlob = d_outgoingMsg.data();
+            bcema_Blob *msgBlob = d_writeActiveData.data();
 
             int startingIndex =
                            MessageUtil::loadBlob(msgBlob, msg, writeRet);
 
-            d_outgoingMsg.setUserDataField1(0);
-            d_outgoingMsg.setUserDataField2(startingIndex);
+            d_writeActiveData.setUserDataField1(0);
+            d_writeActiveData.setUserDataField2(startingIndex);
         }
 
         // There is data available, let the event manager know.
@@ -2157,9 +2181,11 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-    // There are already outgoing messages in the 'd_outgoingMsg' and perhaps
-    // 'd_outgoingBlob', so we simply have to append those buffers into
-    // 'd_outgoingBlob'.  Note that we are still holding the lock.
+    d_writeEnqueuedCacheSize += dataLength;
+
+    // There are already outgoing messages in the 'd_writeActiveData' and
+    // perhaps 'd_writeEnqueuedData', so we simply have to append those buffers
+    // into 'd_writeEnqueuedData'.  Note that we are still holding the lock.
 
     // It is possible that a previous writeVecMessage has enqueued data, and
     // that this does not terminate on a buffer boundary.  Since we share the
@@ -2167,12 +2193,12 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
     // that future 'writeVecMessage' do not pollute the caller's buffers.  Note
     // that we should *never* have trailing buffers by design.
 
-    BSLS_ASSERT(d_outgoingBlob->numDataBuffers() ==
-                d_outgoingBlob->numBuffers());
+    BSLS_ASSERT(d_writeEnqueuedData->numDataBuffers() ==
+                d_writeEnqueuedData->numBuffers());
 
-    d_outgoingBlob->trimLastDataBuffer();
+    d_writeEnqueuedData->trimLastDataBuffer();
 
-    MessageUtil::appendToBlob(d_outgoingBlob.ptr(), msg);
+    MessageUtil::appendToBlob(d_writeEnqueuedData.ptr(), msg);
 
     return SUCCESS;
 }
@@ -2184,11 +2210,15 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
         return -1;
     }
 
-    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_outgoingMutex);
+    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
 
     // Generate a 'HIWAT' alert if the new cache size limit is smaller than the
     // existing cache size and a 'HIWAT' alert has not already been generated.
-    if (!d_hiWatermarkHitFlag && d_writeCacheSize >= numBytes) {
+    
+    const int writeCacheSize =
+               d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+
+    if (!d_hiWatermarkHitFlag && writeCacheSize >= numBytes) {
         d_hiWatermarkHitFlag = true;
         bdef_Function<void (*)()> functor(bdef_BindUtil::bindA(
                     d_allocator_p
@@ -2200,13 +2230,14 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
 
         d_eventManager_p->execute(functor);
     }
-    else if (d_writeCacheSize < numBytes) {
+    else if (writeCacheSize < numBytes) {
         // Otherwise, if the write cache size limit is now greater than the
         // current cache size, clear the hi-watermark hit flag so additional
         // alerts will be generated.
 
         d_hiWatermarkHitFlag = false;
     }
+
     d_writeCacheHiWat = numBytes;
     return 0;
 }

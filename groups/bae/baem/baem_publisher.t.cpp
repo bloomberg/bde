@@ -88,8 +88,8 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct PublisherTest : bsls_ProtocolTest<baem_Publisher> {
-    void publish(const baem_MetricSample&)  { exit(); }
+struct PublisherTest : bsls_ProtocolTestImp<baem_Publisher> {
+    void publish(const baem_MetricSample&)  { markDone(); }
 };
 
 //=============================================================================
@@ -336,15 +336,13 @@ int main(int argc, char *argv[])
                           << endl << "======================="
                           << endl;
 
-        bsls_ProtocolTestDriver<PublisherTest> t;
+        bsls_ProtocolTest<PublisherTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
         ASSERT(t.testVirtualDestructor());
 
         BSLS_PROTOCOLTEST_ASSERT(t, publish(baem_MetricSample()));
-
-        testStatus = t.failures();
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;

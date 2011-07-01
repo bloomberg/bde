@@ -24,6 +24,8 @@ BDES_IDENT_RCSID(btemt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <bdef_bind.h>
 #include <bdef_memfn.h>
 
+#include <bdema_bufferedsequentialallocator.h>
+
 #include <bslalg_typetraits.h>
 #include <bslalg_typetraitusesbslmaallocator.h>
 #include <bslma_autorawdeleter.h>
@@ -889,8 +891,15 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
 
         // Process expired timers in increasing time order.
         if (d_timerQueue.length()) {
+            const int NUM_TIMERS = 32;
+            const int SIZE = NUM_TIMERS *
+                sizeof(bcec_TimeQueueItem<bdef_Function<void (*)()> >);
+
+            char BUFFER[SIZE];
+            bdema_BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
+
             bsl::vector<bcec_TimeQueueItem<bdef_Function<void (*)()> > >
-                                                    requests(d_allocator_p);
+                                                    requests(&bufferAllocator);
             d_timerQueue.popLE(bdetu_SystemTime::now(), &requests);
             int numTimers = requests.size();
             for (int i = 0; i < numTimers; ++i) {
@@ -919,9 +928,9 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
 
 // CREATORS
 btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
-                                        bslma_Allocator   *threadSafeAllocator)
+                                          bslma_Allocator *threadSafeAllocator)
 : d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
-                                                           threadSafeAllocator)
+                threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
 , d_dispatcher(bcemt_ThreadUtil::invalidHandle())
 , d_state(BTEMT_DISABLED)
@@ -942,7 +951,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
                                         Hint               registrationHint,
                                         bslma_Allocator   *threadSafeAllocator)
 : d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
-                                                           threadSafeAllocator)
+                threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
 , d_dispatcher(bcemt_ThreadUtil::invalidHandle())
 , d_state(BTEMT_DISABLED)
@@ -964,12 +973,35 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
                                         bool               collectTimeMetrics,
                                         bslma_Allocator   *threadSafeAllocator)
 : d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
-                                                           threadSafeAllocator)
+                threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
 , d_dispatcher(bcemt_ThreadUtil::invalidHandle())
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
+, d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
+            bteso_TimeMetrics::BTESO_IO_BOUND,
+            threadSafeAllocator)
+, d_collectMetrics(collectTimeMetrics)
+, d_numTimers(0)
+, d_numTotalSocketEvents(0)
+, d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
+{
+    initialize(registrationHint);
+}
+
+btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
+                                        Hint               registrationHint,
+                                        bool               collectTimeMetrics,
+                                        bool               poolTimerMemory,
+                                        bslma_Allocator   *threadSafeAllocator)
+: d_requestPool(sizeof(btemt_TcpTimerEventManager_Request),
+                threadSafeAllocator)
+, d_requestQueue(threadSafeAllocator)
+, d_dispatcher(bcemt_ThreadUtil::invalidHandle())
+, d_state(BTEMT_DISABLED)
+, d_terminateThread(0)
+, d_timerQueue(poolTimerMemory, threadSafeAllocator)
 , d_metrics(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
