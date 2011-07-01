@@ -78,14 +78,6 @@ struct baenet_HttpStatusCodeCategory {
             // The server failed to fulfill an apparently valid request.
       , BAENET_NONSTANDARD   = 5
             // The status code is non-standard.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-      , INFORMATIONAL = BAENET_INFORMATIONAL
-      , SUCCESS       = BAENET_SUCCESS
-      , REDIRECTION   = BAENET_REDIRECTION
-      , CLIENT_ERROR  = BAENET_CLIENT_ERROR
-      , SERVER_ERROR  = BAENET_SERVER_ERROR
-      , NONSTANDARD   = BAENET_NONSTANDARD
-#endif
     };
 
     enum {

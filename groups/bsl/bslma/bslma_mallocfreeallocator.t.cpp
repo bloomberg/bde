@@ -4,6 +4,7 @@
 
 #include <bslma_allocator.h>       // for testing only
 #include <iostream>
+#include <cstdio>       // std::printf
 
 using namespace BloombergLP;
 using namespace std;

@@ -1,4 +1,4 @@
-// bdem_berdecoderutil.t.cpp                  -*-C++-*-
+// bdem_berdecoderutil.t.cpp                                          -*-C++-*-
 
 #include <bdem_berdecoderutil.h>
 
@@ -12,8 +12,8 @@
 #include <bdesb_fixedmeminstreambuf.h>  // for testing only
 
 #include <bsls_objectbuffer.h>
-#include <bsls_platformutil.h>
 #include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bdet_date.h>
 #include <bdet_datetime.h>
@@ -13094,10 +13094,10 @@ int main(int argc, char *argv[])
             const signed   long   XK1 = LONG_MIN;  signed   long     XK2;
             const          long   XL1 = LONG_MAX;           long     XL2;
 
-            const bsls_PlatformUtil::Int64  XM1 = 0xff34567890123456LL;
-            bsls_PlatformUtil::Int64        XM2;
-            const bsls_PlatformUtil::Uint64 XN1 = 0x1234567890123456LL;
-            bsls_PlatformUtil::Uint64       XN2;
+            const bsls_Types::Int64  XM1 = 0xff34567890123456LL;
+            bsls_Types::Int64        XM2;
+            const bsls_Types::Uint64 XN1 = 0x1234567890123456LL;
+            bsls_Types::Uint64       XN2;
 
             const          bool   XO1 = true;             bool         XO2;
 

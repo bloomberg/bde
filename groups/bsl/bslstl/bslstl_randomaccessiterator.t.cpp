@@ -7,6 +7,7 @@
 
 #include <climits>
 #include <cstdlib>
+#include <cstdio>   // printf()
 #include <iostream>
 #include <sstream>
 
@@ -79,6 +80,7 @@ using namespace std;
 //                              const bslstl_RandomAccessIterator&, ptrdiff_t);
 // [16] ptrdiff_t operator-(const bslstl_RandomAccessIterator&,
 //                          const bslstl_RandomAccessIterator&);
+// [  ] void swap(bslstl_RandomAccessIterator&, bslstl_RandomAccessIterator&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE is informative only, and does not compile independantly
