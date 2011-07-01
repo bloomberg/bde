@@ -2115,7 +2115,6 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         int writeRet = MessageUtil::write(this->socket(), d_ovecs, msg);
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < writeRet)) {
-
             d_numBytesWritten += writeRet;
         }
         else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == writeRet) {
