@@ -4,266 +4,163 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baenet_httpmessagegenerator_cpp,"$Id$ $CSID$")
 
-#include <bcema_blob.h>
-
-#include <bdet_datetime.h>
-#include <bdet_datetimetz.h>
-#include <bdeut_stringref.h>
-
-#include <baenet_httpcontenttype.h>
-#include <baenet_httphost.h>
-#include <baenet_httprequestline.h>
-#include <baenet_httpstatusline.h>
-#include <baenet_httpviarecord.h>
+#include <baenet_httpcontenttype.h>     // for testing only
+#include <baenet_httpgeneratorutil.h>   // for testing only
+#include <baenet_httphost.h>            // for testing only
+#include <baenet_httprequestline.h>     // for testing only
+#include <baenet_httpstatusline.h>      // for testing only
+#include <baenet_httpviarecord.h>       // for testing only
 
 #include <baenet_httprequestheader.h>   // for testing only
 #include <baenet_httpresponseheader.h>  // for testing only
 
 namespace BloombergLP {
 
-namespace {
-
-// HELPER FUNCTIONS
-
-bsl::ostream& printDatetimeWithTimezone(bsl::ostream&        stream,
-                                        const bdet_Datetime& datetime,
-                                        int                  minuteOffset = 0)
-{
-    char oldFill = stream.fill('0');
-
-    using bsl::setw;
-
-    switch (datetime.dayOfWeek()) {
-      case bdet_DayOfWeek::BDET_MON: stream << "Mon, ";  break;
-      case bdet_DayOfWeek::BDET_TUE: stream << "Tue, ";  break;
-      case bdet_DayOfWeek::BDET_WED: stream << "Wed, ";  break;
-      case bdet_DayOfWeek::BDET_THU: stream << "Thu, ";  break;
-      case bdet_DayOfWeek::BDET_FRI: stream << "Fri, ";  break;
-      case bdet_DayOfWeek::BDET_SAT: stream << "Sat, ";  break;
-      case bdet_DayOfWeek::BDET_SUN: stream << "Sun, ";  break;
-
-      default: stream << "Err, "; break;
-    }
-
-    stream << setw(2) << datetime.day() << " ";
-
-    switch (datetime.month()) {
-      case  1: stream << "Jan "; break;
-      case  2: stream << "Feb "; break;
-      case  3: stream << "Mar "; break;
-      case  4: stream << "Apr "; break;
-      case  5: stream << "May "; break;
-      case  6: stream << "Jun "; break;
-      case  7: stream << "Jul "; break;
-      case  8: stream << "Aug "; break;
-      case  9: stream << "Sep "; break;
-      case 10: stream << "Oct "; break;
-      case 11: stream << "Nov "; break;
-      case 12: stream << "Dec "; break;
-
-      default: stream << "Err "; break;
-    }
-
-    stream << setw(4) << datetime.year()   << " "
-           << setw(2) << datetime.hour()   << ":"
-           << setw(2) << datetime.minute() << ":"
-           << setw(2) << datetime.second();
-
-    if (minuteOffset < 0) {
-        stream << "-";
-        minuteOffset = -minuteOffset;
-    }
-    else {
-        stream << "+";
-    }
-
-    int hourOffset = minuteOffset / 60;
-    minuteOffset   = minuteOffset % 60;
-
-    stream << setw(2) << hourOffset
-           << setw(2) << minuteOffset;
-
-    stream.fill(oldFill);
-
-    return stream;
-}
-
-}  // close unnamed namespace
-
                      // ---------------------------------
                      // class baenet_HttpMessageGenerator
                      // ---------------------------------
 
-// PRIVATE CLASS FUNCTIONS
-
-void baenet_HttpMessageGenerator::generateStartLine(
-                                       bsl::ostream&                 stream,
-                                       const baenet_HttpRequestLine& startLine)
+// CREATORS
+baenet_HttpMessageGenerator::baenet_HttpMessageGenerator(
+                                    bcema_BlobBufferFactory *blobBufferFactory,
+                                    bslma_Allocator         *basicAllocator)
+: d_blobBufferFactory_p(blobBufferFactory)
+, d_messageDataCallback(basicAllocator)
+, d_transferEncoding(baenet_HttpTransferEncoding::BAENET_IDENTITY)
 {
-    stream << baenet_HttpRequestMethod::toString(startLine.method())
-           << ' ' << startLine.requestUri()
-           << " HTTP/" << startLine.majorVersion()
-           << '.' << startLine.minorVersion() << "\r\n";
+    BSLS_ASSERT_SAFE(d_blobBufferFactory_p);
 }
 
-void baenet_HttpMessageGenerator::generateStartLine(
-                                        bsl::ostream&                stream,
-                                        const baenet_HttpStatusLine& startLine)
+baenet_HttpMessageGenerator::~baenet_HttpMessageGenerator()
 {
-    stream << "HTTP/" << startLine.majorVersion()
-           << '.' << startLine.minorVersion()
-           << ' ' << startLine.statusCode()
-           << ' ' << startLine.reasonPhrase() << "\r\n";
 }
 
 // MANIPULATORS
+int baenet_HttpMessageGenerator::startEntity(
+        const baenet_HttpRequestLine&   requestLine,
+        const baenet_HttpRequestHeader& header,
+        const MessageDataCallback&      messageDataCallback)
+{
+    int rc;
+
+    d_messageDataCallback = messageDataCallback;
+    BSLS_ASSERT_SAFE(d_messageDataCallback);
+
+    const int numTransferEncodings = static_cast<int>(
+                               header.basicFields().transferEncoding().size());
+
+    if (2 <= numTransferEncodings) {
+        return -1;
+    }
+
+    if (1 == numTransferEncodings) {
+        d_transferEncoding = header.basicFields().transferEncoding()[0];
+    }
+
+    if (d_transferEncoding == baenet_HttpTransferEncoding::BAENET_CHUNKED) {
+        if (header.basicFields().contentLength().isNull() ||
+            header.basicFields().contentLength().value()  != 0)
+        {
+            return -2;
+        }
+    }
+
+    bcema_Blob data(d_blobBufferFactory_p);
+    rc = baenet_HttpGeneratorUtil::generateHeader(&data, requestLine, header);
+    if (0 != rc) {
+        return rc;
+    }
+
+    d_messageDataCallback(data);
+    return 0;
+}
+
+int baenet_HttpMessageGenerator::startEntity(
+        const baenet_HttpStatusLine&     statusLine,
+        const baenet_HttpResponseHeader& header,
+        const MessageDataCallback&       messageDataCallback)
+{
+    int rc;
+
+    d_messageDataCallback = messageDataCallback;
+    BSLS_ASSERT_SAFE(d_messageDataCallback);
+
+    const int numTransferEncodings = static_cast<int>(
+                               header.basicFields().transferEncoding().size());
+
+    if (2 <= numTransferEncodings) {
+        return -1;
+    }
+
+    if (1 == numTransferEncodings) {
+        d_transferEncoding = header.basicFields().transferEncoding()[0];
+    }
+
+    if (d_transferEncoding == baenet_HttpTransferEncoding::BAENET_CHUNKED) {
+        if (header.basicFields().contentLength().isNull() ||
+            header.basicFields().contentLength().value()  != 0)
+        {
+            return -2;
+        }
+    }
+
+    bcema_Blob data(d_blobBufferFactory_p);
+    rc = baenet_HttpGeneratorUtil::generateHeader(&data, statusLine, header);
+    if (0 != rc) {
+        return rc;
+    }
+
+    d_messageDataCallback(data);
+    return 0;
+}
 
 int baenet_HttpMessageGenerator::addEntityData(const bcema_Blob& data)
 {
-    enum { BAENET_SUCCESS = 0 };
+    typedef baenet_HttpTransferEncoding TE;
 
-    // TBD: assert if data length does not match Content-Length (if specified)
+    if (d_transferEncoding == TE::BAENET_IDENTITY) {
+        // The identity encoding, by definition, does not transform the
+        // body.  We can avoid the cost of copying blob buffers in calling
+        // 'baenet_HttpGeneratorUtil::generateBody' by simply invoke the
+        // callback with the argument directly.
 
-    d_messageDataCallback(data);
+        d_messageDataCallback(data);
+    }
+    else {
+        bcema_Blob chunk(d_blobBufferFactory_p);
+        int rc = baenet_HttpGeneratorUtil::generateBody(&chunk,
+                                                        data,
+                                                        d_transferEncoding,
+                                                        false);
+        if (0 != rc) {
+            return rc;
+        }
 
-    return BAENET_SUCCESS;
+        d_messageDataCallback(chunk);
+    }
+
+    return 0;
 }
 
 int baenet_HttpMessageGenerator::endEntity()
 {
-    enum { BAENET_SUCCESS = 0 };
+    typedef baenet_HttpTransferEncoding TE;
 
-    return BAENET_SUCCESS;
-}
+    if (d_transferEncoding == TE::BAENET_CHUNKED) {
+        bcema_Blob chunk(d_blobBufferFactory_p);
+        int rc = baenet_HttpGeneratorUtil::generateBody(&chunk,
+                                                        0,
+                                                        0,
+                                                        d_transferEncoding,
+                                                        true);
+        if (0 != rc) {
+            return rc;
+        }
 
-              // -----------------------------------------------
-              // class baenet_HttpMessageGenerator_GenerateField
-              // -----------------------------------------------
-
-// MANIPULATORS
-
-int baenet_HttpMessageGenerator_GenerateField::execute(
-                                              const int&             object,
-                                              const bdeut_StringRef& fieldName)
-{
-    enum { BAENET_SUCCESS = 0 };
-
-    (*d_stream_p) << fieldName << ": " << object << "\r\n";
-
-    return BAENET_SUCCESS;
-}
-
-int baenet_HttpMessageGenerator_GenerateField::execute(
-                                              const bsl::string&     object,
-                                              const bdeut_StringRef& fieldName)
-{
-    enum { BAENET_SUCCESS = 0 };
-
-    (*d_stream_p) << fieldName << ": " << object << "\r\n";
-
-    return BAENET_SUCCESS;
-}
-
-int baenet_HttpMessageGenerator_GenerateField::execute(
-                                              const bdet_Datetime&   object,
-                                              const bdeut_StringRef& fieldName)
-{
-    enum { BAENET_SUCCESS = 0 };
-
-    (*d_stream_p) << fieldName << ": ";
-
-    printDatetimeWithTimezone(*d_stream_p, object);
-
-    (*d_stream_p) << "\r\n";
-
-    return BAENET_SUCCESS;
-}
-
-int baenet_HttpMessageGenerator_GenerateField::execute(
-                                              const bdet_DatetimeTz& object,
-                                              const bdeut_StringRef& fieldName)
-{
-    enum { BAENET_SUCCESS = 0 };
-
-    (*d_stream_p) << fieldName << ": ";
-
-    printDatetimeWithTimezone(*d_stream_p,
-                              object.localDatetime(),
-                              object.offset());
-
-    (*d_stream_p) << "\r\n";
-
-    return BAENET_SUCCESS;
-}
-
-int baenet_HttpMessageGenerator_GenerateField::execute(
-                                              const baenet_HttpHost& object,
-                                              const bdeut_StringRef& fieldName)
-{
-    enum { BAENET_SUCCESS = 0 };
-
-    (*d_stream_p) << fieldName << ": " << object.name();
-
-    if (!object.port().isNull()) {
-        (*d_stream_p) << ":" << object.port();
+        d_messageDataCallback(chunk);
     }
 
-    (*d_stream_p) << "\r\n";
-
-    return BAENET_SUCCESS;
-}
-
-int baenet_HttpMessageGenerator_GenerateField::execute(
-                                       const baenet_HttpContentType& object,
-                                       const bdeut_StringRef&        fieldName)
-{
-    enum { BAENET_SUCCESS = 0 };
-
-    (*d_stream_p) << fieldName << ": "
-                  << object.type() << "/" << object.subType();
-
-    if (!object.charset().isNull()) {
-        (*d_stream_p) << "; charset=" << object.charset();
-    }
-
-    if (!object.boundary().isNull()) {
-        (*d_stream_p) << "; boundary=" << object.boundary();
-    }
-
-    if (!object.id().isNull()) {
-        (*d_stream_p) << "; id=" << object.id();
-    }
-
-    if (!object.name().isNull()) {
-        (*d_stream_p) << "; name=" << object.name();
-    }
-
-    (*d_stream_p) << "\r\n";
-
-    return BAENET_SUCCESS;
-}
-
-int baenet_HttpMessageGenerator_GenerateField::execute(
-                                         const baenet_HttpViaRecord& object,
-                                         const bdeut_StringRef&      fieldName)
-{
-    enum { BAENET_SUCCESS = 0 };
-
-    (*d_stream_p) << fieldName << ": ";
-
-    if (!object.protocolName().isNull()) {
-        (*d_stream_p) << object.protocolName() << "/";
-    }
-
-    (*d_stream_p) << object.protocolVersion() << " " << object.viaHost();
-
-    if (!object.comment().isNull()) {
-        (*d_stream_p) << " (" << object.comment() << ")";
-    }
-
-    (*d_stream_p) << "\r\n";
-
-    return BAENET_SUCCESS;
+    return 0;
 }
 
 }  // close namespace BloombergLP
