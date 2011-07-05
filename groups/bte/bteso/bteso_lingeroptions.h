@@ -33,6 +33,7 @@ BDES_IDENT("$Id: $")
 //  timeout          This option specifies the maximum duration (in seconds)
 //                   that the socket should be kept open (and continue to try
 //                   sending the queued data) if it is lingering.
+//..
 //
 ///Usage
 ///-----

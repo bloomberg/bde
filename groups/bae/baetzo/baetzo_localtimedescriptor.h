@@ -31,12 +31,13 @@ BDES_IDENT("$Id: $")
 //  dstInEffectFlag     bool         false    none
 //  utcOffsetInSeconds  int          0        [-86399 .. 86399]
 //..
-//: o description: non-canonical, non-localized name (intended for debugging).
+//: o 'description': non-canonical, non-localized name (intended for
+//:   debugging).
 //:
-//: o dstInEffectFlag: 'true' if the described local times are
+//: o 'dstInEffectFlag': 'true' if the described local times are
 //:   Daylight-Saving-Time (DST) values.
 //:
-//: o utcOffsetInSeconds: offset from UTC of the described local times.
+//: o 'utcOffsetInSeconds': offset from UTC of the described local times.
 //
 // For example, in New York on January 1, 2011, the local time is Eastern
 // Standard Time, Daylight-Saving Time (DST) is not in effect, and the offset
@@ -187,9 +188,11 @@ class baetzo_LocalTimeDescriptor {
     explicit baetzo_LocalTimeDescriptor(bslma_Allocator *basicAllocator = 0);
         // Create a 'baetzo_LocalTimeDescriptor' object having the (default)
         // attribute values:
-        //: o 'utcOffsetInSeconds() == 0'
-        //: o 'dstInEffectFlag()    == false'
-        //: o 'description()        == ""'
+        //..
+        //  utcOffsetInSeconds() == 0
+        //  dstInEffectFlag()    == false
+        //  description()        == ""
+        //..
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
