@@ -7,59 +7,56 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide default values for BCE thread attributes
+//@PURPOSE: Provide configurable default values for BCE
 //
 //@CLASSES:
-//  bcemt_Default: default values for BCE thread attributes
+//  bcemt_Default: configurable default values for BCE
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@SEE_ALSO: bcemt_threadattributes, bcemt_threadutil
 //
-//@DESCRIPTION: This component provides default values for BCE-relevant
-// parameters.  It currently configures thread stack size, but may be expanded
-// to configure other items.
+//@DESCRIPTION: This component provides configurable default values for
+// BCE-relevant parameters.  It currently configures thread stack size, but may
+// be expanded to configure other items.
 //
-// The thread stack size is defined such that a thread spawned with a given
-// 'stackSize' will be able to declare a variable of size
-// 'stackSize - overhead' in bytes in the top level routine called by the
-// thread, where 'overhead' is a small constant value.
+// The property 'stackSize' is defined such that a thread spawned with a given
+// 'stackSize' will be able to declare a buffer of size
+// 'stackSize - OVERHEAD' bytes in the top level function call of the created
+// thread, where 'OVERHEAD' is a small integer constant value.
 //
 ///Usage
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1:
-/// - - - - -
-// The default thread stack size defaults to the native default
-//..
+///Example 1: Demonstrate accessing the default thread stack size:
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
 // First, we examine the native thread stack size:
 //..
-//  const int native = bcemt_Default::nativeDefaultThreadStackSize();
-//  ASSERT(native > 0);
+//  const int nativeDefault = bcemt_Default::nativeDefaultThreadStackSize();
+//
+//  ASSERT(nativeDefault > 0);
 //..
-// Then, we set 'setSize' to some size other than the native size:
-//..
-//  int setSize = 1 << 18;
-//  if (native == setSize) {
-//      setSize *= 2;
-//  }
-//..
-// Next, we verify that when 'defaultThreadStackSize' is called, it returns the
+// Then, we verify that when 'defaultThreadStackSize' is called, it returns the
 // native size:
 //..
-//  ASSERT(bcemt_Default::defaultThreadStackSize() != setSize);
-//  ASSERT(bcemt_Default::defaultThreadStackSize() == native);
+//  ASSERT(bcemt_Default::defaultThreadStackSize() == nativeDefault);
 //..
-// Then, we set the default size to a size other than the native size.
+// Next, we define 'newDefaultStackSize' to some size other than the native
+// default size:
 //..
-//  bcemt_Default::setDefaultThreadStackSize(setSize);
+//  const int newDefaultStackSize = nativeDefault * 2;
+//..
+// Now, we set the default size to the new size:
+//..
+//  bcemt_Default::setDefaultThreadStackSize(newDefaultStackSize);
 //..
 // Finally, we verify that the default thread stack size has been set to the
 // value we specified:
 //..
-//  ASSERT(bcemt_Default::defaultThreadStackSize() == setSize);
-//  ASSERT(bcemt_Default::defaultThreadStackSize() != native);
+//  ASSERT(bcemt_Default::defaultThreadStackSize() == newDefaultStackSize);
+//  ASSERT(bcemt_Default::defaultThreadStackSize() != nativeDefault);
 //..
 
 #ifndef INCLUDED_BCESCM_VERSION
@@ -102,11 +99,10 @@ struct bcemt_Default {
 
     static void setDefaultThreadStackSize(int stackSize);
         // Set the default thread stack size to the specified 'stackSize' (in
-        // bytes).  If 'stackSize' is below the minimum that the underlying
-        // threads implementation requires for a thread, it will be rounded up
-        // to that minimum.  The behavior is undefined unless there is exactly
-        // one thread of control in the current process, and unless
-        // 'stackSize > 0'.
+        // bytes).  If a minimum thread stack size is known for the underlying
+        // platform (ie 'PTHREAD_STACK_MIN' is defined) and 'stackSize' is
+        // below that minimum, it will be rounded up to that minimum.  The
+        // behavior is undefined unless 'stackSize > 0'.
 };
 
 }  // close namespace BloombergLP

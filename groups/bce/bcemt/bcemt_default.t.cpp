@@ -138,31 +138,29 @@ int main(int argc, char *argv[])
 
         // First, we examine the native thread stack size:
 
-        const int native = bcemt_Default::nativeDefaultThreadStackSize();
-        ASSERT(native > 0);
+        const int nativeDefault =
+                                 bcemt_Default::nativeDefaultThreadStackSize();
+        ASSERT(nativeDefault > 0);
 
-        // Then, we set 'setSize' to some size other than the native size:
-
-        int setSize = 1 << 18;
-        if (native == setSize) {
-            setSize *= 2;
-        }
-
-        // Next, we verify that when 'defaultThreadStackSize' is called, it
+        // Then, we verify that when 'defaultThreadStackSize' is called, it
         // returns the native size:
 
-        ASSERT(bcemt_Default::defaultThreadStackSize() != setSize);
-        ASSERT(bcemt_Default::defaultThreadStackSize() == native);
+        ASSERT(bcemt_Default::defaultThreadStackSize() == nativeDefault);
 
-        // Then, we set the default size to a size other than the native size.
+        // Next, we define 'newDefaultStackSize' to some size other than the
+        // native default size:
 
-        bcemt_Default::setDefaultThreadStackSize(setSize);
+        const int newDefaultStackSize = nativeDefault * 2;
+
+        // Now, we set the default size to the new size:
+
+        bcemt_Default::setDefaultThreadStackSize(newDefaultStackSize);
 
         // Finally, we verify that the default thread stack size has been set
         // to the value we specified:
 
-        ASSERT(bcemt_Default::defaultThreadStackSize() == setSize);
-        ASSERT(bcemt_Default::defaultThreadStackSize() != native);
+        ASSERT(bcemt_Default::defaultThreadStackSize() == newDefaultStackSize);
+        ASSERT(bcemt_Default::defaultThreadStackSize() != nativeDefault);
       }  break;
       case 2: {
         // --------------------------------------------------------------------
