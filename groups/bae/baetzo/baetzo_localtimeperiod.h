@@ -24,14 +24,14 @@ BDES_IDENT("$Id: $")
 ///Attributes
 ///----------
 //..
-//  Name                 Type                   Default  Simple Constraints
-//  -------------   -------------------         -------  ------------------
+//  Name            Type                        Default  Simple Constraints
+//  -------------   --------------------------  -------  ------------------
 //  descriptor      baetzo_LocalTimeDescriptor  default  none
 //  utcStartTime    bdet_Datetime               default  none
 //  utcEndTime      bdet_Datetime               default  none
 //
 //  Complex Constraints
-//  ----------------------------
+//  -----------------------------------------------------------------
 //  'utcStartTime == utcEndTime ||
 //  (utcStartTime != bdet_Datetime() && utcEndTime != bdet_Datetime()
 //   && utcStartTime < utcEndTime)'
@@ -95,9 +95,9 @@ BDES_IDENT("$Id: $")
 //
 //  baetzo_LocalTimeDescriptor edt(NEW_YORK_DST_OFFSET, true, "EDT");
 //
-//  baetzo_LocalTimePeriod edt2010(edt,
-//                                 bdet_Datetime(2010,  3, 14, 7),
-//                                 bdet_Datetime(2010, 11,  7, 6));
+//  baetzo_LocalTimePeriod     edt2010(edt,
+//                                     bdet_Datetime(2010,  3, 14, 7),
+//                                     bdet_Datetime(2010, 11,  7, 6));
 //
 //  assert(bdet_Datetime(2010,  3, 14, 7) == edt2010.utcStartTime());
 //  assert(bdet_Datetime(2010, 11,  7, 6) == edt2010.utcEndTime());
@@ -115,7 +115,9 @@ BDES_IDENT("$Id: $")
 // described by 'edt2010'):
 //..
 //  bdet_Datetime localDatetime;
-//  int status = convertUtcToLocalTime(&localDatetime, utcDatetime, edt2010);
+//  int           status = convertUtcToLocalTime(&localDatetime,
+//                                               utcDatetime,
+//                                               edt2010);
 //  if (0 != status) {
 //      // The conversion failed so return an error code.
 //
@@ -275,6 +277,11 @@ class baetzo_LocalTimePeriod {
         // object was created with the same allocator as 'other'.
 
     // ACCESSORS
+    bslma_Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
     const baetzo_LocalTimeDescriptor& descriptor() const;
         // Return a reference providing non-modifiable access to the
         // 'descriptor' attribute of this object.
@@ -443,6 +450,12 @@ void baetzo_LocalTimePeriod::swap(baetzo_LocalTimePeriod& other)
 }
 
 // ACCESSORS
+inline
+bslma_Allocator *baetzo_LocalTimePeriod::allocator() const
+{
+    return d_descriptor.allocator();
+}
+
 inline
 const baetzo_LocalTimeDescriptor& baetzo_LocalTimePeriod::descriptor() const
 {

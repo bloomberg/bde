@@ -11,11 +11,6 @@ BDES_IDENT_PRAGMA_ONCE
 //@PURPOSE: Provide value-semantic attribute classes
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwale@bloomberg.net)
-//
-//@SEE_ALSO: RFC 2616
-//
-//@DESCRIPTION:  This component provides a value-semantic type to represent an
-// HTTP status line, as defined in RFC 2616.
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
@@ -53,16 +48,13 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BAENET_HTTPSTATUSCODE
-#include <baenet_httpstatuscode.h>
-#endif
-
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
+#define INCLUDED_BSL_IOSFWD
 #endif
 
 namespace BloombergLP {
@@ -70,17 +62,17 @@ namespace BloombergLP {
 class bslma_Allocator;
 
 
-                      // ===============================                       
-                      // class baenet_HttpStatusLine                       
-                      // ===============================                       
+                            // ===========================
+                            // class baenet_HttpStatusLine
+                            // ===========================
 
 class baenet_HttpStatusLine {
 
     // INSTANCE DATA
-    bsl::string                       d_reasonPhrase;
-    int                               d_majorVersion;
-    int                               d_minorVersion;
-    baenet_HttpStatusCode::Value  d_statusCode;
+    bsl::string  d_reasonPhrase;
+    int          d_majorVersion;
+    int          d_minorVersion;
+    int          d_statusCode;
 
   public:
     // TYPES
@@ -109,7 +101,7 @@ class baenet_HttpStatusLine {
 
     static const int DEFAULT_INITIALIZER_MINOR_VERSION;
 
-    static const baenet_HttpStatusCode::Value DEFAULT_INITIALIZER_STATUS_CODE;
+    static const int DEFAULT_INITIALIZER_STATUS_CODE;
 
     static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -134,17 +126,17 @@ class baenet_HttpStatusLine {
 
     // CREATORS
     explicit baenet_HttpStatusLine(bslma_Allocator *basicAllocator = 0);
-        // Create an object of type 'baenet_HttpStatusLine' having the
-        // default value.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // Create an object of type 'baenet_HttpStatusLine' having the default
+        // value.  Use the optionally specified 'basicAllocator' to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
 
-    baenet_HttpStatusLine(const baenet_HttpStatusLine& original,
-                              bslma_Allocator *basicAllocator = 0);
-        // Create an object of type 'baenet_HttpStatusLine' having the
-        // value of the specified 'original' object.  Use the optionally
-        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.
+    baenet_HttpStatusLine(const baenet_HttpStatusLine&  original,
+                          bslma_Allocator              *basicAllocator = 0);
+        // Create an object of type 'baenet_HttpStatusLine' having the value of
+        // the specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~baenet_HttpStatusLine();
         // Destroy this object.
@@ -206,7 +198,7 @@ class baenet_HttpStatusLine {
         // Return a reference to the modifiable "MinorVersion" attribute of
         // this object.
 
-    baenet_HttpStatusCode::Value& statusCode();
+    int& statusCode();
         // Return a reference to the modifiable "StatusCode" attribute of this
         // object.
 
@@ -267,15 +259,15 @@ class baenet_HttpStatusLine {
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
-    const int& majorVersion() const;
+    int majorVersion() const;
         // Return a reference to the non-modifiable "MajorVersion" attribute of
         // this object.
 
-    const int& minorVersion() const;
+    int minorVersion() const;
         // Return a reference to the non-modifiable "MinorVersion" attribute of
         // this object.
 
-    const baenet_HttpStatusCode::Value& statusCode() const;
+    int statusCode() const;
         // Return a reference to the non-modifiable "StatusCode" attribute of
         // this object.
 
@@ -301,8 +293,8 @@ bool operator!=(const baenet_HttpStatusLine& lhs,
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream&                 stream,
-                         const baenet_HttpStatusLine&  rhs);
+bsl::ostream& operator<<(bsl::ostream&                stream,
+                         const baenet_HttpStatusLine& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -316,9 +308,9 @@ BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baenet_HttpStatusLine)
 // ============================================================================
 
 
-                      // -------------------------------                       
-                      // class baenet_HttpStatusLine                       
-                      // -------------------------------                       
+                            // ---------------------------
+                            // class baenet_HttpStatusLine
+                            // ---------------------------
 
 // CLASS METHODS
 inline
@@ -336,7 +328,7 @@ STREAM& baenet_HttpStatusLine::bdexStreamIn(STREAM& stream, int version)
           case 1: {
             bdex_InStreamFunctions::streamIn(stream, d_majorVersion, 1);
             bdex_InStreamFunctions::streamIn(stream, d_minorVersion, 1);
-            baenet_HttpStatusCode::bdexStreamIn(stream, d_statusCode, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_statusCode, 1);
             bdex_InStreamFunctions::streamIn(stream, d_reasonPhrase, 1);
           } break;
           default: {
@@ -352,26 +344,22 @@ int baenet_HttpStatusLine::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_majorVersion,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAJOR_VERSION]);
+    ret = manipulator(&d_majorVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAJOR_VERSION]);
     if (ret) {
         return ret;
     }
 
-    ret = manipulator(&d_minorVersion,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MINOR_VERSION]);
+    ret = manipulator(&d_minorVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MINOR_VERSION]);
     if (ret) {
         return ret;
     }
 
-    ret = manipulator(&d_statusCode,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS_CODE]);
+    ret = manipulator(&d_statusCode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS_CODE]);
     if (ret) {
         return ret;
     }
 
-    ret = manipulator(&d_reasonPhrase,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_REASON_PHRASE]);
+    ret = manipulator(&d_reasonPhrase, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_REASON_PHRASE]);
     if (ret) {
         return ret;
     }
@@ -380,27 +368,22 @@ int baenet_HttpStatusLine::manipulateAttributes(MANIPULATOR& manipulator)
 }
 
 template <class MANIPULATOR>
-int baenet_HttpStatusLine::manipulateAttribute(MANIPULATOR&  manipulator,
-                                               int           id)
+int baenet_HttpStatusLine::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_MAJOR_VERSION: {
-        return manipulator(&d_majorVersion,
-                          ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAJOR_VERSION]);
+        return manipulator(&d_majorVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAJOR_VERSION]);
       } break;
       case ATTRIBUTE_ID_MINOR_VERSION: {
-        return manipulator(&d_minorVersion,
-                          ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MINOR_VERSION]);
+        return manipulator(&d_minorVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MINOR_VERSION]);
       } break;
       case ATTRIBUTE_ID_STATUS_CODE: {
-        return manipulator(&d_statusCode,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS_CODE]);
+        return manipulator(&d_statusCode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS_CODE]);
       } break;
       case ATTRIBUTE_ID_REASON_PHRASE: {
-        return manipulator(&d_reasonPhrase,
-                          ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_REASON_PHRASE]);
+        return manipulator(&d_reasonPhrase, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_REASON_PHRASE]);
       } break;
       default:
         return NOT_FOUND;
@@ -437,7 +420,7 @@ int& baenet_HttpStatusLine::minorVersion()
 }
 
 inline
-baenet_HttpStatusCode::Value& baenet_HttpStatusLine::statusCode()
+int& baenet_HttpStatusLine::statusCode()
 {
     return d_statusCode;
 }
@@ -468,26 +451,22 @@ int baenet_HttpStatusLine::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_majorVersion,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAJOR_VERSION]);
+    ret = accessor(d_majorVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAJOR_VERSION]);
     if (ret) {
         return ret;
     }
 
-    ret = accessor(d_minorVersion,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MINOR_VERSION]);
+    ret = accessor(d_minorVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MINOR_VERSION]);
     if (ret) {
         return ret;
     }
 
-    ret = accessor(d_statusCode,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS_CODE]);
+    ret = accessor(d_statusCode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS_CODE]);
     if (ret) {
         return ret;
     }
 
-    ret = accessor(d_reasonPhrase,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_REASON_PHRASE]);
+    ret = accessor(d_reasonPhrase, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_REASON_PHRASE]);
     if (ret) {
         return ret;
     }
@@ -502,20 +481,16 @@ int baenet_HttpStatusLine::accessAttribute(ACCESSOR& accessor, int id) const
 
     switch (id) {
       case ATTRIBUTE_ID_MAJOR_VERSION: {
-        return accessor(d_majorVersion,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAJOR_VERSION]);
+        return accessor(d_majorVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAJOR_VERSION]);
       } break;
       case ATTRIBUTE_ID_MINOR_VERSION: {
-        return accessor(d_minorVersion,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MINOR_VERSION]);
+        return accessor(d_minorVersion, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MINOR_VERSION]);
       } break;
       case ATTRIBUTE_ID_STATUS_CODE: {
-        return accessor(d_statusCode,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS_CODE]);
+        return accessor(d_statusCode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATUS_CODE]);
       } break;
       case ATTRIBUTE_ID_REASON_PHRASE: {
-        return accessor(d_reasonPhrase,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_REASON_PHRASE]);
+        return accessor(d_reasonPhrase, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_REASON_PHRASE]);
       } break;
       default:
         return NOT_FOUND;
@@ -540,19 +515,19 @@ int baenet_HttpStatusLine::accessAttribute(
 }
 
 inline
-const int& baenet_HttpStatusLine::majorVersion() const
+int baenet_HttpStatusLine::majorVersion() const
 {
     return d_majorVersion;
 }
 
 inline
-const int& baenet_HttpStatusLine::minorVersion() const
+int baenet_HttpStatusLine::minorVersion() const
 {
     return d_minorVersion;
 }
 
 inline
-const baenet_HttpStatusCode::Value& baenet_HttpStatusLine::statusCode() const
+int baenet_HttpStatusLine::statusCode() const
 {
     return d_statusCode;
 }
@@ -599,10 +574,10 @@ bsl::ostream& operator<<(
 }  // close namespace BloombergLP
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_3.4.4 Wed Feb 10 17:14:02 2010
+// GENERATED BY BLP_BAS_CODEGEN_3.6.2 Fri Feb  4 15:08:20 2011
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

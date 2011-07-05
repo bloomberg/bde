@@ -1,13 +1,10 @@
-// bdem_berencoderutil.t.cpp                  -*-C++-*-
+// bdem_berencoderutil.t.cpp                                          -*-C++-*-
 
 #include <bdem_berencoderutil.h>
 
 #include <bdeat_attributeinfo.h>
 #include <bdeat_selectioninfo.h>
 #include <bdeat_valuetypefunctions.h>
-
-#include <bsls_objectbuffer.h>
-#include <bsls_stopwatch.h>
 
 #include <bdesb_memoutstreambuf.h>
 
@@ -23,6 +20,10 @@
 
 #include <bdex_byteoutstreamformatter.h>
 #include <bdex_outstreamfunctions.h>
+
+#include <bsls_objectbuffer.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
@@ -10674,8 +10675,8 @@ int main(int argc, char *argv[])
             const signed   long   XK1 = LONG_MIN;
             const          long   XL1 = LONG_MAX;
 
-            const bsls_PlatformUtil::Int64  XM1 = 0xff34567890123456LL;
-            const bsls_PlatformUtil::Uint64 XN1 = 0x1234567890123456LL;
+            const bsls_Types::Int64  XM1 = 0xff34567890123456LL;
+            const bsls_Types::Uint64 XN1 = 0x1234567890123456LL;
 
             const          bool   XO1 = true;
 
