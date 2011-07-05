@@ -13,6 +13,8 @@ BDES_IDENT_RCSID(bdet_datetime_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <stdio.h>          // non-standard 'snprintf'
+
 static const char *const MONTHS[] = {
     0,
     "JAN", "FEB", "MAR", "APR",
@@ -71,10 +73,11 @@ int bdet_Datetime::printToBuffer(char *result, int numBytes) const
     time().getTime(&hour, &min, &sec, &mSec);
 
 #if defined(BSLS_PLATFORM__CMP_MSVC)
-#define snprintf _snprintf
+    return _snprintf
+#else
+    return snprintf
 #endif
-
-    return snprintf(result,
+                   (result,
                     numBytes,
                     "%02d%s%04d_%02d:%02d:%02d.%03d",
                     d,
@@ -84,11 +87,6 @@ int bdet_Datetime::printToBuffer(char *result, int numBytes) const
                     min,
                     sec,
                     mSec);
-
-#if defined(BSLS_PLATFORM__CMP_MSVC)
-#undef snprintf
-#endif
-
 }
 
 // FREE OPERATORS
