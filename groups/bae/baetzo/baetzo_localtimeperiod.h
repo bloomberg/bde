@@ -150,6 +150,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -441,10 +445,9 @@ void baetzo_LocalTimePeriod::swap(baetzo_LocalTimePeriod& other)
     BSLS_ASSERT_SAFE(d_descriptor.description().get_allocator() ==
                              other.d_descriptor.description().get_allocator());
 
-    using bsl::swap;
-    swap(d_descriptor,   other.d_descriptor);
-    swap(d_utcStartTime, other.d_utcStartTime);
-    swap(d_utcEndTime,   other.d_utcEndTime);
+    bslalg_SwapUtil::swap(&d_descriptor,   &other.d_descriptor);
+    bslalg_SwapUtil::swap(&d_utcStartTime, &other.d_utcStartTime);
+    bslalg_SwapUtil::swap(&d_utcEndTime,   &other.d_utcEndTime);
 }
 
 // ACCESSORS

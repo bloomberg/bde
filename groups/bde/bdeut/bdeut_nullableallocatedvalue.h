@@ -66,6 +66,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -393,9 +397,7 @@ bdeut_NullableAllocatedValue<TYPE>
 
     if (!isNull() && !other.isNull()) {
         // swap typed values
-        using bsl::swap;
-
-        swap(this->value(), other.value());
+        bslalg_SwapUtil::swap(&this->value(), &other.value());
         return;                                                       // RETURN
     }
 

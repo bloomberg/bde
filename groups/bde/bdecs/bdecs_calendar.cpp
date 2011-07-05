@@ -8,6 +8,7 @@ BDES_IDENT_RCSID(bdecs_calendar_cpp,"$Id$ $CSID$")
 #include <bdec_dayofweekset.h>
 #include <bdet_date.h>
 
+#include <bslalg_swaputil.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
 
@@ -110,11 +111,8 @@ void bdecs_Calendar::swap(bdecs_Calendar& other)
     // 'swap' is undefined for objects with non-equal allocators.
     BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
-    using bsl::swap;
-    using BloombergLP::swap;  // gcc 3.4 needs some help with finding 'swap'.
-
-    swap(d_packedCalendar, other.d_packedCalendar);
-    swap(d_nonBusinessDays, other.d_nonBusinessDays);
+    bslalg_SwapUtil::swap(&d_packedCalendar, &other.d_packedCalendar);
+    bslalg_SwapUtil::swap(&d_nonBusinessDays, &other.d_nonBusinessDays);
 }
 
 void bdecs_Calendar::addDay(const bdet_Date& date)

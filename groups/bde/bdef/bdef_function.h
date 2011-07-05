@@ -355,6 +355,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
 #include <bslma_deallocatorproctor.h>
 #endif
@@ -2244,10 +2248,8 @@ template <class PROTOTYPE>
 inline
 void bdef_Function<PROTOTYPE>::swap(bdef_Function<PROTOTYPE>& other)
 {
-    using bsl::swap;
-
     d_rep.swap(other.d_rep);
-    swap(d_invoker_p, other.d_invoker_p);
+    bslalg_SwapUtil::swap(&d_invoker_p, &other.d_invoker_p);
 }
 
 template <class PROTOTYPE>
