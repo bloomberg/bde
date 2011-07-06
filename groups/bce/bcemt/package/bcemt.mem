@@ -23,8 +23,8 @@ bcemt_semaphoreimpl_win32
 bcemt_sluice
 bcemt_thread
 bcemt_threadattributes
-bcemt_threadattributesimpl_pthread
-bcemt_threadattributesimpl_win32
+#bcemt_threadattributesimpl_pthread
+#bcemt_threadattributesimpl_win32
 bcemt_threadgroup
 bcemt_threadutil
 bcemt_threadutilimpl_pthread

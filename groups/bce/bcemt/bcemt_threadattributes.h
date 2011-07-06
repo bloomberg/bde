@@ -14,40 +14,49 @@ BDES_IDENT("$Id: $")
 //
 //@SEE_ALSO: bcemt_threadutil
 //
-//@DESCRIPTION: This component provides a container, 'bcemt_ThreadAttributes',
-// for storing attributes of a thread in a platform-independent way.
+//@DESCRIPTION: This component provides a value-semantic attribute class,
+// 'bcemt_ThreadAttributes', for storing attributes of a thread in a
+// platform-independent way.
 //
 // The default values for the various thread attributes supported by
 // 'bcemt_ThreadAttributes' are listed in the following table:
 //..
-//  +--------------------+----------------------------+---------------------+
-//  | Attribute          | Default Value              | Description         |
-//  +====================+============================+=====================+
-//  | DetachedState      | BCEMT_CREATE_JOINABLE      | see 'DetachedState' |
-//  |                    |                            | enumeration         |
-//  +--------------------+----------------------------+---------------------+
-//  | SchedulingPolicy   | BCEMT_SCHED_OTHER          | see                 |
-//  |                    |                            | 'SchedulingPolicy'  |
-//  |                    |                            | enumeration         |
-//  +--------------------+----------------------------+---------------------+
-//  | SchedulingPriority | default value for platform | scheduling priority |
-//  |                    |                            |
-//  +--------------------+----------------------------+---------------------+
-//  | InheritSchedule    | true                       | whether to inherit  |
-//  |                    |                            | scheduling policy   |
-//  |                    |                            | from parent thread  |
-//  +--------------------+----------------------------+---------------------+
-//  | StackSize          | default value for platform | size (in bytes) of  |
-//  |                    |                            | thread stack        |
-//  +--------------------+----------------------------+---------------------+
-//  | GuardSize          | default value for platform | size (in bytes) of  |
-//  |                    |                            | the guard area in   |
-//  |                    |                            | thread's stack      |
-//  +--------------------+----------------------------+---------------------+
+//  +--------------------+-----------------------+----------------------------+
+//  | Attribute          | Default Value         | Description                |
+//  +====================+=======================+============================+
+//  | DetachedState      | BCEMT_CREATE_JOINABLE | see 'DetachedState'        |
+//  |                    |                       | enumeration                |
+//  +--------------------+-----------------------+----------------------------+
+//  | SchedulingPolicy   | BCEMT_SCHED_OTHER     | see 'SchedulingPolicy'     |
+//  |                    |                       | enumeration -              |
+//  |                    |                       | ignored unless             |
+//  |                    |                       | 'inheritSchedule' is set   |
+//  |                    |                       | to 0                       |
+//  +--------------------+-----------------------+----------------------------+
+//  | SchedulingPriority | default value for     | ignored unless             |
+//  |                    | platform              | 'inheritSchedule' is set   |
+//  |                    |                       | to 0                       |
+//  +--------------------+-----------------------+----------------------------+
+//  | InheritSchedule    | 1                     | Whether to inherit         |
+//  |                    |                       | scheduling policy from     |
+//  |                    |                       | parent thread.             |
+//  |                    |                       | Thread creation fails      |
+//  |                    |                       | under most circumstances   |
+//  |                    |                       | unless this is '1'.        |
+//  +--------------------+-----------------------+----------------------------+
+//  | StackSize          | BCEMT_INVALID_STACK_SIZE | size (in bytes) of      |
+//  |                    |                          | thread stack            |
+//  +--------------------+-----------------------+----------------------------+
+//  | GuardSize          | default value for     | size (in bytes) of         |
+//  |                    | platform              | the guard area in          |
+//  |                    |                       | thread's stack             |
+//  +--------------------+-----------------------+----------------------------+
 //..
 // Note that, with the exception of 'bcemt_ThreadAttributes::DetachedState',
 // specifying the values of the thread attributes only provides a hint to the
-// operating system and those values may be ignored.
+// operating system and those values may be ignored.  Also note that all
+// attributes other than 'DetachedState' and 'StackSize' are completely ignored
+// on Windows.
 //
 ///DetachedState
 ///-------------
@@ -70,6 +79,13 @@ BDES_IDENT("$Id: $")
 // if a joinable thread is not joined before it completes, resources allocated
 // by the kernel and possibly by the 'bcemt' library will be leaked.  A
 // detached thread will be deallocated properly when it completes.
+//
+///SchedulingPolicy and SchedulingPriority
+///---------------------------------------
+//
+// Experimentation has shown that It is very hard to construe a situation where
+// thread scheduling policy or priority make any detectable difference in
+// behavior, and when they do that difference is very slight.
 //
 ///Usage
 ///-----
@@ -101,22 +117,7 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
-#ifndef INCLUDED_BCEMT_THREADATTRIBUTESIMPL_PTHREAD
-#include <bcemt_threadattributesimpl_pthread.h>
-#endif
-
-#ifndef INCLUDED_BCEMT_THREADATTRIBUTESIMPL_WIN32
-#include <bcemt_threadattributesimpl_win32.h>
-#endif
-
-#ifndef INCLUDED_BCES_PLATFORM
-#include <bces_platform.h>
-#endif
-
 namespace BloombergLP {
-
-template <typename THREAD_POLICY>
-class bcemt_ThreadAttributesImpl;
 
                            // ============================
                            // class bcemt_ThreadAttributes
@@ -127,9 +128,7 @@ class bcemt_ThreadAttributes {
     // thread creation characteristics.
 
   public:
-    // TYPES
-    typedef bcemt_ThreadAttributesImpl<bces_Platform::ThreadPolicy> Imp;
-
+    // PUBLIC TYPES
     enum DetachedState {
         // This enumeration provides two values used to distinguish between a
         // joinable thread and a non-joinable (detached) thread.
@@ -145,16 +144,26 @@ class bcemt_ThreadAttributes {
 
     enum SchedulingPolicy {
         // This enumeration provides values used to distinguish between
-        // different thread scheduling policies.
+        // different thread scheduling policies.  Ignored on Windows.  Ignored
+        // unless 'inheritPolicy' is set to 'false' (the non-default).
 
         BCEMT_SCHED_OTHER = 0,  // default OS scheduling policy
         BCEMT_SCHED_FIFO  = 1,  // first-in-first-out scheduling policy
         BCEMT_SCHED_RR    = 2   // round-robin scheduling policy
     };
 
+    enum {
+        BCEMT_INVALID_STACK_SIZE = -1
+    };
+
   private:
     // DATA
-    Imp d_imp;  // platform-specific implementation
+    DetachedState    d_detachedState;
+    int              d_guardSize;
+    int              d_inheritSchedule;
+    SchedulingPolicy d_schedulingPolicy;
+    int              d_schedulingPriority;
+    int              d_stackSize;
 
     // FRIENDS
     friend bool operator==(const bcemt_ThreadAttributes&,
@@ -183,19 +192,14 @@ class bcemt_ThreadAttributes {
         // values to which to attributes supported by 'bcemt_ThreadAttributes'
         // are initialized.)
 
-    bcemt_ThreadAttributes(const bcemt_ThreadAttributes& original);
-        // Create a thread attributes object having the value of the specified
-        // 'original' thread attributes object.
-
-    ~bcemt_ThreadAttributes();
-        // Destroy this thread attributes object.
+    // compiler generated:
+    // bcemt_ThreadAttributes(const bcemt_ThreadAttributes& original);
+    // ~bcemt_ThreadAttributes();
 
     // MANIPULATORS
-    bcemt_ThreadAttributes& operator=(const bcemt_ThreadAttributes& rhs);
-        // Assign to this thread attributes object the value of the specified
-        // 'rhs' thread attributes object, and return a reference to this
-        // modifiable thread attributes object.
+    // bcemt_ThreadAttributes& operator=(const bcemt_ThreadAttributes& rhs);
 
+    // MANIPULATORS
     void setDetachedState(DetachedState detachedState);
         // Set the value of the detached state attribute of this thread
         // attributes object to the specified 'detachedState'.
@@ -216,20 +220,28 @@ class bcemt_ThreadAttributes {
         // attributes.  Note that if the attributes are inherited and this
         // object is supplied to 'bcemt_ThreadUtil::create' to spawn a new
         // thread, the values of the scheduling policy and priority attributes
-        // in this thread attributes object are ignored.
+        // in this thread attributes object are ignored.  Also note that under
+        // most circumstances, thread creation fails if
+        // '0 == inheritSchedule()'.
 
     void setSchedulingPolicy(SchedulingPolicy schedulingPolicy);
         // Set the value of the scheduling policy attribute of this thread
-        // attributes object to the specified 'schedulingPolicy'.
+        // attributes object to the specified 'schedulingPolicy'.  Note that
+        // unless '0 == inheritSchedule()' this attribute is ignored.  Also
+        // note that this may adjust 'schedulingPriority' to make sure it is in
+        // the range 'min <= priority <= max', with 'min' and 'max' being
+        // determined by the static methods 'get{Min,Max}SchedPriority' above.
 
     void setSchedulingPriority(int schedulingPriority);
         // Set the value of the scheduling priority attribute of this thread
-        // attributes object to the specified 'schedulingPriority'.
+        // attributes object to the specified 'schedulingPriority'.  Note that
+        // unless '0 == inheritSchedule()' this attribute is ignored.
 
     void setStackSize(int stackSize);
         // Set the value of the stack size attribute of this thread attributes
-        // object to the specified 'stackSize' (in bytes).  If 'stackSize < 0',
-        // the default value as defined by the platform is used.
+        // object to the specified 'stackSize' (in bytes).  If 'stackSize' is
+        // negative, 'bcemt_ThreadUtil::create' will use the current default
+        // thread stack size (see 'bcemt_default').
 
     // ACCESSORS
     DetachedState detachedState() const;
@@ -243,20 +255,19 @@ class bcemt_ThreadAttributes {
     int inheritSchedule() const;
         // Return 1 if threads created using this thread attributes object
         // inherit the scheduling policy and priority from the "parent" thread,
-        // and 0 otherwise.
-
-    const Imp::NativeAttribute& nativeAttribute() const;
-        // Return a reference to the non-modifiable platform-specific object
-        // used to store data in this thread attributes object.
+        // and 0 otherwise.  Note that under most circumstances, thread
+        // creation fails unless '1 == inheritSchedule()'.
 
     SchedulingPolicy schedulingPolicy() const;
         // Return the value of the scheduling policy attribute of this thread
-        // attributes object.
+        // attributes object.  Note that unless '0 == inheritSchedule()', this
+        // attribute is ignored.
 
     int schedulingPriority() const;
         // Return the value of the scheduling priority attribute of this thread
         // attributes object.  A value of -1 indicates that the scheduling
-        // priority is set to the platform's default value.
+        // priority is set to the platform's default value.  Note that unless
+        // '0 == inheritSchedule()', this attribute is ignored.
 
     int stackSize() const;
         // Return the value of the stack size attribute of this thread
@@ -282,86 +293,40 @@ bool operator!=(const bcemt_ThreadAttributes& lhs,
 //                        INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                           // ----------------------------
-                           // class bcemt_ThreadAttributes
-                           // ----------------------------
-
-// CLASS METHODS
-inline
-int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
-{
-    return Imp::getMaxSchedPriority(policy);
-}
-
-inline
-int bcemt_ThreadAttributes::getMinSchedPriority(int policy)
-{
-    return Imp::getMinSchedPriority(policy);
-}
-
-// CREATORS
-inline
-bcemt_ThreadAttributes::bcemt_ThreadAttributes()
-{
-}
-
-inline
-bcemt_ThreadAttributes::bcemt_ThreadAttributes(
-                                        const bcemt_ThreadAttributes& original)
-: d_imp(original.d_imp)
-{
-}
-
-inline
-bcemt_ThreadAttributes::~bcemt_ThreadAttributes()
-{
-}
+                         // ----------------------------
+                         // class bcemt_ThreadAttributes
+                         // ----------------------------
 
 // MANIPULATORS
-inline
-bcemt_ThreadAttributes&
-bcemt_ThreadAttributes::operator=(const bcemt_ThreadAttributes& rhs)
-{
-    d_imp = rhs.d_imp;
-    return *this;
-}
-
 inline
 void bcemt_ThreadAttributes::setDetachedState(
                            bcemt_ThreadAttributes::DetachedState detachedState)
 {
-    d_imp.setDetachedState((Imp::DetachedState)detachedState);
+    d_detachedState = detachedState;
 }
 
 inline
 void bcemt_ThreadAttributes::setGuardSize(int guardSize)
 {
-    d_imp.setGuardSize(guardSize);
+    d_guardSize = guardSize;
 }
 
 inline
 void bcemt_ThreadAttributes::setInheritSchedule(int inheritSchedule)
 {
-    d_imp.setInheritSchedule(inheritSchedule);
-}
-
-inline
-void bcemt_ThreadAttributes::setSchedulingPolicy(
-                     bcemt_ThreadAttributes::SchedulingPolicy schedulingPolicy)
-{
-    d_imp.setSchedulingPolicy((Imp::SchedulingPolicy)schedulingPolicy);
+    d_inheritSchedule = inheritSchedule;
 }
 
 inline
 void bcemt_ThreadAttributes::setSchedulingPriority(int schPriority)
 {
-    d_imp.setSchedulingPriority(schPriority);
+    d_schedulingPriority = schPriority;
 }
 
 inline
 void bcemt_ThreadAttributes::setStackSize(int stackSize)
 {
-    d_imp.setStackSize(stackSize);
+    d_stackSize = stackSize;
 }
 
 // ACCESSORS
@@ -369,60 +334,46 @@ inline
 bcemt_ThreadAttributes::DetachedState
 bcemt_ThreadAttributes::detachedState() const
 {
-    return (bcemt_ThreadAttributes::DetachedState)d_imp.detachedState();
+    return d_detachedState;
 }
 
 inline
 int bcemt_ThreadAttributes::guardSize() const
 {
-    return d_imp.guardSize();
+    return d_guardSize;
 }
 
 inline
 int bcemt_ThreadAttributes::inheritSchedule() const
 {
-    return d_imp.inheritSchedule();
-}
-
-inline
-const bcemt_ThreadAttributes::Imp::NativeAttribute&
-bcemt_ThreadAttributes::nativeAttribute() const
-{
-    return d_imp.nativeAttribute();
+    return d_inheritSchedule;
 }
 
 inline
 bcemt_ThreadAttributes::SchedulingPolicy
 bcemt_ThreadAttributes::schedulingPolicy() const
 {
-    return (bcemt_ThreadAttributes::SchedulingPolicy)d_imp.schedulingPolicy();
+    return d_schedulingPolicy;
 }
 
 inline
 int bcemt_ThreadAttributes::schedulingPriority() const
 {
-    return d_imp.schedulingPriority();
+    return d_schedulingPriority;
 }
 
 inline
 int bcemt_ThreadAttributes::stackSize() const
 {
-    return d_imp.stackSize();
+    return d_stackSize;
 }
 
 // FREE OPERATORS
 inline
-bool operator==(const bcemt_ThreadAttributes& lhs,
-                const bcemt_ThreadAttributes& rhs)
-{
-    return lhs.d_imp == rhs.d_imp;
-}
-
-inline
 bool operator!=(const bcemt_ThreadAttributes& lhs,
                 const bcemt_ThreadAttributes& rhs)
 {
-    return lhs.d_imp != rhs.d_imp;
+    return !(lhs == rhs);
 }
 
 }  // close namespace BloombergLP

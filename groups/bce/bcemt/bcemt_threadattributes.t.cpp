@@ -222,6 +222,9 @@ int main(int argc, char *argv[])
         ASSERT(X.inheritSchedule());
         ASSERT(0 != X.stackSize());
 
+#if 0
+        // 'Imp has been eliminated
+
         typedef bcemt_ThreadAttributes::Imp Imp;
 
         ASSERT(bcemt_ThreadAttributes::BCEMT_CREATE_JOINABLE ==
@@ -235,7 +238,7 @@ int main(int argc, char *argv[])
                                                    Imp::BCEMT_SCHED_FIFO);
         ASSERT(bcemt_ThreadAttributes::BCEMT_SCHED_RR    ==
                                                    Imp::BCEMT_SCHED_RR);
-
+#endif
       } break;
 
       default: {

@@ -4,7 +4,9 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
+#include <bcemt_default.h>
 #include <bcemt_threadattributes.h>
+
 #include <bdet_timeinterval.h>
 #include <bsls_platform.h>
 
@@ -14,7 +16,53 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-typedef bces_Platform::PosixThreads PT;
+static int initPthreadAttribute(pthread_attr_t                *dest,
+                                const bcemt_ThreadAttributes&  src)
+{
+    typedef bcemt_ThreadAttributes Attr;
+
+    int rc = 0;
+
+    rc |= pthread_attr_init(dest);
+    rc |= pthread_attr_setdetachstate(
+           dest,
+           bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED == src.detachedState()
+                                       ? PTHREAD_CREATE_DETACHED
+                                       : PTHREAD_CREATE_JOINABLE);
+
+    if (src.inheritSchedule()) {
+        rc |= pthread_attr_setinheritsched(dest, PTHREAD_INHERIT_SCHED);
+    }
+    else {
+        rc |= pthread_attr_setinheritsched(dest, PTHREAD_EXPLICIT_SCHED);
+
+        switch (src.schedulingPolicy()) {
+          case bcemt_ThreadAttributes::BCEMT_SCHED_FIFO: {
+            rc |= pthread_attr_setschedpolicy(dest, SCHED_FIFO);
+          }  break;
+          case bcemt_ThreadAttributes::BCEMT_SCHED_RR: {
+            rc |= pthread_attr_setschedpolicy(dest, SCHED_RR);
+          }  break;
+          default: {
+            rc |= pthread_attr_setschedpolicy(dest, SCHED_OTHER);
+          }  break;
+        }
+
+        struct sched_param sched;
+        rc |= pthread_attr_getschedparam(dest, &sched);
+        sched.sched_priority = src.schedulingPriority();
+        rc |= pthread_attr_setschedparam(dest, &sched);
+    }
+
+    // enforce sanity of stack size
+    int stackSize = src.stackSize();
+    if (stackSize < 0) {
+        stackSize = bcemt_Default::defaultThreadStackSize();
+    }
+    rc |= pthread_attr_setstacksize(dest, stackSize);
+
+    return rc;
+}
 
             // -------------------------------------------------------
             // class bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>
@@ -32,10 +80,22 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::create(
           bcemt_ThreadFunction                                       function,
           void                                                      *userData)
 {
-    return pthread_create(handle,
-                          &attribute.nativeAttribute(),
-                          function,
-                          userData);
+    int rc;
+    pthread_attr_t pthreadAttr;
+
+    rc = initPthreadAttribute(&pthreadAttr, attribute);
+    if (rc) {
+        return -1;
+    }
+
+    rc = pthread_create(handle,
+                        &pthreadAttr,
+                        function,
+                        userData);
+
+    pthread_attr_destroy(&pthreadAttr);
+
+    return rc;
 }
 
 int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleep(

@@ -1,8 +1,6 @@
 // bcemt_default.cpp                                                  -*-C++-*-
 #include <bcemt_default.h>
 
-#include <bcemt_once.h>
-
 #include <bces_atomictypes.h>
 #include <bces_platform.h>
 
@@ -105,18 +103,18 @@ namespace BloombergLP {
 
 int bcemt_Default::defaultThreadStackSize()
 {
-    if (defaultThreadStackSizeValue < 0) {
+    if (defaultThreadStackSizeValue.relaxedLoad() < 0) {
         defaultThreadStackSizeValue = nativeDefaultThreadStackSize();
     }
 
-    return defaultThreadStackSizeValue;
+    return defaultThreadStackSizeValue.relaxedLoad();
 }
 
 int bcemt_Default::nativeDefaultThreadStackSize()
 {
-    static int ret = 0;
+    static bces_AtomicInt ret = -1;
 
-    BCEMT_ONCE_DO {
+    if (ret.relaxedLoad() < 0) {
 
 #if  defined(BCES_PLATFORM__POSIX_THREADS)
 # if defined(BSLS_PLATFORM__OS_SOLARIS)
@@ -132,7 +130,7 @@ int bcemt_Default::nativeDefaultThreadStackSize()
 
     }
 
-    return ret;
+    return ret.relaxedLoad();
 }
 
 int bcemt_Default::recommendedDefaultThreadStackSize()
@@ -141,7 +139,6 @@ int bcemt_Default::recommendedDefaultThreadStackSize()
 
     enum { RECOMMENDED_DEFAULT_STACKSIZE = 256 * 1024 * sizeof(void *) };
 
-    
 #ifdef PTHREAD_STACK_MIN
     // Note -- this cannot be a BSLMF_ASSERT -- 'PTHREAD_STACK_MIN' is a
     // function call on some platforms.
