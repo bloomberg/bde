@@ -20,7 +20,7 @@ namespace Local {
 
 #if   defined(BSLS_PLATFORM__OS_SOLARIS)
     enum { DEFAULT_GUARD_SIZE = 8192 };
-#elif defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_HPUX) ||
+#elif defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_HPUX) || \
       defined(BSLS_PLATFORM__OS_LINUX)
     enum { DEFAULT_GUARD_SIZE = 4096 };
 #elif defined(BSLS_PLATFORM__OS_WINDOWS)
