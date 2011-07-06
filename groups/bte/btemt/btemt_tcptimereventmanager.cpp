@@ -1579,7 +1579,7 @@ bool btemt_TcpTimerEventManager::canRegisterSocket() const
         return d_manager_p->canRegisterSocket();                      // RETURN
     }
 
-    bcemt_Mutex mutex;
+    bcemt_Mutex     mutex;
     bcemt_Condition condition;
 
     btemt_TcpTimerEventManager_Request *req =
@@ -1589,7 +1589,8 @@ bool btemt_TcpTimerEventManager::canRegisterSocket() const
                        &mutex,
                        d_allocator_p);
     d_requestQueue.pushBack(req);
-    BSLS_ASSERT(req->result() == -1);
+    BSLS_ASSERT(-1 == req->result());
+
     bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
 
     int ret = d_controlChannel.clientWrite();
