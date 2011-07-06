@@ -434,8 +434,7 @@ int bteso_DefaultEventManager_SelectRaw::registerSocketEvent(
         const bteso_EventType::Type          eventType,
         const bteso_EventManager::Callback&  cb)
 {
-    BSLS_ASSERT(bteso_DefaultEventManager_SelectRaw::
-                                                      canBeRegistered(handle));
+    BSLS_ASSERT(bteso_DefaultEventManager_SelectRaw::canBeRegistered(handle));
 
     bteso_Event ev(handle, eventType);
     d_events[ev] = cb;
@@ -581,11 +580,11 @@ void bteso_DefaultEventManager_SelectRaw::deregisterAll() {
 // ACCESSORS
 bool bteso_DefaultEventManager_SelectRaw::canRegisterSocket() const
 {
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+// #ifdef BTESO_PLATFORM__WIN_SOCKETS
     return bsl::max(d_numRead, d_numWrite) < BTESO_MAX_NUM_HANDLES;
-#else
-    return true;
-#endif
+// #else
+//     return true;
+// #endif
 }
 
 const bteso_EventManager::Callback&

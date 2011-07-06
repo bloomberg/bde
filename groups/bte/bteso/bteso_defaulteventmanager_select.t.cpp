@@ -387,15 +387,12 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             if (veryVerbose) { P(FD_SETSIZE); }
 
+            const int NUM_SOCKETS = FD_SETSIZE - 3;
             vector<bteso_SocketHandle::Handle> sockets;
             sockets.resize(FD_SETSIZE);
 
-            int       errorCode = 0;
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
-            for (int i = 0; sockets[i] < FD_SETSIZE; ++i) {
-#elif defined BTESO_PLATFORM__WIN_SOCKETS
-            for (int i = 0; i < FD_SETSIZE; ++i) {
-#endif
+            int errorCode = 0;
+            for (int i = 0; i < NUM_SOCKETS; ++i) {
 
                 bdef_Function<void (*)()> cb;
                 bteso_SocketImpUtil::open<bteso_IPv4Address>(
@@ -406,9 +403,26 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P(i) P(sockets[i]) }
 
-                mX.registerSocketEvent(sockets[i],
-                                       bteso_EventType::BTESO_CONNECT,
-                                       cb);
+                int rc = mX.registerSocketEvent(sockets[i],
+                                                bteso_EventType::BTESO_CONNECT,
+                                                cb);
+                ASSERT(!rc);
+                bool canRegister = mX.canRegisterSocket();
+                LOOP_ASSERT(i, canRegister);
+            }
+
+            for (int i = NUM_SOCKETS; i < FD_SETSIZE; ++i) {
+                bdef_Function<void (*)()> cb;
+                bteso_SocketImpUtil::open<bteso_IPv4Address>(
+                                      &sockets[i],
+                                      bteso_SocketImpUtil::BTESO_SOCKET_STREAM,
+                                      &errorCode);
+                ASSERT(0 == errorCode);
+
+                if (veryVerbose) { P(i) P(sockets[i]) }
+
+                bool canRegister = mX.canRegisterSocket();
+                LOOP_ASSERT(i, !canRegister);
             }
 
             for (int i = 0; i < FD_SETSIZE; ++i) {
