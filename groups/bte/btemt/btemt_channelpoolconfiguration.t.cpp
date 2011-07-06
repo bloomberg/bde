@@ -339,6 +339,9 @@ int main(int argc, char *argv[])
         ASSERT(2 == cpc.typicalIncomingMessageSize());
         ASSERT(3 == cpc.maxIncomingMessageSize());
 
+        ASSERT(0 == cpc.setNumNewThreads(20));
+        ASSERT(20 == cpc.numNewThreads().value());
+
         {
             bsl::ostringstream os;
             os << cpc << bsl::flush;
@@ -359,6 +362,7 @@ int main(int argc, char *argv[])
                 "\tmaxIncomingMessageSize : 3" NL
                 "\tthreadStackSize        : 1024" NL
                 "\tcollectTimeMetrics     : 1" NL
+                "\tnumNewThreads          : 20" NL
                 "]" NL
                 ;
             ASSERT(os.str().c_str() == s);
@@ -391,7 +395,7 @@ int main(int argc, char *argv[])
                           << "\n==========================" << endl;
 
         enum {
-            NUM_ATTRIBUTES = 14
+            NUM_ATTRIBUTES = 15
         };
 
         ASSERT(NUM_ATTRIBUTES == Obj::NUM_ATTRIBUTES);
@@ -401,7 +405,7 @@ int main(int argc, char *argv[])
         "MinMessageSizeOut", "TypMessageSizeOut", "MaxMessageSizeOut",
         "MinMessageSizeIn", "TypMessageSizeIn", "MaxMessageSizeIn",
         "WriteCacheLowWat", "WriteCacheHiWat", "ThreadStackSize",
-        "CollectTimeMetrics"
+        "CollectTimeMetrics", "NumNewThreads"
         };
 
         const int NUM_NAMES = sizeof NAMES / sizeof *NAMES;
@@ -575,11 +579,20 @@ int main(int argc, char *argv[])
                                                                     visitor,
                                                                     j + 1));
                   } break;
+                  case 14: {
+                    ASSERT(0 == mA.setNumNewThreads(10));
+                    bdeut_NullableValue<int> VAL = 10;
+                    AssignValue<bdeut_NullableValue<int> > visitor(VAL);
+                    LOOP2_ASSERT(i, j, 0 ==
+                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                                                                    visitor,
+                                                                    j + 1));
+                  } break;
 
                   default:
                     ASSERT(0);
                 }
-                LOOP2_ASSERT(i, j, mA == mB);
+                LOOP2_ASSERT(mA, mB, mA == mB);
 
                 if (j == 2 || j == 3) {
                     double value;
@@ -600,6 +613,18 @@ int main(int argc, char *argv[])
                      bdeat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
                     AssignValue<bool> avisitor(value);
+                    ASSERT(0 ==
+                     bdeat_SequenceFunctions::manipulateAttribute(&mC,
+                                                                  avisitor,
+                                                                  j + 1));
+                }
+                else if (j == 14) {
+                    bdeut_NullableValue<int> value;
+                    GetValue<bdeut_NullableValue<int> > gvisitor(&value);
+                    ASSERT(0 ==
+                     bdeat_SequenceFunctions::accessAttribute(mA, gvisitor,
+                                                              j + 1));
+                    AssignValue<bdeut_NullableValue<int> > avisitor(value);
                     ASSERT(0 ==
                      bdeat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
@@ -1382,7 +1407,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
         {
             const Obj X;
-            ASSERT(5 == X.maxSupportedBdexVersion());
+            ASSERT(6 == X.maxSupportedBdexVersion());
         }
 
       } break;
@@ -1984,6 +2009,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == mY1.setMetricsInterval(METRICSINTERVAL[1]));
         ASSERT(0 == mY1.setReadTimeout(READTIMEOUT[1]));
         ASSERT(0 == mY1.setThreadStackSize(THREADSTACKSIZE[1]));
+        ASSERT(0 == mY1.setNumNewThreads(10));
         ASSERT(mX1 != mY1);
 
         char buf[10000];
@@ -2007,6 +2033,7 @@ int main(int argc, char *argv[])
                 "\tmaxIncomingMessageSize : 1024" NL
                 "\tthreadStackSize        : 1048576" NL
                 "\tcollectTimeMetrics     : 1" NL
+                "\tnumNewThreads          : NULL" NL
                 "]" NL
                 ;
             ASSERT(buf == s);
@@ -2031,6 +2058,7 @@ int main(int argc, char *argv[])
                 "\tmaxIncomingMessageSize : 17" NL
                 "\tthreadStackSize        : 512" NL
                 "\tcollectTimeMetrics     : 1" NL
+                "\tnumNewThreads          : 10" NL
                 "]" NL
                 ;
             ASSERT(buf == s);

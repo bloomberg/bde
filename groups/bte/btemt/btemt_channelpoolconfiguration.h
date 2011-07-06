@@ -218,6 +218,10 @@ BDES_IDENT("$Id: $")
 #include <bdeu_printmethods.h>
 #endif
 
+#ifndef INCLUDED_BDEUT_NULLABLEVALUE
+#include <bdeut_nullablevalue.h>
+#endif
+
 namespace BloombergLP {
 
 class btemt_Message;
@@ -278,6 +282,8 @@ class btemt_ChannelPoolConfiguration {
 
     bool                  d_collectTimeMetrics;
 
+    bdeut_NullableValue<int> d_numNewThreads;
+
     friend bsl::ostream& operator<<(bsl::ostream&,
                          const btemt_ChannelPoolConfiguration&);
 
@@ -287,7 +293,7 @@ class btemt_ChannelPoolConfiguration {
   public:
     // TYPES
     enum {
-        NUM_ATTRIBUTES = 14 // the number of attributes in this class
+        NUM_ATTRIBUTES = 15 // the number of attributes in this class
     };
 
     enum {
@@ -317,8 +323,10 @@ class btemt_ChannelPoolConfiguration {
             // index for 'WriteCacheHiWat' attribute
         ATTRIBUTE_INDEX_THREAD_STACK_SIZE    = 12,
             // index for 'ThreadStackSize' attribute
-        ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13
+        ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13,
             // index for 'CollectTimeMetrics' attribute
+        ATTRIBUTE_INDEX_NUM_NEW_THREADS      = 14
+            // index for 'NumNewThreads' attribute
     };
 
     enum {
@@ -348,8 +356,10 @@ class btemt_ChannelPoolConfiguration {
             // id for 'WriteCacheHiWat' attribute
         ATTRIBUTE_ID_THREAD_STACK_SIZE       = 13,
             // id for 'ThreadStackSize' attribute
-        ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14
+        ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14,
             // id for 'CollectTimeMetrics' attribute
+        ATTRIBUTE_ID_NUM_NEW_THREADS      = 15
+            // id for 'NumNewThreads' attribute
     };
 
   public:
@@ -433,6 +443,12 @@ class btemt_ChannelPoolConfiguration {
         // specified 'maxThreads' if 0 <= maxThreads.  Return 0 on success, and
         // a non-zero value (with no effect on the state of this object)
         // otherwise.
+
+    int setNumNewThreads(int numNewThreads);
+        // Set the number of new threads attribute of this object to the
+        // specified 'numNewThreads' if '0 <= numNewThreads'.  Return 0 on
+        // success, and a non-zero value (with no effect on the state of this
+        // object) otherwise.
 
     int setMaxWriteCache(int numBytes);
         // Set the maximum write cache size attribute of this object to the
@@ -548,6 +564,10 @@ class btemt_ChannelPoolConfiguration {
 
     int maxThreads() const;
         // Return the maximum number of threads attribute of this object.
+
+    const bdeut_NullableValue<int>& numNewThreads() const;
+        // Return a reference to the non-modifiable number of new threads
+        // attribute of this object.
 
     bool collectTimeMetrics() const;
         // Return 'true' if the configured channel pool will collect time
@@ -702,6 +722,16 @@ int btemt_ChannelPoolConfiguration::setMaxThreads(int maxThreads)
 }
 
 inline
+int btemt_ChannelPoolConfiguration::setNumNewThreads(int numNewThreads)
+{
+    if (0 <= numNewThreads) {
+        d_numNewThreads = numNewThreads;
+        return 0;
+    }
+    return -1;
+}
+
+inline
 int btemt_ChannelPoolConfiguration::setMaxWriteCache(int numBytes)
 {
     if (0 <= numBytes) {
@@ -776,6 +806,129 @@ STREAM& btemt_ChannelPoolConfiguration::bdexStreamIn(STREAM& stream,
 {
     if (stream) {
         switch (version) { // switch on the version
+            case 6: {
+                int maxConnections;
+                stream.getInt32(maxConnections);
+                if (!stream || 0 > maxConnections) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                int maxThreads;
+                stream.getInt32(maxThreads);
+                if (!stream || 0 > maxThreads) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                int writeCacheLowWat;
+                stream.getInt32(writeCacheLowWat);
+                if (!stream || 0 > writeCacheLowWat) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                int writeCacheHiWat;
+                stream.getInt32(writeCacheHiWat);
+                if (!stream ||  writeCacheHiWat < writeCacheLowWat) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                double readTimeout;
+                stream.getFloat64(readTimeout);
+
+                if (!stream || 0 > readTimeout) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                double metricsInterval;
+                stream.getFloat64(metricsInterval);
+
+                if (!stream || 0 > metricsInterval) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                int minMessageSizeOut;
+                stream.getInt32(minMessageSizeOut);
+                if (!stream || 0 > minMessageSizeOut) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                int typMessageSizeOut;
+                stream.getInt32(typMessageSizeOut);
+                if (!stream || minMessageSizeOut > typMessageSizeOut) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                int maxMessageSizeOut;
+                stream.getInt32(maxMessageSizeOut);
+                if (!stream || typMessageSizeOut > maxMessageSizeOut) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                int minMessageSizeIn;
+                stream.getInt32(minMessageSizeIn);
+                if (!stream || 0 > minMessageSizeIn) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                int typMessageSizeIn;
+                stream.getInt32(typMessageSizeIn);
+                if (!stream || minMessageSizeIn > typMessageSizeIn) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                int maxMessageSizeIn;
+                stream.getInt32(maxMessageSizeIn);
+                if (!stream || typMessageSizeIn > maxMessageSizeIn) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                int threadStackSize;
+                stream.getInt32(threadStackSize);
+                if (!stream || 0 > threadStackSize) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                unsigned char collectTimeMetrics;
+                stream.getUint8(collectTimeMetrics);
+                if (!stream) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                bdeut_NullableValue<int> numNewThreads;
+                numNewThreads.bdexStreamIn(stream, 1);
+                if (!stream) {
+                    stream.invalidate();
+                    return stream;
+                }
+
+                d_maxConnections     = maxConnections;
+                d_maxThreads         = maxThreads;
+                d_writeCacheLowWat   = writeCacheLowWat;
+                d_writeCacheHiWat    = writeCacheHiWat;
+                d_readTimeout        = readTimeout;
+                d_metricsInterval    = metricsInterval;
+                d_minMessageSizeOut  = minMessageSizeOut;
+                d_typMessageSizeOut  = typMessageSizeOut;
+                d_maxMessageSizeOut  = maxMessageSizeOut;
+                d_minMessageSizeIn   = minMessageSizeIn;
+                d_typMessageSizeIn   = typMessageSizeIn;
+                d_maxMessageSizeIn   = maxMessageSizeIn;
+                d_threadStackSize    = threadStackSize;
+                d_collectTimeMetrics = collectTimeMetrics;
+            } break;
             case 5: {
                 int maxConnections;
                 stream.getInt32(maxConnections);
@@ -1419,6 +1572,12 @@ int btemt_ChannelPoolConfiguration::manipulateAttributes(
         return ret;                                                 // RETURN
     }
 
+    ret = manipulator(&d_numNewThreads,
+                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NUM_NEW_THREADS]);
+    if (ret) {
+        return ret;                                                 // RETURN
+    }
+
     return ret;
 }
 
@@ -1500,6 +1659,12 @@ int btemt_ChannelPoolConfiguration::manipulateAttribute(
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
                                                                     // RETURN
       } break;
+      case ATTRIBUTE_ID_NUM_NEW_THREADS: {
+        return manipulator(
+                        &d_numNewThreads,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NUM_NEW_THREADS]);
+                                                                    // RETURN
+      } break;
 
       default:
         return NOT_FOUND;
@@ -1574,6 +1739,13 @@ int btemt_ChannelPoolConfiguration::maxThreads() const
 }
 
 inline
+const bdeut_NullableValue<int>&
+btemt_ChannelPoolConfiguration::numNewThreads() const
+{
+    return d_numNewThreads;
+}
+
+inline
 int btemt_ChannelPoolConfiguration::maxWriteCache() const
 {
     return d_writeCacheHiWat;
@@ -1603,6 +1775,24 @@ STREAM& btemt_ChannelPoolConfiguration::bdexStreamOut(STREAM& stream,
                                                       int     version) const
 {
     switch (version) {
+      case 6: {
+        stream.putInt32(d_maxConnections);
+        stream.putInt32(d_maxThreads);
+        stream.putInt32(d_writeCacheLowWat);
+        stream.putInt32(d_writeCacheHiWat);
+        stream.putFloat64(d_readTimeout);
+        stream.putFloat64(d_metricsInterval);
+
+        stream.putInt32(d_minMessageSizeOut);
+        stream.putInt32(d_typMessageSizeOut);
+        stream.putInt32(d_maxMessageSizeOut);
+        stream.putInt32(d_minMessageSizeIn);
+        stream.putInt32(d_typMessageSizeIn);
+        stream.putInt32(d_maxMessageSizeIn);
+        stream.putInt32(d_threadStackSize);
+        stream.putUint8(d_collectTimeMetrics);
+        d_numNewThreads.bdexStreamOut(stream, 1);
+      } break;
       case 5: {
         stream.putInt32(d_maxConnections);
         stream.putInt32(d_maxThreads);
@@ -1801,6 +1991,12 @@ int btemt_ChannelPoolConfiguration::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                 // RETURN
     }
 
+    ret = accessor(d_numNewThreads,
+                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NUM_NEW_THREADS]);
+    if (ret) {
+        return ret;                                                 // RETURN
+    }
+
     return ret;
 }
 
@@ -1880,6 +2076,11 @@ btemt_ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id)
       case ATTRIBUTE_ID_COLLECT_TIME_METRICS: {
         return accessor(d_collectTimeMetrics,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+                                                                    // RETURN
+      } break;
+      case ATTRIBUTE_ID_NUM_NEW_THREADS: {
+        return accessor(d_numNewThreads,
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NUM_NEW_THREADS]);
                                                                     // RETURN
       } break;
 
