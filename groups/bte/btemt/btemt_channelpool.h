@@ -993,6 +993,9 @@ class btemt_ChannelPool {
     friend class btemt_Channel;
 
     // PRIVATE MANIPULATORS
+    btemt_TcpTimerEventManager *createNewEventManagers();
+        // TBD
+
     btemt_TcpTimerEventManager *allocateEventManager();
         // From the set of current event managers, find the most idle one
         // (i.e., having the minimal percent CPU busy) and return its address.
