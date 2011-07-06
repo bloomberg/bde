@@ -8,6 +8,8 @@
 #include <bsl_iostream.h>
 #include <bdet_datetime.h>
 
+#include <stdlib.h>             // 'atoi'
+
 using bsl::cout;
 using bsl::endl;
 using bsl::cerr;
