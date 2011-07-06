@@ -7,41 +7,48 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a value-semantic class to store socket linger options.
+//@PURPOSE: Provide an attribute class to store linger options.
 //
 //@CLASSES:
-//  bteso_LingerOptions: container for storing socket linger options
+//  bteso_LingerOptions: attributes storing socket linger options
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
 //@SEE_ALSO: bteso_socketoptions
 //
-//@DESCRIPTION: This component provides a class, 'bteso_LingerOptions', used to
-// specify the linger options that can be set on a socket.  Linger options are
-// options on a socket that has data queued to be sent but is being closed.
+//@DESCRIPTION: This component provides a single, simply constrained
+// (value-semantic) attribute class, 'bteso_LingerOptions', that is used
+// to specify the linger options that can be set on a socket.  Linger options
+// are options on a socket that has data queued to be sent but is being closed.
 // Note that linger options cannot be set directly on a socket; instead, they
 // must be used in conjunction with 'bteso_SocketOptions'.
 //
-// The various linger options that can be set on a socket are specified below:
+///Attributes
+///----------
 //..
-//  Option           Description
-//  ------           -----------
-//
-//  useLingering     This option indicates whether a socket should linger
-//                   (i.e., wait if it has queued data even if it was closed).
-//
-//  timeout          This option specifies the maximum duration (in seconds)
-//                   that the socket should be kept open (and continue to try
-//                   sending the queued data) if it is lingering.
+//  Name              Type         Default  Simple Constraints
+//  ----------------  -----------  -------  ------------------
+//  timeout           int          0        >= 0
+//  useLingeringFlag  bool         false    none
+//..
+//: o timeout: maximum time (in seconds) that a process should be blocked when
+//:   trying to 'close' a socket if there is untransmitted data.
+//:
+//: o useLingeringFlag: 'true' if the process should be blocked when trying to
+//:   'close' a socket if there is untransmitted data.
 //
 ///Usage
 ///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Setting Linger Options
+///- - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to set linger options:
 //..
 //  bteso_LingerOptions lingerOptions;
 //
 //  // Set the lingering option with a timeout of 2 seconds.
-//  lingerOptions.setUseLingering(true);
+//  lingerOptions.setUseLingeringFlag(true);
 //  lingerOptions.setTimeout(2);
 //..
 // We can then set these linger options on any socket handle using
@@ -74,30 +81,27 @@ namespace BloombergLP {
                        // =========================
 
 class bteso_LingerOptions {
-    // This class provides an value-semantic object that contains the socket
-    // linger options.
+    // This simply constrained (value-semantic) attribute class stores linger
+    // options values.  See the Attributes section under @DESCRIPTION in the
+    // component-level documentation.  Note that the class invariants are
+    // identically the constraints on the individual attributes.
     //
-    // More generally, this class supports a complete set of *value* *semantic*
-    // operations, including copy construction, assignment, equality
-    // comparison, 'ostream' printing, and 'bdex' serialization.  (A precise
-    // operational definition of when two objects have the same value can be
-    // found in the description of the homogeneous (free) 'operator==' for this
-    // class.)  This class is *exception* *safe*, but provides no general
-    // guarantee of rollback: If an exception is thrown during the invocation
-    // of a method on a pre-existing object, the object will be left in a
-    // coherent state, but (unless otherwise stated) its value is not defined.
-    // In no event is memory leaked.  Finally, *aliasing* (e.g., using all or
-    // part of an object as both source and destination) for the same operation
-    // is supported in all cases.
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //: o is *exception-safe*
+    //: o is *alias-safe*
+    //: o is 'const' *thread-safe*
+    // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    int   d_timeout;       // maximum time out value (in seconds) that a
-                           // process should be blocked when trying to 'close'
-                           // a socket if there is untransmitted data
+    int   d_timeout;           // maximum time out value (in seconds) that a
+                               // process should be blocked when trying to
+                               // 'close' a socket if there is untransmitted
+                               // data
 
-    bool  d_useLingering;  // flag specifying if the process should be blocked
-                           // when trying to 'close' a socket if there is
-                           // untransmitted data
+    bool  d_useLingeringFlag;  // flag specifying if the process should be
+                               // blocked when trying to 'close' a socket if
+                               // there is untransmitted data
 
   public:
     // TRAITS
@@ -113,19 +117,32 @@ class bteso_LingerOptions {
 
     // CREATORS
     bteso_LingerOptions();
-        // Create a linger options object that does not use lingering and has a
-        // timeout of 0 seconds.
+        // Create a 'bteso_LingerOptions' object having the (default) attribute
+        // values:
+        //: o 'timeout()          == 0'
+        //: o 'useLingeringFlag() == false'
+
+    bteso_LingerOptions(int timeout, bool useLingeringFlag);
+        // Create a 'bteso_LingerOptions' object having the specified
+        // 'timeout', and 'useLingeringFlag' attribute values.  The behavior is
+        // undefined unless '0 <= timeout'.
 
     bteso_LingerOptions(const bteso_LingerOptions& original);
-        // Create a linger options object having the value of the specified
-        // 'original' object.
+        // Create a 'bteso_LingerOptions' object having the same value as the
+        // specified 'original' object.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    // The following destructor is generated by the compiler, except in "SAFE"
+    // build modes (e.g., to enable the checking of class invariants).
 
     ~bteso_LingerOptions();
-        // Destroy this linger options object.
+        // Destroy this object.
+#endif
 
     // MANIPULATORS
     bteso_LingerOptions& operator=(const bteso_LingerOptions& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -143,28 +160,38 @@ class bteso_LingerOptions {
         // Reset this linger options object to the default value (i.e., its
         // value upon default construction).
 
-    void setUseLingering(bool value);
-        // Set the 'useLingering' attribute of this object to the specified
-        // 'value'.
-
     void setTimeout(int value);
         // Set the 'timeout' attribute of this object to the specified 'value'.
+        // The behavior is undefined unless '0 <= value'.
+
+    void setUseLingeringFlag(bool value);
+        // Set the 'useLingeringFlag' attribute of this object to the specified
+        // 'value'.
 
     // ACCESSORS
+    bool useLingeringFlag() const;
+        // Return the value of the 'useLingeringFlag' attribute of this object.
+
+    int timeout() const;
+        // Return the value of the 'timeout' attribute of this object.  Note
+        // that this value is '>= 0'.
+
+                                  // Aspects
+
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
+        // Write the value of this object to the specified output 'stream' in
+        // a human-readable format, and return a reference to 'stream'.
+        // Optionally specify an initial indentation 'level', whose absolute
+        // value is incremented recursively for nested objects.  If 'level' is
+        // specified, optionally specify 'spacesPerLevel', whose absolute
+        // value indicates the number of spaces per indentation level for this
+        // and all of its nested objects.  If 'level' is negative, suppress
+        // indentation of the first line.  If 'spacesPerLevel' is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by 'level').  Note that the
+        // format is not fully specified, and can change without notice.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -174,35 +201,34 @@ class bteso_LingerOptions {
         // unmodified.  Note that 'version' is not written to 'stream'.
         // See the 'bdex' package-level documentation for more information
         // on 'bdex' streaming of value-semantic types and containers.
-
-    bool useLingering() const;
-        // Return the 'useLingering' attribute of this object
-
-    int timeout() const;
-        // Return the 'timeout' attribute of this object
 };
 
 // FREE OPERATORS
 inline
 bool operator==(const bteso_LingerOptions& lhs,
                 const bteso_LingerOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' linger options objects
-    // have the same value, and 'false' otherwise.  Two linger options objects
-    // have the same value if each of the 'useLingering' and 'timeout'
-    // attributes have the same value.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'bteso_LingerOptions' objects have
+    // the same value if the corresponding values of their 'timeout', and
+    // 'useLingeringFlag' attributes are the same.
 
 inline
 bool operator!=(const bteso_LingerOptions& lhs,
                 const bteso_LingerOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' linger options objects
-    // do not have the same value, and 'false' otherwise.  Two linger options
-    // objects do not have the same value if either of the 'useLingering' and
-    // 'timeout' attributes have a different value.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'bteso_LingerOptions' objects have
+    // the same value if the corresponding values of their 'timeout', and
+    // 'useLingeringFlag' attributes are not the same.
 
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const bteso_LingerOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+bsl::ostream& operator<<(bsl::ostream&              stream,
+                         const bteso_LingerOptions& object);
+    // Write the value of the specified 'object' to the specified
+    // output 'stream' in a single-line format, and return a reference to
+    // 'stream'.  If 'stream' is not valid on entry, this operation has no
+    // effect.  Note that this human-readable format is not fully specified
+    // and can change without notice.  Also note that this method has the same
+    // behavior as 'object.print(stream, 0, -1)' with the attribute names
+    // elided.
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
@@ -220,14 +246,36 @@ int bteso_LingerOptions::maxSupportedBdexVersion()
 }
 
 // MANIPULATORS
+inline 
+bteso_LingerOptions& bteso_LingerOptions::operator=(
+                                                const bteso_LingerOptions& rhs)
+{
+    if (this != &rhs) {
+        d_useLingeringFlag = rhs.d_useLingeringFlag;
+        d_timeout          = rhs.d_timeout;
+    }
+    return *this;
+}
+
 template <class STREAM>
 STREAM& bteso_LingerOptions::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) {
           case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_useLingering, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_timeout, 1);
+            bool useLingeringFlag;
+            int  timeout;
+
+            bdex_InStreamFunctions::streamIn(stream, timeout, 1);
+            bdex_InStreamFunctions::streamIn(stream, useLingeringFlag, 1);
+
+            if (stream) {
+                BSLS_ASSERT(0 <= timeout);
+
+                d_useLingeringFlag = useLingeringFlag;
+                d_timeout = timeout;
+            }
+
           } break;
           default: {
             stream.invalidate();
@@ -238,34 +286,35 @@ STREAM& bteso_LingerOptions::bdexStreamIn(STREAM& stream, int version)
 }
 
 inline
-void bteso_LingerOptions::setUseLingering(bool value)
+void bteso_LingerOptions::setTimeout(int value)
 {
-    d_useLingering = value;
+    BSLS_ASSERT_SAFE(0 <= value)
+
+    d_timeout = value;
 }
 
 inline
-void bteso_LingerOptions::setTimeout(int value)
+void bteso_LingerOptions::setUseLingeringFlag(bool value)
 {
-    d_timeout = value;
+    d_useLingeringFlag = value;
 }
 
 // ACCESSORS
 template <class STREAM>
 STREAM& bteso_LingerOptions::bdexStreamOut(STREAM& stream, int version) const
 {
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_useLingering, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_timeout, 1);
-      } break;
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bdex_OutStreamFunctions::streamOut(stream, d_timeout, 1);
+            bdex_OutStreamFunctions::streamOut(stream, d_useLingeringFlag, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+        return stream;
     }
-    return stream;
-}
-
-inline
-bool bteso_LingerOptions::useLingering() const
-{
-    return d_useLingering;
 }
 
 inline
@@ -274,28 +323,27 @@ int bteso_LingerOptions::timeout() const
     return d_timeout;
 }
 
-// FREE FUNCTIONS
+inline
+bool bteso_LingerOptions::useLingeringFlag() const
+{
+    return d_useLingeringFlag;
+}
+
+// FREE OPERATORS
 inline
 bool operator==(const bteso_LingerOptions& lhs,
                 const bteso_LingerOptions& rhs)
 {
-    return  lhs.useLingering() == rhs.useLingering()
-         && lhs.timeout()      == rhs.timeout();
+    return  lhs.useLingeringFlag() == rhs.useLingeringFlag()
+         && lhs.timeout()          == rhs.timeout();
 }
 
 inline
 bool operator!=(const bteso_LingerOptions& lhs,
                 const bteso_LingerOptions& rhs)
 {
-    return  lhs.useLingering() != rhs.useLingering()
-         || lhs.timeout() != rhs.timeout();
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&              stream,
-                         const bteso_LingerOptions& rhs)
-{
-    return rhs.print(stream, 0, -1);
+    return  lhs.useLingeringFlag() != rhs.useLingeringFlag()
+         || lhs.timeout()          != rhs.timeout();
 }
 
 }  // close namespace BloombergLP

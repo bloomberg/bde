@@ -7,6 +7,7 @@
 #include <bslalg_hastrait.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
@@ -199,6 +200,12 @@ static void aSsErT(int c, const char *s, int i) {
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+
+// ============================================================================
+//                  EXCEPTION TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define EXCEPTION_COUNT bslmaExceptionCounter
 
 // ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
@@ -556,7 +563,7 @@ int main(int argc, char *argv[])
             "\nCreate a test allocator and install it as the default." << endl;
 
         bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_DefaultAllocatorGuard dG(&da);
 
         if (verbose) cout <<
             "\nCreate a table of distinct candidate attribute values." << endl;
@@ -801,7 +808,7 @@ int main(int argc, char *argv[])
             "\nCreate a test allocator and install it as the default." << endl;
 
         bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_DefaultAllocatorGuard dG(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -825,15 +832,6 @@ int main(int argc, char *argv[])
             const Obj ZZ(OFFSET1, FLAG1, DESC1, &scratch);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
-
-            // Ensure the first row of the table contains the
-            // default-constructed value.
-
-            static bool firstFlag = true;
-            if (firstFlag) {
-                LOOP3_ASSERT(LINE1, Obj(), Z, Obj() == Z);
-                firstFlag = false;
-            }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int         LINE2   = DATA[tj].d_line;
@@ -860,6 +858,10 @@ int main(int argc, char *argv[])
                         Obj *mR = &(mX = Z);
                         LOOP4_ASSERT(LINE1, LINE2,  Z,   X,  Z == X);
                         LOOP4_ASSERT(LINE1, LINE2, mR, &mX, mR == &mX);
+
+                        if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
+                            LOOP2_ASSERT(LINE1, LINE2, 0 < EXCEPTION_COUNT);
+                        }
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     LOOP4_ASSERT(LINE1, LINE2, ZZ, Z, ZZ == Z);
@@ -905,21 +907,15 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(LINE1, ZZ, Z, ZZ == Z);
 
-                bslma_TestAllocatorMonitor oam(oa), sam(scratch);
+                bslma_TestAllocatorMonitor oam(oa);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
-
-                    Obj *mR = &(mX = Z);
-                    LOOP3_ASSERT(LINE1, ZZ,   Z, ZZ == Z);
-                    LOOP3_ASSERT(LINE1, mR, &mX, mR == &mX);
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                Obj *mR = &(mX = Z);
+                LOOP3_ASSERT(LINE1, ZZ,   Z, ZZ == Z);
+                LOOP3_ASSERT(LINE1, mR, &mX, mR == &mX);
 
                 LOOP3_ASSERT(LINE1, &oa, Z.allocator(), &oa == Z.allocator());
 
-                LOOP_ASSERT(LINE1, oam.isInUseSame());
-
-                LOOP_ASSERT(LINE1, sam.isInUseSame());
+                LOOP_ASSERT(LINE1, oam.isTotalSame());
 
                 LOOP_ASSERT(LINE1, 0 == da.numBlocksTotal());
             }
@@ -1084,7 +1080,7 @@ int main(int argc, char *argv[])
             "\nCreate a test allocator and install it as the default." << endl;
 
         bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_DefaultAllocatorGuard dG(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -1109,15 +1105,6 @@ int main(int argc, char *argv[])
             const Obj XX(W, &scratch);
 
             if (veryVerbose) { T_ P_(LINE1) P_(W) P(XX) }
-
-            // Ensure the first row of the table contains the
-            // default-constructed value.
-
-            static bool firstFlag = true;
-            if (firstFlag) {
-                LOOP3_ASSERT(LINE1, Obj(), W, Obj() == W);
-                firstFlag = false;
-            }
 
             // member 'swap'
             {
@@ -1429,7 +1416,7 @@ int main(int argc, char *argv[])
                     bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
                     bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma_Default::setDefaultAllocatorRaw(&da);
+                    bslma_DefaultAllocatorGuard dG(&da);
 
                     Obj                 *objPtr;
                     bslma_TestAllocator *objAllocatorPtr;
@@ -1460,16 +1447,6 @@ int main(int argc, char *argv[])
 
                     bslma_TestAllocator&  oa = *objAllocatorPtr;
                     bslma_TestAllocator& noa = 'c' != CONFIG ? sa : da;
-
-                    // Ensure the first row of the table contains the
-                    // default-constructed value.
-
-                    static bool firstFlag = true;
-                    if (firstFlag) {
-                        LOOP4_ASSERT(LINE, CONFIG, Obj(), *objPtr,
-                                     Obj() == *objPtr)
-                        firstFlag = false;
-                    }
 
                     // Verify the value of the object.
 
@@ -1560,13 +1537,17 @@ int main(int argc, char *argv[])
                 bslma_TestAllocator da("default",  veryVeryVeryVerbose);
                 bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma_Default::setDefaultAllocatorRaw(&da);
+                bslma_DefaultAllocatorGuard dG(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                     Obj obj(Z, &sa);
                     LOOP3_ASSERT(LINE, Z, obj, Z == obj);
+
+                    if ('Y' == MEM) {
+                        LOOP_ASSERT(LINE, 0 < EXCEPTION_COUNT);
+                    }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
@@ -1691,7 +1672,7 @@ int main(int argc, char *argv[])
             "\nCreate a test allocator and install it as the default." << endl;
 
         bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_DefaultAllocatorGuard dG(&da);
 
         if (verbose) cout <<
             "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
@@ -2160,7 +2141,7 @@ int main(int argc, char *argv[])
         bslma_TestAllocator da("default", veryVeryVeryVerbose);
         bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
 
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_DefaultAllocatorGuard dG(&da);
 
         if (verbose) cout <<
                  "\nCreate an object, passing in the other allocator." << endl;
@@ -2390,7 +2371,7 @@ int main(int argc, char *argv[])
                     bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
                     bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma_Default::setDefaultAllocatorRaw(&da);
+                    bslma_DefaultAllocatorGuard dG(&da);
 
                     Obj                 *objPtr;
                     bslma_TestAllocator *objAllocatorPtr;
@@ -2524,7 +2505,7 @@ int main(int argc, char *argv[])
                 bslma_TestAllocator da("default",  veryVeryVeryVerbose);
                 bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma_Default::setDefaultAllocatorRaw(&da);
+                bslma_DefaultAllocatorGuard dG(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -2536,6 +2517,10 @@ int main(int argc, char *argv[])
                                  FLAG == obj.dstInEffectFlag());
                     LOOP3_ASSERT(LINE, DESC, obj.description(),
                                  DESC == obj.description());
+
+                    if ('Y' == MEM) {
+                        LOOP_ASSERT(LINE, 0 < EXCEPTION_COUNT);
+                    }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 LOOP2_ASSERT(LINE, da.numBlocksInUse(),
@@ -2724,7 +2709,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
             bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bslma_Default::setDefaultAllocatorRaw(&da);
+            bslma_DefaultAllocatorGuard dG(&da);
 
             Obj                 *objPtr;
             bslma_TestAllocator *objAllocatorPtr;
@@ -2835,6 +2820,8 @@ int main(int argc, char *argv[])
                     bslma_TestAllocatorMonitor tam(oa);
                     mX.setDescription(A3);
                     LOOP_ASSERT(CONFIG, tam.isInUseUp());
+
+                    ASSERT(0 < EXCEPTION_COUNT);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 LOOP_ASSERT(CONFIG, D1 == X.utcOffsetInSeconds());
                 LOOP_ASSERT(CONFIG, D2 == X.dstInEffectFlag());
@@ -2872,7 +2859,17 @@ int main(int argc, char *argv[])
                 // Set all attributes to their 'B' values.
 
                 mX.setUtcOffsetInSeconds(B1);
+
+                LOOP_ASSERT(CONFIG, B1 == X.utcOffsetInSeconds());
+                LOOP_ASSERT(CONFIG, A2 == X.dstInEffectFlag());
+                LOOP_ASSERT(CONFIG, A3 == X.description());
+
                 mX.setDstInEffectFlag(B2);
+
+                LOOP_ASSERT(CONFIG, B1 == X.utcOffsetInSeconds());
+                LOOP_ASSERT(CONFIG, B2 == X.dstInEffectFlag());
+                LOOP_ASSERT(CONFIG, A3 == X.description());
+
                 mX.setDescription(B3);
 
                 LOOP_ASSERT(CONFIG, B1 == X.utcOffsetInSeconds());

@@ -1,19 +1,16 @@
 // bteso_lingeroptions.cpp                                            -*-C++-*-
+#include <bteso_lingeroptions.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bteso_lingeroptions_cpp,"$Id$ $CSID$")
 
-#include <bteso_lingeroptions.h>
+#include <bslim_printer.h>
 
-#include <bdeat_valuetypefunctions.h>
-#include <bdeu_print.h>
-#include <bdeu_printmethods.h>
+#include <bsl_ios.h>
+#include <bsl_ostream.h>
 
 #include <bsls_assert.h>
 
-#include <bsl_iomanip.h>
-#include <bsl_limits.h>
-#include <bsl_ostream.h>
 
 namespace BloombergLP {
 
@@ -24,86 +21,71 @@ namespace BloombergLP {
 // CREATORS
 bteso_LingerOptions::bteso_LingerOptions()
 : d_timeout(0)
-, d_useLingering(false)
+, d_useLingeringFlag(false)
+{
+}
+
+bteso_LingerOptions::bteso_LingerOptions(int timeout, bool useLingeringFlag)
+: d_timeout(timeout)
+, d_useLingeringFlag(useLingeringFlag)
 {
 }
 
 bteso_LingerOptions::bteso_LingerOptions(const bteso_LingerOptions& original)
 : d_timeout(original.d_timeout)
-, d_useLingering(original.d_useLingering)
+, d_useLingeringFlag(original.d_useLingeringFlag)
 {
 }
 
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 bteso_LingerOptions::~bteso_LingerOptions()
 {
+    BSLS_ASSERT_SAFE(0 <= d_timeout);
 }
+#endif
 
 // MANIPULATORS
-bteso_LingerOptions&
-bteso_LingerOptions::operator=(const bteso_LingerOptions& rhs)
-{
-    if (this != &rhs) {
-        d_useLingering = rhs.d_useLingering;
-        d_timeout      = rhs.d_timeout;
-    }
-    return *this;
-}
-
 void bteso_LingerOptions::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_timeout);
-    bdeat_ValueTypeFunctions::reset(&d_useLingering);
+    d_timeout          = 0;
+    d_useLingeringFlag = 0;
 }
 
 // ACCESSORS
+                                  // Aspects
+
 bsl::ostream& bteso_LingerOptions::print(bsl::ostream& stream,
                                          int           level,
                                          int           spacesPerLevel) const
 {
-    if (level < 0) {
-        level = -level;
-    }
-    else {
-        bdeu_Print::indent(stream, level, spacesPerLevel);
-    }
+    const bsl::ios_base::fmtflags fmtFlags = stream.flags();
+    stream << bsl::boolalpha;
 
-    int levelPlus1 = level + 1;
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    printer.print(d_timeout,          "timeout");
+    printer.print(d_useLingeringFlag, "useLingeringFlag");
+    printer.end();
 
-    if (0 <= spacesPerLevel) {
-        // multiline
+    stream.flags(fmtFlags);
 
-        stream << "[\n";
+    return stream;
+}
 
-        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
-        stream << "UseLingering = ";
-        bdeu_PrintMethods::print(stream, d_useLingering,
-                                 -levelPlus1, spacesPerLevel);
+// FREE OPERATORS
+bsl::ostream& operator<<(bsl::ostream&              stream,
+                         const bteso_LingerOptions& object)
+{
+    const bsl::ios_base::fmtflags fmtFlags = stream.flags();
+    stream << bsl::boolalpha;
 
-        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
-        stream << "Timeout = ";
-        bdeu_PrintMethods::print(stream, d_timeout,
-                                 -levelPlus1, spacesPerLevel);
+    bslim::Printer printer(&stream, 0, -1);
+    printer.start();
+    printer.print(object.timeout(),          0);
+    printer.print(object.useLingeringFlag(), 0);
+    printer.end();
 
-        bdeu_Print::indent(stream, level, spacesPerLevel);
-        stream << "]\n";
-    }
-    else {
-        // single line
-
-        stream << '[';
-
-        stream << ' ';
-        stream << "UseLingering = ";
-        bdeu_PrintMethods::print(stream, d_useLingering,
-                                 -levelPlus1, spacesPerLevel);
-
-        stream << ' ';
-        stream << "Timeout = ";
-        bdeu_PrintMethods::print(stream, d_timeout,
-                                 -levelPlus1, spacesPerLevel);
-
-        stream << " ]";
-    }
+    stream.flags(fmtFlags);
 
     return stream;
 }
