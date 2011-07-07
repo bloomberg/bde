@@ -89,13 +89,14 @@ double dummyCallback(const bsl::string &value)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct MetricReporterTest : bsls_ProtocolTest<baea_MetricReporter> {
-    int registerMetric(const baea_Metric&)                   { return exit(); }
+struct MetricReporterTest : bsls_ProtocolTestImp<baea_MetricReporter> {
+    int registerMetric(const baea_Metric&)               { return markDone(); }
     int setMetricCb(const char *, const char *, const MetricCb&)
-                                                             { return exit(); }
-    baea_Metric *lookupMetric(const char *, const char *)    { return exit(); }
-    bool isRegistered(const char *, const char *) const      { return exit(); }
-    void printMetrics(bsl::ostream&) const                          { exit(); }
+                                                         { return markDone(); }
+    baea_Metric *lookupMetric(const char *, const char *)
+                                                         { return markDone(); }
+    bool isRegistered(const char *, const char *) const  { return markDone(); }
+    void printMetrics(bsl::ostream&) const               {        markDone(); }
 };
 
 //=============================================================================
@@ -175,7 +176,7 @@ int main(int argc, char *argv[])
         //   class baea_MetricReporter
         // --------------------------------------------------------------------
 
-        bsls_ProtocolTestDriver<MetricReporterTest> t;
+        bsls_ProtocolTest<MetricReporterTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
@@ -187,8 +188,6 @@ int main(int argc, char *argv[])
         BSLS_PROTOCOLTEST_ASSERT(t, lookupMetric(0, 0));
         BSLS_PROTOCOLTEST_ASSERT(t, isRegistered(0, 0));
         BSLS_PROTOCOLTEST_ASSERT(t, printMetrics(cout));
-
-        testStatus = t.failures();
       } break;
       case 1: {
         // --------------------------------------------------------------------

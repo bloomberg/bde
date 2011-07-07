@@ -51,8 +51,6 @@ BSLS_IDENT("$Id: $")
 //:   equal sign, and brackets may be omitted, with the entire value
 //:   represented on a single line in a custom format.  For example, the
 //:   'bdet_Date::print' method emits the date value in the format: 01JAN2001.
-//:   Note that 'Printer' may not be useful for implementing such types (see
-//:   Usage Example 4).
 //
 // For example, consider a class having two attributes, "ticker", represented
 // by a 'bsl::string', and "price", represented by a 'double'.  The output for
@@ -72,18 +70,17 @@ BSLS_IDENT("$Id: $")
 // as described above.  'Printer' objects are instantiated with the target
 // stream to be written to, and the values of the indentation level of the
 // data, 'level', and the spaces per level, 'spacesPerLevel'.  The methods
-// provided by 'Printer', 'print', 'printOrNull', 'printHexAddr' and
-// 'printForeign', use these values for formatting.  The 'start' and 'end'
-// methods print the enclosing brackets of the output.  In order to generate
-// the standard output format, 'start' should be called before any of the other
-// methods, and 'end' should be called after all the other methods have been
-// called.
+// provided by 'Printer', 'printAttribute', 'printValue', 'printOrNull',
+// 'printHexAddr' and 'printForeign', use these values for formatting.  The
+// 'start' and 'end' methods print the enclosing brackets of the output.  In
+// order to generate the standard output format, 'start' should be called
+// before any of the other methods, and 'end' should be called after all the
+// other methods have been called.
 //
 ///Usage
 ///-----
 // In the following examples, we examine the implementation of the 'print'
-// method of different types of classes using 'Printer'.  We also examine a
-// situation where the use of 'Printer' is not appropriate (Example 4).
+// method of different types of classes using 'Printer'.
 //
 ///Example 1: 'print' Method for a Value-Semantic Class
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -122,8 +119,8 @@ BSLS_IDENT("$Id: $")
 //
 //      bslim::Printer printer(&stream, level, spacesPerLevel);
 //      printer.start();
-//      printer.print(d_timestamp, "timestamp");
-//      printer.print(d_processID, "process ID");
+//      printer.printAttribute("timestamp", d_timestamp);
+//      printer.printAttribute("process ID", d_processID);
 //      printer.end();
 //
 //      return stream;
@@ -272,8 +269,8 @@ BSLS_IDENT("$Id: $")
 //
 //      Printer printer(&stream, level, spacesPerLevel);
 //      printer.start();
-//      printer.print(obj.getAttribute1(), "Attribute1");
-//      printer.print(obj.getAttribute2(), "Attribute2");
+//      printer.printAttribute("Attribute2", obj.getAttribute1());
+//      printer.printAttribute("Attribute2", obj.getAttribute2());
 //      printer.end();
 //
 //      return stream;
@@ -312,7 +309,7 @@ BSLS_IDENT("$Id: $")
 //      printer.printForeign(d_attributeA,
 //                           &ThirdPartyClassUtil::print,
 //                           "AttributeA");
-//      printer.print(d_attributeB, "AttributeB");
+//      printer.printAttribute("AttributeB", d_attributeB);
 //      printer.end();
 //
 //      return stream;
@@ -356,10 +353,10 @@ BSLS_IDENT("$Id: $")
 //
 //    private:
 //      // DATA
-//      my::Date d_localDate;  // date, local to the timezone indicated by
-//                             // 'd_offset'
+//      int d_localDate;  // date in YYYYMMDD format, local to the timezone
+//                        // indicated by 'd_offset'
 //
-//      int      d_offset;     // offset from GMT (in minutes)
+//      int d_offset;     // offset from GMT (in minutes)
 //
 //    public:
 //      // ...
@@ -370,8 +367,10 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //  };
 //..
-// For various reasons, it is easier to write the 'print' method without the
-// 'Printer' class.  Note that to ensure correct formatting of the value in the
+// The 'Printer' class may be used in this case to print the start and end
+// indentation by passing a 'suppressBracket' flag to the 'start' and 'end'
+// methods.  The value itself can be written to the stream directly without
+// using 'Printer'.  Note that to ensure correct formatting of the value in the
 // presence of a call to 'setw' on the stream, the output must be written to a
 // 'bsl::ostringstream' first; the string containing the output can then be
 // written to the specified 'stream':
@@ -384,10 +383,7 @@ BSLS_IDENT("$Id: $")
 //         return stream;                                             // RETURN
 //     }
 //
-//     bdeu_Print::indent(stream, level, spacesPerLevel);
-//
 //     bsl::ostringstream tmp;
-//
 //     tmp << d_localDate;
 //
 //     const char sign    = d_offset < 0 ? '-' : '+';
@@ -407,11 +403,11 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     tmp << buf;
-//     stream << tmp.str();
 //
-//     if (0 <= spacesPerLevel) { // multiline
-//         stream << '\n';
-//     }
+//     bslim::Printer printer(&stream, level, spacesPerLevel);
+//     printer.start(true);
+//     stream << tmp.str();
+//     printer.end(true);
 //
 //     return stream << bsl::flush;
 //  }
@@ -437,6 +433,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointer.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -451,6 +451,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
+#endif
+
+#ifndef INCLUDED_BSL_CCTYPE
+#include <bsl_cctype.h>
 #endif
 
 namespace BloombergLP {
@@ -510,17 +514,50 @@ class Printer {
         // Return the absolute value of the formatting level supplied at
         // construction.
 
-    void end() const;
-        // Print to the output stream supplied at construction the closing
-        // square bracket, indented by 'absLevel() * spacesPerLevel()' blank
-        // spaces.  If 'spacesPerLevel() >= 0', print a newline character after
-        // the square bracket.
+    void end(bool suppressBracket = false) const;
+        // If 'spacesPerLevel() >= 0', print a newline character to the output
+        // stream supplied at construction.  If the optionally specified
+        // 'suppressBracket' is false, print a closing square bracket, indented
+        // by 'absLevel() * spacesPerLevel()' blank spaces.
 
     template <class TYPE>
     void print(const TYPE& data, const char *name) const;
+        // [!DEPRECATED!] Format to the output stream supplied at construction
+        // the specified 'data', prefixed by the specified 'name' if 'name' is
+        // not 0.  Format 'data' based on the parameterized 'TYPE':
+        //
+        //: o If 'TYPE' is a fundamental type, output 'data' to the stream.
+        //:
+        //: o If 'TYPE' is a pointer type (other than 'char *' or 'void *'),
+        //:   print the address value of 'data' in hexadecimal format, then
+        //:   format the object at that address if 'data' is not 0, and print
+        //:   the string "NULL" otherwise.  There will be a compile-time error
+        //:   if 'data' is a pointer to a user-defined type that does not
+        //:   provide a standard 'print' method.
+        //:
+        //: o If 'TYPE' is 'char *', print 'data' to the stream as a null-
+        //:   terminated C-style string enclosed in quotes if 'data' is not 0,
+        //:   and print the string "NULL" otherwise.
+        //:
+        //: o If 'TYPE' is 'void *', print the address value of 'data' in
+        //:   hexadecimal format if it is not 0, and print the string "NULL"
+        //:   otherwise.
+        //:
+        //: o If 'TYPE' is any other type, call the standard 'print' method on
+        //:   'data', specifying one additional level of indentation than the
+        //:   current one.  There will be a compile-time error if 'TYPE' does
+        //:   not provide a standard 'print' method.
+        //
+        // If 'spacesPerLevel() < 0', format 'data' on a single line.
+        // If 'spacesPerLevel() >= 0', indent 'data' by
+        // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
+        // undefined if 'TYPE' is a 'char *', but not a null-terminated string.
+
+    template <class TYPE>
+    void printAttribute(const char *name, const TYPE& data) const;
         // Format to the output stream supplied at construction the specified
-        // 'data', prefixed by the specified 'name' if 'name' is not 0.  Format
-        // 'data' based on the parameterized 'TYPE':
+        // 'data', prefixed by the specified 'name'.  Format 'data' based on
+        // the parameterized 'TYPE':
         //
         //: o If 'TYPE' is a fundamental type, output 'data' to the stream.
         //:
@@ -584,17 +621,50 @@ class Printer {
         // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
         // undefined unless 'TYPE' is a pointer type.
 
+    template <class TYPE>
+    void printValue(const TYPE& data) const;
+        // Format to the output stream supplied at construction the specified
+        // 'data'.  Format 'data' based on the parameterized 'TYPE':
+        //
+        //: o If 'TYPE' is a fundamental type, output 'data' to the stream.
+        //:
+        //: o If 'TYPE' is a pointer type (other than 'char *' or 'void *'),
+        //:   print the address value of 'data' in hexadecimal format, then
+        //:   format the object at that address if 'data' is not 0, and print
+        //:   the string "NULL" otherwise.  There will be a compile-time error
+        //:   if 'data' is a pointer to a user-defined type that does not
+        //:   provide a standard 'print' method.
+        //:
+        //: o If 'TYPE' is 'char *', print 'data' to the stream as a null-
+        //:   terminated C-style string enclosed in quotes if 'data' is not 0,
+        //:   and print the string "NULL" otherwise.
+        //:
+        //: o If 'TYPE' is 'void *', print the address value of 'data' in
+        //:   hexadecimal format if it is not 0, and print the string "NULL"
+        //:   otherwise.
+        //:
+        //: o If 'TYPE' is any other type, call the standard 'print' method on
+        //:   'data', specifying one additional level of indentation than the
+        //:   current one.  There will be a compile-time error if 'TYPE' does
+        //:   not provide a standard 'print' method.
+        //
+        // If 'spacesPerLevel() < 0', format 'data' on a single line.
+        // If 'spacesPerLevel() >= 0', indent 'data' by
+        // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
+        // undefined if 'TYPE' is a 'char *', but not a null-terminated string.
+
     int spacesPerLevel() const;
         // Return the number of whitespace characters to output for each
         // level of indentation.  The number of whitespace characters for
         // each level of indentation is configured using the 'spacesPerLevel'
         // supplied at construction.
 
-    void start() const;
-        // Print to the output stream supplied at construction the opening
-        // square bracket.  Indent by 'absLevel() * spacesPerLevel()' blank
-        // spaces if 'suppressInitialIndentFlag' is 'false', and suppress the
-        // initial indentation otherwise.
+    void start(bool suppressBracket = false) const;
+        // Print to the output stream supplied at construction
+        // 'absLevel() * spacesPerLevel()' blank spaces if the
+        // 'suppressInitialIndentFlag' is 'false', and suppress the initial
+        // indentation otherwise.  If the optionally specified
+        // 'suppressBracket' is 'false', print an opening square bracket.
 
     bool suppressInitialIndentFlag() const;
         // Return 'true' if the initial output indentation will be
@@ -685,6 +755,54 @@ struct Printer_PrintImp<TYPE, Printer_Selector::BSLIM_FUNDAMENTAL> {
     // CLASS METHODS
     static void print(bsl::ostream& stream,
                       const TYPE&   data,
+                      int           level,
+                      int           spacesPerLevel);
+        // Format the specified 'data' (of fundamental type) to the specified
+        // output `stream' at (the absolute value of) the specified indentation
+        // `level', using the specified 'spacesPerLevel', the number of spaces
+        // per indentation level for this and all of its nested objects.  If
+        // `level' is negative, suppress indentation of the first line.  If
+        // `spacesPerLevel' is negative format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // `level').  If `stream' is not valid on entry, this operation has no
+        // effect.
+};
+
+template <>
+struct Printer_PrintImp<bool, Printer_Selector::BSLIM_FUNDAMENTAL> {
+    // This struct provides a specialization of 'Printer_PrintImp' for 'bool'.
+    // It provides a 'print' method that writes the value of the 'bool'
+    // argument passed to it as the string 'true' or 'false', in accordance
+    // with the BDE 'print' method contract.
+
+    // CLASS METHODS
+    static void print(bsl::ostream& stream,
+                      bool          data,
+                      int           level,
+                      int           spacesPerLevel);
+        // Format the specified 'data' (of fundamental type) to the specified
+        // output `stream' at (the absolute value of) the specified indentation
+        // `level', using the specified 'spacesPerLevel', the number of spaces
+        // per indentation level for this and all of its nested objects.  If
+        // `level' is negative, suppress indentation of the first line.  If
+        // `spacesPerLevel' is negative format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // `level').  If `stream' is not valid on entry, this operation has no
+        // effect.
+};
+
+template <>
+struct Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL> {
+    // This struct provides a specialization of 'Printer_PrintImp' for 'char'.
+    // It provides a 'print' method that streams the 'char' argument passed to
+    // it enclosed within quotes if it is an alpha-numeric character, or any of
+    // the special characters
+    // argument passed to it as the string 'true' or 'false', in accordance
+    // with the BDE 'print' method contract.
+
+    // CLASS METHODS
+    static void print(bsl::ostream& stream,
+                      char          data,
                       int           level,
                       int           spacesPerLevel);
         // Format the specified 'data' (of fundamental type) to the specified
@@ -890,6 +1008,14 @@ void Printer::print(const TYPE& data, const char *name) const
                           d_spacesPerLevel);
 }
 
+template <class TYPE>
+void Printer::printAttribute(const char *name, const TYPE& data) const
+{
+    BSLS_ASSERT_SAFE(0 != name);
+
+    print(data, name);
+}
+
 template <class TYPE, class PRINT_FUNCTOR>
 void Printer::printForeign(const TYPE&           data,
                            const PRINT_FUNCTOR&  printFunctionObject,
@@ -984,6 +1110,12 @@ void Printer::printOrNull<volatile void *>(volatile void *const&  address,
     printOrNull(temp, name);
 }
 
+template <class TYPE>
+void Printer::printValue(const TYPE& data) const
+{
+    print(data, 0);
+}
+
                         // ---------------------
                         // struct Printer_Helper
                         // ---------------------
@@ -1015,6 +1147,58 @@ void Printer_PrintImp<TYPE, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
                                                   int           spacesPerLevel)
 {
     stream << data;
+    if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
+}
+
+inline
+void Printer_PrintImp<bool, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
+                                                  bsl::ostream& stream,
+                                                  bool          data,
+                                                  int           ,
+                                                  int           spacesPerLevel)
+{
+    bsl::ios_base::fmtflags fmtFlags = stream.flags();
+    stream << bsl::boolalpha
+           << data;
+    stream.flags(fmtFlags);
+
+    if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
+}
+
+inline
+void Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
+                                                  bsl::ostream& stream,
+                                                  char          data,
+                                                  int           ,
+                                                  int           spacesPerLevel)
+{
+#define HANDLE_CONTROL_CHAR(value) case value: stream << #value; break;
+    if (bsl::isprint(data)) {
+        // print within quotes
+
+        stream << "'" << data <<"'";
+    }
+    else {
+        switch(data) {
+          HANDLE_CONTROL_CHAR('\n');
+          HANDLE_CONTROL_CHAR('\t');
+          HANDLE_CONTROL_CHAR('\0');
+
+          default:
+            // print as hex
+            bsl::ios_base::fmtflags fmtFlags = stream.flags();
+            stream << bsl::hex
+                   << bsl::showbase
+                   << static_cast<bsls_Types::UintPtr>(data);
+            stream.flags(fmtFlags);
+        }
+    }
+#undef HANDLE_CONTROL_CHAR
+
     if (spacesPerLevel >= 0) {
         stream << '\n';
     }

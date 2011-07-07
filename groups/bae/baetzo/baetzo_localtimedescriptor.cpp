@@ -16,6 +16,8 @@ namespace BloombergLP {
                         // --------------------------------
 
 // ACCESSORS
+                                  // Aspects
+
 bsl::ostream& baetzo_LocalTimeDescriptor::print(
                                             bsl::ostream& stream,
                                             int           level,
