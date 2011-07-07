@@ -30,6 +30,12 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
                                        ? PTHREAD_CREATE_DETACHED
                                        : PTHREAD_CREATE_JOINABLE);
 
+    int guardSize = src.guardSize();
+    if (guardSize < 0) {
+        guardSize = bcemt_Default::nativeDefaultThreadGuardSize();
+    }
+    rc |= pthread_attr_setguardsize(dest, guardSize);
+
     if (src.inheritSchedule()) {
         rc |= pthread_attr_setinheritsched(dest, PTHREAD_INHERIT_SCHED);
     }
@@ -54,7 +60,6 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
         rc |= pthread_attr_setschedparam(dest, &sched);
     }
 
-    // enforce sanity of stack size
     int stackSize = src.stackSize();
     if (stackSize < 0) {
         stackSize = bcemt_Default::defaultThreadStackSize();
@@ -93,7 +98,12 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::create(
                         function,
                         userData);
 
-    pthread_attr_destroy(&pthreadAttr);
+    // If attr destruction fails, don't want to return a bad status if thread
+    // creation succeeded and thread potentially needs to be joined.
+
+    int rcDestroy = pthread_attr_destroy(&pthreadAttr);
+    BSLS_ASSERT_SAFE(0 == rcDestroy);
+    ++rcDestroy;                           // suppress unused variable warnings
 
     return rc;
 }

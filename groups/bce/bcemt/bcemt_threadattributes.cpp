@@ -18,17 +18,6 @@ namespace {
 
 namespace Local {
 
-#if   defined(BSLS_PLATFORM__OS_SOLARIS)
-    enum { DEFAULT_GUARD_SIZE = 8192 };
-#elif defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_HPUX) || \
-      defined(BSLS_PLATFORM__OS_LINUX)
-    enum { DEFAULT_GUARD_SIZE = 4096 };
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
-    enum { DEFAULT_GUARD_SIZE = -1 };    // ignored
-#else
-# error unrecognized platform
-#endif
-
 #if   defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_LINUX)
     enum { DEFAULT_PRIORITY = 0 };
 #elif defined(BSLS_PLATFORM__OS_AIX)
@@ -109,7 +98,7 @@ int bcemt_ThreadAttributes::getMinSchedPriority(int policy)
 // CREATORS
 bcemt_ThreadAttributes::bcemt_ThreadAttributes()
 : d_detachedState(BCEMT_CREATE_JOINABLE)
-, d_guardSize(Local::DEFAULT_GUARD_SIZE)
+, d_guardSize(BCEMT_INVALID_GUARD_SIZE)
 , d_inheritSchedule(1)
 , d_schedulingPolicy(BCEMT_SCHED_OTHER)
 , d_schedulingPriority(Local::DEFAULT_PRIORITY)

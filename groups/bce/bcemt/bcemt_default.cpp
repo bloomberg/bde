@@ -46,10 +46,12 @@ static int pthreadsNativeDefaultThreadStackSize()
     {
         pthread_attr_t attr;
 
-        pthread_attr_init(&attr);
-        int rc = pthread_attr_getstacksize(&attr, &threadStackSize);
+        int rc = pthread_attr_init(&attr);
         BSLS_ASSERT(0 == rc);
-        pthread_attr_destroy(&attr);
+        rc = pthread_attr_getstacksize(&attr, &threadStackSize);
+        BSLS_ASSERT(0 == rc);
+        rc = pthread_attr_destroy(&attr);
+        BSLS_ASSERT(0 == rc);
 
         BSLS_ASSERT(threadStackSize > 0);
         const int maxint = bsl::numeric_limits<int>::max();
@@ -91,8 +93,8 @@ static int windowsNativeDefaultThreadStackSize()
     }
 
     BSLS_ASSERT(threadStackSize > 0);
-    const int maxint = bsl::numeric_limits<int>::max();
-    BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(maxint));
+    BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(
+                                             bsl::numeric_limits<int>::max()));
 
     return (int) threadStackSize;
 }
@@ -126,6 +128,38 @@ int bcemt_Default::nativeDefaultThreadStackSize()
         ret = windowsNativeDefaultThreadStackSize();
 #else
 # error unrecognized threading platform
+#endif
+
+    }
+
+    return ret.relaxedLoad();
+}
+
+int bcemt_Default::nativeDefaultThreadGuardSize()
+{
+    static bces_AtomicInt ret = -1;
+
+    if (ret.relaxedLoad() < 0) {
+
+#if defined(BCES_PLATFORM__POSIX_THREADS)
+        pthread_attr_t attr;
+        int rc = pthread_attr_init(&attr);
+        BSLS_ASSERT(0 == rc);
+
+        bsl::size_t guardSizeT;
+        rc = pthread_attr_getguardsize(&attr, &guardSizeT);
+        BSLS_ASSERT(0 == rc);
+
+        rc = pthread_attr_destroy(&attr);
+        BSLS_ASSERT(0 == rc);
+
+        BSLS_ASSERT(guardSizeT > 0);
+        BSLS_ASSERT(guardSizeT <= static_cast<bsl::size_t>(
+                                             bsl::numeric_limits<int>::max()));
+
+        ret = (int) guardSizeT;
+#else
+        ret = 0;    // ignored on Windows
 #endif
 
     }

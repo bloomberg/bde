@@ -153,7 +153,8 @@ class bcemt_ThreadAttributes {
     };
 
     enum {
-        BCEMT_INVALID_STACK_SIZE = -1
+        BCEMT_INVALID_STACK_SIZE = -1,
+        BCEMT_INVALID_GUARD_SIZE = -1
     };
 
   private:

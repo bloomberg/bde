@@ -203,14 +203,26 @@ int main(int argc, char *argv[])
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
-        const bsl::size_t defaultSize = Obj::defaultThreadStackSize();
-        ASSERT(Obj::nativeDefaultThreadStackSize() == (int) defaultSize);
+        const bsl::size_t defaultStackSize = Obj::defaultThreadStackSize();
+        ASSERT(Obj::nativeDefaultThreadStackSize() == (int) defaultStackSize);
 
-        ASSERT(defaultSize > 0);
+        ASSERT(defaultStackSize > 0);
         int maxint = bsl::numeric_limits<int>::max();
-        ASSERT(defaultSize <= static_cast<bsl::size_t>(maxint));
+        ASSERT(defaultStackSize <= static_cast<bsl::size_t>(maxint));
 
-        if (verbose) P(defaultSize);
+        bsl::size_t guardSize = Obj::nativeDefaultThreadGuardSize();
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+        ASSERT(0 == guardSize);
+#else
+        ASSERT(guardSize > 0);
+        ASSERT(guardSize <= static_cast<bsl::size_t>(maxint));
+#endif
+        ASSERT(guardSize < defaultStackSize);
+
+        if (verbose) {
+            P_(defaultStackSize);    P(guardSize);
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
