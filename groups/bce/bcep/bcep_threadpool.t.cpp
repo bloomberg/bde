@@ -1,5 +1,8 @@
 // bcep_threadpool.t.cpp                                              -*-C++-*-
 #include <bcep_threadpool.h>
+
+#include <bcemt_default.h>
+
 #include <bcema_testallocator.h>
 
 #include <bdef_function.h>
@@ -633,6 +636,9 @@ int main(int argc, char *argv[])
     int verbose = argc > 2 ? atoi(argv[2]) : 0;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+
+    bcemt_Default::setDefaultThreadStackSize(
+                           bcemt_Default::recommendedDefaultThreadStackSize());
 
     bcema_TestAllocator  testAllocator(veryVeryVerbose);
 
