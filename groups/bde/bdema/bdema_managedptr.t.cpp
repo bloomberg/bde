@@ -4,6 +4,8 @@
 #include <bslma_allocator.h>                    // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy()
@@ -23,13 +25,12 @@ using namespace bsl;  // automatically added by script
 // each class in turn, according to their
 //
 // [ 2] imp. class bdema_ManagedPtr_ReferenceType
-// [ 3] imp. class bdema_ManagedPtr_UnspecifiedBoolHelper
-// [ 4] imp. class bdema_ManagedPtr_Members
-// [ 5] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
+// [ 3] imp. class bdema_ManagedPtr_Members
+// [ 4] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
 
-// [ 6] class bdema_ManagedPtrNilDeleter
-// [ 7] class bdema_ManagedPtrDeleter
-// [ 8] class bdema_ManagedPtrFactoryDeleter  (this one needs negative testing)
+// [ 5] class bdema_ManagedPtrNilDeleter
+// [ 6] class bdema_ManagedPtrDeleter
+// [ 7] class bdema_ManagedPtrFactoryDeleter  (this one needs negative testing)
 // class bdema_ManagedPtr
 
 //-----------------------------------------------------------------------------
@@ -44,44 +45,43 @@ using namespace bsl;  // automatically added by script
 // aliasing machinery works as documented.  At last, we must also check that
 // a 'bdema_ManagedPtr' acts exactly as a pointer wherever one is expected.
 //-----------------------------------------------------------------------------
-// [ 9] bdema_ManagedPtr();
-// [ 9] bdema_ManagedPtr(nullptr_t);
-// [ 9] template<class TARGET_TYPE> bdema_ManagedPtr(TARGET_TYPE *ptr);
-// [11] bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
-// [11] bdema_ManagedPtr(bdema_ManagedPtr& original);
-// [11] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &original)
-// [12] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
-// [11] bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
-// [11] bdema_ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
-// [ 9] ~bdema_ManagedPtr();
-// [14] operator bdema_ManagedPtr_Ref<BDEMA_TYPE>();
-// [14] operator bdema_ManagedPtr_Ref<OTHER>();
-// [10] void load(nullptr_t=0);
-// [10] template<class TARGET_TYPE> void load(TARGET_TYPE *ptr);
-// [10] void load(TYPE *ptr, FACTORY *factory)
-// [10] void load(TYPE *ptr, void *factory, void (*deleter)(TYPE *, void*));
-// [10] void load(TYPE *ptr, FACTORY *factory, void(*deleter)(TYPE *,FACTORY*))
-// [12] void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
-// [14] void swap(bdema_ManagedPt& rhs);
-// [14] bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
-// [14] bdema_ManagedPtr& operator=(bdema_ManagedPtr<OTHER> &rhs)
-// [14] bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
-// [15] void clear();
-// [15] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
-// [13] operator bdema_ManagedPtr_UnspecifiedBool() const;
-// [13] TYPE& operator*() const;
-// [13] TYPE *operator->() const;
-// [13] TYPE *ptr() const;
-// [13] const bdema_ManagedPtrDeleter& deleter() const;
+// [ 8] bdema_ManagedPtr();
+// [ 8] bdema_ManagedPtr(nullptr_t);
+// [ 8] template<class TARGET_TYPE> bdema_ManagedPtr(TARGET_TYPE *ptr);
+// [10] bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+// [10] bdema_ManagedPtr(bdema_ManagedPtr& original);
+// [10] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &original)
+// [11] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
+// [10] bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
+// [10] bdema_ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
+// [ 8] ~bdema_ManagedPtr();
+// [13] operator bdema_ManagedPtr_Ref<BDEMA_TYPE>();
+// [13] operator bdema_ManagedPtr_Ref<OTHER>();
+// [ 9] void load(nullptr_t=0);
+// [ 9] template<class TARGET_TYPE> void load(TARGET_TYPE *ptr);
+// [ 9] void load(TYPE *ptr, FACTORY *factory)
+// [ 9] void load(TYPE *ptr, void *factory, void (*deleter)(TYPE *, void*));
+// [ 9] void load(TYPE *ptr, FACTORY *factory, void(*deleter)(TYPE *,FACTORY*))
+// [11] void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
+// [13] void swap(bdema_ManagedPt& rhs);
+// [13] bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
+// [13] bdema_ManagedPtr& operator=(bdema_ManagedPtr<OTHER> &rhs)
+// [13] bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+// [14] void clear();
+// [14] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
+// [12] operator BoolType() const;
+// [12] TYPE& operator*() const;
+// [12] TYPE *operator->() const;
+// [12] TYPE *ptr() const;
+// [12] const bdema_ManagedPtrDeleter& deleter() const;
 //
-// [ 6] class bdema_ManagedPtrDeleter
-// [ 8] class bdema_ManagedPtrFactoryDeleter  (this one needs negative testing)
-// [ 7] class bdema_ManagedPtrNilDeleter
+// [ 5] class bdema_ManagedPtrDeleter
+// [ 7] class bdema_ManagedPtrFactoryDeleter  (this one needs negative testing)
+// [ 6] class bdema_ManagedPtrNilDeleter
 //
-// [ 4] imp. class bdema_ManagedPtr_Members
-// [ 5] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
+// [ 3] imp. class bdema_ManagedPtr_Members
+// [ 4] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
 // [ 2] imp. class bdema_ManagedPtr_ReferenceType
-// [ 3] imp. class bdema_ManagedPtr_UnspecifiedBoolHelper
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [16] CASTING EXAMPLE
@@ -571,7 +571,7 @@ int main(int argc, char *argv[])
     bslma_TestAllocator ta;
 
     switch (test) { case 0:
-      case 18: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING FAILURE TO COMPILE
         //
@@ -596,7 +596,7 @@ int main(int argc, char *argv[])
             a = mX >= mY;
 #       endif
       } break;
-      case 17: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -620,7 +620,7 @@ int main(int argc, char *argv[])
         usageExample1();
 
       } break;
-      case 16: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION EXAMPLES
         //
@@ -668,14 +668,24 @@ int main(int argc, char *argv[])
 
         LOOP_ASSERT(numdels, 6 == numdels);
       } break;
-      case 15: {
+      case 14: {
         // --------------------------------------------------------------------
-        // CLEAR, RELEASE, AND ACCESSORS
+        // CLEAR and RELEASE
         //
         // Concerns:
-        //   That clear, release, and all accessors work properly.  The 'ptr()'
-        //   accessor and the 'ManagedPtr_unspecifiedBool()' conversion have
-        //   already been substantially tested in previous tests.
+        //   That clear and release work properly.
+        //   Clear reclaims resources/runs deleter
+        //   Release gives up ownership of resources without running deleters
+        //
+        //   Test each function behaves correctly given one of the following
+        //     kinds of managed pointer objects:
+        //     empty
+        //     simple
+        //     simple with factory
+        //     simple with factory and deleter
+        //     aliased
+        //     aliased (original created with factory)
+        //     aliased (original created with factory and deleter)
         //
         // Plan:
         //   TBD...
@@ -745,7 +755,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
       } break;
-      case 14: {
+      case 13: {
         // --------------------------------------------------------------------
         // SWAP AND ASSIGN TEST
         //
@@ -757,7 +767,7 @@ int main(int argc, char *argv[])
         //   assign clears the pointer being assigned from
         //   self-assignment safe
         //   assign destroys held pointer, does not merely swap
-        //   assigin-with-null
+        //   assign-with-null
         //   assign with aliased pointer
         //   assign from pointer with factory/deleter
         //   assign to pointer with factory/deleter/aliased-pointer
@@ -773,6 +783,24 @@ int main(int argc, char *argv[])
         //   swap a simple managed pointer with an empty managed pointer
         //   swap a simple managed pointer with an aliased managed pointer
         //   swap an aliased managed pointer with an empty managed pointer
+        //
+        //   REFORMULATION
+        //   want to be sure assignment works correctly for all combinations of
+        //   assigning from and to a managed pointer with each of the following
+        //   states.  Similarly, want to swap with each possible combination of
+        //   each of the following states:
+        //     empty
+        //     simple
+        //     simple with factory
+        //     simple with factory and deleter
+        //     aliased
+        //     aliased (original created with factory)
+        //     aliased (original created with factory and deleter)
+        //
+        //  In addition, assignment supports the following that 'swap' does not
+        //  assignment from temporary/rvalue must be supported
+        //  assignment from 'compatible' managed pointer must be supported
+        //    i.e. where raw pointers would be convertible under assignment
         //
         //: X No 'bdema_ManagedPtr' method should allocate any memory.
         // Plan:
@@ -881,7 +909,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
       } break;
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING ACCESSORS
         //
@@ -899,7 +927,7 @@ int main(int argc, char *argv[])
         //   TBD...
         //
         // Tested:
-        //   operator bdema_ManagedPtr_UnspecifiedBool() const;
+        //   operator BoolType() const;
         //   TYPE& operator*() const;
         //   TYPE *operator->() const;
         //   TYPE *ptr() const;
@@ -951,7 +979,7 @@ int main(int argc, char *argv[])
             ASSERT(taDefault.numDeallocation() == numDeallocation + 1);
         }
       } break;
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // ALIAS SUPPORT TEST
         //
@@ -962,7 +990,7 @@ int main(int argc, char *argv[])
         //   appropriate object as cleared/deleters run when assigning to/from an aliased managed pointer
         //   class can alias itself
         //   alias type need not be the same as the managed type (often isn't)
-        //   aliasing a null pointer clears the managed pointer
+        //   aliasing a null pointer clears the managed pointer, releasing any previously held object
         //
         //: X No 'bdema_ManagedPtr' method should allocate any memory.
         //
@@ -1017,7 +1045,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(taDefault.numDeallocation() == numDeallocation + 2);
       } break;
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
         // CREATORS TEST
         //
@@ -1029,7 +1057,7 @@ int main(int argc, char *argv[])
         //   because on some platforms, such as Sun, it is unnecessary and
         //   does not come into play when copying and assigning ManagedPtr's.
         //   Note that the primary accessor, 'ptr', cannot be considered to be
-        //   validated until after testing the alias support, test case 12.
+        //   validated until after testing the alias support, test case 11.
         //
         //: X No 'bdema_ManagedPtr' method should allocate any memory.
         //
@@ -1147,7 +1175,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
 
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // Testing 'load' overloads
         //
@@ -1303,7 +1331,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(2 == numDeletes);
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // PRIMARY CREATORS TEST
         //   Note that we will not deem the destructor to be completely tested
@@ -1433,7 +1461,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
 #endif
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtrFactoryDeleter (this one needs negative testing)
         //
@@ -1453,7 +1481,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tTest blah...\n";
 
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtrDeleter
         //
@@ -1473,7 +1501,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tTest blah...\n";
 
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtrNilDeleter
         //
@@ -1493,7 +1521,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tTest blah...\n";
 
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtr_Ref (this one needs negative testing)
         //
@@ -1513,7 +1541,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tTest blah...\n";
 
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtr_Members
         //
@@ -1533,51 +1561,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tTest blah...\n";
 
       } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING bdema_ManagedPtr_UnspecifiedBoolHelper
-        //
-        // Concerns:
-        //: 1 Objects of type 'bdema_ManagedPtr_UnspecifiedBoolHelper' must be
-        //:   implicitly convertible to bool.
-        //: 2 Objects of type 'bdema_ManagedPtr_UnspecifiedBoolHelper' must not
-        //:   promote to type 'int'.
-        //: 3 A default constructed 'bdema_ManagedPtr_UnspecifiedBoolHelper'
-        //:   should convert to 'false' when converted to a boolean value, the
-        //:   same value as a default constructed 'bool'.
-        //: 4 A 'bdema_ManagedPtr_UnspecifiedBoolHelper' object initialized
-        //:   with the literal '0' should produce the value 'false' when
-        //:   converted to a boolean value.
-        //: 5 A class with a conversion operator to type
-        //:   'bdema_ManagedPtr_UnspecifiedBoolHelper' should be implicitly
-        //:   convertible to bool.
-        //: 6 Two classes that are implicitly convertible to type
-        //:   'bdema_ManagedPtr_UnspecifiedBoolHelper' should not accidentally
-        //:   be comparable to each other using 'operator=='.
-        //
-        // Plan:
-        //: 1 blah ...
-        //
-        // Testing:
-        //   ... list class operations that are tested ...
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING bdema_ManagedPtr_UnspecifiedBoolHelper"
-                          << "\n--------------------------------------" << endl;
-
-        if (verbose) cout << "\tTest blah...\n";
-
-      } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtr_ReferenceType
         //   'bdema_ManagedPtr_ReferenceType' is a meta-function that returns
-        //   its result through the typedef member 'type'.
+        //   its result through the typedef member 'Reference'.
         //
         // Concerns:
-        //: 1 Unless the type paramter is cv-'void', the nested member 'type'
-        //:   should be an alias to that same (potentially cv-qualified) type.
-        //: 2 The typedef 'type' should be 'void' if the type paramters is
+        //: 1 Unless the type paramter is cv-'void', the nested member
+        //:  'Reference' should be an alias to that same (potentially
+        //:   cv-qualified) type.
+        //: 2 The typedef 'Reference' should be 'void' if the type paramters is
         //:   (cv-qualified) 'void'.
         //: 3 References to references are not allowed.
         //: 4 cv-qualifiers and pointers should be preserved.
@@ -1591,7 +1585,42 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING bdema_ManagedPtr_ReferenceType"
                           << "\n--------------------------------------" << endl;
 
-        if (verbose) cout << "\tTest blah...\n";
+        if (verbose) cout << "\tTesting 'Reference' typedef\n";
+
+        BSLMF_ASSERT((bslmf_IsSame<
+                                bdema_ManagedPtr_ReferenceType<int>::Reference,
+                                int &>::VALUE));
+
+        BSLMF_ASSERT((bslmf_IsSame<
+                          bdema_ManagedPtr_ReferenceType<const int>::Reference,
+                          const int &>::VALUE));
+
+        BSLMF_ASSERT((bslmf_IsSame<
+                       bdema_ManagedPtr_ReferenceType<volatile int>::Reference,
+                       volatile int &>::VALUE));
+
+        BSLMF_ASSERT((bslmf_IsSame<
+                 bdema_ManagedPtr_ReferenceType<const volatile int>::Reference,
+                 const volatile int &>::VALUE));
+
+
+        if (verbose) cout << "\tTesting reference-to-void\n";
+
+        BSLMF_ASSERT((bslmf_IsSame<
+                               bdema_ManagedPtr_ReferenceType<void>::Reference,
+                               void>::VALUE));
+
+        BSLMF_ASSERT((bslmf_IsSame<
+                         bdema_ManagedPtr_ReferenceType<const void>::Reference,
+                         void>::VALUE));
+
+        BSLMF_ASSERT((bslmf_IsSame<
+                      bdema_ManagedPtr_ReferenceType<volatile void>::Reference,
+                      void>::VALUE));
+
+        BSLMF_ASSERT((bslmf_IsSame<
+                bdema_ManagedPtr_ReferenceType<const volatile void>::Reference,
+                void>::VALUE));
 
       } break;
       case 1: {
@@ -1700,9 +1729,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         if (verbose) cout << "\tTest conversion assignment.\n";
-#ifndef OK_CONVERSION_ASSIGNMENT
-        if (verbose) cout << "\t\tdisabled for this version.\n";
-#else
+
         numDeletes = 0;
         {
             TDObj *p = new MyDerivedObject(&numDeletes);
@@ -1728,13 +1755,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
-#endif
 
         if (verbose)
             cout << "\tTest conversion construction from an rvalue.\n";
-#ifndef OK_CONVERSION_ASSIGNMENT
-        if (verbose) cout << "\t\tdisabled for this version.\n";
-#else
+
         numDeletes = 0;
         {
             Obj x(returnDerivedPtr(&numDeletes, &ta)); Obj const &X = x;
@@ -1743,13 +1767,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
-#endif
 
         if (verbose)
             cout << "\tTest conversion assignment from an rvalue.\n";
-#ifndef OK_CONVERSION_ASSIGNMENT
-        if (verbose) cout << "\t\tdisabled for this version.\n";
-#else
+
         numDeletes = 0;
         {
             Obj x; Obj const &X = x;
@@ -1760,7 +1781,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
-#endif
 
         if (verbose) cout << "\tTest alias construction.\n";
 

@@ -1,4 +1,4 @@
-// bdema_managedptr.h              -*-C++-*-
+// bdema_managedptr.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDEMA_MANAGEDPTR
 #define INCLUDED_BDEMA_MANAGEDPTR
 
@@ -310,6 +310,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
+#include <bsls_unspecifiedbool.h>
+#endif
+
 #ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
 #endif
@@ -501,20 +505,20 @@ struct bdema_ManagedPtr_ReferenceType<const volatile void> {
     typedef void Reference;
 };
 
-            // =====================================================
-            // private struct bdema_ManagedPtr_UnspecifiedBoolHelper
-            // =====================================================
-
-template<class BDEMA_MANAGED_TYPE>
-struct bdema_ManagedPtr_UnspecifiedBoolHelper {
-    // This 'struct' provides a member, 'd_member', whose pointer-to-member is
-    // used to convert a managed pointer to an "unspecified boolean type".
-
-    int d_member;
-        // This data member is used solely for taking its address to return a
-        // non-null pointer-to-member.  Note that the *value* of 'd_member' is
-        // not used.
-};
+//            // =====================================================
+//            // private struct bdema_ManagedPtr_UnspecifiedBoolHelper
+//            // =====================================================
+//
+//template<class BDEMA_MANAGED_TYPE>
+//struct bdema_ManagedPtr_UnspecifiedBoolHelper {
+//    // This 'struct' provides a member, 'd_member', whose pointer-to-member is
+//    // used to convert a managed pointer to an "unspecified boolean type".
+//
+//    int d_member;
+//        // This data member is used solely for taking its address to return a
+//        // non-null pointer-to-member.  Note that the *value* of 'd_member' is
+//        // not used.
+//};
 
                            // ======================
                            // class bdema_ManagedPtr
@@ -545,11 +549,9 @@ class bdema_ManagedPtr {
     typedef bdema_ManagedPtrDeleter          Deleter;
     typedef bdema_ManagedPtrDeleter::Deleter DeleterFunc;
 
-    typedef int bdema_ManagedPtr_UnspecifiedBoolHelper
-                                             <bdema_ManagedPtr<BDEMA_TYPE> >::*
-                                              bdema_ManagedPtr_UnspecifiedBool;
-    // 'bdema_ManagedPtr_UnspecifiedBool' is an alias for a pointer-to-member
-    // of the 'bdema_ManagedPtr_UnspecifiedBoolHelper' class.  This (opaque)
+    typedef typename bsls_UnspecifiedBool<bdema_ManagedPtr>::BoolType BoolType;
+    // 'BoolType' is an alias for an unspecified type that is implicitly
+    // convertible to 'bool', but will not promote to 'int'.  This (opaque)
     // type can be used as an "unspecified boolean type" for converting a
     // managed pointer to 'bool' in contexts such as 'if (mp) { ... }' without
     // actually having a conversion to 'bool' or being less-than comparable
@@ -611,10 +613,12 @@ class bdema_ManagedPtr {
     // FRIENDS
     template <class OTHER> friend class bdema_ManagedPtr;
 
-    template<class BDEMA_OTHER>
-    void operator==(const BDEMA_OTHER&) const;
-    template<class BDEMA_OTHER>
-    void operator!=(const BDEMA_OTHER&) const;
+    void operator==(const bdema_ManagedPtr&) const;
+    void operator!=(const bdema_ManagedPtr&) const;
+    //template<class BDEMA_OTHER>
+    //void operator==(const BDEMA_OTHER&) const;
+    //template<class BDEMA_OTHER>
+    //void operator!=(const BDEMA_OTHER&) const;
         // The two operator overloads are declared as 'private' but never
         // defined in order to eliminate accidental equality comparisons that
         // would occur through the implicit conversion to an unspecified
@@ -637,7 +641,7 @@ class bdema_ManagedPtr {
         // Construct a managed pointer that is in an unset state.  Note that
         // this constructor is necessary to match a single null literal
         // argument, as the only other viable constructor is a template that
-        // cannot deduce the pointed-to type from a null pointer.
+        // cannot deduce the pointed-to type from a null pointer literal.
 
     template<class BDEMA_TARGET_TYPE>
 #if !defined (NO_SFINAE)
@@ -652,8 +656,11 @@ class bdema_ManagedPtr {
         // the current default allocator to destroy 'ptr' when this managed
         // pointer is destroyed or re-assigned, unless it is released before
         // then.  Note that the object will be initialized to an unset state
-        // if 'ptr' == 0.  The behavior is undefined if 'ptr' is already
-        // managed by another managed pointer.
+        // if 'ptr' == 0.  The behavior is undefined unless the object referred
+        // to by 'ptr' can by destroyed by the current default allocator.
+        // The behavior is undefined if the lifetime of the object referred to
+        // by 'ptr' is already managed by another object.
+        // The behavior is undefined if the 
 
     bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
         // Construct a 'bdema_ManagedPtr' and transfer the value and ownership
@@ -836,7 +843,7 @@ class bdema_ManagedPtr {
         // to an unset state.
 
     // ACCESSORS
-    operator bdema_ManagedPtr_UnspecifiedBool() const;
+    operator BoolType() const;
         // Return a value of the "unspecified bool" that evaluates to 'false'
         // if this managed pointer is in an unset state, and 'true' otherwise.
         // Note that this conversion operator allows a managed pointer to be
@@ -1363,11 +1370,10 @@ bdema_ManagedPtr<BDEMA_TYPE>::operator bdema_ManagedPtr_Ref<OTHER>()
 // ACCESSORS
 template <class BDEMA_TYPE>
 inline
-bdema_ManagedPtr<BDEMA_TYPE>::operator bdema_ManagedPtr_UnspecifiedBool() const
+bdema_ManagedPtr<BDEMA_TYPE>::operator BoolType() const
 {
     return d_members.d_obj_p
-         ? &bdema_ManagedPtr_UnspecifiedBoolHelper<bdema_ManagedPtr<BDEMA_TYPE>
-                                                                    >::d_member
+         ? bsls_UnspecifiedBool<bdema_ManagedPtr>::trueValue()
          : 0;
 }
 
