@@ -32,8 +32,13 @@ BDES_IDENT("$Id: $")
 //   int              maxConnections      maximum number of connections
 //                                        that can be managed by a channel
 //                                        pool.
-//   int              maxThreads          maximum number of threads managed
-//                                        by a channel pool
+//   int              maxThreads          the number of threads created by a
+//                                        channel pool on start up
+//   int              numNewThreads       the number of new threads that can be
+//                                        created by a channel pool after each
+//                                        of its threads have reached their
+//                                        limit of sockets that can be
+//                                        registered.
 //   double           readTimeout         timeout for "read" operations; if
 //                                        this value is 0, the read timeout
 //                                        will be disabled
@@ -82,6 +87,8 @@ BDES_IDENT("$Id: $")
 //   | maxConnections     | 0 <= maxConnections                         |
 //   +--------------------+---------------------------------------------+
 //   | maxThreads         | 0 <= maxThreads                             |
+//   +--------------------+---------------------------------------------+
+//   | numNewThreads      | 0 <= numNewThreads                          |
 //   +--------------------+---------------------------------------------+
 //   | writeCacheLowWat   | 0 <= writeCacheLowWat                       |
 //   | writeCacheHiWat    | writeCacheLowWat <= writeCacheLowWat        |
@@ -165,6 +172,9 @@ BDES_IDENT("$Id: $")
 //    assert(1 == cpc.minIncomingMessageSize());
 //    assert(2 == cpc.typicalIncomingMessageSize());
 //    assert(3 == cpc.maxIncomingMessageSize());
+//
+//    assert(0 == cpc.setNumNewThreads(20));
+//    assert(20 == cpc.numNewThreads().value());
 //..
 // Finally, we can print the configuration value to 'stdout'.
 //..
@@ -187,6 +197,7 @@ BDES_IDENT("$Id: $")
 //         maxIncomingMessageSize : 3
 //         threadStackSize        : 1024
 //         collectTimeMetrics     : 1
+//         numNewThreads          : 20
 // ]
 //..
 
