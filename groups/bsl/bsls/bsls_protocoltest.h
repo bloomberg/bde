@@ -28,15 +28,20 @@ BSLS_IDENT("$Id: $")
 // that apply to all protocol classes.
 //
 // For each protocol class we have the following set of concerns:
-//: o protocol is an abstract class, i.e., no objects of a protocol class can
-//:   be created
-//: o protocol has no data members
-//: o all of protocol's methods are pure virtual
-//: o protocol has a pure virtual destructor
-//: o all of protocol's methods are publicly accessible
+//: o the protocol is an abstract class, and therefore no objects of this class
+//:   can be created
+//: o the protocol class has no data members
+//: o the protocol class has a virtual destructor
+//: o all methods of the protocol class are pure virtual
+//: o all methods of the protocol class are publicly accessible
 //
-// However it's not possible to verify all these protocol concern within the
-// framework of the C++ language.  The protocol test driver component allows to
+// However it's not possible to verify all protocol concern fully within the
+// framework of the C++ language.  The following parts of the concerns are not
+// verified by the protocol test component:
+//  o methods of the protocol are *pure* virtual
+//  o there are no methods in the protocol other than the ones being tested
+//
+// The protocol test driver component allows to
 // verify the comformance to the following subset of the concerns listed above:
 //: o protocol is an abstract class, i.e., no objects of a protocol class can
 //:   be created
@@ -47,9 +52,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In the following example we demonstrate how to test a protocol class
-// 'MyInterface'.  'MyInterface' provides a couple of virtual methods ('foo'
-// and 'bar'), and a virtual destructor.
+// In the following examples we demonstrate how to use the protocol test
+// component.
+//
+///Example 1: Testing a simple protocol class.
+///- - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates how to test a protocol class 'MyInterface' using
+// the protocol test component.  'MyInterface' provides a couple of virtual
+// methods ('foo' and 'bar'), and a virtual destructor.
 //..
 //  struct MyInterface {
 //      virtual ~MyInterface() {}
@@ -57,77 +67,112 @@ BSLS_IDENT("$Id: $")
 //      virtual int foo(int) const = 0;
 //  };
 //..
-// First, define a test class derived from this protocol and implement its
+// First, we define a test class derived from this protocol and implement its
 // virtual methods.  Rather than deriving the test class from 'MyInterface'
 // directly, it is derived from 'bsls_ProtocolTestImp<MyInterface>' (which, in
-// turn, is derived from 'MyInterface') that implements boilerplate code for
-// simplifying the testing of protocols.
+// turn, is derived from 'MyInterface').  This base class implements
+// boilerplate code and provides useful functionality for testing of protocols.
 //..
+//  typedef MyInterface Obj;
+//
 //  struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
 //      const char *bar(char const *, char const *) { return markDone(); }
 //      int foo(int) const                          { return markDone(); }
 //  };
+//
+//  typedef MyInterfaceTest ObjTestImp;
 //..
-// Notice that in 'MyInterfaceTest' we must provide an implementation of every
+// Notice that in 'ObjTestImp' we must provide an implementation of every
 // protocol method.  The implementation of each method should simply call
 // 'markDone' which is provided by the base class for the purpose of verifying
-// that the method it's called from is declared as virtual in the protocol
-// class.
+// that the method from which it's called is declared as virtual in the
+// protocol class.
 //
 // Then, in our protocol test case we describe the concerns we have for the
 // protocol class and the plan to test those concerns:
 //..
-// // --------------------------------------------------------------------
-// // PROTOCOL TEST:
-// //   Test the conformance of 'MyInterface' to the protocol concerns.
-// //
-// // Concerns:
-// //: 1 'MyInterface' protocol is an abstract class, i.e., no objects of
-// //:   'MyInterface' protocol class can be created
-// //: 2 'MyInterface' has no data members
-// //: 3 all methods of 'MyInterface' are pure virtual
-// //: 4 'MyInterface' has a pure virtual destructor
-// //: 5 all methods of 'MyInterface' are publicly accessible
-// //
-// // Plan:
-// //  Use 'bsl_ProtocolTest' component to test the following subset of the
-// //  'MyInterface' protocol concerns:
-// //: 1 'MyInterface' protocol is an abstract class, i.e., no objects of
-// //:   'MyInterface' protocol class can be created
-// //: 2 'MyInterface' has no data members
-// //: 3 each of the known and tested methods of 'MyInterface' is virtual
-// //: 4 'MyInterface' has a virtual destructor
-// //: 5 each of the known and tested methods of 'MyInterface' is publicly
-// //    accessible
-// // --------------------------------------------------------------------
+//  // --------------------------------------------------------------------
+//  // PROTOCOL TEST:
+//  //   Ensure this class is a properly defined protocol.
+//  //
+//  // Concerns:
+//  //: 1 The protocol is an abstract class, and therefore no objects
+//  //:   of this class can be created.
+//  //:
+//  //: 2 The protocol class has no data members.
+//  //:
+//  //: 3 The protocol class has a pure virtual destructor.
+//  //:
+//  //: 4 All methods of the protocol class are pure virtual.
+//  //:
+//  //: 5 All methods of the protocol class are publicly accessible.
+//  //
+//  // Plan:
+//  //: 1 Define a concrete derived implementation, 'ObjTestImp' of the
+//  //:   protocol.
+//  //:
+//  //: 2 Create an object of the 'bsls_ProtocolTest' class parameterized
+//  //:   with 'ObjTestImp'.
+//  //:
+//  //: 3 Use the 'bsls_protocolTest' object to verify that the protocol is
+//  //:   an abstract class. (C-1)
+//  //:
+//  //: 4 Use the 'bsls_ProtocolTest' object to verify that the protocol
+//  //:   has no data members. (C-2)
+//  //:
+//  //: 5 Use the 'bsls_ProtocolTest' object to verify that the protocol
+//  //:   has a virtual destructor. (C-3)
+//  //:
+//  //: 6 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that:
+//  //:
+//  //:   1 All the methods of the protocol class are virtual. (C-4)
+//  //:
+//  //:   2 All the methods of the protocol class are publicly accessible.
+//  //:     (C-5)
+//  //
+//  // Testing:
+//  //   virtual ~MyInterface() {}
+//  //   virtual const char *bar(char const *, char const *) = 0;
+//  //   virtual int foo(int) const = 0;
+//  // --------------------------------------------------------------------
 //..
 // Next, we use 'bsls_ProtocolTest' to perform the actual testing of our
-// 'MyInterface' protocol class.  We create an object of 'bsls_ProtocolTest'
-// parameterized with 'MyInterfaceTest':
+// 'MyInterface' protocol class.
 //..
-//  if (verbose) cout << endl << "PROTOCOL TEST" << endl
-//                            << "=============" << endl;
+//  if (verbose) printf("\nPROTOCOL TEST"
+//                      "\n=============\n");
+//..
+// Then we create an object of type 'bsls_ProtocolTest' parameterized with
+// 'ObjTestImp':
+//..
+//  if (verbose) printf("\nCreate an object of the 'bsls_ProtocolTest' "
+//                      "class parameterized with 'ObjTestImp'.\n");
 //
-//  bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
+//  bsls_ProtocolTest<ObjTestImp> t(veryVerbose);
 //..
-// We use the 't' test driver object to test some general concerns about the
-// protocol class:
-//: o is the protocol class abstract?
-//: o does the protocol class have any data members?
-//: o is the destructor of the protocol class virtual?
+// Now we use the 't' test driver object to test some general concerns about
+// the protocol class.
 //..
+//  if (verbose) printf("\nVerify that the protocol is an abstract class.\n");
+//
 //  ASSERT(t.testAbstract());
+//
+//  if (verbose) printf("\nVerify that the protocol has no data members.\n");
+//
 //  ASSERT(t.testNoDataMembers());
+//
+//  if (verbose) printf("\nVerify that the protocol has a virtual dtor.\n");
+//
 //  ASSERT(t.testVirtualDestructor());
 //..
-// After general concerns we use the test driver object to test concerns for
-// each individual method of the protocol class:
-//: o is a method public?
-//: o is a method virtual?
-//
-// To test a protocol method we need to call it from inside the
-// 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass our test driver object:
+// Finally we use the test driver object to test concerns for each individual
+// method of the protocol class.  To test a protocol method we need to call it
+// from inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass our test
+// driver object:
 //..
+//  if (verbose) printf("\nVerify that each method is virtual and "
+//                      "publicly accessible.\n");
+//
 //  BSLS_PROTOCOLTEST_ASSERT(t, foo(77));
 //  BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
 //..
@@ -426,7 +471,8 @@ class bsls_ProtocolTest {
 
 #define BSLS_PROTOCOLTEST_ASSERT(test, methodCall)                            \
     do {                                                                      \
-        test.method("testing if method "#methodCall" is virtual")->methodCall;\
+        test.method(                                                          \
+                "inside BSLS_PROTOCOLTEST_ASSERT("#methodCall")")->methodCall;\
         if (!test.lastStatus()) {                                             \
             ASSERT(0 && "Not a virtual method: "#methodCall);                 \
         }                                                                     \
@@ -633,7 +679,7 @@ template <class BSLS_TESTIMP>
 inline
 bool bsls_ProtocolTest<BSLS_TESTIMP>::testAbstract()
 {
-    trace("test if the protocol is an abstract class");
+    trace("inside bsls_ProtocolTest::testAbstract()");
     startTest();
 
     if (!bsls_ProtocolTest_IsAbstract<ProtocolType>::VALUE) {
@@ -647,7 +693,7 @@ template <class BSLS_TESTIMP>
 inline
 bool bsls_ProtocolTest<BSLS_TESTIMP>::testNoDataMembers()
 {
-    trace("test if the protocol has no data members");
+    trace("inside bsls_ProtocolTest::testNoDataMembers()");
     struct EmptyProtocol
     {
         virtual ~EmptyProtocol() {}
@@ -665,7 +711,7 @@ bool bsls_ProtocolTest<BSLS_TESTIMP>::testNoDataMembers()
 template <class BSLS_TESTIMP>
 bool bsls_ProtocolTest<BSLS_TESTIMP>::testVirtualDestructor()
 {
-    trace("test if the protocol has a virtual destructor");
+    trace("inside bsls_ProtocolTest::testVirtualDestructor");
     startTest();
 
     // Can't use an automatic buffer and the placement new for an object of

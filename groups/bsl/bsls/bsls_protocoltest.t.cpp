@@ -82,22 +82,52 @@ void aSsErT(int c, const char *s, int i) {
 
 #define ASSERT(X) do { aSsErT(!(X), #X, __LINE__); } while (0,0)
 
-// ============================================================================
-//                    TYPES AND FUNCTIONS REQUIRED FOR TESTING
-// ----------------------------------------------------------------------------
-
 namespace {
 
+// ============================================================================
+//                              USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+///Usage
+///-----
+// In the following examples we demonstrate how to use the protocol test
+// component.
+//
+///Example 1: Testing a simple protocol class.
+///- - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates how to test a protocol class 'MyInterface' using
+// the protocol test component.  'MyInterface' provides a couple of virtual
+// methods ('foo' and 'bar'), and a virtual destructor.
+//..
 struct MyInterface {
     virtual ~MyInterface() {}
     virtual const char *bar(char const *, char const *) = 0;
     virtual int foo(int) const = 0;
 };
+//..
+// First, we define a test class derived from this protocol and implement its
+// virtual methods.  Rather than deriving the test class from 'MyInterface'
+// directly, it is derived from 'bsls_ProtocolTestImp<MyInterface>' (which, in
+// turn, is derived from 'MyInterface').  This base class implements
+// boilerplate code and provides useful functionality for testing of protocols.
+//..
+typedef MyInterface Obj;
 
 struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
     const char *bar(char const *, char const *) { return markDone(); }
     int foo(int) const                          { return markDone(); }
 };
+
+typedef MyInterfaceTest ObjTestImp;
+//..
+// Notice that in 'ObjTestImp' we must provide an implementation of every
+// protocol method.  The implementation of each method should simply call
+// 'markDone' which is provided by the base class for the purpose of verifying
+// that the method from which it's called is declared as virtual in the
+// protocol class.
+
+// ============================================================================
+//                    TYPES AND FUNCTIONS REQUIRED FOR TESTING
+// ----------------------------------------------------------------------------
 
 // For testing 'testAbstract'.
 struct NotAbstractInterface {
@@ -223,14 +253,97 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-        bsls_ProtocolTest<MyInterfaceTest> t;
+// Then, in our protocol test case we describe the concerns we have for the
+// protocol class and the plan to test those concerns:
+//..
+  // --------------------------------------------------------------------
+  // PROTOCOL TEST:
+  //   Ensure this class is a properly defined protocol.
+  //
+  // Concerns:
+  //: 1 The protocol is an abstract class, and therefore no objects
+  //:   of this class can be created.
+  //:
+  //: 2 The protocol class has no data members.
+  //:
+  //: 3 The protocol class has a pure virtual destructor.
+  //:
+  //: 4 All methods of the protocol class are pure virtual.
+  //:
+  //: 5 All methods of the protocol class are publicly accessible.
+  //
+  // Plan:
+  //: 1 Define a concrete derived implementation, 'ObjTestImp' of the
+  //:   protocol.
+  //:
+  //: 2 Create an object of the 'bsls_ProtocolTest' class parameterized
+  //:   with 'ObjTestImp'.
+  //:
+  //: 3 Use the 'bsls_protocolTest' object to verify that the protocol is
+  //:   an abstract class. (C-1)
+  //:
+  //: 4 Use the 'bsls_ProtocolTest' object to verify that the protocol
+  //:   has no data members. (C-2)
+  //:
+  //: 5 Use the 'bsls_ProtocolTest' object to verify that the protocol
+  //:   has a virtual destructor. (C-3)
+  //:
+  //: 6 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that:
+  //:
+  //:   1 All the methods of the protocol class are virtual. (C-4)
+  //:
+  //:   2 All the methods of the protocol class are publicly accessible.
+  //:     (C-5)
+  //
+  // Testing:
+  //   virtual ~MyInterface() {}
+  //   virtual const char *bar(char const *, char const *) = 0;
+  //   virtual int foo(int) const = 0;
+  // --------------------------------------------------------------------
+//..
+// Next, we use 'bsls_ProtocolTest' to perform the actual testing of our
+// 'MyInterface' protocol class.
+//..
+  if (verbose) printf("\nPROTOCOL TEST"
+                      "\n=============\n");
+//..
+// Then we create an object of type 'bsls_ProtocolTest' parameterized with
+// 'ObjTestImp':
+//..
+  if (verbose) printf("\nCreate an object of the 'bsls_ProtocolTest' "
+                      "class parameterized with 'ObjTestImp'.\n");
 
-        ASSERT(t.testAbstract());
-        ASSERT(t.testNoDataMembers());
-        ASSERT(t.testVirtualDestructor());
-        BSLS_PROTOCOLTEST_ASSERT(t, foo(77));
-        BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
-        testStatus = t.failures();
+  bsls_ProtocolTest<ObjTestImp> t(veryVerbose);
+//..
+// Now we use the 't' test driver object to test some general concerns about
+// the protocol class.
+//..
+  if (verbose) printf("\nVerify that the protocol is an abstract class.\n");
+
+  ASSERT(t.testAbstract());
+
+  if (verbose) printf("\nVerify that the protocol has no data members.\n");
+
+  ASSERT(t.testNoDataMembers());
+
+  if (verbose) printf("\nVerify that the protocol has a virtual dtor.\n");
+
+  ASSERT(t.testVirtualDestructor());
+//..
+// Finally we use the test driver object to test concerns for each individual
+// method of the protocol class.  To test a protocol method we need to call it
+// from inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass our test
+// driver object:
+//..
+  if (verbose) printf("\nVerify that each method is virtual and "
+                      "publicly accessible.\n");
+
+  BSLS_PROTOCOLTEST_ASSERT(t, foo(77));
+  BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
+//..
+// These steps conclude the protocol testing.  If there are any failures, they
+// will be reported via standard test driver assertions (e.g., the standard
+// 'ASSERT' macro).
       } break;
       case 8: {
         // --------------------------------------------------------------------
