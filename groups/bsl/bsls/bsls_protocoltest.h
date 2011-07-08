@@ -23,11 +23,11 @@ BSLS_IDENT("$Id: $")
 // classes.
 //
 // The purpose of a test driver for a protocol class is to verify the set of
-// concerns we have for the protocol class definition.  Although each protocol
-// class is different from one another, we can formulate a list of concerns
-// that apply to all protocol classes.
+// concerns for the protocol class definition.  Although each protocol
+// class is different from one another, there is list of concerns that apply to
+// all protocol classes.
 //
-// For each protocol class we have the following set of concerns:
+// Each protocol class has to conform to the following set of concerns:
 //: o the protocol is an abstract class, and therefore no objects of this class
 //:   can be created
 //: o the protocol class has no data members
@@ -35,20 +35,13 @@ BSLS_IDENT("$Id: $")
 //: o all methods of the protocol class are pure virtual
 //: o all methods of the protocol class are publicly accessible
 //
-// However it's not possible to verify all protocol concern fully within the
-// framework of the C++ language.  The following parts of the concerns are not
-// verified by the protocol test component:
-//  o methods of the protocol are *pure* virtual
-//  o there are no methods in the protocol other than the ones being tested
-//
-// The protocol test driver component allows to
-// verify the comformance to the following subset of the concerns listed above:
-//: o protocol is an abstract class, i.e., no objects of a protocol class can
-//:   be created
-//: o protocol has no data members
-//: o each of the known and tested protocol's methods is virtual
-//: o protocol has a virtual destructor
-//: o each of the known and tested protocol's methods publicly accessible
+// This protocol test component is inteded to verify the conformance of a
+// protocol class to these concerns.  It's not possible, however, to verify all
+// protocol concern fully within the framework of the C++ language.  The
+// following aspects of the concerns are not verified by the protocol test
+// component:
+//: o methods of the protocol are *pure* virtual
+//: o there are no methods in the protocol other than the ones being tested
 //
 ///Usage
 ///-----
@@ -73,16 +66,12 @@ BSLS_IDENT("$Id: $")
 // turn, is derived from 'MyInterface').  This base class implements
 // boilerplate code and provides useful functionality for testing of protocols.
 //..
-//  typedef MyInterface Obj;
-//
 //  struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
 //      const char *bar(char const *, char const *) { return markDone(); }
 //      int foo(int) const                          { return markDone(); }
 //  };
-//
-//  typedef MyInterfaceTest ObjTestImp;
 //..
-// Notice that in 'ObjTestImp' we must provide an implementation of every
+// Notice that in 'MyInterfaceTest' we must provide an implementation of every
 // protocol method.  The implementation of each method should simply call
 // 'markDone' which is provided by the base class for the purpose of verifying
 // that the method from which it's called is declared as virtual in the
@@ -108,11 +97,11 @@ BSLS_IDENT("$Id: $")
 //  //: 5 All methods of the protocol class are publicly accessible.
 //  //
 //  // Plan:
-//  //: 1 Define a concrete derived implementation, 'ObjTestImp' of the
+//  //: 1 Define a concrete derived implementation, 'MyInterfaceTest' of the
 //  //:   protocol.
 //  //:
 //  //: 2 Create an object of the 'bsls_ProtocolTest' class parameterized
-//  //:   with 'ObjTestImp'.
+//  //:   with 'MyInterfaceTest'.
 //  //:
 //  //: 3 Use the 'bsls_protocolTest' object to verify that the protocol is
 //  //:   an abstract class. (C-1)
@@ -143,12 +132,12 @@ BSLS_IDENT("$Id: $")
 //                      "\n=============\n");
 //..
 // Then we create an object of type 'bsls_ProtocolTest' parameterized with
-// 'ObjTestImp':
+// 'MyInterfaceTest':
 //..
 //  if (verbose) printf("\nCreate an object of the 'bsls_ProtocolTest' "
-//                      "class parameterized with 'ObjTestImp'.\n");
+//                      "class parameterized with 'MyInterfaceTest'.\n");
 //
-//  bsls_ProtocolTest<ObjTestImp> t(veryVerbose);
+//  bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
 //..
 // Now we use the 't' test driver object to test some general concerns about
 // the protocol class.

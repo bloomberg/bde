@@ -110,16 +110,12 @@ struct MyInterface {
 // turn, is derived from 'MyInterface').  This base class implements
 // boilerplate code and provides useful functionality for testing of protocols.
 //..
-typedef MyInterface Obj;
-
 struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
     const char *bar(char const *, char const *) { return markDone(); }
     int foo(int) const                          { return markDone(); }
 };
-
-typedef MyInterfaceTest ObjTestImp;
 //..
-// Notice that in 'ObjTestImp' we must provide an implementation of every
+// Notice that in 'MyInterfaceTest' we must provide an implementation of every
 // protocol method.  The implementation of each method should simply call
 // 'markDone' which is provided by the base class for the purpose of verifying
 // that the method from which it's called is declared as virtual in the
@@ -273,11 +269,11 @@ int main(int argc, char *argv[])
   //: 5 All methods of the protocol class are publicly accessible.
   //
   // Plan:
-  //: 1 Define a concrete derived implementation, 'ObjTestImp' of the
+  //: 1 Define a concrete derived implementation, 'MyInterfaceTest' of the
   //:   protocol.
   //:
   //: 2 Create an object of the 'bsls_ProtocolTest' class parameterized
-  //:   with 'ObjTestImp'.
+  //:   with 'MyInterfaceTest'.
   //:
   //: 3 Use the 'bsls_protocolTest' object to verify that the protocol is
   //:   an abstract class. (C-1)
@@ -308,12 +304,12 @@ int main(int argc, char *argv[])
                       "\n=============\n");
 //..
 // Then we create an object of type 'bsls_ProtocolTest' parameterized with
-// 'ObjTestImp':
+// 'MyInterfaceTest':
 //..
   if (verbose) printf("\nCreate an object of the 'bsls_ProtocolTest' "
-                      "class parameterized with 'ObjTestImp'.\n");
+                      "class parameterized with 'MyInterfaceTest'.\n");
 
-  bsls_ProtocolTest<ObjTestImp> t(veryVerbose);
+  bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
 //..
 // Now we use the 't' test driver object to test some general concerns about
 // the protocol class.
