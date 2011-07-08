@@ -90,7 +90,7 @@ class btemt_TcpTimerEventManager_Request {
         RESCHEDULE_TIMER,              // invoke 'rescheduleTimer'
         IS_REGISTERED,                 // invoke 'isRegistered'.
         NUM_SOCKET_EVENTS,             // invoke 'numSocketEvents'.
-        CAN_REGISTER_SOCKET            // invoke 'canRegisterSocket'.
+        CAN_REGISTER_SOCKETS           // invoke 'canRegisterSockets'.
     };
 
   private:
@@ -494,7 +494,7 @@ void btemt_TcpTimerEventManager_Request::waitForResult()
       case NO_OP:
       case IS_REGISTERED:
       case NUM_SOCKET_EVENTS:
-      case CAN_REGISTER_SOCKET: {
+      case CAN_REGISTER_SOCKETS: {
         while (-1 == d_result) {
             d_condition_p->wait(d_mutex_p);
         }
@@ -812,12 +812,12 @@ void btemt_TcpTimerEventManager::controlCb()
                 req->setResult(result);
                 req->signal();
             } break;
-            case btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKET: {
+            case btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKETS: {
                 bool result = true;
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
                 result = bteso_DefaultEventManager<bteso_Platform::SELECT>(
-                                             d_manager_p)->canRegisterSocket();
+                                            d_manager_p)->canRegisterSockets();
 #endif
 
                 req->setResult((int) result);
@@ -1572,11 +1572,11 @@ void btemt_TcpTimerEventManager::deregisterAll()
 }
 
 // ACCESSORS
-bool btemt_TcpTimerEventManager::canRegisterSocket() const
+bool btemt_TcpTimerEventManager::canRegisterSockets() const
 {
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     if (bcemt_ThreadUtil::isEqual(bcemt_ThreadUtil::self(), d_dispatcher)) {
-        return d_manager_p->canRegisterSocket();                      // RETURN
+        return d_manager_p->canRegisterSockets();                     // RETURN
     }
 
     bcemt_Mutex     mutex;
@@ -1584,10 +1584,10 @@ bool btemt_TcpTimerEventManager::canRegisterSocket() const
 
     btemt_TcpTimerEventManager_Request *req =
         new (d_requestPool) btemt_TcpTimerEventManager_Request(
-                       btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKET,
-                       &condition,
-                       &mutex,
-                       d_allocator_p);
+                      btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKETS,
+                      &condition,
+                      &mutex,
+                      d_allocator_p);
     d_requestQueue.pushBack(req);
     BSLS_ASSERT(-1 == req->result());
 

@@ -574,9 +574,9 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
         // callbacks are dispatched.
 
     // ACCESSORS
-    bool canRegisterSocket() const;
-        // Return 'true' if this event manager can register an additional
-        // socket, and 'false' otherwise.
+    bool canRegisterSockets() const;
+        // Return 'true' if this event manager can register additional sockets,
+        // and 'false' otherwise.
 
     virtual int isRegistered(const bteso_SocketHandle::Handle& handle,
                              bteso_EventType::Type             event) const;
