@@ -434,7 +434,8 @@ int bteso_DefaultEventManager_SelectRaw::registerSocketEvent(
         const bteso_EventType::Type          eventType,
         const bteso_EventManager::Callback&  cb)
 {
-    BSLS_ASSERT(bteso_DefaultEventManager_SelectRaw::canBeRegistered(handle));
+    BSLS_ASSERT(
+                 bteso_DefaultEventManager_SelectRaw::canBeRegistered(handle));
 
     bteso_Event ev(handle, eventType);
     d_events[ev] = cb;
@@ -578,13 +579,13 @@ void bteso_DefaultEventManager_SelectRaw::deregisterAll() {
 }
 
 // ACCESSORS
-bool bteso_DefaultEventManager_SelectRaw::canRegisterSocket() const
+bool bteso_DefaultEventManager_SelectRaw::canRegisterSockets() const
 {
-// #ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM__WIN_SOCKETS
     return bsl::max(d_numRead, d_numWrite) < BTESO_MAX_NUM_HANDLES;
-// #else
-//     return true;
-// #endif
+#else
+    return d_maxFd < BTESO_MAX_NUM_HANDLES;
+#endif
 }
 
 const bteso_EventManager::Callback&
@@ -626,16 +627,14 @@ int bteso_DefaultEventManager_SelectRaw::numSocketEvents (
 
 bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
                                             bslma_Allocator   *basicAllocator)
-: d_impl(0,
-         basicAllocator)
+: d_impl(0, basicAllocator)
 {
 }
 
 bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
                                             bteso_TimeMetrics *timeMetric,
                                             bslma_Allocator   *basicAllocator)
-: d_impl(timeMetric,
-         basicAllocator)
+: d_impl(timeMetric, basicAllocator)
 {
 }
 
@@ -682,10 +681,10 @@ void bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterAll() {
 }
 
 // ACCESSORS
-bool bteso_DefaultEventManager<bteso_Platform::SELECT>::canRegisterSocket()
+bool bteso_DefaultEventManager<bteso_Platform::SELECT>::canRegisterSockets()
                                                                           const
 {
-    return d_impl.canRegisterSocket();
+    return d_impl.canRegisterSockets();
 }
 
 int bteso_DefaultEventManager<bteso_Platform::SELECT>::isRegistered(

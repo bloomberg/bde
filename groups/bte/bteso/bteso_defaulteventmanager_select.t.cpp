@@ -372,63 +372,45 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // -----------------------------------------------------------------
-        // TESTING 'canRegisterSocket'
+        // TESTING 'canRegisterSockets'
         //
         // Plan:
         //
         // Testing:
-        //   bool canRegisterSoccket() const;
+        //   bool canRegisterSockets() const;
         // -----------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'canRegisterSocket'" << endl
-                          << "===========================" << endl;
+                          << "TESTING 'canRegisterSockets'" << endl
+                          << "============================" << endl;
 
         {
             Obj mX;  const Obj& X = mX;
             if (veryVerbose) { P(FD_SETSIZE); }
 
-            const int NUM_SOCKETS = FD_SETSIZE - 3;
-            vector<bteso_SocketHandle::Handle> sockets;
-            sockets.resize(FD_SETSIZE);
-
             int errorCode = 0;
-            for (int i = 0; i < NUM_SOCKETS; ++i) {
+            bteso_SocketHandle::Handle handle = 0;
+            for (; handle < FD_SETSIZE; ++handle) {
 
-                bdef_Function<void (*)()> cb;
-                bteso_SocketImpUtil::open<bteso_IPv4Address>(
-                                      &sockets[i],
-                                      bteso_SocketImpUtil::BTESO_SOCKET_STREAM,
-                                      &errorCode);
-                ASSERT(0 == errorCode);
+                if (veryVerbose) { P(handle) }
 
-                if (veryVerbose) { P(i) P(sockets[i]) }
+                ASSERT(mX.canRegisterSockets());
 
-                int rc = mX.registerSocketEvent(sockets[i],
-                                                bteso_EventType::BTESO_CONNECT,
-                                                cb);
+                bdef_Function<void (*)()> cb1, cb2;
+                int rc = mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_READ,
+                                           cb1);
                 ASSERT(!rc);
-                bool canRegister = mX.canRegisterSocket();
-                LOOP_ASSERT(i, canRegister);
+
+                rc = mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_WRITE,
+                                           cb2);
+                ASSERT(!rc);
             }
 
-            for (int i = NUM_SOCKETS; i < FD_SETSIZE; ++i) {
-                bdef_Function<void (*)()> cb;
-                bteso_SocketImpUtil::open<bteso_IPv4Address>(
-                                      &sockets[i],
-                                      bteso_SocketImpUtil::BTESO_SOCKET_STREAM,
-                                      &errorCode);
-                ASSERT(0 == errorCode);
-
-                if (veryVerbose) { P(i) P(sockets[i]) }
-
-                bool canRegister = mX.canRegisterSocket();
-                LOOP_ASSERT(i, !canRegister);
-            }
-
-            for (int i = 0; i < FD_SETSIZE; ++i) {
-                bteso_SocketImpUtil::close(sockets[i], &errorCode);
-                ASSERT(0 == errorCode);
-            }
+            ASSERT(handle == FD_SETSIZE);
+            ASSERT(!mX.canRegisterSockets());
         }
       } break;
       case 16: {

@@ -27,10 +27,10 @@ BDES_IDENT("$Id: $")
 // compile time constant (and, therefore, cannot be increased at run time), can
 // be as low as 64 (e.g., Windows) or as high as 1024 (e.g., Solaris).
 // However, it is often required to handle more than this maximum number of
-// simultaneous connections.  Currently, we this component does not provide a
-// solution to this problem but provides an accessor function,
-// 'canRegisterSocket', that allows clients to identify if this event manager
-// is at the socket registeration limit.
+// simultaneous connections.  This component does not provide a solution to
+// this problem but provides an accessor function, 'canRegisterSocket', that
+// allows clients to identify if this event manager is at the socket
+// registeration limit.
 //
 // This component provides two multiplexers.  The
 // 'bteso_DefaultEventManager_SelectRaw' provides the implementation for
@@ -310,9 +310,9 @@ class bteso_DefaultEventManager_SelectRaw {
         // will not be invoked should 'event' occur.
 
     // ACCESSORS
-    bool canRegisterSocket() const;
-        // Return 'true' if this event manager can register an additional
-        // socket, and 'false' otherwise.
+    bool canRegisterSockets() const;
+        // Return 'true' if this event manager can register additional sockets,
+        // and 'false' otherwise.
 
     int isRegistered(const bteso_SocketHandle::Handle& handle,
                      const bteso_EventType::Type       event) const;
@@ -452,9 +452,9 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
         // handle.
 
     // ACCESSORS
-    bool canRegisterSocket() const;
-        // Return 'true' if this event manager can register an additional
-        // socket, and 'false' otherwise.
+    bool canRegisterSockets() const;
+        // Return 'true' if this event manager can register additional sockets,
+        // and 'false' otherwise.
 
     int isRegistered(const bteso_SocketHandle::Handle& handle,
                      const bteso_EventType::Type       event) const;
