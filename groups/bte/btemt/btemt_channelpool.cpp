@@ -2296,7 +2296,7 @@ btemt_ChannelPool::allocateEventManager()
     // Check if *any* event manager can register additional sockets.  If none
     // can then return failure.
  
-    while (!d_managers[result]->canRegisterSocket()) {
+    while (!d_managers[result]->canRegisterSockets()) {
         ++result;
         if (result >= numManagers) {
             return createNewEventManagers();                          // RETURN
@@ -2315,7 +2315,7 @@ btemt_ChannelPool::allocateEventManager()
                           d_managers[i]->timeMetrics()->percentage(CPU_BOUND);
             currentMetrics += d_managers[i]->numEvents();
             if (currentMetrics < minMetrics
-             && d_managers[i]->canRegisterSocket()) {
+             && d_managers[i]->canRegisterSockets()) {
                 result = i;
                 minMetrics = currentMetrics;
             }
@@ -2329,8 +2329,7 @@ btemt_ChannelPool::allocateEventManager()
         int minEvents = d_managers[result]->numTotalSocketEvents();
         for (int i = result + 1; i < numManagers; ++i) {
             int numEvents = d_managers[i]->numTotalSocketEvents();
-            if (numEvents < minEvents
-             && d_managers[i]->canRegisterSocket()) {
+            if (numEvents < minEvents && d_managers[i]->canRegisterSockets()) {
                 minEvents = numEvents;
                 result    = i;
             }
