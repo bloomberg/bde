@@ -40,24 +40,19 @@ namespace BloombergLP {
 int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS)
-    if (-1 == policy) {
+    switch (policy) {
+      case BCEMT_SCHED_FIFO: {
+        policy = SCHED_FIFO;
+      } break;
+      case BCEMT_SCHED_RR: {
+        policy = SCHED_RR;
+      } break;
+      case BCEMT_SCHED_OTHER: {
+        policy = SCHED_OTHER;
+      } break;
+      default: {
         policy = sched_getscheduler(0);
-    }
-    else {
-        switch (policy) {
-          case BCEMT_SCHED_FIFO: {
-            policy = SCHED_FIFO;
-          } break;
-          case BCEMT_SCHED_RR: {
-            policy = SCHED_RR;
-          } break;
-          case BCEMT_SCHED_OTHER: {
-            policy = SCHED_OTHER;
-          } break;
-          default: {
-            return -1;
-          }
-       }
+      }
     }
 
     return sched_get_priority_max(policy);
@@ -69,24 +64,19 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
 int bcemt_ThreadAttributes::getMinSchedPriority(int policy)
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS)
-    if (-1 == policy) {
+    switch (policy) {
+      case BCEMT_SCHED_FIFO: {
+        policy = SCHED_FIFO;
+      } break;
+      case BCEMT_SCHED_RR: {
+        policy = SCHED_RR;
+      } break;
+      case BCEMT_SCHED_OTHER: {
+        policy = SCHED_OTHER;
+      } break;
+      default: {
         policy = sched_getscheduler(0);
-    }
-    else {
-        switch (policy) {
-          case BCEMT_SCHED_FIFO: {
-            policy = SCHED_FIFO;
-          } break;
-          case BCEMT_SCHED_RR: {
-            policy = SCHED_RR;
-          } break;
-          case BCEMT_SCHED_OTHER: {
-            policy = SCHED_OTHER;
-          } break;
-          default: {
-            return -1;
-          }
-       }
+      }
     }
 
     return sched_get_priority_min(policy);
