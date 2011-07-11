@@ -8,6 +8,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 
 #include <windows.h>
 
+#include <bcemt_default.h>
 #include <bcemt_threadattributes.h>
 
 #include <bsl_cstring.h>  // 'memcpy'
@@ -305,11 +306,16 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::create(
 
     ThreadStartupInfo *startInfo = allocStartupInfo();
 
+    int stackSize = attribute.stackSize();
+    if (stackSize < 0) {
+        stackSize = bcemt_Default::defaultThreadStackSize();
+    }
+
     startInfo->d_threadArg = userData;
     startInfo->d_function  = function;
     handle->d_handle = (HANDLE)_beginthreadex(
                                              0,
-                                             attribute.stackSize(),
+                                             stackSize,
                                              ThreadEntry,
                                              startInfo,
                                              STACK_SIZE_PARAM_IS_A_RESERVATION,
@@ -318,13 +324,15 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::create(
         freeStartupInfo(startInfo);
         return 1;                                                     // RETURN
     }
-    if (bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED == attribute.detachedState()) {
+    if (bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED ==
+                                                   attribute.detachedState()) {
         HANDLE tmpHandle = handle->d_handle;
         handle->d_handle  = 0;
         startInfo->d_handle = *handle;
         ResumeThread(tmpHandle);
         CloseHandle(tmpHandle);
-    } else {
+    }
+    else {
         startInfo->d_handle = *handle;
         ResumeThread(handle->d_handle);
     }
