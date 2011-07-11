@@ -6,6 +6,7 @@
 #include <bcemt_threadutil.h>
 
 #include <bsl_iostream.h>
+#include <bsl_map.h>
 
 #include <bces_atomictypes.h>
 
@@ -52,6 +53,56 @@ int veryVerbose;
 
 typedef bcemt_Mutex Obj;
 
+class ZeroInt {
+    int d_i;
+
+  public:
+    ZeroInt() : d_i(0) {}
+    ZeroInt& operator=(int i) { d_i = i; return *this; }
+    ZeroInt& operator++() { ++d_i; return *this; }
+    operator int() const { return d_i; }
+};
+
+struct ZeroIntMap : bsl::map<int, ZeroInt> {
+    int sum() const
+    {
+        const const_iterator b = begin();
+        const const_iterator e = end();
+
+        int ret = 0;
+        for (const_iterator it = b; e != it; ++it) {
+            ret += it->second;
+        }
+
+        return ret;
+    }
+};
+
+bsl::ostream& operator<<(bsl::ostream& stream, const ZeroIntMap& thismap)
+{
+    const ZeroIntMap::const_iterator b = thismap.begin();
+    const ZeroIntMap::const_iterator e = thismap.end();
+
+    stream << "Sum:" << thismap.sum();
+
+    bool first_time = true;
+    for (ZeroIntMap::const_iterator it = b; e != it; ++it) {
+        if (first_time) {
+            first_time = false;
+        }
+        else {
+            stream << ',';
+        }
+        stream << ' ';
+        stream << it->first << ':' << (int) it->second;
+    }
+
+    return stream;
+}
+
+                                // ------
+                                // case 1
+                                // ------
 struct ThreadInfo {
     Obj *d_lock;
     bces_AtomicInt d_retval;
@@ -69,6 +120,65 @@ extern "C" void* MyThread(void* arg_p) {
     return arg_p;
 }
 
+                                // -------
+                                // case -1
+                                // -------
+
+namespace BCEMT_MUTEX_CASE_MINUS_1 {
+
+int translatePriority(bcemt_ThreadAttributes::SchedulingPolicy policy,
+                      bool                                     low)
+{
+    if (low) {
+        return bcemt_ThreadAttributes::getMinSchedPriority(policy);
+    }
+    else {
+        return bcemt_ThreadAttributes::getMaxSchedPriority(policy);
+    }
+}
+
+struct F {
+    bool                  d_urgent;
+    static int            s_urgentPlace;
+    static bool           s_firstThread;
+    static bces_AtomicInt s_finished;
+    static bcemt_Mutex    s_mutex;
+
+    // CREATORS
+    F() : d_urgent(false) {}
+
+    // ACCESSORS
+    void operator()();
+};
+int            F::s_urgentPlace;
+bool           F::s_firstThread = 1;
+bces_AtomicInt F::s_finished = 0;
+bcemt_Mutex    F::s_mutex;
+
+void F::operator()()
+{
+    enum { LIMIT = 10 * 1024 };
+
+    for (int i = 0; i < LIMIT; ++i) {
+        s_mutex.lock();
+        if (s_firstThread) {
+            s_firstThread = false;
+
+            // Careful!  This could take 2 seconds to wake up!
+
+            bcemt_ThreadUtil::microSleep(100 * 1000);
+        }
+        s_mutex.unlock();
+    }
+
+    if (d_urgent) {
+        s_urgentPlace = s_finished;
+    }
+    ++s_finished;
+}
+
+}  // close namespace BCEMT_MUTEX_CASE_MINUS_1
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -82,7 +192,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-    case 1: {
+      case 1: {
         // ------------------------------------------------------------------
         // Breathing test
         //
@@ -140,7 +250,121 @@ int main(int argc, char *argv[])
 
         }
       } break;
+      case -1: {
+        // ------------------------------------------------------------------
+        // Testing prioirities on heavily mutexed tasks
+        // ------------------------------------------------------------------
 
+        namespace TC = BCEMT_MUTEX_CASE_MINUS_1;
+
+        typedef bcemt_ThreadAttributes::SchedulingPolicy Policy;
+        const Policy SO = bcemt_ThreadAttributes::BCEMT_SCHED_OTHER;
+        const Policy SF = bcemt_ThreadAttributes::BCEMT_SCHED_FIFO;
+        const Policy SR = bcemt_ThreadAttributes::BCEMT_SCHED_RR;
+
+        ZeroIntMap urgentPlaces[2];
+
+        struct {
+            int    d_line;
+            Policy d_policy;
+            bool   d_urgentLow;
+        } DATA[] = {
+            { L_, SO, 0 },
+            { L_, SO, 1 },
+            { L_, SF, 0 },
+            { L_, SF, 1 },
+            { L_, SR, 0 },
+            { L_, SR, 1 }
+        };
+
+        enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
+
+        for (int i = 0; i < DATA_LEN; ++i) {
+            const int    LINE       = DATA[i].d_line;
+            const Policy POLICY     = DATA[i].d_policy;
+            const int    URGENT_LOW = DATA[i].d_urgentLow;
+
+            const int    URGENT_PRIORITY =     TC::translatePriority(
+                                                                  POLICY,
+                                                                  URGENT_LOW);
+            const int    NOT_URGENT_PRIORITY = TC::translatePriority(
+                                                                  POLICY,
+                                                                  !URGENT_LOW);
+
+            if (veryVerbose) {
+                P_(URGENT_LOW) P_(URGENT_PRIORITY) P(NOT_URGENT_PRIORITY)
+            }
+
+#ifdef BSLS_PLATFORM__OS_LINUX
+            enum { NUM_NOT_URGENT_THREADS = 16,
+#else
+            enum { NUM_NOT_URGENT_THREADS = 128,
+#endif
+                   NUM_THREADS            = NUM_NOT_URGENT_THREADS + 1 };
+
+#ifdef BSLS_PLATFORM__OS_AIX
+            if (SO != POLICY) {
+                continue;
+            }
+#endif
+
+            if (URGENT_PRIORITY == NOT_URGENT_PRIORITY) {
+                continue;
+            }
+
+            TC::F::s_urgentPlace = -1;
+            TC::F::s_finished = 0;
+            TC::F::s_firstThread = true;
+
+            TC::F fs[NUM_THREADS];
+            bcemt_ThreadUtil::Handle handles[NUM_THREADS];
+
+            bcemt_ThreadAttributes notUrgentAttr;
+            notUrgentAttr.setInheritSchedule(0);
+            notUrgentAttr.setSchedulingPolicy(POLICY);
+
+            bcemt_ThreadAttributes urgentAttr(notUrgentAttr);
+
+            notUrgentAttr.setSchedulingPriority(NOT_URGENT_PRIORITY);
+            urgentAttr.   setSchedulingPriority(    URGENT_PRIORITY);
+
+            fs[NUM_THREADS - 1].d_urgent = true;
+
+            int rc;
+            int numThreads = 0;
+            for ( ; numThreads < NUM_THREADS; ++numThreads) {
+                bcemt_ThreadAttributes *attr
+                                          = numThreads < NUM_NOT_URGENT_THREADS
+                                          ? &notUrgentAttr
+                                          : &urgentAttr;
+                rc = bcemt_ThreadUtil::create(&handles[numThreads],
+                                              *attr,
+                                              fs[numThreads]);
+                LOOP3_ASSERT(LINE, rc, numThreads, 0 == rc);
+                if (rc) {
+                    break;
+                }
+            }
+
+            for (int j = 0; j < numThreads; ++j) {
+                rc = bcemt_ThreadUtil::join(handles[j]);
+                LOOP3_ASSERT(LINE, rc, j, 0 == rc);
+                if (rc) {
+                    break;
+                }
+            }
+
+            ASSERT(TC::F::s_urgentPlace >= 0);
+            ASSERT(TC::F::s_urgentPlace < NUM_THREADS);
+            ASSERT(!TC::F::s_firstThread);
+            ASSERT(NUM_THREADS == TC::F::s_finished);
+
+            urgentPlaces[URGENT_LOW][LINE] = TC::F::s_urgentPlace;
+        }
+
+        cout << "Urgent low:  " << urgentPlaces[true ] << endl;
+        cout << "Urgent high: " << urgentPlaces[false] << endl;
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
