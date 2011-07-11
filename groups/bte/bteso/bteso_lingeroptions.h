@@ -169,6 +169,15 @@ class bteso_LingerOptions {
         // 'value'.
 
     // ACCESSORS
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
     bool useLingeringFlag() const;
         // Return the value of the 'useLingeringFlag' attribute of this object.
 
@@ -192,15 +201,6 @@ class bteso_LingerOptions {
         // format the entire output on one line, suppressing all but the
         // initial indentation (as governed by 'level').  Note that the
         // format is not fully specified, and can change without notice.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 };
 
 // FREE OPERATORS

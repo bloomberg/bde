@@ -59,6 +59,9 @@ using namespace bsl;
 //:   certain methods require the testing of this property:
 //:   o copy-assignment
 // ----------------------------------------------------------------------------
+// CLASS METHODS
+// [10] static int maxSupportedBdexVersion();
+//
 // CREATORS
 // [ 2] bteso_LingerOptions();
 // [ 3] bteso_LingerOptions(int timeout, bool useLingeringFlag);
@@ -67,11 +70,13 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 9] operator=(const bteso_LingerOptions& rhs);
+// [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [ 2] setUseLingeringFlag(bool value);
 // [ 2] setTimeout(int value);
 // [11] reset();
 //
 // ACCESSORS
+// [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 4] bool useLingeringFlag() const;
 // [ 4] int timeout() const;
 //
@@ -89,7 +94,6 @@ using namespace bsl;
 // [ 4] CONCERN: All accessor methods are declared 'const'.
 // [ 3] CONCERN: String arguments can be either 'char *' or 'string'.
 // [ 8] CONCERN: Precondition violations are detected when enabled.
-// [10] Reserved for 'bslx' streaming.
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -334,13 +338,13 @@ int main(int argc, char *argv[])
         //  TBD
         //
         // Testing:
-        //   static int maxSupportedBdexVersion() const;
+        //   static int maxSupportedBdexVersion();
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BSLX STREAMING" << endl
+                          << "BDEX STREAMING" << endl
                           << "==============" << endl;
 
         // scalar and array object values for various stream tests
@@ -638,7 +642,7 @@ int main(int argc, char *argv[])
         //:
         //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
         //:
-        //:   3 Assign 'mX' from 'Z'.  (C-9)
+        //:   3 Assign 'mX' from 'Z'.  (C-5)
         //:
         //:   4 Verify that the address of the return value is the same as that
         //:     of 'mX'.
