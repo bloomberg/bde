@@ -18,7 +18,8 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -109,7 +110,8 @@ struct ThreadInfo {
     bces_AtomicInt d_retvalSet;
 };
 
-extern "C" void* MyThread(void* arg_p) {
+extern "C" void* MyThread(void* arg_p)
+{
     ThreadInfo* arg = (ThreadInfo*)arg_p;
 
     arg->d_retval = arg->d_lock->tryLock();
@@ -138,10 +140,10 @@ int translatePriority(bcemt_ThreadAttributes::SchedulingPolicy policy,
                       bool                                     low)
 {
     if (low) {
-        return bcemt_ThreadAttributes::getMinSchedPriority(policy);
+        return bcemt_ThreadAttributes::getMinSchedPriority(policy);   // RETURN
     }
     else {
-        return bcemt_ThreadAttributes::getMaxSchedPriority(policy);
+        return bcemt_ThreadAttributes::getMaxSchedPriority(policy);   // RETURN
     }
 }
 
@@ -231,7 +233,8 @@ int main(int argc, char *argv[])
             args.d_retval = 0;
             args.d_retvalSet = 0;
             bcemt_ThreadAttributes attr;
-            attr.setDetachedState(bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED);
+            attr.setDetachedState(
+                                bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED);
             bcemt_ThreadUtil::Handle dum;
             bcemt_ThreadUtil::create(&dum, attr, &MyThread, &args);
 

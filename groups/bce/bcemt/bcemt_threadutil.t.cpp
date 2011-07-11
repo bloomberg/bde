@@ -21,7 +21,8 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -70,14 +71,15 @@ namespace {
 
 class ThreadChecker {
 
-   bces_AtomicInt d_count;
+    bces_AtomicInt d_count;
 
-public:
+  public:
     // CREATORS
     ThreadChecker() : d_count(0) {}
 
     // MANIPULATORS
-    void eval() {
+    void eval()
+    {
        ++d_count;
     }
 
@@ -87,7 +89,8 @@ public:
     }
 
     // ACCESSORS
-    int count() const {
+    int count() const
+    {
        return d_count;
     }
 };
@@ -156,6 +159,7 @@ struct TlsKeyTestFunctor {
     int d_seed;
 
     // CREATOR
+    explicit
     TlsKeyTestFunctor(int seed) : d_seed(seed) {}
 
     // ACCESSORS
@@ -185,7 +189,7 @@ void TlsKeyTestFunctor::operator()() const
     return;
 }
 
-}
+}  // close namespace BCEMT_THREADUTIL_TLSKEY_TEST6
 
 extern "C" {
 
@@ -230,6 +234,7 @@ struct CreateKeyTestFunctor {
     bool d_doDestructor;    // do the destructor if and only if this is 'true'
 
     // CREATORS
+    explicit
     CreateKeyTestFunctor(bool doDestructor) : d_doDestructor(doDestructor) {}
 
     // ACCESSORS

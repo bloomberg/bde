@@ -83,6 +83,7 @@ static int windowsNativeDefaultThreadStackSize()
     bsl::size_t threadStackSize = WINDOWS_DEFAULT_STACK_SIZE;
 
     // obtain default stack reserve size from the PE header
+
     char *imageBase = (char *) GetModuleHandle(NULL);
     if (imageBase) {
         IMAGE_OPTIONAL_HEADER *header =

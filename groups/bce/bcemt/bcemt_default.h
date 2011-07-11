@@ -36,12 +36,12 @@ BDES_IDENT("$Id: $")
 //..
 //  const int nativeDefault = bcemt_Default::nativeDefaultThreadStackSize();
 //
-//  ASSERT(nativeDefault > 0);
+//  assert(nativeDefault > 0);
 //..
 // Then, we verify that when 'defaultThreadStackSize' is called, it returns the
 // native size:
 //..
-//  ASSERT(bcemt_Default::defaultThreadStackSize() == nativeDefault);
+//  assert(bcemt_Default::defaultThreadStackSize() == nativeDefault);
 //..
 // Next, we define 'newDefaultStackSize' to some size other than the native
 // default size:
@@ -55,8 +55,8 @@ BDES_IDENT("$Id: $")
 // Finally, we verify that the default thread stack size has been set to the
 // value we specified:
 //..
-//  ASSERT(bcemt_Default::defaultThreadStackSize() == newDefaultStackSize);
-//  ASSERT(bcemt_Default::defaultThreadStackSize() != nativeDefault);
+//  assert(bcemt_Default::defaultThreadStackSize() == newDefaultStackSize);
+//  assert(bcemt_Default::defaultThreadStackSize() != nativeDefault);
 //..
 
 #ifndef INCLUDED_BCESCM_VERSION

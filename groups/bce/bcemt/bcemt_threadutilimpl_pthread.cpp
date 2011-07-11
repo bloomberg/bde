@@ -18,6 +18,10 @@ namespace BloombergLP {
 
 static int initPthreadAttribute(pthread_attr_t                *dest,
                                 const bcemt_ThreadAttributes&  src)
+    // Initialize the specified pthreads attribute type 'dest', configuring it
+    // with information from the specified thread attributes object 'src'.
+    // Note that it is assumed that 'pthread_attr_init' has not already been
+    // call on 'dest'.
 {
     typedef bcemt_ThreadAttributes Attr;
 
@@ -84,7 +88,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::create(
 
     rc = initPthreadAttribute(&pthreadAttr, attribute);
     if (rc) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     rc = pthread_create(handle,
