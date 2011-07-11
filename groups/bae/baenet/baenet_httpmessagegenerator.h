@@ -96,7 +96,7 @@ BDES_IDENT("$Id: $")
 //          return;
 //      }
 //..
-// Next, define an HTTP header that indicates a successful response delivered
+// Next, define an HTTP header that indicates a successful response, delivered
 // using the chunked transfer coding.
 //..
 //      baenet_HttpResponseHeader header;
@@ -123,7 +123,7 @@ BDES_IDENT("$Id: $")
 //                                                  bdef_PlaceHolders::_1));
 //      assert(0 == retCode);
 //..
-// Now, read the file into 1K buffers, transmitting each buffer as a "chunk"
+// Next, read the file into 1K buffers, transmitting each buffer as a "chunk"
 // in the HTTP data stream.  Transmit the final "chunk" when no more data can
 // be read from the file.
 //..
