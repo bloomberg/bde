@@ -25,10 +25,10 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 
     rc |= pthread_attr_init(dest);
     rc |= pthread_attr_setdetachstate(
-           dest,
-           bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED == src.detachedState()
-                                       ? PTHREAD_CREATE_DETACHED
-                                       : PTHREAD_CREATE_JOINABLE);
+                        dest,
+                        Attr::BCEMT_CREATE_DETACHED == src.detachedState()
+                                                    ? PTHREAD_CREATE_DETACHED
+                                                    : PTHREAD_CREATE_JOINABLE);
 
     int guardSize = src.guardSize();
     if (guardSize < 0) {
@@ -42,17 +42,11 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
     else {
         rc |= pthread_attr_setinheritsched(dest, PTHREAD_EXPLICIT_SCHED);
 
-        switch (src.schedulingPolicy()) {
-          case bcemt_ThreadAttributes::BCEMT_SCHED_FIFO: {
-            rc |= pthread_attr_setschedpolicy(dest, SCHED_FIFO);
-          }  break;
-          case bcemt_ThreadAttributes::BCEMT_SCHED_RR: {
-            rc |= pthread_attr_setschedpolicy(dest, SCHED_RR);
-          }  break;
-          default: {
-            rc |= pthread_attr_setschedpolicy(dest, SCHED_OTHER);
-          }  break;
-        }
+        int policy = src.schedulingPolicy();
+        policy = Attr::BCEMT_SCHED_FIFO == policy
+               ? SCHED_FIFO
+               : Attr::BCEMT_SCHED_RR == policy ? SCHED_RR : SCHED_OTHER;
+        rc |= pthread_attr_setschedpolicy(dest, policy);
 
         struct sched_param sched;
         rc |= pthread_attr_getschedparam(dest, &sched);
