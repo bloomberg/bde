@@ -4,15 +4,10 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baenet_httpmessagegenerator_cpp,"$Id$ $CSID$")
 
-#include <baenet_httpcontenttype.h>     // for testing only
-#include <baenet_httpgeneratorutil.h>   // for testing only
-#include <baenet_httphost.h>            // for testing only
-#include <baenet_httprequestline.h>     // for testing only
-#include <baenet_httpstatusline.h>      // for testing only
-#include <baenet_httpviarecord.h>       // for testing only
-
 #include <baenet_httprequestheader.h>   // for testing only
 #include <baenet_httpresponseheader.h>  // for testing only
+
+#include <bsls_assert.h>
 
 namespace BloombergLP {
 
@@ -28,7 +23,7 @@ baenet_HttpMessageGenerator::baenet_HttpMessageGenerator(
 , d_messageDataCallback(basicAllocator)
 , d_transferEncoding(baenet_HttpTransferEncoding::BAENET_IDENTITY)
 {
-    BSLS_ASSERT_SAFE(d_blobBufferFactory_p);
+    BSLS_ASSERT(d_blobBufferFactory_p);
 }
 
 baenet_HttpMessageGenerator::~baenet_HttpMessageGenerator()
@@ -41,16 +36,15 @@ int baenet_HttpMessageGenerator::startEntity(
         const baenet_HttpRequestHeader& header,
         const MessageDataCallback&      messageDataCallback)
 {
-    int rc;
+    BSLS_ASSERT(messageDataCallback);
 
     d_messageDataCallback = messageDataCallback;
-    BSLS_ASSERT_SAFE(d_messageDataCallback);
 
     const int numTransferEncodings = static_cast<int>(
                                header.basicFields().transferEncoding().size());
 
     if (2 <= numTransferEncodings) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (1 == numTransferEncodings) {
@@ -61,14 +55,16 @@ int baenet_HttpMessageGenerator::startEntity(
         if (header.basicFields().contentLength().isNull() ||
             header.basicFields().contentLength().value()  != 0)
         {
-            return -2;
+            return -2;                                                // RETURN
         }
     }
 
     bcema_Blob data(d_blobBufferFactory_p);
-    rc = baenet_HttpGeneratorUtil::generateHeader(&data, requestLine, header);
+    int rc = baenet_HttpGeneratorUtil::generateHeader(&data,
+                                                      requestLine,
+                                                      header);
     if (0 != rc) {
-        return rc;
+        return rc;                                                    // RETURN
     }
 
     d_messageDataCallback(data);
@@ -80,16 +76,15 @@ int baenet_HttpMessageGenerator::startEntity(
         const baenet_HttpResponseHeader& header,
         const MessageDataCallback&       messageDataCallback)
 {
-    int rc;
+    BSLS_ASSERT(messageDataCallback);
 
     d_messageDataCallback = messageDataCallback;
-    BSLS_ASSERT_SAFE(d_messageDataCallback);
 
     const int numTransferEncodings = static_cast<int>(
                                header.basicFields().transferEncoding().size());
 
     if (2 <= numTransferEncodings) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (1 == numTransferEncodings) {
@@ -100,14 +95,16 @@ int baenet_HttpMessageGenerator::startEntity(
         if (header.basicFields().contentLength().isNull() ||
             header.basicFields().contentLength().value()  != 0)
         {
-            return -2;
+            return -2;                                                // RETURN
         }
     }
 
     bcema_Blob data(d_blobBufferFactory_p);
-    rc = baenet_HttpGeneratorUtil::generateHeader(&data, statusLine, header);
+    int rc = baenet_HttpGeneratorUtil::generateHeader(&data,
+                                                      statusLine,
+                                                      header);
     if (0 != rc) {
-        return rc;
+        return rc;                                                    // RETURN
     }
 
     d_messageDataCallback(data);
@@ -133,7 +130,7 @@ int baenet_HttpMessageGenerator::addEntityData(const bcema_Blob& data)
                                                         d_transferEncoding,
                                                         false);
         if (0 != rc) {
-            return rc;
+            return rc;                                                // RETURN
         }
 
         d_messageDataCallback(chunk);
@@ -154,7 +151,7 @@ int baenet_HttpMessageGenerator::endEntity()
                                                         d_transferEncoding,
                                                         true);
         if (0 != rc) {
-            return rc;
+            return rc;                                                // RETURN
         }
 
         d_messageDataCallback(chunk);
