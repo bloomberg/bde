@@ -22,10 +22,11 @@ BSLS_IDENT("$Id: $")
 // creation of test drivers for protocol (i.e., pure abstract interface)
 // classes.
 //
-// The purpose of a test driver for a protocol class is to verify the set of
-// concerns for the protocol class definition.  Although each protocol
-// class is different from one another, there is list of concerns that apply to
-// all protocol classes.
+// The purpose of a test driver for a protocol class is to verify concerns for
+// that protocol class definition.  Although each protocol class is different
+// from one another and requires its own test driver, there is a set of
+// concerns that apply to all protocol classes.  This component allows to
+// verify those concerns in a generic manner.
 //
 // Each protocol class has to conform to the following set of concerns:
 //: o the protocol is an abstract class, and therefore no objects of this class
@@ -35,9 +36,9 @@ BSLS_IDENT("$Id: $")
 //: o all methods of the protocol class are pure virtual
 //: o all methods of the protocol class are publicly accessible
 //
-// This protocol test component is inteded to verify the conformance of a
+// This protocol test component is intended to verify the conformance of a
 // protocol class to these concerns.  It's not possible, however, to verify all
-// protocol concern fully within the framework of the C++ language.  The
+// protocol concerns fully within the framework of the C++ language.  The
 // following aspects of the concerns are not verified by the protocol test
 // component:
 //: o methods of the protocol are *pure* virtual
@@ -45,14 +46,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In the following examples we demonstrate how to use the protocol test
-// component.
+// In this section we show the intended usage of the component.
 //
 ///Example 1: Testing a simple protocol class.
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to test a protocol class 'MyInterface' using
-// the protocol test component.  'MyInterface' provides a couple of virtual
-// methods ('foo' and 'bar'), and a virtual destructor.
+// the protocol test component.  The protocol we want to test, 'MyInterface',
+// provides a couple of virtual methods ('foo' and 'bar'), and a virtual
+// destructor.
 //..
 //  struct MyInterface {
 //      virtual ~MyInterface() {}
@@ -60,10 +61,10 @@ BSLS_IDENT("$Id: $")
 //      virtual int foo(int) const = 0;
 //  };
 //..
-// First, we define a test class derived from this protocol and implement its
+// First, we define a test class derived from this protocol, and implement its
 // virtual methods.  Rather than deriving the test class from 'MyInterface'
-// directly, it is derived from 'bsls_ProtocolTestImp<MyInterface>' (which, in
-// turn, is derived from 'MyInterface').  This base class implements
+// directly, the test class is derived from 'bsls_ProtocolTestImp<MyInterface>'
+// (which, in turn, is derived from 'MyInterface').  This base class implements
 // boilerplate code and provides useful functionality for testing of protocols.
 //..
 //  struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
@@ -139,8 +140,8 @@ BSLS_IDENT("$Id: $")
 //
 //  bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
 //..
-// Now we use the 't' test driver object to test some general concerns about
-// the protocol class.
+// Now we use the 't' object to test some general concerns about the protocol
+// class.
 //..
 //  if (verbose) printf("\nVerify that the protocol is an abstract class.\n");
 //
@@ -154,10 +155,9 @@ BSLS_IDENT("$Id: $")
 //
 //  ASSERT(t.testVirtualDestructor());
 //..
-// Finally we use the test driver object to test concerns for each individual
-// method of the protocol class.  To test a protocol method we need to call it
-// from inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass our test
-// driver object:
+// Finally we use the 't' object to test concerns for each individual method of
+// the protocol class.  To test a protocol method we need to call it from
+// inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass the 't' object:
 //..
 //  if (verbose) printf("\nVerify that each method is virtual and "
 //                      "publicly accessible.\n");
