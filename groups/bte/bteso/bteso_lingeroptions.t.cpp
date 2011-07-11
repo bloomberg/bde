@@ -331,68 +331,7 @@ int main(int argc, char *argv[])
         //: 8 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 maxSupportedBdexVersion...
-        //:
-        //:
-        //: 2 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, and (b) boundary values corresponding to every
-        //:     range of values that each individual attribute can
-        //:     independently attain.
-        //:
-        //: 3 For each row 'R1' in the table of P-1:
-        //:
-        //:   1 Use the value constructor to create a 'const' 'Obj', 'Z', each
-        //:     having the value corresponding to 'R1'.
-        //:
-        //:   2 Create a 'bdex_TestOutStream', 'out', and call 'bdexStreamOut'
-        //:     to externalize values of 'Z' to 'out'.
-        //:
-        //:   3 For each row 'R2' in the table of P-3:  (C-1..3, 6..8)
-        //:
-        //:     1 Create an object 'X' having the value 'R2'.
-        //:
-        //:     2 Create a 'bdex_TestInStream', 'in', having the same data as
-        //:       'out'.
-        //:
-        //:     3 Call 'bdexStreamIn' to unexternalization data in 'in' to 'X'
-        //:       and verify that 'X' equals 'Z'.
-        //:
-        //:     4 Verify that 'in' is valid and empty.
-        //:
-        //: 3 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:
-        //:
-        //:   1 Use the value constructor to create a 'const' 'Obj' 'Z' and a
-        //:     modifiable 'Obj' 'mX' having the value 'V'.
-        //:
-        //:   2 Create an empty 'bdex_TestInStream', 'in'.
-        //:
-        //:   3 Call 'mX.bdexStreamIn' on 'in' and verify that 'mX' is not
-        //:     changed by comparing with 'Z' and 'in' is now invalid.
-        //:
-        //:   4 Call 'mX.bdexStreamIn' on 'in' again and verify that 'mX' is
-        //:     still not changed by comparing with 'Z' and 'in' is invalid.
-        //:
-        //: 4 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:
-        //:
-        //:   1 Use the value constructor to create a 'const' 'Obj' 'Z' having
-        //:     the value 'V'.
-        //:
-        //:   2 Create a 'bdex_TestOutStream', 'out', and call 'bdexStreamOut'
-        //:     to externalize values of 'Z' to 'out'.
-        //:
-        //:   3 For 'i' equal 0 to size of data in 'out':
-        //:
-        //:     1 Create a 'bdex_TestOutStream' 'in' with the first 'i' bytes
-        //:       of the data in 'out'.
-        //:
-        //:     2 Create a modifiable 'Obj' 'mX' using the default constructor.
-        //:
-        //:     3 
+        //  TBD
         //
         // Testing:
         //   static int maxSupportedBdexVersion() const;
