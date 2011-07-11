@@ -89,14 +89,14 @@ namespace {
 // ----------------------------------------------------------------------------
 ///Usage
 ///-----
-// In the following examples we demonstrate how to use the protocol test
-// component.
+// In this section we show the intended usage of the component.
 //
 ///Example 1: Testing a simple protocol class.
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to test a protocol class 'MyInterface' using
-// the protocol test component.  'MyInterface' provides a couple of virtual
-// methods ('foo' and 'bar'), and a virtual destructor.
+// the protocol test component.  The protocol we want to test, 'MyInterface',
+// provides a couple of virtual methods ('foo' and 'bar'), and a virtual
+// destructor.
 //..
 struct MyInterface {
     virtual ~MyInterface() {}
@@ -104,10 +104,10 @@ struct MyInterface {
     virtual int foo(int) const = 0;
 };
 //..
-// First, we define a test class derived from this protocol and implement its
+// First, we define a test class derived from this protocol, and implement its
 // virtual methods.  Rather than deriving the test class from 'MyInterface'
-// directly, it is derived from 'bsls_ProtocolTestImp<MyInterface>' (which, in
-// turn, is derived from 'MyInterface').  This base class implements
+// directly, the test class is derived from 'bsls_ProtocolTestImp<MyInterface>'
+// (which, in turn, is derived from 'MyInterface').  This base class implements
 // boilerplate code and provides useful functionality for testing of protocols.
 //..
 struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
@@ -311,8 +311,8 @@ int main(int argc, char *argv[])
 
   bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
 //..
-// Now we use the 't' test driver object to test some general concerns about
-// the protocol class.
+// Now we use the 't' object to test some general concerns about the protocol
+// class.
 //..
   if (verbose) printf("\nVerify that the protocol is an abstract class.\n");
 
@@ -326,10 +326,9 @@ int main(int argc, char *argv[])
 
   ASSERT(t.testVirtualDestructor());
 //..
-// Finally we use the test driver object to test concerns for each individual
-// method of the protocol class.  To test a protocol method we need to call it
-// from inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass our test
-// driver object:
+// Finally we use the 't' object to test concerns for each individual method of
+// the protocol class.  To test a protocol method we need to call it from
+// inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass the 't' object:
 //..
   if (verbose) printf("\nVerify that each method is virtual and "
                       "publicly accessible.\n");
