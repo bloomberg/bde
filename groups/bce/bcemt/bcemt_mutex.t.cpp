@@ -126,6 +126,14 @@ extern "C" void* MyThread(void* arg_p) {
 
 namespace BCEMT_MUTEX_CASE_MINUS_1 {
 
+
+#ifdef BSLS_PLATFORM__OS_LINUX
+    enum { NUM_NOT_URGENT_THREADS = 16,
+#else
+    enum { NUM_NOT_URGENT_THREADS = 128,
+#endif
+           NUM_THREADS            = NUM_NOT_URGENT_THREADS + 1 };
+
 int translatePriority(bcemt_ThreadAttributes::SchedulingPolicy policy,
                       bool                                     low)
 {
@@ -141,6 +149,7 @@ struct F {
     bool                  d_urgent;
     static int            s_urgentPlace;
     static bool           s_firstThread;
+    static bces_AtomicInt s_lockCount;
     static bces_AtomicInt s_finished;
     static bcemt_Mutex    s_mutex;
 
@@ -153,6 +162,7 @@ struct F {
 int            F::s_urgentPlace;
 bool           F::s_firstThread = 1;
 bces_AtomicInt F::s_finished = 0;
+bces_AtomicInt F::s_lockCount = 0;
 bcemt_Mutex    F::s_mutex;
 
 void F::operator()()
@@ -160,15 +170,18 @@ void F::operator()()
     enum { LIMIT = 10 * 1024 };
 
     for (int i = 0; i < LIMIT; ++i) {
+        ++s_lockCount;
         s_mutex.lock();
         if (s_firstThread) {
             s_firstThread = false;
 
             // Careful!  This could take 2 seconds to wake up!
 
-            bcemt_ThreadUtil::microSleep(100 * 1000);
+            bcemt_ThreadUtil::microSleep(200 * 1000);
+            ASSERT(NUM_THREADS == s_lockCount);
         }
         s_mutex.unlock();
+        --s_lockCount;
     }
 
     if (d_urgent) {
@@ -295,13 +308,6 @@ int main(int argc, char *argv[])
                 P_(URGENT_LOW) P_(URGENT_PRIORITY) P(NOT_URGENT_PRIORITY)
             }
 
-#ifdef BSLS_PLATFORM__OS_LINUX
-            enum { NUM_NOT_URGENT_THREADS = 16,
-#else
-            enum { NUM_NOT_URGENT_THREADS = 128,
-#endif
-                   NUM_THREADS            = NUM_NOT_URGENT_THREADS + 1 };
-
 #ifdef BSLS_PLATFORM__OS_AIX
             if (SO != POLICY) {
                 continue;
@@ -316,8 +322,8 @@ int main(int argc, char *argv[])
             TC::F::s_finished = 0;
             TC::F::s_firstThread = true;
 
-            TC::F fs[NUM_THREADS];
-            bcemt_ThreadUtil::Handle handles[NUM_THREADS];
+            TC::F fs[TC::NUM_THREADS];
+            bcemt_ThreadUtil::Handle handles[TC::NUM_THREADS];
 
             bcemt_ThreadAttributes notUrgentAttr;
             notUrgentAttr.setInheritSchedule(0);
@@ -328,15 +334,15 @@ int main(int argc, char *argv[])
             notUrgentAttr.setSchedulingPriority(NOT_URGENT_PRIORITY);
             urgentAttr.   setSchedulingPriority(    URGENT_PRIORITY);
 
-            fs[NUM_THREADS - 1].d_urgent = true;
+            fs[TC::NUM_THREADS - 1].d_urgent = true;
 
             int rc;
             int numThreads = 0;
-            for ( ; numThreads < NUM_THREADS; ++numThreads) {
+            for ( ; numThreads < TC::NUM_THREADS; ++numThreads) {
                 bcemt_ThreadAttributes *attr
-                                          = numThreads < NUM_NOT_URGENT_THREADS
-                                          ? &notUrgentAttr
-                                          : &urgentAttr;
+                                      = numThreads < TC::NUM_NOT_URGENT_THREADS
+                                      ? &notUrgentAttr
+                                      : &urgentAttr;
                 rc = bcemt_ThreadUtil::create(&handles[numThreads],
                                               *attr,
                                               fs[numThreads]);
@@ -355,9 +361,9 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(TC::F::s_urgentPlace >= 0);
-            ASSERT(TC::F::s_urgentPlace < NUM_THREADS);
+            ASSERT(TC::F::s_urgentPlace < TC::NUM_THREADS);
             ASSERT(!TC::F::s_firstThread);
-            ASSERT(NUM_THREADS == TC::F::s_finished);
+            ASSERT(TC::NUM_THREADS == TC::F::s_finished);
 
             urgentPlaces[URGENT_LOW][LINE] = TC::F::s_urgentPlace;
         }
