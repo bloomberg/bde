@@ -3139,199 +3139,199 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'printText' Functions"
                           << "\n=============================" << endl;
 
-        if (verbose) cout << "\nUsing 'bool'." << endl;
-        {
-            typedef bool Type;
+//         if (verbose) cout << "\nUsing 'bool'." << endl;
+//         {
+//             typedef bool Type;
 
-            static const struct {
-                int         d_lineNum;
-                Type        d_input;
-                const char *d_result;
-            } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     true,       "true"             },
-                { L_,     false,      "false"            },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+//             static const struct {
+//                 int         d_lineNum;
+//                 Type        d_input;
+//                 const char *d_result;
+//             } DATA[] = {
+//                 //line    input       result
+//                 //----    -----       ------
+//                 { L_,     true,       "true"             },
+//                 { L_,     false,      "false"            },
+//             };
+//             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
-                const char *RESULT = DATA[i].d_result;
+//             for (int i = 0; i < NUM_DATA; ++i) {
+//                 const int   LINE   = DATA[i].d_lineNum;
+//                 const Type  INPUT  = DATA[i].d_input;
+//                 const char *RESULT = DATA[i].d_result;
 
-                bsl::stringstream ss;
+//                 bsl::stringstream ss;
 
-                Util::printText(ss, INPUT);
+//                 Util::printText(ss, INPUT);
 
-                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
-            }
-        }
+//                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+//             }
+//         }
 
-        if (verbose) cout << "\nUsing 'char' on valid input." << endl;
-        {
-            typedef char Type;
+//         if (verbose) cout << "\nUsing 'char' on valid input." << endl;
+//         {
+//             typedef char Type;
 
-            static const struct {
-                int         d_lineNum;
-                Type        d_input;
-                const char *d_result;
-            } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     0x09,       "\t"         },
-                { L_,     0x0a,       "\n"         },
-                { L_,     0x0d,       "\x0d"       },
-                { L_,     0x20,       " "          },
-                { L_,     0x21,       "!"          },
-                { L_,     0x22,       "&quot;"     },
-                { L_,     0x23,       "#"          },
-                { L_,     0x24,       "$"          },
-                { L_,     0x25,       "%"          },
-                { L_,     0x26,       "&amp;"      },
-                { L_,     0x27,       "&apos;"     },
-                { L_,     0x28,       "("          },
-                { L_,     0x29,       ")"          },
-                { L_,     0x2a,       "*"          },
-                { L_,     0x2b,       "+"          },
-                { L_,     0x2c,       ","          },
-                { L_,     0x2d,       "-"          },
-                { L_,     0x2e,       "."          },
-                { L_,     0x2f,       "/"          },
-                { L_,     0x30,       "0"          },
-                { L_,     0x31,       "1"          },
-                { L_,     0x32,       "2"          },
-                { L_,     0x33,       "3"          },
-                { L_,     0x34,       "4"          },
-                { L_,     0x35,       "5"          },
-                { L_,     0x36,       "6"          },
-                { L_,     0x37,       "7"          },
-                { L_,     0x38,       "8"          },
-                { L_,     0x39,       "9"          },
-                { L_,     0x3a,       ":"          },
-                { L_,     0x3b,       ";"          },
-                { L_,     0x3c,       "&lt;"       },
-                { L_,     0x3d,       "="          },
-                { L_,     0x3e,       "&gt;"       },
-                { L_,     0x3f,       "?"          },
-                { L_,     0x40,       "@"          },
-                { L_,     0x41,       "A"          },
-                { L_,     'A',        "A"          },
-                // treat all uppercase (0x41 until 0x5a) as a region, and
-                // only test the boundaries.
-                { L_,     'Z',        "Z"          },
-                { L_,     0x5a,       "Z"          },
-                { L_,     0x5b,       "["          },
-                { L_,     0x5c,       "\\"         },
-                { L_,     0x5d,       "]"          },
-                { L_,     0x5e,       "^"          },
-                { L_,     0x5f,       "_"          },
-                { L_,     0x60,       "`"          },
-                { L_,     0x61,       "a"          },
-                { L_,     'a',        "a"          },
-                // treat all lowercase (0x61 until 0x7a) as a region, and
-                // only test the boundaries.
-                { L_,     'z',        "z"          },
-                { L_,     0x7a,       "z"          },
-                { L_,     0x7b,       "{"          },
-                { L_,     0x7c,       "|"          },
-                { L_,     0x7d,       "}"          },
-                { L_,     0x7e,       "~"          },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+//             static const struct {
+//                 int         d_lineNum;
+//                 Type        d_input;
+//                 const char *d_result;
+//             } DATA[] = {
+//                 //line    input       result
+//                 //----    -----       ------
+//                 { L_,     0x09,       "\t"         },
+//                 { L_,     0x0a,       "\n"         },
+//                 { L_,     0x0d,       "\x0d"       },
+//                 { L_,     0x20,       " "          },
+//                 { L_,     0x21,       "!"          },
+//                 { L_,     0x22,       "&quot;"     },
+//                 { L_,     0x23,       "#"          },
+//                 { L_,     0x24,       "$"          },
+//                 { L_,     0x25,       "%"          },
+//                 { L_,     0x26,       "&amp;"      },
+//                 { L_,     0x27,       "&apos;"     },
+//                 { L_,     0x28,       "("          },
+//                 { L_,     0x29,       ")"          },
+//                 { L_,     0x2a,       "*"          },
+//                 { L_,     0x2b,       "+"          },
+//                 { L_,     0x2c,       ","          },
+//                 { L_,     0x2d,       "-"          },
+//                 { L_,     0x2e,       "."          },
+//                 { L_,     0x2f,       "/"          },
+//                 { L_,     0x30,       "0"          },
+//                 { L_,     0x31,       "1"          },
+//                 { L_,     0x32,       "2"          },
+//                 { L_,     0x33,       "3"          },
+//                 { L_,     0x34,       "4"          },
+//                 { L_,     0x35,       "5"          },
+//                 { L_,     0x36,       "6"          },
+//                 { L_,     0x37,       "7"          },
+//                 { L_,     0x38,       "8"          },
+//                 { L_,     0x39,       "9"          },
+//                 { L_,     0x3a,       ":"          },
+//                 { L_,     0x3b,       ";"          },
+//                 { L_,     0x3c,       "&lt;"       },
+//                 { L_,     0x3d,       "="          },
+//                 { L_,     0x3e,       "&gt;"       },
+//                 { L_,     0x3f,       "?"          },
+//                 { L_,     0x40,       "@"          },
+//                 { L_,     0x41,       "A"          },
+//                 { L_,     'A',        "A"          },
+//                 // treat all uppercase (0x41 until 0x5a) as a region, and
+//                 // only test the boundaries.
+//                 { L_,     'Z',        "Z"          },
+//                 { L_,     0x5a,       "Z"          },
+//                 { L_,     0x5b,       "["          },
+//                 { L_,     0x5c,       "\\"         },
+//                 { L_,     0x5d,       "]"          },
+//                 { L_,     0x5e,       "^"          },
+//                 { L_,     0x5f,       "_"          },
+//                 { L_,     0x60,       "`"          },
+//                 { L_,     0x61,       "a"          },
+//                 { L_,     'a',        "a"          },
+//                 // treat all lowercase (0x61 until 0x7a) as a region, and
+//                 // only test the boundaries.
+//                 { L_,     'z',        "z"          },
+//                 { L_,     0x7a,       "z"          },
+//                 { L_,     0x7b,       "{"          },
+//                 { L_,     0x7c,       "|"          },
+//                 { L_,     0x7d,       "}"          },
+//                 { L_,     0x7e,       "~"          },
+//             };
+//             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
-                const char *RESULT = DATA[i].d_result;
+//             for (int i = 0; i < NUM_DATA; ++i) {
+//                 const int   LINE   = DATA[i].d_lineNum;
+//                 const Type  INPUT  = DATA[i].d_input;
+//                 const char *RESULT = DATA[i].d_result;
 
-                bsl::stringstream ss;
+//                 bsl::stringstream ss;
 
-                Util::printText(ss, INPUT);
+//                 Util::printText(ss, INPUT);
 
-                LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-            }
-        }
+//                 LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
+//             }
+//         }
 
-        if (verbose) cout << "\nUsing 'char' on invalid input." << endl;
-        {
-            typedef char Type;
+//         if (verbose) cout << "\nUsing 'char' on invalid input." << endl;
+//         {
+//             typedef char Type;
 
-            static const struct {
-                int         d_lineNum;
-                Type        d_input;
-                const char *d_result;
-            } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     0x00,        ""          },
-                { L_,     0x01,        ""          },
-                { L_,     0x02,        ""          },
-                { L_,     0x03,        ""          },
-                { L_,     0x04,        ""          },
-                { L_,     0x05,        ""          },
-                { L_,     0x06,        ""          },
-                { L_,     0x07,        ""          },
-                { L_,     0x08,        ""          },
-                // skip TAB (0x09), LF (0x0a) and CR (0x0d)
-                { L_,     0x0b,        ""          },
-                { L_,     0x0c,        ""          },
-                { L_,     0x0e,        ""          },
-                { L_,     0x0f,        ""          },
-                { L_,     0x10,        ""          },
-                { L_,     0x11,        ""          },
-                { L_,     0x12,        ""          },
-                { L_,     0x13,        ""          },
-                { L_,     0x14,        ""          },
-                { L_,     0x15,        ""          },
-                { L_,     0x16,        ""          },
-                { L_,     0x17,        ""          },
-                { L_,     0x18,        ""          },
-                { L_,     0x19,        ""          },
-                { L_,     0x1a,        ""          },
-                { L_,     0x1b,        ""          },
-                { L_,     0x1c,        ""          },
-                { L_,     0x1d,        ""          },
-                { L_,     0x1e,        ""          },
-                { L_,     0x1f,        ""          },
-                // skip ASCII chars (0x20 until 0x7e), but not DEL (0x7f)
-                { L_,     0x7f,        ""          },
-                { L_,     0x80,        ""          },
-                // treat all unencodables (0x80 until 0xc1) as a region, and
-                // only test the boundaries.
-                { L_,     0xc1,        ""          },
-                { L_,     0xc2,        ""          },
-                // treat all two-byte sequences (0xc2 until 0xdf) as a region,
-                // and only test the boundaries.
-                { L_,     0xdf,        ""          },
-                { L_,     0xee,        ""          },
-                // treat all three-byte sequences (0xee until 0xef) as a
-                // region, and only test the boundaries.
-                { L_,     0xef,        ""          },
-                { L_,     0xf0,        ""          },
-                // treat all four-byte sequences (0xf0 until 0xf4) as a region,
-                // and only test the boundaries.
-                { L_,     0xf4,        ""          },
-                { L_,     0xf5,        ""          },
-                // treat all unencodables (0xf5 until 0xff) as a region, and
-                // only test the boundaries.
-                { L_,     0xff,        ""          },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+//             static const struct {
+//                 int         d_lineNum;
+//                 Type        d_input;
+//                 const char *d_result;
+//             } DATA[] = {
+//                 //line    input       result
+//                 //----    -----       ------
+//                 { L_,     0x00,        ""          },
+//                 { L_,     0x01,        ""          },
+//                 { L_,     0x02,        ""          },
+//                 { L_,     0x03,        ""          },
+//                 { L_,     0x04,        ""          },
+//                 { L_,     0x05,        ""          },
+//                 { L_,     0x06,        ""          },
+//                 { L_,     0x07,        ""          },
+//                 { L_,     0x08,        ""          },
+//                 // skip TAB (0x09), LF (0x0a) and CR (0x0d)
+//                 { L_,     0x0b,        ""          },
+//                 { L_,     0x0c,        ""          },
+//                 { L_,     0x0e,        ""          },
+//                 { L_,     0x0f,        ""          },
+//                 { L_,     0x10,        ""          },
+//                 { L_,     0x11,        ""          },
+//                 { L_,     0x12,        ""          },
+//                 { L_,     0x13,        ""          },
+//                 { L_,     0x14,        ""          },
+//                 { L_,     0x15,        ""          },
+//                 { L_,     0x16,        ""          },
+//                 { L_,     0x17,        ""          },
+//                 { L_,     0x18,        ""          },
+//                 { L_,     0x19,        ""          },
+//                 { L_,     0x1a,        ""          },
+//                 { L_,     0x1b,        ""          },
+//                 { L_,     0x1c,        ""          },
+//                 { L_,     0x1d,        ""          },
+//                 { L_,     0x1e,        ""          },
+//                 { L_,     0x1f,        ""          },
+//                 // skip ASCII chars (0x20 until 0x7e), but not DEL (0x7f)
+//                 { L_,     0x7f,        ""          },
+//                 { L_,     0x80,        ""          },
+//                 // treat all unencodables (0x80 until 0xc1) as a region, and
+//                 // only test the boundaries.
+//                 { L_,     0xc1,        ""          },
+//                 { L_,     0xc2,        ""          },
+//                 // treat all two-byte sequences (0xc2 until 0xdf) as a region,
+//                 // and only test the boundaries.
+//                 { L_,     0xdf,        ""          },
+//                 { L_,     0xee,        ""          },
+//                 // treat all three-byte sequences (0xee until 0xef) as a
+//                 // region, and only test the boundaries.
+//                 { L_,     0xef,        ""          },
+//                 { L_,     0xf0,        ""          },
+//                 // treat all four-byte sequences (0xf0 until 0xf4) as a region,
+//                 // and only test the boundaries.
+//                 { L_,     0xf4,        ""          },
+//                 { L_,     0xf5,        ""          },
+//                 // treat all unencodables (0xf5 until 0xff) as a region, and
+//                 // only test the boundaries.
+//                 { L_,     0xff,        ""          },
+//             };
+//             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
-                const char *RESULT = DATA[i].d_result;
+//             for (int i = 0; i < NUM_DATA; ++i) {
+//                 const int   LINE   = DATA[i].d_lineNum;
+//                 const Type  INPUT  = DATA[i].d_input;
+//                 const char *RESULT = DATA[i].d_result;
 
-                bsl::stringstream ss;
+//                 bsl::stringstream ss;
 
-                Util::printText(ss, INPUT);
+//                 Util::printText(ss, INPUT);
 
-                LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
-                LOOP_ASSERT(LINE, ss.fail());
-            }
-        }
+//                 LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
+//                 LOOP_ASSERT(LINE, ss.fail());
+//             }
+//         }
 
         // Note that we have already tested the valid single byte characters
         // individually, so the only concerns here are multibyte character
@@ -3349,27 +3349,44 @@ int main(int argc, char *argv[])
             } VALID_DATA[] = {
                 //line input                     result
                 //---- -----                     ------
-                { L_,  "",                       ""                          },
+//                 { L_,  "",                       ""                          },
 
-                { L_,  "\x09",                   "\t"                        },
-                { L_,  "\x0a",                   "\n"                        },
-                { L_,  "\x0d",                   "\x0d"                      },
-                { L_,  "\x22",                   "&quot;"                    },
-                { L_,  "\x26",                   "&amp;"                     },
-                { L_,  "\x27",                   "&apos;"                    },
-                { L_,  "\x3c",                   "&lt;"                      },
-                { L_,  "\x3e",                   "&gt;"                      },
+//                 { L_,  "\x09",                   "\t"                        },
+//                 { L_,  "\x0a",                   "\n"                        },
+//                 { L_,  "\x0d",                   "\x0d"                      },
+//                 { L_,  "\x22",                   "&quot;"                    },
+//                 { L_,  "\x26",                   "&amp;"                     },
+//                 { L_,  "\x27",                   "&apos;"                    },
+//                 { L_,  "\x3c",                   "&lt;"                      },
+//                 { L_,  "\x3e",                   "&gt;"                      },
 
-                { L_,  "Hello",                  "Hello"                     },
-                { L_,  "Hello World!!",          "Hello World!!"             },
-                { L_,  "Hello \t World",         "Hello \t World"            },
-                { L_,  "Hello \n World",         "Hello \n World"            },
-                { L_,  "Hello \x0d World",       "Hello \x0d World"          },
-                { L_,  "Pi is < 3.15",           "Pi is &lt; 3.15"           },
-                { L_,  "Pi is > 3.14",           "Pi is &gt; 3.14"           },
-                { L_,  "Tom & Jerry",            "Tom &amp; Jerry"           },
-                { L_,  "'Hello' World!",         "&apos;Hello&apos; World!"  },
-                { L_,  "Hello \"World\"",        "Hello &quot;World&quot;"   },
+//                 { L_,  "Hello",                  "Hello"                     },
+//                 { L_,  "Hello World!!",          "Hello World!!"             },
+//                 { L_,  "Hello \t World",         "Hello \t World"            },
+//                 { L_,  "Hello \n World",         "Hello \n World"            },
+//                 { L_,  "Hello \x0d World",       "Hello \x0d World"          },
+//                 { L_,  "Pi is < 3.15",           "Pi is &lt; 3.15"           },
+//                 { L_,  "Pi is > 3.14",           "Pi is &gt; 3.14"           },
+//                 { L_,  "Tom & Jerry",            "Tom &amp; Jerry"           },
+//                 { L_,  "'Hello' World!",         "&apos;Hello&apos; World!"  },
+//                 { L_,  "Hello \"World\"",        "Hello &quot;World&quot;"   },
+
+                { L_,  "<![CDATA&]]>",     "&lt;![CDATA&amp;]]&gt;"          },
+                   //           ^ missing '['
+
+                { L_,  "![CDATA[&]]>",     "![CDATA[&amp;]]&gt;"             },
+                   //   ^ missing '<'
+
+                { L_,  "![CRATA[&]]>",     "![CRATA[&amp;]]&gt;"             },
+                   //      ^ missing 'D'
+
+                { L_,  "<![CDATA[&<>![]'\"]]>",     "&<>![]'\""              },
+                { L_,  "Hello<![CDATA[&<>![]'\"]]>","Hello&<>![]'\""         },
+                { L_,  "<![CDATA[&<>![]'\"]]>World","&<>![]'\"World"         },
+                { L_,  "Hello<![CDATA[&<>![]'\"]]>World",
+                                                    "Hello&<>![]'\"World"    },
+                { L_,  "CDATA<![CDATA[&<>![]'\"]]>","CDATA&<>![]'\""         },
+                { L_,  "<![CDATA[&<>![]'\"]]]]>",   "&<>![]'\"]]"            },
 
                 // Two-byte character sequences.
 
@@ -4090,6 +4107,18 @@ int main(int argc, char *argv[])
                 { L_,  "\xed\xbf\x7f",                                       },
                 { L_,  "\xed\xbf\xc0",                                       },
                 { L_,  "\xed\xbf\xff",                                       },
+
+                { L_,  "<![CDATA[&<>![]'\"",                                 },
+                   //                     ^ missing "]]>"
+
+                { L_,  "<![CDATA[&<>![]'\"]]",                               },
+                   //                       ^ missing ">"
+
+                { L_,  "<![CDATA[&<>![]'\"]>",                               },
+                   //                     ^ missing "]"
+
+                { L_,  "<![CDATA[&<>![]'\"<![CDATA[]]>",                     },
+                   //                     ^ extra CDATA tag 
 
             };
             const int NUM_DATA = sizeof INVALID_DATA / sizeof *INVALID_DATA;
