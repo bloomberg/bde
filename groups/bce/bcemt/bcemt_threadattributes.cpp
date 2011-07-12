@@ -3,13 +3,16 @@
 
 #include <bces_platform.h>
 
+#include <bsls_assert.h>
+#include <bsls_platform.h>
+
+#include <bsl_limits.h>
+
 #if defined(BCES_PLATFORM__POSIX_THREADS)
 # include <pthread.h>
 #elif !defined(BCES_PLATFORM__WIN32_THREADS)
 # error unrecognized threading platform
 #endif
-
-#include <bsls_platform.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_threadattributes_cpp,"$Id$ $CSID$")
@@ -40,6 +43,10 @@ namespace BloombergLP {
 int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS)
+    if (-1 == policy) {
+        policy = sched_getscheduler(0);
+    }
+
     switch (policy) {
       case BCEMT_SCHED_FIFO: {
         policy = SCHED_FIFO;
@@ -51,7 +58,7 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
         policy = SCHED_OTHER;
       } break;
       default: {
-        policy = sched_getscheduler(0);
+        return bsl::numeric_limits<int>::min();
       }
     }
 
@@ -64,6 +71,10 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
 int bcemt_ThreadAttributes::getMinSchedPriority(int policy)
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS)
+    if (-1 == policy) {
+        policy = sched_getscheduler(0);
+    }
+
     switch (policy) {
       case BCEMT_SCHED_FIFO: {
         policy = SCHED_FIFO;
@@ -75,7 +86,7 @@ int bcemt_ThreadAttributes::getMinSchedPriority(int policy)
         policy = SCHED_OTHER;
       } break;
       default: {
-        policy = sched_getscheduler(0);
+        return bsl::numeric_limits<int>::min();
       }
     }
 
@@ -88,11 +99,11 @@ int bcemt_ThreadAttributes::getMinSchedPriority(int policy)
 // CREATORS
 bcemt_ThreadAttributes::bcemt_ThreadAttributes()
 : d_detachedState(BCEMT_CREATE_JOINABLE)
-, d_guardSize(BCEMT_INVALID_GUARD_SIZE)
+, d_guardSize(BCEMT_UNSET_GUARD_SIZE)
 , d_inheritSchedule(1)
 , d_schedulingPolicy(BCEMT_SCHED_OTHER)
 , d_schedulingPriority(Local::DEFAULT_PRIORITY)
-, d_stackSize(BCEMT_INVALID_STACK_SIZE)
+, d_stackSize(BCEMT_UNSET_STACK_SIZE)
 {}
 
 // MANIPULATORS
@@ -103,6 +114,8 @@ void bcemt_ThreadAttributes::setSchedulingPolicy(
 
     const int maxPri = getMaxSchedPriority(schedulingPolicy);
     const int minPri = getMinSchedPriority(schedulingPolicy);
+    BSLS_ASSERT(minPri <= maxPri);
+
     if      (d_schedulingPriority > maxPri) {
         d_schedulingPriority = maxPri;
     }
