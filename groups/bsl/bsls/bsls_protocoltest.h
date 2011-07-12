@@ -138,22 +138,22 @@ BSLS_IDENT("$Id: $")
 // Then we create an object of type 'bsls_ProtocolTest' parameterized with
 // 'MyInterfaceTest':
 //..
-//  if (verbose) printf("\nCreate bsls_ProtocolTest object.\n");
+//  if (verbose) printf("\nCreate a 'bsls_ProtocolTest' object.\n");
 //
 //  bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
 //..
 // Now we use the 't' object to test some general concerns about the protocol
 // class.
 //..
-//  if (verbose) printf("\nVerify that the protocol is an abstract class.\n");
+//  if (verbose) printf("\nVerify that the protocol is abstract.\n");
 //
 //  ASSERT(t.testAbstract());
 //
-//  if (verbose) printf("\nVerify that the protocol has no data members.\n");
+//  if (verbose) printf("\nVerify that there are no data members.\n");
 //
 //  ASSERT(t.testNoDataMembers());
 //
-//  if (verbose) printf("\nVerify that the protocol has a virtual dtor.\n");
+//  if (verbose) printf("\nVerify that the destructor is virtual.\n");
 //
 //  ASSERT(t.testVirtualDestructor());
 //..
@@ -161,7 +161,7 @@ BSLS_IDENT("$Id: $")
 // the protocol class.  To test a protocol method we need to call it from
 // inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass the 't' object:
 //..
-//  if (verbose) printf("\nVerify that each method is public and virtual.\n");
+//  if (verbose) printf("\nVerify that methods are public and virtual.\n");
 //
 //  BSLS_PROTOCOLTEST_ASSERT(t, foo(77));
 //  BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
