@@ -79,7 +79,7 @@ bsl::string getTimestampSuffix(const bdet_Datetime& timestamp)
 
     snprintf(buffer,
              sizeof buffer,
-             ".%4d%02d%02d_%02d%02d%02d",
+             "%4d%02d%02d_%02d%02d%02d",
              timestamp.year(),
              timestamp.month(),
              timestamp.day(),
@@ -104,24 +104,16 @@ bool compareLogFileTimes(const bsl::pair<bsl::string, time_t>& lhs,
 
 void getLogFileName(bsl::string                  *logFileName,
                     bdet_Datetime                *timestamp,
-                    bool                         *datetimeInfoInFileName,
                     const char                   *logFilePattern,
-                    const bdet_DatetimeInterval&  localTimeOffset,
-                    bool                          appendTimestampFlag)
+                    const bdet_DatetimeInterval&  localTimeOffset)
     // Load, into the specified 'logFileName', the filename that is obtained by
     // replacing every '%'-escape sequence in the specified 'logFilePattern'
     // with the corresponding field of the local time calculated from the
-    // current time in GMT and the specified 'localTimeOffset', and, if
-    // 'logFilePattern' does not contain any '%'-escape sequence and the
-    // specified 'appendTimestampFlag' is true, append a timestamp in the
-    // format ".%Y%M%D_%h%m%s" to the filename.  Load the current time in GMT
-    // into the specified 'timestamp'.  Load 'true' into the specified
-    // 'datetimeInfoInFileName' if 'logFilePattern' contains at least one
-    // '%'-escape sequence, and 'false' otherwise.
+    // current time in GMT and the specified 'localTimeOffset'.  Load the
+    // current time in GMT into the specified 'timestamp'.
 {
     BSLS_ASSERT(logFileName);
     BSLS_ASSERT(timestamp);
-    BSLS_ASSERT(datetimeInfoInFileName);
     BSLS_ASSERT(logFilePattern);
 
     *timestamp = bdetu_SystemTime::nowAsDatetimeGMT();
@@ -129,44 +121,39 @@ void getLogFileName(bsl::string                  *logFileName,
     const bdet_Datetime logFileTimestamp = *timestamp + localTimeOffset;
 
     bsl::ostringstream os;
-    *datetimeInfoInFileName = false;
 
     for (; *logFilePattern; ++logFilePattern) {
         if ('%' == *logFilePattern) {
             if (*++logFilePattern) {
                 switch (*logFilePattern) {
+                  case 'T': {
+                    os << getTimestampSuffix(logFileTimestamp);
+                  } break;
                   case 'Y': {
                     os << bsl::setw(4) << bsl::setfill('0')
                        << logFileTimestamp.year();
-                    *datetimeInfoInFileName = true;
                   } break;
                   case 'M': {
                     os << bsl::setw(2) << bsl::setfill('0')
                        << logFileTimestamp.month();
-                    *datetimeInfoInFileName = true;
                   } break;
                   case 'D': {
                     os << bsl::setw(2) << bsl::setfill('0')
                        << logFileTimestamp.day();
-                    *datetimeInfoInFileName = true;
                   } break;
                   case 'h': {
                     os << bsl::setw(2) << bsl::setfill('0')
                        << logFileTimestamp.hour();
-                    *datetimeInfoInFileName = true;
                   } break;
                   case 'm': {
                     os << bsl::setw(2) << bsl::setfill('0')
                        << logFileTimestamp.minute();
-                    *datetimeInfoInFileName = true;
                   } break;
                   case 's': {
                     os << bsl::setw(2) << bsl::setfill('0')
                        << logFileTimestamp.second();
-                    *datetimeInfoInFileName = true;
                   } break;
                   case '%': {
-                    *datetimeInfoInFileName = true;
                   } break;
                   default: {
                     os << '%' << *logFilePattern;
@@ -182,10 +169,6 @@ void getLogFileName(bsl::string                  *logFileName,
         }
     }
     *logFileName = os.str();
-
-    if (appendTimestampFlag && !*datetimeInfoInFileName) {
-        *logFileName += getTimestampSuffix(logFileTimestamp);
-    }
 }
 
 int openLogFile(bsl::ofstream *stream, const char *filename)
@@ -279,9 +262,14 @@ void bael_FileObserver2::rotateFile()
 
     d_logFileStream.close();
 
-    if (!d_isOpenWithTimestampFlag && !d_datetimeInfoInFileName) {
+    getLogFileName(&d_logFileName,
+                   &d_logFileTimestamp,
+                   d_logFilePattern.c_str(),
+                   d_localTimeOffset);
 
+    if (bdesu_FileUtil::exists(d_logFileName.c_str())) {
         bsl::string newFileName(d_logFileName);
+        newFileName += '.';
         newFileName +=
                     getTimestampSuffix(d_logFileTimestamp + d_localTimeOffset);
 
@@ -291,13 +279,6 @@ void bael_FileObserver2::rotateFile()
                     bsl::strerror(getErrorCode()));
         }
     }
-
-    getLogFileName(&d_logFileName,
-                   &d_logFileTimestamp,
-                   &d_datetimeInfoInFileName,
-                   d_logFilePattern.c_str(),
-                   d_localTimeOffset,
-                   d_isOpenWithTimestampFlag);
 
     openLogFile(&d_logFileStream, d_logFileName.c_str());
 }
@@ -334,8 +315,6 @@ void bael_FileObserver2::rotateIfNecessary(const bdet_Datetime& currentLogTime)
 bael_FileObserver2::bael_FileObserver2(bslma_Allocator *basicAllocator)
 : d_logFilePattern(basicAllocator)
 , d_logFileName(basicAllocator)
-, d_datetimeInfoInFileName(false)
-, d_isOpenWithTimestampFlag(false)
 , d_logFileFunctor(
             bdef_MemFnUtil::memFn(&bael_FileObserver2::logRecordDefault, this),
             basicAllocator)
@@ -380,8 +359,7 @@ void bael_FileObserver2::disablePublishInLocalTime()
     d_publishInLocalTime = false;
 }
 
-int bael_FileObserver2::enableFileLogging(const char *fileNamePattern,
-                                          bool        apppendTimestampFlag)
+int bael_FileObserver2::enableFileLogging(const char *fileNamePattern)
 {
     BSLS_ASSERT(fileNamePattern);
 
@@ -390,16 +368,28 @@ int bael_FileObserver2::enableFileLogging(const char *fileNamePattern,
         return 1;                                                     // RETURN
     }
     d_logFilePattern = fileNamePattern;
-    d_isOpenWithTimestampFlag = apppendTimestampFlag;
 
     getLogFileName(&d_logFileName,
                    &d_logFileTimestamp,
-                   &d_datetimeInfoInFileName,
                    d_logFilePattern.c_str(),
-                   d_localTimeOffset,
-                   d_isOpenWithTimestampFlag);
+                   d_localTimeOffset);
 
     return openLogFile(&d_logFileStream, d_logFileName.c_str());
+}
+
+int bael_FileObserver2::enableFileLogging(const char *fileNamePattern,
+                                          bool        appendTimestampFlag)
+{
+    BSLS_ASSERT(fileNamePattern);
+
+    if (appendTimestampFlag) {
+        bsl::string pattern = fileNamePattern;
+        pattern += ".%T";
+        return enableFileLogging(pattern.c_str());
+    }
+    else {
+        return enableFileLogging(fileNamePattern);
+    }
 }
 
 void bael_FileObserver2::forceRotation()
