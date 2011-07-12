@@ -89,20 +89,24 @@ namespace {
 // ----------------------------------------------------------------------------
 ///Usage
 ///-----
-// In this section we show the intended usage of the component.
+// In this section we show intended usage of this component.
 //
 ///Example 1: Testing a simple protocol class.
 ///- - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to test a protocol class 'MyInterface' using
-// the protocol test component.  The protocol we want to test, 'MyInterface',
-// provides a couple of virtual methods ('foo' and 'bar'), and a virtual
-// destructor.
+// This example demonstrates how to test a protocol class, 'MyInterface', using
+// this protocol test component.  The protocol we want to test, 'MyInterface',
+// provides a couple of pure virtual methods ('foo' and 'bar'), along with a
+// pure virtual destructor.
 //..
 struct MyInterface {
-    virtual ~MyInterface() {}
+    virtual ~MyInterface() = 0;
     virtual const char *bar(char const *, char const *) = 0;
     virtual int foo(int) const = 0;
 };
+
+MyInterface::~MyInterface()
+{
+}
 //..
 // First, we define a test class derived from this protocol, and implement its
 // virtual methods.  Rather than deriving the test class from 'MyInterface'
@@ -115,11 +119,11 @@ struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
     int foo(int) const                          { return markDone(); }
 };
 //..
-// Notice that in 'MyInterfaceTest' we must provide an implementation of every
-// protocol method.  The implementation of each method should simply call
-// 'markDone' which is provided by the base class for the purpose of verifying
-// that the method from which it's called is declared as virtual in the
-// protocol class.
+// Notice that in 'MyInterfaceTest' we must provide an implementation for every
+// protocol method except for the destructor.  The implementation of each
+// method should simply call 'markDone' which is provided by the base class for
+// the purpose of verifying that the method from which it's called is declared
+// as virtual in the protocol class.
 
 // ============================================================================
 //                    TYPES AND FUNCTIONS REQUIRED FOR TESTING
@@ -257,16 +261,15 @@ int main(int argc, char *argv[])
   //   Ensure this class is a properly defined protocol.
   //
   // Concerns:
-  //: 1 The protocol is an abstract class, and therefore no objects
-  //:   of this class can be created.
+  //: 1 The protocol class is an abstract: no objects of it can be created.
   //:
-  //: 2 The protocol class has no data members.
+  //: 2 The protocol has no data members.
   //:
-  //: 3 The protocol class has a pure virtual destructor.
+  //: 3 The protocol has a pure virtual destructor.
   //:
-  //: 4 All methods of the protocol class are pure virtual.
+  //: 4 All methods of the protocol are pure virtual.
   //:
-  //: 5 All methods of the protocol class are publicly accessible.
+  //: 5 All methods of the protocol are publicly accessible.
   //
   // Plan:
   //: 1 Define a concrete derived implementation, 'MyInterfaceTest' of the
@@ -292,7 +295,7 @@ int main(int argc, char *argv[])
   //:     (C-5)
   //
   // Testing:
-  //   virtual ~MyInterface() {}
+  //   virtual ~MyInterface() = 0;
   //   virtual const char *bar(char const *, char const *) = 0;
   //   virtual int foo(int) const = 0;
   // --------------------------------------------------------------------
@@ -306,8 +309,7 @@ int main(int argc, char *argv[])
 // Then we create an object of type 'bsls_ProtocolTest' parameterized with
 // 'MyInterfaceTest':
 //..
-  if (verbose) printf("\nCreate an object of the 'bsls_ProtocolTest' "
-                      "class parameterized with 'MyInterfaceTest'.\n");
+  if (verbose) printf("\nCreate bsls_ProtocolTest object.\n");
 
   bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
 //..
@@ -330,14 +332,13 @@ int main(int argc, char *argv[])
 // the protocol class.  To test a protocol method we need to call it from
 // inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass the 't' object:
 //..
-  if (verbose) printf("\nVerify that each method is virtual and "
-                      "publicly accessible.\n");
+  if (verbose) printf("\nVerify that each method is public and virtual.\n");
 
   BSLS_PROTOCOLTEST_ASSERT(t, foo(77));
   BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
 //..
 // These steps conclude the protocol testing.  If there are any failures, they
-// will be reported via standard test driver assertions (e.g., the standard
+// will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
       } break;
       case 8: {
