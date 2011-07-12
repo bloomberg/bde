@@ -643,6 +643,12 @@ bool operator!=(const bdem_TableImp& lhs, const bdem_TableImp& rhs);
     // column types differ in at least one column position, or corresponding
     // values at any (row, column) position are not the same.
 
+// PRIVATE GEOMETRIC MEMORY GROWTH
+static bool bdem_TableImp_geometricMemoryGrowthFlag = false;
+
+void bdem_TableImp_enableGeometricMemoryGrowth();
+void bdem_TableImp_disableGeometricMemoryGrowth();
+
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -1026,6 +1032,19 @@ inline
 bool operator!=(const bdem_TableImp& lhs, const bdem_TableImp& rhs)
 {
     return !(lhs == rhs);
+}
+
+// PRIVATE GEOMETRIC MEMORY GROWTH
+inline
+void bdem_TableImp_enableGeometricMemoryGrowth()
+{
+     bdem_TableImp_geometricMemoryGrowthFlag = true;
+}
+
+inline
+void bdem_TableImp_disableGeometricMemoryGrowth()
+{
+     bdem_TableImp_geometricMemoryGrowthFlag = false;
 }
 
 }  // close namespace BloombergLP

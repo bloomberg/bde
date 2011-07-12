@@ -661,8 +661,11 @@ void bdem_TableImp::insertNullRows(int dstRowIndex, int numRows)
         d_nullBits.resize(newSize, 0);
     }
 
-    d_rowPool.reserveCapacity(numRows);
-    d_rows.reserve(this->numRows() + numRows);
+    
+    if (!bdem_TableImp_geometricMemoryGrowthFlag) {
+        d_rowPool.reserveCapacity(numRows);
+        d_rows.reserve(this->numRows() + numRows);
+    }
 
     for (int i = 0; i < numRows; ++i) {
         // If allocate() or constructor throws an exception,
