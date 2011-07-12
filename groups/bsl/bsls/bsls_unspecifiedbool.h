@@ -73,6 +73,7 @@ struct bsls_UnspecifiedBool {
 
     typedef int bsls_UnspecifiedBool::* BoolType;
 
+    static BoolType falseValue();
     static BoolType trueValue();
 
     int d_member;
@@ -85,6 +86,13 @@ struct bsls_UnspecifiedBool {
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+template<class BSLS_HOST_TYPE>
+inline int bsls_UnspecifiedBool<BSLS_HOST_TYPE>::* 
+bsls_UnspecifiedBool<BSLS_HOST_TYPE>::falseValue()
+{
+    return 0;
+}
 
 template<class BSLS_HOST_TYPE>
 inline int bsls_UnspecifiedBool<BSLS_HOST_TYPE>::* 
