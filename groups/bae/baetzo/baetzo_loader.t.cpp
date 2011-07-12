@@ -19,7 +19,8 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test defines a protocol class [...]
+// The component under test defines a protocol class the purpose of which is to
+// provide an interface for loading time zones.
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
@@ -305,16 +306,16 @@ int main(int argc, char *argv[])
         //   Ensure this class is a properly defined protocol.
         //
         // Concerns:
-        //: 1 The protocol is an abstract class, and therefore no objects
-        //:   of this class can be created.
+        //: 1 The protocol class is an abstract: no objects of it can be
+        //:   created.
         //:
-        //: 2 The protocol class has no data members.
+        //: 2 The protocol has no data members.
         //:
-        //: 3 The protocol class has a pure virtual destructor.
+        //: 3 The protocol has a pure virtual destructor.
         //:
-        //: 4 All members of the protocol class are pure virtual.
+        //: 4 All members of the protocol are pure virtual.
         //:
-        //: 5 All methods of the protocol class are publicly accessible.
+        //: 5 All methods of the protocol are publicly accessible.
         //
         // Plan:
         //: 1 Define a concrete derived implementation, 'ObjTestImp' of the
@@ -347,29 +348,23 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        if (verbose) cout << "\nCreate an object of the 'bsls_ProtocolTest'"
-                             " class parameterized with 'ObjTestImp'"
-                          << endl;
+        if (verbose) cout << "\nCreate a 'bsls_ProtocolTest' object.\n";
 
         bsls_ProtocolTest<ObjTestImp> t(veryVerbose);
 
-        if (verbose) cout << "\nVerify that the protocol is an abstract class."
-                          << endl;
+        if (verbose) cout << "\nVerify that the protocol is abstract.\n";
 
         ASSERT(t.testAbstract());
 
-        if (verbose) cout << "\nVerify that the protocol has no data members."
-                          << endl;
+        if (verbose) cout << "\nVerify that there are no data members.\n";
+
         ASSERT(t.testNoDataMembers());
 
-        if (verbose) cout << "\nVerify that the protocol has a virtual dtor."
-                          << endl;
+        if (verbose) cout << "\nVerify that the destructor is virtual.\n";
+
         ASSERT(t.testVirtualDestructor());
 
-
-        if (verbose) cout << "\nVerify that each method is virtual and"
-                             " publicly accessible."
-                          << endl;
+        if (verbose) cout << "\nVerify that methods are public and virtual.\n";
 
         BSLS_PROTOCOLTEST_ASSERT(t, loadTimeZone(0, 0));
       } break;
