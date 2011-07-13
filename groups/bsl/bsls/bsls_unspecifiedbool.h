@@ -17,11 +17,12 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a class template that can be used to
 // manufacture an "unspecified boolean type".
 //
-////Usage
-///------
+///Usage
+///-----
+// In this section we show intended usage of this component.
 //
-///Example 1
-///- - - - -
+///Example 1: ...
+///- - - - - - - -
 // A common requirement for "smart pointer" types is to emulate the native
 // pointer types, and in particular support testing as a boolean value in 'if'
 // and 'while' clauses.   Blah...:
@@ -71,15 +72,20 @@ struct bsls_UnspecifiedBool {
     // be used as an "unspecified boolean type" for implicit conversion
     // operators.
 
-    typedef int bsls_UnspecifiedBool::* BoolType;
-
-    static BoolType falseValue();
-    static BoolType trueValue();
-
+private:
     int d_member;
         // This data member is used solely for taking its address to return a
         // non-null pointer-to-member.  Note that the *value* of 'd_member' is
         // not used.
+
+public:
+    typedef int bsls_UnspecifiedBool::* BoolType;
+
+    static BoolType falseValue();
+        // Return a value that converts to the 'bool' value 'false'.
+
+    static BoolType trueValue();
+        // Return a value that converts to the 'bool' value 'true'.
 };
 
 
