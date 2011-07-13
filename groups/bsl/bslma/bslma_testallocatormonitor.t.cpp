@@ -138,7 +138,7 @@ class MyMemoryUser
 
     // MANIPULATORS
     void setMemorySize(int size);
-        // Set the size of the held allocated memory to the specified 'size'.  
+        // Set the size of the held allocated memory to the specified 'size'.
         // Previously held memory is returned to the allocator.  The behavior
         // is undefined unless 'size >= 0'.
 
@@ -150,14 +150,14 @@ class MyMemoryUser
 // CREATORS
 inline
 MyMemoryUser::MyMemoryUser(bslma_Allocator *basicAllocator)
-: d_size(0) 
+: d_size(0)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
 }
 
 inline
 MyMemoryUser::MyMemoryUser(int size, bslma_Allocator *basicAllocator)
-: d_size(size) 
+: d_size(size)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
     d_held_p = d_allocator_p->allocate(d_size);
@@ -196,28 +196,21 @@ typedef MyMemoryUser Obj;
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// Classes taking 'bslma_allocator' objects have testing concerns that other
-// classes do not.  There are requirements on such classes that are not
-// explicitly documented in its contract.  For example, objects of this class
-// must:
-//: 1 Allocate memory from the appropriate allocator.
-//: 2 Release any allocated memory on destruction.
-//: 3 Allocate no memory when default constructed.
-//: 4 Cache allocated memory for reuse.
-//: 5 No temporary objects are created (i.e., no direct use of the default
-//:   allocator).
-// Note some of these concerns (C-1 and C-2) are fairly general while the rest
-// are "quality of implementation" matters.  There is a global assumption that
-// all code allocates memory via some allocator.
+// A 'bslma_TestAllocatorMonitor' object can be used in a simple check for
+// memory leakage.
 //
-// First, we create a unconstrained attribute class, 'MyClass', having a single
-// attribute, 'description', an Ascii string.  A highly abbreviated
-// implementation suffices for this example.
+// First, we must specify a class of interest (to be the subject of the test).
+// We here define 'MyClass', a simple, unconstrained attribute class.  An
+// abbreviated implementation attribute suffices for the purposes of this
+// example (i.e., the demonstration of 'bslma_TestAllocatorMonitor').  A proper
+// attribute class would have value and copy constructors, 'operator==', etc.
 //..
     class MyClass {
+        // This unconstrained (value-semantic) attribute class has a single
+        // attribute, 'description', an ascii string.
 
         // DATA
-        int              d_size;
+        int              d_capacity;
         char            *d_description_p;
         bslma_Allocator *d_allocator_p;   // held, not owned
 
@@ -226,7 +219,7 @@ typedef MyMemoryUser Obj;
         MyClass(bslma_Allocator *basicAllocator = 0);
             // Create a 'MyClass' object having the (default) attribute values:
             //..
-            //  description() == ""
+            // description() == ""
             //..
             // Optionally specify a 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed default allocator
@@ -234,11 +227,11 @@ typedef MyMemoryUser Obj;
 
         ~MyClass();
            // Destroy this object.
- 
+
         // MANIPULATORS
         void setDescription(const char* value);
             // Set the 'description' attribute of this object to data of the
-            // specified 'length' at the specified 'value' address. 
+            // specified 'length' at the specified 'value' address.
 
         // ACCESSORS
         const char *description() const;
@@ -249,15 +242,15 @@ typedef MyMemoryUser Obj;
     // ========================================================================
     //                      INLINE FUNCTION DEFINITIONS
     // ========================================================================
-    
+
                             // -------------
                             // class MyClass
                             // -------------
-    
+
     // CREATORS
     inline
     MyClass::MyClass(bslma_Allocator *basicAllocator)
-    : d_size(0)
+    : d_capacity(0)
     , d_description_p(0)
     , d_allocator_p(bslma_Default::allocator(basicAllocator))
     {
@@ -266,23 +259,23 @@ typedef MyMemoryUser Obj;
     inline
     MyClass::~MyClass()
     {
-        BSLS_ASSERT_SAFE(0 <= d_size);
+        BSLS_ASSERT_SAFE(0 <= d_capacity);
 
         d_allocator_p->deallocate(d_description_p);
     }
-    
 
     // MANIPULATORS
     inline
     void MyClass::setDescription(const char *value)
     {
         BSLS_ASSERT_SAFE(value);
+
         int length = std::strlen(value);
         int size   = length + 1;
-        if (size > d_size) {
+        if (size > d_capacity) {
             d_allocator_p->deallocate(d_description_p);
             d_description_p = (char *) d_allocator_p->allocate(size);
-            d_size          = size;
+            d_capacity      = size;
         }
         std::memcpy(d_description_p, value, length);
         d_description_p[length] = '\0';
@@ -330,7 +323,65 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
-// Next, following the typical testing pattern, we create a trio of
+
+//
+// Then, we create, 'oa', an 'bslma_TestAllocator' object, to serve as object
+// allocator and 'oam', an 'bslma_TestAllocatorMonitor' object, to track that
+// allocator.
+//..
+    {
+        bslma_TestAllocator        oa("object",  veryVeryVeryVerbose);
+        bslma_TestAllocatorMonitor oam(oa);
+//..
+// Next, we create 'obj', an object of the class of interest, and exercise it
+// so that memory is allocated.  (Typically, an object must allocate memory to
+// hold data that exceeds its own size.)
+//..
+        {
+            MyClass obj(&oa);
+
+            const char BRUTUS[]="The noblest Roman of them all.";
+            BSLMF_ASSERT(sizeof(obj) < sizeof(BRUTUS));
+
+            obj.setDescription(BRUTUS);
+        }
+//..
+// Finally, we examine 'oam' check the usage of the object's allocator.
+
+        ASSERT(true == oam.isTotalUp());   // Object allocator was used.
+        ASSERT(true == oam.isInUseSame()); // All allocations were deallocated.
+    }
+//..
+// Notice that 'isTotalUp' method indicates that some allocators and
+// deallocations were made.  The 'isInUseSame' method indicates that the
+// number of *outstanding* allocations from 'oa' has not changed since
+// the creation of 'oam'.  The 'oam' object was created when that value was 0
+// (before any use of 'oa').
+//
+///Example 2: Standard Usage
+///- - - - - - - - - - - - -
+// Classes taking 'bslma_allocator' objects have many testing concerns that
+// other classes do not.  For example, objects of the class of interest must:
+//: 1 Release all allocated memory on destruction.
+//: 2 Allocate memory from the appropriate allocator.
+//: 3 Allocate no memory when default constructed.
+//: 4 Cache allocated memory for reuse.
+//: 5 Create no temporary objects (i.e., no direct use of the default
+//:   allocator).
+//
+// C-1 is (no memory leaks) is a universal concern of software engineering.
+// C-2 is a requirement for classes following the BDE allocator paradigm.
+// (There is a global assumption that all memory allocation is done from *some*
+// allocator).  The remaining concerns are Quality-of-Implementation (QoI)
+// issues for certain members of the BDE taxonomy.  Notice that none of these
+// concerns are explicitly documented in the contract for the class of
+// interest.
+//
+// We hear illustrate how 'bslma_TestAllocatorMonitor' objects can be used to
+// address such concerns.  As a test subject, we reuse 'MyClass', the class
+// defined in Example 1.
+//
+// First, following the typical testing pattern, we create a trio of
 // 'bslma_TestAllocator' objects, and install two as the global and default
 // allocators.  The remaining allocator will be supplied to the object.
 //..
@@ -358,9 +409,9 @@ int main(int argc, char *argv[])
 // Then, after the object is destroyed, the several monitor objects show that
 // their respective allocators were not used.
 //..
-        ASSERT(true == gam.isTotalSame()); // global  allocator was not used
-        ASSERT(true == dam.isTotalSame()); // default allocator was not used
-        ASSERT(true == oam.isTotalSame()); // object  allocator was not used
+        ASSERT(true == gam.isTotalSame()); // no (de)allocations
+        ASSERT(true == dam.isTotalSame()); // no (de)allocations
+        ASSERT(true == oam.isTotalSame()); // no (de)allocations
 //..
 // Notice that we have addressed C-3.
 
@@ -376,9 +427,8 @@ int main(int argc, char *argv[])
 
             obj.setDescription(DESCRIPTION1);
 
-            ASSERT(true == oam.isTotalUp());  // object allocator used
-            ASSERT(true == oam.isMaxUp());    // object allocator used
-            ASSERT(true == oam.isInUseUp());  // object allocator used
+            ASSERT(true == oam.isTotalUp());  // object allocator was used
+            ASSERT(true == oam.isInUseUp());  // some outstanding allocation(s)
 //..
 // Then, we reset the attribute to a short value and test that the previously
 // allocated memory is reused.  To measure changes in the object allocator
@@ -387,31 +437,9 @@ int main(int argc, char *argv[])
 
             bslma_TestAllocatorMonitor oam2(oa);
 
-            int numBlocksInUse0 = oa.numBlocksInUse();
-            int numBlocksMax0   = oa.numBlocksMax();
-            int numBlocksTotal0 = oa.numBlocksTotal();
-            int numBytesInUse0  = oa.numBytesInUse();
-            int numBytesMax0    = oa.numBytesMax();
-            int numBytesTotal0  = oa.numBytesTotal();
-
-            P_(L_) P_(numBlocksInUse0) P_(numBlocksMax0) P(numBlocksTotal0)
-            P_(L_) P_(numBytesInUse0)  P_(numBytesMax0)  P(numBytesTotal0)
-
             obj.setDescription("a");
 
-            int numBlocksInUse1 = oa.numBlocksInUse();
-            int numBlocksMax1   = oa.numBlocksMax();
-            int numBlocksTotal1 = oa.numBlocksTotal();
-            int numBytesInUse1  = oa.numBytesInUse();
-            int numBytesMax1    = oa.numBytesMax();
-            int numBytesTotal1  = oa.numBytesTotal();
-
-            P_(L_) P_(numBlocksInUse1) P_(numBlocksMax1) P(numBlocksTotal1)
-            P_(L_) P_(numBytesInUse1)  P_(numBytesMax1)  P(numBytesTotal1)
-
-            ASSERT(true == oam2.isTotalSame());  // object allocator not used
-            ASSERT(true == oam2.isMaxSame());    // object allocator not used
-            ASSERT(true == oam2.isInUseSame());  // object allocator not used
+            ASSERT(true == oam2.isTotalSame());  // no (de)allocations
 //..
 // Notice that this test addresses C-4.  Next, we assign a value that forces
 // the object to allocate additional memory.
@@ -422,38 +450,28 @@ int main(int argc, char *argv[])
                                       "abcdefghijklmnopqrstuvwyz";
             obj.setDescription(DESCRIPTION2);
 
-            int numBlocksInUse2 = oa.numBlocksInUse();
-            int numBlocksMax2   = oa.numBlocksMax();
-            int numBlocksTotal2 = oa.numBlocksTotal();
-            int numBytesInUse2  = oa.numBytesInUse();
-            int numBytesMax2    = oa.numBytesMax();
-            int numBytesTotal2  = oa.numBytesTotal();
-
-            P_(L_) P_(numBlocksInUse2) P_(numBlocksMax2) P(numBlocksTotal2)
-            P_(L_) P_(numBytesInUse2)  P_(numBytesMax2)  P(numBytesTotal2)
-
-            ASSERT(true == oam2.isTotalUp());  // object allocator used
-          //  ASSERT(true == oam2.isMaxUp());    // object allocator used
-          //  ASSERT(true == oam2.isInUseUp());  // object allocator used
+            ASSERT(true == oam2.isTotalUp());    // Object allocator was used.
+            ASSERT(true == oam2.isInUseSame());  // Outstanding allocation
+                                                 // count (but not byte count)
+                                                 // is unchanged.
         }
 //..
-// Now that the object
+// Now that the object has been destroyed.
 //..
-        ASSERT(true == oam.isTotalUp());   // object  allocator was used
-        ASSERT(true == oam.isMaxUp());     // object  allocator was used
-        ASSERT(true == oam.isInUseSame()); // but all memory was returned
+        ASSERT(true == oam.isTotalUp());   // Object allocator was used.
+        ASSERT(true == oam.isInUseSame()); // All allocations were deallocated.
 //..
 // Notice that these tests confirm C-2.
 //
 // Finally, we examine the two monitors of the two non-object allocators to
 // confirm that they were not used by any of these operations.
 //..
-        ASSERT(true == gam.isTotalSame()); // global  allocator was not used
-        ASSERT(true == dam.isTotalSame()); // default allocator was not used
+        ASSERT(true == gam.isTotalSame()); // Global  allocator was never used.
+        ASSERT(true == dam.isTotalSame()); // Default allocator was never used.
     }
 //..
 // Notice that the last tests, along with our observations of the use of the
-// object allocator, address C-1 and C-5.
+// object allocator, address C-2 and C-5.
 
       } break;
       case 1: {
