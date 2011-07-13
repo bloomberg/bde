@@ -3380,13 +3380,17 @@ int main(int argc, char *argv[])
                 { L_,  "![CRATA[&]]>",     "![CRATA[&amp;]]&gt;"             },
                    //      ^ missing 'D'
 
-                { L_,  "<![CDATA[&<>![]'\"]]>",     "&<>![]'\""              },
-                { L_,  "Hello<![CDATA[&<>![]'\"]]>","Hello&<>![]'\""         },
-                { L_,  "<![CDATA[&<>![]'\"]]>World","&<>![]'\"World"         },
+                { L_,  "<![CDATA[&<>![]'\"]]>",     "<![CDATA[&<>![]'\"]]>"  },
+                { L_,  "Hello<![CDATA[&<>![]'\"]]>",
+                                           "Hello<![CDATA[&<>![]'\"]]>"      },
+                { L_,  "<![CDATA[&<>![]'\"]]>World",
+                                           "<![CDATA[&<>![]'\"]]>World"      },
                 { L_,  "Hello<![CDATA[&<>![]'\"]]>World",
-                                                    "Hello&<>![]'\"World"    },
-                { L_,  "CDATA<![CDATA[&<>![]'\"]]>","CDATA&<>![]'\""         },
-                { L_,  "<![CDATA[&<>![]'\"]]]]>",   "&<>![]'\"]]"            },
+                                           "Hello<![CDATA[&<>![]'\"]]>World" },
+                { L_,  "CDATA<![CDATA[&<>![]'\"]]>",
+                                           "CDATA<![CDATA[&<>![]'\"]]>"      },
+                { L_,  "<![CDATA[&<>![]'\"]]]]>",
+                                           "<![CDATA[&<>![]'\"]]]]>"         },
 
                 // Two-byte character sequences.
 

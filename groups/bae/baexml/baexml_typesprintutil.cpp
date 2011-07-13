@@ -418,12 +418,12 @@ const char *printTextReplacingXMLEscapes(
             const int  CDATA_BEGIN_LEN   = sizeof(CDATA_BEGIN_TAG) - 1;
             const int  CDATA_END_LEN     = sizeof(CDATA_END_TAG) - 1;
 
-            stream.write(runBegin, data - runBegin);
             if ((-1 != dataLength && end - data < CDATA_BEGIN_LEN)
              || bsl::strncmp(data, CDATA_BEGIN_TAG, CDATA_BEGIN_LEN)) {
 
                 // Not a CDATA section.  Just convert '<' to '&lt;'.
 
+                stream.write(runBegin, data - runBegin);
                 static const char lt[] = "&lt;";
                 stream.write(lt, sizeof(lt) - 1);
                 runBegin = ++data;
@@ -445,26 +445,21 @@ const char *printTextReplacingXMLEscapes(
                     return data;  // error position                      RETURN
                 }
 
-                runBegin = data + CDATA_BEGIN_LEN;
-                data     = endTag;
-
                 // There cannot be embedded CDATA sections within a CDATA
                 // section.  We check that the CDATA_BEGIN_TAG does not appear
                 // within this CDATA section.
 
-                endTag = bdeu_String::strstr(runBegin,
-                                             data - runBegin,
-                                             CDATA_BEGIN_TAG,
-                                             CDATA_BEGIN_LEN);
+                const char *tmp = bdeu_String::strstr(data + CDATA_BEGIN_LEN,
+                                                      endTag - data,
+                                                      CDATA_BEGIN_TAG,
+                                                      CDATA_BEGIN_LEN);
 
-                if (endTag) {
+                if (tmp) {
                     stream.setstate(bsl::ios_base::failbit);
-                    return endTag;  // error position                  RETURN
+                    return tmp;  // error position                  RETURN
                 }
 
-                stream.write(runBegin, data - runBegin);
-                data += CDATA_END_LEN;
-                runBegin = data;
+                data = endTag + CDATA_END_LEN;
             }
           } break;
 
