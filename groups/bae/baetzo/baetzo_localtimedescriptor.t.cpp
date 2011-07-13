@@ -7,6 +7,7 @@
 #include <bslalg_hastrait.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
@@ -555,8 +556,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
             "\nCreate a table of distinct candidate attribute values." << endl;
@@ -800,8 +801,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -1083,8 +1084,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -1429,7 +1430,7 @@ int main(int argc, char *argv[])
                     bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
                     bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma_Default::setDefaultAllocatorRaw(&da);
+                    bslma_DefaultAllocatorGuard dag(&da);
 
                     Obj                 *objPtr;
                     bslma_TestAllocator *objAllocatorPtr;
@@ -1560,7 +1561,7 @@ int main(int argc, char *argv[])
                 bslma_TestAllocator da("default",  veryVeryVeryVerbose);
                 bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma_Default::setDefaultAllocatorRaw(&da);
+                bslma_DefaultAllocatorGuard dag(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1690,8 +1691,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
             "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
@@ -2160,7 +2161,7 @@ int main(int argc, char *argv[])
         bslma_TestAllocator da("default", veryVeryVeryVerbose);
         bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
 
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
                  "\nCreate an object, passing in the other allocator." << endl;
@@ -2390,7 +2391,7 @@ int main(int argc, char *argv[])
                     bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
                     bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma_Default::setDefaultAllocatorRaw(&da);
+                    bslma_DefaultAllocatorGuard dag(&da);
 
                     Obj                 *objPtr;
                     bslma_TestAllocator *objAllocatorPtr;
@@ -2524,7 +2525,7 @@ int main(int argc, char *argv[])
                 bslma_TestAllocator da("default",  veryVeryVeryVerbose);
                 bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma_Default::setDefaultAllocatorRaw(&da);
+                bslma_DefaultAllocatorGuard dag(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -2724,7 +2725,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
             bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bslma_Default::setDefaultAllocatorRaw(&da);
+            bslma_DefaultAllocatorGuard dag(&da);
 
             Obj                 *objPtr;
             bslma_TestAllocator *objAllocatorPtr;

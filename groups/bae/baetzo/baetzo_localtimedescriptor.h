@@ -251,11 +251,6 @@ class baetzo_LocalTimeDescriptor {
         // object was created with the same allocator as 'other'.
 
     // ACCESSORS
-    bslma_Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the currently
-        // installed default allocator is used.
-
     const bsl::string& description() const;
         // Return a reference providing non-modifiable access to the
         // 'description' attribute of this object.  Note that 'description' is
@@ -270,6 +265,11 @@ class baetzo_LocalTimeDescriptor {
         // object.  Note that this value is in the range '[-86399 .. 86399]'.
 
                                   // Aspects
+
+    bslma_Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -312,7 +312,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
     // 'stream'.  If 'stream' is not valid on entry, this operation has no
     // effect.  Note that this human-readable format is not fully specified
     // and can change without notice.  Also note that this method has the same
-    // behavior as 'object.print(stream, 0, -1)' with the attribute names
+    // behavior as 'object.print(stream, 0, -1)', but with the attribute names
     // elided.
 
 // FREE FUNCTIONS
@@ -392,12 +392,11 @@ baetzo_LocalTimeDescriptor& baetzo_LocalTimeDescriptor::operator=(
 }
 
 inline
-void baetzo_LocalTimeDescriptor::setDescription(
-                                            const bdeut_StringRef& description)
+void baetzo_LocalTimeDescriptor::setDescription(const bdeut_StringRef& value)
 {
-    BSLS_ASSERT_SAFE(description.isBound());
+    BSLS_ASSERT_SAFE(value.isBound());
 
-    d_description.assign(description.begin(), description.end());
+    d_description.assign(value.begin(), value.end());
 }
 
 inline
@@ -428,12 +427,6 @@ void baetzo_LocalTimeDescriptor::swap(baetzo_LocalTimeDescriptor& other)
 
 // ACCESSORS
 inline
-bslma_Allocator *baetzo_LocalTimeDescriptor::allocator() const
-{
-    return d_description.get_allocator().mechanism();
-}
-
-inline
 const bsl::string& baetzo_LocalTimeDescriptor::description() const
 {
     return d_description;
@@ -449,6 +442,14 @@ inline
 int baetzo_LocalTimeDescriptor::utcOffsetInSeconds() const
 {
     return d_utcOffsetInSeconds;
+}
+
+                                  // Aspects
+
+inline
+bslma_Allocator *baetzo_LocalTimeDescriptor::allocator() const
+{
+    return d_description.get_allocator().mechanism();
 }
 
 // FREE OPERATORS
