@@ -158,7 +158,7 @@ class baetzo_LocalTimeDescriptor {
     // This class:
     //: o supports a complete set of *value-semantic* operations
     //:   o except for 'bdex' serialization
-    //: o is *exception-neutral* (agnostic) TBD 
+    //: o is *exception-neutral* (agnostic) TBD
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
     // For terminology see 'bsldoc_glossary'.
@@ -187,9 +187,11 @@ class baetzo_LocalTimeDescriptor {
     explicit baetzo_LocalTimeDescriptor(bslma_Allocator *basicAllocator = 0);
         // Create a 'baetzo_LocalTimeDescriptor' object having the (default)
         // attribute values:
-        //: o 'utcOffsetInSeconds() == 0'
-        //: o 'dstInEffectFlag()    == false'
-        //: o 'description()        == ""'
+        //..
+        //  utcOffsetInSeconds() == 0
+        //  dstInEffectFlag()    == false
+        //  description()        == ""
+        //..
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
@@ -478,7 +480,7 @@ void swap(baetzo_LocalTimeDescriptor& a, baetzo_LocalTimeDescriptor& b)
     a.swap(b);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
