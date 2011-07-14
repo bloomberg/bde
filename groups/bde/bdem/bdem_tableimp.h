@@ -648,6 +648,7 @@ static bool bdem_TableImp_geometricMemoryGrowthFlag = false;
 
 void bdem_TableImp_enableGeometricMemoryGrowth();
 void bdem_TableImp_disableGeometricMemoryGrowth();
+bool bdem_TableImp_isGeometricMemoryGrowth();
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1038,13 +1039,19 @@ bool operator!=(const bdem_TableImp& lhs, const bdem_TableImp& rhs)
 inline
 void bdem_TableImp_enableGeometricMemoryGrowth()
 {
-     bdem_TableImp_geometricMemoryGrowthFlag = true;
+    bdem_TableImp_geometricMemoryGrowthFlag = true;
 }
 
 inline
 void bdem_TableImp_disableGeometricMemoryGrowth()
 {
-     bdem_TableImp_geometricMemoryGrowthFlag = false;
+    bdem_TableImp_geometricMemoryGrowthFlag = false;
+}
+
+inline
+bool bdem_TableImp_isGeometricMemoryGrowth()
+{
+    return bdem_TableImp_geometricMemoryGrowthFlag;
 }
 
 }  // close namespace BloombergLP

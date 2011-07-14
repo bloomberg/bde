@@ -502,6 +502,44 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING PRIVATE MEMORY GROWTH FLAG (Temporary)
+        //
+        // Concerns:
+        //  1 Geometric memory growth is disabled by default.
+        //  2 When geometric memory growth is enabled, memory actually grows
+        //    geometrically.
+        //  3 When geometric memory growth is disabled, memory grows non
+        //    geometrically.
+        //
+        // Plan:
+        //  1
+        // --------------------------------------------------------------------
+        if (verbose) cout << "TESTING PRIVATE MEMORY GROWTH FLAG\n"
+                             "=================================="  << endl;
+
+        if (verbose) cout << "\nTesting the default memory growth" << endl; 
+        ASSERT(false == bdem_TableImp_isGeometricMemoryGrowth());
+
+        {
+            bslma_TestAllocator ta("TestAllocator", true);
+            Obj mX(BDEM_PASS_THROUGH, &ta); const Obj& X = mX;
+            cout << "SPAC" << endl;
+            mX.insertNullRows(0, 1);
+            mX.insertNullRows(1, 1);
+        }
+        
+        bdem_TableImp_enableGeometricMemoryGrowth();
+        ASSERT(true == bdem_TableImp_isGeometricMemoryGrowth());
+        {
+            bslma_TestAllocator ta("TestAllocator", true);
+            Obj mX(BDEM_PASS_THROUGH, &ta); const Obj& X = mX;
+            cout << "SPAC" << endl;
+            mX.insertNullRows(0, 1);
+            mX.insertNullRows(1, 1);
+        }
+      } break;
       case 10: {
         // --------------------------------------------------------------------
         // TESTING PRINT MEMBER FUNCTION
