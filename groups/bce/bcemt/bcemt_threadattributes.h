@@ -233,7 +233,8 @@ class bcemt_ThreadAttributes {
         // value of 1 indicates that the thread *should* inherit these
         // attributes.  This attribute is ignored on Windows.  Note that on all
         // Unix platforms other than Solaris, thread creation fails unless
-        // '1 == inheritSchedule()'.
+        // '1 == inheritSchedule()', at least unless the process has superuser
+        // priviledges.
 
     void setSchedulingPolicy(SchedulingPolicy schedulingPolicy);
         // Set the value of the scheduling policy attribute of this thread
@@ -247,10 +248,10 @@ class bcemt_ThreadAttributes {
         // Set the value of the scheduling priority attribute of this thread
         // attributes object to the specified 'schedulingPriority'.  This
         // attribute is ignored on Windows.  Unless '0 == inheritSchedule()'
-        // this attribute is ignored.  Higher numbers indicate more urgent
-        // priorities.  Note that this attribute has little or no effect except
-        // when multiple threads are blocked on a mutex, in which case it
-        // influences which thread is to acquire the mutex first.
+        // this attribute is ignored.  On Solaris, higher numbers indicate more
+        // urgent priorities.  Note that this attribute has little or no effect
+        // except when multiple threads are blocked on a mutex, in which case
+        // it influences which thread is to acquire the mutex first.
 
     void setStackSize(int stackSize);
         // Set the value of the stack size attribute of this thread attributes
