@@ -33,25 +33,23 @@ using namespace std;
 //: o ACCESSOR methods are 'const' thread-safe.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [  ] bslma_TestAllocatorMonitor(const bslma_TestAllocator& tA);
+// [ 2] bslma_TestAllocatorMonitor(const bslma_TestAllocator& tA);
 //
 // ACCESSORS
-// [  ] bool isInUseDown() const;
-// [  ] bool isInUseSame() const;
-// [  ] bool isInUseUp() const;
-// [  ] bool isMaxSame() const;
-// [  ] bool isMaxUp() const;
-// [  ] bool isTotalSame() const;
-// [  ] bool isTotalUp() const;
+// [ 2] bool isInUseDown() const;
+// [ 2] bool isInUseSame() const;
+// [ 2] bool isInUseUp() const;
+// [ 2] bool isMaxSame() const;
+// [ 2] bool isMaxUp() const;
+// [ 2] bool isTotalSame() const;
+// [ 2] bool isTotalUp() const;
 // ----------------------------------------------------------------------------
-// [  ] BREATHING TEST
-// [  ] USAGE EXAMPLE
+// [ 1] BREATHING TEST
+// [ 3] USAGE EXAMPLE
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
-// [  ] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
 // [  ] CONCERN: All accessor methods are declared 'const'.
 // [  ] CONCERN: There is no temporary allocation from any allocator.
-// [  ] CONCERN: Precondition violations are detected when enabled.
 
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -108,84 +106,64 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-class MyMemoryUser
-{
-    // This class, written in support of the "Usage Example", takes an
-    // allocator and uses it to acquire, hold, and return memory.
+typedef bslma_TestAllocator        TestObj;
+typedef bslma_TestAllocatorMonitor Obj;
 
-    // DATA
-    int              d_size;
-    void            *d_held_p;
-    bslma_Allocator *d_allocator_p;
+// ============================================================================
+//                  NON-STANDARD TEST MACROS
+// ----------------------------------------------------------------------------
 
-  public:
-    // CREATORS
-    MyMemoryUser(bslma_Allocator *basicAllocator = 0);
-        // Create a 'MyMemoryUser' object holding 0 bytes of allocated memory.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless 'size >= 0'.
+#define ALLOC_INUSE(MONITOR, STATE)                    \
+    do {                                               \
+               if (0 == std::strcmp("UP",   #STATE)) { \
+                    ASSERT( (MONITOR).isInUseUp());    \
+                    ASSERT(!(MONITOR).isInUseSame());  \
+                    ASSERT(!(MONITOR).isInUseDown());  \
+                                                       \
+        } else if (0 == std::strcmp("SAME", #STATE)) { \
+                    ASSERT(!(MONITOR).isInUseUp());    \
+                    ASSERT( (MONITOR).isInUseSame());  \
+                    ASSERT(!(MONITOR).isInUseDown());  \
+                                                       \
+        } else if (0 == std::strcmp("DOWN", #STATE)) { \
+                    ASSERT(!(MONITOR).isInUseUp());    \
+                    ASSERT(!(MONITOR).isInUseSame());  \
+                    ASSERT( (MONITOR).isInUseDown());  \
+                                                       \
+        } else {                                       \
+             assert("Unknown State: " #STATE);         \
+        }                                              \
+    } while (0);
 
-    explicit MyMemoryUser(int size, bslma_Allocator *basicAllocator = 0);
-        // Create a 'MyMemoryUser' object holding the specified 'size' bytes of
-        // allocated memory.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  The behavior is undefined unless
-        // 'size >= 0'.
+#define ALLOC_MAX(MONITOR, STATE)  \
+    do {                                               \
+               if (0 == std::strcmp("UP",   #STATE)) { \
+                    ASSERT( (MONITOR).isMaxUp());      \
+                    ASSERT(!(MONITOR).isMaxSame());    \
+                                                       \
+        } else if (0 == std::strcmp("SAME", #STATE)) { \
+                    ASSERT(!(MONITOR).isMaxUp());      \
+                    ASSERT( (MONITOR).isMaxSame());    \
+                                                       \
+        } else {                                       \
+             assert("Unknown State: " #STATE);         \
+        }                                              \
+    } while (0);
 
-    ~MyMemoryUser();
-        // Destroy this object.
-
-    // MANIPULATORS
-    void setMemorySize(int size);
-        // Set the size of the held allocated memory to the specified 'size'.
-        // Previously held memory is returned to the allocator.  The behavior
-        // is undefined unless 'size >= 0'.
-
-    // ACCESSORS
-    int memorySize() const;
-        // Return the size of the currently held memory.
-};
-
-// CREATORS
-inline
-MyMemoryUser::MyMemoryUser(bslma_Allocator *basicAllocator)
-: d_size(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
-{
-}
-
-inline
-MyMemoryUser::MyMemoryUser(int size, bslma_Allocator *basicAllocator)
-: d_size(size)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
-{
-    d_held_p = d_allocator_p->allocate(d_size);
-}
-
-inline
-MyMemoryUser::~MyMemoryUser()
-{
-    d_allocator_p->deallocate(d_held_p);
-}
-
-// MANIPULATORS
-inline
-void MyMemoryUser::setMemorySize(int size)
-{
-    d_allocator_p->deallocate(d_held_p);
-    d_size   = size;
-    d_held_p = d_allocator_p->allocate(d_size);
-}
-
-// ACCESSORS
-inline
-int MyMemoryUser::memorySize() const
-{
-    return d_size;
-}
-
-typedef MyMemoryUser Obj;
+#define ALLOC_TOTAL(MONITOR, STATE)                    \
+    do {                                               \
+               if (0 == std::strcmp("UP",   #STATE)) { \
+                    ASSERT( (MONITOR).isTotalUp());    \
+                    ASSERT(!(MONITOR).isTotalSame());  \
+                                                       \
+        } else if (0 == std::strcmp("SAME", #STATE)) { \
+                    ASSERT(!(MONITOR).isTotalUp());    \
+                    ASSERT( (MONITOR).isTotalSame());  \
+                                                       \
+        } else {                                       \
+             assert("Unknown State: " #STATE);         \
+        }                                              \
+    } while (0);
 
 // ============================================================================
 //                                USAGE EXAMPLE
@@ -194,16 +172,51 @@ typedef MyMemoryUser Obj;
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Basic Usage
-/// - - - - - - - - - - -
-// A 'bslma_TestAllocatorMonitor' object can be used in a simple check for
-// memory leakage.
+///Example 1: Standard Usage
+///- - - - - - - - - - - - -
+// Classes taking 'bslma_allocator' objects have many requirements (and thus,
+// many testing concerns) that other classes do not.  For example, the concerns
+// of a (value-semantic) attribute class include:
 //
-// First, we must specify a class of interest (to be the subject of the test).
-// We here define 'MyClass', a simple, unconstrained attribute class.  An
-// abbreviated implementation attribute suffices for the purposes of this
-// example (i.e., the demonstration of 'bslma_TestAllocatorMonitor').  A proper
-// attribute class would have value and copy constructors, 'operator==', etc.
+//: 1 An object created with the default constructor (with or without a
+//:   supplied allocator) has the contractually specified default value.
+//:
+//: 2 If an allocator is NOT supplied to the default constructor, the default
+//:   allocator in effect at the time of construction becomes the object
+//:   allocator for the resulting object.
+//:
+//: 3 If an allocator IS supplied to the default constructor, that allocator
+//:   becomes the object allocator for the resulting object.
+//:
+//: 4 Supplying a null allocator address has the same effect as not supplying
+//:   an allocator.
+//:
+//: 5 Supplying an allocator to the default constructor has no effect on
+//:   subsequent object values.
+//:
+//: 6 Any memory allocation is from the object allocator.
+//:
+//: 7 There is no temporary allocation from any allocator.
+//:
+//: 8 Every object releases any allocated memory at destruction.
+//:
+//: 9 QoI: The default constructor allocates no memory.
+//
+// Note that some of these concerns (e.g., C-9) are not part of the class's
+// contractual behavior.
+//
+// We here illustrate how 'bslma_TestAllocatorMonitor' objects (in conjunction
+// with 'bslma_TestAllocator' objects, of course) can be used in a test driver
+// to succinctly address the above concerns.
+//
+// As a test subject, we introduce 'MyClass', an unconstrained attribute class
+// with a single attribute, 'description', an ascii string.  For the sake of
+// brevity, 'MyClass' defines only a default constructor, a primary manipulator
+// (the 'setDescription' method), and a basic accessor (the 'description'
+// method).  These suffice for the purposes of these example.  Note that proper
+// attribute class would also implement value and copy constructors,
+// 'operator==', and other methods.
+//
 //..
     class MyClass {
         // This unconstrained (value-semantic) attribute class has a single
@@ -219,7 +232,7 @@ typedef MyMemoryUser Obj;
         MyClass(bslma_Allocator *basicAllocator = 0);
             // Create a 'MyClass' object having the (default) attribute values:
             //..
-            // description() == ""
+            //  description() == ""
             //..
             // Optionally specify a 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed default allocator
@@ -288,6 +301,7 @@ typedef MyMemoryUser Obj;
         return d_description_p ? d_description_p : "";
     }
 //..
+//
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -303,8 +317,13 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    // CONCERN: In no case does memory come from the global allocator.
+
+    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma_Default::setGlobalAllocator(&globalAllocator);
+
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -324,63 +343,6 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-//
-// Then, we create, 'oa', an 'bslma_TestAllocator' object, to serve as object
-// allocator and 'oam', an 'bslma_TestAllocatorMonitor' object, to track that
-// allocator.
-//..
-    {
-        bslma_TestAllocator        oa("object",  veryVeryVeryVerbose);
-        bslma_TestAllocatorMonitor oam(oa);
-//..
-// Next, we create 'obj', an object of the class of interest, and exercise it
-// so that memory is allocated.  (Typically, an object must allocate memory to
-// hold data that exceeds its own size.)
-//..
-        {
-            MyClass obj(&oa);
-
-            const char BRUTUS[]="The noblest Roman of them all.";
-            BSLMF_ASSERT(sizeof(obj) < sizeof(BRUTUS));
-
-            obj.setDescription(BRUTUS);
-        }
-//..
-// Finally, we examine 'oam' check the usage of the object's allocator.
-
-        ASSERT(oam.isTotalUp());   // Object allocator was used.
-        ASSERT(oam.isInUseSame()); // All allocations were deallocated.
-    }
-//..
-// Notice that 'isTotalUp' method indicates that some allocators and
-// deallocations were made.  The 'isInUseSame' method indicates that the
-// number of *outstanding* allocations from 'oa' has not changed since
-// the creation of 'oam'.  The 'oam' object was created when that value was 0
-// (before any use of 'oa').
-//
-///Example 2: Standard Usage
-///- - - - - - - - - - - - -
-// Classes taking 'bslma_allocator' objects have many testing concerns that
-// other classes do not.  For example, objects of the class of interest must:
-//: 1 Release all allocated memory on destruction.
-//: 2 Allocate memory from the appropriate allocator.
-//: 3 Allocate no memory when default constructed.
-//: 4 Cache allocated memory for reuse.
-//: 5 Create no temporary objects (i.e., no direct use of the default
-//:   allocator).
-//
-// C-1 is (no memory leaks) is a universal concern of software engineering.
-// C-2 is a requirement for classes following the BDE allocator paradigm.
-// (There is a global assumption that all memory allocation is done from *some*
-// allocator).  The remaining concerns are Quality-of-Implementation (QoI)
-// issues for certain members of the BDE taxonomy.  Notice that none of these
-// concerns are explicitly documented in the contract for the class of
-// interest.
-//
-// We hear illustrate how 'bslma_TestAllocatorMonitor' objects can be used to
-// address such concerns.  As a test subject, we reuse 'MyClass', the class
-// defined in Example 1.
-//
 // First, following the typical testing pattern, we create a trio of
 // 'bslma_TestAllocator' objects, and install two as the global and default
 // allocators.  The remaining allocator will be supplied to the object.
@@ -474,6 +436,108 @@ int main(int argc, char *argv[])
 // object allocator, address C-2 and C-5.
 
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TEST ALLOCATOR MONITOR CTOR AND METHODS
+        //
+        // Concerns:
+        //: 1 For any statistic tracked by the monitor (e.g., "InUse") only one
+        //:   of the related methods returns 'true'.  Thus, if the 'inUseSame'
+        //:   method returns 'true', then the 'inUseUp' and 'inUseDown' methods
+        //:   return 'false'.
+        //:
+        //: 2 All of a monitor's "Same" methods return 'true' until it's
+        //:   tracked allocator is used.
+        //:
+        //: 3 Any allocation(s) from the tracked allocator idempotently flip
+        //:   the monitor's 'isMaxUp' and 'isTotalUp' methods return values to
+        //:   'true'.
+        //:
+        //: 4 The return values of the "inUse" methods track the net number of
+        //:   allocations and deallocations since the creation of the monitor.
+        //:   Note that the monitors can be created for allocators with
+        //:   outstanding allocations.  If so, there are scenarios where the
+        //:   number of allocations "inUse" can decrease from that when the
+        //:   monitor was created.
+        //:
+        // Plan:
+        //: 1 Always test the return values as a "suite" (i.e., "InUse", "Max",
+        //:   and "Total") and confirm that only one is 'true'.  Devise a set
+        //:   of macros to do so concisely.  (C-1)
+        //:
+        //: 2 Create a test allocator, a tracking test allocator monitor, and
+        //:   an confirm the return values of the monitor before the allocator
+        //:   is used.  (C-2)
+        //:
+        //: 3 Put perform the following operations on the test allocator.
+        //:   After each operation, check the return values of each monitor
+        //:   method for expected results.
+        //:   1 Allocate memory.  (C-3)
+        //:   2 Allocate additional memory.  (C-3)
+        //:   3 Deallocate first allocation.  (C-4)
+        //:   4 Deallocate second allocation.  (C-4)
+        //:
+        //: 4 After step P-2.2, create a second monitor for the same test
+        //:   allocator.  After operations, P-2.3 and P-2.4, check the return
+        //:   values of the second monitor for the expected results.  (C-4)
+        //
+        // Testing:
+        //   bslma_TestAllocatorMonitor(const bslma_TestAllocator& tA);
+        //   bool isInUseDown() const;
+        //   bool isInUseSame() const;
+        //   bool isInUseUp() const;
+        //   bool isMaxSame() const;
+        //   bool isMaxUp() const;
+        //   bool isTotalSame() const;
+        //   bool isTotalUp() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TEST ALLOCATOR MONITOR CTOR AND METHODS" << endl
+                          << "=======================================" << endl;
+
+              TestObj  mta("test allocator", veryVeryVeryVerbose);
+        const TestObj&  ta   = mta;
+
+                  Obj  mtam1(ta);
+        const     Obj&  tam1 = mtam1;
+
+        ALLOC_INUSE(tam1, "SAME");
+        ALLOC_MAX  (tam1, "SAME");
+        ALLOC_TOTAL(tam1, "SAME");
+
+        void *allocation1 = mta.allocate(1);
+
+        ALLOC_INUSE(tam1, "UP");
+        ALLOC_MAX  (tam1, "UP");
+        ALLOC_TOTAL(tam1, "UP");
+
+        void *allocation2 = mta.allocate(1);
+
+        ALLOC_INUSE(tam1, "UP");
+        ALLOC_MAX  (tam1, "UP");
+        ALLOC_TOTAL(tam1, "UP");
+
+                  Obj  mtam2(ta);
+        const     Obj&  tam2 = mtam2;
+
+                                    ALLOC_INUSE(tam2, "SAME");
+                                    ALLOC_MAX  (tam2, "SAME");
+                                    ALLOC_TOTAL(tam2, "SAME");
+
+        mta.deallocate(allocation1);
+
+        ALLOC_INUSE(tam1, "UP");    ALLOC_INUSE(tam2, "DOWN");
+        ALLOC_MAX  (tam1, "UP");    ALLOC_MAX  (tam2, "SAME");
+        ALLOC_TOTAL(tam1, "UP");    ALLOC_TOTAL(tam2, "SAME");
+
+        mta.deallocate(allocation2);
+
+        ALLOC_INUSE(tam1, "SAME"); ALLOC_INUSE(tam2, "DOWN");
+        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "SAME");
+        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "SAME");
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -489,8 +553,8 @@ int main(int argc, char *argv[])
         //:   object created in P-1.
         //: 3 Perform several allocations from and deallocations to the
         //:   the test allocator created in P-1.  At each point, confirm that
-        //:   the test allocator monitor object created in P-2 shows the
-        //:   expected statistic.
+        //:   the test allocator monitor object created in P-2 returns 'true'
+        //:   from the appropriate methods.
         //: 4 Destroy the test allocator monitor.
         //
         // Testing:
@@ -502,24 +566,23 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         bslma_TestAllocator        ta("test allocator", veryVeryVeryVerbose);
-        bslma_TestAllocatorMonitor m(ta);
+        bslma_TestAllocatorMonitor tam(ta);
 
-
-    ASSERT(!m.isTotalUp());   ASSERT(!m.isInUseUp());   ASSERT(!m.isMaxUp());
-    ASSERT( m.isTotalSame()); ASSERT( m.isInUseSame()); ASSERT( m.isMaxSame());
-                              ASSERT(!m.isInUseDown());
+        ASSERT(tam.isTotalSame());
+        ASSERT(tam.isInUseSame());
+        ASSERT(tam.isMaxSame());
 
         void *allocation = ta.allocate(1);
 
-    ASSERT( m.isTotalUp());   ASSERT( m.isInUseUp());   ASSERT( m.isMaxUp());
-    ASSERT(!m.isTotalSame()); ASSERT(!m.isInUseSame()); ASSERT(!m.isMaxSame());
-                              ASSERT(!m.isInUseDown());
+        ASSERT(tam.isTotalUp());
+        ASSERT(tam.isInUseUp());
+        ASSERT(tam.isMaxUp());
 
         ta.deallocate(allocation);
 
-    ASSERT( m.isTotalUp());   ASSERT(!m.isInUseUp());   ASSERT( m.isMaxUp());
-    ASSERT(!m.isTotalSame()); ASSERT( m.isInUseSame()); ASSERT(!m.isMaxSame());
-                              ASSERT(!m.isInUseDown());
+        ASSERT(tam.isTotalUp());
+        ASSERT(tam.isInUseSame());
+        ASSERT(tam.isMaxUp());
 
       } break;
       default: {
@@ -527,6 +590,11 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
