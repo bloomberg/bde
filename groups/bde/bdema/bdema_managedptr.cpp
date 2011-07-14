@@ -43,8 +43,8 @@ void bdema_ManagedPtr_Members::swap(bdema_ManagedPtr_Members & other) {
     }
 }
 
-void bdema_ManagedPtr_Members::set(void *ptr,
-                                   const bdema_ManagedPtrDeleter& rep)
+void bdema_ManagedPtr_Members::init(void *ptr,
+                                    const bdema_ManagedPtrDeleter& rep)
 {
     d_obj_p = ptr;
     if (ptr) {
@@ -55,10 +55,10 @@ void bdema_ManagedPtr_Members::set(void *ptr,
     }
 }
 
-void bdema_ManagedPtr_Members::set(void *ptr, 
-                                   void *object, 
-                                   void *factory, 
-                                   DeleterFunc deleter)
+void bdema_ManagedPtr_Members::init(void *ptr, 
+                                    void *object, 
+                                    void *factory, 
+                                    DeleterFunc deleter)
 {
     d_obj_p = ptr;
     if (ptr) {
@@ -86,17 +86,17 @@ void bdema_ManagedPtr_Members::reset(void *ptr,
                                      const bdema_ManagedPtrDeleter &rep)
 {
     runDeleter();
-    set(ptr, rep);
+    init(ptr, rep);
 }
 
 void bdema_ManagedPtr_Members::reset(bdema_ManagedPtr_Members& other)
 {   
-    runDeleter();
-
     // if 'other.d_obj_p' is null then 'other.d_deleter' may not be initialized
     // but 'set' takes care of that concern.  deleter passed by ref, so no read
     // of uninitialized memory occurs
-    set(other.d_obj_p, other.d_deleter);
+
+    runDeleter();
+    init(other.d_obj_p, other.d_deleter);
     other.rawClear();
 }
 
@@ -109,7 +109,7 @@ void bdema_ManagedPtr_Members::reset(void        *ptr,
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     runDeleter();
-    set(ptr, object, factory, deleter);
+    init(ptr, object, factory, deleter);
 }
 
 
