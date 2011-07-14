@@ -40,10 +40,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
     }
     rc |= pthread_attr_setguardsize(dest, guardSize);
 
-    if (src.inheritSchedule()) {
-        rc |= pthread_attr_setinheritsched(dest, PTHREAD_INHERIT_SCHED);
-    }
-    else {
+    if (0 == src.inheritSchedule()) {
         rc |= pthread_attr_setinheritsched(dest, PTHREAD_EXPLICIT_SCHED);
 
         int policy = src.schedulingPolicy();
