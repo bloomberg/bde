@@ -445,12 +445,24 @@ public:
         // trivial destructor's definition is compiler generated.
 
     //MANIPULATORS
+    void init(void *ptr, const bdema_ManagedPtrDeleter& rep);
+        // Initialize this managed pointer to the specified 'ptr' pointer
+        // value and the specified deleter.  Note that this function does
+        // not destroy the current managed instance.
+
+    void init(void *ptr, void *object, void *factory, DeleterFunc deleter);
+        // Initialize this managed pointer to the specified 'ptr' pointer
+        // value, the specified 'object' pointer value, and the specified
+        // 'deleter' function, using the specified 'factory'.  The specified
+        // 'ptr' points to the object that will be referred to by the '*' and
+        // '->' operators, while the specified 'object' points to the object
+        // that will be destroyed and deallocated when this ManagedPtr is
+        // destroyed.
+
     void rawClear();
         // Reset this managed pointer to an unset state.  If this managed
         // pointer currently has a value, then the managed instance will not
         // be destroyed.
-
-    void clearDeleter() { d_deleter.clear(); }
 
     void swap(bdema_ManagedPtr_Members& other);
 
@@ -467,20 +479,6 @@ public:
         // deallocated when this ManagedPtr is destroyed.
 
     void runDeleter();
-
-    void init(void *ptr, const bdema_ManagedPtrDeleter& rep);
-        // Initialize this managed pointer to the specified 'ptr' pointer
-        // value and the specified deleter.  Note that this function does
-        // not destroy the current managed instance.
-
-    void init(void *ptr, void *object, void *factory, DeleterFunc deleter);
-        // Initialize this managed pointer to the specified 'ptr' pointer
-        // value, the specified 'object' pointer value, and the specified
-        // 'deleter' function, using the specified 'factory'.  The specified
-        // 'ptr' points to the object that will be referred to by the '*' and
-        // '->' operators, while the specified 'object' points to the object
-        // that will be destroyed and deallocated when this ManagedPtr is
-        // destroyed.
 
     void setAliasPtr(void *ptr);
 
