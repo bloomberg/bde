@@ -15,6 +15,7 @@ bdema_defaultallocatorguard
 bdema_infrequentdeleteblocklist
 bdema_managedallocator
 bdema_managedptr
+bdema_managedptrdeleter
 bdema_memoryblockdescriptor
 bdema_multipool
 bdema_multipoolallocator

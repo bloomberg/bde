@@ -28,7 +28,6 @@ using namespace bsl;  // automatically added by script
 // [ 3] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
 
 // [ 4] class bdema_ManagedPtrNilDeleter
-// [ 5] class bdema_ManagedPtrDeleter
 // [ 6] class bdema_ManagedPtrFactoryDeleter  (this one needs negative testing)
 //      class bdema_ManagedPtr
 
@@ -44,47 +43,46 @@ using namespace bsl;  // automatically added by script
 // aliasing machinery works as documented.  At last, we must also check that
 // a 'bdema_ManagedPtr' acts exactly as a pointer wherever one is expected.
 //-----------------------------------------------------------------------------
-// [ 7] bdema_ManagedPtr();
-// [ 7] bdema_ManagedPtr(nullptr_t);
-// [ 7] template<class TARGET_TYPE> bdema_ManagedPtr(TARGET_TYPE *ptr);
-// [ 9] bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
-// [ 9] bdema_ManagedPtr(bdema_ManagedPtr& original);
-// [ 9] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &original)
-// [10] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
-// [ 9] bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
-// [ 9] bdema_ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
-// [ 7] ~bdema_ManagedPtr();
-// [12] operator bdema_ManagedPtr_Ref<BDEMA_TYPE>();
-// [12] operator bdema_ManagedPtr_Ref<OTHER>();
-// [ 8] void load(nullptr_t=0);
-// [ 8] template<class TARGET_TYPE> void load(TARGET_TYPE *ptr);
-// [ 8] void load(TYPE *ptr, FACTORY *factory)
-// [ 8] void load(TYPE *ptr, void *factory, void (*deleter)(TYPE *, void*));
-// [ 8] void load(TYPE *ptr, FACTORY *factory, void(*deleter)(TYPE *,FACTORY*))
-// [10] void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
-// [12] void swap(bdema_ManagedPt& rhs);
-// [12] bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
-// [12] bdema_ManagedPtr& operator=(bdema_ManagedPtr<OTHER> &rhs)
-// [12] bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
-// [13] void clear();
-// [13] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
-// [11] operator BoolType() const;
-// [11] TYPE& operator*() const;
-// [11] TYPE *operator->() const;
-// [11] TYPE *ptr() const;
-// [11] const bdema_ManagedPtrDeleter& deleter() const;
+// [ 6] bdema_ManagedPtr();
+// [ 6] bdema_ManagedPtr(nullptr_t);
+// [ 6] template<class TARGET_TYPE> bdema_ManagedPtr(TARGET_TYPE *ptr);
+// [ 8] bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+// [ 8] bdema_ManagedPtr(bdema_ManagedPtr& original);
+// [ 8] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &original)
+// [ 9] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
+// [ 8] bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
+// [ 8] bdema_ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
+// [ 6] ~bdema_ManagedPtr();
+// [11] operator bdema_ManagedPtr_Ref<BDEMA_TYPE>();
+// [11] operator bdema_ManagedPtr_Ref<OTHER>();
+// [ 7] void load(nullptr_t=0);
+// [ 7] template<class TARGET_TYPE> void load(TARGET_TYPE *ptr);
+// [ 7] void load(TYPE *ptr, FACTORY *factory)
+// [ 7] void load(TYPE *ptr, void *factory, void (*deleter)(TYPE *, void*));
+// [ 7] void load(TYPE *ptr, FACTORY *factory, void(*deleter)(TYPE *,FACTORY*))
+// [ 9] void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
+// [11] void swap(bdema_ManagedPt& rhs);
+// [11] bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
+// [11] bdema_ManagedPtr& operator=(bdema_ManagedPtr<OTHER> &rhs)
+// [11] bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+// [12] void clear();
+// [12] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
+// [10] operator BoolType() const;
+// [10] TYPE& operator*() const;
+// [10] TYPE *operator->() const;
+// [10] TYPE *ptr() const;
+// [10] const bdema_ManagedPtrDeleter& deleter() const;
 //
-// [ 4] class bdema_ManagedPtrDeleter
-// [ 6] class bdema_ManagedPtrFactoryDeleter  (this one needs negative testing)
-// [ 5] class bdema_ManagedPtrNilDeleter
+// [ 5] class bdema_ManagedPtrFactoryDeleter  (this one needs negative testing)
+// [ 4] class bdema_ManagedPtrNilDeleter
 //
 // [ 2] imp. class bdema_ManagedPtr_Members
 // [ 3] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] CASTING EXAMPLE
-// [15] USAGE EXAMPLE
-// [16] VERIFYING FAILURES TO COMPILE
+// [13] CASTING EXAMPLE
+// [14] USAGE EXAMPLE
+// [15] VERIFYING FAILURES TO COMPILE
 
 namespace {
 
@@ -569,7 +567,7 @@ int main(int argc, char *argv[])
     bslma_TestAllocator ta;
 
     switch (test) { case 0:
-      case 16: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING FAILURE TO COMPILE
         //
@@ -594,7 +592,7 @@ int main(int argc, char *argv[])
             a = mX >= mY;
 #       endif
       } break;
-      case 15: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -618,7 +616,7 @@ int main(int argc, char *argv[])
         usageExample1();
 
       } break;
-      case 14: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION EXAMPLES
         //
@@ -666,7 +664,7 @@ int main(int argc, char *argv[])
 
         LOOP_ASSERT(numdels, 6 == numdels);
       } break;
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // CLEAR and RELEASE
         //
@@ -753,7 +751,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
       } break;
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // SWAP AND ASSIGN TEST
         //
@@ -907,7 +905,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
       } break;
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING ACCESSORS
         //
@@ -977,7 +975,7 @@ int main(int argc, char *argv[])
             ASSERT(taDefault.numDeallocation() == numDeallocation + 1);
         }
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // ALIAS SUPPORT TEST
         //
@@ -1043,7 +1041,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(taDefault.numDeallocation() == numDeallocation + 2);
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // CREATORS TEST
         //
@@ -1173,7 +1171,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
 
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // Testing 'load' overloads
         //
@@ -1329,7 +1327,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(2 == numDeletes);
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // PRIMARY CREATORS TEST
         //   Note that we will not deem the destructor to be completely tested
@@ -1459,7 +1457,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
 #endif
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtrFactoryDeleter (this one needs negative testing)
         //
@@ -1474,26 +1472,6 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING bdema_ManagedPtrFactoryDeleter"
-                          << "\n--------------------------------------" << endl;
-
-        if (verbose) cout << "\tTest blah...\n";
-
-      } break;
-      case 5: {
-        // --------------------------------------------------------------------
-        // TESTING bdema_ManagedPtrDeleter
-        //
-        // Concerns:
-        //: 1 TBD Enumerate concerns
-        //
-        // Plan:
-        //: 1 blah ...
-        //
-        // Testing:
-        //   ... list class operations that are tested ...
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING bdema_ManagedPtrDeleter"
                           << "\n--------------------------------------" << endl;
 
         if (verbose) cout << "\tTest blah...\n";
