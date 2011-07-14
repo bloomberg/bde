@@ -91,43 +91,50 @@ namespace {
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Testing a simple protocol class.
+///Example 1: Testing a Protocol Class.
 ///- - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to test a protocol class, 'MyInterface', using
-// this protocol test component.  The protocol we want to test, 'MyInterface',
-// provides a couple of pure virtual methods ('foo' and 'bar'), along with a
-// pure virtual destructor.
+// This example demonstrates how to test a protocol class, 'ProtocolClass',
+// using this protocol test component.  Our 'ProtocolClass' provides two of
+// pure virtual methods ('foo' and 'bar'), along with a virtual destructor:
 //..
-struct MyInterface {
-    virtual ~MyInterface() = 0;
+struct ProtocolClass {
+    virtual ~ProtocolClass();
     virtual const char *bar(char const *, char const *) = 0;
     virtual int foo(int) const = 0;
 };
 
-MyInterface::~MyInterface()
+ProtocolClass::~ProtocolClass()
 {
 }
 //..
 // First, we define a test class derived from this protocol, and implement its
-// virtual methods.  Rather than deriving the test class from 'MyInterface'
-// directly, the test class is derived from 'bsls_ProtocolTestImp<MyInterface>'
-// (which, in turn, is derived from 'MyInterface').  This base class implements
+// virtual methods.  Rather than deriving the test class from 'ProtocolClass'
+// directly, the test class is derived from
+// 'bsls_ProtocolTestImp<ProtocolClass>' (which, in turn, is derived
+// automatically from 'ProtocolClass').  This special base class implements
 // boilerplate code and provides useful functionality for testing of protocols.
 //..
-struct MyInterfaceTest : bsls_ProtocolTestImp<MyInterface> {
+// ========================================================================
+//                  GLOBAL CLASSES/TYPEDEFS FOR TESTING
+// ------------------------------------------------------------------------
+
+struct ProtocolClassTestImp : bsls_ProtocolTestImp<ProtocolClass> {
     const char *bar(char const *, char const *) { return markDone(); }
     int foo(int) const                          { return markDone(); }
 };
 //..
-// Notice that in 'MyInterfaceTest' we must provide an implementation for every
-// protocol method except for the destructor.  The implementation of each
-// method should simply call 'markDone' which is provided by the base class for
-// the purpose of verifying that the method from which it's called is declared
-// as virtual in the protocol class.
+// Notice that in 'ProtocolClassTestImp' we must provide an implementation for
+// every protocol method except for the destructor.  The implementation of each
+// method calls the (protected) 'markDone' which is provided by the base class
+// for the purpose of verifying that the method from which it's called is
+// declared as virtual in the protocol class.
 
 // ============================================================================
 //                    TYPES AND FUNCTIONS REQUIRED FOR TESTING
 // ----------------------------------------------------------------------------
+
+typedef ProtocolClass        MyInterface;
+typedef ProtocolClassTestImp MyInterfaceTest;
 
 // For testing 'testAbstract'.
 struct NotAbstractInterface {
@@ -256,90 +263,88 @@ int main(int argc, char *argv[])
 // Then, in our protocol test case we describe the concerns we have for the
 // protocol class and the plan to test those concerns:
 //..
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // PROTOCOL TEST:
     //   Ensure this class is a properly defined protocol.
     //
     // Concerns:
-    //: 1 The protocol class is an abstract: no objects of it can be created.
+    //: 1 The protocol is abstract: no objects of it can be created.
     //:
     //: 2 The protocol has no data members.
     //:
-    //: 3 The protocol has a pure virtual destructor.
+    //: 3 The protocol has a virtual destructor.
     //:
     //: 4 All methods of the protocol are pure virtual.
     //:
     //: 5 All methods of the protocol are publicly accessible.
     //
     // Plan:
-    //: 1 Define a concrete derived implementation, 'MyInterfaceTest' of the
-    //:   protocol.
+    //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
+    //:   of the protocol.
     //:
-    //: 2 Create an object of the 'bsls_ProtocolTest' class parameterized
-    //:   with 'MyInterfaceTest'.
+    //: 2 Create an object of the 'bsls_ProtocolTest' class template
+    //:   parameterized by 'ProtocolClassTestImp', and use it to verify
+    //:   that:
     //:
-    //: 3 Use the 'bsls_protocolTest' object to verify that the protocol is
-    //:   an abstract class. (C-1)
+    //:   1 The protocol is abstract. (C-1)
     //:
-    //: 4 Use the 'bsls_ProtocolTest' object to verify that the protocol
-    //:   has no data members. (C-2)
+    //:   2 The protocol has no data members. (C-2)
     //:
-    //: 5 Use the 'bsls_ProtocolTest' object to verify that the protocol
-    //:   has a virtual destructor. (C-3)
+    //:   3 The protocol has a virtual destructor. (C-3)
     //:
-    //: 6 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that:
+    //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
+    //:   non-creator methods of the protocol are:
     //:
-    //:   1 All the methods of the protocol class are virtual. (C-4)
+    //:   1 virtual, (C-4)
     //:
-    //:   2 All the methods of the protocol class are publicly accessible.
-    //:     (C-5)
+    //:   2 publicly accessible. (C-5)
     //
     // Testing:
-    //   virtual ~MyInterface() = 0;
+    //   virtual ~ProtocolClass();
     //   virtual const char *bar(char const *, char const *) = 0;
     //   virtual int foo(int) const = 0;
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 //..
-// Next, we use 'bsls_ProtocolTest' to perform the actual testing of our
-// 'MyInterface' protocol class.
+// Next we print the banner for this test case:
 //..
     if (verbose) printf("\nPROTOCOL TEST"
                         "\n=============\n");
 //..
-// Then we create an object of type 'bsls_ProtocolTest' parameterized with
-// 'MyInterfaceTest':
+// Then, we create an object of type 'bsls_ProtocolTest<ProtocolClassTestImp>',
+// 'testObj':
 //..
-    if (verbose) printf("\nCreate a 'bsls_ProtocolTest' object.\n");
+    if (verbose) printf("\nCreate a test object.\n");
 
-    bsls_ProtocolTest<MyInterfaceTest> t(veryVerbose);
+    bsls_ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
 //..
-// Now we use the 't' object to test some general concerns about the protocol
+// Now we use the 'testObj' to test some general concerns about the protocol
 // class.
 //..
     if (verbose) printf("\nVerify that the protocol is abstract.\n");
 
-    ASSERT(t.testAbstract());
+    ASSERT(testObj.testAbstract());
 
     if (verbose) printf("\nVerify that there are no data members.\n");
 
-    ASSERT(t.testNoDataMembers());
+    ASSERT(testObj.testNoDataMembers());
 
     if (verbose) printf("\nVerify that the destructor is virtual.\n");
 
-    ASSERT(t.testVirtualDestructor());
+    ASSERT(testObj.testVirtualDestructor());
 //..
-// Finally we use the 't' object to test concerns for each individual method of
+// Finally we use the 'testObj' to test concerns for each individual method of
 // the protocol class.  To test a protocol method we need to call it from
-// inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass the 't' object:
+// inside the 'BSLS_PROTOCOLTEST_ASSERT' macro, and also pass the 'testObj':
 //..
-    if (verbose) printf("\nVerify that methods is public and virtual.\n");
+    if (verbose) printf("\nVerify that methods are public and virtual.\n");
 
-    BSLS_PROTOCOLTEST_ASSERT(t, foo(77));
-    BSLS_PROTOCOLTEST_ASSERT(t, bar("", ""));
+    BSLS_PROTOCOLTEST_ASSERT(testObj, foo(77));
+    BSLS_PROTOCOLTEST_ASSERT(testObj, bar("", ""));
 //..
 // These steps conclude the protocol testing.  If there are any failures, they
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
