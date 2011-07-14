@@ -348,8 +348,8 @@ int main(int argc, char *argv[])
 //..
 // Finally, we examine 'oam' check the usage of the object's allocator.
 
-        ASSERT(true == oam.isTotalUp());   // Object allocator was used.
-        ASSERT(true == oam.isInUseSame()); // All allocations were deallocated.
+        ASSERT(oam.isTotalUp());   // Object allocator was used.
+        ASSERT(oam.isInUseSame()); // All allocations were deallocated.
     }
 //..
 // Notice that 'isTotalUp' method indicates that some allocators and
@@ -409,9 +409,9 @@ int main(int argc, char *argv[])
 // Then, after the object is destroyed, the several monitor objects show that
 // their respective allocators were not used.
 //..
-        ASSERT(true == gam.isTotalSame()); // no (de)allocations
-        ASSERT(true == dam.isTotalSame()); // no (de)allocations
-        ASSERT(true == oam.isTotalSame()); // no (de)allocations
+        ASSERT(gam.isTotalSame()); // no (de)allocations
+        ASSERT(dam.isTotalSame()); // no (de)allocations
+        ASSERT(oam.isTotalSame()); // no (de)allocations
 //..
 // Notice that we have addressed C-3.
 
@@ -427,8 +427,8 @@ int main(int argc, char *argv[])
 
             obj.setDescription(DESCRIPTION1);
 
-            ASSERT(true == oam.isTotalUp());  // object allocator was used
-            ASSERT(true == oam.isInUseUp());  // some outstanding allocation(s)
+            ASSERT(oam.isTotalUp());  // object allocator was used
+            ASSERT(oam.isInUseUp());  // some outstanding allocation(s)
 //..
 // Then, we reset the attribute to a short value and test that the previously
 // allocated memory is reused.  To measure changes in the object allocator
@@ -439,7 +439,7 @@ int main(int argc, char *argv[])
 
             obj.setDescription("a");
 
-            ASSERT(true == oam2.isTotalSame());  // no (de)allocations
+            ASSERT(oam2.isTotalSame());  // no (de)allocations
 //..
 // Notice that this test addresses C-4.  Next, we assign a value that forces
 // the object to allocate additional memory.
@@ -450,24 +450,24 @@ int main(int argc, char *argv[])
                                       "abcdefghijklmnopqrstuvwyz";
             obj.setDescription(DESCRIPTION2);
 
-            ASSERT(true == oam2.isTotalUp());    // Object allocator was used.
-            ASSERT(true == oam2.isInUseSame());  // Outstanding allocation
+            ASSERT(oam2.isTotalUp());    // Object allocator was used.
+            ASSERT(oam2.isInUseSame());  // Outstanding allocation
                                                  // count (but not byte count)
                                                  // is unchanged.
         }
 //..
 // Now that the object has been destroyed.
 //..
-        ASSERT(true == oam.isTotalUp());   // Object allocator was used.
-        ASSERT(true == oam.isInUseSame()); // All allocations were deallocated.
+        ASSERT(oam.isTotalUp());   // Object allocator was used.
+        ASSERT(oam.isInUseSame()); // All allocations were deallocated.
 //..
 // Notice that these tests confirm C-2.
 //
 // Finally, we examine the two monitors of the two non-object allocators to
 // confirm that they were not used by any of these operations.
 //..
-        ASSERT(true == gam.isTotalSame()); // Global  allocator was never used.
-        ASSERT(true == dam.isTotalSame()); // Default allocator was never used.
+        ASSERT(gam.isTotalSame()); // Global  allocator was never used.
+        ASSERT(dam.isTotalSame()); // Default allocator was never used.
     }
 //..
 // Notice that the last tests, along with our observations of the use of the
@@ -475,6 +475,51 @@ int main(int argc, char *argv[])
 
       } break;
       case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Create a 'bslma_TestAllocator' object.
+        //: 2 Create a 'bslma_TestAllocatorMonitor' object to track the
+        //:   object created in P-1.
+        //: 3 Perform several allocations from and deallocations to the
+        //:   the test allocator created in P-1.  At each point, confirm that
+        //:   the test allocator monitor object created in P-2 shows the
+        //:   expected statistic.
+        //: 4 Destroy the test allocator monitor.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
+
+        bslma_TestAllocator        ta("test allocator", veryVeryVeryVerbose);
+        bslma_TestAllocatorMonitor m(ta);
+
+
+    ASSERT(!m.isTotalUp());   ASSERT(!m.isInUseUp());   ASSERT(!m.isMaxUp());
+    ASSERT( m.isTotalSame()); ASSERT( m.isInUseSame()); ASSERT( m.isMaxSame());
+                              ASSERT(!m.isInUseDown());
+
+        void *allocation = ta.allocate(1);
+
+    ASSERT( m.isTotalUp());   ASSERT( m.isInUseUp());   ASSERT( m.isMaxUp());
+    ASSERT(!m.isTotalSame()); ASSERT(!m.isInUseSame()); ASSERT(!m.isMaxSame());
+                              ASSERT(!m.isInUseDown());
+
+        ta.deallocate(allocation);
+
+    ASSERT( m.isTotalUp());   ASSERT(!m.isInUseUp());   ASSERT( m.isMaxUp());
+    ASSERT(!m.isTotalSame()); ASSERT( m.isInUseSame()); ASSERT(!m.isMaxSame());
+                              ASSERT(!m.isInUseDown());
 
       } break;
       default: {

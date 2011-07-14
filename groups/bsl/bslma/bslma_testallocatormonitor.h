@@ -44,9 +44,9 @@ class bslma_TestAllocatorMonitor {
     // TBD
 
     // DATA
-    const int                        d_initialInUse;    // 'numBlocksInUse'
-    const int                        d_initialMax;      // 'numBlocksMax'
-    const int                        d_initialTotal;    // 'numBlocksTotal'
+    const bsls_Types::Int64          d_initialInUse;    // 'numBlocksInUse'
+    const bsls_Types::Int64          d_initialMax;      // 'numBlocksMax'
+    const bsls_Types::Int64          d_initialTotal;    // 'numBlocksTotal'
     const bslma_TestAllocator *const d_testAllocator_p; // held, not owned
 
   public:
