@@ -111,7 +111,7 @@ void bdecs_Calendar::swap(bdecs_Calendar& other)
     // 'swap' is undefined for objects with non-equal allocators.
     BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
-    bslalg_SwapUtil::swap(&d_packedCalendar, &other.d_packedCalendar);
+    bslalg_SwapUtil::swap(&d_packedCalendar,  &other.d_packedCalendar);
     bslalg_SwapUtil::swap(&d_nonBusinessDays, &other.d_nonBusinessDays);
 }
 

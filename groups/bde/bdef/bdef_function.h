@@ -351,12 +351,12 @@ BDES_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR

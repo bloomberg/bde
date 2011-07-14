@@ -532,12 +532,12 @@ void bdecs_PackedCalendar::swap(bdecs_PackedCalendar& other)
     // 'swap' is undefined for objects with non-equal allocators.
     BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
-    bslalg_SwapUtil::swap(&d_firstDate, &other.d_firstDate);
-    bslalg_SwapUtil::swap(&d_lastDate, &other.d_lastDate);
-    bslalg_SwapUtil::swap(&d_weekendDays, &other.d_weekendDays);
-    bslalg_SwapUtil::swap(&d_holidayOffsets, &other.d_holidayOffsets);
+    bslalg_SwapUtil::swap(&d_firstDate,         &other.d_firstDate);
+    bslalg_SwapUtil::swap(&d_lastDate,          &other.d_lastDate);
+    bslalg_SwapUtil::swap(&d_weekendDays,       &other.d_weekendDays);
+    bslalg_SwapUtil::swap(&d_holidayOffsets,    &other.d_holidayOffsets);
     bslalg_SwapUtil::swap(&d_holidayCodesIndex, &other.d_holidayCodesIndex);
-    bslalg_SwapUtil::swap(&d_holidayCodes, &other.d_holidayCodes);
+    bslalg_SwapUtil::swap(&d_holidayCodes,      &other.d_holidayCodes);
 }
 
 void bdecs_PackedCalendar::addDay(const bdet_Date& date)
