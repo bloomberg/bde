@@ -24,7 +24,7 @@ using namespace bsl;  // automatically added by script
 // transferring ownership of a dynamically allocated object.  We choose to test
 // each class in turn, according to their
 //
-// [ 2] imp. class bdema_ManagedPtr_ReferenceType
+// [ 2] imp. class bslmf_AddReference
 // [ 3] imp. class bdema_ManagedPtr_Members
 // [ 4] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
 
@@ -81,7 +81,7 @@ using namespace bsl;  // automatically added by script
 //
 // [ 3] imp. class bdema_ManagedPtr_Members
 // [ 4] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
-// [ 2] imp. class bdema_ManagedPtr_ReferenceType
+// [ 2] imp. class bslmf_AddReference
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [16] CASTING EXAMPLE
@@ -1562,66 +1562,6 @@ int main(int argc, char *argv[])
 
       } break;
       case 2: {
-        // --------------------------------------------------------------------
-        // TESTING bdema_ManagedPtr_ReferenceType
-        //   'bdema_ManagedPtr_ReferenceType' is a meta-function that returns
-        //   its result through the typedef member 'Reference'.
-        //
-        // Concerns:
-        //: 1 Unless the type paramter is cv-'void', the nested member
-        //:  'Reference' should be an alias to that same (potentially
-        //:   cv-qualified) type.
-        //: 2 The typedef 'Reference' should be 'void' if the type paramters is
-        //:   (cv-qualified) 'void'.
-        //: 3 References to references are not allowed.
-        //: 4 cv-qualifiers and pointers should be preserved.
-        //
-        // Plan:
-        //
-        // Testing:
-        //   class template 'bdema_ManagedPtr_ReferenceType'
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING bdema_ManagedPtr_ReferenceType"
-                          << "\n--------------------------------------" << endl;
-
-        if (verbose) cout << "\tTesting 'Reference' typedef\n";
-
-        BSLMF_ASSERT((bslmf_IsSame<
-                                bdema_ManagedPtr_ReferenceType<int>::Reference,
-                                int &>::VALUE));
-
-        BSLMF_ASSERT((bslmf_IsSame<
-                          bdema_ManagedPtr_ReferenceType<const int>::Reference,
-                          const int &>::VALUE));
-
-        BSLMF_ASSERT((bslmf_IsSame<
-                       bdema_ManagedPtr_ReferenceType<volatile int>::Reference,
-                       volatile int &>::VALUE));
-
-        BSLMF_ASSERT((bslmf_IsSame<
-                 bdema_ManagedPtr_ReferenceType<const volatile int>::Reference,
-                 const volatile int &>::VALUE));
-
-
-        if (verbose) cout << "\tTesting reference-to-void\n";
-
-        BSLMF_ASSERT((bslmf_IsSame<
-                               bdema_ManagedPtr_ReferenceType<void>::Reference,
-                               void>::VALUE));
-
-        BSLMF_ASSERT((bslmf_IsSame<
-                         bdema_ManagedPtr_ReferenceType<const void>::Reference,
-                         void>::VALUE));
-
-        BSLMF_ASSERT((bslmf_IsSame<
-                      bdema_ManagedPtr_ReferenceType<volatile void>::Reference,
-                      void>::VALUE));
-
-        BSLMF_ASSERT((bslmf_IsSame<
-                bdema_ManagedPtr_ReferenceType<const volatile void>::Reference,
-                void>::VALUE));
-
       } break;
       case 1: {
         // --------------------------------------------------------------------

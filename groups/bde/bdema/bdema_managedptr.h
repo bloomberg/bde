@@ -290,6 +290,10 @@ BDES_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ADDREFERENCE
+#include <bslmf_addreference.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -469,57 +473,6 @@ public:
     const bdema_ManagedPtrDeleter& deleter() const { return d_deleter; }
 };
 
-                  // =============================================
-                  // private struct bdema_ManagedPtr_ReferenceType
-                  // =============================================
-
-template <class BDEMA_TYPE>
-struct bdema_ManagedPtr_ReferenceType {
-    // This class defines some basic traits used by 'bdema_ManagedPtr'.
-    // It is primarily used to allow managed pointers of type 'void'
-    // to work properly.
-    typedef BDEMA_TYPE& Reference;
-};
-
-template <class BDEMA_TYPE>
-struct bdema_ManagedPtr_ReferenceType<BDEMA_TYPE &> {
-    // This template partial specialization enforces the rule that (managed)
-    // pointers to references are not allowed.
-    BSLMF_ASSERT(0 > sizeof BDEMA_TYPE);
-};
-
-template <>
-struct bdema_ManagedPtr_ReferenceType<void> {
-    // This specialization of 'bdema_ManagedPtr_ReferenceType' for type
-    // 'void' allows to avoid declaring a reference to 'void'.
-
-    typedef void Reference;
-};
-
-template <>
-struct bdema_ManagedPtr_ReferenceType<const void> {
-    // This specialization of 'bdema_ManagedPtr_ReferenceType' for type
-    // 'const void' allows to avoid declaring a reference to 'const void'.
-
-    typedef void Reference;
-};
-
-template <>
-struct bdema_ManagedPtr_ReferenceType<volatile void> {
-    // This specialization of 'bdema_ManagedPtr_ReferenceType' for type
-    // 'volatile void' allows to avoid declaring a reference to 'volatile void'.
-
-    typedef void Reference;
-};
-
-template <>
-struct bdema_ManagedPtr_ReferenceType<const volatile void> {
-    // This specialization of 'bdema_ManagedPtr_ReferenceType' for type
-    // 'const volatile void' allows to avoid declaring a reference to
-    // 'const volatile void'.
-
-    typedef void Reference;
-};
 
                      // ==================================
                      // private class bdema_ManagedPtr_Ref
@@ -870,8 +823,7 @@ class bdema_ManagedPtr {
         // statement), but does *not* allow managed pointers to be compared
         // (e.g., via '<' or '>').
 
-    typename bdema_ManagedPtr_ReferenceType<BDEMA_TYPE>::Reference
-    operator*() const;
+    typename bslmf_AddReference<BDEMA_TYPE>::Type operator*() const;
         // Return a reference to the managed instance.  The behavior is
         // undefined if this managed pointer is in an unset state.
         // TBD document 'void' as a special case
@@ -1267,7 +1219,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::operator BoolType() const
 
 template <class BDEMA_TYPE>
 inline
-typename bdema_ManagedPtr_ReferenceType<BDEMA_TYPE>::Reference
+typename bslmf_AddReference<BDEMA_TYPE>::Type
 bdema_ManagedPtr<BDEMA_TYPE>::operator*() const
 {
     BSLS_ASSERT_SAFE(d_members.pointer());
