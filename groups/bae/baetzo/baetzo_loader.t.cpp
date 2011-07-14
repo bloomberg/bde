@@ -66,17 +66,14 @@ static void aSsErT(int c, const char *s, int i)
 #define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
 #define L_ __LINE__                           // current Line number
 
-// ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
-// ----------------------------------------------------------------------------
-typedef baetzo_Loader Obj;
-
 //=============================================================================
-//                      CONCRETE DERIVED TYPES
+//                      GLOBAL CLASSES/TYPEDEFS FOR TESTING
 //-----------------------------------------------------------------------------
 namespace {
 
-struct ObjTestImp : bsls_ProtocolTestImp<Obj> {
+typedef baetzo_Loader ProtocolClass;
+
+struct ProtocolClassTestImp : bsls_ProtocolTestImp<ProtocolClass> {
     int loadTimeZone(baetzo_Zoneinfo *, const char *) { return markDone(); }
 };
 
@@ -306,39 +303,36 @@ int main(int argc, char *argv[])
         //   Ensure this class is a properly defined protocol.
         //
         // Concerns:
-        //: 1 The protocol class is an abstract: no objects of it can be
-        //:   created.
+        //: 1 The protocol is abstract: no objects of it can be created.
         //:
         //: 2 The protocol has no data members.
         //:
-        //: 3 The protocol has a pure virtual destructor.
+        //: 3 The protocol has a virtual destructor.
         //:
-        //: 4 All members of the protocol are pure virtual.
+        //: 4 All methods of the protocol are pure virtual.
         //:
         //: 5 All methods of the protocol are publicly accessible.
         //
         // Plan:
-        //: 1 Define a concrete derived implementation, 'ObjTestImp' of the
-        //:   protocol.
+        //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
+        //:   of the protocol.
         //:
-        //: 2 Create an object of the 'bsls_ProtocolTest' class parameterized
-        //:   with 'ObjTestImp'.
+        //: 2 Create an object of the 'bsls_ProtocolTest' class template
+        //:   parameterized by 'ProtocolClassTestImp', and use it to verify
+        //:   that:
         //:
-        //: 3 Use the 'bsls_ProtocolTest' object to verify that the protocol is
-        //:   an abstract class.  (C-1)
+        //:   1 The protocol is abstract. (C-1)
         //:
-        //: 4 Use the 'bsls_ProtocolTest' object to verify that the protocol
-        //:   has no data members.  (C-2)
+        //:   2 The protocol has no data members. (C-2)
         //:
-        //: 5 Use the 'bsls_ProtocolTest' object to verify that the protocol
-        //:   has a virtual destructor.  (C-3)
+        //:   3 The protocol has a virtual destructor. (C-3)
         //:
-        //: 6 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that:
+        //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
+        //:   non-creator methods of the protocol are:
         //:
-        //:   1 All the methods of the protocol class are virtual.  (C-4)
+        //:   1 virtual, (C-4)
         //:
-        //:   2 All the methods of the protocol class are publicly accessible.
-        //:     (C-5)
+        //:   2 publicly accessible. (C-5)
         //
         // Testing:
         //   virtual ~baetzo_Loader();
@@ -348,25 +342,26 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        if (verbose) cout << "\nCreate a 'bsls_ProtocolTest' object.\n";
+        if (verbose) cout << "\nCreate a test object.\n";
 
-        bsls_ProtocolTest<ObjTestImp> t(veryVerbose);
+        bsls_ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
 
         if (verbose) cout << "\nVerify that the protocol is abstract.\n";
 
-        ASSERT(t.testAbstract());
+        ASSERT(testObj.testAbstract());
 
         if (verbose) cout << "\nVerify that there are no data members.\n";
 
-        ASSERT(t.testNoDataMembers());
+        ASSERT(testObj.testNoDataMembers());
 
         if (verbose) cout << "\nVerify that the destructor is virtual.\n";
 
-        ASSERT(t.testVirtualDestructor());
+        ASSERT(testObj.testVirtualDestructor());
 
         if (verbose) cout << "\nVerify that methods are public and virtual.\n";
 
-        BSLS_PROTOCOLTEST_ASSERT(t, loadTimeZone(0, 0));
+        BSLS_PROTOCOLTEST_ASSERT(testObj, loadTimeZone(0, 0));
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
