@@ -112,56 +112,69 @@ typedef bslma_TestAllocatorMonitor Obj;
 //                  NON-STANDARD TEST MACROS
 // ----------------------------------------------------------------------------
 
-#define ALLOC_INUSE(MONITOR, STATE)                    \
-    do {                                               \
-               if (0 == std::strcmp("UP",   #STATE)) { \
-                    ASSERT( (MONITOR).isInUseUp());    \
-                    ASSERT(!(MONITOR).isInUseSame());  \
-                    ASSERT(!(MONITOR).isInUseDown());  \
-                                                       \
-        } else if (0 == std::strcmp("SAME", #STATE)) { \
-                    ASSERT(!(MONITOR).isInUseUp());    \
-                    ASSERT( (MONITOR).isInUseSame());  \
-                    ASSERT(!(MONITOR).isInUseDown());  \
-                                                       \
-        } else if (0 == std::strcmp("DOWN", #STATE)) { \
-                    ASSERT(!(MONITOR).isInUseUp());    \
-                    ASSERT(!(MONITOR).isInUseSame());  \
-                    ASSERT( (MONITOR).isInUseDown());  \
-                                                       \
-        } else {                                       \
-             assert("Unknown State: " #STATE);         \
-        }                                              \
+#define ALLOC_INUSE(LINE, MONITOR, STATE)                           \
+    do {                                                            \
+        cout << "ALLOC_INUSE: " << LINE << " " << (STATE) << endl;        \
+               if (0 == std::strcmp("UP",   (STATE))) {              \
+        cout << "ALLOC_INUSE: MATCH: UP" << endl;                       \
+                    LOOP_ASSERT((LINE),  (MONITOR).isInUseUp());    \
+                    LOOP_ASSERT((LINE), !(MONITOR).isInUseSame());  \
+                    LOOP_ASSERT((LINE), !(MONITOR).isInUseDown());  \
+                                                                    \
+        } else if (0 == std::strcmp("SAME", (STATE))) {              \
+        cout << "ALLOC_INUSE: MATCH: SAME" << endl;                       \
+                    LOOP_ASSERT((LINE), !(MONITOR).isInUseUp());    \
+                    LOOP_ASSERT((LINE),  (MONITOR).isInUseSame());  \
+                    LOOP_ASSERT((LINE), !(MONITOR).isInUseDown());  \
+                                                                    \
+        } else if (0 == std::strcmp("DOWN", (STATE))) {              \
+        cout << "ALLOC_INUSE: MATCH: DOWN" << endl;                       \
+                    LOOP_ASSERT((LINE), !(MONITOR).isInUseUp());    \
+                    LOOP_ASSERT((LINE), !(MONITOR).isInUseSame());  \
+                    LOOP_ASSERT((LINE),  (MONITOR).isInUseDown());  \
+                                                                    \
+        } else {                                                    \
+        cout << "ALLOC_INUSE: MATCH: NONE" << endl;                       \
+             assert(!"MATCH: "#STATE);                      \
+        }                                                           \
     } while (0);
 
-#define ALLOC_MAX(MONITOR, STATE)  \
-    do {                                               \
-               if (0 == std::strcmp("UP",   #STATE)) { \
-                    ASSERT( (MONITOR).isMaxUp());      \
-                    ASSERT(!(MONITOR).isMaxSame());    \
-                                                       \
-        } else if (0 == std::strcmp("SAME", #STATE)) { \
-                    ASSERT(!(MONITOR).isMaxUp());      \
-                    ASSERT( (MONITOR).isMaxSame());    \
-                                                       \
-        } else {                                       \
-             assert("Unknown State: " #STATE);         \
-        }                                              \
+#define ALLOC_MAX(LINE, MONITOR, STATE)                             \
+    do {                                                            \
+        cout << "ALLOC_MAX  : " << LINE << " " << (STATE) << endl;        \
+               if (0 == std::strcmp("UP",   (STATE))) {              \
+        cout << "ALLOC_MAX  : MATCH: UP" << endl;                       \
+                    LOOP_ASSERT((LINE),  (MONITOR).isMaxUp());      \
+                    LOOP_ASSERT((LINE), !(MONITOR).isMaxSame());    \
+                                                                    \
+        } else if (0 == std::strcmp("SAME", (STATE))) {              \
+        cout << "ALLOC_MAX  : MATCH: SAME" << endl;                       \
+                    LOOP_ASSERT((LINE), !(MONITOR).isMaxUp());      \
+                    LOOP_ASSERT((LINE),  (MONITOR).isMaxSame());    \
+                                                                    \
+        } else {                                                    \
+        cout << "ALLOC_MAX  : MATCH: NONE" << endl;                       \
+             assert(!"MATCH: "#STATE);                      \
+        }                                                           \
     } while (0);
 
-#define ALLOC_TOTAL(MONITOR, STATE)                    \
-    do {                                               \
-               if (0 == std::strcmp("UP",   #STATE)) { \
-                    ASSERT( (MONITOR).isTotalUp());    \
-                    ASSERT(!(MONITOR).isTotalSame());  \
-                                                       \
-        } else if (0 == std::strcmp("SAME", #STATE)) { \
-                    ASSERT(!(MONITOR).isTotalUp());    \
-                    ASSERT( (MONITOR).isTotalSame());  \
-                                                       \
-        } else {                                       \
-             assert("Unknown State: " #STATE);         \
-        }                                              \
+#define ALLOC_TOTAL(LINE, MONITOR, STATE)                           \
+    do {                                                            \
+        cout << "ALLOC_TOTAL: " << LINE << " " << (STATE) << endl;        \
+               if (0 == std::strcmp("UP",   (STATE))) {              \
+        cout << "ALLOC_TOTAL: MATCH: UP" << endl;                       \
+                    LOOP_ASSERT((LINE),  (MONITOR).isTotalUp());    \
+                    LOOP_ASSERT((LINE), !(MONITOR).isTotalSame());  \
+                                                                    \
+        } else if (0 == std::strcmp("SAME", (STATE))) {              \
+        cout << "ALLOC_TOTAL: MATCH: SAME" << endl;                       \
+                    LOOP_ASSERT((LINE), !(MONITOR).isTotalUp());    \
+                    LOOP_ASSERT((LINE),  (MONITOR).isTotalSame());  \
+                                                                    \
+        } else {                                                    \
+        cout << "ALLOC_TOTAL: MATCH: NONE" << endl;                       \
+             assert(!"MATCH: "#STATE);                      \
+        }                                                           \
     } while (0);
 
 // ============================================================================
@@ -441,7 +454,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TEST ALLOCATOR MONITOR CTOR AND METHODS
+        // CTOR AND ACCESSORS
         //
         // Concerns:
         //: 1 For any statistic tracked by the monitor (e.g., "InUse") only one
@@ -463,6 +476,9 @@ int main(int argc, char *argv[])
         //:       the number of allocations "inUse" can decrease from that when
         //:       the monitor was created.
         //:
+        //: 5 The behavior is depends on the number of allocations and
+        //:   deallocations, never on the size (in bytes) of the allocations.
+        //:
         // Plan:
         //: 1 Always test the return values as a "suite" (i.e., "InUse", "Max",
         //:   and "Total") and confirm that only one is 'true'.  Devise a set
@@ -481,11 +497,14 @@ int main(int argc, char *argv[])
         //:   5 Allocate memory.
         //:   6 Allocate memory.
         //:   7 Allocate memory.
-        //:   8 Deallocate memory in reserve order of allocation (C-4)
+        //:   8 Deallocate outstanding allocations in reserve order. (C-4)
         //:
         //: 4 After step P-2.2, create a second monitor for the same test
         //:   allocator.  After operations, P-2.3 and P-2.4, check the return
         //:   values of the second monitor for the expected results.  (C-4)
+        //:
+        //: 5 Use a table driven test to repeat the P-1 to P-4 for different
+        //:   allocation sizes: increasing, decreasing, large, small, etc.
         //
         // Testing:
         //   bslma_TestAllocatorMonitor(const bslma_TestAllocator& tA);
@@ -499,86 +518,162 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TEST ALLOCATOR MONITOR CTOR AND METHODS" << endl
-                          << "=======================================" << endl;
+                          << "CTOR AND ACCESSORS" << endl
+                          << "==================" << endl;
 
-              TestObj  mta("test allocator", veryVeryVeryVerbose);
-        const TestObj&  ta   = mta;
+        const bsls_Types::size_type ZERO = 0;
+        const bsls_Types::size_type TEN0 = 1;
+        const bsls_Types::size_type TEN1 = 10;
+        const bsls_Types::size_type TEN2 = 100;
+        const bsls_Types::size_type TEN3 = 1000;
+        const bsls_Types::size_type TEN4 = 10000;
+        const bsls_Types::size_type TEN5 = 100000;
+        const bsls_Types::size_type TEN6 = 1000000;
+        const bsls_Types::size_type TEN7 = 10000000;
+        const bsls_Types::size_type TEN8 = 100000000;
 
-                  Obj  mtam1(ta);
-        const     Obj&  tam1 = mtam1;
+        static const struct {
+            int                   d_line;   // source line number
+            bsls_Types::size_type d_size1;
+            bsls_Types::size_type d_size2;
+            bsls_Types::size_type d_size3;
+            bsls_Types::size_type d_size4;
+            bsls_Types::size_type d_size5;
+        } DATA[] = {
 
-        ALLOC_INUSE(tam1, "SAME");
-        ALLOC_MAX  (tam1, "SAME");
-        ALLOC_TOTAL(tam1, "SAME");
+            //LINE  SIZE1  SIZE2  SIZE3  SIZE4  SIZE5
+            //----  -----  -----  -----  -----  -----
+              { L_,   TEN0,  TEN0,  TEN0,  TEN0,  TEN0 },
 
-        void *allocation1 = mta.allocate(1);
+            //{ L_,   ZERO,  ZERO,  ZERO,  ZERO,  ZERO },
+            //{ L_,   TEN0,  ZERO,  ZERO,  ZERO,  ZERO },
+            //{ L_,   ZERO,  TEN0,  ZERO,  ZERO,  ZERO },
 
-        ALLOC_INUSE(tam1, "UP");
-        ALLOC_MAX  (tam1, "UP");
-        ALLOC_TOTAL(tam1, "UP");
+            //{ L_,   TEN1,  TEN1,  TEN1,  TEN1,  TEN1 },
+            //{ L_,   TEN4,  TEN4,  TEN4,  TEN4,  TEN4 },
+            //{ L_,   TEN8,  TEN8,  TEN8,  TEN8,  TEN8 },
+            //{ L_,   ZERO,  TEN1,  TEN2,  TEN3,  TEN4 },
+            //{ L_,   TEN5,  TEN6,  TEN7,  TEN8,  ZERO },
+            //{ L_,   TEN8,  TEN7,  TEN6,  TEN5,  TEN4 },
+            //{ L_,   TEN3,  TEN2,  TEN1,  ZERO,  TEN8 },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        void *allocation2 = mta.allocate(1);
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int                   LINE  = DATA[ti].d_line;
+            const bsls_Types::size_type SIZE1 = DATA[ti].d_size1;
+            const bsls_Types::size_type SIZE2 = DATA[ti].d_size2;
+            const bsls_Types::size_type SIZE3 = DATA[ti].d_size3;
+            const bsls_Types::size_type SIZE4 = DATA[ti].d_size4;
+            const bsls_Types::size_type SIZE5 = DATA[ti].d_size5;
 
-        ALLOC_INUSE(tam1, "UP");
-        ALLOC_MAX  (tam1, "UP");
-        ALLOC_TOTAL(tam1, "UP");
+            if (veryVerbose) { T_ P_(SIZE1)
+                                  P_(SIZE2)
+                                  P_(SIZE3)
+                                  P_(SIZE4)
+                                  P(SIZE5)
+                             }
 
-                  Obj  mtam2(ta);
-        const     Obj&  tam2 = mtam2;
+                  TestObj  mta("test allocator", veryVeryVeryVerbose);
+            const TestObj&  ta   = mta;
+            int total0 = ta.numBlocksTotal(); P(total0);
+            int max0 = ta.numBlocksMax(); P(max0);
 
-                                    ALLOC_INUSE(tam2, "SAME");
-                                    ALLOC_MAX  (tam2, "SAME");
-                                    ALLOC_TOTAL(tam2, "SAME");
+                      Obj  mtam1(ta);
+            const     Obj&  tam1 = mtam1;
 
-        mta.deallocate(allocation1);
+            ALLOC_INUSE(LINE, tam1, "SAME");
+            ALLOC_MAX  (LINE, tam1, "SAME");
+            ALLOC_TOTAL(LINE, tam1, "SAME");
 
-        ALLOC_INUSE(tam1, "UP");    ALLOC_INUSE(tam2, "DOWN");
-        ALLOC_MAX  (tam1, "UP");    ALLOC_MAX  (tam2, "SAME");
-        ALLOC_TOTAL(tam1, "UP");    ALLOC_TOTAL(tam2, "SAME");
+            void *allocation1 = mta.allocate(SIZE1);
+            int total_a1 = ta.numBlocksTotal(); P(total_a1);
+            int max_a1 = ta.numBlocksMax(); P(max_a1);
 
-        mta.deallocate(allocation2);
+            ALLOC_INUSE(LINE, tam1, "UP");
+            ALLOC_MAX  (LINE, tam1, "UP");
+            ALLOC_TOTAL(LINE, tam1, "UP");
 
-        ALLOC_INUSE(tam1, "SAME"); ALLOC_INUSE(tam2, "DOWN");
-        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "SAME");
-        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "SAME");
+            void *allocation2 = mta.allocate(SIZE2);
+            int total_a2 = ta.numBlocksTotal(); P(total_a2)
+            int max_a2 = ta.numBlocksMax(); P(max_a2) // SRB
 
-        void *allocation3 = mta.allocate(1);
+            ALLOC_INUSE(LINE, tam1, "UP");
+            ALLOC_MAX  (LINE, tam1, "UP");
+            ALLOC_TOTAL(LINE, tam1, "UP");
 
-        ALLOC_INUSE(tam1, "UP");   ALLOC_INUSE(tam2, "DOWN");
-        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "SAME");
-        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "SAME");
+                      Obj  mtam2(ta);
+            const     Obj&  tam2 = mtam2;
 
-        void *allocation4 = mta.allocate(1);
 
-        ALLOC_INUSE(tam1, "UP");   ALLOC_INUSE(tam2, "SAME");
-        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "SAME");
-        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "SAME");
+                                             ALLOC_INUSE(LINE, tam2, "SAME");
+                                             ALLOC_MAX  (LINE, tam2, "SAME");
+                                             ALLOC_TOTAL(LINE, tam2, "SAME");
 
-        void *allocation5 = mta.allocate(1);
+            mta.deallocate(allocation1);
+            int total_d1 = ta.numBlocksTotal(); P(total_d1)
+            int max_d1 = ta.numBlocksMax(); P(max_d1) // SRB
 
-        ALLOC_INUSE(tam1, "UP");   ALLOC_INUSE(tam2, "UP");
-        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "UP");
-        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "UP");
+            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "DOWN");
+            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "SAME");
+            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "SAME");
 
-        mta.deallocate(allocation5);
+            mta.deallocate(allocation2);
+            int total_d2 = ta.numBlocksTotal(); P(total_d2)
+            int max_d2 = ta.numBlocksMax(); P(max_d2) // SRB
 
-        ALLOC_INUSE(tam1, "UP");   ALLOC_INUSE(tam2, "SAME");
-        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "SAME");
-        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "SAME");
+            ALLOC_INUSE(LINE, tam1, "SAME"); ALLOC_INUSE(LINE, tam2, "DOWN");
+            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "SAME");
+            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "SAME");
 
-        mta.deallocate(allocation4);
+            void *allocation3 = mta.allocate(SIZE3);
+            int total_a3 = ta.numBlocksTotal(); P(total_a3)
+            int max_a3 = ta.numBlocksMax(); P(max_a3) // SRB
 
-        ALLOC_INUSE(tam1, "UP");   ALLOC_INUSE(tam2, "DOWN");
-        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "SAME");
-        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "SAME");
+            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "DOWN");
+            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "SAME");
+            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
 
-        mta.deallocate(allocation3);
+            void *allocation4 = mta.allocate(SIZE4);
+            int total_a4 = ta.numBlocksTotal(); P(total_a4)
+            int max_a4 = ta.numBlocksMax(); P(max_a4) // SRB
 
-        ALLOC_INUSE(tam1, "SAME");   ALLOC_INUSE(tam2, "DOWN");
-        ALLOC_MAX  (tam1, "SAME");   ALLOC_MAX  (tam2, "SAME");
-        ALLOC_TOTAL(tam1, "SAME");   ALLOC_TOTAL(tam2, "SAME");
+            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "SAME");
+            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "SAME");
+            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
 
+            void *allocation5 = mta.allocate(SIZE5);
+            int total_a5 = ta.numBlocksTotal(); P(total_a5)
+            int max_a5 = ta.numBlocksMax(); P(max_a5) // SRB
+
+            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "UP");
+            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "UP");
+            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
+
+            mta.deallocate(allocation5);
+            int total_d5 = ta.numBlocksTotal(); P(total_d5)
+            int max_d5 = ta.numBlocksMax(); P(max_d5) // SRB
+
+            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "SAME");
+            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "UP");
+            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
+
+            mta.deallocate(allocation4);
+            int total_d4 = ta.numBlocksTotal(); P(total_d4)
+            int max_d4 = ta.numBlocksMax(); P(max_d4) // SRB
+
+            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "DOWN");
+            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "UP");
+            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
+
+            mta.deallocate(allocation3);
+            int total_d3 = ta.numBlocksTotal(); P(total_d3)
+            int max_d3 = ta.numBlocksMax(); P(max_d3) // SRB
+
+            ALLOC_INUSE(LINE, tam1, "SAME"); ALLOC_INUSE(LINE, tam2, "DOWN");
+            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "UP");
+            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
