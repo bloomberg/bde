@@ -46,10 +46,9 @@ using namespace std;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] USAGE EXAMPLE
-// [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
-// [  ] CONCERN: All accessor methods are declared 'const'.
-// [  ] CONCERN: There is no temporary allocation from any allocator.
+// [ 2] CONCERN: All accessor methods are declared 'const'.
+// [ *] CONCERN: There is no temporary allocation from any allocator.
 
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -322,6 +321,10 @@ int main(int argc, char *argv[])
     bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma_Default::setGlobalAllocator(&globalAllocator);
 
+    // CONCERN: In no case does memory come from the default allocator.
+    bslma_TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma_Default::setDefaultAllocator(&defaultAllocator);
+
     switch (test) { case 0:
       case 3: {
         // --------------------------------------------------------------------
@@ -455,10 +458,10 @@ int main(int argc, char *argv[])
         //:
         //: 4 The return values of the "inUse" methods track the net number of
         //:   allocations and deallocations since the creation of the monitor.
-        //:   Note that the monitors can be created for allocators with
-        //:   outstanding allocations.  If so, there are scenarios where the
-        //:   number of allocations "inUse" can decrease from that when the
-        //:   monitor was created.
+        //:     o Note that the monitors can be created for allocators with
+        //:       outstanding allocations.  If so, there are scenarios where
+        //:       the number of allocations "inUse" can decrease from that when
+        //:       the monitor was created.
         //:
         // Plan:
         //: 1 Always test the return values as a "suite" (i.e., "InUse", "Max",
@@ -474,8 +477,11 @@ int main(int argc, char *argv[])
         //:   method for expected results.
         //:   1 Allocate memory.  (C-3)
         //:   2 Allocate additional memory.  (C-3)
-        //:   3 Deallocate first allocation.  (C-4)
-        //:   4 Deallocate second allocation.  (C-4)
+        //:   3 Deallocate allocations in order of allocation (C-4)
+        //:   5 Allocate memory.
+        //:   6 Allocate memory.
+        //:   7 Allocate memory.
+        //:   8 Deallocate memory in reserve order of allocation (C-4)
         //:
         //: 4 After step P-2.2, create a second monitor for the same test
         //:   allocator.  After operations, P-2.3 and P-2.4, check the return
@@ -537,6 +543,42 @@ int main(int argc, char *argv[])
         ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "SAME");
         ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "SAME");
 
+        void *allocation3 = mta.allocate(1);
+
+        ALLOC_INUSE(tam1, "UP");   ALLOC_INUSE(tam2, "DOWN");
+        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "SAME");
+        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "SAME");
+
+        void *allocation4 = mta.allocate(1);
+
+        ALLOC_INUSE(tam1, "UP");   ALLOC_INUSE(tam2, "SAME");
+        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "SAME");
+        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "SAME");
+
+        void *allocation5 = mta.allocate(1);
+
+        ALLOC_INUSE(tam1, "UP");   ALLOC_INUSE(tam2, "UP");
+        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "UP");
+        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "UP");
+
+        mta.deallocate(allocation5);
+
+        ALLOC_INUSE(tam1, "UP");   ALLOC_INUSE(tam2, "SAME");
+        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "SAME");
+        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "SAME");
+
+        mta.deallocate(allocation4);
+
+        ALLOC_INUSE(tam1, "UP");   ALLOC_INUSE(tam2, "DOWN");
+        ALLOC_MAX  (tam1, "UP");   ALLOC_MAX  (tam2, "SAME");
+        ALLOC_TOTAL(tam1, "UP");   ALLOC_TOTAL(tam2, "SAME");
+
+        mta.deallocate(allocation3);
+
+        ALLOC_INUSE(tam1, "SAME");   ALLOC_INUSE(tam2, "DOWN");
+        ALLOC_MAX  (tam1, "SAME");   ALLOC_MAX  (tam2, "SAME");
+        ALLOC_TOTAL(tam1, "SAME");   ALLOC_TOTAL(tam2, "SAME");
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -595,6 +637,11 @@ int main(int argc, char *argv[])
 
     LOOP_ASSERT(globalAllocator.numBlocksTotal(),
                 0 == globalAllocator.numBlocksTotal());
+
+    // CONCERN: In no case does memory come from the default allocator.
+
+    LOOP_ASSERT(defaultAllocator.numBlocksTotal(),
+                0 == defaultAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
