@@ -152,8 +152,9 @@ class bslma_Allocator;
 class baetzo_LocalTimeDescriptor {
     // This simply constrained (value-semantic) attribute class characterizes a
     // subset of local time values.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation.  Note that the class
-    // invariants are identically the constraints on the individual attributes.
+    // @DESCRIPTION in the component-level documentation for information on the
+    // class attributes.  Note that the class invariants are identically the
+    // constraints on the individual attributes.
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
@@ -480,7 +481,7 @@ void swap(baetzo_LocalTimeDescriptor& a, baetzo_LocalTimeDescriptor& b)
     a.swap(b);
 }
 
-}  // close enterprise namespace
+}  // close enterprise namespace BloombergLP
 
 #endif
 
