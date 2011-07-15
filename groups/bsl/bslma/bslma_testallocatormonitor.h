@@ -17,18 +17,39 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslma_testallocator
 //
 //@DESCRIPTION: This component provides a single mechanism class,
-// 'bslma_TestAllocatorMonitor', that is used to summarize changes in three
-// 'bslma_TestAllocator' statistics, relative to their values at the
-// construction of the monitor.  The statistics are 'numBlocksInUse',
-// 'numBlocksMax', and 'numBlocksTotal'.  For each of these statistics, this
-// class provides a several predicate accessor methods: one reports 'true' if
-// there is an increase in its value, the other reports 'true' if its value has
-// not changed, and, if the static value might decrease over time, one that
-// reports 'true' if its value has decreased.
+// 'bslma_TestAllocatorMonitor', which is used, in concert with
+// 'bslma_TestAllocator', in the implementation of test drivers.  The
+// 'bslma_TestAllocatorMonitor' class provides several tell-tale indicators of
+// the test allocator state.  Use of 'bslma_TestAllocatorMonitor' objects
+// results in test cases that more concise, easier to read, and less error
+// prone than test cases that directly access the test allocator for state
+// information.
+//
+///Statistics
+/// - - - - -
+// The test allocator statistics tracked and the corresponding test allocator
+// monitor (Boolean) accessor methods are shown in the table below.  The change
+// (or lack of change) reported by these accessors are relative the the value
+// of each statistic on construction of the monitor.  Note that each of these
+// statistics count blocks of memory (i.e., number of allocations from the
+// allocator), and do not depend on the number of bytes in those allocated
+// blocks.
+//..
+//  Statistic        Is-Same Method Is-Up Method Is-Down Method
+//  --------------   -------------- ------------ --------------
+//  numBlocksInUse   isInUseSame    isInUseUp    isInUseDown
+//  numBlocksMax     isMaxSame      isMaxUp      none
+//  numBlocksTotal   isTotalSame    isTotalUp    none
+//..
+// The 'numBlocksMax' and 'numBlocksTotal' statistics have values that are
+// monotonically non-decreasing; hence, they have no "Is-Down" methods.  A
+// monitor's 'isInUseDown' method will return 'true' if the monitor is created
+// for an allocator having outstanding blocks, and then one or more of those
+// blocks are deallocated.
 //
 ///Usage
 ///-----
-// TBS
+// See 'bslma_testallocatormonitor.t.cpp' Usage case.
 
 #ifndef INCLUDED_BSLMA_TESTALLOCATOR
 #include <bslma_testallocator.h>
@@ -55,6 +76,9 @@ class bslma_TestAllocatorMonitor {
                                                                 testAllocator);
         // Create a 'bslma_TestAllocatorMonitor' object to track changes in
         // statistics of the specified 'testAllocator'.
+
+    //! ~bslma_TestAllocatorMonitor() = default;
+        // Destroy this object.
 
     // ACCESSORS
     bool isInUseDown() const;
