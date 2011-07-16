@@ -21,28 +21,6 @@ bdema_ManagedPtr_Members::bdema_ManagedPtr_Members(
     other.rawClear();
 }
 
-void bdema_ManagedPtr_Members::swap(bdema_ManagedPtr_Members & other) {
-    if (!d_obj_p) {
-        d_obj_p       = other.d_obj_p;
-        d_deleter     = other.d_deleter;
-        other.d_obj_p = 0;
-    }
-    else if (!other.d_obj_p) {
-        other.d_obj_p   = d_obj_p;
-        other.d_deleter = d_deleter;
-        d_obj_p         = 0;
-    }
-    else {
-        void *tmp_p     = d_obj_p;
-        d_obj_p         = other.d_obj_p;
-        other.d_obj_p   = tmp_p;
-
-        bdema_ManagedPtrDeleter tmp = d_deleter;
-        d_deleter                   = other.d_deleter;
-        other.d_deleter             = tmp;
-    }
-}
-
 void bdema_ManagedPtr_Members::init(void *ptr,
                                     const bdema_ManagedPtrDeleter& rep)
 {
@@ -68,13 +46,6 @@ void bdema_ManagedPtr_Members::init(void *ptr,
         d_deleter.clear();
     }
 }
-
-void bdema_ManagedPtr_Members::setAliasPtr(void *ptr)
-{
-    BSLS_ASSERT(0 != ptr || 0 == d_obj_p);
-    d_obj_p = ptr;
-}
-
 
 void bdema_ManagedPtr_Members::reset()
 {
@@ -110,6 +81,28 @@ void bdema_ManagedPtr_Members::reset(void        *ptr,
 
     runDeleter();
     init(ptr, object, factory, deleter);
+}
+
+void bdema_ManagedPtr_Members::swap(bdema_ManagedPtr_Members & other) {
+    if (!d_obj_p) {
+        d_obj_p       = other.d_obj_p;
+        d_deleter     = other.d_deleter;
+        other.d_obj_p = 0;
+    }
+    else if (!other.d_obj_p) {
+        other.d_obj_p   = d_obj_p;
+        other.d_deleter = d_deleter;
+        d_obj_p         = 0;
+    }
+    else {
+        void *tmp_p     = d_obj_p;
+        d_obj_p         = other.d_obj_p;
+        other.d_obj_p   = tmp_p;
+
+        bdema_ManagedPtrDeleter tmp = d_deleter;
+        d_deleter                   = other.d_deleter;
+        other.d_deleter             = tmp;
+    }
 }
 
 

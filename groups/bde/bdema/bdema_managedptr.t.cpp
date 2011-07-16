@@ -28,7 +28,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
 
 // [ 4] class bdema_ManagedPtrNilDeleter
-// [ 6] class bdema_ManagedPtrFactoryDeleter  (this one needs negative testing)
+// [ 6] class bdema_ManagedPtr_FactoryDeleter  (this one needs negative testing)
 //      class bdema_ManagedPtr
 
 //-----------------------------------------------------------------------------
@@ -73,11 +73,11 @@ using namespace bsl;  // automatically added by script
 // [10] TYPE *ptr() const;
 // [10] const bdema_ManagedPtrDeleter& deleter() const;
 //
-// [ 5] class bdema_ManagedPtrFactoryDeleter  (this one needs negative testing)
-// [ 4] class bdema_ManagedPtrNilDeleter
+// [ 5] class bdema_ManagedPtrNilDeleter
 //
 // [ 2] imp. class bdema_ManagedPtr_Members
-// [ 3] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
+// [ 3] imp. class bdema_ManagedPtr_Ref             (this one needs negative testing)
+// [ 4] imp. class bdema_ManagedPtr_FactoryDeleter  (this one needs negative testing)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] CASTING EXAMPLE
@@ -1459,26 +1459,6 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING bdema_ManagedPtrFactoryDeleter (this one needs negative testing)
-        //
-        // Concerns:
-        //: 1 TBD Enumerate concerns
-        //
-        // Plan:
-        //: 1 blah ...
-        //
-        // Testing:
-        //   ... list class operations that are tested ...
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING bdema_ManagedPtrFactoryDeleter"
-                          << "\n--------------------------------------" << endl;
-
-        if (verbose) cout << "\tTest blah...\n";
-
-      } break;
-      case 4: {
-        // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtrNilDeleter
         //
         // Concerns:
@@ -1492,6 +1472,26 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING bdema_ManagedPtrNilDeleter"
+                          << "\n--------------------------------------" << endl;
+
+        if (verbose) cout << "\tTest blah...\n";
+
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING bdema_ManagedPtr_FactoryDeleter (this one needs negative testing)
+        //
+        // Concerns:
+        //: 1 TBD Enumerate concerns
+        //
+        // Plan:
+        //: 1 blah ...
+        //
+        // Testing:
+        //   ... list class operations that are tested ...
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING bdema_ManagedPtr_FactoryDeleter"
                           << "\n--------------------------------------" << endl;
 
         if (verbose) cout << "\tTest blah...\n";

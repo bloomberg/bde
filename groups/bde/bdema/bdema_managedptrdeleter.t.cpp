@@ -78,7 +78,7 @@ using namespace bsl;
 // [ 5] operator<<(ostream& s, const bdema_ManagedPtrDeleter& d)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
 // [ 4] CONCERN: All accessor methods are declared 'const'.
 // [ 8] CONCERN: Precondition violations are detected when enabled.
@@ -161,16 +161,12 @@ BSLMF_ASSERT((bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseMoveable>::VALUE));
 
 // Define DEFAULT DATA used by test cases 3, 7, 8, 9, and 10
 
-struct DefaultDataRow {
+static const struct {
     int           d_line;           // source line number
     void         *d_object;
     void         *d_factory;
     Obj::Deleter  d_deleter;
-};
-
-static
-const DefaultDataRow DEFAULT_DATA[] =
-{
+} DEFAULT_DATA[] = {
     //LINE  OBJECT    FACTORY   DELETER
     //----  ------    -------   -------
 
@@ -274,14 +270,14 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                             "\nUse a table of distinct object values." << endl;
 
-        const int NUM_DATA                     = DEFAULT_NUM_DATA;
-        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+        //const int NUM_DATA                     = DEFAULT_NUM_DATA;
+        //const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE    = DATA[ti].d_line;
-            void        *const OBJECT  = DATA[ti].d_object;
-            void        *const FACTORY = DATA[ti].d_factory;
-            const Obj::Deleter DELETER = DATA[ti].d_deleter;
+        for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
+            const int          LINE    = DEFAULT_DATA[ti].d_line;
+            void        *const OBJECT  = DEFAULT_DATA[ti].d_object;
+            void        *const FACTORY = DEFAULT_DATA[ti].d_factory;
+            const Obj::Deleter DELETER = DEFAULT_DATA[ti].d_deleter;
 
             Obj mX(OBJECT, FACTORY, DELETER); const Obj& X = mX;
 
@@ -325,14 +321,14 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                             "\nUse a table of distinct object values." << endl;
 
-        const int NUM_DATA                     = DEFAULT_NUM_DATA;
-        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+        //const int NUM_DATA                     = DEFAULT_NUM_DATA;
+        //const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE    = DATA[ti].d_line;
-            void        *const OBJECT  = DATA[ti].d_object;
-            void        *const FACTORY = DATA[ti].d_factory;
-            const Obj::Deleter DELETER = DATA[ti].d_deleter;
+        for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
+            const int          LINE    = DEFAULT_DATA[ti].d_line;
+            void        *const OBJECT  = DEFAULT_DATA[ti].d_object;
+            void        *const FACTORY = DEFAULT_DATA[ti].d_factory;
+            const Obj::Deleter DELETER = DEFAULT_DATA[ti].d_deleter;
 
             Obj mX(OBJECT, FACTORY, DELETER); const Obj& X = mX;
 
@@ -450,25 +446,25 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
                             "\nUse a table of distinct object values." << endl;
-        const int NUM_DATA                     = DEFAULT_NUM_DATA;
-        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+        //const int NUM_DATA                     = DEFAULT_NUM_DATA;
+        //const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int          LINE1    = DATA[ti].d_line;
-            void        *const OBJECT1  = DATA[ti].d_object;
-            void        *const FACTORY1 = DATA[ti].d_factory;
-            const Obj::Deleter DELETER1 = DATA[ti].d_deleter;
+        for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
+            const int          LINE1    = DEFAULT_DATA[ti].d_line;
+            void        *const OBJECT1  = DEFAULT_DATA[ti].d_object;
+            void        *const FACTORY1 = DEFAULT_DATA[ti].d_factory;
+            const Obj::Deleter DELETER1 = DEFAULT_DATA[ti].d_deleter;
 
             const Obj  Z(OBJECT1, FACTORY1, DELETER1);
             const Obj ZZ(OBJECT1, FACTORY1, DELETER1);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
 
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int          LINE2    = DATA[ti].d_line;
-                void        *const OBJECT2  = DATA[ti].d_object;
-                void        *const FACTORY2 = DATA[ti].d_factory;
-                const Obj::Deleter DELETER2 = DATA[ti].d_deleter;
+            for (int tj = 0; tj < DEFAULT_NUM_DATA; ++tj) {
+                const int          LINE2    = DEFAULT_DATA[ti].d_line;
+                void        *const OBJECT2  = DEFAULT_DATA[ti].d_object;
+                void        *const FACTORY2 = DEFAULT_DATA[ti].d_factory;
+                const Obj::Deleter DELETER2 = DEFAULT_DATA[ti].d_deleter;
 
                 Obj mX(OBJECT2, FACTORY2, DELETER2);  const Obj& X = mX;
 
@@ -569,14 +565,14 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                             "\nUse a table of distinct object values." << endl;
 
-        const int NUM_DATA                     = DEFAULT_NUM_DATA;
-        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+        //const int NUM_DATA                     = DEFAULT_NUM_DATA;
+        //const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE    = DATA[ti].d_line;
-            void        *const OBJECT  = DATA[ti].d_object;
-            void        *const FACTORY = DATA[ti].d_factory;
-            const Obj::Deleter DELETER = DATA[ti].d_deleter;
+        for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
+            const int          LINE    = DEFAULT_DATA[ti].d_line;
+            void        *const OBJECT  = DEFAULT_DATA[ti].d_object;
+            void        *const FACTORY = DEFAULT_DATA[ti].d_factory;
+            const Obj::Deleter DELETER = DEFAULT_DATA[ti].d_deleter;
 
             const Obj  Z(OBJECT, FACTORY, DELETER);
             const Obj ZZ(OBJECT, FACTORY, DELETER);
@@ -694,27 +690,45 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef int  T1;               // 'timeout'
-        typedef bool T2;               // 'useLingeringFlag'
+        typedef void        *T1;        // 'object'
+        typedef void        *T2;        // 'factory'
+        typedef Obj::Deleter T3;        // 'deleter'
 
         // Attribute 1 Values: 'timeout'
 
-        const T1 A1 = 1;               // baseline
-        const T1 B1 = INT_MAX;
+        //const T1 A1 = 1;               // baseline
+        //const T1 B1 = INT_MAX;
 
-        // Attribute 2 Values: 'useLingeringFlag'
+        //// Attribute 2 Values: 'useLingeringFlag'
 
-        const T2 A2 = false;           // baseline
-        const T2 B2 = true;
+        //const T2 A2 = false;           // baseline
+        //const T2 B2 = true;
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
 
         static const struct {
-            int         d_line;        // source line number
-            int         d_timeout;
-            bool        d_useLingeringFlag;
+            int           d_line;           // source line number
+            void         *d_object;
+            void         *d_factory;
+            Obj::Deleter  d_deleter;
         } DATA[] = {
+        //LINE  OBJECT    FACTORY   DELETER
+        //----  ------    -------   -------
+
+        // default (must be first)
+        { L_,        0,         0,        0},
+
+        //// 'timeout'
+        //{ L_,         1,  false },
+        //{ L_,   INT_MAX,  false },
+
+        //// 'useLingeringFlag'
+        //{ L_,         0,   true },
+
+        //// other
+        //{ L_,         1,   true },
+        //{ L_,   INT_MAX,   true },
 
         // The first row of the table below represents an object value
         // consisting of "baseline" attribute values (A1..An).  Each subsequent
@@ -724,10 +738,10 @@ int main(int argc, char *argv[])
         //LINE  TIMEOUT  FLAG
         //----  -------  ----
 
-        { L_,        A1,   A2 },       // baseline
+        //////////{ L_,        A1,   A2 },       // baseline
 
-        { L_,        B1,   A2 },
-        { L_,        A1,   B2 },
+        //////////{ L_,        B1,   A2 },
+        //////////{ L_,        A1,   B2 },
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -735,42 +749,48 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE1    = DATA[ti].d_line;
-            const int         TIMEOUT1 = DATA[ti].d_timeout;
-            const bool        FLAG1    = DATA[ti].d_useLingeringFlag;
+            const int          LINE1    = DEFAULT_DATA[ti].d_line;
+            void        *const OBJECT1  = DEFAULT_DATA[ti].d_object;
+            void        *const FACTORY1 = DEFAULT_DATA[ti].d_factory;
+            const Obj::Deleter DELETER1 = DEFAULT_DATA[ti].d_deleter;
 
-            if (veryVerbose) { T_ P_(LINE1) P_(TIMEOUT1) P_(FLAG1) }
+            if (veryVerbose) { 
+                T_ P_(LINE1) P_(OBJECT1) P_(FACTORY1) P_(DELETER1) 
+            }
 
-            //// Ensure an object compares correctly with itself (alias test).
-            //{
-            //    const Obj X(TIMEOUT1, FLAG1);
+            // Ensure an object compares correctly with itself (alias test).
+            {
+                const Obj X(OBJECT1, FACTORY1, DELETER1);
 
-            //    LOOP2_ASSERT(LINE1, X,   X == X);
-            //    LOOP2_ASSERT(LINE1, X, !(X != X));
-            //}
+                LOOP2_ASSERT(LINE1, X,   X == X);
+                LOOP2_ASSERT(LINE1, X, !(X != X));
+            }
 
-            //for (int tj = 0; tj < NUM_DATA; ++tj) {
-            //    const int         LINE2    = DATA[tj].d_line;
-            //    const int         TIMEOUT2 = DATA[tj].d_timeout;
-            //    const bool        FLAG2    = DATA[tj].d_useLingeringFlag;
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int          LINE2    = DEFAULT_DATA[ti].d_line;
+                void        *const OBJECT2  = DEFAULT_DATA[ti].d_object;
+                void        *const FACTORY2 = DEFAULT_DATA[ti].d_factory;
+                const Obj::Deleter DELETER2 = DEFAULT_DATA[ti].d_deleter;
 
-            //    if (veryVerbose) { T_ T_ P_(LINE2) P_(TIMEOUT2) P_(FLAG2) }
+                if (veryVerbose) { 
+                    T_ T_ P_(LINE2) P_(OBJECT2) P_(FACTORY2) P_(DELETER2) 
+                }
 
-            //    const bool EXP = ti == tj;  // expected for equality comparison
+                const bool EXP = ti == tj;  // expected for equality comparison
 
-            //    const Obj X(TIMEOUT1, FLAG1);
-            //    const Obj Y(TIMEOUT2, FLAG2);
+                const Obj X(OBJECT1, FACTORY1, DELETER1);
+                const Obj Y(OBJECT2, FACTORY2, DELETER2);
 
-            //    if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
+                if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
-            //    // Verify value, and commutativity.
+                // Verify value, and commutativity.
 
-            //    LOOP4_ASSERT(LINE1, LINE2, X, Y,  EXP == (X == Y));
-            //    LOOP4_ASSERT(LINE1, LINE2, Y, X,  EXP == (Y == X));
+                LOOP4_ASSERT(LINE1, LINE2, X, Y,  EXP == (X == Y));
+                LOOP4_ASSERT(LINE1, LINE2, Y, X,  EXP == (Y == X));
 
-            //    LOOP4_ASSERT(LINE1, LINE2, X, Y, !EXP == (X != Y));
-            //    LOOP4_ASSERT(LINE1, LINE2, Y, X, !EXP == (Y != X));
-            //}
+                LOOP4_ASSERT(LINE1, LINE2, X, Y, !EXP == (X != Y));
+                LOOP4_ASSERT(LINE1, LINE2, Y, X, !EXP == (Y != X));
+            }
         }
       } break;
       case 5: {
