@@ -548,6 +548,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // Invokable functor test
         // --------------------------------------------------------------------
+
        if (verbose) {
           cout << "\nInvokable functor test" << endl;
        }
