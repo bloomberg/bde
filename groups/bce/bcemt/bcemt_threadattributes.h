@@ -21,44 +21,17 @@ BDES_IDENT("$Id: $")
 // The default values for the various thread attributes supported by
 // 'bcemt_ThreadAttributes' are listed in the following table:
 //..
-//  +--------------------+------------------------+---------------------------+
-//  | Attribute          | Default Value          | Description               |
-//  +====================+========================+===========================+
-//  | DetachedState      | BCEMT_CREATE_JOINABLE  | see 'DetachedState'       |
-//  |                    |                        | enumeration               |
-//  +--------------------+------------------------+---------------------------+
-//  | SchedulingPolicy   | BCEMT_SCHED_OTHER      | see 'SchedulingPolicy'    |
-//  |                    |                        | enumeration -             |
-//  |                    |                        | ignored unless            |
-//  |                    |                        | '0 == inheritSchedule'    |
-//  +--------------------+------------------------+---------------------------+
-//  | SchedulingPriority | default value for      | thread priority - ignored |
-//  |                    | platform               | unless                    |
-//  |                    |                        | '0 == inheritSchedule'    |
-//  +--------------------+------------------------+---------------------------+
-//  | InheritSchedule    | 1                      | whether to inherit        |
-//  |                    |                        | scheduling policy from    |
-//  |                    |                        | parent thread -           |
-//  |                    |                        | thread creation fails     |
-//  |                    |                        | under many circumstances  |
-//  |                    |                        | unless this is '1' (see   |
-//  |                    |                        | 'setInheritSchedule')     |
-//  +--------------------+------------------------+---------------------------+
-//  | StackSize          | BCEMT_UNSET_STACK_SIZE | size (in bytes) of        |
-//  |                    |                        | thread stack              |
-//  +--------------------+------------------------+---------------------------+
-//  | GuardSize          | BCEMT_UNSET_GUARD_SIZE | size (in bytes) of        |
-//  |                    |                        | the guard area in         |
-//  |                    |                        | thread's stack            |
-//  +--------------------+------------------------+---------------------------+
+//  Name                 Type                   Default
+//  -------------------  ---------------------  ---------------------------
+//  detachedState        DetachedState enum     BCEMT_CREATE_JOINABLE
+//  stackSize            int                    BCEMT_UNSET_STACK_SIZE
+//  guardSize            int                    BCEMT_UNSET_GUARD_SIZE
+//  inheritSchedule      bool                   true
+//  schedulingPolicy     SchedulingPolicy enum  BCEMT_SCHED_OTHER
+//  schedulingPriority   int                    platform & policy dependent
 //..
-// Note that, with the exception of 'DetachedState' and 'StackSize', specifying
-// the values of the thread attributes only provides a hint to the operating
-// system and those values may be ignored.  Also note that all attributes other
-// than 'DetachedState' and 'StackSize' are ignored on Windows.
-//
-///DetachedState
-///-------------
+///'detachedState' Attribute
+///- - - - - - - - - - - - -
 // A thread can be created in either a "joinable" or "detached" state, by
 // setting the 'detachedState' attribute to
 // 'bcemt_ThreadAttributes::BCEMT_CREATE_JOINABLE' or
@@ -74,10 +47,52 @@ BDES_IDENT("$Id: $")
 // joinable thread can also be put into the detached state via a call to the
 // 'bcemt_ThreadUtil::detach' method.
 //
-// Note that a thread must be joined or detached before it completes.  That is,
-// if a joinable thread is not joined before it completes, resources allocated
-// by the kernel and possibly by the 'bcemt' library will be leaked.  A
-// detached thread will be deallocated properly when it completes.
+// When a joinable thread finishes, its resources are not recovered until it is
+// joined or detached.
+//
+///'stackSize' Attribute
+///- - - - - - - - - - -
+// The stack size for the created thread.  Defaults to
+// 'BCEMT_UNSET_STACK_SIZE', which is negative.  If the stack size is negative,
+// 'bcemt_ThreadUtil::create' will call 'bcemt_Default::defaultThreadStackSize'
+// to obtain the actual stack size used.
+//
+///'guardSize' Attribute
+///- - - - - - - - - - -
+// On some architectures, there is an area of the allocated stack for handling
+// stack overflows.  Defaults to 'BCEMT_UNSET_GUARD_SIZE', which is negative.
+// If the guard size is negative, 'bcemt_ThreadUtil::create' will call
+// 'bcemt_Default::nativeThreadGuardSize' to obtain the actual guard size used,
+// which will vary depending upon the platform.  Ignored on Windows.
+//
+///'inheritSchedule' Attribute
+///- - - - - - - - - - - - - -
+// If 'true', the default, the attribute's 'schedulingPolicy' and
+// 'schedulingPriority' attributes are ignored upon thread creation, their
+// values being taken from the calling thread.  Ignored on Windows.  On HPUX,
+// for non-superusers, thread creation fails iunless
+// 'true == inheritSchedule()'.
+//
+///'schedulingPolicy' Attribute
+/// - - - - - - - - - - - - - -
+// This attribute is ignored unless 'false == inheritSchedule()'.  Determines
+// the scheduling policy to be used.  A 'BCEMT_SCHED_FIFO' thread is to be
+// deemed uninterruptable, while a 'BCEMT_SCHED_RR' thread is to get finite
+// time slices before letting other threads run.  'BCEMT_SCHED_OTHER' (the
+// default) is unspecified.  Ignored on Windows.  On Linux and AIX for
+// non-superusers, thread creation will fail unless
+// 'schedulingPolicy == BCEMT_SCHED_OTHER'.
+//
+///'schedulingPriority' Attribute
+/// - - - - - - - - - - - - - - -
+// This attribute is ignored unless 'false == inheritSchedule()'.  Determines
+// the scheduling priority of the thread, with higher numbers indicating more
+// urgent threads. must be in the range
+// '[ getMinSchedPrioirity(policy), getMaxSchedPrioirity(policy) ]' where
+// 'policy' is the 'schedulingPolicy' attribute.  Ignored on Windows.  Note
+// that under some circumstances 'max priority == min priority'.  Also note
+// that this seems to have little effect except when multiple threads with
+// different priroities are competing for access to a mutex.
 //
 ///Usage
 ///-----
@@ -163,7 +178,7 @@ class bcemt_ThreadAttributes {
     // DATA
     DetachedState    d_detachedState;
     int              d_guardSize;
-    int              d_inheritSchedule;
+    bool             d_inheritSchedule;
     SchedulingPolicy d_schedulingPolicy;
     int              d_schedulingPriority;
     int              d_stackSize;
@@ -224,34 +239,37 @@ class bcemt_ThreadAttributes {
         // Windows.  If guard size has not been set, 'bcemt_ThreadUtil::create'
         // will use the value 'bcemt_Default::nativeThreadGuardSize()'.
 
-    void setInheritSchedule(int inheritSchedule);
+    void setInheritSchedule(bool inheritSchedule);
         // Set the value of the inherit schedule attribute of this thread
-        // attributes object to 0 if the specified 'inheritSchedule' is 0, and
-        // set the attribute to 1 otherwise.  A value of 0 for the inherit
-        // schedule attribute indicates that a thread should *not* inherit the
-        // scheduling policy and priority of the thread that created it, and a
-        // value of 1 indicates that the thread *should* inherit these
-        // attributes.  This attribute is ignored on Windows.  Note that on all
-        // Unix platforms other than Solaris, thread creation fails unless
-        // '1 == inheritSchedule()', at least unless the process has superuser
-        // priviledges.
+        // attributes object to the specified 'inheritSchedule'.  A value of
+        // 'false' for the inherit schedule attribute indicates that a thread
+        // should *not* inherit the scheduling policy and priority of the
+        // thread that created it, and a value of 'true' indicates that the
+        // thread *should* inherit these attributes.  This attribute is ignored
+        // on Windows.  Note that on HPUX, for non superusers, thread creation
+        // fails unless 'inheritSchedule() == true'.
 
     void setSchedulingPolicy(SchedulingPolicy schedulingPolicy);
         // Set the value of the scheduling policy attribute of this thread
-        // attributes object to the specified 'schedulingPolicy'.  This
-        // attribute is ignored on Windows.  Unless '0 == inheritSchedule()'
-        // this attribute is ignored.  If necessary this method will adjust
-        // 'schedulingPriority' to ensure that it is in the range
+        // attributes object to the specified 'schedulingPolicy'.  Ignored on
+        // Windows.  Unless '!inheritSchedule()' this attribute is ignored.  If
+        // necessary this method will adjust 'schedulingPriority' to ensure
+        // that it is in the range
         // '[ getMinSchedPriority(policy), getMaxSchedPriority(policy) ]'.
+        // Note that on Linux and AIX, for non-superusers, thread creation
+        // fails unless 'schedulingPriority == BCEMT_SCHED_OTHER'.
 
     void setSchedulingPriority(int schedulingPriority);
         // Set the value of the scheduling priority attribute of this thread
         // attributes object to the specified 'schedulingPriority'.  This
-        // attribute is ignored on Windows.  Unless '0 == inheritSchedule()'
-        // this attribute is ignored.  On Solaris, higher numbers indicate more
-        // urgent priorities.  Note that this attribute has little or no effect
-        // except when multiple threads are blocked on a mutex, in which case
-        // it influences which thread is to acquire the mutex first.
+        // attribute is ignored on Windows.  Unless '!inheritSchedule()' this
+        // attribute is ignored.  On Solaris and AIX, higher numbers indicate
+        // more urgent priorities.  Priorities must be in the range
+        // 'min <= priority <= max' where 'min == getMinSchedPriority(policy)'
+        // and 'max == getMaxSchedPriority(policy)'.  Note that this attribute
+        // has little or no effect except when multiple threads are blocked on
+        // a mutex, in which case it influences which thread is to acquire the
+        // mutex first.
 
     void setStackSize(int stackSize);
         // Set the value of the stack size attribute of this thread attributes
@@ -268,22 +286,22 @@ class bcemt_ThreadAttributes {
         // Return the value of the guard size attribute of this thread
         // attributes object.
 
-    int inheritSchedule() const;
+    bool inheritSchedule() const;
         // Return 1 if threads created using this thread attributes object
         // inherit the scheduling policy and priority from the "parent" thread,
-        // and 0 otherwise.  Note that under most circumstances, thread
-        // creation fails unless '1 == inheritSchedule()'.
+        // and 0 otherwise.  Note that under many circumstances, thread
+        // creation fails unless 'inheritSchedule() == true'.
 
     SchedulingPolicy schedulingPolicy() const;
         // Return the value of the scheduling policy attribute of this thread
-        // attributes object.  Note that unless '0 == inheritSchedule()', this
+        // attributes object.  Note that unless '!inheritSchedule()', this
         // attribute is ignored.
 
     int schedulingPriority() const;
         // Return the value of the scheduling priority attribute of this thread
         // attributes object.  A value of -1 indicates that the scheduling
         // priority is set to the platform's default value.  Note that unless
-        // '0 == inheritSchedule()', this attribute is ignored.
+        // '!inheritSchedule()', this attribute is ignored.
 
     int stackSize() const;
         // Return the value of the stack size attribute of this thread
@@ -349,7 +367,7 @@ void bcemt_ThreadAttributes::setGuardSize(int guardSize)
 }
 
 inline
-void bcemt_ThreadAttributes::setInheritSchedule(int inheritSchedule)
+void bcemt_ThreadAttributes::setInheritSchedule(bool inheritSchedule)
 {
     d_inheritSchedule = inheritSchedule;
 }
@@ -381,7 +399,7 @@ int bcemt_ThreadAttributes::guardSize() const
 }
 
 inline
-int bcemt_ThreadAttributes::inheritSchedule() const
+bool bcemt_ThreadAttributes::inheritSchedule() const
 {
     return d_inheritSchedule;
 }

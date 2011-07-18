@@ -10,6 +10,10 @@
 
 #if defined(BCES_PLATFORM__POSIX_THREADS)
 # include <pthread.h>
+# if defined(BSLS_PLATFORM__OS_AIX)
+#   include <sys/types.h>
+#   include <unistd.h>
+# endif
 #elif !defined(BCES_PLATFORM__WIN32_THREADS)
 # error unrecognized threading platform
 #endif
@@ -62,7 +66,20 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
       }
     }
 
-    return sched_get_priority_max(policy);
+    int pri = sched_get_priority_max(policy);
+
+# if defined(BSLS_PLATFORM__OS_AIX)
+    // Note max prirority returned is 127 regardless of policy on AIX
+
+    enum { MAX_NON_SUPERUSER_PRIORITY = 60 };
+
+    if (pri > MAX_NON_SUPERUSER_PRIORITY && 0 != geteuid()) {
+        pri = MAX_NON_SUPERUSER_PRIORITY;
+    }
+    
+# endif
+
+    return pri;
 #else
     return -1;
 #endif
