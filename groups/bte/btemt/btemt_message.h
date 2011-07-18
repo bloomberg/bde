@@ -190,9 +190,10 @@ class btemt_BlobMsg {
         // Create a data message containing the specified 'blob' and associated
         // with the channel having the specified 'channelId'.  This message
         // will assume ownership of 'blob' and will destroy it when
-        // appropriate.  Optionally specify a 'basicAllocator' used to supply
-        // memory for this message.  If 'basicAllocator' is 0, the
-        // currently-installed default allocator is used.
+        // appropriate.  Optionally specify a 'basicAllocator' which was used
+        // to allocate 'blob', which will be used to construct a shared pointer
+        // and eventually deallocate 'blob'.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     btemt_BlobMsg(const bcema_SharedPtr<bcema_Blob>& dataPtr,
                   int                                channelId);
