@@ -11,8 +11,6 @@ BDES_IDENT("$Id: $")
 //
 //@CLASSES:
 //                bdema_ManagedPtr: proctor for automatic memory management
-//  bdema_ManagedPtr_FactoryDeleter: used for automatic memory deallocation of
-//                                  factory-allocated pointers
 //      bdema_ManagedPtrNilDeleter: used for creating managed pointers to
 //                                  stack-allocated objects
 //
@@ -583,6 +581,19 @@ class bdema_ManagedPtr {
         // will be initialized to an unset state.  The behavior is undefined
         // if 'ptr' is already managed by another managed pointer.
 
+    //template <class FACTORY>
+    //bdema_ManagedPtr(BDEMA_TYPE *ptr,
+    //                 void       *factory,
+    //                 void      (*deleter)(BDEMA_TYPE *, FACTORY *));
+    //    // Construct a managed pointer to manage the specified 'ptr' using the
+    //    // specified 'deleter' and associated 'factory' to destroy 'ptr' when
+    //    // this managed pointer is destroyed or re-assigned (unless it is
+    //    // released before then).  Note that if 0 == 'ptr', then this object
+    //    // will be initialized to an unset state.  The behavior is undefined
+    //    // if 'ptr' is already managed by another managed pointer.
+    //    // managed pointer.  This overload exists to support passing the '0'
+    //    // literal or other null pointer constant as 'factory'.
+
     template <class FACTORY>
     bdema_ManagedPtr(BDEMA_TYPE *ptr,
                      FACTORY    *factory,
@@ -679,6 +690,20 @@ class bdema_ManagedPtr {
         // '0 == ptr', then this object will be initialized to an unset state.
         // The behavior is undefined if 'ptr' is already managed by another
         // managed pointer.
+
+    //template <class FACTORY>
+    //void load(BDEMA_TYPE *ptr,
+    //          void       *factory,
+    //          void      (*deleter)(BDEMA_TYPE *, FACTORY*));
+    //    // Destroy the current managed object (if any) and re-initialize this
+    //    // managed pointer to manage the specified 'ptr' using the specified
+    //    // 'deleter' with arguments 'ptr' and the specified 'factory' to
+    //    // destroy 'ptr' when this managed pointer is destroyed or
+    //    // re-assigned, unless it is released before then.  Note that if
+    //    // '0 == ptr', then this object will be initialized to an unset state.
+    //    // The behavior is undefined if 'ptr' is already managed by another
+    //    // managed pointer.  This overload exists to support passing the '0'
+    //    // literal or other null pointer constant as 'factory'.
 
     template <class FACTORY>
     void load(BDEMA_TYPE *ptr,
@@ -963,6 +988,19 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
 }
 
 template <class BDEMA_TYPE>
+template <class FACTORY>
+inline
+bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr, FACTORY *factory)
+{
+    BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
+
+    d_members.init(stripPointerType(ptr),
+                   stripPointerType(ptr),
+                   factory,
+                &bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE, FACTORY>::deleter);
+}
+
+template <class BDEMA_TYPE>
 inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
                                                void       *factory,
@@ -982,18 +1020,22 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
     }
 }
 
-template <class BDEMA_TYPE>
-template <class FACTORY>
-inline
-bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr, FACTORY *factory)
-{
-    BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
-
-    d_members.init(stripPointerType(ptr),
-                   stripPointerType(ptr),
-                   factory,
-                &bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE, FACTORY>::deleter);
-}
+//template <class BDEMA_TYPE>
+//template <class FACTORY>
+//inline
+//bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
+//                                 BDEMA_TYPE *ptr,
+//                                 void       *factory,
+//                                 void      (*deleter)(BDEMA_TYPE *, FACTORY*) )
+//{
+//    BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
+//    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+//
+//    d_members.init(stripPointerType(ptr),
+//                   stripPointerType(ptr),
+//                   factory,
+//                   reinterpret_cast<DeleterFunc>(deleter));
+//}
 
 template <class BDEMA_TYPE>
 template <class FACTORY>
@@ -1076,6 +1118,38 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr, FACTORY *factory)
 }
 
 template <class BDEMA_TYPE>
+inline
+void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
+                                        void       *factory,
+                                        DeleterFunc deleter)
+{
+    BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
+    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+
+    d_members.reset(stripPointerType(ptr),
+                    stripPointerType(ptr),
+                    factory,
+                    deleter);
+}
+
+//template <class BDEMA_TYPE>
+//template <class FACTORY>
+//inline
+//void
+//bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
+//                                   void       *factory,
+//                                   void (*deleter)(BDEMA_TYPE *, FACTORY *))
+//{
+//    BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
+//    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+//
+//    d_members.reset(stripPointerType(ptr),
+//                    stripPointerType(ptr),
+//                    factory, 
+//                    reinterpret_cast<DeleterFunc>(deleter));
+//}
+
+template <class BDEMA_TYPE>
 template <class FACTORY>
 inline
 void
@@ -1090,21 +1164,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
                     stripPointerType(ptr),
                     factory, 
                     reinterpret_cast<DeleterFunc>(deleter));
-}
-
-template <class BDEMA_TYPE>
-inline
-void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
-                                        void       *factory,
-                                        DeleterFunc deleter)
-{
-    BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-
-    d_members.reset(stripPointerType(ptr),
-                    stripPointerType(ptr),
-                    factory,
-                    deleter);
 }
 
 

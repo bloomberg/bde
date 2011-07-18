@@ -25,12 +25,12 @@ namespace BloombergLP {
 //{
 //}
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-bdema_ManagedPtrDeleter::~bdema_ManagedPtrDeleter()
-{
-    // actually, we have no detectable constraint vioalations to test for.
-}
-#endif
+//#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+//bdema_ManagedPtrDeleter::~bdema_ManagedPtrDeleter()
+//{
+//    // actually, we have no detectable constraint vioalations to test for.
+//}
+//#endif
 
 // MANIPULATORS
 
