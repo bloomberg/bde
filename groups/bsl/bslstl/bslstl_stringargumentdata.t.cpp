@@ -15,7 +15,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test provides an in-core pointer-semantic object.
+// The component under test provides an in-core value-semantic attribute class.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] bslstl_StringArgumentData();
@@ -138,7 +138,22 @@ inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-size_t computeHash(bslstl_StringArgumentData<char> str)
+namespace {
+
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Computing a hash of a string
+///- - - - - - - - - - - - - - - - - - - -
+// Let's suppose we need to compute a hash of a string which is defined by two
+// pointers: to the start and to the end of the string.
+//
+// First, we define a function 'computeHash' that takes a
+// 'bslstl_StringArgumentData' string as an argument and returns a 'size_t'
+// hash of that string:
+//..
+size_t computeHash(const bslstl_StringArgumentData<char>& str)
 {
     size_t hash = 3069134613U;
 
@@ -146,6 +161,11 @@ size_t computeHash(bslstl_StringArgumentData<char> str)
         hash = (hash << 5) ^ (hash >> 27) ^ *p;
 
     return hash;
+}
+//..
+// Note that we're using 'begin' and 'end' attributes of the
+// 'bslstl_StringArgumentData' object to access the string characters.
+
 }
 
 //=============================================================================
@@ -180,10 +200,16 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Usage Example"
                             "\n=====================\n");
 
+// Then, we call it with a simple 'C string' argument:
+//..
         const char str[] = "C string";
         size_t hash = computeHash(bslstl_StringArgumentData<char>(
                                                       str, str + sizeof(str)));
+//..
+// Finally, we compare the computed hash with the expected value:
+//..
         ASSERT(hash == 3354902561U);
+//..
       } break;
       case 9: {
         // --------------------------------------------------------------------

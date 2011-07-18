@@ -14,8 +14,69 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
-//@DESCRIPTION: ...
+//@DESCRIPTION: This component provides a complex-constrained in-core
+// (value-semantic) attribute class, 'bslstl_StringArgumentData', that is used
+// as a simple base class for 'bslstl_StringArgument' and surves as a data
+// container for 'bslstl_StringArgument' without providing much of the
+// functionality of its own.  This allows to use 'bslstl_StringArgumentData' in
+// the 'bsl::string' class and enable the convertion from
+// 'bslstl_StringArgument' to 'bsl::string'.  Without this class
+// 'bslstl_StringArgument' and 'bsl::string' would have a circular dependency
+// on each other.
 //
+// 'bslstl_StringArgumentData' holds two pointers: a pointer to the start of a
+// string and a pointer to the end of the string.  It's parameterized with type
+// 'CHAR_TYPE' and its supposed to work with strings composed of 'CHAR_TYPE'
+// characters.
+//
+///Attributes
+///----------
+//..
+//  Name   Type               Default  Constraints
+//  -----  -----------------  -------  --------------------------------
+//  begin  const CHAR_TYPE *  NULL     begin <= end && (!begin == !end)
+//  end    const CHAR_TYPE *  NULL     begin <= end && (!begin == !end)
+//..
+//: o begin: a pointer to the start of the string.
+//:
+//: o end: a pointer to the end of the string.
+//
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Computing a hash of a string
+///- - - - - - - - - - - - - - - - - - - -
+// Let's suppose we need to compute a hash of a string which is defined by two
+// pointers: to the start and to the end of the string.
+//
+// First, we define a function 'computeHash' that takes a
+// 'bslstl_StringArgumentData' string as an argument and returns a 'size_t'
+// hash of that string:
+//..
+//  size_t computeHash(const bslstl_StringArgumentData<char>& str)
+//  {
+//      size_t hash = 3069134613U;
+//
+//      for (const char *p = str.begin(); p != str.end(); ++p)
+//          hash = (hash << 5) ^ (hash >> 27) ^ *p;
+//
+//      return hash;
+//  }
+//..
+// Note that we're using 'begin' and 'end' attributes of the
+// 'bslstl_StringArgumentData' object to access the string characters.
+//
+// Then, we call it with a simple 'C string' argument:
+//..
+//      const char str[] = "C string";
+//      size_t hash = computeHash(bslstl_StringArgumentData<char>(
+//                                                    str, str + sizeof(str)));
+//..
+// Finally, we compare the computed hash with the expected value:
+//..
+//      assert(hash == 3354902561U);
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
