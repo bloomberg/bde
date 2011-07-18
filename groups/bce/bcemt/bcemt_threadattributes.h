@@ -26,7 +26,7 @@ BDES_IDENT("$Id: $")
 //  detachedState        DetachedState enum     BCEMT_CREATE_JOINABLE
 //  stackSize            int                    BCEMT_UNSET_STACK_SIZE
 //  guardSize            int                    BCEMT_UNSET_GUARD_SIZE
-//  inheritSchedule      bool                   true
+//  inheritSchedule      bool                   'true'
 //  schedulingPolicy     SchedulingPolicy enum  BCEMT_SCHED_OTHER
 //  schedulingPriority   int                    platform & policy dependent
 //..
@@ -41,11 +41,13 @@ BDES_IDENT("$Id: $")
 // 'bcemt_ThreadUtil::join' function on the joinable thread's 'Handle':
 //..
 //  int join(Handle handle, void **returnArg);
-//  int detach(Handle handle);
 //..
 // Threads cannot join with a thread that was created in a detached state.  A
 // joinable thread can also be put into the detached state via a call to the
 // 'bcemt_ThreadUtil::detach' method.
+//..
+//  int detach(Handle handle);
+//..
 //
 // When a joinable thread finishes, its resources are not recovered until it is
 // joined or detached.
