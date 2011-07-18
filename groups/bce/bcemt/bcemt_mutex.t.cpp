@@ -129,11 +129,7 @@ extern "C" void* MyThread(void* arg_p)
 namespace BCEMT_MUTEX_CASE_MINUS_1 {
 
 
-#ifdef BSLS_PLATFORM__OS_LINUX
-    enum { NUM_NOT_URGENT_THREADS = 16,
-#else
     enum { NUM_NOT_URGENT_THREADS = 128,
-#endif
            NUM_THREADS            = NUM_NOT_URGENT_THREADS + 1 };
 
 int translatePriority(bcemt_ThreadAttributes::SchedulingPolicy policy,
@@ -143,7 +139,8 @@ int translatePriority(bcemt_ThreadAttributes::SchedulingPolicy policy,
         return bcemt_ThreadAttributes::getMinSchedPriority(policy);   // RETURN
     }
     else {
-        return bcemt_ThreadAttributes::getMaxSchedPriority(policy);   // RETURN
+        int mx = bcemt_ThreadAttributes::getMaxSchedPriority(policy);
+        return mx;                                                    // RETURN
     }
 }
 
@@ -311,15 +308,7 @@ int main(int argc, char *argv[])
                 P_(URGENT_LOW) P_(URGENT_PRIORITY) P(NOT_URGENT_PRIORITY)
             }
 
-#ifdef BSLS_PLATFORM__OS_AIX
-            if (SO != POLICY) {
-                continue;
-            }
-#endif
-
-            if (URGENT_PRIORITY == NOT_URGENT_PRIORITY) {
-                continue;
-            }
+            ASSERT(URGENT_PRIORITY != NOT_URGENT_PRIORITY);
 
             TC::F::s_urgentPlace = -1;
             TC::F::s_finished = 0;
@@ -329,6 +318,7 @@ int main(int argc, char *argv[])
             bcemt_ThreadUtil::Handle handles[TC::NUM_THREADS];
 
             bcemt_ThreadAttributes notUrgentAttr;
+            notUrgentAttr.setStackSize(1024 * 1024);
             notUrgentAttr.setInheritSchedule(0);
             notUrgentAttr.setSchedulingPolicy(POLICY);
 
