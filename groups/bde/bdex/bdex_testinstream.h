@@ -546,6 +546,13 @@ class bdex_TestInStream {
     bdesb_FixedMemInStreamBuf   d_streambuf;    // externalized values
     bdex_TestInStreamFormatter  d_formatter;    // formatter
 
+    // NOT DEFINED
+    bdex_TestInStream(const bdex_TestInStream&);
+    bdex_TestInStream& operator=(const bdex_TestInStream&);
+
+    bool operator==(const bdex_TestInStream&) const;
+    bool operator!=(const bdex_TestInStream&) const;
+
   public:
     // CREATORS
     bdex_TestInStream(bslma_Allocator *basicAllocator = 0);
