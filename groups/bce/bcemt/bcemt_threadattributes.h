@@ -265,8 +265,8 @@ class bcemt_ThreadAttributes {
         // Set the value of the scheduling priority attribute of this thread
         // attributes object to the specified 'schedulingPriority'.  This
         // attribute is ignored on Windows.  Unless '!inheritSchedule()' this
-        // attribute is ignored.  On Solaris and AIX, higher numbers indicate
-        // more urgent priorities.  Priorities must be in the range
+        // attribute is ignored.  On Solaris, AIX, and Linux, higher numbers
+        // indicate more urgent priorities.  Priorities must be in the range
         // 'min <= priority <= max' where 'min == getMinSchedPriority(policy)'
         // and 'max == getMaxSchedPriority(policy)'.  Note that this attribute
         // has little or no effect except when multiple threads are blocked on
