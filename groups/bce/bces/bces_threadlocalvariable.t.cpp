@@ -675,101 +675,116 @@ extern "C" void *typesTest(void *voidArgs)
 
 ///Usage
 ///-----
+// In this section we show intended usage of this component. 
+//
+///Example 1: A Service Request Processor with Thread Local Context
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // In the following example we create a 'RequestProcessor' that places context
-// information for the current request in a thread local variable.
+// information for the current request in a thread-local variable.
 //
 // First we define a trivial structure for a request context.
 //..
     // requestprocessor.h
-
+//
     struct RequestContext {
-
+//
         // DATA
         int d_userId;       // BB user id
         int d_workstation;  // BB LUW
     };
 //..
-// Now we create a trivial 'RequestProcessor' that provides a static class
+// Next, we create a trivial 'RequestProcessor' that provides a static class
 // method that returns the 'RequestContext' for the current thread, or 0 if
 // the current thread is not processing a request.
 //..
     class RequestProcessor {
-        // This class implements an example request processor.
-
+        // This class implements an "example" request processor.
+//
         // NOT IMPLEMENTED
         RequestProcessor(const RequestProcessor& );
         RequestProcessor& operator=(const RequestProcessor& );
-
+//
         // PRIVATE CLASS METHODS
-        static const RequestContext *&context();
-            // Return a reference to a thread-local pointer to the
-            // non-modifiable request context for this thread.
-
+        static const RequestContext *&contextReference();
+            // Return a reference to a *modifiable* thread-local pointer to the
+            // non-modifiable request context for this thread.  Note that this
+            // method explicitly allows the pointer (but not the
+            // 'RequestContext' object) to be modified by the caller to allow
+            // other methods to assign the thread-local context pointer to a
+            // new address.
+//
       public:
-
+//
         // CLASS METHODS
-        static const RequestContext *threadContext();
-            // Return a pointer to the non-modifiable request context
-            // for this thread or 0 if one has not been set.
-
+        static const RequestContext *requestContext();
+            // Return the address of the non-modifiable, request context
+            // for this thread, or 0 if none has been set.
+//
         // CREATORS
         RequestProcessor() {}
             // Create a 'RequestProcessor'.
-
+//
         ~RequestProcessor() {}
             // Destroy this request processor.
-
+//
         // MANIPULATORS
         void processRequest(int         userId,
                             int         workstation,
                             const char *request);
-            // Process the specified 'request' for the specified 'userId' and
-            // 'workstation'.
+            // Process (in the caller's thread) the specified 'request' for
+            // the specified 'userId' and 'workstation'.
     };
-
+//
     // requestprocessor.cpp
-
-
+//
+//
     // PRIVATE CLASS METHODS
-    const RequestContext *&RequestProcessor::context()
+//..
+// Now we defined the 'contextReference' method, which defines a thread-local
+// 'RequestContext' pointer, 'context', initialized to 0, and returns a
+// reference providing modifiable access to that pointer.
+//..
+    const RequestContext *&RequestProcessor::contextReference()
     {
         BCES_THREAD_LOCAL_VARIABLE(const RequestContext *, context, 0);
         return context;
     }
-
+//
     // CLASS METHODS
-    const RequestContext *RequestProcessor::threadContext()
+    const RequestContext *RequestProcessor::requestContext()
     {
-        return context();
+        return contextReference();
     }
-
+//
     // MANIPULATORS
 //..
-// This example request processing function sets the thread local pointer
-// containing the request context and then processes the 'request'.
+// Then, we define 'RequestProcessor' class's 'processRequest' method, which
+// first sets the thread-local pointer containing the request context, and
+// then processes the 'request'.
 //..
-    void RequestProcessor::processRequest(int                userId,
-                                          int                workstation,
-                                          const char*        request)
+    void RequestProcessor::processRequest(int         userId,
+                                          int         workstation,
+                                          const char *request)
     {
         RequestContext currentContext = {userId, workstation};
-
-        context() = &currentContext;
-
+//
+        contextReference() = &currentContext;
+//
         // Process the request.
-
-        context() = 0;
+//
+        contextReference() = 0;
     }
 //..
-// Finally we define an example function that accesses the 'RequestContext'
-// for the current thread.
+// Finally, we define a separate function 'myFunction' that uses the
+// 'RequestProcessor' class to access the 'RequestContext' for the current
+// thread.
 //..
-    void processingFunction()
+    void myFunction()
     {
-        const RequestContext *context = RequestProcessor::threadContext();
-                  ASSERT(0 != context);
-
-        // Perform some processing.
+        const RequestContext *context = RequestProcessor::requestContext();
+//
+        // Perform some task that makes use of this threads 'requestContext'.
+        // ...
     }
 //..
 
