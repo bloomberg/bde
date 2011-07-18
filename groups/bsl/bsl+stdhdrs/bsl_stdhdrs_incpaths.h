@@ -113,7 +113,7 @@ BSLS_IDENT("$Id: $")
 #   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
 #   define BSL_NATIVE_CISO646_HEADER(filename) <../CC/std/filename>
 
-#   if !defined(BDE_STDLIB_STLPORT)
+#   if !defined(BDE_BUILD_TARGET_STLPORT)
 #       define BSL_NATIVE_CPP_LIB_HEADER(filename) <../CC/Cstd/filename>
 #       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../CC/filename>
 #       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../CC/Cstd/filename>
