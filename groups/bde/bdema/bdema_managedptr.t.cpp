@@ -181,9 +181,6 @@ MyTestObject::MyTestObject(int *counter)
 : d_deleteCounter_p(counter)
 , d_value()
 {
-//    for (unsigned i = 0; i < sizeof(d_value) / sizeof(d_value[0]); ++i) {
-//        d_value[i] = 0;
-//    }
 }
 
 MyTestObject::~MyTestObject()
@@ -266,6 +263,11 @@ returnSecondDerivedPtr(int *numDels, bslma_TestAllocator *allocator)
     MySecondDerivedObject *p = new (*allocator) MySecondDerivedObject(numDels);
     bdema_ManagedPtr<MySecondDerivedObject> ret(p, allocator);
     return ret;
+}
+
+void doNothingDeleter(int *object, void *)
+{
+    ASSERT(object);
 }
 
 }  // close unnamed namespace
@@ -1240,15 +1242,16 @@ int main(int argc, char *argv[])
         //     Then verify the new target is destroyed when test object goes out of scope.
         //
         // Tested:
-        //   void load(nullptr_t=0);
-        //   void load(TYPE *ptr);
-        //   void load(TYPE *ptr, FACTORY *factory)
-        //   void load(TYPE *ptr,
-        //             void *factory,
-        //             void (*deleter)(TYPE *, void*));
-        //   void load(TYPE *ptr,
+        //   void load(bdema_ManagedPtr_Nullptr::Type =0);
+        //   void load(BDEMA_TARGET_TYPE *ptr);
+        //   void load(BDEMA_TYPE *ptr, FACTORY *factory);
+        //   void load(BDEMA_TYPE *ptr, void *factory, DeleterFunc deleter);
+        //   void load(BDEMA_TYPE *ptr,
+        //             bdema_ManagedPtr_Nullptr::Type,
+        //             void      (*deleter)(BDEMA_TYPE *, void*));
+        //   void load(BDEMA_TYPE *ptr,
         //             FACTORY *factory,
-        //             void(*deleter)(TYPE *,FACTORY*))
+        //             void(*deleter)(BDEMA_TYPE *,FACTORY*))
         //   ~bdema_ManagedPtr();
         // --------------------------------------------------------------------
 
@@ -1329,6 +1332,43 @@ int main(int argc, char *argv[])
             ASSERT(1 == numDeletes);
         }
         ASSERT(2 == numDeletes);
+
+
+        numDeletes = 0;
+        {
+            typedef bdema_ManagedPtr<int> MyObj;
+
+            int a = 0;
+
+            MyObj o;
+            o.load(&a, 0, &doNothingDeleter);
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            typedef bdema_ManagedPtr<int> MyObj;
+
+            struct IncrementIntFactory
+            {
+                void deleteObject(int *object)
+                {
+                    ASSERT(object);
+                    ++*object;
+                }
+            };
+
+            int a = 0;
+            IncrementIntFactory incrementer;
+
+            {
+                MyObj o;
+                o.load(&a, &incrementer);
+            }
+
+            ASSERT(1 == a);
+        }
+        ASSERT(0 == numDeletes);
       } break;
       case 6: {
         // --------------------------------------------------------------------
