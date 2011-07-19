@@ -19,22 +19,22 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a single mechanism class,
 // 'bslma_TestAllocatorMonitor', which is used, in concert with
 // 'bslma_TestAllocator', in the implementation of test drivers.  The
-// 'bslma_TestAllocatorMonitor' class provides several tell-tale indicators
-// (accessors) that certain states (i.e., statistics) of the test allocator
-// have changed (or not) since constuction of the monitor.  Using
+// 'bslma_TestAllocatorMonitor' class provides several tell-tale (accessor)
+// methods that indicate that certain test allocator states (i.e., statistics)
+// have changed (or not) since construction of the monitor.  Using
 // 'bslma_TestAllocatorMonitor' objects results test cases that more concise,
 // easier to read, and less error prone than test cases that directly access
 // the test allocator for state information.
 //
 ///Statistics
 /// - - - - -
-// The test allocator statistics tracked and the corresponding test allocator
-// monitor (Boolean) accessor methods are shown in the table below.  The change
-// (or lack of change) reported by these accessors are relative the the value
-// of each statistic on construction of the monitor.  Note that each of these
-// statistics count blocks of memory (i.e., number of allocations from the
-// allocator), and do not depend on the number of bytes in those allocated
-// blocks.
+// The test allocator statistics tracked by the monitor and the corresponding
+// test allocator monitor (Boolean) accessor methods are shown in the table
+// below.  The change (or lack of change) reported by these accessors are
+// relative the the value of each test allocator statistic as of the
+// construction of the monitor.  Note that each of these statistics count
+// blocks of memory (i.e., number of allocations from the allocator), and do
+// not depend on the number of bytes in those allocated blocks.
 //..
 //  Statistic        Is-Same Method Is-Up Method Is-Down Method
 //  --------------   -------------- ------------ --------------
@@ -43,11 +43,11 @@ BSLS_IDENT("$Id: $")
 //  numBlocksTotal   isTotalSame    isTotalUp    none
 //..
 // The 'numBlocksMax' and 'numBlocksTotal' statistics have values that are
-// monotonically non-decreasing; hence, they have no "Is-Down" methods.  If a
-// monitor is created for an allocator with outstanding blocks, then method
-// there are scenarios of deallocations and allocations where the number of
-// outstanding blocks drops below the value at monitor creation (i.e.,
-// 'true == monitor.isInUseDown()').
+// monotonically non-decreasing; hence, they need no "Is-Down" methods.  If a
+// monitor is created for an allocator with outstanding blocks, then it is
+// possible (some deallocations are required) for the allocator's count of
+// outstanding blocks to drop below the value seen by the monitor at
+// construction, hence the need for a 'isInUseDown' method.
 //
 ///Usage
 ///-----

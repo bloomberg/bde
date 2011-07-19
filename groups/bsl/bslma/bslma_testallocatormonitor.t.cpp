@@ -20,13 +20,14 @@ using namespace std;
 //                             --------
 // The component under test implements a mechanism which summarize changes in
 // certain statistics of the test alloctor object supplied at construction.
-// The main testing concern is that the monitor captures the correct data
-// when it is constructed and later compares those values to the current
+// The main testing concern is that the monitor captures the correct data when
+// it is constructed and later compares those values to the correct current
 // statistics from the test allocator.  There are many places in the
 // implementation for mismatches between different statistics.  The overall
-// test strategy is to create a test allocator and tracking monitors, and then
+// test strategy is to create a test allocator and tracking monitors, then
 // drive the allocator through scenarios that put the monitors through all
-// possible states.
+// possible states, and compared the monitor state actual with the its expected
+// state.
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
@@ -182,39 +183,10 @@ typedef bslma_TestAllocatorMonitor Obj;
 ///Example 1: Standard Usage
 ///- - - - - - - - - - - - -
 // Classes taking 'bslma_allocator' objects have many requirements (and thus,
-// many testing concerns) that other classes do not.  For example, the concerns
-// of a (value-semantic) attribute class include:
-//
-//: 1 An object created with the default constructor (with or without a
-//:   supplied allocator) has the contractually specified default value.
-//:
-//: 2 If an allocator is NOT supplied to the default constructor, the default
-//:   allocator in effect at the time of construction becomes the object
-//:   allocator for the resulting object.
-//:
-//: 3 If an allocator IS supplied to the default constructor, that allocator
-//:   becomes the object allocator for the resulting object.
-//:
-//: 4 Supplying a null allocator address has the same effect as not supplying
-//:   an allocator.
-//:
-//: 5 Supplying an allocator to the default constructor has no effect on
-//:   subsequent object values.
-//:
-//: 6 Any memory allocation is from the object allocator.
-//:
-//: 7 There is no temporary allocation from any allocator.
-//:
-//: 8 Every object releases any allocated memory at destruction.
-//:
-//: 9 QoI: The default constructor allocates no memory.
-//
-// Note that some of these concerns (e.g., C-9) are not part of the class's
-// documented, contractual behavior.
-//
-// We here illustrate how 'bslma_TestAllocatorMonitor' objects (in conjunction
-// with 'bslma_TestAllocator' objects, of course) can be used in a test driver
-// to succinctly address the above concerns.
+// many testing concerns) that other classes do not.  We here illustrate how
+// 'bslma_TestAllocatorMonitor' objects (in conjunction with
+// 'bslma_TestAllocator' objects, of course) can be used in a test driver to
+// succinctly address many concerns of an object's use of allocators.
 //
 // As a test subject, we introduce 'MyClass', an unconstrained attribute class
 // with a single attribute, 'description', an ascii string.  For the sake of
@@ -236,17 +208,17 @@ typedef bslma_TestAllocatorMonitor Obj;
 
       public:
         // CREATORS
-        MyClass(bslma_Allocator *basicAllocator = 0);
+        explicit MyClass(bslma_Allocator *basicAllocator = 0);
             // Create a 'MyClass' object having the (default) attribute values:
             //..
-            //  description() == ""
+            // description() == ""
             //..
             // Optionally specify a 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed default allocator
             // is used.
 
         ~MyClass();
-           // Destroy this object.
+            // Destroy this object.
 
         // MANIPULATORS
         void setDescription(const char* value);
@@ -301,7 +273,7 @@ typedef bslma_TestAllocatorMonitor Obj;
         d_description_p[length] = '\0';
     }
 
-    // MANIPULATORS
+    // ACCESSORS
     inline
     const char *MyClass::description() const
     {
@@ -354,42 +326,85 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// First, following the typical testing pattern, we create a trio of
-// 'bslma_TestAllocator' objects, and install two as the global and default
-// allocators.  The remaining allocator will be supplied to the object.
+// Our allocator-related concerns for 'MyClass' include:
+//..
+// Concerns:
+//: 1 Any memory allocation is from the object allocator.
+//:
+//: 2 There is no temporary allocation from any allocator.
+//:
+//: 3 Every object releases any allocated memory at destruction.
+//:
+//: 4 QoI: The default constructor allocates no memory.
+//:
+//: 5 QoI: When possible, memory is cached for reuse.
+//..
+// Note that some of these concerns (e.g., C-4, C-5) are not part of the
+// class's documented, contractual behavior.  Hence, they are tagged
+// a Quality of Implementation (QoI) concerns.
+//
+// A plan to address these concerns might be:
+//..
+// Plan:
+//: 1 Create three 'bslma_TestAllocator' objects and for each of these a
+//:   'bslma_TestAllocatorMonitor' object.  Install two allocators as the
+//:   global and default allocators.  The remaining allocator will be
+//:   passed to out test objects on construction.
+//:
+//: 2 In an inner block, default create a test object using the designated
+//:   "object" allocator.  Then allow the object to go out of scope (destroyed).
+//:   Confirm that no memory has been allocated from any of the allocators.
+//:   (C-4).
+//:
+//: 3 Exercise a test object so that memory is allocated allocation, and and
+//:   confirm that the object allocator (only) is used as expected:
+//:   1 Create a new test object using the (as yet unused) object allocator.
+//:   2 Force the test object to allocate memory by setting an attribute that
+//:     exceeds the size of the object itself.  Confirm that the attribute was
+//:     set and that memory was allocated.
+//:   3 Change the attribute to a smaller value and confirm that the current
+//:     memory was reused. (C-5)
+//:   4 Force the test object to deallocate/allocate by setting a string
+//:     that exceeds the capacity acquired earlier.  Confirm that the
+//:     that the number of outstanding allocations is unchanged (one returned,
+//:     one given) but the maxium number of allocations is unchanged so there
+//:     were not extra (temporary) allocations. (C-2)
+//:
+//: 4 Destroy the test object and confirm that all allocations are returned.
+//:   (C-3)
+//: 5 Confirm that at no time were the global allocator or the default
+//:   allocator were used. (C-1)
+//..
+// The implementation of the plan is shown below:
+//
+// First, we create the trio of test allocators, their respective test
+// allocator monitors, and install two of the allocators as the global and
+// default allocators:
 //..
     {
         bslma_TestAllocator ga("global",  veryVeryVeryVerbose);
         bslma_TestAllocator da("default", veryVeryVeryVerbose);
         bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
 
+        bslma_TestAllocatorMonitor gam(ga), dam(da), oam(oa);
+
         bslma_Default::setGlobalAllocator(&ga);
         bslma_Default::setDefaultAllocatorRaw(&da);
 //..
-// Then, one creates a trio of 'bslma_TestAllocatorMonitor' objects to capture
-// the current state (unused) of each of the 'bslma_TestAllocator' objects.
-//..
-        bslma_TestAllocatorMonitor gam(ga), dam(da), oam(oa);
-//..
-// Next, one creates an object of the class under test, supplying the remaining
-// allocator, and subjects the object to the relevant operations.  In this
-// first test, the object is just default constructed, and then destroyed.
+// Then, we default construct a test object using the object allocator, and
+// then, immediately destroy it.  The object allocator monitor, 'oam', shows
+// that the allocator was not used.
 //..
         {
             MyClass obj(&oa);
         }
+        ASSERT(oam.isTotalSame()); // object  allocator unused
 //..
-// Then, after the object is destroyed, the several monitor objects show that
-// their respective allocators were not used.
-//..
-        ASSERT(gam.isTotalSame()); // no (de)allocations
-        ASSERT(dam.isTotalSame()); // no (de)allocations
-        ASSERT(oam.isTotalSame()); // no (de)allocations
-//..
-// Notice that we have addressed C-3.
-
-// Next, we force the object into allocating memory, and confirm that memory
-// was allocated.
+// Next, we pass the (still unused) object allocator to another test object.
+// This time, we coerce the object into allocating memory by setting an
+// attribute.  (Setting an attribute larger than the receiving object
+// usually means that the object cannot store the data within its own footprint
+// and must allocate memory.)
 //..
         {
             MyClass obj(&oa);
@@ -399,57 +414,67 @@ int main(int argc, char *argv[])
             BSLMF_ASSERT(sizeof(obj) < sizeof(DESCRIPTION1));
 
             obj.setDescription(DESCRIPTION1);
+            ASSERT(0 == std::strcmp(DESCRIPTION1, obj.description()));
 
             ASSERT(oam.isTotalUp());  // object allocator was used
             ASSERT(oam.isInUseUp());  // some outstanding allocation(s)
+            ASSERT(oam.isMaxUp());    // a maxium was set
 //..
-// Then, we reset the attribute to a short value and test that the previously
-// allocated memory is reused.  To measure changes in the object allocator
-// relative to its current state, we introduce a second monitor object.
+// Notice, as expected, memory was allocated from object allocator.
+//
+// Then, we create a second monitor to capture the current state of the test
+// allocator, and reset the attribute of that same object, this time to a short
+// string.
 //..
-
             bslma_TestAllocatorMonitor oam2(oa);
 
             obj.setDescription("a");
+            ASSERT(0 == std::strcmp("a", obj.description()));
 
-            ASSERT(oam2.isTotalSame());  // no (de)allocations
+            ASSERT(oam2.isTotalSame());  // no allocations
 //..
-// Notice that this test addresses C-4.  Next, we assign a value that forces
-// the object to allocate additional memory.
+// Notice that there are no allocations because the object had sufficient
+// capacity in previously allocated memory to store the short string.
+//
+// Next, we make the object allocate additional memory by settng a longer
+// attribute: one that exceeds the capacity allocated for 'DESCRIPTION1'.  Use
+// the second monitor to confirm that some allocation was made.
 //..
             const char DESCRIPTION2[]="abcdefghijklmnopqrstuvwyz"
                                       "abcdefghijklmnopqrstuvwyz"
                                       "abcdefghijklmnopqrstuvwyz"
                                       "abcdefghijklmnopqrstuvwyz";
             obj.setDescription(DESCRIPTION2);
+            ASSERT(0 == std::strcmp(DESCRIPTION2, obj.description()));
 
-            ASSERT(oam2.isTotalUp());    // Object allocator was used.
-            ASSERT(oam2.isInUseSame());  // Outstanding allocation
-                                                 // count (but not byte count)
-                                                 // is unchanged.
+            ASSERT(oam2.isTotalUp());    // object allocator used
+            ASSERT(oam2.isInUseSame());  // outstanding block (allocation) count
+                                         // unchanged (even though byte
+                                         // oustanding byte count increased)
+            ASSERT(oam2.isMaxSame());    // no extra (temporary) allocations
         }
 //..
-// Now that the object has been destroyed.
-//..
-        ASSERT(oam.isTotalUp());   // Object allocator was used.
-        ASSERT(oam.isInUseSame()); // All allocations were deallocated.
-//..
-// Notice that these tests confirm C-2.
+// Notice that the number of outstanding allocations remained unchanged: one
+// block was deallocated, one block (a larger block) was allocated.  Moreover,
+// the lack of change in the maximum of outstanding blocks ('isMaxSame') shows
+// there were no extra (temporary) allocations.
 //
-// Finally, we examine the two monitors of the two non-object allocators to
-// confirm that they were not used by any of these operations.
+// Finally, check that none of these operations used the default or global
+// allocators.
 //..
+        ASSERT(oam.isInUseSame()); // All object allocator memory deallocated.
         ASSERT(gam.isTotalSame()); // Global  allocator was never used.
         ASSERT(dam.isTotalSame()); // Default allocator was never used.
     }
 //..
-// Notice that the last tests, along with our observations of the use of the
-// object allocator, address C-2 and C-5.
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // CTOR AND ACCESSORS
+        //   This case tests that the monitor captures the correct allocator
+        //   statistics on construction and compares those to the correct
+        //   allocator statistics over its lifetime.
         //
         // Concerns:
         //: 1 For any statistic tracked by the monitor (e.g., "InUse") only one
