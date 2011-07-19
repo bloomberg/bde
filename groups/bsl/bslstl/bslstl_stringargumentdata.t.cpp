@@ -178,12 +178,12 @@ namespace {
 // pointers: to the start and to the end of the string.
 //
 // First, we define a function 'computeHash' that takes a
-// 'bslstl_StringArgumentData' string as an argument and returns a 'size_t'
-// hash of that string:
+// 'bslstl_StringArgumentData' string as an argument and returns an
+// 'unsigned int' hash of that string:
 //..
-size_t computeHash(const bslstl_StringArgumentData<char>& str)
+unsigned computeHash(const bslstl_StringArgumentData<char>& str)
 {
-    size_t hash = 3069134613U;
+    unsigned hash = 3069134613U;
 
     for (const char *p = str.begin(); p != str.end(); ++p)
         hash = (hash << 5) ^ (hash >> 27) ^ *p;
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
 // Then, we call it with a simple 'C string' argument:
 //..
         const char str[] = "C string";
-        size_t hash = computeHash(bslstl_StringArgumentData<char>(
+        unsigned hash = computeHash(bslstl_StringArgumentData<char>(
                                                       str, str + sizeof(str)));
 //..
 // Finally, we compare the computed hash with the expected value:
