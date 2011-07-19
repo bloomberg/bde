@@ -2730,7 +2730,7 @@ int main(int argc, char *argv[])
 
             switch (CONFIG) {
               case 'a': {
-                objPtr = new (fa) Obj();
+                objPtr          = new (fa) Obj();
                 objAllocatorPtr = &da;
               } break;
               case 'b': {

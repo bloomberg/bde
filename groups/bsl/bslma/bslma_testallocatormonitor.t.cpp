@@ -496,10 +496,15 @@ int main(int argc, char *argv[])
         //:
         //: 4 After step P-2.2, create a second monitor for the same test
         //:   allocator.  After operations, P-2.3 and P-2.4, check the return
-        //:   values of the second monitor for the expected results.  (C-4)
+        //:   values of the second monitor for the expected results.  This
+        //:   monitor object allows us to observe the 'isInUseDown' return
+        //:   return 'true'.  (C-4)
         //:
         //: 5 Use a table driven test to repeat the P-1 to P-4 for different
         //:   allocation sizes: increasing, decreasing, large, small, etc.
+        //:   Since zero-sized allocations are no-ops to the allocator, the
+        //:   table has no zero-sized allocations.  Doing so would interfere
+        //:   certain expected state changes.
         //
         // Testing:
         //   bslma_TestAllocatorMonitor(const bslma_TestAllocator& tA);
@@ -553,19 +558,6 @@ int main(int argc, char *argv[])
 
             { L_,   TEN8,  TEN7,  TEN6,  TEN5,  TEN4 },
             { L_,   TEN3,  TEN2,  TEN1,  TEN0,  TEN8 },
-
-
-            //{ L_,   ZERO,  ZERO,  ZERO,  ZERO,  ZERO },
-            //{ L_,   TEN0,  ZERO,  ZERO,  ZERO,  ZERO },
-            //{ L_,   ZERO,  TEN0,  ZERO,  ZERO,  ZERO },
-
-            //{ L_,   TEN1,  TEN1,  TEN1,  TEN1,  TEN1 },
-            //{ L_,   TEN4,  TEN4,  TEN4,  TEN4,  TEN4 },
-            //{ L_,   TEN8,  TEN8,  TEN8,  TEN8,  TEN8 },
-            //{ L_,   ZERO,  TEN1,  TEN2,  TEN3,  TEN4 },
-            //{ L_,   TEN5,  TEN6,  TEN7,  TEN8,  ZERO },
-            //{ L_,   TEN8,  TEN7,  TEN6,  TEN5,  TEN4 },
-            //{ L_,   TEN3,  TEN2,  TEN1,  ZERO,  TEN8 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

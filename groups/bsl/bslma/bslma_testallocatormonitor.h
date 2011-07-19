@@ -19,11 +19,12 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a single mechanism class,
 // 'bslma_TestAllocatorMonitor', which is used, in concert with
 // 'bslma_TestAllocator', in the implementation of test drivers.  The
-// 'bslma_TestAllocatorMonitor' class provides several tell-tale indicators of
-// the test allocator state.  Use of 'bslma_TestAllocatorMonitor' objects
-// results in test cases that more concise, easier to read, and less error
-// prone than test cases that directly access the test allocator for state
-// information.
+// 'bslma_TestAllocatorMonitor' class provides several tell-tale indicators
+// (accessors) that certain states (i.e., statistics) of the test allocator
+// have changed (or not) since constuction of the monitor.  Using
+// 'bslma_TestAllocatorMonitor' objects results test cases that more concise,
+// easier to read, and less error prone than test cases that directly access
+// the test allocator for state information.
 //
 ///Statistics
 /// - - - - -
@@ -42,14 +43,15 @@ BSLS_IDENT("$Id: $")
 //  numBlocksTotal   isTotalSame    isTotalUp    none
 //..
 // The 'numBlocksMax' and 'numBlocksTotal' statistics have values that are
-// monotonically non-decreasing; hence, they have no "Is-Down" methods.  A
-// monitor's 'isInUseDown' method will return 'true' if the monitor is created
-// for an allocator having outstanding blocks, and then one or more of those
-// blocks are deallocated.
+// monotonically non-decreasing; hence, they have no "Is-Down" methods.  If a
+// monitor is created for an allocator with outstanding blocks, then method
+// there are scenarios of deallocations and allocations where the number of
+// outstanding blocks drops below the value at monitor creation (i.e.,
+// 'true == monitor.isInUseDown()').
 //
 ///Usage
 ///-----
-// See 'bslma_testallocatormonitor.t.cpp' Usage case.
+// See 'bslma_testallocatormonitor.t.cpp' usage case for now.
 
 #ifndef INCLUDED_BSLMA_TESTALLOCATOR
 #include <bslma_testallocator.h>
@@ -62,7 +64,11 @@ namespace BloombergLP {
                         // ================================
 
 class bslma_TestAllocatorMonitor {
-    // TBD
+    // This mechanism provides a set of accessor methods providing simple, tell
+    // tale indications of a change (or of no change), since construction of
+    // the monitor, in the state (statics) of the 'bslma_TestAllocator' object
+    // provided at construction.  See the Statics section of @DESCRIPTION for
+    // the statics tracked.
 
     // DATA
     const bsls_Types::Int64          d_initialInUse;    // 'numBlocksInUse'
@@ -82,39 +88,39 @@ class bslma_TestAllocatorMonitor {
 
     // ACCESSORS
     bool isInUseDown() const;
-        // Return 'true' if the 'numBlocksInUse' statistic of the tracked
-        // test allocator has decreased since construction of this monitor,
-        // and 'false' otherwise.
+        // Return 'true' if the 'numBlocksInUse' statistic of the tracked test
+        // allocator has decreased since construction of this monitor, and
+        // 'false' otherwise.
 
     bool isInUseSame() const;
-        // Return 'true' if the 'numBlocksInUse' statistic of the tracked
-        // test allocator has not changed since construction of this monitor,
-        // and 'false' otherwise.
+        // Return 'true' if the 'numBlocksInUse' statistic of the tracked test
+        // allocator has not changed since construction of this monitor, and
+        // 'false' otherwise.
 
     bool isInUseUp() const;
-        // Return 'true' if the 'numBlocksInUse' statistic of the tracked
-        // test allocator has increased since construction of this monitor,
-        // and 'false' otherwise.
+        // Return 'true' if the 'numBlocksInUse' statistic of the tracked test
+        // allocator has increased since construction of this monitor, and
+        // 'false' otherwise.
 
     bool isMaxSame() const;
-        // Return 'true' if the 'numBlocksMax' statistic of the tracked
-        // test allocator has not changed since construction of this monitor,
-        // and 'false' otherwise.
+        // Return 'true' if the 'numBlocksMax' statistic of the tracked test
+        // allocator has not changed since construction of this monitor, and
+        // 'false' otherwise.
 
     bool isMaxUp() const;
-        // Return 'true' if the 'numBlocksMax' statistic of the tracked
-        // test allocator has increased since construction of this monitor,
-        // and 'false' otherwise.
+        // Return 'true' if the 'numBlocksMax' statistic of the tracked test
+        // allocator has increased since construction of this monitor, and
+        // 'false' otherwise.
 
     bool isTotalSame() const;
-        // Return 'true' if the 'numBlocksTotal' statistic of the tracked
-        // test allocator has not changed since construction of this monitor,
-        // and 'false' otherwise.
+        // Return 'true' if the 'numBlocksTotal' statistic of the tracked test
+        // allocator has not changed since construction of this monitor, and
+        // 'false' otherwise.
 
     bool isTotalUp() const;
-        // Return 'true' if the 'numBlocksTotal' statistic of the tracked
-        // test allocator has increased since construction of this monitor,
-        // and 'false' otherwise.
+        // Return 'true' if the 'numBlocksTotal' statistic of the tracked test
+        // allocator has increased since construction of this monitor, and
+        // 'false' otherwise.
 };
 
 // ============================================================================
