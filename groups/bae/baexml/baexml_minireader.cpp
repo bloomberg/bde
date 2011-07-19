@@ -11,6 +11,87 @@ BDES_IDENT_RCSID(baexml_minireader_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>  // for swap
 #include <bsl_cctype.h>
 
+// IMPLEMENTATION NOTES
+// --------------------
+
+// This section will provide a little background on how this component is
+// implemented.  This component presents a parser that has the following
+// control flow:
+//..
+//                               '?'
+//                             +----- scanProcessingInstruction 
+//                             |
+//                             |      - set type PROCESSING_INSTRUCTION
+//                             |      - set nodeName  (ex xml) 
+//                             |      - set nodeValue (ex version='1.0') 
+//                             |      - sets state to ST_TAG_END
+//                             |
+//                             |                               +--- COMMENT
+//                             |                               |
+//                             |                               |<!--
+//                             | '!'                           |
+//                             |                               |  - set type
+//                             |                               |    COMMENT
+//                             |                               |  - set value
+//                             |                               |    to comment
+//                             |                               |  - set state
+//                             |                               |    ST_TAG_END
+//                             |                               |
+//                             +----- scanExclaimConstruct ----+
+//                             |                               |
+//                             |                               |<![CDATA[..]]>
+//                             |                               |
+//                             |                               +--- CDATA
+//                             |                                  - set type
+//                             ^                                    CDATA
+//                             |                                  - set value
+//                             |                                    to escaped
+//                             |                                    data
+//                             |                                  - set state
+//                             |                                    ST_TAG_END
+//                             |
+//                             | default
+//  INITIAL   scanOpenTag -----+---->---- scanStartElement --+-- scanAttrs
+//     |          |            |                             |
+//     |          |            |   - set type ELEMENT        +-- check empty
+//     |          |            |   - set nodeName                element
+//     |          |            |     (ex 'Request')
+//     |          |            v   - set state to ST_TAG_END     - set flags
+//     |          |            |                                   EMPTY
+//     |          |            |
+//     |      '<' |            | '/'
+//     |          |            +----- scanEndElement --+-- END_ELEMENT
+//     |          |                                    | 
+//     |          |                                    +-- ST_TAG_END
+//     |          ^                                    |  
+//     |          |                                    +-- Decrement num of
+//     |          |                                        active nodes
+//     |          |---------<-------+                 
+//     |          |                 |
+//     v          |                 |
+//  scanNode -->--+                 |
+//     |          |                 |
+//     |          |                 | '<'
+//     |          v                 |
+//     |          | default         ^
+//     |          |                 |
+//     |          |                 |
+//     |       scanText ---+--------+
+//     |                   |
+//     |                   +--- WHITESPACE
+//     |                   |
+//     |                   +--- TEXT
+//     |                   |
+//     |                   +--- Replace Char References
+//     |                   |
+//     |                   |
+//     |                   |
+//     |----------<--------+
+//     |         EOF
+//     v
+//    END
+//..
+
 namespace {
 
 inline
@@ -275,11 +356,6 @@ baexml_MiniReader::Node::addAttribute(const Attribute& attr)
                           // -----------------------
 
 // CREATORS
-baexml_MiniReader::~baexml_MiniReader(void)
-{
-    close ();
-}
-
 baexml_MiniReader::baexml_MiniReader(bslma_Allocator *basicAllocator)
 : d_state           (ST_CLOSED)
 , d_flags           (0)
@@ -362,6 +438,11 @@ baexml_MiniReader::baexml_MiniReader(int              bufSize,
 
     d_activeNodes.resize(BAEXML_DEFAULT_DEPTH);
     d_parseBuf.resize(d_readSize);
+}
+
+baexml_MiniReader::~baexml_MiniReader()
+{
+    close ();
 }
 
 // MANIPULATORS
@@ -490,7 +571,6 @@ baexml_MiniReader::doOpen(const char *url, const char *encoding)
     d_lineNum    = 0;
     d_linePtr    = d_startPtr;
 
-    d_attrNamePtr = 0;
     d_attrNamePtr = 0;
     d_state       = ST_INITIAL;
 
@@ -893,9 +973,7 @@ baexml_MiniReader::scanForSymbol(char symbol)
 int
 baexml_MiniReader::scanForSymbolOrSpace(char symbol)
 {
-    char strSet [] = {
-        symbol, '\n', '\r', '\t' , ' ', '\0'
-    };
+    char strSet[] = { symbol, '\n', '\r', '\t' , ' ', '\0' };
 
     while (1) {
         // find 'symbol' or space
