@@ -441,6 +441,7 @@ const char *printTextReplacingXMLEscapes(
                 }
 
                 if (!endTag) {
+                    stream.write(runBegin, data - runBegin);
                     stream.setstate(bsl::ios_base::failbit);
                     return data;  // error position                      RETURN
                 }
@@ -455,6 +456,7 @@ const char *printTextReplacingXMLEscapes(
                                                       CDATA_BEGIN_LEN);
 
                 if (tmp) {
+                    stream.write(runBegin, data - runBegin);
                     stream.setstate(bsl::ios_base::failbit);
                     return tmp;  // error position                  RETURN
                 }
