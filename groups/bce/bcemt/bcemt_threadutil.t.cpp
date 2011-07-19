@@ -1,6 +1,7 @@
 // bcemt_threadutil.t.cpp        -*-C++-*-
 #include <bcemt_threadutil.h>
 
+#include <bcemt_default.h>
 #include <bcemt_threadattributes.h>
 #include <bces_atomictypes.h>
 #include <bces_platform.h>
@@ -9,7 +10,11 @@
 #include <bdetu_systemtime.h>
 
 #include <bslma_default.h>
+#include <bsls_assert.h>
 
+#include <bsl_algorithm.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 
@@ -312,6 +317,42 @@ void createKeyTestDestructor5(void *data)
 
 }  // extern "C"
 
+inline
+long mymax(long a, long b)
+{
+    return a >= b ? a : b;
+}
+
+inline
+long myabs(long a)
+{
+    return a >= 0 ? a : -a;
+}
+
+void testCaseMinus1Recurser(const char *start)
+{
+    enum { BUF_LEN = 1024 };
+    char buffer[BUF_LEN];
+    static double lastDistance = 1;
+
+    double distance = mymax(myabs(&buffer[0]           - start),
+                            myabs(&buffer[BUF_LEN - 1] - start));
+    if (distance / lastDistance > 1.02) {
+        cout << (int) distance << endl << flush;
+        lastDistance = distance;
+    }
+
+    testCaseMinus1Recurser(start);
+}
+
+extern "C" void *testCaseMinus1ThreadMain(void *)
+{
+    char c = 0;
+    testCaseMinus1Recurser(&c);
+
+    return 0;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -484,7 +525,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT( overshoot, overshoot >= OVERSHOOT_MIN);
             LOOP2_ASSERT(overshoot, TOLERANCE, overshoot < TOLERANCE);
         }
-    } break;
+    }  break;
     case 3: {
         // --------------------------------------------------------------------
         // TESTING usage examples
@@ -507,7 +548,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nSmall stack example" << endl;
 
         createSmallStackSizeThread();
-    } break;
+    }  break;
     case 2: {
         // --------------------------------------------------------------------
         // TESTING 'isEqual'
@@ -543,7 +584,7 @@ int main(int argc, char *argv[])
 
         bcemt_ThreadUtil::join(validH1);
         bcemt_ThreadUtil::join(validH2);
-    } break;
+    }  break;
     case 1: {
         // --------------------------------------------------------------------
         // Invokable functor test
@@ -586,7 +627,100 @@ int main(int argc, char *argv[])
 
        ASSERT(THREAD_COUNT == joinableChecker.count());
        ASSERT(THREAD_COUNT == detachedChecker.count());
-      } break;
+      }  break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // STACK OVERFLOW TEST
+        //
+        // Concern:
+        //   How big is the stack, really?  The main concern here is that the
+        //   stack size on HPUX is being properly adjusted so that the
+        //   specified stack size really is close to the effective stack size.
+        //
+        // Plan:
+        //   Recurse, printing out how deep we are, until we overflow.
+        //
+        // Observations:
+        //   So: Solaris
+        //   AI: AIX
+        //   HP: HPUX
+        //   Li: Linux
+        //   Wi: Windows
+        //
+        //   Results accurate to 2% or worse
+        //
+        //   Note that on AIX, the stack overflow causes the thread to die
+        //   without any warning messages, and the thread attempting to join
+        //   it just hangs.  On other Unix platforms, the stack overflow causes
+        //   a segfault.
+        //
+        //   Native Limit:
+        //   -------------
+        //
+        //   So 32:  1035871
+        //   So 64:  2082903
+        //
+        //   AI 32:   112128
+        //   AI 64:   213760
+        //
+        //   HP 32:   110240
+        //   HP 64:   110240
+        //
+        //   Li 32: 66691239
+        //   Li 64: 66359287
+        //
+        //   export CASE_MINUS_1_STACK_SIZE=1000000:
+        //   ---------------------------------------
+        //
+        //   So 32:   994111
+        //   So 64:  1005879
+        //
+        //   AI 32:  1020832
+        //   AI 64:  1118720
+        //
+        //   HP 32:   966160
+        //   HP 64:   966160
+        //
+        //   Li 32:   976567
+        //   Li 64:   991159
+        //
+        //   export CASE_MINUS_1_DEFAULT_SIZE=800000:
+        //   ----------------------------------------
+        //
+        //   So 32:   789119
+        //   So 64:   787479
+        //
+        //   AI 32:   884176
+        //   AI 64:   806400
+        //
+        //   HP 32:   771680
+        //   HP 64:   771680
+        //
+        //   Li 32:   780391
+        //   Li 64:   775735
+        // --------------------------------------------------------------------
+
+        bcemt_ThreadAttributes attr;
+
+        const char *stackSizeString = bsl::getenv("CASE_MINUS_1_STACK_SIZE");
+        if (stackSizeString) {
+            attr.setStackSize(atoi(stackSizeString));
+            P(attr.stackSize());
+        }
+
+        const char *defaultSizeString =
+                                      bsl::getenv("CASE_MINUS_1_DEFAULT_SIZE");
+        if (defaultSizeString) {
+            BSLS_ASSERT_OPT(!stackSizeString);
+            bcemt_Default::setDefaultThreadStackSize(atoi(defaultSizeString));
+            P(bcemt_Default::defaultThreadStackSize());
+        }
+
+        bcemt_ThreadUtil::Handle handle;
+        bcemt_ThreadUtil::create(&handle, attr, &testCaseMinus1ThreadMain, 0);
+
+        bcemt_ThreadUtil::join(handle);
+      }  break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
