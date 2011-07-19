@@ -117,7 +117,7 @@ BDES_IDENT("$Id: $")
 //      const int NUM_TRANSITION_TIMES =
 //                          sizeof TRANSITION_TIMES / sizeof *TRANSITION_TIMES;
 //
-//      ASSERT(0 == NUM_TRANSITION_TIMES % 2);
+//      assert(0 == NUM_TRANSITION_TIMES % 2);
 //
 //      for (int i = 0; i < NUM_TRANSITION_TIMES; i += 2) {
 //          result->addTransition(
