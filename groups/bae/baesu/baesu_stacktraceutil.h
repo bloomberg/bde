@@ -27,8 +27,8 @@ BDES_IDENT("$Id: $")
 // 'baesu_StackTraceUtil' using (1) 'loadStackTraceFromStack' and
 // (2) 'loadStackTraceFromAddresses'.
 //
-///Example 1: loading stack-trace directly from the stack.
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Loading Stack-Trace Directly from the Stack
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We start by defining a routine, 'recurseExample1', that will recurse the
 // specified 'depth' times, then call 'traceExample1':
 //..
@@ -92,8 +92,8 @@ BDES_IDENT("$Id: $")
 // and that on AIX or Windows, source file name and line number information
 // will also be displayed.
 //
-// Example 2: Loading a Stack-Trace From an Array of Stack Addresses.
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Loading a Stack-Trace from an Array of Stack Addresses
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate obtaining return addresses from the stack
 // using 'baesu_StackAddressUtil', and later using them to load a
 // 'baesu_StackTrace' object with a description of the stack.  This approach
@@ -164,7 +164,7 @@ BDES_IDENT("$Id: $")
 //..
 //      for (int i = 0; i < stackTrace.length(); ++i) {
 //          const baesu_StackTraceFrame& frame = stackTrace[i];
-//  
+//
 //          const char *symbol = frame.isSymbolNameKnown()
 //                             ? frame.symbolName().c_str()
 //                             : "--unknown__";
