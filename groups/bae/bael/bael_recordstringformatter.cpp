@@ -27,6 +27,8 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_c_stdlib.h>
+#include <bsl_c_stdio.h>   // for 'snprintf'
+
 #include <bsl_iomanip.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
