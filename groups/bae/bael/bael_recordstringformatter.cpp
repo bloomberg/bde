@@ -1,4 +1,12 @@
-// bael_recordstringformatter.cpp                -*-C++-*-
+// bael_recordstringformatter.cpp                                     -*-C++-*-
+
+///Implementation Notes
+///--------------------
+// Using the insertion operator (operator <<) with an 'ostream' introduces
+// significant performance overhead.  For this reason, the 'operator()' method
+// is implemented by writing the formatted string to a buffer before
+// inserting to a stream.
+
 #include <bael_recordstringformatter.h>
 
 #include <bdes_ident.h>
@@ -15,10 +23,15 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bdeu_print.h>
 
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
+#include <bsl_c_stdlib.h>
+#include <bsl_c_stdio.h>   // for 'snprintf'
+
 #include <bsl_iomanip.h>
 #include <bsl_ostream.h>
+#include <bsl_sstream.h>
 
 namespace {
 
@@ -27,6 +40,44 @@ const char *const DEFAULT_FORMAT_SPEC = "\n%d %p:%t %s %f:%l %c %m %u\n";
 }  // close unnamed namespace
 
 namespace BloombergLP {
+
+static void appendToString(bsl::string *result, int value)
+    // Convert the specified 'value' into ASCII characters and append it to the
+    // specified 'result.
+{
+    char buffer[16];
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
+    snprintf(buffer, sizeof buffer, "%d", value);
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#undef snprintf
+#endif
+
+    *result += buffer;
+}
+
+static void appendToString(bsl::string *result, bsls_Types::Uint64 value)
+    // Convert the specified 'value' into ASCII characters and append it to the
+    // specified 'result.
+{
+    char buffer[32];
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
+    snprintf(buffer, sizeof(buffer), "%llu", value);
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#undef snprintf
+#endif
+
+    *result += buffer;
+}
 
                         // --------------------------------
                         // class bael_RecordStringFormatter
@@ -99,63 +150,75 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     bdet_Datetime timestamp = fixedFields.timestamp() + d_timestampOffset;
 
     // Step through the format string, outputting the required elements.
-    const char* runBegin = d_formatSpec.data();
-    const char* end      = runBegin + d_formatSpec.length();
-    const char* iter     = runBegin;
+
+    const char* iter = d_formatSpec.data();
+    const char* end  = iter + d_formatSpec.length();
+
+    bsl::string output;
+    output.reserve(1024);
+
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#define snprintf _snprintf
+#endif
 
     while (iter != end) {
         switch (*iter) {
           case '%': {
-            // Flush run, output fields, and then start a new run (below).
-            stream.write(runBegin, iter - runBegin);
             if (++iter == end) {
                 break;
             }
             switch (*iter) {
               case '%': {
-                stream << '%';
+                output += '%';
               } break;
               case 'd': {
-                // use 'bdet_Datetime' built-in format
-                stream << timestamp;
+                char buffer[32];
+                int length = timestamp.printToBuffer(buffer, sizeof buffer);
+
+                output += buffer;
               } break;
               case 'I': // fall through intentionally
               case 'i': {
                 // use ISO8601 "extended" format
-                stream
-                    << bsl::setw(4) << bsl::setfill('0') << timestamp.year()
-                    << '-'
-                    << bsl::setw(2) << bsl::setfill('0') << timestamp.month()
-                    << '-'
-                    << bsl::setw(2) << bsl::setfill('0') << timestamp.day()
-                    << ' '
-                    << bsl::setw(2) << bsl::setfill('0') << timestamp.hour()
-                    << ':'
-                    << bsl::setw(2) << bsl::setfill('0') << timestamp.minute()
-                    << ':'
-                    << bsl::setw(2) << bsl::setfill('0') << timestamp.second();
+
+                char buffer[32];
+
+                snprintf(buffer,
+                         sizeof(buffer),
+                         "%04d-%02d-%02d %02d:%02d:%02d",
+                         timestamp.year(),
+                         timestamp.month(),
+                         timestamp.day(),
+                         timestamp.hour(),
+                         timestamp.minute(),
+                         timestamp.second());
+                output += buffer;
 
                 if ('I' == *iter) {
-                    stream << '.' << bsl::setw(3) << bsl::setfill('0')
-                           << timestamp.millisecond();
+                    snprintf(buffer,
+                             sizeof(buffer),
+                             ".%03d",
+                             timestamp.millisecond());
+
+                    output += buffer;
                 }
 
                 if (0 == d_timestampOffset.totalMilliseconds()) {
-                    stream << 'Z';
+                    output += 'Z';
                 }
               } break;
               case 'p': {
-                stream << fixedFields.processID();
+                appendToString(&output, fixedFields.processID());
               } break;
               case 't': {
-                stream << fixedFields.threadID();
+                appendToString(&output, fixedFields.threadID());
               } break;
               case 's': {
-                stream << bael_Severity::toAscii(
+                output += bael_Severity::toAscii(
                                  (bael_Severity::Level)fixedFields.severity());
               } break;
               case 'f': {
-                stream << fixedFields.fileName();
+                output += fixedFields.fileName();
               } break;
               case 'F': {
                 const bsl::string& filename = fixedFields.fileName();
@@ -166,81 +229,96 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                     filename.rfind('/');
 #endif
                 if (bsl::string::npos == rightmostSlashIndex) {
-                    stream << filename;
+                    output += filename;
                 }
                 else {
-                    stream << filename.substr(rightmostSlashIndex + 1);
+                    output += filename.substr(rightmostSlashIndex + 1);
                 }
               } break;
               case 'l': {
-                stream << fixedFields.lineNumber();
+                appendToString(&output, fixedFields.lineNumber());
               } break;
               case 'c': {
-                stream << fixedFields.category();
+                output += fixedFields.category();
               } break;
               case 'm': {
-                stream << fixedFields.message();
+                output += fixedFields.message();
               } break;
               case 'x': {
+                bsl::stringstream ss;
                 int length = fixedFields.messageStreamBuf().length();
-                bdeu_Print::printString(stream,
+                bdeu_Print::printString(ss,
                                         fixedFields.message(),
                                         length,
                                         false);
+                output += ss.str();
               } break;
               case 'X': {
+                bsl::stringstream ss;
                 int length = fixedFields.messageStreamBuf().length();
-                bdeu_Print::singleLineHexDump(stream,
+                bdeu_Print::singleLineHexDump(ss,
                                               fixedFields.message(),
                                               length);
+                output += ss.str();
               } break;
               case 'u': {
                 const bdem_List& userFields    = record.userFields();
                 const int        numUserFields = userFields.length();
-                for (int i = 0; i < numUserFields; ++i) {
-                    stream << userFields[i] << " ";
+
+                if (numUserFields > 0) {
+                    bsl::stringstream ss;
+                    for (int i = 0; i < numUserFields; ++i) {
+                        ss << userFields[i] << " ";
+                    }
+                    output += ss.str();
                 }
               } break;
-              default:
+              default: {
                 // Undefined: we just output the verbatim characters.
-                stream << '%' << *iter;
+
+                output += '%';
+                output += *iter;
+              }
             }
-            // Start a new run from here.
-            runBegin = ++iter;
+            ++iter;
           } break;
           case '\\': {
-            // Flush run, output fields, and then start a new run (below).
-            stream.write(runBegin, iter - runBegin);
             if (++iter == end) {
                 break;
             }
             switch (*iter) {
               case 'n': {
-                stream << '\n';
+                output += '\n';
               } break;
               case 't': {
-                stream << '\t';
+                output += '\t';
               } break;
               case '\\': {
-                stream << '\\';
+                output += '\\';
               } break;
               default: {
                 // Undefined: we just output the verbatim characters.
-                stream << '\\' << *iter;
+
+                output += '\\';
+                output += *iter;
               }
             }
-            // Start a new run from here.
-            runBegin = ++iter;
+            ++iter;
           } break;
           default: {
-            // Do nothing, instead, let run accumulate.
+            output += *iter;
             ++iter;
           }
         }
     }
 
-    stream.write(runBegin, iter - runBegin);
-    stream << bsl::flush;
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#undef snprintf
+#endif
+
+    stream.write(output.c_str(), output.size());
+    stream.flush();
+
 }
 
 // FREE OPERATORS
