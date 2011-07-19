@@ -317,7 +317,8 @@ namespace BloombergLP  {
                         // =======================
 
 class baexml_MiniReader :  public baexml_Reader {
-    // TBD doc
+    // This 'class' provides a concrete and efficient implementation of the
+    // 'baexml_Reader' protocol.
 
   private:
     // PRIVATE TYPES
@@ -340,7 +341,7 @@ class baexml_MiniReader :  public baexml_Reader {
             BAEXML_NODE_EMPTY    = 0x0001
         };
 
-        NodeType         d_type;
+        NodeType         d_type;                  
         const char      *d_qualifiedName;
         const char      *d_prefix;
         const char      *d_localName;
@@ -385,46 +386,49 @@ class baexml_MiniReader :  public baexml_Reader {
 
   private:
     // PRIVATE DATA
-    bslma_Allocator         *d_allocator;
-    State                    d_state;
-    int                      d_flags;
-    int                      d_readSize;
-    bsl::vector<char>        d_parseBuf;
-    int                      d_streamOffset;
+    bslma_Allocator          *d_allocator;
+    State                     d_state;
+    int                       d_flags;
+    int                       d_readSize;
+    bsl::vector<char>         d_parseBuf;
+    int                       d_streamOffset;
 
-    bsl::ifstream            d_stream;
-    bsl::streambuf          *d_streamBuf;
-    const char *             d_memStream;
-    size_t                   d_memSize;
+    bsl::ifstream             d_stream;
+    bsl::streambuf           *d_streamBuf;
+    const char *              d_memStream;      // memory buffer to decode from
+    size_t                    d_memSize;        // memory buffer size
 
-    char                    *d_startPtr;
-    char                    *d_endPtr;
-    char                    *d_scanPtr;
-    char                    *d_markPtr;
+    char                     *d_startPtr;
+    char                     *d_endPtr;
+    char                     *d_scanPtr;        // pointer used to traverse
+                                                // the input
 
-    char                    *d_attrNamePtr;
-    char                    *d_attrValPtr;
+    char                     *d_markPtr;        // pointer to the previous node
+                                                // value 
 
-    int                      d_lineNum;  // current line number
-    char                    *d_linePtr;  // position of the beginning
-                                         // of current line
+    char                     *d_attrNamePtr;
+    char                     *d_attrValPtr;
 
-    baexml_ErrorInfo         d_errorInfo;
-    XmlResolverFunctor       d_resolver;
+    int                       d_lineNum;      // current line number
+    char                     *d_linePtr;      // position of the beginning
+                                              // of current line
 
-    baexml_NamespaceRegistry d_ownNamespaces;
-    baexml_PrefixStack       d_ownPrefixes;
-    baexml_PrefixStack *     d_prefixes;
+    baexml_ErrorInfo          d_errorInfo;
+    XmlResolverFunctor        d_resolver;
 
-    Node                     d_currentNode;
-    size_t                   d_activeNodesCount;
-    ElementVector            d_activeNodes;
+    baexml_NamespaceRegistry  d_ownNamespaces;
+    baexml_PrefixStack        d_ownPrefixes;
+    baexml_PrefixStack       *d_prefixes;
 
-    bsl::string              d_baseURL;
-    bsl::string              d_encoding;
-    bsl::string              d_dummyStr;
+    Node                      d_currentNode;
+    size_t                    d_activeNodesCount;  // active nodes count
+    ElementVector             d_activeNodes;       // active nodes stack
 
-    unsigned int             d_options; // option flags for the reader
+    bsl::string               d_baseURL;
+    bsl::string               d_encoding;
+    bsl::string               d_dummyStr;
+
+    unsigned int              d_options;      // option flags for the reader
 
   private:
     // PRIVATE MANIPULATORS
@@ -439,12 +443,14 @@ class baexml_MiniReader :  public baexml_Reader {
                         const char *endFragment);
 
     // HIGH LEVEL PARSING PRIMITIVES
+
     void  preAdvance();
     const bsl::string&  findNamespace(const char *prefix) const ;
     const bsl::string&  findNamespace(const bsl::string& prefix) const;
     int   checkPrefixes();
 
     int   scanNode();
+        // Scan the node at the current position.
     int   scanOpenTag();
     int   scanProcessingInstruction();
     int   scanExclaimConstruct();
@@ -464,14 +470,14 @@ class baexml_MiniReader :  public baexml_Reader {
     int   doOpen(const char *url, const char *encoding);
 
     int   peekChar();
-        // Return the character at the current position.  Zero means
-        // the end of stream is reached/
+        // Return the character at the current position, and zero if the end
+        // of stream was reached.
 
     int   getChar();
-        // Return the character at the current position
-        // and then advance the current position.  If the end of
-        // stream is reached the return value is zero.  The behavior
-        // is undefined if this method is called once the end is reached.
+        // Return the character at the current position and then advance the
+        // current position.  If the end of stream is reached the return value
+        // is zero.  The behavior is undefined if this method is called once
+        // the end is reached.
 
     int   getCharAndSet(char ch);
         // Set the specified symbol 'ch' at the current position.
@@ -518,7 +524,7 @@ class baexml_MiniReader :  public baexml_Reader {
 
   public:
     // PUBLIC CREATORS
-    virtual ~baexml_MiniReader(void);
+    virtual ~baexml_MiniReader();
 
     explicit
     baexml_MiniReader(bslma_Allocator *basicAllocator = 0);
