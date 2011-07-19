@@ -199,6 +199,25 @@ int main(int argc, char *argv[])
         //   Call 'defaultThreadStackSize' and 'nativeThreadStackSize' without
         //   having called  'setDefaultThreadStackSize', and verify that they
         //   return the same value.
+        //
+        // Observed Results:
+        //   So: Solaris
+        //   AI: AIX
+        //   HP: HPUX
+        //   Li: Linux
+        //   Wi: Windows
+        //
+        //   So 32: defaultStackSize = 1048576, guardSize = 8192
+        //   So 64: defaultStackSize = 2097152, guardSize = 8192
+        //
+        //   AI 32: defaultStackSize = 98304, guardSize = 4096
+        //   AI 64: defaultStackSize = 196608, guardSize = 4096
+        //
+        //   HP 32: defaultStackSize = 131072, guardSize = 4096
+        //   HP 64: defaultStackSize = 131072, guardSize = 4096
+        //
+        //   Li 32: defaultStackSize = 67108864, guardSize = 4096
+        //   Li 64: defaultStackSize = 67108864, guardSize = 4096
         // --------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST\n"
