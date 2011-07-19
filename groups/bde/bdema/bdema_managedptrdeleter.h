@@ -18,7 +18,7 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single, complex-constrained in-core
 // value-semantic attribute class, 'bdema_ManagedPtrDeleter', that is used to
-// store a bound function call for a "factory" to delete an "object".
+// store a bound function call for a "factory" to destroy an "object".
 //
 ///Attributes
 ///----------
@@ -34,7 +34,7 @@ BDES_IDENT("$Id: $")
 //: o factory: address of the factory object that is reponsible for destroying
 //:            'object'
 //: o deleter: address of the function that knows how to restore the erased
-//:            types of 'object' and 'factory', and how toinvoke the 'factory'
+//:            types of 'object' and 'factory', and how to invoke the 'factory'
 //:            method to destroy object.
 //..
 //
@@ -135,9 +135,11 @@ class bdema_ManagedPtrDeleter {
         // generated.
 
     void set(void *object, void *factory, Deleter deleter);
-        // Set this 'bdema_ManagedPtrDeleter' to refer to the object
-        // and factory instance located at the specified 'object' and 'factory'
-        // memory locations, and to the specified 'deleter'.
+        // Set this 'bdema_ManagedPtrDeleter' to refer to the object and
+        // factory instance located at the specified 'object' and 'factory'
+        // memory locations, and to the specified 'deleter'.  Note that 
+        // 'object' and 'factory' may be null if and only if the specified
+        // 'deleter' function permits null pointers.
 
     void clear();
         // Reset this 'bdema_ManagedPtrDeleter' to its uninitialized state.

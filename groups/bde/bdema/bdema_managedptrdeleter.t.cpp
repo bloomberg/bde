@@ -150,16 +150,76 @@ static void aSsErT(int c, const char *s, int i) {
 typedef bdema_ManagedPtrDeleter Obj;
 
 // ============================================================================
-//                                 TYPE TRAITS
+//                      GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
+template<typename T>
+struct statelessFactory
+{
+    void destroy(T *object) const {
+        ASSERT(object);
+        ++*object;
+    }
+};
 
-BSLMF_ASSERT((bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseMoveable>::VALUE));
+template<typename T>
+class statefulFactory
+{
+    T d_data;
+    mutable bool d_empty;
+
+  public:
+    statefulFactory() : d_data(), d_empty(true) {}
+
+    T *create() { 
+        if (!d_empty) { return 0; }
+
+        d_empty = false;
+        return &d_data; 
+    }
+
+    void destroy(T *object) const {
+        ASSERT(object == &d_data);
+        d_empty = true;
+    }
+};
 
 // ============================================================================
-//                     GLOBAL CONSTANTS USED FOR TESTING
+//                     GLOBAL FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+void destroyWithNoFactory(void * object, void *)
+{
+    ASSERT(object);
+    ++*reinterpret_cast<int *>(object);
+}
+
+void destroyWithStatelessFactory(void * object, void *factory)
+{
+    ASSERT(object);
+    ASSERT(factory);
+    reinterpret_cast<statelessFactory<int>*>(factory)->destroy(
+                                              reinterpret_cast<int *>(object));
+}
+
+void destroyWithStatefulFactory(void * object, void *factory)
+{
+    ASSERT(object);
+    ASSERT(factory);
+    reinterpret_cast<statefulFactory<int>*>(factory)->destroy(
+                                              reinterpret_cast<int *>(object));
+}
+
+// ============================================================================
+//                   GLOBAL CONSTANTS USED FOR TESTING
 // ----------------------------------------------------------------------------
 
 // Define DEFAULT DATA used by test cases 3, 7, 8, 9, and 10
+
+static int g_i1 = 0;
+static int g_i2 = 0;
+static int g_i3 = 0;
+
+static statelessFactory<int> g_stateless;
 
 static const struct {
     int           d_line;           // source line number
@@ -167,27 +227,30 @@ static const struct {
     void         *d_factory;
     Obj::Deleter  d_deleter;
 } DEFAULT_DATA[] = {
-    //LINE  OBJECT    FACTORY   DELETER
-    //----  ------    -------   -------
+    //LINE  OBJECT        FACTORY                      DELETER
+    //----  ------        -------                      -------
 
     // default (must be first)
-    { L_,        0,         0,        0},
+    { L_,        0,             0,                           0 },
 
-    //// 'timeout'
-    //{ L_,         1,  false },
-    //{ L_,   INT_MAX,  false },
+    // 'object only'
+    { L_,     &g_i1,            0,        destroyWithNoFactory },
+    { L_,     &g_i2,            0,        destroyWithNoFactory },
 
-    //// 'useLingeringFlag'
-    //{ L_,         0,   true },
-
-    //// other
-    //{ L_,         1,   true },
-    //{ L_,   INT_MAX,   true },
+    // 'factory/deleter'
+    { L_,     &g_i1, &g_stateless, destroyWithStatelessFactory },
+    { L_,     &g_i3, &g_stateless, destroyWithStatelessFactory },
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                          TESTING TYPE TRAITS
+// ----------------------------------------------------------------------------
+
+BSLMF_ASSERT((bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseMoveable>::VALUE));
+
+// ============================================================================
+//                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -270,22 +333,46 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                             "\nUse a table of distinct object values." << endl;
 
-        //const int NUM_DATA                     = DEFAULT_NUM_DATA;
-        //const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
-
         for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
             const int          LINE    = DEFAULT_DATA[ti].d_line;
             void        *const OBJECT  = DEFAULT_DATA[ti].d_object;
             void        *const FACTORY = DEFAULT_DATA[ti].d_factory;
             const Obj::Deleter DELETER = DEFAULT_DATA[ti].d_deleter;
 
+            if (!OBJECT) {
+                continue;
+            }
+
             Obj mX(OBJECT, FACTORY, DELETER); const Obj& X = mX;
 
-            //if (veryVerbose) { T_ P_(LINE) P(X) }
+            if (veryVerbose) { T_ P_(LINE) P(X) }
+            
+            // clear global flags
+            g_i1 = 0;
+            g_i2 = 0;
+            g_i3 = 0;
 
-            //mX.clear();
+            mX.deleteManagedObject();
 
-            //LOOP2_ASSERT(LINE, X, Obj() == X);
+            // one of these should fail until I fix up the aeert condition
+            if (OBJECT != &g_i1) {
+                LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
+            }
+            else {
+                LOOP2_ASSERT(L_, g_i1, 1 == g_i1);
+            }
+            if (OBJECT != &g_i2) {
+                LOOP2_ASSERT(L_, g_i2, 0 == g_i2);
+            }
+            else {
+                LOOP2_ASSERT(L_, g_i2, 1 == g_i2);
+            }
+            if (OBJECT != &g_i3) {
+                LOOP2_ASSERT(L_, g_i3, 0 == g_i3);
+            }
+            else {
+                LOOP2_ASSERT(L_, g_i3, 1 == g_i3);
+            }
         }
       } break;
       case 11: {
@@ -321,9 +408,6 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                             "\nUse a table of distinct object values." << endl;
 
-        //const int NUM_DATA                     = DEFAULT_NUM_DATA;
-        //const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
-
         for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
             const int          LINE    = DEFAULT_DATA[ti].d_line;
             void        *const OBJECT  = DEFAULT_DATA[ti].d_object;
@@ -334,10 +418,22 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(LINE) P(X) }
 
+            // confirm that we are testing 'clear'ing non-empty values
+            if (ti != 0) {
+                LOOP2_ASSERT(LINE, X, Obj() != X);
+            }
+
             mX.clear();
 
             LOOP2_ASSERT(LINE, X, Obj() == X);
         }
+
+        // confirm that global state has not been altered, implying the
+        // deleters have not been run.
+        LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
+        LOOP2_ASSERT(L_, g_i2, 0 == g_i2);
+        LOOP2_ASSERT(L_, g_i3, 0 == g_i3);
+
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -348,9 +444,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "BDEX STREAMING (not implemented)" << endl
                           << "================================" << endl;
-
-        // scalar and array object values for various stream tests
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -446,8 +539,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
                             "\nUse a table of distinct object values." << endl;
-        //const int NUM_DATA                     = DEFAULT_NUM_DATA;
-        //const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
         for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
             const int          LINE1    = DEFAULT_DATA[ti].d_line;
@@ -494,6 +585,13 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE1, mR, &mX, mR == &mX);
             }
         }
+
+        // confirm that global state has not been altered, implying the
+        // deleters have not been run.
+        LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
+        LOOP2_ASSERT(L_, g_i2, 0 == g_i2);
+        LOOP2_ASSERT(L_, g_i3, 0 == g_i3);
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -508,7 +606,63 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
+        //   void swap(bdema_ManagedPtrDeleter&, bdema_ManagedPtrDeleter&);
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "SWAP FUNCTIONS" << endl
+                          << "==============" << endl;
+
+        if (verbose) cout <<
+                            "\nUse a table of distinct object values." << endl;
+
+        for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
+            const int          LINE1    = DEFAULT_DATA[ti].d_line;
+            void        *const OBJECT1  = DEFAULT_DATA[ti].d_object;
+            void        *const FACTORY1 = DEFAULT_DATA[ti].d_factory;
+            const Obj::Deleter DELETER1 = DEFAULT_DATA[ti].d_deleter;
+
+            Obj  Z1(OBJECT1, FACTORY1, DELETER1);
+            const Obj  C1 = Z1;
+
+            LOOP3_ASSERT(LINE1, C1, Z1, C1 == Z1);
+
+            // verify that self-swap leaves values unchanged
+            swap(Z1, Z1);
+            LOOP3_ASSERT(LINE1, C1, Z1, C1 == Z1);
+
+            swap(Z1, Z1);
+            LOOP3_ASSERT(LINE1, C1, Z1, C1 == Z1);
+
+            for (int tj = ti+1; tj < DEFAULT_NUM_DATA; ++tj) {
+                const int          LINE2    = DEFAULT_DATA[tj].d_line;
+                void        *const OBJECT2  = DEFAULT_DATA[tj].d_object;
+                void        *const FACTORY2 = DEFAULT_DATA[tj].d_factory;
+                const Obj::Deleter DELETER2 = DEFAULT_DATA[tj].d_deleter;
+
+                Obj  Z2(OBJECT2, FACTORY2, DELETER2);
+                const Obj  C2 = Z2;
+
+                LOOP3_ASSERT(LINE2, C2, Z2, C2 == Z2);
+
+                // verify that member-swap exchanges values
+                swap(Z1, Z2);
+                LOOP3_ASSERT(LINE2, C1, Z2, C1 == Z2);
+                LOOP3_ASSERT(LINE2, C2, Z1, C2 == Z1);
+
+                // verify that free-swap exchanges values back
+                swap(Z1, Z2);
+                LOOP3_ASSERT(LINE2, C1, Z1, C1 == Z1);
+                LOOP3_ASSERT(LINE2, C2, Z2, C2 == Z2);
+
+            }  // end nested foreach row
+        }  // end foreach row
+
+        // confirm that global state has not been altered, implying the
+        // deleters have not been run.
+        LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
+        LOOP2_ASSERT(L_, g_i2, 0 == g_i2);
+        LOOP2_ASSERT(L_, g_i3, 0 == g_i3);
 
       } break;
       case 7: {
@@ -565,9 +719,6 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                             "\nUse a table of distinct object values." << endl;
 
-        //const int NUM_DATA                     = DEFAULT_NUM_DATA;
-        //const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
-
         for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
             const int          LINE    = DEFAULT_DATA[ti].d_line;
             void        *const OBJECT  = DEFAULT_DATA[ti].d_object;
@@ -591,6 +742,12 @@ int main(int argc, char *argv[])
 
             LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
         }  // end foreach row
+
+        // confirm that global state has not been altered, implying the
+        // deleters have not been run.
+        LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
+        LOOP2_ASSERT(L_, g_i2, 0 == g_i2);
+        LOOP2_ASSERT(L_, g_i3, 0 == g_i3);
 
       } break;
       case 6: {
@@ -684,71 +841,9 @@ int main(int argc, char *argv[])
             (void)operatorNe;
         }
 
-        if (verbose) cout <<
-            "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
-                                                                       << endl;
-
-        // Attribute Types
-
-        typedef void        *T1;        // 'object'
-        typedef void        *T2;        // 'factory'
-        typedef Obj::Deleter T3;        // 'deleter'
-
-        // Attribute 1 Values: 'timeout'
-
-        //const T1 A1 = 1;               // baseline
-        //const T1 B1 = INT_MAX;
-
-        //// Attribute 2 Values: 'useLingeringFlag'
-
-        //const T2 A2 = false;           // baseline
-        //const T2 B2 = true;
-
-        if (verbose) cout <<
-            "\nCreate a table of distinct, but similar object values." << endl;
-
-        static const struct {
-            int           d_line;           // source line number
-            void         *d_object;
-            void         *d_factory;
-            Obj::Deleter  d_deleter;
-        } DATA[] = {
-        //LINE  OBJECT    FACTORY   DELETER
-        //----  ------    -------   -------
-
-        // default (must be first)
-        { L_,        0,         0,        0},
-
-        //// 'timeout'
-        //{ L_,         1,  false },
-        //{ L_,   INT_MAX,  false },
-
-        //// 'useLingeringFlag'
-        //{ L_,         0,   true },
-
-        //// other
-        //{ L_,         1,   true },
-        //{ L_,   INT_MAX,   true },
-
-        // The first row of the table below represents an object value
-        // consisting of "baseline" attribute values (A1..An).  Each subsequent
-        // row differs (slightly) from the first in exactly one attribute
-        // value (Bi).
-
-        //LINE  TIMEOUT  FLAG
-        //----  -------  ----
-
-        //////////{ L_,        A1,   A2 },       // baseline
-
-        //////////{ L_,        B1,   A2 },
-        //////////{ L_,        A1,   B2 },
-
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
             const int          LINE1    = DEFAULT_DATA[ti].d_line;
             void        *const OBJECT1  = DEFAULT_DATA[ti].d_object;
             void        *const FACTORY1 = DEFAULT_DATA[ti].d_factory;
@@ -766,11 +861,11 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE1, X, !(X != X));
             }
 
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int          LINE2    = DEFAULT_DATA[ti].d_line;
-                void        *const OBJECT2  = DEFAULT_DATA[ti].d_object;
-                void        *const FACTORY2 = DEFAULT_DATA[ti].d_factory;
-                const Obj::Deleter DELETER2 = DEFAULT_DATA[ti].d_deleter;
+            for (int tj = 0; tj < DEFAULT_NUM_DATA; ++tj) {
+                const int          LINE2    = DEFAULT_DATA[tj].d_line;
+                void        *const OBJECT2  = DEFAULT_DATA[tj].d_object;
+                void        *const FACTORY2 = DEFAULT_DATA[tj].d_factory;
+                const Obj::Deleter DELETER2 = DEFAULT_DATA[tj].d_deleter;
 
                 if (veryVerbose) { 
                     T_ T_ P_(LINE2) P_(OBJECT2) P_(FACTORY2) P_(DELETER2) 
@@ -792,7 +887,14 @@ int main(int argc, char *argv[])
                 LOOP4_ASSERT(LINE1, LINE2, Y, X, !EXP == (Y != X));
             }
         }
-      } break;
+
+        // confirm that global state has not been altered, implying the
+        // deleters have not been run.
+        LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
+        LOOP2_ASSERT(L_, g_i2, 0 == g_i2);
+        LOOP2_ASSERT(L_, g_i3, 0 == g_i3);
+
+     } break;
       case 5: {
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
@@ -1029,6 +1131,13 @@ int main(int argc, char *argv[])
                 //LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
             }
         }
+
+        // confirm that global state has not been altered, implying the
+        // deleters have not been run.
+        LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
+        LOOP2_ASSERT(L_, g_i2, 0 == g_i2);
+        LOOP2_ASSERT(L_, g_i3, 0 == g_i3);
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -1124,6 +1233,13 @@ int main(int argc, char *argv[])
         //    const T2& useLingeringFlag = X.factory();
         //    LOOP2_ASSERT(A2, useLingeringFlag, A2 == useLingeringFlag);
         //}
+
+        // confirm that global state has not been altered, implying the
+        // deleters have not been run.
+        LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
+        LOOP2_ASSERT(L_, g_i2, 0 == g_i2);
+        LOOP2_ASSERT(L_, g_i3, 0 == g_i3);
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1170,51 +1286,52 @@ int main(int argc, char *argv[])
                           << "VALUE CTOR" << endl
                           << "==========" << endl;
 
-        //if (verbose) cout <<
-        //                    "\nUse a table of distinct object values." << endl;
-        //const int NUM_DATA                     = DEFAULT_NUM_DATA;
-        //const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+        if (verbose) cout <<
+                            "\nUse a table of distinct object values." << endl;
 
-        //for (int ti = 0; ti < NUM_DATA; ++ti) {
-        //    const int         LINE    = DATA[ti].d_line;
-        //    const int         TIMEOUT = DATA[ti].d_timeout;
-        //    const bool        FLAG    = DATA[ti].d_useLingeringFlag;
+        for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
+            const int          LINE    = DEFAULT_DATA[ti].d_line;
+            void        *const OBJECT  = DEFAULT_DATA[ti].d_object;
+            void        *const FACTORY = DEFAULT_DATA[ti].d_factory;
+            const Obj::Deleter DELETER = DEFAULT_DATA[ti].d_deleter;
 
-        //    if (veryVerbose) { T_ P_(TIMEOUT) P_(FLAG) }
+            if (veryVerbose) { T_ P_(OBJECT) P_(FACTORY) P_(DELETER) }
 
-        //    Obj mX(TIMEOUT, FLAG);  const Obj& X = mX;
+            Obj mX(OBJECT, FACTORY, DELETER);  const Obj& X = mX;
 
-        //    if (veryVerbose) { T_ T_ P(X) }
+            if (veryVerbose) { T_ T_ P(X) }
 
-        //    // Use untested functionality to help ensure the first row
-        //    // of the table contains the default-constructed value.
+            // Use untested functionality to help ensure the first row
+            // of the table contains the default-constructed value.
+            if (0 == ti) {
+                LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
+            }
 
-        //    static bool firstFlag = true;
-        //    if (firstFlag) {
-        //        LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
-        //        firstFlag = false;
-        //    }
+            // -------------------------------------
+            // Verify the object's attribute values.
+            // -------------------------------------
 
-        //    // -------------------------------------
-        //    // Verify the object's attribute values.
-        //    // -------------------------------------
+            LOOP3_ASSERT(LINE,  OBJECT, X. object(), OBJECT  == X. object());
+            LOOP3_ASSERT(LINE, FACTORY, X.factory(), FACTORY == X.factory());
+            LOOP3_ASSERT(LINE, DELETER, X.deleter(), DELETER == X.deleter());
+        }
 
-        //    LOOP3_ASSERT(LINE, TIMEOUT, X.object(), TIMEOUT == X.object());
+        // confirm that global state has not been altered, implying the
+        // deleters have not been run.
+        LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
+        LOOP2_ASSERT(L_, g_i2, 0 == g_i2);
+        LOOP2_ASSERT(L_, g_i3, 0 == g_i3);
 
-        //    LOOP3_ASSERT(LINE, FLAG, X.factory(),
-        //                 FLAG == X.factory());
-        //}
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
 
-        //if (verbose) cout << "\nNegative Testing." << endl;
-        //{
-        //    bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
-
-        //    if (veryVerbose) cout << "\t'timeout'" << endl;
-        //    {
-        //        ASSERT_SAFE_PASS(Obj( 0, false));
-        //        ASSERT_SAFE_FAIL(Obj(-1, false));
-        //    }
-        //}
+            //if (veryVerbose) cout << "\t'timeout'" << endl;
+            //{
+            //    ASSERT_SAFE_PASS(Obj( 0, false));
+            //    ASSERT_SAFE_FAIL(Obj(-1, false));
+            //}
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1233,6 +1350,9 @@ int main(int argc, char *argv[])
         //: 3 Each attribute is modifiable independently.
         //:
         //: 4 Any argument can be 'const'.
+        //:
+        //: 4 Any supplied deleter should not be run during this test, notably
+        //:   the destructor does not run the deleter.
         //:
         //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -1267,8 +1387,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   bdema_ManagedPtrDeleter();
         //   ~bdema_ManagedPtrDeleter();
-        //   setTimeout(int value);
-        //   setUseLingeringFlag(bool value);
+        //   set(int value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1285,86 +1404,48 @@ int main(int argc, char *argv[])
         const void        *D2 = 0;      // 'factory'
         const Obj::Deleter D3 = 0;      // 'deleter'
 
-        // 'A' values.
-
-//        const int  A1   = 1;
-//        const bool A2   = true;
-
-//        const T1 A1 = 60;
-//        const T2 A2 = true;
-//        const T2 A3 = true;
-
-        // 'B' values.
-
-//        const int    B1 = INT_MAX;
-//        const bool   B2 = false;
-
         {
             Obj mX;  const Obj& X = mX;
 
-            //// -----------------------------------------------------
-            //// Verify that each attribute is independently settable.
-            //// -----------------------------------------------------
+            ASSERT(D1 == X.object());
+            ASSERT(D2 == X.factory());
+            ASSERT(D3 == X.deleter());
 
-            //// 'timeout'
-            //{
-            //    mX.setTimeout(A1);
-            //    ASSERT(A1 == X.object());
-            //    ASSERT(D2 == X.factory());
-            //    ASSERT(D3 == X.deleter());
+            for (int ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
+                const int          LINE    = DEFAULT_DATA[ti].d_line;
+                void        *const OBJECT  = DEFAULT_DATA[ti].d_object;
+                void        *const FACTORY = DEFAULT_DATA[ti].d_factory;
+                const Obj::Deleter DELETER = DEFAULT_DATA[ti].d_deleter;
 
-            //    mX.setTimeout(B1);
-            //    ASSERT(B1 == X.object());
-            //    ASSERT(D2 == X.factory());
+                if (veryVerbose) { T_ P_(OBJECT) P_(FACTORY) P_(DELETER) }
 
-            //    mX.setTimeout(D1);
-            //    ASSERT(D1 == X.object());
-            //    ASSERT(D2 == X.factory());
-            //    ASSERT(D3 == X.deleter());
-            //}
+                mX.set(OBJECT, FACTORY, DELETER);
 
-            //// 'useLingeringFlag'
-            //{
-            //    mX.setUseLingeringFlag(A2);
-            //    ASSERT(D1 == X.object());
-            //    ASSERT(A2 == X.factory());
-            //    ASSERT(D3 == X.deleter());
+                if (veryVerbose) { T_ T_ P(X) }
 
-            //    mX.setUseLingeringFlag(B2);
-            //    ASSERT(D1 == X.object());
-            //    ASSERT(B2 == X.factory());
-            //    ASSERT(D3 == X.deleter());
+                // Use untested functionality to help ensure the first row
+                // of the table contains the default-constructed value.
+                if (0 == ti) {
+                    LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
+                }
 
-            //    mX.setUseLingeringFlag(D2);
-            //    ASSERT(D1 == X.object());
-            //    ASSERT(D2 == X.factory());
-            //    ASSERT(D3 == X.deleter());
-            //}
+                // -------------------------------------
+                // Verify the object's attribute values.
+                // -------------------------------------
 
-            //// Corroborate attribute independence.
-            //{
-            //    // Set all attributes to their 'A' values.
-
-            //    mX.setTimeout(A1);
-            //    mX.setUseLingeringFlag(A2);
-
-            //    ASSERT(A1 == X.object());
-            //    ASSERT(A2 == X.factory());
-
-            //    // Set all attributes to their 'B' values.
-
-            //    mX.setTimeout(B1);
-
-            //    ASSERT(B1 == X.object());
-            //    ASSERT(A2 == X.factory());
-
-            //    mX.setUseLingeringFlag(B2);
-
-            //    ASSERT(B1 == X.object());
-            //    ASSERT(B2 == X.factory());
-
-            //}
+                LOOP3_ASSERT(LINE, OBJECT, X.object(), OBJECT == X.object());
+                LOOP3_ASSERT(LINE, FACTORY, X.factory(),
+                             FACTORY == X.factory());
+                LOOP3_ASSERT(LINE, DELETER, X.deleter(),
+                             DELETER == X.deleter());
+            }
         }
+
+        // confirm that global state has not been altered, implying the
+        // deleters have not been run.
+        LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
+        LOOP2_ASSERT(L_, g_i2, 0 == g_i2);
+        LOOP2_ASSERT(L_, g_i3, 0 == g_i3);
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {

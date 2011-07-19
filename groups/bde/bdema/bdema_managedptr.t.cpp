@@ -26,9 +26,8 @@ using namespace bsl;  // automatically added by script
 //
 // [ 2] imp. class bdema_ManagedPtr_Members
 // [ 3] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
-
-// [ 4] class bdema_ManagedPtrNilDeleter
-// [ 6] class bdema_ManagedPtr_FactoryDeleter  (this one needs negative testing)
+// [ 4] imp. class bdema_ManagedPtr_FactoryDeleter  (this one needs negative testing)
+// [ 5] class bdema_ManagedPtrNilDeleter
 //      class bdema_ManagedPtr
 
 //-----------------------------------------------------------------------------
@@ -1064,6 +1063,9 @@ int main(int argc, char *argv[])
         //   declared in the ManagedPtr class and exercise all of them,
         //   exercising the ManagedPtrRef class when need to exercise the
         //   ManagedPtr class.
+        //   Remember to pass '0' as a null-pointer literal to all arguments
+        //   that accept pointers (with negative testing if that is out of
+        //   contract).
         //
         // Tested:
         //   bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
@@ -1230,6 +1232,7 @@ int main(int argc, char *argv[])
         //      confirm pointer is initially null
         //      confirm new pointer value is stored by 'ptr()'
         //      confirm destructor destroys target object
+        //      be sure to pass both '0' and valid pointer values to each potential overload
         //   Write a pair of nested loops
         //     For each iteration, first create a default-constructed bdema_ManagedPtr
         //     Then call a load function (testing each overload by the first loop)
@@ -1472,7 +1475,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING bdema_ManagedPtrNilDeleter"
-                          << "\n--------------------------------------" << endl;
+                          << "\n----------------------------------" << endl;
 
         if (verbose) cout << "\tTest blah...\n";
 
@@ -1512,7 +1515,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING bdema_ManagedPtr_Ref"
-                          << "\n--------------------------------------" << endl;
+                          << "\n----------------------------" << endl;
 
         if (verbose) cout << "\tTest blah...\n";
 
@@ -1532,7 +1535,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING bdema_ManagedPtr_Members"
-                          << "\n--------------------------------------" << endl;
+                          << "\n--------------------------------" << endl;
 
         if (verbose) cout << "\tTest blah...\n";
 
