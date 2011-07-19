@@ -49,16 +49,19 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
                : Attr::BCEMT_SCHED_RR == policy ? SCHED_RR : SCHED_OTHER;
         rc |= pthread_attr_setschedpolicy(dest, policy);
 
-        struct sched_param sched;
-        rc |= pthread_attr_getschedparam(dest, &sched);
-        sched.sched_priority = src.schedulingPriority();
-        rc |= pthread_attr_setschedparam(dest, &sched);
+        struct sched_param param;
+        rc |= pthread_attr_getschedparam(dest, &param);
+        param.sched_priority = src.schedulingPriority();
+        rc |= pthread_attr_setschedparam(dest, &param);
     }
 
     int stackSize = src.stackSize();
     if (stackSize < 0) {
         stackSize = bcemt_Default::defaultThreadStackSize();
     }
+#if defined(BSLS_PLATFORM__OS_HPUX)
+    stackSize *= 2;
+#endif
     rc |= pthread_attr_setstacksize(dest, stackSize);
 
     return rc;
