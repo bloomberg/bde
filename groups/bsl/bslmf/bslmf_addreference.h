@@ -54,46 +54,53 @@ namespace BloombergLP {
 
 template <class BSLMF_TYPE>
 struct bslmf_AddReference {
-    // This class defines some basic traits used by 'bdema_ManagedPtr'.
-    // It is primarily used to allow managed pointers of type 'void'
-    // to work properly.
+    // This "metafunction" class defines a typedef, 'Type', that is an alias
+    // for a reference to the specified type 'BSLMF_TYPE'.  References to 
+    // cv-qualified 'void' will produce the original 'void' type and not a 
+    // reference (see specializations below).  References-to-references
+    // "collapse" to produce an alias to the original reference type, which is
+    // the revised rule according to the C++11 standard.
+
     typedef BSLMF_TYPE& Type;
 };
 
 template <class BSLMF_TYPE>
 struct bslmf_AddReference<BSLMF_TYPE &> {
+    // Specialization to enusure reference-to-reference collapses to a plain
+    // reference.
+
     typedef BSLMF_TYPE& Type;
 };
 
 template <>
 struct bslmf_AddReference<void> {
-    // This specialization of 'bslmf_AddReference' for type
-    // 'void' allows to avoid declaring a reference to 'void'.
+    // This specialization of 'bslmf_AddReference' for type 'void' is needed as
+    // the language does not support references to 'void'.
 
     typedef void Type;
 };
 
 template <>
 struct bslmf_AddReference<const void> {
-    // This specialization of 'bslmf_AddReference' for type
-    // 'const void' allows to avoid declaring a reference to 'const void'.
+    // This specialization of 'bslmf_AddReference' for type 'const void' is
+    // needed as the language does not support references to 'const void'.
 
     typedef const void Type;
 };
 
 template <>
 struct bslmf_AddReference<volatile void> {
-    // This specialization of 'bslmf_AddReference' for type
-    // 'volatile void' allows to avoid declaring a reference to 'volatile void'.
+    // This specialization of 'bslmf_AddReference' for type 'volatile void' is
+    // needed as the language does not support references to 'volatile void'.
 
     typedef volatile void Type;
 };
 
 template <>
 struct bslmf_AddReference<const volatile void> {
-    // This specialization of 'bslmf_AddReference' for type
-    // 'const volatile void' allows to avoid declaring a reference to
-    // 'const volatile void'.
+    // This specialization of 'bslmf_AddReference' for type 'const volatile
+    // void' is needed as the language does not support references to 'const
+    // volatile void'.
 
     typedef const volatile void Type;
 };
