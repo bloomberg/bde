@@ -65,9 +65,10 @@ baetzo_ZoneinfoCache *initSystemDefaultCache()
 // PRIVATE CLASS METHODS
 baetzo_ZoneinfoCache *baetzo_DefaultZoneinfoCache::instance()
 {
-    if (userSingletonCachePtr)
+    if (userSingletonCachePtr) {
         return userSingletonCachePtr;                                 // RETURN
-    
+    }
+
     BCEMT_ONCE_DO {
         if (0 == systemSingletonCachePtr) {
             systemSingletonCachePtr = initSystemDefaultCache();
