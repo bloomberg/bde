@@ -28,9 +28,11 @@ void bdema_ManagedPtr_Members::init(void *ptr,
     if (ptr) {
         d_deleter = rep;
     }
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     else {
         d_deleter.clear();
     }
+#endif
 }
 
 void bdema_ManagedPtr_Members::init(void *ptr, 
@@ -42,15 +44,21 @@ void bdema_ManagedPtr_Members::init(void *ptr,
     if (ptr) {
         d_deleter.set(object, factory, deleter);
     }
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     else {
         d_deleter.clear();
     }
+#endif
 }
 
 void bdema_ManagedPtr_Members::reset()
 {
     runDeleter();
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     rawClear();
+#else
+    d_obj_p = 0;
+#endif
 }
 
 void bdema_ManagedPtr_Members::reset(void *ptr,

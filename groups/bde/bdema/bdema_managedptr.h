@@ -394,7 +394,8 @@ private:
 public:
     //CREATORS
     bdema_ManagedPtr_Members();
-        // Default constructor.  Sets 'd_obj_p' to 0.
+        // Default constructor.  Sets 'd_obj_p' to 0, and default constructs
+        // 'd_deleter'.
 
     explicit bdema_ManagedPtr_Members(bdema_ManagedPtr_Members& other);
 
@@ -772,7 +773,8 @@ class bdema_ManagedPtr {
         // Return a raw pointer to the current managed object (if any) and its
         // current deleter and factory through the 'bdema_ManagedPtrDeleter'
         // member of the return value, and re-initialize this managed pointer
-        // to an unset state.
+        // to an unset state.  It is undefined behavior to run the deleter
+        // unless the pointer to the returned managed object is not null.
 
     void swap(bdema_ManagedPtr& rhs);
         // Exchange the value and ownership of this managed pointer with the
@@ -911,7 +913,7 @@ bdema_ManagedPtr_Members::bdema_ManagedPtr_Members(void *ptr,
 : d_obj_p(ptr)
 , d_deleter(rep)
 {
-#if defined(BDE_BUILD_TARGET_SAFE_2)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     if(!ptr) {
         d_deleter.clear();
     }
@@ -926,7 +928,7 @@ bdema_ManagedPtr_Members::bdema_ManagedPtr_Members(void *ptr,
 : d_obj_p(ptr)
 , d_deleter(object, factory, deleter)
 {
-#if defined(BDE_BUILD_TARGET_SAFE_2)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     if(!ptr) {
         d_deleter.clear();
     }
@@ -939,7 +941,7 @@ inline
 void bdema_ManagedPtr_Members::rawClear()
 {
     d_obj_p = 0;
-#if defined(BDE_BUILD_TARGET_SAFE_2)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     d_deleter.clear();
 #endif
 }
@@ -998,7 +1000,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
             &bdema_ManagedPtr_FactoryDeleter<BDEMA_TARGET_TYPE,bslma_Allocator>
                                                                      ::deleter)
 {
-#if defined(BDE_BUILD_TARGET_SAFE_2)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     if(!ptr) {
         d_members.rawClear();
     }
@@ -1068,7 +1070,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
 {
     BSLS_ASSERT_SAFE(!ptr || 0 != deleter);
 
-#if defined(BDE_BUILD_TARGET_SAFE_2)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     if(!ptr) {
         d_members.rawClear();
     }
@@ -1146,12 +1148,8 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr, FACTORY *factory)
 {
     BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
 
-    // Bug introduced - this is the corerct typedef, but wait for test coverage
-    // to prove it.
     typedef bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE,FACTORY> DeleterFactory;
 
-    //typedef bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE,bslma_Allocator>
-    //                                                            DeleterFactory;
     d_members.reset(stripPointerType(ptr), 
                     stripPointerType(ptr),
                     factory, 
