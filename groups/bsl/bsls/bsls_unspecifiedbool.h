@@ -15,7 +15,14 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
 //
 //@DESCRIPTION: This component provides a class template that can be used to
-// manufacture an "unspecified boolean type".
+// manufacture an "unspecified boolean type" that is distinct for each class
+// that instantiates it.  Note that classes supplying an implicit conversion
+// to an unspecified bool type will be equality comparable (using operator==
+// and operator!=) through this conversion.  Private equality and inequality
+// operators should be added to the class definition unless this comparison is
+// desired.  It is important that each class produces a distinct unspecified
+// bool type, as otherwise objects of different class types would compare equal
+// through this same conversion.
 //
 ///Usage
 ///-----
@@ -80,6 +87,8 @@ private:
 
 public:
     typedef int bsls_UnspecifiedBool::* BoolType;
+        // Alias of a distinct type that is implicitly convertible to 'bool',
+        // but does not promote to 'int'.
 
     static BoolType falseValue();
         // Return a value that converts to the 'bool' value 'false'.
@@ -97,7 +106,7 @@ template<class BSLS_HOST_TYPE>
 inline int bsls_UnspecifiedBool<BSLS_HOST_TYPE>::* 
 bsls_UnspecifiedBool<BSLS_HOST_TYPE>::falseValue()
 {
-    return 0;
+    return false;
 }
 
 template<class BSLS_HOST_TYPE>
