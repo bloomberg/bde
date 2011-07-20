@@ -8,6 +8,7 @@
 #include <bdem_properties.h>
 
 #include <bdetu_unset.h>
+
 #include <bdex_byteinstream.h>
 #include <bdex_byteoutstream.h>
 #include <bdex_testinstream.h>
@@ -17,7 +18,9 @@
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
 #include <bslmf_isconvertible.h>
+
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
@@ -528,16 +531,54 @@ int main(int argc, char *argv[])
             cout << "SPAC" << endl;
             mX.insertNullRows(0, 1);
             mX.insertNullRows(1, 1);
+            mX.insertNullRows(2, 1);
+            mX.insertNullRows(3, 1);
+            mX.insertNullRows(4, 1);
+            mX.insertNullRows(5, 1);
+            mX.insertNullRows(6, 1);
+            mX.insertNullRows(7, 1);
+            mX.insertNullRows(8, 1);
+            mX.insertNullRows(9, 1);
+            mX.insertNullRows(10, 1);
+            mX.insertNullRows(11, 1);
+            mX.insertNullRows(12, 1);
+            mX.insertNullRows(13, 1);
+            mX.insertNullRows(14, 1);
+            mX.insertNullRows(15, 1);
+            mX.insertNullRows(16, 1);
+            mX.insertNullRows(17, 1);
+            mX.insertNullRows(18, 1);
+            mX.insertNullRows(19, 1);
+            mX.insertNullRows(20, 1);
         }
         
         bdem_TableImp_enableGeometricMemoryGrowth();
         ASSERT(true == bdem_TableImp_isGeometricMemoryGrowth());
         {
             bslma_TestAllocator ta("TestAllocator", true);
-            Obj mX(BDEM_PASS_THROUGH, &ta); const Obj& X = mX;
+            Obj mX(BDEM_WRITE_MANY, &ta); const Obj& X = mX;
             cout << "SPAC" << endl;
             mX.insertNullRows(0, 1);
             mX.insertNullRows(1, 1);
+            mX.insertNullRows(2, 1);
+            mX.insertNullRows(3, 1);
+            mX.insertNullRows(4, 1);
+            mX.insertNullRows(5, 1);
+            mX.insertNullRows(6, 1);
+            mX.insertNullRows(7, 1);
+            mX.insertNullRows(8, 1);
+            mX.insertNullRows(9, 1);
+            mX.insertNullRows(10, 1);
+            mX.insertNullRows(11, 1);
+            mX.insertNullRows(12, 1);
+            mX.insertNullRows(13, 1);
+            mX.insertNullRows(14, 1);
+            mX.insertNullRows(15, 1);
+            mX.insertNullRows(16, 1);
+            mX.insertNullRows(17, 1);
+            mX.insertNullRows(18, 1);
+            mX.insertNullRows(19, 1);
+            mX.insertNullRows(20, 1);
         }
       } break;
       case 10: {
