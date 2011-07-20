@@ -27,16 +27,18 @@ BSLS_IDENT("$Id: $")
 //   struct MyType {};
 //   typedef MyType& MyTypeRef;
 //
-//   bslmf_AddReference<int          >::Type x1;  // int&
-//   bslmf_AddReference<int&         >::Type x2;  // int&
-//   bslmf_AddReference<int volatile >::Type x3;  // volatile int&
-//   bslmf_AddReference<int volatile&>::Type x4;  // volatile int&
+//   bslmf_AddReference<int             >::Type x1; // int&
+//   bslmf_AddReference<int&            >::Type x2; // int&
+//   bslmf_AddReference<int volatile    >::Type x3; // volatile int&
+//   bslmf_AddReference<int volatile&   >::Type x4; // volatile int&
 //
-//   bslmf_AddReference<MyType       >::Type x5;  // MyType&
-//   bslmf_AddReference<MyType&      >::Type x6;  // MyType&
-//   bslmf_AddReference<MyTypeRef    >::Type x7;  // MyType&
-//   bslmf_AddReference<MyType const >::Type x8;  // const MyType& ???
-//   bslmf_AddReference<MyType const&>::Type x9;  // const MyType& ???
+//   bslmf_AddReference<MyType          >::Type     // MyType&
+//   bslmf_AddReference<MyType&         >::Type     // MyType&
+//   bslmf_AddReference<MyTypeRef       >::Type     // MyType&
+//   bslmf_AddReference<MyType const    >::Type     // const MyType&
+//   bslmf_AddReference<MyType const&   >::Type     // const MyType&
+//   bslmf_AddReference<const MyTypeRef >::TYPE     // MyType&
+//   bslmf_AddReference<const MyTypeRef&>::TYPE     // MyType& (REQUIRES C++11)
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
