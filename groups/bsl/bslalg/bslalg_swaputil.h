@@ -16,27 +16,34 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
-//@DESCRIPTION: This component provides an utility to swap two objects, which
-// is intended to be a simpler alternative to the standard 'swap' algorithm.
-// The standard 'swap' algorithm is provided in the 'bsl' namespace in a
-// generic form and overloaded for specific classes in the namespaces of those
-// classes.  When the 'swap' algorithm is used, its specific implementation is
-// supposed to be found by Argument Dependent Lookup (ADL).  Finding the proper
-// 'swap' function with ADL requires bringing the 'bsl::swap' into the current
-// scope with the 'using' directive and then calling a 'swap' function without
-// the namespace qualification.  The 'swap' utility static function provided by
-// this component relieves the end-user from a need to remember those details
-// of the proper usage of the 'swap' algorithm.
+//@DESCRIPTION: This component provides a namespace for a utility function that
+// swaps the value of two objects of the same type.  Using this utility
+// intended to be a simpler alternative to using the standard 'swap' algorithm
+// directly.  The standard 'swap' algorithm is provided in the 'bsl' namespace
+// in a generic form and overloaded for specific classes in the namespaces of
+// those classes.  When the 'swap' algorithm is used, its specific
+// implementation is supposed to be found by Argument Dependent Lookup (ADL).
+// Finding the proper 'swap' function with ADL requires bringing the
+// 'bsl::swap' into the current scope with the 'using' directive and then
+// calling a 'swap' function without the namespace qualification.  The 'swap'
+// utility static function provided by this component relieves the end-user
+// from a need to remember those details of the proper usage of the 'swap'
+// algorithm.
 //
 ///Usage
 ///-----
+// In this section we show intended usage of this component.
+//
 ///Example 1: using 'bslalg_SwapUtil::swap'
 /// - - - - - - - - - - - - - - - - - - - -
-// In this section we show the intended usage of this component.  We start by
-// defining a class 'Container' in the 'xyz' namespace.  Further we assume that 
-// 'Container' has some expensive-to-copy data, so we provide a custom 'swap'
-// algorithm to efficiently swap the data between a two objects this class by
-// defining a 'swap' method and a 'swap' free function.
+// In this example we define a type 'Container' and use 'bslalg_SwapUtil' to
+// both implement a user-defined 'swap' for 'Container', and swap two container
+// objects.
+//
+// We start by defining a class 'Container' in the 'xyz' namespace.  Further we
+// assume that 'Container' has some expensive-to-copy data, so we provide a
+// custom 'swap' algorithm to efficiently swap the data between a two objects
+// this class by defining a 'swap' method and a 'swap' free function.
 //..
 //  namespace xyz {
 //
@@ -46,11 +53,14 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      void swap(Container& other);
+//          // Swap the value of 'this' object with the value of the specified
+//          // 'other' object.  This method provides the no-throw
+//          // exception-safety guarantee.
 //  };
 //
 //  void swap(Container& a, Container& b);
-//
-//  }
+//      // Swap the values of the specified 'a' and 'b' objects.  This function
+//      // provides the no-throw exception-safety guarantee.
 //..
 // Note that the free function 'swap' is overloaded in the namespace of the
 // class 'Container', which is 'xyz'.
@@ -59,22 +69,28 @@ BSLS_IDENT("$Id: $")
 // swap the individual data elements:
 //..
 //  inline
-//  void xyz::Container::swap(Container& other)
+//  void Container::swap(Container& other)
 //  {
 //      bslalg_SwapUtil::swap(&d_expensiveData, &other.d_expensiveData);
+//
+//      // Equivalent to:
+//      // using bsl::swap;
+//      // bsl::swap(d_expensiveData, other.d_expensiveData);
 //  }
 //..
-// Note that calling 'bslalg_SwapUtil::swap' is equivalent to making the
+// Notice that calling 'bslalg_SwapUtil::swap' is equivalent to making the
 // 'bsl::swap' available in the current scope by doing 'using bsl::swap' and
 // making a subsequent call to an unqualified 'swap' function.
 //
 // Then, we implement the 'swap' free function:
 //..
 //  inline
-//  void xyz::swap(Container& a, Container& b)
+//  void swap(Container& a, Container& b)
 //  {
 //      a.swap(b);
 //  }
+//
+//  }  // close namespace xyz
 //..
 // Finally we can use 'bslalg_SwapUtil::swap' to swap two objects of class
 // 'xyz::Container':
@@ -97,14 +113,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+// A workaround for GCC which before version 4.0 had some problems with ADL.
 #if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
-    // a workaround for GCC before version 4.0 that has some problem with ADL
 
 class bslalg_SwapUtil_Dummy;
 
 void swap(bslalg_SwapUtil_Dummy);
-    // Introduce a 'swap' name in namespace 'BloombergLP' taking a dummy
-    // argument of a private type so that it doesn't interfere with anything
+    // Introduce 'swap' to the 'BloombergLP' namespace.  The dummy argument of
+    // a private type prevents this declaration from interfering with anything
     // else.
 #endif
 
@@ -120,10 +136,10 @@ class bslalg_SwapUtil {
     template <typename T>
     static
     void swap(T *a, T *b);
-        // Exchange the values in the specified 'a' and 'b' using either a
-        // 'swap' free function overloaded for type 'T' in the namespace of
-        // type 'T' if it's available and the default generic 'bsl::swap'
-        // otherwise.
+        // Exchange the values of the specified 'a' and 'b' objects using
+        // either a 'swap' free function overloaded for type 'T', in the
+        // namespace of type 'T' if it's available, and the default generic
+        // 'bsl::swap' otherwise.
 };
 
 // ===========================================================================
@@ -143,8 +159,8 @@ void bslalg_SwapUtil::swap(T *a, T *b)
 
     using std::swap;
 
+// A workaround for GCC which before version 4.0 had some problems with ADL.
 #if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
-    // a workaround for GCC before version 4.0 that has some problem with ADL
     using BloombergLP::swap;
 #endif
 

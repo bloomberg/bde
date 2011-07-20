@@ -118,13 +118,18 @@ using namespace BloombergLP;
 //
 ///Usage
 ///-----
+// In this section we show intended usage of this component.
+//
 ///Example 1: using 'bslalg_SwapUtil::swap'
 /// - - - - - - - - - - - - - - - - - - - -
-// In this section we show the intended usage of this component.  We start by
-// defining a class 'Container' in the 'xyz' namespace.  Further we assume that 
-// 'Container' has some expensive-to-copy data, so we provide a custom 'swap'
-// algorithm to efficiently swap the data between a two objects this class by
-// defining a 'swap' method and a 'swap' free function.
+// In this example we define a type 'Container' and use 'bslalg_SwapUtil' to
+// both implement a user-defined 'swap' for 'Container', and swap two container
+// objects.
+//
+// We start by defining a class 'Container' in the 'xyz' namespace.  Further we
+// assume that 'Container' has some expensive-to-copy data, so we provide a
+// custom 'swap' algorithm to efficiently swap the data between a two objects
+// this class by defining a 'swap' method and a 'swap' free function.
 //..
 namespace xyz {
 
@@ -134,11 +139,14 @@ class Container {
 
   public:
     void swap(Container& other);
+        // Swap the value of 'this' object with the value of the specified
+        // 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.
 };
 
 void swap(Container& a, Container& b);
-
-}
+    // Swap the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee.
 //..
 // Note that the free function 'swap' is overloaded in the namespace of the
 // class 'Container', which is 'xyz'.
@@ -147,22 +155,28 @@ void swap(Container& a, Container& b);
 // swap the individual data elements:
 //..
 inline
-void xyz::Container::swap(Container& other)
+void Container::swap(Container& other)
 {
     bslalg_SwapUtil::swap(&d_expensiveData, &other.d_expensiveData);
+
+    // Equivalent to:
+    // using bsl::swap;
+    // bsl::swap(d_expensiveData, other.d_expensiveData);
 }
 //..
-// Note that calling 'bslalg_SwapUtil::swap' is equivalent to making the
+// Notice that calling 'bslalg_SwapUtil::swap' is equivalent to making the
 // 'bsl::swap' available in the current scope by doing 'using bsl::swap' and
 // making a subsequent call to an unqualified 'swap' function.
 //
 // Then, we implement the 'swap' free function:
 //..
 inline
-void xyz::swap(Container& a, Container& b)
+void swap(Container& a, Container& b)
 {
     a.swap(b);
 }
+
+}  // close namespace xyz
 //..
 
 //=============================================================================
