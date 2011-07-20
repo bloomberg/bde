@@ -469,6 +469,15 @@ class bdem_TableImp {
         // internal allocation).  The behavior is undefined unless
         // '0 <= numBytes'.  Note that this method has no effect unless the
         // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
+    
+    void reserveRowsRaw(bsl::size_t numRows);
+        // Reserve sufficient memory to guarantee minimal, allocation requests,
+        // linear in the number of rows, for at least the specified 'numRows'
+        // (i.e., allocating ionly a marginal, constant quantity of memory for
+        // each row).  The behavior is undefined  'unless '0 <= rows'.
+        // Note that this method has no effect unless the
+        // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
+
 
     void reset(const bdem_ElemType::Type     columnTypes[],
                int                           numColumns,

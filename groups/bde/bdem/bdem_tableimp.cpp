@@ -504,6 +504,12 @@ void bdem_TableImp::removeRow(int rowIndex)
                                        1);
 }
 
+void bdem_TableImp::reserveRowsRaw(bsl::size_t numRows)
+{
+    d_rowPool.reserveCapacity(numRows);
+    d_rows.reserve(d_rows.size() + numRows);
+}
+
 void bdem_TableImp::reset(const bdem_ElemType::Type  columnTypes[],
                           int                        numColumns,
                           const bdem_Descriptor     *const *attrLookupTbl)
@@ -530,8 +536,10 @@ bdem_RowData& bdem_TableImp::insertRow(int                 dstRowIndex,
         d_nullBits.resize(newSize, 0);
     }
 
-    d_rows.reserve(numRows() + 1);
-    d_rowPool.reserveCapacity(1);
+    if (!bdem_TableImp_geometricMemoryGrowthFlag) {
+        d_rows.reserve(numRows() + 1);
+        d_rowPool.reserveCapacity(1);
+    }
 
     bdem_RowData *newRow = new (d_rowPool) bdem_RowData(
                                        d_rowLayout_p,
@@ -567,8 +575,8 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
         return;                                                       // RETURN
     }
 
-    const int originalLength = this->numRows();
-    const int newSize        = nullBitsArraySize(originalLength + numRows);
+    const int originalSize = this->numRows();
+    const int newSize      = nullBitsArraySize(originalSize + numRows);
     if ((int)d_nullBits.size() < newSize) {
         d_nullBits.resize(newSize, 0);
     }
@@ -586,9 +594,12 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
 
     // 'tempRows' is used to address aliasing concerns.
 
-    d_rows.reserve(this->numRows() + numRows);
 
-    d_rowPool.reserveCapacity(numRows);
+    if (!bdem_TableImp_geometricMemoryGrowthFlag) {
+        d_rows.reserve(originalSize + numRows);
+        d_rowPool.reserveCapacity(numRows);
+    }
+   
     bsl::vector<bdem_RowData *> tempRows;
     tempRows.resize(numRows);
 
