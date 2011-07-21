@@ -103,10 +103,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally we test each 'SimplePtr' value, as if they were raw pointers.
 //..
-//      ASSERT(!p1);
-//      ASSERT(p2);
+//      assert(!p1);
+//      assert(p2);
 //      if (p2) {
-//          ASSERT(3 == *p2);
+//          assert(3 == *p2);
 //      }
 //  }
 //..

@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>     // atoi()
+#include <typeinfo>     // for typeid, but bad levelization.
 
 using namespace BloombergLP;
 
@@ -234,14 +235,15 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
+        //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -262,9 +264,17 @@ int main(int argc, char *argv[])
         //:   'false'
         //: 3 'trueValue' returns a value that converts to the 'bool' value
         //:   'true'
-        //:
+        //
         // Plan:
-        //   blah... Needs to be spelled out.
+        //: 1 Use the addresses of the 'falseFunc' and 'trueFunc' static
+        //:   methods in this component to initialize free-function pointers
+        //:   having the appropriate signatures return types.  (C-1)
+        //:
+        //: 2 Confirm that the value returned by 'falseValue' implicitly
+        //:   converts to a 'bool' having the value 'false'.  (C-2)
+        //:
+        //: 3 Confirm that the value returned by 'trueValue' implicitly
+        //:   converts to a 'bool' having the value 'true'.  (C-3)
         //
         // Testing:
         //  BoolType falseValue()
@@ -292,39 +302,62 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t2. falseValue() converts to false\n");
 
-        ASSERT(!HostType::falseValue());
+        const bool bFalse = HostType::falseValue();
+        LOOP2_ASSERT(L_, bFalse, false == bFalse);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) printf("\t3. trueValue() converts to true\n");
 
-        ASSERT(HostType::trueValue());
-
+        const bool bTrue = HostType::trueValue();
+        LOOP2_ASSERT(L_, bTrue, true == bTrue);
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING bsls_UnspecifiedBool::BoolType
+        // TESTING bsls_UnspecifiedBool<T>::BoolType
         //
         // Concerns:
-        //: 1 Objects of type 'bsls_UnspecifiedBool::BoolType' must be
+        //: 1 Objects of type 'bsls_UnspecifiedBool<T>::BoolType' must be
         //:   implicitly convertible to bool.
-        //: 2 Objects of type 'bsls_UnspecifiedBool::BoolType' must not
+        //: 2 Objects of type 'bsls_UnspecifiedBool<T>::BoolType' must not
         //:   promote to type 'int'.
-        //: 3 A default constructed 'bsls_UnspecifiedBool::BoolType'
+        //: 3 Objects of type 'bsls_UnspecifiedBool<T>::BoolType' must not
+        //:   convert to a simple pointer type.
+        //: 4 A default constructed 'bsls_UnspecifiedBool<T>::BoolType'
         //:   should convert to 'false' when converted to a boolean value, the
         //:   same value as a default constructed 'bool'.
-        //: 4 A 'bsls_UnspecifiedBool::BoolType' object initialized
+        //: 5 A 'bsls_UnspecifiedBool<T>::BoolType' object initialized
         //:   with the literal '0' should produce the value 'false' when
         //:   converted to a boolean value.
-        //: 5 A class with a conversion operator to type
-        //:   'bsls_UnspecifiedBool::BoolType' should be implicitly
+        //: 6 A class with a conversion operator to type
+        //:   'bsls_UnspecifiedBool<T>::BoolType' should be implicitly
         //:   convertible to bool.
-        //: 6 Two classes that are implicitly convertible to type
-        //:   'bsls_UnspecifiedBool::BoolType' should not accidentally
-        //:   be comparable to each other using 'operator=='.
+        //: 7 Two classes that are implicitly convertible to different
+        //:   instantiations of type 'bsls_UnspecifiedBool<T>::BoolType' should
+        //:   not accidentally be comparable to each other using 'operator=='.
         //
         // Plan:
-        //: 1 blah ...  Needs to be spelled out.
+        //: 1 Evaluate a value of type 'bsls_UnspecifiedBool<T>::BoolType' in
+        //:   each context where the language supports an implicit conversion
+        //:   to a boolean type.  The complete list of language contexts is:
+        //:
+        //:    1 Initialization
+        //:    2 Passing as an argument to a function
+        //:    3 In a return expression
+        //:    4 Assignment
+        //:    5 In a cast expression
+        //:    6 In conjuntion with operator!
+        //:    7 In conjunction with another expression with operator '&&' or '||'
+        //:    8 Testing in an 'if' clause
+        //:    9 Testing in a 'while' loop
+        //:   10 Testing in a 'for' loop
+        //:   11 Testing as the condition of a ternary ?: expression
+        //:   12 Passes safely through a ',' operator
+        //:
+        //:   Note that while there may be additional contexts to test in C++11
+        //:   we have no interest in listing or testing them, as in that case
+        //:   this whole idiom and component should be replaced with 'explicit
+        //:   operator bool'.  (C1)
         //
         // Testing:
         //   typedef bsls_UnspecifiedBool::BoolType
@@ -333,25 +366,76 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING bsls_UnspecifiedBool"
                             "\n----------------------------\n");
 
-        if (verbose) printf("\t1. BoolType implicitly conversts to bool\n");
-
         typedef bsls_UnspecifiedBool<int>::BoolType BoolType;
 
+        if (verbose) printf("\t1. BoolType implicitly conversts to bool\n");
+
+        {
         const BoolType bt = BoolType();
-        if (bt) {
-            ASSERT(false);
-        }
 
-        while (bt) {
-            ASSERT(false);
-        }
+        if (veryVerbose) printf("\t\t1.1 Initialization\n");
 
-        for ( ; bt; ) {
-            ASSERT(false);
-        }
+         // copy-initialization
+        const bool bc = bt;
+        ASSERT(!bc);
 
-        do {} while (bt);
+        // value-initialization
+        const bool bv(bt);
+        ASSERT(!bv);
 
+        // reference initialization
+        const bool& br = bt;
+        ASSERT(!br);
+
+        // aggregate initialization (array)
+        const bool bar[] = { bt };
+        ASSERT(!bar[0]);
+
+        // aggregate initialization
+        struct Aggregate {
+            bool data;
+        } bag = { bt };
+        ASSERT(!bag.data);
+
+        // member initialization
+        struct MemberTest {
+            bool data;
+
+            MemberTest(BoolType b) : data(b) {}
+        } bmt = bt;
+        ASSERT(!bmt.data);
+
+        if (veryVerbose) printf("\t\t1.2 Function argument\n");
+        struct TestFunctionArgument {
+            // Test as a default argument, altough it is hard to see a use-case
+            static bool call(bool result = BoolType()) { return result; }
+        };
+        ASSERT(!TestFunctionArgument::call(bt));  // Explicitly passed as arg.
+
+        if (veryVerbose) printf("\t\t1.3 Return statement\n");
+        struct TestReturn {
+            static bool call() { return BoolType(); }
+        };
+        ASSERT(!TestReturn::call());
+
+
+        if (veryVerbose) printf("\t\t1.4 Assignment\n");
+        bool bass = true;
+        bass = bt;
+        ASSERT(!bass);
+
+        if (veryVerbose) printf("\t\t1.5 Cast expressions\n");
+        // static_cast
+        bool bsc = static_cast<bool>(bt);
+        ASSERT(!bsc);
+
+        // C-style cast
+        bool boldc = (bool)bt;
+        ASSERT(!boldc);
+
+        if (veryVerbose) printf("\t\t1.6 operator!\n");
+        ASSERT(typeid(bool)!=typeid(bt));
+        ASSERT(typeid(bool)==typeid(!bt));
         if (!bt) {
             ASSERT(true);
         }
@@ -359,41 +443,111 @@ int main(int argc, char *argv[])
             ASSERT(false);
         }
 
-        const bool b = bt;
-        ASSERT(!b);
+        if (veryVerbose) printf("\t\t1.7 operator|| and &&\n");
+        if(false || bt) {
+            ASSERT(false);
+        }
+
+        if(bt && true) {
+            ASSERT(false);
+        }
+
+        if (veryVerbose) printf("\t\t1.8 if clause\n");
+        if (bt) {
+            ASSERT(false);
+        }
+
+        if (veryVerbose) printf("\t\t1.9 while clause\n");
+        while (bt) {
+            ASSERT(false);
+        }
+
+        do {} while (bt);
+
+        if (veryVerbose) printf("\t\t1.10 for loop\n");
+        for ( ; bt; ) {
+            ASSERT(false);
+        }
+
+        if (veryVerbose) printf("\t\t1.11 Ternary operator\n");
+        int ix = bt ? 0 : 9;
+        ASSERT(9 == ix);
+
+        if (veryVerbose) printf("\t\t1.12 Comma operator\n");
+        bool bx = (true, bt);
+        ASSERT(!bx);
+
+        }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+
         if (verbose) printf("\t2. BoolType does not promote to int\n");
+
+        {
 
         struct TestPromoteToInt {
             static bool call(...) { return false; }
             static bool call(int) { return true;  }
         };
 
-        ASSERT(TestPromoteToInt::call(0));
-        ASSERT(!TestPromoteToInt::call(bt));
+        const BoolType bt = BoolType();
+        ASSERT(TestPromoteToInt::call(0));      // verify 'int' is detected
+        ASSERT(!TestPromoteToInt::call(bt));    // verify 'bt' does not promote
+
+        }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\t3. BoolType default value converts to false\n");
+        if (verbose) printf("\t3. BoolType does not convert to pointer\n");
 
+        {
+
+        struct TestConvertToPointer {
+            static bool call(...) { return false; }
+            static bool call(void *) { return true;  }
+            static bool call(const void *) { return true;  }
+            static bool call(volatile void *) { return true;  }
+            static bool call(const volatile void *) { return true;  }
+        };
+
+        const BoolType bt = BoolType();
+        ASSERT(TestConvertToPointer::call((void*)0));  // show 'void*' detected
+        ASSERT(!TestConvertToPointer::call(bt));       // show 'bt' is not
+
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) printf("\t4. BoolType default value converts to false\n");
+
+        {
+
+        const BoolType bt = BoolType();
         ASSERT(bt == false);
         ASSERT(false == bt);
         ASSERT(!bt);
 
+        }
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\t4. BoolType(0) converts to false\n");
+        if (verbose) printf("\t5. BoolType(0) converts to false\n");
+
+        {
 
         const BoolType b0 = 0;
         ASSERT(b0 == false);
         ASSERT(false == b0);
         ASSERT(!b0);
 
+        }
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\t5. Testing BoolType conversion operator\n");
+        if (verbose) printf("\t6. Testing BoolType conversion operator\n");
+
+        {
 
         struct Booleable {
             typedef bsls_UnspecifiedBool<Booleable>::BoolType BoolType;
@@ -406,20 +560,69 @@ int main(int argc, char *argv[])
         ASSERT(false == babel);
         ASSERT(!babel);
 
-        if (babel) {
-            ASSERT(false);
-        }
+        if (veryVerbose) printf("\t\t6.1 Initialization\n");
 
-        while (babel) {
-            ASSERT(false);
-        }
+         // copy-initialization
+        const bool bc = babel;
+        ASSERT(!bc);
 
-        for ( ; babel; ) {
-            ASSERT(false);
-        }
+        // value-initialization
+        const bool bv(babel);
+        ASSERT(!bv);
 
-        do {} while (babel);
+        // reference initialization
+        const bool& br = babel;
+        ASSERT(!br);
 
+        // aggregate initialization (array)
+        const bool bar[] = { babel };
+        ASSERT(!bar[0]);
+
+        // aggregate initialization
+        struct Aggregate {
+            bool data;
+        } bag = { babel };
+        ASSERT(!bag.data);
+
+        // member initialization
+        struct MemberTest {
+            bool data;
+
+            MemberTest(Booleable b) : data(b) {}
+        } bmt = babel;
+        ASSERT(!bmt.data);
+
+        if (veryVerbose) printf("\t\t6.2 Function argument\n");
+        struct TestFunctionArgument {
+            // Test as a default argument, altough it is hard to see a use-case
+            static bool call(bool result = Booleable()) { return result; }
+        };
+        ASSERT(!TestFunctionArgument::call(babel));  // Explicitly passed as arg.
+
+        if (veryVerbose) printf("\t\t6.3 Return statement\n");
+        struct TestReturn {
+            static bool call() { return Booleable(); }
+        };
+        ASSERT(!TestReturn::call());
+
+
+        if (veryVerbose) printf("\t\t6.4 Assignment\n");
+        bool bass = true;
+        bass = babel;
+        ASSERT(!bass);
+
+        if (veryVerbose) printf("\t\t6.5 Cast expressions\n");
+        // static_cast
+        bool bsc = static_cast<bool>(babel);
+        ASSERT(!bsc);
+
+        // C-style cast
+        bool boldc = (bool)babel;
+        ASSERT(!boldc);
+
+        if (veryVerbose) printf("\t\t6.6 operator!\n");
+        ASSERT(typeid(bool)!=typeid(babel));
+        ASSERT(typeid(bool)==typeid(!babel));
         if (!babel) {
             ASSERT(true);
         }
@@ -427,8 +630,41 @@ int main(int argc, char *argv[])
             ASSERT(false);
         }
 
-        const bool bb = babel;
-        ASSERT(!bb);
+        if (veryVerbose) printf("\t\t6.7 operator|| and &&\n");
+        if(false || babel) {
+            ASSERT(false);
+        }
+
+        if(babel && true) {
+            ASSERT(false);
+        }
+
+        if (veryVerbose) printf("\t\t6.8 if clause\n");
+        if (babel) {
+            ASSERT(false);
+        }
+
+        if (veryVerbose) printf("\t\t6.9 while clause\n");
+        while (babel) {
+            ASSERT(false);
+        }
+
+        do {} while (babel);
+
+        if (veryVerbose) printf("\t\t6.10 for loop\n");
+        for ( ; babel; ) {
+            ASSERT(false);
+        }
+
+        if (veryVerbose) printf("\t\t6.11 Ternary operator\n");
+        int ix = babel ? 0 : 9;
+        ASSERT(9 == ix);
+
+        if (veryVerbose) printf("\t\t6.12 Comma operator\n");
+        bool bx = (true, babel);
+        ASSERT(!bx);
+
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
