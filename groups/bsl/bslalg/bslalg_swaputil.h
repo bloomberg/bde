@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
 //@DESCRIPTION: This component provides a namespace for a utility function that
-// swaps the value of two objects of the same type.  Using this utility
+// swaps the value of two objects of the same type.  Using this utility is
 // intended to be a simpler alternative to using the standard 'swap' algorithm
 // directly.  The standard 'swap' algorithm is provided in the 'bsl' namespace
 // in a generic form and overloaded for specific classes in the namespaces of
@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 // Note that the free function 'swap' is overloaded in the namespace of the
 // class 'Container', which is 'xyz'.
 //
-// Next, we implemente the 'swap' method using the 'bslalg_SwapUtil::swap' to
+// Next, we implemented the 'swap' method using the 'bslalg_SwapUtil::swap' to
 // swap the individual data elements:
 //..
 //  inline
@@ -101,6 +101,10 @@ BSLS_IDENT("$Id: $")
 //..
 // The above code correctly calls the 'xyz::swap' overload for the 'Container'
 // class.
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
