@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a utility class supporting the unspecified bool idiom.
+//@PURPOSE: Provide a utility class supporting the unspecified 'bool' idiom.
 //
 //@CLASSES:
 //  bslsl_UnspecifiedBool: utility class template 
@@ -17,8 +17,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a class template that can be used to
 // manufacture an "unspecified boolean type" that is distinct for each class
 // that instantiates it.  Note that classes supplying an implicit conversion
-// to an unspecified bool type will be equality comparable (using operator==
-// and operator!=) through this conversion.  Private equality and inequality
+// to an unspecified bool type will be equality comparable (using 'operator=='
+// and 'operator!=') through this conversion.  Private equality and inequality
 // operators should be added to the class definition unless this comparison is
 // desired.  It is important that each class produces a distinct unspecified
 // bool type, as otherwise objects of different class types would compare equal
@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: ...
+///Example 1: ....
 ///- - - - - - - -
 // A common requirement for "smart pointer" types is to emulate the native
 // pointer types, and in particular support testing for "null" or "empty" 
