@@ -24,17 +24,6 @@ using namespace BloombergLP;
 // run the usage example.
 //
 //-----------------------------------------------------------------------------
-//                             Overview
-//                             --------
-// We are testing a proctor class that makes sure that only one instance holds
-// a copy of an allocated pointer, along with the necessary information to
-// deallocate it properly (the deleter).  The primary goal of this test program
-// is to ascertain that no resource ever gets leaked, i.e., that when the
-// proctor is re-assigned or destroyed, the managed pointer gets deleted
-// properly.  In addition, we must also make sure that all the conversion and
-// aliasing machinery works as documented.  At last, we must also check that
-// a 'bdema_ManagedPtr' acts exactly as a pointer wherever one is expected.
-//-----------------------------------------------------------------------------
 // [ 3] BoolType falseValue();
 // [ 3] BoolType trueValue();
 // [ 2] typedef BoolType 
@@ -359,6 +348,30 @@ int main(int argc, char *argv[])
         //:   we have no interest in listing or testing them, as in that case
         //:   this whole idiom and component should be replaced with 'explicit
         //:   operator bool'.  (C1)
+        //:
+        //: 2 Define a pair of overloaded functions returning a 'bool' value,
+        //:   one taking a single 'int' and returning 'true', the other
+        //:   accepting anything through an elipsis parameter and returning
+        //:   'false'.  Call this function function with a value of type
+        //:   'bsls_UnspecifiedBool<T>::BoolType' to prove the 'int' overload
+        //:   is *not* selected.
+        //:
+        //: 3 Define a set of overloaded functions returning a 'bool' value.
+        //:   Four overloaded functions will take a single pointer argument,
+        //:   covering all four cv-qualification combinations on a 'void *'
+        //:   pointer, and return 'true'.  The other overload will accept
+        //:   anything through an elipsis parameter and return 'false'.  Call
+        //:   this function function with a value of type
+        //:   'bsls_UnspecifiedBool<T>::BoolType' to prove that none of the
+        //:   pointer-parameter overloads are selected.
+        //:
+        //: 4 Create a value-initialized object of type
+        //:   'bsls_UnspecifiedBool<T>::BoolType' and ASSERT that its value
+        //:   when converted to 'bool' is 'false'.
+        //:
+        //: 5 Create an object of type 'bsls_UnspecifiedBool<T>::BoolType' and
+        //:   initialize it with the literal '0'.  ASSERT that its value
+        //:   when converted to 'bool' is 'false'.
         //:
         //: 6 Define a new type, 'Booleable', with a conversion operator
         //:   converting to type 'bsls_UnspecifiedBool<Booleable>::BoolType'.
