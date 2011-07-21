@@ -122,6 +122,10 @@ BDES_IDENT("$Id: $")
 #include <bdeut_stringref.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -424,9 +428,9 @@ void baetzo_LocalTimeDescriptor::swap(baetzo_LocalTimeDescriptor& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    bsl::swap(d_description,        other.d_description);
-    bsl::swap(d_dstInEffectFlag,    other.d_dstInEffectFlag);
-    bsl::swap(d_utcOffsetInSeconds, other.d_utcOffsetInSeconds);
+    bslalg_SwapUtil::swap(&d_description,        &other.d_description);
+    bslalg_SwapUtil::swap(&d_dstInEffectFlag,    &other.d_dstInEffectFlag);
+    bslalg_SwapUtil::swap(&d_utcOffsetInSeconds, &other.d_utcOffsetInSeconds);
 }
 
 // ACCESSORS
