@@ -347,7 +347,8 @@ int main(int argc, char *argv[])
         //:    4 Assignment
         //:    5 In a cast expression
         //:    6 In conjuntion with operator!
-        //:    7 In conjunction with another expression with operator '&&' or '||'
+        //:    7 In conjunction with operator '&&' or '||', preserving boolean
+        //:      short-circuit semantics
         //:    8 Testing in an 'if' clause
         //:    9 Testing in a 'while' loop
         //:   10 Testing in a 'for' loop
@@ -358,6 +359,31 @@ int main(int argc, char *argv[])
         //:   we have no interest in listing or testing them, as in that case
         //:   this whole idiom and component should be replaced with 'explicit
         //:   operator bool'.  (C1)
+        //:
+        //: 6 Define a new type, 'Booleable', with a conversion operator
+        //:   converting to type 'bsls_UnspecifiedBool<Booleable>::BoolType'.
+        //:   Evaluate a value of type 'Booleable' in each context where the
+        //:   language supports an implicit conversion to a boolean type.  The
+        //:   complete list of language contexts is:
+        //:
+        //:    1 Initialization
+        //:    2 Passing as an argument to a function
+        //:    3 In a return expression
+        //:    4 Assignment
+        //:    5 In a cast expression
+        //:    6 In conjuntion with operator!
+        //:    7 In conjunction with operator '&&' or '||', preserving boolean
+        //:      short-circuit semantics
+        //:    8 Testing in an 'if' clause
+        //:    9 Testing in a 'while' loop
+        //:   10 Testing in a 'for' loop
+        //:   11 Testing as the condition of a ternary ?: expression
+        //:   12 Passes safely through a ',' operator
+        //:
+        //:   Note that while there may be additional contexts to test in C++11
+        //:   we have no interest in listing or testing them, as in that case
+        //:   this whole idiom and component should be replaced with 'explicit
+        //:   operator bool'.  (C6)
         //
         // Testing:
         //   typedef bsls_UnspecifiedBool::BoolType
@@ -407,7 +433,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\t\t1.2 Function argument\n");
         struct TestFunctionArgument {
-            // Test as a default argument, altough it is hard to see a use-case
+            // Test as default argument, although it is hard to see a use-case
             static bool call(bool result = BoolType()) { return result; }
         };
         ASSERT(!TestFunctionArgument::call(bt));  // Explicitly passed as arg.
@@ -417,7 +443,6 @@ int main(int argc, char *argv[])
             static bool call() { return BoolType(); }
         };
         ASSERT(!TestReturn::call());
-
 
         if (veryVerbose) printf("\t\t1.4 Assignment\n");
         bool bass = true;
@@ -444,11 +469,20 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) printf("\t\t1.7 operator|| and &&\n");
-        if(false || bt) {
+        struct DidNotShortCircuit {
+            static bool call() { ASSERT(false); return false; }
+                // Return a 'bool' value.  Note that this function asserts if
+                // it is ever called, in order to demonstrate that boolean
+                // short-circuit evaluation was not honoured.
+        };
+        if(!bt || DidNotShortCircuit::call()) {
+            ASSERT(true);
+        }
+        else {
             ASSERT(false);
         }
 
-        if(bt && true) {
+        if(bt && DidNotShortCircuit::call()) {
             ASSERT(false);
         }
 
@@ -480,7 +514,6 @@ int main(int argc, char *argv[])
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 
         if (verbose) printf("\t2. BoolType does not promote to int\n");
 
@@ -594,17 +627,16 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\t\t6.2 Function argument\n");
         struct TestFunctionArgument {
-            // Test as a default argument, altough it is hard to see a use-case
+            // Test as default argument, although it is hard to see a use-case
             static bool call(bool result = Booleable()) { return result; }
         };
-        ASSERT(!TestFunctionArgument::call(babel));  // Explicitly passed as arg.
+        ASSERT(!TestFunctionArgument::call(babel));// Explicitly passed as arg.
 
         if (veryVerbose) printf("\t\t6.3 Return statement\n");
         struct TestReturn {
             static bool call() { return Booleable(); }
         };
         ASSERT(!TestReturn::call());
-
 
         if (veryVerbose) printf("\t\t6.4 Assignment\n");
         bool bass = true;
@@ -631,11 +663,20 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) printf("\t\t6.7 operator|| and &&\n");
-        if(false || babel) {
+        struct DidNotShortCircuit {
+            static bool call() { ASSERT(false); return false; }
+                // Return a 'bool' value.  Note that this function asserts if
+                // it is ever called, in order to demonstrate that boolean
+                // short-circuit evaluation was not honoured.
+        };
+        if(!babel || DidNotShortCircuit::call()) {
+            ASSERT(true);
+        }
+        else {
             ASSERT(false);
         }
 
-        if(babel && true) {
+        if(babel && DidNotShortCircuit::call()) {
             ASSERT(false);
         }
 
