@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
 //
-//@SEE_ALSO: baetzo_timetypetransition, baetzo_zoneinfo
+//@SEE_ALSO: baetzo_zoneinfo
 //
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, 'baetzo_LocalTimeDescriptor', that is used
