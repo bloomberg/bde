@@ -140,20 +140,19 @@ namespace USAGE_EXAMPLE_1 {
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: A simple wrapper class
+///Example 1: A Simple Wrapper Class
 ///- - - - - - - - - - - - - - - - -
 // First, let us write a simple class that can wrap any other type:
 //..
     template<class TYPE>
     class Wrapper {
-    public:
+      public:
         typedef typename bslmf_AddReference<TYPE>::Type WrappedType;
 
-
-    private:
+      private:
         TYPE d_data;
 
-    public:
+      public:
         // CREATORS
         Wrapper(TYPE value) : d_data(value) {}
 
@@ -167,7 +166,7 @@ namespace USAGE_EXAMPLE_1 {
 // the C++11 standard).  We can resolve such problems using the meta-function
 // 'bslmf_AddReference'.
 //..
-        // MANIPUTATORS
+        // MANIPULATORS
         typename bslmf_AddReference<TYPE>::Type value()
         {
             return d_data;
@@ -177,7 +176,7 @@ namespace USAGE_EXAMPLE_1 {
 // parameterized type 'TYPE' with the 'bslmf_AddReference' meta-function.
 // In this case we must remember to const-quality 'TYPE' before passing it
 // on to the meta-function.
-//.. 
+//..
         // ACCESSORS
         typename bslmf_AddReference<const TYPE>::Type value() const
         {
@@ -190,7 +189,7 @@ namespace USAGE_EXAMPLE_1 {
 //..
     void runTests()
     {
-        int  i  = 42;
+        int i = 42;
 
         Wrapper<int> ti(i);
         ASSERT(42 == i);
@@ -215,7 +214,8 @@ namespace USAGE_EXAMPLE_1 {
         ASSERT(42 == tr.value());
     }
 //..
-}
+}  // close namespace USAGE_EXAMPLE_1
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
