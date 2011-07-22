@@ -183,6 +183,9 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf_AddReference<MyType const&>::Type, const MyType&);
         ASSERT_SAME(bslmf_AddReference<const MyTypeRef>::Type, MyType&);
 //      ASSERT_SAME(bslmf_AddReference<const MyTypeRef&>::Type, MyType&); C++11
+
+        ASSERT_SAME(bslmf_AddReference<void  >::Type, void);
+        ASSERT_SAME(bslmf_AddReference<void *>::Type, void *&);
 //..
 
       } break;

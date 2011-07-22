@@ -1,4 +1,4 @@
-// bslmf_AddReference.h                                            -*-C++-*-
+// bslmf_addreference.h                                            -*-C++-*-
 #ifndef INCLUDED_BSLMF_ADDREFERENCE
 #define INCLUDED_BSLMF_ADDREFERENCE
 
@@ -10,19 +10,20 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a meta-function for adding reference-ness to a type.
 //
 //@CLASSES:
-//    bslmf_AddReference: meta-function to form a reference to a type
+//  bslmf_AddReference: meta-function to form a reference to a type
 //
 //@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component defines a simple template structure used to
-// form a reference to a type from its single template type parameter.  Types
-// that are already reference types are unmodified, as are 'void' types.
+//@DESCRIPTION: This component defines a simple template struct used to define
+// reference-type for the type supplied as its single template type parameter.
+// Types that are already reference types are unmodified, as are 'void' types.
 //
 ///Usage
 ///-----
-// For example:
+// For example. the associated comments below indicate the expected meaning of
+// 'bslmf_AddReference::Type' for a broad range of parameterized types:
 //..
 //   struct MyType {};
 //   typedef MyType& MyTypeRef;
@@ -37,8 +38,11 @@ BSLS_IDENT("$Id: $")
 //   bslmf_AddReference<MyTypeRef       >::Type     // MyType&
 //   bslmf_AddReference<MyType const    >::Type     // const MyType&
 //   bslmf_AddReference<MyType const&   >::Type     // const MyType&
-//   bslmf_AddReference<const MyTypeRef >::TYPE     // MyType&
-//   bslmf_AddReference<const MyTypeRef&>::TYPE     // MyType& (REQUIRES C++11)
+//   bslmf_AddReference<const MyTypeRef >::Type     // MyType&
+//   bslmf_AddReference<const MyTypeRef&>::Type     // MyType& (REQUIRES C++11)
+//
+//   bslmf_AddReference<void            >::Type     // void
+//   bslmf_AddReference<void *          >::Type     // void *&
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -54,19 +58,20 @@ namespace BloombergLP {
 
 template <class BSLMF_TYPE>
 struct bslmf_AddReference {
-    // This "metafunction" class defines a typedef, 'Type', that is an alias
-    // for a reference to the specified type 'BSLMF_TYPE'.  References to 
+    // This meta-function class defines a typedef, 'Type', that is an alias
+    // for a reference to the parameterized type 'BSLMF_TYPE'.  References to 
     // cv-qualified 'void' will produce the original 'void' type and not a 
     // reference (see specializations below).  References-to-references
     // "collapse" to produce an alias to the original reference type, which is
-    // the revised rule according to the C++11 standard.
+    // the revised rule according to the C++11 standard.  Note that there is
+    // no requirement that the parameterized 'BSLMF_TYPE' be a complete type.
 
     typedef BSLMF_TYPE& Type;
 };
 
 template <class BSLMF_TYPE>
 struct bslmf_AddReference<BSLMF_TYPE &> {
-    // Specialization to enusure reference-to-reference collapses to a plain
+    // Specialization to ensure reference-to-reference collapses to a plain
     // reference.
 
     typedef BSLMF_TYPE& Type;
