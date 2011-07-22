@@ -12,13 +12,14 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf_AddReference: meta-function to form a reference to a type
 //
-//@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
+//@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component defines a simple template struct used to define
-// reference-type for the type supplied as its single template type parameter.
-// Types that are already reference types are unmodified, as are 'void' types.
+//@DESCRIPTION: This component defines a simple 'template' 'struct' used to
+// define reference-type for the type supplied as its single template type
+// parameter.  Types that are already reference types are unmodified, as are
+// 'void' types.
 //
 ///Usage
 ///-----
@@ -30,15 +31,17 @@ BSLS_IDENT("$Id: $")
 //..
 //  template<class TYPE>
 //  class Wrapper {
-//    public:
-//      typedef typename bslmf_AddReference<TYPE>::Type WrappedType;
-//
 //    private:
+//      // DATA
 //      TYPE d_data;
 //
 //    public:
+//      // TYPES
+//      typedef typename bslmf_AddReference<TYPE>::Type WrappedType;
+//
 //      // CREATORS
 //      Wrapper(TYPE value) : d_data(value) {}
+//          // Create a 'Wrapper' object having the specified 'value'.
 //
 //      //! ~Wrapper() = default;
 //          // Destroy this object.
@@ -68,37 +71,37 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Now we test our simple wrapper type.  First we run test for wrapping a
+// Now we test our simple wrapper type.  First we create a 'Wrapper' of a
 // simple 'int' value:
 //..
 //  void runTests()
 //  {
 //      int i = 42;
 //
-//      Wrapper<int> ti(i);
-//      ASSERT(42 == i);
-//      ASSERT(42 == ti.value());
+//      Wrapper<int> ti(i);  const Wrapper<int>& TI = ti;
+//      assert(42 == i);
+//      assert(42 == TI.value());
 //
 //      ti.value() = 13;
-//      ASSERT(42 == i);
-//      ASSERT(13 == ti.value());
+//      assert(42 == i);
+//      assert(13 == TI.value());
 //..
 // Finally we test 'Wrapper' with a reference type.
 //..
-//      Wrapper<int&> tr(i);
-//      ASSERT(42 == i);
-//      ASSERT(42 == tr.value());
+//      Wrapper<int&> tr(i);  const Wrapper<int&>& TR = tr;
+//      assert(42 == i);
+//      assert(42 == TR.value());
 //
 //      tr.value() = 13;
-//      ASSERT(13 == i);
-//      ASSERT(13 == ti.value());
+//      assert(13 == i);
+//      assert(13 == TR.value());
 //
 //      i = 42;
-//      ASSERT(42 == i);
-//      ASSERT(42 == tr.value());
+//      assert(42 == i);
+//      assert(42 == TR.value());
 //  }
 //..
-///Example 2: Expected Results
+//Example 2: Expected Results
 ///- - - - - - - - - - - - - -
 // For this example, the associated comments below indicate the expected type
 // of 'bslmf_AddReference::Type' for a broad range of parameterized types:
