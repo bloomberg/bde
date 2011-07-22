@@ -22,8 +22,165 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// For example. the associated comments below indicate the expected meaning of
-// 'bslmf_AddReference::Type' for a broad range of parameterized types:
+// In this section we show intended usage of this component.
+//
+///Example 1: A simple wrapper class
+///- - - - - - - - - - - - - - - - -
+// First, let us write a simple class that can wrap any other type:
+//..
+//  template<class TYPE>
+//  class Wrapper {
+//  public:
+//      typedef typename bslmf_AddReference<TYPE>::Type WrappedType;
+//
+////Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: A simple wrapper class
+///- - - - - - - - - - - - - - - - -
+// First, let us write a simple class that can wrap any other type:
+//..
+//  template<class TYPE>
+//  class Wrapper {
+//  public:
+//      typedef typename bslmf_AddReference<TYPE>::Type WrappedType;
+//
+//  private:
+//      TYPE d_data;
+//
+//  public:
+//      // CREATORS
+//      Wrapper(TYPE value) : d_data(value) {}
+//
+//      //! ~Wrapper() = default;
+//          // Destroy this object.
+//..
+// We would like to expose access to the wrapped element through a method that
+// returns a reference to the data member 'd_data'.  However, there would be a
+// problem if the user supplied a parameterized type 'TYPE' that is a reference
+// type, as references-to-references are not permitted by the language (before
+// the C++11 standard).  We can resolve such problems using the meta-function
+// 'bslmf_AddReference'.
+//..
+//      // MANIPUTATORS
+//      typename bslmf_AddReference<TYPE>::Type value()
+//      {
+//          return d_data;
+//      }
+//..
+// Next we supply an accessor function, 'value', that similarly wraps the
+// parameterized type 'TYPE' with the 'bslmf_AddReference' meta-function.
+// In this case we must remember to const-quality 'TYPE' before passing it
+// on to the meta-function.
+//.. 
+//      // ACCESSORS
+//      typename bslmf_AddReference<const TYPE>::Type value() const
+//      {
+//          return d_data;
+//      }
+//  };
+//..
+// Now we test our simple wrapper type.  First we run test for wrapping a
+// simple 'int' value:
+//..
+//  void runTests()
+//  {
+//      int  i  = 42;
+//
+//      Wrapper<int> ti(i);
+//      ASSERT(42 == i);
+//      ASSERT(42 == ti.value());
+//
+//      ti.value() = 13;
+//      ASSERT(42 == i);
+//      ASSERT(13 == ti.value());
+//..
+// Finally we test 'Wrapper' with a reference type.
+//..
+//      Wrapper<int&> tr(i);
+//      ASSERT(42 == i);
+//      ASSERT(42 == tr.value());
+//
+//      tr.value() = 13;
+//      ASSERT(13 == i);
+//      ASSERT(13 == ti.value());
+//
+//      i = 42;
+//      ASSERT(42 == i);
+//      ASSERT(42 == tr.value());
+//  }
+//..
+//  private:
+//      TYPE d_data;
+//
+//  public:
+//      // CREATORS
+//      Wrapper(TYPE value) : d_data(value) {}
+//
+//      //! ~Wrapper() = default;
+//          // Destroy this object.
+//..
+// We would like to expose access to the wrapped element through a method that
+// returns a reference to the data member 'd_data'.  However, there would be a
+// problem if the user supplied a parameterized type 'TYPE' that is a reference
+// type, as references-to-references are not permitted by the language (before
+// the C++11 standard).  We can resolve such problems using the meta-function
+// 'bslmf_AddReference'.
+//..
+//      // MANIPUTATORS
+//      typename bslmf_AddReference<TYPE>::Type value()
+//      {
+//          return d_data;
+//      }
+//..
+// Next we supply an accessor function, 'value', that similarly wraps the
+// parameterized type 'TYPE' with the 'bslmf_AddReference' meta-function.
+// In this case we must remember to const-quality 'TYPE' before passing it
+// on to the meta-function.
+//.. 
+//      // ACCESSORS
+//      typename bslmf_AddReference<const TYPE>::Type value() const
+//      {
+//          return d_data;
+//      }
+//  };
+//..
+// Now we test our simple wrapper type.  First we run test for wrapping a
+// simple 'int' value:
+//..
+//  void runTests()
+//  {
+//      int  i  = 42;
+//
+//      Wrapper<int> ti(i);
+//      ASSERT(42 == i);
+//      ASSERT(42 == ti.value());
+//
+//      ti.value() = 13;
+//      ASSERT(42 == i);
+//      ASSERT(13 == ti.value());
+//..
+// Finally we test 'Wrapper' with a reference type.
+//..
+//      Wrapper<int&> tr(i);
+//      ASSERT(42 == i);
+//      ASSERT(42 == tr.value());
+//
+//      tr.value() = 13;
+//      ASSERT(13 == i);
+//      ASSERT(13 == ti.value());
+//
+//      i = 42;
+//      ASSERT(42 == i);
+//      ASSERT(42 == tr.value());
+//  }
+//..
+//
+///Example 2: Expected Results
+///- - - - - - - - - - - - - -
+// For this example, the associated comments below indicate the expected type
+// of 'bslmf_AddReference::Type' for a broad range of parameterized types:
 //..
 //   struct MyType {};
 //   typedef MyType& MyTypeRef;
