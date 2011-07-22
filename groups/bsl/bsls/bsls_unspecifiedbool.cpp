@@ -1,4 +1,5 @@
-// bsls_unspecifiedbool.cpp                                          -*-C++-*-
+// bsls_unspecifiedbool.cpp                                           -*-C++-*-
+
 #include <bsls_unspecifiedbool.h>
 
 #include <bsls_ident.h>
