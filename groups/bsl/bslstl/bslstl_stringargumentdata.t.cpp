@@ -760,15 +760,15 @@ int main(int argc, char *argv[])
             // test 'operator=='
             LOOP_ASSERT(LINE, X == Y);
 
-            // modify values slightly
-            bslstl_StringArgumentData<char> Y1(STR, STR + strlen(STR) - 1);
-            LOOP_ASSERT(LINE, X != Y1);
-
-            bslstl_StringArgumentData<char> Y2(STR + 1, STR + strlen(STR) - 1);
-            LOOP_ASSERT(LINE, X != Y2);
-
-            // compare with a previous value
             if (i > 0) {
+                // modify values slightly
+                bslstl_StringArgumentData<char> Y1(STR, STR + strlen(STR) - 1);
+                LOOP_ASSERT(LINE, X != Y1);
+
+                bslstl_StringArgumentData<char> Y2(STR + 1, STR + strlen(STR));
+                LOOP_ASSERT(LINE, X != Y2);
+
+                // compare with a previous value
                 const char *STRPREV = DATA[i - 1].d_str;
                 bslstl_StringArgumentData<char> Z(STRPREV,
                                                   STRPREV + strlen(STRPREV));
