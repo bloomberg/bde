@@ -36,9 +36,9 @@ BDES_IDENT("$Id: $ $CSID: $")
 //  datetimeTz    bdet_DatetimeTz    January 1, 0001, 24:00:00.000+0000
 //  timeZoneId    bsl::string        ""
 //..
-//: o datetimeTz: date, time, and offset from UTC of the local time.
+//: o 'datetimeTz': date, time, and offset from UTC of the local time.
 //:
-//: o timeZoneId: unique identifier representing the local time zone.
+//: o 'timeZoneId': unique identifier representing the local time zone.
 //
 // For example, in New York on January 1, 2011, at 10 a.m. the local offset
 // from UTC is -5 hours, and a standard time zone identifier for New York is
@@ -172,8 +172,10 @@ class baet_LocalDatetime {
     explicit baet_LocalDatetime(bslma_Allocator *basicAllocator = 0);
         // Create a 'baet_LocalDatetime' object having the (default) attribute
         // values:
-        //: o 'datetimeTz() == bdet_DatetimeTz()'
-        //: o 'timeZoneId() == ""'
+        //..
+        //  datetimeTz() == bdet_DatetimeTz()
+        //  timeZoneId() == ""
+        //..
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
