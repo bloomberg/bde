@@ -26,6 +26,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // [ 3] BoolType falseValue();
 // [ 3] BoolType trueValue();
+// [ 3] BoolType makeValue();
 // [ 2] typedef BoolType
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -125,7 +126,10 @@ void dbg_print(const char* s, const T& val, const char* nl) {
 struct Booleable {
     typedef bsls_UnspecifiedBool<Booleable>::BoolType BoolType;
 
-    operator BoolType() const { return false; }
+    operator BoolType() const
+    {
+        return bsls_UnspecifiedBool<Booleable>::falseValue();
+    }
 };
 
 }  // close unnamed namespace
@@ -163,6 +167,12 @@ namespace USAGE_EXAMPLE {
         // DATA
         TYPE *d_ptr;  // address of the referenced object
 
+        // PRIVATE ACCESSORS
+        bool operator==(const SimplePtr &);  // = delete;
+        bool operator!=(const SimplePtr &);  // = delete;
+            // Compare two 'SimplePtr' objects.  Note that these operators are
+            // private and unimplemented to disable such comparison.
+
       public:
         // CREATORS
         explicit SimplePtr(TYPE *ptr = 0) : d_ptr(ptr) {}
@@ -186,6 +196,7 @@ namespace USAGE_EXAMPLE {
 // a unique name, even for different instantiations of this same 'SimplePtr'
 // template.
 //..
+        // TYPES
         typedef typename bsls_UnspecifiedBool<SimplePtr>::BoolType BoolType;
 //..
 // Now we can define a boolean conversion operator that tests whether or not
@@ -195,9 +206,7 @@ namespace USAGE_EXAMPLE {
 // operator.
 //..
         operator BoolType() const {
-            return d_ptr
-                 ? bsls_UnspecifiedBool<SimplePtr>::trueValue()
-                 : bsls_UnspecifiedBool<SimplePtr>::falseValue();
+            return bsls_UnspecifiedBool<SimplePtr>::makeValue(d_ptr);
         }
     }; // class SimplePtr
 //..
@@ -205,7 +214,6 @@ namespace USAGE_EXAMPLE {
 // objects, one "null", and the other with a well-defined address.
 //..
     void runTests() {
-
         SimplePtr<int> p1;  // default ctor sets to null
         ASSERT(!p1);
 
@@ -263,15 +271,17 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // UTILITY FUNCTIONS: 'trueValue' AND 'falseValue'
+        // UTILITY FUNCTIONS: 'trueValue', 'falseValue' and 'makeValue'
         //
         // Concerns:
-        //: 1 The static member functions 'trueValue' and 'falseValue' each
-        //:   return a value of type BoolType.
+        //: 1 The static member functions 'trueValue', 'falseValue' and
+        //:   'makeValue' each return a value of type BoolType.
         //: 2 'falseValue' returns a value that converts to the 'bool' value
         //:   'false'
         //: 3 'trueValue' returns a value that converts to the 'bool' value
         //:   'true'
+        //: 4 'makeValue' returns a value that converts to 'true' or 'false'
+        //:    depending on the input parameter.
         //
         // Plan:
         //: 1 Use the addresses of the 'falseFunc' and 'trueFunc' static
@@ -287,10 +297,11 @@ int main(int argc, char *argv[])
         // Testing:
         //  BoolType falseValue()
         //  BoolType trueValue()
+        //  BoolType makeValue()
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                        "\nUTILITY FUNCTIONS: 'trueValue' AND 'falseValue'"
+                        "\nUTILITY FUNCTIONS: '{true,false,make}Value'"
                         "\n-----------------------------------------------\n");
 
         if (verbose) printf("\t1. Functions must return BoolType values\n");
@@ -320,6 +331,15 @@ int main(int argc, char *argv[])
 
         const bool bTrue = HostType::trueValue();
         LOOP2_ASSERT(L_, bTrue, true == bTrue);
+
+        if (verbose) printf("\t4. 'makeValue()' makes the correct value\n");
+
+        const bool madeTrue = HostType::makeValue(true);
+        LOOP2_ASSERT(L_, madeTrue, true == madeTrue);
+
+        const bool madeFalse = HostType::makeValue(false);
+        LOOP2_ASSERT(L_, madeFalse, false == madeFalse);
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -770,6 +790,9 @@ int main(int argc, char *argv[])
         else {
             ASSERT(false);
         }
+
+        ASSERT(HostType::makeValue(true));
+        ASSERT(!HostType::makeValue(false));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

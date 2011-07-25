@@ -57,6 +57,12 @@ BSLS_IDENT("$Id: $")
 //      // DATA
 //      TYPE *d_ptr;  // address of the referenced object
 //
+//      // PRIVATE ACCESSORS
+//      bool operator==(const SimplePtr &);  // = delete;
+//      bool operator!=(const SimplePtr &);  // = delete;
+//          // Compare two 'SimplePtr' objects.  Note that these operators are
+//          // private and unimplemented to disable such comparison.
+//
 //    public:
 //      // CREATORS
 //      explicit SimplePtr(TYPE *ptr = 0) : d_ptr(ptr) {}
@@ -80,6 +86,7 @@ BSLS_IDENT("$Id: $")
 // a unique name, even for different instantiations of this same 'SimplePtr'
 // template.
 //..
+//      // TYPES
 //      typedef typename bsls_UnspecifiedBool<SimplePtr>::BoolType BoolType;
 //..
 // Now we can define a boolean conversion operator that tests whether or not
@@ -89,9 +96,7 @@ BSLS_IDENT("$Id: $")
 // operator.
 //..
 //      operator BoolType() const {
-//          return d_ptr
-//               ? bsls_UnspecifiedBool<SimplePtr>::trueValue()
-//               : bsls_UnspecifiedBool<SimplePtr>::falseValue();
+//          return bsls_UnspecifiedBool<SimplePtr>::makeValue(d_ptr);
 //      }
 //  }; // class SimplePtr
 //..
@@ -99,7 +104,6 @@ BSLS_IDENT("$Id: $")
 // objects, one "null", and the other with a well-defined address.
 //..
 //  void runTests() {
-//
 //      SimplePtr<int> p1;  // default ctor sets to null
 //      assert(!p1);
 //
@@ -127,21 +131,28 @@ struct bsls_UnspecifiedBool {
     // operators.
 
   private:
+    // DATA
     int d_member;
         // This data member is used solely for taking its address to return a
         // non-null pointer-to-member.  Note that the *value* of 'd_member' is
         // not used.
 
   public:
+    // TYPES
     typedef int bsls_UnspecifiedBool::* BoolType;
         // Alias of a distinct type that is implicitly convertible to 'bool',
         // but does not promote to 'int'.
 
+    // CLASS METHODS
     static BoolType falseValue();
         // Return a value that converts to the 'bool' value 'false'.
 
     static BoolType trueValue();
         // Return a value that converts to the 'bool' value 'true'.
+
+    static BoolType makeValue(bool cond);
+        // Return a value that converts to 'true' if 'cond==true' and to
+        // 'false' if 'cond==false'.
 };
 
 
@@ -149,20 +160,29 @@ struct bsls_UnspecifiedBool {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+// CLASS METHODS
 template<class BSLS_HOST_TYPE>
 inline
-int bsls_UnspecifiedBool<BSLS_HOST_TYPE>::*
+typename bsls_UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
 bsls_UnspecifiedBool<BSLS_HOST_TYPE>::falseValue()
 {
-    return false;
+    return 0;
 }
 
 template<class BSLS_HOST_TYPE>
 inline
-int bsls_UnspecifiedBool<BSLS_HOST_TYPE>::*
+typename bsls_UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
 bsls_UnspecifiedBool<BSLS_HOST_TYPE>::trueValue()
 {
     return &bsls_UnspecifiedBool::d_member;
+}
+
+template<class BSLS_HOST_TYPE>
+inline
+typename bsls_UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
+bsls_UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool cond)
+{
+    return cond ? trueValue() : falseValue();
 }
 
 }  // close enterprise namespace
