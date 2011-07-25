@@ -36,14 +36,14 @@ BDES_IDENT("$Id: $")
 //  (utcStartTime != bdet_Datetime() && utcEndTime != bdet_Datetime()
 //   && utcStartTime < utcEndTime)'
 //..
-//: o localTimeDescriptor: a description of local time that applies during the
-//:   interval defined by 'startUtcTime' and 'endUtcTime'.
+//: o 'localTimeDescriptor': a description of local time that applies during
+//:   the interval defined by 'startUtcTime' and 'endUtcTime'.
 //:
-//: o utcStartTime: UTC representation of the start of the time interval over
+//: o 'utcStartTime': UTC representation of the start of the time interval over
 //:   which 'localTimeDescriptor' applies.
 //:
-//: o utcEndTime: UTC representation of the moment immediately after the end of
-//:   the time interval over which 'localTimeDescriptor' applies.
+//: o 'utcEndTime': UTC representation of the moment immediately after the end
+//:   of the time interval over which 'localTimeDescriptor' applies.
 //
 // For example, in New York in 2010, the local time was Eastern Daylight Time
 // ("EDT") from March 14, 2010 to November 7, 2010, and during Eastern Daylight
@@ -146,6 +146,10 @@ BDES_IDENT("$Id: $")
 #include <bdet_datetime.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -213,9 +217,11 @@ class baetzo_LocalTimePeriod {
     explicit baetzo_LocalTimePeriod(bslma_Allocator *basicAllocator = 0);
         // Create a 'baetzo_LocalTimePeriod' object having the (default)
         // attribute values:
-        //: o 'descriptor()   == baetzo_LocalTimeDescriptor()'
-        //: o 'utcStartTime() == bdet_Datetime()'
-        //: o 'utcEndTime()   == bdet_Datetime()'
+        //..
+        //  descriptor()   == baetzo_LocalTimeDescriptor()
+        //  utcStartTime() == bdet_Datetime()
+        //  utcEndTime()   == bdet_Datetime()
+        //..
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
@@ -437,14 +443,11 @@ inline
 void baetzo_LocalTimePeriod::swap(baetzo_LocalTimePeriod& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    BSLS_ASSERT_SAFE(d_descriptor.description().get_allocator() ==
-                             other.d_descriptor.description().get_allocator());
-
-    using bsl::swap;
-    swap(d_descriptor,   other.d_descriptor);
-    swap(d_utcStartTime, other.d_utcStartTime);
-    swap(d_utcEndTime,   other.d_utcEndTime);
+    bslalg_SwapUtil::swap(&d_descriptor,   &other.d_descriptor);
+    bslalg_SwapUtil::swap(&d_utcStartTime, &other.d_utcStartTime);
+    bslalg_SwapUtil::swap(&d_utcEndTime,   &other.d_utcEndTime);
 }
 
 // ACCESSORS

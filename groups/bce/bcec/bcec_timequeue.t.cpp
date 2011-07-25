@@ -65,7 +65,7 @@ using namespace bsl;  // automatically added by script
 // [9 ] CONCERN: Respect the 'bdema' allocator model
 // [10] CONCERN: Callbacks and 'DATA' destructors invoked while holding lock
 // [11] CONCURRENCY TEST
-// [12] Usage example
+// [14] Usage example
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -1059,13 +1059,174 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard defaultAllocGuard(&defaultAlloc);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case -100: {
+      case 14: {
         // --------------------------------------------------------------------
-        // The router simulation (kind of) test
+        // TEST USAGE EXAMPLE
+        //   The usage example from the header has been incorporated into this
+        //   test driver.  All references to 'assert' have been replaced with
+        //   'ASSERT'.  Call the test example function and assert that it works
+        //   as expected.
+        //
+        // Plan:
+        //   Create a test server with a timeout of five seconds, start it.
+        //   The monitor connection will create one session and initiate
+        //   several connections on that session, and send data to some of
+        //   these connections.  This thread will simply wait long enough so
+        //   that the session times out.  Since this is a usage and not a test,
+        //   we let the server output events, and the user can visually inspect
+        //   that events happen as expected.
+        //
+        // Testing:
+        //   USAGE example
         // --------------------------------------------------------------------
-        BCEC_TIMEQUEUE_TEST_CASE_MINUS_100::run();
+
+        if (verbose) cout << endl
+                          << "Testing USAGE example" << endl
+                          << "=====================" << endl;
+
+        using namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE;
+        {
+            usageExample(verbose);
+        }
+
       } break;
-      case 13: {
+    case 13: {
+        // --------------------------------------------------------------------
+        // 'poolTimerMemory' PERFORMANCE TESTING
+        //
+        // Concerns:
+        //: 1 Using the 'poolTimerMemory' flag while constructing a time
+        //:   queue provides a performance benefit.
+        //
+        // Plan:
+        //: 1 Specify two constant values, 'NUM_INNER_ITERATIONS' and
+        //:   'NUM_OUTER_TRANSITIONS' specifying the number of timers to be
+        //:   registered in a batch and how many such batches should be
+        //:   registered respectively.
+        //:
+        //: 2 Starting from 'now' construct a set of random timers ('timers')
+        //:   that will be registered with the time queue.
+        //:
+        //: 3 Identify intermediate times ('popTimes') when timers will be
+        //:   popped from the time queue.
+        //:
+        //: 4 Create a time queue, 'X', without specifying the
+        //:   'poolTimerMemory' flag, and specifying a test allocator.  For
+        //:   each value from [0..NUM_OUTER_ITERATIONS]:
+        //:
+        //:   1 Start a stop watch to record the time taken.
+        //:
+        //:   2 Add 'NUM_INNER_ITERATIONS' timers from the 'timers' vector.
+        //:
+        //:   3 Sleep for a certain interval to let the timers expire.
+        //:
+        //:   4 Pop all timers that have expired.
+        //:
+        //:   5 Stop the stop watch and record elapsed time.
+        //:
+        //: 5 Repeat Plan-4.1-5 for a time queue created by specifying the
+        //:   'poolTimerMemory' flag.
+        //:
+        //: 6 In verbose mode print out the time taken by both time queues and
+        //:   also the memory allocation characteristics as specified by their
+        //:   respective test allocators.
+        //
+        // Testing:
+        //   'poolTimerMemory' flag performance testing
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "Performance test using 'poolTimerMemory' flag" << endl
+                 << "=============================================" << endl;
+
+        const char VA[] = "A";
+
+#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_SOLARIS)
+        // Specifying larger number of iterations causes these platforms to
+        // take a really long time to complete the test.
+
+        const int NUM_OUTER_ITERATIONS = 1000;
+        const int NUM_INNER_ITERATIONS = 50;
+#else
+        const int NUM_OUTER_ITERATIONS = 10000;
+        const int NUM_INNER_ITERATIONS = 100;
+#endif
+        bslma_TestAllocator na1, na2;
+
+        const int NUM_TOTAL_ITERATIONS =
+                                   NUM_OUTER_ITERATIONS * NUM_INNER_ITERATIONS;
+
+        bdet_TimeInterval         TIME = bdetu_SystemTime::now();
+        int                       isNewTop;
+        bdet_TimeInterval         newMinTime;
+        int                       newLength;
+        vector<int>               handles(NUM_TOTAL_ITERATIONS);
+        vector<Item>              items(NUM_TOTAL_ITERATIONS);
+        vector<bdet_TimeInterval> timers(NUM_TOTAL_ITERATIONS, TIME);
+        vector<bdet_TimeInterval> popTimes(NUM_OUTER_ITERATIONS, TIME);
+
+        srand(time(0));
+
+        for (int i = 0, k = 0; i < NUM_OUTER_ITERATIONS; ++i) {
+            for (int j = 0; j < NUM_INNER_ITERATIONS; ++j, ++k) {
+                timers[k].addMilliseconds(rand() % NUM_TOTAL_ITERATIONS);
+            }
+            popTimes[i].addMilliseconds(i * NUM_INNER_ITERATIONS);
+        }
+
+        bsls_Stopwatch s;
+        s.start();
+        {
+            Obj mX(&na1); const Obj& X = mX;
+            for (int j = 0, t = 0; j < NUM_OUTER_ITERATIONS; ++j) {
+                for (int k = 0; k < NUM_INNER_ITERATIONS; ++k, ++t) {
+                    handles[k] = mX.add(timers[k], VA, &isNewTop, &newLength);
+                }
+
+                bcemt_ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
+
+                mX.popLE(popTimes[j], &items, &newLength, &newMinTime);
+            }
+        }
+        s.stop();
+
+        if (veryVerbose) {
+            P(s.elapsedTime())
+        }
+
+        s.reset();
+        s.start();
+        {
+            Obj mX(true, &na2); const Obj& X = mX;
+            for (int j = 0, t = 0; j < NUM_OUTER_ITERATIONS; ++j) {
+                for (int k = 0; k < NUM_INNER_ITERATIONS; ++k, ++t) {
+                    handles[k] = mX.add(timers[k], VA, &isNewTop, &newLength);
+                }
+
+                bcemt_ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
+
+                mX.popLE(popTimes[j], &items, &newLength, &newMinTime);
+            }
+        }
+        s.stop();
+
+        if (veryVerbose) {
+            P(s.elapsedTime())
+        }
+
+        if (veryVerbose) {
+            P(na1.numBlocksTotal());
+            P(na1.numBytesTotal());
+            P(na1.numBlocksMax());
+            P(na1.numBytesMax());
+            P(na2.numBlocksTotal());
+            P(na2.numBytesTotal());
+            P(na2.numBlocksMax());
+            P(na2.numBytesMax());
+        }
+      } break;
+      case 12: {
           // ------------------------------------------------------------------
           // TESTING CONCERN: After draining the queue new elements may be
           // added to the queue.
@@ -1194,37 +1355,6 @@ int main(int argc, char *argv[])
               ASSERT(0 == q.popFront(&item));
               ASSERT(-1 != q.add(makeTimeInterval(), 0));
           }
-
-      } break;
-      case 12: {
-        // --------------------------------------------------------------------
-        // TEST USAGE EXAMPLE
-        //   The usage example from the header has been incorporated into this
-        //   test driver.  All references to 'assert' have been replaced with
-        //   'ASSERT'.  Call the test example function and assert that it works
-        //   as expected.
-        //
-        // Plan:
-        //   Create a test server with a timeout of five seconds, start it.
-        //   The monitor connection will create one session and initiate
-        //   several connections on that session, and send data to some of
-        //   these connections.  This thread will simply wait long enough so
-        //   that the session times out.  Since this is a usage and not a test,
-        //   we let the server output events, and the user can visually inspect
-        //   that events happen as expected.
-        //
-        // Testing:
-        //   USAGE example
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "Testing USAGE example" << endl
-                          << "=====================" << endl;
-
-        using namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE;
-        {
-            usageExample(verbose);
-        }
 
       } break;
       case 11: {
@@ -2549,6 +2679,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bcec_TimeQueue(bslma_Allocator *allocator=0);
+        //   bcec_TimeQueue(bool poolTimerMem, bslma_Allocator *allocator=0);
         //   ~bcec_TimeQueue();
         //   void* add(const bdet_TimeInterval& time, const DATA& data, ...
         //   int length() const;
@@ -2589,7 +2720,18 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-            Obj mX(&ta); const Obj& X = mX;
+
+            Obj mA;                 const Obj& A = mA;
+            Obj mB(&ta);            const Obj& B = mB;
+            Obj mC(true);           const Obj& C = mC;
+            Obj mD(false, &ta);     const Obj& D = mD;
+            Obj mE(8);              const Obj& E = mE;
+            Obj mF(24, &ta);        const Obj& F = mF;
+            Obj mG(10, true);       const Obj& G = mG;
+            Obj mH(17, false, &ta); const Obj& H = mH;
+
+            Obj *OBJS[] = { &mA, &mB, &mC, &mD, &mE, &mF, &mG, &mH };
+            const int NUM_OBJS = sizeof OBJS / sizeof *OBJS;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE        = VALUES[i].d_lineNum;
@@ -2599,23 +2741,27 @@ int main(int argc, char *argv[])
                 const int   ISNEWTOP    = VALUES[i].d_isNewTop;
                 const bdet_TimeInterval TIME(SECS,NSECS);
 
-                int isNewTop;
-                bdet_TimeInterval newMinTime;
-                int newLength;
-                int  handle;
-                handle = mX.add(TIME, VAL, &isNewTop, &newLength);
-                if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
-                    T_();  P_(isNewTop); P(newMinTime); P_(newLength);
-                    P(X.length());
+                for (int j = 0; j < NUM_OBJS; ++j) {
+                    Obj& mX = *OBJS[j]; const Obj& X = mX;
+
+                    int isNewTop;
+                    bdet_TimeInterval newMinTime;
+                    int newLength;
+                    int  handle;
+                    handle = mX.add(TIME, VAL, &isNewTop, &newLength);
+                    if (veryVerbose) {
+                        T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
+                        T_();  P_(isNewTop); P(newMinTime); P_(newLength);
+                        P(X.length());
+                    }
+                    LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
+                    LOOP_ASSERT(LINE, (i+1) == newLength);
+                    LOOP_ASSERT(LINE, (i+1) == X.length());
+                    LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
                 }
-                LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
-                LOOP_ASSERT(LINE, (i+1) == newLength);
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
             }
         }
-        ASSERT(0 == defaultAlloc.numAllocations());
+        ASSERT(0 == defaultAlloc.numBytesInUse());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
         if (veryVeryVerbose) { P(ta); }
@@ -2644,7 +2790,18 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-            Obj mX(&ta);  const Obj& X = mX;
+
+            Obj mA;                 const Obj& A = mA;
+            Obj mB(&ta);            const Obj& B = mB;
+            Obj mC(true);           const Obj& C = mC;
+            Obj mD(false, &ta);     const Obj& D = mD;
+            Obj mE(8);              const Obj& E = mE;
+            Obj mF(24, &ta);        const Obj& F = mF;
+            Obj mG(10, true);       const Obj& G = mG;
+            Obj mH(17, false, &ta); const Obj& H = mH;
+
+            Obj *OBJS[] = { &mA, &mB, &mC, &mD, &mE, &mF, &mG, &mH };
+            const int NUM_OBJS = sizeof OBJS / sizeof *OBJS;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE        = VALUES[i].d_lineNum;
@@ -2654,22 +2811,26 @@ int main(int argc, char *argv[])
                 const int   ISNEWTOP    = VALUES[i].d_isNewTop;
                 const bdet_TimeInterval TIME(SECS,NSECS);
 
-                int isNewTop;
-                int newLength;
+                for (int j = 0; j < NUM_OBJS; ++j) {
+                    Obj& mX = *OBJS[j]; const Obj& X = mX;
 
-                int handle;
-                handle = mX.add(TIME, VAL, &isNewTop, &newLength);
-                if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
-                    T_();  P_(isNewTop); P_(newLength); P(X.length());
+                    int isNewTop;
+                    int newLength;
+
+                    int handle;
+                    handle = mX.add(TIME, VAL, &isNewTop, &newLength);
+                    if (veryVerbose) {
+                        T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
+                        T_();  P_(isNewTop); P_(newLength); P(X.length());
+                    }
+                    LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
+                    LOOP_ASSERT(LINE, (i+1) == newLength);
+                    LOOP_ASSERT(LINE, (i+1) == X.length());
+                    LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
                 }
-                LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
-                LOOP_ASSERT(LINE, (i+1) == newLength);
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
             }
         }
-        ASSERT(0 == defaultAlloc.numAllocations());
+        ASSERT(0 == defaultAlloc.numBytesInUse());
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
         if (veryVeryVerbose) { P(ta); }
@@ -3040,6 +3201,12 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         if (veryVeryVerbose) { P(ta); }
 
+      } break;
+      case -100: {
+        // --------------------------------------------------------------------
+        // The router simulation (kind of) test
+        // --------------------------------------------------------------------
+        BCEC_TIMEQUEUE_TEST_CASE_MINUS_100::run();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
