@@ -5,13 +5,14 @@ BDES_IDENT_RCSID(bteso_lingeroptions_t_cpp,"$Id$ $CSID$")
 
 #include <bteso_lingeroptions.h>
 
-#include <bdex_byteinstream.h>           // for testing only
-#include <bdex_byteoutstream.h>          // for testing only
 #include <bdex_instreamfunctions.h>      // for testing only
 #include <bdex_outstreamfunctions.h>     // for testing only
 #include <bdex_testinstream.h>           // for testing only
 #include <bdex_testinstreamexception.h>  // for testing only
 #include <bdex_testoutstream.h>          // for testing only
+
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
 
 #include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
 #include <bsl_cstdlib.h>
@@ -21,6 +22,10 @@ BDES_IDENT_RCSID(bteso_lingeroptions_t_cpp,"$Id$ $CSID$")
 #include <bslalg_hastrait.h>
 
 #include <bsls_asserttest.h>
+
+#include <sys/socket.h>
+#include <bsls_platform.h>
+#include <bteso_platform.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -37,21 +42,22 @@ using namespace bsl;
 // conventions: 'setAttributeName' and 'attributeName'.
 //
 // Primary Manipulators:
-//: o 'setUseLingeringFlag'
+//: o 'setLingerFlag'
 //: o 'setTimeout'
 //
 // Basic Accessors:
-//: o 'useLingeringFlag'
+//: o 'lingerFlag'
 //: o 'timeout'
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [10] -- BSLX streaming is not (yet) implemented for this class.
+//: o [ 8] -- swap is not implemented for this class.
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
 //: o ACCESSOR methods are declared 'const'.
 //: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
 //: o Precondition violations are detected in appropriate build modes.
+//: o No memory is allocated from any allocator.
 //
 // Global Assumptions:
 //: o ACCESSOR methods are 'const' thread-safe.
@@ -64,20 +70,19 @@ using namespace bsl;
 //
 // CREATORS
 // [ 2] bteso_LingerOptions();
-// [ 3] bteso_LingerOptions(int timeout, bool useLingeringFlag);
+// [ 3] bteso_LingerOptions(int timeout, bool lingerFlag);
 // [ 7] bteso_LingerOptions(const bteso_LingerOptions& original);
 // [ 2] ~bteso_LingerOptions();
 //
 // MANIPULATORS
 // [ 9] operator=(const bteso_LingerOptions& rhs);
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
-// [ 2] setUseLingeringFlag(bool value);
+// [ 2] setLingerFlag(bool value);
 // [ 2] setTimeout(int value);
-// [11] reset();
 //
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
-// [ 4] bool useLingeringFlag() const;
+// [ 4] bool lingerFlag() const;
 // [ 4] int timeout() const;
 //
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -92,7 +97,6 @@ using namespace bsl;
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
 // [ 4] CONCERN: All accessor methods are declared 'const'.
-// [ 3] CONCERN: String arguments can be either 'char *' or 'string'.
 // [ 8] CONCERN: Precondition violations are detected when enabled.
 
 // ============================================================================
@@ -101,7 +105,8 @@ using namespace bsl;
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -150,8 +155,8 @@ static void aSsErT(int c, const char *s, int i) {
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
-#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_FAIL(expr)      BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr)      BSLS_ASSERTTEST_ASSERT_PASS(expr)
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
@@ -178,7 +183,7 @@ BSLMF_ASSERT((bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseMoveable>::VALUE));
 struct DefaultDataRow {
     int         d_line;           // source line number
     int         d_timeout;
-    bool        d_useLingeringFlag;
+    bool        d_lingerFlag;
 };
 
 static
@@ -194,7 +199,7 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,         1,  false },
     { L_,   INT_MAX,  false },
 
-    // 'useLingeringFlag'
+    // 'lingerFlag'
     { L_,         0,   true },
 
     // other
@@ -202,6 +207,55 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,   INT_MAX,   true },
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    typedef SOCKET Handle;
+#else
+    typedef int Handle;
+#endif
+
+struct LingerData {
+#if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_CYGWIN)
+    int  l_onoff;
+    int  l_linger;
+#elif defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
+    u_short  l_onoff;
+    u_short  l_linger;
+#endif
+};
+
+int setLingerOption(Handle                     handle,
+                    const bteso_LingerOptions& lingerOptions)
+{
+    LingerData linger;
+    linger.l_onoff  = lingerOptions.lingerFlag();
+    linger.l_linger = lingerOptions.timeout();
+
+    return ::setsockopt(handle,
+                        SOL_SOCKET,
+                        SO_LINGER,
+                        reinterpret_cast<void*>(&linger),
+                        sizeof linger);
+}
+
+void getLingerOption(bteso_LingerOptions *result,
+                     Handle               handle)
+{
+    LingerData linger;
+#if defined (BSLS_PLATFORM__OS_AIX) || defined (BSLS_PLATFORM__CMP_GNU)
+    socklen_t len;
+#else
+    int len;
+#endif
+    len = sizeof linger;
+    ::getsockopt(handle,
+                 SOL_SOCKET,
+                 SO_LINGER,
+                 reinterpret_cast<void*>(&linger),
+                 &len);
+    result->setLingerFlag(linger.l_onoff);
+    result->setTimeout(linger.l_linger);
+}
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -219,8 +273,13 @@ int main(int argc, char *argv[])
 
     // CONCERN: This test driver is reusable w/other, similar components.
 
+    // CONCERN: In no case is memory allocated from the global allocator.
+
+    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma_Default::setGlobalAllocator(&globalAllocator);
+
     switch (test) { case 0:
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -240,69 +299,102 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
+
 ///Usage
 ///-----
-// The following snippets of code illustrate how to set and get linger options
-// on a socket having the specified 'socketHandle'.
-//..
-    bteso_LingerOptions lingerOptions;
+// In this section we show intended usage of this component.
 //
-    // Set the lingering option with a timeout of 2 seconds
-    lingerOptions.setUseLingeringFlag(true);
-    lingerOptions.setTimeout(2);
+///Example 1: Creating functions to set linger option.
+///---------------------------------------------------
+// This component is designed to be used at a higher level to set the linger
+// option for a stream-based socket.  This example shows how to create a
+// function that takes 'bteso_LingerOptions' as an argument and set the linger
+// option of a socket.  We will assume Berkely socket API is available to
+// configure the socket.
+//
+// First, we define a cross-platform compatible typedef for a socket handle.
 //..
-// We can then use set these linger options on any socket handle using
-// 'bteso_SocketOptions'.
-      } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // MANIPULATOR 'reset'
-        //   Ensure that the method correctly set the object to its default
-        //   value.
-        //
-        // Concerns:
-        //: 1 The method correctly set the object to its default value.
-        //
-        // Plan:
-        //: 1 Using the table-driven technique:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, and (b) boundary values corresponding to every
-        //:     range of values that each individual attribute can
-        //:     independently attain.
-        //:
-        //: 2 For each row (representing a distinct attribute value, 'V') in
-        //:   the table of P-1, verify that the method sets the object to its
-        //:   default state.
-        //
-        // Testing:
-        //   reset();
-        // --------------------------------------------------------------------
+//#ifdef BSLS_PLATFORM__OS_WINDOWS
+//  typedef SOCKET Handle;
+//#else
+//  typedef int Handle;
+//#endif
+//..
+// Then, we declare the 'struct' needed to set the linger option.
+//..
+//struct LingerData {
+//#if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_CYGWIN)
+//  int  l_onoff;
+//  int  l_linger;
+//#elif defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
+//  u_short  l_onoff;
+//  u_short  l_linger;
+//#endif
+//};
+//..
+// Next, we declare the function, 'setLingerOption', that takes a 'Handle' and
+// a 'bteso_LingerOptions' object, and set the linger option for the 'Handle'.
+//..
+//int setLingerOption(Handle                     handle,
+//                    const bteso_LingerOptions& lingerOptions)
+//{
+//..
+// Then, we use create 'LingerData' struct that was just defined and copies the
+// data from 'lingerOptions'
+//..
+//    LingerData linger;
+//    linger.l_onoff  = lingerOptions.lingerFlag();
+//    linger.l_linger = lingerOptions.timeout();
+//..
+// Next, we set the linger option for the socket.
+//..
+//    return ::setsockopt(handle,
+//                        SOL_SOCKET,
+//                        SO_LINGER,
+//                        reinterpret_cast<void*>(&linger),
+//                        sizeof linger);
+//}
+//..
+// Then, we will also implement a 'getLingerOption' to retrieve the option we
+// set.
+//..
+//void getLingerOption(bteso_LingerOptions *result,
+//                     Handle               handle)
+//{
+//    LingerData linger;
+//    int len = sizeof linger;
+//    ::getsockopt(handle,
+//                 SOL_SOCKET,
+//                 SO_LINGER,
+//                 reinterpret_cast<void*>(&linger),
+//                 &len);
+//    result->setLingerFlag(linger.l_onoff);
+//    result->setTimeout(linger.l_linger);
+//}
+//..
+// Next, we can start using these functions.  We create a 'bteso_LingerOptions'
+// object, set 'timeout' to 2 seconds, and 'lingerFlag' to true.
+//..
+    bteso_LingerOptions option(2, true);
+//..
+// Then, we create a new socket using the 'socket' function from Berkeley API
+// and set the linger option for that socket.
+//..
+    Handle socketHandle = ::socket(AF_INET, SOCK_STREAM, 0);
+//..
+// Now, we set the linger option of 'socketHandle'.
+//..
+    setLingerOption(socketHandle, option);
+//..
+// Finally, we use the 'getLingerOption' function to verify the linger option
+// is set.
+//..
+    bteso_LingerOptions result;
+    getLingerOption(&result, socketHandle);
+    ASSERT(option == result);
+//..
 
-        if (verbose)
-            cout << endl
-                 << "MANIPULATOR 'reset'" << endl
-                 << "===================" << endl;
 
-        if (verbose) cout <<
-                            "\nUse a table of distinct object values." << endl;
-
-        const int NUM_DATA                     = DEFAULT_NUM_DATA;
-        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
-
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE    = DATA[ti].d_line;
-            const int  TIMEOUT = DATA[ti].d_timeout;
-            const bool FLAG    = DATA[ti].d_useLingeringFlag;
-
-            Obj mX(TIMEOUT, FLAG); const Obj& X = mX;
-
-            if (veryVerbose) { T_ P_(LINE) P(X) }
-
-            mX.reset();
-
-            LOOP2_ASSERT(LINE, X, Obj() == X);
-        }
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -349,7 +441,7 @@ int main(int argc, char *argv[])
 
         // scalar and array object values for various stream tests
 
-        if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
+        if (verbose) cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion());
         }
@@ -365,13 +457,11 @@ int main(int argc, char *argv[])
             inFuncPtr  streamIn  = &Obj::bdexStreamIn<In>;
             outFuncPtr streamOut = &Obj::bdexStreamOut<Out>;
 
-            // Quash potential compiler warning.
-
-            (void)streamIn;
-            (void)streamOut;
+            (void)streamIn;   // Quash potential compiler warning.
+            (void)streamOut;  // Quash potential compiler warning.
         }
 
-        const int VERSION = Obj::maxSupportedBdexVersion();
+        const int MAX_VERSION = Obj::maxSupportedBdexVersion();
 
         if (verbose) cout <<
                             "\nUse a table of distinct object values." << endl;
@@ -382,63 +472,66 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                   "\nTesting 'streamOut' and (valid) 'streamIn' functionality."
                                                                        << endl;
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE1    = DATA[ti].d_line;
-            const int         TIMEOUT1 = DATA[ti].d_timeout;
-            const bool        FLAG1    = DATA[ti].d_useLingeringFlag;
+        for (int version = 1; version <= MAX_VERSION; ++version) {
+            const int V = version;
 
-            const Obj Z(TIMEOUT1, FLAG1);
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE1    = DATA[ti].d_line;
+                const int  TIMEOUT1 = DATA[ti].d_timeout;
+                const bool FLAG1    = DATA[ti].d_lingerFlag;
 
-            if (veryVerbose) { T_ P(LINE1) P(Z) }
+                const Obj Z(TIMEOUT1, FLAG1);
 
-            Out out;
-            Z.bdexStreamOut(out, VERSION);
-            LOOP_ASSERT(LINE1, out);
+                if (veryVerbose) { T_ P(LINE1) P(Z) }
 
-            // Verify that each new value overwrites every old value
-            // and that the input stream is emptied, but remains valid.
+                Out out;
+                Z.bdexStreamOut(out, V);
+                LOOP_ASSERT(LINE1, out);
 
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int         LINE2    = DATA[tj].d_line;
-                const int         TIMEOUT2 = DATA[tj].d_timeout;
-                const bool        FLAG2    = DATA[tj].d_useLingeringFlag;
+                // Verify that each new value overwrites every old value
+                // and that the input stream is emptied, but remains valid.
 
-                Obj mX(TIMEOUT2, FLAG2);  const Obj& X = mX;
+                for (int tj = 0; tj < NUM_DATA; ++tj) {
+                    const int  LINE2    = DATA[tj].d_line;
+                    const int  TIMEOUT2 = DATA[tj].d_timeout;
+                    const bool FLAG2    = DATA[tj].d_lingerFlag;
 
-                if (veryVerbose) { T_ P_(LINE2) P(X) }
+                    Obj mX(TIMEOUT2, FLAG2);  const Obj& X = mX;
 
-                In in(out.data(), out.length());   In &testInStream = in;
-                in.setSuppressVersionCheck(1);
+                    if (veryVerbose) { T_ P_(LINE2) P(X) }
 
-                BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                    mX.bdexStreamIn(in, VERSION);
-                } END_BDEX_EXCEPTION_TEST
+                    In in(out.data(), out.length());   In &testInStream = in;
+                    in.setSuppressVersionCheck(1);
 
-                LOOP2_ASSERT(LINE1, LINE2, Z == X);
-                LOOP2_ASSERT(LINE1, LINE2, in);
-                LOOP2_ASSERT(LINE1, LINE2, in.isEmpty());
+                    BEGIN_BDEX_EXCEPTION_TEST { in.reset();
+                        mX.bdexStreamIn(in, V);
+                    } END_BDEX_EXCEPTION_TEST
 
-                in.reset();
-                int  timeout;
-                bool flag;
+                    LOOP2_ASSERT(LINE1, LINE2, Z == X);
+                    LOOP2_ASSERT(LINE1, LINE2, in);
+                    LOOP2_ASSERT(LINE1, LINE2, in.isEmpty());
 
-                bdex_InStreamFunctions::streamIn(in, timeout, VERSION);
-                bdex_InStreamFunctions::streamIn(in, flag, VERSION);
+                    in.reset();
+                    int  timeout;
+                    bool flag;
 
-                LOOP4_ASSERT(LINE1, LINE2, TIMEOUT1, timeout,
-                             TIMEOUT1 == timeout);
-                LOOP4_ASSERT(LINE1, LINE2, FLAG1, flag,
-                             FLAG1 == flag);
+                    bdex_InStreamFunctions::streamIn(in, timeout, V);
+                    bdex_InStreamFunctions::streamIn(in, flag, V);
 
+                    LOOP4_ASSERT(LINE1, LINE2, TIMEOUT1, timeout,
+                                 TIMEOUT1 == timeout);
+                    LOOP4_ASSERT(LINE1, LINE2, FLAG1, flag,
+                                 FLAG1 == flag);
+                }
             }
         }
 
         if (verbose) cout << "\tOn empty and invalid streams." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE    = DATA[ti].d_line;
-            const int         TIMEOUT = DATA[ti].d_timeout;
-            const bool        FLAG    = DATA[ti].d_useLingeringFlag;
+            const int  LINE    = DATA[ti].d_line;
+            const int  TIMEOUT = DATA[ti].d_timeout;
+            const bool FLAG    = DATA[ti].d_lingerFlag;
 
             const Obj Z(TIMEOUT, FLAG);
             Obj mX(Z);  const Obj& X = mX;
@@ -457,18 +550,18 @@ int main(int argc, char *argv[])
             // leaves the stream invalid and the target object unchanged.
 
             BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                mX.bdexStreamIn(in, VERSION);
+                mX.bdexStreamIn(in, MAX_VERSION);
             } END_BDEX_EXCEPTION_TEST
 
             LOOP_ASSERT(LINE, !in);
-            LOOP3_ASSERT(LINE, Z, X, Z == X);
+            LOOP2_ASSERT(LINE, X, Obj() == X);
 
             BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                mX.bdexStreamIn(in, VERSION);
+                mX.bdexStreamIn(in, MAX_VERSION);
             } END_BDEX_EXCEPTION_TEST
 
             LOOP_ASSERT(LINE, !in);
-            LOOP3_ASSERT(LINE, Z, X, Z == X);
+            LOOP2_ASSERT(LINE, X, Obj() == X);
         }
 
         if (verbose) cout <<
@@ -477,12 +570,12 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE    = DATA[ti].d_line;
             const int         TIMEOUT = DATA[ti].d_timeout;
-            const bool        FLAG    = DATA[ti].d_useLingeringFlag;
+            const bool        FLAG    = DATA[ti].d_lingerFlag;
 
             const Obj Z(TIMEOUT, FLAG);
 
             Out out;
-            Z.bdexStreamOut(out, VERSION);
+            Z.bdexStreamOut(out, MAX_VERSION);
             LOOP_ASSERT(LINE, out);
 
             for (int i = 0; i < out.length(); ++i) {
@@ -495,7 +588,7 @@ int main(int argc, char *argv[])
                 Obj mX;  const Obj& X = mX;
 
                 BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                    mX.bdexStreamIn(in, VERSION);
+                    mX.bdexStreamIn(in, MAX_VERSION);
                 } END_BDEX_EXCEPTION_TEST
 
                 if (i != out.length()) {
@@ -504,7 +597,7 @@ int main(int argc, char *argv[])
                 }
                 else {
                     LOOP_ASSERT(i, in);
-                    LOOP_ASSERT(i, Z == X);
+                    LOOP_ASSERT(i, Obj() == X);
                 }
             }
         }
@@ -563,7 +656,7 @@ int main(int argc, char *argv[])
                 In in(out.data(), out.length());
                 Obj mX;  const Obj& X = mX;
                 in.setSuppressVersionCheck(1);
-                ASSERT_PASS(mX.bdexStreamIn(in, VERSION));
+                ASSERT_PASS(mX.bdexStreamIn(in, MAX_VERSION));
             }
             {
                 Out out;
@@ -574,7 +667,7 @@ int main(int argc, char *argv[])
                 In in(out.data(), out.length());
                 Obj mX;  const Obj& X = mX;
                 in.setSuppressVersionCheck(1);
-                ASSERT_FAIL(mX.bdexStreamIn(in, VERSION));
+                ASSERT_FAIL(mX.bdexStreamIn(in, MAX_VERSION));
             }
         }
       } break;
@@ -616,20 +709,26 @@ int main(int argc, char *argv[])
         //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', each having the value
         //:     'V'.
         //:
-        //:   2 Use the value constructor to create a modifiable 'Obj', 'mX',
-        //:     having the value 'W'.
+        //:   2 Execute an inner loop that iterates over each row 'R2'
+        //:     (representing a distinct object value, 'W') in the table
+        //:     described in P-3:
         //:
-        //:   3 Assign 'mX' from 'Z'.
+        //:   3 For each of the iterations (P-3.2):  (C-1, 3..4)
         //:
-        //:   4 Verify that the address of the return value is the same as
-        //:     that of 'mX'.  (C-3)
+        //:     1 Use the value constructor to create a modifiable 'Obj', 'mX',
+        //:       having the value 'W'.
         //:
-        //:   5 Use the equality-comparison operator to verify that: (C-1, 4)
+        //:     2 Assign 'mX' from 'Z'.
         //:
-        //:     1 The target object, 'mX', now has the same value as that of
-        //:       'Z'.  (C-1)
+        //:     3 Verify that the address of the return value is the same as
+        //:       that of 'mX'.  (C-3)
         //:
-        //:     2 'Z' still has the same value as that of 'ZZ'.  (C-4)
+        //:     4 Use the equality-comparison operator to verify that: (C-1, 4)
+        //:
+        //:       1 The target object, 'mX', now has the same value as that of
+        //:         'Z'.  (C-1)
+        //:
+        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
         //:
         //: 4 Repeat steps similar to those described in P-2 except that, this
         //:   time, the source object, 'Z', is a reference to the target
@@ -672,23 +771,33 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
                             "\nUse a table of distinct object values." << endl;
+
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE1    = DATA[ti].d_line;
-            const int         TIMEOUT1 = DATA[ti].d_timeout;
-            const bool        FLAG1    = DATA[ti].d_useLingeringFlag;
+            const int  LINE1    = DATA[ti].d_line;
+            const int  TIMEOUT1 = DATA[ti].d_timeout;
+            const bool FLAG1    = DATA[ti].d_lingerFlag;
 
             const Obj  Z(TIMEOUT1, FLAG1);
             const Obj ZZ(TIMEOUT1, FLAG1);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
 
+            // Ensure the first row of the table contains the
+            // default-constructed value.
+
+            static bool firstFlag = true;
+            if (firstFlag) {
+                LOOP3_ASSERT(LINE1, Obj(), Z, Obj() == Z);
+                firstFlag = false;
+            }
+
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int         LINE2    = DATA[tj].d_line;
-                const int         TIMEOUT2 = DATA[tj].d_timeout;
-                const bool        FLAG2    = DATA[tj].d_useLingeringFlag;
+                const int  LINE2    = DATA[tj].d_line;
+                const int  TIMEOUT2 = DATA[tj].d_timeout;
+                const bool FLAG2    = DATA[tj].d_lingerFlag;
 
                 Obj mX(TIMEOUT2, FLAG2);  const Obj& X = mX;
 
@@ -732,6 +841,7 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
+        //  Reserverd for 'swap' testing.
         // --------------------------------------------------------------------
 
       } break;
@@ -756,27 +866,25 @@ int main(int argc, char *argv[])
         //:   1 Specify a set of (unique) valid object values (one per row) in
         //:     terms of their individual attributes, including (a) first, the
         //:     default value, and (b) boundary values corresponding to every
-        //:     range of values that each individual attribute can independently
-        //:     attain.
+        //:     range of values that each individual attribute can
+        //:     independently attain.
         //:
         //: 2 For each row (representing a distinct object value, 'V') in the
         //:   table described in P-1:  (C-1..3)
         //:
-        //:   1 Use the value constructor create two 'const' 'Obj', 'Z' and
+        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
         //:     'ZZ', each having the value 'V'.
         //:
-        //:   2 Create an objects using the copy constructor on 'Z' from P-2.1.
-        //:
-        //:   3 Use the copy constructor to create an object 'X',
+        //:   2 Use the copy constructor to create an object 'X',
         //:     supplying it the 'const' object 'Z'.  (C-2)
         //:
-        //:   4 Use the equality-comparison operator to verify that:
+        //:   3 Use the equality-comparison operator to verify that:
         //:     (C-1, 3)
         //:
-        //:     1 The newly constructed object, 'X', has the same value as
-        //:       that of 'Z'.  (C-1)
+        //:     1 The newly constructed object, 'X', has the same value as 'Z'.
+        //:       (C-1)
         //:
-        //:     2 'Z' still has the same value as that of 'ZZ'.  (C-3)
+        //:     2 'Z' still has the same value as 'ZZ'.  (C-3)
         //
         // Testing:
         //   bteso_LingerOptions(const bteso_LingerOptions& o);
@@ -793,22 +901,32 @@ int main(int argc, char *argv[])
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE    = DATA[ti].d_line;
-            const int         TIMEOUT = DATA[ti].d_timeout;
-            const bool        FLAG    = DATA[ti].d_useLingeringFlag;
+            const int  LINE    = DATA[ti].d_line;
+            const int  TIMEOUT = DATA[ti].d_timeout;
+            const bool FLAG    = DATA[ti].d_lingerFlag;
 
             const Obj  Z(TIMEOUT, FLAG);
             const Obj ZZ(TIMEOUT, FLAG);
 
             if (veryVerbose) { T_ P_(Z) P(ZZ) }
 
-            Obj mX = Z;  const Obj& X = mX;
+            Obj mX(Z);  const Obj& X = mX;
 
             if (veryVerbose) { T_ T_ P(X) }
 
+            // Ensure the first row of the table contains the
+            // default-constructed value.
+
+            static bool firstFlag = true;
+            if (firstFlag) {
+                LOOP3_ASSERT(LINE, Obj(), Z,
+                             Obj() == Z)
+                firstFlag = false;
+            }
+
             // Verify the value of the object.
 
-            LOOP3_ASSERT(LINE, Z, X,  Z == X);
+            LOOP3_ASSERT(LINE,  Z, X,  Z == X);
 
             // Verify that the value of 'Z' has not changed.
 
@@ -875,14 +993,12 @@ int main(int argc, char *argv[])
         //:       from 'R1' and 'R2', respectively, are expected to have the
         //:       same value.
         //:
-        //:     2 For each of two configurations, 'a' and 'b':  (C-1..3, 6..8)
+        //:     2 Create an object 'X' having the value 'R1'.
         //:
-        //:       1 Create an object 'X' having the value 'R1'.
+        //:     3 Create an object 'Y' having the value 'R2'.
         //:
-        //:       2 Create an object 'Y' having the value 'R2'.
-        //:
-        //:       3 Verify the commutativity property and expected return value
-        //:         for both '==' and '!='.  (C-1..3, 6..8)
+        //:     4 Verify the commutativity property and expected return value
+        //:       for both '==' and '!='.  (C-1..3, 6..8)
         //
         // Testing:
         //   bool operator==(const bteso_LingerOptions& lhs, rhs);
@@ -914,14 +1030,14 @@ int main(int argc, char *argv[])
         // Attribute Types
 
         typedef int  T1;               // 'timeout'
-        typedef bool T2;               // 'useLingeringFlag'
+        typedef bool T2;               // 'lingerFlag'
 
         // Attribute 1 Values: 'timeout'
 
         const T1 A1 = 1;               // baseline
         const T1 B1 = INT_MAX;
 
-        // Attribute 2 Values: 'useLingeringFlag'
+        // Attribute 2 Values: 'lingerFlag'
 
         const T2 A2 = false;           // baseline
         const T2 B2 = true;
@@ -930,9 +1046,9 @@ int main(int argc, char *argv[])
             "\nCreate a table of distinct, but similar object values." << endl;
 
         static const struct {
-            int         d_line;        // source line number
-            int         d_timeout;
-            bool        d_useLingeringFlag;
+            int  d_line;        // source line number
+            int  d_timeout;
+            bool d_lingerFlag;
         } DATA[] = {
 
         // The first row of the table below represents an object value
@@ -943,10 +1059,10 @@ int main(int argc, char *argv[])
         //LINE  TIMEOUT  FLAG
         //----  -------  ----
 
-        { L_,        A1,   A2 },       // baseline
+        { L_,       A1,   A2 },       // baseline
 
-        { L_,        B1,   A2 },
-        { L_,        A1,   B2 },
+        { L_,       B1,   A2 },
+        { L_,       A1,   B2 },
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -954,9 +1070,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE1    = DATA[ti].d_line;
-            const int         TIMEOUT1 = DATA[ti].d_timeout;
-            const bool        FLAG1    = DATA[ti].d_useLingeringFlag;
+            const int  LINE1    = DATA[ti].d_line;
+            const int  TIMEOUT1 = DATA[ti].d_timeout;
+            const bool FLAG1    = DATA[ti].d_lingerFlag;
 
             if (veryVerbose) { T_ P_(LINE1) P_(TIMEOUT1) P_(FLAG1) }
 
@@ -969,9 +1085,9 @@ int main(int argc, char *argv[])
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int         LINE2    = DATA[tj].d_line;
-                const int         TIMEOUT2 = DATA[tj].d_timeout;
-                const bool        FLAG2    = DATA[tj].d_useLingeringFlag;
+                const int  LINE2    = DATA[tj].d_line;
+                const int  TIMEOUT2 = DATA[tj].d_timeout;
+                const bool FLAG2    = DATA[tj].d_lingerFlag;
 
                 if (veryVerbose) { T_ T_ P_(LINE2) P_(TIMEOUT2) P_(FLAG2) }
 
@@ -1080,7 +1196,7 @@ int main(int argc, char *argv[])
             int         d_spacesPerLevel;
 
             int         d_timeout;
-            bool        d_useLingeringFlag;
+            bool        d_lingerFlag;
 
             const char *d_expected_p;
         } DATA[] = {
@@ -1097,19 +1213,19 @@ int main(int argc, char *argv[])
 
         { L_,  0,  0,  89,  true, "["                                        NL
                                   "timeout = 89"                             NL
-                                  "useLingeringFlag = true"                  NL
+                                  "lingerFlag = true"                        NL
                                   "]"                                        NL
                                                                              },
 
         { L_,  0,  1,  89,  true, "["                                        NL
                                   " timeout = 89"                            NL
-                                  " useLingeringFlag = true"                 NL
+                                  " lingerFlag = true"                       NL
                                   "]"                                        NL
                                                                              },
 
         { L_,  0, -1,  89,  true, "["                                        SP
                                   "timeout = 89"                             SP
-                                  "useLingeringFlag = true"                  SP
+                                  "lingerFlag = true"                        SP
                                   "]"
                                                                              },
 
@@ -1122,37 +1238,37 @@ int main(int argc, char *argv[])
 
         { L_,  3,  0,  89,  true, "["                                        NL
                                   "timeout = 89"                             NL
-                                  "useLingeringFlag = true"                  NL
+                                  "lingerFlag = true"                        NL
                                   "]"                                        NL
                                                                              },
 
         { L_,  3,  2,  89,  true, "      ["                                  NL
                                   "        timeout = 89"                     NL
-                                  "        useLingeringFlag = true"          NL
+                                  "        lingerFlag = true"                NL
                                   "      ]"                                  NL
                                                                              },
 
         { L_,  3, -2,  89,  true, "      ["                                  SP
                                   "timeout = 89"                             SP
-                                  "useLingeringFlag = true"                  SP
+                                  "lingerFlag = true"                        SP
                                   "]"
                                                                              },
 
         { L_, -3,  0,  89,  true, "["                                        NL
                                   "timeout = 89"                             NL
-                                  "useLingeringFlag = true"                  NL
+                                  "lingerFlag = true"                        NL
                                   "]"                                        NL
                                                                              },
 
         { L_, -3,  2,  89,  true, "["                                        NL
                                   "        timeout = 89"                     NL
-                                  "        useLingeringFlag = true"          NL
+                                  "        lingerFlag = true"                NL
                                   "      ]"                                  NL
                                                                              },
 
         { L_, -3, -2,  89,  true, "["                                        SP
                                   "timeout = 89"                             SP
-                                  "useLingeringFlag = true"                  SP
+                                  "lingerFlag = true"                        SP
                                   "]"
                                                                              },
         // -----------------------------------------------------------------
@@ -1164,7 +1280,7 @@ int main(int argc, char *argv[])
 
         { L_,  2,  3,   7, false, "      ["                                  NL
                                   "         timeout = 7"                     NL
-                                  "         useLingeringFlag = false"        NL
+                                  "         lingerFlag = false"              NL
                                   "      ]"                                  NL
                                                                              },
 
@@ -1193,7 +1309,7 @@ int main(int argc, char *argv[])
                 const int         L      = DATA[ti].d_level;
                 const int         SPL    = DATA[ti].d_spacesPerLevel;
                 const int         OFF    = DATA[ti].d_timeout;
-                const bool        FLAG   = DATA[ti].d_useLingeringFlag;
+                const bool        FLAG   = DATA[ti].d_lingerFlag;
                 const char *const EXP    = DATA[ti].d_expected_p;
 
                 if (veryVerbose) { T_ P_(L) P_(SPL) P_(OFF) P_(FLAG)}
@@ -1262,7 +1378,7 @@ int main(int argc, char *argv[])
         //:     expected value.  (C-1)
         //
         // Testing:
-        //   bool useLingeringFlag() const;
+        //   bool lingerFlag() const;
         //   int timeout() const;
         // --------------------------------------------------------------------
 
@@ -1273,7 +1389,7 @@ int main(int argc, char *argv[])
         // Attribute Types
 
         typedef int  T1;     // 'timeout'
-        typedef bool T2;     // 'useLingeringFlag'
+        typedef bool T2;     // 'lingerFlag'
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1282,7 +1398,7 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------
 
         const T1 D1   = 0;        // 'timeout'
-        const T2 D2   = false;    // 'useLingeringFlag'
+        const T2 D2   = false;    // 'lingerFlag'
 
         // -------------------------------------------------------
         // 'A' values: Boundary values.
@@ -1301,8 +1417,8 @@ int main(int argc, char *argv[])
             const T1& timeout = X.timeout();
             LOOP2_ASSERT(D1, timeout, D1 == timeout);
 
-            const T2& useLingeringFlag = X.useLingeringFlag();
-            LOOP2_ASSERT(D2, useLingeringFlag, D2 == useLingeringFlag);
+            const T2& lingerFlag = X.lingerFlag();
+            LOOP2_ASSERT(D2, lingerFlag, D2 == lingerFlag);
         }
 
         if (verbose) cout <<
@@ -1316,12 +1432,12 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(A1, timeout, A1 == timeout);
         }
 
-        if (veryVerbose) { T_ Q(useLingeringFlag) }
+        if (veryVerbose) { T_ Q(lingerFlag) }
         {
-            mX.setUseLingeringFlag(A2);
+            mX.setLingerFlag(A2);
 
-            const T2& useLingeringFlag = X.useLingeringFlag();
-            LOOP2_ASSERT(A2, useLingeringFlag, A2 == useLingeringFlag);
+            const T2& lingerFlag = X.lingerFlag();
+            LOOP2_ASSERT(A2, lingerFlag, A2 == lingerFlag);
         }
       } break;
       case 3: {
@@ -1375,9 +1491,9 @@ int main(int argc, char *argv[])
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE    = DATA[ti].d_line;
-            const int         TIMEOUT = DATA[ti].d_timeout;
-            const bool        FLAG    = DATA[ti].d_useLingeringFlag;
+            const int  LINE    = DATA[ti].d_line;
+            const int  TIMEOUT = DATA[ti].d_timeout;
+            const bool FLAG    = DATA[ti].d_lingerFlag;
 
             if (veryVerbose) { T_ P_(TIMEOUT) P_(FLAG) }
 
@@ -1400,8 +1516,8 @@ int main(int argc, char *argv[])
 
             LOOP3_ASSERT(LINE, TIMEOUT, X.timeout(), TIMEOUT == X.timeout());
 
-            LOOP3_ASSERT(LINE, FLAG, X.useLingeringFlag(),
-                         FLAG == X.useLingeringFlag());
+            LOOP3_ASSERT(LINE, FLAG, X.lingerFlag(),
+                         FLAG == X.lingerFlag());
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1410,8 +1526,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'timeout'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 0, false));
                 ASSERT_SAFE_FAIL(Obj(-1, false));
+                ASSERT_SAFE_PASS(Obj( 0, false));
             }
         }
       } break;
@@ -1431,15 +1547,16 @@ int main(int argc, char *argv[])
         //:
         //: 3 Each attribute is modifiable independently.
         //:
-        //: 4 Any argument can be 'const'.
+        //: 4 Each attribute can be set to represent any value that does not
+        //:   violate that attribute's documented constraints.
         //:
         //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create three sets of attribute values for the object: 'D', 'A',
-        //:   and 'B'.  'D' values corresponding to the default-constructed
-        //:   object, 'A' and 'B' values are chosen to be distinct boundary
-        //:   values where possible.
+        //:   and 'B'.  'D' values correspond to the attribute values, and 'A'
+        //:   and 'B' values are chosen to be distinct boundary values where
+        //:   possible.
         //:
         //: 2 Use the default constructor to create an object 'X'.
         //:
@@ -1452,11 +1569,13 @@ int main(int argc, char *argv[])
         //:   three test values, in turn (see P-1), first to 'Ai', then to
         //:   'Bi', and finally back to 'Di'.  After each transition, use the
         //:   (as yet unproven) basic accessors to verify that only the
-        //:   intended attribute value changed.  (C-4)
+        //:   intended attribute value changed.  (C-2, 4)
         //:
         //: 5 Corroborate that attributes are modifiable independently by
-        //:   first setting all of the attributes to their 'A' values, then
-        //:   setting all of the attributes to their 'B' values.  (C-3)
+        //:   first setting all of the attributes to their 'A' values.  Then
+        //:   incrementally set each attribute to its 'B' value and verify
+        //:   after each manipulatiion that only that attribute's value
+        //:   changed.  (C-3)
         //:
         //: 6 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid attribute values, but not triggered for
@@ -1467,7 +1586,7 @@ int main(int argc, char *argv[])
         //   bteso_LingerOptions();
         //   ~bteso_LingerOptions();
         //   setTimeout(int value);
-        //   setUseLingeringFlag(bool value);
+        //   setLingerFlag(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1479,7 +1598,7 @@ int main(int argc, char *argv[])
         // 'D' values: These are the default-constructed values.
 
         const int  D1   = 0;        // 'timeout'
-        const bool D2   = false;    // 'useLingeringFlag'
+        const bool D2   = false;    // 'lingerFlag'
 
         // 'A' values.
 
@@ -1491,66 +1610,70 @@ int main(int argc, char *argv[])
         const int    B1 = INT_MAX;
         const bool   B2 = false;
 
+        Obj mX;  const Obj& X = mX;
+
+        // -------------------------------------
+        // Verify the object's attribute values.
+        // -------------------------------------
+
+        LOOP2_ASSERT(D1, X.timeout(),    D1 == X.timeout());
+        LOOP2_ASSERT(D2, X.lingerFlag(), D2 == X.lingerFlag());
+
+        // -----------------------------------------------------
+        // Verify that each attribute is independently settable.
+        // -----------------------------------------------------
+
+        // 'timeout'
         {
-            Obj mX;  const Obj& X = mX;
+            mX.setTimeout(A1);
+            ASSERT(A1 == X.timeout());
+            ASSERT(D2 == X.lingerFlag());
 
-            // -----------------------------------------------------
-            // Verify that each attribute is independently settable.
-            // -----------------------------------------------------
+            mX.setTimeout(B1);
+            ASSERT(B1 == X.timeout());
+            ASSERT(D2 == X.lingerFlag());
 
-            // 'timeout'
-            {
-                mX.setTimeout(A1);
-                ASSERT(A1 == X.timeout());
-                ASSERT(D2 == X.useLingeringFlag());
+            mX.setTimeout(D1);
+            ASSERT(D1 == X.timeout());
+            ASSERT(D2 == X.lingerFlag());
+        }
 
-                mX.setTimeout(B1);
-                ASSERT(B1 == X.timeout());
-                ASSERT(D2 == X.useLingeringFlag());
+        // 'lingerFlag'
+        {
+            mX.setLingerFlag(A2);
+            ASSERT(D1 == X.timeout());
+            ASSERT(A2 == X.lingerFlag());
 
-                mX.setTimeout(D1);
-                ASSERT(D1 == X.timeout());
-                ASSERT(D2 == X.useLingeringFlag());
-            }
+            mX.setLingerFlag(B2);
+            ASSERT(D1 == X.timeout());
+            ASSERT(B2 == X.lingerFlag());
 
-            // 'useLingeringFlag'
-            {
-                mX.setUseLingeringFlag(A2);
-                ASSERT(D1 == X.timeout());
-                ASSERT(A2 == X.useLingeringFlag());
+            mX.setLingerFlag(D2);
+            ASSERT(D1 == X.timeout());
+            ASSERT(D2 == X.lingerFlag());
+        }
 
-                mX.setUseLingeringFlag(B2);
-                ASSERT(D1 == X.timeout());
-                ASSERT(B2 == X.useLingeringFlag());
+        // Corroborate attribute independence.
+        {
+            // Set all attributes to their 'A' values.
 
-                mX.setUseLingeringFlag(D2);
-                ASSERT(D1 == X.timeout());
-                ASSERT(D2 == X.useLingeringFlag());
-            }
+            mX.setTimeout(A1);
+            mX.setLingerFlag(A2);
 
-            // Corroborate attribute independence.
-            {
-                // Set all attributes to their 'A' values.
+            ASSERT(A1 == X.timeout());
+            ASSERT(A2 == X.lingerFlag());
 
-                mX.setTimeout(A1);
-                mX.setUseLingeringFlag(A2);
+            // Set all attributes to their 'B' values.
 
-                ASSERT(A1 == X.timeout());
-                ASSERT(A2 == X.useLingeringFlag());
+            mX.setTimeout(B1);
 
-                // Set all attributes to their 'B' values.
+            ASSERT(B1 == X.timeout());
+            ASSERT(A2 == X.lingerFlag());
 
-                mX.setTimeout(B1);
+            mX.setLingerFlag(B2);
 
-                ASSERT(B1 == X.timeout());
-                ASSERT(A2 == X.useLingeringFlag());
-
-                mX.setUseLingeringFlag(B2);
-
-                ASSERT(B1 == X.timeout());
-                ASSERT(B2 == X.useLingeringFlag());
-
-            }
+            ASSERT(B1 == X.timeout());
+            ASSERT(B2 == X.lingerFlag());
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1561,8 +1684,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\ttimeout" << endl;
             {
-                ASSERT_SAFE_PASS(obj.setTimeout( 0));
                 ASSERT_SAFE_FAIL(obj.setTimeout(-1));
+                ASSERT_SAFE_PASS(obj.setTimeout( 0));
             }
         }
       } break;
@@ -1596,17 +1719,17 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef int         T1;        // 'timeout'
-        typedef bool        T2;        // 'useLingeringFlag'
+        typedef int  T1;        // 'timeout'
+        typedef bool T2;        // 'lingerFlag'
 
         // Attribute 1 Values: 'timeout'
 
-        const T1 D1 = 0;               // default value
+        const T1 D1 = 0;        // default value
         const T1 A1 = 60;
 
-        // Attribute 2 Values: 'useLingeringFlag'
+        // Attribute 2 Values: 'lingerFlag'
 
-        const T2 D2 = false;           // default value
+        const T2 D2 = false;    // default value
         const T2 A2 = true;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1620,7 +1743,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.timeout());
-        ASSERT(D2 == W.useLingeringFlag());
+        ASSERT(D2 == W.lingerFlag());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -1638,7 +1761,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(D1 == X.timeout());
-        ASSERT(D2 == X.useLingeringFlag());
+        ASSERT(D2 == X.lingerFlag());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1652,13 +1775,13 @@ int main(int argc, char *argv[])
                              "\t\t{ w:D x:A         }" << endl;
 
         mX.setTimeout(A1);
-        mX.setUseLingeringFlag(A2);
+        mX.setLingerFlag(A2);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.timeout());
-        ASSERT(A2 == X.useLingeringFlag());
+        ASSERT(A2 == X.lingerFlag());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1677,7 +1800,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
         ASSERT(A1 == Y.timeout());
-        ASSERT(A2 == Y.useLingeringFlag());
+        ASSERT(A2 == Y.lingerFlag());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
@@ -1697,7 +1820,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(A1 == Z.timeout());
-        ASSERT(A2 == Z.useLingeringFlag());
+        ASSERT(A2 == Z.lingerFlag());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1713,13 +1836,13 @@ int main(int argc, char *argv[])
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
 
         mZ.setTimeout(D1);
-        mZ.setUseLingeringFlag(D2);
+        mZ.setLingerFlag(D2);
 
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(D1 == Z.timeout());
-        ASSERT(D2 == Z.useLingeringFlag());
+        ASSERT(D2 == Z.lingerFlag());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1739,7 +1862,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(A1 == W.timeout());
-        ASSERT(A2 == W.useLingeringFlag());
+        ASSERT(A2 == W.lingerFlag());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1759,7 +1882,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.timeout());
-        ASSERT(D2 == W.useLingeringFlag());
+        ASSERT(D2 == W.lingerFlag());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1779,7 +1902,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.timeout());
-        ASSERT(A2 == X.useLingeringFlag());
+        ASSERT(A2 == X.lingerFlag());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1795,6 +1918,11 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case is memory allocated from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
