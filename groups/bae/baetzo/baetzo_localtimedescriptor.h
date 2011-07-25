@@ -31,12 +31,13 @@ BDES_IDENT("$Id: $")
 //  dstInEffectFlag     bool         false    none
 //  utcOffsetInSeconds  int          0        [-86399 .. 86399]
 //..
-//: o description: non-canonical, non-localized name (intended for debugging).
+//: o 'description': non-canonical, non-localized name (intended for
+//:   debugging).
 //:
-//: o dstInEffectFlag: 'true' if the described local times are
+//: o 'dstInEffectFlag': 'true' if the described local times are
 //:   Daylight-Saving-Time (DST) values.
 //:
-//: o utcOffsetInSeconds: offset from UTC of the described local times.
+//: o 'utcOffsetInSeconds': offset from UTC of the described local times.
 //
 // For example, in New York on January 1, 2011, the local time is Eastern
 // Standard Time, Daylight-Saving Time (DST) is not in effect, and the offset
@@ -119,6 +120,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEUT_STRINGREF
 #include <bdeut_stringref.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -423,9 +428,9 @@ void baetzo_LocalTimeDescriptor::swap(baetzo_LocalTimeDescriptor& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    bsl::swap(d_description,        other.d_description);
-    bsl::swap(d_dstInEffectFlag,    other.d_dstInEffectFlag);
-    bsl::swap(d_utcOffsetInSeconds, other.d_utcOffsetInSeconds);
+    bslalg_SwapUtil::swap(&d_description,        &other.d_description);
+    bslalg_SwapUtil::swap(&d_dstInEffectFlag,    &other.d_dstInEffectFlag);
+    bslalg_SwapUtil::swap(&d_utcOffsetInSeconds, &other.d_utcOffsetInSeconds);
 }
 
 // ACCESSORS
