@@ -11,12 +11,14 @@
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
+
+#include <alloca.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -324,7 +326,7 @@ long mymax(long a, long b)
 }
 
 inline
-long myabs(long a)
+long myAbs(long a)
 {
     return a >= 0 ? a : -a;
 }
@@ -335,8 +337,8 @@ void testCaseMinus1Recurser(const char *start)
     char buffer[BUF_LEN];
     static double lastDistance = 1;
 
-    double distance = mymax(myabs(&buffer[0]           - start),
-                            myabs(&buffer[BUF_LEN - 1] - start));
+    double distance = (double) mymax(myAbs(&buffer[0]           - start),
+                                     myAbs(&buffer[BUF_LEN - 1] - start));
     if (distance / lastDistance > 1.02) {
         cout << (int) distance << endl << flush;
         lastDistance = distance;
@@ -353,8 +355,75 @@ extern "C" void *testCaseMinus1ThreadMain(void *)
     return 0;
 }
 
+//-----------------------------------------------------------------------------
+//                                  TEST CASE -2
+//-----------------------------------------------------------------------------
+
+enum { CLEARANCE_TEST_START  = 0,
+       CLEARANCE_TEST_DONE   = 1234,
+       CLEARANCE_BUFFER_SIZE = 64 * 1024 - 600 };
+
+static int clearanceTestState;
+static int clearanceTestAllocaSize;
+
+extern "C" void *clearanceTest(void *)
+{
+    if (clearanceTestAllocaSize) {
+        char *pc = (char *) alloca(clearanceTestAllocaSize);
+        ASSERT(pc);
+
+        pc[0] = 0;
+        ++pc[0];
+        pc[clearanceTestAllocaSize - 1] = 0;
+        ++pc[clearanceTestAllocaSize - 1];
+    }
+
+    clearanceTestState = CLEARANCE_TEST_DONE;
+
+    return 0;
+}
+
+//-----------------------------------------------------------------------------
+//                                  TEST CASE -3
+//-----------------------------------------------------------------------------
+
+bool stackGrowthIsNegative(char *pc)
+{
+    char c;
+
+    return &c < pc;
+}
+
+//-----------------------------------------------------------------------------
+//                                  TEST CASE -4
+//-----------------------------------------------------------------------------
+
+extern "C" void *secondClearanceTest(void *vStackSize)
+{
+    static int growth;
+    char c;
+    growth = stackGrowthIsNegative(&c) ? -10 : 10;
+
+    static int stackSize;
+    stackSize = (int) (bsls_Types::IntPtr) vStackSize;
+
+    static char *pc;
+    pc = &c;
+
+    static int diff;
+
+    for (;; pc += growth) {
+        *pc = 0;
+        diff =  stackSize - myAbs(pc - &c);
+
+        printf("%d\n", diff);
+    }
+
+    return 0;
+}
+
 //=============================================================================
-//                              MAIN PROGRAM
+//                                  MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -726,6 +795,106 @@ int main(int argc, char *argv[])
         bcemt_ThreadUtil::create(&handle, attr, &testCaseMinus1ThreadMain, 0);
 
         bcemt_ThreadUtil::join(handle);
+      }  break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // CLEARANCE TEST
+        //
+        // Concern:
+        //   What is the minimum amount of stack needed for a thread to
+        //   function?
+        //
+        // Plan:
+        //   Specify a stack size at run time and verify that threads can be
+        //   spawned with that stack size.
+        // --------------------------------------------------------------------
+
+        bcemt_ThreadAttributes attr;
+        ASSERT(verbose);
+        int clearanceTestStackSize = bsl::atoi(argv[2]);
+        P(clearanceTestStackSize);
+        attr.setStackSize(clearanceTestStackSize);
+        attr.setGuardSize(0);
+
+        clearanceTestAllocaSize = 0;
+        clearanceTestState = CLEARANCE_TEST_START;
+        bcemt_ThreadUtil::Handle handle;
+        int rc = bcemt_ThreadUtil::create(&handle, attr, &clearanceTest, 0);
+        ASSERT(0 == rc);
+        rc = bcemt_ThreadUtil::join(handle);
+        ASSERT(0 == rc);
+        ASSERT(CLEARANCE_TEST_DONE == clearanceTestState);
+
+        Q(Test 0 Completed);
+
+        for (clearanceTestAllocaSize = clearanceTestStackSize / 2;;
+                                              clearanceTestAllocaSize += 100) {
+            int diff = clearanceTestStackSize - clearanceTestAllocaSize;
+            P(diff);
+
+            clearanceTestState = CLEARANCE_TEST_START;
+            rc = bcemt_ThreadUtil::create(&handle, attr, &clearanceTest, 0);
+            ASSERT(0 == rc);
+            rc = bcemt_ThreadUtil::join(handle);
+            ASSERT(0 == rc);
+
+            ASSERT(CLEARANCE_TEST_DONE == clearanceTestState);
+        }
+
+        Q(Alloca Test Completed);
+      }  break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // STACK GROWTH DIRECTION TEST
+        //
+        // Concern:
+        //   Determine whether the stack grows in a positive or negative
+        //   direction.
+        //
+        // Plan:
+        //   Declare two automatic variables in two different stack frames,
+        //   subtract pointers between the two to deterimine direction of stack
+        //   growth.
+        // --------------------------------------------------------------------
+
+        char c;
+
+        cout << (stackGrowthIsNegative(&c) ? "negative" : "positive") << endl;
+      }  break;
+      case -4: {
+        // --------------------------------------------------------------------
+        // SECOND STACK CLEARANCE TEST
+        //
+        // Concern:
+        //   Determine stack size by, rather than recursing, just accessing
+        //   memory further and further up the stack.
+        // --------------------------------------------------------------------
+
+        setbuf(stdout, 0);
+
+        bcemt_ThreadAttributes attr;
+        ASSERT(verbose);
+
+#ifdef PTHREAD_STACK_MIN
+        int stackSize = PTHREAD_STACK_MIN;
+#else
+        int stackSize = 1 << 17;
+#endif
+        if (verbose) {
+            stackSize += atoi(argv[2]);
+        }
+        printf("stackSize = %d\n", stackSize);
+
+        attr.setStackSize(stackSize);
+        attr.setGuardSize(0);
+
+        bcemt_ThreadUtil::Handle handle;
+        int rc = bcemt_ThreadUtil::create(&handle,
+                                          attr,
+                                          &secondClearanceTest,
+                                          (void *) stackSize);
+        ASSERT(0 == rc);
+        rc = bcemt_ThreadUtil::join(handle);
       }  break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
