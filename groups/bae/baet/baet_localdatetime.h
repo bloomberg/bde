@@ -399,12 +399,6 @@ STREAM& baet_LocalDatetime::bdexStreamIn(STREAM& stream, int version)
 
 // ACCESSORS
 inline
-bslma_Allocator *baet_LocalDatetime::allocator() const
-{
-    return d_timeZoneId.get_allocator().mechanism();
-}
-
-inline
 const bdet_DatetimeTz& baet_LocalDatetime::datetimeTz() const
 {
     return d_datetimeTz;
@@ -417,6 +411,12 @@ const bsl::string& baet_LocalDatetime::timeZoneId() const
 }
 
                         // Aspects
+
+inline
+bslma_Allocator *baet_LocalDatetime::allocator() const
+{
+    return d_timeZoneId.get_allocator().mechanism();
+}
 
 template <class STREAM>
 STREAM& baet_LocalDatetime::bdexStreamOut(STREAM& stream, int version) const
@@ -463,7 +463,7 @@ void swap(baet_LocalDatetime& a, baet_LocalDatetime& b)
     a.swap(b);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
