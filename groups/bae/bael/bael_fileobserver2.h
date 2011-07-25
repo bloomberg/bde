@@ -437,27 +437,15 @@ class bael_FileObserver2 : public bael_Observer {
         // 'timeInterval'.  This rule replaces any rotation-on-lifetime rule
         // currently in effect, if any.
 
-    void rotateOnTimeInterval(const bdet_DatetimeInterval& timeInterval);
-        // Set this file observer to perform a periodic log-file rotation at a
-        // the specified 'interval'.  File rotation will occur at every
-        // multiple of 'interval' after the start time, where the start time is
-        // computed as the creation time of the first log-file, rounded down to
-        // the appropriate time unit.  The possible time units are:
-        //: o 1  day
-        //: o 12 hours
-        //: o 1  hour
-        //: o 1  minute
-        // The time unit selected to resolve the start time is the largest time
-        // unit that evenly divides 'interval'.  For example, if
-        // 'enableFileLogging' is called at 13:15:00, and 'interval' is
-        // 02:00:00, the time resolution used for the start time is 1 hour
-        // (because 1 hour is the largest unit of time resolution to evenly
-        // divide 'interval'), and the start time is considered to be 13:00:00
-        // (13:15:00 rounded down to the previous hour), so the next rotation
-        // will occur at 15:00:00.  If this file-observer appends to an
-        // existing log-file, the start-time is dertemined from the creation
-        // time of the existing file (rounded down to the start time
-        // resolution).  The behavior is undefined unless '0 < interval'.
+    void rotateOnTimeInterval(const bdet_DatetimeInterval& interval);
+    void rotateOnTimeInterval(const bdet_DatetimeInterval& interval,
+                              const bdet_Datetime&         referenceTime);
+        // Set this file observer to perform a periodic log-file rotation at
+        // multiples of the specified 'interval' after the reference time.  By
+        // default, the reference time is the time 'enableFileLogging' is
+        // called.  Optionally, specify 'referenceTime' to indicate the desired
+        // reference time.  The behavior is undefined unless
+        // '0 < interval.totalMilliseconds()'.
 
     void setLogFileFunctor(const LogRecordFunctor& logFileFunctor);
         // Set the formatting functor used when writing records to the log file
