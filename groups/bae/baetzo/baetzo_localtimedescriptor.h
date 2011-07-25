@@ -481,7 +481,7 @@ void swap(baetzo_LocalTimeDescriptor& a, baetzo_LocalTimeDescriptor& b)
     a.swap(b);
 }
 
-}  // close enterprise namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
