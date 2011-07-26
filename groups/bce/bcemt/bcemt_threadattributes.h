@@ -7,94 +7,97 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a value-semantic container of thread attributes.
+//@PURPOSE: Provide a description of the attributes of a thread
 //
 //@CLASSES:
-//  bcemt_ThreadAttributes: container of thread attributes
+//  bcemt_ThreadAttributes: description of the attributes of a thread
 //
 //@SEE_ALSO: bcemt_threadutil
 //
-//@DESCRIPTION: This component provides a value-semantic attribute class,
-// 'bcemt_ThreadAttributes', for storing attributes of a thread in a
-// platform-independent way.
+//@DESCRIPTION: This component provides a simply constrained (value-semantic)
+// attribute class, 'bcemt_ThreadAttributes', for storing attributes of a
+// thread in a platform-independent way.
 //
 // The default values for the various thread attributes supported by
 // 'bcemt_ThreadAttributes' are listed in the following table:
 //..
 //  Name                 Type                   Default
 //  -------------------  ---------------------  ---------------------------
-//  detachedState        DetachedState enum     BCEMT_CREATE_JOINABLE
+//  detachedState        enum DetachedState     BCEMT_CREATE_JOINABLE
 //  stackSize            int                    BCEMT_UNSET_STACK_SIZE
 //  guardSize            int                    BCEMT_UNSET_GUARD_SIZE
 //  inheritSchedule      bool                   'true'
-//  schedulingPolicy     SchedulingPolicy enum  BCEMT_SCHED_OTHER
+//  schedulingPolicy     enum SchedulingPolicy  BCEMT_SCHED_OTHER
 //  schedulingPriority   int                    platform & policy dependent
+//
+//  Name                 Constraint
+//  -------------------  ---------------------------
+//  stackSize            >= 0
+//  guardSize            >= 0
+//  schedulingPriority   platform & policy dependent
 //..
 ///'detachedState' Attribute
 ///- - - - - - - - - - - - -
-// A thread can be created in either a "joinable" or "detached" state, by
-// setting the 'detachedState' attribute to
-// 'bcemt_ThreadAttributes::BCEMT_CREATE_JOINABLE' or
-// 'bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED', respectively.  Any thread
-// can join with a "joinable" thread (i.e., the joining thread can block,
-// waiting for the joinable thread's execution to complete) by invoking the
-// 'bcemt_ThreadUtil::join' function on the joinable thread's 'Handle':
-//..
-//  int join(Handle handle, void **returnArg);
-//..
-// Threads cannot join with a thread that was created in a detached state.  A
-// joinable thread can also be put into the detached state via a call to the
-// 'bcemt_ThreadUtil::detach' method.
-//..
-//  int detach(Handle handle);
-//..
+// The 'detachedState' property indicates whether an associated thread should
+// be created in a "joinable" or "detached" state, by setting the
+// 'detachedState' attribute to 'bcemt_ThreadAttributes::BCEMT_CREATE_JOINABLE'
+// or 'bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED', respectively.  Any
+// thread can join with a "joinable" thread (i.e., the joining thread will
+// block, waiting for the joinable thread's execution to complete).
+//
+// A joinable thread can be detached after it is created.
 //
 // When a joinable thread finishes, its resources are not recovered until it is
-// joined or detached.
+// joined or detached.  The resources of a detached thread are recovered
+// automatically when it finishes.
 //
 ///'stackSize' Attribute
 ///- - - - - - - - - - -
-// The stack size for the created thread.  Defaults to
-// 'BCEMT_UNSET_STACK_SIZE', which is negative.  If the stack size is negative,
-// 'bcemt_ThreadUtil::create' will call 'bcemt_Default::defaultThreadStackSize'
-// to obtain the actual stack size used.
+// The stack size for the created thread.  The stack size defaults to
+// 'BCEMT_UNSET_STACK_SIZE', which is negative.  If the stack size is negative
+// at thread creation, 'bcemt_Default::defaultThreadStackSize' will be called
+// to determine the actual stack size used.
 //
 ///'guardSize' Attribute
 ///- - - - - - - - - - -
-// On some architectures, there is an area of the allocated stack for handling
-// stack overflows.  Defaults to 'BCEMT_UNSET_GUARD_SIZE', which is negative.
-// If the guard size is negative, 'bcemt_ThreadUtil::create' will call
-// 'bcemt_Default::nativeThreadGuardSize' to obtain the actual guard size used,
-// which will vary depending upon the platform.  Ignored on Windows.
+// On some architectures, there is an extra area of the allocated stack for
+// handling stack overflows.  The guard size defaults to
+// 'BCEMT_UNSET_GUARD_SIZE', which is negative.  If the guard size is negative
+// at thread creation, 'bcemt_Default::nativeThreadGuardSize' will be called to
+// determine the guard size of the created thread.  This value will vary
+// depending upon the platform.  Note that this attribute is currently ignored
+// on Windows.
 //
 ///'inheritSchedule' Attribute
 ///- - - - - - - - - - - - - -
 // If 'true', the default, the attribute's 'schedulingPolicy' and
 // 'schedulingPriority' attributes are ignored upon thread creation, their
-// values being taken from the calling thread.  Ignored on Windows.  On HPUX,
-// for non-superusers, thread creation fails iunless
-// 'true == inheritSchedule()'.
+// values being taken from the calling thread.  Note that this attribute is
+// currently ignored on Windows, and on HPUX, for non-superusers, thread
+// creation fails unless 'true == inheritSchedule()'.
 //
 ///'schedulingPolicy' Attribute
 /// - - - - - - - - - - - - - -
-// This attribute is ignored unless 'false == inheritSchedule()'.  Determines
-// the scheduling policy to be used.  A 'BCEMT_SCHED_FIFO' thread is to be
-// deemed uninterruptable, while a 'BCEMT_SCHED_RR' thread is to get finite
-// time slices before letting other threads run.  'BCEMT_SCHED_OTHER' (the
-// default) is unspecified.  Ignored on Windows.  On Linux and AIX for
-// non-superusers, thread creation will fail unless
+// Determines the scheduling policy to be used when multiple threads are
+// waiting to run, which of the threads is to be run first.  A thread with the
+// 'BCEMT_SCHED_FIFO' policy is to be deemed uninterruptable, while one with a
+// 'BCEMT_SCHED_RR' policy is to get finite time slices before letting other
+// threads run.  'BCEMT_SCHED_OTHER' (the default) is platform-dependent and
+// unspecified.  This attribute is ignored unless 'false == inheritSchedule()'.
+// Note that this attribute is currently ignored on Windows, while on Linux and
+// AIX for non-superusers, thread creation will fail unless
 // 'schedulingPolicy == BCEMT_SCHED_OTHER'.
 //
 ///'schedulingPriority' Attribute
 /// - - - - - - - - - - - - - - -
-// This attribute is ignored unless 'false == inheritSchedule()'.  Determines
-// the scheduling priority of the thread, with higher numbers indicating more
-// urgent threads. must be in the range
+// Determines the scheduling priority of the thread, with higher numbers
+// indicating more urgent threads.  The supplied value must be in the range
 // '[ getMinSchedPrioirity(policy), getMaxSchedPrioirity(policy) ]' where
-// 'policy' is the 'schedulingPolicy' attribute.  Ignored on Windows.  Note
-// that under some circumstances 'max priority == min priority'.  Also note
-// that this seems to have little effect except when multiple threads with
-// different priroities are competing for access to a mutex.
+// 'policy' is the 'schedulingPolicy' attribute and 'get{Min,Max}SchedPriority'
+// are static public methods of this class.  This attribute is ignored unless
+// 'false == inheritSchedule()'.  Note that this attribute is currently ignored
+// on Windows, and on other platforms, most of the time, adjusting thread
+// priorities seems to have little effect.
 //
 ///Usage
 ///-----
@@ -140,8 +143,19 @@ namespace BloombergLP {
                            // ============================
 
 class bcemt_ThreadAttributes {
-    // This 'class' implements a container of thread attributes for specifying
-    // thread creation characteristics.
+    // This simply constrained (value-semantic) attribute class characterizes a
+    // collection of thread attribute values.  See the Attributes section under
+    // @DESCRIPTION in the component-level documentation.  There are no
+    // invariants checked at destruction, but certain possible values or
+    // combinations of values can result in thread creation to fail.
+    //
+    // This class:
+    //: o supports a complete set of *value* *semantic* operations
+    //:   o except for 'bdex' serialization
+    //: o is *exception-neutral*
+    //: o is *alias-safe*
+    //: o is 'const' *thread-safe*
+    // For terminology see 'bsldoc_glossary'.
 
   public:
     // PUBLIC TYPES
@@ -178,12 +192,22 @@ class bcemt_ThreadAttributes {
 
   private:
     // DATA
-    DetachedState    d_detachedState;
-    int              d_guardSize;
-    bool             d_inheritSchedule;
-    SchedulingPolicy d_schedulingPolicy;
-    int              d_schedulingPriority;
-    int              d_stackSize;
+    DetachedState    d_detachedState;       // is threaad detached or joinable?
+
+    int              d_guardSize;           // size of guard area on stack
+
+    bool             d_inheritSchedule;     // does the thread inherit
+                                            // scheduling policy & priority
+                                            // from the thread that created it?
+                                
+    SchedulingPolicy d_schedulingPolicy;    // nature of queue for chosing
+                                            // which of waiting threads will
+                                            // execute first
+
+    int              d_schedulingPriority;  // thread priority -- higher
+                                            // numbers more urgent
+
+    int              d_stackSize;           // size of thread stack
 
     // FRIENDS
     friend bool operator==(const bcemt_ThreadAttributes&,
