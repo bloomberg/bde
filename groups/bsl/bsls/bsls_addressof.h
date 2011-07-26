@@ -20,12 +20,11 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Obtain the address of a 'class' that defines 'operator&'. 
-// There are times, especially within low-level library
-// functions, where it is necessary to obtain the address of an object even if
-// that object's class overloads 'operator&' to return something other than
-// the object's address.
-// 
+///Example 1: Obtain the address of a 'class' that defines 'operator&'.
+// There are times, especially within low-level library functions, where it is
+// necessary to obtain the address of an object even if that object's class
+// overloads 'operator&' to return something other than the object's address.
+//
 // Assume we have a special reference-like type that can refer to a single bit:
 //..
 //  class BitReference {
@@ -90,9 +89,11 @@ BSLS_IDENT("$Id: $")
 //  assert(p->byteptr() == c);
 //  assert(p->bitpos()  == 3);
 //..
-                        // ==============
-                        // Free Functions
-                        // ==============
+                               // ==============
+                               // Free Functions
+                               // ==============
+
+namespace BloombergLP {
 
 template <class TYPE>
 inline
@@ -100,18 +101,24 @@ TYPE *bsls_addressOf(TYPE& obj);
     // Return the address of the specified 'obj', even in the presence of an
     // overloaded 'operator&' for 'TYPE'.
 
-                        // ======
-                        // MACROS
-                        // ======
+                                   // ======
+                                   // MACROS
+                                   // ======
 
+// enabling the macro everywhere while doing the development, revert to the
+// commented code below in the final change
+#   define BSLS_ADDRESSOF(OBJ)     ::BloombergLP::bsls_addressOf(OBJ)
+
+/*
 #ifdef BSLS_PLATFORM__CMP_MSVC
-#define BSLS_ADDRESSOF(OBJ) bsls_addressOf((OBJ));
+#   define BSLS_ADDRESSOF(OBJ)     ::BloombergLP::bsls_addressOf(OBJ)
 #else
-#define BSLS_ADDRESSOF(OBJ) (&OBJ)
+#   define BSLS_ADDRESSOF(OBJ)     (&(OBJ))
 #endif
+*/
 
 // ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
 // FREE FUNCTIONS
@@ -123,6 +130,8 @@ TYPE *bsls_addressOf(TYPE& obj)
         static_cast<void *>(
             const_cast<char *>(&reinterpret_cast<const volatile char&>(obj))));
 }
+
+}  // close enterprise namespace
 
 #endif
 
