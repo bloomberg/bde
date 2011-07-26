@@ -44,12 +44,12 @@ BSLS_IDENT("$Id: $")
 //      //! ~Wrapper() = default;
 //          // Destroy this object.
 //..
-// We would like to expose access to the wrapped element through a method that
-// returns a reference to the data member 'd_data'.  However, there would be a
-// problem if the user supplied a parameterized type 'TYPE' that is a reference
-// type, as references-to-references are not permitted by the language (before
-// the C++11 standard).  We can resolve such problems using the meta-function
-// 'bslmf_AddReference'.
+// Next, we would like to expose access to the wrapped element through a
+// method that returns a reference to the data member 'd_data'.  However,
+// there would be a problem if the user supplied a parameterized type 'TYPE'
+// that is a reference type, as references-to-references are not permitted by
+// the language (before the C++11 standard).  We can resolve such problems
+// using the meta-function 'bslmf_AddReference'.
 //..
 //      // MANIPULATORS
 //      typename bslmf_AddReference<TYPE>::Type value()
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 //          return d_data;
 //      }
 //..
-// Next we supply an accessor function, 'value', that similarly wraps the
+// Then, we supply an accessor function, 'value', that similarly wraps the
 // parameterized type 'TYPE' with the 'bslmf_AddReference' meta-function.
 // In this case we must remember to const-quality 'TYPE' before passing it
 // on to the meta-function.
@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Now we test our simple wrapper type.  First we a run test for wrapping a
+// Now, we test our simple wrapper type.  First we a run test for wrapping a
 // simple 'int' value:
 //..
 //  void runTests()
@@ -84,7 +84,7 @@ BSLS_IDENT("$Id: $")
 //      assert(42 == i);
 //      assert(13 == ti.value());
 //..
-// Finally we test 'Wrapper' with a reference type.
+// Finally we test 'Wrapper' with a reference type:
 //..
 //      Wrapper<int&> tr(i);
 //      assert(42 == i);
