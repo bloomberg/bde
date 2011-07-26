@@ -105,27 +105,62 @@ BDES_IDENT("$Id: $")
 //
 ///Example 1: Creating and modifying thread attributes objects
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First we create a default-constructed 'bcemt_ThreadAttributes' object and
-// assert that its detached state does indeed have the default value (i.e.,
-// 'bcemt_ThreadAttributes::BCEMT_CREATE_JOINABLE'):
+// First we suppose we have routines that will create and join threads:
 //..
-//  bcemt_ThreadAttributes attributes;
-//  assert(bcemt_ThreadAttributes::BCEMT_CREATE_JOINABLE ==
-//                                                 attributes.detachedState());
+//  void myThreadCreate(int                           *threadHandle,
+//                      const bcemt_ThreadAttributes&  attr,
+//                      void (*)()                     function);
+//      // Spawn a thread with attributes described by the specified 'attr',
+//      // running the specified 'function', and assign a handle referring to
+//      // the spawned thread to the specified '*threadHandle'.
+//
+//  void myThreadJoin(int threadHandle);
+//      // Block until the thread referred to by the specified 'threadHandle'
+//      // has finished, and recover its resources.  The behavior is undefined
+//      // unless the thread is joinable.
 //..
-// Next we modify the detached state of 'attributes' to have the non-default
-// value 'bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED':
+// Then we define a function that we want to run in the thread
 //..
-//  attributes.setDetachedState(bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED);
-//  assert(bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED ==
-//                                                 attributes.detachedState());
+//  enum { BUFFER_SIZE = 128 * 1024 };
+//
+//  void myThreadFunction()
+//  {
+//      char buffer[BUFFER_SIZE];
+//
+//      ... do i/o to/from 'buffer', process data ..
+//  }
 //..
-// Finally, we make a copy of 'attributes':
+// Next, we create our thread attributes object and make sure its stack size is
+// big enough to accomodate 'buffer' (it is important that the stack size be a
+// 'fudge factor' larger than the buffer size, since things other than that
+// buffer will be on the stack):
 //..
-//  bcemt_ThreadAttributes copy(attributes);
-//  assert(bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED ==
-//                                                       copy.detachedState());
-//  assert(attributes == copy);
+//  bcemt_ThreadAttributes attr;
+//  attr.setStackSize(BUFFER_SIZE + 8192);
+//  attr.setDetachedState(bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED);
+//..
+// Then, we create the thread:
+//..
+//  int handle;
+//  myThreadCreate(&handle,
+//                 attr,
+//                 &myThreadFunction);
+//..
+// Next, suppose we also want another copy of the thread to run, but joinable.
+//..
+//  attr.setDetachedState(bcemt_ThreadAttributes::BCEMT_CREATE_JOINABLE);
+//
+//  int handle2;
+//  myThreadCreate(&handle2,
+//                 attr,
+//                 &myThreadFunction);
+//..
+// The thread associated with 'handle' does not need to be joined while the
+// thread associated with 'handle2' will.  Let's suppose we know that the first
+// thread will finish before the second will.  Finally, we want to wait for the
+// second thread to finish with a join.
+//..
+//  myThreadJoin(handle2);
 //..
 
 #ifndef INCLUDED_BCESCM_VERSION
