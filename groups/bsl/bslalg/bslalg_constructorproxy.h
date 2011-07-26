@@ -282,6 +282,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ADDRESSOF
+#include <bsls_addressof.h>
+#endif
+
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
@@ -471,8 +475,9 @@ inline
 bslalg_ConstructorProxy<OBJECT_TYPE>::bslalg_ConstructorProxy(
                                                bslma_Allocator *basicAllocator)
 {
-    bslalg_ScalarPrimitives::defaultConstruct(&d_objectBuffer.object(),
-                                              basicAllocator);
+    bslalg_ScalarPrimitives::defaultConstruct(
+                                       bsl::addressof(d_objectBuffer.object()),
+                                       basicAllocator);
 }
 
 template <typename OBJECT_TYPE>
@@ -504,7 +509,7 @@ inline
 bslalg_ConstructorProxy<OBJECT_TYPE>::bslalg_ConstructorProxy(
         const ARG1& a1, bslma_Allocator *basicAllocator)
 {
-    bslalg_ScalarPrimitives::construct(&d_objectBuffer.object(),
+    bslalg_ScalarPrimitives::construct(bsl::addressof(d_objectBuffer.object()),
                                        a1,
                                        basicAllocator);
 }
@@ -698,7 +703,8 @@ template <typename OBJECT_TYPE>
 inline
 bslalg_ConstructorProxy<OBJECT_TYPE>::~bslalg_ConstructorProxy()
 {
-    bslalg_ScalarDestructionPrimitives::destroy(&d_objectBuffer.object());
+    bslalg_ScalarDestructionPrimitives::destroy(
+                                      bsl::addressof(d_objectBuffer.object()));
 }
 
 // MANIPULATORS
