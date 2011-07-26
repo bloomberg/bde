@@ -9,22 +9,23 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Return the address of an object, even if 'operator&' is overloaded
 //
-//@FREE FUNCTIONS: T *bsl::addressof(T&)
-//
-//@SEE_ALSO:
-//
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: There are times, especially within low-level library
-// functions, where it is necessary to obtain the address of an object even if
-// that object's class overloads 'operator&' to return something other than
-// the object's address.  The 'bsl::addressof' function defined in this
+//@DESCRIPTION:   The 'bsls_addressOf' function defined in this
 // component provides this ability.  It conforms to the C++0x definition for
 // 'addressof' as specified in the section [specialized.addressof] (20.6.12.1)
 // of the FDIS.
 //
 ///Usage
 ///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: Obtain the address of a 'class' that defines 'operator&'. 
+// There are times, especially within low-level library
+// functions, where it is necessary to obtain the address of an object even if
+// that object's class overloads 'operator&' to return something other than
+// the object's address.
+// 
 // Assume we have a special reference-like type that can refer to a single bit:
 //..
 //  class BitReference {
@@ -65,40 +66,49 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // However, there are times when it might be desirable to get the true
-// address of a 'BitReference'.  Unfortunately, the above overload prevents
-// the obvious syntax from working:
-//..
-//  int main()
-//  {
-//      char c[4];
-//      BitReference br(c, 3);
-//      // BitReference *p = &br;  // Won't compile
-//..
-// The 'addressof' function was defined for exactly this purpose.  It returns
-// the address of an object even of that object's class overloads 'operator&':
-//..
-//      BitReference *p = bsl::addressof(br);  // OK
-//      assert(0 != p);
-//      assert(p->byteptr() == c);
-//      assert(p->bitpos()  == 3);
+// address of a 'BitReference'.  Since the above overload prevents
+// the obvious syntax from working, we use 'bsls_addressof' to accomplish this
+// task.
 //
-//      return 0;
-//  }
+// First, we create a 'BitReference' object:
 //..
-
-namespace bsl {
-
-                        // =======================
-                        // Free Function addressof
-                        // =======================
+//  char c[4];
+//  BitReference br(c, 3);
+//..
+// Now, we invoke 'bsls_addressOf' to obtain and save the address of 'br:
+//..
+//  BitReference *p = bsls_addressOf(br);  // OK
+//  // BitReference *p = &br;              // Won't compile
+//..
+// Notice that the commented line illustrates canonical use of 'operator&' that
+// would not compile in this example.
+//
+// Finally, we verify that address obtained is the correct one, running some
+// sanity checks:
+//..
+//  assert(0 != p);
+//  assert(p->byteptr() == c);
+//  assert(p->bitpos()  == 3);
+//..
+                        // ==============
+                        // Free Functions
+                        // ==============
 
 template <class TYPE>
 inline
-TYPE *addressof(TYPE& obj);
+TYPE *bsls_addressOf(TYPE& obj);
     // Return the address of the specified 'obj', even in the presence of an
     // overloaded 'operator&' for 'TYPE'.
 
-}  // close namespace bsl
+                        // ======
+                        // MACROS
+                        // ======
+
+#ifdef BSLS_PLATFORM__CMP_MSVC
+#define BSLS_ADDRESSOF(OBJ) bsls_addressOf((OBJ));
+#else
+#define BSLS_ADDRESSOF(OBJ) (&OBJ)
+#endif
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -107,7 +117,7 @@ TYPE *addressof(TYPE& obj);
 // FREE FUNCTIONS
 template <class TYPE>
 inline
-TYPE *bsl::addressof(TYPE& obj)
+TYPE *bsls_addressOf(TYPE& obj)
 {
     return static_cast<TYPE *>(
         static_cast<void *>(
