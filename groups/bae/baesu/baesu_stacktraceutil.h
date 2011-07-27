@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide low-level utilities for obtaining & printing a stack-trace.
 //
-//@CLASSES: baesu_StackTraceUtil
+//@CLASSES:
+//   baesu_StackTraceUtil: utilities for 'baesu_StackTrace' objects
 //
 //@AUTHOR: Bill Chapman
 //

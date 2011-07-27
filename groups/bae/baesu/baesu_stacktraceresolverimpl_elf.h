@@ -12,7 +12,8 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   baesu_StackTraceResolverImpl<Elf>: symbol resolution for ELF objects
 //
-//@SEE_ALSO: baesu_stacktraceresolverimpl_{windows,xcoff}
+//@SEE_ALSO: baesu_stacktraceresolverimpl_windows,
+//           baesu_stacktraceresolverimpl_xcoff
 //
 //@AUTHOR: Oleg Semenov (osemenov), Bill Chapman (bchapman2)
 //

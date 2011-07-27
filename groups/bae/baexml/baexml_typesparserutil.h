@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility for parsing types using XML formatting.
 //
-//@CLASSES: baexml_TypesParserUtil: utility for parsing using XML formatting.
+//@CLASSES:
+//   baexml_TypesParserUtil: utility for parsing using XML formatting
 //
 //@SEE_ALSO: http://www.w3.org/TR/xmlschema-2/
 //

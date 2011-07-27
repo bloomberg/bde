@@ -10,7 +10,8 @@ BDES_IDENT_PRAGMA_ONCE
 //
 //@DEPRECATED: Use 'baem_metrics' instead.
 //
-//@CLASSES: baea_BaemMetricReporterAdapter: adapt BAEA metric reporter to BAEM
+//@CLASSES:
+//   baea_BaemMetricReporterAdapter: adapt BAEA metric reporter to BAEM
 //
 //@AUTHOR: David Rubin (drubin6)
 //

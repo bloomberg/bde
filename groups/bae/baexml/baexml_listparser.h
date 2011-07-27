@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide push parser for lists.
 //
-//@CLASSES: baexml_ListParser: push parser for lists.
+//@CLASSES:
+//   baexml_ListParser: push parser for lists
 //
 //@SEE_ALSO: bdeat_arrayfunctions
 //
