@@ -140,44 +140,45 @@ namespace USAGE_EXAMPLE_1 {
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: A simple wrapper class
+///Example 1: A Simple Wrapper Class
 ///- - - - - - - - - - - - - - - - -
 // First, let us write a simple class that can wrap any other type:
 //..
-    template<class TYPE>
+    template <class TYPE>
     class Wrapper {
-    public:
-        typedef typename bslmf_AddReference<TYPE>::Type WrappedType;
-
-
-    private:
+      private:
+        // DATA
         TYPE d_data;
 
-    public:
+      public:
+        // TYPES
+        typedef typename bslmf_AddReference<TYPE>::Type WrappedType;
+
         // CREATORS
         Wrapper(TYPE value) : d_data(value) {}
+            // Create a 'Wrapper' object having the specified 'value'.
 
         //! ~Wrapper() = default;
             // Destroy this object.
 //..
-// We would like to expose access to the wrapped element through a method that
-// returns a reference to the data member 'd_data'.  However, there would be a
-// problem if the user supplied a parameterized type 'TYPE' that is a reference
-// type, as references-to-references are not permitted by the language (before
-// the C++11 standard).  We can resolve such problems using the meta-function
-// 'bslmf_AddReference'.
+// Then, we would like to expose access to the wrapped element through a
+// method that returns a reference to the data member 'd_data'.  However,
+// there would be a problem if the user supplied a parameterized type 'TYPE'
+// that is a reference type, as references-to-references were not permitted by
+// the language (prior the C++11 standard).  We can resolve such problems
+// using the meta-function 'bslmf_AddReference'.
 //..
-        // MANIPUTATORS
+        // MANIPULATORS
         typename bslmf_AddReference<TYPE>::Type value()
         {
             return d_data;
         }
 //..
-// Next we supply an accessor function, 'value', that similarly wraps the
+// Next, we supply an accessor function, 'value', that similarly wraps the
 // parameterized type 'TYPE' with the 'bslmf_AddReference' meta-function.
 // In this case we must remember to const-quality 'TYPE' before passing it
 // on to the meta-function.
-//.. 
+//..
         // ACCESSORS
         typename bslmf_AddReference<const TYPE>::Type value() const
         {
@@ -185,37 +186,38 @@ namespace USAGE_EXAMPLE_1 {
         }
     };
 //..
-// Now we test our simple wrapper type.  First we run test for wrapping a
-// simple 'int' value:
+// Now, we write a test function, 'runTest', to verify our simple wrapper
+// type.  We start by wrapping a simple 'int' value:
 //..
     void runTests()
     {
-        int  i  = 42;
+        int i = 42;
 
-        Wrapper<int> ti(i);
+        Wrapper<int> ti(i);  const Wrapper<int>& TI = ti;
         ASSERT(42 == i);
-        ASSERT(42 == ti.value());
+        ASSERT(42 == TI.value());
 
         ti.value() = 13;
         ASSERT(42 == i);
-        ASSERT(13 == ti.value());
+        ASSERT(13 == TI.value());
 //..
-// Finally we test 'Wrapper' with a reference type.
+// Finally, we test 'Wrapper' with a reference type:
 //..
-        Wrapper<int&> tr(i);
+        Wrapper<int&> tr(i);  const Wrapper<int&>& TR = tr;
         ASSERT(42 == i);
-        ASSERT(42 == tr.value());
+        ASSERT(42 == TR.value());
 
         tr.value() = 13;
         ASSERT(13 == i);
-        ASSERT(13 == ti.value());
+        ASSERT(13 == TR.value());
 
         i = 42;
         ASSERT(42 == i);
-        ASSERT(42 == tr.value());
+        ASSERT(42 == TR.value());
     }
 //..
-}
+}  // close namespace USAGE_EXAMPLE_1
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------

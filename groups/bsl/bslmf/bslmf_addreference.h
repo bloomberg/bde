@@ -12,34 +12,36 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf_AddReference: meta-function to form a reference to a type
 //
-//@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
+//@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a simple template 'struct',
 // 'bslmf_AddReference', that is used to define a reference type from the type
-// supplied as its single type parameter.  Types that are 'void' or already
-// reference types are unmodified.
+// supplied as its single template type parameter.  Types that are 'void' or
+// already reference types are unmodified.
 //
 ////Usage
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: A simple wrapper class
+///Example 1: A Simple Wrapper Class
 ///- - - - - - - - - - - - - - - - -
-// First, let's write a simple class that can wrap any other type:
+// First, let us write a simple class that can wrap any other type:
 //..
-//  template<class TYPE>
+//  template <class TYPE>
 //  class Wrapper {
-//    public:
-//      typedef typename bslmf_AddReference<TYPE>::Type WrappedType;
-//
 //    private:
+//      // DATA
 //      TYPE d_data;
 //
 //    public:
+//      // TYPES
+//      typedef typename bslmf_AddReference<TYPE>::Type WrappedType;
+//
 //      // CREATORS
 //      Wrapper(TYPE value) : d_data(value) {}
+//          // Create a 'Wrapper' object having the specified 'value'.
 //
 //      //! ~Wrapper() = default;
 //          // Destroy this object.
@@ -74,32 +76,31 @@ BSLS_IDENT("$Id: $")
 //..
 //  void runTests()
 //  {
-//      int i  = 42;
+//      int i = 42;
 //
-//      Wrapper<int> ti(i);
+//      Wrapper<int> ti(i);  const Wrapper<int>& TI = ti;
 //      assert(42 == i);
-//      assert(42 == ti.value());
+//      assert(42 == TI.value());
 //
 //      ti.value() = 13;
 //      assert(42 == i);
-//      assert(13 == ti.value());
+//      assert(13 == TI.value());
 //..
-// Finally we test 'Wrapper' with a reference type:
+// Finally, we test 'Wrapper' with a reference type:
 //..
-//      Wrapper<int&> tr(i);
+//      Wrapper<int&> tr(i);  const Wrapper<int&>& TR = tr;
 //      assert(42 == i);
-//      assert(42 == tr.value());
+//      assert(42 == TR.value());
 //
 //      tr.value() = 13;
 //      assert(13 == i);
-//      assert(13 == ti.value());
+//      assert(13 == TR.value());
 //
 //      i = 42;
 //      assert(42 == i);
-//      assert(42 == tr.value());
+//      assert(42 == TR.value());
 //  }
 //..
-//
 ///Example 2: Expected Results
 ///- - - - - - - - - - - - - -
 // For this example, the associated comments below indicate the expected type
