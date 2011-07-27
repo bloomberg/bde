@@ -56,7 +56,11 @@ BDES_IDENT("$Id: $")
 // The stack size for the created thread.  The stack size defaults to
 // 'BCEMT_UNSET_STACK_SIZE', which is negative.  If the stack size is negative
 // at thread creation, 'bcemt_Default::defaultThreadStackSize' will be called
-// to determine the actual stack size used.
+// to determine the actual stack size used.  If a thread that calls only one
+// routine is created, that routine should be able to declare an automatic
+// variable of size 'stackSize' bytes.  Note that actually doing anything, like
+// streaming out an integer, may require several thousand more bytes of stack
+// space.
 //
 ///'guardSize' Attribute
 ///- - - - - - - - - - -
@@ -109,10 +113,43 @@ BDES_IDENT("$Id: $")
 //..
 //  void myThreadCreate(int                           *threadHandle,
 //                      const bcemt_ThreadAttributes&  attr,
-//                      void (*)()                     function);
+//                      void (*)()                     function)
 //      // Spawn a thread with attributes described by the specified 'attr',
 //      // running the specified 'function', and assign a handle referring to
 //      // the spawned thread to the specified '*threadHandle'.
+//  {
+//      int stackSize = attr.stackSize();
+//      if (stackSize < 0) {
+//          stackSize = bcemt_Default::defaultThreadStackSize();
+//      }
+//      // Add a 'fudge factor' to 'stackSize' to make sure guarantee that
+//      // can declare an object of 'stackSize' bytes on the stack is
+//      // satisfied.
+//
+//      stackSize += 8192;
+//
+//  #ifdef BSLS_PLATFORM__OS_HPUX
+//      // The Itanium divides the stack into two sections: a variable stack
+//      // and a control stack.  To make 'stackSize' have the same meaning
+//      // across platforms, we must double it on this platform.
+//
+//      stackSize *= 2;
+//  #endif
+//
+//      int guardSize = attr.guardSize();
+//      if (guardSize < 0) {
+//          guardSize = bcemt_Default::nativeDefaultThreadGuardSize();
+//      }
+//
+//      underLyingThreadCreate(threadHandle,
+//                             stackSize,
+//                             guardSize,
+//                             attr.inheritSchedule(),
+//                             attr.schedulingPolicy(),
+//                             attr.schedulingPriority(),
+//                             attr.detachedState()
+//                             function);
+//  }
 //
 //  void myThreadJoin(int threadHandle);
 //      // Block until the thread referred to by the specified 'threadHandle'
@@ -123,11 +160,17 @@ BDES_IDENT("$Id: $")
 //..
 //  enum { BUFFER_SIZE = 128 * 1024 };
 //
+//  struct FindMinRecord {
+//      int d_min3[3];
+//      int d_buffer[BUFFER_SIZE];
+//  };
+//  
 //  void myThreadFunction()
 //  {
-//      char buffer[BUFFER_SIZE];
+//      int bufferLocal[BUFFER_SIZE];
 //
-//      ... do i/o to/from 'buffer', process data ..
+//      ... do some calculation that involves no subroutine calls or additional
+//      automatic variables ...
 //  }
 //..
 // Next, we create our thread attributes object and make sure its stack size is
@@ -136,7 +179,7 @@ BDES_IDENT("$Id: $")
 // buffer will be on the stack):
 //..
 //  bcemt_ThreadAttributes attr;
-//  attr.setStackSize(BUFFER_SIZE + 8192);
+//  attr.setStackSize(BUFFER_SIZE);
 //  attr.setDetachedState(bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED);
 //..
 // Then, we create the thread:
@@ -153,7 +196,7 @@ BDES_IDENT("$Id: $")
 //  int handle2;
 //  myThreadCreate(&handle2,
 //                 attr,
-//                 &myThreadFunction);
+//                 &myOtherThreadFunction);
 //..
 // The thread associated with 'handle' does not need to be joined while the
 // thread associated with 'handle2' will.  Let's suppose we know that the first
@@ -173,9 +216,9 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                           // ============================
-                           // class bcemt_ThreadAttributes
-                           // ============================
+                        // ============================
+                        // class bcemt_ThreadAttributes
+                        // ============================
 
 class bcemt_ThreadAttributes {
     // This simply constrained (value-semantic) attribute class characterizes a
@@ -336,7 +379,10 @@ class bcemt_ThreadAttributes {
         // Set the value of the stack size attribute of this thread attributes
         // object to the specified 'stackSize' (in bytes).  If 'stackSize' has
         // not been set, 'bcemt_ThreadUtil::create' will use the value
-        // 'bcemt_Default::defaultThreadStackSize()'.
+        // 'bcemt_Default::defaultThreadStackSize()'.  It should be possible to
+        // create variables/buffers of 'stackSize' bytes in the thread,
+        // however, if any subroutine calls occur additional stack size will be
+        // needed.
 
     // ACCESSORS
     DetachedState detachedState() const;
