@@ -227,6 +227,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BDESU_FDSTREAMBUF
+#include <bdesu_fdstreambuf.h>
+#endif
+
 namespace BloombergLP {
 
 class bslma_Allocator;
@@ -254,7 +258,10 @@ class bael_FileObserver2 : public bael_Observer {
 
   private:
     // DATA
-    bsl::ofstream          d_logFileStream;            // output stream for
+    bdesu_FdStreamBuf      d_logStreamBuf;             // stream buffer for
+                                                       // file logging
+
+    bsl::ostream           d_logFileStream;            // output stream for
                                                        // file logging
 
     bsl::string            d_logFilePattern;           // log filename pattern
