@@ -23,6 +23,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
+
 static int testStatus = 0;
 
 static void aSsErT(bool b, const char *s, int i) {
