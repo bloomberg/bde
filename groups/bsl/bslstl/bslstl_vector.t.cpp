@@ -15,6 +15,7 @@
 #include <bslma_testallocatorexception.h>  // for testing only
 #include <bslmf_issame.h>                  // for testing only
 #include <bsls_objectbuffer.h>
+#include <bsls_addressof.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -380,8 +381,15 @@ class TestType {
     // It could have the bit-wise moveable traits but we defer that trait to
     // the 'MoveableTestType'.
 
+  private:
     char            *d_data_p;
     bslma_Allocator *d_allocator_p;
+
+#if defined(BDE_USE_ADDRESSOF)
+    // PRIVATE ACCESSORS
+    void operator&() const;     // = delete;
+        // Suppress the use of address-of operator on this type.
+#endif
 
   public:
     // TRAITS
@@ -414,10 +422,9 @@ class TestType {
     , d_allocator_p(bslma_Default::allocator(ba))
     {
         ++numCopyCtorCalls;
-        if (&original != this) {
-            d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
-            *d_data_p = *original.d_data_p;
-        }
+
+        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+        *d_data_p = *original.d_data_p;
     }
 
     ~TestType() {
@@ -432,7 +439,7 @@ class TestType {
     TestType& operator=(const TestType& rhs)
     {
         ++numAssignmentCalls;
-        if (&rhs != this) {
+        if (BSLS_ADDRESSOF(rhs) != this) {
             char *newData = (char *)d_allocator_p->allocate(sizeof(char));
             *d_data_p = UNINITIALIZED_VALUE;
             d_allocator_p->deallocate(d_data_p);
@@ -698,57 +705,6 @@ void dbg_print(const BitwiseEqComparableTestType& rhs) {
     printf("%c", rhs.value());
     fflush(stdout);
 }
-
-                           // =======================
-                           // class TypeWithAddressOf
-                           // =======================
-
-class TypeWithAddressOf {
-    // A class with overloaded 'operator&'.
-
-private:
-    char d_c;
-
-    void operator&() const;     // = delete;
-        // Suppress the use of address-of operator on this type.
-
-public:
-    // CREATORS
-    explicit
-    TypeWithAddressOf(char c = 0)
-    : d_c(c)
-    {
-    }
-
-    TypeWithAddressOf(const TypeWithAddressOf& original)
-    : d_c(original.d_c)
-    {
-    }
-
-    // MANIPULATORS
-    TypeWithAddressOf& operator=(const TypeWithAddressOf& other)
-    {
-        d_c = other.d_c;
-        return *this;
-    }
-
-    // ACCESSORS
-    bool operator==(const TypeWithAddressOf& other) const
-    {
-        return d_c == other.d_c;
-    }
-
-    bool operator!=(const TypeWithAddressOf& other) const
-    {
-        return !(*this == other);
-    }
-
-    friend
-    void dbg_print(const TypeWithAddressOf& rhs) {
-        printf("%c", rhs.d_c);
-        fflush(stdout);
-    }
-};
 
                                // ==============
                                // class CharList
@@ -7445,7 +7401,6 @@ int main(int argc, char *argv[])
                             "\n==================================\n");
 
         TestDriver<T>::testCase21();
-        TestDriver<TypeWithAddressOf>::testCase21();
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -7480,7 +7435,6 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         TestDriver<T>::testCase19();
-        TestDriver<TypeWithAddressOf>::testCase19();
 
       } break;
       case 18: {
@@ -7511,9 +7465,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase18();
 
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase18();
-
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -7541,9 +7492,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase17();
-
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase17();
 
         if (verbose) printf("\nTesting Range Insertion"
                             "\n=======================\n");
@@ -7597,9 +7545,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase16();
 
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase16();
-
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -7623,9 +7568,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase15();
 
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase15();
-
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -7647,9 +7589,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase14();
-
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase14();
 
       } break;
       case 13: {
@@ -7676,9 +7615,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase13();
-
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase13();
 
         if (verbose) printf("\nTesting Initial-Range Assignment"
                             "\n================================\n");
@@ -7741,9 +7677,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase12();
-
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase12();
 
         if (verbose) printf("\nTesting Initial-Range Constructor"
                             "\n=================================\n");
@@ -7828,9 +7761,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase9();
 
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase9();
-
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -7866,9 +7796,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase8();
 
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase8();
-
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -7902,9 +7829,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase7();
 
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase7();
-
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -7936,9 +7860,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseEqComparableTestType'.\n");
         TestDriver<BET>::testCase6();
-
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase6();
 
       } break;
       case 5: {
@@ -7989,9 +7910,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase4();
 
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase4();
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -8022,9 +7940,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase3();
-
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase3();
 
       } break;
       case 2: {
@@ -8060,9 +7975,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase2();
-
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase2();
 
       } break;
       case 1: {
@@ -8100,9 +8012,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n\t... with 'BitwiseCopyableTestType' .\n");
         TestDriver<BCT>::testCase1();
-
-        if (verbose) printf("\n... with 'TypeWithAddressOf'.\n");
-        TestDriver<TypeWithAddressOf>::testCase1();
 
         if (verbose) printf("\nAdditional tests: allocators.\n");
 

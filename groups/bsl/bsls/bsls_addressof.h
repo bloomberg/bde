@@ -105,17 +105,15 @@ TYPE *bsls_addressOf(TYPE& obj);
                                    // MACROS
                                    // ======
 
-// enabling the macro everywhere while doing the development, revert to the
-// commented code below in the final change
+#if 1 || defined(BSLS_PLATFORM__CMP_MSVC) || defined(BDE_USE_ADDRESSOF)
 #   define BSLS_ADDRESSOF(OBJ)     ::BloombergLP::bsls_addressOf(OBJ)
 
-/*
-#ifdef BSLS_PLATFORM__CMP_MSVC
-#   define BSLS_ADDRESSOF(OBJ)     ::BloombergLP::bsls_addressOf(OBJ)
+#   if !defined(BDE_USE_ADDRESSOF)
+#       define BDE_USE_ADDRESSOF
+#   endif
 #else
 #   define BSLS_ADDRESSOF(OBJ)     (&(OBJ))
 #endif
-*/
 
 // ===========================================================================
 //                        INLINE FUNCTION DEFINITIONS
