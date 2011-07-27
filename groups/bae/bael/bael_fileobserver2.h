@@ -273,14 +273,6 @@ class bael_FileObserver2 : public bael_Observer {
     bdet_Datetime          d_logFileTimestamp;         // timestamp when log
                                                        // file was opened
 
-    bool                   d_datetimeInfoInFileName;   // 'true' if there are
-                                                       // any date/time fields
-                                                       // in log filename
-
-    bool                   d_isOpenWithTimestampFlag;  // 'true' if log file
-                                                       // was opened with
-                                                       // timestamp suffix
-
     LogRecordFunctor       d_logFileFunctor;           // formatting functor
                                                        // used when writing to
                                                        // log file
@@ -363,8 +355,29 @@ class bael_FileObserver2 : public bael_Observer {
         // time by this file observer.  This method has no effect if publishing
         // in local time is not enabled.
 
+    int enableFileLogging(const char *logFilenamePattern);
+        // Enable logging of all messages published to this file observer to a
+        // file indicated by the specified 'logFilenamePattern'.  The basename
+        // of 'logFilenamePattern' may contain '%'-escape sequences that are
+        // interpreted as follows:
+        //..
+        //   %Y - current year (four digits with leading zeros)
+        //   %M - current month (two digits with leading zeros)
+        //   %D - current day (two digits with leading zeros)
+        //   %h - current hour (two digits with leading zeros)
+        //   %m - current minute (two digits with leading zeros)
+        //   %s - current second (two digits with leading zeros)
+        //..
+        // Each time a log file is opened by this file observer (upon a
+        // successful call to this method and following each log file rotation)
+        // the name of the log file is derived from 'logFilenamePattern' by
+        // interpolating the above recognized '%'-escape sequences.
+        //
+        // Return 0 on success, a positive value if file logging is already
+        // enabled, and a negative value for any I/O error.
+
     int enableFileLogging(const char *logFilenamePattern,
-                          bool        appendTimestampFlag = false);
+                          bool        appendTimestampFlag);
         // Enable logging of all messages published to this file observer to a
         // file indicated by the specified 'logFilenamePattern'.  The basename
         // of 'logFilenamePattern' may contain '%'-escape sequences that are
@@ -396,6 +409,9 @@ class bael_FileObserver2 : public bael_Observer {
         //
         // Return 0 on success, a positive value if file logging is already
         // enabled, and a negative value for any I/O error.
+        //
+        // DEPRECATED: Use 'enableFileLogging("filename.log.%T")' to append
+        // timestamp.
 
     void enablePublishInLocalTime();
         // Enable publishing of the timestamp attribute of records in local
@@ -427,6 +443,16 @@ class bael_FileObserver2 : public bael_Observer {
         // of time that the file has been opened exceeds the specified
         // 'timeInterval'.  This rule replaces any rotation-on-lifetime rule
         // currently in effect, if any.
+
+    void rotateOnTimeInterval(const bdet_DatetimeInterval& interval);
+    void rotateOnTimeInterval(const bdet_DatetimeInterval& interval,
+                              const bdet_Datetime&         referenceTime);
+        // Set this file observer to perform a periodic log-file rotation at
+        // multiples of the specified 'interval' after the reference time.  By
+        // default, the reference time is the time 'enableFileLogging' is
+        // called.  Optionally, specify 'referenceTime' to indicate the desired
+        // reference time.  The behavior is undefined unless
+        // '0 < interval.totalMilliseconds()'.
 
     void setLogFileFunctor(const LogRecordFunctor& logFileFunctor);
         // Set the formatting functor used when writing records to the log file
