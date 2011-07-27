@@ -19,7 +19,9 @@
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 
+#ifndef BSLS_PLATFORM__OS_WINDOWS
 #include <alloca.h>
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
