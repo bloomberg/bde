@@ -11,6 +11,7 @@
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -359,6 +360,8 @@ extern "C" void *testCaseMinus1ThreadMain(void *)
 //                                  TEST CASE -2
 //-----------------------------------------------------------------------------
 
+#ifndef BSLS_PLATFORM__OS_WINDOWS
+
 enum { CLEARANCE_TEST_START  = 0,
        CLEARANCE_TEST_DONE   = 1234,
        CLEARANCE_BUFFER_SIZE = 64 * 1024 - 600 };
@@ -382,6 +385,8 @@ extern "C" void *clearanceTest(void *)
 
     return 0;
 }
+
+#endif
 
 //-----------------------------------------------------------------------------
 //                                  TEST CASE -3
@@ -796,6 +801,7 @@ int main(int argc, char *argv[])
 
         bcemt_ThreadUtil::join(handle);
       }  break;
+#ifndef BSLS_PLATFORM__OS_WINDOWS
       case -2: {
         // --------------------------------------------------------------------
         // CLEARANCE TEST
@@ -806,7 +812,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a stack size at run time and verify that threads can be
-        //   spawned with that stack size.
+        //   spawned with that stack size.  Since this test uses 'alloca.h',
+        //   which doesn't exist on Windows, the test is disabled there.
         // --------------------------------------------------------------------
 
         bcemt_ThreadAttributes attr;
@@ -843,6 +850,7 @@ int main(int argc, char *argv[])
 
         Q(Alloca Test Completed);
       }  break;
+#endif
       case -3: {
         // --------------------------------------------------------------------
         // STACK GROWTH DIRECTION TEST
