@@ -8,9 +8,10 @@
 // and 'cassert'.  This test driver does *not* invoke 'assert(expression)'.
 #include <cassert>
 
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
+#include <cstdio>    // 'fprintf'
+#include <cstdlib>   // 'atio'
+#include <cstring>   // 'strcmp'
+#include <iostream>  // 'cout'
 
 #ifdef BSLS_PLATFORM__OS_UNIX
 #include <signal.h>
@@ -82,11 +83,11 @@ using namespace std;
 // [ 3] CONCERN: ubiquitously detect multiply-defined assertion-mode flags
 // [ 5] CONCERN: that locking does not stop the handlerGuard from working
 // [-1] CONCERN: 'bsls_Assert::failAbort' aborts
-// [-1] CONCERN: 'bsls_Assert::failAbort' prints to 'cerr' not 'cout'
+// [-1] CONCERN: 'bsls_Assert::failAbort' prints to 'stderr' not 'stdout'
 // [-2] CONCERN: 'bsls_Assert::failThrow' aborts in non-exception build
-// [-2] CONCERN: 'bsls_Assert::failThrow' prints to 'cerr' for NON-EXC
+// [-2] CONCERN: 'bsls_Assert::failThrow' prints to 'stderr' for NON-EXC
 // [-3] CONCERN: 'bsls_Assert::failSleep' sleeps forever
-// [-3] CONCERN: 'bsls_Assert::failSleep' prints to 'cerr' not 'cout'
+// [-3] CONCERN: 'bsls_Assert::failSleep' prints to 'stderr' not 'stdout'
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
@@ -820,13 +821,13 @@ void TestConfigurationMacros();
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+    int         verbose = argc > 2;
+    int     veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    globalVerbose         = verbose;
-    globalVeryVerbose     = veryVerbose;
+            globalVerbose =         verbose;
+        globalVeryVerbose =     veryVerbose;
     globalVeryVeryVerbose = veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
