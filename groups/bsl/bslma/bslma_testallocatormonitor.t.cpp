@@ -19,7 +19,7 @@ using namespace std;
 //                             Overview
 //                             --------
 // The component under test implements a mechanism which summarize changes in
-// certain statistics of the test alloctor object supplied at construction.
+// certain statistics of the test allocator object supplied at construction.
 // The main testing concern is that the monitor captures the correct data when
 // it is constructed and later compares those values to the correct current
 // statistics from the test allocator.  There are many places in the
@@ -352,9 +352,9 @@ int main(int argc, char *argv[])
 //:   passed to out test objects on construction.
 //:
 //: 2 In an inner block, default create a test object using the designated
-//:   "object" allocator.  Then allow the object to go out of scope (destroyed).
-//:   Confirm that no memory has been allocated from any of the allocators.
-//:   (C-4).
+//:   "object" allocator.  Then allow the object to go out of scope
+//:   (destroyed).  Confirm that no memory has been allocated from any of the
+//:   allocators.  (C-4).
 //:
 //: 3 Exercise a test object so that memory is allocated allocation, and and
 //:   confirm that the object allocator (only) is used as expected:
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
 //:   4 Force the test object to deallocate/allocate by setting a string
 //:     that exceeds the capacity acquired earlier.  Confirm that the
 //:     that the number of outstanding allocations is unchanged (one returned,
-//:     one given) but the maxium number of allocations is unchanged so there
+//:     one given) but the maximum number of allocations is unchanged so there
 //:     were not extra (temporary) allocations. (C-2)
 //:
 //: 4 Destroy the test object and confirm that all allocations are returned.
@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
 
             ASSERT(oam.isTotalUp());  // object allocator was used
             ASSERT(oam.isInUseUp());  // some outstanding allocation(s)
-            ASSERT(oam.isMaxUp());    // a maxium was set
+            ASSERT(oam.isMaxUp());    // a maximum was set
 //..
 // Notice, as expected, memory was allocated from object allocator.
 //
@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
 // Notice that there are no allocations because the object had sufficient
 // capacity in previously allocated memory to store the short string.
 //
-// Next, we make the object allocate additional memory by settng a longer
+// Next, we make the object allocate additional memory by setting a longer
 // attribute: one that exceeds the capacity allocated for 'DESCRIPTION1'.  Use
 // the second monitor to confirm that some allocation was made.
 //..
@@ -448,9 +448,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == std::strcmp(DESCRIPTION2, obj.description()));
 
             ASSERT(oam2.isTotalUp());    // object allocator used
-            ASSERT(oam2.isInUseSame());  // outstanding block (allocation) count
-                                         // unchanged (even though byte
-                                         // oustanding byte count increased)
+            ASSERT(oam2.isInUseSame());  // outstanding block (allocation)
+                                         // count unchanged (even though byte
+                                         // outsanding byte count increased)
             ASSERT(oam2.isMaxSame());    // no extra (temporary) allocations
         }
 //..
