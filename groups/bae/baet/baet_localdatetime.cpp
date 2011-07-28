@@ -34,6 +34,23 @@ bsl::ostream& baet_LocalDatetime::print(bsl::ostream& stream,
     return stream;
 }
 
+// FREE OPERATORS
+bsl::ostream& operator<<(bsl::ostream&             stream,
+                         const baet_LocalDatetime& localDatetime)
+{
+    if (stream.bad()) {
+        return stream;                                                // RETURN
+    }
+
+    bslim::Printer printer(&stream, 0, -1);
+    printer.start();
+    printer.print(localDatetime.datetimeTz(),         0);
+    printer.print(localDatetime.timeZoneId().c_str(), 0);
+    printer.end();
+
+    return stream;
+}
+
 }  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------

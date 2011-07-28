@@ -53,10 +53,11 @@ BDES_IDENT("$Id: $ $CSID: $")
 //
 ///Usage
 ///-----
-// In this usage example we illustrate how to create and use a
-// 'baet_LocalDatetime' object:
+// In this section we show intended usage of this component.
 //
-// First, we create a default-initialized 'baet_LocalDatetime':
+///Example 1: Creation and Use of a 'baet_LocalDatetime' Object
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we default-construct a 'baet_LocalDatetime' object:
 //..
 //  baet_LocalDatetime localDatetime;
 //..
@@ -75,7 +76,7 @@ BDES_IDENT("$Id: $ $CSID: $")
 //  assert(datetimeTz == localDatetime.datetimeTz());
 //  assert(timeZoneId == localDatetime.timeZoneId());
 //..
-// Next, we change the time-zone identifier to another string, for example
+// Now, we change the time-zone identifier to another string, for example
 // "Europe/Berlin":
 //..
 //  bsl::string anotherTimeZoneId("Europe/Berlin");
@@ -161,6 +162,7 @@ class baet_LocalDatetime {
                                   bslalg_TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
+
                         // Aspects
 
     static int maxSupportedBdexVersion();
@@ -233,7 +235,8 @@ class baet_LocalDatetime {
 
     // ACCESSORS
     const bdet_DatetimeTz& datetimeTz() const;
-        // Return the value of the 'datetimeTz' attribute of this object.
+        // Return a reference providing non-modifiable access to the
+        // 'datetimeTz' attribute of this object.
 
     const bsl::string& timeZoneId() const;
         // Return a reference providing non-modifiable access to the
@@ -278,14 +281,14 @@ bool operator==(const baet_LocalDatetime& lhs,
                 const baet_LocalDatetime& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'baet_LocalDatetime' objects have the
-    // same value if the corresponding values of their 'datetimeTz' and
+    // same value if all of the corresponding values of their 'datetimeTz' and
     // 'timeZoneId' attributes are the same.
 
 bool operator!=(const baet_LocalDatetime& lhs,
                 const baet_LocalDatetime& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'baet_LocalDatetime'
-    // objects do not have the same value if the corresponding values of
+    // objects do not have the same value if any of the corresponding values of
     // their 'datetimeTz' or 'timeZoneId' attributes are not the same.
 
 bsl::ostream& operator<<(bsl::ostream&             stream,
@@ -295,7 +298,8 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
     // 'stream'.  If 'stream' is not valid on entry, this operation has no
     // effect.  Note that this human-readable format is not fully specified
     // and can change without notice.  Also note that this method has the same
-    // behavior as 'object.print(stream, 0, -1)'.
+    // behavior as 'object.print(stream, 0, -1)' with the attribute names
+    // elided.
 
 // FREE FUNCTIONS
 void swap(baet_LocalDatetime& a, baet_LocalDatetime& b);
@@ -313,6 +317,7 @@ void swap(baet_LocalDatetime& a, baet_LocalDatetime& b);
                         // ------------------------
 
 // CLASS METHODS
+
                         // Aspects
 
 inline
@@ -386,8 +391,8 @@ STREAM& baet_LocalDatetime::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {
           case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_datetimeTz, 1);
             bdex_InStreamFunctions::streamIn(stream, d_timeZoneId, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_datetimeTz, 1);
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
@@ -424,8 +429,8 @@ STREAM& baet_LocalDatetime::bdexStreamOut(STREAM& stream, int version) const
     if (stream) {
         switch (version) {
           case 1: {
-            bdex_OutStreamFunctions::streamOut(stream, d_datetimeTz, 1);
             bdex_OutStreamFunctions::streamOut(stream, d_timeZoneId, 1);
+            bdex_OutStreamFunctions::streamOut(stream, d_datetimeTz, 1);
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
@@ -446,14 +451,8 @@ bool operator==(const baet_LocalDatetime& lhs, const baet_LocalDatetime& rhs)
 inline
 bool operator!=(const baet_LocalDatetime& lhs, const baet_LocalDatetime& rhs)
 {
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&             stream,
-                         const baet_LocalDatetime& localDatetime)
-{
-    return localDatetime.print(stream, 0, -1);
+    return lhs.datetimeTz() != rhs.datetimeTz()
+        || lhs.timeZoneId() != rhs.timeZoneId();
 }
 
 // FREE FUNCTIONS

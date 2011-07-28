@@ -387,10 +387,11 @@ int main(int argc, char *argv[])
                           << "=============" << endl;
 ///Usage
 ///-----
-// In this usage example we illustrate how to create and use a
-// 'baet_LocalDatetime' object:
+// In this section we show intended usage of this component.
 //
-// First, we create a default-initialized 'baet_LocalDatetime':
+///Example 1: Creation and Use of a 'baet_LocalDatetime' Object
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we default-construct a 'baet_LocalDatetime' object:
 //..
     baet_LocalDatetime localDatetime;
 //..
@@ -409,7 +410,7 @@ int main(int argc, char *argv[])
     ASSERT(datetimeTz == localDatetime.datetimeTz());
     ASSERT(timeZoneId == localDatetime.timeZoneId());
 //..
-// Next, we change the time-zone identifier to another string, for example
+// Now, we change the time-zone identifier to another string, for example
 // "Europe/Berlin":
 //..
     bsl::string anotherTimeZoneId("Europe/Berlin");
@@ -1060,9 +1061,9 @@ int main(int argc, char *argv[])
                 const char version = 1;
 
                 Out out;
-                Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new"
+                out.putString(Y.timeZoneId());        // 1. Stream out "new"
                                                       //    value
-                out.putString(Y.timeZoneId());        // 2. Stream out "new"
+                Y.datetimeTz().bdexStreamOut(out, 1); // 2. Stream out "new"
                                                       //    value
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
@@ -1186,8 +1187,8 @@ int main(int argc, char *argv[])
 
                 Out outO;  X.bdexStreamOut(outO, VERSION);
 
-                Out outA;  X.datetimeTz().bdexStreamOut(outA, VERSION);
-                           outA.putString(X.timeZoneId());
+                Out outA;  outA.putString(X.timeZoneId());
+                           X.datetimeTz().bdexStreamOut(outA, VERSION);
 
                 LOOP_ASSERT(i, outA.length() == outO.length());
                 LOOP_ASSERT(i, 0             == memcmp(outO.data(),
@@ -2697,14 +2698,14 @@ int main(int argc, char *argv[])
         //---- - ---  ---   --------------------------------------------------
 
         { L_, -9, -9,  &A,  "["                                              SP
-                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
-                            "timeZoneId = \"EDT\""                           SP
+                            "03MAY2011_15:00:00.000-0400"                    SP
+                            "\"EDT\""                                        SP
                             "]"
                                                                              },
 
         { L_, -9, -9,  &B,  "["                                              SP
-                            "datetimeTz = 09JAN2011_10:00:00.000+0200"       SP
-                            "timeZoneId = \"IST\""                           SP
+                            "09JAN2011_10:00:00.000+0200"                    SP
+                            "\"IST\""                                        SP
                             "]"
                                                                              },
 #undef NL
