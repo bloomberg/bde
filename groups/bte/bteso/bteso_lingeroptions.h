@@ -28,112 +28,85 @@ BDES_IDENT("$Id: $")
 //..
 //  Name        Type         Default  Simple Constraints
 //  ----------  -----------  -------  ------------------
-//  timeout     int          0        >= 0
 //  lingerFlag  bool         false    none
+//  timeout     int          0        >= 0
 //..
-//: o timeout: maximum time (in seconds) that a process should block when
-//:   trying to 'close' a socket if there is untransmitted data.
-//:
 //: o lingerFlag: 'true' if the process should block when trying to 'close' a
 //:   socket if there is untransmitted data.
+//:
+//: o timeout: maximum time (in seconds) that a process should block when
+//:   trying to 'close' a socket if there is untransmitted data.
 //
 ///Usage
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Creating functions to set linger option.
-///---------------------------------------------------
+///Example 1: Creating functions to set linger option
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // This component is designed to be used at a higher level to set the linger
 // option for a stream-based socket.  This example shows how to create a
 // function that takes 'bteso_LingerOptions' as an argument and set the linger
-// option of a socket.  We will assume Berkeley socket API is available to
+// option of a socket.  We will assume Berkely socket API is available to
 // configure the socket.
 //
-// First, we define a cross-platform compatible typedef for a socket handle.
+// First, we define a cross-platform compatible typedef for a socket handle:
 //..
-//#ifdef BSLS_PLATFORM__OS_WINDOWS
-//  typedef SOCKET Handle;
-//#else
-//  typedef int Handle;
-//#endif
+//  #ifdef BSLS_PLATFORM__OS_WINDOWS
+//      typedef SOCKET Handle;
+//  #else
+//      typedef int Handle;
+//  #endif
 //..
-// Then, we declare the 'struct' needed to set the linger option.
+// Then, we declare the 'struct' needed to set the linger option:
 //..
-//struct LingerData {
-//#if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_CYGWIN)
-//  int  l_onoff;
-//  int  l_linger;
-//#elif defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
-//  u_short  l_onoff;
-//  u_short  l_linger;
-//#endif
-//};
+//  struct LingerDataImp {
+//  #if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_CYGWIN)
+//      int l_onoff;
+//      int l_linger;
+//  #elif defined(BSLS_PLATFORM__OS_WINDOWS) \
+//     || defined(BSLS_PLATFORM__OS_CYGWIN)
+//      u_short l_onoff;
+//      u_short l_linger;
+//  #endif
+//  };
 //..
-// Next, we declare the function, 'setLingerOption', that takes a 'Handle' and
-// a 'bteso_LingerOptions' object, and set the linger option for the 'Handle'.
+// Next, we declare the function, 'setLingerOptions', that takes a 'Handle' and
+// a 'bteso_LingerOptions' object, and set the linger option for the 'Handle':
 //..
-//int setLingerOption(Handle                     handle,
-//                    const bteso_LingerOptions& lingerOptions)
-//{
+//  int setLingerOptions(Handle                     handle,
+//                       const bteso_LingerOptions& lingerOptions)
+//  {
 //..
-// Then, we use create 'LingerData' struct that was just defined and copies the
-// data from 'lingerOptions'
+// Then, we initialize a 'LingerDataImp' 'struct' used by the 'setsocketopt'
+// system call with the data from 'lingerOptions':
 //..
-//    LingerData linger;
-//    linger.l_onoff  = lingerOptions.lingerFlag();
-//    linger.l_linger = lingerOptions.timeout();
+//      LingerDataImp linger;
+//      linger.l_onoff  = lingerOptions.lingerFlag();
+//      linger.l_linger = lingerOptions.timeout();
 //..
-// Next, we set the linger option for the socket.
+// Next, we configure the linger option for the socket:
 //..
-//    return ::setsockopt(handle,
-//                        SOL_SOCKET,
-//                        SO_LINGER,
-//                        reinterpret_cast<void*>(&linger),
-//                        sizeof linger);
-//}
+//      return ::setsockopt(handle,
+//                          SOL_SOCKET,
+//                          SO_LINGER,
+//                          reinterpret_cast<void*>(&linger),
+//                          sizeof linger);
+//  }
 //..
-// Then, we will also implement a 'getLingerOption' to retrieve the option we
-// set.
-//..
-//void getLingerOption(bteso_LingerOptions *result,
-//                     Handle               handle)
-//{
-//    LingerData linger;
-//#if defined (BSLS_PLATFORM__OS_AIX) || defined (BSLS_PLATFORM__CMP_GNU)
-//    socklen_t len;
-//#else
-//    int len;
-//#endif
-//    int len = sizeof linger;
-//    ::getsockopt(handle,
-//                 SOL_SOCKET,
-//                 SO_LINGER,
-//                 reinterpret_cast<void*>(&linger),
-//                 &len);
-//    result->setLingerFlag(linger.l_onoff);
-//    result->setTimeout(linger.l_linger);
-//}
-//..
-// Next, we can start using these functions.  We create a 'bteso_LingerOptions'
-// object, set 'timeout' to 2 seconds, and 'lingerFlag' to true.
-//..
-//  bteso_LingerOptions option(2, true);
-//..
-// Then, we create a new socket using the 'socket' function from Berkeley API
-// and set the linger option for that socket.
+// Then, we create a new socket using the 'socket' function from Berkeley API:
 //..
 //  Handle socketHandle = ::socket(AF_INET, SOCK_STREAM, 0);
 //..
-// Now, we set the linger option of 'socketHandle'.
+// Now, we create a 'bteso_LingerOptions' object, 'option', indicating an
+// associated socket should block when closing a stream with untransmitted
+// data (i.e. linger) for 2 seconds:
 //..
-//  setLingerOption(socketHandle, option);
+//  bteso_LingerOptions option(2, true);
 //..
-// Finally, we use the 'getLingerOption' function to verify the linger option
-// is set.
+// Finally, we call 'setLingerOptions' (defined above), to configure the
+// options for the socket:
 //..
-//  bteso_LingerOptions result;
-//  getLingerOption(&result, socketHandle);
-//  assert(option == result);
+//  setLingerOptions(socketHandle, option);
 //..
 
 #ifndef INCLUDED_BTESCM_VERSION
