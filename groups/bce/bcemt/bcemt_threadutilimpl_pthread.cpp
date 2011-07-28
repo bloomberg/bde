@@ -55,10 +55,17 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
         rc |= pthread_attr_setschedparam(dest, &param);
     }
 
+    enum { STACK_FUDGE = 8192 };
+        // Before 'STACK_FUDGE' was added, in bcemt_threadutil.t.cpp cases -2
+        // and -4, Linux was crashing about 4K away from the end of the stack
+        // in 32 & 64 bit.  All other unix platforms were running past the
+        // end of the stack without crashing.
+
     int stackSize = src.stackSize();
     if (stackSize < 0) {
         stackSize = bcemt_Default::defaultThreadStackSize();
     }
+    stackSize += STACK_FUDGE;
 #if defined(BSLS_PLATFORM__OS_HPUX)
     stackSize *= 2;
 #endif

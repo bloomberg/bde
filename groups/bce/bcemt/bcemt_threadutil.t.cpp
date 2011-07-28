@@ -146,6 +146,55 @@ void createSmallStackSizeThread()
 }  // close unnamed namespace
 
 //-----------------------------------------------------------------------------
+//                                    TEST CASE 7
+//-----------------------------------------------------------------------------
+
+namespace TEST_CASE_7 {
+
+template <int BUFFER_SIZE>
+struct Func {
+    void operator()()
+    {
+        char buffer[BUFFER_SIZE];
+        static char *pc;
+
+        for (pc = buffer; pc < buffer + BUFFER_SIZE; ++pc) {
+            *pc = (char) 0xa3;
+        }
+    }
+};
+
+template <int BUFFER_SIZE>
+void testStackSize()
+{
+#ifdef PTHREAD_STACK_MIN
+    if (PTHREAD_STACK_MIN > BUFFER_SIZE) {
+        return;                                                       // RETURN
+    }
+#endif
+
+    bcemt_ThreadAttributes attr;
+    attr.setStackSize(BUFFER_SIZE);
+    attr.setGuardSize(0);
+
+    Obj::Handle handle;
+    int cRc = Obj::create(&handle, attr, Func<BUFFER_SIZE>());
+    LOOP_ASSERT(BUFFER_SIZE, 0 == cRc);
+    int jRc = 0;
+    if (0 == cRc) {
+        jRc = Obj::join(handle);
+        ASSERT(0 == jRc);
+    }
+
+    if (verbose) {
+        cout << "testStackSize<" << BUFFER_SIZE << ">() " <<
+                                    ((cRc | jRc) ? "failed\n" : "succeeded\n");
+    }
+}
+
+}  // close namespace TEST_CASE_7
+
+//-----------------------------------------------------------------------------
 //                                    TEST CASE 6
 //-----------------------------------------------------------------------------
 
@@ -421,7 +470,7 @@ extern "C" void *secondClearanceTest(void *vStackSize)
 
     for (;; pc += growth) {
         *pc = 0;
-        diff =  stackSize - myAbs(pc - &c);
+        diff =  stackSize - (int) myAbs(pc - &c);
 
         printf("%d\n", diff);
     }
@@ -442,6 +491,70 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 7: {
+        // --------------------------------------------------------------------
+        // STACK SIZE
+        //
+        // Concern:
+        //   Does setting 'stackSize' allow one to create a buffer of that size
+        //   in the thread?
+        //
+        // Plan:
+        //   For various stack sizes, create threads with that stack size and
+        //   create a buffer of that size in the thread, and see if we crash.
+        //   Note that this test is not guaranteed to fail if there is a
+        //   problem -- it is possible that if there is a bug and invalid
+        //   memory access occurs, it will just abuse the heap but not result
+        //   in a crash.
+        // --------------------------------------------------------------------
+
+        namespace TC = TEST_CASE_7;
+
+        enum { K = 1024 };
+
+        TC::testStackSize<  1 * K>();
+        TC::testStackSize<  2 * K>();
+        TC::testStackSize<  3 * K>();
+        TC::testStackSize<  4 * K>();
+        TC::testStackSize<  8 * K>();
+        TC::testStackSize< 10 * K>();
+        TC::testStackSize< 12 * K>();
+        TC::testStackSize< 14 * K>();
+        TC::testStackSize< 16 * K>();
+        TC::testStackSize< 18 * K>();
+        TC::testStackSize< 20 * K>();
+        TC::testStackSize< 24 * K>();
+        TC::testStackSize< 28 * K>();
+        TC::testStackSize< 32 * K>();
+        TC::testStackSize< 36 * K>();
+        TC::testStackSize< 40 * K>();
+        TC::testStackSize< 44 * K>();
+        TC::testStackSize< 48 * K>();
+        TC::testStackSize< 52 * K>();
+        TC::testStackSize< 56 * K>();
+        TC::testStackSize< 58 * K>();
+        TC::testStackSize< 60 * K>();
+        TC::testStackSize< 62 * K>();
+        TC::testStackSize< 64 * K>();
+        TC::testStackSize< 68 * K>();
+        TC::testStackSize< 72 * K>();
+        TC::testStackSize< 76 * K>();
+        TC::testStackSize< 80 * K>();
+        TC::testStackSize< 84 * K>();
+        TC::testStackSize< 88 * K>();
+        TC::testStackSize< 92 * K>();
+        TC::testStackSize< 96 * K>();
+        TC::testStackSize<100 * K>();
+        TC::testStackSize<104 * K>();
+        TC::testStackSize<108 * K>();
+        TC::testStackSize<112 * K>();
+        TC::testStackSize<116 * K>();
+        TC::testStackSize<120 * K>();
+        TC::testStackSize<124 * K>();
+        TC::testStackSize<128 * K>();
+        TC::testStackSize<256 * K>();
+        TC::testStackSize<512 * K>();
+      }  break;
       case 6: {
         // --------------------------------------------------------------------
         // DELETEKEY, THREAD-SPECIFICITY OF DATA TEST ON TLS
@@ -886,7 +999,7 @@ int main(int argc, char *argv[])
         ASSERT(verbose);
 
 #ifdef PTHREAD_STACK_MIN
-        int stackSize = PTHREAD_STACK_MIN;
+        int stackSize = (int) PTHREAD_STACK_MIN;
 #else
         int stackSize = 1 << 17;
 #endif
