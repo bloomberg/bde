@@ -1576,7 +1576,8 @@ bool btemt_TcpTimerEventManager::canRegisterSockets() const
 {
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     if (bcemt_ThreadUtil::isEqual(bcemt_ThreadUtil::self(), d_dispatcher)) {
-        return d_manager_p->canRegisterSockets();                     // RETURN
+        return ((bteso_DefaultEventManager<bteso_Platform::SELECT> *)
+                                 d_manager_p)->canRegisterSockets();  // RETURN
     }
 
     bcemt_Mutex     mutex;
