@@ -215,9 +215,9 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 ///Example 1: Creating functions to set linger option
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // This component is designed to be used at a higher level to set the linger
-// option for a stream-based socket.  This example shows how to create a
-// function that takes 'bteso_LingerOptions' as an argument and set the linger
-// option of a socket.  We will assume Berkely socket API is available to
+// options for a stream-based socket.  This example shows how to create a
+// function that takes 'bteso_LingerOptions' as an argument and sets the linger
+// options of a socket.  We will assume Berkeley socket API is available to
 // configure the socket.
 //
 // First, we define a cross-platform compatible typedef for a socket handle:
@@ -228,39 +228,39 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
     typedef int Handle;
 #endif
 //..
-// Then, we declare the 'struct' needed to set the linger option:
-//..
-struct LingerDataImp {
-#if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_CYGWIN)
-    int l_onoff;
-    int l_linger;
-#elif defined(BSLS_PLATFORM__OS_WINDOWS) \
-   || defined(BSLS_PLATFORM__OS_CYGWIN)
-    u_short l_onoff;
-    u_short l_linger;
-#endif
-};
-//..
-// Next, we declare the function, 'setLingerOptions', that takes a 'Handle' and
-// a 'bteso_LingerOptions' object, and set the linger option for the 'Handle':
+// Then, we declare the function, 'setLingerOptions', that takes a 'Handle' and
+// a 'bteso_LingerOptions' object, and sets the linger options for 'Handle':
 //..
 int setLingerOptions(Handle                     handle,
                      const bteso_LingerOptions& lingerOptions)
 {
 //..
-// Then, we initialize a 'LingerDataImp' 'struct' used by the 'setsocketopt'
-// system call with the data from 'lingerOptions':
+// Next, we declare the 'struct' needed to set the linger options:
 //..
-    LingerDataImp linger;
+    struct LingerData {
+    #if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_CYGWIN)
+        int l_onoff;
+        int l_linger;
+    #elif defined(BSLS_PLATFORM__OS_WINDOWS) \
+       || defined(BSLS_PLATFORM__OS_CYGWIN)
+        u_short l_onoff;
+        u_short l_linger;
+    #endif
+    };
+//..
+// Then, we initialize a 'LingerData' object with data from 'lingerOptions',
+// which will be supplied to the 'setsockopt' system call:
+//..
+    LingerData linger;
     linger.l_onoff  = lingerOptions.lingerFlag();
     linger.l_linger = lingerOptions.timeout();
 //..
-// Next, we configure the linger option for the socket:
+// Next, we configure the linger options for the socket:
 //..
     return ::setsockopt(handle,
                         SOL_SOCKET,
                         SO_LINGER,
-                        reinterpret_cast<void*>(&linger),
+                        reinterpret_cast<void *>(&linger),
                         sizeof linger);
 }
 //..
@@ -313,10 +313,10 @@ int main(int argc, char *argv[])
     Handle socketHandle = ::socket(AF_INET, SOCK_STREAM, 0);
 //..
 // Now, we create a 'bteso_LingerOptions' object, 'option', indicating an
-// associated socket should block when closing a stream with untransmitted
-// data (i.e. linger) for 2 seconds:
+// associated socket should block for 2 seconds when closing a stream with
+// untransmitted data (i.e. lingering):
 //..
-    bteso_LingerOptions option(2, true);
+    bteso_LingerOptions option(true, 2);
 //..
 // Finally, we call 'setLingerOptions' (defined above), to configure the
 // options for the socket:
@@ -350,11 +350,15 @@ int main(int argc, char *argv[])
         //: 5 'bdexStreamIn' does not modify the object when given an empty or
         //:   invalid stream.
         //:
-        //: 6 BDEX stream is invalidated when an for unsupported version.
+        //: 6 'stream' is invalidated for unsupported version.
         //:
         //: 7 BDEX streaming is exception neutral.
         //:
-        //: 8 QoI: Asserted precondition violations are detected when enabled.
+        //: 8 'bdexStreamIn' invalidate the input stream if it contains invalid
+        //:   data.
+        //:
+        //: 9 'bdexStreamIn' puts the obejct into a valid state if the input
+        //:   stream contains invalid data.
         //
         // Plan:
         //  TBD
@@ -570,24 +574,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\tNegative Testing." << endl;
+        if (verbose) cout << "\tStream with invalid data." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
-
             const int  D1 = 0;
             const bool D2 = false;
 
-            {
-                Out out;
-
-                bdex_OutStreamFunctions::streamOut(out, D1, 1);
-                bdex_OutStreamFunctions::streamOut(out, D2, 1);
-
-                In in(out.data(), out.length());
-                Obj mX;  const Obj& X = mX;
-                in.setSuppressVersionCheck(1);
-                ASSERT_PASS(mX.bdexStreamIn(in, MAX_VERSION));
-            }
             {
                 Out out;
 
@@ -597,7 +588,22 @@ int main(int argc, char *argv[])
                 In in(out.data(), out.length());
                 Obj mX;  const Obj& X = mX;
                 in.setSuppressVersionCheck(1);
-                ASSERT_FAIL(mX.bdexStreamIn(in, MAX_VERSION));
+                mX.bdexStreamIn(in, MAX_VERSION);
+
+                ASSERT(!in);
+            }
+            {
+                Out out;
+
+                bdex_OutStreamFunctions::streamOut(out, D1, 1);
+                bdex_OutStreamFunctions::streamOut(out, D2, 1);
+
+                In in(out.data(), out.length());
+                Obj mX;  const Obj& X = mX;
+                in.setSuppressVersionCheck(1);
+                mX.bdexStreamIn(in, MAX_VERSION);
+
+                ASSERT(in);
             }
         }
       } break;

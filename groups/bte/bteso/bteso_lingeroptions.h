@@ -19,9 +19,9 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, 'bteso_LingerOptions', that is used
 // to describe the linger options of a stream-based socket.  Linger options
-// describe how a stream-based socket behaves when closed.  Note that loger
-// options is designed to be used in conjunction with the 'bteso_socketoptions'
-// component to configure a stream-based socket.
+// describe how a stream-based socket behaves when it is being closed.  Note
+// that linger options is designed to be used in conjunction with the
+// 'bteso_socketoptions' component to configure a stream-based socket.
 //
 ///Attributes
 ///----------
@@ -44,9 +44,9 @@ BDES_IDENT("$Id: $")
 ///Example 1: Creating functions to set linger option
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // This component is designed to be used at a higher level to set the linger
-// option for a stream-based socket.  This example shows how to create a
-// function that takes 'bteso_LingerOptions' as an argument and set the linger
-// option of a socket.  We will assume Berkely socket API is available to
+// options for a stream-based socket.  This example shows how to create a
+// function that takes 'bteso_LingerOptions' as an argument and sets the linger
+// options of a socket.  We will assume Berkeley socket API is available to
 // configure the socket.
 //
 // First, we define a cross-platform compatible typedef for a socket handle:
@@ -57,39 +57,40 @@ BDES_IDENT("$Id: $")
 //      typedef int Handle;
 //  #endif
 //..
-// Then, we declare the 'struct' needed to set the linger option:
-//..
-//  struct LingerDataImp {
-//  #if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_CYGWIN)
-//      int l_onoff;
-//      int l_linger;
-//  #elif defined(BSLS_PLATFORM__OS_WINDOWS) \
-//     || defined(BSLS_PLATFORM__OS_CYGWIN)
-//      u_short l_onoff;
-//      u_short l_linger;
-//  #endif
-//  };
-//..
-// Next, we declare the function, 'setLingerOptions', that takes a 'Handle' and
-// a 'bteso_LingerOptions' object, and set the linger option for the 'Handle':
+// Then, we declare the function, 'setLingerOptions', that takes a 'Handle' and
+// a 'bteso_LingerOptions' object, and sets the linger options for 'Handle':
 //..
 //  int setLingerOptions(Handle                     handle,
 //                       const bteso_LingerOptions& lingerOptions)
 //  {
 //..
-// Then, we initialize a 'LingerDataImp' 'struct' used by the 'setsocketopt'
-// system call with the data from 'lingerOptions':
+// Next, we declare the 'struct' needed to set the linger options:
 //..
-//      LingerDataImp linger;
+//      struct LingerData {
+//      #if defined(BSLS_PLATFORM__OS_UNIX) \
+//       && !defined(BSLS_PLATFORM__OS_CYGWIN)
+//          int l_onoff;
+//          int l_linger;
+//      #elif defined(BSLS_PLATFORM__OS_WINDOWS) \
+//         || defined(BSLS_PLATFORM__OS_CYGWIN)
+//          u_short l_onoff;
+//          u_short l_linger;
+//      #endif
+//      };
+//..
+// Then, we initialize a 'LingerData' object with data from 'lingerOptions',
+// which will be supplied to the 'setsockopt' system call:
+//..
+//      LingerData linger;
 //      linger.l_onoff  = lingerOptions.lingerFlag();
 //      linger.l_linger = lingerOptions.timeout();
 //..
-// Next, we configure the linger option for the socket:
+// Next, we configure the linger options for the socket:
 //..
 //      return ::setsockopt(handle,
 //                          SOL_SOCKET,
 //                          SO_LINGER,
-//                          reinterpret_cast<void*>(&linger),
+//                          reinterpret_cast<void *>(&linger),
 //                          sizeof linger);
 //  }
 //..
@@ -98,10 +99,10 @@ BDES_IDENT("$Id: $")
 //  Handle socketHandle = ::socket(AF_INET, SOCK_STREAM, 0);
 //..
 // Now, we create a 'bteso_LingerOptions' object, 'option', indicating an
-// associated socket should block when closing a stream with untransmitted
-// data (i.e. linger) for 2 seconds:
+// associated socket should block for 2 seconds when closing a stream with
+// untransmitted data (i.e., lingering):
 //..
-//  bteso_LingerOptions option(2, true);
+//  bteso_LingerOptions option(true, 2);
 //..
 // Finally, we call 'setLingerOptions' (defined above), to configure the
 // options for the socket:
@@ -150,13 +151,13 @@ class bteso_LingerOptions {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    int   d_timeout;     // maximum time out value (in seconds) that a process
-                         // should block when trying to 'close' a socket if
-                         // there is untransmitted data
+    int  d_timeout;     // maximum time out value (in seconds) that a process
+                        // should block when trying to 'close' a socket if
+                        // there is untransmitted data
 
-    bool  d_lingerFlag;  // flag specifying if the process should block when
-                         // trying to 'close' a socket if there is
-                         // untransmitted data
+    bool d_lingerFlag;  // flag specifying if the process should block when
+                        // trying to 'close' a socket if there is
+                        // untransmitted data
 
   public:
     // TRAITS
@@ -179,7 +180,7 @@ class bteso_LingerOptions {
         //  lingerFlag == false
         //..
 
-    bteso_LingerOptions(int timeout, bool lingerFlag);
+    bteso_LingerOptions(bool lingerFlag, int timeout);
         // Create a 'bteso_LingerOptions' object having the specified
         // 'timeout', and 'lingerFlag' attribute values.  The behavior is
         // undefined unless '0 <= timeout'.
@@ -197,6 +198,11 @@ class bteso_LingerOptions {
 #endif
 
     // MANIPULATORS
+    //! bteso_LingerOptions& operator=(const bteso_LingerOptions& rhs) =
+    //!                                                                default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
     void setTimeout(int value);
         // Set the 'timeout' attribute of this object to the specified 'value'.
         // The behavior is undefined unless '0 <= value'.
@@ -212,14 +218,13 @@ class bteso_LingerOptions {
         // Assign to this object the value read from the specified input
         // 'stream' using the specified 'version' format, and return a
         // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, this object is valid, but its value is
-        // undefined.  If 'version' is not supported, 'stream' is marked
-        // invalid and this object is unaltered.  The behavior is undefined
-        // unless 'stream' contains valid data.  Note that no version is read
-        // from 'stream'.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
+        // invalid, this operation has no effect.  If 'stream' contains invalid
+        // data or becomes invalid during this operation, this object is valid,
+        // but its value is undefined.  If 'version' is not supported, 'stream'
+        // is marked invalid and this object is unaltered.  Note that no
+        // version is read from 'stream'.  See the 'bdex' package-level
+        // documentation for more information on 'bdex' streaming of
+        // value-semantic types and containers.
 
     // ACCESSORS
     bool lingerFlag() const;
@@ -230,11 +235,6 @@ class bteso_LingerOptions {
         // that '0 <= timeout()'.
 
                                   // Aspects
-
-    //! bteso_LingerOptions& operator=(const bteso_LingerOptions& rhs) =
-    //!                                                                default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -337,12 +337,12 @@ STREAM& bteso_LingerOptions::bdexStreamIn(STREAM& stream, int version)
             bdex_InStreamFunctions::streamIn(stream, d_timeout,    1);
             bdex_InStreamFunctions::streamIn(stream, d_lingerFlag, 1);
 
-            if (!stream) {
+            if (!stream || d_timeout < 0) {
                 d_timeout    = 0;
                 d_lingerFlag = 0;
-            }
 
-            BSLS_ASSERT(0 <= d_timeout);
+                stream.invalidate();
+            }
           } break;
           default: {
             stream.invalidate();
