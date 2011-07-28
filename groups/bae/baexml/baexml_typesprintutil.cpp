@@ -435,7 +435,7 @@ const char *printTextReplacingXMLEscapes(
                 }
                 else {
                     endTag = bdeu_String::strstr(data,
-                                                 dataLength,
+                                                 end - data,
                                                  CDATA_END_TAG,
                                                  CDATA_END_LEN);
                 }
