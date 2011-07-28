@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide constants, types, and operations related to alignment.
 //
 //@CLASSES:
-//  bsls_AlignmentUtil: namespace for alignment functions, types, and constants
+//   bsls_AlignmentUtil: namespace for alignment functions, types, and constants
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //

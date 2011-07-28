@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide classes and macros for testing abstract protocols.
 //
 //@CLASSES:
-//  bsls_ProtocolTestImp: provides a framework for testing protocol classes
-//  bsls_ProtocolTest: provides tests for protocol class concerns
+//   bsls_ProtocolTestImp: provides a framework for testing protocol classes
+//      bsls_ProtocolTest: provides tests for protocol class concerns
 //
 //@MACROS:
 //  BSLS_PROTOCOLTEST_ASSERT: macro for testing protocol methods
