@@ -192,7 +192,38 @@ struct Greaterp {
 //=============================================================================
 //                  GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
+struct TestType {
+    // This class is a simple test class used for testing whether there are
+    // possible cases in which a redefined 'operator&' might not work with this
+    // container.
 
+  private:
+#ifdef BSLS_ADDRESSOF
+    TestType *operator&();
+#endif
+  public:
+    int d_theInt;  // int member
+
+    // CREATORS 
+    TestType()
+    : d_theInt(0) {}
+
+    TestType(int theInt)
+    : d_theInt(theInt) {}
+
+    // ACCESSORS
+    int getTheInt() const { return d_theInt; }
+};
+
+bool operator==(const TestType& lhs, const TestType& rhs)
+{
+    return lhs.getTheInt() == rhs.getTheInt();
+}
+
+bool operator<(const TestType& lhs, const TestType& rhs)
+{
+    return lhs.getTheInt() < rhs.getTheInt();
+}
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -204,9 +235,9 @@ struct Greaterp {
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    bool verbose = argc > 2;
+    bool veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -216,6 +247,207 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard defaultGuard(&tda);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 7: {
+        // --------------------------------------------------------------------
+        // MULTISET MANIPULATOR / ACCESSOR TEST
+        //
+        // Concerns:
+        //   That the basic manipulators, accessors and iterators work as
+        //   documented.
+        //
+        // Plan:
+        //   First, repeat all the tests done on set that will also work on
+        //   multiset.  Then branch out into things that only multisets can
+        //   do.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                         "\nTESTING ADDRESSOF OPERATOR\n"
+                           "==========================n";
+
+        bsl::multiset<TestType> s(&ta);
+        bsl::multiset<TestType>::iterator it, itb, itc, itd;
+
+        for (int i = 0; i < 20; ++i) {
+            it = s.insert(i);
+            ASSERT(s.end() != it);
+            ASSERT(i == *it);
+        }
+        ASSERT(s.size() == 20);
+
+        it = s.find(5);
+        ASSERT(s.end() != it);
+        itb = s.insert(it, 20);
+        ASSERT(s.end() != itb);
+        ASSERT(it != itb);
+        ASSERT(s.size() == 21);
+        ASSERT(s.count(20));
+
+        int j;
+        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
+            ASSERT(*it == j);
+        }
+        ASSERT(21 == j);
+
+        s.erase(20);
+        ASSERT(s.size() == 20);
+        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
+            ASSERT(*it == j);
+        }
+        ASSERT(20 == j);
+
+        bsl::multiset<TestType> t(s, &ta);
+
+        ASSERT(s == t);
+
+        t.clear();
+
+        for (int i = 0; i < 100; ++i) {
+            t.insert(i);
+        }
+        ASSERT(t.size() == 100);
+
+        itb = t.find(20);
+        itc = t.find(30);
+        s.insert(itb, itc);
+        ASSERT(t.size() == 100);
+        ASSERT(s.size() == 30);
+
+        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
+            ASSERT(*it == j);
+        }
+        ASSERT(30 == j);
+
+        bsl::multiset<TestType>::reverse_iterator rit;
+        for (rit = s.rbegin(), j = 29; s.rend() != rit; ++rit, --j) {
+            ASSERT(*rit == j);
+        }
+        ASSERT(-1 == j);
+
+        it = s.lower_bound(15);
+        ASSERT(15 == *it);
+
+        it = s.lower_bound(-5);
+        ASSERT(0 == *it);
+
+        it = s.upper_bound(15);
+        ASSERT(16 == *it);
+
+        it = s.upper_bound(29);
+        ASSERT(s.end() == it);
+
+        {
+            bsl::pair<bsl::multiset<TestType>::iterator,
+                      bsl::multiset<TestType>::iterator> pr = s.equal_range(12);
+
+            ASSERT(12 == *pr.first);
+            ASSERT(13 == *pr.second);
+
+            pr = s.equal_range(40);
+            ASSERT(s.end() == pr.first);
+            ASSERT(s.end() == pr.second);
+
+            pr = s.equal_range(-40);
+            ASSERT(s.begin() == pr.first);
+            ASSERT(s.begin() == pr.second);
+
+            s.erase(10);
+
+            pr = s.equal_range(10);
+            ASSERT(11 == *pr.first);
+            ASSERT(11 == *pr.second);
+
+            s.insert(10);
+        }
+
+        s.clear();
+        t.clear();
+
+        s.insert(20);
+        t.insert(21);
+
+        ASSERT(s <  t);
+        ASSERT(s <= t);
+        ASSERT(s != t);
+        ASSERT(!(s >  t));
+        ASSERT(!(s >= t));
+        ASSERT(!(s == t));
+
+        s.insert(21);
+        t.insert(20);
+
+        ASSERT(s == t);
+        ASSERT(!(s != t));
+        ASSERT(s <= t);
+        ASSERT(!(s < t));
+        ASSERT(s >= t);
+        ASSERT(!(s > t));
+
+        s.clear();
+        t.clear();
+
+        for (int i = 0; i < 10; ++i) {
+            s.insert(i);
+        }
+        for (int i = 3; i <= 7; ++i) {
+            s.insert(i);
+        }
+
+        ASSERT(0 == s.count(-5));
+        ASSERT(0 == s.count(20));
+        ASSERT(1 == s.count( 0));
+        ASSERT(2 == s.count( 3));
+        ASSERT(2 == s.count( 7));
+
+        {
+            bsl::pair<bsl::multiset<TestType>::iterator,
+                      bsl::multiset<TestType>::iterator> pr = s.equal_range(3);
+
+            it = s.find(2);
+            ++it;
+
+            ASSERT(it == pr.first);
+            ASSERT(it != pr.second);
+
+            for (j = 3; j <= 7; ++j) {
+                ASSERT(j == *it++);
+                ASSERT(j == *it++);
+                if (3 == j) {
+                    ASSERT(it == pr.second);
+                }
+            }
+            ASSERT(8 == *it);
+
+            pr = s.equal_range(40);
+            ASSERT(s.end() == pr.first);
+            ASSERT(s.end() == pr.second);
+
+            pr = s.equal_range(-40);
+            ASSERT(s.begin() == pr.first);
+            ASSERT(s.begin() == pr.second);
+
+            s.erase(5);         // note this erases *ALL* elements with key 5
+            ASSERT(0 == s.count(5));
+
+            pr = s.equal_range(5);
+            ASSERT(6 == *pr.first);
+            ASSERT(6 == *pr.second);
+
+            s.erase(s.find(4), s.find(7));
+            ASSERT(2 == s.count(3));
+            ASSERT(0 == s.count(4));
+            ASSERT(0 == s.count(5));
+            ASSERT(0 == s.count(6));
+            ASSERT(2 == s.count(7));
+
+            pr = s.equal_range(5);
+            ASSERT(7 == *pr.first);
+            ASSERT(7 == *pr.second);
+
+            s.clear();
+            t.clear();
+        }
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // MULTISET MANIPULATOR / ACCESSOR TEST
