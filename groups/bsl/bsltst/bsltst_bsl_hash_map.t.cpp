@@ -1,4 +1,4 @@
-// bsltst_hash_map.t.cpp                  -*-C++-*-
+// bsltst_hash_map.t.cpp                                              -*-C++-*-
 #ifndef BSL_OVERRIDES_STD
 #define BSL_OVERRIDES_STD
 #endif
@@ -105,6 +105,9 @@ int verbose         = 0;
 int veryVerbose     = 0;
 int veryVeryVerbose = 0;
 
+bslma_TestAllocator tda;
+bslma_TestAllocator ta;
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -164,9 +167,20 @@ struct EqualInt {
         return lhs == rhs;
     }
 };
+
 bool EqualInt::s_used = false;
 
-struct Cargo {
+class Cargo {
+    // This class dynamically allocates memory, for verifying that the
+    // memory allocator is properly passed to elements within a container.
+
+#if defined(BDE_USE_ADDRESSOF)
+    // PRIVATE ACCESSORS
+    void operator&() const;     // = delete;
+        // Suppress the use of address-of operator on this type.
+#endif
+
+public:
     void            *d_p;
     bslma_Allocator *d_alloc;
 
@@ -197,6 +211,276 @@ struct Cargo {
     }
 };
 
+class IntWrapper
+{
+    int d_n;
+
+#if defined(BDE_USE_ADDRESSOF)
+    // PRIVATE ACCESSORS
+    void operator&() const;     // = delete;
+        // Suppress the use of address-of operator on this type.
+#endif
+
+public:
+    IntWrapper(int n = 0)
+        : d_n(n)
+    {}
+
+    IntWrapper(const IntWrapper& other)
+        : d_n(other.d_n)
+    {}
+
+    IntWrapper& operator=(const IntWrapper& other)
+    {
+        d_n = other.d_n;
+    }
+
+    operator int() const
+    {
+        return d_n;
+    }
+};
+
+template <typename KEY, typename VALUE, typename HASH, typename EQUAL>
+void testMultimapManipulators()
+{
+    typedef bsl::hash_multimap<KEY, VALUE, HASH, EQUAL> Obj;
+    Obj hma(&ta);
+
+    typedef bsl::pair<const KEY, VALUE> Pr;
+
+    typename Obj::iterator it;
+    typename Obj::const_iterator itc;
+
+    ASSERT(hma.empty());
+    ASSERT(0 == hma.size());
+
+    hma.insert(Pr(KEY(0), VALUE(0)));
+    hma.insert(Pr(1, 1));
+
+    ASSERT(!hma.empty());
+    ASSERT(2 == hma.size());
+
+    Obj hmb(hma, &ta);
+
+    ASSERT(hma == hmb);
+    ASSERT(!(hma != hmb));
+
+    it = hma.find(0);
+    it->second = -1;
+
+    ASSERT(hma != hmb);
+    ASSERT(!(hma == hmb));
+
+    hma = hmb;
+
+    ASSERT(hma == hmb);
+    ASSERT(!(hma != hmb));
+
+    int j = hma.bucket_count();
+    j *= 4;
+    hma.resize(j);
+    ASSERT((int) hma.bucket_count() >= j);
+
+    {
+        HASH hi = hma.hash_funct();
+        ASSERT(0 == hi(0));
+        EQUAL ei = hma.key_eq();
+        ASSERT( ei(3, 3));
+        ASSERT(!ei(2, 3));
+    }
+
+    hmb.insert(Pr(2, 2));
+    hmb.insert(Pr(3, 3));
+    hmb.insert(Pr(4, 4));
+    hmb.insert(Pr(5, 5));
+
+    hma.swap(hmb);
+
+    ASSERT(6 == hma.size());
+    ASSERT(2 == hmb.size());
+
+    bsl::swap(hma, hmb);
+
+    ASSERT(2 == hma.size());
+    ASSERT(6 == hmb.size());
+
+    hmb.swap(hma);
+
+    it = hma.find(2);
+    ASSERT(2 == it->first);
+    ASSERT(2 == it->second);
+
+    hma.erase(it);
+    hma.erase(3);
+
+    ASSERT(4 == hma.size());
+
+    j = 0;
+    for (int i = -5; i < 20; ++i) {
+        ASSERT(hma.count(i) == (i >= 0 && i < 6 && 2 != i && 3 != i));
+        if (hma.count(i)) {
+            ++j;
+        }
+    }
+    ASSERT(4 == j);
+
+    const Obj hmc = hma;
+    itc = hmc.find(1);
+    ASSERT(1 == itc->first);
+    ASSERT(1 == itc->second);
+
+    bsl::pair<typename Obj::iterator, typename Obj::iterator> prI;
+    prI = hma.equal_range(1);
+    it = hma.find(1);
+    ASSERT(prI.first == it);
+    ASSERT(prI.first != prI.second);
+    ASSERT(prI.second == hma.end() || 1 != prI.second->first);
+
+    bsl::pair<typename Obj::const_iterator, typename Obj::const_iterator> prIC;
+    prIC = hmc.equal_range(1);
+    ASSERT(prIC.first == itc);
+    ASSERT(prIC.first != prIC.second);
+    ASSERT(prIC.second == hmc.end() || 1 != prIC.second->first);
+
+    if (verbose) cout << "Specific multimap functionality\n";
+
+    {
+        const int vals[] = { 1, 1, 0, 0, 1, 1 };
+        enum { VALS_SIZE = sizeof vals / sizeof *vals };
+
+        for (int i = 0; i < VALS_SIZE; ++i) {
+            if (vals[i]) {
+                hma.insert(Pr(i, i));
+            }
+        }
+    }
+
+    LOOP_ASSERT(hma.size(), 8 == hma.size());
+
+    j = 0;
+    int k = 0;
+    for (int i = -5; i < 20; ++i) {
+        LOOP2_ASSERT(i, hma.count(i), hma.count(i) ==
+                          ((i >= 0 && i < 6 && 2 != i && 3 != i) ? 2 : 0));
+        if (hma.count(i)) {
+            ++j;
+        }
+        k += hma.count(i);
+    }
+    ASSERT(4 == j);
+    ASSERT(8 == k);
+}
+
+template <typename KEY, typename VALUE, typename HASH, typename EQUAL>
+void testMapManipulators()
+{
+    typedef bsl::hash_map<KEY, VALUE, HASH, EQUAL> Obj;
+    Obj hma(&ta);
+
+    typedef bsl::pair<const KEY, VALUE> Pr;
+
+    typename Obj::iterator it;
+    typename Obj::const_iterator itc;
+
+    ASSERT(hma.empty());
+    ASSERT(0 == hma.size());
+
+    hma[0] = 0;
+    hma.insert(Pr(1, 1));
+
+    ASSERT(!hma.empty());
+    ASSERT(2 == hma.size());
+
+    Obj hmb(hma, &ta);
+
+    ASSERT(hma == hmb);
+    ASSERT(!(hma != hmb));
+
+    hma[0] = -1;
+
+    ASSERT(hma != hmb);
+    ASSERT(!(hma == hmb));
+
+    hma = hmb;
+
+    ASSERT(hma == hmb);
+    ASSERT(!(hma != hmb));
+
+    int j = hma.bucket_count();
+    j *= 4;
+    hma.resize(j);
+    ASSERT((int) hma.bucket_count() >= j);
+
+    {
+        HASH hi = hma.hash_funct();
+        ASSERT(0 == hi(0));
+        EQUAL ei = hma.key_eq();
+        ASSERT( ei(3, 3));
+        ASSERT(!ei(2, 3));
+    }
+
+    hmb.insert(Pr(2, 2));
+    hmb.insert(Pr(3, 3));
+    hmb.insert(Pr(4, 4));
+    hmb.insert(Pr(5, 5));
+
+    hma.swap(hmb);
+
+    ASSERT(6 == hma.size());
+    ASSERT(2 == hmb.size());
+
+    bsl::swap(hma, hmb);
+
+    ASSERT(2 == hma.size());
+    ASSERT(6 == hmb.size());
+
+    hmb.swap(hma);
+
+    it = hma.find(2);
+    ASSERT(2 == it->first);
+    ASSERT(2 == it->second);
+
+    hma.erase(it);
+    hma.erase(3);
+
+    ASSERT(4 == hma.size());
+
+    j = 0;
+    for (int i = -5; i < 20; ++i) {
+        ASSERT(hma.count(i) == (i >= 0 && i < 6 && 2 != i && 3 != i));
+        if (hma.count(i)) {
+            ++j;
+        }
+    }
+    ASSERT(4 == j);
+
+    for (j = 0, it = hma.begin(); hma.end() != it; ++it) {
+        ++j;
+    }
+    ASSERT(4 == j);
+
+    const Obj hmc = hma;
+    itc = hmc.find(1);
+    ASSERT(1 == itc->first);
+    ASSERT(1 == itc->second);
+
+    bsl::pair<typename Obj::iterator, typename Obj::iterator> prI;
+    prI = hma.equal_range(1);
+    it = hma.find(1);
+    ASSERT(prI.first == it);
+    ASSERT(prI.first != prI.second);
+    ASSERT(prI.second == hma.end() || 1 != prI.second->first);
+
+    bsl::pair<typename Obj::const_iterator, typename Obj::const_iterator> prIC;
+    prIC = hmc.equal_range(1);
+    ASSERT(prIC.first == itc);
+    ASSERT(prIC.first != prIC.second);
+    ASSERT(prIC.second == hmc.end() || 1 != prIC.second->first);
+
+    ASSERT(1 == hma[1]);
+}
+
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -213,9 +497,6 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
-    bslma_TestAllocator tda;
-    bslma_TestAllocator ta;
 
     bslma_DefaultAllocatorGuard guard(&tda);
 
@@ -238,132 +519,9 @@ int main(int argc, char *argv[])
                        "\nHASH_MULTIMAP BASIC MANIPULATOR AND ACCESSOR TEST\n"
                          "=================================================\n";
 
-        typedef bsl::hash_multimap<int, int, HashInt, EqualInt> Obj;
-        Obj hma(&ta);
+        testMultimapManipulators<int, int, HashInt, EqualInt>();
+        testMultimapManipulators<IntWrapper, IntWrapper, HashInt, EqualInt>();
 
-        typedef bsl::pair<const int, int> Pr;
-
-        Obj::iterator it;
-        Obj::const_iterator itc;
-
-        ASSERT(hma.empty());
-        ASSERT(0 == hma.size());
-
-        hma.insert(Pr(0, 0));
-        hma.insert(Pr(1, 1));
-
-        ASSERT(!hma.empty());
-        ASSERT(2 == hma.size());
-
-        Obj hmb(hma, &ta);
-
-        ASSERT(hma == hmb);
-        ASSERT(!(hma != hmb));
-
-        it = hma.find(0);
-        it->second = -1;
-
-        ASSERT(hma != hmb);
-        ASSERT(!(hma == hmb));
-
-        hma = hmb;
-
-        ASSERT(hma == hmb);
-        ASSERT(!(hma != hmb));
-
-        int j = hma.bucket_count();
-        j *= 4;
-        hma.resize(j);
-        ASSERT((int) hma.bucket_count() >= j);
-
-        {
-            HashInt hi = hma.hash_funct();
-            ASSERT(0 == hi(0));
-            EqualInt ei = hma.key_eq();
-            ASSERT( ei(3, 3));
-            ASSERT(!ei(2, 3));
-        }
-
-        hmb.insert(Pr(2, 2));
-        hmb.insert(Pr(3, 3));
-        hmb.insert(Pr(4, 4));
-        hmb.insert(Pr(5, 5));
-
-        hma.swap(hmb);
-
-        ASSERT(6 == hma.size());
-        ASSERT(2 == hmb.size());
-
-        bsl::swap(hma, hmb);
-
-        ASSERT(2 == hma.size());
-        ASSERT(6 == hmb.size());
-
-        hmb.swap(hma);
-
-        it = hma.find(2);
-        ASSERT(2 == it->first);
-        ASSERT(2 == it->second);
-
-        hma.erase(it);
-        hma.erase(3);
-
-        ASSERT(4 == hma.size());
-
-        j = 0;
-        for (int i = -5; i < 20; ++i) {
-            ASSERT(hma.count(i) == (i >= 0 && i < 6 && 2 != i && 3 != i));
-            if (hma.count(i)) {
-                ++j;
-            }
-        }
-        ASSERT(4 == j);
-
-        const Obj hmc = hma;
-        itc = hmc.find(1);
-        ASSERT(1 == itc->first);
-        ASSERT(1 == itc->second);
-
-        bsl::pair<Obj::iterator, Obj::iterator> prI;
-        prI = hma.equal_range(1);
-        it = hma.find(1);
-        ASSERT(prI.first == it);
-        ASSERT(prI.first != prI.second);
-        ASSERT(prI.second == hma.end() || 1 != prI.second->first);
-
-        bsl::pair<Obj::const_iterator, Obj::const_iterator> prIC;
-        prIC = hmc.equal_range(1);
-        ASSERT(prIC.first == itc);
-        ASSERT(prIC.first != prIC.second);
-        ASSERT(prIC.second == hmc.end() || 1 != prIC.second->first);
-
-        if (verbose) cout << "Specific multimap functionality\n";
-
-        {
-            const int vals[] = { 1, 1, 0, 0, 1, 1 };
-            enum { VALS_SIZE = sizeof vals / sizeof *vals };
-
-            for (int i = 0; i < VALS_SIZE; ++i) {
-                if (vals[i]) {
-                    hma.insert(Pr(i, i));
-                }
-            }
-        }
-
-        LOOP_ASSERT(hma.size(), 8 == hma.size());
-
-        j = 0;
-        int k = 0;
-        for (int i = -5; i < 20; ++i) {
-            LOOP2_ASSERT(i, hma.count(i), hma.count(i) ==
-                              ((i >= 0 && i < 6 && 2 != i && 3 != i) ? 2 : 0));
-            if (hma.count(i)) {
-                ++j;
-            }
-            k += hma.count(i);
-        }
-        ASSERT(4 == j);
-        ASSERT(8 == k);
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -381,110 +539,9 @@ int main(int argc, char *argv[])
         if (verbose) cout <<"\nHASH_MAP BASIC MANIPULATOR AND ACCESSOR TEST\n"
                               "============================================\n";
 
-        typedef bsl::hash_map<int, int, HashInt, EqualInt> Obj;
-        Obj hma(&ta);
+        testMapManipulators<int, int, HashInt, EqualInt>();
+        testMapManipulators<IntWrapper, IntWrapper, HashInt, EqualInt>();
 
-        typedef bsl::pair<const int, int> Pr;
-
-        Obj::iterator it;
-        Obj::const_iterator itc;
-
-        ASSERT(hma.empty());
-        ASSERT(0 == hma.size());
-
-        hma[0] = 0;
-        hma.insert(Pr(1, 1));
-
-        ASSERT(!hma.empty());
-        ASSERT(2 == hma.size());
-
-        Obj hmb(hma, &ta);
-
-        ASSERT(hma == hmb);
-        ASSERT(!(hma != hmb));
-
-        hma[0] = -1;
-
-        ASSERT(hma != hmb);
-        ASSERT(!(hma == hmb));
-
-        hma = hmb;
-
-        ASSERT(hma == hmb);
-        ASSERT(!(hma != hmb));
-
-        int j = hma.bucket_count();
-        j *= 4;
-        hma.resize(j);
-        ASSERT((int) hma.bucket_count() >= j);
-
-        {
-            HashInt hi = hma.hash_funct();
-            ASSERT(0 == hi(0));
-            EqualInt ei = hma.key_eq();
-            ASSERT( ei(3, 3));
-            ASSERT(!ei(2, 3));
-        }
-
-        hmb.insert(Pr(2, 2));
-        hmb.insert(Pr(3, 3));
-        hmb.insert(Pr(4, 4));
-        hmb.insert(Pr(5, 5));
-
-        hma.swap(hmb);
-
-        ASSERT(6 == hma.size());
-        ASSERT(2 == hmb.size());
-
-        bsl::swap(hma, hmb);
-
-        ASSERT(2 == hma.size());
-        ASSERT(6 == hmb.size());
-
-        hmb.swap(hma);
-
-        it = hma.find(2);
-        ASSERT(2 == it->first);
-        ASSERT(2 == it->second);
-
-        hma.erase(it);
-        hma.erase(3);
-
-        ASSERT(4 == hma.size());
-
-        j = 0;
-        for (int i = -5; i < 20; ++i) {
-            ASSERT(hma.count(i) == (i >= 0 && i < 6 && 2 != i && 3 != i));
-            if (hma.count(i)) {
-                ++j;
-            }
-        }
-        ASSERT(4 == j);
-
-        for (j = 0, it = hma.begin(); hma.end() != it; ++it) {
-            ++j;
-        }
-        ASSERT(4 == j);
-
-        const Obj hmc = hma;
-        itc = hmc.find(1);
-        ASSERT(1 == itc->first);
-        ASSERT(1 == itc->second);
-
-        bsl::pair<Obj::iterator, Obj::iterator> prI;
-        prI = hma.equal_range(1);
-        it = hma.find(1);
-        ASSERT(prI.first == it);
-        ASSERT(prI.first != prI.second);
-        ASSERT(prI.second == hma.end() || 1 != prI.second->first);
-
-        bsl::pair<Obj::const_iterator, Obj::const_iterator> prIC;
-        prIC = hmc.equal_range(1);
-        ASSERT(prIC.first == itc);
-        ASSERT(prIC.first != prIC.second);
-        ASSERT(prIC.second == hmc.end() || 1 != prIC.second->first);
-
-        ASSERT(1 == hma[1]);
       } break;
       case 4: {
         // --------------------------------------------------------------------
