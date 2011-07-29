@@ -187,8 +187,10 @@ struct CargoNoAddressOf {
 
     enum { BULK_STORAGE = 4000 };
 
-    BSLALG_DECLARE_NESTED_TRAITS(CargoNoAddressOf, bslalg_TypeTraitUsesBslmaAllocator);
-      // Declare nested type traits for this class.
+    // Declare nested type traits for this class.
+    
+    BSLALG_DECLARE_NESTED_TRAITS(CargoNoAddressOf, 
+                                 bslalg_TypeTraitUsesBslmaAllocator);
 
     explicit
     CargoNoAddressOf(int i, bslma_Allocator *a = 0) {
@@ -291,7 +293,7 @@ struct TestDriver {
 
     // TEST CASES
     static void testCase6();
-        // Test equality operator ('operator==').
+        // Test 'multiset' MANIPULATORS, ACCESSORS, and iterators.
 
     static void testCase5();
         // Test 'set' MANIPULATORS, ACCESSORS, and iterators.
@@ -1313,9 +1315,10 @@ int main(int argc, char *argv[])
         //   try this for all allocators.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nSET MEMORY CONSUMPTION AND CONSTRUCTOR TEST\n"
-                             "===========================================\n";
+       if (verbose) cout << "Testing with Type 'Cargo'" << endl;
         TestDriver<Cargo>::testCase2();
+       
+        if (verbose) cout << "Testing with Type 'CargoNoAddressOf'" << endl;
         TestDriver<CargoNoAddressOf>::testCase2();
       } break;
       case 1: {
