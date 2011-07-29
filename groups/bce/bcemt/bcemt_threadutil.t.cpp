@@ -19,6 +19,10 @@
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 
+#ifdef BCES_PLATFORM__POSIX_THREADS
+#include <pthread.h>
+#endif
+
 #ifndef BSLS_PLATFORM__OS_WINDOWS
 #include <alloca.h>
 #endif
@@ -512,48 +516,83 @@ int main(int argc, char *argv[])
 
         enum { K = 1024 };
 
-        TC::testStackSize<  1 * K>();
-        TC::testStackSize<  2 * K>();
-        TC::testStackSize<  3 * K>();
-        TC::testStackSize<  4 * K>();
-        TC::testStackSize<  8 * K>();
-        TC::testStackSize< 10 * K>();
-        TC::testStackSize< 12 * K>();
-        TC::testStackSize< 14 * K>();
-        TC::testStackSize< 16 * K>();
-        TC::testStackSize< 18 * K>();
-        TC::testStackSize< 20 * K>();
-        TC::testStackSize< 24 * K>();
-        TC::testStackSize< 28 * K>();
-        TC::testStackSize< 32 * K>();
-        TC::testStackSize< 36 * K>();
-        TC::testStackSize< 40 * K>();
-        TC::testStackSize< 44 * K>();
-        TC::testStackSize< 48 * K>();
-        TC::testStackSize< 52 * K>();
-        TC::testStackSize< 56 * K>();
-        TC::testStackSize< 58 * K>();
-        TC::testStackSize< 60 * K>();
-        TC::testStackSize< 62 * K>();
-        TC::testStackSize< 64 * K>();
-        TC::testStackSize< 68 * K>();
-        TC::testStackSize< 72 * K>();
-        TC::testStackSize< 76 * K>();
-        TC::testStackSize< 80 * K>();
-        TC::testStackSize< 84 * K>();
-        TC::testStackSize< 88 * K>();
-        TC::testStackSize< 92 * K>();
-        TC::testStackSize< 96 * K>();
-        TC::testStackSize<100 * K>();
-        TC::testStackSize<104 * K>();
-        TC::testStackSize<108 * K>();
-        TC::testStackSize<112 * K>();
-        TC::testStackSize<116 * K>();
-        TC::testStackSize<120 * K>();
-        TC::testStackSize<124 * K>();
-        TC::testStackSize<128 * K>();
-        TC::testStackSize<256 * K>();
-        TC::testStackSize<512 * K>();
+#ifdef PTHREAD_STACK_MIN
+        if (verbose) {
+            P(PTHREAD_STACK_MIN);
+        }
+#endif
+
+        TC::testStackSize<   1 * K>();
+        TC::testStackSize<   2 * K>();
+        TC::testStackSize<   3 * K>();
+        TC::testStackSize<   4 * K>();
+        TC::testStackSize<   7 * K>();
+        TC::testStackSize<   8 * K>();
+        TC::testStackSize<   9 * K>();
+        TC::testStackSize<  10 * K>();
+        TC::testStackSize<  12 * K>();
+        TC::testStackSize<  14 * K>();
+        TC::testStackSize<  15 * K>();
+        TC::testStackSize<  16 * K>();
+        TC::testStackSize<  17 * K>();
+        TC::testStackSize<  18 * K>();
+        TC::testStackSize<  20 * K>();
+        TC::testStackSize<  24 * K>();
+        TC::testStackSize<  28 * K>();
+        TC::testStackSize<  31 * K>();
+        TC::testStackSize<  32 * K>();
+        TC::testStackSize<  33 * K>();
+        TC::testStackSize<  36 * K>();
+        TC::testStackSize<  40 * K>();
+        TC::testStackSize<  44 * K>();
+        TC::testStackSize<  48 * K>();
+        TC::testStackSize<  52 * K>();
+        TC::testStackSize<  56 * K>();
+        TC::testStackSize<  58 * K>();
+        TC::testStackSize<  60 * K>();
+        TC::testStackSize<  62 * K>();
+        TC::testStackSize<  63 * K>();
+        TC::testStackSize<  64 * K>();
+        TC::testStackSize<  65 * K>();
+        TC::testStackSize<  68 * K>();
+        TC::testStackSize<  72 * K>();
+        TC::testStackSize<  76 * K>();
+        TC::testStackSize<  80 * K>();
+        TC::testStackSize<  84 * K>();
+        TC::testStackSize<  88 * K>();
+        TC::testStackSize<  92 * K>();
+        TC::testStackSize<  96 * K>();
+        TC::testStackSize< 100 * K>();
+        TC::testStackSize< 104 * K>();
+        TC::testStackSize< 108 * K>();
+        TC::testStackSize< 112 * K>();
+        TC::testStackSize< 116 * K>();
+        TC::testStackSize< 120 * K>();
+        TC::testStackSize< 124 * K>();
+        TC::testStackSize< 127 * K>();
+        TC::testStackSize< 128 * K>();
+        TC::testStackSize< 129 * K>();
+        TC::testStackSize< 255 * K>();
+        TC::testStackSize< 256 * K>();
+        TC::testStackSize< 257 * K>();
+        TC::testStackSize< 511 * K>();
+        TC::testStackSize< 512 * K>();
+        TC::testStackSize< 513 * K>();
+        TC::testStackSize<1023 * K>();
+        TC::testStackSize<1024 * K>();
+        TC::testStackSize<1025 * K>();
+        TC::testStackSize<2047 * K>();
+        TC::testStackSize<2048 * K>();
+        TC::testStackSize<2049 * K>();
+        TC::testStackSize<4095 * K>();
+        TC::testStackSize<4096 * K>();
+        TC::testStackSize<4097 * K>();
+        TC::testStackSize<8191 * K>();
+        TC::testStackSize<8192 * K>();
+        TC::testStackSize<8193 * K>();
+        TC::testStackSize<16383* K>();
+        TC::testStackSize<16384* K>();
+        TC::testStackSize<16385* K>();
       }  break;
       case 6: {
         // --------------------------------------------------------------------
