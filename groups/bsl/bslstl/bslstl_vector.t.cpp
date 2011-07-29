@@ -17,6 +17,8 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_addressof.h>
 #include <bsls_alignmentutil.h>
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 #include <bsls_stopwatch.h>                // for testing only
@@ -104,6 +106,7 @@ using namespace bsl;
 // [ 2] void clear();
 // [15] reference front();
 // [15] reference back();
+// [  ] VALUE_TYPE *data();
 // [20] template <class Args...>
 //        iterator emplace(const_iterator pos, Args...);
 // [ 2] void push_back(const T&);
@@ -122,6 +125,7 @@ using namespace bsl;
 // [ 4] const_reference at(size_type pos) const;
 // [15] const_reference front() const;
 // [15] const_reference back() const;
+// [  ] const VALUE_TYPE *data() const;
 // [ 4] size_type size() const;
 // [14] size_type max_size() const;
 // [14] size_type capacity() const;
@@ -173,6 +177,16 @@ void aSsErT(int c, const char *s, int i) {
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+
+#define ASSERT_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(expr)
+#define ASSERT_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_PASS_RAW(expr)
+#define ASSERT_SAFE_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(expr)
+#define ASSERT_SAFE_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(expr)
+
 //=============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -212,11 +226,11 @@ void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");     // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n")  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
-#define L_ __LINE__                        // current Line number
-#define T_ putchar('\t');                  // Print a tab (w/o newline)
+#define Q(X) printf("<| " #X " |>\n");      // Quote identifier literally.
+#define P(X) dbg_print(#X " = ", X, "\n");  // Print identifier and value.
+#define P_(X) dbg_print(#X " = ", X, ", "); // P(X) without '\n'
+#define L_ __LINE__                         // current Line number
+#define T_ putchar('\t');                   // Print a tab (w/o newline)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -273,6 +287,7 @@ const int NUM_ALLOCS[] = {
 //-----------------------------------------------------------------------------
 
 // Fundamental-type-specific print functions.
+inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
 inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
@@ -281,15 +296,26 @@ inline void dbg_print(unsigned short val) {
     printf("%d", (int)val); fflush(stdout);
 }
 inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(Int64 val) {
-    printf("%lld", val); fflush(stdout);
+inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
+inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
+inline void dbg_print(unsigned long val) {
+    printf("%lu", val); fflush(stdout);
 }
-inline void dbg_print(size_t val) { printf("%u", val); fflush(stdout); }
+inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
+inline void dbg_print(unsigned long long val) {
+    printf("%llu", val); fflush(stdout);
+}
 inline void dbg_print(float val) {
     printf("'%f'", (double)val); fflush(stdout);
 }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
+inline void dbg_print(long double val) {
+    printf("'%Lf'", val); fflush(stdout);
+}
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
+inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
+inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
+
 
 // Vector-specific print function.
 template <typename TYPE, typename ALLOC>
@@ -314,6 +340,9 @@ void dbg_print(const char* s, const T& val, const char* nl)
     printf("%s", nl);
     fflush(stdout);
 }
+
+BSLMF_ASSERT(!Vector_IsRandomAccessIterator<int>::VALUE);
+BSLMF_ASSERT(Vector_IsRandomAccessIterator<bsl::vector<char>::iterator>::VALUE);
 
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
@@ -986,6 +1015,9 @@ struct TestDriver {
     static void testCase18();
         // Test 'erase' and 'pop_back'.
 
+    static void testCase18Negative();
+        // Negative testing for 'erase' and 'pop_back'.
+
     static void testCase17();
         // Test 'insert' members, and move 'push_back' and 'insert' members.
 
@@ -993,11 +1025,17 @@ struct TestDriver {
     static void testCase17Range(const CONTAINER&);
         // Test 'insert' member template.
 
+    static void testCase17Negative();
+        // Negative testing for 'insert'.
+
     static void testCase16();
         // Test iterators.
 
     static void testCase15();
         // Test element access.
+
+    static void testCase15Negative();
+        // Negative test for element access.
 
     static void testCase14();
         // Test reserve and capacity-related methods.
@@ -1008,6 +1046,10 @@ struct TestDriver {
     template <class CONTAINER>
     static void testCase13Range(const CONTAINER&);
         // Test 'assign' member template.
+
+    template <class CONTAINER>
+    static void testCase13Negative(const CONTAINER&);
+        // Negative-test 'assign' members.
 
     static void testCase12();
         // Test user-supplied constructors.
@@ -1559,7 +1601,7 @@ void TestDriver<TYPE,ALLOC>::testCaseM1()
         t.reset(); t.start();
         for (int i = 0; i < NUM_VECTOR_S; ++i) {
             // Pop out all objects.
-            for (int j = 0; j < sizes[i]; ++j) {
+            for (size_t j = 0; j < sizes[i]; ++j) {
                 vectors[i]->pop_back();
             }
         }
@@ -1692,7 +1734,7 @@ void TestDriver<TYPE,ALLOC>::testCaseM1()
 
         t.reset(); t.start();
         for (int i = 0; i < NUM_VECTOR_S; ++i) {
-            for (int j = 0; j < sizes[i]; ++j) {
+            for (size_t j = 0; j < sizes[i]; ++j) {
                 vectors[i]->insert(vectors[i]->begin() + j,
                                                        VALUES[i % NUM_VALUES]);
             }
@@ -2352,9 +2394,9 @@ void TestDriver<TYPE,ALLOC>::testCase19()
                         ASSERT(&testAlloc2 == vec2.get_allocator());
                         ASSERT(0 != testAlloc2.numBytesInUse());
 
-        const int numAlloc2 = testAlloc2.numAllocations();
-        const int numDealloc2 = testAlloc2.numDeallocations();
-        const int inUse2 = testAlloc2.numBytesInUse();
+        const bsls_Types::Int64 numAlloc2 = testAlloc2.numAllocations();
+        const bsls_Types::Int64 numDealloc2 = testAlloc2.numDeallocations();
+        const bsls_Types::Int64 inUse2 = testAlloc2.numBytesInUse();
 
         {
             Vector_Imp<int> vec3(&testAlloc2);
@@ -2385,6 +2427,21 @@ void TestDriver<TYPE,ALLOC>::testCase18()
     //      not throw.
     //   3) That erasing is exception neutral w.r.t. memory allocation.
     //   4) That no memory is leaked.
+    //   5) That avoidable undefined behavior is trapped in appropriate build
+    //      modes.  Avoidable undefined behavior might be:
+    //      i) calling pop_back() on an empty container
+    //      ii) calling 'erase(const_iterator)' with an invalid iterator, a
+    //          non-dereferenceable iterator, or an iterator into a different
+    //          container.
+    //      iii) Calling 'erase(const_iterator, const_iterator)' with an
+    //           invalid range, or a non-empty range that is not entirely
+    //           contained within this vector, or an empty range where the
+    //           iterator demarkating the range does is not 'this->end()' and
+    //           does not otherwise point into this vector.
+    //   6) The erase function invalidates (in appropriate build modes) all 
+    //      iterators into this container that refer to the erased elements, to
+    //      any succeeding elements, to copies of the 'end' iterator, and no
+    //      other iterators into this container.
     //
     // Plan:
     //   For the 'erase' methods, the concerns are simply to cover the full
@@ -2473,8 +2530,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                     mX[k] =  VALUES[k % NUM_VALUES];
                 }
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+                const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     printf("\t\tBefore: "); P_(BB); P(B);
@@ -2482,8 +2539,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
 
                 mX.pop_back();
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+                const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     printf("\t\tAfter : "); P_(AA); P(A);
@@ -2574,8 +2631,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                         printf("\t\tErase one element at "); P(POS);
                     }
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+                    const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\tBefore: "); P_(BB); P(B);
@@ -2583,8 +2640,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
 
                     mX.erase(X.begin() + POS);
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+                    const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\tAfter : "); P_(AA); P(A);
@@ -2638,7 +2695,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                     const size_t POS = j;
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const int AL = testAllocator.allocationLimit();
+                        const bsls_Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Obj mX(INIT_LENGTH, DEFAULT_VALUE, &testAllocator);
@@ -2707,8 +2765,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                         P_(BEGIN_POS); P(END_POS);
                     }
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+                    const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\tBefore:"); P_(BB); P(B);
@@ -2716,8 +2774,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
 
                     mX.erase(X.begin() + BEGIN_POS, X.begin() + END_POS);
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+                    const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -2781,7 +2839,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                     }
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const int AL = testAllocator.allocationLimit();
+                        const bsls_Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Obj mX(INIT_LENGTH, DEFAULT_VALUE, &testAllocator);
@@ -2817,6 +2876,98 @@ void TestDriver<TYPE,ALLOC>::testCase18()
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase18Negative()
+{
+    // --------------------------------------------------------------------
+    // NEGATIVE TESTING ERASE
+    //
+    // Concerns:
+    //   1 'pop_back' asserts on undefined behavior when the vector is empty,
+    //   2 'erase' asserts on undefined behavior when iterators are not valid
+    //   on the string being tested or they don't make a valid range.
+    //
+    // Plan:
+    //   For concern (1), create an empty vector and call 'pop_back' which
+    //   should assert.  Then 'push_back' a default-constructed element, and
+    //   show a subsequent 'pop_back' no longer asserts.  Finally, call
+    //   'pop_back' one more time on the now-empty container, and show that it
+    //   asserts once again.
+    //   For concern (2), create a non-empty vector and test 'erase' with
+    //   different combinations of invalid iterators and iterator ranges.
+    //
+    // Testing:
+    //   void pop_back();
+    //   iterator erase(const_iterator p);
+    //   iterator erase(const_iterator first, iterator last);
+    // -----------------------------------------------------------------------
+
+    bsls_AssertFailureHandlerGuard guard(&bsls_AssertTest::failTestDriver);
+
+    if (veryVerbose) printf("\tnegative testing pop_back\n");
+
+    {
+        Obj mX;
+
+        // pop_back on empty vector
+        ASSERT_SAFE_FAIL(mX.pop_back());
+
+        // set the vector 'mX' to a non-empty state, and demonstrate that it
+        // does not assert when calling 'pop_back' until the vector is restored
+        // to an empty state.
+        TYPE value = TYPE();
+        mX.push_back(value);
+
+        ASSERT_SAFE_PASS(mX.pop_back());
+        ASSERT_SAFE_FAIL(mX.pop_back());
+    }
+
+    if (veryVerbose) printf("\tnegative testing erase(iterator)\n");
+
+    {
+        Obj mX(g("ABCDE"));
+
+        // position < begin()
+        ASSERT_SAFE_FAIL(mX.erase(mX.begin() - 1));
+
+        // It is safe to call 'erase' on the boundaries of the range
+        // [begin, end)
+        ASSERT_SAFE_PASS(mX.erase(mX.begin()));
+        ASSERT_SAFE_PASS(mX.erase(mX.end() - 1));
+
+        // position >= end()
+        ASSERT_SAFE_FAIL(mX.erase(mX.end()));
+        ASSERT_SAFE_FAIL(mX.erase(mX.end() + 1));
+    }
+
+    if (veryVerbose) printf("\tnegative testing erase(iterator, iterator)\n");
+
+    {
+        Obj mX(g("ABCDE"));
+
+        // first < begin()
+        ASSERT_SAFE_FAIL(mX.erase(mX.begin() - 1, mX.end()));
+
+        // last > end()
+        ASSERT_SAFE_FAIL(mX.erase(mX.begin(), mX.end() + 1));
+
+        // first > last
+        ASSERT_SAFE_FAIL(mX.erase(mX.end(), mX.begin()));
+        ASSERT_SAFE_FAIL(mX.erase(mX.begin() + 1, mX.begin()));
+        ASSERT_SAFE_FAIL(mX.erase(mX.end(), mX.end() - 1));
+
+        // first > end()
+        ASSERT_SAFE_FAIL(mX.erase(mX.end() + 1, mX.end()));
+
+        // last < begin()
+        ASSERT_SAFE_FAIL(mX.erase(mX.begin(), mX.begin() - 1));
+
+        ASSERT_SAFE_PASS(mX.erase(mX.begin(), mX.begin()));
+        ASSERT_SAFE_PASS(mX.erase(mX.end(), mX.end()));
+        ASSERT_SAFE_PASS(mX.erase(mX.begin()+1, mX.end()-1));
+    }
 }
 
 template <class TYPE, class ALLOC>
@@ -2965,8 +3116,8 @@ void TestDriver<TYPE,ALLOC>::testCase17()
                         printf(" using "); P(VALUE);
                     }
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+                    const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -2974,8 +3125,8 @@ void TestDriver<TYPE,ALLOC>::testCase17()
 
                     iterator result = mX.insert(X.begin() + POS, VALUE);
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+                    const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -3066,8 +3217,8 @@ void TestDriver<TYPE,ALLOC>::testCase17()
                             printf("using "); P(VALUE);
                         }
 
-                        const int BB = testAllocator.numBlocksTotal();
-                        const int  B = testAllocator.numBlocksInUse();
+                        const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+                        const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -3075,8 +3226,8 @@ void TestDriver<TYPE,ALLOC>::testCase17()
 
                         mX.insert(X.begin() + POS, NUM_ELEMENTS, VALUE);
 
-                        const int AA = testAllocator.numBlocksTotal();
-                        const int  A = testAllocator.numBlocksInUse();
+                        const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+                        const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -3154,7 +3305,8 @@ void TestDriver<TYPE,ALLOC>::testCase17()
 
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
-                            const int AL = testAllocator.allocationLimit();
+                            const bsls_Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
 
                             Obj mX(INIT_LENGTH, DEFAULT_VALUE, &testAllocator);
@@ -3429,8 +3581,10 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
                             printf("using "); P(SPEC);
                         }
 
-                        const int BB = testAllocator.numBlocksTotal();
-                        const int  B = testAllocator.numBlocksInUse();
+                        const bsls_Types::Int64 BB =
+                                                testAllocator.numBlocksTotal();
+                        const bsls_Types::Int64  B =
+                                                testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -3438,8 +3592,10 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
 
                         mX.insert(X.begin() + POS, U.begin(), U.end());
 
-                        const int AA = testAllocator.numBlocksTotal();
-                        const int  A = testAllocator.numBlocksInUse();
+                        const bsls_Types::Int64 AA =
+                                                testAllocator.numBlocksTotal();
+                        const bsls_Types::Int64  A =
+                                                testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -3539,7 +3695,8 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
 
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
-                            const int AL = testAllocator.allocationLimit();
+                            const bsls_Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
 
                             Obj mX(INIT_LENGTH, DEFAULT_VALUE, &testAllocator);
@@ -3594,6 +3751,116 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
+}
+
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase17Negative()
+{
+    // --------------------------------------------------------------------
+    // NEGATIVE TESTING INSERTION:
+    //
+    // Concerns:
+    //   1 'insert' methods assert (in appropriate build modes) on undefined
+    //     behavior when the iterator passed to specify the insertion point is
+    //     not a valid iterator for this vector object.
+    //
+    //   2 An attempt to insert a range of elements specified by a pair of
+    //     iterators should assert (in appropriate build modes) if the range is
+    //     observably not valid i.e. a pair of random access iterators where
+    //     'last' precedes 'first'.
+    //
+    // Plan:
+    //   Construct a string object with some string data, and then call
+    //   'insert' with a
+    //   NULL C-string pointer and verify that it asserts.  Then call 'insert'
+    //   with invalid iterators and verify that it asserts.
+    //
+    // Testing:
+    //   iterator insert(const_iterator pos, const T& val);
+    //   iterator insert(const_iterator pos, size_type n, const T& val);
+    //   template <class InputIter>
+    //       void insert(const_iterator pos, InputIter first, InputIter last);
+    // -----------------------------------------------------------------------
+
+    const typename Obj::const_iterator badIterator =
+                                               typename Obj::const_iterator();
+
+    bsls_AssertFailureHandlerGuard guard(&bsls_AssertTest::failTestDriver);
+
+    if (veryVerbose) printf("\tnegative testing insert(p, c)\n");
+
+    {
+        Obj mX(g("ABCDE"));     const Obj& X = mX;
+        Obj mY(X);              const Obj& Y = mY;
+
+        // position < begin()
+        ASSERT_SAFE_FAIL(mX.insert(X.begin() - 1, X[0]));
+
+        // position > end()
+        ASSERT_SAFE_FAIL(mX.insert(X.end() + 1, X[0]));
+
+        // arbitrary bad iterator
+        ASSERT_SAFE_FAIL(mX.insert(badIterator, X[0]));
+
+        // iterator to another container
+        ASSERT_SAFE_FAIL(mX.insert(Y.begin(), X[0]));
+
+        // begin() <= position < end()
+        ASSERT_SAFE_PASS(mX.insert(X.begin() + 1, X[0]));
+        ASSERT_SAFE_PASS(mX.insert(X.end(), X[0]));
+    }
+
+    if (veryVerbose) printf("\tnegative testing insert(p, n, c)\n");
+
+    {
+        Obj mX(g("ABCDE"));     const Obj& X = mX;
+        Obj mY(X);              const Obj& Y = mY;
+
+        // position < begin()
+        ASSERT_SAFE_FAIL(mX.insert(X.begin() - 1, 0, X[0]));
+        ASSERT_SAFE_FAIL(mX.insert(X.begin() - 1, 2, X[0]));
+
+        // position > end()
+        ASSERT_SAFE_FAIL(mX.insert(X.end() + 1, 0, X[0]));
+        ASSERT_SAFE_FAIL(mX.insert(X.end() + 1, 2, X[0]));
+
+        // arbitrary bad iterator
+        ASSERT_SAFE_FAIL(mX.insert(badIterator, 0, X[0]));
+        ASSERT_SAFE_FAIL(mX.insert(badIterator, 2, X[0]));
+
+        // iterator to another container
+        ASSERT_SAFE_FAIL(mX.insert(Y.begin(), 0, X[0]));
+        ASSERT_SAFE_FAIL(mX.insert(Y.begin(), 2, X[0]));
+
+        // begin() <= position <= end()
+        ASSERT_SAFE_PASS(mX.insert(X.begin() + 1, 0, X[0]));
+        ASSERT_SAFE_PASS(mX.insert(X.end(), 2, X[0]));
+    }
+
+    if (veryVerbose) printf("\tnegative testing insert(p, first, last)\n");
+
+    {
+        Obj mX(g("ABCDE"));     const Obj& X = mX;
+        Obj mY(g("ABE"));       const Obj& Y = mY;
+
+        // position < begin()
+        ASSERT_SAFE_FAIL(mX.insert(X.begin() - 1, Y.begin(), Y.end()));
+
+        // position > end()
+        ASSERT_SAFE_FAIL(mX.insert(X.end() + 1, Y.begin(), Y.end()));
+
+        // first > last
+        ASSERT_SAFE_FAIL(mX.insert(X.begin(), Y.end(), Y.begin()));
+        ASSERT_SAFE_PASS(mX.insert(X.begin(), Y.end(), Y.end()));
+
+        // two null pointers form a valid (empty) range
+        const TYPE *nullPtr = 0;
+        ASSERT_SAFE_PASS(mX.insert(X.begin(), nullPtr, nullPtr));
+
+        // begin() <= position <= end() && first <= last
+        ASSERT_SAFE_PASS(mX.insert(X.begin(), Y.begin(), Y.end()));
+    }
 }
 
 template <class TYPE, class ALLOC>
@@ -3753,6 +4020,9 @@ void TestDriver<TYPE,ALLOC>::testCase15()
     //   2) That 'v.at(pos)' returns 'v[x]' or throws if 'pos == v.size())'.
     //   3) That 'v.front()' is identical to 'v[0]' and 'v.back()' the same as
     //      'v[v.size() - 1]'.
+    //   4) That 'data()' returns the address of the first element, whether or
+    //      not it is 'const', unless the vector is empty.
+    //   5) That 'data()' returns a valid address when the vector is empty.
     //
     // Plan:
     //   For each value given by variety of specifications of different
@@ -3760,15 +4030,22 @@ void TestDriver<TYPE,ALLOC>::testCase15()
     //   (front, back, at each position) both as a modifiable reference
     //   (setting it to a default value, then back to its original value, and
     //   as a non-modifiable reference.  Verify that 'at' throws
-    //   'std::out_of_range' when accessing the past-the-end element.
+    //   'std::out_of_range' when accessing the past-the-end element.  Verify
+    //   that the address of the referenced element returned from both 
+    //   'operator[]' and 'at' is that same as that return by adding the
+    //   specified index to the pointer returned by 'data()'.
     //
     // Testing:
     //   T& operator[](size_type position);
     //   T& at(size_type n);
     //   T& front();
     //   T& back();
+    //   T *data();
+    //   const T& operator[](size_type position) const;
+    //   const T& at(size_type n) const;
     //   const T& front() const;
     //   const T& back() const;
+    //   const T *data() const;
     // --------------------------------------------------------------------
 
     bslma_TestAllocator testAllocator(veryVeryVerbose);
@@ -3818,12 +4095,20 @@ void TestDriver<TYPE,ALLOC>::testCase15()
 
             LOOP_ASSERT(LINE, Y == X);
 
+            TYPE *const dataMptr = mX.data();
+            const TYPE *const dataCptr = X.data();
+            LOOP3_ASSERT(LINE, dataMptr, dataCptr, dataMptr == dataCptr);
+
             for (size_t j = 0; j < LENGTH; ++j) {
                 LOOP_ASSERT(LINE, TYPE(SPEC[j]) == X[j]);
                 mX[j] = DEFAULT_VALUE;
                 LOOP_ASSERT(LINE, DEFAULT_VALUE == X[j]);
-                  mX.at(j) = Y[j];
-                  LOOP_ASSERT(LINE, TYPE(SPEC[j]) == X.at(j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(X[j]) == (dataCptr + j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(mX[j]) == (dataMptr + j));
+                mX.at(j) = Y[j];
+                LOOP_ASSERT(LINE, TYPE(SPEC[j]) == X.at(j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(X.at(j)) == (dataCptr + j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(mX.at(j)) == (dataMptr + j));
             }
         }
     }
@@ -3853,6 +4138,114 @@ void TestDriver<TYPE,ALLOC>::testCase15()
           }
       }
 #endif
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase15Negative()
+{
+    // --------------------------------------------------------------------
+    // NEGATIVE TESTING ELEMENT ACCESS
+    // Concerns:
+    //   For a vector 'v', the following const and non-const operations assert
+    //   on undefined behavior:
+    //   1 v[x] - when the index 'x' is out of range
+    //   2 v.front() - when 'v' is empty
+    //   3 v.back() - when 'v' is empty
+    //
+    // Plan:
+    //   To test concerns (2) and (3), create an empty vector and verify that
+    //   'front'/'back' methods assert correctly.  Then insert a single
+    //   element into the vector and verify that the methods don't assert any
+    //   more.  Then remove the element to make the vector empty again, and
+    //   verify that the methods start asserting again.
+    //
+    //   To test concern (1), create a vector using a variety of specifications
+    //   of different lengths, then scan the range of negative and positive
+    //   indices for 'operator[]' and verify that 'operator[]' asserts when the
+    //   index is out of range.
+    //
+    // Testing:
+    //   T& operator[](size_type position);
+    //   const T& operator[](size_type position) const;
+    //   T& front();
+    //   T& back();
+    //   const T& front() const;
+    //   const T& back() const;
+    // --------------------------------------------------------------------
+
+    bsls_AssertFailureHandlerGuard guard(&bsls_AssertTest::failTestDriver);
+
+    const TYPE DEFAULT_VALUE = TYPE();
+
+    static const struct {
+        int         d_lineNum;          // source line number
+        const char *d_spec;             // initial
+    } DATA[] = {
+        //line  spec                                   length
+        //----  ----                                    ------
+        { L_,   ""                                   }, // 0
+        { L_,   "A"                                  }, // 1
+        { L_,   "AB"                                 }, // 2
+        { L_,   "ABC"                                }, // 3
+        { L_,   "ABCD"                               }, // 4
+        { L_,   "ABCDE"                              }, // 5
+        { L_,   "ABCDEA"                             }, // 6
+        { L_,   "ABCDEAB"                            }, // 7
+        { L_,   "ABCDEABC"                           }, // 8
+        { L_,   "ABCDEABCD"                          }, // 9
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    if (veryVerbose) printf("\toperator[]\n");
+
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec;
+            const size_t  LENGTH = strlen(SPEC);
+
+            if (veryVeryVerbose) { T_ T_ P_(LINE) P_(SPEC) P(LENGTH); }
+
+            Obj mX(g(SPEC));
+            const Obj& X = mX;
+
+            for (int i = -int(X.size()) - 1; i < int(X.size() * 2) + 2; ++i) {
+                if (veryVeryVerbose) { T_ T_ T_ P(i); }
+
+                if (i >= 0 && i < X.size()) {
+                    ASSERT_SAFE_PASS(X[i]);
+                    ASSERT_SAFE_PASS(mX[i]);
+                }
+                else {
+                    ASSERT_SAFE_FAIL(X[i]);
+                    ASSERT_SAFE_FAIL(mX[i]);
+                }
+            }
+        }
+    }
+
+    if (veryVerbose) printf("\tfront/back\n");
+
+    {
+        Obj mX;
+        const Obj& X = mX;
+        ASSERT_SAFE_FAIL(X.front());
+        ASSERT_SAFE_FAIL(mX.front());
+        ASSERT_SAFE_FAIL(X.back());
+        ASSERT_SAFE_FAIL(mX.back());
+
+        mX.push_back(DEFAULT_VALUE);
+        ASSERT_SAFE_PASS(X.front());
+        ASSERT_SAFE_PASS(mX.front());
+        ASSERT_SAFE_PASS(X.back());
+        ASSERT_SAFE_PASS(mX.back());
+
+        mX.pop_back();
+        ASSERT_SAFE_FAIL(X.front());
+        ASSERT_SAFE_FAIL(mX.front());
+        ASSERT_SAFE_FAIL(X.back());
+        ASSERT_SAFE_FAIL(mX.back());
+    }
 }
 
 template <class TYPE, class ALLOC>
@@ -3931,7 +4324,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-              const int AL = testAllocator.allocationLimit();
+              const bsls_Types::Int64 AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               Obj mX(Z);  const Obj& X = mX;
@@ -3944,7 +4337,8 @@ void TestDriver<TYPE,ALLOC>::testCase14()
 
               testAllocator.setAllocationLimit(AL);
 
-              const int    NUM_ALLOC_BEFORE = testAllocator.numAllocations();
+              const bsls_Types::Int64 NUM_ALLOC_BEFORE =
+                                                testAllocator.numAllocations();
               const size_t CAPACITY         = X.capacity();
               {
                   ExceptionGuard<Obj> guard(&mX, X, L_);
@@ -3955,10 +4349,11 @@ void TestDriver<TYPE,ALLOC>::testCase14()
               }
               // Note: assert mX unchanged via the exception guard destructor.
 
-              const int NUM_ALLOC_AFTER = testAllocator.numAllocations();
+              const bsls_Types::Int64 NUM_ALLOC_AFTER =
+                                                testAllocator.numAllocations();
               LOOP_ASSERT(ti, NE > CAP || NUM_ALLOC_BEFORE == NUM_ALLOC_AFTER);
 
-              const int AL2 = testAllocator.allocationLimit();
+              const bsls_Types::Int64 AL2 = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               stretch(&mX, DELTA);
@@ -3984,7 +4379,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-              const int AL = testAllocator.allocationLimit();
+              const bsls_Types::Int64 AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               Obj mX(Z);  const Obj& X = mX;
@@ -3995,7 +4390,8 @@ void TestDriver<TYPE,ALLOC>::testCase14()
               LOOP_ASSERT(ti, CAP <= X.capacity());
 
               testAllocator.setAllocationLimit(AL);
-              const int NUM_ALLOC_BEFORE = testAllocator.numAllocations();
+              const bsls_Types::Int64 NUM_ALLOC_BEFORE =
+                                                testAllocator.numAllocations();
               {
                   ExceptionGuard<Obj> guard(&mX, X, L_);
 
@@ -4005,10 +4401,11 @@ void TestDriver<TYPE,ALLOC>::testCase14()
               }
               // Note: assert mX unchanged via the exception guard destructor.
 
-              const int NUM_ALLOC_AFTER = testAllocator.numAllocations();
+              const bsls_Types::Int64 NUM_ALLOC_AFTER =
+                                                testAllocator.numAllocations();
               LOOP_ASSERT(ti, NE > CAP || NUM_ALLOC_BEFORE == NUM_ALLOC_AFTER);
 
-              const int AL2 = testAllocator.allocationLimit();
+              const bsls_Types::Int64 AL2 = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               stretch(&mX, NE);
@@ -4037,7 +4434,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-              const int AL = testAllocator.allocationLimit();
+              const bsls_Types::Int64 AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               Obj mX(Z);  const Obj& X = mX;
@@ -4049,14 +4446,16 @@ void TestDriver<TYPE,ALLOC>::testCase14()
               LOOP_ASSERT(ti, !(bool)X.size() == X.empty());
 
               testAllocator.setAllocationLimit(AL);
-              const int NUM_ALLOC_BEFORE = testAllocator.numAllocations();
+              const bsls_Types::Int64 NUM_ALLOC_BEFORE =
+                                                testAllocator.numAllocations();
               ExceptionGuard<Obj> guard(&mX, X, L_);
 
               mX.resize(NE, VALUES[ti % NUM_VALUES]);  // test here
 
               LOOP_ASSERT(ti, NE == X.size());
               LOOP_ASSERT(ti, NE <= X.capacity());
-              const int NUM_ALLOC_AFTER = testAllocator.numAllocations();
+              const bsls_Types::Int64 NUM_ALLOC_AFTER =
+                                                testAllocator.numAllocations();
 
               LOOP_ASSERT(ti, NE > CAP || TYPE_ALLOC ||
                                           NUM_ALLOC_BEFORE == NUM_ALLOC_AFTER);
@@ -4065,7 +4464,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
               }
               guard.release();
 
-              const int AL2 = testAllocator.allocationLimit();
+              const bsls_Types::Int64 AL2 = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               stretch(&mX, DELTA);
@@ -4089,7 +4488,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-              const int AL = testAllocator.allocationLimit();
+              const bsls_Types::Int64 AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               Obj mX(Z);  const Obj& X = mX;
@@ -4099,7 +4498,8 @@ void TestDriver<TYPE,ALLOC>::testCase14()
               LOOP_ASSERT(ti, 0   == X.size());
               LOOP_ASSERT(ti, CAP <= X.capacity());
 
-              const int NUM_ALLOC_BEFORE = testAllocator.numAllocations();
+              const bsls_Types::Int64 NUM_ALLOC_BEFORE =
+                                                testAllocator.numAllocations();
               ExceptionGuard<Obj> guard(&mX, X, L_);
 
               testAllocator.setAllocationLimit(AL);
@@ -4108,7 +4508,8 @@ void TestDriver<TYPE,ALLOC>::testCase14()
 
               LOOP_ASSERT(ti, NE == X.size());
               LOOP_ASSERT(ti, NE <= X.capacity());
-              const int NUM_ALLOC_AFTER = testAllocator.numAllocations();
+              const bsls_Types::Int64 NUM_ALLOC_AFTER =
+                                                testAllocator.numAllocations();
 
               LOOP_ASSERT(ti, NE > CAP || TYPE_ALLOC ||
                                           NUM_ALLOC_BEFORE == NUM_ALLOC_AFTER);
@@ -4117,7 +4518,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
               }
               guard.release();
 
-              const int AL2 = testAllocator.allocationLimit();
+              const bsls_Types::Int64 AL2 = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               stretch(&mX, DELTA);
@@ -4270,7 +4671,8 @@ void TestDriver<TYPE,ALLOC>::testCase13()
                     }
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const int AL = testAllocator.allocationLimit();
+                        const bsls_Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Obj mX(INIT_LENGTH, DEFAULT_VALUE, Z);
@@ -4332,7 +4734,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
     //
     // Testing:
     //   template <class InputIter>
-    //     assign(InputIter first, InputIter last, const A& a = A());
+    //     assign(InputIter first, InputIter last);
     // --------------------------------------------------------------------
 
     bslma_TestAllocator  testAllocator(veryVeryVerbose);
@@ -4471,7 +4873,8 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
                 Obj mY(g(SPEC)); const Obj& Y = mY;
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    const int AL = testAllocator.allocationLimit();
+                    const bsls_Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
                     Obj mX(INIT_LENGTH, DEFAULT_VALUE, Z);  const Obj& X = mX;
@@ -4501,6 +4904,60 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
             }
         }
     }
+}
+
+template <class TYPE, class ALLOC>
+template <class CONTAINER>
+void TestDriver<TYPE,ALLOC>::testCase13Negative(const CONTAINER&)
+{
+    // --------------------------------------------------------------------
+    // NEGATIVE TESTING 'assign':
+    //
+    // Concerns:
+    //   Assigning an invalid range to a vector should be trapped and asserted
+    //   in appropriate build modes.
+    //
+    // Plan:
+    //   Attempt to 'assign' a range to a 'vector' from another 'vector' object
+    //   where the specified iterators are in the reversed order.
+    //
+    // Testing:
+    //   template <class InputIter>
+    //     assign(InputIter first, InputIter last);
+    // --------------------------------------------------------------------
+ 
+    bsls_AssertFailureHandlerGuard guard(&bsls_AssertTest::failTestDriver);
+
+    const CONTAINER C(g("ABCDE"));
+
+    const Obj X(C.begin(), C.end());
+
+    Obj mY(X);
+
+    if (verbose) {
+        printf("\tUsing an empty range made up of null pointers\n");
+    }
+    // null pointers form a valid range
+    const TYPE *nullPtr = 0;
+    ASSERT_SAFE_PASS(mY.assign(nullPtr, nullPtr));
+
+    if (verbose) {
+        printf("\tUsing an empty range made up of stack pointers\n");
+    }
+    const TYPE null = TYPE();
+    ASSERT_SAFE_PASS(mY.assign(BSLS_ADDRESSOF(null), BSLS_ADDRESSOF(null)));
+
+
+    if (verbose) {
+        printf("\tUsing a reversed range of vector iterators\n");
+    }
+    // first > last
+    ASSERT_SAFE_FAIL(mY.assign(X.end(), X.begin()));
+
+    if (verbose) {
+        printf("\tFinally test a valid range of vector iterators\n");
+    }
+    ASSERT_SAFE_PASS(mY.assign(X.end(), X.end()));
 }
 
 template <class TYPE, class ALLOC>
@@ -4648,16 +5105,16 @@ void TestDriver<TYPE,ALLOC>::testCase12()
 
                 if (verbose) { printf("\t\tCreating object of "); P(LENGTH); }
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+                const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) { printf("\t\t\tBefore:"); P_(BB); P(B); }
 
                 Obj mX(LENGTH, DEFAULT_VALUE, &testAllocator);
                 const Obj& X = mX;
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+                const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     printf("\t\t\tAfter :"); P_(AA); P(A);
@@ -4697,14 +5154,14 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("using "); P(VALUE);
                 }
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+                const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
                 Obj mX(LENGTH, VALUE, &testAllocator);
                 const Obj& X = mX;
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+                const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     T_; T_; P_(X); P(X.capacity());
@@ -4739,8 +5196,8 @@ void TestDriver<TYPE,ALLOC>::testCase12()
 
                 if (verbose) { printf("\t\tCreating object of "); P(LENGTH); }
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+                const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
 
@@ -4762,8 +5219,8 @@ void TestDriver<TYPE,ALLOC>::testCase12()
 
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+                const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) { printf("\t\tAfter : "); P_(AA); P(A);}
 
@@ -4795,8 +5252,8 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     printf("using "); P(VALUE);
                 }
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+                const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
 
@@ -4818,8 +5275,8 @@ void TestDriver<TYPE,ALLOC>::testCase12()
 
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+                const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) { printf("\t\tAFTER : "); P_(AA); P(A);}
 
@@ -4857,7 +5314,8 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                 }
 
                 try {
-                    const int TB = defaultAllocator_p->numBytesInUse();
+                    const bsls_Types::Int64 TB =
+                                           defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
                     ASSERT(TB == defaultAllocator_p->numBytesInUse());
                     ASSERT(0  == objectAllocator_p->numBytesInUse());
@@ -4893,7 +5351,8 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                 }
 
                 try {
-                    const int TB = defaultAllocator_p->numBytesInUse();
+                    const bsls_Types::Int64 TB =
+                                           defaultAllocator_p->numBytesInUse();
                     ASSERT(0  == globalAllocator_p->numBytesInUse());
                     ASSERT(TB == defaultAllocator_p->numBytesInUse());
                     ASSERT(0  == objectAllocator_p->numBytesInUse());
@@ -4935,6 +5394,8 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
     //    5) That the internal memory management system is hooked up properly
     //       so that *all* internally allocated memory draws from a
     //       user-supplied allocator whenever one is specified.
+    //    6) QoI: That passing an invalid range is detected and asserted, where
+    //       possible, and in appropriate build modes only.
     //
     // Plan:
     //   We will create objects of varying sizes and capacities containing
@@ -4948,6 +5409,9 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
     //      - size
     //      - capacity
     //      - element value at each index position { 0 .. length - 1 }.
+    //   Finally, if the iterator category for 'CONTAINER' supports random
+    //   access iterators, then we implement negative testing for passing
+    //   reverse-ordered ranges.
     //
     // Testing:
     //   template <class InputIter>
@@ -5025,14 +5489,14 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
             CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
             Obj mY(g(SPEC));     const Obj& Y = mY;
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int  B = testAllocator.numBlocksInUse();
+            const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
             Obj mX(U.begin(), U.end(), &testAllocator);
             const Obj& X = mX;
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int  A = testAllocator.numBlocksInUse();
+            const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 T_; T_; P_(X); P(X.capacity());
@@ -5090,8 +5554,8 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
             CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
             Obj mY(g(SPEC));        const Obj& Y = mY;
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int  B = testAllocator.numBlocksInUse();
+            const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
             if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
 
@@ -5114,8 +5578,8 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
 
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int  A = testAllocator.numBlocksInUse();
+            const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
             if (veryVerbose) { printf("\t\tAfter : "); P_(AA); P(A);}
 
@@ -5138,6 +5602,84 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
             LOOP2_ASSERT(LINE, ti, 0 == testAllocator.numBlocksInUse());
         }
     }
+
+    const int RANDOM_ACCESS_ITERATOR_TAG =
+          bslmf_IsSame<std::random_access_iterator_tag,
+                       typename bsl::iterator_traits<
+                         typename CONTAINER::const_iterator>::iterator_category
+                      >::VALUE;
+
+    if (RANDOM_ACCESS_ITERATOR_TAG) {
+        if (verbose) { printf("\nNegative testing\n"); }
+
+        bsls_AssertFailureHandlerGuard guard(&bsls_AssertTest::failTestDriver);
+
+        static const struct {
+            int         d_lineNum;          // source line number
+            const char *d_spec;             // initial
+        } DATA[] = {
+            { L_,  "A"               },
+            { L_,  "AB"              },
+            { L_,  "ABC"             },
+            { L_,  "ABCD"            },
+            { L_,  "ABCDE"           },
+            { L_,  "ABCDEAB"         },
+            { L_,  "ABCDEABC"        },
+            { L_,  "ABCDEABCD"       }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (verbose) printf("\tWithout passing in an allocator.\n");
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int     LINE   = DATA[ti].d_lineNum;
+                const char   *SPEC   = DATA[ti].d_spec;
+                const size_t  LENGTH = strlen(SPEC);
+
+                if (verbose) {
+                    printf("\t\tCreating object of "); P_(LENGTH);
+                    printf("using "); P(SPEC);
+                }
+
+                CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
+                typename CONTAINER::const_iterator it1 = U.begin(); ++it1;
+                ASSERT_SAFE_PASS(Obj mX(U.begin(), U.begin()));
+                ASSERT_SAFE_FAIL(Obj mX(it1, U.begin()));
+                ASSERT_SAFE_FAIL(Obj mX(U.end(), U.begin()));
+                ASSERT_SAFE_PASS(Obj mX(U.end(), U.end()));
+
+                // two null pointers form a valid (empty) range
+                const TYPE *nullPtr = 0;
+                ASSERT_SAFE_PASS(Obj mX(nullPtr, nullPtr));
+            }
+        }
+
+
+        if (verbose) printf("\tWithout passing in an allocator.\n");
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int     LINE   = DATA[ti].d_lineNum;
+                const char   *SPEC   = DATA[ti].d_spec;
+                const size_t  LENGTH = strlen(SPEC);
+
+                if (verbose) {
+                    printf("\t\tCreating object of "); P_(LENGTH);
+                    printf("using "); P(SPEC);
+                }
+
+                CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
+                typename CONTAINER::const_iterator it1 = U.begin(); ++it1;
+                ASSERT_SAFE_PASS(Obj mX(U.begin(), U.begin(), &testAllocator));
+                ASSERT_SAFE_FAIL(Obj mX(it1, U.begin(), &testAllocator));
+                ASSERT_SAFE_FAIL(Obj mX(U.end(), U.begin(), &testAllocator));
+                ASSERT_SAFE_PASS(Obj mX(U.end(), U.end(), &testAllocator));
+
+                // two null pointers form a valid (empty) range
+                const TYPE *nullPtr = 0;
+                ASSERT_SAFE_PASS(Obj mX(nullPtr, nullPtr, &testAllocator));
+            }
+        }
+    }               
 }
 
 template <class TYPE, class ALLOC>
@@ -5430,7 +5972,8 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
                     //--------------^
-                    const int AL = testAllocator.allocationLimit();
+                    const bsls_Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Obj mU(&testAllocator);
                     stretchRemoveAll(&mU, U_N, VALUES[0]);
@@ -5506,7 +6049,8 @@ void TestDriver<TYPE,ALLOC>::testCase9()
 
             for (int tj = 0; tj < NUM_EXTEND; ++tj) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    const int AL = testAllocator.allocationLimit();
+                    const bsls_Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
                     const int N = EXTEND[tj];
@@ -5579,11 +6123,15 @@ void TestDriver<TYPE,ALLOC>::testCase8()
             printf("\t g = "); dbg_print(g(SPEC)); printf("\n");
             printf("\tgg = "); dbg_print(X); printf("\n");
         }
-        const int TOTAL_BLOCKS_BEFORE = testAllocator.numBlocksTotal();
-        const int IN_USE_BYTES_BEFORE = testAllocator.numBytesInUse();
+        const bsls_Types::Int64 TOTAL_BLOCKS_BEFORE =
+                                                testAllocator.numBlocksTotal();
+        const bsls_Types::Int64 IN_USE_BYTES_BEFORE =
+                                                 testAllocator.numBytesInUse();
         LOOP_ASSERT(ti, X == g(SPEC));
-        const int TOTAL_BLOCKS_AFTER = testAllocator.numBlocksTotal();
-        const int IN_USE_BYTES_AFTER = testAllocator.numBytesInUse();
+        const bsls_Types::Int64 TOTAL_BLOCKS_AFTER =
+                                                testAllocator.numBlocksTotal();
+        const bsls_Types::Int64 IN_USE_BYTES_AFTER =
+                                                 testAllocator.numBytesInUse();
         LOOP_ASSERT(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
         LOOP_ASSERT(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
     }
@@ -5795,8 +6343,8 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                         printf("\t\t\tInsert into created obj, "
                                 "with test allocator:\n");
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+                    const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
@@ -5804,8 +6352,8 @@ void TestDriver<TYPE,ALLOC>::testCase7()
 
                     Obj Y11(X, &testAllocator);
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+                    const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tAfter Creation: "); P_(AA); P(A);
@@ -5828,13 +6376,17 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                         const size_t oldCap   = Y11.capacity();
                         const size_t remSlots = Y11.capacity() - Y11.size();
 
-                        const int CC = testAllocator.numBlocksTotal();
-                        const int  C = testAllocator.numBlocksInUse();
+                        const bsls_Types::Int64 CC =
+                                                testAllocator.numBlocksTotal();
+                        const bsls_Types::Int64  C =
+                                                testAllocator.numBlocksInUse();
 
                         stretch(&Y11, 1, VALUES[i % NUM_VALUES]);
 
-                        const int DD = testAllocator.numBlocksTotal();
-                        const int  D = testAllocator.numBlocksInUse();
+                        const bsls_Types::Int64 DD =
+                                                testAllocator.numBlocksTotal();
+                        const bsls_Types::Int64  D =
+                                                testAllocator.numBlocksInUse();
 
                         // Blocks allocated should increase only when
                         // trying to add more than capacity.  When adding
@@ -5883,8 +6435,8 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                 }
                 {   // Exception checking.
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+                    const bsls_Types::Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
@@ -5902,8 +6454,8 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                                      Y2.get_allocator() == X.get_allocator());
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+                    const bsls_Types::Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tAfter Creation: "); P_(AA); P(A);
@@ -6765,13 +7317,13 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
     if (verbose) printf("\t\tPassing in an allocator.\n");
     {
-        const int AA = testAllocator.numBlocksTotal();
-        const int A  = testAllocator.numBlocksInUse();
+        const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+        const bsls_Types::Int64 A  = testAllocator.numBlocksInUse();
 
         const Obj X(&testAllocator);
 
-        const int BB = testAllocator.numBlocksTotal();
-        const int B  = testAllocator.numBlocksInUse();
+        const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+        const bsls_Types::Int64 B  = testAllocator.numBlocksInUse();
 
         if (veryVerbose) { T_; T_; P(X); }
         ASSERT(0 == X.size());
@@ -6854,8 +7406,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
             LOOP_ASSERT(li, li == X.size());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls_Types::Int64 B  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\tBEFORE: ");
@@ -6864,8 +7416,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
             mX.push_back(VALUES[li % NUM_VALUES]);
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls_Types::Int64 A  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\t AFTER: ");
@@ -6965,8 +7517,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
             LOOP_ASSERT(li, li == X.size());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls_Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls_Types::Int64 B  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\tBEFORE: ");
@@ -6975,8 +7527,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
             mX.clear();
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls_Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls_Types::Int64 A  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\tAFTER: ");
@@ -6989,8 +7541,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
             LOOP_ASSERT(li, li == X.size());
 
-            const int CC = testAllocator.numBlocksTotal();
-            const int C  = testAllocator.numBlocksInUse();
+            const bsls_Types::Int64 CC = testAllocator.numBlocksTotal();
+            const bsls_Types::Int64 C  = testAllocator.numBlocksInUse();
 
             if(veryVerbose){
                 printf("\t\t\tAFTER SECOND INSERT: ");
@@ -7465,6 +8017,24 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase18();
 
+        if (verbose) printf("\nNegative testing 'erase' and 'pop_back'"
+                            "\n=======================================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase18Negative();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase18Negative();
+
+        if (verbose) printf("\n... with 'TestTypeNoAlloc'.\n");
+        TestDriver<TNA>::testCase18Negative();
+
+        if (verbose) printf("\n... with 'BitwiseMoveableTestType'.\n");
+        TestDriver<BMT>::testCase18Negative();
+
+        if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
+        TestDriver<BCT>::testCase18Negative();
+
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -7520,7 +8090,32 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<BCT>::testCase17Range(CharArray<BCT>());
 
-      } break;
+        if (verbose) printf("\nNegative Testing Insertions"
+                            "\n===========================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase17Negative();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase17Negative();
+
+        if (verbose) printf("\n... with 'BitwiseMoveableTestType'.\n");
+        TestDriver<BMT>::testCase17Negative();
+
+        if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
+        TestDriver<BCT>::testCase17Negative();
+
+       if (verbose) printf("\nTesting iterator vs. value type deduction"
+                           "\n=========================================\n");
+
+        {
+            vector<size_t> vna;
+            vna.insert(vna.end(), 13, 42);
+
+            ASSERT(13 == vna.size());
+            ASSERT(42 == vna.front());
+        }
+} break;
       case 16: {
         // --------------------------------------------------------------------
         // TESTING ITERATORS
@@ -7568,6 +8163,16 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase15();
 
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) printf("\nNegative Testing Element Access"
+                            "\n===============================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase15Negative();
+
+        if (verbose) printf("\n... with 'TestType'.\n");
+        TestDriver<T>::testCase15Negative();
+#endif
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -7651,10 +8256,76 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<BCT>::testCase13Range(CharArray<BCT>());
 
+        if (verbose) printf("\nNegative-testing Assignment"
+                            "\n===========================\n");
+
+        if (verbose) printf("\n... with 'char' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char>::testCase13Negative(CharList<char>());
+
+        if (verbose) printf("\n... with 'char' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char>::testCase13Negative(CharArray<char>());
+
+        if (verbose) printf("\n... with 'TestType' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<T>::testCase13Negative(CharList<T>());
+
+        if (verbose) printf("\n... with 'TestType' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<T>::testCase13Negative(CharArray<T>());
+
+        if (verbose) printf("\n... with 'BitwiseMoveableTestType' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<BMT>::testCase13Negative(CharList<BMT>());
+
+        if (verbose) printf("\n... with 'BitwiseMoveableTestType' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<BMT>::testCase13Negative(CharArray<BMT>());
+
+        if (verbose) printf("\n... with 'BitwiseCopyableTestType' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<BCT>::testCase13Negative(CharList<BCT>());
+
+        if (verbose) printf("\n... with 'BitwiseCopyableTestType' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<BCT>::testCase13Negative(CharArray<BCT>());
+
+        if (verbose) printf("\nTest iterator vs. value type deduction"
+                            "\n======================================\n");
+
+        {
+            vector<size_t> vna;
+            vna.assign(13, 42);
+            ASSERT(13 == vna.size());
+            ASSERT(42 == vna.front());
+        }
+
       } break;
       case 12: {
         // --------------------------------------------------------------------
         // TESTING CONSTRUCTORS
+        //
+        // Concerns:
+        //  Specific concerns for each of the constructors are described in the
+        //  separate testing function template, with separate test functions
+        //  for the Range-based constructor vs. the length/value constructors.
+        //  An additional concern is that there may be an ambiguity between the
+        //  constructor deducing a pair of 'INPUT_ITERATOR' arguments of the
+        //  same type, and the range/value constructor where the vector's
+        //  'value_type' is the same as its 'size_type'.  This ambiguity should
+        //  be resolved in favor of calling the length/value constructor.
+        //
+        // Plan:
+        //  We will separately test the length/value constructor from the
+        //  iterator-range based constructor.  Specific plans are described in
+        //  the test functions 'testCase12' and 'testCase12Range' respectively.
+        //  In addition, there is a specific concern about an amibiguity with
+        //  the constructor for 'vector<size_t>'.  As the only concern is for
+        //  a specific constructor invocation, on a specific container, we test
+        //  that combination at the end, having sufficiently proven  the rest
+        //  of the constructor behavior that a simple verification that the
+        //  correct overload was called should suffice.
         //
         // Testing:
         //   vector<T,A>(size_type n, const T& val = T(), const A& a = A());
@@ -7712,6 +8383,20 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType' "
                             "and arbitrary random-access iterator.\n");
         TestDriver<BCT>::testCase12Range(CharArray<BCT>());
+
+        if (verbose) printf("\nTesting Initial-Range vs. -Length Ambiguity"
+                            "\n===========================================\n");
+
+        {
+            const vector<size_t> vna(13, 42);
+            ASSERT(13 == vna.size());
+            ASSERT(42 == vna.front());
+
+            bslma_TestAllocator at;
+            const vector<size_t> vwa(8, 12, &at);
+            ASSERT( 8 == vwa.size());
+            ASSERT(12 == vwa.front());
+        }
 
       } break;
       case 11: {

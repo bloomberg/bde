@@ -2,6 +2,7 @@ baenet_httpbasicheaderfields
 baenet_httpcontenttype
 baenet_httpentityprocessor
 baenet_httpextendedheaderfields
+baenet_httpgeneratorutil
 baenet_httpheader
 baenet_httphost
 baenet_httpmessagegenerator

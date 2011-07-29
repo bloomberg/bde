@@ -116,11 +116,11 @@ baenet_HttpBasicHeaderFields::operator=(const baenet_HttpBasicHeaderFields&)
 //               GLOBAL TYPEDEFS/CLASSES/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct HttpHeaderTest : bsls_ProtocolTest<baenet_HttpHeader> {
+struct HttpHeaderTest : bsls_ProtocolTestImp<baenet_HttpHeader> {
     int addField(const bdeut_StringRef&, const bdeut_StringRef&)
-                                                             { return exit(); }
+                                                      { return markDone(); }
     const baenet_HttpBasicHeaderFields& basicFields() const
-                                                          { return exitRef(); }
+                                                      { return markDoneRef(); }
 };
 
 //=============================================================================
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
         // PROTOCOL TEST
         // --------------------------------------------------------------------
 
-        bsls_ProtocolTestDriver<HttpHeaderTest> t;
+        bsls_ProtocolTest<HttpHeaderTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
@@ -151,8 +151,6 @@ int main(int argc, char *argv[])
         BSLS_PROTOCOLTEST_ASSERT(t,
                                addField(bdeut_StringRef(), bdeut_StringRef()));
         BSLS_PROTOCOLTEST_ASSERT(t, basicFields());
-
-        testStatus = t.failures();
       } break;
       case 1: {
         // --------------------------------------------------------------------

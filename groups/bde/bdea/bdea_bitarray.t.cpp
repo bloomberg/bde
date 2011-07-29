@@ -12,6 +12,8 @@
 #include <bdex_testinstreamexception.h>         // for testing only
 #include <bdex_testoutstream.h>                 // for testing only
 
+#include <bslalg_swaputil.h>
+
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -6960,13 +6962,11 @@ int main(int argc, char *argv[])
             }
 
             {
-                using bsl::swap;
-
                 Obj X1(g("01")), X2(X1);
                 Obj Y1(g("10")), Y2(Y1);
 
                 X1.swap(Y1);
-                swap(X2, Y2);
+                bslalg_SwapUtil::swap(&X2, &Y2);
 
                 ASSERT(X1 == X2);
                 ASSERT(Y1 == Y2);
