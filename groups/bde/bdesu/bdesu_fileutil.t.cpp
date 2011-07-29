@@ -465,7 +465,7 @@ int main(int argc, char *argv[]) {
 #ifdef BSLS_PLATFORM__OS_WINDOWS
         string fileName("getFileSizeTest.txt");  // not sure where to put it
 #else
-        string fileName("/bb/data/tmp/getFileSizeTest.txt");
+        string fileName("/tmp/getFileSizeTest.txt");
 #endif
         bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(fileName,
                                                                  true,
@@ -484,11 +484,11 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) cout << "\n1. Normal file" << endl;
 
             bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(fileName);
-            ASSERT(bytes == off);
+            LOOP2_ASSERT(bytes, off, bytes == off);
 
             bdesu_FileUtil::Offset off2 = bdesu_FileUtil::getFileSize(
                                                              fileName.c_str());
-            ASSERT(bytes == off2);
+            LOOP2_ASSERT(bytes, off2, bytes == off2);
 
             if (veryVerbose) {
                 cout << "Expected " << bytes << endl;
@@ -519,7 +519,7 @@ int main(int argc, char *argv[]) {
 #ifdef BSLS_PLATFORM__OS_WINDOWS
             string dirName("getFileSizeDir");
 #else
-            string dirName("/bb/data/tmp/getFileSizeDir");
+            string dirName("/tmp/getFileSizeDir");
 #endif
 
             int ret = bdesu_FileUtil::createDirectories(dirName, true);
@@ -580,7 +580,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (veryVerbose) cout << "\n5. Symbolic Links" << endl;
-            system("ln -s /bb/data/tmp/getFileSizeTest.txt testLink");
+            system("ln -s /tmp/getFileSizeTest.txt testLink");
 
             string fileName("testLink");
             bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(fileName);
@@ -1180,7 +1180,7 @@ int main(int argc, char *argv[]) {
         // Concern: Whether 'getFileSize' can detect a large file (> 4GB) since
         //          the file size becomes a 64-bit number.
         //
-        // Plan: Create a large file in "/bb/data/tmp" and check the file size.
+        // Plan: Create a large file in "/tmp" and check the file size.
         //       Remove it afterwards.
         //
         // --------------------------------------------------------------------
@@ -1194,10 +1194,10 @@ int main(int argc, char *argv[]) {
 
         if (veryVerbose) cout << "\n3. Large File" << endl;
 
-        system("dd if=/dev/zero of=/bb/data/tmp/fiveGBFile "
+        system("dd if=/dev/zero of=/tmp/fiveGBFile "
                "bs=1024000 count=5000");
 
-        string fileName("/bb/data/tmp/fiveGBFile");
+        string fileName("/tmp/fiveGBFile");
 
         bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(fileName);
         ASSERT(5120000000LL == off);
@@ -1216,7 +1216,7 @@ int main(int argc, char *argv[]) {
 #endif
       } break;
       case -2: {
-        static const char* foo = "/bb/data/tmp/blahblah.tmp";
+        static const char* foo = "/tmp/blahblah.tmp";
         bdesu_FileUtil::remove(foo);
         bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(foo, 1, 0);
         int pageSize = bdesu_MemoryUtil::pageSize();
