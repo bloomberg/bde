@@ -15,7 +15,8 @@ BDES_IDENT("$Id: $")
 //@SEE_ALSO: bael_record, bael_context, bael_observer,
 //           bael_recordstringformatter
 //
-//@AUTHOR: Guillaume Morin (gmorin1), Gang Chen (gchen20), Dino Oliva (doliva1)
+//@AUTHOR: Guillaume Morin (gmorin1), Gang Chen (gchen20),
+//         Dino Oliva (doliva1), Raymond Chiu (schiu49)
 //
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'bael_Observer' protocol for publishing log records to a user-specified
@@ -33,6 +34,7 @@ BDES_IDENT("$Id: $")
 //                         |              rotateOnSize
 //                         |              rotateOnLifetime
 //                         |              setLogFileFunctor
+//                         |              setOnFileRotationCallback
 //                         |              isFileLoggingEnabled
 //                         |              isPublishInLocaltimeEnabled
 //                         |              rotationLifetime
@@ -43,11 +45,11 @@ BDES_IDENT("$Id: $")
 //                                        dtor
 //                                        publish
 //..
-// An instance of 'bael_FileObserver2' processes the log records received
-// through its 'publish' method by writing them to a user-specified file.
-// The format of published log records is user-configurable (see "Log Record
-// Formatting" below).  In addition, a file observer may be configured to
-// perform automatic log file rotation (see "Log File Rotation" below).
+// A 'bael_FileObserver2' object processes the log records received through its
+// 'publish' method by writing them to a user-specified file.  The format of
+// published log records is user-configurable (see "Log Record Formatting"
+// below).  In addition, a file observer may be configured to perform automatic
+// log file rotation (see "Log File Rotation" below).
 //
 ///Log Record Formatting
 ///---------------------
@@ -64,7 +66,7 @@ BDES_IDENT("$Id: $")
 //..
 // The default format can be overridden by calling 'setLogFileFunctor' which
 // takes a formatting functor as an argument.  For example, an instance of
-// 'bael_RecordStringFormatter conveniently provides such a functor:
+// 'bael_RecordStringFormatter' conveniently provides such a functor:
 //..
 //  fileObserver.setLogFileFunctor(
 //                   bael_RecordStringFormatter("%i %p:%t %s %f:%l %c %m %u"));
@@ -100,11 +102,11 @@ BDES_IDENT("$Id: $")
 //   %h - current hour (two digits with leading zeros)
 //   %m - current minute (two digits with leading zeros)
 //   %s - current second (two digits with leading zeros)
-//   %% - the empty string
+//   %T - timestamp, equivalent to "%Y%M%D_%h%m%s"
 //..
-// For example, a log filename pattern of "task.log.%Y%M%D_%h%m%s" may yield
-// the a filename of "task.log.20110501_123000" if the file is opened on
-// '01-May-2011 12:30:00'.
+// For example, a log filename pattern of "task.log.%Y%M%D_%h%m%s" will yield
+// the a filename with the appearance of "task.log.20110501_123000" if the file
+// is opened on '01-May-2011 12:30:00'.
 //
 ///Log File Rotation
 ///-----------------
@@ -123,26 +125,23 @@ BDES_IDENT("$Id: $")
 ///Rotated File Naming
 ///- - - - - - - - - -
 // When file rotation occurs, a new log filename is generated using the pattern
-// and 'appendTimestampFlag' supplied to 'enableFileLogging'.  If the filename
-// pattern supplied to 'enableFileLogging' does not contain an escape sequence
-// and 'appendTimestampFlag' was false, the newly generated filename must be
-// the same as the existing log file.  In that instance the old log file is
-// renamed by appending a timestamp.
+// supplied to 'enableFileLogging'.  If the filename pattern supplied to
+// 'enableFileLogging' has the same name as the old log file, the old log file
+// is renamed by appending a timestamp in the form ".%Y%M%D_%h%m%s".
 //
 // The table below demonstrates the names of the log files opened at
-// '2011-May-11 12:30:00' based on the filename patterns and whether
-// 'appendTimestampFlag' is set to 'true':
+// '2011-May-11 12:30:00' and rotated in the same day based on the filename
+// patterns:
 //..
-// ----------------+-------+-------------------------+-------------------------
-//  Pattern        | Flag  | Name Before Rotation    | Name After Rotation
-// ----------------+-------+-------------------------+-------------------------
-//  "a.log"        | true  | "a.log.20110520_123000" | "a.log.20110520_123000"
-//  "a.log"        | false | "a.log"                 | "a.log.20110520_123000"
-//  "a.log.%Y%M%D" | true  | "a.log.20110520"        | "a.log.20110520"
-//  "a.log.%Y%M%D" | false | "a.log.20110520"        | "a.log.20110520"
-// ----------------+-------+-------------------------+-------------------------
+// ----------------+-------------------------+---------------------------------
+//  Pattern        | Name Before Rotation    | Name After Rotation
+// ----------------+-------------------------+---------------------------------
+//  "a.log"        | "a.log"                 | "a.log.20110520_123000"
+//  "a.log.%T"     | "a.log.20110520_123000" | "a.log.20110520_123000"
+//  "a.log.%Y"     | "a.log.2011"            | "a.log.2011_20110520_123000"
+//  "a.log.%Y%M%D" | "a.log.20110520"        | "a.log.20110520_20110520_123000"
+// ----------------+-------------------------+---------------------------------
 //..
-// Notice that the filename is changed on rotation only in the second case.
 //
 ///Thread-Safety
 ///-------------
@@ -407,11 +406,17 @@ class bael_FileObserver2 : public bael_Observer {
         //   %h - current hour (two digits with leading zeros)
         //   %m - current minute (two digits with leading zeros)
         //   %s - current second (two digits with leading zeros)
+        //   %T - timestamp, equivalent to "%Y%M%D_%h%m%s"
         //..
         // Each time a log file is opened by this file observer (upon a
         // successful call to this method and following each log file rotation)
         // the name of the log file is derived from 'logFilenamePattern' by
-        // interpolating the above recognized '%'-escape sequences.
+        // interpolating the above recognized '%'-escape sequences.  On
+        // rotation, the current log file is closed, and a new log-file name is
+        // derived.  If the newly derived log-file name is the same as that of
+        // the current (rotated) log file, the current log file is renamed by
+        // appending a timestamp of the form ".%Y%M%D_%h%m%s".  Then, the new
+        // log file is opened for logging.
         //
         // Return 0 on success, a positive value if file logging is already
         // enabled, and a negative value for any I/O error.
@@ -429,23 +434,22 @@ class bael_FileObserver2 : public bael_Observer {
         //   %h - current hour (two digits with leading zeros)
         //   %m - current minute (two digits with leading zeros)
         //   %s - current second (two digits with leading zeros)
+        //   %T - timestamp, equivalent to "%Y%M%D_%h%m%s"
         //   %% - the empty string (used to prevent a timestamp from being
         //        added to the filename if 'appendTimestampFlag' is 'true')
         //..
         // Each time a log file is opened by this file observer (upon a
         // successful call to this method and following each log file rotation)
         // the name of the log file is derived from 'logFilenamePattern' by
-        // interpolating the above recognized '%'-escape sequences.  Optionally
-        // specify 'appendTimestampFlag' indicating that a timestamp of the
-        // form ".%Y%M%D_%h%m%s" should be appended to the log filename in
-        // instances where 'logFilenamePattern' does not contain a '%'-escape
-        // sequence.  If 'appendTimestampFlag' is 'false' and
-        // 'logFilenamePattern' does not contain a recognized '%'-escape
-        // sequence, a timestamp will be appended to the file, but only when it
-        // is rotated (see the "Log File Rotation" section under @DESCRIPTION
-        // in the component-level documentation).  'appendTimestampFlag' has no
-        // effect if 'logFilenamePattern' contains a recognized '%'-escape
-        // sequence.
+        // interpolating the above recognized '%'-escape sequences.  If
+        // the specified 'appendTimestampFlag' is 'true' and
+        // 'logFilenamePattern' does not contain any '%'-escape sequence, ".%T"
+        // is appended to 'logFilenamePattern'.  On rotation, the current log
+        // file is closed, and a new log-file name is derived.  If the newly
+        // derived log-file name is the same as that of the current (rotated)
+        // log file, the current log file is renamed by appending a timestamp
+        // of the form ".%Y%M%D_%h%m%s".  Then, the new log file is opened for
+        // logging.
         //
         // Return 0 on success, a positive value if file logging is already
         // enabled, and a negative value for any I/O error.
@@ -483,16 +487,6 @@ class bael_FileObserver2 : public bael_Observer {
         // of time that the file has been opened exceeds the specified
         // 'timeInterval'.  This rule replaces any rotation-on-lifetime rule
         // currently in effect, if any.
-
-    void rotateOnTimeInterval(const bdet_DatetimeInterval& interval);
-    void rotateOnTimeInterval(const bdet_DatetimeInterval& interval,
-                              const bdet_Datetime&         referenceTime);
-        // Set this file observer to perform a periodic log-file rotation at
-        // multiples of the specified 'interval' after the reference time.  By
-        // default, the reference time is the time 'enableFileLogging' is
-        // called.  Optionally, specify 'referenceTime' to indicate the desired
-        // reference time.  The behavior is undefined unless
-        // '0 < interval.totalMilliseconds()'.
 
     void setLogFileFunctor(const LogRecordFunctor& logFileFunctor);
         // Set the formatting functor used when writing records to the log file

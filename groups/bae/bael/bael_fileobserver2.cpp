@@ -31,9 +31,7 @@ BDES_IDENT_RCSID(bael_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-#include <bsl_cmath.h>
 #include <bsl_cstdio.h>
-#include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_iosfwd.h>    // for 'bsl::streamoff' type
 #include <bsl_iostream.h>
