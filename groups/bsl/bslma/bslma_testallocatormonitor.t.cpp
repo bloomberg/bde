@@ -6,6 +6,8 @@
 #include <bslma_testallocator.h>
 #include <bslmf_assert.h>
 
+#include <bsls_assert.h>
+
 #include <cstring>     // memset()
 #include <cstdlib>     // atoi()
 #include <iostream>
@@ -139,7 +141,7 @@ typedef bslma_TestAllocatorMonitor Obj;
                     LOOP_ASSERT((LINE),  (MONITOR).isInUseDown());  \
                                                                     \
         } else {                                                    \
-             assert(!"MATCH: "#STATE);                              \
+             BSLS_ASSERT(!"MATCH: "#STATE);                         \
         }                                                           \
     } while (0);
 
@@ -154,7 +156,7 @@ typedef bslma_TestAllocatorMonitor Obj;
                     LOOP_ASSERT((LINE),  (MONITOR).isMaxSame());    \
                                                                     \
         } else {                                                    \
-             assert(!"MATCH: "#STATE);                              \
+             BSLS_ASSERT(!"MATCH: "#STATE);                         \
         }                                                           \
     } while (0);
 
@@ -169,7 +171,7 @@ typedef bslma_TestAllocatorMonitor Obj;
                     LOOP_ASSERT((LINE),  (MONITOR).isTotalSame());  \
                                                                     \
         } else {                                                    \
-             assert(!"MATCH: "#STATE);                              \
+             BSLS_ASSERT(!"MATCH: "#STATE);                         \
         }                                                           \
     } while (0);
 
@@ -185,25 +187,24 @@ typedef bslma_TestAllocatorMonitor Obj;
 // Classes taking 'bslma_allocator' objects have many requirements (and thus,
 // many testing concerns) that other classes do not.  We here illustrate how
 // 'bslma_TestAllocatorMonitor' objects (in conjunction with
-// 'bslma_TestAllocator' objects, of course) can be used in a test driver to
-// succinctly address many concerns of an object's use of allocators.
+// 'bslma_TestAllocator' objects) can be used in a test driver to succinctly
+// address many concerns of an object's use of allocators.
 //
-// As a test subject, we introduce 'MyClass', an unconstrained attribute class
-// with a single attribute, 'description', an ascii string.  For the sake of
-// brevity, 'MyClass' defines only a default constructor, a primary manipulator
-// (the 'setDescription' method), and a basic accessor (the 'description'
-// method).  These suffice for the purposes of these example.  Note that proper
-// attribute class would also implement value and copy constructors,
-// 'operator==', and other methods.
-//
+// First, for a test subject, we introduce 'MyClass', an unconstrained
+// attribute class with a single attribute, 'description', an ascii string.
+// For the sake of brevity, 'MyClass' defines only a default constructor, a
+// primary manipulator (the 'setDescription' method), and a basic accessor (the
+// 'description' method).  These suffice for the purposes of these example.
+// Note that proper attribute class would also implement value and copy
+// constructors, 'operator==', and other methods.
 //..
     class MyClass {
         // This unconstrained (value-semantic) attribute class has a single
         // attribute, 'description', an ascii string.
 
         // DATA
-        int              d_capacity;
-        char            *d_description_p;
+        int              d_capacity;      // available memory
+        char            *d_description_p; // string data
         bslma_Allocator *d_allocator_p;   // held, not owned
 
       public:
@@ -221,13 +222,14 @@ typedef bslma_TestAllocatorMonitor Obj;
             // Destroy this object.
 
         // MANIPULATORS
-        void setDescription(const char* value);
-            // Set the 'description' attribute of this object to data of the
-            // specified 'length' at the specified 'value' address.
+        void setDescription(const char *value);
+            // Set the 'description' attribute of this object the specified
+            // 'value'.  On completion, the 'description' method returns the
+            // address of a copy of the ascii string at 'value'.
 
         // ACCESSORS
         const char *description() const;
-            // Return a reference providing non-modifiable access to the
+            // Return an address providing non-modifiable access to the
             // 'description' attribute of this object.
     };
 
@@ -266,6 +268,8 @@ typedef bslma_TestAllocatorMonitor Obj;
         int size   = length + 1;
         if (size > d_capacity) {
             d_allocator_p->deallocate(d_description_p);
+            d_description_p = 0; // lest 'allocate' throws
+            d_capacity      = 0; // lest 'allocate' throws
             d_description_p = (char *) d_allocator_p->allocate(size);
             d_capacity      = size;
         }
@@ -326,7 +330,8 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Our allocator-related concerns for 'MyClass' include:
+// Then, we consider the test-driver for 'MyClass'.  Our allocator-related
+// concerns for 'MyClass' include:
 //..
 // Concerns:
 //: 1 Any memory allocation is from the object allocator.
@@ -339,17 +344,18 @@ int main(int argc, char *argv[])
 //:
 //: 5 QoI: When possible, memory is cached for reuse.
 //..
-// Note that some of these concerns (e.g., C-4, C-5) are not part of the
-// class's documented, contractual behavior.  Hence, they are tagged
-// a Quality of Implementation (QoI) concerns.
+// Notice that some of these concerns (e.g., C-4, C-5) are not part of the
+// class's documented, contractual behavior.  Hence, they are tagged a Quality
+// of Implementation (QoI) concerns.
 //
-// A plan to address these concerns might be:
+// Next, we define a test plan.  For example, a plan addressing these concerns
+// is:
 //..
 // Plan:
 //: 1 Create three 'bslma_TestAllocator' objects and for each of these a
 //:   'bslma_TestAllocatorMonitor' object.  Install two allocators as the
 //:   global and default allocators.  The remaining allocator will be
-//:   passed to out test objects on construction.
+//:   passed to our test objects on construction.
 //:
 //: 2 In an inner block, default create a test object using the designated
 //:   "object" allocator.  Then allow the object to go out of scope
@@ -377,9 +383,9 @@ int main(int argc, char *argv[])
 //..
 // The implementation of the plan is shown below:
 //
-// First, we create the trio of test allocators, their respective test
-// allocator monitors, and install two of the allocators as the global and
-// default allocators:
+// Then, we implement the first portion of the plan.  We create the trio of
+// test allocators, their respective test allocator monitors, and install two
+// of the allocators as the global and default allocators:
 //..
     {
         bslma_TestAllocator ga("global",  veryVeryVeryVerbose);
@@ -402,9 +408,9 @@ int main(int argc, char *argv[])
 //..
 // Next, we pass the (still unused) object allocator to another test object.
 // This time, we coerce the object into allocating memory by setting an
-// attribute.  (Setting an attribute larger than the receiving object
-// usually means that the object cannot store the data within its own footprint
-// and must allocate memory.)
+// attribute.  (Setting an attribute larger than the receiving object usually
+// means that the object cannot store the data within its own footprint and
+// must allocate memory.)
 //..
         {
             MyClass obj(&oa);
@@ -438,7 +444,7 @@ int main(int argc, char *argv[])
 //
 // Next, we make the object allocate additional memory by setting a longer
 // attribute: one that exceeds the capacity allocated for 'DESCRIPTION1'.  Use
-// the second monitor to confirm that some allocation was made.
+// the second monitor to confirm that an allocation was performed.
 //..
             const char DESCRIPTION2[]="abcdefghijklmnopqrstuvwyz"
                                       "abcdefghijklmnopqrstuvwyz"
@@ -450,7 +456,7 @@ int main(int argc, char *argv[])
             ASSERT(oam2.isTotalUp());    // object allocator used
             ASSERT(oam2.isInUseSame());  // outstanding block (allocation)
                                          // count unchanged (even though byte
-                                         // outsanding byte count increased)
+                                         // outstanding byte count increased)
             ASSERT(oam2.isMaxSame());    // no extra (temporary) allocations
         }
 //..
