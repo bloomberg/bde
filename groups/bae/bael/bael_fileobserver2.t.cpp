@@ -84,6 +84,7 @@ using bsl::flush;
 // [ 2] int rotationSize() const
 // [ 3] int maxLogFiles() const;
 //-----------------------------------------------------------------------------
+// [ 5] CONCERN: Filename conflicts on rotations are resolved.
 
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
@@ -740,6 +741,133 @@ int main(int argc, char *argv[])
 
       } break;
 #endif
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING ROTATION FILENAME CONFLICTS
+        //
+        // Concerns:
+        //  1. A timestamp is appended to a file the rotated file has the same
+        //     name as the current log file.
+        //  2. Timestamp is appended if necessary for any type of rotations.
+        //
+        // Plan:
+        //  1. Setup the observer such that there will be a conflict in the
+        //     file name.
+        //  2. Call 'forceRotation' to cause file rotation and verify that the
+        //     new file has the expected extension.
+        //  3. Perform 'forceRotation' again and verify that the file is
+        //     rotated properly.
+        //  4. Trigger a rotation on file size and verify the files are rotated
+        //     as expected.
+        //
+        // Testing:
+        //   CONCERN: Filename conflicts on rotations are resolved.
+        // --------------------------------------------------------------------
+        bael_LoggerManagerConfiguration configuration;
+
+        // Publish synchronously all messages regardless of their severity.
+        // This configuration also guarantees that the observer will only
+        // see each message only once.
+
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                              bael_Severity::BAEL_OFF,
+                                              bael_Severity::BAEL_TRACE,
+                                              bael_Severity::BAEL_OFF,
+                                              bael_Severity::BAEL_OFF));
+
+        bael_MultiplexObserver multiplexObserver;
+        bael_LoggerManager::initSingleton(&multiplexObserver,
+                                          configuration);
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+        if (verbose) cout << "Test-case infrastructure setup." << endl;
+        {
+            bsl::string filename = tempFileName(veryVerbose);
+            const int YEAR = bdetu_SystemTime::nowAsDatetime().year();
+            bsl::ostringstream oss;
+            oss << filename << '.' << YEAR;
+            bsl::string LOGNAME = oss.str();
+
+            Obj mX(&ta);  const Obj& X = mX;
+            multiplexObserver.registerObserver(&mX);
+
+            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+
+            if (verbose) cout << "Testing setup." << endl;
+            {
+                ASSERT(0 == mX.enableFileLogging((filename + ".%Y").c_str(),
+                                                 false));
+                ASSERT(X.isFileLoggingEnabled());
+
+                BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
+
+                ASSERT(1 == bdesu_FileUtil::exists(LOGNAME.c_str()));
+
+                glob_t globbuf;
+                ASSERT(0 == glob((LOGNAME + "*").c_str(), 0, 0, &globbuf));
+                ASSERT(1 == globbuf.gl_pathc);
+                globfree(&globbuf);
+
+                ASSERT(2 == getNumLines(LOGNAME.c_str()));
+                ASSERT(X.isFileLoggingEnabled());
+            }
+
+            if (verbose) cout << "Testing forced rotation." << endl;
+            {
+                mX.forceRotation();
+
+                glob_t globbuf;
+
+                ASSERT(0 == glob((LOGNAME + ".20*").c_str(), 0, 0, &globbuf));
+                ASSERT(1 == globbuf.gl_pathc);
+
+                globfree(&globbuf);
+
+                BAEL_LOG_TRACE << "log 2" << BAEL_LOG_END;
+                BAEL_LOG_TRACE << "log 2" << BAEL_LOG_END;
+
+                bcemt_ThreadUtil::microSleep(0, 1);
+
+                mX.forceRotation();
+
+                ASSERT(0 == glob((LOGNAME + ".20*").c_str(), 0, 0, &globbuf));
+                ASSERT(2 == globbuf.gl_pathc);
+
+                BAEL_LOG_TRACE << "log 3" << BAEL_LOG_END;
+                BAEL_LOG_TRACE << "log 3" << BAEL_LOG_END;
+                BAEL_LOG_TRACE << "log 3" << BAEL_LOG_END;
+
+                ASSERT(6 == getNumLines(LOGNAME.c_str()));
+                ASSERT(4 == getNumLines(globbuf.gl_pathv[1]));
+                ASSERT(2 == getNumLines(globbuf.gl_pathv[0]));
+
+                globfree(&globbuf);
+            }
+
+            if (verbose) cout << "Testing rotate on size." << endl;
+            {
+                ASSERT(0 == X.rotationSize());
+                mX.rotateOnSize(1);
+                ASSERT(1 == X.rotationSize());
+
+                char buffer[1024];
+                memset(buffer, 'x', sizeof buffer);
+                buffer[sizeof buffer - 1] = '\0';
+
+                bcemt_ThreadUtil::microSleep(0, 1);
+
+                BAEL_LOG_TRACE << buffer << BAEL_LOG_END;
+                BAEL_LOG_TRACE << "x" << BAEL_LOG_END;
+
+                glob_t globbuf;
+                ASSERT(0 == glob((LOGNAME + ".20*").c_str(), 0, 0, &globbuf));
+                ASSERT(3 == globbuf.gl_pathc);
+                ASSERT(1024 <  getFileSize(globbuf.gl_pathv[2]));
+
+                globfree(&globbuf);
+            }
+        }
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING ROTATE ON SIZE ON EXISTING FILE
@@ -1712,7 +1840,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Testing log file name pattern." << endl;
             {
                 bsl::string baseName = tempFileName(veryVerbose);
-                bsl::string pattern  = baseName + "%Y%M%D%h%m%s";
+                bsl::string pattern  = baseName + ".%Y%M%D_%h%m%s";
 
                 Obj mX(&ta);  const Obj& X = mX;
                 multiplexObserver.registerObserver(&mX);
@@ -1725,69 +1853,127 @@ int main(int argc, char *argv[])
                 mX.disableSizeRotation();
                 mX.disableFileLogging();
 
-                // loop until startDatetime is equal to endDatetime
-                do {
-                    startDatetime = getCurrentLocalTime();
+                for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+                    const char CONFIG = cfg;
 
-                    ASSERT(0 == mX.enableFileLogging(pattern.c_str(), false));
-                    ASSERT(X.isFileLoggingEnabled());
-                    ASSERT(1 == mX.enableFileLogging(pattern.c_str(), false));
+                    // loop until startDatetime is equal to endDatetime
+                    do {
+                        startDatetime = getCurrentLocalTime();
 
-                    endDatetime = getCurrentLocalTime();
+                        switch (CONFIG) {
+                          case 'a': {
+                            LOOP_ASSERT(CONFIG,
+                                        0 == mX.enableFileLogging(
+                                                               pattern.c_str(),
+                                                               false));
+                            LOOP_ASSERT(CONFIG, X.isFileLoggingEnabled());
+                            LOOP_ASSERT(CONFIG,
+                                        1 == mX.enableFileLogging(
+                                                               pattern.c_str(),
+                                                               false));
+                          } break;
+                          case 'b': {
+                            LOOP_ASSERT(CONFIG,
+                                        0 == mX.enableFileLogging(
+                                                    (baseName + ".%T").c_str(),
+                                                    false));
+                            LOOP_ASSERT(CONFIG, X.isFileLoggingEnabled());
+                            LOOP_ASSERT(CONFIG, 1 == mX.enableFileLogging(
+                                                    (baseName + ".%T").c_str(),
+                                                    true));
+                          } break;
+                          case 'c': {
+                            LOOP_ASSERT(CONFIG,
+                                        0 == mX.enableFileLogging(
+                                                              baseName.c_str(),
+                                                              true));
+                            LOOP_ASSERT(CONFIG, X.isFileLoggingEnabled());
+                            LOOP_ASSERT(CONFIG,
+                                        1 == mX.enableFileLogging(
+                                                              baseName.c_str(),
+                                                               true));
+                          } break;
+                          case 'd': {
+                            LOOP_ASSERT(CONFIG,
+                                        0 == mX.enableFileLogging(
+                                                               pattern.c_str(),
+                                                               true));
+                            LOOP_ASSERT(CONFIG, X.isFileLoggingEnabled());
+                            LOOP_ASSERT(CONFIG,
+                                        1 == mX.enableFileLogging(
+                                                               pattern.c_str(),
+                                                               true));
+                          } break;
+                        }
 
-                    if (startDatetime.date()   != endDatetime.date()
-                     || startDatetime.hour()   != endDatetime.hour()
-                     || startDatetime.minute() != endDatetime.minute()
-                     || startDatetime.second() != endDatetime.second()) {
-                        // not sure the exact time when the log file was opened
-                        // because startDatetime and endDatetime are different;
-                        // will try it again
-                        bsl::string fn;
-                        ASSERT(1 == mX.isFileLoggingEnabled(&fn));
-                        mX.disableFileLogging();
-                        ASSERT(0 == bsl::remove(fn.c_str()));
-                    }
+                        endDatetime = getCurrentLocalTime();
 
-                } while (!X.isFileLoggingEnabled());
+                        if (startDatetime.date()   != endDatetime.date()
+                         || startDatetime.hour()   != endDatetime.hour()
+                         || startDatetime.minute() != endDatetime.minute()
+                         || startDatetime.second() != endDatetime.second()) {
+                            // not sure the exact time when the log file was
+                            // opened because startDatetime and endDatetime are
+                            // different; will try it again
+                            bsl::string fn;
+                            ASSERT(1 == mX.isFileLoggingEnabled(&fn));
+                            mX.disableFileLogging();
+                            ASSERT(0 == bsl::remove(fn.c_str()));
+                        }
 
-                ASSERT(startDatetime.year()   == endDatetime.year());
-                ASSERT(startDatetime.month()  == endDatetime.month());
-                ASSERT(startDatetime.day()    == endDatetime.day());
-                ASSERT(startDatetime.hour()   == endDatetime.hour());
-                ASSERT(startDatetime.minute() == endDatetime.minute());
-                ASSERT(startDatetime.second() == endDatetime.second());
+                    } while (!X.isFileLoggingEnabled());
 
-                BAEL_LOG_INFO<< "log" << BAEL_LOG_END;
+                    LOOP_ASSERT(CONFIG,
+                                startDatetime.year()   == endDatetime.year());
+                    LOOP_ASSERT(CONFIG,
+                                startDatetime.month()  == endDatetime.month());
+                    LOOP_ASSERT(CONFIG,
+                                startDatetime.day()    == endDatetime.day());
+                    LOOP_ASSERT(CONFIG,
+                                startDatetime.hour()   == endDatetime.hour());
+                    LOOP_ASSERT(CONFIG,
+                               startDatetime.minute() == endDatetime.minute());
+                    LOOP_ASSERT(CONFIG,
+                               startDatetime.second() == endDatetime.second());
 
-                mX.disableFileLogging();
+                    BAEL_LOG_INFO<< "log" << BAEL_LOG_END;
 
-                // now construct the name of the log file from startDatetime
-                bsl::ostringstream filename;
-                filename << baseName;
-                filename << bsl::setw(4) << bsl::setfill('0')
-                         << startDatetime.year();
-                filename << bsl::setw(2) << bsl::setfill('0')
-                         << startDatetime.month();
-                filename << bsl::setw(2) << bsl::setfill('0')
-                         << startDatetime.day();
-                filename << bsl::setw(2) << bsl::setfill('0')
-                         << startDatetime.hour();
-                filename << bsl::setw(2) << bsl::setfill('0')
-                         << startDatetime.minute();
-                filename << bsl::setw(2) << bsl::setfill('0')
-                         << startDatetime.second();
+                    mX.disableFileLogging();
 
-                // look for the file with the constructed name
-                glob_t globbuf;
-                int x = glob(filename.str().c_str(), 0, 0, &globbuf);
-                ASSERT(0 == x);
-                ASSERT(1 == globbuf.gl_pathc);
+                    // now construct the name of the log file from
+                    // startDatetime
 
-                bsl::string os;
-                ASSERT(2 == readFileIntoString(__LINE__, filename.str(), os));
+                    bsl::ostringstream filename;
+                    filename << baseName;
+                    filename << '.';
+                    filename << bsl::setw(4) << bsl::setfill('0')
+                             << startDatetime.year();
+                    filename << bsl::setw(2) << bsl::setfill('0')
+                             << startDatetime.month();
+                    filename << bsl::setw(2) << bsl::setfill('0')
+                             << startDatetime.day();
+                    filename << '_';
+                    filename << bsl::setw(2) << bsl::setfill('0')
+                             << startDatetime.hour();
+                    filename << bsl::setw(2) << bsl::setfill('0')
+                             << startDatetime.minute();
+                    filename << bsl::setw(2) << bsl::setfill('0')
+                             << startDatetime.second();
 
-                mX.disableFileLogging();
-                removeFilesByPrefix(filename.str().c_str());
+                    // look for the file with the constructed name
+                    glob_t globbuf;
+                    int x = glob(filename.str().c_str(), 0, 0, &globbuf);
+                    LOOP_ASSERT(CONFIG, 0 == x);
+                    LOOP_ASSERT(CONFIG, 1 == globbuf.gl_pathc);
+
+                    bsl::string os;
+                    LOOP_ASSERT(CONFIG, 2 == readFileIntoString(__LINE__,
+                                                   filename.str(),
+                                                   os));
+
+                    mX.disableFileLogging();
+                    removeFilesByPrefix(filename.str().c_str());
+                }
                 multiplexObserver.deregisterObserver(&mX);
             }
 

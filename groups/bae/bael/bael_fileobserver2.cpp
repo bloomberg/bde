@@ -69,7 +69,7 @@ int getErrorCode(void)
 }
 
 bsl::string getTimestampSuffix(const bdet_Datetime& timestamp)
-    // Return the specified 'timestamp' in the '.YYYYMMDD_hhmmss' format.
+    // Return the specified 'timestamp' in the 'YYYYMMDD_hhmmss' format.
 {
     char buffer[20];
 
@@ -79,7 +79,7 @@ bsl::string getTimestampSuffix(const bdet_Datetime& timestamp)
 
     snprintf(buffer,
              sizeof buffer,
-             "%4d%02d%02d_%02d%02d%02d",
+             "%04d%02d%02d_%02d%02d%02d",
              timestamp.year(),
              timestamp.month(),
              timestamp.day(),
@@ -171,6 +171,37 @@ void getLogFileName(bsl::string                  *logFileName,
     *logFileName = os.str();
 }
 
+bool hasDatetimeInfo(const char *fileNamePattern)
+    // Return 'true' if the specified 'fileNamePattern' contains a recognized
+    // '%'-escape sequence, and false otherwise.  The recognized escape seqence
+    // are "%Y", "%M", "%D", "%h", "%m", "%s", and "%%".
+
+{
+    for (const char *c = fileNamePattern; *c != '\0'; ++c) {
+        if ('%' == *c) {
+            ++c;
+            if ('\0' == *c) {
+                return false;                                         // RETURN
+            }
+
+            switch(*c) {
+              case 'Y':
+              case 'M':
+              case 'D':
+              case 'h':
+              case 'm':
+              case 's':
+              case '%': {
+                return true;                                          // RETURN
+              } break;
+              default: {
+              } break;
+            }
+        }
+    }
+    return false;
+}
+
 int openLogFile(bsl::ostream *stream, const char *filename)
     // Open a file stream referred to by the specified 'stream' for the file
     // with the specified 'filename' in append mode.  Return 0 on success, and
@@ -197,7 +228,6 @@ int openLogFile(bsl::ostream *stream, const char *filename)
               stderr,
               "Cannot open log file %s: %s.  File logging will be disabled!\n",
               filename, bsl::strerror(getErrorCode()));
-
         return -1;                                                    // RETURN
     }
 
@@ -407,8 +437,8 @@ int bael_FileObserver2::enableFileLogging(const char *fileNamePattern,
 {
     BSLS_ASSERT(fileNamePattern);
 
-    if (appendTimestampFlag) {
-        bsl::string pattern = fileNamePattern;
+    if (appendTimestampFlag && !hasDatetimeInfo(fileNamePattern)) {
+        bsl::string pattern(fileNamePattern);
         pattern += ".%T";
         return enableFileLogging(pattern.c_str());
     }
