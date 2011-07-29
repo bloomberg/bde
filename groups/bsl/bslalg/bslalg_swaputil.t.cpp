@@ -3,6 +3,7 @@
 #include <bslalg_swaputil.h>
 
 #include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 
 //=============================================================================
 //                             TEST PLAN
