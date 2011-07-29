@@ -80,8 +80,8 @@ void aSsErT(int c, const char *s, int i)
 //                       CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
 
-struct ObserverTest : bsls_ProtocolTest<bael_Observer> {
-    void publish(const bael_Record&, const bael_Context&)  { exit(); }
+struct ObserverTest : bsls_ProtocolTestImp<bael_Observer> {
+    void publish(const bael_Record&, const bael_Context&)  { markDone(); }
 };
 
 //=============================================================================
@@ -241,15 +241,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        bsls_ProtocolTestDriver<ObserverTest> t;
+        bsls_ProtocolTest<ObserverTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
         ASSERT(t.testVirtualDestructor());
 
         BSLS_PROTOCOLTEST_ASSERT(t, publish(bael_Record(), bael_Context()));
-
-        testStatus = t.failures();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
