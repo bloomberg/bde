@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #else
 #include <windows.h>  // for Sleep
 #endif
@@ -502,22 +504,12 @@ int main(int argc, char *argv[]) {
         {
             if (veryVerbose) cout << "\n2. Normal directory" << endl;
 
-#ifdef BSLS_PLATFORM__OS_AIX
-            const int EXPECTED = 256;
-#elif defined(BSLS_PLATFORM__OS_SOLARIS)
-            const int EXPECTED = 512;
-#elif defined(BSLS_PLATFORM__OS_LINUX)
-            const int EXPECTED = 4096;
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
-            const int EXPECTED = 0;    // windows directories are 0 sized
-#elif defined(BSLS_PLATFORM__OS_HPUX)
-            const int EXPECTED = 96;   // weird
-#else
-            const int EXPECTED = 512;  // unknown platform... stick with 512
-#endif
-
 #ifdef BSLS_PLATFORM__OS_WINDOWS
             string dirName("getFileSizeDir");
+            
+            // windows directories are 0 sized
+          
+            const bdesu_FileUtil::Offset EXPECTED = 0; 
 #else
             string dirName("/tmp/getFileSizeDir");
 #endif
@@ -525,12 +517,23 @@ int main(int argc, char *argv[]) {
             int ret = bdesu_FileUtil::createDirectories(dirName, true);
             ASSERT(0 == ret);
 
+            // On UNIX use stat64 as an oracle: the file size of a directory
+            // depends on the file system.
+
+#ifndef BSLS_PLATFORM__OS_WINDOWS   
+            struct stat64 oracleInfo;
+            int rc = ::stat64(dirName.c_str(), &oracleInfo);
+            ASSERT(0 == rc);
+            
+            bdesu_FileUtil::Offset EXPECTED = oracleInfo.st_size;
+#endif
+         
             bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(dirName);
             LOOP2_ASSERT(EXPECTED, off, EXPECTED == off);
 
             bdesu_FileUtil::Offset off2 = bdesu_FileUtil::getFileSize(
                                                              dirName.c_str());
-            ASSERT(EXPECTED == off2);
+            LOOP2_ASSERT(EXPECTED, off2, EXPECTED == off2);
 
             if (veryVerbose) {
                 cout << "Expected " << EXPECTED << endl;
