@@ -201,6 +201,12 @@ int openLogFile(bsl::ostream *stream, const char *filename)
         return -1;                                                    // RETURN
     }
 
+    if (fileExistFlag) {
+        // On some platforms, the put pointer is not set to the end of file
+        // until the first output.
+
+        stream->seekp(0, bsl::ios::end);
+    }
     stream->clear();
     return 0;
 }

@@ -629,10 +629,6 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         bael_LoggerManagerConfiguration configuration;
 
-        // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only
-        // see each message only once.
-
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
                                               bael_Severity::BAEL_OFF,
                                               bael_Severity::BAEL_TRACE,
@@ -744,6 +740,72 @@ int main(int argc, char *argv[])
 
       } break;
 #endif
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING ROTATE ON SIZE ON EXISTING FILE
+        //
+        // Concerns:
+        //   Rotate on size is based on file size and not the number of bytes
+        //   written to the file.
+        //
+        // Plan:
+        //   Disable any rotation and create a file over 1 KB and then disable
+        //   file logging.  Enable 'rotateOnSize', start logging again and
+        //   verify that the file is rotated on first log.
+        // --------------------------------------------------------------------
+        bael_LoggerManagerConfiguration configuration;
+
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                              bael_Severity::BAEL_OFF,
+                                              bael_Severity::BAEL_TRACE,
+                                              bael_Severity::BAEL_OFF,
+                                              bael_Severity::BAEL_OFF));
+
+        bael_MultiplexObserver multiplexObserver;
+        bael_LoggerManager::initSingleton(&multiplexObserver,
+                                          configuration);
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+        if (verbose) cout << "Test-case infrastructure setup." << endl;
+        {
+            bsl::string filename = tempFileName(veryVerbose);
+
+            Obj mX(&ta);  const Obj& X = mX;
+            multiplexObserver.registerObserver(&mX);
+
+            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+
+            if (verbose) cout << "Testing setup." << endl;
+            {
+                ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+                ASSERT(X.isFileLoggingEnabled());
+
+                char buffer[1024];
+                memset(buffer, 'x', sizeof buffer);
+                buffer[sizeof buffer - 1] = '\0';
+
+                BAEL_LOG_TRACE << buffer << BAEL_LOG_END;
+
+                mX.disableFileLogging();
+                ASSERT(!X.isFileLoggingEnabled());
+
+                ASSERT(1024 <  getFileSize(filename.c_str()));
+
+                ASSERT(0 == X.rotationSize());
+                mX.rotateOnSize(1);
+                ASSERT(1 == X.rotationSize());
+
+                ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+                ASSERT(X.isFileLoggingEnabled());
+
+                BAEL_LOG_TRACE << "x" << BAEL_LOG_END;
+
+                glob_t globbuf;
+                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
+                ASSERT(1 == (int)globbuf.gl_pathc);
+            }
+        }
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // CAPTURE ERROR MESSAGE WHEN THE STREAM FAILS
@@ -1963,6 +2025,26 @@ int main(int argc, char *argv[])
 #endif
         }
 #endif
+      } break;
+      case -1: {
+        typedef bdesu_FileUtil::FileDescriptor FdType;
+
+        FdType fd = bdesu_FileUtil::open("temp.txt",
+                                         true,
+                                         true,
+                                         true);
+
+        bdesu_FdStreamBuf streamBuffer(fd,
+                                       true,    // writable
+                                       true);   // 'fd' won't be closed
+                                                // when 'streamBuffer' is
+                                                // destroyed
+
+        bsl::ostream os(&streamBuffer);
+
+        std::cout << os.tellp() << std::endl;
+        os << "test" << std::endl;
+        std::cout << os.tellp() << std::endl;
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
