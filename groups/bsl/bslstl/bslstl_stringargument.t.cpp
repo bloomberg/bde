@@ -9,8 +9,9 @@
 #include <map>
 #include <sstream>
 
-#include <cstdio>       // sprintf()
-#include <cstdlib>      // atoi()
+#include <stdio.h>       // sprintf()
+#include <stdlib.h>      // atoi()
+#include <string.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -298,13 +299,13 @@ int main(int argc, char *argv[])
 //..
     char poemWithNulls[512];
     const int poemLength = std::strlen(poem);
-    std::memcpy(poemWithNulls, poem, poemLength + 1);
-    ASSERT(0 == std::strcmp(poem, poemWithNulls));
+    memcpy(poemWithNulls, poem, poemLength + 1);
+    ASSERT(0 == strcmp(poem, poemWithNulls));
 //..
 // Next we replace all occurrences of '\n' in 'poemWithNulls' with '\0':
 //..
     std::replace(poemWithNulls, poemWithNulls + poemLength, '\n', '\0');
-    ASSERT(0 != std::strcmp(poem, poemWithNulls));
+    ASSERT(0 != strcmp(poem, poemWithNulls));
 //..
 // In the following, 'poemWithNulls' is seen to have the same number of blank
 // characters as the original 'poem':
