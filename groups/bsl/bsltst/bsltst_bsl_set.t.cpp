@@ -177,7 +177,7 @@ struct Cargo {
     }
 };
 
-struct CargoTestAddressOf {
+struct CargoNoAddressOf {
     // This 'struct' is the same as 'Cargo' except that 'operator&' is private
     // for testing 'bsls_addressof'.
 
@@ -187,34 +187,34 @@ struct CargoTestAddressOf {
 
     enum { BULK_STORAGE = 4000 };
 
-    BSLALG_DECLARE_NESTED_TRAITS(CargoTestAddressOf, bslalg_TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(CargoNoAddressOf, bslalg_TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
     explicit
-    CargoTestAddressOf(int i, bslma_Allocator *a = 0) {
+    CargoNoAddressOf(int i, bslma_Allocator *a = 0) {
         QV_("Default:"); PV(a);
         d_i = i;
         d_alloc = bslma_Default::allocator(a);
         d_p = d_alloc->allocate(BULK_STORAGE);
     }
-    CargoTestAddressOf(const CargoTestAddressOf& in, bslma_Allocator* a = 0) {
+    CargoNoAddressOf(const CargoNoAddressOf& in, bslma_Allocator* a = 0) {
         QV_("Copy:"); PV(a);
         d_alloc = bslma_Default::allocator(a);
         d_i = in.d_i;
         d_p = d_alloc->allocate(BULK_STORAGE);
         std::memcpy(d_p, in.d_p, BULK_STORAGE);
     }
-    CargoTestAddressOf& operator=(const CargoTestAddressOf& in) {
+    CargoNoAddressOf& operator=(const CargoNoAddressOf& in) {
         QV("Assign:");
         d_i = in.d_i;
         std::memcpy(d_p, in.d_p, BULK_STORAGE);
         return *this;
     }
-    ~CargoTestAddressOf() {
+    ~CargoNoAddressOf() {
         d_alloc->deallocate(d_p);
     }
   private:
-    CargoTestAddressOf *operator&();
+    CargoNoAddressOf *operator&();
 };
 
 // ----------------------------------------------------------------------------
@@ -224,7 +224,7 @@ bool operator<(const Cargo& lhs, const Cargo& rhs)
     return lhs.d_i < rhs.d_i;
 }
 
-bool operator<(const CargoTestAddressOf& lhs, const CargoTestAddressOf& rhs)
+bool operator<(const CargoNoAddressOf& lhs, const CargoNoAddressOf& rhs)
 {
     return lhs.d_i < rhs.d_i;
 }
@@ -251,7 +251,7 @@ struct TestType {
   public:
     int d_theInt;  // int member
 
-    // CREATORS 
+    // CREATORS
     TestType()
     : d_theInt(0) {}
 
@@ -290,25 +290,22 @@ struct TestDriver {
     // TEST APPARATUS
 
     // TEST CASES
-    static void testCase7();
-        // Test copy constructor.
-
     static void testCase6();
         // Test equality operator ('operator==').
 
     static void testCase5();
-        // Test output (<<) operator.  This test case tests nothing.
+        // Test 'set' MANIPULATORS, ACCESSORS, and iterators.
 
     static void testCase4();
         // Test memory allocation for 'multiset'. This function is designed to
-        // work with types 'Cargo' and 'CargoTestAddressOf'.
+        // work with types 'Cargo' and 'CargoNoAddressOf'.
 
     static void testCase3();
         // Execute breathing test for 'multiset'.
 
     static void testCase2();
         // Test memory allocation for 'set'. This function is designed to work
-        // with types 'Cargo' and 'CargoTestAddressOf'.
+        // with types 'Cargo' and 'CargoNoAddressOf'.
 
     static void testCase1();
         // Breathing test for 'set'.  This test *exercises* basic functionality
@@ -318,45 +315,49 @@ struct TestDriver {
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE, ALLOC>::testCase1()
 {
-   // --------------------------------------------------------------------
-   // SET BREATHING TEST
-   //
-   // Concerns:
-   //   Verify that the container and its iterator are the same type in
-   //   bsl and std, and that the native_std containter is different
-   //   from the std container.  Also verify that the bsl container
-   //   uses the bslma allocator, and that the native_std container
-   //   doesn't.  Verify that iterators don't use the bslma allocator.
-   //
-   // Plan:
-   //   Use the templates 'sameType' and 'usesBslmaAllocator' (defined
-   //   in this file) to do the testing.
-   // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // SET BREATHING TEST
+    //
+    // Concerns:
+    //   Verify that the container and its iterator are the same type in
+    //   bsl and std, and that the native_std containter is different
+    //   from the std container.  Also verify that the bsl container
+    //   uses the bslma allocator, and that the native_std container
+    //   doesn't.  Verify that iterators don't use the bslma allocator.
+    //
+    // Plan:
+    //   Use the templates 'sameType' and 'usesBslmaAllocator' (defined
+    //   in this file) to do the testing.
+    // --------------------------------------------------------------------
 
-   if (verbose) cout << "\nSET BREATHING TEST\n"
-                          "==================\n";
+    if (verbose) cout << "\nSET BREATHING TEST\n"
+                           "==================\n";
 
-   bslma_TestAllocator ta("Test case 1 Allocator", veryVeryVeryVerbose);
-   bsl::set<TYPE> s(&ta);
+    bslma_TestAllocator ta("Test case 1 Allocator", veryVeryVeryVerbose);
+    bsl::set<TYPE> s(&ta);
 
-   ASSERT(true  == sameType(s, std::set<TYPE>()));
-   ASSERT(true  == usesBslmaAllocator(bsl::set<TYPE>()));
-   ASSERT(true  == usesBslmaAllocator(std::set<TYPE>()));
-   ASSERT(false == usesBslmaAllocator(native_std::set<TYPE>()));
+    ASSERT(true  == sameType(s, std::set<TYPE>()));
+    ASSERT(true  == usesBslmaAllocator(bsl::set<TYPE>()));
+    ASSERT(true  == usesBslmaAllocator(std::set<TYPE>()));
 
-   ASSERT(true  == sameType(typename bsl::set<TYPE>::iterator(),
-                            typename std::set<TYPE>::iterator()));
-   ASSERT(false == sameType(typename bsl::set<TYPE>::iterator(),
-                     typename native_std::set<TYPE>::iterator()));
+    // TBD: Cannot test with classes that redefine 'operator&'; using
+    // explicitely 'Cargo' for now.
 
-   ASSERT(false == usesBslmaAllocator(typename bsl::set<TYPE>::iterator()));
-   ASSERT(false == usesBslmaAllocator(typename std::set<TYPE>::iterator()));
-   ASSERT(false == usesBslmaAllocator(
-                               typename native_std::set<TYPE>::iterator()));
+    ASSERT(false == usesBslmaAllocator(native_std::set<Cargo>()));
+
+    ASSERT(true  == sameType(typename bsl::set<TYPE>::iterator(),
+                             typename std::set<TYPE>::iterator()));
+    ASSERT(false == sameType(typename bsl::set<TYPE>::iterator(),
+                      typename native_std::set<TYPE>::iterator()));
+
+    ASSERT(false == usesBslmaAllocator(typename bsl::set<TYPE>::iterator()));
+    ASSERT(false == usesBslmaAllocator(typename std::set<TYPE>::iterator()));
+    ASSERT(false == usesBslmaAllocator(
+                                typename native_std::set<TYPE>::iterator()));
 
 }
 
-template <class TYPE, ALLOC>
+template <class TYPE, class ALLOC>
 void TestDriver<TYPE, ALLOC>::testCase2()
 {
     // --------------------------------------------------------------------
@@ -375,10 +376,10 @@ void TestDriver<TYPE, ALLOC>::testCase2()
 
     if (verbose) cout << "\nSET MEMORY CONSUMPTION AND CONSTRUCTOR TEST\n"
                            "===========================================\n";
-   
+
     bslma_TestAllocator ta("Test case 2 Alloc", veryVeryVeryVerbose);
     bslma_TestAllocator tda("Test case 2 DefaultAlloc", veryVeryVeryVerbose);
-    
+
     bslma_DefaultAllocatorGuard dag(&tda);
 
     bsl::less<TYPE> lessTYPE;
@@ -594,7 +595,11 @@ void TestDriver<TYPE, ALLOC>::testCase3()
     ASSERT(true  == sameType(ms, std::multiset<TestType>()));
     ASSERT(true  == usesBslmaAllocator(bsl::multiset<TestType>()));
     ASSERT(true  == usesBslmaAllocator(std::multiset<TestType>()));
-    ASSERT(false == usesBslmaAllocator(native_std::multiset<TestType>()));
+
+    // TBD: Cannot test with classes that redefine 'operator&'; using
+    // explicitely 'Cargo' for now.
+
+    ASSERT(false == usesBslmaAllocator(native_std::multiset<Cargo>()));
 
     ASSERT(true  == sameType(typename bsl::multiset<TestType>::iterator(),
                              typename std::multiset<TestType>::iterator()));
@@ -608,8 +613,9 @@ void TestDriver<TYPE, ALLOC>::testCase3()
     ASSERT(false == usesBslmaAllocator(
                         typename  native_std::multiset<TestType>::iterator()));
 }
-template <>
-void TestDriver<Cargo>::testCase4()
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase4()
 {
     // --------------------------------------------------------------------
     // MULTISET MEMORY CONSUMPTION AND C'TOR TEST
@@ -619,7 +625,7 @@ void TestDriver<Cargo>::testCase4()
     //   in the container, and that all c'tors compile.
     //
     // Plan:
-    //   Store the 'Cargo' struct, which dynamically allocates large
+    //   Store the 'TYPE' struct, which dynamically allocates large
     //   amounts of memory, and verify that large amounts of memory are
     //   consumed in the allocator that was passed to the container.
     //   Repeat this test with all c'tors in the standard.
@@ -630,231 +636,567 @@ void TestDriver<Cargo>::testCase4()
                       "================================================\n";
     bslma_TestAllocator ta("Test case 4 Alloc", veryVeryVeryVerbose);
     bslma_TestAllocator tda("Test case 4 DefaultAlloc", veryVeryVeryVerbose);
-    
+
     bslma_DefaultAllocatorGuard dag(&tda);
 
-    bsl::less<Cargo> lessCargo;
-    Greaterp<Cargo>  greaterCargo;
+    bsl::less<TYPE> lessTYPE;
+    Greaterp<TYPE>  greaterTYPE;
 
     {
-        bsl::multiset<Cargo> ms;
+        bsl::multiset<TYPE> ms;
 
         int memUsed = ta.numBytesInUse();
         int defaultMemUsed = tda.numBytesInUse();
 
         for (int i = 0; i < 50; ++i) {
-            ms.insert(Cargo(i));
+            ms.insert(TYPE(i));
         }
         for (int i = 0; i < 50; ++i) {
-            ms.insert(Cargo(50));
+            ms.insert(TYPE(50));
         }
 
         for (int i = 0; i < 100; ++i) {
-            ASSERT(ms.count(Cargo(i)) == (50 == i ? 50 : (i < 50)));
+            ASSERT(ms.count(TYPE(i)) == (50 == i ? 50 : (i < 50)));
         }
 
         ASSERT(ta.numBytesInUse() == memUsed);
         ASSERT(tda.numBytesInUse() >=
-                               defaultMemUsed + 100 * Cargo::BULK_STORAGE);
+                               defaultMemUsed + 100 * TYPE::BULK_STORAGE);
     }
 
     {
-        bsl::multiset<Cargo> ms(lessCargo);
+        bsl::multiset<TYPE> ms(lessTYPE);
 
         int memUsed = ta.numBytesInUse();
         int defaultMemUsed = tda.numBytesInUse();
 
         for (int i = 0; i < 50; ++i) {
-            ms.insert(Cargo(i));
+            ms.insert(TYPE(i));
         }
         for (int i = 0; i < 50; ++i) {
-            ms.insert(Cargo(50));
+            ms.insert(TYPE(50));
         }
 
         for (int i = 0; i < 100; ++i) {
-            ASSERT(ms.count(Cargo(i)) == (50 == i ? 50 : (i < 50)));
+            ASSERT(ms.count(TYPE(i)) == (50 == i ? 50 : (i < 50)));
         }
 
         ASSERT(ta.numBytesInUse() == memUsed);
         ASSERT(tda.numBytesInUse() >=
-                               defaultMemUsed + 100 * Cargo::BULK_STORAGE);
+                               defaultMemUsed + 100 * TYPE::BULK_STORAGE);
     }
 
     {
-        bsl::multiset<Cargo, Greaterp<Cargo> > ms(greaterCargo, &ta);
+        bsl::multiset<TYPE, Greaterp<TYPE> > ms(greaterTYPE, &ta);
 
         int memUsed = ta.numBytesInUse();
         int defaultMemUsed = tda.numBytesInUse();
 
         for (int i = 0; i < 50; ++i) {
-            ms.insert(Cargo(i));
+            ms.insert(TYPE(i));
         }
         for (int i = 0; i < 50; ++i) {
-            ms.insert(Cargo(50));
+            ms.insert(TYPE(50));
         }
 
         for (int i = 0; i < 100; ++i) {
-            ASSERT(ms.count(Cargo(i)) == (50 == i ? 50 : (i < 50)));
+            ASSERT(ms.count(TYPE(i)) == (50 == i ? 50 : (i < 50)));
         }
 
-        ASSERT(ta.numBytesInUse() >= memUsed + 100 * Cargo::BULK_STORAGE);
+        ASSERT(ta.numBytesInUse() >= memUsed + 100 * TYPE::BULK_STORAGE);
         ASSERT(tda.numBytesInUse() == defaultMemUsed);
     }
 
     {
-        bsl::vector<Cargo> vC;
+        bsl::vector<TYPE> vC;
 
         for (int i = 0; i < 50; ++i) {
-            vC.push_back(Cargo(i));
+            vC.push_back(TYPE(i));
         }
 
         int memUsed = ta.numBytesInUse();
         int defaultMemUsed = tda.numBytesInUse();
 
-        bsl::multiset<Cargo> ms(vC.begin(), vC.end());
+        bsl::multiset<TYPE> ms(vC.begin(), vC.end());
 
         for (int i = 0; i < 50; ++i) {
-            ms.insert(Cargo(50));
+            ms.insert(TYPE(50));
         }
 
         for (int i = 0; i < 100; ++i) {
-            ASSERT(ms.count(Cargo(i)) == (50 == i ? 50 : (i < 50)));
+            ASSERT(ms.count(TYPE(i)) == (50 == i ? 50 : (i < 50)));
         }
 
         ASSERT(ta.numBytesInUse() == memUsed);
         ASSERT(tda.numBytesInUse() >=
-                               defaultMemUsed + 100 * Cargo::BULK_STORAGE);
+                               defaultMemUsed + 100 * TYPE::BULK_STORAGE);
     }
 
     {
-        bsl::vector<Cargo> vC;
+        bsl::vector<TYPE> vC;
 
         for (int i = 0; i < 50; ++i) {
-            vC.push_back(Cargo(i));
+            vC.push_back(TYPE(i));
         }
 
         int memUsed = ta.numBytesInUse();
         int defaultMemUsed = tda.numBytesInUse();
 
-        bsl::multiset<Cargo, Greaterp<Cargo> >
-                                    ms(vC.begin(), vC.end(), greaterCargo);
+        bsl::multiset<TYPE, Greaterp<TYPE> >
+                                    ms(vC.begin(), vC.end(), greaterTYPE);
 
         for (int i = 0; i < 50; ++i) {
-            ms.insert(Cargo(50));
+            ms.insert(TYPE(50));
         }
 
         for (int i = 0; i < 100; ++i) {
-            ASSERT(ms.count(Cargo(i)) == (50 == i ? 50 : (i < 50)));
+            ASSERT(ms.count(TYPE(i)) == (50 == i ? 50 : (i < 50)));
         }
 
         ASSERT(ta.numBytesInUse() == memUsed);
         ASSERT(tda.numBytesInUse() >=
-                               defaultMemUsed + 100 * Cargo::BULK_STORAGE);
+                               defaultMemUsed + 100 * TYPE::BULK_STORAGE);
     }
 
     {
-        bsl::vector<Cargo> vC;
+        bsl::vector<TYPE> vC;
 
         for (int i = 0; i < 50; ++i) {
-            vC.push_back(Cargo(i));
+            vC.push_back(TYPE(i));
         }
 
         int memUsed = ta.numBytesInUse();
         int defaultMemUsed = tda.numBytesInUse();
 
-        bsl::multiset<Cargo, Greaterp<Cargo> >
-                               ms(vC.begin(), vC.end(), greaterCargo, &ta);
+        bsl::multiset<TYPE, Greaterp<TYPE> >
+                               ms(vC.begin(), vC.end(), greaterTYPE, &ta);
 
         for (int i = 0; i < 50; ++i) {
-            ms.insert(Cargo(50));
+            ms.insert(TYPE(50));
         }
 
         for (int i = 0; i < 100; ++i) {
-            ASSERT(ms.count(Cargo(i)) == (50 == i ? 50 : (i < 50)));
+            ASSERT(ms.count(TYPE(i)) == (50 == i ? 50 : (i < 50)));
         }
 
-        ASSERT(ta.numBytesInUse() >= memUsed + 100 * Cargo::BULK_STORAGE);
+        ASSERT(ta.numBytesInUse() >= memUsed + 100 * TYPE::BULK_STORAGE);
         ASSERT(tda.numBytesInUse() == defaultMemUsed);
     }
 
     {
-        bsl::multiset<Cargo> msA;
-        const bsl::multiset<Cargo>& MSA = msA;
+        bsl::multiset<TYPE> msA;
+        const bsl::multiset<TYPE>& MSA = msA;
 
         int memUsed = ta.numBytesInUse();
         int defaultMemUsed = tda.numBytesInUse();
 
         for (int i = 0; i < 50; ++i) {
-            msA.insert(Cargo(i));
+            msA.insert(TYPE(i));
         }
         for (int i = 0; i < 50; ++i) {
-            msA.insert(Cargo(50));
+            msA.insert(TYPE(50));
         }
 
         for (int i = 0; i < 100; ++i) {
-            ASSERT(MSA.count(Cargo(i)) == (50 == i ? 50 : (i < 50)));
+            ASSERT(MSA.count(TYPE(i)) == (50 == i ? 50 : (i < 50)));
         }
 
-        bsl::multiset<Cargo> msB(MSA);
+        bsl::multiset<TYPE> msB(MSA);
 
         for (int i = 0; i < 100; ++i) {
-            ASSERT(msB.count(Cargo(i)) == (50 == i ? 50 : (i < 50)));
+            ASSERT(msB.count(TYPE(i)) == (50 == i ? 50 : (i < 50)));
         }
 
         ASSERT(ta.numBytesInUse() == memUsed);
         ASSERT(tda.numBytesInUse() >=
-                           defaultMemUsed + 2 * 100 * Cargo::BULK_STORAGE);
+                           defaultMemUsed + 2 * 100 * TYPE::BULK_STORAGE);
     }
 
     {
-        bsl::multiset<Cargo> ms(&ta);
+        bsl::multiset<TYPE> ms(&ta);
 
         int memUsed = ta.numBytesInUse();
         int defaultMemUsed = tda.numBytesInUse();
 
         for (int i = 0; i < 50; ++i) {
-            ms.insert(Cargo(i));
+            ms.insert(TYPE(i));
         }
         for (int i = 0; i < 50; ++i) {
-            ms.insert(Cargo(50));
+            ms.insert(TYPE(50));
         }
 
         for (int i = 0; i < 100; ++i) {
-            ASSERT(ms.count(Cargo(i)) == (50 == i ? 50 : (i < 50)));
+            ASSERT(ms.count(TYPE(i)) == (50 == i ? 50 : (i < 50)));
         }
 
-        ASSERT(ta.numBytesInUse() >= memUsed + 100 * Cargo::BULK_STORAGE);
+        ASSERT(ta.numBytesInUse() >= memUsed + 100 * TYPE::BULK_STORAGE);
         ASSERT(tda.numBytesInUse() == defaultMemUsed);
     }
 
     {
-        bsl::multiset<Cargo> msA;
-        const bsl::multiset<Cargo>& MSA = msA;
+        bsl::multiset<TYPE> msA;
+        const bsl::multiset<TYPE>& MSA = msA;
 
         for (int i = 0; i < 50; ++i) {
-            msA.insert(Cargo(i));
+            msA.insert(TYPE(i));
         }
         for (int i = 0; i < 50; ++i) {
-            msA.insert(Cargo(50));
+            msA.insert(TYPE(50));
         }
 
         for (int i = 0; i < 100; ++i) {
-            ASSERT(MSA.count(Cargo(i)) == (50 == i ? 50 : (i < 50)));
+            ASSERT(MSA.count(TYPE(i)) == (50 == i ? 50 : (i < 50)));
         }
 
         int memUsed = ta.numBytesInUse();
         int defaultMemUsed = tda.numBytesInUse();
 
-        bsl::multiset<Cargo> msB(MSA, &ta);
+        bsl::multiset<TYPE> msB(MSA, &ta);
 
         for (int i = 0; i < 100; ++i) {
-            ASSERT(msB.count(Cargo(i)) == (50 == i ? 50 : (i < 50)));
+            ASSERT(msB.count(TYPE(i)) == (50 == i ? 50 : (i < 50)));
         }
 
-        ASSERT(ta.numBytesInUse() >= memUsed + 100 * Cargo::BULK_STORAGE);
+        ASSERT(ta.numBytesInUse() >= memUsed + 100 * TYPE::BULK_STORAGE);
         ASSERT(tda.numBytesInUse() == defaultMemUsed);
     }
 };
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase5()
+{
+    // --------------------------------------------------------------------
+    // SET MANIPULATOR / ACCESSOR / ITERATOR TEST
+    //
+    // Concerns:
+    //   That the basic manipulators, accessors, and iterators work as
+    //   documented.
+    //
+    // Plan:
+    //   Create a couple of containers and store things in them, verify
+    //   with accessors that the contents are as expected.
+    // --------------------------------------------------------------------
+
+    if (verbose) cout << "\nSET MANIPULATOR / ACCESSOR / ITERATOR TEST\n"
+                           "==========================================\n";
+
+    bslma_TestAllocator ta("Test case 5 Alloc", veryVeryVeryVerbose);
+
+    bsl::set<TYPE> s(&ta);
+
+    for (int i = 0; i < 20; ++i) {
+        bsl::pair<typename bsl::set<TYPE>::iterator,bool> p = s.insert(i);
+        ASSERT(p.second);
+        ASSERT(*p.first == i);
+    }
+    ASSERT(s.size() == 20);
+
+    for (int i = 0; i < 20; ++i) {
+        bsl::pair<typename bsl::set<TYPE>::iterator,bool> p = s.insert(i);
+        ASSERT(!p.second);
+        ASSERT(*p.first == i);
+    }
+    ASSERT(s.size() == 20);
+
+    typename bsl::set<TYPE>::iterator it, itb, itc, itd;
+    it = s.find(5);
+    ASSERT(s.end() != it);
+    itb = s.insert(it, 20);
+    ASSERT(s.end() != itb);
+    ASSERT(it != itb);
+    ASSERT(s.size() == 21);
+    ASSERT(s.count(20));
+
+    int j;
+    for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
+        ASSERT(*it == j);
+    }
+    ASSERT(21 == j);
+
+    s.erase(20);
+    ASSERT(s.size() == 20);
+    for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
+        ASSERT(*it == j);
+    }
+    ASSERT(20 == j);
+
+    bsl::set<TYPE> t(s, &ta);
+
+    ASSERT(s == t);
+
+    t.clear();
+
+    for (int i = 0; i < 100; ++i) {
+        t.insert(i);
+    }
+    ASSERT(t.size() == 100);
+
+    itb = t.find(20);
+    itc = t.find(30);
+    s.insert(itb, itc);
+    ASSERT(t.size() == 100);
+    ASSERT(s.size() == 30);
+
+    for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
+        ASSERT(*it == j);
+    }
+    ASSERT(30 == j);
+
+    typename bsl::set<TYPE>::reverse_iterator rit;
+    for (rit = s.rbegin(), j = 29; s.rend() != rit; ++rit, --j) {
+        ASSERT(*rit == j);
+    }
+    ASSERT(-1 == j);
+
+    it = s.lower_bound(15);
+    ASSERT(15 == *it);
+
+    it = s.lower_bound(-5);
+    ASSERT(0 == *it);
+
+    it = s.upper_bound(15);
+    ASSERT(16 == *it);
+
+    it = s.upper_bound(29);
+    ASSERT(s.end() == it);
+
+    {
+        bsl::pair<typename bsl::set<TYPE>::iterator,
+                  typename bsl::set<TYPE>::iterator>
+                                                        pr = s.equal_range(12);
+        ASSERT(12 == *pr.first);
+        ASSERT(13 == *pr.second);
+    }
+
+    s.clear();
+    t.clear();
+
+    s.insert(20);
+    t.insert(21);
+
+    ASSERT(s <  t);
+    ASSERT(s <= t);
+    ASSERT(s != t);
+    ASSERT(!(s >  t));
+    ASSERT(!(s >= t));
+    ASSERT(!(s == t));
+
+    s.insert(21);
+    t.insert(20);
+
+    ASSERT(s == t);
+    ASSERT(!(s != t));
+    ASSERT(s <= t);
+    ASSERT(!(s < t));
+    ASSERT(s >= t);
+    ASSERT(!(s > t));
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase6()
+{
+    // --------------------------------------------------------------------
+    // MULTISET MANIPULATOR / ACCESSOR TEST
+    //
+    // Concerns:
+    //   That the basic manipulators, accessors and iterators work as
+    //   documented.
+    //
+    // Plan:
+    //   First, repeat all the tests done on set that will also work on
+    //   multiset.  Then branch out into things that only multisets can
+    //   do.
+    // --------------------------------------------------------------------
+
+    if (verbose) cout <<
+                     "\nMULTISET MANIPULATOR / ACCESSOR / ITERATOR TEST\n"
+                       "===============================================\n";
+
+    bslma_TestAllocator ta("Test case 6 Alloc", veryVeryVeryVerbose);
+    
+    bsl::multiset<TYPE> s(&ta);
+    typename bsl::multiset<TYPE>::iterator it, itb, itc, itd;
+
+    for (int i = 0; i < 20; ++i) {
+        it = s.insert(i);
+        ASSERT(s.end() != it);
+        ASSERT(i == *it);
+    }
+    ASSERT(s.size() == 20);
+
+    it = s.find(5);
+    ASSERT(s.end() != it);
+    itb = s.insert(it, 20);
+    ASSERT(s.end() != itb);
+    ASSERT(it != itb);
+    ASSERT(s.size() == 21);
+    ASSERT(s.count(20));
+
+    int j;
+    for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
+        ASSERT(*it == j);
+    }
+    ASSERT(21 == j);
+
+    s.erase(20);
+    ASSERT(s.size() == 20);
+    for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
+        ASSERT(*it == j);
+    }
+    ASSERT(20 == j);
+
+    bsl::multiset<TYPE> t(s, &ta);
+
+    ASSERT(s == t);
+
+    t.clear();
+
+    for (int i = 0; i < 100; ++i) {
+        t.insert(i);
+    }
+    ASSERT(t.size() == 100);
+
+    itb = t.find(20);
+    itc = t.find(30);
+    s.insert(itb, itc);
+    ASSERT(t.size() == 100);
+    ASSERT(s.size() == 30);
+
+    for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
+        ASSERT(*it == j);
+    }
+    ASSERT(30 == j);
+
+    typename bsl::multiset<TYPE>::reverse_iterator rit;
+    for (rit = s.rbegin(), j = 29; s.rend() != rit; ++rit, --j) {
+        ASSERT(*rit == j);
+    }
+    ASSERT(-1 == j);
+
+    it = s.lower_bound(15);
+    ASSERT(15 == *it);
+
+    it = s.lower_bound(-5);
+    ASSERT(0 == *it);
+
+    it = s.upper_bound(15);
+    ASSERT(16 == *it);
+
+    it = s.upper_bound(29);
+    ASSERT(s.end() == it);
+
+    {
+        bsl::pair<typename bsl::multiset<TYPE>::iterator,
+                  typename bsl::multiset<TYPE>::iterator> pr = 
+                                                             s.equal_range(12);
+
+        ASSERT(12 == *pr.first);
+        ASSERT(13 == *pr.second);
+
+        pr = s.equal_range(40);
+        ASSERT(s.end() == pr.first);
+        ASSERT(s.end() == pr.second);
+
+        pr = s.equal_range(-40);
+        ASSERT(s.begin() == pr.first);
+        ASSERT(s.begin() == pr.second);
+
+        s.erase(10);
+
+        pr = s.equal_range(10);
+        ASSERT(11 == *pr.first);
+        ASSERT(11 == *pr.second);
+
+        s.insert(10);
+    }
+
+    s.clear();
+    t.clear();
+
+    s.insert(20);
+    t.insert(21);
+
+    ASSERT(s <  t);
+    ASSERT(s <= t);
+    ASSERT(s != t);
+    ASSERT(!(s >  t));
+    ASSERT(!(s >= t));
+    ASSERT(!(s == t));
+
+    s.insert(21);
+    t.insert(20);
+
+    ASSERT(s == t);
+    ASSERT(!(s != t));
+    ASSERT(s <= t);
+    ASSERT(!(s < t));
+    ASSERT(s >= t);
+    ASSERT(!(s > t));
+
+    s.clear();
+    t.clear();
+
+    for (int i = 0; i < 10; ++i) {
+        s.insert(i);
+    }
+    for (int i = 3; i <= 7; ++i) {
+        s.insert(i);
+    }
+
+    ASSERT(0 == s.count(-5));
+    ASSERT(0 == s.count(20));
+    ASSERT(1 == s.count( 0));
+    ASSERT(2 == s.count( 3));
+    ASSERT(2 == s.count( 7));
+
+    {
+        bsl::pair<typename bsl::multiset<TYPE>::iterator,
+                  typename bsl::multiset<TYPE>::iterator> pr = s.equal_range(3);
+
+        it = s.find(2);
+        ++it;
+
+        ASSERT(it == pr.first);
+        ASSERT(it != pr.second);
+
+        for (j = 3; j <= 7; ++j) {
+            ASSERT(j == *it++);
+            ASSERT(j == *it++);
+            if (3 == j) {
+                ASSERT(it == pr.second);
+            }
+        }
+        ASSERT(8 == *it);
+
+        pr = s.equal_range(40);
+        ASSERT(s.end() == pr.first);
+        ASSERT(s.end() == pr.second);
+
+        pr = s.equal_range(-40);
+        ASSERT(s.begin() == pr.first);
+        ASSERT(s.begin() == pr.second);
+
+        s.erase(5);         // note this erases *ALL* elements with key 5
+        ASSERT(0 == s.count(5));
+
+        pr = s.equal_range(5);
+        ASSERT(6 == *pr.first);
+        ASSERT(6 == *pr.second);
+
+        s.erase(s.find(4), s.find(7));
+        ASSERT(2 == s.count(3));
+        ASSERT(0 == s.count(4));
+        ASSERT(0 == s.count(5));
+        ASSERT(0 == s.count(6));
+        ASSERT(2 == s.count(7));
+
+        pr = s.equal_range(5);
+        ASSERT(7 == *pr.first);
+        ASSERT(7 == *pr.second);
+
+        s.clear();
+        t.clear();
+    }
+}
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -866,335 +1208,14 @@ void TestDriver<Cargo>::testCase4()
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    bool veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator ta;
-    bslma_TestAllocator tda;
-
-    bslma_DefaultAllocatorGuard defaultGuard(&tda);
-
     switch (test) { case 0:  // Zero is always the leading case.
-      case 8: {
-        // --------------------------------------------------------------------
-        // SET MANIPULATOR / ACCESSOR / ITERATOR TEST
-        //
-        // Concerns:
-        //
-        // Plan:
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING OPERATOR ADDRESS OF ON MAP\n"
-                               "====================================\n";
-
-        bsl::set<TestType> s(&ta);
-
-        for (int i = 0; i < 20; ++i) {
-            bsl::pair<bsl::set<TestType>::iterator,bool> p = s.insert(i);
-            ASSERT(p.second);
-            ASSERT(*p.first == i);
-        }
-        ASSERT(s.size() == 20);
-
-        for (int i = 0; i < 20; ++i) {
-            bsl::pair<bsl::set<TestType>::iterator,bool> p = s.insert(i);
-            ASSERT(!p.second);
-            ASSERT(*p.first == i);
-        }
-        ASSERT(s.size() == 20);
-
-        bsl::set<TestType>::iterator it, itb, itc, itd;
-        it = s.find(5);
-        ASSERT(s.end() != it);
-        itb = s.insert(it, 20);
-        ASSERT(s.end() != itb);
-        ASSERT(it != itb);
-        ASSERT(s.size() == 21);
-        ASSERT(s.count(20));
-
-        int j;
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(21 == j);
-
-        s.erase(20);
-        ASSERT(s.size() == 20);
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(20 == j);
-
-        bsl::set<TestType> t(s, &ta);
-
-        ASSERT(s == t);
-
-        t.clear();
-
-        for (int i = 0; i < 100; ++i) {
-            t.insert(i);
-        }
-        ASSERT(t.size() == 100);
-
-        itb = t.find(20);
-        itc = t.find(30);
-        s.insert(itb, itc);
-        ASSERT(t.size() == 100);
-        ASSERT(s.size() == 30);
-
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(30 == j);
-
-        bsl::set<TestType>::reverse_iterator rit;
-        for (rit = s.rbegin(), j = 29; s.rend() != rit; ++rit, --j) {
-            ASSERT(*rit == j);
-        }
-        ASSERT(-1 == j);
-
-        it = s.lower_bound(15);
-        ASSERT(15 == *it);
-
-        it = s.lower_bound(-5);
-        ASSERT(0 == *it);
-
-        it = s.upper_bound(15);
-        ASSERT(16 == *it);
-
-        it = s.upper_bound(29);
-        ASSERT(s.end() == it);
-
-        {
-            bsl::pair<bsl::set<TestType>::iterator, bsl::set<TestType>::iterator> pr =
-                                                             s.equal_range(12);
-            ASSERT(12 == *pr.first);
-            ASSERT(13 == *pr.second);
-        }
-
-        s.clear();
-        t.clear();
-
-        s.insert(20);
-        t.insert(21);
-
-        ASSERT(s <  t);
-        ASSERT(s <= t);
-        ASSERT(s != t);
-        ASSERT(!(s >  t));
-        ASSERT(!(s >= t));
-        ASSERT(!(s == t));
-
-        s.insert(21);
-        t.insert(20);
-
-        ASSERT(s == t);
-        ASSERT(!(s != t));
-        ASSERT(s <= t);
-        ASSERT(!(s < t));
-        ASSERT(s >= t);
-        ASSERT(!(s > t));
-      } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // TEST: OPERATOR ADDRESSOF FOR 'std::multimap'
-        //
-        // Concerns:
-        //  
-        //
-        // Plan:
-        // --------------------------------------------------------------------
-
-        if (verbose) cout <<
-                         "\nTESTING ADDRESSOF OPERATOR FOR SET\n"
-                           "==================================\n";
-
-        bsl::multiset<TestType> s(&ta);
-        bsl::multiset<TestType>::iterator it, itb, itc, itd;
-
-        for (int i = 0; i < 20; ++i) {
-            it = s.insert(i);
-            ASSERT(s.end() != it);
-            ASSERT(i == *it);
-        }
-        ASSERT(s.size() == 20);
-
-        it = s.find(5);
-        ASSERT(s.end() != it);
-        itb = s.insert(it, 20);
-        ASSERT(s.end() != itb);
-        ASSERT(it != itb);
-        ASSERT(s.size() == 21);
-        ASSERT(s.count(20));
-
-        int j;
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(21 == j);
-
-        s.erase(20);
-        ASSERT(s.size() == 20);
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(20 == j);
-
-        bsl::multiset<TestType> t(s, &ta);
-
-        ASSERT(s == t);
-
-        t.clear();
-
-        for (int i = 0; i < 100; ++i) {
-            t.insert(i);
-        }
-        ASSERT(t.size() == 100);
-
-        itb = t.find(20);
-        itc = t.find(30);
-        s.insert(itb, itc);
-        ASSERT(t.size() == 100);
-        ASSERT(s.size() == 30);
-
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(30 == j);
-
-        bsl::multiset<TestType>::reverse_iterator rit;
-        for (rit = s.rbegin(), j = 29; s.rend() != rit; ++rit, --j) {
-            ASSERT(*rit == j);
-        }
-        ASSERT(-1 == j);
-
-        it = s.lower_bound(15);
-        ASSERT(15 == *it);
-
-        it = s.lower_bound(-5);
-        ASSERT(0 == *it);
-
-        it = s.upper_bound(15);
-        ASSERT(16 == *it);
-
-        it = s.upper_bound(29);
-        ASSERT(s.end() == it);
-
-        {
-            bsl::pair<bsl::multiset<TestType>::iterator,
-                      bsl::multiset<TestType>::iterator> pr = s.equal_range(12);
-
-            ASSERT(12 == *pr.first);
-            ASSERT(13 == *pr.second);
-
-            pr = s.equal_range(40);
-            ASSERT(s.end() == pr.first);
-            ASSERT(s.end() == pr.second);
-
-            pr = s.equal_range(-40);
-            ASSERT(s.begin() == pr.first);
-            ASSERT(s.begin() == pr.second);
-
-            s.erase(10);
-
-            pr = s.equal_range(10);
-            ASSERT(11 == *pr.first);
-            ASSERT(11 == *pr.second);
-
-            s.insert(10);
-        }
-
-        s.clear();
-        t.clear();
-
-        s.insert(20);
-        t.insert(21);
-
-        ASSERT(s <  t);
-        ASSERT(s <= t);
-        ASSERT(s != t);
-        ASSERT(!(s >  t));
-        ASSERT(!(s >= t));
-        ASSERT(!(s == t));
-
-        s.insert(21);
-        t.insert(20);
-
-        ASSERT(s == t);
-        ASSERT(!(s != t));
-        ASSERT(s <= t);
-        ASSERT(!(s < t));
-        ASSERT(s >= t);
-        ASSERT(!(s > t));
-
-        s.clear();
-        t.clear();
-
-        for (int i = 0; i < 10; ++i) {
-            s.insert(i);
-        }
-        for (int i = 3; i <= 7; ++i) {
-            s.insert(i);
-        }
-
-        ASSERT(0 == s.count(-5));
-        ASSERT(0 == s.count(20));
-        ASSERT(1 == s.count( 0));
-        ASSERT(2 == s.count( 3));
-        ASSERT(2 == s.count( 7));
-
-        {
-            bsl::pair<bsl::multiset<TestType>::iterator,
-                      bsl::multiset<TestType>::iterator> pr = s.equal_range(3);
-
-            it = s.find(2);
-            ++it;
-
-            ASSERT(it == pr.first);
-            ASSERT(it != pr.second);
-
-            for (j = 3; j <= 7; ++j) {
-                ASSERT(j == *it++);
-                ASSERT(j == *it++);
-                if (3 == j) {
-                    ASSERT(it == pr.second);
-                }
-            }
-            ASSERT(8 == *it);
-
-            pr = s.equal_range(40);
-            ASSERT(s.end() == pr.first);
-            ASSERT(s.end() == pr.second);
-
-            pr = s.equal_range(-40);
-            ASSERT(s.begin() == pr.first);
-            ASSERT(s.begin() == pr.second);
-
-            s.erase(5);         // note this erases *ALL* elements with key 5
-            ASSERT(0 == s.count(5));
-
-            pr = s.equal_range(5);
-            ASSERT(6 == *pr.first);
-            ASSERT(6 == *pr.second);
-
-            s.erase(s.find(4), s.find(7));
-            ASSERT(2 == s.count(3));
-            ASSERT(0 == s.count(4));
-            ASSERT(0 == s.count(5));
-            ASSERT(0 == s.count(6));
-            ASSERT(2 == s.count(7));
-
-            pr = s.equal_range(5);
-            ASSERT(7 == *pr.first);
-            ASSERT(7 == *pr.second);
-
-            s.clear();
-            t.clear();
-        }
-      } break;
       case 6: {
         // --------------------------------------------------------------------
         // MULTISET MANIPULATOR / ACCESSOR TEST
@@ -1209,199 +1230,11 @@ int main(int argc, char *argv[])
         //   do.
         // --------------------------------------------------------------------
 
-        if (verbose) cout <<
-                         "\nMULTISET MANIPULATOR / ACCESSOR / ITERATOR TEST\n"
-                           "===============================================\n";
+        if (verbose) cout << "Testing with type 'int'" << endl;
+        TestDriver<int>::testCase6();
 
-        bsl::multiset<int> s(&ta);
-        bsl::multiset<int>::iterator it, itb, itc, itd;
-
-        for (int i = 0; i < 20; ++i) {
-            it = s.insert(i);
-            ASSERT(s.end() != it);
-            ASSERT(i == *it);
-        }
-        ASSERT(s.size() == 20);
-
-//      for (int i = 0; i < 20; ++i) {
-//          bsl::pair<bsl::set<int>::iterator,bool> p = s.insert(i);
-//          ASSERT(!p.second);
-//          ASSERT(*p.first == i);
-//      }
-//      ASSERT(s.size() == 20);
-
-        it = s.find(5);
-        ASSERT(s.end() != it);
-        itb = s.insert(it, 20);
-        ASSERT(s.end() != itb);
-        ASSERT(it != itb);
-        ASSERT(s.size() == 21);
-        ASSERT(s.count(20));
-
-        int j;
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(21 == j);
-
-        s.erase(20);
-        ASSERT(s.size() == 20);
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(20 == j);
-
-        bsl::multiset<int> t(s, &ta);
-
-        ASSERT(s == t);
-
-        t.clear();
-
-        for (int i = 0; i < 100; ++i) {
-            t.insert(i);
-        }
-        ASSERT(t.size() == 100);
-
-        itb = t.find(20);
-        itc = t.find(30);
-        s.insert(itb, itc);
-        ASSERT(t.size() == 100);
-        ASSERT(s.size() == 30);
-
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(30 == j);
-
-        bsl::multiset<int>::reverse_iterator rit;
-        for (rit = s.rbegin(), j = 29; s.rend() != rit; ++rit, --j) {
-            ASSERT(*rit == j);
-        }
-        ASSERT(-1 == j);
-
-        it = s.lower_bound(15);
-        ASSERT(15 == *it);
-
-        it = s.lower_bound(-5);
-        ASSERT(0 == *it);
-
-        it = s.upper_bound(15);
-        ASSERT(16 == *it);
-
-        it = s.upper_bound(29);
-        ASSERT(s.end() == it);
-
-        {
-            bsl::pair<bsl::multiset<int>::iterator,
-                      bsl::multiset<int>::iterator> pr = s.equal_range(12);
-
-            ASSERT(12 == *pr.first);
-            ASSERT(13 == *pr.second);
-
-            pr = s.equal_range(40);
-            ASSERT(s.end() == pr.first);
-            ASSERT(s.end() == pr.second);
-
-            pr = s.equal_range(-40);
-            ASSERT(s.begin() == pr.first);
-            ASSERT(s.begin() == pr.second);
-
-            s.erase(10);
-
-            pr = s.equal_range(10);
-            ASSERT(11 == *pr.first);
-            ASSERT(11 == *pr.second);
-
-            s.insert(10);
-        }
-
-        s.clear();
-        t.clear();
-
-        s.insert(20);
-        t.insert(21);
-
-        ASSERT(s <  t);
-        ASSERT(s <= t);
-        ASSERT(s != t);
-        ASSERT(!(s >  t));
-        ASSERT(!(s >= t));
-        ASSERT(!(s == t));
-
-        s.insert(21);
-        t.insert(20);
-
-        ASSERT(s == t);
-        ASSERT(!(s != t));
-        ASSERT(s <= t);
-        ASSERT(!(s < t));
-        ASSERT(s >= t);
-        ASSERT(!(s > t));
-
-        s.clear();
-        t.clear();
-
-        for (int i = 0; i < 10; ++i) {
-            s.insert(i);
-        }
-        for (int i = 3; i <= 7; ++i) {
-            s.insert(i);
-        }
-
-        ASSERT(0 == s.count(-5));
-        ASSERT(0 == s.count(20));
-        ASSERT(1 == s.count( 0));
-        ASSERT(2 == s.count( 3));
-        ASSERT(2 == s.count( 7));
-
-        {
-            bsl::pair<bsl::multiset<int>::iterator,
-                      bsl::multiset<int>::iterator> pr = s.equal_range(3);
-
-            it = s.find(2);
-            ++it;
-
-            ASSERT(it == pr.first);
-            ASSERT(it != pr.second);
-
-            for (j = 3; j <= 7; ++j) {
-                ASSERT(j == *it++);
-                ASSERT(j == *it++);
-                if (3 == j) {
-                    ASSERT(it == pr.second);
-                }
-            }
-            ASSERT(8 == *it);
-
-            pr = s.equal_range(40);
-            ASSERT(s.end() == pr.first);
-            ASSERT(s.end() == pr.second);
-
-            pr = s.equal_range(-40);
-            ASSERT(s.begin() == pr.first);
-            ASSERT(s.begin() == pr.second);
-
-            s.erase(5);         // note this erases *ALL* elements with key 5
-            ASSERT(0 == s.count(5));
-
-            pr = s.equal_range(5);
-            ASSERT(6 == *pr.first);
-            ASSERT(6 == *pr.second);
-
-            s.erase(s.find(4), s.find(7));
-            ASSERT(2 == s.count(3));
-            ASSERT(0 == s.count(4));
-            ASSERT(0 == s.count(5));
-            ASSERT(0 == s.count(6));
-            ASSERT(2 == s.count(7));
-
-            pr = s.equal_range(5);
-            ASSERT(7 == *pr.first);
-            ASSERT(7 == *pr.second);
-
-            s.clear();
-            t.clear();
-        }
+        if (verbose) cout << "Testing with type 'TestType'" << endl;
+        TestDriver<TestType>::testCase6();
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1416,116 +1249,11 @@ int main(int argc, char *argv[])
         //   with accessors that the contents are as expected.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nSET MANIPULATOR / ACCESSOR / ITERATOR TEST\n"
-                               "==========================================\n";
+        if (verbose) cout << "Testing with type 'int'" << endl;
+        TestDriver<int>::testCase5();
 
-        bsl::set<int> s(&ta);
-
-        for (int i = 0; i < 20; ++i) {
-            bsl::pair<bsl::set<int>::iterator,bool> p = s.insert(i);
-            ASSERT(p.second);
-            ASSERT(*p.first == i);
-        }
-        ASSERT(s.size() == 20);
-
-        for (int i = 0; i < 20; ++i) {
-            bsl::pair<bsl::set<int>::iterator,bool> p = s.insert(i);
-            ASSERT(!p.second);
-            ASSERT(*p.first == i);
-        }
-        ASSERT(s.size() == 20);
-
-        bsl::set<int>::iterator it, itb, itc, itd;
-        it = s.find(5);
-        ASSERT(s.end() != it);
-        itb = s.insert(it, 20);
-        ASSERT(s.end() != itb);
-        ASSERT(it != itb);
-        ASSERT(s.size() == 21);
-        ASSERT(s.count(20));
-
-        int j;
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(21 == j);
-
-        s.erase(20);
-        ASSERT(s.size() == 20);
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(20 == j);
-
-        bsl::set<int> t(s, &ta);
-
-        ASSERT(s == t);
-
-        t.clear();
-
-        for (int i = 0; i < 100; ++i) {
-            t.insert(i);
-        }
-        ASSERT(t.size() == 100);
-
-        itb = t.find(20);
-        itc = t.find(30);
-        s.insert(itb, itc);
-        ASSERT(t.size() == 100);
-        ASSERT(s.size() == 30);
-
-        for (it = s.begin(), j = 0; s.end() != it; ++it, ++j) {
-            ASSERT(*it == j);
-        }
-        ASSERT(30 == j);
-
-        bsl::set<int>::reverse_iterator rit;
-        for (rit = s.rbegin(), j = 29; s.rend() != rit; ++rit, --j) {
-            ASSERT(*rit == j);
-        }
-        ASSERT(-1 == j);
-
-        it = s.lower_bound(15);
-        ASSERT(15 == *it);
-
-        it = s.lower_bound(-5);
-        ASSERT(0 == *it);
-
-        it = s.upper_bound(15);
-        ASSERT(16 == *it);
-
-        it = s.upper_bound(29);
-        ASSERT(s.end() == it);
-
-        {
-            bsl::pair<bsl::set<int>::iterator, bsl::set<int>::iterator> pr =
-                                                             s.equal_range(12);
-            ASSERT(12 == *pr.first);
-            ASSERT(13 == *pr.second);
-        }
-
-        s.clear();
-        t.clear();
-
-        s.insert(20);
-        t.insert(21);
-
-        ASSERT(s <  t);
-        ASSERT(s <= t);
-        ASSERT(s != t);
-        ASSERT(!(s >  t));
-        ASSERT(!(s >= t));
-        ASSERT(!(s == t));
-
-        s.insert(21);
-        t.insert(20);
-
-        ASSERT(s == t);
-        ASSERT(!(s != t));
-        ASSERT(s <= t);
-        ASSERT(!(s < t));
-        ASSERT(s >= t);
-        ASSERT(!(s > t));
+        if (verbose) cout << "Testing with type 'TestType'" << endl;
+        TestDriver<TestType>::testCase5();
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -1536,13 +1264,17 @@ int main(int argc, char *argv[])
         //   in the container, and that all c'tors compile.
         //
         // Plan:
-        //   Store the 'Cargo' struct, which dynamically allocates large
-        //   amounts of memory, and verify that large amounts of memory are
-        //   consumed in the allocator that was passed to the container.
-        //   Repeat this test with all c'tors in the standard.
+        //   Store 'Type', which dynamically allocates large amounts of memory,
+        //   and verify that large amounts of memory are consumed in the
+        //   allocator that was passed to the container.  Repeat this test with
+        //   all c'tors in the standard.
         // --------------------------------------------------------------------
 
+        if (verbose) cout << "Testing with type 'Cargo'" << endl;
         TestDriver<Cargo>::testCase4();
+
+        if (verbose) cout << "Testing with type 'CargoNoAddressOf'" << endl;
+        TestDriver<CargoNoAddressOf>::testCase4();
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1550,10 +1282,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Verify that the container and its iterator are the same type in
-        //   bsl and std, and that the native_std containter is different
-        //   from the std container.  Also verify that the bsl container
-        //   uses the bslma allocator, and that the native_std container
-        //   doesn't.  Verify that iterators don't use the bslma allocator.
+        //   'bsl' and 'std', and that the 'native_std' containter is different
+        //   from the 'std' container.  Also verify that the 'bsl' container
+        //   uses the 'bslma' allocator, and that the 'native_std' container
+        //   doesn't.  Verify that iterators don't use the 'bslma' allocator.
         //
         // Plan:
         //   Use the templates 'sameType' and 'usesBslmaAllocator' (defined
@@ -1562,7 +1294,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing with type 'int'" << endl;
         TestDriver<int>::testCase3();
-      
+
         if (verbose) cout << "Testing with type 'TestType'" << endl;
         TestDriver<TestType>::testCase3();
       } break;
@@ -1584,7 +1316,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nSET MEMORY CONSUMPTION AND CONSTRUCTOR TEST\n"
                              "===========================================\n";
         TestDriver<Cargo>::testCase2();
-        TestDriver<CargoTestAddressOf>::testCase2();
+        TestDriver<CargoNoAddressOf>::testCase2();
       } break;
       case 1: {
        // --------------------------------------------------------------------
@@ -1603,7 +1335,7 @@ int main(int argc, char *argv[])
        // --------------------------------------------------------------------
        if (verbose) cout << "Testing with Type 'int'" << endl;
        TestDriver<int>::testCase1();
-       
+
        if (verbose) cout << "Testing with Type 'TestType'" << endl;
        TestDriver<TestType>::testCase1();
       } break;
