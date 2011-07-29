@@ -102,7 +102,7 @@ BDES_IDENT("$Id: $")
 //   %s - current second (two digits with leading zeros)
 //   %% - the empty string
 //..
-// For example, a log filename pattern of "task.log.%Y%M%D_%h%m%s" will yield
+// For example, a log filename pattern of "task.log.%Y%M%D_%h%m%s" may yield
 // the a filename of "task.log.20110501_123000" if the file is opened on
 // '01-May-2011 12:30:00'.
 //
@@ -256,6 +256,33 @@ class bael_FileObserver2 : public bael_Observer {
         // 'LogRecordFunctor' defines the type of the functor used for
         // formatting log records to a stream.
 
+    // PUBLIC TYPES
+    typedef bdef_Function<void (*)(int, const bsl::string&)>
+                                                        OnFileRotationCallback;
+        // An 'OnFileRotationCallback' is an alias for a user-supplied
+        // callback function that is invoked after the file observer attempts
+        // to rotate its log file.  The provided callback function takes two
+        // parameters: (1) an integer status value, 0 indicates a new log file
+        // was successfully created and a non-zero value indicates an error
+        // occurred rotating the file (2) a string that, if a file rotation was
+        // successfully performed, indicates the name of the rotated log file.
+        // E.g.:
+        //..
+        //  void onLogFileRotation(int                rotationStatus,
+        //                         const std::string& rotatedLogFileName);
+        //..
+
+    // PUBLIC TYPES
+    enum {
+        // status code for the call back function.
+
+        ROTATE_SUCCESS                  =  0,
+        ROTATE_RENAME_ERROR             = -1,
+        ROTATE_NEW_LOG_ERROR            = -2,
+        ROTATE_RENAME_AND_NEW_LOG_ERROR = -3
+    };
+
+
   private:
     // DATA
     bdesu_FdStreamBuf      d_logStreamBuf;             // stream buffer for
@@ -294,6 +321,16 @@ class bael_FileObserver2 : public bael_Observer {
                                                        // lifetime before
                                                        // rotation
 
+    OnFileRotationCallback d_onRotationCb;             // user-callback
+                                                       // for file rotation
+
+    mutable bcemt_Mutex    d_rotationCbMutex;          // serialize
+                                                       // 'd_onRotationCb';
+                                                       // required because
+                                                       // callback must be
+                                                       // called with
+                                                       // 'd_mutex' unlocked
+
   private:
     // NOT IMPLEMENTED
     bael_FileObserver2(const bael_FileObserver2&);
@@ -305,19 +342,22 @@ class bael_FileObserver2 : public bael_Observer {
         // Write the specified log 'record' to the specified output 'stream'
         // using the default record format of this file observer.
 
-    void rotateFile();
+    int rotateFile(bsl::string *rotatedLogFileName);
         // Perform a log file rotation by closing the current log file of this
         // file observer, rename the newly closed log file if necessary, and
-        // opening a new log file.  The existing log file is renamed if the log
-        // filename pattern does not contain any '%'-escape sequence *and* the
-        // latest call to 'enableFileLogging' is invoked with
-        // 'appendTimestampFlag' set to 'false' by appending a timestamp to the
-        // log file's name.
+        // opening a new log file.  Load into the specified
+        // 'rotatedLogFileName' the name of the rotated log file.  The existing
+        // log file is renamed if the log filename pattern does not contain any
+        // '%'-escape sequence *and* the latest call to 'enableFileLogging' is
+        // invoked with 'appendTimestampFlag' set to 'false' by appending a
+        // timestamp to the log file's name.
 
-    void rotateIfNecessary(const bdet_Datetime& currentLogTime);
+    int rotateIfNecessary(bsl::string          *rotatedLogFileName,
+                          const bdet_Datetime& currentLogTime);
         // Perform log file rotation if the specified 'currentLogTime'
         // indicates that that current log file has exceeded its lifetime, or
-        // if the log file is larger than the allowable size.  The lifetime and
+        // if the log file is larger than the allowable size and load into
+        // 'rotatedLogFileName' the name of the rotated file.  The lifetime and
         // the allowable file size are set by the 'rotateOnLifetime' and the
         // 'rotateOnSize' methods respectively.  The behavior is undefined
         // unless the caller acquired the lock for this object.
@@ -396,7 +436,7 @@ class bael_FileObserver2 : public bael_Observer {
         // successful call to this method and following each log file rotation)
         // the name of the log file is derived from 'logFilenamePattern' by
         // interpolating the above recognized '%'-escape sequences.  Optionally
-        // specify 'appendTimestampFlag' indicating that  a timestamp of the
+        // specify 'appendTimestampFlag' indicating that a timestamp of the
         // form ".%Y%M%D_%h%m%s" should be appended to the log filename in
         // instances where 'logFilenamePattern' does not contain a '%'-escape
         // sequence.  If 'appendTimestampFlag' is 'false' and
@@ -458,6 +498,14 @@ class bael_FileObserver2 : public bael_Observer {
         // Set the formatting functor used when writing records to the log file
         // of this file observer to the specified 'logFileFunctor'.  Note that
         // a default format is in effect until this method is called.
+
+    void setOnFileRotationCallback(
+                             const OnFileRotationCallback& onRotationCallback);
+        // Set the specified 'onRotationCallback' to be invoked after each time
+        // this file observer attempts perform a log file rotation.  The
+        // behavior is undefined if the supplied function calls either
+        // 'setOnFileRotationCallback', 'forceRotation', or 'publish' on this
+        // file observer.
 
     // ACCESSORS
     bool isFileLoggingEnabled() const;
