@@ -394,7 +394,7 @@ bael_FileObserver2::bael_FileObserver2(bslma_Allocator *basicAllocator)
 , d_publishInLocalTime(false)
 , d_rotationSize(0)
 , d_rotationLifetime(0)
-, d_onRotationCb(basicAllocator)
+, d_onRotationCb()
 , d_rotationCbMutex()
 {
 }
