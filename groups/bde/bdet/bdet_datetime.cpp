@@ -13,7 +13,7 @@ BDES_IDENT_RCSID(bdet_datetime_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-#include <stdio.h>          // non-standard 'snprintf'
+#include <bsl_c_stdio.h>          // 'snprintf'
 
 static const char *const MONTHS[] = {
     0,

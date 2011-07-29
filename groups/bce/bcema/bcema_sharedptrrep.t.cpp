@@ -8,7 +8,7 @@
 #include <bcema_testallocator.h>                // for testing only
 #include <iostream>
 
-#include <stdlib.h>             // 'atoi'
+#include <bsl_c_stdlib.h>             // 'atoi'
 
 using bsl::cout;
 using bsl::endl;

@@ -23,7 +23,7 @@
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 
-#include <stdlib.h>         // non-standard 'putenv'
+#include <bsl_c_stdlib.h>   // 'putenv'
 
 using namespace BloombergLP;
 using namespace std;
