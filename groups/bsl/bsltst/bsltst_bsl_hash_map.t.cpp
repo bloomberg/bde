@@ -40,14 +40,19 @@ using std::atoi;
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i) {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
+}
+
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
@@ -233,6 +238,7 @@ public:
     IntWrapper& operator=(const IntWrapper& other)
     {
         d_n = other.d_n;
+        return *this;
     }
 
     operator int() const
