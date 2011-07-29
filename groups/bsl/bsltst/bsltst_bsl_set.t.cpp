@@ -13,6 +13,8 @@
 #include <bslalg_hastrait.h>
 #include <bslalg_typetraits.h>
 
+#include <bsls_addressof.h>
+
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
@@ -215,8 +217,10 @@ struct CargoNoAddressOf {
     ~CargoNoAddressOf() {
         d_alloc->deallocate(d_p);
     }
+#ifdef BDE_USE_ADDRESSOF
   private:
     CargoNoAddressOf *operator&();
+#endif
 };
 
 // ----------------------------------------------------------------------------
@@ -247,7 +251,7 @@ struct TestType {
     // container.
 
   private:
-#ifdef BSLS_ADDRESSOF
+#ifdef BDE_USE_ADDRESSOF
     TestType *operator&();
 #endif
   public:

@@ -13,6 +13,8 @@
 #include <bslalg_hastrait.h>
 #include <bslalg_typetraits.h>
 
+#include <bsls_addressof.h>
+
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
@@ -169,8 +171,8 @@ struct TestType {
     // possible cases in which a redefined 'operator&' might not work with this
     // container.
 
+#ifdef BDE_USE_ADDRESSOF
   private:
-#ifdef BSLS_ADDRESSOF
     TestType *operator&();
 #endif
   public:
@@ -204,7 +206,6 @@ bool operator>(const TestType& lhs, const TestType& rhs)
 {
     return lhs.getTheInt() > rhs.getTheInt();
 }
-
 
 struct Cargo {
     // This 'struct' dynamically allocates memory, for verifying that the
@@ -271,8 +272,10 @@ struct CargoNoAddressOf {
     ~CargoNoAddressOf() {
         d_alloc->deallocate(d_p);
     }
+#ifdef BDE_USE_ADDRESSOF
   private:
     CargoNoAddressOf *operator&();
+#endif
 };
 
 template<class TYPE>
