@@ -4103,12 +4103,12 @@ void TestDriver<TYPE,ALLOC>::testCase15()
                 LOOP_ASSERT(LINE, TYPE(SPEC[j]) == X[j]);
                 mX[j] = DEFAULT_VALUE;
                 LOOP_ASSERT(LINE, DEFAULT_VALUE == X[j]);
-                LOOP_ASSERT(LINE, &X[j] == (dataCptr + j));
-                LOOP_ASSERT(LINE, &mX[j] == (dataMptr + j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(X[j]) == (dataCptr + j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(mX[j]) == (dataMptr + j));
                 mX.at(j) = Y[j];
                 LOOP_ASSERT(LINE, TYPE(SPEC[j]) == X.at(j));
-                LOOP_ASSERT(LINE, &X.at(j) == (dataCptr + j));
-                LOOP_ASSERT(LINE, &mX.at(j) == (dataMptr + j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(X.at(j)) == (dataCptr + j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(mX.at(j)) == (dataMptr + j));
             }
         }
     }
@@ -4945,7 +4945,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Negative(const CONTAINER&)
         printf("\tUsing an empty range made up of stack pointers\n");
     }
     const TYPE null = TYPE();
-    ASSERT_SAFE_PASS(mY.assign(&null, &null));
+    ASSERT_SAFE_PASS(mY.assign(BSLS_ADDRESSOF(null), BSLS_ADDRESSOF(null)));
 
 
     if (verbose) {
