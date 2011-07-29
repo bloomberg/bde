@@ -972,7 +972,6 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 
 !! unix-HP_UX-*-*-*        _   CXX        = $(RETRY_ON_SIGNAL) $(ACC_BIN)/aCC $(CXX64FLAGS)
 
-!! unix-HP_UX           _       PLINK_ARCH      = hp
 !! unix-SunOS-i386-*-cc-5.8   _ CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/SUNWspro/bin/CC $(CXX64FLAGS)
 !! unix-SunOS-i386-*-cc-5.8   64    CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/SUNWspro/bin/CC $(CXX64FLAGS)
 
@@ -1144,6 +1143,8 @@ unix-*                  _   RATIONAL_WIN_OPT = -windows=no
 *                       _       PLINK_ARCH      =
 !! unix-SunOS           _       PLINK_ARCH      = sundev1
 !! unix-AIX             _       PLINK_ARCH      = ibm
+!! unix-HP_UX           _       PLINK_ARCH      = hp
+!! unix-Linux           _       PLINK_ARCH      = linux
 
 !! *            _   BBSRC       = /bbsrc/proot/include
 !! *            _   BBSRCBBINC  = $(BBSRC)/bbinc

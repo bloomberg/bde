@@ -71,6 +71,10 @@ BDES_IDENT("$Id: $")
 #include <bdex_versionfunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -973,9 +977,7 @@ void bdeut_NullableValue_WithAllocator<TYPE>::swap(
 
     if (!isNull() && !other.isNull()) {
         // swap typed values
-        using bsl::swap;
-
-        swap(this->value(), other.value());
+        bslalg_SwapUtil::swap(&this->value(), &other.value());
         return;                                                       // RETURN
     }
 
@@ -1145,9 +1147,7 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::swap(
 
     if (!isNull() && !other.isNull()) {
         // swap typed values
-        using bsl::swap;
-
-        swap(this->value(), other.value());
+        bslalg_SwapUtil::swap(&this->value(), &other.value());
         return;                                                       // RETURN
     }
 

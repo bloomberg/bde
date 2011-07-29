@@ -6,7 +6,30 @@ BDES_IDENT_RCSID(bces_atomicutilimpl_amd64_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-#if defined(BSLS_PLATFORM__CPU_X86_64) && defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM__CPU_X86_64)      // x86_64 only
+
+#if defined(BSLS_PLATFORM__CMP_GNU)
+
+int bces_AtomicUtilImpl_Amd64SwapInt(volatile int *aInt,
+                                     int           val)
+{
+    // This function uses a weaker inline assembly constraint than required,
+    // therefore it's un-inlined to reduce the possibility of a compiler
+    // optimization that takes advantage of that weaker constraint to produce
+    // code with the behavior different from intended.
+
+    __asm__ __volatile__ (
+            "       lock xchgl %1, %0       \n\t"
+                    : "=m" (*aInt),   // needs "+m" but it causes a GCC
+                                      // compiler error in optimized builds
+                                      // (DRQS #21987142)
+                      "+r" (val)
+                    :
+                    : "memory");
+    return val;
+}
+
+#elif defined(BSLS_PLATFORM__CMP_SUN)
 
 // Please see this component's header file for a brief explanation of
 // why things are this way.
@@ -129,6 +152,7 @@ bces_AtomicUtilImpl_Amd64SpinUnlock:                                       \n\
 }
 
 #endif
+#endif  // defined(BSLS_PLATFORM__CPU_X86_64)
 
 }  // close namespace BloombergLP
 
