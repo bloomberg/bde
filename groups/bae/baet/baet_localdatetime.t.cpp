@@ -425,7 +425,7 @@ int main(int argc, char *argv[])
 //..
 // This statement produces the following output on 'stdout':
 //..
-//  [ datetimeTz = 25DEC2009_11:00:00.000-0500 timeZoneId = "Europe/Berlin" ]
+//  [ 25DEC2009_11:00:00.000-0500 "Europe/Berlin" ]
 //..
 
       } break;

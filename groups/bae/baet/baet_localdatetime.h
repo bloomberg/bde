@@ -91,7 +91,7 @@ BDES_IDENT("$Id: $ $CSID: $")
 //..
 // This statement produces the following output on 'stdout':
 //..
-//  [ datetimeTz = 25DEC2009_11:00:00.000-0500 timeZoneId = "Europe/Berlin" ]
+//  [ 25DEC2009_11:00:00.000-0500 "Europe/Berlin" ]
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
