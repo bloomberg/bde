@@ -105,7 +105,7 @@ TYPE *bsls_addressOf(TYPE& obj);
                                    // MACROS
                                    // ======
 
-#if 1 || defined(BSLS_PLATFORM__CMP_MSVC) || defined(BDE_USE_ADDRESSOF)
+#ifdef BSLS_PLATFORM__CMP_MSVC 
 #   define BSLS_ADDRESSOF(OBJ)     ::BloombergLP::bsls_addressOf(OBJ)
 
 #   if !defined(BDE_USE_ADDRESSOF)
