@@ -21,6 +21,9 @@ BDES_IDENT_RCSID(bdem_tableimp_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 namespace BloombergLP {
+// LOCAL VARIABLES
+
+static bool bdem_TableImp_geometricMemoryGrowthFlag = false;
 
 // LOCAL CONSTANTS
 enum {
@@ -39,7 +42,8 @@ int computeRowSize(const bdem_RowLayout *layout)
                                & ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
 }
 
-static
+
+    static
 int nullBitsArraySize(int numBits)
     // Return the size of the null bits array required to store at least
     // the specified 'numBits'.  The behavior is undefined unless
@@ -504,8 +508,14 @@ void bdem_TableImp::removeRow(int rowIndex)
                                        1);
 }
 
+bsl::size_t bdem_TableImp::getRowsCapacity() const 
+{
+    return d_rows.capacity();
+}
+
 void bdem_TableImp::reserveRowsRaw(bsl::size_t numRows)
 {
+    d_allocatorManager.reserveMemory(8 * numRows);
     d_rowPool.reserveCapacity(numRows);
     d_rows.reserve(d_rows.size() + numRows);
 }
@@ -637,7 +647,7 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
     // Open up space for nullness bits of new rows.
 
     bdeu_BitstringUtil::insertRaw(&d_nullBits.front(),
-                                  originalLength,
+                                  originalSize,
                                   dstRowIndex,
                                   numRows);
 
@@ -963,6 +973,22 @@ bool operator==(const bdem_TableImp& lhs, const bdem_TableImp& rhs)
     }
 
     return true;
+}
+
+// PRIVATE GEOMETRIC MEMORY GROWTH
+void bdem_TableImp_enableGeometricMemoryGrowth()
+{
+    bdem_TableImp_geometricMemoryGrowthFlag = true;
+}
+
+void bdem_TableImp_disableGeometricMemoryGrowth()
+{
+    bdem_TableImp_geometricMemoryGrowthFlag = false;
+}
+
+bool bdem_TableImp_isGeometricMemoryGrowth()
+{
+    return bdem_TableImp_geometricMemoryGrowthFlag;
 }
 
 }  // close namespace BloombergLP

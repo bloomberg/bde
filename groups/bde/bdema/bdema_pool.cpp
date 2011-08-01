@@ -10,6 +10,7 @@ BDES_IDENT_RCSID(bdema_pool_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 
+#include <iostream>
 // TYPES
 struct Link {
     // This 'struct' implements a link data structure that stores the address
@@ -112,6 +113,8 @@ bdema_Pool::bdema_Pool(int blockSize, bslma_Allocator *basicAllocator)
 
     d_internalBlockSize = bsl::max(static_cast<int>(sizeof(Link)),
                       roundUp(blockSize, bsls_AlignmentFromType<Link>::VALUE));
+    std::cout << "SPAC33" << std::endl;
+    std::cout << "SPAC d_internaLBlockSize " << d_internalBlockSize << std::endl;
 }
 
 bdema_Pool::bdema_Pool(int                         blockSize,

@@ -549,6 +549,10 @@ class bdem_TableImp {
         // more information on 'bdex' streaming of container types).
 
     // ACCESSORS
+    bsl::size_t getRowsCapacity() const;
+        // Return the number of rows for which memory has already been
+        // allocated (whether already inserted or not).
+    
     bdem_ElemType::Type columnType(int columnIndex) const;
         // Return the type of the column at the specified 'columnIndex' in this
         // table.  The behavior is undefined unless
@@ -653,7 +657,6 @@ bool operator!=(const bdem_TableImp& lhs, const bdem_TableImp& rhs);
     // values at any (row, column) position are not the same.
 
 // PRIVATE GEOMETRIC MEMORY GROWTH
-static bool bdem_TableImp_geometricMemoryGrowthFlag = false;
 
 void bdem_TableImp_enableGeometricMemoryGrowth();
 void bdem_TableImp_disableGeometricMemoryGrowth();
@@ -1042,25 +1045,6 @@ inline
 bool operator!=(const bdem_TableImp& lhs, const bdem_TableImp& rhs)
 {
     return !(lhs == rhs);
-}
-
-// PRIVATE GEOMETRIC MEMORY GROWTH
-inline
-void bdem_TableImp_enableGeometricMemoryGrowth()
-{
-    bdem_TableImp_geometricMemoryGrowthFlag = true;
-}
-
-inline
-void bdem_TableImp_disableGeometricMemoryGrowth()
-{
-    bdem_TableImp_geometricMemoryGrowthFlag = false;
-}
-
-inline
-bool bdem_TableImp_isGeometricMemoryGrowth()
-{
-    return bdem_TableImp_geometricMemoryGrowthFlag;
 }
 
 }  // close namespace BloombergLP
