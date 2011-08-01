@@ -11,16 +11,21 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION:   The 'bsls_addressOf' function defined in this
-// component provides this ability.  It conforms to the C++0x definition for
-// 'addressof' as specified in the section [specialized.addressof] (20.6.12.1)
-// of the FDIS.
+//@DESCRIPTION: This component should *not* be used outside of the 'bsl'
+// package at this time.
+//
+// The 'bsls_addressOf' function defined in this component provides the
+// ability to determine the address of an object, even if 'operator&' is
+// overloaded.  It conforms to the C++0x definition for 'addressof' as
+// specified in the section [specialized.addressof] (20.6.12.1) of the FDIS,
+// except that it will not return the address of a function reference.
 //
 ///Usage
 ///-----
 // This section illustrates intended usage of this component.
 //
 ///Example 1: Obtain the address of a 'class' that defines 'operator&'.
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // There are times, especially within low-level library functions, where it is
 // necessary to obtain the address of an object even if that object's class
 // overloads 'operator&' to return something other than the object's address.
@@ -105,7 +110,7 @@ TYPE *bsls_addressOf(TYPE& obj);
                                    // MACROS
                                    // ======
 
-#ifdef BSLS_PLATFORM__CMP_MSVC 
+#ifdef BSLS_PLATFORM__CMP_MSVC
 #   define BSLS_ADDRESSOF(OBJ)     ::BloombergLP::bsls_addressOf(OBJ)
 
 #   if !defined(BDE_USE_ADDRESSOF)
