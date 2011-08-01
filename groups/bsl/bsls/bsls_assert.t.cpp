@@ -1601,8 +1601,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText, expr == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(expr, globalText, 0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(file, globalFile, 0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 #endif
 
@@ -1691,10 +1691,10 @@ int main(int argc, char *argv[])
         bsls_Assert::invokeHandler("ExPrEsSiOn", "FiLe", -12345678);
         ASSERTION_TEST_END
 
-        ASSERT(true         == globalAssertFiredFlag);
-        ASSERT("ExPrEsSiOn" == globalText);
-        ASSERT("FiLe"       == globalFile);
-        ASSERT(-12345678    == globalLine);
+        ASSERT(     true == globalAssertFiredFlag);
+        ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
+        ASSERT(        0 == std::strcmp("FiLe",       globalFile));
+        ASSERT(-12345678 == globalLine);
 
         if (verbose) cout <<
            "\nVerify that 'lockAssertAdminisration' blocks callback changes."
@@ -1753,8 +1753,8 @@ int main(int argc, char *argv[])
             ASSERTION_TEST_END
 
             ASSERT(true == globalAssertFiredFlag);
-            LOOP2_ASSERT(text, globalText, text == globalText);
-            LOOP2_ASSERT(file, globalFile, file == globalFile);
+            LOOP2_ASSERT(text, globalText, 0 == std::strcmp(text, globalText));
+            LOOP2_ASSERT(file, globalFile, 0 == std::strcmp(file, globalFile));
             LOOP2_ASSERT(line, globalLine, line == globalLine);
         }
 
@@ -1773,8 +1773,8 @@ int main(int argc, char *argv[])
             ASSERTION_TEST_END
 
             ASSERT(true == globalAssertFiredFlag);
-            LOOP2_ASSERT(text, globalText, text == globalText);
-            LOOP2_ASSERT(file, globalFile, file == globalFile);
+            LOOP2_ASSERT(text, globalText, 0 == std::strcmp(text, globalText));
+            LOOP2_ASSERT(file, globalFile, 0 == std::strcmp(file, globalFile));
             LOOP2_ASSERT(line, globalLine, line == globalLine);
         }
 
