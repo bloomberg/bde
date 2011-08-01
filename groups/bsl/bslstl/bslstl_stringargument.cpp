@@ -1,5 +1,5 @@
-// bslstl_stringargument.cpp                                          -*-C++-*-
-#include <bslstl_stringargument.h>
+// bslstl_stringref.cpp                                               -*-C++-*-
+#include <bslstl_stringref.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

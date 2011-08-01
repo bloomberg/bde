@@ -1,6 +1,6 @@
-// bslstl_stringargument.t.cpp                                        -*-C++-*-
+// bslstl_stringref.t.cpp                                             -*-C++-*-
 
-#include <bslstl_stringargument.h>
+#include <bslstl_stringref.h>
 
 #include <bsls_nativestd.h>
 
@@ -24,17 +24,17 @@ using namespace bsl;  // automatically added by script
 // The component under test provides an in-core pointer-semantic object.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bslstl_StringArgument();
-// [ 2] bslstl_StringArgument(const char *begin, const char *end);
-// [ 2] bslstl_StringArgument(const char *begin, int length);
-// [ 2] bslstl_StringArgument(const char *begin);
-// [ 2] bslstl_StringArgument(const bsl::string& begin);
-// [ 2] bslstl_StringArgument(const native_std::string& begin);
-// [ 2] bslstl_StringArgument(const bslstl_StringArgument& original);
-// [ 2] ~bslstl_StringArgument();
+// [ 2] bslstl_StringRef();
+// [ 2] bslstl_StringRef(const char *begin, const char *end);
+// [ 2] bslstl_StringRef(const char *begin, int length);
+// [ 2] bslstl_StringRef(const char *begin);
+// [ 2] bslstl_StringRef(const bsl::string& begin);
+// [ 2] bslstl_StringRef(const native_std::string& begin);
+// [ 2] bslstl_StringRef(const bslstl_StringRef& original);
+// [ 2] ~bslstl_StringRef();
 //
 // MANIPULATORS
-// [ 2] bslstl_StringArgument& operator=(const bslstl_StringArgument& rhs);
+// [ 2] bslstl_StringRef& operator=(const bslstl_StringRef& rhs);
 // [ 6] void clear();
 // [ 6] void assign(const char *begin, const char *end);
 // [ 6] void assign(const char *begin, int length);
@@ -102,7 +102,7 @@ using namespace bsl;  // automatically added by script
 // [ 7] operator+(const StringRef& lhs, const native_std::string& rhs);
 // [ 7] operator+(const char *lhs, const StringRef& rhs);
 // [ 7] operator+(const StringRef& lhs, const char *rhs);
-// [ 8] bsl::hash<BloombergLP::bslstl_StringArgument>
+// [ 8] bsl::hash<BloombergLP::bslstl_StringRef>
 //--------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] USAGE
@@ -150,7 +150,7 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-typedef bslstl_StringArgument Obj;
+typedef bslstl_StringRef Obj;
 
 static const char *EMPTY_STRING     = "";
 static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
@@ -162,17 +162,16 @@ static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
 ///Usage
 ///-----
 // The following snippets of code illustrate basic and varied use of the
-// 'bslstl_StringArgument' class.  The sample code uses the 'getNumBlanks'
-// function defined below that returns the number of blank (' ') characters
-// contained in the string that is bound to a specified
-// 'bslstl_StringArgument'.  The function delegates the work to the
-// 'std::count' STL algorithm.  This is made possible by the STL-compatible
-// iterators provided by 'bslstl_StringArgument' via the 'begin' and 'end'
-// accessors:
+// 'bslstl_StringRef' class.  The sample code uses the 'getNumBlanks' function
+// defined below that returns the number of blank (' ') characters contained in
+// the string that is bound to a specified 'bslstl_StringRef'.  The function
+// delegates the work to the 'std::count' STL algorithm.  This is made possible
+// by the STL-compatible iterators provided by 'bslstl_StringRef' via the
+// 'begin' and 'end' accessors:
 //..
 //  #include <algorithm>
 //
-    int getNumBlanks(const bslstl_StringArgument& stringArg)
+    int getNumBlanks(const bslstl_StringRef& stringArg)
 //      // Return the number of blank (' ') characters in the string bound to
 //      // the specified 'stringArg'; return 0 if 'stringArg' is unbound.
     {
@@ -220,24 +219,24 @@ int main(int argc, char *argv[])
 
 // In the following, several calls are made to 'getNumBlanks' with strings of
 // various forms to illustrate the benefit of having 'getNumBlanks' take a
-// 'bslstl_StringArgument' argument.  First we verify tolerance of null
-// pointers and 'bslstl_StringArgument' objects that are unbound:
+// 'bslstl_StringRef' argument.  First we verify tolerance of null pointers and
+// 'bslstl_StringRef' objects that are unbound:
 //..
     int numBlanks = getNumBlanks("");
     ASSERT(0 == numBlanks);
 //
-    bslstl_StringArgument unbound;
+    bslstl_StringRef unbound;
     numBlanks = getNumBlanks(unbound);
     ASSERT(0 == numBlanks);
 //..
-// In most contexts, unbound 'bslstl_StringArgument' objects are treated as if
-// they are bound to the empty string:
+// In most contexts, unbound 'bslstl_StringRef' objects are treated as if they
+// are bound to the empty string:
 //..
     ASSERT(true  == (unbound == ""));
     ASSERT(false == ("nboun"  < unbound));
 //..
 // Similarly, the a 'bsl::string' object can be (implicitly) constructed from
-// 'bslstl_StringArgument':
+// 'bslstl_StringRef':
 //..
     bsl::string empty(unbound);
     ASSERT(0 == empty.size());
@@ -267,7 +266,7 @@ int main(int argc, char *argv[])
 // In the following, the 'line' string reference is bound to first line of
 // 'poem':
 //..
-    bslstl_StringArgument line(poem, 29);
+    bslstl_StringRef line(poem, 29);
     numBlanks = getNumBlanks(line);
     ASSERT(5  == numBlanks);
     ASSERT(29 == line.length());
@@ -290,10 +289,10 @@ int main(int argc, char *argv[])
     const bsl::string poemString(poem);
     numBlanks = getNumBlanks(poemString);
     ASSERT(42 == numBlanks);
-    ASSERT(bslstl_StringArgument(poemString) == poemString);
-    ASSERT(bslstl_StringArgument(poemString) == poemString.c_str());
+    ASSERT(bslstl_StringRef(poemString) == poemString);
+    ASSERT(bslstl_StringRef(poemString) == poemString.c_str());
 //..
-// Finally, we illustrate binding a 'bslstl_StringArgument' to a string that
+// Finally, we illustrate binding a 'bslstl_StringRef' to a string that
 // contains null ('\0') characters.  First we populate the 'poemWithNulls'
 // array with the contents of 'poem':
 //..
@@ -310,7 +309,7 @@ int main(int argc, char *argv[])
 // In the following, 'poemWithNulls' is seen to have the same number of blank
 // characters as the original 'poem':
 //..
-    numBlanks = getNumBlanks(bslstl_StringArgument(poemWithNulls, poemLength));
+    numBlanks = getNumBlanks(bslstl_StringRef(poemWithNulls, poemLength));
     ASSERT(42 == numBlanks);
 //..
       } break;
@@ -341,7 +340,7 @@ int main(int argc, char *argv[])
         //   performs in a reasonable manner.
         //
         // Testing:
-        //   bsl::hash<BloombergLP::bslstl_StringArgument>
+        //   bsl::hash<BloombergLP::bslstl_StringRef>
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nTesting Hash Function"
@@ -2201,7 +2200,7 @@ int main(int argc, char *argv[])
         //   output format.
         //
         // Testing:
-        //   operator<<(ostream&, const bslstl_StringArgument& string);
+        //   operator<<(ostream&, const bslstl_StringRef& string);
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nTesting Output (<<) Operator"
@@ -2355,15 +2354,15 @@ int main(int argc, char *argv[])
         //   Test each of the constructors with empty and non-empty strings.
         //
         // Testing:
-        //   bslstl_StringArgument();
-        //   bslstl_StringArgument(const char *begin, const char *end);
-        //   bslstl_StringArgument(const char *begin, int length);
-        //   bslstl_StringArgument(const char *begin);
-        //   bslstl_StringArgument(const bsl::string& begin);
-        //   bslstl_StringArgument(const native_std::string& begin);
-        //   bslstl_StringArgument(const bslstl_StringArgument& original);
-        //   ~bslstl_StringArgument();
-        //   bslstl_StringArgument& operator=(const bslstl_StringArgument&);
+        //   bslstl_StringRef();
+        //   bslstl_StringRef(const char *begin, const char *end);
+        //   bslstl_StringRef(const char *begin, int length);
+        //   bslstl_StringRef(const char *begin);
+        //   bslstl_StringRef(const bsl::string& begin);
+        //   bslstl_StringRef(const native_std::string& begin);
+        //   bslstl_StringRef(const bslstl_StringRef& original);
+        //   ~bslstl_StringRef();
+        //   bslstl_StringRef& operator=(const bslstl_StringRef&);
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nTesting Primary Manipulator"
@@ -2372,7 +2371,7 @@ int main(int argc, char *argv[])
         if (verbose) std::cout << "\nTesting default constructor"
                           << "\n= = = = = = = = = = = = = =" << std::endl;
         if (veryVerbose)
-            std::cout << "\nbslstl_StringArgument()"
+            std::cout << "\nbslstl_StringRef()"
                  << "\n=  =  =  =  =  = "
                  << std::endl;
 
@@ -2388,7 +2387,7 @@ int main(int argc, char *argv[])
                           << "\n= = = = = = = = = = = = = " << std::endl;
         if (veryVerbose)
             std::cout
-               << "\nbslstl_StringArgument(const char *begin, const char *end)"
+               << "\nbslstl_StringRef(const char *begin, const char *end)"
                << "\n=  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  "
                << std::endl;
         {
@@ -2415,7 +2414,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             std::cout
-                << "\nbslstl_StringArgument(const char *begin, int length)"
+                << "\nbslstl_StringRef(const char *begin, int length)"
                 << "\n=  =  =  =  =  =  =  =  =  =  =  =  =  =  =  ="
                 << std::endl;
 
@@ -2440,7 +2439,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose)
-            std::cout << "\nbslstl_StringArgument(const char *begin)"
+            std::cout << "\nbslstl_StringRef(const char *begin)"
                  << "\n=  =  =  =  =  =  =  =  =  =  =  ="
                  << std::endl;
 
@@ -2465,7 +2464,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose)
-            std::cout << "\nbslstl_StringArgument(const bsl::string& begin)"
+            std::cout << "\nbslstl_StringRef(const bsl::string& begin)"
                  << "\n=  =  =  =  =  =  =  =  =  =  =  =  =  = "
                  << std::endl;
 
@@ -2492,7 +2491,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             std::cout
-                << "\nbslstl_StringArgument(const native_std::string& begin)"
+                << "\nbslstl_StringRef(const native_std::string& begin)"
                 << "\n  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  ="
                 << std::endl;
 
@@ -2506,7 +2505,7 @@ int main(int argc, char *argv[])
 
 // DRQS 24793537: When built in optimized mode on IBM, the following assert
 // fails.  The address returned from data() here is different from the address
-// returned in the constructor of StringArgument.  data() returns a pointer to
+// returned in the constructor of StringRef.  data() returns a pointer to
 // a function local static char variable and the compiler generates multiple
 // copies of that static variable.
 #if !defined(BSLS_PLATFORM__CMP_IBM) || !defined(BDE_BUILD_TARGET_OPT)
@@ -2529,7 +2528,7 @@ int main(int argc, char *argv[])
                           << "\n= = = = = = = = = = = = " << std::endl;
         if (veryVerbose)
             std::cout
-                << "\nbslstl_StringArgument(const bslstl_StringArgument&)"
+                << "\nbslstl_StringRef(const bslstl_StringRef&)"
                 << "\n=  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  "
                 << std::endl;
         {
