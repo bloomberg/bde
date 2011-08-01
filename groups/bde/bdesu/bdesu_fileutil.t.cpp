@@ -14,7 +14,15 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+
+// Needed for using 'stat64' on HP
+#ifdef BSLS_PLATFORM__OS_HPUX
+    #ifndef _LARGEFILE64_SOURCE
+        #define _LARGEFILE64_SOURCE 1
+    #endif
+#endif
 #include <sys/stat.h>
+
 #include <sys/types.h>
 #else
 #include <windows.h>  // for Sleep
@@ -422,7 +430,7 @@ int main(int argc, char *argv[]) {
         for(int i=0; i<4; ++i) {
             char name[16];
             sprintf(name, "woof.a.%d", i);
-            bdesu_FileUtil::FileDescriptor fd = 
+            bdesu_FileUtil::FileDescriptor fd =
                 bdesu_FileUtil::open(name, true, false);
             bdesu_FileUtil::close(fd);
         }
@@ -436,7 +444,7 @@ int main(int argc, char *argv[]) {
         ASSERT(vs[1] == "woof.a.1");
         ASSERT(vs[2] == "woof.a.2");
         ASSERT(vs[3] == "woof.a.3");
-        
+
         bdesu_FileUtil::setWorkingDirectory("..");
         bdesu_FileUtil::remove(dirName, true);
       } break;
@@ -506,10 +514,10 @@ int main(int argc, char *argv[]) {
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
             string dirName("getFileSizeDir");
-            
+
             // windows directories are 0 sized
-          
-            const bdesu_FileUtil::Offset EXPECTED = 0; 
+
+            const bdesu_FileUtil::Offset EXPECTED = 0;
 #else
             string dirName("/tmp/getFileSizeDir");
 #endif
@@ -520,14 +528,14 @@ int main(int argc, char *argv[]) {
             // On UNIX use stat64 as an oracle: the file size of a directory
             // depends on the file system.
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS   
+#ifndef BSLS_PLATFORM__OS_WINDOWS
             struct stat64 oracleInfo;
             int rc = ::stat64(dirName.c_str(), &oracleInfo);
             ASSERT(0 == rc);
-            
+
             bdesu_FileUtil::Offset EXPECTED = oracleInfo.st_size;
 #endif
-         
+
             bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(dirName);
             LOOP2_ASSERT(EXPECTED, off, EXPECTED == off);
 
@@ -900,21 +908,21 @@ int main(int argc, char *argv[]) {
 
             int socketFd = socket(AF_UNIX, SOCK_STREAM, 0);
             LOOP_ASSERT(socketFd, socketFd >= 0);
-            
+
             struct sockaddr_un address;
             address.sun_family = AF_UNIX;
             sprintf(address.sun_path, filename.c_str());
 
             // Add one to account for the null terminator for the filename.
 
-            const int ADDR_LEN = sizeof(address.sun_family) + 
+            const int ADDR_LEN = sizeof(address.sun_family) +
                                  filename.size() +
                                  1;
-             
+
             int rc = bind(socketFd, (struct sockaddr *)&address, ADDR_LEN);
             LOOP3_ASSERT(rc, errno, strerror(errno), 0 == rc);
 
-            
+
             LOOP_ASSERT(filename, bdesu_FileUtil::exists(filename));
             LOOP_ASSERT(filename, !bdesu_FileUtil::isDirectory(filename));
             LOOP_ASSERT(filename, !bdesu_FileUtil::isRegularFile(filename));
