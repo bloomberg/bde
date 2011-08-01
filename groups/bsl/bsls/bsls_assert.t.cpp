@@ -1549,7 +1549,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 #endif
