@@ -937,6 +937,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   CONCERN: Filename conflicts on rotations are resolved.
         // --------------------------------------------------------------------
+#ifdef BSLS_PLATFORM__OS_UNIX
         bael_LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
@@ -1041,6 +1042,7 @@ int main(int argc, char *argv[])
                 globfree(&globbuf);
             }
         }
+#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1055,6 +1057,7 @@ int main(int argc, char *argv[])
         //   file logging.  Enable 'rotateOnSize', start logging again and
         //   verify that the file is rotated on first log.
         // --------------------------------------------------------------------
+#ifdef BSLS_PLATFORM__OS_UNIX
         bael_LoggerManagerConfiguration configuration;
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
@@ -1107,6 +1110,7 @@ int main(int argc, char *argv[])
                 ASSERT(1 == (int)globbuf.gl_pathc);
             }
         }
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
