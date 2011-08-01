@@ -79,6 +79,7 @@
 *           qnt     BUILD_TYPE  = -DBDE_BUILD_TARGET_QNT
 *           safe    BUILD_TYPE  = -DBDE_BUILD_TARGET_SAFE
 *           safe2   BUILD_TYPE  = -DBDE_BUILD_TARGET_SAFE_2
+*           stlport BUILD_TYPE  = -DBDE_BUILD_TARGET_STLPORT
 
 *           _   BDE_CFLAGS  = $(BUILD_TYPE)
 *           _   BDE_CXXFLAGS    = $(BUILD_TYPE)
@@ -896,6 +897,11 @@ unix-Linux-*-*-gcc      64  CC64FLAGS   = -fPIC
 
 # DRQS 22147649 -- allow PIC builds for static libs under SunOS
 unix-SunOS-sparc-*-cc      pic  BDE_CXXFLAGS   = -xcode=pic32
+
+# enable support for building with the Sun supplied version of STLPort as the
+# default implementation of the Standard Library
+unix-SunOS-*-*-cc       stlport     BDE_CXXFLAGS    = -library=stlport4 -template=no%extdef
+unix-SunOS-*-*-cc       stlport     BDE_LDFLAGS     = -library=stlport4
 
 #old flags
 unix-AIX-*-*-CC64   _   CC64FLAGS   = -q64
