@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
 
         TestType mX; const TestType& X = mX;
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BDE_USE_ADDRESSOF
         if (verbose) printf("\nTest that BSLS_ADDRESSOF return 'bogusPtr'\n");
         ASSERT(X.bogusPtr() == BSLS_ADDRESSOF(X));
 #else
