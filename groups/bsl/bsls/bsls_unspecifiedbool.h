@@ -7,107 +7,190 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a utility class supporting the unspecified bool idiom.
+//@PURPOSE: Provide a class supporting the 'unspecified bool' idiom.
 //
 //@CLASSES:
-//  bslsl_UnspecifiedBool: utility class template 
+//  bsls_UnspecifiedBool: class template for the 'unspecified bool' idiom.
 //
 //@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
 //
-//@DESCRIPTION: This component provides a class template that can be used to
-// manufacture an "unspecified boolean type".
+//@DESCRIPTION: This component should *not* be used outside of the 'bsl'
+// package at this time.
+//
+// This component provides a class template that can be used to manufacture an
+// "unspecified boolean type" that is distinct for each class that instantiates
+// it.  Note that classes supplying an implicit conversion to an unspecified
+// bool type will be equality comparable (using 'operator==' and 'operator!=')
+// through this conversion.  Private equality and inequality operators should
+// be added to the class definition unless this comparison is desired.  It is
+// important that each class produces a distinct unspecified bool type, as
+// otherwise objects of different class types would compare equal through this
+// same conversion.  Note that this component should become redundant when all
+// of our compilers support "explicit conversion operators", a new feature of
+// C++11.  An 'explicit operator bool()' conversion operator is superior to
+// this C++98 idiom in all ways.
 //
 ///Usage
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: ...
-///- - - - - - - -
+///Example 1: A Simple Smart Pointer
+///- - - - - - - - - - - - - - - - -
 // A common requirement for "smart pointer" types is to emulate the native
-// pointer types, and in particular support testing as a boolean value in 'if'
-// and 'while' clauses.   Blah...:
-//..
-//  void explicitCastingExample()
-//  {
-//      bdema_ManagedPtr<A> a_mp1;
-//      bdema_ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp1.ptr()));
-//..
-// or even use the less safe "C"-style casts:
-//..
-//      bdema_ManagedPtr<A> a_mp2;
-//      bdema_ManagedPtr<B> b_mp2(a_mp, (B*)(a_mp2.ptr()));
+// pointer types and, in particular, support testing for "null" or "empty"
+// pointer values as a simple boolean conversion in 'if' and 'while' clauses.
+// We here demonstrate how to create a simple smart pointer type, 'SimplePtr',
+// using this component to implement a safe the boolean conversion.
 //
-//  } // explicitCastingExample()
+// An object of type 'SimplePtr' holds a pointer value, but does not claim
+// ownership or any responsibility for the lifetime of the referenced object.
+// A 'SimplePtr' object acts as a "simple" native pointer.
+//
+// First, we create the 'SimplePtr' class, define its data members, creators
+// and manipulators:
 //..
-// Note that when using dynamic cast, if the cast fails, the target managed
-// pointer will be reset to an unset state, and the source will not be
-// modified.  Consider for example the following snippet of code:
-//..
-//  void processPolymorphicObject(bdema_ManagedPtr<A> aPtr)
+//  template <class TYPE>
+//  class SimplePtr
 //  {
-//      bdema_ManagedPtr<B> bPtr(aPtr, dynamic_cast<B*>(aPtr.ptr()));
-//      if (bPtr) {
-//          processBObject(bPtr);
+//      // This class holds a pointer to a single object, and provides a subset
+//      // of the regular pointer operators.  For example, objects of this
+//      // class can be dereferenced with 'operator*' and tested as a boolean
+//      // value to determine if null.  Conversely, this class does not support
+//      // pointer arithmetic.
+//
+//    private:
+//      // DATA
+//      TYPE *d_ptr_p;  // address of the referenced object
+//
+//      // PRIVATE ACCESSORS
+//      bool operator==(const SimplePtr &);  // = delete;
+//      bool operator!=(const SimplePtr &);  // = delete;
+//          // Suppress equality comparison operations on objects of this
+//          // class.
+//
+//    public:
+//      // CREATORS
+//      explicit SimplePtr(TYPE *ptr = 0) : d_ptr_p(ptr) {}
+//          // Create a 'SimplePtr' having the value of the specified 'ptr'.
+//
+//      //! ~SimplePtr() = default;
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      TYPE& operator*() const  { return *d_ptr_p; }
+//          // Return a reference to the object pointed to by this
+//          // 'SimplePtr'.
+//
+//      TYPE *operator->() const { return d_ptr_p; }
+//          // Return the held 'd_ptr_p'.
+//..
+// Next, we define, for convenience, an alias for a unique type that is
+// implicitly convertible to 'bool' (note that we pass the current template
+// instantiation to the 'bsls_UnspecifiedBool' template to guarantee
+// a unique name, even for different instantiations of this same 'SimplePtr'
+// template):
+//..
+//      // TYPES
+//      typedef typename bsls_UnspecifiedBool<SimplePtr>::BoolType BoolType;
+//..
+// Now, we can define a boolean conversion operator that tests whether or not
+// this 'SimplePtr' object is holding a null pointer, or a valid address:
+//..
+//      operator BoolType() const {
+//          return bsls_UnspecifiedBool<SimplePtr>::makeValue(d_ptr_p);
 //      }
-//      else {
-//          processAObject(aPtr);
+//  }; // class SimplePtr
+//..
+// Note that we do not need to define 'operator!' as this single boolean
+// conversion operator is invoked with the correct semantics when the user
+// tries that operator.
+//
+// Finally, we write a simple test function, creating a couple of 'SimplePtr'
+// objects, one "null", and the other with a well-defined address.
+//..
+//  void runTests() {
+//      SimplePtr<int> p1;  // default ctor sets to null
+//      assert(!p1);
+//
+//      int            i = 3;
+//      SimplePtr<int> p2(&i);
+//
+//      if (p2) {
+//          assert(3 == *p2);
 //      }
 //  }
 //..
-// If the value of 'aPtr' can be dynamically cast to 'B*' then ownership is
-// transferred to 'bPtr', otherwise 'aPtr' is to be modified.  As previously
-// stated, the managed instance will be destroyed correctly regardless of how
-// it is cast.
+// Notice that 'SimplePtr' objects behave as native pointers.  They should
+// be tested before dereferencing (as they could be null).
 
 namespace BloombergLP {
 
-
-            // =====================================================
-            // struct blsl_UnspecifiedBoolHelper
-            // =====================================================
+                         // ==========================
+                         // class bsls_UnspecifiedBool
+                         // ==========================
 
 template<class BSLS_HOST_TYPE>
-struct bsls_UnspecifiedBool {
-    // This 'struct' provides a member, 'd_member', whose pointer-to-member may
+class bsls_UnspecifiedBool {
+    // This class provides a member, 'd_member', whose pointer-to-member may
     // be used as an "unspecified boolean type" for implicit conversion
     // operators.
 
-private:
-    int d_member;
-        // This data member is used solely for taking its address to return a
-        // non-null pointer-to-member.  Note that the *value* of 'd_member' is
-        // not used.
+  private:
+    // DATA
+    int d_member;   // This data member is used solely for taking its address
+                    // to return a non-null pointer-to-member.  Note that the
+                    // *value* of 'd_member' is not used.
 
-public:
+  public:
+    // TYPES
     typedef int bsls_UnspecifiedBool::* BoolType;
+        // Alias of a distinct type that is implicitly convertible to 'bool',
+        // but does not promote to 'int'.
 
+    // CLASS METHODS
     static BoolType falseValue();
         // Return a value that converts to the 'bool' value 'false'.
 
     static BoolType trueValue();
         // Return a value that converts to the 'bool' value 'true'.
+
+    static BoolType makeValue(bool predicate);
+        // Return a value that converts to the 'bool' value 'true' if the
+        // specified predicate is 'true', and the 'bool' value 'false'
+        // otherwise.
 };
 
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+// CLASS METHODS
 template<class BSLS_HOST_TYPE>
-inline int bsls_UnspecifiedBool<BSLS_HOST_TYPE>::* 
+inline
+typename bsls_UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
 bsls_UnspecifiedBool<BSLS_HOST_TYPE>::falseValue()
 {
     return 0;
 }
 
 template<class BSLS_HOST_TYPE>
-inline int bsls_UnspecifiedBool<BSLS_HOST_TYPE>::* 
+inline
+typename bsls_UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
 bsls_UnspecifiedBool<BSLS_HOST_TYPE>::trueValue()
 {
     return &bsls_UnspecifiedBool::d_member;
 }
 
-}  // close namespace BloombergLP
+template<class BSLS_HOST_TYPE>
+inline
+typename bsls_UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
+bsls_UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
+{
+    return predicate ? trueValue() : falseValue();
+}
+
+}  // close enterprise namespace
 
 #endif
 
