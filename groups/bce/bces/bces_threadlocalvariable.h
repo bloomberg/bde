@@ -88,7 +88,7 @@ BDES_IDENT("$Id: $")
 // In the following example we create a 'RequestProcessor' that places context
 // information for the current request in a thread-local variable.
 //
-// First we define a trivial structure for a request context.
+// First, we define a trivial structure for a request context.
 //..
 //  // requestprocessor.h
 //
@@ -99,7 +99,7 @@ BDES_IDENT("$Id: $")
 //      int d_workstation;  // BB LUW
 //  };
 //..
-// Next, we create a trivial 'RequestProcessor' that provides a static class
+// Next, we create a trivial 'RequestProcessor' that provides a 'static' class
 // method that returns the 'RequestContext' for the current thread, or 0 if
 // the current thread is not processing a request.
 //..
@@ -143,10 +143,9 @@ BDES_IDENT("$Id: $")
 //
 //  // requestprocessor.cpp
 //
-//
 //  // PRIVATE CLASS METHODS
 //..
-// Now we defined the 'contextReference' method, which defines a thread-local
+// Now, we define the 'contextReference' method, which defines a thread-local
 // 'RequestContext' pointer, 'context', initialized to 0, and returns a
 // reference providing modifiable access to that pointer.
 //..
@@ -164,9 +163,9 @@ BDES_IDENT("$Id: $")
 //
 //  // MANIPULATORS
 //..
-// Then, we define 'RequestProcessor' class's 'processRequest' method, which
-// first sets the thread-local pointer containing the request context, and
-// then processes the 'request'.
+// Then, we define the 'processRequest' method, which first sets the
+// thread-local pointer containing the request context, and then processes the
+// 'request'.
 //..
 //  void RequestProcessor::processRequest(int         userId,
 //                                        int         workstation,
