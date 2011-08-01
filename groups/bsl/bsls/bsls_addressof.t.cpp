@@ -285,8 +285,6 @@ int main(int argc, char *argv[])
 
         TestType mX; const TestType& X = mX;
 
-/*  TBD: enable in the final change
- *
 #ifndef BSLS_PLATFORM__CMP_MSVC
         if (verbose) printf("\nTest that BSLS_ADDRESSOF return 'bogusPtr'\n");
         ASSERT(X.bogusPtr() == BSLS_ADDRESSOF(X));
@@ -294,7 +292,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTest that BSLS_ADDRESSOF return '&X'\n");
         ASSERT(X.realAddress() == BSLS_ADDRESSOF(X));
 #endif
-*/
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
