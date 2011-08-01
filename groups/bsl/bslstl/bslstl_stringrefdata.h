@@ -1,30 +1,30 @@
-// bslstl_stringargumentdata.h                                        -*-C++-*-
-#ifndef INCLUDED_BSLSTL_STRINGARGUMENTDATA
-#define INCLUDED_BSLSTL_STRINGARGUMENTDATA
+// bslstl_stringrefdata.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLSTL_STRINGREFDATA
+#define INCLUDED_BSLSTL_STRINGREFDATA
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a base class for 'bslstl_StringArgument'
+//@PURPOSE: Provide a base class for 'bslstl_StringRef'
 //
 //@CLASSES:
-//  bslstl_StringArgumentData: a base class for 'bslstl_StringArgument'
+//  bslstl_StringRefData: a base class for 'bslstl_StringRef'
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
 //@DESCRIPTION: This component provides a complex-constrained in-core
-// (value-semantic) attribute class, 'bslstl_StringArgumentData', that is used
-// as a simple base class for 'bslstl_StringArgument' and surves as a data
-// container for 'bslstl_StringArgument' without providing much of the
-// functionality of its own.  This allows to use 'bslstl_StringArgumentData' in
+// (value-semantic) attribute class, 'bslstl_StringRefData', that is used
+// as a simple base class for 'bslstl_StringRef' and surves as a data
+// container for 'bslstl_StringRef' without providing much of the
+// functionality of its own.  This allows to use 'bslstl_StringRefData' in
 // the 'bsl::string' class and enable the convertion from
-// 'bslstl_StringArgument' to 'bsl::string'.  Without this class
-// 'bslstl_StringArgument' and 'bsl::string' would have a circular dependency
+// 'bslstl_StringRef' to 'bsl::string'.  Without this class
+// 'bslstl_StringRef' and 'bsl::string' would have a circular dependency
 // on each other.
 //
-// 'bslstl_StringArgumentData' holds two pointers: a pointer to the start of a
+// 'bslstl_StringRefData' holds two pointers: a pointer to the start of a
 // string and a pointer to the end of the string.  It's parameterized with type
 // 'CHAR_TYPE' and its supposed to work with strings composed of 'CHAR_TYPE'
 // characters.
@@ -51,10 +51,10 @@ BSLS_IDENT("$Id: $")
 // pointers: to the start and to the end of the string.
 //
 // First, we define a function 'computeHash' that takes a
-// 'bslstl_StringArgumentData' string as an argument and returns an
+// 'bslstl_StringRefData' string as an argument and returns an
 // 'unsigned int' hash of that string:
 //..
-//  unsigned computeHash(const bslstl_StringArgumentData<char>& str)
+//  unsigned computeHash(const bslstl_StringRefData<char>& str)
 //  {
 //      unsigned hash = 3069134613U;
 //
@@ -65,12 +65,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Note that we're using 'begin' and 'end' attributes of the
-// 'bslstl_StringArgumentData' object to access the string characters.
+// 'bslstl_StringRefData' object to access the string characters.
 //
 // Then, we call it with a simple 'C string' argument:
 //..
 //      const char str[] = "C string";
-//      unsigned hash = computeHash(bslstl_StringArgumentData<char>(
+//      unsigned hash = computeHash(bslstl_StringRefData<char>(
 //                                                    str, str + sizeof(str)));
 //..
 // Finally, we compare the computed hash with the expected value:
@@ -88,17 +88,17 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                     // ===============================
-                     // class bslstl_StringArgumentData
-                     // ===============================
+                         // ==========================
+                         // class bslstl_StringRefData
+                         // ==========================
 
 template <typename CHAR_TYPE>
-class bslstl_StringArgumentData
-    // This is a base class for 'bslstl_StringArgument'.  It's defined here to
-    // break a circular dependency between 'bslstl_StringArgument' and
+class bslstl_StringRefData
+    // This is a base class for 'bslstl_StringRef'.  It's defined here to
+    // break a circular dependency between 'bslstl_StringRef' and
     // 'bsl::string'.  'bsl::string' has a constructor that takes
-    // 'const bslstl_StringArgumentData&' parameter, so that an object of the
-    // derived 'bslstl_StringArgument' class can be passed to that constructor.
+    // 'const bslstl_StringRefData&' parameter, so that an object of the
+    // derived 'bslstl_StringRef' class can be passed to that constructor.
     // This is the only valid use of this class.
 {
   private:
@@ -111,22 +111,21 @@ class bslstl_StringArgumentData
 
   public:
     // CREATORS
-    bslstl_StringArgumentData();
-        // Construct a value-initialized 'bslstl_StringArgumentData' object
+    bslstl_StringRefData();
+        // Construct a value-initialized 'bslstl_StringRefData' object
         // with both 'd_begin' and 'd_end' pointers assigned a 'NULL' value.
 
-    bslstl_StringArgumentData(const CHAR_TYPE *begin, const CHAR_TYPE *end);
-        // Construct a 'bslstl_StringArgumentData' object with the specified
+    bslstl_StringRefData(const CHAR_TYPE *begin, const CHAR_TYPE *end);
+        // Construct a 'bslstl_StringRefData' object with the specified
         // 'begin' and 'end' pointers to the start and end of a string.  The
         // behavior is undefined unless 'begin <= end'.  Both 'begin' and 'end'
         // can be NULL.
 
-    //! bslstl_StringArgumentData(const bslstl_StringArgumentData&) = default;
-    //! ~bslstl_StringArgumentData() = default;
+    //! bslstl_StringRefData(const bslstl_StringRefData&) = default;
+    //! ~bslstl_StringRefData() = default;
 
     // MANIPULATORS
-    //! bslstl_StringArgumentData& operator=(const bslstl_StringArgumentData&)
-    //                                                               = default;
+    //! bslstl_StringRefData& operator=(const bslstl_StringRefData&) = default;
 
     // ACCESSORS
     const CHAR_TYPE *begin() const;
@@ -140,29 +139,29 @@ class bslstl_StringArgumentData
 
 // FREE OPERATORS
 template <typename CHAR_TYPE>
-bool operator==(const bslstl_StringArgumentData<CHAR_TYPE>& lhs,
-                const bslstl_StringArgumentData<CHAR_TYPE>& rhs);
+bool operator==(const bslstl_StringRefData<CHAR_TYPE>& lhs,
+                const bslstl_StringRefData<CHAR_TYPE>& rhs);
     // Return 'true' if the 'begin' and 'end' pointers of 'lhs' and 'rhs'
     // compare equal and 'false' otherwise.
 
 template <typename CHAR_TYPE>
-bool operator!=(const bslstl_StringArgumentData<CHAR_TYPE>& lhs,
-                const bslstl_StringArgumentData<CHAR_TYPE>& rhs);
+bool operator!=(const bslstl_StringRefData<CHAR_TYPE>& lhs,
+                const bslstl_StringRefData<CHAR_TYPE>& rhs);
     // Return 'true' if either the 'begin' or 'end' pointers of 'lhs' and 'rhs'
     // do not compare equal and 'false' otherwise.
 
-// ==========================================================================
+// ===========================================================================
 //                      TEMPLATE FUNCTION DEFINITIONS
-// ==========================================================================
+// ===========================================================================
 
-                     // -------------------------------
-                     // class bslstl_StringArgumentData
-                     // -------------------------------
+                         // --------------------------
+                         // class bslstl_StringRefData
+                         // --------------------------
 
 // CREATORS
 template <typename CHAR_TYPE>
 inline
-bslstl_StringArgumentData<CHAR_TYPE>::bslstl_StringArgumentData()
+bslstl_StringRefData<CHAR_TYPE>::bslstl_StringRefData()
 : d_begin(0)
 , d_end(0)
 {
@@ -170,8 +169,8 @@ bslstl_StringArgumentData<CHAR_TYPE>::bslstl_StringArgumentData()
 
 template <typename CHAR_TYPE>
 inline
-bslstl_StringArgumentData<CHAR_TYPE>
-    ::bslstl_StringArgumentData(const CHAR_TYPE *begin,
+bslstl_StringRefData<CHAR_TYPE>
+    ::bslstl_StringRefData(const CHAR_TYPE *begin,
                                 const CHAR_TYPE *end)
 : d_begin(begin)
 , d_end(end)
@@ -183,14 +182,14 @@ bslstl_StringArgumentData<CHAR_TYPE>
 // ACCESSORS
 template <typename CHAR_TYPE>
 inline
-const CHAR_TYPE *bslstl_StringArgumentData<CHAR_TYPE>::begin() const
+const CHAR_TYPE *bslstl_StringRefData<CHAR_TYPE>::begin() const
 {
     return d_begin;
 }
 
 template <typename CHAR_TYPE>
 inline
-const CHAR_TYPE *bslstl_StringArgumentData<CHAR_TYPE>::end() const
+const CHAR_TYPE *bslstl_StringRefData<CHAR_TYPE>::end() const
 {
     return d_end;
 }
@@ -198,16 +197,16 @@ const CHAR_TYPE *bslstl_StringArgumentData<CHAR_TYPE>::end() const
 // FREE OPERATORS
 template <typename CHAR_TYPE>
 inline
-bool operator==(const bslstl_StringArgumentData<CHAR_TYPE>& lhs,
-                const bslstl_StringArgumentData<CHAR_TYPE>& rhs)
+bool operator==(const bslstl_StringRefData<CHAR_TYPE>& lhs,
+                const bslstl_StringRefData<CHAR_TYPE>& rhs)
 {
     return lhs.begin() == rhs.begin() && lhs.end() == rhs.end();
 }
 
 template <typename CHAR_TYPE>
 inline
-bool operator!=(const bslstl_StringArgumentData<CHAR_TYPE>& lhs,
-                const bslstl_StringArgumentData<CHAR_TYPE>& rhs)
+bool operator!=(const bslstl_StringRefData<CHAR_TYPE>& lhs,
+                const bslstl_StringRefData<CHAR_TYPE>& rhs)
 {
     return !(lhs == rhs);
 }

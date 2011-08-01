@@ -171,16 +171,16 @@ static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
 //..
 //  #include <algorithm>
 //
-    int getNumBlanks(const bslstl_StringRef& stringArg)
+    int getNumBlanks(const bslstl_StringRef& stringRef)
 //      // Return the number of blank (' ') characters in the string bound to
-//      // the specified 'stringArg'; return 0 if 'stringArg' is unbound.
+//      // the specified 'stringRef'; return 0 if 'stringRef' is unbound.
     {
 #ifdef BSLS_PLATFORM__CMP_SUN
         std::size_t n = 0;
-        std::count(stringArg.begin(), stringArg.end(), ' ', n);
+        std::count(stringRef.begin(), stringRef.end(), ' ', n);
         return n;
 #else
-        return std::count(stringArg.begin(), stringArg.end(), ' ');
+        return std::count(stringRef.begin(), stringRef.end(), ' ');
 #endif
     }
 //..
@@ -2261,7 +2261,7 @@ int main(int argc, char *argv[])
         // TESTING DIRECT ACCESSORS:
         //
         // Concerns:
-        //   Each individual 'stringArg' field must be correctly forwarded from
+        //   Each individual 'stringRef' field must be correctly forwarded from
         //   the fully-tested underlying constructor.
         //
         // Plan:

@@ -1,6 +1,6 @@
-// bslstl_stringargumentdata.t.cpp                                    -*-C++-*-
+// bslstl_stringrefdata.t.cpp                                         -*-C++-*-
 
-#include <bslstl_stringargumentdata.h>
+#include <bslstl_stringrefdata.h>
 
 #include <string>
 
@@ -45,20 +45,20 @@ using namespace BloombergLP;
 //:   o swap
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bslstl_StringArgumentData();
-// [ 2] bslstl_StringArgumentData(const char *begin, const char *end);
-// [ 7] bslstl_StringArgumentData(const bslstl_StringArgumentData& other);
+// [ 2] bslstl_StringRefData();
+// [ 2] bslstl_StringRefData(const char *begin, const char *end);
+// [ 7] bslstl_StringRefData(const bslstl_StringRefData& other);
 //
 // MANIPULATORS
-// [ 9] operator=(const bslstl_StringArgumentData& other);
+// [ 9] operator=(const bslstl_StringRefData& other);
 //
 // ACCESSORS
 // [ 3] const_iterator begin() const;
 // [ 3] const_iterator end() const;
 //
 // FREE OPERATORS
-// [ 5] bool operator==(const StringArgumentData& lhs, rhs);
-// [ 5] bool operator!=(const StringArgumentData& lhs, rhs);
+// [ 5] bool operator==(const StringRefData& lhs, rhs);
+// [ 5] bool operator!=(const StringRefData& lhs, rhs);
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -178,10 +178,10 @@ namespace {
 // pointers: to the start and to the end of the string.
 //
 // First, we define a function 'computeHash' that takes a
-// 'bslstl_StringArgumentData' string as an argument and returns an
-// 'unsigned int' hash of that string:
+// 'bslstl_StringRefData' string as an argument and returns an 'unsigned int'
+// hash of that string:
 //..
-unsigned computeHash(const bslstl_StringArgumentData<char>& str)
+unsigned computeHash(const bslstl_StringRefData<char>& str)
 {
     unsigned hash = 3069134613U;
 
@@ -192,7 +192,7 @@ unsigned computeHash(const bslstl_StringArgumentData<char>& str)
 }
 //..
 // Note that we're using 'begin' and 'end' attributes of the
-// 'bslstl_StringArgumentData' object to access the string characters.
+// 'bslstl_StringRefData' object to access the string characters.
 
 }
 
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
 // Then, we call it with a simple 'C string' argument:
 //..
         const char str[] = "C string";
-        unsigned hash = computeHash(bslstl_StringArgumentData<char>(
+        unsigned hash = computeHash(bslstl_StringRefData<char>(
                                                       str, str + sizeof(str)));
 //..
 // Finally, we compare the computed hash with the expected value:
@@ -416,7 +416,7 @@ int main(int argc, char *argv[])
         //:   allocated from the default allocator.  (C-3)
         //
         // Testing:
-        //   operator=(const bslstl_StringArgumentData& rhs);
+        //   operator=(const bslstl_StringRefData& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY-ASSIGNMENT OPERATOR"
@@ -444,8 +444,8 @@ int main(int argc, char *argv[])
             const int LINE = DATA[i].d_line;
             const char *STR = DATA[i].d_str;
 
-            bslstl_StringArgumentData<char> X(STR, STR + strlen(STR));
-            bslstl_StringArgumentData<char> Y;
+            bslstl_StringRefData<char> X(STR, STR + strlen(STR));
+            bslstl_StringRefData<char> Y;
 
             Y = X;
 
@@ -604,7 +604,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   bslstl_StringArgumentData(const bslstl_StringArgumentData& other);
+        //   bslstl_StringRefData(const bslstl_StringRefData& other);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY CONSTRUCTOR"
@@ -632,8 +632,8 @@ int main(int argc, char *argv[])
             const int LINE = DATA[i].d_line;
             const char *STR = DATA[i].d_str;
 
-            bslstl_StringArgumentData<char> X(STR, STR + strlen(STR));
-            bslstl_StringArgumentData<char> Y(X);
+            bslstl_StringRefData<char> X(STR, STR + strlen(STR));
+            bslstl_StringRefData<char> Y(X);
 
             LOOP_ASSERT(LINE, Y.begin() == STR);
             LOOP_ASSERT(LINE, Y.end() - Y.begin() == strlen(STR));
@@ -725,8 +725,8 @@ int main(int argc, char *argv[])
         //:   allocated from the default allocator.  (C-11)
         //
         // Testing:
-        //   bool operator==(const bslstl_StringArgumentData& lhs, rhs);
-        //   bool operator!=(const bslstl_StringArgumentData& lhs, rhs);
+        //   bool operator==(const bslstl_StringRefData& lhs, rhs);
+        //   bool operator!=(const bslstl_StringRefData& lhs, rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nEQUALITY-COMPARISON OPERATORS"
@@ -754,23 +754,23 @@ int main(int argc, char *argv[])
             const int LINE = DATA[i].d_line;
             const char *STR = DATA[i].d_str;
 
-            bslstl_StringArgumentData<char> X(STR, STR + strlen(STR));
-            bslstl_StringArgumentData<char> Y(STR, STR + strlen(STR));
+            bslstl_StringRefData<char> X(STR, STR + strlen(STR));
+            bslstl_StringRefData<char> Y(STR, STR + strlen(STR));
 
             // test 'operator=='
             LOOP_ASSERT(LINE, X == Y);
 
             if (i > 0) {
                 // modify values slightly
-                bslstl_StringArgumentData<char> Y1(STR, STR + strlen(STR) - 1);
+                bslstl_StringRefData<char> Y1(STR, STR + strlen(STR) - 1);
                 LOOP_ASSERT(LINE, X != Y1);
 
-                bslstl_StringArgumentData<char> Y2(STR + 1, STR + strlen(STR));
+                bslstl_StringRefData<char> Y2(STR + 1, STR + strlen(STR));
                 LOOP_ASSERT(LINE, X != Y2);
 
                 // compare with a previous value
                 const char *STRPREV = DATA[i - 1].d_str;
-                bslstl_StringArgumentData<char> Z(STRPREV,
+                bslstl_StringRefData<char> Z(STRPREV,
                                                   STRPREV + strlen(STRPREV));
 
                 LOOP_ASSERT(LINE, X != Z);
@@ -877,7 +877,7 @@ int main(int argc, char *argv[])
             const int LINE = DATA[i].d_line;
             const char *STR = DATA[i].d_str;
 
-            bslstl_StringArgumentData<char> Y(STR, STR + strlen(STR));
+            bslstl_StringRefData<char> Y(STR, STR + strlen(STR));
             LOOP_ASSERT(LINE, Y.begin() == STR);
             LOOP_ASSERT(LINE, Y.end() - Y.begin() == strlen(STR));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
@@ -1004,7 +1004,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   bslstl_StringArgumentData(const char *begin, const char *end);
+        //   bslstl_StringRefData(const char *begin, const char *end);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nVALUE CTOR"
@@ -1034,7 +1034,7 @@ int main(int argc, char *argv[])
             const int LINE = DATA[i].d_line;
             const char *STR = DATA[i].d_str;
 
-            bslstl_StringArgumentData<char> Y(STR, STR + strlen(STR));
+            bslstl_StringRefData<char> Y(STR, STR + strlen(STR));
             LOOP_ASSERT(LINE, Y.begin() == STR);
             LOOP_ASSERT(LINE, Y.end() - Y.begin() == strlen(STR));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
@@ -1154,7 +1154,7 @@ int main(int argc, char *argv[])
         //:   (C-15)
         //
         // Testing:
-        //   bslstl_StringArgumentData();
+        //   bslstl_StringRefData();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nDEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR"
@@ -1162,7 +1162,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\tTesting the default constructor\n");
 
-        bslstl_StringArgumentData<char> X;
+        bslstl_StringRefData<char> X;
         ASSERT(X.begin() == 0);
         ASSERT(X.end() == 0);
 
@@ -1194,7 +1194,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        typedef bslstl_StringArgumentData<char> Obj;
+        typedef bslstl_StringRefData<char> Obj;
 
         // Attribute Types
 

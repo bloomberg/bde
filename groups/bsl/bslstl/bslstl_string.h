@@ -67,8 +67,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stdexceptutil.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_STRINGARGUMENTDATA
-#include <bslstl_stringargumentdata.h>
+#ifndef INCLUDED_BSLSTL_STRINGREFDATA
+#include <bslstl_stringrefdata.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_UTIL
@@ -802,14 +802,13 @@ class basic_string
         // memory.  If 'allocator' is not specified, then a default-constructed
         // allocator is used.
 
-    basic_string(const BloombergLP::bslstl_StringArgumentData<CHAR_TYPE>&
-                                                                        strArg,
+    basic_string(const BloombergLP::bslstl_StringRefData<CHAR_TYPE>& strRef,
                  const ALLOCATOR& allocator = ALLOCATOR());
-        // Create a string that has the same value as the specified 'strArg'
-        // string argument.  The resulting string will contain the same
-        // sequence of characters as 'strArg'.  Optionally specify an
-        // 'allocator' used to supply memory.  If 'allocator' is not specified,
-        // then a default-constructed allocator is used.
+        // Create a string that has the same value as the specified 'strRef'
+        // string.  The resulting string will contain the same sequence of
+        // characters as 'strRef'.  Optionally specify an 'allocator' used to
+        // supply memory.  If 'allocator' is not specified, then a
+        // default-constructed allocator is used.
 
     ~basic_string();
         // Destroy this string object.
@@ -2746,12 +2745,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-    const BloombergLP::bslstl_StringArgumentData<CHAR_TYPE>& strArg,
-    const ALLOCATOR&                                         allocator)
+    const BloombergLP::bslstl_StringRefData<CHAR_TYPE>& strRef,
+    const ALLOCATOR&                                    allocator)
 : Imp()
 , BloombergLP::bslstl_ContainerBase<allocator_type>(allocator)
 {
-    assign(strArg.begin(), strArg.end());
+    assign(strRef.begin(), strRef.end());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
