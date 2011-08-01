@@ -2796,18 +2796,20 @@ if (verbose)
                 if (veryVerbose) cout << "\tACTUAL FORMAT:   " << buf << endl;
 
                 const int LEN = (0 == SIZE) ? 0 : strlen(buf) + 1;
-                LOOP_ASSERT(LINE, 22 == RC);  // Should always return 22
-                                              // because size of datetime
-                                              // format is fixed.
+                LOOP2_ASSERT(LINE, RC, 22 == RC);  // Should always return 22
+                                                   // because size of datetime
+                                                   // format is fixed.
                 if (0 == SIZE) {
-                    LOOP_ASSERT(LINE, XX == buf[0]);
+                    LOOP3_ASSERT(LINE, XX, buf[0], XX == buf[0]);
                 }
                 else {
-                    LOOP_ASSERT(LINE, bsl::min(23, SIZE) == LEN);
+                    LOOP3_ASSERT(LINE, bsl::min(23, SIZE), LEN,
+                                 bsl::min(23, SIZE) == LEN);
                     LOOP_ASSERT(LINE, '\0' == buf[LEN - 1]);
                 }
-                LOOP_ASSERT(LINE, XX == buf[BUF_SIZE - 1]);  // Check overrun.
-                LOOP_ASSERT(LINE,  0 == memcmp(buf, FMT, LEN));
+                LOOP3_ASSERT(LINE, XX, buf[BUF_SIZE - 1],
+                             XX == buf[BUF_SIZE - 1]);  // Check overrun.
+                LOOP3_ASSERT(LINE, buf, FMT, 0 == memcmp(buf, FMT, LEN));
                 LOOP_ASSERT(LINE,
                             0 == memcmp(buf + LEN,
                                         CTRL_BUF + LEN,
