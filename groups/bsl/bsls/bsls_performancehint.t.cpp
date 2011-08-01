@@ -1,8 +1,8 @@
-// bsls_performancehint.t.cpp                  -*-C++-*-
+// bsls_performancehint.t.cpp                                         -*-C++-*-
 #include <bsls_performancehint.h>
 #include <bsls_stopwatch.h>
 
-#include <cstdlib>
+#include <stdlib.h>
 #include <iostream>
 
 // Warning: the following 'using' declarations interfere with the testing of

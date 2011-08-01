@@ -8,7 +8,7 @@
 #include <bsl_sstream.h>
 #include <bsl_cstdio.h>
 
-#include <cstdlib>
+#include <stdlib.h>    // 'atoi'
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
                        // include 'snprintf']
 
