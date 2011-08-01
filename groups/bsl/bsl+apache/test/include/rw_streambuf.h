@@ -32,6 +32,7 @@
 
 #include <cstring>          // for memset()
 #include <streambuf>        // for basic_streambuf
+#include <ios>
 
 #include <testdefs.h>
 #include <rw_char.h>        // for make_char()
