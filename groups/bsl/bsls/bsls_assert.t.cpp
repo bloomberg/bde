@@ -204,7 +204,7 @@ static void globalReset()
 //-----------------------------------------------------------------------------
 
 BSLS_ASSERT_NORETURN
-static void failTest(const char *text, const char *file, int line)
+static void testDriverHandler(const char *text, const char *file, int line)
     // Set the 'globalAssertFiredFlag' to 'true' and store the specified
     // expression 'text', 'file' name, and 'line' number values in
     // 'globalText', globalFile', and 'globalLine', respectively.  Then throw
@@ -212,7 +212,7 @@ static void failTest(const char *text, const char *file, int line)
     // defined; otherwise, abort the program.
 {
     if (globalVeryVeryVerbose) {
-        cout << "*** failTest: "; P_(text) P_(file) P(line)
+        cout << "*** testDriverHandler: "; P_(text) P_(file) P(line)
     }
 
     globalAssertFiredFlag = true;
@@ -230,7 +230,7 @@ static void failTest(const char *text, const char *file, int line)
 //-----------------------------------------------------------------------------
 
 BSLS_ASSERT_NORETURN
-static void failPrint(const char *text, const char *file, int line)
+static void testDriverPrint(const char *text, const char *file, int line)
     // Format, in verbose mode, the specified expression 'text', 'file' name,
     // and 'line' number the same way as the 'bsls_Assert::failAbort'
     // assertion-failure handler function might, but on 'cout' instead of
@@ -239,7 +239,7 @@ static void failPrint(const char *text, const char *file, int line)
 
 {
     if (globalVeryVeryVerbose) {
-        cout << "*** failPrint: "; P_(text) P_(file) P(line)
+        cout << "*** testDriverPrint: "; P_(text) P_(file) P(line)
     }
 
     if (globalVeryVerbose) {
@@ -861,8 +861,10 @@ int main(int argc, char *argv[])
 #ifdef BDE_BUILD_TARGET_SAFE_2
         if (veryVerbose) cout << "\tSAFE MODE 2 *is* defined." << endl;
 
-        // bsls_Assert::setFailureHandler(::failPrint); // for usage example
-        bsls_Assert::setFailureHandler(::failTest);     // for regression
+        // bsls_Assert::setFailureHandler(::testDriverPrint);  
+                                                          // for usage example
+        bsls_Assert::setFailureHandler(::testDriverHandler);
+                                                          // for regression
         globalReset();
         ASSERT(false == globalAssertFiredFlag);
         sillyFunc(veryVerbose);
@@ -1001,7 +1003,7 @@ int main(int argc, char *argv[])
 
         // See usage examples section at top of this file.
 
-        bsls_Assert::setFailureHandler(::failPrint);
+        bsls_Assert::setFailureHandler(::testDriverPrint);
 
         ASSERTION_TEST_BEGIN
         someFunc(1, 1, 0);
@@ -1065,10 +1067,10 @@ int main(int argc, char *argv[])
         //   4. That 'lockAssertAdministration' has no effect on guard.
         //
         // Plan:
-        //   Create a guard, passing it the 'failTest' handler, and verify,
-        //   using 'failureHandler', that this new handler was installed.
-        //   Then lock the administration, and repeat in nested fashion with
-        //   the 'failSleep' handler.  Verify restoration on the way out.
+        // Create a guard, passing it the 'testDriverHandler' handler, and
+        // verify, using 'failureHandler', that this new handler was installed.
+        // Then lock the administration, and repeat in nested fashion with the
+        // 'failSleep' handler.  Verify restoration on the way out.
         //
         // Testing:
         //   class bsls_AssertFailureHandlerGuard
@@ -1083,13 +1085,14 @@ int main(int argc, char *argv[])
 
         ASSERT(bsls_Assert::failAbort == bsls_Assert::failureHandler());
 
-        if (verbose) cout << "\nCreate guard with 'failTest' handler." << endl;
+        if (verbose) cout << "\nCreate guard with 'testDriverHandler' handler."
+                                                                       << endl;
         {
-            bsls_AssertFailureHandlerGuard guard(::failTest);
+            bsls_AssertFailureHandlerGuard guard(::testDriverHandler);
 
             if (verbose) cout << "\nVerify new assert handler." << endl;
 
-            ASSERT(::failTest == bsls_Assert::failureHandler());
+            ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
 
             if (verbose) cout << "\nLock administration." << endl;
 
@@ -1097,7 +1100,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\nRe-verify new assert handler." << endl;
 
-            ASSERT(failTest == bsls_Assert::failureHandler());
+            ASSERT(testDriverHandler == bsls_Assert::failureHandler());
 
             if (verbose) cout <<
                      "\nCreate second guard with 'failSleep' handler." << endl;
@@ -1115,10 +1118,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\nVerify new assert handler." << endl;
 
-            ASSERT(::failTest == bsls_Assert::failureHandler());
+            ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
 
             if (verbose) cout <<
-                  "\nDestroy guard created with '::failTest' handler." << endl;
+                  "\nDestroy guard created with '::testDriverHandler' handler."
+                                                                       << endl;
         }
 
         if (verbose) cout << "\nVerify initial assert handler." << endl;
@@ -1302,10 +1306,11 @@ int main(int argc, char *argv[])
                           << "ASSERT-MACRO TEST" << endl
                           << "=================" << endl;
 
-        if (verbose) cout << "\nInstall 'failTest' assertion-handler." << endl;
+        if (verbose) cout << "\nInstall 'testDriverHandler' assertion-handler."
+                                                                       << endl;
 
-        bsls_Assert::setFailureHandler(&failTest);
-        ASSERT(::failTest == bsls_Assert::failureHandler());
+        bsls_Assert::setFailureHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
 
         if (veryVerbose) cout << "\tSet up all but line numbers now. " << endl;
 
@@ -1650,9 +1655,9 @@ int main(int argc, char *argv[])
         //   mode" (i.e., with no build flags specified).
         //
         // Plan:
-        //   Call 'setAssertHandler' to install the 'failTest' "assert"
-        //   function in order to observe that the installed function was
-        //   called using the 'invokeHandler' method -- and, contingently,
+        //   Call 'setAssertHandler' to install the 'testDriverHandler'
+        //   "assert" function in order to observe that the installed function
+        //   was called using the 'invokeHandler' method -- and, contingently,
         //   the 'BSLS_ASSERT_OPT(X)' macro -- with various arguments.
         //
         // Testing:
@@ -1677,8 +1682,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
            "\nVerify that we can install a new assert callback." << endl;
 
-        bsls_Assert::setFailureHandler(&failTest);
-        ASSERT(::failTest == bsls_Assert::failureHandler());
+        bsls_Assert::setFailureHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
 
         if (verbose) cout <<
            "\nVerify that 'invokeHandler' properly transmits its arguments."
@@ -1703,7 +1708,7 @@ int main(int argc, char *argv[])
         bsls_Assert::lockAssertAdministration();
 
         bsls_Assert::setFailureHandler(&bsls_Assert::failAbort);
-        ASSERT(::failTest == bsls_Assert::failureHandler());
+        ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
 
 #ifdef BSLS_ASSERT_LEVEL_NONE
         if (verbose) cout <<
