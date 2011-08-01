@@ -81,7 +81,7 @@ using namespace bsl;  // automatically added by script
 // [ 1] BREATHING TEST
 // [13] CASTING EXAMPLE
 // [14] USAGE EXAMPLE
-// [15] VERIFYING FAILURES TO COMPILE
+// [-1] VERIFYING FAILURES TO COMPILE
 
 namespace {
 
@@ -568,31 +568,6 @@ int main(int argc, char *argv[])
     bslma_TestAllocator ta;
 
     switch (test) { case 0:
-      case 15: {
-        // --------------------------------------------------------------------
-        // TESTING FAILURE TO COMPILE
-        //
-        // verifying that things that shouldn't compile, don't
-        // --------------------------------------------------------------------
-
-        int numdels = 0;
-
-        Obj mX;
-        Obj mY;
-
-#       if 0
-            // all comparisons should be illegal, these lines would not
-            // compile
-
-            bool a;
-            a = mX == mY;
-            a = mX != mY;
-            a = mX <  mY;
-            a = mX <= mY;
-            a = mX >  mY;
-            a = mX >= mY;
-#       endif
-      } break;
       case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -1918,26 +1893,69 @@ int main(int argc, char *argv[])
         // Testing:
         //   This test is checking for the *absence* of 'operator=='.
         // --------------------------------------------------------------------
-//#define BDEMA_MANAGEDPTR_TEST_FLAG_1
-//#define BDEMA_MANAGEDPTR_TEST_FLAG_2
+//#define BDEMA_MANAGEDPTR_TEST_NO_HOMOGENEOUS_COMPARISON
+//#define BDEMA_MANAGEDPTR_TEST_NO_HOMOGENEOUS_ORDERING
+//#define BDEMA_MANAGEDPTR_TEST_NO_HETEROGENEOUS_COMPARISON
+//#define BDEMA_MANAGEDPTR_TEST_NO_HETEROGENEOUS_ORDERING
 
-#if defined BDEMA_MANAGEDPTR_TEST_FLAG_1
-		bdema_ManagedPtr<int> x;
-		bdema_ManagedPtr<int> y;
-		// The following two lines should fail to compile
-		ASSERT(x == y);
-		ASSERT(x != y);
+#if defined BDEMA_MANAGEDPTR_TEST_NO_HOMOGENEOUS_COMPARISON
+        {
+		    bdema_ManagedPtr<int> x;
+            bool b;
+
+		    // The following six lines should fail to compile
+		    b = (x == x);
+		    b = (x != x);
+        }
 #endif
 
-#if defined BDEMA_MANAGEDPTR_TEST_FLAG_2
-		bdema_ManagedPtr<int> a;
-		bdema_ManagedPtr<double> b;
-		// The following two lines should fail to compile
-		ASSERT(a == b);
-		ASSERT(a != b);
+#if defined BDEMA_MANAGEDPTR_TEST_NO_HOMOGENEOUS_ORDERING
+        {
+		    bdema_ManagedPtr<int> x;
+            bool b;
 
-		ASSERT(b == a);
-		ASSERT(b != a);
+		    // The following six lines should fail to compile
+		    b = (x <  x);
+		    b = (x <= x);
+		    b = (x >= x);
+		    b = (x >  x);
+        }
+#endif
+
+#if defined BDEMA_MANAGEDPTR_TEST_NO_HETEROGENEOUS_COMPARISON
+        {
+		    bdema_ManagedPtr<int>    x;
+		    bdema_ManagedPtr<double> y;
+
+            bool b;
+
+		    // The following twelve lines should fail to compile
+		    b = (x == y);
+		    b = (x != y);
+
+            b = (y == x);
+		    b = (y != x);
+        }
+#endif
+
+#if defined BDEMA_MANAGEDPTR_TEST_NO_HETEROGENEOUS_ORDERING
+        {
+		    bdema_ManagedPtr<int>    x;
+		    bdema_ManagedPtr<double> y;
+
+            bool b;
+
+		    // The following twelve lines should fail to compile
+		    b = (x <  y);
+		    b = (x <= y);
+		    b = (x >= y);
+		    b = (x >  y);
+
+		    b = (y <  x);
+		    b = (y <= x);
+		    b = (y >= x);
+		    b = (y >  x);
+        }
 #endif
       } break;
       default: {
