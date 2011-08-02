@@ -2,11 +2,11 @@
 
 #include <baet_localdatetime.h>
 
+#include <bdema_defaultallocatorguard.h>
+
 #include <bdex_testinstream.h>           // for testing only
 #include <bdex_testinstreamexception.h>  // for testing only
 #include <bdex_testoutstream.h>          // for testing only
-
-#include <bdema_defaultallocatorguard.h>
 
 #include <bslma_testallocator.h>
 
@@ -361,6 +361,10 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: This test driver is reusable w/other, similar components.
+
+    // CONCERN: In no case does memory come from the global allocator.
 
     TestAllocator globalAllocator(veryVeryVerbose);
     bslma_Default::setGlobalAllocator(&globalAllocator);
@@ -1380,8 +1384,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -1701,8 +1705,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -2126,7 +2130,7 @@ int main(int argc, char *argv[])
                     bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
                     bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma_Default::setDefaultAllocatorRaw(&da);
+                    bslma_DefaultAllocatorGuard dag(&da);
 
                     Obj                 *objPtr;
                     bslma_TestAllocator *objAllocatorPtr;
@@ -2181,8 +2185,7 @@ int main(int argc, char *argv[])
                     // -------------------------------------------------------
 
                     LOOP2_ASSERT(LINE, CONFIG,
-                                 &oa ==
-                                   X.timeZoneId().get_allocator().mechanism());
+                                 &oa == X.timeZoneId().allocator());
 
                     // Also invoke the object's 'allocator' accessor, as well
                     // as that of 'Z'.
@@ -2257,7 +2260,8 @@ int main(int argc, char *argv[])
                 bslma_TestAllocator da("default",  veryVeryVeryVerbose);
                 bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma_Default::setDefaultAllocatorRaw(&da);
+                bslma_DefaultAllocatorGuard dag(&da);
+
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -2388,8 +2392,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
             "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
@@ -2526,42 +2530,47 @@ int main(int argc, char *argv[])
         //:
         //: 5 The 'print' method returns the supplied 'ostream'.
         //:
-        //: 6 The output 'operator<<' signature and return type are standard.
+        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
+        //:   correct default values.
         //:
-        //: 7 The output 'operator<<' returns the supplied 'ostream'.
+        //: 7 The output 'operator<<' signature and return type are standard.
+        //:
+        //: 8 The output 'operator<<' returns the supplied 'ostream'.
         //
         // Plan:
         //: 1 Use the addresses of the 'print' member function and 'operator<<'
         //:   free function defined in this component to initialize,
         //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4)
+        //:   the appropriate signatures and return types.  (C-4, 7)
         //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5, 7)
+        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
         //:
-        //:   1 Define twelve carefully selected combinations of (two) object
+        //:   1 Define fourteen carefully selected combinations of (two) object
         //:     values ('A' and 'B'), having distinct values for each
         //:     corresponding salient attribute, and various values for the
         //:     two formatting parameters, along with the expected output
         //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
-        //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
-        //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
+        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
+        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 8 expected o/ps
+        //:     3 { B   } x {  2     } x {  3            } --> 1 expected op
+        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps 
+        //:     4 { A B } x { -9     } x { -9            } --> 2 expected o/ps
         //:
         //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
         //:
         //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', unless the parameters are,
-        //:       arbitrarily, (-9, -9), in which case 'operator<<' will be
-        //:       invoked instead.
+        //:       formatting parameters to 'print', ommitting the 'level' or
+        //:       'spacesPerLevel' parameter if the value of that argument is
+        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
+        //:       invoke the 'operator<<' instead.
         //:
         //:     2 Use a standard 'ostringstream' to capture the actual output.
         //:
         //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 7)
+        //:       supplied stream.  (C-5, 8)
         //:
         //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3)
+        //:       expected.  (C-1..3, 6)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -2609,9 +2618,9 @@ int main(int argc, char *argv[])
 #define NL "\n"
 #define SP " "
 
-        // ------------------------------------------------------------------
-        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
-        // ------------------------------------------------------------------
+        // -------------------------------------------------------------------
+        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1, -8 }  -->  4 expected o/ps
+        // -------------------------------------------------------------------
 
         //LINE L SPL  OBJ   EXPECTED
         //---- - ---  ---   ---------------------------------------------------
@@ -2631,11 +2640,17 @@ int main(int argc, char *argv[])
         { L_,  0, -1,  &A,  "["                                              SP
                             "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
                             "timeZoneId = \"EDT\""                           SP
-                            "]"
+                            "]"                                              
                                                                              },
-        // ------------------------------------------------------------------
-        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
-        // ------------------------------------------------------------------
+
+        { L_,  0, -8,  &A,  "["                                              NL
+                            "    datetimeTz = 03MAY2011_15:00:00.000-0400"   NL
+                            "    timeZoneId = \"EDT\""                       NL
+                            "]"                                              NL
+                                                                             },
+        // -------------------------------------------------------------------
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }      -->  8 expected o/ps
+        // -------------------------------------------------------------------
 
         //LINE L SPL  OBJ   EXPECTED
         //---- - ---  ---   ---------------------------------------------------
@@ -2646,17 +2661,24 @@ int main(int argc, char *argv[])
                             "]"                                              NL
                                                                              },
 
-        { L_,  3,  2,  &A,  "      ["                                        NL
-                            "        datetimeTz = 03MAY2011_15:00:00.000-0400"
-                                                                             NL
-                            "        timeZoneId = \"EDT\""                   NL
-                            "      ]"                                        NL
+        { L_,  3,  2,  &A, 
+                          "      ["                                          NL
+                          "        datetimeTz = 03MAY2011_15:00:00.000-0400" NL
+                          "        timeZoneId = \"EDT\""                     NL
+                          "      ]"                                          NL
                                                                              },
 
         { L_,  3, -2,  &A,  "      ["                                        SP
                             "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
                             "timeZoneId = \"EDT\""                           SP
-                            "]"
+                            "]"                                              
+                                                                             },
+
+        { L_,  3, -8,  &A, 
+                  "            ["                                            NL
+                  "                datetimeTz = 03MAY2011_15:00:00.000-0400" NL
+                  "                timeZoneId = \"EDT\""                     NL
+                  "            ]"                                            NL
                                                                              },
 
         { L_, -3,  0,  &A,  "["                                              NL
@@ -2665,11 +2687,11 @@ int main(int argc, char *argv[])
                             "]"                                              NL
                                                                              },
 
-        { L_, -3,  2,  &A,  "["                                              NL
-                            "        datetimeTz = 03MAY2011_15:00:00.000-0400"
-                                                                             NL
-                            "        timeZoneId = \"EDT\""                   NL
-                            "      ]"                                        NL
+        { L_, -3,  2,  &A, 
+                          "["                                                NL
+                          "        datetimeTz = 03MAY2011_15:00:00.000-0400" NL
+                          "        timeZoneId = \"EDT\""                     NL
+                          "      ]"                                          NL
                                                                              },
 
         { L_, -3, -2,  &A,  "["                                              SP
@@ -2677,25 +2699,53 @@ int main(int argc, char *argv[])
                             "timeZoneId = \"EDT\""                           SP
                             "]"
                                                                              },
-        // -----------------------------------------------------------------
-        // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
-        // -----------------------------------------------------------------
+
+        { L_, -3, -8,  &A,
+                  "["                                                        NL
+                  "                datetimeTz = 03MAY2011_15:00:00.000-0400" NL
+                  "                timeZoneId = \"EDT\""                     NL
+                  "            ]"                                            NL
+                                                                             },
+
+        // ------------------------------------------------------------------
+        // P-2.1.3: { B } x { 2 }     x { 3 }             -->  1 expected o/p
+        // ------------------------------------------------------------------
 
         //LINE L SPL  OBJ   EXPECTED
         //---- - ---  ---   ---------------------------------------------------
 
-        { L_,  2,  3,  &B,  "      ["                                        NL
-                            "         datetimeTz = 09JAN2011_10:00:00.000+0200"
-                                                                             NL
-                            "         timeZoneId = \"IST\""                  NL
-                            "      ]"                                        NL
+        { L_,  2,  3,  &B,
+                         "      ["                                           NL
+                         "         datetimeTz = 09JAN2011_10:00:00.000+0200" NL
+                         "         timeZoneId = \"IST\""                     NL
+                         "      ]"                                           NL
                                                                              },
-        // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
-        // -----------------------------------------------------------------
+        // -------------------------------------------------------------------
+        // P-2.1.4: { A B } x { -8 }  x { -8 }            -->  2 expected o/ps
+        // -------------------------------------------------------------------
 
         //LINE L SPL  OBJ   EXPECTED
-        //---- - ---  ---   --------------------------------------------------
+        //---- - ---  ---   ---------------------------------------------------
+
+        { L_, -8, -8,  &A, 
+                           "["                                               NL
+                           "    datetimeTz = 03MAY2011_15:00:00.000-0400"    NL
+                           "    timeZoneId = \"EDT\""                        NL
+                           "]"                                               NL
+                                                                             },
+
+        { L_, -8, -8,  &B,
+                           "["                                               NL
+                           "    datetimeTz = 09JAN2011_10:00:00.000+0200"    NL
+                           "    timeZoneId = \"IST\""                        NL
+                           "]"                                               NL
+                                                                             },
+        // -------------------------------------------------------------------
+        // P-2.1.5: { A B } x { -9 }  x { -9 }            -->  2 expected o/ps
+        // -------------------------------------------------------------------
+
+        //LINE L SPL  OBJ   EXPECTED
+        //---- - ---  ---   ---------------------------------------------------
 
         { L_, -9, -9,  &A,  "["                                              SP
                             "03MAY2011_15:00:00.000-0400"                    SP
@@ -2730,19 +2780,25 @@ int main(int argc, char *argv[])
 
                 ostringstream os;
 
+                // Verify supplied stream is returned by reference.
+
                 if (-9 == L && -9 == SPL) {
-
-                    // Verify supplied stream is returned by reference.
-
                     LOOP_ASSERT(LINE, &os == &(os << OBJ));
 
                     if (veryVeryVerbose) { T_ T_ Q(operator<<) }
                 }
                 else {
+                    LOOP_ASSERT(LINE, -8 == SPL || -8 != L);
 
-                    // Verify supplied stream is returned by reference.
-
-                    LOOP_ASSERT(LINE, &os == &OBJ.print(os, L, SPL));
+                    if (-8 != SPL) {
+                        LOOP_ASSERT(LINE, &os == &OBJ.print(os, L, SPL));
+                    }
+                    else if (-8 != L) {
+                        LOOP_ASSERT(LINE, &os == &OBJ.print(os, L));
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, &os == &OBJ.print(os));
+                    }
 
                     if (veryVeryVerbose) { T_ T_ Q(print) }
                 }
@@ -2834,7 +2890,7 @@ int main(int argc, char *argv[])
         bslma_TestAllocator da("default", veryVeryVeryVerbose);
         bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
 
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
                  "\nCreate an object, passing in the other allocator." << endl;
@@ -3082,7 +3138,7 @@ int main(int argc, char *argv[])
                     bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
                     bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma_Default::setDefaultAllocatorRaw(&da);
+                    bslma_DefaultAllocatorGuard dag(&da);
 
                     Obj                 *objPtr;
                     bslma_TestAllocator *objAllocatorPtr;
@@ -3139,8 +3195,7 @@ int main(int argc, char *argv[])
                     // -------------------------------------------------------
 
                     LOOP2_ASSERT(LINE, CONFIG,
-                                 &oa ==
-                                   X.timeZoneId().get_allocator().mechanism());
+                                 &oa == X.timeZoneId().allocator());
 
                     // Also invoke the object's 'allocator' accessor.
 
@@ -3213,7 +3268,7 @@ int main(int argc, char *argv[])
                 bslma_TestAllocator da("default",  veryVeryVeryVerbose);
                 bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma_Default::setDefaultAllocatorRaw(&da);
+                bslma_DefaultAllocatorGuard dag(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -3277,6 +3332,8 @@ int main(int argc, char *argv[])
         //:13 Any argument can be 'const'.
         //:
         //:14 Any memory allocation is exception neutral.
+        //:
+        //:15 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create three sets of attribute values for the object: ('D')
@@ -3329,14 +3386,21 @@ int main(int argc, char *argv[])
         //:     11..14)
         //:
         //:   7 Corroborate that attributes are modifiable independently by
-        //:     first setting all of the attributes to their 'A' values, then
-        //:     setting all of the attributes to their 'B' values.  (C-10)
+        //:     first setting all of the attributes to their 'A' values.  Then
+        //:     incrementally set each attribute to it's corresponding  'B'
+        //:     value and verify after each manipulation that only that
+        //:     attribute's value changed.  (C-10) 
         //:
         //:   8 Verify that no temporary memory is allocated from the object
         //:     allocator.  (C-7)
         //:
         //:   9 Verify that all object memory is released when the object is
         //:     destroyed.  (C-8)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-15)
         //
         // Testing:
         //   baet_LocalDatetime(bslma_Allocator *bA = 0);
@@ -3378,7 +3442,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
             bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bslma_Default::setDefaultAllocatorRaw(&da);
+            bslma_DefaultAllocatorGuard dag(&da);
 
             Obj                 *objPtr;
             bslma_TestAllocator *objAllocatorPtr;
@@ -3495,8 +3559,10 @@ int main(int argc, char *argv[])
                 // Set all attributes to their 'B' values.
 
                 mX.setDatetimeTz(B1);
-                mX.setTimeZoneId(B2);
+                LOOP_ASSERT(CONFIG, B1 == X.datetimeTz());
+                LOOP_ASSERT(CONFIG, A2 == X.timeZoneId());
 
+                mX.setTimeZoneId(B2);
                 LOOP_ASSERT(CONFIG, B1 == X.datetimeTz());
                 LOOP_ASSERT(CONFIG, B2 == X.timeZoneId());
 
@@ -3755,6 +3821,11 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
