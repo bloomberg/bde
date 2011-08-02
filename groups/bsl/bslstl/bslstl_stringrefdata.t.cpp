@@ -163,7 +163,7 @@ inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
 inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
 
 //=============================================================================
-//                             USAGE EXAMPLE
+//                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 namespace {
@@ -172,14 +172,14 @@ namespace {
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Computing a hash of a string
+///Example 1: Computing a Hash of a String
 ///- - - - - - - - - - - - - - - - - - - -
 // Let's suppose we need to compute a hash of a string which is defined by two
 // pointers: to the start and to the end of the string.
 //
-// First, we define a function 'computeHash' that takes a
-// 'bslstl_StringRefData' string as an argument and returns an 'unsigned int'
-// hash of that string:
+// First, we define a function, 'computeHash', that takes a
+// 'bslstl_StringRefData' string as an argument and returns the hash of that
+// string as 'unsigned int':
 //..
 unsigned computeHash(const bslstl_StringRefData<char>& str)
 {
@@ -197,7 +197,7 @@ unsigned computeHash(const bslstl_StringRefData<char>& str)
 }
 
 //=============================================================================
-//                             MAIN PROGRAM
+//                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -231,10 +231,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Usage Example"
                             "\n=====================\n");
 
-// Then, we call it with a simple 'C string' argument:
+// Then, we call it with a string literal argument:
 //..
         const char str[] = "C string";
-        unsigned hash = computeHash(bslstl_StringRefData<char>(
+        unsigned   hash  = computeHash(bslstl_StringRefData<char>(
                                                       str, str + sizeof(str)));
 //..
 // Finally, we compare the computed hash with the expected value:

@@ -15,14 +15,13 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
 //@DESCRIPTION: This component provides a complex-constrained in-core
-// (value-semantic) attribute class, 'bslstl_StringRefData', that is used
-// as a simple base class for 'bslstl_StringRef' and surves as a data
-// container for 'bslstl_StringRef' without providing much of the
-// functionality of its own.  This allows to use 'bslstl_StringRefData' in
-// the 'bsl::string' class and enable the convertion from
-// 'bslstl_StringRef' to 'bsl::string'.  Without this class
-// 'bslstl_StringRef' and 'bsl::string' would have a circular dependency
-// on each other.
+// (value-semantic) attribute class, 'bslstl_StringRefData', that is used as a
+// base class for 'bslstl_StringRef' and serves as a data container for
+// 'bslstl_StringRef' without providing much of the functionality of its own.
+// This allows to use 'bslstl_StringRefData' in the 'bsl::string' class and
+// enable the convertion from 'bslstl_StringRef' to 'bsl::string'.  Without
+// this class 'bslstl_StringRef' and 'bsl::string' would have a circular
+// dependency on each other.
 //
 // 'bslstl_StringRefData' holds two pointers: a pointer to the start of a
 // string and a pointer to the end of the string.  It's parameterized with type
@@ -33,9 +32,9 @@ BSLS_IDENT("$Id: $")
 ///----------
 //..
 //  Name   Type               Default  Constraints
-//  -----  -----------------  -------  --------------------------------
-//  begin  const CHAR_TYPE *  NULL     begin <= end && (!begin == !end)
-//  end    const CHAR_TYPE *  NULL     begin <= end && (!begin == !end)
+//  -----  -----------------  -------  ------------------------------
+//  begin  const CHAR_TYPE *  0        begin <= end && !begin == !end
+//  end    const CHAR_TYPE *  0        begin <= end && !begin == !end
 //..
 //: o begin: a pointer to the start of the string.
 //:
@@ -45,14 +44,14 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Computing a hash of a string
+///Example 1: Computing a Hash of a String
 ///- - - - - - - - - - - - - - - - - - - -
 // Let's suppose we need to compute a hash of a string which is defined by two
 // pointers: to the start and to the end of the string.
 //
-// First, we define a function 'computeHash' that takes a
-// 'bslstl_StringRefData' string as an argument and returns an
-// 'unsigned int' hash of that string:
+// First, we define a function, 'computeHash', that takes a
+// 'bslstl_StringRefData' string as an argument and returns the hash of that
+// string as 'unsigned int':
 //..
 //  unsigned computeHash(const bslstl_StringRefData<char>& str)
 //  {
@@ -67,10 +66,10 @@ BSLS_IDENT("$Id: $")
 // Note that we're using 'begin' and 'end' attributes of the
 // 'bslstl_StringRefData' object to access the string characters.
 //
-// Then, we call it with a simple 'C string' argument:
+// Then, we call it with a string literal argument:
 //..
 //      const char str[] = "C string";
-//      unsigned hash = computeHash(bslstl_StringRefData<char>(
+//      unsigned   hash  = computeHash(bslstl_StringRefData<char>(
 //                                                    str, str + sizeof(str)));
 //..
 // Finally, we compare the computed hash with the expected value:
@@ -93,33 +92,37 @@ namespace BloombergLP {
                          // ==========================
 
 template <typename CHAR_TYPE>
-class bslstl_StringRefData
+class bslstl_StringRefData {
     // This is a base class for 'bslstl_StringRef'.  It's defined here to
     // break a circular dependency between 'bslstl_StringRef' and
     // 'bsl::string'.  'bsl::string' has a constructor that takes
     // 'const bslstl_StringRefData&' parameter, so that an object of the
     // derived 'bslstl_StringRef' class can be passed to that constructor.
     // This is the only valid use of this class.
-{
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for 'bdex' serialization
+    //: o is *exception-neutral* (agnostic) TBD
+    //: o is *alias-safe*
+    //: o is 'const' *thread-safe*
+    // For terminology see 'bsldoc_glossary'.
   private:
-    // PRIVATE DATA
-    const CHAR_TYPE *d_begin;  // address of first character in bound string
-                               // (held, not owned), or 0 if unbound
-
-    const CHAR_TYPE *d_end; // address one past last character in bound string,
-                            // or 0 if unbound
+    // DATA
+    const CHAR_TYPE *d_begin;   // address of first character of a string or 0
+    const CHAR_TYPE *d_end;     // address one past last character of a string
+                                // or 0 if 'd_begin==0'
 
   public:
     // CREATORS
     bslstl_StringRefData();
-        // Construct a value-initialized 'bslstl_StringRefData' object
-        // with both 'd_begin' and 'd_end' pointers assigned a 'NULL' value.
+        // Construct a 'bslstl_StringRefData' object with both 'd_begin' and
+        // 'd_end' pointers initialized with a value of 0.
 
     bslstl_StringRefData(const CHAR_TYPE *begin, const CHAR_TYPE *end);
         // Construct a 'bslstl_StringRefData' object with the specified
         // 'begin' and 'end' pointers to the start and end of a string.  The
-        // behavior is undefined unless 'begin <= end'.  Both 'begin' and 'end'
-        // can be NULL.
+        // behavior is undefined unless 'begin <= end' and '!begin == !end'.
 
     //! bslstl_StringRefData(const bslstl_StringRefData&) = default;
     //! ~bslstl_StringRefData() = default;
@@ -130,25 +133,29 @@ class bslstl_StringRefData
     // ACCESSORS
     const CHAR_TYPE *begin() const;
         // Return the pointer to the start of the string.  Note that the return
-        // value can be 'NULL', in which case 'end()' returns 'NULL' as well.
+        // value can be 0, in which case 'end()' returns 0 as well.
 
     const CHAR_TYPE *end() const;
         // Return the pointer past the end of the string.  Note that the return
-        // value can be 'NULL, in which case 'begin()' returns 'NULL' as well.
+        // value can be 0, in which case 'begin()' returns 0 as well.
 };
 
 // FREE OPERATORS
 template <typename CHAR_TYPE>
 bool operator==(const bslstl_StringRefData<CHAR_TYPE>& lhs,
                 const bslstl_StringRefData<CHAR_TYPE>& rhs);
-    // Return 'true' if the 'begin' and 'end' pointers of 'lhs' and 'rhs'
-    // compare equal and 'false' otherwise.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'bslstl_StringRefData' objects have
+    // the same value if the corresponding values of their 'begin' and 'end'
+    // attributes are the same.
 
 template <typename CHAR_TYPE>
 bool operator!=(const bslstl_StringRefData<CHAR_TYPE>& lhs,
                 const bslstl_StringRefData<CHAR_TYPE>& rhs);
-    // Return 'true' if either the 'begin' or 'end' pointers of 'lhs' and 'rhs'
-    // do not compare equal and 'false' otherwise.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'bslstl_StringRefData' objects
+    // do not have the same value if the corresponding values of their 'begin'
+    // and 'end' attributes are not the same.
 
 // ===========================================================================
 //                      TEMPLATE FUNCTION DEFINITIONS
