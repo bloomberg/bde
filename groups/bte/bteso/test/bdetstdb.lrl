@@ -1,0 +1,9 @@
+# lrl file for tagged comdb2 bdetstdb
+name     bdetstdb
+dbnum    39060
+dir      /bb/data/bdetstdb
+
+table   bdetst01         /bb/data/bdetstdb/bdetstdb_bdetst01.csc2
+table   statictst_table1 /bb/data/bdetstdb/bdetstdb_statictst_table1.csc2
+table   user             /bb/data/bdetstdb/bdetstdb_usagetst_user.csc2
+table   alltypes         /bb/data/bdetstdb/bdetstdb_alltypes.csc2

@@ -1,0 +1,33 @@
+// statictst_table1.csc2 schema for table "statictst_table1"
+
+// Note that this table in the test database will be modified by the static 
+// tag test driver. 
+
+// This is the "ondisk" tag; it defines the data actually stored on disk
+tag ondisk
+{
+    int      testnumber
+    int      id
+    cstring  firstname[16]  
+    cstring  lastname[16]  
+    datetime timeStamp
+}
+
+tag "fullrecord"
+{
+    int      testnumber
+    int      id
+    cstring  firstname[16]  
+    cstring  lastname[16]  
+    datetime timeStamp
+}
+
+keys
+{
+    "FULLID"     = testnumber+timestamp+id
+dup "UNIQUETEST" = testnumber+timestamp
+dup "ID"         = id
+dup "FIRSTNAME"  = firstname
+dup "LASTNAME"   = lastname
+}
+

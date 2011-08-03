@@ -1,0 +1,43 @@
+// bdetst01.csc2 schema for table "bdetst01"
+
+// Note that this table in the test database will contain a static set of data
+// which can be searched.
+
+// This is the "ondisk" tag; it defines the data actually stored on disk
+tag ondisk
+{
+    int      uuid
+    cstring  firstname[16]
+    cstring  lastname[16]
+    cstring  notes[256]     null=yes dbload="<No notes>"
+    cstring  notes2[256]    null=yes
+    datetime added          null=yes
+    datetime lastupdate     null=yes
+}
+
+tag "fullrecord"
+{
+    int uuid
+    cstring firstname[16]
+    cstring lastname[16]
+    cstring notes[256]
+    cstring notes2[256]
+    datetime added
+    datetime lastupdate
+}
+
+tag "withoutnotes"
+{
+    int uuid
+    cstring firstname[16]
+    cstring lastname[16]
+}
+
+keys
+{
+    "UUID"      = uuid
+    "FULLNAME"  = firstname+lastname
+dup "FIRSTNAME" = firstname
+dup "LASTNAME"  = lastname
+}
+

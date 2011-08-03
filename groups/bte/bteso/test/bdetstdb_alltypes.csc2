@@ -1,0 +1,88 @@
+// alltypes.csc2 schema for table "alltypes"
+
+// Note that this table in the test database is used to verify that 'a_comdb2' 
+// components support all database data types.  Note that 'testNumber', 
+// 'testid', and 'timeStamp' are used to seperate different tests.
+
+// This is the "ondisk" tag; it defines the data actually stored on disk
+tag ondisk
+{
+    int         testdriver      // identifies the test driver
+    int         testnumber      // identifies the test case in the test driver
+    int         testid          // identifies the test value in the test case
+    datetime    timestamp       // identifies the test run
+
+    short       short_value           null=yes
+    u_short     u_short_value         null=yes
+    int         int_value             null=yes
+    u_int       u_int_value           null=yes
+    longlong    longlong_value        null=yes
+    // u_longlong  u_longlong_value      null=yes  // u_longlong is unsupported
+    float       float_value           null=yes
+    double      double_value          null=yes
+    byte        byte16_value[16]      null=yes
+    cstring     c16_string_value[16]  null=yes
+    pstring     p16_string_value[16]  null=yes
+    blob        blob_value            null=yes
+    datetime    datetime_value        null=yes
+    vutf8       vutf8_value[16]       null=yes
+    intervalym  interval_ym_value     null=yes
+    intervalds  interval_ds_value     null=yes
+}
+
+tag "fullrecord"
+{
+    int         testdriver
+    int         testnumber      
+    int         testid
+    datetime    timestamp
+
+    short       short_value
+    u_short     u_short_value
+    int         int_value
+    u_int       u_int_value
+    longlong    longlong_value
+    // u_longlong  u_longlong_value  // u_longlong is unsupported
+    float       float_value
+    double      double_value
+    byte        byte16_value[16]
+    cstring     c16_string_value[16]
+    pstring     p16_string_value[16]
+    blob        blob_value
+    datetime    datetime_value
+    vutf8       vutf8_value[16]
+    intervalym  interval_ym_value
+    intervalds  interval_ds_value
+}
+
+tag "novutf8"
+{
+    int         testdriver
+    int         testnumber      
+    int         testid
+    datetime    timestamp
+
+    short       short_value
+    u_short     u_short_value
+    int         int_value
+    u_int       u_int_value
+    longlong    longlong_value
+    // u_longlong  u_longlong_value // u_longlong is unsupported
+    float       float_value
+    double      double_value
+    byte        byte16_value[16]
+    cstring     c16_string_value[16]
+    pstring     p16_string_value[16]
+    blob        blob_value
+    datetime    datetime_value
+    intervalym  interval_ym_value
+    intervalds  interval_ds_value
+}
+
+
+keys
+{
+    "FULLID"     = testdriver+timestamp+testnumber+testid
+dup "UNIQUETEST" = testdriver+timestamp+testnumber
+dup "ID"         = testid
+}
