@@ -107,6 +107,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BDEF_FUNCTION
+#include <bdef_function.h>
+#endif
+
 namespace BloombergLP {
 
 class bteso_IPv4Address;
@@ -131,11 +135,11 @@ struct bteso_ResolveUtil {
 
   public:
     // TYPES
-    typedef int (*ResolveByNameCallback)(
-                                 bsl::vector<bteso_IPv4Address> *hostAddresses,
-                                 const char                     *hostName,
-                                 int                             numAddresses,
-                                 int                            *errorCode);
+    typedef bdef_Function<int (*)(bsl::vector<bteso_IPv4Address> *addresses,
+                                  const char                     *hostName,
+                                  int                             numAddresses,
+                                  int                            *errorCode)>
+                                                         ResolveByNameCallback;
         // Invoked by 'getAddress' and 'getAddresses', 'ResolveByNameCallback'
         // is an alias for a pointer to a re-entrant function that returns
         // 'int' and takes as arguments a vector of 'hostAddresses', the

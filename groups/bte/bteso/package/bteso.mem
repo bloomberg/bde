@@ -28,4 +28,4 @@ bteso_defaulteventmanager_select
 bteso_timemetrics
 bteso_tcptimereventmanager
 
-bteso_addresscache
+bteso_ipresolutioncache
