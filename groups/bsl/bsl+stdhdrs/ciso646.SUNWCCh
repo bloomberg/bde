@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_CPP_C_HEADER(ciso646)
+#   include BSL_NATIVE_CISO646_HEADER(ciso646)
 
 #else // defined(BSL_OVERRIDES_STD)
 
@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_CPP_C_HEADER(ciso646)
+#   include BSL_NATIVE_CISO646_HEADER(ciso646)
 
 #   include <bsl_ciso646.h>
 

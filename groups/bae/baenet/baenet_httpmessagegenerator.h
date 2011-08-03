@@ -22,11 +22,16 @@ BDES_IDENT("$Id: $")
 // 'baenet_HttpMessageGenerator', to generate HTTP messages.  The API of this
 // component facilitates "asynchronous" message generation required when the
 // user does not have a representation of the entire message in memory.  This
-// API is required for users wishing to generate HTTP messsages using a
-// chunked transfer coding.  For a complete description of the HTTP protocol,
-// including available transfer codings, see RFC 2616 at
-// http://www.ietf.org/rfc/rfc2616.txt.  Also see 'baenet_httpgeneratorutil'
-// for primitive generation functions.
+// API is required for users wishing to generate HTTP messages using a
+// chunked transfer coding.  Regardless of the transfer encoding used, users
+// of the 'baenet_HttpMessageGenerator' class must generate HTTP messages by
+// first calling 'startEntity' to begin generating a new HTTP entity.  Next,
+// users must call 'addEntityData' one or more times to add data to the HTTP
+// entity body.  Finally users must call 'endEntityData' to indicate to the
+// mechanism that no further entity data is expected.  For a complete
+// description of the HTTP protocol, including available transfer codings, see
+// RFC 2616 at http://www.ietf.org/rfc/rfc2616.txt.  Also see
+// 'baenet_httpgeneratorutil' for primitive generation functions.
 //
 ///Thread Safety
 ///-------------
@@ -44,22 +49,26 @@ BDES_IDENT("$Id: $")
 // delivering the contents of a file to a client.  For simplicity, let's
 // assume the existence of mechanisms that enable the server implementation to
 // parse a message arriving on a connection into a requested filename.  Given
-// that assumption, let's now declare a simple server API.  The following
-// 'handleRequest' function accepts the name of the requested file and also a
-// pointer to a stream buffer to which to send the response.
+// that assumption, let's now define a simple server API.  We start by
+// forward-declaring the three functions that comprise our API:
+// 'handleRequest', 'handleError', and 'writeToConnection'.  First, let's
+// forward-declare a 'handleRequest' function that accepts the name of the
+// requested file and also a pointer to a stream buffer to which to send the
+// response.
 //..
 //  void handleRequest(bsl::streambuf          *connectionToClient,
 //                     bcema_BlobBufferFactory *blobBufferFactory,
 //                     const bsl::string&       filename);
 //..
-// We also need a 'handleError' function that, instead of delivering the
-// contents of a file, delivers some sort of error error to the client.
+// Next, let's forward-declare a 'handleError' function that, instead of
+// delivering the contents of a file, delivers some sort of error error to the
+// client.
 //..
 //  void handleError(bsl::streambuf          *connectionToClient,
 //                   bcema_BlobBufferFactory *blobBufferFactory,
 //                   const bsl::string&       body);
 //..
-// Finally, we need a callback function to supply to the
+// Finally, let's forward-declare callback function to supply to the
 // 'baenet_HttpMessageGenerator' mechanism to invoke when fragment of an HTTP
 // entity has been generated.
 //..
@@ -87,8 +96,8 @@ BDES_IDENT("$Id: $")
 //          return;
 //      }
 //..
-// Next, define an HTTP header that indicates a successful response delivered
-// using the chunked transfer coding, and begin generating the HTTP entity.
+// Next, define an HTTP header that indicates a successful response, delivered
+// using the chunked transfer coding.
 //..
 //      baenet_HttpResponseHeader header;
 //      baenet_HttpStatusLine     statusLine;
@@ -99,6 +108,11 @@ BDES_IDENT("$Id: $")
 //      header.basicFields().transferEncoding().push_back(
 //                              baenet_HttpTransferEncoding::BAENET_CHUNKED);
 //
+//..
+// Then, instantiate a 'baenet_HttpMessageGenerator' mechanism that writes each
+// generated HTTP fragment to the 'connectionToClient' and begin generating
+// the HTTP entity.
+//..
 //      baenet_HttpMessageGenerator generator(blobBufferFactory);
 //
 //      int retCode = generator.startEntity(
@@ -109,7 +123,7 @@ BDES_IDENT("$Id: $")
 //                                                  bdef_PlaceHolders::_1));
 //      assert(0 == retCode);
 //..
-// Now, read the file into 1K buffers, transmitting each buffer as a "chunk"
+// Next, read the file into 1K buffers, transmitting each buffer as a "chunk"
 // in the HTTP data stream.  Transmit the final "chunk" when no more data can
 // be read from the file.
 //..
@@ -127,21 +141,23 @@ BDES_IDENT("$Id: $")
 //          assert(0 == retCode);
 //      }
 //      while (!isFinalFlag);
-//
+//..
+// Finally, indicate to the generation mechanism that no more HTTP entity data
+// is expected.
+//..
 //      retCode = generator.endEntity();
 //      assert(0 == retCode);
 //  }
 //..
 // Next, let's implement the 'handleError' function to synchronously
 // construct an HTTP entity that describes the error loading the file from
-// disk.
+// disk.  Note that, unlike the implementation of 'handleRequest', we need
+// not use any transfer coding since we have the entire response in memory.
 //..
 //  void handleError(bsl::streambuf          *connectionToClient,
 //                   bcema_BlobBufferFactory *blobBufferFactory,
 //                   const bsl::string&       body)
 //  {
-//      baenet_HttpMessageGenerator generator(blobBufferFactory);
-//
 //      int retCode;
 //
 //      baenet_HttpResponseHeader header;
@@ -151,12 +167,17 @@ BDES_IDENT("$Id: $")
 //      statusLine.reasonPhrase() = "File not found";
 //
 //      header.basicFields().contentLength() = body.size();
+//..
+// Then, we again instantiate a 'baenet_HttpMessageGenerator' mechanism that
+// writes each generated HTTP fragment to the 'connectionToClient'.
+//..
+//      baenet_HttpMessageGenerator generator(blobBufferFactory);
 //
 //      retCode = generator.startEntity(
 //                              statusLine,
 //                              header,
 //                              bdef_BindUtil::bind(&writeToConnection,
-//                                                  connection,
+//                                                  connectionToClient,
 //                                                  bdef_PlaceHolders::_1));
 //      assert(0 == retCode);
 //
@@ -170,15 +191,12 @@ BDES_IDENT("$Id: $")
 //      assert(0 == retCode);
 //  }
 //..
-// Finally, we'll implement the function that writes a blob of data to the
+// Finally, let's implement the function that writes a blob of data to the
 // client.
 //..
 //  void writeToConnection(bsl::streambuf    *connectionToClient,
 //                         const bcema_Blob&  data)
 //  {
-//      // Write the specified HTTP 'data' fragment to the specified
-//      // 'connectionToClient'.
-//
 //      bdex_ByteOutStreamFormatter bosf(connectionToClient);
 //      bcema_BlobUtil::write(bosf, data);
 //  }
@@ -256,7 +274,7 @@ class baenet_HttpMessageGenerator {
         // Begin generating a new HTTP entity having the specified
         // 'requestLine' and 'header' fields.  Invoke the specified
         // 'messageDataCallback' after each fragment of the HTTP message is
-        // fomatted.  Return 0 on success and a non-zero value otherwise.
+        // formatted.  Return 0 on success and a non-zero value otherwise.
 
     int startEntity(const baenet_HttpStatusLine&     statusLine,
                     const baenet_HttpResponseHeader& header,

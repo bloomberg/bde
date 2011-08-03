@@ -1,4 +1,4 @@
-// bsltst_hash_set.t.cpp                  -*-C++-*-
+// bsltst_hash_set.t.cpp                                              -*-C++-*-
 #ifndef BSL_OVERRIDES_STD
 #define BSL_OVERRIDES_STD
 #endif
@@ -38,14 +38,19 @@ using std::atoi;
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i) {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
+}
+
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
@@ -103,6 +108,9 @@ int verbose         = 0;
 int veryVerbose     = 0;
 int veryVeryVerbose = 0;
 
+bslma_TestAllocator ta;
+bslma_TestAllocator tda;
+
 //=============================================================================
 //                  GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -129,10 +137,17 @@ struct EqualInt {
 };
 bool EqualInt::s_used = false;
 
-struct Cargo {
+class Cargo {
     // This struct dynamically allocates memory, for verifying that the
     // memory allocator is properly passed to elements within a container.
 
+#if defined(BDE_USE_ADDRESSOF)
+    // PRIVATE ACCESSORS
+    void operator&() const;     // = delete;
+        // Suppress the use of address-of operator on this type.
+#endif
+
+public:
     int              d_i;
     void            *d_p;
     bslma_Allocator *d_alloc;
@@ -142,13 +157,13 @@ struct Cargo {
     BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg_TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
-    explicit
     Cargo(int i, bslma_Allocator *a = 0) {
         QV_("Default:"); PV(a);
         d_i = i;
         d_alloc = bslma_Default::allocator(a);
         d_p = d_alloc->allocate(BULK_STORAGE);
     }
+
     Cargo(const Cargo& in, bslma_Allocator* a = 0) {
         QV_("Copy:"); PV(a);
         d_alloc = bslma_Default::allocator(a);
@@ -156,21 +171,22 @@ struct Cargo {
         d_p = d_alloc->allocate(BULK_STORAGE);
         std::memcpy(d_p, in.d_p, BULK_STORAGE);
     }
+
     Cargo& operator=(const Cargo& in) {
         QV("Assign:");
         d_i = in.d_i;
         std::memcpy(d_p, in.d_p, BULK_STORAGE);
         return *this;
     }
+
     ~Cargo() {
         d_alloc->deallocate(d_p);
     }
-};
 
-bool operator==(const Cargo& lhs, const Cargo& rhs)
-{
-    return lhs.d_i == rhs.d_i;
-}
+    operator int() const {
+        return d_i;
+    }
+};
 
 namespace bsl {
 
@@ -241,6 +257,273 @@ bool usesBslmaAllocator(const TYPE& arg)
     return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
+template <typename TYPE, typename HASH, typename EQUAL>
+void testMultisetManipulators()
+{
+    typedef bsl::hash_multiset<TYPE, HASH, EQUAL> Obj;
+
+    Obj hsa(&ta);
+
+    ASSERT(hsa.empty());
+
+    int j = hsa.bucket_count();
+    j *= 4;
+    hsa.resize(j);
+    ASSERT((int) hsa.bucket_count() >= j);
+    ASSERT(hsa.empty());
+
+    {
+        HASH hi = hsa.hash_funct();
+        ASSERT(0 ==  hi(0));
+        EQUAL ei = hsa.key_eq();
+        ASSERT(false == ei(0, 1));
+    }
+
+    hsa.insert(20);
+    hsa.insert(21);
+
+    ASSERT(!hsa.empty());
+
+    Obj hsb(hsa, &ta);
+
+    ASSERT(hsa == hsb);
+    ASSERT(!(hsa != hsb));
+
+    hsa.insert(22);
+
+    ASSERT(hsa != hsb);
+    ASSERT(!(hsa == hsb));
+
+    hsa.swap(hsb);
+    ASSERT( hsb.count(22));
+    ASSERT(!hsa.count(22));
+
+    hsb = hsa;
+
+    ASSERT(hsa == hsb);
+    ASSERT(!(hsa != hsb));
+
+    ASSERT(!hsa.count(22));
+    ASSERT(!hsb.count(22));
+
+    ASSERT(hsa.size() == 2);
+
+    hsb.clear();
+    ASSERT(!hsb.count(20));
+    ASSERT(!hsb.count(21));
+
+    typename Obj::iterator it;
+    it = hsb.insert(22);
+    ASSERT(22 == *it);
+    hsb.insert(23);
+    hsb.insert(24);
+
+    ASSERT(hsb.size() == 3);
+
+    hsa.insert(hsb.begin(), hsb.end());
+    ASSERT(hsa.size() == 5);
+    for (int i = 0; i < 100; ++i) {
+        ASSERT(hsa.count(i) == (i >= 20 && i < 25));
+    }
+
+    hsa.erase(24);
+    ASSERT(hsa.size() == 4);
+    for (int i = 0; i < 100; ++i) {
+        ASSERT(hsa.count(i) == (i >= 20 && i < 24));
+    }
+
+    bsl::vector<bool> v(100, false);
+    for (it = hsa.begin(), j = 0; hsa.end() != it; ++it, ++j) {
+        v[*it] = true;
+        ASSERT(*it >= 20 && *it < 24);
+    }
+    ASSERT(4 == j);
+    j = 0;
+    for (int i = 0; i < 100; ++i) {
+        ASSERT(v[i] == (i >= 20 && i < 24));
+        j += v[i];
+    }
+    ASSERT(4 == j);
+    it = hsa.find(21);
+    ASSERT(*it == 21);
+    hsa.erase(it);
+    it = hsa.find(22);
+    ASSERT(*it == 22);
+    hsa.erase(it);
+
+    for (int i = 0; i < 100; ++i) {
+        v[i] = false;
+    }
+    for (it = hsa.begin(), j = 0; hsa.end() != it; ++it, ++j) {
+        v[*it] = true;
+        ASSERT(20 == *it || 23 == *it);
+    }
+    ASSERT(2 == j);
+
+    j = 0;
+    for (int i = 0; i < 100; ++i) {
+        ASSERT(v[i] == (20 == i || 23 == i));
+        j += v[i];
+    }
+    ASSERT(2 == j);
+
+    bsl::pair<typename Obj::iterator, typename Obj::iterator> prIt;
+    prIt = hsa.equal_range(23);
+    it = hsa.find(23);
+    ASSERT(it == prIt.first);
+    ASSERT(23 == *prIt.first);
+    ASSERT(prIt.first != prIt.second);
+
+    it = prIt.first;
+    ++it;
+    ASSERT(it == prIt.second);
+
+    LOOP_ASSERT(hsa.count(23), 1 == hsa.count(23));
+    LOOP_ASSERT(hsa.size(), 2 == hsa.size());       
+
+    it = hsa.insert(23);        // redundant, will succeed
+    ASSERT(23 == *it);
+
+    LOOP_ASSERT(hsa.count(23), 2 == hsa.count(23));
+    LOOP_ASSERT(hsa.size(), 3 == hsa.size());       
+
+    prIt = hsa.equal_range(23);
+    it = hsa.find(23);
+    ASSERT(it == prIt.first);
+    ASSERT(23 == *prIt.first);
+    ASSERT(prIt.first != prIt.second);
+
+    ++it;
+    ASSERT(23 == *it);
+    ++it;
+    ASSERT(it == prIt.second);
+    ASSERT(hsa.end() == it || 23 != *it);
+}
+
+template <typename TYPE, typename HASH, typename EQUAL>
+void testSetManipulators()
+{
+    typedef bsl::hash_set<TYPE, HASH, EQUAL> Obj;
+
+    Obj hsa(&ta);
+
+    ASSERT(hsa.empty());
+
+    int j = hsa.bucket_count();
+    j *= 4;
+    hsa.resize(j);
+    ASSERT((int) hsa.bucket_count() >= j);
+    ASSERT(hsa.empty());
+
+    {
+        HASH hi = hsa.hash_funct();
+        ASSERT(0 ==  hi(0));
+        EQUAL ei = hsa.key_eq();
+        ASSERT(false == ei(0, 1));
+    }
+
+    hsa.insert(20);
+    hsa.insert(21);
+
+    ASSERT(!hsa.empty());
+
+    Obj hsb(hsa, &ta);
+
+    ASSERT(hsa == hsb);
+    ASSERT(!(hsa != hsb));
+
+    hsa.insert(22);
+
+    ASSERT(hsa != hsb);
+    ASSERT(!(hsa == hsb));
+
+    hsa.swap(hsb);
+    ASSERT( hsb.count(22));
+    ASSERT(!hsa.count(22));
+
+    hsb = hsa;
+
+    ASSERT(hsa == hsb);
+    ASSERT(!(hsa != hsb));
+
+    ASSERT(!hsa.count(22));
+    ASSERT(!hsb.count(22));
+
+    ASSERT(hsa.size() == 2);
+
+    hsb.clear();
+    ASSERT(!hsb.count(20));
+    ASSERT(!hsb.count(21));
+
+    bsl::pair<typename Obj::iterator, bool> pr;
+    pr = hsb.insert(22);
+    ASSERT(pr.second);
+    ASSERT(22 == *pr.first);
+    hsb.insert(23);
+    hsb.insert(24);
+
+    ASSERT(hsb.size() == 3);
+
+    hsa.insert(hsb.begin(), hsb.end());
+    ASSERT(hsa.size() == 5);
+    for (int i = 0; i < 100; ++i) {
+        ASSERT(hsa.count(i) == (i >= 20 && i < 25));
+    }
+
+    hsa.erase(24);
+    ASSERT(hsa.size() == 4);
+    for (int i = 0; i < 100; ++i) {
+        ASSERT(hsa.count(i) == (i >= 20 && i < 24));
+    }
+
+    bsl::vector<bool> v(100, false);
+    typename Obj::iterator it;
+    for (it = hsa.begin(), j = 0; hsa.end() != it; ++it, ++j) {
+        v[*it] = true;
+        ASSERT(*it >= 20 && *it < 24);
+    }
+    ASSERT(4 == j);
+    j = 0;
+    for (int i = 0; i < 100; ++i) {
+        ASSERT(v[i] == (i >= 20 && i < 24));
+        j += v[i];
+    }
+    ASSERT(4 == j);
+    it = hsa.find(21);
+    ASSERT(*it == 21);
+    hsa.erase(it);
+    it = hsa.find(22);
+    ASSERT(*it == 22);
+    hsa.erase(it);
+
+    for (int i = 0; i < 100; ++i) {
+        v[i] = false;
+    }
+    for (it = hsa.begin(), j = 0; hsa.end() != it; ++it, ++j) {
+        v[*it] = true;
+        ASSERT(20 == *it || 23 == *it);
+    }
+    ASSERT(2 == j);
+
+    j = 0;
+    for (int i = 0; i < 100; ++i) {
+        ASSERT(v[i] == (20 == i || 23 == i));
+        j += v[i];
+    }
+    ASSERT(2 == j);
+
+    pr = hsb.insert(23);        // redundant, will fail
+    ASSERT(!pr.second);
+    ASSERT(23 == *pr.first);    // finds element that was already there
+
+    bsl::pair<typename Obj::iterator, typename Obj::iterator> prIt;
+    prIt = hsa.equal_range(23);
+    it = hsa.find(23);
+    ASSERT(it == prIt.first);
+    ASSERT(23 == *prIt.first);
+    ASSERT(prIt.first != prIt.second);
+}
+
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -257,9 +540,6 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
-    bslma_TestAllocator ta;
-    bslma_TestAllocator tda;
 
     bslma_DefaultAllocatorGuard defaultGuard(&tda);
 
@@ -283,144 +563,9 @@ int main(int argc, char *argv[])
               "\nHASH_MULTISET BASIC MANIPULATOR / ACCESSOR / ITERATOR TEST\n"
               "============================================================\n";
 
-        typedef bsl::hash_multiset<int, HashInt, EqualInt> Obj;
+        testMultisetManipulators<int, HashInt, EqualInt>();
+        testMultisetManipulators<Cargo, HashCargo, EqualCargo>();
 
-        Obj hsa(&ta);
-
-        ASSERT(hsa.empty());
-
-        int j = hsa.bucket_count();
-        j *= 4;
-        hsa.resize(j);
-        ASSERT((int) hsa.bucket_count() >= j);
-        ASSERT(hsa.empty());
-
-        {
-            HashInt hi = hsa.hash_funct();
-            ASSERT(0 ==  hi(0));
-            EqualInt ei = hsa.key_eq();
-            ASSERT(false == ei(0, 1));
-        }
-
-        hsa.insert(20);
-        hsa.insert(21);
-
-        ASSERT(!hsa.empty());
-
-        Obj hsb(hsa, &ta);
-
-        ASSERT(hsa == hsb);
-        ASSERT(!(hsa != hsb));
-
-        hsa.insert(22);
-
-        ASSERT(hsa != hsb);
-        ASSERT(!(hsa == hsb));
-
-        hsa.swap(hsb);
-        ASSERT( hsb.count(22));
-        ASSERT(!hsa.count(22));
-
-        hsb = hsa;
-
-        ASSERT(hsa == hsb);
-        ASSERT(!(hsa != hsb));
-
-        ASSERT(!hsa.count(22));
-        ASSERT(!hsb.count(22));
-
-        ASSERT(hsa.size() == 2);
-
-        hsb.clear();
-        ASSERT(!hsb.count(20));
-        ASSERT(!hsb.count(21));
-
-        Obj::iterator it;
-        it = hsb.insert(22);
-        ASSERT(22 == *it);
-        hsb.insert(23);
-        hsb.insert(24);
-
-        ASSERT(hsb.size() == 3);
-
-        hsa.insert(hsb.begin(), hsb.end());
-        ASSERT(hsa.size() == 5);
-        for (int i = 0; i < 100; ++i) {
-            ASSERT(hsa.count(i) == (i >= 20 && i < 25));
-        }
-
-        hsa.erase(24);
-        ASSERT(hsa.size() == 4);
-        for (int i = 0; i < 100; ++i) {
-            ASSERT(hsa.count(i) == (i >= 20 && i < 24));
-        }
-
-        bsl::vector<bool> v(100, false);
-        for (it = hsa.begin(), j = 0; hsa.end() != it; ++it, ++j) {
-            v[*it] = true;
-            ASSERT(*it >= 20 && *it < 24);
-        }
-        ASSERT(4 == j);
-        j = 0;
-        for (int i = 0; i < 100; ++i) {
-            ASSERT(v[i] == (i >= 20 && i < 24));
-            j += v[i];
-        }
-        ASSERT(4 == j);
-        it = hsa.find(21);
-        ASSERT(*it == 21);
-        hsa.erase(it);
-        it = hsa.find(22);
-        ASSERT(*it == 22);
-        hsa.erase(it);
-
-        for (int i = 0; i < 100; ++i) {
-            v[i] = false;
-        }
-        for (it = hsa.begin(), j = 0; hsa.end() != it; ++it, ++j) {
-            v[*it] = true;
-            ASSERT(20 == *it || 23 == *it);
-        }
-        ASSERT(2 == j);
-
-        j = 0;
-        for (int i = 0; i < 100; ++i) {
-            ASSERT(v[i] == (20 == i || 23 == i));
-            j += v[i];
-        }
-        ASSERT(2 == j);
-
-        bsl::pair<Obj::iterator, Obj::iterator> prIt;
-        prIt = hsa.equal_range(23);
-        it = hsa.find(23);
-        ASSERT(it == prIt.first);
-        ASSERT(23 == *prIt.first);
-        ASSERT(prIt.first != prIt.second);
-
-        it = prIt.first;
-        ++it;
-        ASSERT(it == prIt.second);
-
-        LOOP_ASSERT(hsa.count(23), 1 == hsa.count(23));
-        LOOP_ASSERT(hsa.size(), 2 == hsa.size());       
-
-        it = hsa.insert(23);        // redundant, will succeed
-        ASSERT(23 == *it);
-
-        LOOP_ASSERT(hsa.count(23), 2 == hsa.count(23));
-        LOOP_ASSERT(hsa.size(), 3 == hsa.size());       
-
-        prIt = hsa.equal_range(23);
-        it = hsa.find(23);
-        ASSERT(it == prIt.first);
-        ASSERT(23 == *prIt.first);
-        ASSERT(prIt.first != prIt.second);
-
-        ++it;
-        ASSERT(23 == *it);
-        ++it;
-        ASSERT(it == prIt.second);
-        ASSERT(hsa.end() == it || 23 != *it);
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -438,125 +583,9 @@ int main(int argc, char *argv[])
                    "\nHASH_SET BASIC MANIPULATOR / ACCESSOR / ITERATOR TEST\n"
                    "=======================================================\n";
 
-        typedef bsl::hash_set<int, HashInt, EqualInt> Obj;
+        testSetManipulators<int, HashInt, EqualInt>();
+        testSetManipulators<Cargo, HashCargo, EqualCargo>();
 
-        Obj hsa(&ta);
-
-        ASSERT(hsa.empty());
-
-        int j = hsa.bucket_count();
-        j *= 4;
-        hsa.resize(j);
-        ASSERT((int) hsa.bucket_count() >= j);
-        ASSERT(hsa.empty());
-
-        {
-            HashInt hi = hsa.hash_funct();
-            ASSERT(0 ==  hi(0));
-            EqualInt ei = hsa.key_eq();
-            ASSERT(false == ei(0, 1));
-        }
-
-        hsa.insert(20);
-        hsa.insert(21);
-
-        ASSERT(!hsa.empty());
-
-        Obj hsb(hsa, &ta);
-
-        ASSERT(hsa == hsb);
-        ASSERT(!(hsa != hsb));
-
-        hsa.insert(22);
-
-        ASSERT(hsa != hsb);
-        ASSERT(!(hsa == hsb));
-
-        hsa.swap(hsb);
-        ASSERT( hsb.count(22));
-        ASSERT(!hsa.count(22));
-
-        hsb = hsa;
-
-        ASSERT(hsa == hsb);
-        ASSERT(!(hsa != hsb));
-
-        ASSERT(!hsa.count(22));
-        ASSERT(!hsb.count(22));
-
-        ASSERT(hsa.size() == 2);
-
-        hsb.clear();
-        ASSERT(!hsb.count(20));
-        ASSERT(!hsb.count(21));
-
-        bsl::pair<Obj::iterator, bool> pr;
-        pr = hsb.insert(22);
-        ASSERT(pr.second);
-        ASSERT(22 == *pr.first);
-        hsb.insert(23);
-        hsb.insert(24);
-
-        ASSERT(hsb.size() == 3);
-
-        hsa.insert(hsb.begin(), hsb.end());
-        ASSERT(hsa.size() == 5);
-        for (int i = 0; i < 100; ++i) {
-            ASSERT(hsa.count(i) == (i >= 20 && i < 25));
-        }
-
-        hsa.erase(24);
-        ASSERT(hsa.size() == 4);
-        for (int i = 0; i < 100; ++i) {
-            ASSERT(hsa.count(i) == (i >= 20 && i < 24));
-        }
-
-        bsl::vector<bool> v(100, false);
-        Obj::iterator it;
-        for (it = hsa.begin(), j = 0; hsa.end() != it; ++it, ++j) {
-            v[*it] = true;
-            ASSERT(*it >= 20 && *it < 24);
-        }
-        ASSERT(4 == j);
-        j = 0;
-        for (int i = 0; i < 100; ++i) {
-            ASSERT(v[i] == (i >= 20 && i < 24));
-            j += v[i];
-        }
-        ASSERT(4 == j);
-        it = hsa.find(21);
-        ASSERT(*it == 21);
-        hsa.erase(it);
-        it = hsa.find(22);
-        ASSERT(*it == 22);
-        hsa.erase(it);
-
-        for (int i = 0; i < 100; ++i) {
-            v[i] = false;
-        }
-        for (it = hsa.begin(), j = 0; hsa.end() != it; ++it, ++j) {
-            v[*it] = true;
-            ASSERT(20 == *it || 23 == *it);
-        }
-        ASSERT(2 == j);
-
-        j = 0;
-        for (int i = 0; i < 100; ++i) {
-            ASSERT(v[i] == (20 == i || 23 == i));
-            j += v[i];
-        }
-        ASSERT(2 == j);
-
-        pr = hsb.insert(23);        // redundant, will fail
-        ASSERT(!pr.second);
-        ASSERT(23 == *pr.first);    // finds element that was already there
-
-        bsl::pair<Obj::iterator, Obj::iterator> prIt;
-        prIt = hsa.equal_range(23);
-        it = hsa.find(23);
-        ASSERT(it == prIt.first);
-        ASSERT(23 == *prIt.first);
-        ASSERT(prIt.first != prIt.second);
       } break;
       case 4: {
         // --------------------------------------------------------------------
