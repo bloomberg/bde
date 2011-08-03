@@ -23,10 +23,10 @@ using namespace bsl;
 //                             Overview
 //                             --------
 // The component under test implements a single, complex-constrained in-core
-// value-semantic class.  The Primary Manipulators and Basic
-// Accessors are therefore, respectively, the attribute setters and getters,
-// each of which follows our standard unconstrained attribute-type naming
-// conventions: 'setAttributeName' and 'attributeName'.
+// value-semantic class.  The Primary Manipulators and Basic Accessors are
+// therefore, respectively, the attribute setters and getters, each of which
+// follows our standard unconstrained attribute-type naming conventions:
+// 'setAttributeName' and 'attributeName'.
 //
 // Primary Manipulators:
 //: o 'set'
@@ -262,8 +262,6 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-
-    // CONCERN: This test driver is reusable w/other, similar components.
 
     switch (test) { case 0:
       case 13: {
@@ -918,6 +916,13 @@ int main(int argc, char *argv[])
         //: 7 The output 'operator<<' returns the supplied 'ostream'.
         //
         // Plan:
+        //   In order to produce predictable pointer values to test against
+        //   predefined string literals (specified at compile-time) we will
+        //   cast specific integral values to pointers.  While it would be
+        //   undefined behaviour to use the result of dereferencing any of
+        //   these pointers, it will be perfectly well defined to simply
+        //   print their values.
+        //
         //: 1 Use the addresses of the 'print' member function and 'operator<<'
         //:   free function defined in this component to initialize,
         //:   respectively, member-function and free-function pointers having
@@ -978,14 +983,15 @@ int main(int argc, char *argv[])
              "\nCreate a table of distinct value/format combinations." << endl;
 
         static const struct {
-            int         d_line;           // source line number
-            int         d_level;
-            int         d_spacesPerLevel;
+            int           d_line;           // source line number
+            int           d_level;
+            int           d_spacesPerLevel;
 
-            int         d_timeout;
-            bool        d_useLingeringFlag;
+            uintptr_t     d_object;        // enter unsigned numbers into the 
+            uintptr_t     d_factory;       // table, as we cannot enter pointer
+            uintptr_t     d_deleter;       // constants.  Convert later.
 
-            const char *d_expected_p;
+            const char   *d_expected_p;
         } DATA[] = {
 
 #define NL "\n"
@@ -995,92 +1001,114 @@ int main(int argc, char *argv[])
         // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
         // ------------------------------------------------------------------
 
-        //LINE L SPL  OFF   FLAG  EXP
-        //---- - ---  ---   ----  ---
+        //LINE L SPL  OBJECT      FACTORY     DELETER  EXP
+        //---- - ---  ------      -------     -------  ---
 
-        { L_,  0,  0,  89,  true, "["                                        NL
-                                  "timeout = 89"                             NL
-                                  "useLingeringFlag = true"                  NL
-                                  "]"                                        NL
+        { L_,  0,  0, 0xdeadf00d, 0xbadb100d, 0x12345678,
+                                                      "["                    NL
+                                                      "object = 0xdeadf00d"  NL
+                                                      "factory = 0xbadb100d" NL
+                                                      "deleter = 0x12345678" NL
+                                                      "]"                    NL
                                                                              },
 
-        { L_,  0,  1,  89,  true, "["                                        NL
-                                  " timeout = 89"                            NL
-                                  " useLingeringFlag = true"                 NL
-                                  "]"                                        NL
+        { L_,  0,  1, 0xdeadf00d, 0xbadb100d, 0x12345678,
+                                                     "["                     NL
+                                                     " object = 0xdeadf00d"  NL
+                                                     " factory = 0xbadb100d" NL
+                                                     " deleter = 0x12345678" NL
+                                                     "]"                     NL
                                                                              },
 
-        { L_,  0, -1,  89,  true, "["                                        SP
-                                  "timeout = 89"                             SP
-                                  "useLingeringFlag = true"                  SP
-                                  "]"
+        { L_,  0, -1, 0xdeadf00d, 0xbadb100d, 0x12345678,
+                                                      "["                    SP
+                                                      "object = 0xdeadf00d"  SP
+                                                      "factory = 0xbadb100d" SP
+                                                      "deleter = 0x12345678" SP
+                                                      "]"                    
                                                                              },
 
         // ------------------------------------------------------------------
         // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
         // ------------------------------------------------------------------
 
-        //LINE L SPL  OFF   FLAG  EXP
-        //---- - ---  ---   ----  ---
+        //LINE L SPL  OBJECT      FACTORY     DELETER  EXP
+        //---- - ---  ------      -------     -------  ---
 
-        { L_,  3,  0,  89,  true, "["                                        NL
-                                  "timeout = 89"                             NL
-                                  "useLingeringFlag = true"                  NL
-                                  "]"                                        NL
+        { L_,  3,  0,  0xdeadf00d, 0xbadb100d, 0x12345678,
+                                                      "["                    NL
+                                                      "object = 0xdeadf00d"  NL
+                                                      "factory = 0xbadb100d" NL
+                                                      "deleter = 0x12345678" NL
+                                                      "]"                    NL
                                                                              },
 
-        { L_,  3,  2,  89,  true, "      ["                                  NL
-                                  "        timeout = 89"                     NL
-                                  "        useLingeringFlag = true"          NL
-                                  "      ]"                                  NL
+        { L_,  3,  2,  0xdeadf00d, 0xbadb100d, 0x12345678,
+                                              "      ["                      NL
+                                              "        object = 0xdeadf00d"  NL
+                                              "        factory = 0xbadb100d" NL
+                                              "        deleter = 0x12345678" NL
+                                              "      ]"                      NL
                                                                              },
 
-        { L_,  3, -2,  89,  true, "      ["                                  SP
-                                  "timeout = 89"                             SP
-                                  "useLingeringFlag = true"                  SP
-                                  "]"
+        { L_,  3, -2,  0xdeadf00d, 0xbadb100d, 0x12345678,
+                                                      "      ["              SP
+                                                      "object = 0xdeadf00d"  SP
+                                                      "factory = 0xbadb100d" SP
+                                                      "deleter = 0x12345678" SP
+                                                      "]"
                                                                              },
 
-        { L_, -3,  0,  89,  true, "["                                        NL
-                                  "timeout = 89"                             NL
-                                  "useLingeringFlag = true"                  NL
-                                  "]"                                        NL
+        { L_, -3,  0,  0xdeadf00d, 0xbadb100d, 0x12345678,
+                                                      "["                    NL
+                                                      "object = 0xdeadf00d"  NL
+                                                      "factory = 0xbadb100d" NL
+                                                      "deleter = 0x12345678" NL
+                                                      "]"                    NL
                                                                              },
 
-        { L_, -3,  2,  89,  true, "["                                        NL
-                                  "        timeout = 89"                     NL
-                                  "        useLingeringFlag = true"          NL
-                                  "      ]"                                  NL
+        { L_, -3,  2,  0xdeadf00d, 0xbadb100d, 0x12345678,
+                                              "["                            NL
+                                              "        object = 0xdeadf00d"  NL
+                                              "        factory = 0xbadb100d" NL
+                                              "        deleter = 0x12345678" NL
+                                              "      ]"                      NL
                                                                              },
 
-        { L_, -3, -2,  89,  true, "["                                        SP
-                                  "timeout = 89"                             SP
-                                  "useLingeringFlag = true"                  SP
-                                  "]"
+        { L_, -3, -2,  0xdeadf00d, 0xbadb100d, 0x12345678,
+                                                      "["                    SP
+                                                      "object = 0xdeadf00d"  SP
+                                                      "factory = 0xbadb100d" SP
+                                                      "deleter = 0x12345678" SP
+                                                      "]"
                                                                              },
         // -----------------------------------------------------------------
         // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
         // -----------------------------------------------------------------
 
-        //LINE L SPL  OFF   FLAG  EXP
-        //---- - ---  ---   ----  ---
+        //LINE L SPL  OBJECT      FACTORY     DELETER  EXP
+        //---- - ---  ------      -------     -------  ---
 
-        { L_,  2,  3,   7, false, "      ["                                  NL
-                                  "         timeout = 7"                     NL
-                                  "         useLingeringFlag = false"        NL
-                                  "      ]"                                  NL
+        { L_,  2,  3, 0xd155ea5e, 0xf1a5c0e5, 0xbadd15c0,
+                                             "      ["                       NL
+                                             "         object = 0xd155ea5e"  NL
+                                             "         factory = 0xf1a5c0e5" NL
+                                             "         deleter = 0xbadd15c0" NL
+                                             "      ]"                       NL
                                                                              },
 
-        // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
-        // -----------------------------------------------------------------
+        //// -----------------------------------------------------------------
+        //// P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
+        //// -----------------------------------------------------------------
 
-        //LINE L SPL  OFF   FLAG  EXP
-        //---- - ---  ---   ----  ---
+        //LINE L SPL  OBJECT      FACTORY     DELETER  EXP
+        //---- - ---  ------      -------     -------  ---
 
-        { L_, -9, -9,  89,  true, "[ 89 true ]"                              },
+        { L_, -9, -9, 0xdeadf00d, 0xbadb100d, 0x12345678,  
+                                      "[ 0xdeadf00d 0xbadb100d 0x12345678 ]" },
 
-        { L_, -9, -9,   7, false, "[ 7 false ]"                              },
+        { L_, -9, -9, 0xd155ea5e, 0xf1a5c0e5, 0xbadd15c0,
+                                      "[ 0xd155ea5e 0xf1a5c0e5 0xbadd15c0 ]" },
 
 #undef NL
 #undef SP
@@ -1092,43 +1120,47 @@ int main(int argc, char *argv[])
                           << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE   = DATA[ti].d_line;
-                const int         L      = DATA[ti].d_level;
-                const int         SPL    = DATA[ti].d_spacesPerLevel;
-                const int         OFF    = DATA[ti].d_timeout;
-                const bool        FLAG   = DATA[ti].d_useLingeringFlag;
-                const char *const EXP    = DATA[ti].d_expected_p;
+                const int          LINE    = DATA[ti].d_line;
+                const int          L       = DATA[ti].d_level;
+                const int          SPL     = DATA[ti].d_spacesPerLevel;
+                void        *const OBJECT  = (void*)DATA[ti].d_object;
+                void        *const FACTORY = (void*)DATA[ti].d_factory;
+                const Obj::Deleter DELETER = (Obj::Deleter)(void*)
+                                                            DATA[ti].d_deleter;
+                const char *const  EXP     = DATA[ti].d_expected_p;
 
-                if (veryVerbose) { T_ P_(L) P_(SPL) P_(OFF) P_(FLAG)}
+                if (veryVerbose) {
+                    T_ P_(L) P_(SPL) P_(OBJECT) P_(FACTORY) P(DELETER)
+                }
 
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
 
-                //const Obj X(OFF, FLAG);
+                const Obj X(OBJECT, FACTORY, DELETER);
 
-                //ostringstream os;
+                ostringstream os;
 
-                //if (-9 == L && -9 == SPL) {
+                if (-9 == L && -9 == SPL) {
 
-                //    // Verify supplied stream is returned by reference.
+                    // Verify supplied stream is returned by reference.
 
-                //    LOOP_ASSERT(LINE, &os == &(os << X));
+                    LOOP_ASSERT(LINE, &os == &(os << X));
 
-                //    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
-                //}
-                //else {
+                    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
+                }
+                else {
 
-                //    // Verify supplied stream is returned by reference.
+                    // Verify supplied stream is returned by reference.
 
-                //    LOOP_ASSERT(LINE, &os == &X.print(os, L, SPL));
+                    LOOP_ASSERT(LINE, &os == &X.print(os, L, SPL));
 
-                //    if (veryVeryVerbose) { T_ T_ Q(print) }
-                //}
+                    if (veryVeryVerbose) { T_ T_ Q(print) }
+                }
 
-                //// Verify output is formatted as expected.
+                // Verify output is formatted as expected.
 
-                //if (veryVeryVerbose) { P(os.str()) }
+                if (veryVeryVerbose) { P(os.str()) }
 
-                //LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
+                LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
             }
         }
 
@@ -1489,65 +1521,67 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         // Attribute Types
-
-        typedef void        *T1;        // 'object'
-        typedef void        *T2;        // 'factory'
-        typedef Obj::Deleter T3;        // 'deleter'
-
-        // Attribute 1 Values: 'object'
-
-        const T1 D1 = 0;               // default value
- //       const T1 A1 = 60;
-
-        // Attribute 2 Values: 'factory'
-
-        const T2 D2 = 0;           // default value
-//        const T2 A2 = true;
-
-        // Attribute 3 Values: 'deleter'
-
-        const T2 D3 = 0;           // default value
-//        const T2 A3 = true;
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
-                             "\t\t{ w:D             }" << endl;
-
-        Obj mW;  const Obj& W = mW;
-
-        if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
-        if (veryVeryVerbose) { T_ T_ P(W) }
-
-        ASSERT(D1 == W.object());
-        ASSERT(D2 == W.factory());
-        ASSERT(D3 == W.deleter());
-
-        if (veryVerbose) cout <<
-                  "\tb. Try equality operators: 'w' <op> 'w'." << endl;
-
-        ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
-                             "\t\t{ w:D x:D         }" << endl;
-
-        Obj mX(W);  const Obj& X = mX;
-
-        if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
-        if (veryVeryVerbose) { T_ T_ P(X) }
-
-        ASSERT(D1 == X.object());
-        ASSERT(D2 == X.factory());
-        ASSERT(D3 == X.deleter());
-
-        if (veryVerbose) cout <<
-                     "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
-
-        ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
-        ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
-
+//        int x = 13;
+//        double y = 3.14;
+//
+//        typedef void        *T1;        // 'object'
+//        typedef void        *T2;        // 'factory'
+//        typedef Obj::Deleter T3;        // 'deleter'
+//
+//        // Attribute 1 Values: 'object'
+//
+//        const T1 D1 = 0;               // default value
+//        const T1 A1 = &x;
+//
+//        // Attribute 2 Values: 'factory'
+//
+//        const T2 D2 = 0;               // default value
+//        const T2 A2 = &y;
+//
+//        // Attribute 3 Values: 'deleter'
+//
+//        const T2 D3 = 0;               // default value
+////        const T2 A3 = true;
+//
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+//        if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
+//                             "\t\t{ w:D             }" << endl;
+//
+//        Obj mW;  const Obj& W = mW;
+//
+//        if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
+//        if (veryVeryVerbose) { T_ T_ P(W) }
+//
+//        ASSERT(D1 == W.object());
+//        ASSERT(D2 == W.factory());
+//        ASSERT(D3 == W.deleter());
+//
+//        if (veryVerbose) cout <<
+//                  "\tb. Try equality operators: 'w' <op> 'w'." << endl;
+//
+//        ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
+//
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+//        if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
+//                             "\t\t{ w:D x:D         }" << endl;
+//
+//        Obj mX(W);  const Obj& X = mX;
+//
+//        if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
+//        if (veryVeryVerbose) { T_ T_ P(X) }
+//
+//        ASSERT(D1 == X.object());
+//        ASSERT(D2 == X.factory());
+//        ASSERT(D3 == X.deleter());
+//
+//        if (veryVerbose) cout <<
+//                     "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+//
+//        ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
+//        ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
+//
         //// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         //if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 'D')."
@@ -1568,7 +1602,7 @@ int main(int argc, char *argv[])
         //ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         //ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
-        //// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         //if (verbose) cout << "\n 4. Create an object 'y' (init. to 'A')."
         //                     "\t\t{ w:D x:A y:A     }" << endl;

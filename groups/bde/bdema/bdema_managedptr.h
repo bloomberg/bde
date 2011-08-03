@@ -12,6 +12,8 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //                bdema_ManagedPtr: proctor for automatic memory management
 //      bdema_ManagedPtrNilDeleter: used for creating managed pointers to
+//                                  stack-allocated objects (DEPRECATED)
+//     bdema_ManagedPtrNoOpDeleter: used for creating managed pointers to
 //                                  stack-allocated objects
 //
 //@AUTHOR: Ilougino Rocha (irocha), Pablo Halpern (phalpern)
@@ -374,20 +376,6 @@ private:
                                           // type can point to this pointer.
     bdema_ManagedPtrDeleter  d_deleter;   // deleter-related information
 
-    void init(void *ptr, const bdema_ManagedPtrDeleter& rep);
-        // Initialize this managed pointer to the specified 'ptr' pointer
-        // value and the specified deleter.  Note that this function does
-        // not destroy the current managed instance.
-
-    void init(void *ptr, void *object, void *factory, DeleterFunc deleter);
-        // Initialize this managed pointer to the specified 'ptr' pointer
-        // value, the specified 'object' pointer value, and the specified
-        // 'deleter' function, using the specified 'factory'.  The specified
-        // 'ptr' points to the object that will be referred to by the '*' and
-        // '->' operators, while the specified 'object' points to the object
-        // that will be destroyed and deallocated when this ManagedPtr is
-        // destroyed.
-
     // NOT IMPLEMENTED
     bdema_ManagedPtr_Members& operator=(const bdema_ManagedPtr_Members&);
 
@@ -400,9 +388,10 @@ public:
     explicit bdema_ManagedPtr_Members(bdema_ManagedPtr_Members& other);
 
     bdema_ManagedPtr_Members(void *ptr, const bdema_ManagedPtrDeleter& rep);
+        // Create a 'bdema_ManagedPtr_Members' object having the specified
+        // 'ptr' and 'rep'.
 
-    bdema_ManagedPtr_Members(void *ptr, 
-                             void *object, 
+    bdema_ManagedPtr_Members(void *object, 
                              void *factory, 
                              DeleterFunc deleter);
 
@@ -411,15 +400,13 @@ public:
         // trivial destructor's definition is compiler generated.
 
     //MANIPULATORS
-    void rawClear();
+    void clear();
         // Reset this managed pointer to an unset state.  If this managed
         // pointer currently has a value, then the managed instance will not
         // be destroyed.
 
-    void reset();
-    void reset(bdema_ManagedPtr_Members& other);
-    void reset(void *ptr, const bdema_ManagedPtrDeleter &rep);
-        // Destroy the current managed object(if any) and re-initialize this
+    void move(bdema_ManagedPtr_Members& other);
+        // Re-initialize this
         // managed pointer to the specified 'ptr' pointer value, the specified
         // 'object' pointer value, and the specified 'deleter' function, using
         // the specified 'factory'.  The specified 'ptr' points to the object
@@ -427,26 +414,29 @@ public:
         // specified 'object' points to the object that will be destroyed and
         // deallocated when this ManagedPtr is destroyed.
 
-    void reset(void *ptr, void *object, void *factory, DeleterFunc deleter);
-        // Destroy the current managed object(if any) and re-initialize this
-        // managed pointer to the specified 'ptr' pointer value, the specified
-        // 'object' pointer value, and the specified 'deleter' function, using
-        // the specified 'factory'.  The specified 'ptr' points to the object
-        // that will be referred to by the '*' and '->' operators, while the
-        // specified 'object' points to the object that will be destroyed and
-        // deallocated when this ManagedPtr is destroyed.
+    void set(void *object, void *factory, DeleterFunc deleter);
+        // Re-initialize this managed pointer to the specified 'object' pointer
+        // value, and the specified 'deleter' function, using the specified
+        // 'factory'.
 
 
     void setAliasPtr(void *ptr);
+        // The specified 'ptr' points to the object
+        // that will be referred to by the '*' and '->' operators, while the
+        // specified 'object' points to the object that will be destroyed and
+        // deallocated when this ManagedPtr is destroyed.
 
     void swap(bdema_ManagedPtr_Members& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
+        // exception-safety guarantee.
 
     //ACCESSORS
     void runDeleter() const;
+        // Destroy the current managed object(if any).  Note that calling this
+        // method twice without assigning a new pointer to manage will produce
+        // undefined behavior, unless this object's current deleter
+        // specifically supports 
 
     void                          *pointer() const;
     const bdema_ManagedPtrDeleter& deleter() const;
@@ -489,14 +479,14 @@ class bdema_ManagedPtr {
     // (either of which would also enable undesirable implicit comparisons of
     // managed pointers to 'int' and less-than comparisons).
 
-    struct unspecified {}; // private type to guarantee bslmf_EnableIf
+    struct Unspecified {}; // private type to guarantee bslmf_EnableIf
                            // disambiguates
 
-    // PRIVATE MACROS TO SIMPLIFY DECLARING FUNCTION TEMPLATES
-#define BDEMA_COMPATIPLE_POINTERS_ONLY                                  \
+    // COMPONENT-PRIVATE MACROS TO SIMPLIFY DECLARING FUNCTION TEMPLATES
+#define BDEMA_COMPATIBLE_POINTERS_ONLY                                  \
     typename bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,    \
                                                 BDEMA_TYPE *>::VALUE,   \
-                            unspecified>::type * = 0
+                            Unspecified>::type * = 0
     // This macro can be used to restrict pointer-types deduced in function
     // template signatures to only those that are convertible to 'BDEMA_TYPE *'
     // such as from pointers to derived types to pointer-to-unambiguous-base,
@@ -520,8 +510,6 @@ class bdema_ManagedPtr {
         // To avoid accidental type-safety errors, the 'd_members.d_obj_p'
         // variable should never be set directly except by calling through this
         // function.
-
-    // PRIVATE MANIPULATORS
 
     // NOT IMPLEMENTED
     void operator==(const bdema_ManagedPtr&) const;
@@ -555,7 +543,7 @@ class bdema_ManagedPtr {
 
     template<class BDEMA_TARGET_TYPE>
     explicit 
-    bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr, BDEMA_COMPATIPLE_POINTERS_ONLY);
+    bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr, BDEMA_COMPATIBLE_POINTERS_ONLY);
         // Construct a managed pointer that manages the specified 'ptr' using
         // the current default allocator to destroy 'ptr' when this managed
         // pointer is destroyed or re-assigned, unless it is released before
@@ -564,7 +552,7 @@ class bdema_ManagedPtr {
         // to by 'ptr' can by destroyed by the current default allocator.
         // The behavior is undefined if the lifetime of the object referred to
         // by 'ptr' is already managed by another object.
-        // The behavior is undefined if the 
+        // The behavior is undefined if the ...
 
     bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
         // Construct a 'bdema_ManagedPtr' and transfer the value and ownership
@@ -818,10 +806,23 @@ void swap(bdema_ManagedPtr<BDEMA_TYPE>& a, bdema_ManagedPtr<BDEMA_TYPE>& b);
 
 template <class BDEMA_TYPE>
 struct bdema_ManagedPtrNilDeleter {
-    // This utility provides a general no-op deleter, which is useful when
-    // creating managed pointers to stack-allocated objects.
+    // This utility class provides a general no-op deleter, which is useful
+    // when creating managed pointers to stack-allocated objects.
 
-    static void deleter(BDEMA_TYPE *object, void *);
+//    static void deleter(BDEMA_TYPE *object, void *);
+    static void deleter(void *object, void *);
+        // Deleter function that does nothing.
+};
+
+                      // ==================================
+                      // struct bdema_ManagedPtrNoOpDeleter
+                      // ==================================
+
+struct bdema_ManagedPtrNoOpDeleter {
+    // This utility class provides a general no-op deleter, which is useful
+    // when creating managed pointers to stack-allocated objects.
+
+    static void deleter(void *object, void *);
         // Deleter function that does nothing.
 };
 
@@ -854,6 +855,8 @@ class bdema_ManagedPtr_Ref {
     // objects (since temporaries cannot be passed by reference to a
     // modifiable).
     // TBD document class invariant, '0 != d_base_p'
+    // TBD this class is bitwise-movable, although should not show up where the
+    //     trait is actually useful.
 
     bdema_ManagedPtr_Members *d_base_p;
 
@@ -885,8 +888,6 @@ public:
     // ACCESSORS
     BDEMA_TYPE *ptr() const;
         // Return a pointer to the held
-
-//    bdema_ManagedPtr_Members *operator ->() const;
 
     bdema_ManagedPtr_Members *base() const;
         // Return a pointer 
@@ -921,31 +922,22 @@ bdema_ManagedPtr_Members::bdema_ManagedPtr_Members(void *ptr,
 }
 
 inline
-bdema_ManagedPtr_Members::bdema_ManagedPtr_Members(void *ptr, 
-                                                   void *object, 
+bdema_ManagedPtr_Members::bdema_ManagedPtr_Members(void *object, 
                                                    void *factory, 
                                                    DeleterFunc deleter)
-: d_obj_p(ptr)
+: d_obj_p(object)
 , d_deleter(object, factory, deleter)
 {
+    BSLS_ASSERT_SAFE(0 != deleter || 0 == object);
+
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    if(!ptr) {
+    if(!object) {
         d_deleter.clear();
     }
 #endif
 }
 
-
 // MANIPULATORS
-inline
-void bdema_ManagedPtr_Members::rawClear()
-{
-    d_obj_p = 0;
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    d_deleter.clear();
-#endif
-}
-
 inline
 void bdema_ManagedPtr_Members::setAliasPtr(void *ptr)
 {
@@ -973,7 +965,6 @@ const bdema_ManagedPtrDeleter& bdema_ManagedPtr_Members::deleter() const
     return d_deleter;
 }
 
-
                            // ----------------------
                            // class bdema_ManagedPtr
                            // ----------------------
@@ -993,16 +984,15 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type)
 template<class BDEMA_TYPE>
 template<class BDEMA_TARGET_TYPE>
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-                                               BDEMA_COMPATIPLE_POINTERS_ONLY)
+                                               BDEMA_COMPATIBLE_POINTERS_ONLY)
 : d_members(stripPointerType(ptr),
-            stripPointerType(ptr),
             bslma_Default::allocator(),
             &bdema_ManagedPtr_FactoryDeleter<BDEMA_TARGET_TYPE,bslma_Allocator>
                                                                      ::deleter)
 {
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     if(!ptr) {
-        d_members.rawClear();
+        d_members.clear();
     }
 #endif
 }
@@ -1038,10 +1028,10 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
 : d_members(stripPointerType(ptr), alias.d_members.deleter())
 {
     if (ptr && alias.d_members.pointer()) {
-        alias.d_members.rawClear();
+        alias.d_members.clear();
     }
     else {
-        d_members.rawClear();
+        d_members.clear();
     }
 }
 
@@ -1051,11 +1041,16 @@ inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
                                                               FACTORY *factory)
 : d_members(stripPointerType(ptr),
-            stripPointerType(ptr),
             factory,
             &bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE, FACTORY>::deleter)
 {
     BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    if(!ptr) {
+        d_members.clear();
+    }
+#endif
 }
 
 template <class BDEMA_TYPE>
@@ -1064,7 +1059,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
                                                void       *factory,
                                                DeleterFunc deleter)
 : d_members(stripPointerType(ptr),
-            stripPointerType(ptr),
             factory,
             deleter)
 {
@@ -1072,7 +1066,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     if(!ptr) {
-        d_members.rawClear();
+        d_members.clear();
     }
 #endif
 }
@@ -1098,7 +1092,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
                                  FACTORY    *factory,
                                  void      (*deleter)(BDEMA_TYPE *, FACTORY*) )
 : d_members(stripPointerType(ptr),
-            stripPointerType(ptr),
             factory,
             reinterpret_cast<DeleterFunc>(deleter))
 {
@@ -1124,7 +1117,8 @@ template <class BDEMA_TYPE>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(bdema_ManagedPtr_Nullptr::Type)
 {
-    d_members.reset();
+    d_members.runDeleter();
+    d_members.clear();
 }
 
 template <class BDEMA_TYPE>
@@ -1135,10 +1129,10 @@ bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr)
 {
     typedef bdema_ManagedPtr_FactoryDeleter<BDEMA_TARGET_TYPE,bslma_Allocator>
                                                                 DeleterFactory;
-    d_members.reset(stripPointerType(ptr), 
-                    stripPointerType(ptr), 
-                    bslma_Default::allocator(),
-                    &DeleterFactory::deleter);
+    d_members.runDeleter();
+    d_members.set(stripPointerType(ptr), 
+                  bslma_Default::allocator(),
+                  &DeleterFactory::deleter);
 }
 
 template <class BDEMA_TYPE>
@@ -1150,10 +1144,10 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr, FACTORY *factory)
 
     typedef bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE,FACTORY> DeleterFactory;
 
-    d_members.reset(stripPointerType(ptr), 
-                    stripPointerType(ptr),
-                    factory, 
-                    &DeleterFactory::deleter);
+    d_members.runDeleter();
+    d_members.set(stripPointerType(ptr), 
+                  factory, 
+                  &DeleterFactory::deleter);
 }
 
 template <class BDEMA_TYPE>
@@ -1164,10 +1158,10 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
 {
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-    d_members.reset(stripPointerType(ptr),
-                    stripPointerType(ptr),
-                    factory,
-                    deleter);
+    d_members.runDeleter();
+    d_members.set(stripPointerType(ptr),
+                  factory,
+                  deleter);
 }
 
 template <class BDEMA_TYPE>
@@ -1178,10 +1172,10 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
 {
     BSLS_ASSERT_SAFE(0 != deleter);
 
-    d_members.reset(stripPointerType(ptr),
-                    stripPointerType(ptr),
-                    0,
-                    reinterpret_cast<DeleterFunc>(deleter));
+    d_members.runDeleter();
+    d_members.set(stripPointerType(ptr),
+                  0,
+                  reinterpret_cast<DeleterFunc>(deleter));
 }
 
 template <class BDEMA_TYPE>
@@ -1194,10 +1188,10 @@ bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
 {
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-    d_members.reset(stripPointerType(ptr),
-                    stripPointerType(ptr),
-                    factory, 
-                    reinterpret_cast<DeleterFunc>(deleter));
+    d_members.runDeleter();
+    d_members.set(stripPointerType(ptr),
+                  factory, 
+                  reinterpret_cast<DeleterFunc>(deleter));
 }
 
 
@@ -1212,16 +1206,14 @@ bdema_ManagedPtr<BDEMA_TYPE>::loadAlias(
 
     if (ptr && alias.d_members.pointer()) {
         if (&d_members != &alias.d_members) {
-            d_members.reset(stripPointerType(ptr), alias.d_members.deleter());
-            alias.d_members.rawClear();
+            d_members.runDeleter();
+            d_members.move(alias.d_members);
         }
-        else {
-            // create alias to subpart, parent, or peer of self.
-            d_members.setAliasPtr(stripPointerType(ptr));
-        }
+        d_members.setAliasPtr(stripPointerType(ptr));
     }
     else {
-        d_members.reset();
+        d_members.runDeleter();
+        d_members.clear();
     }
 }
 
@@ -1229,7 +1221,8 @@ template <class BDEMA_TYPE>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::clear()
 {
-    d_members.reset();
+    d_members.runDeleter();
+    d_members.clear();
 }
 
 template<typename BDEMA_TYPE>
@@ -1238,7 +1231,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::release()
 {
     BDEMA_TYPE *p = ptr();
     bsl::pair<BDEMA_TYPE*,bdema_ManagedPtrDeleter> ret(p, d_members.deleter());
-    d_members.rawClear();
+    d_members.clear();
     return ret;
 }
 
@@ -1254,7 +1247,8 @@ bdema_ManagedPtr<BDEMA_TYPE>&
 bdema_ManagedPtr<BDEMA_TYPE>::operator=(bdema_ManagedPtr& rhs)
 {   // Must protect against self-assignment due to destructive move
     if (&d_members != &rhs.d_members) {
-        d_members.reset(rhs.d_members);
+        d_members.runDeleter();
+        d_members.move(rhs.d_members);
     }
 
     return *this;
@@ -1266,7 +1260,8 @@ bdema_ManagedPtr<BDEMA_TYPE>&
 bdema_ManagedPtr<BDEMA_TYPE>::operator=(bdema_ManagedPtr<BDEMA_OTHERTYPE>& rhs)
 {   // Must protect against self-assignment due to destructive move
     if (&d_members != &rhs.d_members) {
-        d_members.reset(rhs.d_members);
+        d_members.runDeleter();
+        d_members.move(rhs.d_members);
     }
 
     return *this;
@@ -1278,7 +1273,8 @@ bdema_ManagedPtr<BDEMA_TYPE>&
 bdema_ManagedPtr<BDEMA_TYPE>::operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref)
 {   // Must protect against self-assignment due to destructive move
     if (&d_members != ref.base()) {
-        d_members.reset(*ref.base());
+        d_members.runDeleter();
+        d_members.move(*ref.base());
     }
 
     return *this;
@@ -1299,7 +1295,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::operator BoolType() const
 {
     return d_members.pointer()
          ? bsls_UnspecifiedBool<bdema_ManagedPtr>::trueValue()
-         : 0;
+         : bsls_UnspecifiedBool<bdema_ManagedPtr>::falseValue();
 }
 
 template <class BDEMA_TYPE>
@@ -1362,20 +1358,13 @@ bdema_ManagedPtr_Ref<BDEMA_TYPE>::~bdema_ManagedPtr_Ref()
 }
 #endif
 
-// MANIPULATORS
+// ACCESSORS
 template <class BDEMA_TYPE>
 inline
 BDEMA_TYPE *bdema_ManagedPtr_Ref<BDEMA_TYPE>::ptr() const
 {
     return static_cast<BDEMA_TYPE*>(d_base_p->pointer());
 }
-
-//template <class BDEMA_TYPE>
-//inline
-//bdema_ManagedPtr_Members *bdema_ManagedPtr_Ref<BDEMA_TYPE>::operator->() const
-//{
-//    return d_base_p;
-//}
 
 template <class BDEMA_TYPE>
 inline
@@ -1384,9 +1373,9 @@ bdema_ManagedPtr_Members *bdema_ManagedPtr_Ref<BDEMA_TYPE>::base() const
     return d_base_p;
 }
 
-                    // -------------------------------------
+                    // --------------------------------------
                     // struct bdema_ManagedPtr_FactoryDeleter
-                    // -------------------------------------
+                    // --------------------------------------
 
 template <class BDEMA_TYPE, typename FACTORY>
 inline
@@ -1405,14 +1394,13 @@ void bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE,FACTORY>::deleter(void *object,
 
 template <class BDEMA_TYPE>
 inline
-void bdema_ManagedPtrNilDeleter<BDEMA_TYPE>::deleter(BDEMA_TYPE *object, void*)
+void bdema_ManagedPtrNilDeleter<BDEMA_TYPE>::deleter(void *, void*)
 {
-    (void) object;
 }
 
 }  // close namespace BloombergLP
 
-#undef BDEMA_COMPATIPLE_POINTERS_ONLY
+#undef BDEMA_COMPATIBLE_POINTERS_ONLY
 #undef BDEMA_VOID_FOR_ONLY_COMPATIPLE_POINTERS
 
 #endif

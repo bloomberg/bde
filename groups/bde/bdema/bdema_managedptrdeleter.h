@@ -69,9 +69,9 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                       // =========================
+                       // =============================
                        // class bdema_ManagedPtrDeleter
-                       // =========================
+                       // =============================
 
 class bdema_ManagedPtrDeleter {
     // This complex constrained in-core value-semantic class  holds the

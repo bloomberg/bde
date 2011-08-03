@@ -33,7 +33,12 @@ bdema_ManagedPtrDeleter::print(bsl::ostream& stream,
     printer.start();
     printer.printAttribute("object",  d_object_p  );
     printer.printAttribute("factory", d_factory_p );
-    printer.printAttribute("deleter", d_deleter   );
+
+    // TBD: switch back to 'printAttribute' when 'bslim' supports function
+    // pointers
+    printer.printHexAddr(d_deleter, "deleter" );
+//  printer.printAttribute("deleter", d_deleter   );
+
     printer.end();
 
     stream.flags(fmtFlags);
@@ -52,7 +57,9 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
     printer.start();
     printer.printValue(object.object());
     printer.printValue(object.factory());
-    printer.printValue(object.deleter());
+
+    // TBD: Remove 'void *' cast when 'bslim' supports function pointers.
+    printer.printValue((void*)object.deleter());
     printer.end();
 
     stream.flags(fmtFlags);
