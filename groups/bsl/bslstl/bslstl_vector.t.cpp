@@ -15,6 +15,7 @@
 #include <bslma_testallocatorexception.h>  // for testing only
 #include <bslmf_issame.h>                  // for testing only
 #include <bsls_objectbuffer.h>
+#include <bsls_addressof.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -409,8 +410,15 @@ class TestType {
     // It could have the bit-wise moveable traits but we defer that trait to
     // the 'MoveableTestType'.
 
+  private:
     char            *d_data_p;
     bslma_Allocator *d_allocator_p;
+
+#if defined(BDE_USE_ADDRESSOF)
+    // PRIVATE ACCESSORS
+    void operator&() const;     // = delete;
+        // Suppress the use of address-of operator on this type.
+#endif
 
   public:
     // TRAITS
@@ -443,10 +451,9 @@ class TestType {
     , d_allocator_p(bslma_Default::allocator(ba))
     {
         ++numCopyCtorCalls;
-        if (&original != this) {
-            d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
-            *d_data_p = *original.d_data_p;
-        }
+
+        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+        *d_data_p = *original.d_data_p;
     }
 
     ~TestType() {
@@ -461,7 +468,7 @@ class TestType {
     TestType& operator=(const TestType& rhs)
     {
         ++numAssignmentCalls;
-        if (&rhs != this) {
+        if (BSLS_ADDRESSOF(rhs) != this) {
             char *newData = (char *)d_allocator_p->allocate(sizeof(char));
             *d_data_p = UNINITIALIZED_VALUE;
             d_allocator_p->deallocate(d_data_p);
@@ -4096,12 +4103,12 @@ void TestDriver<TYPE,ALLOC>::testCase15()
                 LOOP_ASSERT(LINE, TYPE(SPEC[j]) == X[j]);
                 mX[j] = DEFAULT_VALUE;
                 LOOP_ASSERT(LINE, DEFAULT_VALUE == X[j]);
-                LOOP_ASSERT(LINE, &X[j] == (dataCptr + j));
-                LOOP_ASSERT(LINE, &mX[j] == (dataMptr + j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(X[j]) == (dataCptr + j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(mX[j]) == (dataMptr + j));
                 mX.at(j) = Y[j];
                 LOOP_ASSERT(LINE, TYPE(SPEC[j]) == X.at(j));
-                LOOP_ASSERT(LINE, &X.at(j) == (dataCptr + j));
-                LOOP_ASSERT(LINE, &mX.at(j) == (dataMptr + j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(X.at(j)) == (dataCptr + j));
+                LOOP_ASSERT(LINE, BSLS_ADDRESSOF(mX.at(j)) == (dataMptr + j));
             }
         }
     }
@@ -4938,7 +4945,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Negative(const CONTAINER&)
         printf("\tUsing an empty range made up of stack pointers\n");
     }
     const TYPE null = TYPE();
-    ASSERT_SAFE_PASS(mY.assign(&null, &null));
+    ASSERT_SAFE_PASS(mY.assign(BSLS_ADDRESSOF(null), BSLS_ADDRESSOF(null)));
 
 
     if (verbose) {
@@ -7946,7 +7953,6 @@ int main(int argc, char *argv[])
                             "\n==================================\n");
 
         TestDriver<T>::testCase21();
-
       } break;
       case 20: {
         // --------------------------------------------------------------------
