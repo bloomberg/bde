@@ -1,4 +1,4 @@
-// baea_baemmetricreporteradapter.h   -*-C++-*-
+// baea_baemmetricreporteradapter.h                                   -*-C++-*-
 #ifndef INCLUDED_BAEA_BAEMMETRICREPORTERADAPTER
 #define INCLUDED_BAEA_BAEMMETRICREPORTERADAPTER
 

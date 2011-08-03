@@ -1,4 +1,4 @@
-// baexml_typesparserutil.h   -*-C++-*-
+// baexml_typesparserutil.h                                           -*-C++-*-
 #ifndef INCLUDED_BAEXML_TYPESPARSERUTIL
 #define INCLUDED_BAEXML_TYPESPARSERUTIL
 

@@ -1,4 +1,4 @@
-// baexml_typesprintutil.h                  -*-C++-*-
+// baexml_typesprintutil.h                                            -*-C++-*-
 #ifndef INCLUDED_BAEXML_TYPESPRINTUTIL
 #define INCLUDED_BAEXML_TYPESPRINTUTIL
 

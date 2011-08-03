@@ -1,4 +1,5 @@
-// bsls_blockgrowth.h                                                 -*-C++-*- #ifndef INCLUDED_BSLS_BLOCKGROWTH
+// bsls_blockgrowth.h                                                 -*-C++-*-
+#ifndef INCLUDED_BSLS_BLOCKGROWTH
 #define INCLUDED_BSLS_BLOCKGROWTH
 
 #ifndef INCLUDED_BSLS_IDENT

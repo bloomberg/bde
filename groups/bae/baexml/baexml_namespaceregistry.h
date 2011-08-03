@@ -1,4 +1,4 @@
-// baexml_namespaceregistry.h                  -*-C++-*-
+// baexml_namespaceregistry.h                                         -*-C++-*-
 #ifndef INCLUDED_BAEXML_NAMESPACEREGISTRY
 #define INCLUDED_BAEXML_NAMESPACEREGISTRY
 
