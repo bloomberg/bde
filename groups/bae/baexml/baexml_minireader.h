@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide light-weight implementation of 'baexml_Reader' protocol
 //
-//@CLASSES: baexml_MiniReader
+//@CLASSES:
+//   baexml_MiniReader: light-weight implementation of 'baexml_Reader' protocol
 //
 //@SEE_ALSO: baexml_reader, baexml_errorinfo
 //

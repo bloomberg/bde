@@ -4,7 +4,8 @@
 
 //@PURPOSE: Provide a scoped guard for a single BAEL attribute attributes
 //
-//@CLASSES: bael_ScopedAttribute: single attribute scoped guard
+//@CLASSES:
+//   bael_ScopedAttribute: single attribute scoped guard
 //
 //@SEE_ALSO: bael_attribute
 //

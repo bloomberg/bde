@@ -637,7 +637,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\t6. Testing 'BoolType' conversion operator\n");
 
         {
-            const Booleable babel = {};
+            // note this variable must be static to work around a stack
+            // corruption bug on VC2008 when initializing a variable of
+            // empty class type.
+            static const Booleable babel = {};
             ASSERT(babel == false);
             ASSERT(false == babel);
             ASSERT(!babel);

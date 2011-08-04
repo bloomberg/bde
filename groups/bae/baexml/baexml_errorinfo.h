@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide common error information for XML components
 //
-//@CLASSES: baexml_ErrorInfo
+//@CLASSES:
+//   baexml_ErrorInfo: details of XML parsing errors
 //
 //@SEE_ALSO: baexml_xmlreader
 //
