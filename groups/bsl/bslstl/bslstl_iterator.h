@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //       bsl::iterator_traits: information about iterator associated types
-//      bsl::reverse_iterator: bring in std::reverse_iterator
+//      bsl::reverse_iterator: bring in 'std::reverse_iterator'
 //              bsl::distance: global function to calculate iterator distance
 //
 //@SEE_ALSO: bslstl_forwarditerator, bslstl_bidirectionaliterator,

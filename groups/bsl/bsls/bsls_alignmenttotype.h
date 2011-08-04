@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a meta-function mapping an 'ALIGNMENT' to a primitive type.
 //
 //@CLASSES:
-//  bsls_AlignmentToType: maps 'ALIGNMENT' to a so-aligned primitive type
+//   bsls_AlignmentToType: maps 'ALIGNMENT' to a so-aligned primitive type
 //
 //@SEE_ALSO: bsls_alignmentfromtype
 //

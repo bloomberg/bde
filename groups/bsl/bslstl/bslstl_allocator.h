@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an STL-compatible proxy for 'bslma_Allocator' objects.
 //
 //@CLASSES:
-//  bsl::allocator: STL-compatible allocator template
+//                   bsl::allocator: STL-compatible allocator template
 //  bsl::Allocator_BslalgTypeTraits: type traits for 'bsl::allocator'
 //
 //@SEE_ALSO:
