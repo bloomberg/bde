@@ -367,6 +367,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ADDRESSOF
+#include <bsls_addressof.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -742,7 +746,7 @@ template <class T>
 inline
 typename allocator<T>::pointer allocator<T>::address(reference x) const
 {
-    return &x;
+    return BSLS_ADDRESSOF(x);
 }
 
 template <class T>
@@ -750,7 +754,7 @@ inline
 typename allocator<T>::const_pointer allocator<T>::address(const_reference x)
                                                                           const
 {
-    return &x;
+    return BSLS_ADDRESSOF(x);
 }
 
                           // ---------------------

@@ -1,3 +1,4 @@
+bsls_addressof
 bsls_alignedbuffer
 bsls_alignment
 bsls_alignmentfromtype
@@ -25,3 +26,4 @@ bsls_protocoltest
 bsls_stopwatch
 bsls_timeutil
 bsls_types
+bsls_unspecifiedbool
