@@ -204,8 +204,8 @@ typedef bslma_TestAllocator TestAllocator;
 typedef bdex_TestInStream   In;
 typedef bdex_TestOutStream  Out;
 
-typedef bdet_DatetimeTz  T1;  // Attribute 'datetimeTz'
-typedef const char      *T2;  // Attribute 'timeZoneId'
+//typedef bdet_DatetimeTz  T1;  // Attribute 'datetimeTz'
+//typedef const char      *T2;  // Attribute 'timeZoneId'
 
 // ============================================================================
 //                     HELPER FUNCTIONS FOR TESTING
@@ -1404,11 +1404,11 @@ int main(int argc, char *argv[])
         const char   *smallTzId = "a";
         const char   *largeTzId = LONGEST_STRING;
 
-        struct {
-            int   d_line;           // source line number
-            char  d_mem;            // expected allocation: 'Y', 'N', '?'
-            T1   *d_datetimeTz;
-            T2    d_timeZoneId;
+        const struct {
+            int              d_line;  // source line number
+            char             d_mem;   // expected allocation: 'Y', 'N', '?'
+            bdet_DatetimeTz *d_datetimeTz;
+            const char      *d_timeZoneId;
         } DATA[] = {
 
             //LINE  MEM  DTTZ          TZID
@@ -1436,10 +1436,10 @@ int main(int argc, char *argv[])
                                                     // this test allocates
                                                     // some object memory.
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE1   =  DATA[ti].d_line;
-            const char MEMSRC1 =  DATA[ti].d_mem;
-            const T1&  DTTZ1   = *DATA[ti].d_datetimeTz;
-            const T2   TZID1   =  DATA[ti].d_timeZoneId;
+            const int              LINE1   =  DATA[ti].d_line;
+            const char             MEMSRC1 =  DATA[ti].d_mem;
+            const bdet_DatetimeTz& DTTZ1   = *DATA[ti].d_datetimeTz;
+            const char *const      TZID1   =  DATA[ti].d_timeZoneId;
 
             bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -1458,10 +1458,10 @@ int main(int argc, char *argv[])
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int  LINE2   =  DATA[tj].d_line;
-                const char MEMDST2 =  DATA[tj].d_mem;
-                const T1&  DTTZ2   = *DATA[tj].d_datetimeTz;
-                const T2   TZID2   =  DATA[tj].d_timeZoneId;
+                const int              LINE2   =  DATA[tj].d_line;
+                const char             MEMDST2 =  DATA[tj].d_mem;
+                const bdet_DatetimeTz& DTTZ2   = *DATA[tj].d_datetimeTz;
+                const char *const      TZID2   =  DATA[tj].d_timeZoneId;
 
                 bslma_TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -1725,11 +1725,11 @@ int main(int argc, char *argv[])
         const char   *smallTzId = "a";
         const char   *largeTzId = LONGEST_STRING;
 
-        struct {
-            int   d_line;           // source line number
-            char  d_mem;            // expected allocation: 'Y', 'N', '?'
-            T1   *d_datetimeTz;
-            T2    d_timeZoneId;
+        const struct {
+            int              d_line;  // source line number
+            char             d_mem;   // expected allocation: 'Y', 'N', '?'
+            bdet_DatetimeTz *d_datetimeTz;
+            const char      *d_timeZoneId;
         } DATA[] = {
 
             //LINE  MEM  DTTZ          TZID
@@ -1757,10 +1757,10 @@ int main(int argc, char *argv[])
                                                     // this test allocates
                                                     // some object memory.
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE1 =  DATA[ti].d_line;
-            const char MEM1  =  DATA[ti].d_mem;
-            const T1&  DTTZ1 = *DATA[ti].d_datetimeTz;
-            const T2   TZID1 =  DATA[ti].d_timeZoneId;
+            const int              LINE1 =  DATA[ti].d_line;
+            const char             MEM1  =  DATA[ti].d_mem;
+            const bdet_DatetimeTz& DTTZ1 = *DATA[ti].d_datetimeTz;
+            const char *const      TZID1 =  DATA[ti].d_timeZoneId;
 
             bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -1809,10 +1809,10 @@ int main(int argc, char *argv[])
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int  LINE2 =  DATA[tj].d_line;
-                const char MEM2  =  DATA[tj].d_mem;
-                const T1&  DTTZ2 = *DATA[tj].d_datetimeTz;
-                const T2   TZID2 =  DATA[tj].d_timeZoneId;
+                const int              LINE2 =  DATA[tj].d_line;
+                const char             MEM2  =  DATA[tj].d_mem;
+                const bdet_DatetimeTz& DTTZ2 = *DATA[tj].d_datetimeTz;
+                const char *const      TZID2 =  DATA[tj].d_timeZoneId;
 
                       Obj mX(XX, &oa);  const Obj& X = mX;
 
@@ -1863,9 +1863,8 @@ int main(int argc, char *argv[])
         {
             // 'A' values: Should cause memory allocation if possible.
 
-            const T1 A1 = bdet_DatetimeTz(bdet_Datetime(2011, 5, 3, 15),
-                                          -4 * 60);
-            const T2 A2 = LONG_STRING;
+            const bdet_DatetimeTz A1(bdet_Datetime(2011, 5, 3, 15), -4 * 60);
+            const char            A2[] = "a_" SUFFICIENTLY_LONG_STRING;
 
             bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -2074,11 +2073,11 @@ int main(int argc, char *argv[])
         const char   *smallTzId = "a";
         const char   *largeTzId = LONGEST_STRING;
 
-        struct {
-            int   d_line;           // source line number
-            char  d_mem;            // expected allocation: 'Y', 'N', '?'
-            T1   *d_datetimeTz;
-            T2    d_timeZoneId;
+        const struct {
+            int              d_line;  // source line number
+            char             d_mem;   // expected allocation: 'Y', 'N', '?'
+            bdet_DatetimeTz *d_datetimeTz;
+            const char      *d_timeZoneId;
         } DATA[] = {
 
             //LINE  MEM  DTTZ          TZID
@@ -2109,10 +2108,10 @@ int main(int argc, char *argv[])
                                                         // this test allocates
                                                         // some object memory.
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE =  DATA[ti].d_line;
-                const char MEM  =  DATA[ti].d_mem;
-                const T1&  DTTZ = *DATA[ti].d_datetimeTz;
-                const T2   TZID =  DATA[ti].d_timeZoneId;
+                const int              LINE =  DATA[ti].d_line;
+                const char             MEM  =  DATA[ti].d_mem;
+                const bdet_DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz;
+                const char *const      TZID =  DATA[ti].d_timeZoneId;
 
                 LOOP2_ASSERT(LINE, MEM, MEM && strchr("YN?", MEM));
 
@@ -2246,10 +2245,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with injected exceptions." << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE =  DATA[ti].d_line;
-                const char MEM  =  DATA[ti].d_mem;
-                const T1&  DTTZ = *DATA[ti].d_datetimeTz;
-                const T2   TZID =  DATA[ti].d_timeZoneId;
+                const int              LINE =  DATA[ti].d_line;
+                const char             MEM  =  DATA[ti].d_mem;
+                const bdet_DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz;
+                const char *const      TZID =  DATA[ti].d_timeZoneId;
 
                 if (veryVerbose) { T_ P_(MEM) P_(DTTZ) P(TZID) }
 
@@ -2398,6 +2397,11 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
                                                                        << endl;
+
+        // Attribute Types
+
+        typedef bdet_DatetimeTz T1;  // 'datetimeTz'
+        typedef const char     *T2;  // 'timeZoneId'
 
         // Attribute 1 Values: 'datetimeTz'
 
@@ -2553,7 +2557,7 @@ int main(int argc, char *argv[])
         //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
         //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 8 expected o/ps
         //:     3 { B   } x {  2     } x {  3            } --> 1 expected op
-        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps 
+        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps
         //:     4 { A B } x { -9     } x { -9            } --> 2 expected o/ps
         //:
         //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
@@ -2640,7 +2644,7 @@ int main(int argc, char *argv[])
         { L_,  0, -1,  &A,  "["                                              SP
                             "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
                             "timeZoneId = \"EDT\""                           SP
-                            "]"                                              
+                            "]"
                                                                              },
 
         { L_,  0, -8,  &A,  "["                                              NL
@@ -2661,7 +2665,7 @@ int main(int argc, char *argv[])
                             "]"                                              NL
                                                                              },
 
-        { L_,  3,  2,  &A, 
+        { L_,  3,  2,  &A,
                           "      ["                                          NL
                           "        datetimeTz = 03MAY2011_15:00:00.000-0400" NL
                           "        timeZoneId = \"EDT\""                     NL
@@ -2671,10 +2675,10 @@ int main(int argc, char *argv[])
         { L_,  3, -2,  &A,  "      ["                                        SP
                             "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
                             "timeZoneId = \"EDT\""                           SP
-                            "]"                                              
+                            "]"
                                                                              },
 
-        { L_,  3, -8,  &A, 
+        { L_,  3, -8,  &A,
                   "            ["                                            NL
                   "                datetimeTz = 03MAY2011_15:00:00.000-0400" NL
                   "                timeZoneId = \"EDT\""                     NL
@@ -2687,7 +2691,7 @@ int main(int argc, char *argv[])
                             "]"                                              NL
                                                                              },
 
-        { L_, -3,  2,  &A, 
+        { L_, -3,  2,  &A,
                           "["                                                NL
                           "        datetimeTz = 03MAY2011_15:00:00.000-0400" NL
                           "        timeZoneId = \"EDT\""                     NL
@@ -2727,7 +2731,7 @@ int main(int argc, char *argv[])
         //LINE L SPL  OBJ   EXPECTED
         //---- - ---  ---   ---------------------------------------------------
 
-        { L_, -8, -8,  &A, 
+        { L_, -8, -8,  &A,
                            "["                                               NL
                            "    datetimeTz = 03MAY2011_15:00:00.000-0400"    NL
                            "    timeZoneId = \"EDT\""                        NL
@@ -2870,6 +2874,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
+        // Attribute Types
+
+        typedef bdet_DatetimeTz T1;  // 'datetimeTz'
+        typedef bsl::string     T2;  // 'timeZoneId'
+
         // -----------------------------------------------------
         // 'D' values: These are the default-constructed values.
         // -----------------------------------------------------
@@ -2904,7 +2913,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(D1, datetimeTz, D1 == datetimeTz);
 
             const T2 timeZoneId = X.timeZoneId().c_str();
-            LOOP2_ASSERT(D2, timeZoneId, 0 == strcmp(D2, timeZoneId));
+            LOOP2_ASSERT(D2, timeZoneId, D2 == timeZoneId);
 
             ASSERT(&oa == X.allocator());
         }
@@ -2926,14 +2935,14 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ Q(timeZoneId) }
         {
-            mX.setTimeZoneId(A2);
+            mX.setTimeZoneId(A2.c_str());
 
             bslma_TestAllocatorMonitor oam(oa), dam(da);
 
-            const T2 timeZoneId = X.timeZoneId().c_str();
-            LOOP2_ASSERT(A2, timeZoneId, 0 == strcmp(A2, timeZoneId));
+            const T2& timeZoneId = X.timeZoneId();
+            LOOP2_ASSERT(A2, timeZoneId, A2 == timeZoneId);
 
-            ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
+            ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
 
         // Double check that some object memory was allocated.
@@ -3084,11 +3093,11 @@ int main(int argc, char *argv[])
         const char   *smallTzId = "a";
         const char   *largeTzId = LONGEST_STRING;
 
-        struct {
-            int   d_line;           // source line number
-            char  d_mem;            // expected allocation: 'Y', 'N', '?'
-            T1   *d_datetimeTz;
-            T2    d_timeZoneId;
+        const struct {
+            int                d_line;  // source line number
+            char               d_mem;   // expected allocation: 'Y', 'N', '?'
+            bdet_DatetimeTz   *d_datetimeTz;
+            const char *const  d_timeZoneId;
         } DATA[] = {
 
             //LINE  MEM  DTTZ          TZID
@@ -3119,10 +3128,10 @@ int main(int argc, char *argv[])
                                                         // this test allocates
                                                         // some object memory.
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE =  DATA[ti].d_line;
-                const char MEM  =  DATA[ti].d_mem;
-                const T1&  DTTZ = *DATA[ti].d_datetimeTz;
-                const T2   TZID =  DATA[ti].d_timeZoneId;
+                const int              LINE =  DATA[ti].d_line;
+                const char             MEM  =  DATA[ti].d_mem;
+                const bdet_DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz;
+                const char *const      TZID =  DATA[ti].d_timeZoneId;
 
                 if (veryVerbose) { T_ P_(MEM) P_(DTTZ) P(TZID) }
 
@@ -3258,10 +3267,10 @@ int main(int argc, char *argv[])
             bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE =  DATA[ti].d_line;
-                const char MEM  =  DATA[ti].d_mem;
-                const T1&  DTTZ = *DATA[ti].d_datetimeTz;
-                const T2   TZID =  DATA[ti].d_timeZoneId;
+                const int              LINE =  DATA[ti].d_line;
+                const char             MEM  =  DATA[ti].d_mem;
+                const bdet_DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz;
+                const char *const      TZID =  DATA[ti].d_timeZoneId;
 
                 if (veryVerbose) { T_ P_(MEM) P_(DTTZ) P(TZID) }
 
@@ -3389,7 +3398,7 @@ int main(int argc, char *argv[])
         //:     first setting all of the attributes to their 'A' values.  Then
         //:     incrementally set each attribute to it's corresponding  'B'
         //:     value and verify after each manipulation that only that
-        //:     attribute's value changed.  (C-10) 
+        //:     attribute's value changed.  (C-10)
         //:
         //:   8 Verify that no temporary memory is allocated from the object
         //:     allocator.  (C-7)
@@ -3417,19 +3426,19 @@ int main(int argc, char *argv[])
 
         // 'D' values: These are the default-constructed values.
 
-        const T1 D1 = bdet_DatetimeTz();  // default value
-        const T2 D2 = "";                 // default value
+        const bdet_DatetimeTz D1   = bdet_DatetimeTz();  // default value
+        const char            D2[] = "";                 // default value
 
         // 'A' values: Should cause memory allocation if possible.
 
-        const T1 A1 = bdet_DatetimeTz(bdet_Datetime(2011, 5, 3, 15), -4 * 60);
-        const T2 A2 = "a_" SUFFICIENTLY_LONG_STRING;
+        const bdet_DatetimeTz A1(bdet_Datetime(2011, 5, 3, 15), -4 * 60);
+        const char            A2[] = "a_" SUFFICIENTLY_LONG_STRING;
 
         // 'B' values: Should NOT cause allocation (use alternate string type).
 
-        const bdet_Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999);
-        const T1            B1 = bdet_DatetimeTz(maxDatetime, 1440 - 1);
-        const T2            B2 = "xyz";
+        const bdet_Datetime   maxDatetime(9999, 12, 31, 23, 59, 59, 999);
+        const bdet_DatetimeTz B1   = bdet_DatetimeTz(maxDatetime, 1440 - 1);
+        const char            B2[] = "xyz";
 
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
@@ -3621,6 +3630,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
+
+        // Attribute Types
+
+        typedef bdet_DatetimeTz  T1; // 'datetimeTz'
+        typedef const char      *T2; // 'timeZoneId'
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Values for testing
