@@ -71,7 +71,7 @@ BDES_IDENT("$Id: $ $CSID: $")
 //
 //  bsl::string     timeZoneId("America/New_York");
 //  localDatetime.setDatetimeTz(datetimeTz);
-//  localDatetime.setTimeZoneId(timeZoneId.c_str());
+//  localDatetime.setTimeZoneId(timeZoneId);
 //
 //  assert(datetimeTz == localDatetime.datetimeTz());
 //  assert(timeZoneId == localDatetime.timeZoneId());
@@ -80,7 +80,7 @@ BDES_IDENT("$Id: $ $CSID: $")
 // "Europe/Berlin":
 //..
 //  bsl::string anotherTimeZoneId("Europe/Berlin");
-//  localDatetime.setTimeZoneId(anotherTimeZoneId.c_str());
+//  localDatetime.setTimeZoneId(anotherTimeZoneId);
 //
 //  assert(anotherTimeZoneId == localDatetime.timeZoneId());
 //  assert(datetimeTz        == localDatetime.datetimeTz());

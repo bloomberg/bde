@@ -406,7 +406,7 @@ int main(int argc, char *argv[])
 
     bsl::string     timeZoneId("America/New_York");
     localDatetime.setDatetimeTz(datetimeTz);
-    localDatetime.setTimeZoneId(timeZoneId.c_str());
+    localDatetime.setTimeZoneId(timeZoneId);
 
     ASSERT(datetimeTz == localDatetime.datetimeTz());
     ASSERT(timeZoneId == localDatetime.timeZoneId());
@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
 // "Europe/Berlin":
 //..
     bsl::string anotherTimeZoneId("Europe/Berlin");
-    localDatetime.setTimeZoneId(anotherTimeZoneId.c_str());
+    localDatetime.setTimeZoneId(anotherTimeZoneId);
 
     ASSERT(anotherTimeZoneId == localDatetime.timeZoneId());
     ASSERT(datetimeTz        == localDatetime.datetimeTz());
@@ -2397,8 +2397,8 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef bdet_DatetimeTz T1;  // 'datetimeTz'
-        typedef const char     *T2;  // 'timeZoneId'
+        typedef bdet_DatetimeTz  T1;  // 'datetimeTz'
+        typedef const char      *T2;  // 'timeZoneId'
 
         // Attribute 1 Values: 'datetimeTz'
 
@@ -2909,7 +2909,7 @@ int main(int argc, char *argv[])
             const T1& datetimeTz = X.datetimeTz();
             LOOP2_ASSERT(D1, datetimeTz, D1 == datetimeTz);
 
-            const T2 timeZoneId = X.timeZoneId().c_str();
+            const T2 timeZoneId = X.timeZoneId();
             LOOP2_ASSERT(D2, timeZoneId, D2 == timeZoneId);
 
             ASSERT(&oa == X.allocator());
@@ -2932,7 +2932,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ Q(timeZoneId) }
         {
-            mX.setTimeZoneId(A2.c_str());
+            mX.setTimeZoneId(A2);
 
             bslma_TestAllocatorMonitor oam(oa), dam(da);
 
