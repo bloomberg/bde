@@ -204,9 +204,6 @@ typedef bslma_TestAllocator TestAllocator;
 typedef bdex_TestInStream   In;
 typedef bdex_TestOutStream  Out;
 
-//typedef bdet_DatetimeTz  T1;  // Attribute 'datetimeTz'
-//typedef const char      *T2;  // Attribute 'timeZoneId'
-
 // ============================================================================
 //                     HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
