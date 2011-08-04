@@ -38,9 +38,6 @@ namespace bsl
     using native_std::basic_streambuf;
     using native_std::bidirectional_iterator_tag;
     using native_std::boolalpha;
-    using native_std::codecvt;
-    using native_std::codecvt_base;
-    using native_std::codecvt_byname;
     using native_std::ctype;
     using native_std::ctype_base;
     using native_std::ctype_byname;
@@ -68,7 +65,6 @@ namespace bsl
     using native_std::nounitbuf;
     using native_std::nouppercase;
     using native_std::num_get;
-    using native_std::num_put;
     using native_std::numpunct;
     using native_std::numpunct_byname;
     using native_std::oct;

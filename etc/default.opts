@@ -79,6 +79,7 @@
 *           qnt     BUILD_TYPE  = -DBDE_BUILD_TARGET_QNT
 *           safe    BUILD_TYPE  = -DBDE_BUILD_TARGET_SAFE
 *           safe2   BUILD_TYPE  = -DBDE_BUILD_TARGET_SAFE_2
+*           stlport BUILD_TYPE  = -DBDE_BUILD_TARGET_STLPORT
 
 *           _   BDE_CFLAGS  = $(BUILD_TYPE)
 *           _   BDE_CXXFLAGS    = $(BUILD_TYPE)
@@ -104,9 +105,9 @@
 # For Windows, Uplid.pm deduces compiler version from availble cl.exe.
 # Let's set this to a bogus value here.
 !! windows                    _       BDE_COMPILERVERSION_FLAG = 999.999
-!! unix-SunOS-*-*-cc          _       BDE_COMPILERVERSION_FLAG = 5.9
-!! unix-SunOS-i386-*-cc       _       BDE_COMPILERVERSION_FLAG = 5.9
-!! unix-SunOS-i386-*-cc      64       BDE_COMPILERVERSION_FLAG = 5.9
+!! unix-SunOS-*-*-cc          _       BDE_COMPILERVERSION_FLAG = 5.10
+!! unix-SunOS-i386-*-cc       _       BDE_COMPILERVERSION_FLAG = 5.10
+!! unix-SunOS-i386-*-cc      64       BDE_COMPILERVERSION_FLAG = 5.10
 !! unix-SunOS-*-*-gcc         _       BDE_COMPILERVERSION_FLAG = 4.3.2
 !! unix-HP_UX-*-*-acc         _       BDE_COMPILERVERSION_FLAG = 6.2
 !! unix-HP_UX-*-*-gcc         _       BDE_COMPILERVERSION_FLAG = 4.3.2
@@ -897,6 +898,11 @@ unix-Linux-*-*-gcc      64  CC64FLAGS   = -fPIC
 # DRQS 22147649 -- allow PIC builds for static libs under SunOS
 unix-SunOS-sparc-*-cc      pic  BDE_CXXFLAGS   = -xcode=pic32
 
+# enable support for building with the Sun supplied version of STLPort as the
+# default implementation of the Standard Library
+unix-SunOS-*-*-cc       stlport     BDE_CXXFLAGS    = -library=stlport4 -template=no%extdef
+unix-SunOS-*-*-cc       stlport     BDE_LDFLAGS     = -library=stlport4
+
 #old flags
 unix-AIX-*-*-CC64   _   CC64FLAGS   = -q64
 #new flags for 64 bits
@@ -957,12 +963,12 @@ windows-        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /nologo /W3 /D"WIN32" /D
 unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 !! unix-SunOS-*-*-cc-5.2   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/SUNWspro61/bin/CC $(CXX64FLAGS)
 !! unix-SunOS-*-*-cc-5.5   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bb/util/common/studio8-v10/SUNWspro/bin/CC $(CXX64FLAGS)
-!! unix-SunOS-*-*-cc-5.9   _   STUDIO_LOC = /bb/util/common/studio12-v4/
+
+!! unix-SunOS-*-*-cc-5.9   _   STUDIO_LOC = /bb/util/common/studio12-v4
+!! unix-SunOS-*-*-cc-5.10  _   STUDIO_LOC = /bb/util/common/SS12U1-20101214
+
 !! unix-SunOS-*-*-cc-5.9   _    CC        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/SUNWspro/bin/cc $(CC64FLAGS)
 !! unix-SunOS-*-*-cc-5.9   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/SUNWspro/bin/CC $(CXX64FLAGS)
-!! unix-SunOS-*-*-cc-5.10  _   STUDIO_LOC = /bb/util/common/SS12U1-20101214/
-!! unix-SunOS-*-*-cc-5.10  _    CC        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/sunstudio12.1/bin/cc $(CC64FLAGS)
-!! unix-SunOS-*-*-cc-5.10  _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/sunstudio12.1/bin/CC $(CXX64FLAGS)
 
 !! unix-HP_UX-*-*-*        _   CXX        = $(RETRY_ON_SIGNAL) $(ACC_BIN)/aCC $(CXX64FLAGS)
 

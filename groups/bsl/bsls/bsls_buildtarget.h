@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide build-target information in the object file.
 //
 //@CLASSES:
-// bsls_ExcBuildTarget: type name for identifying exception builds
-//  bsls_MtBuildTarget: type name for identifying multi-threaded builds
+//  bsls_ExcBuildTarget: type name for identifying exception builds
+//   bsls_MtBuildTarget: type name for identifying multi-threaded builds
 //
 //@SEE_ALSO:
 //

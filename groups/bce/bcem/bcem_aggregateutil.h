@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities for manipulating 'bcem_Aggregate' objects.
 //
-//@CLASSES: bcem_AggregateUtil: Utility functions for 'bcem_Aggregate' objects
+//@CLASSES:
+//   bcem_AggregateUtil: utility functions for 'bcem_Aggregate' objects
 //
 //@AUTHOR: David Rubin (drubin6)
 //

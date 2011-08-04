@@ -33,19 +33,20 @@ BDES_IDENT("$Id: $")
 //                                           allocate
 //                                           deallocate      // no-op
 //..
+//
 ///Usage
 ///-----
 // Here we allocate some memory using a heap bypass allocator, then write to
 // that memory, then read from it and verify the values written are preserved.
 //..
-//  {    
+//  {
 //      enum {
 //          LENGTH = 10 * 1000,
 //          NUM_SEGMENTS = 60
 //      };
 //
 //      bdema_HeapBypassAllocator hbpa;
-//. .
+//..
 // First we allocate some segments
 //..
 //      char *segments[NUM_SEGMENTS];

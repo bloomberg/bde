@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a generic translation from XML into C++ objects.
 //
-//@CLASSES: baexml_Decoder: an XML decoder
+//@CLASSES:
+//   baexml_Decoder: an XML decoder
 //
 //@AUTHOR: Shezan Baig (sbaig), Alexander Libman (alibman1@bloomberg.net)
 //

@@ -28,6 +28,7 @@
 
 #include <strstream>
 #include <string>
+#include <ios>
 #include <cassert>
 
 #include <rw/_defs.h>
