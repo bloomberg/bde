@@ -138,9 +138,9 @@ BDES_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-// Note that 'findTransitionForUtcTime' has undefined behavior if
-// the supplied search time is earlier than that of the first transition in the
-// Zoneinfo object.  However a 'baetzo_ZoneinfoCache' (from which we obtained
+// Note that 'findTransitionForUtcTime' has undefined behavior if the supplied
+// search time is earlier than that of the first transition in the Zoneinfo
+// object.  However a 'baetzo_ZoneinfoCache' (from which we obtained
 // 'zoneinfo') is guaranteed to return a well-formed 'baetzo_Zoneinfo' (see
 // 'baetzo_ZoneinfoUtil::isWellFormed'), meaning that it contains a transition
 // at the first representable 'bdet_Datetime' value, so the following call to
@@ -226,8 +226,6 @@ struct baetzo_DefaultZoneinfoCache {
     // the default time-zone data cache.
 
   private:
-    // PRIVATE FRIENDS
-    friend class baetzo_DefaultZoneinfoCacheScopedGuard;
 
     // PRIVATE CLASS METHODS
     static baetzo_ZoneinfoCache *instance();
@@ -268,13 +266,16 @@ struct baetzo_DefaultZoneinfoCache {
         // Set the address of the default 'baetzo_ZoneinfoCache' object to the
         // specified 'cache'.  Return the address of the default cache object
         // that was set by a previous call to this method, or 0 if no call to
-        // this method was executed before.  The behavior is undefined if
-        // this method is called from one thread while another thread is
-        // attempting to access the default time zone cache instance (i.e., 
-        // this method is *not* thread-safe).  Note that this method is
-        // intended for use *only* by the *owner* of 'main' (and for testing
-        // purposes) where the caller affirmatively takes responsibility for
-        // the behavior of all clients of the default time zone cache.
+        // this method was previously executed.  The behavior is undefined
+        // unless (1) 'cache' remains valid until no more operations are
+        // performed in the process on the default cache or a subsequent call
+        // to 'setDefaultCache', and (2) this method is *not* called from one
+        // thread while another thread is attempting to access the default time
+        // zone cache instance (i.e., this method is *not* thread-safe).  Note
+        // that this method is intended for use *only* by the *owner* of 'main'
+        // (and for testing purposes) where the caller affirmatively takes
+        // responsibility for the behavior of all clients of the default time
+        // zone cache.
 };
 
                  // ============================================
