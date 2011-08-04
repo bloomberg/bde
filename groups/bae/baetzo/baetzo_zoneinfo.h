@@ -48,7 +48,9 @@ BDES_IDENT("$Id: $")
 ///'baetzo_Zoneinfo'
 ///-----------------
 // A 'baetzo_Zoneinfo' contains:
+//
 //: o the time zone identifier (e.g., "America/New_York" or "Asia/Tokyo")
+//:
 //: o the ordered sequence of 'baetzo_ZoneinfoTransition' objects,
 //:   representing the various transitions from UTC for this time zone.
 //
@@ -415,7 +417,7 @@ class baetzo_Zoneinfo {
     //: o is *exception-neutral*
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
-    // For terminology: see 'bsldoc_glossary'.
+    // For terminology: 'see bsldoc_glossary'.
 
     // PRIVATE TYPES
     class DescriptorLess {
@@ -690,11 +692,11 @@ baetzo_Zoneinfo& baetzo_Zoneinfo::operator=(const baetzo_Zoneinfo& rhs)
 }
 
 inline
-void baetzo_Zoneinfo::setIdentifier(const bdeut_StringRef& identifier)
+void baetzo_Zoneinfo::setIdentifier(const bdeut_StringRef& value)
 {
-    BSLS_ASSERT_SAFE(identifier.isBound());
+    BSLS_ASSERT_SAFE(value.isBound());
 
-    d_identifier.assign(identifier.begin(), identifier.end());
+    d_identifier.assign(value.begin(), value.end());
 }
 
 inline
