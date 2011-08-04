@@ -99,6 +99,10 @@ iterators invalidated are those referring to the deleted node.
 #include <bslalg_typetraitsgroupstlordered.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ADDRESSOF
+#include <bsls_addressof.h>
+#endif
+
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
 #endif
@@ -319,7 +323,7 @@ protected:
     _Link_type __tmp = this->_M_header.allocate(1);
     BSLS_TRY {
       BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-          &__tmp->_M_value_field, __x,
+          BSLS_ADDRESSOF(__tmp->_M_value_field), __x,
           this->_M_header.bslmaAllocator());
     }
     BSLS_CATCH(...) {
@@ -514,9 +518,8 @@ public:
                                                          this->_M_header._M_data->_M_parent,
                                                          this->_M_header._M_data->_M_left,
                                                          this->_M_header._M_data->_M_right);
-// MODIFIED BY ARTHUR
-//    bsl::_bslstp_Destroy(&__y->_M_value_field);
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(&__y->_M_value_field);
+    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+                                          BSLS_ADDRESSOF(__y->_M_value_field));
     this->_M_header.deallocate(__y,1);
     --_M_node_count;
   }
@@ -784,8 +787,6 @@ _Rb_global<_Dummy>::_Rebalance_for_erase(_Rb_tree_node_base* __z,
     __y->_M_parent = __z->_M_parent;
 
 
-// MODIFIED BY PABLO
-//    _STLP_STD::swap(__y->_M_color, __z->_M_color);
     BloombergLP::bslalg_ScalarPrimitives::swap(__y->_M_color, __z->_M_color);
 
     __y = __z;
@@ -1259,9 +1260,8 @@ _Rb_tree<_Key,_Value,_KeyOfValue,
   while (__x != 0) {
     _M_erase(_S_right(__x));
     _Link_type __y = _S_left(__x);
-    // MODIFIED BY ARTHUR
-    // bsl::_bslstp_Destroy(&__x->_M_value_field);
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(&__x->_M_value_field);
+    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+                                          BSLS_ADDRESSOF(__x->_M_value_field));
     this->_M_header.deallocate(__x,1);
     __x = __y;
   }

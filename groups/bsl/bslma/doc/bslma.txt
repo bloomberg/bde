@@ -523,49 +523,50 @@ Allocator         |                       |                         |
  As before, we highlight use of the allocator by surrounding its use with
  asterisks.
 ..
-#include <bslma_sequentialallocator.h>
-#include <bdem_elemtype.h>
-#include <vector>
-#include <string>
-
-using namespace BloombergLP;
-
-// The following (de-facto struct) holds:
-//      1. metadata defining a column, and
-//      2. a container to hold column contents.
-
-class Column {
-    std::string d_columnName;         // Name of the "column" in the query
-    bdem_ElemType::Type d_typeCode;   // C++ type for this column
-    std::vector<void *> d_items;      // Pointers to column data
-
-    friend class MyResultSet;
-};
-
-class MyResultSet {
-
- /*****************************************/
-    // The memory source for storing database-retrieved items.
-    bslma_SequentialAllocator d_memSource;
- /*****************************************/
-
-    std::vector<Column> d_columns;
-    int d_cursor;    // specifies the row being accessed
-
-    int findIndexForName(const char *columnName);
-
-  public:
-    MyResultSet(void);
-    ~MyResultSet(void);
-
-    bool fakeExecute(const char *sqlQuery);   // this simulates query execution
-    bool next(void);                          // move to the next row
-
-    // ODBC "PROTOCOL" -- DATA EXTRACTION ROUTINES
-    int getInt(int *result, const char *columnName);
-    int getString(std::string *result, const char *columnName);
-    int getDouble(double *result, const char *columnName);
-};
+  #include <bslma_sequentialallocator.h>
+  #include <bdem_elemtype.h>
+  #include <vector>
+  #include <string>
+  
+  using namespace BloombergLP;
+  
+  // The following (de-facto struct) holds:
+  //      1. metadata defining a column, and
+  //      2. a container to hold column contents.
+  
+  class Column {
+      std::string d_columnName;         // Name of the "column" in the query
+      bdem_ElemType::Type d_typeCode;   // C++ type for this column
+      std::vector<void *> d_items;      // Pointers to column data
+  
+      friend class MyResultSet;
+  };
+  
+  class MyResultSet {
+  
+   /*****************************************/
+      // The memory source for storing database-retrieved items.
+      bslma_SequentialAllocator d_memSource;
+   /*****************************************/
+  
+      std::vector<Column> d_columns;
+      int d_cursor;    // specifies the row being accessed
+  
+      int findIndexForName(const char *columnName);
+  
+    public:
+      MyResultSet(void);
+      ~MyResultSet(void);
+  
+      bool fakeExecute(const char *sqlQuery);   // this simulates query
+                                                // execution
+      bool next(void);                          // move to the next row
+  
+      // ODBC "PROTOCOL" -- DATA EXTRACTION ROUTINES
+      int getInt(int *result, const char *columnName);
+      int getString(std::string *result, const char *columnName);
+      int getDouble(double *result, const char *columnName);
+  };
 ..
  We simplify this example by only implementing data retrieval for three types.
  (A real driver, of course, would define an API for each supported type.)
@@ -582,207 +583,207 @@ class MyResultSet {
  This simplification necessarily also involves hard-coding metadata that would
  also be obtained by computation, such as how many records were returned.
 ..
-enum { SUCCESS = 0, FAILURE = 1 };
-
-MyResultSet::MyResultSet(void)
-  /********************************************/
-: d_memSource(bslma_Default::defaultAllocator())
-  /********************************************/
-, d_cursor(-1)
-{
-    d_columns.reserve(20);  // few queries request more than 20 columns
-}
-
-MyResultSet::~MyResultSet(void)
-{
-    /*******************/
-    d_memSource.release();
-    /*******************/
-}
-
-bool MyResultSet::fakeExecute(const char *sqlQuery)
-{
-    /* This block simulates a 'char' sequence that might be returned
-       from the file.  It simulates a legacy file that stores the data
-       as '@'-separated fields.
-
-       The query being simulated appears in 'main', below.
-    */
-    char *fileData =
-    "Harold@Effective XML@0321150406@44.99@"
-    "Alexandrescu@Modern C++ Design@0201704315@42.99@"
-    "McLaughlin@Java & XML@0596001975@44.95@"
-    "Leung@Professional XML Development with Apache Tools@0764543555@39.99@"
-    "Rago@UNIX System V Network Programming@0201563185@47.50@";
-
-    const int numRows = 5;  // would be computed
-    const int numCols = 4;  // would be parsed from query
-
-    // Set up 'MyResultSet' metadata
-    Column rsmd;
-    rsmd.d_columnName = "AUTHOR";
-    rsmd.d_typeCode = bdem_ElemType::STRING;
-    d_columns.push_back(rsmd);
-    rsmd.d_columnName = "TITLE";
-    rsmd.d_typeCode = bdem_ElemType::STRING;
-    d_columns.push_back(rsmd);
-    rsmd.d_columnName = "ISBN";
-    rsmd.d_typeCode = bdem_ElemType::INT;
-    d_columns.push_back(rsmd);
-    rsmd.d_columnName = "PRICE";
-    rsmd.d_typeCode = bdem_ElemType::DOUBLE;
-    d_columns.push_back(rsmd);
-
-    const char *endOfWord = fileData;
-    for (int i = 0; i < numRows; i++) {
-        for (int j = 0; j < numCols; ++j) {
-
-            // Find the start and end of next column's data
-            const char * startOfWord = endOfWord;
-            endOfWord = strchr(endOfWord, '@');
-
-            /* Because of our simulation, the "file-returned block"
-               is stored in const memory.  We can't replace the '@' signs
-               with the needed NULL directly in const memory, so we  make
-               a copy of the parsed items instead.
-               This extra copy would not be needed in a real driver.
-            */
-            char scratchSpace[100];
-            int hackLen = endOfWord - startOfWord;
-            strncpy(scratchSpace, startOfWord, hackLen);
-            scratchSpace[hackLen] = 0;
-
-            int *iMemBlock;             // define these outside the switch
-            double *dMemBlock;          //      to silence erroneous compiler
-            char *sMemBlock;            //      errors
-
-            // Extract the data, storing in allocated memory.
-            switch (d_columns[j].d_typeCode) {
-              case bdem_ElemType::INT:
+  enum { SUCCESS = 0, FAILURE = 1 };
+  
+  MyResultSet::MyResultSet(void)
+    /********************************************/
+  : d_memSource(bslma_Default::defaultAllocator())
+    /********************************************/
+  , d_cursor(-1)
+  {
+      d_columns.reserve(20);  // few queries request more than 20 columns
+  }
+  
+  MyResultSet::~MyResultSet(void)
+  {
+      /*******************/
+      d_memSource.release();
+      /*******************/
+  }
+  
+  bool MyResultSet::fakeExecute(const char *sqlQuery)
+  {
+      /* This block simulates a 'char' sequence that might be returned
+         from the file.  It simulates a legacy file that stores the data
+         as '@'-separated fields.
+  
+         The query being simulated appears in 'main', below.
+      */
+      char *fileData =
+      "Harold@Effective XML@0321150406@44.99@"
+      "Alexandrescu@Modern C++ Design@0201704315@42.99@"
+      "McLaughlin@Java & XML@0596001975@44.95@"
+      "Leung@Professional XML Development with Apache Tools@0764543555@39.99@"
+      "Rago@UNIX System V Network Programming@0201563185@47.50@";
+  
+      const int numRows = 5;  // would be computed
+      const int numCols = 4;  // would be parsed from query
+  
+      // Set up 'MyResultSet' metadata
+      Column rsmd;
+      rsmd.d_columnName = "AUTHOR";
+      rsmd.d_typeCode = bdem_ElemType::STRING;
+      d_columns.push_back(rsmd);
+      rsmd.d_columnName = "TITLE";
+      rsmd.d_typeCode = bdem_ElemType::STRING;
+      d_columns.push_back(rsmd);
+      rsmd.d_columnName = "ISBN";
+      rsmd.d_typeCode = bdem_ElemType::INT;
+      d_columns.push_back(rsmd);
+      rsmd.d_columnName = "PRICE";
+      rsmd.d_typeCode = bdem_ElemType::DOUBLE;
+      d_columns.push_back(rsmd);
+  
+      const char *endOfWord = fileData;
+      for (int i = 0; i < numRows; i++) {
+          for (int j = 0; j < numCols; ++j) {
+  
+              // Find the start and end of next column's data
+              const char * startOfWord = endOfWord;
+              endOfWord = strchr(endOfWord, '@');
+  
+              /* Because of our simulation, the "file-returned block"
+                 is stored in const memory.  We can't replace the '@' signs
+                 with the needed NULL directly in const memory, so we  make
+                 a copy of the parsed items instead.
+                 This extra copy would not be needed in a real driver.
+              */
+              char scratchSpace[100];
+              int hackLen = endOfWord - startOfWord;
+              strncpy(scratchSpace, startOfWord, hackLen);
+              scratchSpace[hackLen] = 0;
+  
+              int *iMemBlock;             // define these outside the switch
+              double *dMemBlock;          //      to silence erroneous compiler
+              char *sMemBlock;            //      errors
+  
+              // Extract the data, storing in allocated memory.
+              switch (d_columns[j].d_typeCode) {
+                case bdem_ElemType::INT:
                                     /*****************************************/
-                iMemBlock = static_cast<int *>
-                                         (d_memSource.allocate(sizeof(int)));
+                  iMemBlock = static_cast<int *>
+                                           (d_memSource.allocate(sizeof(int)));
                                     /*****************************************/
-
-                *iMemBlock = atoi(scratchSpace);   // SAFE because aligned!
-                d_columns[j].d_items.push_back(iMemBlock);
-                break;
-              case bdem_ElemType::DOUBLE:
+  
+                  *iMemBlock = atoi(scratchSpace);   // SAFE because aligned!
+                  d_columns[j].d_items.push_back(iMemBlock);
+                  break;
+                case bdem_ElemType::DOUBLE:
                                     /*****************************************/
-                dMemBlock = static_cast<double *>
-                                      (d_memSource.allocate(sizeof(double)));
+                  dMemBlock = static_cast<double *>
+                                        (d_memSource.allocate(sizeof(double)));
                                     /*****************************************/
-                *dMemBlock = atof(scratchSpace);   // SAFE because aligned!
-                d_columns[j].d_items.push_back(dMemBlock);
-                break;
-              case bdem_ElemType::STRING:
-                int strLen = endOfWord - startOfWord;
+                  *dMemBlock = atof(scratchSpace);   // SAFE because aligned!
+                  d_columns[j].d_items.push_back(dMemBlock);
+                  break;
+                case bdem_ElemType::STRING:
+                  int strLen = endOfWord - startOfWord;
                                     /*****************************************/
-                sMemBlock = static_cast<char *>
-                                    (d_memSource.allocate(strLen + 1));
+                  sMemBlock = static_cast<char *>
+                                      (d_memSource.allocate(strLen + 1));
                                     /*****************************************/
-
-                strncpy(sMemBlock, startOfWord, strLen);
-                sMemBlock[strLen] = 0;
-                d_columns[j].d_items.push_back(sMemBlock);
-                break;
-            } // end switch
-
-            ++endOfWord;
-        } // end inner (column) loop
-    } // end outer (row) loop
-    return true;
-}
-
-bool MyResultSet::next(void)
-{
-    if (++d_cursor >= d_columns[0].d_items.size()) {
-        // All columns have the same number of items, so it suffices to
-        // ask about 'd_columns[0]'.
-
-        return false;
-    }
-
-    return true;
-}
-
-int MyResultSet::getInt(int *result, const char *columnName)
-{
-    int index = findIndexForName(columnName);
-    if (-1 == index) {
-        return FAILURE;
-    }
-
-    *result = *(int *)(d_columns[index].d_items[d_cursor]);
-    return SUCCESS;
-}
-
-int MyResultSet::getString(std::string *result, const char *columnName)
-{
-    int index = findIndexForName(columnName);
-    if (-1 == index) {
-        return FAILURE;
-    }
-
-    *result = (char *)(d_columns[index].d_items[d_cursor]);
-    return SUCCESS;
-}
-
-int MyResultSet::getDouble(double *result, const char *columnName)
-{
-    int index = findIndexForName(columnName);
-    if (-1 == index) {
-        return FAILURE;
-    }
-
-    *result = *(double *)(d_columns[index].d_items[d_cursor]);
-    return SUCCESS;
-}
-
-// Return the index in the 'd_columns' vector of the column
-// with the passed-in name.
-int MyResultSet::findIndexForName(const char *columnName)
-{
-    // In production code, we might have used an 'std::map'.
-    for (int i = 0; i < d_columns.size(); ++i) {
-        if (d_columns[i].d_columnName == columnName) {
-            return i;
-        }
-    }
-    return -1;
-}
+  
+                  strncpy(sMemBlock, startOfWord, strLen);
+                  sMemBlock[strLen] = 0;
+                  d_columns[j].d_items.push_back(sMemBlock);
+                  break;
+              } // end switch
+  
+              ++endOfWord;
+          } // end inner (column) loop
+      } // end outer (row) loop
+      return true;
+  }
+  
+  bool MyResultSet::next(void)
+  {
+      if (++d_cursor >= d_columns[0].d_items.size()) {
+          // All columns have the same number of items, so it suffices to
+          // ask about 'd_columns[0]'.
+  
+          return false;
+      }
+  
+      return true;
+  }
+  
+  int MyResultSet::getInt(int *result, const char *columnName)
+  {
+      int index = findIndexForName(columnName);
+      if (-1 == index) {
+          return FAILURE;
+      }
+  
+      *result = *(int *)(d_columns[index].d_items[d_cursor]);
+      return SUCCESS;
+  }
+  
+  int MyResultSet::getString(std::string *result, const char *columnName)
+  {
+      int index = findIndexForName(columnName);
+      if (-1 == index) {
+          return FAILURE;
+      }
+  
+      *result = (char *)(d_columns[index].d_items[d_cursor]);
+      return SUCCESS;
+  }
+  
+  int MyResultSet::getDouble(double *result, const char *columnName)
+  {
+      int index = findIndexForName(columnName);
+      if (-1 == index) {
+          return FAILURE;
+      }
+  
+      *result = *(double *)(d_columns[index].d_items[d_cursor]);
+      return SUCCESS;
+  }
+  
+  // Return the index in the 'd_columns' vector of the column
+  // with the passed-in name.
+  int MyResultSet::findIndexForName(const char *columnName)
+  {
+      // In production code, we might have used an 'std::map'.
+      for (int i = 0; i < d_columns.size(); ++i) {
+          if (d_columns[i].d_columnName == columnName) {
+              return i;
+          }
+      }
+      return -1;
+  }
 ..
  The 'main' procedure is then coded as expected:
 ..
-using namespace BloombergLP;
-
-int main(int argc, char **argv)
-{
-    MyResultSet rs;
-    rs.fakeExecute("SELECT author, title, isbn, price
-                    FROM <table list>
-                    WHERE <join criteria>");
-
-    // Walk through entire result set and print out entries.
-    std::string author;
-    std::string title;
-    int isbn;
-    double price;
-
-    while (rs.next()) {                  // position at the next row
-        rs.getString(&author, "AUTHOR");
-        rs.getString(&title, "TITLE");
-        rs.getInt(&isbn, "ISBN");
-        rs.getDouble(&price, "PRICE");
-
-        std::cout << "Author: " << author << std::endl;
-        std::cout << "Title: " << title << std::endl;
-        std::cout << "ISBN #: " << isbn << std::endl;
-        std::cout << "Price: " << price << std::endl << std::endl;
-    }
-
-    return 0;
-}
+  using namespace BloombergLP;
+  
+  int main(int argc, char **argv)
+  {
+      MyResultSet rs;
+      rs.fakeExecute("SELECT author, title, isbn, price
+                      FROM <table list>
+                      WHERE <join criteria>");
+  
+      // Walk through entire result set and print out entries.
+      std::string author;
+      std::string title;
+      int isbn;
+      double price;
+  
+      while (rs.next()) {                  // position at the next row
+          rs.getString(&author, "AUTHOR");
+          rs.getString(&title, "TITLE");
+          rs.getInt(&isbn, "ISBN");
+          rs.getDouble(&price, "PRICE");
+  
+          std::cout << "Author: " << author << std::endl;
+          std::cout << "Title: " << title << std::endl;
+          std::cout << "ISBN #: " << isbn << std::endl;
+          std::cout << "Price: " << price << std::endl << std::endl;
+      }
+  
+      return 0;
+  }
 ..
 /USAGE EXAMPLE 2: Sketch use of 'bslma_BufferAllocator'
 /------------------------------------------------------
