@@ -36,7 +36,7 @@ static const char *BAETZO_DATA_LOCATIONS[] = {
 
 // STATIC DATA
 static baetzo_ZoneinfoCache *systemSingletonCachePtr = 0;  // default sys cache
-static baetzo_ZoneinfoCache *userSingletonCachePtr = 0;    // default usr cache
+static baetzo_ZoneinfoCache *userSingletonCachePtr   = 0;  // default usr cache
 
 // STATIC HELPER FUNCTIONS
 static
@@ -65,9 +65,10 @@ baetzo_ZoneinfoCache *initSystemDefaultCache()
 // PRIVATE CLASS METHODS
 baetzo_ZoneinfoCache *baetzo_DefaultZoneinfoCache::instance()
 {
-    if (userSingletonCachePtr)
+    if (userSingletonCachePtr) {
         return userSingletonCachePtr;                                 // RETURN
-    
+    }
+
     BCEMT_ONCE_DO {
         if (0 == systemSingletonCachePtr) {
             systemSingletonCachePtr = initSystemDefaultCache();
@@ -100,7 +101,7 @@ const char *baetzo_DefaultZoneinfoCache::defaultZoneinfoDataLocation()
                           << "falling back on default location: "
                           << *pathPtr
                           << BAEL_LOG_END;
-             return *pathPtr;                                         // RETURN
+            return *pathPtr;                                          // RETURN
          }
     }
 
