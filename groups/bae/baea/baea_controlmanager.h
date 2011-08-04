@@ -4,7 +4,8 @@
 
 //@PURPOSE: Provide a mechanism for mapping control messages to callbacks
 //
-//@CLASSES: baea_ControlManager: mechanism that maps control messages
+//@CLASSES:
+//   baea_ControlManager: mechanism that maps control messages
 //
 //@AUTHOR:  David Schumann (dschumann1@bloomberg.net)
 //
