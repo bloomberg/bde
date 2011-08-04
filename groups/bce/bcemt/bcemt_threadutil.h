@@ -12,7 +12,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  bcemt_ThreadUtil: namespace for portable thread management utilities
 //
-//@SEE_ALSO: bcemt_threadattributes
+//@SEE_ALSO: bcemt_threadattributes, bcemt_default
 //
 //@DESCRIPTION: This component provides a suite of procedures to create and
 // join threads, manipulate thread handles, and (on some platforms) access
@@ -287,6 +287,24 @@ struct bcemt_ThreadUtil {
         // the exit status.  Note that the preferred method of exiting a thread
         // is to return from the entry point function.
 
+    static int getMinSchedPriority(int policy = -1);
+        // Return the non-negative minimum available priority for the
+        // optionally-specified 'policy' on success, where 'policy' is of type
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  If no policy is
+        // specified, the minimum priority for the process's policy is
+        // returned.  Return 'INT_MIN' on error.  Note that for some
+        // platform / policy cominations,
+        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+
+    static int getMaxSchedPriority(int policy = -1);
+        // Return the non-negative maximum available priority for the
+        // optionally-specified 'policy' on success, where 'policy' is of type
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  If no policy is
+        // specified, the maximum priority for the process's policy is
+        // returned.  Return 'INT_MIN' on error.  Note that for some
+        // platform / policy cominations,
+        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+
     static int join(Handle& handle, void **status = 0);
         // Suspend execution of the current thread until the thread referred to
         // by the specified 'handle' terminates, and reclaim any system
@@ -447,6 +465,18 @@ int bcemt_ThreadUtil::create(bcemt_ThreadUtil::Handle *handle,
                              void                     *userData)
 {
     return Imp::create(handle, function, userData);
+}
+
+inline
+int bcemt_ThreadUtil::getMinSchedPriority(int policy)
+{
+    return Imp::getMinSchedPriority(policy);
+}
+
+inline
+int bcemt_ThreadUtil::getMaxSchedPriority(int policy)
+{
+    return Imp::getMaxSchedPriority(policy);
 }
 
 inline

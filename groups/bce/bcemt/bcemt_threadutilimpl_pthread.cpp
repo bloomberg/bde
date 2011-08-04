@@ -7,21 +7,57 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 #include <bcemt_default.h>
 #include <bcemt_threadattributes.h>
 
-#include <bdet_timeinterval.h>
-#include <bsls_platform.h>
+#include <bces_platform.h>
 
 #ifdef BCES_PLATFORM__POSIX_THREADS
 
+#include <bdet_timeinterval.h>
+
+#include <bsls_assert.h>
+#include <bsls_platform.h>
+
 #include <bsl_ctime.h>
+#include <bsl_limits.h>
+
+#include <pthread.h>
+
+#if defined(BSLS_PLATFORM__OS_AIX)
+# include <sys/types.h>    // geteuid
+# include <unistd.h>       // geteuid
+#endif
 
 namespace BloombergLP {
+
+static inline
+int localPthreadsPolicy(int policy)
+    // Return the native pthreads scheduling policy corresponding to the
+    // specified 'policy' which is of type
+    // 'bcemt_ThreadAttributes::SchedulingPolicy'.
+{
+    typedef bcemt_ThreadAttributes Attr;
+
+    switch (policy) {
+      case Attr::BCEMT_SCHED_OTHER:   return SCHED_OTHER;             // RETURN
+      case Attr::BCEMT_SCHED_FIFO:    return SCHED_FIFO;              // RETURN
+      case Attr::BCEMT_SCHED_RR:      return SCHED_RR;                // RETURN
+#if defined(BSLS_PLATFORM__OS_HPUX)
+      case Attr::BCEMT_SCHED_DEFAULT:
+      default:                        return SCHED_HPUX;              // RETURN
+#else
+      case Attr::BCEMT_SCHED_DEFAULT:
+      default:                        return SCHED_OTHER;             // RETURN
+#endif
+    }
+
+    BSLS_ASSERT(0);
+}
 
 static int initPthreadAttribute(pthread_attr_t                *dest,
                                 const bcemt_ThreadAttributes&  src)
     // Initialize the specified pthreads attribute type 'dest', configuring it
     // with information from the specified thread attributes object 'src'.
-    // Note that it is assumed that 'pthread_attr_init' has not already been
-    // call on 'dest'.
+    // Note that it is assumed that 'dest' is uninitialized and
+    // 'pthread_attr_init' has not already been call on it.
 {
     typedef bcemt_ThreadAttributes Attr;
 
@@ -40,18 +76,46 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
     }
     rc |= pthread_attr_setguardsize(dest, guardSize);
 
-    if (0 == src.inheritSchedule()) {
+    if (!src.inheritSchedule()) {
         rc |= pthread_attr_setinheritsched(dest, PTHREAD_EXPLICIT_SCHED);
 
-        int policy = src.schedulingPolicy();
-        policy = Attr::BCEMT_SCHED_FIFO == policy
-               ? SCHED_FIFO
-               : Attr::BCEMT_SCHED_RR == policy ? SCHED_RR : SCHED_OTHER;
-        rc |= pthread_attr_setschedpolicy(dest, policy);
+        int pthreadPolicy = localPthreadsPolicy(src.schedulingPolicy());
+        rc |= pthread_attr_setschedpolicy(dest, pthreadPolicy);
 
-        struct sched_param param;
+        const int minPri = sched_get_priority_min(pthreadPolicy);
+#if defined(BSLS_PLATFORM__OS_AIX)
+        enum { MAX_AIX_NON_SUPERUSER_PRIORITY = 60 };
+            // Note max prirority returned is 127 regardless of policy on
+            // AIX
+
+        const int maxPri = 0 != geteuid()
+                         ? MAX_AIX_NON_SUPERUSER_PRIORITY
+                         : sched_get_priority_max(pthreadPolicy);
+#else
+        const int maxPri = sched_get_priority_max(pthreadPolicy);
+#endif
+
+        int priority = src.schedulingPriority();
+        if (Attr::BCEMT_UNSET_NORMALIZED_PRIORITY !=
+                                          src.normalizedSchedulingPriority()) {
+            BSLS_ASSERT(Attr::BCEMT_UNSET_PRIORITY == priority);
+
+            priority =
+                (int) ((maxPri - minPri) * src.normalizedSchedulingPriority() +
+                                                                 minPri + 0.5);
+        }
+        sched_param param;
         rc |= pthread_attr_getschedparam(dest, &param);
-        param.sched_priority = src.schedulingPriority();
+        if (Attr::BCEMT_UNSET_PRIORITY == priority) {
+            priority = param.sched_priority;
+        }
+        if      (priority < minPri) {
+            priority = minPri;
+        }
+        else if (priority > maxPri) {
+            priority = maxPri;
+        }
+        param.sched_priority = priority;
         rc |= pthread_attr_setschedparam(dest, &param);
     }
 
@@ -67,6 +131,10 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
     }
     stackSize += STACK_FUDGE;
 #if defined(BSLS_PLATFORM__OS_HPUX)
+    // The Itanium divides the stack into two sections: a variable stack and a
+    // control stack.  To make 'stackSize' have the same meaning across
+    // platforms, we must double it on this platform.
+
     stackSize *= 2;
 #endif
     rc |= pthread_attr_setstacksize(dest, stackSize);
@@ -111,6 +179,85 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::create(
     ++rcDestroy;                           // suppress unused variable warnings
 
     return rc;
+}
+
+int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
+                                                getMinSchedPriority(int policy)
+{
+    typedef bcemt_ThreadAttributes Attr;
+
+    switch (policy) {
+      case -1: {
+        policy = sched_getscheduler(0);
+      }  break;
+      case Attr::BCEMT_SCHED_FIFO: {
+        policy = SCHED_FIFO;
+      }  break;
+      case Attr::BCEMT_SCHED_RR: {
+        policy = SCHED_RR;
+      }  break;
+      case Attr::BCEMT_SCHED_OTHER: {
+        policy = SCHED_OTHER;
+      }  break;
+      case Attr::BCEMT_SCHED_DEFAULT: {
+#if defined(BSLS_PLATFORM__OS_HPUX)
+        policy = SCHED_HPUX;
+#else
+        policy = SCHED_OTHER;
+#endif
+      }  break;
+      default: {
+        return bsl::numeric_limits<int>::min();                       // RETURN
+      }
+    }
+
+    return sched_get_priority_min(policy);
+}
+
+int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
+                                                getMaxSchedPriority(int policy)
+{
+    typedef bcemt_ThreadAttributes Attr;
+
+    switch (policy) {
+      case -1: {
+        policy = sched_getscheduler(0);
+      }  break;
+      case Attr::BCEMT_SCHED_FIFO: {
+        policy = SCHED_FIFO;
+      }  break;
+      case Attr::BCEMT_SCHED_RR: {
+        policy = SCHED_RR;
+      }  break;
+      case Attr::BCEMT_SCHED_OTHER: {
+        policy = SCHED_OTHER;
+      }  break;
+      case Attr::BCEMT_SCHED_DEFAULT: {
+#if defined(BSLS_PLATFORM__OS_HPUX)
+        policy = SCHED_HPUX;
+#else
+        policy = SCHED_OTHER;
+#endif
+      }  break;
+      default: {
+        return bsl::numeric_limits<int>::min();                       // RETURN
+      }
+    }
+
+    int pri = sched_get_priority_max(policy);
+
+# if defined(BSLS_PLATFORM__OS_AIX)
+    // Note max prirority returned is 127 regardless of policy on AIX
+
+    enum { MAX_NON_SUPERUSER_PRIORITY = 60 };
+
+    if (pri > MAX_NON_SUPERUSER_PRIORITY && 0 != geteuid()) {
+        pri = MAX_NON_SUPERUSER_PRIORITY;
+    }
+
+# endif
+
+    return pri;
 }
 
 int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleep(

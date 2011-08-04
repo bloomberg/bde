@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
         const Obj& X = mX;
 
         ASSERT(Obj::BCEMT_CREATE_JOINABLE == X.detachedState());
-        ASSERT(Obj::BCEMT_SCHED_OTHER == X.schedulingPolicy());
+        ASSERT(Obj::BCEMT_SCHED_DEFAULT == X.schedulingPolicy());
         ASSERT(X.inheritSchedule());
         ASSERT(0 != X.stackSize());
 

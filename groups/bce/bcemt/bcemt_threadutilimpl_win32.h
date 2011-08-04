@@ -166,6 +166,24 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // made once the thread terminates to reclaim any system resources
         // associated with the newly created identifier.
 
+    static int getMinSchedPriority(int policy = -1);
+        // Return the non-negative minimum available priority for the
+        // optionally-specified 'policy' on success, where 'policy' is of type
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  If no policy is
+        // specified, the minimum priority for the process's policy is
+        // returned.  Return 'INT_MIN' on error.  Note that for some
+        // platform / policy cominations,
+        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+
+    static int getMaxSchedPriority(int policy = -1);
+        // Return the non-negative maximum available priority for the
+        // optionally-specified 'policy' on success, where 'policy' is of type
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  If no policy is
+        // specified, the maximum priority for the process's policy is
+        // returned.  Return 'INT_MIN' on error.  Note that for some
+        // platform / policy cominations,
+        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+
     static int join(Handle& thread, void **status = 0);
         // Suspend execution of the current thread until the thread specified
         // by 'threadHandle' terminates, and reclaim any system resources
@@ -324,6 +342,20 @@ bool operator!=(
             // -------------------------------------------------------
 
 // CLASS METHODS
+inline
+int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
+                                                getMinSchedPriority(int policy)
+{
+    return -1;    // priorities not supported on Windows
+}
+
+inline
+int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
+                                                getMaxSchedPriority(int policy)
+{
+    return -1;    // priorities not supported on Windows
+}
+
 inline
 void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::yield()
 {

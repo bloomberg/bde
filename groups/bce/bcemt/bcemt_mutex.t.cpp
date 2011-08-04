@@ -136,11 +136,10 @@ int translatePriority(bcemt_ThreadAttributes::SchedulingPolicy policy,
                       bool                                     low)
 {
     if (low) {
-        return bcemt_ThreadAttributes::getMinSchedPriority(policy);   // RETURN
+        return bcemt_ThreadUtil::getMinSchedPriority(policy);         // RETURN
     }
     else {
-        int mx = bcemt_ThreadAttributes::getMaxSchedPriority(policy);
-        return mx;                                                    // RETURN
+        return bcemt_ThreadUtil::getMaxSchedPriority(policy);         // RETURN
     }
 }
 
@@ -271,6 +270,7 @@ int main(int argc, char *argv[])
         namespace TC = BCEMT_MUTEX_CASE_MINUS_1;
 
         typedef bcemt_ThreadAttributes::SchedulingPolicy Policy;
+        const Policy DF = bcemt_ThreadAttributes::BCEMT_SCHED_DEFAULT;
         const Policy SO = bcemt_ThreadAttributes::BCEMT_SCHED_OTHER;
         const Policy SF = bcemt_ThreadAttributes::BCEMT_SCHED_FIFO;
         const Policy SR = bcemt_ThreadAttributes::BCEMT_SCHED_RR;
@@ -281,13 +281,24 @@ int main(int argc, char *argv[])
             int    d_line;
             Policy d_policy;
             bool   d_urgentLow;
+            bool   d_normalizedPriorities;
         } DATA[] = {
-            { L_, SO, 0 },
-            { L_, SO, 1 },
-            { L_, SF, 0 },
-            { L_, SF, 1 },
-            { L_, SR, 0 },
-            { L_, SR, 1 }
+            { L_, DF, 0, 0 },
+            { L_, DF, 0, 1 },
+            { L_, DF, 1, 0 },
+            { L_, DF, 1, 1 },
+            { L_, SO, 0, 0 },
+            { L_, SO, 0, 1 },
+            { L_, SO, 1, 0 },
+            { L_, SO, 1, 1 },
+            { L_, SF, 0, 0 },
+            { L_, SF, 0, 1 },
+            { L_, SF, 1, 0 },
+            { L_, SF, 1, 1 },
+            { L_, SR, 0, 0 },
+            { L_, SR, 0, 1 },
+            { L_, SR, 1, 0 },
+            { L_, SR, 1, 1 },
         };
 
         enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
@@ -296,6 +307,7 @@ int main(int argc, char *argv[])
             const int    LINE       = DATA[i].d_line;
             const Policy POLICY     = DATA[i].d_policy;
             const int    URGENT_LOW = DATA[i].d_urgentLow;
+            const int    NORM_PRI   = DATA[i].d_normalizedPriorities;
 
             const int    URGENT_PRIORITY =     TC::translatePriority(
                                                                   POLICY,
@@ -304,8 +316,17 @@ int main(int argc, char *argv[])
                                                                   POLICY,
                                                                   !URGENT_LOW);
 
+            const double NORM_URGENT_PRI     = URGENT_LOW ? 0.0 : 1.0;
+            const double NORM_NOT_URGENT_PRI = URGENT_LOW ? 1.0 : 0.0;
+
             if (veryVerbose) {
-                P_(URGENT_LOW) P_(URGENT_PRIORITY) P(NOT_URGENT_PRIORITY)
+                if (NORM_PRI) {
+                    P_(LINE) P_(POLICY) P(NORM_URGENT_PRI);
+                }
+                else {
+                    P_(LINE) P_(POLICY) 
+                    P_(URGENT_PRIORITY) P(NOT_URGENT_PRIORITY);
+                }
             }
 
             ASSERT(URGENT_PRIORITY != NOT_URGENT_PRIORITY);
@@ -324,8 +345,15 @@ int main(int argc, char *argv[])
 
             bcemt_ThreadAttributes urgentAttr(notUrgentAttr);
 
-            notUrgentAttr.setSchedulingPriority(NOT_URGENT_PRIORITY);
-            urgentAttr.   setSchedulingPriority(    URGENT_PRIORITY);
+            if (NORM_PRI) {
+                notUrgentAttr.setNormalizedSchedulingPriority(
+                                                          NORM_NOT_URGENT_PRI);
+                urgentAttr.   setNormalizedSchedulingPriority(NORM_URGENT_PRI);
+            }
+            else {
+                notUrgentAttr.setSchedulingPriority(NOT_URGENT_PRIORITY);
+                urgentAttr.   setSchedulingPriority(    URGENT_PRIORITY);
+            }
 
             fs[TC::NUM_THREADS - 1].d_urgent = true;
 

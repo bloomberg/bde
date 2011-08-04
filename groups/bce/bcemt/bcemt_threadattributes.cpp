@@ -21,26 +21,6 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_threadattributes_cpp,"$Id$ $CSID$")
 
-namespace {
-
-namespace Local {
-
-#if   defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_LINUX)
-    enum { DEFAULT_PRIORITY = 0 };
-#elif defined(BSLS_PLATFORM__OS_AIX)
-    enum { DEFAULT_PRIORITY = 1 };
-#elif defined(BSLS_PLATFORM__OS_HPUX)
-    enum { DEFAULT_PRIORITY = -256 };
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
-    enum { DEFAULT_PRIORITY = -1 };      // ignored
-#else
-# error unrecognized platform
-#endif
-
-}  // close namespace Local
-
-}  // close unnamed namespace
-
 namespace BloombergLP {
 
 // CLASS METHODS
@@ -61,8 +41,15 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
       case BCEMT_SCHED_OTHER: {
         policy = SCHED_OTHER;
       } break;
+      case BCEMT_SCHED_DEFAULT: {
+#if defined(BSLS_PLATFORM__OS_HPUX)
+        policy = SCHED_HPUX;
+#else
+        policy = SCHED_OTHER;
+#endif
+      } break;
       default: {
-        return bsl::numeric_limits<int>::min();
+        return bsl::numeric_limits<int>::min();                       // RETURN
       }
     }
 
@@ -76,7 +63,7 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
     if (pri > MAX_NON_SUPERUSER_PRIORITY && 0 != geteuid()) {
         pri = MAX_NON_SUPERUSER_PRIORITY;
     }
-    
+
 # endif
 
     return pri;
@@ -102,8 +89,15 @@ int bcemt_ThreadAttributes::getMinSchedPriority(int policy)
       case BCEMT_SCHED_OTHER: {
         policy = SCHED_OTHER;
       } break;
+      case BCEMT_SCHED_DEFAULT: {
+#if defined(BSLS_PLATFORM__OS_HPUX)
+        policy = SCHED_HPUX;
+#else
+        policy = SCHED_OTHER;
+#endif
+      } break;
       default: {
-        return bsl::numeric_limits<int>::min();
+        return bsl::numeric_limits<int>::min();                       // RETURN
       }
     }
 
@@ -118,39 +112,24 @@ bcemt_ThreadAttributes::bcemt_ThreadAttributes()
 : d_detachedState(BCEMT_CREATE_JOINABLE)
 , d_guardSize(BCEMT_UNSET_GUARD_SIZE)
 , d_inheritSchedule(1)
-, d_schedulingPolicy(BCEMT_SCHED_OTHER)
-, d_schedulingPriority(Local::DEFAULT_PRIORITY)
+, d_schedulingPolicy(BCEMT_SCHED_DEFAULT)
+, d_schedulingPriority(BCEMT_UNSET_PRIORITY)
+, d_normalizedSchedulingPriority(BCEMT_UNSET_NORMALIZED_PRIORITY)
 , d_stackSize(BCEMT_UNSET_STACK_SIZE)
 {}
-
-// MANIPULATORS
-void bcemt_ThreadAttributes::setSchedulingPolicy(
-                     bcemt_ThreadAttributes::SchedulingPolicy schedulingPolicy)
-{
-    d_schedulingPolicy = schedulingPolicy;
-
-    const int maxPri = getMaxSchedPriority(schedulingPolicy);
-    const int minPri = getMinSchedPriority(schedulingPolicy);
-    BSLS_ASSERT(minPri <= maxPri);
-
-    if      (d_schedulingPriority > maxPri) {
-        d_schedulingPriority = maxPri;
-    }
-    else if (d_schedulingPriority < minPri) {
-        d_schedulingPriority = minPri;
-    }
-}
 
 // FREE OPERATORS
 bool operator==(const bcemt_ThreadAttributes& lhs,
                 const bcemt_ThreadAttributes& rhs)
 {
-    return lhs.d_detachedState      == rhs.d_detachedState      &&
-           lhs.d_guardSize          == rhs.d_guardSize          &&
-           lhs.d_inheritSchedule    == rhs.d_inheritSchedule    &&
-           lhs.d_schedulingPolicy   == rhs.d_schedulingPolicy   &&
-           lhs.d_schedulingPriority == rhs.d_schedulingPriority &&
-           lhs.d_stackSize          == rhs.d_stackSize;
+    return lhs.d_detachedState              == rhs.d_detachedState           &&
+           lhs.d_guardSize                  == rhs.d_guardSize               &&
+           lhs.d_inheritSchedule            == rhs.d_inheritSchedule         &&
+           lhs.d_schedulingPolicy           == rhs.d_schedulingPolicy        &&
+           lhs.d_schedulingPriority         == rhs.d_schedulingPriority      &&
+           lhs.d_normalizedSchedulingPriority ==
+                                          rhs.d_normalizedSchedulingPriority &&
+           lhs.d_stackSize               == rhs.d_stackSize;
 }
 
 }  // close enterprise namespace
