@@ -102,6 +102,10 @@ BDES_IDENT("$Id: $ $CSID: $")
 #include <bdet_datetimetz.h>
 #endif
 
+#ifndef INCLUDED_BDEUT_STRINGREF
+#include <bdeut_stringref.h>
+#endif
+
 #ifndef INCLUDED_BDEX_INSTREAMFUNCTIONS
 #include <bdex_instreamfunctions.h>
 #endif
@@ -183,7 +187,7 @@ class baet_LocalDatetime {
         // used.
 
     baet_LocalDatetime(const bdet_DatetimeTz&  datetimeTz,
-                       const char             *timeZoneId,
+                       const bdeut_StringRef&  timeZoneId,
                        bslma_Allocator        *basicAllocator = 0);
         // Create a 'baet_LocalDatetime' object having the specified
         // 'datetimeTz' and 'timeZoneId' attribute values.  Optionally specify
@@ -209,7 +213,7 @@ class baet_LocalDatetime {
         // Set the 'datetimeTz' attribute of this object to the specified
         // 'value'.
 
-    void setTimeZoneId(const char *value);
+    void setTimeZoneId(const bdeut_StringRef& value);
         // Set the 'timeZoneId' attribute of this object to the specified
         // 'value'.
 
@@ -336,10 +340,10 @@ baet_LocalDatetime::baet_LocalDatetime(bslma_Allocator *basicAllocator)
 
 inline
 baet_LocalDatetime::baet_LocalDatetime(const bdet_DatetimeTz&  datetimeTz,
-                                       const char             *timeZoneId,
+                                       const bdeut_StringRef&  timeZoneId,
                                        bslma_Allocator        *basicAllocator)
 : d_datetimeTz(datetimeTz)
-, d_timeZoneId(timeZoneId, basicAllocator)
+, d_timeZoneId(timeZoneId.begin(), timeZoneId.end(), basicAllocator)
 {
 }
 
@@ -369,9 +373,9 @@ void baet_LocalDatetime::setDatetimeTz(const bdet_DatetimeTz& value)
 }
 
 inline
-void baet_LocalDatetime::setTimeZoneId(const char *value)
+void baet_LocalDatetime::setTimeZoneId(const bdeut_StringRef& value)
 {
-    d_timeZoneId.assign(value);
+    d_timeZoneId.assign(value.begin(), value.end());
 }
 
                         // Aspects
