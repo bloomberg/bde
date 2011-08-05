@@ -122,9 +122,9 @@ void convert(struct timeval *result, const bdet_TimeInterval& value) {
                     // class bteso_DefaultEventManager_SelectRaw
                     // =========================================
 
-int
-bteso_DefaultEventManager_SelectRaw::compareFdSets(const fd_set& lhs,
-                                                   const fd_set& rhs)
+int bteso_DefaultEventManager<bteso_Platform::SELECT>::compareFdSets(
+                                                             const fd_set& lhs,
+                                                             const fd_set& rhs)
 {
 #ifdef BTESO_PLATFORM__BSD_SOCKETS
     return !!bsl::memcmp(&lhs, &rhs, sizeof(fd_set));

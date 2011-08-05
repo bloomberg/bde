@@ -9,18 +9,18 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a 'select'-based socket-event multiplexer.
 //
-//@AUTHOR: Andrei Basov (abasov)
+//@AUTHOR: Andrei Basov (abasov), Rohan Bhindwale (rbhindwa)
 //
 //@CLASSES:
-//  bteso_DefaultEventManager_SelectRaw: 'select'-based multiplexer
-//  bteso_DefaultEventManager<bteso_Platform::SELECT>:
-//             'select'-based socket-event multiplexer with unlimited capacity
+//   bteso_DefaultEventManager<bteso_Platform::SELECT>:
+//                                      'select'-based socket-event multiplexer
 //
-//@SEE_ALSO: bteso_eventmanager bteso_defaulteventmanager
+//@SEE_ALSO: bteso_eventmanager bteso_defaulteventmanager bteso_timemetrics
 //
-//@DESCRIPTION: This component provides socket-event multiplexers implemented
-// using the 'select' system call available on platforms conforming to
-// POSIX.1g.
+//@DESCRIPTION: This component provides a class,
+// 'bteso_DefaultEventManager<bteso_Platform::SELECT>', that implements the
+// 'bteso_EventManager' protocol using the 'select' system call available on
+// platforms conforming to POSIX.1g.
 //
 // Generally speaking, a platform imposes a limit on the number of socket
 // handles that can be registered with 'select'.  This limit, which is a
@@ -28,16 +28,9 @@ BDES_IDENT("$Id: $")
 // be as low as 64 (e.g., Windows) or as high as 1024 (e.g., Solaris).
 // However, it is often required to handle more than this maximum number of
 // simultaneous connections.  This component does not provide a solution to
-// this problem but provides an accessor function, 'canRegisterSocket', that
+// this problem but provides an accessor function, 'canRegisterSockets', that
 // allows clients to identify if this event manager is at the socket
-// registeration limit.
-//
-// This component provides two multiplexers.  The
-// 'bteso_DefaultEventManager_SelectRaw' provides the implementation for
-// the 'select' based event manager and should not be used directly by
-// clients.  The 'bteso_DefaultEventManager<bteso_Platform::SELECT>' event
-// manager uses 'bteso_DefaultEventManager_SelectRaw' and should be used by
-// clients.
+// registration limit.
 //
 ///Thread-safety
 ///-------------
@@ -147,17 +140,15 @@ namespace BloombergLP {
 class bteso_TimeMetrics;
 class bslma_Allocator;
 
-                   // =========================================
-                   // class bteso_DefaultEventManager_SelectRaw
-                   // =========================================
+            // =======================================================
+            // class bteso_DefaultEventManager<bteso_Platform::SELECT>
+            // =======================================================
 
-class bteso_DefaultEventManager_SelectRaw {
-    // This class provides a raw 'select'-based socket event multiplexer.
-    // This multiplexer has a limitied capacity -- not more than
-    // 'MAX_NUM_HANDLES' (see below) different socket handles can be
-    // simultaneously registered with this event manager.  Note that
-    // though this class doesn't implement bteso_EventManager protocol, its
-    // interface is a strict superset of the 'bteso_EventManager' interface.
+template <>
+class bteso_DefaultEventManager<bteso_Platform::SELECT>
+                                                  : public bteso_EventManager {
+    // This class implements the 'bteso_EventManager' protocol to provide an
+    // event manager that uses the 'select' system call.
 
   public:
     enum {
@@ -194,13 +185,7 @@ class bteso_DefaultEventManager_SelectRaw {
     bsl::vector<bteso_Event> d_signaledWrite;
                                       // temporary arrays used by dispatch
 
-  private:
-    // NOT IMPLEMENTED
-    bteso_DefaultEventManager_SelectRaw(
-                                   const bteso_DefaultEventManager_SelectRaw&);
-    bteso_DefaultEventManager_SelectRaw&
-                         operator=(const bteso_DefaultEventManager_SelectRaw&);
-  public:
+
     // CLASS METHODS
     static int compareFdSets(const fd_set& lsh, const fd_set& rhs);
         // Return 0 if the specified socket-handle sets 'lhs' and 'rhs' contain
@@ -210,159 +195,6 @@ class bteso_DefaultEventManager_SelectRaw {
     int canBeRegistered(const bteso_SocketHandle::Handle& handle);
         // Return 1 if the specified 'handle' can be registered with this
         // 'select'-based event manager and 0 otherwise.
-
-    // CREATORS
-    explicit
-    bteso_DefaultEventManager_SelectRaw(bteso_TimeMetrics *timeMetric     = 0,
-                                        bslma_Allocator   *basicAllocator = 0);
-        // Create a 'select'-based event manager.  Optionally specify a
-        // 'timeMetric' to report time spent in CPU-bound and IO-bound
-        // operations.  If 'timeMetric' is not specified or is 0, these metrics
-        // are not reported.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
-
-    ~bteso_DefaultEventManager_SelectRaw();
-        // Destroy this event manager.  Note that any registered callbacks are
-        // NOT invoked.
-
-    // MANIPULATORS
-    int dispatch(const bdet_TimeInterval& timeout, int flags);
-        // For each pending socket event, invoke the corresponding callback
-        // registered with this event manager.  If no event is pending, wait
-        // until either (1) at least one event occurs (in which case the
-        // corresponding callback(s) is invoked), (2) the specified (absolute)
-        // 'timeout' is exceeded, or (3) provided that the specified 'flags'
-        // contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an underlying system
-        // call is interrupted by a signal.  Return the number of dispatched
-        // callbacks on success, 0 on timeout, and a negative value otherwise;
-        // -1 is reserved to indicate that an underlying system call was
-        // interrupted.  When such an interruption occurs this method will
-        // return (-1) if 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT',
-        // and otherwise will automatically restart (i.e., reissue the
-        // identical system call).  Note that all callbacks are invoked in the
-        // same thread that invokes 'dispatch', and the order of invocation,
-        // relative to the order of registration, is unspecified.  Also note
-        // that -1 is never returned if 'flags' contains
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
-
-    int dispatch(int flags);
-        // For each pending socket event, invoke the corresponding callback
-        // registered with this event manager.  If no event is pending, wait
-        // until either (1) at least one event occurs (in which case the
-        // corresponding callback(s) is invoked) or (2) provided that the
-        // specified 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an
-        // underlying system call is interrupted by a signal.  Return the
-        // number of dispatched callbacks on success, and a negative value
-        // otherwise; -1 is reserved to indicate that an underlying system
-        // call was interrupted.  When such an interruption occurs this method
-        // will return (-1) if 'flags' contains
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT' and otherwise will automatically
-        // restart (i.e., reissue the identical system call).  Note that all
-        // callbacks are invoked in the same thread that invokes 'dispatch',
-        // and the order of invocation, relative to the order of registration,
-        // is unspecified.  Also note that -1 is never returned if 'option' is
-        // set to 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
-
-    int registerSocketEvent(const bteso_SocketHandle::Handle&   handle,
-                            const bteso_EventType::Type         event,
-                            const bteso_EventManager::Callback& callback);
-        // Register with this event manager the specified 'callback' to be
-        // invoked when the specified 'event' occurs on the specified socket
-        // 'handle'.  Each socket event registration stays in effect until it
-        // is subsequently deregistered; the callback is invoked each time
-        // the corresponding event is detected.  'bteso_EventType::BTESO_READ'
-        // and 'bteso_EventType::BTESO_WRITE' are the only events that can be
-        // registered simultaneously for a socket.  If a registration attempt
-        // is made for an event that is already registered, the callback
-        // associated with this event will be overwritten with the new one.
-        //  Return 0 on success and a non-zero value otherwise.  The behavior
-        // is undefined unless 'handle' can be registered with this type of
-        // event manager (as reported by 'canBeRegistered' method) and unless
-        // the number of sockets registered with this event manager (as
-        // reported by 'numSockets') doesn't exceed 'MAX_NUM_HANDLES'.
-        // Simultaneous registration of incompatible events for the same socket
-        // 'handle' will also result in undefined behavior.  Note that the
-        // callback is recurring (i.e., it remains registered until it is
-        // explicitly deregistered).
-
-    void moveSocket(bteso_DefaultEventManager_SelectRaw *manager,
-                    const bteso_SocketHandle::Handle&    handle);
-        // Move all socket events along with associated callbacks corresponding
-        // to the specified socket 'handle' from the specified event 'manager'
-        // into this event manager.  The behavior is undefined if 'manager'
-        // is 0 or unless 'handle' is registered with 'manager' (as
-        // reported by a positive return status of 'numSocketEvents').
-
-    void deregisterAll();
-        // Deregister from this event manager all events on every socket
-        // handle.
-
-    int deregisterSocket(const bteso_SocketHandle::Handle& handle);
-        // Deregister from this event manager all events associated with the
-        // specified socket 'handle'.  Return the number of deregistered
-        // callbacks.
-
-    void deregisterSocketEvent(const bteso_SocketHandle::Handle& handle,
-                               const bteso_EventType::Type       event);
-        // Deregister from this event manager the callback associated with the
-        // specified 'event' on the specified 'handle' so that said callback
-        // will not be invoked should 'event' occur.
-
-    // ACCESSORS
-    bool canRegisterSockets() const;
-        // Return 'true' if this event manager can register additional sockets,
-        // and 'false' otherwise.
-
-    int isRegistered(const bteso_SocketHandle::Handle& handle,
-                     const bteso_EventType::Type       event) const;
-        // Return 1 if the specified 'event' is registered with this event
-        // manager for the specified socket 'handle' and 0 otherwise.
-
-    int numEvents() const;
-        // Return the total number of all socket events currently registered
-        // with this event manager.
-
-    int numSockets() const;
-        // Return the number of different socket handles registered with
-        // this event manager.
-
-    int numSocketEvents(const bteso_SocketHandle::Handle& handle) const;
-        // Return the number of socket events currently registered with this
-        // event manager for the specified 'handle'.
-
-    const bteso_Event& event(int index) const;
-        // Return the event associated with the specified 'index'.  The
-        // behavior is undefined unless 0 <= index < numEvents().  Note that
-        // this association may be violated by an invocation of any
-        // manipulator on this event manager.
-
-    const bteso_EventManager::Callback& callback(int index) const;
-        // Return a callback associated with the specified 'index'.  The
-        // behavior is undefined unless 0 <= index < numEvents().  Note that
-        // this association may be violated by an invocation of any
-        // manipulator on this event manager.
-
-    int canRegister(const bteso_SocketHandle::Handle& handle);
-        // Return 1 if the specified 'handle' can be registered with this
-        // event, manager and 0 otherwise.
-};
-
-            // =======================================================
-            // class bteso_DefaultEventManager<bteso_Platform::SELECT>
-            // =======================================================
-
-template<>
-class bteso_DefaultEventManager<bteso_Platform::SELECT>
-    : public bteso_EventManager {
-    // This class implements the 'bteso_EventManager' protocol to provide an
-    // event manager that uses the 'select' system call but does not have the
-    // (platform-specific) limited registration capacity associated with
-    // 'select'.  This registration-capacity limitation is avoided by using
-    // a time-multiplexing ("spin") technique.
-
-  private:
-    bteso_DefaultEventManager_SelectRaw d_impl;
 
   public:
     // CREATORS
@@ -468,6 +300,32 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
     int numSocketEvents(const bteso_SocketHandle::Handle& handle) const;
         // Return the number of socket events currently registered with this
         // event manager for the specified 'handle'.
+
+// TBD: Needed ?
+    void moveSocket(const bteso_SocketHandle::Handle& handle);
+        // Move all socket events along with associated callbacks corresponding
+        // to the specified socket 'handle' from the specified event 'manager'
+        // into this event manager.  The behavior is undefined if 'manager'
+        // is 0 or unless 'handle' is registered with 'manager' (as
+        // reported by a positive return status of 'numSocketEvents').
+
+// TBD: Needed ?
+    const bteso_Event& event(int index) const;
+        // Return the event associated with the specified 'index'.  The
+        // behavior is undefined unless 0 <= index < numEvents().  Note that
+        // this association may be violated by an invocation of any
+        // manipulator on this event manager.
+
+    const bteso_EventManager::Callback& callback(int index) const;
+        // Return a callback associated with the specified 'index'.  The
+        // behavior is undefined unless 0 <= index < numEvents().  Note that
+        // this association may be violated by an invocation of any
+        // manipulator on this event manager.
+
+// TBD: Needed ?
+    int canRegister(const bteso_SocketHandle::Handle& handle);
+        // Return 1 if the specified 'handle' can be registered with this
+        // event, manager and 0 otherwise.
 };
 
 //-----------------------------------------------------------------------------
@@ -479,13 +337,15 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
                    // =========================================
 // ACCESSORS
 inline
-int bteso_DefaultEventManager_SelectRaw::numEvents() const
+int bteso_DefaultEventManager<bteso_Platform::SELECT>::numEvents() const
 {
     return static_cast<int>(d_events.size());
 }
 
+// TBD: Needed ?
 inline
-const bteso_Event& bteso_DefaultEventManager_SelectRaw::event(int index) const
+const bteso_Event&
+bteso_DefaultEventManager<bteso_Platform::SELECT>::event(int index) const
 {
     bsl::hash_map<bteso_Event,
                   bteso_EventManager::Callback,
@@ -497,7 +357,9 @@ const bteso_Event& bteso_DefaultEventManager_SelectRaw::event(int index) const
     return callbackIt->first;
 }
 
-inline int bteso_DefaultEventManager_SelectRaw::numSockets() const {
+inline
+int bteso_DefaultEventManager<bteso_Platform::SELECT>::numSockets() const
+{
     return d_numRead > d_numWrite ? d_numRead : d_numWrite;
 }
 
@@ -507,7 +369,7 @@ inline int bteso_DefaultEventManager_SelectRaw::numSockets() const {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005, 2009
+//      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
