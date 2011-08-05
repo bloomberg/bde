@@ -14,6 +14,7 @@ bslalg_rangecompare
 bslalg_scalardestructionprimitives
 bslalg_scalarprimitives
 bslalg_selecttrait
+bslalg_swaputil
 bslalg_typetraitbitwisecopyable
 bslalg_typetraitbitwiseequalitycomparable
 bslalg_typetraitbitwisemoveable

@@ -154,7 +154,8 @@ BDES_IDENT("$Id: $")
 //
 //      void *timerId = manager.registerTimer(now, callback);
 //      assert(timerId);
-//      manager.enableDisableDispatch(1);
+//      int rc = manager.enable();
+//      assert(0 == rc);
 //      while(1) {
 //          // Monitor 'workQueue' here
 //          // ...

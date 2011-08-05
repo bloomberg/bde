@@ -149,7 +149,8 @@ using namespace bsl;
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -562,8 +563,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_DefaultAllocatorGuard daG(&da);
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
             "\nCreate a table of distinct candidate attribute values." << endl;
@@ -807,8 +808,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_DefaultAllocatorGuard daG(&da);
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -832,6 +833,15 @@ int main(int argc, char *argv[])
             const Obj ZZ(OFFSET1, FLAG1, DESC1, &scratch);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
+
+            // Ensure the first row of the table contains the
+            // default-constructed value.
+
+            static bool firstFlag = true;
+            if (firstFlag) {
+                LOOP3_ASSERT(LINE1, Obj(), Z, Obj() == Z);
+                firstFlag = false;
+            }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int         LINE2   = DATA[tj].d_line;
@@ -909,13 +919,17 @@ int main(int argc, char *argv[])
 
                 bslma_TestAllocatorMonitor oam(oa);
 
-                Obj *mR = &(mX = Z);
-                LOOP3_ASSERT(LINE1, ZZ,   Z, ZZ == Z);
-                LOOP3_ASSERT(LINE1, mR, &mX, mR == &mX);
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    Obj *mR = &(mX = Z);
+                    LOOP3_ASSERT(LINE1, ZZ,   Z, ZZ == Z);
+                    LOOP3_ASSERT(LINE1, mR, &mX, mR == &mX);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 LOOP3_ASSERT(LINE1, &oa, Z.allocator(), &oa == Z.allocator());
 
-                LOOP_ASSERT(LINE1, oam.isTotalSame());
+                LOOP_ASSERT(LINE1, !oam.isInUseUp());
 
                 LOOP_ASSERT(LINE1, 0 == da.numBlocksTotal());
             }
@@ -1079,8 +1093,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_DefaultAllocatorGuard daG(&da);
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -1105,6 +1119,15 @@ int main(int argc, char *argv[])
             const Obj XX(W, &scratch);
 
             if (veryVerbose) { T_ P_(LINE1) P_(W) P(XX) }
+
+            // Ensure the first row of the table contains the
+            // default-constructed value.
+
+            static bool firstFlag = true;
+            if (firstFlag) {
+                LOOP3_ASSERT(LINE1, Obj(), W, Obj() == W);
+                firstFlag = false;
+            }
 
             // member 'swap'
             {
@@ -1416,7 +1439,7 @@ int main(int argc, char *argv[])
                     bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
                     bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma_DefaultAllocatorGuard daG(&da);
+                    bslma_DefaultAllocatorGuard dag(&da);
 
                     Obj                 *objPtr;
                     bslma_TestAllocator *objAllocatorPtr;
@@ -1447,6 +1470,16 @@ int main(int argc, char *argv[])
 
                     bslma_TestAllocator&  oa = *objAllocatorPtr;
                     bslma_TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+                    // Ensure the first row of the table contains the
+                    // default-constructed value.
+
+                    static bool firstFlag = true;
+                    if (firstFlag) {
+                        LOOP4_ASSERT(LINE, CONFIG, Obj(), *objPtr,
+                                     Obj() == *objPtr)
+                        firstFlag = false;
+                    }
 
                     // Verify the value of the object.
 
@@ -1537,7 +1570,7 @@ int main(int argc, char *argv[])
                 bslma_TestAllocator da("default",  veryVeryVeryVerbose);
                 bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma_DefaultAllocatorGuard daG(&da);
+                bslma_DefaultAllocatorGuard dag(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1671,8 +1704,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_DefaultAllocatorGuard daG(&da);
+        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
             "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
@@ -1823,42 +1856,48 @@ int main(int argc, char *argv[])
         //:
         //: 5 The 'print' method returns the supplied 'ostream'.
         //:
-        //: 6 The output 'operator<<' signature and return type are standard.
+        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
+        //:   correct default values.
         //:
-        //: 7 The output 'operator<<' returns the supplied 'ostream'.
+        //: 7 The output 'operator<<' signature and return type are standard.
+        //:
+        //: 8 The output 'operator<<' returns the supplied 'ostream'.
         //
         // Plan:
         //: 1 Use the addresses of the 'print' member function and 'operator<<'
         //:   free function defined in this component to initialize,
         //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 6)
+        //:   the appropriate signatures and return types.  (C-4, 7)
         //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5, 7)
+        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
         //:
-        //:   1 Define twelve carefully selected combinations of (two) object
+        //:   1 Define fourteen carefully selected combinations of (two) object
         //:     values ('A' and 'B'), having distinct values for each
         //:     corresponding salient attribute, and various values for the
-        //:     two formatting parameters, along with the expected output
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
-        //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
-        //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
+        //:     two formatting parameters, along with the expected output.
         //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
+        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
+        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
+        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
+        //:     3 { B   } x {  2     } x {  3            } --> 1 expected o/p
+        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps
+        //:     5 { A B } x { -9     } x { -9            } --> 2 expected o/ps
+        //:
+        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
         //:
         //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', unless the parameters are,
-        //:       arbitrarily, (-9, -9), in which case 'operator<<' will be
-        //:       invoked instead.
+        //:       formatting parameters to 'print', omitting the 'level' or
+        //:       'spacesPerLevel' parameter if the value of that argument is
+        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
+        //:       invoke the 'operator<<' instead.
         //:
         //:     2 Use a standard 'ostringstream' to capture the actual output.
         //:
         //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 7)
+        //:       supplied stream.  (C-5, 8)
         //:
         //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3)
+        //:       expected.  (C-1..3, 6)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -1903,7 +1942,7 @@ int main(int argc, char *argv[])
 #define SP " "
 
         // ------------------------------------------------------------------
-        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
+        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1, -8 } -->  4 expected o/ps
         // ------------------------------------------------------------------
 
         //LINE L SPL  OFF   FLAG  DESC  EXP
@@ -1930,8 +1969,15 @@ int main(int argc, char *argv[])
                                         "]"
                                                                              },
 
+        { L_,  0, -8,  89,  true, "a",  "["                                  NL
+                                        "    utcOffsetInSeconds = 89"        NL
+                                        "    dstInEffectFlag = true"         NL
+                                        "    description = \"a\""            NL
+                                        "]"                                  NL
+                                                                             },
+
         // ------------------------------------------------------------------
-        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } -->  6 expected o/ps
         // ------------------------------------------------------------------
 
         //LINE L SPL  OFF   FLAG  DESC  EXP
@@ -1958,6 +2004,14 @@ int main(int argc, char *argv[])
                                         "]"
                                                                              },
 
+        { L_,  3, -8,  89,  true, "a",
+                                "            ["                              NL
+                                "                utcOffsetInSeconds = 89"    NL
+                                "                dstInEffectFlag = true"     NL
+                                "                description = \"a\""        NL
+                                "            ]"                              NL
+                                                                             },
+
         { L_, -3,  0,  89,  true, "a",  "["                                  NL
                                         "utcOffsetInSeconds = 89"            NL
                                         "dstInEffectFlag = true"             NL
@@ -1978,8 +2032,16 @@ int main(int argc, char *argv[])
                                         "description = \"a\""                SP
                                         "]"
                                                                              },
+        { L_, -3, -8,  89,  true, "a",
+                                "["                                          NL
+                                "                utcOffsetInSeconds = 89"    NL
+                                "                dstInEffectFlag = true"     NL
+                                "                description = \"a\""        NL
+                                "            ]"                              NL
+                                                                             },
+
         // -----------------------------------------------------------------
-        // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
+        // P-2.1.3: { B } x { 2 }     x { 3 }            -->  1 expected o/p
         // -----------------------------------------------------------------
 
         //LINE L SPL  OFF   FLAG  DESC  EXP
@@ -1993,7 +2055,27 @@ int main(int argc, char *argv[])
                                                                              },
 
         // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
+        // P-2.1.4: { A B } x { -8 }   x { -8 }         -->  2 expected o/ps
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  OFF   FLAG  DESC  EXP
+        //---- - ---  ---   ----  ----  ---
+
+        { L_, -8, -8,  89,  true,  "a", "["                                  NL
+                                        "    utcOffsetInSeconds = 89"        NL
+                                        "    dstInEffectFlag = true"         NL
+                                        "    description = \"a\""            NL
+                                        "]"                                  NL
+                                                                             },
+
+        { L_, -8, -8,   7, false, "bc", "["                                  NL
+                                        "    utcOffsetInSeconds = 7"         NL
+                                        "    dstInEffectFlag = false"        NL
+                                        "    description = \"bc\""           NL
+                                        "]"                                  NL
+                                                                             },
+        // -----------------------------------------------------------------
+        // P-2.1.5: { A B } x { -9 }   x { -9 }         -->  2 expected o/ps
         // -----------------------------------------------------------------
 
         //LINE L SPL  OFF   FLAG  DESC  EXP
@@ -2029,19 +2111,25 @@ int main(int argc, char *argv[])
 
                 ostringstream os;
 
+                // Verify supplied stream is returned by reference.
+
                 if (-9 == L && -9 == SPL) {
-
-                    // Verify supplied stream is returned by reference.
-
                     LOOP_ASSERT(LINE, &os == &(os << X));
 
                     if (veryVeryVerbose) { T_ T_ Q(operator<<) }
                 }
                 else {
+                    LOOP_ASSERT(LINE, -8 == SPL || -8 != L);
 
-                    // Verify supplied stream is returned by reference.
-
-                    LOOP_ASSERT(LINE, &os == &X.print(os, L, SPL));
+                    if (-8 != SPL) {
+                        LOOP_ASSERT(LINE, &os == &X.print(os, L, SPL));
+                    }
+                    else if (-8 != L) {
+                        LOOP_ASSERT(LINE, &os == &X.print(os, L));
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, &os == &X.print(os));
+                    }
 
                     if (veryVeryVerbose) { T_ T_ Q(print) }
                 }
@@ -2141,7 +2229,7 @@ int main(int argc, char *argv[])
         bslma_TestAllocator da("default", veryVeryVeryVerbose);
         bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
 
-        bslma_DefaultAllocatorGuard daG(&da);
+        bslma_DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
                  "\nCreate an object, passing in the other allocator." << endl;
@@ -2175,7 +2263,7 @@ int main(int argc, char *argv[])
             const T1& utcOffsetInSeconds = X.utcOffsetInSeconds();
             LOOP2_ASSERT(A1, utcOffsetInSeconds, A1 == utcOffsetInSeconds);
 
-            ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
+            ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
 
         if (veryVerbose) { T_ Q(dstInEffectFlag) }
@@ -2187,7 +2275,7 @@ int main(int argc, char *argv[])
             const T2& dstInEffectFlag = X.dstInEffectFlag();
             LOOP2_ASSERT(A2, dstInEffectFlag, A2 == dstInEffectFlag);
 
-            ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
+            ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
 
         if (veryVerbose) { T_ Q(description) }
@@ -2199,7 +2287,7 @@ int main(int argc, char *argv[])
             const T3& description = X.description();
             LOOP2_ASSERT(A3, description, A3 == description);
 
-            ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
+            ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
 
         // Double check that some object memory was allocated.
@@ -2371,7 +2459,7 @@ int main(int argc, char *argv[])
                     bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
                     bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma_DefaultAllocatorGuard daG(&da);
+                    bslma_DefaultAllocatorGuard dag(&da);
 
                     Obj                 *objPtr;
                     bslma_TestAllocator *objAllocatorPtr;
@@ -2505,7 +2593,7 @@ int main(int argc, char *argv[])
                 bslma_TestAllocator da("default",  veryVeryVeryVerbose);
                 bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma_DefaultAllocatorGuard daG(&da);
+                bslma_DefaultAllocatorGuard dag(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -2652,8 +2740,10 @@ int main(int argc, char *argv[])
         //:     11..14)
         //:
         //:   7 Corroborate that attributes are modifiable independently by
-        //:     first setting all of the attributes to their 'A' values, then
-        //:     setting all of the attributes to their 'B' values.  (C-10)
+        //:     first setting all of the attributes to their 'A' values.  Then
+        //:     incrementally set each attribute to it's corresponding  'B'
+        //:     value and verify after each manipulation that only that
+        //:     attribute's value changed.  (C-10) 
         //:
         //:   8 Verify that no temporary memory is allocated from the object
         //:     allocator.  (C-7)
@@ -2709,7 +2799,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
             bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bslma_DefaultAllocatorGuard daG(&da);
+            bslma_DefaultAllocatorGuard dag(&da);
 
             Obj                 *objPtr;
             bslma_TestAllocator *objAllocatorPtr;
@@ -2859,19 +2949,16 @@ int main(int argc, char *argv[])
                 // Set all attributes to their 'B' values.
 
                 mX.setUtcOffsetInSeconds(B1);
-
                 LOOP_ASSERT(CONFIG, B1 == X.utcOffsetInSeconds());
                 LOOP_ASSERT(CONFIG, A2 == X.dstInEffectFlag());
                 LOOP_ASSERT(CONFIG, A3 == X.description());
 
                 mX.setDstInEffectFlag(B2);
-
                 LOOP_ASSERT(CONFIG, B1 == X.utcOffsetInSeconds());
                 LOOP_ASSERT(CONFIG, B2 == X.dstInEffectFlag());
                 LOOP_ASSERT(CONFIG, A3 == X.description());
 
                 mX.setDescription(B3);
-
                 LOOP_ASSERT(CONFIG, B1 == X.utcOffsetInSeconds());
                 LOOP_ASSERT(CONFIG, B2 == X.dstInEffectFlag());
                 LOOP_ASSERT(CONFIG, B3 == X.description());

@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 // 'bsls_types' instead.
 //
 //@CLASSES:
-//  bsls_PlatformUtil: namespace for platform-neutral type names and API
+//   bsls_PlatformUtil: namespace for platform-neutral type names and API
 //
 //@AUTHOR: John Lakos (jlakos)
 //
