@@ -487,7 +487,7 @@ class bdema_ManagedPtr {
 #define BDEMA_COMPATIBLE_POINTERS_ONLY                                  \
     typename bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,    \
                                                 BDEMA_TYPE *>::VALUE,   \
-                            Unspecified>::type * = 0
+                            Unspecified>::type *
     // This macro can be used to restrict pointer-types deduced in function
     // template signatures to only those that are convertible to 'BDEMA_TYPE *'
     // such as from pointers to derived types to pointer-to-unambiguous-base,
@@ -538,7 +538,7 @@ class bdema_ManagedPtr {
 
     template<class BDEMA_TARGET_TYPE>
     explicit 
-    bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr, BDEMA_COMPATIBLE_POINTERS_ONLY);
+    bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr, BDEMA_COMPATIBLE_POINTERS_ONLY=0);
         // Construct a managed pointer that manages the specified 'ptr' using
         // the current default allocator to destroy 'ptr' when this managed
         // pointer is destroyed or re-assigned, unless it is released before
