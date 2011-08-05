@@ -4,7 +4,7 @@
 
 //@PURPOSE: Provide a test sequence for 'bdef_bind' with 1 argument
 //
-//@CLASSES: None
+//@CLASSES:
 //
 //@AUTHOR: Herve Bronnimann (hbronnimann)
 //

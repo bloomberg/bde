@@ -329,17 +329,17 @@ my_RecordBuffer::~my_RecordBuffer()
 //                       CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
 
-struct RecordBufferTest : bsls_ProtocolTest<bael_RecordBuffer> {
-    void popBack()                                      { exit(); }
-    void popFront()                                     { exit(); }
-    int pushBack(const bcema_SharedPtr<bael_Record>&)   { return exit(); }
-    int pushFront(const bcema_SharedPtr<bael_Record>&)  { return exit(); }
-    void removeAll()                                    { exit(); }
-    void beginSequence()                                { exit(); }
-    void endSequence()                                  { exit(); }
-    const bael_Record& back() const                     { return exitRef(); }
-    const bael_Record& front() const                    { return exitRef(); }
-    int length() const                                  { return exit(); }
+struct RecordBufferTest : bsls_ProtocolTestImp<bael_RecordBuffer> {
+    void popBack()                                      { markDone(); }
+    void popFront()                                     { markDone(); }
+    int pushBack(const bcema_SharedPtr<bael_Record>&)   { return markDone(); }
+    int pushFront(const bcema_SharedPtr<bael_Record>&)  { return markDone(); }
+    void removeAll()                                    { markDone(); }
+    void beginSequence()                                { markDone(); }
+    void endSequence()                                  { markDone(); }
+    const bael_Record& back() const                     { return markDoneRef(); }
+    const bael_Record& front() const                    { return markDoneRef(); }
+    int length() const                                  { return markDone(); }
 };
 
 //=============================================================================
@@ -430,7 +430,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        bsls_ProtocolTestDriver<RecordBufferTest> t;
+        bsls_ProtocolTest<RecordBufferTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
@@ -446,8 +446,6 @@ int main(int argc, char *argv[])
         BSLS_PROTOCOLTEST_ASSERT(t, back());
         BSLS_PROTOCOLTEST_ASSERT(t, front());
         BSLS_PROTOCOLTEST_ASSERT(t, length());
-
-        testStatus = t.failures();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

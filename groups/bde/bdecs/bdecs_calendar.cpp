@@ -1,4 +1,4 @@
-// bdecs_calendar.cpp            -*-C++-*-
+// bdecs_calendar.cpp                                                 -*-C++-*-
 #include <bdecs_calendar.h>
 
 #include <bdes_ident.h>
@@ -8,6 +8,7 @@ BDES_IDENT_RCSID(bdecs_calendar_cpp,"$Id$ $CSID$")
 #include <bdec_dayofweekset.h>
 #include <bdet_date.h>
 
+#include <bslalg_swaputil.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
 
@@ -107,14 +108,11 @@ bdecs_Calendar& bdecs_Calendar::operator=(const bdecs_PackedCalendar& rhs)
 
 void bdecs_Calendar::swap(bdecs_Calendar& other)
 {
-    // 'swap' is undefined for objects with non-equal allocators
+    // 'swap' is undefined for objects with non-equal allocators.
     BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
-    using bsl::swap;
-    using BloombergLP::swap;  // gcc 3.4 needs some help with finding 'swap'
-
-    swap(d_packedCalendar, other.d_packedCalendar);
-    swap(d_nonBusinessDays, other.d_nonBusinessDays);
+    bslalg_SwapUtil::swap(&d_packedCalendar,  &other.d_packedCalendar);
+    bslalg_SwapUtil::swap(&d_nonBusinessDays, &other.d_nonBusinessDays);
 }
 
 void bdecs_Calendar::addDay(const bdet_Date& date)
@@ -142,16 +140,14 @@ void bdecs_Calendar::addDay(const bdet_Date& date)
 
 void bdecs_Calendar::addHoliday(const bdet_Date& date)
 {
-    if (0 == d_packedCalendar.addHolidayIfInRange(date)) {
-        d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
-    }
+    d_packedCalendar.addHoliday(date);
+    d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
 }
 
 void bdecs_Calendar::addHolidayCode(const bdet_Date& date, int holidayCode)
 {
-    if (0 == d_packedCalendar.addHolidayCodeIfInRange(date, holidayCode)) {
-        d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
-    }
+    d_packedCalendar.addHolidayCode(date, holidayCode);
+    d_nonBusinessDays.set1(date - d_packedCalendar.firstDate());
 }
 
 void bdecs_Calendar::addWeekendDay(bdet_DayOfWeek::Day weekendDay)

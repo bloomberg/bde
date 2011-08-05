@@ -1,6 +1,8 @@
+bslmf_addreference
 bslmf_anytype
 bslmf_arraytopointer
 bslmf_assert
+bslmf_enableif
 bslmf_forwardingtype
 bslmf_functionpointertraits
 bslmf_if

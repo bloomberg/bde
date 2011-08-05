@@ -765,14 +765,14 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // RESPONSE BREATHING TEST
+        // RESPONSE BREATHING TEST (CHUNKED, WITH TRAILER CONTENTS)
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
                                << "RESPONSE BREATHING TEST" << bsl::endl
                                << "=======================" << bsl::endl;
 
-        const char *DATA[] = { // chunked - with trailer contents.
+        const char *DATA[] = {
             "HTTP/1.1 200 OK\r\n",
             "Date: Fri, 31 Dec 1999 23:59:59 GMT\r\n",
             "Content-Type: text/plain\r\n",
@@ -817,14 +817,14 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // RESPONSE BREATHING TEST
+        // RESPONSE BREATHING TEST (CHUNKED)
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
                                << "RESPONSE BREATHING TEST" << bsl::endl
                                << "=======================" << bsl::endl;
 
-        const char *DATA[] = { // chunked - no trailer contents.
+        const char *DATA[] = {
             "HTTP/1.1 200 OK\r\n",
             "Date: Fri, 31 Dec 1999 23:59:59 GMT\r\n",
             "Content-Type: text/plain\r\n",
@@ -893,21 +893,39 @@ int main(int argc, char *argv[])
                                  entityProcessor(&bsl::cout);
         baenet_HttpMessageParser parser(
                                       &entityProcessor,
-                                      baenet_HttpMessageType::BAENET_RESPONSE);
+                                      baenet_HttpMessageType::BAENET_RESPONSE,
+                                      &factory);
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            bcema_Blob blob(&factory);
+        {
+            for (int i = 0; i < NUM_DATA; ++i) {
+                bcema_Blob blob(&factory);
 
-            {
-                bcesb_OutBlobStreamBuf osb(&blob);
-                bsl::ostream           os(&osb);
+                {
+                    bcesb_OutBlobStreamBuf osb(&blob);
+                    bsl::ostream           os(&osb);
 
-                os << DATA[i];
+                    os << DATA[i];
+                }
+
+                int ret = parser.addData(bsl::cerr, blob);
+                LOOP_ASSERT(i, 0 == ret);
             }
-
-            int ret = parser.addData(bsl::cerr, blob);
-            LOOP_ASSERT(i, 0 == ret);
         }
+        {
+            for (int i = 0; i < NUM_DATA; ++i) {
+                bsl::stringbuf osb;
+                {
+                    bsl::ostream os(&osb);
+
+                    os << DATA[i];
+                    os << bsl::flush;
+                }
+
+                int ret = parser.addData(bsl::cerr, &osb);
+                LOOP_ASSERT(i, 0 == ret);
+            }
+        }
+
         int ret = parser.onEndData(bsl::cerr);
         ASSERT(0 == ret);
 
@@ -940,21 +958,37 @@ int main(int argc, char *argv[])
                                  entityProcessor(&bsl::cout);
         baenet_HttpMessageParser parser(
                                        &entityProcessor,
-                                       baenet_HttpMessageType::BAENET_REQUEST);
+                                       baenet_HttpMessageType::BAENET_REQUEST,
+                                       &factory);
+        {
+            for (int i = 0; i < NUM_DATA; ++i) {
+                bcema_Blob blob(&factory);
+                {
+                    bcesb_OutBlobStreamBuf osb(&blob);
+                    bsl::ostream           os(&osb);
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            bcema_Blob blob(&factory);
+                    os << DATA[i];
+                }
 
-            {
-                bcesb_OutBlobStreamBuf osb(&blob);
-                bsl::ostream           os(&osb);
-
-                os << DATA[i];
+                int ret = parser.addData(bsl::cerr, blob);
+                LOOP_ASSERT(i, 0 == ret);
             }
-
-            int ret = parser.addData(bsl::cerr, blob);
-            LOOP_ASSERT(i, 0 == ret);
         }
+        {
+            for (int i = 0; i < NUM_DATA; ++i) {
+                bsl::stringbuf osb;
+                {
+                    bsl::ostream os(&osb);
+
+                    os << DATA[i];
+                    os << bsl::flush;
+                }
+
+                int ret = parser.addData(bsl::cerr, &osb);
+                LOOP_ASSERT(i, 0 == ret);
+            }
+        }
+
         int ret = parser.onEndData(bsl::cerr);
         ASSERT(0 == ret);
 
