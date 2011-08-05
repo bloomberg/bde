@@ -2203,13 +2203,13 @@ int main(int argc, char *argv[])
             local test = { 13 };
             members.set(&test, &test.d_x, &local::deleter);
             members.runDeleter();
-            ASSERT(test.d_x, 42 == test.d_x);
+            LOOP_ASSERT(test.d_x, 42 == test.d_x);
 
             local alias = { 99 };
             members.setAliasPtr(&alias);
             test.d_x = 13;
             members.runDeleter();
-            ASSERT(test.d_x, 42 == test.d_x)
+            LOOP_ASSERT(test.d_x, 42 == test.d_x)
         }
         g_deleteCount = 0;
 
