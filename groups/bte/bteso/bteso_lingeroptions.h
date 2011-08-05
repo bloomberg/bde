@@ -151,7 +151,7 @@ class bteso_LingerOptions {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    int  d_timeout;     // maximum time out value (in seconds) that a process
+    int  d_timeout;     // maximum time-out value (in seconds) that a process
                         // should block when trying to 'close' a socket if
                         // there is untransmitted data
 
@@ -180,7 +180,8 @@ class bteso_LingerOptions {
         //  lingerFlag == false
         //..
 
-    bteso_LingerOptions(bool lingerFlag, int timeout);
+    // TBD switch order for parameters.
+    bteso_LingerOptions(int timeout, bool lingerFlag);
         // Create a 'bteso_LingerOptions' object having the specified
         // 'timeout', and 'lingerFlag' attribute values.  The behavior is
         // undefined unless '0 <= timeout'.
