@@ -1218,7 +1218,8 @@ bdema_ManagedPtr<BDEMA_TYPE>::operator bdema_ManagedPtr_Ref<BDEMA_OTHER_TYPE>()
 // ACCESSORS
 template <class BDEMA_TYPE>
 inline
-bdema_ManagedPtr<BDEMA_TYPE>::operator BoolType() const
+bdema_ManagedPtr<BDEMA_TYPE>::operator 
+                                    typename bdema_ManagedPtr::BoolType() const
 {
     return d_members.pointer()
          ? bsls_UnspecifiedBool<bdema_ManagedPtr>::trueValue()

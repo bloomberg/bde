@@ -36,7 +36,7 @@ bdema_ManagedPtrDeleter::print(bsl::ostream& stream,
 
     // TBD: switch back to 'printAttribute' when 'bslim' supports function
     // pointers
-    printer.printHexAddr(d_deleter, "deleter" );
+    printer.printHexAddr((const void*)(d_deleter), "deleter" );
 //  printer.printAttribute("deleter", d_deleter   );
 
     printer.end();
