@@ -403,7 +403,6 @@ int main(int argc, char *argv[])
     bdet_Datetime   datetime(2009, 12, 25, 11, 00, 00);
     bdet_DatetimeTz datetimeTz(datetime, -5 * 60);  // offset is specified
                                                     // in minutes from UTC
-
     bsl::string     timeZoneId("America/New_York");
     localDatetime.setDatetimeTz(datetimeTz);
     localDatetime.setTimeZoneId(timeZoneId);
@@ -417,8 +416,8 @@ int main(int argc, char *argv[])
     bsl::string anotherTimeZoneId("Europe/Berlin");
     localDatetime.setTimeZoneId(anotherTimeZoneId);
 
-    ASSERT(anotherTimeZoneId == localDatetime.timeZoneId());
     ASSERT(datetimeTz        == localDatetime.datetimeTz());
+    ASSERT(anotherTimeZoneId == localDatetime.timeZoneId());
 //..
 // Finally, we stream 'localDatetime' to 'bsl::cout':
 //..
@@ -2560,7 +2559,7 @@ int main(int argc, char *argv[])
         //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
         //:
         //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', ommitting the 'level' or
+        //:       formatting parameters to 'print', omitting the 'level' or
         //:       'spacesPerLevel' parameter if the value of that argument is
         //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
         //:       invoke the 'operator<<' instead.

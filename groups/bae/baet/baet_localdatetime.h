@@ -68,7 +68,6 @@ BDES_IDENT("$Id: $ $CSID: $")
 //  bdet_Datetime   datetime(2009, 12, 25, 11, 00, 00);
 //  bdet_DatetimeTz datetimeTz(datetime, -5 * 60);  // offset is specified
 //                                                  // in minutes from UTC
-//
 //  bsl::string     timeZoneId("America/New_York");
 //  localDatetime.setDatetimeTz(datetimeTz);
 //  localDatetime.setTimeZoneId(timeZoneId);
@@ -82,8 +81,8 @@ BDES_IDENT("$Id: $ $CSID: $")
 //  bsl::string anotherTimeZoneId("Europe/Berlin");
 //  localDatetime.setTimeZoneId(anotherTimeZoneId);
 //
-//  assert(anotherTimeZoneId == localDatetime.timeZoneId());
 //  assert(datetimeTz        == localDatetime.datetimeTz());
+//  assert(anotherTimeZoneId == localDatetime.timeZoneId());
 //..
 // Finally, we stream 'localDatetime' to 'bsl::cout':
 //..
@@ -122,10 +121,6 @@ BDES_IDENT("$Id: $ $CSID: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
-#include <bsl_algorithm.h>
-#endif
-
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -153,7 +148,7 @@ class baet_LocalDatetime {
     //: o is *exception-neutral*
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
-    // For terminology: bsldoc_terminology
+    // For terminology see 'bsldoc_glossary'.
 
     // DATA
     bdet_DatetimeTz d_datetimeTz;  // local date-time and offset from UTC
@@ -219,23 +214,24 @@ class baet_LocalDatetime {
 
                         // Aspects
 
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // providing modifiable access to 'stream'.  If 'stream' is initially
+        // invalid, this operation has no effect.  If 'stream' becomes invalid
+        // during this operation, this object is valid, but its value is
+        // undefined.  If 'version' is not supported, 'stream' is marked
+        // invalid and this object is unaltered.  Note that no version is read
+        // from 'stream'.  (See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.)
+
     void swap(baet_LocalDatetime& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
         // exception-safety guarantee.  The behavior is undefined unless this
         // object was created with the same allocator as was 'other'.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // (See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.)
 
     // ACCESSORS
     const bdet_DatetimeTz& datetimeTz() const;
@@ -253,31 +249,33 @@ class baet_LocalDatetime {
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
 
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
-                        int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in
-        // a human-readable format, and return a reference to 'stream'.
-        // Optionally specify an initial indentation 'level', whose absolute
-        // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute
-        // value indicates the number of spaces per indentation level for this
-        // and all of its nested objects.  If 'level' is negative, suppress
-        // indentation of the first line.  If 'spacesPerLevel' is negative,
-        // format the entire output on one line, suppressing all but the
-        // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the
-        // format is not fully specified, and can change without notice.
-
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // Write this value to the specified output 'stream' using the
-        // specified 'version' format, and return a reference to the modifiable
-        // 'stream'.  If 'stream' is initially invalid, this operation has no
-        // effect.  If 'version' is not supported, 'stream' is invalidated.
-        // Note that in no event is 'version' written to 'stream'.  (See the
-        // 'bdex' package-level documentation for more information on 'bdex'
-        // streaming of value-semantic types and containers.)
+        // specified 'version' format, and return a reference providing
+        // modifiable access to 'stream'.  If 'stream' is initially invalid,
+        // this operation has no effect.  If 'version' is not supported,
+        // 'stream' is invalidated.  Note that in no event is 'version' written
+        // to 'stream'.  (See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.)
+
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output 'stream' in a
+        // human-readable format, and return a reference providing modifiable
+        // access to 'stream'.  Optionally specify an initial indentation
+        // 'level', whose absolute value is incremented recursively for nested
+        // objects.  If 'level' is specified, optionally specify
+        // 'spacesPerLevel', whose absolute value indicates the number of
+        // spaces per indentation level for this and all of its nested objects.
+        // If 'level' is negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // 'level').  If 'stream' is not valid on entry, this operation has no
+        // effect.  Note that the format is not fully specified, and can change
+        // without notice.
 };
 
 // FREE OPERATORS
@@ -297,13 +295,13 @@ bool operator!=(const baet_LocalDatetime& lhs,
 
 bsl::ostream& operator<<(bsl::ostream&             stream,
                          const baet_LocalDatetime& localDatetime);
-    // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference to
-    // 'stream'.  If 'stream' is not valid on entry, this operation has no
-    // effect.  Note that this human-readable format is not fully specified
-    // and can change without notice.  Also note that this method has the same
-    // behavior as 'object.print(stream, 0, -1)' with the attribute names
-    // elided.
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference providing
+    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as 'object.print(stream, 0, -1)' with the
+    // attribute names elided.
 
 // FREE FUNCTIONS
 void swap(baet_LocalDatetime& a, baet_LocalDatetime& b);
@@ -361,7 +359,7 @@ inline
 baet_LocalDatetime&
 baet_LocalDatetime::operator=(const baet_LocalDatetime& rhs)
 {
-    d_timeZoneId = rhs.d_timeZoneId;  // must be first
+    d_timeZoneId = rhs.d_timeZoneId;  // first to allow strong guarantee
     d_datetimeTz = rhs.d_datetimeTz;
     return *this;
 }
@@ -380,15 +378,6 @@ void baet_LocalDatetime::setTimeZoneId(const bdeut_StringRef& value)
 
                         // Aspects
 
-inline
-void baet_LocalDatetime::swap(baet_LocalDatetime& other)
-{
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
-
-    bsl::swap(d_datetimeTz, other.d_datetimeTz);
-    bsl::swap(d_timeZoneId, other.d_timeZoneId);
-}
-
 template <class STREAM>
 STREAM& baet_LocalDatetime::bdexStreamIn(STREAM& stream, int version)
 {
@@ -404,6 +393,15 @@ STREAM& baet_LocalDatetime::bdexStreamIn(STREAM& stream, int version)
         }
     }
     return stream;
+}
+
+inline
+void baet_LocalDatetime::swap(baet_LocalDatetime& other)
+{
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    bsl::swap(d_datetimeTz, other.d_datetimeTz);
+    bsl::swap(d_timeZoneId, other.d_timeZoneId);
 }
 
 // ACCESSORS

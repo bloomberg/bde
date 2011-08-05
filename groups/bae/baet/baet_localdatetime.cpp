@@ -51,7 +51,7 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:
