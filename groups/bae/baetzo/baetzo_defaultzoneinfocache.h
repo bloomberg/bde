@@ -267,8 +267,8 @@ struct baetzo_DefaultZoneinfoCache {
         // specified 'cache'.  Return the address of the default cache object
         // that was set by a previous call to this method, or 0 if no call to
         // this method was previously executed.  The behavior is undefined
-        // unless (1) 'cache' remains valid until no more operations are
-        // performed in the process on the default cache or a subsequent call
+        // unless (1) 'cache' remains valid until the last operation is
+        // performed on this process's default cache, or a subsequent call
         // to 'setDefaultCache', and (2) this method is *not* called from one
         // thread while another thread is attempting to access the default time
         // zone cache instance (i.e., this method is *not* thread-safe).  Note
