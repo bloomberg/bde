@@ -19,6 +19,7 @@ BDES_IDENT_RCSID(baenet_httpmessageparser_cpp,"$Id$ $CSID$")
 
 #include <bdema_sequentialallocator.h>
 #include <bdeu_string.h>
+#include <bdex_byteinstreamformatter.h>
 
 #include <bsl_ostream.h>
 #include <bsl_string.h>
@@ -330,6 +331,27 @@ baenet_HttpMessageParser::baenet_HttpMessageParser(
                                 baenet_HttpMessageType::Value  messageType,
                                 bslma_Allocator               *basicAllocator)
 : d_data(basicAllocator)
+, d_blobBufferFactory_p(0)
+, d_entityProcessor_p(entityProcessor)
+, d_messageType(messageType)
+, d_startLine(basicAllocator)
+, d_state(STATE_INITIAL)
+, d_remainingHeaderLength(MAX_HEADER_LENGTH)
+{
+    BSLS_ASSERT(d_entityProcessor_p);
+
+    d_header_sp = d_entityProcessor_p->createHeader();
+
+    BSLS_ASSERT(d_header_sp);
+}
+
+baenet_HttpMessageParser::baenet_HttpMessageParser(
+        baenet_HttpEntityProcessor    *entityProcessor,
+        baenet_HttpMessageType::Value  messageType,
+        bcema_BlobBufferFactory       *blobBufferFactory,
+        bslma_Allocator               *basicAllocator)
+: d_data(blobBufferFactory, basicAllocator)
+, d_blobBufferFactory_p(blobBufferFactory)
 , d_entityProcessor_p(entityProcessor)
 , d_messageType(messageType)
 , d_startLine(basicAllocator)
@@ -506,6 +528,69 @@ int baenet_HttpMessageParser::addData(bsl::ostream&     errorStream,
         } break;
       }
     };
+
+    return 0;
+}
+
+int baenet_HttpMessageParser::addData(bsl::ostream&   errorStream,
+                                      bsl::streambuf *source)
+{
+    enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
+
+    if (STATE_ERROR == d_state || STATE_FINISHED == d_state) {
+        return BAENET_FAILURE;
+    }
+
+    while (1) {
+        source->sgetc(); // force underflow if necessary
+
+        int numAvailable = source->in_avail();
+
+        if (numAvailable == 0) {
+            break;
+        }
+
+        bdex_ByteInStreamFormatter bisf(source);
+
+        bcema_Blob data(d_blobBufferFactory_p);
+        bcema_BlobUtil::read(bisf, &data, numAvailable);
+
+        if (!bisf) {
+            return BAENET_FAILURE;
+        }
+
+        int rc = addData(errorStream, data);
+        if (0 != rc) {
+            return rc;
+        }
+    }
+
+    return 0;
+}
+
+int baenet_HttpMessageParser::addData(bsl::ostream&   errorStream,
+                                      bsl::streambuf *source,
+                                      int             numBytes)
+{
+    enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
+
+    if (STATE_ERROR == d_state || STATE_FINISHED == d_state) {
+        return BAENET_FAILURE;
+    }
+
+    bdex_ByteInStreamFormatter bisf(source);
+
+    bcema_Blob data(d_blobBufferFactory_p);
+    bcema_BlobUtil::read(bisf, &data, numBytes);
+
+    if (!bisf) {
+        return BAENET_FAILURE;
+    }
+
+    int rc = addData(errorStream, data);
+    if (0 != rc) {
+        return rc;
+    }
 
     return 0;
 }

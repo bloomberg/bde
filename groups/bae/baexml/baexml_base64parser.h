@@ -11,7 +11,8 @@ BDES_IDENT("$Id: $")
 //
 //@DEPRECATED: Use bdede_base64decoder instead.
 //
-//@CLASSES: baexml_Base64Parser: push parser for Base64 types.
+//@CLASSES:
+//   baexml_Base64Parser: push parser for Base64 types
 //
 //@SEE_ALSO:
 //

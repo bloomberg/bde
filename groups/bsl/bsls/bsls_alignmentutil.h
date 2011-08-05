@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide constants, types, and operations related to alignment.
 //
 //@CLASSES:
-//  bsls_AlignmentUtil: namespace for alignment functions, types, and constants
+//   bsls_AlignmentUtil: namespace for alignment functions, types, and constants
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 // We can implement the 'naturallyAlign' helper function easily using the
 // methods defined in this class:
 //..
-//  void *naturallyAlign(void **currentAddress, int size)
+//  void *naturallyAlign(void **currentAddress, std::size_t size)
 //  {
 //      int   alignment = bsls_AlignmentUtil::calculateAlignmentFromSize(size);
 //      int   offset    = bsls_AlignmentUtil::calculateAlignmentOffset(
@@ -188,9 +188,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_CLIMITS
-#include <climits>           // 'INT_MAX'
-#define INCLUDED_CLIMITS
+#ifndef INCLUDED_LIMITS
+#include <limits>           // 'std::numeric_limits'
+#define INCLUDED_LIMITS
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -256,7 +256,7 @@ struct bsls_AlignmentUtil {
         // requirement.
 
     // CLASS METHODS
-    static int calculateAlignmentFromSize(int size);
+    static int calculateAlignmentFromSize(std::size_t size);
         // Return the *natural* alignment for a memory block of the specified
         // size -- i.e., the largest power of 2 that evenly divides 'size', up
         // to a maximum of 'BSLS_MAX_ALIGNMENT'.  It is guaranteed that this
@@ -294,11 +294,14 @@ struct bsls_AlignmentUtil {
         // boundary (i.e., the numerical value of 'address' is evenly
         // divisible by 8), and 'false' otherwise.
 
-    static int roundUpToMaximalAlignment(int size);
+    static std::size_t roundUpToMaximalAlignment(std::size_t size);
         // Return the specified 'size' (in bytes) rounded up to the smallest
         // integral multiple of the maximum alignment.  The behavior is
-        // undefined unless '0 <= size' and
-        // 'size <= INT_MAX - BSLS_MAX_ALIGNMENT + 1'.
+        // undefined unless '0 <= size' and 'size' satisfies:
+        //..
+        //  size <= std::numeric_limits<std::size_t>::max()
+        //          - BSLS_MAX_ALIGNMENT + 1
+        //..
 };
 
 // ============================================================================
@@ -311,7 +314,7 @@ struct bsls_AlignmentUtil {
 
 // CLASS METHODS
 inline
-int bsls_AlignmentUtil::calculateAlignmentFromSize(int size)
+int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t size)
 {
     BSLS_ASSERT_SAFE(1 <= size);
 
@@ -360,8 +363,8 @@ int bsls_AlignmentUtil::calculateAlignmentFromSize(int size)
     //   :         :          :          :         :           :
     //..
 
-    size |= BSLS_MAX_ALIGNMENT;
-    const int alignment = size & -size;
+    int alignment = size | BSLS_MAX_ALIGNMENT;
+    alignment = alignment & -alignment;
 
     BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
 
@@ -413,10 +416,10 @@ bool bsls_AlignmentUtil::is8ByteAligned(const void *address)
 }
 
 inline
-int bsls_AlignmentUtil::roundUpToMaximalAlignment(int size)
+std::size_t bsls_AlignmentUtil::roundUpToMaximalAlignment(std::size_t size)
 {
-    BSLS_ASSERT_SAFE(0 <= size);
-    BSLS_ASSERT_SAFE(     size <= INT_MAX - BSLS_MAX_ALIGNMENT + 1);
+    BSLS_ASSERT_SAFE(size <= std::numeric_limits<std::size_t>::max()
+                           - BSLS_MAX_ALIGNMENT + 1);
 
     return ((size + BSLS_MAX_ALIGNMENT - 1) / BSLS_MAX_ALIGNMENT)
                                                           * BSLS_MAX_ALIGNMENT;
