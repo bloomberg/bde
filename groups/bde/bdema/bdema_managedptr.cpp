@@ -34,6 +34,7 @@ void bdema_ManagedPtr_Members::move(bdema_ManagedPtr_Members& other)
     // if 'other.d_obj_p' is null then 'other.d_deleter' may not be initialized
     // but 'set' takes care of that concern.  deleter passed by ref, so no read
     // of uninitialized memory occurs
+    BSLS_ASSERT(this != &other);
 
     d_obj_p = other.d_obj_p;
     if (other.d_obj_p) {
@@ -53,8 +54,7 @@ void bdema_ManagedPtr_Members::set(void        *object,
                                    DeleterFunc  deleter)
 {
     // Note that 'factory' may be null if 'deleter' supports it, so cannot be
-    // asserted here.  This is a real use-case in the field, not theoretical.
-    //BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
+    // asserted here.
     BSLS_ASSERT_SAFE(0 != deleter || 0 == object);
 
     d_obj_p = object;

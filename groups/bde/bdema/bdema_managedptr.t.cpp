@@ -6,6 +6,7 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
+#include <bsls_asserttest.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy()
@@ -24,10 +25,11 @@ using namespace bsl;  // automatically added by script
 // transferring ownership of a dynamically allocated object.  We choose to test
 // each class in turn, according to their
 //
-// [ 2] imp. class bdema_ManagedPtr_Members
-// [ 3] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
-// [ 4] imp. class bdema_ManagedPtr_FactoryDeleter  (this one needs negative testing)
-// [ 5] class bdema_ManagedPtrNilDeleter
+// [ 3] imp. class bdema_ManagedPtr_Members
+// [ 4] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
+// [ 5] imp. class bdema_ManagedPtr_FactoryDeleter  (this one needs negative testing)
+// [13] class bdema_ManagedPtrNilDeleter
+// [14] class bdema_ManagedPtrNoOpDeleter
 //      class bdema_ManagedPtr
 
 //-----------------------------------------------------------------------------
@@ -42,38 +44,38 @@ using namespace bsl;  // automatically added by script
 // aliasing machinery works as documented.  At last, we must also check that
 // a 'bdema_ManagedPtr' acts exactly as a pointer wherever one is expected.
 //-----------------------------------------------------------------------------
-// [ 8] bdema_ManagedPtr();
-// [ 8] bdema_ManagedPtr(nullptr_t);
-// [ 8] template<class TARGET_TYPE> bdema_ManagedPtr(TARGET_TYPE *ptr);
-// [10] bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
-// [10] bdema_ManagedPtr(bdema_ManagedPtr& original);
-// [10] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &original)
-// [11] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
-// [10] bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
-// [10] bdema_ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
-// [ 8] ~bdema_ManagedPtr();
-// [13] operator bdema_ManagedPtr_Ref<BDEMA_TYPE>();
-// [13] operator bdema_ManagedPtr_Ref<OTHER>();
-// [ 9] void load(nullptr_t=0);
-// [ 9] template<class TARGET_TYPE> void load(TARGET_TYPE *ptr);
-// [ 9] void load(TYPE *ptr, FACTORY *factory)
-// [ 9] void load(TYPE *ptr, void *factory, void (*deleter)(TYPE *, void*));
-// [ 9] void load(TYPE *ptr, FACTORY *factory, void(*deleter)(TYPE *,FACTORY*))
-// [11] void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
-// [13] void swap(bdema_ManagedPt& rhs);
-// [13] bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
-// [13] bdema_ManagedPtr& operator=(bdema_ManagedPtr<OTHER> &rhs)
-// [13] bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
-// [14] void clear();
-// [14] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
-// [12] operator BoolType() const;
-// [12] TYPE& operator*() const;
-// [12] TYPE *operator->() const;
-// [12] TYPE *ptr() const;
-// [12] const bdema_ManagedPtrDeleter& deleter() const;
+// [ 6] bdema_ManagedPtr();
+// [ 6] bdema_ManagedPtr(nullptr_t);
+// [ 6] template<class TARGET_TYPE> bdema_ManagedPtr(TARGET_TYPE *ptr);
+// [ 8] bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+// [ 8] bdema_ManagedPtr(bdema_ManagedPtr& original);
+// [ 8] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &original)
+// [ 9] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
+// [ 8] bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
+// [ 8] bdema_ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
+// [ 6] ~bdema_ManagedPtr();
+// [11] operator bdema_ManagedPtr_Ref<BDEMA_TYPE>();
+// [11] operator bdema_ManagedPtr_Ref<OTHER>();
+// [ 7] void load(nullptr_t=0);
+// [ 7] template<class TARGET_TYPE> void load(TARGET_TYPE *ptr);
+// [ 7] void load(TYPE *ptr, FACTORY *factory)
+// [ 7] void load(TYPE *ptr, void *factory, void (*deleter)(TYPE *, void*));
+// [ 7] void load(TYPE *ptr, FACTORY *factory, void(*deleter)(TYPE *,FACTORY*))
+// [ 9] void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
+// [11] void swap(bdema_ManagedPt& rhs);
+// [11] bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
+// [11] bdema_ManagedPtr& operator=(bdema_ManagedPtr<OTHER> &rhs)
+// [11] bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+// [12] void clear();
+// [12] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
+// [10] operator BoolType() const;
+// [10] TYPE& operator*() const;
+// [10] TYPE *operator->() const;
+// [10] TYPE *ptr() const;
+// [10] const bdema_ManagedPtrDeleter& deleter() const;
 //
-// [ 6] class bdema_ManagedPtrNilDeleter
-// [ 7] class bdema_ManagedPtrNoOpDeleter
+// [13] class bdema_ManagedPtrNilDeleter
+// [14] class bdema_ManagedPtrNoOpDeleter
 //
 // [ 3] imp. class bdema_ManagedPtr_Members
 // [ 4] imp. class bdema_ManagedPtr_Ref             (this one needs negative testing)
@@ -133,6 +135,12 @@ void aSsErT(int c, const char *s, int i) {
 #define PA_(X, L) cout << #X " = "; printArray(X, L); cout << ", " << flush;
                                               // PA(X, L) without '\n'
 #define L_ __LINE__                           // current Line number
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
 
 // ============================================================================
 //                               TEST APPARATUS
@@ -234,19 +242,34 @@ bool bslma_TestAllocatorMonitor::isTotalUp() const
     return d_allocator_p->numBlocksTotal() != d_lastTotal;
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// AJM: MIGRATE THIS to the 'bsls_asserttest' component after BDE 2.9 branches.
+class bsls_AssertTestHandlerGuard {
+    // Purpose
+
+    // DATA
+    bsls_AssertFailureHandlerGuard d_guard;
+
+  public:
+    bsls_AssertTestHandlerGuard();
+
+    //! ~bsls_AssertTestHandlerGuard() = default;
+};
+
+inline
+bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
+: d_guard(&bsls_AssertTest::failTestDriver)
+{
+}
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-
-//int verbose = 0;
-//int veryVerbose = 0;
 
 bool             verbose;
 bool         veryVerbose;
 bool     veryVeryVerbose;
 bool veryVeryVeryVerbose;
-
-//bdema_ManagedPtr<int> i;
 
 class MyTestObject;
 class MyDerivedObject;
@@ -354,11 +377,64 @@ MySecondDerivedObject::MySecondDerivedObject(int *counter)
 {
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+class CountedStackDeleter {
+
+    volatile int *d_deleteCounter_p;
+
+    CountedStackDeleter(const CountedStackDeleter& orig); //=delete;
+    CountedStackDeleter& operator=(const CountedStackDeleter& orig); //=delete;
+
+  public:
+    CountedStackDeleter(int *counter) : d_deleteCounter_p(counter) {}
+
+    //! ~CountedStackDeleter();
+        // Destroy this object.
+
+    // ACCESSORS
+    volatile int *deleteCounter() const { return d_deleteCounter_p; }
+
+    void deleteObject(void * obj) const {
+        ++*d_deleteCounter_p;
+    }
+};
+
+int g_deleteCount = 0;
+
+static void countedNilDelete(void *, void*) {
+    static int& deleteCount = g_deleteCount;
+    ++g_deleteCount;
+}
+
+//=============================================================================
+//                              CREATORS TEST
+//=============================================================================
+
+namespace CREATORS_TEST_NAMESPACE {
+
+struct SS {
+    char  d_buf[100];
+    int  *d_numDeletes_p;
+
+    SS(int *numDeletes) {
+        d_numDeletes_p = numDeletes;
+    }
+    ~SS() {
+        ++*d_numDeletes_p;
+    }
+};
+
+typedef bdema_ManagedPtr<SS> SSObj;
+typedef bdema_ManagedPtr<char> ChObj;
+
+}  // close namespace CREATORS_TEST_NAMESPACE
+
 //=============================================================================
 //                    FILE-STATIC FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-void myTestDeleter(TObj *object, bslma_TestAllocator *allocator)
+static void myTestDeleter(TObj *object, bslma_TestAllocator *allocator)
 {
     allocator->deleteObject(object);
     if (verbose) {
@@ -366,7 +442,7 @@ void myTestDeleter(TObj *object, bslma_TestAllocator *allocator)
     }
 }
 
-bdema_ManagedPtr<MyTestObject>
+static bdema_ManagedPtr<MyTestObject>
 returnManagedPtr(int *numDels, bslma_TestAllocator *allocator)
 {
     MyTestObject *p = new (*allocator) MyTestObject(numDels);
@@ -374,7 +450,7 @@ returnManagedPtr(int *numDels, bslma_TestAllocator *allocator)
     return ret;
 }
 
-bdema_ManagedPtr<MyDerivedObject>
+static bdema_ManagedPtr<MyDerivedObject>
 returnDerivedPtr(int *numDels, bslma_TestAllocator *allocator)
 {
     MyDerivedObject *p = new (*allocator) MyDerivedObject(numDels);
@@ -382,7 +458,7 @@ returnDerivedPtr(int *numDels, bslma_TestAllocator *allocator)
     return ret;
 }
 
-bdema_ManagedPtr<MySecondDerivedObject>
+static bdema_ManagedPtr<MySecondDerivedObject>
 returnSecondDerivedPtr(int *numDels, bslma_TestAllocator *allocator)
 {
     MySecondDerivedObject *p = new (*allocator) MySecondDerivedObject(numDels);
@@ -390,7 +466,7 @@ returnSecondDerivedPtr(int *numDels, bslma_TestAllocator *allocator)
     return ret;
 }
 
-void doNothingDeleter(int *object, void *)
+static void doNothingDeleter(void *object, void *)
 {
     ASSERT(object);
 }
@@ -541,29 +617,6 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 // it is cast.
 
 } // namespace TYPE_CASTING_TEST_NAMESPACE
-
-//=============================================================================
-//                              CREATORS TEST
-//=============================================================================
-
-namespace CREATORS_TEST_NAMESPACE {
-
-struct SS {
-    char  d_buf[100];
-    int  *d_numDeletes_p;
-
-    SS(int *numDeletes) {
-        d_numDeletes_p = numDeletes;
-    }
-    ~SS() {
-        ++*d_numDeletes_p;
-    }
-};
-
-typedef bdema_ManagedPtr<SS> SSObj;
-typedef bdema_ManagedPtr<char> ChObj;
-
-}  // close namespace CREATORS_TEST_NAMESPACE
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -773,6 +826,100 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
+        // TESTING bdema_ManagedPtrNoOpDeleter
+        //
+        // Concerns:
+        //: 1 The 'deleter' method can be used as a deleter policy by
+        //:   'bdema_ManagedPtr'.
+        //:
+        //: 2 When invoked, 'bdema_ManagedPtrNoOpDeleter::deleter' has no
+        //:   effect.
+        //:
+        //: 3 No memory is allocated from the global or default allocators.
+        //
+        // Plan:
+        //: 1 blah ...
+        //
+        // Testing:
+        //    bdema_ManagedPtrNoOpDeleter::deleter
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING bdema_ManagedPtrNoOpDeleter"
+                          << "\n-----------------------------------" << endl;
+
+        if (verbose) cout << "\tConfirm the deleter does not destroy the "
+                             "passsed object\n";
+
+        int deleteCount = 0;
+        MyTestObject t(&deleteCount);
+        bdema_ManagedPtrNoOpDeleter::deleter(&t, 0);
+        LOOP_ASSERT(deleteCount, 0 == deleteCount);
+
+        if (verbose) cout << "\tConfirm the deleter can be registered with "
+                             "a managed pointer\n";
+
+        bslma_TestAllocatorMonitor gam(globalAllocator);
+        bslma_TestAllocatorMonitor dam(da);
+
+        int x;
+        int y;
+        bdema_ManagedPtr<int> p(&x, 0, 
+                                &bdema_ManagedPtrNoOpDeleter::deleter);
+
+        p.load(&y, 0, &bdema_ManagedPtrNoOpDeleter::deleter);
+
+        ASSERT(dam.isInUseSame());
+        ASSERT(gam.isInUseSame());
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING bdema_ManagedPtrNilDeleter
+        //
+        // Concerns:
+        //: 1 The 'deleter' method can be used as a deleter policy by
+        //:   'bdema_ManagedPtr'.
+        //:
+        //: 2 When invoked, 'bdema_ManagedPtrNilDeleter<T>::deleter' has no
+        //:   effect.
+        //:
+        //: 3 No memory is allocated from the global or default allocators.
+        //
+        // Plan:
+        //: 1 blah ...
+        //
+        // Testing:
+        //   bdema_ManagedPtrNilDeleter<T>::deleter
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING bdema_ManagedPtrNilDeleter"
+                          << "\n----------------------------------" << endl;
+
+        if (verbose) cout << "\tConfirm the deleter does not destroy the "
+                             "passsed object\n";
+
+        int deleteCount = 0;
+        MyTestObject t(&deleteCount);
+        bdema_ManagedPtrNilDeleter<MyTestObject>::deleter(&t, 0);
+        LOOP_ASSERT(deleteCount, 0 == deleteCount);
+
+        if (verbose) cout << "\tConfirm the deleter can be registered with "
+                             "a managed pointer\n";
+
+        bslma_TestAllocatorMonitor gam(globalAllocator);
+        bslma_TestAllocatorMonitor dam(da);
+
+        int x;
+        int y;
+        bdema_ManagedPtr<int> p(&x, 0, 
+                                &bdema_ManagedPtrNilDeleter<int>::deleter);
+
+        p.load(&y, 0, &bdema_ManagedPtrNilDeleter<int>::deleter);
+
+        ASSERT(dam.isInUseSame());
+        ASSERT(gam.isInUseSame());
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
         // CLEAR and RELEASE
         //
         // Concerns:
@@ -855,7 +1002,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
       } break;
-      case 13: {
+      case 11: {
         // --------------------------------------------------------------------
         // SWAP AND ASSIGN TEST
         //
@@ -973,6 +1120,25 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
+            // this test tests creation of a ref from the same type of
+            // managedPtr, then assignment to a managedptr.
+
+            Obj o2;
+            {
+                TObj *p = new (da) MyTestObject(&numDeletes);
+                Obj o(p);
+
+                bdema_ManagedPtr_Ref<TObj> r = o;
+                o2 = r;
+
+                ASSERT(o2.ptr() == p);
+            }
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
             TObj *p = new (da) MyTestObject(&numDeletes);
             Obj o(p);
             Obj o2;
@@ -1006,7 +1172,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
       } break;
-      case 12: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING ACCESSORS
         //
@@ -1073,7 +1239,7 @@ int main(int argc, char *argv[])
             ASSERT(da.numDeallocation() == numDeallocation + 1);
         }
       } break;
-      case 11: {
+      case 9: {
         // --------------------------------------------------------------------
         // ALIAS SUPPORT TEST
         //
@@ -1136,7 +1302,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(da.numDeallocation() == numDeallocation + 2);
       } break;
-      case 10: {
+      case 8: {
         // --------------------------------------------------------------------
         // CREATORS TEST
         //
@@ -1169,10 +1335,12 @@ int main(int argc, char *argv[])
         //   bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &original)
         //   bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
         //   bdema_ManagedPtr(BDEMA_TYPE *, void *, DeleterFunc);
-        //   bdema_ManagedPtr(TYPE *, void *, void(*)(BDEMA_TYPE *, FACTORY *))
+        //   bdema_ManagedPtr(BDEMA_TYPE *,
+        //                    void *, 
+        //                    void(*)(BDEMA_TYPE *, FACTORY *))
         //   bdema_ManagedPtr(BDEMA_TYPE *ptr,
         //                    bdema_ManagedPtr_Nullptr::Type,
-        //                    void      (*deleter)(BDEMA_TYPE *, void*));
+        //                    void(*)(BDEMA_TYPE *, void*));
         // --------------------------------------------------------------------
 
         using namespace CREATORS_TEST_NAMESPACE;
@@ -1275,7 +1443,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
 
       } break;
-      case 9: {
+      case 7: {
         // --------------------------------------------------------------------
         // Testing 'load' overloads
         //
@@ -1471,7 +1639,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == numDeletes);
       } break;
-      case 8: {
+      case 6: {
         // --------------------------------------------------------------------
         // PRIMARY CREATORS TEST
         //   Note that we will not deem the destructor to be completely tested
@@ -1641,79 +1809,473 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
 #endif
       } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // TESTING bdema_ManagedPtrNoOpDeleter
-        //
-        // Concerns:
-        //: 1 The 'deleter' method can be used as a deleter policy by
-        //:   'bdema_ManagedPtr'.
-        //:
-        //: 2 When invoked, 'bdema_ManagedPtrNoOpDeleter::deleter' has no
-        //:   effect.
-        //
-        // Plan:
-        //: 1 blah ...
-        //
-        // Testing:
-        //    bdema_ManagedPtrNoOpDeleter::deleter
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING bdema_ManagedPtrNoOpDeleter"
-                          << "\n-----------------------------------" << endl;
-
-        if (verbose) cout << "\tTest blah...\n";
-
-        bslma_TestAllocatorMonitor gam(globalAllocator);
-        bslma_TestAllocatorMonitor dam(da);
-
-        int x;
-        int y;
-        bdema_ManagedPtr<int> p(&x, 0, 
-                                &bdema_ManagedPtrNoOpDeleter::deleter);
-
-        p.load(&y, 0, &bdema_ManagedPtrNoOpDeleter::deleter);
-
-        ASSERT(dam.isInUseSame());
-        ASSERT(gam.isInUseSame());
-      } break;
-      case 6: {
-        // --------------------------------------------------------------------
-        // TESTING bdema_ManagedPtrNilDeleter
-        //
-        // Concerns:
-        //: 1 The 'deleter' method can be used as a deleter policy by
-        //:   'bdema_ManagedPtr'.
-        //:
-        //: 2 When invoked, 'bdema_ManagedPtrNilDeleter<T>::deleter' has no
-        //:   effect.
-        //
-        // Plan:
-        //: 1 blah ...
-        //
-        // Testing:
-        //   bdema_ManagedPtrNilDeleter<T>::deleter
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING bdema_ManagedPtrNilDeleter"
-                          << "\n----------------------------------" << endl;
-
-        if (verbose) cout << "\tTest blah...\n";
-
-        bslma_TestAllocatorMonitor gam(globalAllocator);
-        bslma_TestAllocatorMonitor dam(da);
-
-        int x;
-        int y;
-        bdema_ManagedPtr<int> p(&x, 0, 
-                                &bdema_ManagedPtrNilDeleter<int>::deleter);
-
-        p.load(&y, 0, &bdema_ManagedPtrNilDeleter<int>::deleter);
-
-        ASSERT(dam.isInUseSame());
-        ASSERT(gam.isInUseSame());
-      } break;
       case 5: {
+        // --------------------------------------------------------------------
+        // TESTING bdema_ManagedPtr_Ref
+        //
+        // 'bdema_ManagedPtr_Ref' is similar to an in-core value semantic type
+        // having a single pointer as its only attribute; it does not offer the
+        // traditional range of value-semantic operations such as equality
+        // comparison and printing.  Its test concerns and plan are closely
+        // modelled after such a value-semantic type.
+        //
+        // Concerns:
+        //: 1 TBD Enumerate concerns
+        //
+        // Plan:
+        //: 1 blah ...
+        //
+        // Testing:
+        //    explicit bdema_ManagedPtr_Ref(bdema_ManagedPtr_Members *base);
+        //    bdema_ManagedPtr_Ref(const bdema_ManagedPtr_Ref& original);
+        //    ~bdema_ManagedPtr_Ref();
+        //    bdema_ManagedPtr_Ref& opetator=(const bdema_ManagedPtr_Ref&);
+        //    bdema_ManagedPtr_Members *base() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING bdema_ManagedPtr_Ref"
+                          << "\n----------------------------" << endl;
+
+        bslma_TestAllocatorMonitor gam(globalAllocator);
+        bslma_TestAllocatorMonitor dam(da);
+
+        {
+            int deleteCount = 0;
+            MyTestObject x(&deleteCount);
+
+            {
+                bdema_ManagedPtr_Members empty;
+                bdema_ManagedPtr_Members simple(&x, 0, doNothingDeleter);
+
+                if (verbose) cout << "\tTest value constructor\n";
+
+                const bdema_ManagedPtr_Ref<MyTestObject> ref(&empty);
+                bdema_ManagedPtr_Members * target = ref.base();
+                LOOP2_ASSERT(&empty, target, &empty == target);
+
+                if (verbose) cout << "\tTest copy constructor\n";
+
+                bdema_ManagedPtr_Ref<MyTestObject> other = ref;
+                target = ref.base();
+                LOOP2_ASSERT(&empty, target, &empty == target);
+                target = other.base();
+                LOOP2_ASSERT(&empty, target, &empty == target);
+
+                if (verbose) cout << "\tTest assignment\n";
+
+                const bdema_ManagedPtr_Ref<MyTestObject> second(&simple);
+                target = second.base();
+                LOOP2_ASSERT(&simple, target, &simple == target);
+
+
+                other = second;
+
+                target = ref.base();
+                LOOP2_ASSERT(&empty, target, &empty == target);
+                target = other.base();
+                LOOP2_ASSERT(&simple, target, &simple == target);
+                target = second.base();
+                LOOP2_ASSERT(&simple, target, &simple == target);
+
+                if (verbose) cout << "\tTest destructor\n";
+            }
+
+            LOOP_ASSERT(deleteCount, 0 == deleteCount);
+        }
+
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+            ASSERT_SAFE_FAIL_RAW(bdema_ManagedPtr_Ref<MyTestObject> null(0));
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+
+        ASSERT(dam.isInUseSame());
+        ASSERT(gam.isInUseSame());
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING bdema_ManagedPtr_Members
+        //
+        // Concerns:
+        //: 1 TBD Enumerate concerns
+        //
+        // Plan:
+        //: 1 blah ...
+        //
+        // Testing:
+        //    bdema_ManagedPtr_Members();
+        //    bdema_ManagedPtr_Members(void *, void *, DeleterFunc);
+        //    bdema_ManagedPtr_Members(bdema_ManagedPtr_Members&);
+        //    ~bdema_ManagedPtr_Members();
+        //    void move(bdema_ManagedPtr_Members& other);
+        //    void set(void *object, void *factory, DeleterFunc deleter);
+        //    void setAliasPtr(void *ptr);
+        //    void swap(bdema_ManagedPtr_Members& other);
+        //    void runDeleter() const;
+        //    void *pointer() const;
+        //    const bdema_ManagedPtrDeleter& deleter() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING bdema_ManagedPtr_Members"
+                          << "\n--------------------------------" << endl;
+
+
+        typedef bdema_ManagedPtr_FactoryDeleter<MyTestObject,
+                                             CountedStackDeleter > TestFactory;
+
+        bslma_TestAllocatorMonitor gam(globalAllocator);
+        bslma_TestAllocatorMonitor dam(da);
+
+        if (verbose) cout << "\tTest default constructor\n";
+
+        {
+            const bdema_ManagedPtr_Members empty;
+            ASSERT(0 == empty.pointer());
+        }
+
+        if (verbose) cout << "\tTest value constructor\n";
+
+        {
+            const bdema_ManagedPtr_Members empty(0, 0, 0);
+            ASSERT(0 == empty.pointer());
+            ASSERT(0 == empty.deleter().object());
+            ASSERT(0 == empty.deleter().factory());
+            ASSERT(0 == empty.deleter().deleter());
+
+            int deleteCount = 0;
+            {
+                CountedStackDeleter del(&deleteCount);
+
+                int x;
+                const bdema_ManagedPtr_Members simple(&x,
+                                                      &del,
+                                                      &countedNilDelete);
+                ASSERT(&x == simple.pointer());
+                ASSERT(&x == simple.deleter().object());
+                ASSERT(&del == simple.deleter().factory());
+                ASSERT(&countedNilDelete == simple.deleter().deleter());
+            }
+            LOOP_ASSERT(deleteCount, 0 == deleteCount);
+            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+
+            deleteCount = 0;
+            {
+                CountedStackDeleter del(&deleteCount);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                if (verbose) cout << "\t\tNegative testing\n";
+
+                {
+                    bsls_AssertTestHandlerGuard guard;
+                    int x;
+                    ASSERT_SAFE_FAIL(bdema_ManagedPtr_Members bd(&x, &del, 0));
+                    ASSERT_SAFE_PASS(bdema_ManagedPtr_Members gd( 0, &del, 0));
+                }
+#else
+                if (verbose) cout << "\tNegative testing disabled due to lack"
+                                     " of exception support\n";
+#endif
+            }
+        }
+
+        if (verbose) cout << "\tTest set\n";
+
+        {
+            bdema_ManagedPtr_Members members(0, 0, 0);
+            ASSERT(0 == members.pointer());
+            ASSERT(0 == members.deleter().object());
+            ASSERT(0 == members.deleter().factory());
+            ASSERT(0 == members.deleter().deleter());
+
+            int x;
+            double y;
+            members.set(&x, &y, &countedNilDelete);
+            ASSERT(&x == members.pointer());
+            ASSERT(&x == members.deleter().object());
+            ASSERT(&y == members.deleter().factory());
+            ASSERT(&countedNilDelete == members.deleter().deleter());
+
+            members.set(0, 0, 0);
+            ASSERT(0 == members.pointer());
+            ASSERT(0 == members.deleter().object());
+            ASSERT(0 == members.deleter().factory());
+            ASSERT(0 == members.deleter().deleter());
+
+            {
+                int deleteCount = 0;
+                CountedStackDeleter del(&deleteCount);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                if (verbose) cout << "\t\tNegative testing\n";
+
+                {
+                    bsls_AssertTestHandlerGuard guard;
+                    int x;
+                    ASSERT_SAFE_FAIL(members.set(&x, &del, 0));
+                    ASSERT_SAFE_PASS(members.set( 0, &del, 0));
+                }
+#else
+                if (verbose) cout << "\tNegative testing disabled due to lack"
+                                     " of exception support\n";
+#endif
+            }
+
+        }
+
+        if (verbose) cout << "\tTest setAliasPtr\n";
+
+        {
+            int deleteCount = 0;
+            {
+                CountedStackDeleter del(&deleteCount);
+
+                int x;
+                bdema_ManagedPtr_Members simple(&x, &del, &countedNilDelete);
+                ASSERT(&x == simple.pointer());
+                ASSERT(&x == simple.deleter().object());
+                ASSERT(&del == simple.deleter().factory());
+                ASSERT(&countedNilDelete == simple.deleter().deleter());
+
+                double y;
+                simple.setAliasPtr(&y);
+                ASSERT(&y == simple.pointer());
+                ASSERT(&x == simple.deleter().object());
+                ASSERT(&del == simple.deleter().factory());
+                ASSERT(&countedNilDelete == simple.deleter().deleter());
+
+#ifdef BDE_BUILD_TARGET_EXC
+                if (verbose) cout << "\t\tNegative testing\n";
+
+                {
+                    bsls_AssertTestHandlerGuard guard;
+                    ASSERT_SAFE_FAIL(simple.setAliasPtr(0));
+
+                    simple.set(0, 0, 0);
+                    ASSERT(0 == simple.pointer());
+#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
+                    ASSERT(0 == simple.deleter().object());
+                    ASSERT(0 == simple.deleter().factory());
+                    ASSERT(0 == simple.deleter().deleter());
+#endif
+                    ASSERT_SAFE_FAIL(simple.setAliasPtr(&y));
+                    ASSERT_SAFE_PASS(simple.setAliasPtr(0));
+                }
+#else
+                if (verbose) cout << "\tNegative testing disabled due to lack"
+                                     " of exception support\n";
+#endif
+            }
+            LOOP_ASSERT(deleteCount, 0 == deleteCount);
+            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+        }
+
+        if (verbose) cout << "\tTest move constructor\n";
+
+        {
+            int deleteCount = 0;
+            {
+                CountedStackDeleter del(&deleteCount);
+
+                int x;
+                bdema_ManagedPtr_Members donor(&x, &del, &countedNilDelete);
+                ASSERT(&x == donor.pointer());
+                ASSERT(&x == donor.deleter().object());
+                ASSERT(&del == donor.deleter().factory());
+                ASSERT(&countedNilDelete == donor.deleter().deleter());
+
+                bdema_ManagedPtr_Members sink(donor);
+                ASSERT(&x == sink.pointer());
+                ASSERT(&x == sink.deleter().object());
+                ASSERT(&del == sink.deleter().factory());
+                ASSERT(&countedNilDelete == sink.deleter().deleter());
+                ASSERT(0 == donor.pointer());
+
+                double y;
+                sink.setAliasPtr(&y);
+                ASSERT(&y == sink.pointer());
+                ASSERT(&x == sink.deleter().object());
+                ASSERT(&del == sink.deleter().factory());
+                ASSERT(&countedNilDelete == sink.deleter().deleter());
+
+                bdema_ManagedPtr_Members sink2(sink);
+                ASSERT(&y == sink2.pointer());
+                ASSERT(&x == sink2.deleter().object());
+                ASSERT(&del == sink2.deleter().factory());
+                ASSERT(&countedNilDelete == sink2.deleter().deleter());
+                ASSERT(0 == sink.pointer());
+            }
+            LOOP_ASSERT(deleteCount, 0 == deleteCount);
+            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+        }
+
+        if (verbose) cout << "\tTest move\n";
+
+        {
+            int deleteCount = 0;
+            {
+                CountedStackDeleter del1(&deleteCount);
+                CountedStackDeleter del2(&deleteCount);
+
+                int x;
+                double y;
+                bdema_ManagedPtr_Members a(&x, &del1, &countedNilDelete);
+                bdema_ManagedPtr_Members b(&y, &del2, &doNothingDeleter);
+
+                ASSERT(&x == a.pointer());
+                ASSERT(&x == a.deleter().object());
+                ASSERT(&del1 == a.deleter().factory());
+                ASSERT(&countedNilDelete == a.deleter().deleter());
+
+                ASSERT(&y == b.pointer());
+                ASSERT(&y == b.deleter().object());
+                ASSERT(&del2 == b.deleter().factory());
+                ASSERT(&doNothingDeleter == b.deleter().deleter());
+
+                a.move(b);
+                ASSERT(&y == a.pointer());
+                ASSERT(&y == a.deleter().object());
+                ASSERT(&del2 == a.deleter().factory());
+                ASSERT(&doNothingDeleter == a.deleter().deleter());
+
+                ASSERT(0 == b.pointer());
+
+                b.set(0, 0, 0);
+                a.setAliasPtr(&x);
+
+                b.move(a);
+                ASSERT(&x == b.pointer());
+                ASSERT(&y == b.deleter().object());
+                ASSERT(&del2 == b.deleter().factory());
+                ASSERT(&doNothingDeleter == b.deleter().deleter());
+
+                ASSERT(0 == a.pointer());
+
+#ifdef BDE_BUILD_TARGET_EXC
+                if (verbose) cout << "\t\tNegative testing\n";
+
+                {
+                    bsls_AssertTestHandlerGuard guard;
+                    ASSERT_SAFE_FAIL(b.move(b));
+                }
+#else
+                if (verbose) cout << "\tNegative testing disabled due to lack"
+                                     " of exception support\n";
+#endif
+            }
+            LOOP_ASSERT(deleteCount, 0 == deleteCount);
+            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+        }
+
+        if (verbose) cout << "\tTest runDeleter\n";
+
+        ASSERT(0 == g_deleteCount);
+        {
+            bdema_ManagedPtr_Members members(0, 0, &countedNilDelete);
+            ASSERT(0 == members.pointer());
+
+            members.runDeleter();
+            ASSERT(0 == g_deleteCount);
+
+            int deleteCount = 0;
+            MyTestObject obj(&deleteCount);
+            members.set(&obj, 0, &countedNilDelete);
+
+            members.runDeleter();
+            ASSERT(0 == deleteCount);
+            ASSERT(1 == g_deleteCount);
+
+            struct local {
+                int d_x;
+                static void deleter(void *a, void *b) {
+                    local * pThis = reinterpret_cast<local *>(a);
+                    ASSERT(&pThis->d_x == b);
+                    ASSERT(13 == pThis->d_x);
+                    pThis->d_x = 42;
+                }
+            };
+
+            local test = { 13 };
+            members.set(&test, &test.d_x, &local::deleter);
+            members.runDeleter();
+            ASSERT(test.d_x, 42 == test.d_x);
+
+            local alias = { 99 };
+            members.setAliasPtr(&alias);
+            test.d_x = 13;
+            members.runDeleter();
+            ASSERT(test.d_x, 42 == test.d_x)
+        }
+        g_deleteCount = 0;
+
+        if (verbose) cout << "\tTest swap\n";
+        // remember to set an alias pointer before swapping
+        // investigate if current failure is significant
+        {
+            bdema_ManagedPtr_Members empty(0, 0, 0);
+            ASSERT(0 == empty.pointer());
+            ASSERT(0 == empty.deleter().object());
+            ASSERT(0 == empty.deleter().factory());
+            ASSERT(0 == empty.deleter().deleter());
+
+            int x;
+            double y;
+            bdema_ManagedPtr_Members simple(&x, &y, &countedNilDelete);
+            ASSERT(&x == simple.pointer());
+            ASSERT(&x == simple.deleter().object());
+            ASSERT(&y == simple.deleter().factory());
+            ASSERT(&countedNilDelete == simple.deleter().deleter());
+
+            simple.swap(simple);
+            ASSERT(&x == simple.pointer());
+            ASSERT(&x == simple.deleter().object());
+            ASSERT(&y == simple.deleter().factory());
+            ASSERT(&countedNilDelete == simple.deleter().deleter());
+
+            empty.swap(simple);
+            ASSERT(0 == simple.pointer());
+//            ASSERT(0 == simple.deleter().object());
+            ASSERT(&x == empty.pointer());
+            ASSERT(&x == empty.deleter().object());
+            ASSERT(&y == empty.deleter().factory());
+            ASSERT(&countedNilDelete == empty.deleter().deleter());
+
+            empty.swap(simple);
+            ASSERT(0 == empty.pointer());
+//            ASSERT(0 == empty.deleter().object());
+            ASSERT(&x == simple.pointer());
+            ASSERT(&x == simple.deleter().object());
+            ASSERT(&y == simple.deleter().factory());
+            ASSERT(&countedNilDelete == simple.deleter().deleter());
+
+            short s;
+            float f;
+            bdema_ManagedPtr_Members other(&f, &s, &countedNilDelete);
+            ASSERT(&f == other.pointer());
+            ASSERT(&f == other.deleter().object());
+            ASSERT(&s == other.deleter().factory());
+            ASSERT(&countedNilDelete == other.deleter().deleter());
+
+            simple.swap(other);
+            ASSERT(&x == other.pointer());
+            ASSERT(&x == other.deleter().object());
+            ASSERT(&y == other.deleter().factory());
+            ASSERT(&countedNilDelete == other.deleter().deleter());
+            ASSERT(&f == simple.pointer());
+            ASSERT(&f == simple.deleter().object());
+            ASSERT(&s == simple.deleter().factory());
+            ASSERT(&countedNilDelete == simple.deleter().deleter());
+        }
+
+        ASSERT(dam.isInUseSame());
+        ASSERT(gam.isInUseSame());
+      } break;
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtr_FactoryDeleter (this one needs negative testing)
         //
@@ -1738,63 +2300,71 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING bdema_ManagedPtr_FactoryDeleter"
-                          << "\n---------------------------------------" << endl;
+                          << "\n---------------------------------------"
+                          << endl;
 
-        if (verbose) cout << "\tTest blah...\n";
 
-      } break;
-      case 4: {
-        // --------------------------------------------------------------------
-        // TESTING bdema_ManagedPtr_Ref (this one needs negative testing)
-        //
-        // Concerns:
-        //: 1 TBD Enumerate concerns
-        //
-        // Plan:
-        //: 1 blah ...
-        //
-        // Testing:
-        //    explicit bdema_ManagedPtr_Ref(bdema_ManagedPtr_Members *base);
-        //    bdema_ManagedPtr_Ref(const bdema_ManagedPtr_Ref& original);
-        //    ~bdema_ManagedPtr_Ref();
-        //    BDEMA_TYPE *ptr() const;
-        //    bdema_ManagedPtr_Members *base() const;
-        // --------------------------------------------------------------------
+        typedef bdema_ManagedPtr_FactoryDeleter<MyTestObject,
+                                             CountedStackDeleter > TestFactory;
 
-        if (verbose) cout << "\nTESTING bdema_ManagedPtr_Ref"
-                          << "\n----------------------------" << endl;
+        if (verbose) cout << "\tConfirm the deleter does not destroy the "
+                             "passsed object\n";
 
-        if (verbose) cout << "\tTest blah...\n";
+        {
+            int deleteCount = 0;
+            MyTestObject t(&deleteCount);
 
-      } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING bdema_ManagedPtr_Members
-        //
-        // Concerns:
-        //: 1 TBD Enumerate concerns
-        //
-        // Plan:
-        //: 1 blah ...
-        //
-        // Testing:
-        //    bdema_ManagedPtr_Members(void *, void *, DeleterFunc);
-        //    bdema_ManagedPtr_Members(bdema_ManagedPtr_Members&);
-        //    ~bdema_ManagedPtr_Members();
-        //    void move(bdema_ManagedPtr_Members& other);
-        //    void set(void *object, void *factory, DeleterFunc deleter);
-        //    void setAliasPtr(void *ptr);
-        //    void swap(bdema_ManagedPtr_Members& other);
-        //    void runDeleter() const;
-        //    void *pointer() const;
-        //    const bdema_ManagedPtrDeleter& deleter() const;
-        // --------------------------------------------------------------------
+            int parallelCount = 0;
+            CountedStackDeleter factory(&parallelCount);
 
-        if (verbose) cout << "\nTESTING bdema_ManagedPtr_Members"
-                          << "\n--------------------------------" << endl;
+            TestFactory::deleter(&t, &factory);
+            LOOP_ASSERT(deleteCount, 0 == deleteCount);
+            LOOP_ASSERT(parallelCount, 1 == parallelCount);
+        }
 
-        if (verbose) cout << "\tTest blah...\n";
+        if (verbose) cout << "\tConfirm the deleter can be registered with "
+                             "a managed pointer\n";
 
+        {
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
+
+            int deleteCount = 0;
+            CountedStackDeleter factory(&deleteCount);
+
+            int dummy = 0;
+            MyTestObject x(&dummy);
+            MyTestObject y(&dummy);
+
+            bdema_ManagedPtr<MyTestObject> p(&x, &factory, 
+                                             &doNothingDeleter);
+
+            p.load(&y, &factory, &TestFactory::deleter);
+
+            ASSERT(dam.isInUseSame());
+            ASSERT(gam.isInUseSame());
+        }
+
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            int deleteCount = 0;
+            MyTestObject t(&deleteCount);
+
+            int parallelCount = 0;
+            CountedStackDeleter factory(&parallelCount);
+
+            ASSERT_SAFE_FAIL(TestFactory::deleter(0, &factory));
+            ASSERT_SAFE_FAIL(TestFactory::deleter(&t, 0));
+            ASSERT_SAFE_PASS(TestFactory::deleter(&t, &factory));
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1825,6 +2395,40 @@ int main(int argc, char *argv[])
         //: 1 Install test allocator monitors to verify that neither the global
         //:   nor default allocators allocate any memory executing this test
         //:   case.
+        //:
+        //: 2 For each test-class type:
+        //:   1 Initialize an 'int' counter to zero
+        //:   2 Create a object of tested type, having the address of the 'int'
+        //:     counter.
+        //:   3 Confirm the test object 'deleterCounter' points to the 'int'
+        //:     counter.
+        //:   4 Confirm the 'int' counter value has not changed.
+        //:   5 Destroy the test object and confirm the 'int' counter value
+        //:     has incremeneted by exactly 1.
+        //:   6 Create a second object of tested type, having the address of
+        //:     the 'int' counter.
+        //:   7 Create a copy of the second test object, and confirm both test
+        //:     object's 'deleterCount' point to the same 'int' counter.
+        //:   8 Confirm the 'int' counter value has not changed.
+        //:   9 Destroy one test object, and confirm test 'int' counter is
+        //:     incremented exactly once.
+        //:  10 Destroy the other test object, and confirm test 'int' counter
+        //:     is incremented exactly once.
+        //:
+        //: 3 For each test-class type:
+        //:   1 Create a function overload set, where one function takes a
+        //:     pointer to the test-class type and returns 'true', while the
+        //:     other overload matches anything and returns 'false'.
+        //:   2 Call each of the overloaded function sets with a pointer to
+        //:     'int', and confirm each returns 'false'.
+        //:   3 Call each of the overloaded function sets with a pointer to
+        //:     an object of each of the test-class types, and confirm each
+        //:     call returns 'true' only when the pointer type matches the
+        //:     test-class type for that function, or points to a type publicly
+        //:     derived from that test-class type.
+        //:
+        //: 4 Verify that no unexpected memory was allocated by inspecting the
+        //:   allocator guards.
         //
         // Testing:
         //    class MyTestObject
@@ -1835,7 +2439,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING TEST MACHINERY"
                           << "\n----------------------" << endl;
 
-        if (verbose) cout << "\tTest blah...\n";
+        if (verbose) cout << "\tTest class MyTestObject\n";
 
         bslma_TestAllocatorMonitor gam(globalAllocator);
         bslma_TestAllocatorMonitor dam(da);
@@ -1844,47 +2448,72 @@ int main(int argc, char *argv[])
         {
             MyTestObject mt(&destructorCount);
             ASSERT(&destructorCount == mt.deleteCounter());
+            LOOP_ASSERT(destructorCount, 0 == destructorCount);
         }
         ASSERT(1 == destructorCount);
 
         destructorCount = 0;
         {
             MyTestObject mt1(&destructorCount);
-            MyTestObject mt2 = mt1;
+            {
+                MyTestObject mt2 = mt1;
+                ASSERT(&destructorCount == mt1.deleteCounter());
+                ASSERT(&destructorCount == mt2.deleteCounter());
+                LOOP_ASSERT(destructorCount, 0 == destructorCount);
+            }
+            LOOP_ASSERT(destructorCount, 1 == destructorCount);
         }
         ASSERT(2 == destructorCount);
 
+        if (verbose) cout << "\tTest class MyDerivedObject\n";
 
         destructorCount = 0;
         {
             MyDerivedObject dt(&destructorCount);
             ASSERT(&destructorCount == dt.deleteCounter());
+            LOOP_ASSERT(destructorCount, 0 == destructorCount);
         }
         ASSERT(1 == destructorCount);
 
         destructorCount = 0;
         {
             MyDerivedObject dt1(&destructorCount);
-            MyDerivedObject dt2 = dt1;
+            {
+                MyDerivedObject dt2 = dt1;
+                ASSERT(&destructorCount == dt1.deleteCounter());
+                ASSERT(&destructorCount == dt2.deleteCounter());
+                LOOP_ASSERT(destructorCount, 0 == destructorCount);
+            }
+            LOOP_ASSERT(destructorCount, 1 == destructorCount);
         }
         ASSERT(2 == destructorCount);
 
+        if (verbose) cout << "\tTest class MySecondDerivedObject\n";
 
         destructorCount = 0;
         {
             MySecondDerivedObject st(&destructorCount);
             ASSERT(&destructorCount == st.deleteCounter());
+            LOOP_ASSERT(destructorCount, 0 == destructorCount);
         }
         ASSERT(1 == destructorCount);
 
         destructorCount = 0;
         {
             MySecondDerivedObject st1(&destructorCount);
-            MySecondDerivedObject st2 = st1;
-        }
-        ASSERT(2 == destructorCount);
+            {
+                MySecondDerivedObject st2 = st1;
+                ASSERT(&destructorCount == st1.deleteCounter());
+                ASSERT(&destructorCount == st2.deleteCounter());
+                LOOP_ASSERT(destructorCount, 0 == destructorCount);
+            }
+            LOOP_ASSERT(destructorCount, 1 == destructorCount);
+       }
+       ASSERT(2 == destructorCount);
 
-        struct Local {
+       if (verbose) cout << "\tTest pointer conversions\n";
+
+       struct Local {
             static bool matchBase(MyTestObject *) { return true; }
             static bool matchBase(...) { return false; }
 
@@ -1894,6 +2523,13 @@ int main(int argc, char *argv[])
             static bool matchSecond(MySecondDerivedObject *) { return true; }
             static bool matchSecond(...) { return false; }
         };
+
+        {
+            int badValue;
+            ASSERT(!Local::matchBase(&badValue));
+            ASSERT(!Local::matchDerived(&badValue));
+            ASSERT(!Local::matchSecond(&badValue));
+        }
 
         {
             MyTestObject mt(&destructorCount);
@@ -2240,6 +2876,33 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+        if (verbose) cout << "\tTest no-op deleter.\n";
+
+        numDeletes = 0;
+        {
+            TObj x(&numDeletes);
+            {
+                Obj p(&x, 0, &bdema_ManagedPtrNoOpDeleter::deleter);
+            }
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+        if (verbose) cout << "\tTest (deprecated) nil deleter.\n";
+
+        numDeletes = 0;
+        {
+            TObj x(&numDeletes);
+            {
+                Obj p(&x,
+                      0,
+                      &bdema_ManagedPtrNilDeleter<MyTestObject>::deleter);
+            }
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
      } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -2260,7 +2923,13 @@ int main(int argc, char *argv[])
 		//   part of the build configuration, and not routinely tested.
         //
         // Testing:
-        //   This test is checking for the *absence* of 'operator=='.
+        //   This test is checking for the *absence* of the following operators
+        //: o 'operator=='.
+        //: o 'operator!='.
+        //: o 'operator<'.
+        //: o 'operator<='.
+        //: o 'operator>='.
+        //: o 'operator>'.
         // --------------------------------------------------------------------
 //#define BDEMA_MANAGEDPTR_TEST_NO_HOMOGENEOUS_COMPARISON
 //#define BDEMA_MANAGEDPTR_TEST_NO_HOMOGENEOUS_ORDERING
