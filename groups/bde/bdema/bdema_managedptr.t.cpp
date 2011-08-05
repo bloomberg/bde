@@ -407,6 +407,17 @@ static void countedNilDelete(void *, void*) {
     ++g_deleteCount;
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+struct IncrementIntFactory
+{
+    void deleteObject(int *object)
+    {
+        ASSERT(object);
+        ++*object;
+    }
+};
+
 //=============================================================================
 //                              CREATORS TEST
 //=============================================================================
@@ -1617,15 +1628,6 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             typedef bdema_ManagedPtr<int> MyObj;
-
-            struct IncrementIntFactory
-            {
-                void deleteObject(int *object)
-                {
-                    ASSERT(object);
-                    ++*object;
-                }
-            };
 
             int a = 0;
             IncrementIntFactory incrementer;
