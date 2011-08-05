@@ -1,9 +1,9 @@
-// bdema_managedptr.t.cpp                                             -*-C++-*-
+// bdema_managedptrdeleter.t.cpp                                      -*-C++-*-
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bteso_lingeroptions_t_cpp,"$Id$ $CSID$")
 
-#include <bdema_managedptr.h>
+#include <bdema_managedptrdeleter.h>
 
 #include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
 #include <bsl_cstdlib.h>

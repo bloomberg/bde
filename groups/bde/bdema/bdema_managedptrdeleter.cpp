@@ -1,5 +1,5 @@
-// bdema_managedptr.cpp                                               -*-C++-*-
-#include <bdema_managedptr.h>
+// bdema_managedptrdeleter.cpp                                        -*-C++-*-
+#include <bdema_managedptrdeleter.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdema_managedptrdeleter_cpp,"$Id$ $CSID$")
