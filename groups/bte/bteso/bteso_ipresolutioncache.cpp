@@ -18,12 +18,12 @@ namespace BloombergLP {
 
 static
 int createCacheData(
-           bteso_IpResolutionCache_Entry::DataPtr          *result,
-           const char                                      *hostname,
-           int                                             *errorCode,
-           int                                              timeToLive,
+           bteso_IpResolutionCache_Entry::DataPtr         *result,
+           const char                                     *hostname,
+           int                                            *errorCode,
+           int                                             timeToLive,
            bteso_IpResolutionCache::ResolveByNameCallback  resolverCallback,
-           bslma_Allocator                                 *basicAllocator = 0)
+           bslma_Allocator                                *basicAllocator = 0)
     // Load, into the specified 'result', a shared pointer to a newly created
     // 'bteso_IpResolutionCache_Data' object containing the IPv4 addresses of
     // the host with the specified 'hostname' (retrieved using the specified
@@ -35,6 +35,7 @@ int createCacheData(
     // used.
 {
     bsl::vector<bteso_IPv4Address> hostAddresses;
+
     int rc = resolverCallback(&hostAddresses, hostname, INT_MAX, errorCode);
     if (0 != rc) {
         return rc;                                                    // RETURN
@@ -63,6 +64,12 @@ class bteso_IpResolutionCache_Data {
 
     bdet_TimeInterval              d_expirationTime;  // time from epoch until
                                                       // this data expires
+  private:
+    // NOT IMPLEMENTED
+    bteso_IpResolutionCache_Data(const bteso_IpResolutionCache_Data&);
+    bteso_IpResolutionCache_Data& operator=(
+                                          const bteso_IpResolutionCache_Data&);
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_IpResolutionCache,
@@ -115,7 +122,7 @@ bteso_IpResolutionCache_Entry::bteso_IpResolutionCache_Entry()
 }
 
 bteso_IpResolutionCache_Entry::bteso_IpResolutionCache_Entry(
-                                   const bteso_IpResolutionCache_Entry&  other)
+                                    const bteso_IpResolutionCache_Entry& other)
 : d_data(other.d_data)
 , d_updatingLock()
 {
@@ -185,23 +192,13 @@ int bteso_IpResolutionCache::getCacheData(
 
             bcemt_WriteLockGuard<bcemt_RWMutex> writeLockGuard(&d_rwLock);
 
-            // Try to find 'hostname' again in case another thread added the
-            // entry while trying to acquire the write lock.
-
-            it = d_cache.lower_bound(hostname);
-            if (d_cache.end() == it
-             || d_cache.key_comp()(hostname, it->first)) {
-                it = d_cache.insert(
-                        it,
-                        bsl::pair<bsl::string, bteso_IpResolutionCache_Entry> (
-                                             hostname,
-                                             bteso_IpResolutionCache_Entry()));
-            }
+            entry = &d_cache[hostname];
 
             // Read lock is re-acquired on the destruction of 'readLockGuard'.
         }
-
-        entry = &it->second;
+        else {
+            entry = &it->second;
+        }
 
         dataPtr = entry->data();
         if (dataPtr.ptr()) {
@@ -241,8 +238,9 @@ int bteso_IpResolutionCache::getCacheData(
         }
     }
 
-    // Create a lock guard for the lock.  The lock should have already been
-    // acquired.
+    // Either the data does not exist or has expired, and we have already
+    // acquired the 'updatingLock' for the entry (indicating this thread
+    // should update the entry).
 
     bcemt_LockGuard<bcemt_Mutex> updatingLockGuard(&entry->updatingLock(),
                                                    true);
@@ -254,6 +252,7 @@ int bteso_IpResolutionCache::getCacheData(
                              d_timeToLiveInSeconds,
                              d_resolverCallback,
                              d_allocator_p);
+
     if (0 != rc) {
         return rc;                                                    // RETURN
     }

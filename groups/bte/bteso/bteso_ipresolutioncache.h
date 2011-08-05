@@ -20,16 +20,19 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a class, 'bteso_IpResolutionCache', that
 // serves as a cache of 'bsl::vector<bteso_IPv4Address>' objects.  A
-// 'bteso_IpResolutionCache' object is supplied with a
+// 'bteso_IpResolutionCache' object is supplied a
 // 'bteso_ResolveUtil::ResolveByNameCallback' function on construction that it
-// uses to obtain the set of IP addresses given a hostname.  'resolveAddress'
-// either returns a set of IP addresses in the cache, or, if that data expired
-// or is not already present in the cache, invokes the supplied
-// 'ResolveByNameCallback' is to obtain a set of IP addresses to return, which
-// is also cached for subsequent re-use.  Any addresses returned remain in the
-// cache for a user-defined time period, set by the 'setTimeToLiveInSeconds'
-// method.  After which, the supplied 'ResolveByNameCallback' is invoked to
-// refresh the data.
+// uses to obtain the set of IP addresses for a given hostname.  The provided
+// 'resolveAddress' method returns a set of IP addresses for the supplied
+// hostname, either returning values already residing in the cache, or, if the
+// values have expired or are not already present in the cache, invokes the
+// supplied 'ResolveByNameCallback' is to obtain a set of IP addresses to
+// return, which is also cached for subsequent re-use.  IP addresses for a
+// hostname that are stored in the cache are considered valid for a
+// user-defined time interval, set by the 'setTimeToLiveInSeconds' method.
+// Stored IP addresses older than the configured interval are considered stale,
+// and a subsequent request for the associated hostname will refresh that set
+// of IP addresses by calling the supplied 'ResolveByNameCallback' again.
 //
 ///Thread Safety
 ///-------------
@@ -56,25 +59,26 @@ BDES_IDENT("$Id: $")
 // of either "www.bloomberg.com" and "www.businessweek.com":
 //..
 //  bsl::vector<bteso_IPv4Address> ipAddresses;
-//  ASSERT(0 != cache.lookupAddress(&ipAddresses, "www.bloomberg.com", 1));
-//  ASSERT(0 != cache.lookupAddress(&ipAddresses, "www.businessweek.com", 1));
+//  assert(0 != cache.lookupAddress(&ipAddresses, "www.bloomberg.com", 1));
+//  assert(0 != cache.lookupAddress(&ipAddresses, "www.businessweek.com", 1));
 //..
 // Next, we call the 'resolveAddress' method to retrieve one of the IP address
-// for "www.bloomberg.com", and print it out.  Since this is the first call to
-// 'resolveAddress', 'resolverCallback' will be invoked to retrieve the
-// addresses:
+// for "www.bloomberg.com", and then print out the returned address.  Note that
+// since this is the first call to 'resolveAddress' for "www.bloomberg.com",
+// 'resolverCallback' will be invoked to retrieve the addresses:
 //..
 //  int rc = cache.resolveAddress(&ipAddresses, "www.bloomberg.com", 1);
-//  ASSERT(0 == rc);
-//  ASSERT(1 == ipAddresses.size());
+//  assert(0 == rc);
+//  assert(1 == ipAddresses.size());
 //  bsl::cout << "IP Address: " << ipAddresses[0] << std::endl;
 //..
-//  Finally, we verify that subsquent call to 'lookupAddress' return 0 for
-//  "www.bloomberg.com" to indicate its addresses are stored in the cache, but
-//  not "www.businessweek.com":
+//  Finally, we verify that a subsequent call to 'lookupAddress' returns 0 for
+//  "www.bloomberg.com" indicating its addresses are stored in the cache, but
+//  returns 1 for "www.businessweek.com", indicating its addresses are not
+//  stored in the cache:
 //..
-//  ASSERT(0 == cache.lookupAddress(&ipAddresses, "www.bloomberg.com", 1));
-//  ASSERT(0 != cache.lookupAddress(&ipAddresses, "www.businessweek.com", 1));
+//  assert(0 == cache.lookupAddress(&ipAddresses, "www.bloomberg.com", 1));
+//  assert(0 != cache.lookupAddress(&ipAddresses, "www.businessweek.com", 1));
 //..
 //
 ///Example 2: Using Address Cache with 'bteso_ResolveUtil'
@@ -155,7 +159,7 @@ namespace BloombergLP {
 class bslma_Allocator;
 
 class bteso_IpResolutionCache;
-class bteso_IpResolutionCache_Data;
+class bteso_IpResolutionCache_Data;  // defined in .cpp
 
                         // ===================================
                         // class bteso_IpResolutionCache_Entry
@@ -177,8 +181,10 @@ class bteso_IpResolutionCache_Entry {
                                          // 'bteso_IpResolutionCache_Data'
                                          // object
 
-    mutable bcemt_Mutex d_updatingLock;  // mutex variable to indicate a thread
-                                         // is retrieving the data.
+    mutable bcemt_Mutex d_updatingLock;  // this mutex is used to signal that a
+                                         // thread is retrieving new data, but
+                                         // does *not* synchronize access to
+                                         // 'd_data'
 
   private:
     // NOT IMPLEMENTED
@@ -199,19 +205,16 @@ class bteso_IpResolutionCache_Entry {
 
     // MANIPULATORS
     void setData(DataPtr value);
-        // Set the shared pointer in this object to refer to the same
-        // 'bteso_IpResolutionCache_Data' object as the specified 'value'.  The
-        // behavior is undefined unless the caller acquired the lock for this
-        // object.  The behavior is undefined unless 'lock' or 'tryLock' has
-        // been successfully called on 'updatingLock()'.
+        // Set the shared pointer, 'data', to refer to the same
+        // 'bteso_IpResolutionCache_Data' object as the specified 'value'.
 
     bcemt_Mutex& updatingLock() const;
         // Return a reference providing modifiable access to the mutex variable
-        // of this object.  Locking the mutex variable indicates a thread is
-        // retrieving the data for this object.
+        // of this object.  Locking the mutex variable signals this thread is
+        // retrieving new data, but does *not* synchronize access to 'd_data'.
 
     void reset();
-        // Reset the shared pointer in this object to the empty state.
+        // Reset the shared pointer, 'data', to the empty state.
 
     // ACCESSORS
     DataPtr data() const;
@@ -226,12 +229,14 @@ class bteso_IpResolutionCache_Entry {
 class bteso_IpResolutionCache {
     // This class provides an efficient mechanism for retrieving the IPv4
     // addresses of a host machine given its hostname.  The first time a client
-    // requests the addresses for a hostname, that addresses are retrieved
+    // requests the addresses for a hostname, those addresses are retrieved
     // (using the 'resolverCallback' supplied at construction), and cached for
     // future use.  Subsequent requests for the same hostname return the cached
     // information.  The cached addresses remains in the cache for a
-    // user-defined time, which is defaulted to one hour.  After which, the
-    // addresses will expire, and will be refreshed.
+    // user-defined time, which defaults to one hour.  Stored IP addresses
+    // older than the configured interval are considered stale, and a
+    // subsequent request for the associated hostname will refresh that set of
+    // IP addresses by calling the supplied 'resolverCallback' again.
     //
     // This class:
     //: o is *exception-neutral*
@@ -253,6 +258,8 @@ class bteso_IpResolutionCache {
 
     mutable bcemt_RWMutex  d_rwLock;            // access synchronization for
                                                 // reading/writing to 'd_cache'
+                                                // *and* the shared 'data' in
+                                                // the entries of 'd_cache'
 
     ResolveByNameCallback  d_resolverCallback;  // callback to get data
 
@@ -260,14 +267,13 @@ class bteso_IpResolutionCache {
 
   private:
     int getCacheData(bteso_IpResolutionCache_Entry::DataPtr *result,
-                     const char                        *hostname,
-                     int                               *errorCode);
+                     const char                             *hostname,
+                     int                                    *errorCode);
         // Load, into the specified 'result', a 'bcema_SharedPtr' pointing to a
         // vector of addresses for the specified 'hostname', and load, into the
-        // specified 'errorCode', the error code of the callback function if
-        // the data is not cached and an error occurred.  Return 0 with no
-        // effect on 'errorCode' upon success, and a negative value
-        // otherwise.
+        // specified 'errorCode', the error code returned by the callback
+        // function (if the data is not cached).  Return 0 on success, and a
+        // negative value otherwise.
 
   private:
     // NOT IMPLEMENTED
@@ -312,9 +318,9 @@ class bteso_IpResolutionCache {
 
     void setTimeToLiveInSeconds(int value);
         // Set the time the cached IP addresses for a particular hostname may
-        // exist before it expires.  Note that this function does *not* affect
-        // data that is already cached.  The behavior is undefined unless
-        // '0 < value'.
+        // exist before they are considered stale.  The behavior is undefined
+        // unless '0 < value'.  Note that this function does *not* affect data
+        // that is already cached.
 
     // ACCESSORS
     bslma_Allocator *allocator() const;
@@ -331,15 +337,16 @@ class bteso_IpResolutionCache {
         // been previously cached (by a call to 'resolveAddress'), and a
         // non-zero value with no effect on 'result' otherwise.  The behavior
         // is undefined unless '0 < maxNumAddresses'.  Note that this method
-        // iwll not refreesh the addresses even if they expires.
+        // will not refresh the addresses even if they become stale.
 
     ResolveByNameCallback resolverCallback() const;
-        // Return the callback function to used for resolving the IP addresses
-        // from a hostname when the hostname is not already in the cache.
+        // Return the callback function that will be used for resolving the IP
+        // addresses from a hostname when the hostname is not already in the
+        // cache.
 
     int timeToLiveInSeconds() const;
         // Return the time the set of IP addresses for a particular hostname
-        // may exist in the cache before it expires.  Note that
+        // may exist in the cache before they become stale.  Note that
         // '0 < timeToLiveInSeconds()'.
 };
 

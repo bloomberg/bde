@@ -12,14 +12,17 @@
 
 #include <bsl_iostream.h>
 
-#include <bcemt_lockguard.h>
 #include <bcep_fixedthreadpool.h>
 
 // #include <bces_atomictypes.h>
 
+#include <bcemt_lockguard.h>
 #include <bcemt_threadattributes.h>
 #include <bcemt_threadutil.h>
 #include <bcemt_once.h>
+#include <bcemt_barrier.h>
+
+#include <bcema_testallocator.h>
 
 #include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
 #include <bsls_asserttest.h>
@@ -126,16 +129,61 @@ static void aSsErT(int c, const char *s, int i) {
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
+namespace BloombergLP {
+
+class bteso_IpResolutionCache_Data {
+    // This class provides storage for the a set of IP addresses and a
+    // 'bdet_TimeInterval' to indicate the time these addresses expires.
+
+    // DATA
+    bsl::vector<bteso_IPv4Address> d_addresses;       // set of IP addresses
+
+    bdet_TimeInterval              d_expirationTime;  // time from epoch until
+                                                      // this data expires
+  private:
+    // NOT IMPLEMENTED
+    bteso_IpResolutionCache_Data(const bteso_IpResolutionCache_Data&);
+    bteso_IpResolutionCache_Data& operator=(
+                                          const bteso_IpResolutionCache_Data&);
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(bteso_IpResolutionCache,
+                                 bslalg_TypeTraitUsesBslmaAllocator);
+
+    // CREATOR
+    bteso_IpResolutionCache_Data(
+                    const bsl::vector<bteso_IPv4Address>&  ipAddresses,
+                    const bdet_TimeInterval&               expirationTime,
+                    bslma_Allocator                       *basicAllocator = 0);
+        // Create an object storing the specified 'ipAddresses', which expires
+        // at the specified 'expirationTime' (expressed as the !ABSOLUTE! time
+        // from 00:00:00 UTC, January 1, 1970).  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+
+    // ACCESSORS
+    const bsl::vector<bteso_IPv4Address>& addresses() const;
+        // Return a reference providing non-modifiable access to the IP
+        // addresses stored in this object.
+
+    const bdet_TimeInterval& expirationTime() const;
+        // Return a reference providing non-modifiable access to the time
+        // (expressed as the !ABSOLUTE! time from 00:00:00 UTC, January 1,
+        // 1970) addresses in the object expires.
+};
+
+}
+
 typedef bteso_IpResolutionCache                Obj;
 typedef bteso_IpResolutionCache_Entry          Entry;
-//typedef bteso_IpResolutionCache_Data           Data;
+typedef bteso_IpResolutionCache_Data           Data;
 typedef bteso_IPv4Address                 IPv4;
 typedef bsl::vector<bteso_IPv4Address>    Vec;
 typedef bteso_IpResolutionCache_Entry::DataPtr DataPtr;
 
-/*
 struct ThreadInfo {
-    Entry          *d_lock;
+    bcemt_Mutex    *d_lock;
     bces_AtomicInt  d_retval;
     bces_AtomicInt  d_retvalSet;
 };
@@ -150,7 +198,6 @@ extern "C" void* MyThread(void* arg_p) {
     arg->d_retvalSet = 1;
     return arg_p;
 }
-*/
 
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
@@ -161,33 +208,55 @@ extern "C" void* MyThread(void* arg_p) {
                          // ============
 
 class TestResolver {
-    static int s_count;
+    // DATA
+    int  d_count;
+    int  d_numAddresses;
+    bool d_exceptionFlag;
+
   public:
+    // CLASS METHOD
+    TestResolver();
     static int callback(bsl::vector<bteso_IPv4Address> *hostAddresses,
                         const char                     *hostName,
-                        int                             numAddresses,
+                        int                             maxNumAddresses,
                         int                            *errorCode);
     static int count();
     static bteso_IPv4Address lastIPv4Added();
     static void reset();
+    static void setNumAddresses(int value);
+    static int numAddresses();
 };
 
                          // ------------
                          // TestResolver
                          // ------------
 
-int TestResolver::s_count = 0;
+TestResolver::TestResolver()
+: d_count(0);
+, d_numAddresses(1);
+, d_exceptionFlag(false);
+{
+}
 
 int TestResolver::callback(bsl::vector<bteso_IPv4Address> *hostAddresses,
                            const char                     *hostName,
-                           int                             numAddresses,
+                           int                             maxNumAddresses,
                            int                            *errorCode)
 {
     //cout << "callback" << endl;
     ++s_count;
 
     hostAddresses->clear();
-    hostAddresses->push_back(bteso_IPv4Address(BSLS_BYTEORDER_HTONL(s_count), 0));
+
+    int size = bsl::min(s_numAddresses, maxNumAddresses);
+    for (int i = 0; i < size; ++i) {
+        hostAddresses->push_back(
+                          bteso_IPv4Address(BSLS_BYTEORDER_HTONL(s_count), 0));
+    }
+
+    if (errorCode) {
+        *errorCode = s_count;
+    }
 
     return 0;
 }
@@ -207,6 +276,15 @@ void TestResolver::reset()
     s_count = 0;
 }
 
+void TestResolver::setNumAddresses(int value)
+{
+    s_numAddresses = value;
+}
+
+int TestResolver::numAddresses()
+{
+    return s_numAddresses;
+}
 
 const int NUM_CALLS = 20;
 
@@ -271,6 +349,130 @@ void resolve(bcemt_Mutex    *updateMutex,
     *totalSystemTime += timer.accumulatedSystemTime();
     *totalUserTime   += timer.accumulatedUserTime();
     *totalWallTime   += timer.accumulatedWallTime();
+}
+
+//=============================================================================
+//                      CONCURRENCY CONCERNS RELATED ENTRIES
+//-----------------------------------------------------------------------------
+
+void executeInParallel(int                               numThreads,
+                       bcemt_ThreadUtil::ThreadFunction  func,
+                       void                             *threadArgs)
+   // Create the specified 'numThreads', each executing the specified 'func'
+   // on the specified 'threadArgs'.
+{
+    bcemt_ThreadUtil::Handle *threads =
+                                      new bcemt_ThreadUtil::Handle[numThreads];
+    ASSERT(threads);
+
+    for (int i = 0; i < numThreads; ++i) {
+        bcemt_ThreadUtil::create(&threads[i], func, threadArgs);
+    }
+    for (int i = 0; i < numThreads; ++i) {
+        bcemt_ThreadUtil::join(threads[i]);
+    }
+
+    delete [] threads;
+}
+
+namespace BTESO_IPRESOLUTIONCACHE_CONCURRENCY {
+
+struct TimeZoneData {
+        int         d_line;       // line number
+        const char *d_hostname;         // time zone id
+        int         d_ipAddress;  // utc offset in seconds for descriptor
+} DATA[] = {
+    { L_,  "ID_A",  1 },
+    { L_,  "ID_B",  2 },
+    { L_,  "ID_C",  3 },
+    { L_,  "ID_D",  4 },
+    { L_,  "ID_E",  5 },
+    { L_,  "ID_F",  6 },
+    { L_,  "ID_G",  7 },
+    { L_,  "ID_H",  8 },
+    { L_,  "ID_I",  9 },
+    { L_,  "ID_J", 10 },
+    { L_,  "ID_K", 11 },
+    { L_,  "ID_L", 12 },
+    { L_,  "ID_M", 13 },
+    { L_,  "ID_N", 14 }
+};
+const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+struct ThreadData {
+    Obj           *d_cache_p;    // cache under test
+    bcemt_Barrier *d_barrier_p;  // testing barrier
+};
+
+                         // =======================
+                         // testConcurrencyResolver
+                         // =======================
+
+int testConcurrencyCallback(bsl::vector<bteso_IPv4Address> *hostAddresses,
+                            const char                     *hostName,
+                            int                             maxNumAddresses,
+                            int                            *errorCode)
+{
+    hostAddresses->clear();
+
+    for (int i = 0; i < NUM_DATA; ++i) {
+        if (0 == strcmp(DATA[i].d_hostname, hostName)) {
+            hostAddresses->push_back(
+              bteso_IPv4Address(BSLS_BYTEORDER_HTONL(DATA[i].d_ipAddress), 0));
+            break;
+        }
+    }
+
+    //cout << hostName << ": " << (*hostAddresses)[0] << endl;
+
+    if (errorCode) {
+        *errorCode = 0;
+    }
+
+    return 0;
+}
+
+extern "C" void *workerThread(void *arg)
+{
+    ThreadData *p = (ThreadData*)arg;
+    bcemt_Barrier& barrier = *p->d_barrier_p;
+
+    Obj &mX = *p->d_cache_p; const Obj &X = mX;
+
+    // Begin the test.
+
+    barrier.wait();
+
+    for (int testRun = 0; testRun < 5; ++testRun) {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const char              *ID = DATA[i].d_hostname;
+            const bteso_IPv4Address  IP = bteso_IPv4Address(
+                                     BSLS_BYTEORDER_HTONL(DATA[i].d_ipAddress),
+                                     0);
+            bteso_IPv4Address result;
+            bteso_ResolveUtil::getAddress(&result, ID);
+            ASSERT(IP == result);
+        }
+    }
+
+    bcemt_ThreadUtil::microSleep(0, 1);
+
+    for (int testRun = 0; testRun < 5; ++testRun) {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const char              *ID = DATA[i].d_hostname;
+            const bteso_IPv4Address  IP = bteso_IPv4Address(
+                                     BSLS_BYTEORDER_HTONL(DATA[i].d_ipAddress),
+                                     0);
+            bteso_IPv4Address result;
+            bteso_ResolveUtil::getAddress(&result, ID);
+            ASSERT(IP == result);
+        }
+    }
+
+    barrier.wait();
+    return 0;
+}
+
 }
 
 // ============================================================================
@@ -442,14 +644,13 @@ int main(int argc, char *argv[])
     ASSERT(1 == ipAddresses.size());
     bsl::cout << "IP Address: " << ipAddresses[0] << std::endl;
 //..
-//  Finally, we verify that subsquent call to 'lookupAddress' return 0 to
+//  Finally, we verify that subsequent call to 'lookupAddress' return 0 to
 //  indicate "www.bloomberg.com" is stored in the cache, but not
 //  "www.businessweek.com":
 //..
     ASSERT(0 == cache.lookupAddress(&ipAddresses, "www.bloomberg.com", 1));
     ASSERT(0 != cache.lookupAddress(&ipAddresses, "www.businessweek.com", 1));
 //..
-//
 }
 {
 ///Example 2: Using Address Cache with 'bteso_ResolveUtil'
@@ -500,6 +701,67 @@ int main(int argc, char *argv[])
         //
         // clear
         // --------------------------------------------------------------------
+
+        if (verbose) { cout << "Testing 'resolveAddress'" << endl; }
+        {
+            static const struct {
+                int         d_line;
+                const char *d_name;
+                const char *d_ip;
+            } DATA[] = {
+                { L_,  "A", "0.0.0.1" },
+                { L_,  "B", "0.0.0.2" },
+                { L_,  "C", "0.0.0.3" },
+                { L_,  "D", "0.0.0.4" },
+                { L_,  "E", "0.0.0.5" },
+                { L_,  "F", "0.0.0.6" },
+                { L_,  "G", "0.0.0.7" },
+                { L_,  "H", "0.0.0.8" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            int count = 0;
+            ASSERT(TestResolver::count() == count);
+
+            bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
+            Obj mX(&TestResolver::callback, &oa); Obj &X = mX;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE     = DATA[ti].d_line;
+                const char *const NAME     = DATA[ti].d_name;
+                const IPv4        ADDR(DATA[ti].d_ip, 0);
+
+                Vec mV;
+                int err;
+
+                if (verbose) { P_(LINE) P_(NAME) P(ADDR); }
+
+                LOOP2_ASSERT(LINE, NAME,
+                             0 == X.resolveAddress(&mV, NAME, 1));
+
+                LOOP_ASSERT(LINE, 0 == X.lookupAddress(&mV, NAME, 1));
+            }
+
+            mX.clear();
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE     = DATA[ti].d_line;
+                const char *const NAME     = DATA[ti].d_name;
+                const IPv4        ADDR(DATA[ti].d_ip, 0);
+
+                Vec mV;
+                int err;
+
+                if (verbose) { P_(LINE) P_(NAME) P(ADDR); }
+
+                LOOP_ASSERT(LINE, 0 != X.lookupAddress(&mV, NAME, 1));
+
+                LOOP2_ASSERT(LINE, NAME,
+                             0 == X.resolveAddress(&mV, NAME, 1));
+
+                LOOP_ASSERT(LINE, 0 == X.lookupAddress(&mV, NAME, 1));
+            }
+        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -507,6 +769,34 @@ int main(int argc, char *argv[])
         //
         // resolveaddress multithread
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "TESTING CONCURRENCY" << endl
+                                  << "===================" << endl;
+
+        using namespace BTESO_IPRESOLUTIONCACHE_CONCURRENCY;
+
+        // A 'bcema_TestAllocator' is required for thread safe allocations.
+        bcema_TestAllocator testAllocator;
+
+        enum {
+            NUM_THREADS = 10
+        };
+
+        bcemt_Barrier barrier(NUM_THREADS);
+        Obj mX(&testConcurrencyCallback, &testAllocator); const Obj& X = mX;
+        mX.setTimeToLiveInSeconds(1);
+
+        using namespace bdef_PlaceHolders;
+        bteso_ResolveUtil::setResolveByNameCallback(
+                  bdef_BindUtil::bind(&bteso_IpResolutionCache::resolveAddress,
+                                      &mX,
+                                      _1,
+                                      _2,
+                                      _3,
+                                      _4));
+
+        ThreadData args = { &mX, &barrier };
+        executeInParallel(NUM_THREADS, workerThread, &args);
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1040,7 +1330,6 @@ int main(int argc, char *argv[])
         //
         // lock
         // --------------------------------------------------------------------
-        /*
         enum {
             MAX_SLEEP_CYCLES = 1000,
             SLEEP_MS = 100
@@ -1048,10 +1337,10 @@ int main(int argc, char *argv[])
 
         {
             Entry mX;  const Entry &X = mX;
-            X.lock();
+            X.updatingLock().lock();
 
             ThreadInfo args;
-            args.d_lock = &mX;
+            args.d_lock = &mX.updatingLock();
 
             args.d_retval = 0;
             args.d_retvalSet = 0;
@@ -1061,7 +1350,8 @@ int main(int argc, char *argv[])
             bcemt_ThreadUtil::Handle dum;
             bcemt_ThreadUtil::create(&dum, attr, &MyThread, &args);
 
-            for (int i = 0; 0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
+            for (int i = 0;
+                 0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
                  ++i) {
                 bcemt_ThreadUtil::microSleep(1000 * SLEEP_MS);
             }
@@ -1071,7 +1361,7 @@ int main(int argc, char *argv[])
                 P(args.d_retval);
             }
 
-            X.unlock();
+            X.updatingLock().unlock();
 
             args.d_retval = 0;
             args.d_retvalSet = 0;
@@ -1088,7 +1378,6 @@ int main(int argc, char *argv[])
             }
 
         }
-        */
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -1143,7 +1432,6 @@ int main(int argc, char *argv[])
         //   int data() const;
         // --------------------------------------------------------------------
 
-        /*
         if (verbose) cout << endl
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
@@ -1185,7 +1473,6 @@ int main(int argc, char *argv[])
             const T1& data = X.data();
             LOOP2_ASSERT(A1, data, A1 == data);
         }
-        */
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1279,7 +1566,6 @@ int main(int argc, char *argv[])
         //   setResolverCallback(int value);
         // --------------------------------------------------------------------
 
-        /*
         if (verbose) cout << endl
                        << "DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR" << endl
                        << "==========================================" << endl;
@@ -1296,6 +1582,7 @@ int main(int argc, char *argv[])
                                           bdet_TimeInterval(0.0),
                                           &scratch));
 
+
         // 'B' values
 
         Entry::DataPtr b1;
@@ -1308,7 +1595,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting primary manipulators."
                           << endl;
         {
-
             Entry mX;  const Entry& X = mX;
 
             // -------------------------------------
@@ -1325,321 +1611,100 @@ int main(int argc, char *argv[])
             // 'data'
             {
                 mX.setData(A1);
-                ASSERT(A1 == X.data());
+                //ASSERT(dataA == reinterpret_cast<const int *>(X.data().ptr()));
 
                 mX.setData(B1);
-                ASSERT(B1 == X.data());
+                //ASSERT(dataB == _cast<bcemaconst int *>(X.data().ptr()));
             }
         }
-        */
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // bteso_IpResolutionCache_Data Value CTOR
-        //   Ensure that we can put an object into any initial state relevant
-        //   for thorough testing.
+        // TEST APPARATUS
         //
         // Concerns:
-        //: 1 The value constructor (with or without a supplied allocator) can
-        //:   create an object having any value that does not violate the
-        //:   constructor's documented preconditions.
+        //: 1 'TestResolver' correctly returns a different IP addresses each
+        //:   time it is called.
         //:
-        //: 2 Any string arguments can be of type 'char *' or 'string'.
+        //: 2 The number of addresses returned can be controlled by the
+        //:   'setNumAddresses' method.
         //:
-        //: 3 Any argument can be 'const'.
+        //: 3 The number of addresses returned are as expected.
         //:
-        //: 4 If an allocator is NOT supplied to the value constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
+        //: 4 '
         //:
-        //: 5 If an allocator IS supplied to the value constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 6 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 7 Supplying an allocator to the value constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 8 Any memory allocation is from the object allocator.
-        //:
-        //: 9 There is no temporary memory allocation from any allocator.
-        //:
-        //:10 Every object releases any allocated memory at destruction.
-        //:
-        //:11 QoI: Creating an object having the default-constructed value
-        //:   allocates no memory.
-        //:
-        //:12 Any memory allocation is exception neutral.
-        //:
-        //:13 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-        //:     the expectation of memory allocation for all typical
-        //:     implementations of individual attribute types: ('Y') "Yes",
-        //:     ('N') "No", or ('?') "implementation-dependent".
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:  (C-1, 3..11)
-        //:
-        //:   1 Execute an inner loop creating three distinct objects, in turn,
-        //:     each object having the same value, 'V', but configured
-        //:     differently: (a) without passing an allocator, (b) passing a
-        //:     null allocator address explicitly, and (c) passing the address
-        //:     of a test allocator distinct from the default allocator.
-        //:
-        //:   2 For each of the three iterations in P-2.1:  (C-1, 4..11)
-        //:
-        //:     1 Create three 'bslma_TestAllocator' objects, and install one
-        //:       as the current default allocator (note that a ubiquitous test
-        //:       allocator is already installed as the global allocator).
-        //:
-        //:     2 Use the value constructor to dynamically create an object
-        //:       having the value 'V', with its object allocator configured
-        //:       appropriately (see P-2.1), supplying all the arguments as
-        //:       'const' and representing any string arguments as 'char *';
-        //:       use a distinct test allocator for the object's footprint.
-        //:
-        //:     3 Use the (as yet unproven) salient attribute accessors to
-        //:       verify that all of the attributes of each object have their
-        //:       expected values.  (C-1, 7)
-        //:
-        //:     4 Use the 'allocator' accessor of each underlying attribute
-        //:       capable of allocating memory to ensure that its object
-        //:       allocator is properly installed; also invoke the (as yet
-        //:       unproven) 'allocator' accessor of the object under test.
-        //:       (C-8)
-        //:
-        //:     5 Use the appropriate test allocators to verify that:  (C-4..6,
-        //:       9..11)
-        //:
-        //:       1 An object that IS expected to allocate memory does so
-        //:         from the object allocator only (irrespective of the
-        //:         specific number of allocations or the total amount of
-        //:         memory allocated).  (C-4, 6)
-        //:
-        //:       2 An object that is expected NOT to allocate memory doesn't.
-        //:         (C-11)
-        //:
-        //:       3 If an allocator was supplied at construction (P-2.1c), the
-        //:         default allocator doesn't allocate any memory.  (C-5)
-        //:
-        //:       4 No temporary memory is allocated from the object allocator.
-        //:         (C-9)
-        //:
-        //:       5 All object memory is released when the object is destroyed.
-        //:         (C-10)
-        //:
-        //: 3 Repeat the steps in P-2 for the supplied allocator configuration
-        //:   (P-2.1c) on the data of P-1, but this time create the object as
-        //:   an automatic variable in the presence of injected exceptions
-        //:   (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros);
-        //:   represent any string arguments in terms of 'string' using a
-        //:   "scratch" allocator.  (C-2, 12)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-13)
         //
-        // Testing:
-        //   baetzo_LocalTimeDescriptor(int o, bool f, const SRef& d, *bA = 0);
+        //
         // --------------------------------------------------------------------
 
-        /*
-        if (verbose) cout << endl
-                          << "VALUE CTOR" << endl
-                          << "==========" << endl;
-
-        if (verbose) cout <<
-           "\nUse a table of distinct object values and expected memory usage."
-                                                                       << endl;
-        static const struct {
-            int                d_line;
-            char               d_mem;
-            const char        *d_ip;
-            bsls_Types::Int64  d_time;
+        struct {
+            int d_line;
+            int d_numReturned;
+            int d_maxNumAddresses;
         } DATA[] = {
-            { __LINE__,  'Y', "0.0.0.0",          LLONG_MIN },
-            { __LINE__,  'Y', "256.256.256.256",         -1 },
-            { __LINE__,  'Y', "0.0.0.1",                  0 },
-            { __LINE__,  'Y', "0.0.1.0",                  1 },
-            { __LINE__,  'Y', "0.1.0.0",          LLONG_MAX },
-            { __LINE__,  'Y', "1.0.0.0",                  0 },
+
+        { L_,       0,       1 },
+        { L_,       1,       1 },
+        { L_,       0,       2 },
+        { L_,       1,       2 },
+        { L_, INT_MAX,       2 },
+        { L_,       0, INT_MAX },
+        { L_,       1, INT_MAX },
+        { L_,       2, INT_MAX },
+
         };
+
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout <<
-             "\nCreate objects with various allocator configurations." << endl;
-        {
-            bool anyObjectMemoryAllocatedFlag = false;  // We later check that
-                                                        // this test allocates
-                                                        // some object memory.
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int LINE = DATA[ti].d_line;
+            const int NUM  = DATA[ti].d_numReturned;
+            const int MAX  = DATA[ti].d_maxNumAddresses;
+            const int CNT  = ti + 1;
 
-                const int               LINE = DATA[ti].d_line;
-                const char              MEM  = DATA[ti].d_mem;
-                const bteso_IPv4Address IP   =
-                                           bteso_IPv4Address(DATA[ti].d_ip, 0);
-                const bdet_TimeInterval TIME =
-                                         bdet_TimeInterval(DATA[ti].d_time, 0);
-                const vector<bteso_IPv4Address> ADDR(1, IP, &scratch);
+            const bteso_IPv4Address EXP_IP   = bteso_IPv4Address(
+                                                     BSLS_BYTEORDER_HTONL(CNT),
+                                                     0);
+            const int               EXP_SIZE = bsl::min(NUM, MAX);
 
-                //if (veryVerbose) { T_ P_(OFFSET) P_(FLAG) P(DESC) }
+            TestResolver::setNumAddresses(NUM);
+            LOOP3_ASSERT(LINE, NUM, TestResolver::numAddresses(),
+                         NUM == TestResolver::numAddresses());
 
-                LOOP2_ASSERT(LINE, MEM, MEM && strchr("YN?", MEM));
+            bsl::vector<bteso_IPv4Address> addr;
+            int                            error;
 
-                for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+            const bsl::vector<bteso_IPv4Address> &ADDR = addr;
+            const int                            &ERR = error;
 
-                    const char CONFIG = cfg;  // how we specify the allocator
+            TestResolver::callback(&addr, "host", MAX, &error);
 
-                    if (veryVerbose) { T_ T_ P(CONFIG) }
+            const bteso_IPv4Address IP   = (0 < EXP_SIZE)
+                                         ? ADDR[0]
+                                         : bteso_IPv4Address();
+            const int               SIZE = ADDR.size();
 
-                    bslma_TestAllocator da("default",   veryVeryVeryVerbose);
-                    bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
-                    bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
-
-                    bslma_Default::setDefaultAllocatorRaw(&da);
-
-                    Data                *objPtr;
-                    bslma_TestAllocator *objAllocatorPtr;
-
-                    switch (CONFIG) {
-                      case 'a': {
-                        objPtr = new (fa) Data(ADDR, TIME);
-                        objAllocatorPtr = &da;
-                      } break;
-                      case 'b': {
-                        objPtr = new (fa) Data(ADDR, TIME, 0);
-                        objAllocatorPtr = &da;
-                      } break;
-                      case 'c': {
-                        objPtr = new (fa) Data(ADDR, TIME, &sa);
-                        objAllocatorPtr = &sa;
-                      } break;
-                      default: {
-                        LOOP2_ASSERT(LINE, CONFIG, !"Bad allocator config.");
-                      } break;
-                    }
-                    LOOP2_ASSERT(LINE, CONFIG,
-                                 sizeof(Data) == fa.numBytesInUse());
-
-                    Data& mX = *objPtr;  const Data& X = mX;
-
-                    bslma_TestAllocator&  oa = *objAllocatorPtr;
-                    bslma_TestAllocator& noa = 'c' != CONFIG ? sa : da;
-
-                    // -------------------------------------
-                    // Verify the object's attribute values.
-                    // -------------------------------------
-
-                    // TBD: FIXME
-                    LOOP4_ASSERT(LINE, CONFIG, ADDR[0], X.addresses()[0],
-                                 ADDR == X.addresses());
-
-                    LOOP4_ASSERT(LINE, CONFIG, TIME, X.expirationTime(),
-                                 TIME == X.expirationTime());
-
-                    // Verify no allocation from the non-object allocator.
-
-                    LOOP3_ASSERT(LINE, CONFIG, noa.numBlocksTotal(),
-                                 0 == noa.numBlocksTotal());
-
-                    // Verify no temporary memory is allocated from the object
-                    // allocator.
-
-                    LOOP4_ASSERT(LINE, CONFIG, oa.numBlocksTotal(),
-                                                           oa.numBlocksInUse(),
-                                 oa.numBlocksTotal() == oa.numBlocksInUse());
-
-                    // Verify expected ('Y'/'N') object-memory allocations.
-
-                    if ('?' != MEM) {
-                        LOOP4_ASSERT(LINE, CONFIG, MEM, oa.numBlocksInUse(),
-                                   ('N' == MEM) == (0 == oa.numBlocksInUse()));
-                    }
-
-                    // Record if some object memory was allocated.
-
-                    anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
-
-                    // Reclaim dynamically allocated object under test.
-
-                    fa.deleteObject(objPtr);
-
-                    // Verify all memory is released on object destruction.
-
-                    LOOP3_ASSERT(LINE, CONFIG, da.numBlocksInUse(),
-                                 0 == da.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, fa.numBlocksInUse(),
-                                 0 == fa.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, sa.numBlocksInUse(),
-                                 0 == sa.numBlocksInUse());
-
-                }  // end foreach configuration
-
-            }  // end foreach row
-
-            // Double check that some object memory was allocated.
-
-            ASSERT(anyObjectMemoryAllocatedFlag);
-
-            // Note that memory should be independently allocated for each
-            // attribute capable of allocating memory.
-        }
-        */
-
-        /*
-        if (verbose) cout << "\nTesting with injected exceptions." << endl;
-        {
-            // Note that any string arguments are now of type 'string', which
-            // require their own "scratch" allocator.
-
-            bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int    LINE   = DATA[ti].d_line;
-                const char   MEM    = DATA[ti].d_mem;
-                const int    OFFSET = DATA[ti].d_utcOffsetInSeconds;
-                const bool   FLAG   = DATA[ti].d_dstInEffectFlag;
-                const string DESC(DATA[ti].d_description, &scratch);
-
-                if (veryVerbose) { T_ P_(MEM) P_(OFFSET) P_(FLAG) P(DESC) }
-
-                bslma_TestAllocator da("default",  veryVeryVeryVerbose);
-                bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
-
-                bslma_Default::setDefaultAllocatorRaw(&da);
-
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
-                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
-
-                    Data obj(OFFSET, FLAG, DESC, &sa);
-                    LOOP3_ASSERT(LINE, OFFSET, obj.resolverCallback(),
-                                 OFFSET == obj.resolverCallback());
-                    LOOP3_ASSERT(LINE, FLAG, obj.timeToLiveInSeconds(),
-                                 FLAG == obj.timeToLiveInSeconds());
-                    LOOP3_ASSERT(LINE, DESC, obj.description(),
-                                 DESC == obj.description());
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-                LOOP2_ASSERT(LINE, da.numBlocksInUse(),
-                             0 == da.numBlocksInUse());
-                LOOP2_ASSERT(LINE, sa.numBlocksInUse(),
-                             0 == sa.numBlocksInUse());
+            LOOP3_ASSERT(LINE, EXP_SIZE, SIZE, EXP_SIZE == SIZE);
+            if (0 < SIZE) {
+                LOOP3_ASSERT(LINE, EXP_IP, IP, EXP_IP == IP);
             }
+
+            LOOP3_ASSERT(LINE, CNT, ERR, CNT == ERR);
+
+            LOOP3_ASSERT(LINE, EXP_IP, TestResolver::lastIPv4Added(),
+                         EXP_IP == TestResolver::lastIPv4Added());
+            LOOP3_ASSERT(LINE, CNT, TestResolver::count(),
+                         CNT == TestResolver::count());
         }
-        */
+
+        if (verbose) cout << "reset" << endl;
+        {
+            TestResolver::reset();
+            const int CNT = TestResolver::count();
+            LOOP_ASSERT(CNT, 0 == CNT);
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1651,6 +1716,7 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
+        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST
@@ -1663,15 +1729,6 @@ int main(int argc, char *argv[])
 
         bsl::vector<bteso_IPv4Address> addresses;
         int errorCode = 0;
-
-        //int rc = cache.resolveAddress(&addresses, "nylxdev1", 16, &errorCode);
-        //bsl::cout << "rc: " << rc << bsl::endl;
-
-        //bsl::cout << "addresses.size(): " << addresses.size() << bsl::endl;
-        //for (int i = 0; i < addresses.size(); ++i) {
-        //    bsl::cout << "addresses[" << i << "]: " << addresses[i] << bsl::endl;
-        //}
-        //bsl::cout << "errorCode: " << errorCode << bsl::endl;
 
         {
             bteso_IPv4Address ipv4;
@@ -1691,12 +1748,12 @@ int main(int argc, char *argv[])
             Obj cache;
             using namespace bdef_PlaceHolders;
             bteso_ResolveUtil::setResolveByNameCallback(
-                       bdef_BindUtil::bind(&bteso_IpResolutionCache::resolveAddress,
-                                           &cache,
-                                           _1,
-                                           _2,
-                                           _3,
-                                           _4));
+                  bdef_BindUtil::bind(&bteso_IpResolutionCache::resolveAddress,
+                                      &cache,
+                                      _1,
+                                      _2,
+                                      _3,
+                                      _4));
 
             bteso_IPv4Address ipv4;
             int err;
@@ -1710,9 +1767,7 @@ int main(int argc, char *argv[])
             timer.stop();
             bsl::cout << "ip: " << ipv4 << bsl::endl;
             bsl::cout << "Time: " << timer.accumulatedWallTime() << bsl::endl;
-
         }
-
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -1738,12 +1793,12 @@ int main(int argc, char *argv[])
         Obj cache;
         using namespace bdef_PlaceHolders;
         bteso_ResolveUtil::setResolveByNameCallback(
-                       bdef_BindUtil::bind(&bteso_IpResolutionCache::resolveAddress,
-                                           &cache,
-                                           _1,
-                                           _2,
-                                           _3,
-                                           _4));
+                  bdef_BindUtil::bind(&bteso_IpResolutionCache::resolveAddress,
+                                      &cache,
+                                      _1,
+                                      _2,
+                                      _3,
+                                      _4));
 
         for (int ti = 0; ti < NUM_OPTION; ++ti) {
             int OPT = OPTION[ti];
