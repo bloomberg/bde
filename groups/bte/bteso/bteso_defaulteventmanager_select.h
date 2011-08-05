@@ -123,6 +123,10 @@ BDES_IDENT("$Id: $")
 #include <bteso_event.h>
 #endif
 
+#ifndef INCLUDED_BCEMA_POOLALLOCATOR
+#include <bcema_poolallocator.h>
+#endif
+
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
 #endif
@@ -161,6 +165,9 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
     };
 
   private:
+    bcema_PoolAllocator
+                 d_eventsAllocator;   // event map allocator
+
     bsl::hash_map<bteso_Event, bteso_EventManager::Callback, bteso_EventHash>
                  d_events;            // socket events and associated callbacks
 
@@ -184,7 +191,6 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
     bsl::vector<bteso_Event> d_signaledRead;
     bsl::vector<bteso_Event> d_signaledWrite;
                                       // temporary arrays used by dispatch
-
 
     // CLASS METHODS
     static int compareFdSets(const fd_set& lsh, const fd_set& rhs);
@@ -215,25 +221,6 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
         // invoked.
 
     // MANIPULATORS
-    int dispatch(const bdet_TimeInterval&  timeout, int flags);
-        // For each pending socket event, invoke the corresponding callback
-        // registered with this event manager.  If no event is pending, wait
-        // until either (1) at least one event occurs (in which case the
-        // corresponding callback(s) is invoked), (2) the specified absolute
-        // 'timeout' is reached, or (3) provided that the specified 'flags'
-        // contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an underlying system
-        // call is interrupted by a signal.  Return the number of dispatched
-        // callbacks on success, 0 if 'timeout' is reached, and a negative
-        // value otherwise; -1 is reserved to indicate that an underlying
-        // system call was interrupted.  When such an interruption occurs this
-        // method will return -1 if 'flags' contains
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT', and otherwise will
-        // automatically restart (i.e., reissue the identical system call).
-        // Note that all callbacks are invoked in the same thread that invokes
-        // 'dispatch', and the order of invocation, relative to the order of
-        // registration, is unspecified.  Also note that -1 is never returned
-        // if 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
-
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
         // registered with this event manager.  If no event is pending, wait
@@ -251,6 +238,25 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
         // and the order of invocation, relative to the order of registration,
         // is unspecified.  Also note that -1 is never returned if 'option' is
         // set to 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
+
+    int dispatch(const bdet_TimeInterval& timeout, int flags);
+        // For each pending socket event, invoke the corresponding callback
+        // registered with this event manager.  If no event is pending, wait
+        // until either (1) at least one event occurs (in which case the
+        // corresponding callback(s) is invoked), (2) the specified absolute
+        // 'timeout' is reached, or (3) provided that the specified 'flags'
+        // contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an underlying system
+        // call is interrupted by a signal.  Return the number of dispatched
+        // callbacks on success, 0 if 'timeout' is reached, and a negative
+        // value otherwise; -1 is reserved to indicate that an underlying
+        // system call was interrupted.  When such an interruption occurs this
+        // method will return -1 if 'flags' contains
+        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT', and otherwise will
+        // automatically restart (i.e., reissue the identical system call).
+        // Note that all callbacks are invoked in the same thread that invokes
+        // 'dispatch', and the order of invocation, relative to the order of
+        // registration, is unspecified.  Also note that -1 is never returned
+        // if 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
 
      int registerSocketEvent(const bteso_SocketHandle::Handle&   handle,
                              const bteso_EventType::Type         event,
