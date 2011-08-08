@@ -286,7 +286,8 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
         // associated with this event will be overwritten with the new one.
         // Simultaneous registration of incompatible events for the same socket
         // 'handle' will result in undefined behavior.  Return 0 on success and
-        // a non-zero value otherwise.
+        // a non-zero value otherwise.  The behavior is undefined unless
+        // 'true == canRegisterSockets()'.
 
     void deregisterSocketEvent(const bteso_SocketHandle::Handle& handle,
                                bteso_EventType::Type             event);

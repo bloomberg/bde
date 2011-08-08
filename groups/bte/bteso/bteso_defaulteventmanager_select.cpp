@@ -395,7 +395,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::registerSocketEvent(
                                  const bteso_EventType::Type         eventType,
                                  const bteso_EventManager::Callback& callback)
 {
-    BSLS_ASSERT(canBeRegistered(handle));
+    BSLS_ASSERT(canRegisterSockets());
 
     bteso_Event ev(handle, eventType);
     d_events[ev] = callback;
