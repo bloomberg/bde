@@ -30,7 +30,8 @@ BDES_IDENT("$Id: $")
 // simultaneous connections.  This component does not provide a solution to
 // this problem but provides an accessor function, 'canRegisterSockets', that
 // allows clients to identify if this event manager is at the socket
-// registration limit.
+// registration limit.  If that is the case then clients can create more
+// objects of this class for registering their sockets.
 //
 ///Thread-safety
 ///-------------
@@ -165,42 +166,45 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
     };
 
   private:
-    bcema_PoolAllocator
-                 d_eventsAllocator;   // event map allocator
+    bcema_PoolAllocator d_eventsAllocator;   // event map allocator
 
     bsl::hash_map<bteso_Event, bteso_EventManager::Callback, bteso_EventHash>
-                 d_events;            // socket events and associated callbacks
+                        d_events;     // socket events and associated callbacks
 
-    fd_set       d_readSet;           // set of descriptors monitored for
+    fd_set              d_readSet;    // set of descriptors monitored for
                                       // incoming data
 
-    int          d_numRead;           // number of sockets in the read set
+    int                 d_numRead;    // number of sockets in the read set
 
-    fd_set       d_writeSet;          // set of descriptors monitored for
+    fd_set              d_writeSet;   // set of descriptors monitored for
                                       // outgoing data
 
-    int          d_numWrite;          // number of sockets in the write set
+    int                 d_numWrite;   // number of sockets in the write set
 
-    fd_set       d_exceptSet;         // set of descriptors monitored for
+    fd_set              d_exceptSet;  // set of descriptors monitored for
                                       // exceptions
 
-    int          d_maxFd;             // maximum number of socket descriptors
+    int                 d_maxFd;      // maximum number of socket descriptors
 
-    bteso_TimeMetrics *d_timeMetric;  // time metrics given to this object
+    bteso_TimeMetrics  *d_timeMetric; // time metrics given to this object
 
+    // TBD make iterator to avoid multiple lookups ?
     bsl::vector<bteso_Event> d_signaledRead;
     bsl::vector<bteso_Event> d_signaledWrite;
                                       // temporary arrays used by dispatch
 
-    // CLASS METHODS
-    static int compareFdSets(const fd_set& lsh, const fd_set& rhs);
-        // Return 0 if the specified socket-handle sets 'lhs' and 'rhs' contain
-        // the same socket handles (independently of order) and a non-zero
-        // value otherwise.
-
+    // PRIVATE ACCESSORS
     int canBeRegistered(const bteso_SocketHandle::Handle& handle);
         // Return 1 if the specified 'handle' can be registered with this
         // 'select'-based event manager and 0 otherwise.
+
+    int dispatchCallbacks(int           numEvents,
+                          const fd_set& readSet,
+                          const fd_set& writeSet,
+                          const fd_set& exceptSet);
+        // Dispatch the specified 'numEvents' callbacks from the specified
+        // 'readSet', 'writeSet', and 'exceptSet' file descriptor sets that
+        // were signalled as ready.
 
   public:
     // CREATORS
@@ -306,41 +310,16 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
     int numSocketEvents(const bteso_SocketHandle::Handle& handle) const;
         // Return the number of socket events currently registered with this
         // event manager for the specified 'handle'.
-
-// TBD: Needed ?
-    void moveSocket(const bteso_SocketHandle::Handle& handle);
-        // Move all socket events along with associated callbacks corresponding
-        // to the specified socket 'handle' from the specified event 'manager'
-        // into this event manager.  The behavior is undefined if 'manager'
-        // is 0 or unless 'handle' is registered with 'manager' (as
-        // reported by a positive return status of 'numSocketEvents').
-
-// TBD: Needed ?
-    const bteso_Event& event(int index) const;
-        // Return the event associated with the specified 'index'.  The
-        // behavior is undefined unless 0 <= index < numEvents().  Note that
-        // this association may be violated by an invocation of any
-        // manipulator on this event manager.
-
-    const bteso_EventManager::Callback& callback(int index) const;
-        // Return a callback associated with the specified 'index'.  The
-        // behavior is undefined unless 0 <= index < numEvents().  Note that
-        // this association may be violated by an invocation of any
-        // manipulator on this event manager.
-
-// TBD: Needed ?
-    int canRegister(const bteso_SocketHandle::Handle& handle);
-        // Return 1 if the specified 'handle' can be registered with this
-        // event, manager and 0 otherwise.
 };
 
 //-----------------------------------------------------------------------------
 //                      INLINE FUNCTIONS' DEFINITIONS
 //-----------------------------------------------------------------------------
 
-                   // =========================================
-                   // class bteso_DefaultEventManager_SelectRaw
-                   // =========================================
+           // =======================================================
+           // class bteso_DefaultEventManager<bteso_Platform::SELECT>
+           // =======================================================
+
 // ACCESSORS
 inline
 int bteso_DefaultEventManager<bteso_Platform::SELECT>::numEvents() const
@@ -348,28 +327,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::numEvents() const
     return static_cast<int>(d_events.size());
 }
 
-// TBD: Needed ?
-inline
-const bteso_Event&
-bteso_DefaultEventManager<bteso_Platform::SELECT>::event(int index) const
-{
-    bsl::hash_map<bteso_Event,
-                  bteso_EventManager::Callback,
-                  bteso_EventHash>::const_iterator  callbackIt =
-                                                              d_events.begin();
-    for (int i = 0; i < index; ++i) {
-        ++callbackIt;
-    }
-    return callbackIt->first;
-}
-
-inline
-int bteso_DefaultEventManager<bteso_Platform::SELECT>::numSockets() const
-{
-    return d_numRead > d_numWrite ? d_numRead : d_numWrite;
-}
-
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
