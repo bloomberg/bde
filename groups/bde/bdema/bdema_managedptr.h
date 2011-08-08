@@ -1218,8 +1218,12 @@ bdema_ManagedPtr<BDEMA_TYPE>::operator bdema_ManagedPtr_Ref<BDEMA_OTHER_TYPE>()
 // ACCESSORS
 template <class BDEMA_TYPE>
 inline
+#if defined(BSLS_PLATFORM__CMP_IBM)
 bdema_ManagedPtr<BDEMA_TYPE>::operator 
                                     typename bdema_ManagedPtr::BoolType() const
+#else
+bdema_ManagedPtr<BDEMA_TYPE>::operator BoolType() const
+#endif
 {
     return d_members.pointer()
          ? bsls_UnspecifiedBool<bdema_ManagedPtr>::trueValue()
