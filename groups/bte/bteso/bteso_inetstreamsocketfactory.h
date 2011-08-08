@@ -209,7 +209,8 @@ class bteso_InetStreamSocketFactory : public bteso_StreamSocketFactory<ADDRESS>
 
   public:
     // CREATORS
-    bteso_InetStreamSocketFactory(bslma_Allocator *basicAllocator = 0);
+    explicit bteso_InetStreamSocketFactory(
+                                          bslma_Allocator *basicAllocator = 0);
         // Create a stream socket factory.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -279,10 +280,11 @@ class bteso_InetStreamSocket : public bteso_StreamSocket<ADDRESS> {
         // The behavior is undefined unless socket 'handle' refers to a valid
         // system socket.
 
+  private:
     // NOT IMPLEMENTED
-    bteso_InetStreamSocket(const bteso_InetStreamSocket<ADDRESS>& original);
-    bteso_InetStreamSocket<ADDRESS>&
-        operator=(const bteso_InetStreamSocket<ADDRESS>& rhs);
+    bteso_InetStreamSocket(const bteso_InetStreamSocket<ADDRESS>&);
+    bteso_InetStreamSocket<ADDRESS>& operator=(
+                                       const bteso_InetStreamSocket<ADDRESS>&);
 
     // FRIENDS
     friend class bteso_InetStreamSocketFactory<ADDRESS>;
@@ -527,6 +529,7 @@ class bteso_InetStreamSocket_AutoCloseSocket {
     bteso_SocketHandle::Handle d_socketHandle;   // managed socket handle
     int                        d_valid;          // true until 'release' called
 
+  private:
     // NOT IMPLEMENTED
     bteso_InetStreamSocket_AutoCloseSocket(
                                 const bteso_InetStreamSocket_AutoCloseSocket&);
@@ -534,7 +537,7 @@ class bteso_InetStreamSocket_AutoCloseSocket {
                                 const bteso_InetStreamSocket_AutoCloseSocket&);
   public:
     // CREATORS
-    bteso_InetStreamSocket_AutoCloseSocket(
+    explicit bteso_InetStreamSocket_AutoCloseSocket(
                                       bteso_SocketHandle::Handle socketHandle);
         // Create a proctor object to manage socket having the specified
         // 'socketHandle'.
@@ -583,7 +586,7 @@ int bteso_InetStreamSocket<ADDRESS>::accept(
 
     int ret = bteso_SocketImpUtil::accept<ADDRESS>(&newHandle, d_handle);
     if (ret != 0) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     bteso_InetStreamSocket_AutoCloseSocket autoDeallocate(newHandle);
@@ -606,7 +609,7 @@ int bteso_InetStreamSocket<ADDRESS>::accept(
     int ret = bteso_SocketImpUtil::accept<ADDRESS>(&newHandle, peerAddress,
                                                    d_handle);
     if (ret != 0) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     *socket = new (*d_allocator_p) bteso_InetStreamSocket<ADDRESS>(
@@ -659,10 +662,11 @@ int bteso_InetStreamSocket<ADDRESS>::readv(const btes_Iovec   *buffers,
     if (ret == 0) {
         // readv returns 0 if either the number of bytes to read was zero or if
         // an EOF occurred.
+
         int i;
         for (i = 0; i < numBuffers; ++i) {
             if (buffers[i].length()) {
-                return bteso_SocketHandle::BTESO_ERROR_EOF;
+                return bteso_SocketHandle::BTESO_ERROR_EOF;           // RETURN
             }
         }
     }
@@ -1183,7 +1187,9 @@ int bteso_InetStreamSocket<ADDRESS>::connectionStatus() const
     int result = peerAddress(&peerAddr);
 
     if (result == 0) {
-        return 0;            // connection is open
+        // The connection is open.
+
+        return 0;                                                     // RETURN
     }
 
     return bteso_SocketHandle::BTESO_ERROR_CONNDEAD;
@@ -1236,15 +1242,17 @@ bteso_SocketHandle::Handle bteso_InetStreamSocket<ADDRESS>::handle() const
 
 // CREATORS
 template <class ADDRESS>
-inline bteso_InetStreamSocketFactory<ADDRESS>::bteso_InetStreamSocketFactory(
-        bslma_Allocator *basicAllocator)
+inline
+bteso_InetStreamSocketFactory<ADDRESS>::bteso_InetStreamSocketFactory(
+                                               bslma_Allocator *basicAllocator)
 : d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
     bteso_SocketImpUtil::startup();
 }
 
 template <class ADDRESS>
-inline bteso_InetStreamSocketFactory<ADDRESS>::~bteso_InetStreamSocketFactory()
+inline
+bteso_InetStreamSocketFactory<ADDRESS>::~bteso_InetStreamSocketFactory()
 {
     bteso_SocketImpUtil::cleanup();
 }
@@ -1259,7 +1267,7 @@ bteso_StreamSocket<ADDRESS> *bteso_InetStreamSocketFactory<ADDRESS>::allocate()
                    &newSocketHandle, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
 
     if (ret < 0) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     bteso_InetStreamSocket_AutoCloseSocket autoDeallocate(newSocketHandle);

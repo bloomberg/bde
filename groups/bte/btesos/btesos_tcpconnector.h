@@ -194,12 +194,12 @@ class btesos_TcpConnector : public btesc_ChannelAllocator {
         // a flag to be set if this acceptor is invalid
 
   private:
-    btesos_TcpConnector(const btesos_TcpConnector&); // not impl.
-    btesos_TcpConnector&
-            operator=(const btesos_TcpConnector&);        // not impl.
+    // NOT IMPLEMENTED
+    btesos_TcpConnector(const btesos_TcpConnector&);
+    btesos_TcpConnector& operator=(const btesos_TcpConnector&);
   public:
     // CREATORS
-    btesos_TcpConnector(
+    explicit btesos_TcpConnector(
             bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
             bslma_Allocator                              *basicAllocator = 0);
         // Create a connector that uses the specified 'factory' to create
