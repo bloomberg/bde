@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for functional extensions
 //
 //@CLASSES:
-//   bsl::compose1:  create an unary function object adaptor
-//   bsl::compose2:  create a binary function object adaptor
+//    bsl::compose1: create an unary function object adaptor
+//    bsl::compose2: create a binary function object adaptor
 //   bsl::select1st: select 'first' value of a pair
 //   bsl::select2nd: select 'second' value of a pair
 //

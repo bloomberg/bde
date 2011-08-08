@@ -3563,7 +3563,7 @@ enum {
 //-----------------------------------------------------------------------------
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose)
+static void testCase31(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 {
     // --------------------------------------------------------------------
     // TESTING 'isUnset':
@@ -3699,6 +3699,98 @@ static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose)
     }
 }
 #endif
+
+static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose)
+{
+    // --------------------------------------------------------------------
+    // TESTING 'makeError' error message:
+    //
+    // Concerns:
+    //: 1 'makeError' prints the expected error message.
+    //
+    // Plan:
+    //
+    // Testing:
+    // --------------------------------------------------------------------
+
+    if (verbose) tst::cout << "\nTESTING 'makeError'"
+                           << "\n===================" << bsl::endl;
+
+    {
+        const char        AA = 'X';
+              bdet_Date   BB(1, 1, 1);
+        const bsl::string S1("Invalid conversion to CHAR from DATE");
+        const bsl::string S2("Invalid conversion when setting "
+                             "CHAR value from DATE value");
+
+        {
+            Obj mX(ET::BDEM_CHAR, BB);  const Obj& X = mX;
+
+            ASSERT(X.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(S1 == X.errorMessage());
+
+            Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
+            const Obj ERR = Y.setValue(BB);
+
+            ASSERT(!Y.isError());
+            ASSERT(ERR.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(S2 == ERR.errorMessage());
+        }
+
+        {
+            CERef CER(&BB, EAL::lookupTable()[ET::BDEM_DATE]);
+            Obj mX(ET::BDEM_CHAR, CER);  const Obj& X = mX;
+
+            ASSERT(X.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(S1 == X.errorMessage());
+
+            Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
+            const Obj ERR = Y.setValue(BB);
+
+            ASSERT(!Y.isError());
+            ASSERT(ERR.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(S2 == ERR.errorMessage());
+        }
+
+        {
+            ERef ER(&BB, EAL::lookupTable()[ET::BDEM_DATE]);
+            Obj mX(ET::BDEM_CHAR, ER);  const Obj& X = mX;
+
+            ASSERT(X.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            LOOP_ASSERT(X.errorMessage(), S1 == X.errorMessage());
+
+            Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
+            const Obj ERR = Y.setValue(BB);
+
+            ASSERT(!Y.isError());
+            ASSERT(ERR.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(S2 == ERR.errorMessage());
+        }
+
+        {
+            Obj mZ(ET::BDEM_DATE, BB);
+            Obj mX(ET::BDEM_CHAR, mZ);  const Obj& X = mX;
+
+            ASSERT(X.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(S1 == X.errorMessage());
+
+            Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
+            const Obj ERR = Y.setValue(BB);
+
+            ASSERT(!Y.isError());
+            ASSERT(ERR.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(S2 == ERR.errorMessage());
+        }
+    }
+}
 
 static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // --------------------------------------------------------------------
@@ -16066,8 +16158,9 @@ int main(int argc, char *argv[])
 #define CASE(NUMBER) \
     case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-        CASE(30);
+        CASE(31);
 #endif
+        CASE(30);
         CASE(29);
         CASE(28);
         CASE(27);
