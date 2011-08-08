@@ -166,6 +166,10 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
     };
 
   private:
+    typedef bsl::hash_map<bteso_Event,
+                          bteso_EventManager::Callback,
+                          bteso_EventHash>              EventMap;
+
     bcema_PoolAllocator d_eventsAllocator;   // event map allocator
 
     bsl::hash_map<bteso_Event, bteso_EventManager::Callback, bteso_EventHash>
@@ -188,12 +192,18 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
 
     bteso_TimeMetrics  *d_timeMetric; // time metrics given to this object
 
-    // TBD make iterator to avoid multiple lookups ?
-    bsl::vector<bteso_Event> d_signaledRead;
-    bsl::vector<bteso_Event> d_signaledWrite;
+    bsl::vector<EventMap::iterator> d_signaledRead;
+    bsl::vector<EventMap::iterator> d_signaledWrite;
                                       // temporary arrays used by dispatch
 
     // PRIVATE ACCESSORS
+    bool checkInternalInvariants();
+        // Verify that every socket handle that is registered in the
+        // specified 'events' is set in the appropriate set (e.g., either
+        // 'readSet' or 'writeSet' depending on whether or not this is a
+        // READ or WRITE event).  Return 'true' on success, and 'false'
+        // otherwise.
+
     int canBeRegistered(const bteso_SocketHandle::Handle& handle);
         // Return 1 if the specified 'handle' can be registered with this
         // 'select'-based event manager and 0 otherwise.

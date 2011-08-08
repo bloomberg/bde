@@ -41,16 +41,12 @@ using bsl::memset;
 
 namespace BloombergLP {
 
-typedef bsl::hash_map<bteso_Event,
-                      bteso_EventManager::Callback,
-                      bteso_EventHash>              EventMap;
-
 static bool compareFdSets(const fd_set& lhs, const fd_set& rhs)
     // Return 'true' if the specified 'lhs' and 'rhs' file descriptor sets are
     // equal, and 'false' otherwise.
 {
 #ifdef BTESO_PLATFORM__BSD_SOCKETS
-    return !!bsl::memcmp(&lhs, &rhs, sizeof(fd_set));                 // RETURN
+    return !bsl::memcmp(&lhs, &rhs, sizeof(fd_set));                 // RETURN
 #endif
 #ifdef BTESO_PLATFORM__WIN_SOCKETS
     if (lhs.fd_count != rhs.fd_count) {
@@ -70,24 +66,17 @@ static bool compareFdSets(const fd_set& lhs, const fd_set& rhs)
 
             // A socket handle, s, is in 'lhs' and not in 'rhs'.
 
-            return true;                                              // RETURN
+            return false;                                             // RETURN
         }
     }
-    return false;                                                     // RETURN
+    return true;
 #endif
 }
 
-static int internalInvariant(fd_set&         readSet,
-                             fd_set&         writeSet,
-                             fd_set&         exceptSet,
-                             const EventMap& events)
-    // Verify that every socket handle that is registered in the
-    // specified 'events' is set in the appropriate set (e.g., either
-    // 'readSet' or 'writeSet' depending on whether or not this is a
-    // READ or WRITE event) and return 0 on success and a non-zero value
-    // otherwise.
+bool
+bteso_DefaultEventManager<bteso_Platform::SELECT>::checkInternalInvariants()
 {
-    EventMap::const_iterator it(events.begin()), end(events.end());
+    EventMap::const_iterator it(d_events.begin()), end(d_events.end());
     fd_set readControl, writeControl, exceptControl;
     FD_ZERO(&readControl);
     FD_ZERO(&writeControl);
@@ -107,9 +96,9 @@ static int internalInvariant(fd_set&         readSet,
         }
     }
 
-    return compareFdSets(readSet, readControl)
-        || compareFdSets(writeSet, writeControl)
-        || compareFdSets(exceptSet, exceptControl);
+    return compareFdSets(d_readSet, readControl)
+        && compareFdSets(d_writeSet, writeControl)
+        && compareFdSets(d_exceptSet, exceptControl);
 }
 
 static inline void copySet(fd_set *dst, const fd_set& src)
@@ -166,11 +155,6 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
                                                        const fd_set& writeSet,
                                                        const fd_set& exceptSet)
 {
-    // Implementation note:
-    // 'ret' contains the number of socket-events signaled.  We mark up
-    // which are signaled and invoke the associated callbacks verifying
-    // before each invocation, that a callback is still registered.
-
     EventMap::iterator it(d_events.begin()), end(d_events.end());
 
     for (; numEvents > 0 && it != end; ++it) {
@@ -178,7 +162,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
         if (bteso_EventType::BTESO_READ == event.type()
          || bteso_EventType::BTESO_ACCEPT == event.type()) {
             if (FD_ISSET(event.handle(), &readSet)) {
-                d_signaledRead.push_back(event);
+                d_signaledRead.push_back(it);
                 --numEvents;
             }
         }
@@ -189,17 +173,17 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
 #else
             if (FD_ISSET(event.handle(), &writeSet)) {
 #endif
-                d_signaledWrite.push_back(event);
+                d_signaledWrite.push_back(it);
                 --numEvents;
             }
         }
     }
 
     int numDispatched = 0;
-    int numRead = d_signaledRead.size();
+    int numRead       = d_signaledRead.size();
 
     for (int i = 0; i < numRead; ++i) {
-        EventMap::iterator callbackIt = d_events.find(d_signaledRead[i]);
+        EventMap::iterator callbackIt = d_signaledRead[i];
         if (d_events.end() != callbackIt) {
             ++numDispatched;
             (callbackIt->second)();
@@ -209,7 +193,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
     int numWrite = d_signaledWrite.size();
 
     for (int i = 0; i < numWrite; ++i) {
-        EventMap::iterator callbackIt = d_events.find(d_signaledWrite[i]);
+        EventMap::iterator callbackIt = d_signaledWrite[i];
         if (d_events.end() != callbackIt) {
             ++numDispatched;
             (callbackIt->second)();
@@ -268,10 +252,7 @@ bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
 
 bteso_DefaultEventManager<bteso_Platform::SELECT>::~bteso_DefaultEventManager()
 {
-    BSLS_ASSERT(0 == internalInvariant(d_readSet,
-                                       d_writeSet,
-                                       d_exceptSet,
-                                       d_events));
+    BSLS_ASSERT(checkInternalInvariants());
     BSLS_ASSERT(0 == d_signaledRead.size());
     BSLS_ASSERT(0 == d_signaledWrite.size());
     d_events.clear();
