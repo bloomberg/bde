@@ -213,7 +213,7 @@ struct bteso_ResolveUtil {
         // Load into the specified 'result' the name of the local machine as
         // configured by the system administrator.  Return 0 on success, and
         // non-zero (with no effect on 'result') otherwise.  Note that on
-        // Windows 'bteso_SocketImpUtil::initialize()' must have been called to
+        // Windows 'bteso_SocketImpUtil::startup()' must have been called to
         // initialize the socket layer before calling this method.
 
     static ResolveByNameCallback setResolveByNameCallback(

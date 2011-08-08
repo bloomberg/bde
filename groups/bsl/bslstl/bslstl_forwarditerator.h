@@ -97,6 +97,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_removecvq.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ADDRESSOF
+#include <bsls_addressof.h>
+#endif
+
 #ifndef INCLUDED_ITERATOR
 #include <iterator>
 #define INCLUDED_ITERATOR
@@ -301,7 +305,7 @@ template <typename T, typename ITER_IMP, typename TAG_TYPE>
 inline
 T *bslstl_ForwardIterator<T,ITER_IMP,TAG_TYPE>::operator->() const
 {
-    return &(*d_imp);
+    return BSLS_ADDRESSOF(*d_imp);
 }
 
 template <typename T, typename ITER_IMP, typename TAG_TYPE>

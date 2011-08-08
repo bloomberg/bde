@@ -7,6 +7,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdeu_bitstringutil.h>
 #include <bdeu_print.h>
 
+#include <bslalg_swaputil.h>
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 
@@ -313,18 +314,10 @@ void bdea_BitArray::orEqual(int                  dstIndex,
 void bdea_BitArray::swap(bdea_BitArray& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
-
     BSLS_ASSERT(allocator() == other.allocator());
 
-    using bsl::swap;
-
-    swap(d_array, other.d_array);
-
-    // We cannot use the 'swap' found by ADL to swap lengths because there is
-    // a member 'swap' with two parameters of the same type as that found by
-    // ADL.
-
-    bsl::swap(d_length, other.d_length);
+    bslalg_SwapUtil::swap(&d_array, &other.d_array);
+    bslalg_SwapUtil::swap(&d_length, &other.d_length);
 }
 
 void bdea_BitArray::swap(int index1, int index2)

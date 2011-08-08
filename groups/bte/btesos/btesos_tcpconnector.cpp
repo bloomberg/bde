@@ -191,7 +191,8 @@ btesc_TimedChannel *btesos_TcpConnector::allocateTimed(int *status,
                                                       &d_pool);
     if (channel) {
         bsl::vector<btesc_Channel*>::iterator idx =
-               bsl::lower_bound(d_channels.begin(), d_channels.end(), channel);
+               bsl::lower_bound(d_channels.begin(), d_channels.end(),
+                                static_cast<btesc_Channel*>(channel));
         d_channels.insert(idx, channel);
     }
     return channel;

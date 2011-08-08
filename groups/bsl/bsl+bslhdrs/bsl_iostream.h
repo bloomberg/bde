@@ -41,9 +41,6 @@ namespace bsl
     using native_std::cerr;
     using native_std::cin;
     using native_std::clog;
-    using native_std::codecvt;
-    using native_std::codecvt_base;
-    using native_std::codecvt_byname;
     using native_std::cout;
     using native_std::ctype;
     using native_std::ctype_base;
@@ -73,7 +70,6 @@ namespace bsl
     using native_std::nounitbuf;
     using native_std::nouppercase;
     using native_std::num_get;
-    using native_std::num_put;
     using native_std::numpunct;
     using native_std::numpunct_byname;
     using native_std::oct;
