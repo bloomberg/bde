@@ -469,16 +469,13 @@ class bdem_TableImp {
         // internal allocation).  The behavior is undefined unless
         // '0 <= numBytes'.  Note that this method has no effect unless the
         // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
-    
+
     void reserveRowsRaw(bsl::size_t numRows);
-        // Reserve sufficient memory to guarantee minimal, allocation requests,
-        // linear in the number of rows, for at least the specified 'numRows'
-        // (i.e., allocating ionly a marginal, constant quantity of memory for
-        // each row).  The behavior is undefined  'unless '0 <= rows'.
-        // Note that this method has no effect unless the
-        // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
-
-
+        // Reserve sufficient memory to satisfy allocation requests for at
+        // least the specified 'numRows' with minimal replenishment (i.e.,
+        // with mininal internal allocation). The behavior is undefined unless
+        // '0 < numRows'.
+    
     void reset(const bdem_ElemType::Type     columnTypes[],
                int                           numColumns,
                const bdem_Descriptor *const *attrLookupTbl);
@@ -549,14 +546,17 @@ class bdem_TableImp {
         // more information on 'bdex' streaming of container types).
 
     // ACCESSORS
-    bsl::size_t getRowsCapacity() const;
-        // Return the number of rows for which memory has already been
-        // allocated (whether already inserted or not).
-    
     bdem_ElemType::Type columnType(int columnIndex) const;
         // Return the type of the column at the specified 'columnIndex' in this
         // table.  The behavior is undefined unless
         // '0 <= columnIndex < numColumns()'.
+    
+    bsl::size_t getRowsCapacityRaw() const;
+        // Return the number of rows for which memory has already been
+        // allocated (whether inserted or not).  Note that
+        // 'getRowsCapacityRaw() - size()' represents the number of rows that
+        // can be inserted with the guarantee of minimal memory replenishment
+        // (minimal internal allocation).
 
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified

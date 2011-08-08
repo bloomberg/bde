@@ -508,16 +508,22 @@ void bdem_TableImp::removeRow(int rowIndex)
                                        1);
 }
 
-bsl::size_t bdem_TableImp::getRowsCapacity() const 
+bsl::size_t bdem_TableImp::getRowsCapacityRaw() const
 {
     return d_rows.capacity();
 }
 
 void bdem_TableImp::reserveRowsRaw(bsl::size_t numRows)
 {
-    d_allocatorManager.reserveMemory(8 * numRows);
+    BSLS_ASSERT(0 < numRows);
+    
+    const int newSize = nullBitsArraySize(this->numRows() + numRows);
+    
+    d_allocatorManager.reserveMemory(8 * numRows + sizeof(int) * newSize);
     d_rowPool.reserveCapacity(numRows);
     d_rows.reserve(d_rows.size() + numRows);
+    
+    d_nullBits.reserve(d_nullBits.size() + newSize);
 }
 
 void bdem_TableImp::reset(const bdem_ElemType::Type  columnTypes[],
@@ -609,7 +615,7 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
         d_rows.reserve(originalSize + numRows);
         d_rowPool.reserveCapacity(numRows);
     }
-   
+
     bsl::vector<bdem_RowData *> tempRows;
     tempRows.resize(numRows);
 
@@ -682,7 +688,7 @@ void bdem_TableImp::insertNullRows(int dstRowIndex, int numRows)
         d_nullBits.resize(newSize, 0);
     }
 
-    
+
     if (!bdem_TableImp_geometricMemoryGrowthFlag) {
         d_rowPool.reserveCapacity(numRows);
         d_rows.reserve(this->numRows() + numRows);

@@ -487,6 +487,11 @@ class bdem_ChoiceArrayImp {
         // Remove the item stored at the specified 'dstIndex' in this choice
         // array imp.  The behavior is undefined unless
         // '0 <= dstIndex < length()'.
+    
+    void reserveItems(bsl::size_t numItems);
+        // Reserve sufficient memory to satisfy allocation requests for at
+        // least the specified 'numItems' without replenishment (i.e., without
+        // internal allocation).
 
     void reset();
         // Reset this choice array imp to the default-constructed state.

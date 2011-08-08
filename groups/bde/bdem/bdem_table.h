@@ -1040,6 +1040,12 @@ class bdem_Table {
         // '0 <= numBytes'.  Note that this method has no effect unless the
         // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
 
+    void reserveRowsRaw(bsl::size_t numRows);
+        // Reserve sufficient memory to satisfy allocation requests for at
+        // least the specified 'numRows' with minimal replenishment (i.e.,
+        // with mininal internal allocation). The behavior is undefined unless
+        // '0 < numRows'.
+    
     void reset(const bdem_ElemType::Type columnTypes[],
                int                       numColumns);
         // Remove all of the rows from this table and set the sequence of
@@ -1179,6 +1185,13 @@ class bdem_Table {
         // Load into the specified 'result', the sequence of column types in
         // this table.
 
+    bsl::size_t getRowsCapacityRaw() const;
+        // Return the number of rows for which memory has already been
+        // allocated (whether inserted or not).  Note that
+        // 'getRowsCapacityRaw() - size()' represents the number of rows that
+        // can be inserted with the guarantee of minimal memory replenishment
+        // (minimal internal allocation).
+    
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified
         // 'columnIndex' in any row of this table is null, and 'false'
@@ -1630,6 +1643,14 @@ void bdem_Table::reserveMemory(int numBytes)
 }
 
 inline
+void bdem_Table::reserveRowsRaw(bsl::size_t numRows)
+{
+    BSLS_ASSERT_SAFE(0 < numRows);
+
+    d_tableImp.reserveRowsRaw(numRows);
+}
+    
+inline
 void bdem_Table::reset(const bdem_ElemType::Type columnTypes[],
                        int                       numColumns)
 {
@@ -2051,6 +2072,12 @@ bdem_ElemType::Type bdem_Table::columnType(int columnIndex) const
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
 
     return d_tableImp.columnType(columnIndex);
+}
+
+inline
+bsl::size_t bdem_Table::getRowsCapacityRaw() const
+{
+    return d_tableImp.getRowsCapacityRaw();
 }
 
 inline

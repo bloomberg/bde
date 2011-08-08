@@ -291,7 +291,18 @@ static void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 typedef bdem_Table    Obj;
+typedef bdem_TableImp ObjImp;
 typedef bdem_ElemType ET;
+typedef bdem_AggregateOption::AllocationStrategy Strategy;
+
+static const bdem_AggregateOption::AllocationStrategy BDEM_PASS_THROUGH =
+             bdem_AggregateOption::BDEM_PASS_THROUGH;
+
+static const bdem_AggregateOption::AllocationStrategy BDEM_WRITE_MANY =
+             bdem_AggregateOption::BDEM_WRITE_MANY;
+
+static const bdem_AggregateOption::AllocationStrategy BDEM_WRITE_ONCE =
+             bdem_AggregateOption::BDEM_WRITE_ONCE;
 
         // Create Three Distinct Exemplars For Each Element Type
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1546,9 +1557,12 @@ class BdexHelper {
 #endif
 
 #define DEFINE_TEST_CASE(NUMBER)                                              \
-  void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
+  void testCase##NUMBER(bool verbose,\
+                        bool veryVerbose,\
+                        bool veryVeryVerbose,\
+                        bool veryVeryVeryVerbose)
 
-DEFINE_TEST_CASE(22) {
+DEFINE_TEST_CASE(23) {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Simple example illustrating how one might use a table.
@@ -2119,7 +2133,7 @@ DEFINE_TEST_CASE(22) {
 
       }
 
-DEFINE_TEST_CASE(21) {
+DEFINE_TEST_CASE(22) {
         // --------------------------------------------------------------------
         // TESTING BSLMA ALLOCATOR MODEL AND ALLOCATOR TRAITS
         //
@@ -2150,8 +2164,66 @@ DEFINE_TEST_CASE(21) {
         ASSERT((0 == bslmf_IsConvertible<bslma_Allocator*, Obj>::VALUE));
         ASSERT((1 ==
              bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
-
       }
+
+DEFINE_TEST_CASE(21) {
+    // --------------------------------------------------------------------
+    // TESTING 'reserveRowsRaw' and 'getRowsCapacityRaw'
+    //
+    // Concerns:
+    // 1 'reserveRowsRaw' correctly forwards to the method 
+    //   'bdem_TableImp::reserveRowsRaw'.
+    //
+    // Plan:
+    //
+    // Testing:
+    //   void reserveRowsRaw(int numRows);
+    // --------------------------------------------------------------------
+ 
+    if (verbose) cout << "\nTesting 'reserveRowsRaw'"
+                      << "\n=======================" << endl;
+    
+    static const Strategy STRATEGY_DATA[] = {
+            BDEM_PASS_THROUGH,
+            BDEM_WRITE_ONCE,
+            BDEM_WRITE_MANY
+    };
+    enum { STRATEGY_LEN = sizeof(STRATEGY_DATA) / sizeof(*STRATEGY_DATA) };
+    
+    for (int i = 0; i < STRATEGY_LEN; i++) {
+ 
+        const Strategy STRATEGY = STRATEGY_DATA[i];
+        
+        bslma_TestAllocator ta1("TestAllocator 1", veryVeryVeryVerbose);
+        bslma_TestAllocator ta2("TestAllocator 2", veryVeryVeryVerbose);
+    
+        Obj    mX(STRATEGY, &ta1); const Obj&    X = mX;
+        ObjImp mY(STRATEGY, &ta2); const ObjImp& Y = mY;
+        
+        for (int j = 1; j <= 1024; j <<= 1) {
+            mX.reserveRowsRaw(j);
+            mY.reserveRowsRaw(j);
+ 
+            LOOP4_ASSERT(i, 
+                         j,
+                         X.getRowsCapacityRaw(),
+                         Y.getRowsCapacityRaw(),
+                         X.getRowsCapacityRaw() == Y.getRowsCapacityRaw());
+ 
+            LOOP4_ASSERT(i,
+                         j,
+                         ta1.numBytesInUse(),
+                         ta2.numBytesInUse(),
+                         ta1.numBytesInUse() == ta2.numBytesInUse());
+            
+            LOOP4_ASSERT(i,
+                         j,
+                         ta1.numBytesTotal(),
+                         ta2.numBytesTotal(),
+                         ta1.numBytesTotal() == ta2.numBytesTotal());
+        }
+    }
+}
 
 DEFINE_TEST_CASE(20) {
         // --------------------------------------------------------------------
@@ -10950,10 +11022,11 @@ DEFINE_TEST_CASE(1) {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int  test = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose = argc > 2;
+    bool veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -10964,7 +11037,10 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
     // This macro would be conventional if it were not for the Windows platform
 #define CASE(NUMBER)                                                     \
-  case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose ); break
+  case NUMBER: testCase##NUMBER(verbose,\
+                                veryVerbose,\
+                                veryVeryVerbose,\
+                                veryVeryVeryVerbose ); break
         CASE(22);
         CASE(21);
         CASE(20);

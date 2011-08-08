@@ -554,6 +554,11 @@ class bdem_ChoiceArray {
         // array.  The behavior is undefined unless '0 <= typesCatalogLen' and
         // 'typesCatalog' has at least 'typesCatalogLen' values.
 
+    void reserveItems(bsl::size_t numItems);
+        // Reserve sufficient memory to satisfy allocation requests for at
+        // least the specified 'numItems' without replenishment (i.e., without
+        // internal allocation).
+
     void reset(const bsl::vector<bdem_ElemType::Type>& typesCatalog);
         // Destroy all choice array items in this choice array, remove them
         // from the array, and reset the types catalog to contain the types in
