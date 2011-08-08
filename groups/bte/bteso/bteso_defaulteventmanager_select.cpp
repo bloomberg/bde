@@ -117,7 +117,7 @@ static inline void copySet(fd_set *dst, const fd_set& src)
 
 static void convert(struct timeval           *result,
                     const bdet_TimeInterval&  value)
-    // TBD: Doc
+    // TBD: Do
 {
     BSLS_ASSERT(result);
 
@@ -155,6 +155,8 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
                                                        const fd_set& writeSet,
                                                        const fd_set& exceptSet)
 {
+    // Iterate through all the events to find out which file descriptors have
+    // been set and 
     EventMap::iterator it(d_events.begin()), end(d_events.end());
 
     for (; numEvents > 0 && it != end; ++it) {
