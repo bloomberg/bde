@@ -30,6 +30,12 @@ BSLS_IDENT("$Id: $")
 
 #endif  /* INCLUDED_NATIVE_C_MATH */
 
+// <math.h> header on Sun defines 'struct exception' which interferes with
+// 'std::exception'
+#if defined(BSLS_PLATFORM__CMP_SUN)
+#   define exception __math_exception
+#endif
+
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
 
 #   ifndef INCLUDED_BSL_STDHDRS_INCPATH
@@ -65,6 +71,10 @@ BSLS_IDENT("$Id: $")
 #   endif
 
 #endif  /* BSL_OVERRIDES_STD */
+
+#if defined(BSLS_PLATFORM__CMP_SUN)
+#   undef exception
+#endif
 
 /*
 // ---------------------------------------------------------------------------
