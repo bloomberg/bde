@@ -251,6 +251,21 @@ testInvocationCb(bool *isInvoked,                   bteso_EventManager *mX,
 
 #endif // BTESO_EVENTMANAGER_ENABLETEST
 
+static double dub(const bdet_TimeInterval& ti)
+{
+    return ti.totalSecondsAsDouble();
+}
+
+struct ShouldntBeCalled {
+    // This functor is to be used in situations where we don't expect it
+    // to be called.
+
+    void operator()()
+    {
+        ASSERT(0 && "*** ShouldntBeCalled called ***");
+    }
+};
+
 //==========================================================================
 //                      MAIN PROGRAM
 //--------------------------------------------------------------------------
@@ -882,69 +897,121 @@ int main(int argc, char *argv[]) {
         if (verbose)
             cout << "Verifying behavior on timeout (no sockets)." << endl;
         {
-            const int NUM_ATTEMPTS = 1000;
-            int failures = 0;  // due to time going backward on some systems
+            int nowFailures = 0;  // due to time going backward on some systems
+            int intFailures = 0;  // due to unexpected interrupts
+            const int NUM_ATTEMPTS = 5000;
+            double waitFrac = 0.010 / NUM_ATTEMPTS;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
-                bdet_TimeInterval deadline = bdetu_SystemTime::now();
 
-                deadline.addMilliseconds(i % 10);
-                deadline.addNanoseconds(i % 1000);
+                const double delay = i * waitFrac;
+                bdet_TimeInterval start = bdetu_SystemTime::now();
+                bdet_TimeInterval deadline = start + delay;
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
                                            bteso_Flag::BTESO_ASYNC_INTERRUPT));
 
-                bdet_TimeInterval now = bdetu_SystemTime::now();
-                if (now < deadline) {
-                    // We're willing to tolerate up to two documented failures.
-                    ++failures;
-                    cout << "*WARNING*  Time going backwards." << endl;
-                    P_(deadline); P(now);
-                }
-                LOOP3_ASSERT(i, deadline, now,
-                             deadline <= now || failures <= 2);
+                bdet_TimeInterval finish = bdetu_SystemTime::now();
+                const double dormant = dub(finish - start);
 
-                if (veryVerbose && deadline <= now) {
-                    P_(deadline); P(now);
+                if (dormant < 0) {
+                    // We observe that on Linux sometimes,
+                    // bdetu_SystemTime::now() gives grossly wrong results,
+                    // like 'dormant < -0.020'.
+
+                    ++nowFailures;
+                    cout << "*WARNING*  0 sockets: Time going backwards.  ";
+                    P(dormant);
+#if defined(BSLS_PLATFORM__OS_LINUX)
+                    LOOP_ASSERT(nowFailures, nowFailures <= 2);
+#else
+                    LOOP_ASSERT(nowFailures, 0 == nowFailures);
+#endif
+                }
+                else if (finish < deadline) {
+                    // We're willing to tolerate a limited number of documented
+                    // failures.
+
+                    ++intFailures;
+                    cout << "*WARNING*  0 sockets: Unexpected interrupt.\n";
+                    P_(delay);    P_(dub(deadline - finish));    P(dormant);
+
+                    // it is observed that on Linux, rarely does an interrupt
+                    // occur before 0.0033 seconds.
+
+                    ASSERT(dormant > 0.003);
+                    LOOP_ASSERT(intFailures, intFailures <= 2);
+                }
+
+                if (veryVerbose && deadline <= finish) {
+                    P_(delay); P_(dub(deadline - finish));  P(dormant);
                 }
             }
         }
+
         if (verbose)
             cout << "Verifying behavior on timeout (at least one socket)."
                  << endl;
         {
             SocketPair pair;
-            bdef_Function<void (*)()> nullFunctor;
-            int failures = 0;  // due to time going backward on some systems
+            ShouldntBeCalled shouldntBeCalled;
+            int nowFailures = 0;  // due to time going backward on some systems
+            int intFailures = 0;  // due to unexpected interrupts
             const int NUM_ATTEMPTS = 5000;
+            double waitFrac = 0.010 / NUM_ATTEMPTS;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(pair.serverFd(),
                                        bteso_EventType::BTESO_READ,
-                                       nullFunctor);
+                                       shouldntBeCalled);
 
-                bdet_TimeInterval deadline = bdetu_SystemTime::now();
-
-                deadline.addMilliseconds(i % 10);
-                deadline.addNanoseconds(i % 1000);
+                const double delay = i * waitFrac;
+                bdet_TimeInterval start = bdetu_SystemTime::now();
+                bdet_TimeInterval deadline = start + delay;
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
                                            bteso_Flag::BTESO_ASYNC_INTERRUPT));
 
-                bdet_TimeInterval now = bdetu_SystemTime::now();
-                if (now < deadline) {
-                    // We're willing to tolerate up to two documented failures.
-                    ++failures;
-                    cout << "*WARNING*  Time going backwards." << endl;
-                    P_(deadline); P(now);
-                }
-                LOOP3_ASSERT(i, deadline, now,
-                             deadline <= now || failures <= 2);
+                bdet_TimeInterval finish = bdetu_SystemTime::now();
+                const double dormant = dub(finish - start);
 
-                if (veryVerbose && deadline <= now) {
-                    P_(deadline); P(now);
+                if (dormant < 0) {
+                    // We observe that on Linux sometimes,
+                    // bdetu_SystemTime::now() gives grossly wrong results,
+                    // like 'dormant < -0.020'.
+
+                    ++nowFailures;
+                    cout << "*WARNING*  1 socket: Time going backwards.  ";
+                    P(dormant);
+#if defined(BSLS_PLATFORM__OS_LINUX)
+                    LOOP_ASSERT(nowFailures, nowFailures <= 2);
+#else
+                    LOOP_ASSERT(nowFailures, 0 == nowFailures);
+#endif
+                }
+                else if (finish < deadline) {
+                    // We're willing to tolerate a limited number of documented
+                    // failures.
+
+                    ++intFailures;
+                    cout << "*WARNING*  1 socket: Unexpected interrupt.\n";
+                    P_(delay);    P_(dub(deadline - finish));    P(dormant);
+
+                    // it is observed that on Linux, rarely does an interrupt
+                    // occur before 0.0033 seconds.
+
+                    ASSERT(dormant > 0.003);
+#ifdef BSLS_PLATFORM__OS_LINUX
+                    LOOP_ASSERT(intFailures, intFailures <= 20);
+#else
+                    LOOP_ASSERT(intFailures, intFailures <= 2);
+#endif
+                }
+
+                if (veryVerbose && deadline <= finish) {
+                    P_(delay); P_(dub(deadline - finish));  P(dormant);
                 }
             }
         }
