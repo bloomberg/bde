@@ -1340,7 +1340,7 @@ int main(int argc, char *argv[])
         //   TBD...
         //
         // Tested:
-        //   operator bdema_ManagedPtr_Ref<OTHER>();
+        //   operator bdema_ManagedPtr_Ref<BDEMA_OTHER_TYPE>();
         //   bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
         //   bdema_ManagedPtr(bdema_ManagedPtr &original);
         // --------------------------------------------------------------------
@@ -1427,7 +1427,22 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
+//#define BDEMA_TEST_COMPILE_TIME_FAIL_INCOMPATIBLE_POINTERS
+#if defined BDEMA_TEST_COMPILE_TIME_FAIL_INCOMPATIBLE_POINTERS
+        {
+            int x;
+            bdema_ManagedPtr<int> i_ptr(&x, 0, &countedNilDelete);
+            bdema_ManagedPtr<double> d_ptr(i_ptr);
 
+            struct local_factory {
+                static bdema_ManagedPtr<double> exec() {
+                    return bdema_ManagedPtr<double>();
+                }
+            };
+
+            bdema_ManagedPtr<long> l_ptr(local_factory::exec());
+        }
+#endif
       } break;
       case 8: {
         // --------------------------------------------------------------------

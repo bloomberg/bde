@@ -1212,6 +1212,8 @@ template <class BDEMA_OTHER_TYPE>
 inline
 bdema_ManagedPtr<BDEMA_TYPE>::operator bdema_ManagedPtr_Ref<BDEMA_OTHER_TYPE>()
 {
+    BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TYPE *,
+                                      BDEMA_OTHER_TYPE *>::VALUE));
     return bdema_ManagedPtr_Ref<BDEMA_OTHER_TYPE>(&d_members);
 }
 
