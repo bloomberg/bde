@@ -420,7 +420,6 @@ public:
         // value, and the specified 'deleter' function, using the specified
         // 'factory'.
 
-
     void setAliasPtr(void *ptr);
         // The specified 'ptr' points to the object
         // that will be referred to by the '*' and '->' operators, while the
@@ -616,7 +615,10 @@ class bdema_ManagedPtr {
         // '0 == ptr', then this object will be initialized to an unset state.
         // The behavior is undefined if 'ptr' is already managed by another
         // managed pointer.  Note that behavior is undefined unless 'deleter'
-        // accepts null pointers in the second argument.
+        // accepts null pointers in the second argument.  Note that this
+        // constructor is needed only to support passing a null pointer literal
+        // as the factory object when the user passes a deleter taking
+        // 'BDEMA_TYPE' rather than 'void *', and the factory type is not used.
 
     template <class FACTORY>
     bdema_ManagedPtr(BDEMA_TYPE *ptr,
@@ -633,10 +635,9 @@ class bdema_ManagedPtr {
 
     ~bdema_ManagedPtr();
         // Destroy this managed pointer object and any managed instance by
-        // invoking the user-supplied deleter.
-        // AJM : note that this destructor does nothing if this object is unset
-        //       i.e. it is managing a null pointer.
-        // AJM : Note that even aliased null pointers do not execute a deleter.
+        // invoking the user-supplied deleter.  Note that this destructor does
+        // nothing if this object is unset, i.e. it is managing a null pointer.
+        // The deleter will *not* be called in such cases.
 
     // MANIPULATORS
     bdema_ManagedPtr& operator=(bdema_ManagedPtr& rhs);
@@ -722,7 +723,10 @@ class bdema_ManagedPtr {
         // that if '0 == ptr', then this object will be initialized to an unset
         // state.  The behavior is undefined if 'ptr' is already managed by
         // another managed pointer, or if 'deleter' does not support null
-        // pointer values in its second argument.
+        // pointer values in its second argument.  Note that this overload is
+        // needed only to support passing a null pointer literal as the factory
+        // object when the user passes a deleter taking 'BDEMA_TYPE' rather
+        // than 'void *', and the factory type is not used.
 
     template <class FACTORY>
     void load(BDEMA_TYPE *ptr,

@@ -1461,15 +1461,16 @@ int main(int argc, char *argv[])
         //:   a null pointer for the deleter, but a non-null pointer to the
         //:   managed object.
         //:
+        //: 5 It must be possible to pass a null-pointer constant for the
+        //:   'factory' argument when the specified 'deleter' will use only the
+        //:   managed pointer value.
         //
-        //   Exercise all declared constructors of ManagedPtr and conversion
-        //   operator ManagedPtrRef().  Note that ManagedPtrRef normally just
-        //   exists to facilitate copies and assignments of one managedptr to
-        //   another, however, it is a good idea to test it explicitly
-        //   because on some platforms, such as Sun, it is unnecessary and
-        //   does not come into play when copying and assigning ManagedPtr's.
-        //   Note that the primary accessor, 'ptr', cannot be considered to be
-        //   validated until after testing the alias support, test case 11.
+        //   Exercise each declared constructors of ManagedPtr (other than
+        //   those already tested in an earlier test case; those constructors
+        //   that implement move semantics; and the constructor that enables
+        //   aliasing).  Note that the primary accessor, 'ptr', cannot be
+        //   considered to be validated until after testing the alias support,
+        //   see test case 11.
         //
         // Plan:
         //   TBD...
@@ -1548,6 +1549,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tTest bdema_ManagedPtr(BDEMA_TYPE *ptr,"
                              " bdema_ManagedPtr_Nullptr::Type,"
                              " void(*)(BDEMA_TYPE *, void*));\n";
+
+        numDeletes = 0;
+        LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+        {
+            bslma_TestAllocatorMonitor tam(ta);
+
+            MyTestObject obj(&numDeletes);
+            Obj o(&obj, 0, &countedNilDelete);
+        }
+        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
 
       } break;
       case 7: {
