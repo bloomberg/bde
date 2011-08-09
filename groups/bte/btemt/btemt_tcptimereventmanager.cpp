@@ -816,10 +816,14 @@ void btemt_TcpTimerEventManager::controlCb()
                 bool result = true;
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-                result = ((bteso_DefaultEventManager<bteso_Platform::SELECT> *)
-                                            d_manager_p)->canRegisterSockets();
+                bteso_DefaultEventManager<bteso_Platform::SELECT> *selectMgr =
+             dynamic_cast<bteso_DefaultEventManager<bteso_Platform::SELECT> *>(
+                                                                  d_manager_p);
+                BSLS_ASSERT(selectMgr);
+                result = selectMgr->canRegisterSockets();
+#else
+                BSLS_ASSERT(false);
 #endif
-
                 req->setResult((int) result);
                 req->signal();
             } break;
