@@ -813,19 +813,20 @@ void btemt_TcpTimerEventManager::controlCb()
                 req->signal();
             } break;
             case btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKETS: {
+#ifdef BSLS_PLATFORM__OS_WINDOWS
                 bool result = true;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
                 bteso_DefaultEventManager<bteso_Platform::SELECT> *selectMgr =
              dynamic_cast<bteso_DefaultEventManager<bteso_Platform::SELECT> *>(
                                                                   d_manager_p);
                 BSLS_ASSERT(selectMgr);
                 result = selectMgr->canRegisterSockets();
+
+                req->setResult((int) result);
+                req->signal();
 #else
                 BSLS_ASSERT(false);
 #endif
-                req->setResult((int) result);
-                req->signal();
             } break;
             case btemt_TcpTimerEventManager_Request::IS_REGISTERED: {
                 req->setResult(
@@ -1580,33 +1581,67 @@ bool btemt_TcpTimerEventManager::canRegisterSockets() const
 {
 #ifdef BSLS_PLATFORM__OS_WINDOWS
     if (bcemt_ThreadUtil::isEqual(bcemt_ThreadUtil::self(), d_dispatcher)) {
-        return ((bteso_DefaultEventManager<bteso_Platform::SELECT> *)
-                                 d_manager_p)->canRegisterSockets();  // RETURN
+        bteso_DefaultEventManager<bteso_Platform::SELECT> *selectMgr =
+             dynamic_cast<bteso_DefaultEventManager<bteso_Platform::SELECT> *>(
+                                                                  d_manager_p);
+
+        BSLS_ASSERT(selectMgr);
+
+        return selectMgr->canRegisterSockets();                       // RETURN
     }
 
-    bcemt_Mutex     mutex;
-    bcemt_Condition condition;
+    bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_stateLock);
 
-    btemt_TcpTimerEventManager_Request *req =
-        new (d_requestPool) btemt_TcpTimerEventManager_Request(
+    if (BTEMT_DISABLED == d_state) {
+        d_stateLock.unlock();
+        d_stateLock.lockWrite();
+    }
+
+    bool result;
+
+    switch (d_state) {
+      case BTEMT_ENABLED: {
+        // Processing thread is enabled -- enqueue the request.
+
+        bcemt_Mutex     mutex;
+        bcemt_Condition condition;
+
+        btemt_TcpTimerEventManager_Request *req =
+            new (d_requestPool) btemt_TcpTimerEventManager_Request(
                       btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKETS,
                       &condition,
                       &mutex,
                       d_allocator_p);
-    d_requestQueue.pushBack(req);
-    BSLS_ASSERT(-1 == req->result());
+        d_requestQueue.pushBack(req);
+        BSLS_ASSERT(-1 == req->result());
 
-    bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
+        bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
+        int ret = d_controlChannel.clientWrite();
+        if (0 > ret) {
+            d_requestQueue.popBack();
+            d_requestPool.deleteObjectRaw(req);
+            result = false;
+        }
+        else {
+            req->waitForResult();
+            result = (bool) req->result();
+            d_requestPool.deleteObjectRaw(req);
+        }
+      } break;
+      case BTEMT_DISABLED: {
+        // Processing thread is disabled -- upgrade to write lock
+        // and process request in this thread.
 
-    int ret = d_controlChannel.clientWrite();
-    if (0 > ret) {
-        d_requestQueue.popBack();
-        d_requestPool.deleteObjectRaw(req);
-        return false;                                                 // RETURN
+        bteso_DefaultEventManager<bteso_Platform::SELECT> *selectMgr =
+             dynamic_cast<bteso_DefaultEventManager<bteso_Platform::SELECT> *>(
+                                                                  d_manager_p);
+
+        BSLS_ASSERT(selectMgr);
+
+        result = selectMgr->canRegisterSockets();
+      }
     }
-    req->waitForResult();
-    bool result = req->result();
-    d_requestPool.deleteObjectRaw(req);
+
     return result;
 #else
     return true;
@@ -1635,7 +1670,7 @@ int btemt_TcpTimerEventManager::isRegistered(
       case BTEMT_ENABLED: {
         // Processing thread is enabled -- enqueue the request.
 
-        bcemt_Mutex mutex;
+        bcemt_Mutex     mutex;
         bcemt_Condition condition;
         btemt_TcpTimerEventManager_Request *req =
             new (d_requestPool) btemt_TcpTimerEventManager_Request(
