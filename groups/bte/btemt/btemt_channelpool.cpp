@@ -2288,14 +2288,16 @@ btemt_ChannelPool::allocateEventManager()
     BSLS_ASSERT(numManagers == d_config.maxThreads());
 
     if (1 == numManagers) {
-        return d_managers[0];                                         // RETURN
+        return d_managers[0]->canRegisterSockets()
+             ? d_managers[0]
+             : createNewEventManagers();                              // RETURN
     }
 
     int result = 0;
 
     // Check if *any* event manager can register additional sockets.  If none
     // can then return failure.
- 
+
     while (!d_managers[result]->canRegisterSockets()) {
         ++result;
         if (result >= numManagers) {
