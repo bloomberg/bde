@@ -562,13 +562,13 @@ class bdema_ManagedPtr {
         // pointer.  Note that 'other' will be re-initialized to an unset
         // state.
 
-    template <class BDEMA_OTHER_TYPE>
-    bdema_ManagedPtr(bdema_ManagedPtr<BDEMA_OTHER_TYPE>& other);
-        // Construct a 'bdema_ManagedPtr' and transfer the value and ownership
-        // from the specified 'other' managed pointer this managed pointer.
-        // Note that 'other' will be re-initialized to an unset state.
-        // Compilation will fail unless 'BDEMA_OTHER_TYPE *' is convertible to
-        // 'BDEMA_TYPE*'.
+    //template <class BDEMA_OTHER_TYPE>
+    //bdema_ManagedPtr(bdema_ManagedPtr<BDEMA_OTHER_TYPE>& other);
+    //    // Construct a 'bdema_ManagedPtr' and transfer the value and ownership
+    //    // from the specified 'other' managed pointer this managed pointer.
+    //    // Note that 'other' will be re-initialized to an unset state.
+    //    // Compilation will fail unless 'BDEMA_OTHER_TYPE *' is convertible to
+    //    // 'BDEMA_TYPE*'.
 
     template <class BDEMA_OTHER_TYPE>
     bdema_ManagedPtr(bdema_ManagedPtr<BDEMA_OTHER_TYPE>& alias,
@@ -940,14 +940,14 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(bdema_ManagedPtr& other)
 {
 }
 
-template <class BDEMA_TYPE>
-template <class BDEMA_OTHER_TYPE>
-inline
-bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
-                                     bdema_ManagedPtr<BDEMA_OTHER_TYPE>& other)
-:   d_members(other.d_members)
-{
-}
+//template <class BDEMA_TYPE>
+//template <class BDEMA_OTHER_TYPE>
+//inline
+//bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
+//                                     bdema_ManagedPtr<BDEMA_OTHER_TYPE>& other)
+//:   d_members(other.d_members)
+//{
+//}
 
 template <class BDEMA_TYPE>
 template <class BDEMA_OTHER_TYPE>
