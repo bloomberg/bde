@@ -21,9 +21,11 @@
  an accurate reflection of specific dependencies; only the absolute levels are
  significant.
 ..
-   Level  9: bdempu
+   Level  10: bdempu
 
-   Level  8: bdecs      bdem      bdepu     bdesu
+   Level  9: bdem
+
+   Level  8: bdecs      bdepu     bdesu
 
    Level  7: bdeat      bdec      bdec2     bdetu
 
