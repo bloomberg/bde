@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide definitions for terms used throughout BDE documentation.
 //
-//@CLASSES: none
+//@CLASSES:
 //
 //@AUTHOR:
 //

@@ -30,16 +30,16 @@ BDES_IDENT("$Id: $")
 ///Transfer Encoding
 ///-----------------
 // RFC 2616 permits a sender of HTTP to apply a transfer coding to an entity
-// body.  A transfer coding defines how the entity body a tranferred through
-// the network.  RFC 2616 defines two standard codings: the "identity" coding
-// and the "chunked" coding. The identity coding indicates the sender has
-// performed no transformation of the entity body.  The chunked coding,
+// body.  A transfer coding defines how the entity body will be transferred
+// through the network.  RFC 2616 defines two standard codings: the "identity"
+// coding and the "chunked" coding.  The identity coding indicates the sender
+// has performed no transformation of the entity body.  The chunked coding,
 // however, allows a sender to transmit the body as a sequence of "chunks",
 // where each chunk consists of a small header followed by a portion of the
-// entity body optionally followed by a small footer.  The chunked transfer
+// entity body followed, optionally, by a small footer.  The chunked transfer
 // coding enables a sender to transmit earlier protions of an entity body
 // before later portions are fully formed.  An example application of the
-// chunked transfer coding is an HTTP server asychronously loading a large
+// chunked transfer coding is an HTTP server asynchronously loading a large
 // resource from disk.  If the size of the resource exceeds the memory
 // constraints of the process the server can use the chunked transfer coding
 // to load portions of the resource and transmit them as-needed.  The
@@ -56,20 +56,23 @@ BDES_IDENT("$Id: $")
 // delivering the contents of a file to a client.  For simplicity, let's
 // assume the existence of mechanisms that enable the server implementation to
 // parse a message arriving on a connection into a requested filename.  Given
-// that assumption, let's now declare a simple server API.  The following
-// 'handleRequest' function accepts the name of the requested file and also a
-// pointer to a stream buffer to which to send the response.
+// that assumption, let's now declare a simple server API.   We start by
+// forward-declaring the two functions that comprise our API: 'handleRequest'
+// and 'handleError'.  First, let's forward-declare a 'handleRequest' function
+// that accepts the name of the requested file and also a pointer to a stream
+// buffer to which to send the response.
 //..
 //  void handleRequest(bsl::streambuf     *connectionToClient,
 //                     const bsl::string&  filename);
 //..
-// We also need a 'handleError' function that, instead of delivering the
-// contents of a file, delivers some sort of error error to the client.
+// Next, let's forward-declare a 'handleError' function that, instead of
+// delivering the contents of a file, delivers some sort of error error to the
+// client.
 //..
 //  void handleError(bsl::streambuf     *connectionToClient,
 //                   const bsl::string&  body);
 //..
-// Now let's implement the 'handleRequest' function to read the file from disk
+// Now, let's implement the 'handleRequest' function to read the file from disk
 // and send it to the client.  Since the requested file may be larger than
 // what can fit in the process's memory space, we'll read the file from disk
 // in small chunks, transmitting each chunk to the client using the chunked
@@ -89,7 +92,7 @@ BDES_IDENT("$Id: $")
 //          return;
 //      }
 //..
-// Next, define an HTTP header that indicates a successful response delivered
+// Next, define an HTTP header that indicates a successful response, delivered
 // using the chunked transfer coding.
 //..
 //      baenet_HttpResponseHeader header;
@@ -100,15 +103,18 @@ BDES_IDENT("$Id: $")
 //
 //      header.basicFields().transferEncoding().push_back(
 //                              baenet_HttpTransferEncoding::BAENET_CHUNKED);
-//
+//..
+// Then, let's use the 'baenet_HttpGeneratorUtil' functions to begin generating
+// a new HTTP entity.
+//..
 //      int retCode = baenet_HttpGeneratorUtil::generateHeader(
 //                                                       connectionToClient,
 //                                                       statusLine,
 //                                                       header);
 //      assert(0 == retCode);
 //..
-// Now, read the file into 1K buffers, transmitting each buffer as a "chunk"
-// in the HTTP data stream.  Transmit the final "chunk" when no more data can
+// Next, read the file into 1K buffers, generating each 1K buffer as a "chunk"
+// in the HTTP data stream.  Generate the final "chunk" when no more data can
 // be read from the file.
 //..
 //      bool isFinalFlag;
@@ -131,9 +137,10 @@ BDES_IDENT("$Id: $")
 //      while (!isFinalFlag);
 //  }
 //..
-// Finally, let's implement the 'handleError' function to synchronously
-// construct an HTTP entity that describes the error loading the file from
-// disk.
+// Next, let's implement the 'handleError' function to synchronously construct
+// an HTTP entity that describes the error loading the file from disk.  Note
+// that, unlike the implementation of 'handleRequest', we need not use any
+// transfer coding since we have the entire response in memory.
 //..
 //  void handleError(bsl::streambuf     *connectionToClient,
 //                   const bsl::string&  body)
@@ -147,7 +154,10 @@ BDES_IDENT("$Id: $")
 //      statusLine.reasonPhrase() = "File not found";
 //
 //      header.basicFields().contentLength() = body.size();
-//
+//..
+// Finally, let's again use the 'baenet_HttpGeneratorUtil' functions to
+// generate the HTTP entity.
+//..
 //      retCode = baenet_HttpGeneratorUtil::generateHeader(connectionToClient,
 //                                                         statusLine,
 //                                                         header);
@@ -166,6 +176,14 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BAENET_HTTPTRANSFERENCODING
 #include <baenet_httptransferencoding.h>
+#endif
+
+#ifndef INCLUDED_BCEMA_BLOBUTIL
+#include <bcema_blobutil.h>
+#endif
+
+#ifndef INCLUDED_BCESB_BLOBSTREAMBUF
+#include <bcesb_blobstreambuf.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -187,21 +205,16 @@ class baenet_HttpStatusLine;
 
 struct baenet_HttpGeneratorUtil {
     // This struct provides a suite of utilities to generate HTTP entities.
-    // This struct is completely thread safe.
+    // The functions provided are all thread safe.
 
     // CLASS METHODS
     static int generateHeader(bcema_Blob                      *result,
                               const baenet_HttpRequestLine&    requestLine,
                               const baenet_HttpRequestHeader&  header);
-        // Append to the specified 'result' the beginning of a new HTTP
-        // entity having the specified 'requestLine' and header fields
-        // contained in the specified request 'header'.  Return 0 on success
-        // and a non-zero value otherwise.
-
-    static int generateHeader(bsl::streambuf                  *destination,
+    static int generateHeader(bsl::streambuf                  *result,
                               const baenet_HttpRequestLine&    requestLine,
                               const baenet_HttpRequestHeader&  header);
-        // Write to the specified 'destination' the beginning of a new
+        // Append or write to the specified 'result' the beginning of a new
         // HTTP entity having the specified 'requestLine' and header fields
         // contained in the specified request 'header'.  Return 0 on success
         // and a non-zero value otherwise.
@@ -209,95 +222,65 @@ struct baenet_HttpGeneratorUtil {
     static int generateHeader(bcema_Blob                       *result,
                               const baenet_HttpStatusLine&      statusLine,
                               const baenet_HttpResponseHeader&  header);
-        // Append to the specified 'result' the beginning of a new HTTP entity
-        // having the specified 'statusLine' and header fields contained in
-        // the specified response 'header'.  Return 0 on success and a non-zero
-        // value otherwise.
-
-    static int generateHeader(bsl::streambuf                   *destination,
+    static int generateHeader(bsl::streambuf                   *result,
                               const baenet_HttpStatusLine&      statusLine,
                               const baenet_HttpResponseHeader&  header);
-        // Write to the specified 'destination' the beginning of a new HTTP
-        // entity having the specified 'statusLine' and header fields
+        // Append or write to the specified 'result' the beginning of a new
+        // HTTP entity having the specified 'statusLine' and header fields
         // contained in the specified response 'header'.  Return 0 on success
         // and a non-zero value otherwise.
 
     static int generateBody(bcema_Blob                         *result,
                             const bcema_Blob&                   data);
-        // Append to the specified 'result' the HTTP entity content defined
-        // by the specified 'data'.  Note that the entity content is not
-        // transfer-encoded.  Return 0 on success and non-zero value otherwise.
+    static int generateBody(bsl::streambuf                     *destination,
+                            const bcema_Blob&                   data);
+        // Append or write to the specified 'result' the HTTP entity content
+        // defined by the specified 'data'.  Note that the entity content is
+        // not transfer-encoded.  Return 0 on success and non-zero value
+        // otherwise.
 
     static int generateBody(bcema_Blob                         *result,
                             const void                         *data,
                             int                                 numBytes);
-        // Append to the specified 'result' the HTTP entity content defined
-        // by the specified 'numBytes' of 'data'.  Note that the entity
-        // content is not transfer-encoded.  Return 0 on success and non-zero
-        // value otherwise.
-
-    static int generateBody(bsl::streambuf                     *destination,
-                            const bcema_Blob&                   data);
-        // Write to the specified 'destination' the HTTP entity content defined
-        // by the specified 'data'.  Note that the entity content is not
-        // transfer-encoded.  Return 0 on success and non-zero value otherwise.
-
-     static int generateBody(bsl::streambuf                    *destination,
-                             const void                        *data,
-                             int                                numBytes);
-        // Write to the specified 'destination' the HTTP entity content defined
-        // by the specified 'numBytes' of 'data'.  Note that the entity
-        // content is not transfer-encoded.  Return 0 on success and non-zero
-        // value otherwise.
+    static int generateBody(bsl::streambuf                     *result,
+                            const void                         *data,
+                            int                                 numBytes);
+        // Append or write to the specified 'result' the HTTP entity content
+        // defined by the specified 'numBytes' of 'data'.  Note that the
+        // entity content is not transfer-encoded.  Return 0 on success and
+        // non-zero value otherwise.
 
     static int generateBody(bcema_Blob                         *result,
                             const bcema_Blob&                   data,
                             baenet_HttpTransferEncoding::Value  encoding,
                             bool                                isFinalFlag);
-        // Append to the specified 'result' the next portion of HTTP entity
-        // content defined by the specified 'data' transfer-encoded according
-        // to the specified 'encoding'.  Specify an 'isFinalFlag' to indicate
-        // whether 'data' is the final portion of the HTTP entity content.
-        // Note that 'isFinalFlag' is ignored unless 'encoding' refers to a
-        // chunked transfer coding.  Return 0 on success and a non-zero value
-        // otherwise.
+    static int generateBody(bsl::streambuf                     *result,
+                            const bcema_Blob&                   data,
+                            baenet_HttpTransferEncoding::Value  encoding,
+                            bool                                isFinalFlag);
+        // Append or write to the specified 'result' the next portion of HTTP
+        // entity content defined by the specified 'data' transfer-encoded
+        // according to the specified 'encoding'.  Specify an 'isFinalFlag' to
+        // indicate whether 'data' is the final portion of the HTTP entity
+        // content.  Note that 'isFinalFlag' is ignored unless 'encoding'
+        // refers to a chunked transfer coding.  Return 0 on success and a
+        // non-zero value otherwise.
 
     static int generateBody(bcema_Blob                         *result,
                             const void                         *data,
                             int                                 length,
                             baenet_HttpTransferEncoding::Value  encoding,
                             bool                                isFinalFlag);
-        // Append to the specified 'result' the next portion of HTTP entity
-        // content defined by the specified 'data' having the specified
+    static int generateBody(bsl::streambuf                     *result,
+                            const void                         *data,
+                            int                                 length,
+                            baenet_HttpTransferEncoding::Value  encoding,
+                            bool                                isFinalFlag);
+        // Append or write to the specified 'result' the next portion of HTTP
+        // entity content defined by the specified 'data' having the specified
         // 'numBytes' of 'data' transfer-encoded according to the specified
         // 'encoding'.  Specify an 'isFinalFlag' flag to indicate whether
         // 'data' is the final portion of the HTTP entity content.  Note that
-        // 'isFinalFlag' is ignored unless 'encoding' refers to a chunked
-        // transfer coding.  Return 0 on success and a non-zero value
-        // otherwise.
-
-    static int generateBody(bsl::streambuf                     *destination,
-                            const bcema_Blob&                   data,
-                            baenet_HttpTransferEncoding::Value  encoding,
-                            bool                                isFinalFlag);
-        // Write to the specified 'destination' the next portion of HTTP
-        // entity content defined by the specified 'data' transfer-encoded
-        // according to the specified 'encoding'.  Specify an 'isFinalFlag'
-        // flag to indicate whether 'data' is the final portion of the HTTP
-        // entity content.  Note that 'isFinalFlag' is ignored unless
-        // 'encoding' refers to a chunked transfer coding.  Return 0 on
-        // success and a non-zero value otherwise.
-
-    static int generateBody(bsl::streambuf                     *destination,
-                            const void                         *data,
-                            int                                 length,
-                            baenet_HttpTransferEncoding::Value  encoding,
-                            bool                                isFinalFlag);
-        // Write to the specified 'destination' the next portion of HTTP
-        // entity content defined by the specified 'data' having the specified
-        // 'numBytes' of 'data' transfer-encoded according to the specified
-        // 'encoding'.  Specify an 'isFinalFlag' to indicate whether 'data'
-        // is the final portion of the HTTP entity content.  Note that
         // 'isFinalFlag' is ignored unless 'encoding' refers to a chunked
         // transfer coding.  Return 0 on success and a non-zero value
         // otherwise.
@@ -306,6 +289,50 @@ struct baenet_HttpGeneratorUtil {
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+                     // ------------------------------
+                     // class baenet_HttpGeneratorUtil
+                     // ------------------------------
+
+inline
+int baenet_HttpGeneratorUtil::generateHeader(
+        bcema_Blob                      *result,
+        const baenet_HttpRequestLine&    requestLine,
+        const baenet_HttpRequestHeader&  header)
+{
+    bcesb_OutBlobStreamBuf osb(result);
+    return generateHeader(&osb, requestLine, header);
+}
+
+inline
+int baenet_HttpGeneratorUtil::generateHeader(
+        bcema_Blob                       *result,
+        const baenet_HttpStatusLine&      statusLine,
+        const baenet_HttpResponseHeader&  header)
+{
+    bcesb_OutBlobStreamBuf osb(result);
+    return generateHeader(&osb, statusLine, header);
+}
+
+inline
+int baenet_HttpGeneratorUtil::generateBody(bcema_Blob        *result,
+                                           const bcema_Blob&  data)
+{
+    bcema_BlobUtil::append(result, data);
+    return 0;
+}
+
+inline
+int baenet_HttpGeneratorUtil::generateBody(bcema_Blob *result,
+                                           const void *data,
+                                           int         numBytes)
+{
+    bcema_BlobUtil::append(result,
+                           static_cast<const char*>(data),
+                           0,
+                           numBytes);
+    return 0;
+}
 
 }  // close namespace BloombergLP
 
@@ -319,4 +346,3 @@ struct baenet_HttpGeneratorUtil {
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
-

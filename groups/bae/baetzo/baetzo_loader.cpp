@@ -1,7 +1,6 @@
 // baetzo_loader.cpp                                                  -*-C++-*-
 #include <baetzo_loader.h>
 
-#include <baetzo_errorcode.h>           // for testing only
 #include <baetzo_zoneinfo.h>            // for testing only
 
 #include <bdes_ident.h>

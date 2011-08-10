@@ -33,11 +33,7 @@ namespace bsl
     using native_std::bad_exception;
     using native_std::basic_streambuf;
     using native_std::bidirectional_iterator_tag;
-    using native_std::codecvt;
-    using native_std::codecvt_base;
-    using native_std::codecvt_byname;
     using native_std::ctype;
-    using native_std::ctype_base;
     using native_std::ctype_byname;
     using native_std::exception;
     using native_std::forward_iterator_tag;
