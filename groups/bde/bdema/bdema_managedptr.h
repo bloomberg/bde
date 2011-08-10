@@ -1008,7 +1008,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
                                                bdema_ManagedPtr_Nullptr::Type,
                                           void (*deleter)(BDEMA_TYPE *, void*))
 : d_members(stripPointerType(ptr),
-            stripPointerType(ptr),
             0,
             reinterpret_cast<DeleterFunc>(deleter))
 {
