@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for hash functions
 //
 //@CLASSES:
-//   bsl:hash: hash function for primitive types
+//   bsl::hash: hash function for primitive types
 //
 //@SEE_ALSO: bsl+stdhdrs
 //

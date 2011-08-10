@@ -10,10 +10,10 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide implementation meta-functions for alignment computation.
 //
 //@CLASSES:
-//  bsls_AlignmentImpCalc: map 'TYPE' parameter to alignment 'VALUE'
-//  bsls_AlignmentImpMatch: namespace for overloaded 'match' functions
+//            bsls_AlignmentImpCalc: map 'TYPE' parameter to alignment 'VALUE'
+//           bsls_AlignmentImpMatch: namespace for overloaded 'match' functions
 //  bsls_AlignmentImpPriorityToType: map 'PRIORITY' parameter to primitive type
-//  bsls_AlignmentImpTag: unique type corresponding to a 'SIZE' parameter
+//             bsls_AlignmentImpTag: unique type of size 'SIZE' (parameter)
 //
 //@SEE_ALSO: bsls_alignmentfromtype, bsls_alignmenttotype, bsls_alignmentutil
 //
