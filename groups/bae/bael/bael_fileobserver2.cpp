@@ -21,7 +21,6 @@ BDES_IDENT_RCSID(bael_fileobserver2_cpp,"$Id$ $CSID$")
 
 #include <bdem_list.h>
 
-#include <bdetu_datetime.h>
 #include <bdetu_systemtime.h>
 
 #include <bdef_memfn.h>
@@ -33,13 +32,11 @@ BDES_IDENT_RCSID(bael_fileobserver2_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstdio.h>
 #include <bsl_iomanip.h>
-#include <bsl_iosfwd.h>    // for 'bsl::streamoff' type
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
 #include <bsl_c_errno.h>
 #include <bsl_c_time.h>
-
 #include <bsl_c_stdio.h>   // for 'snprintf'
 
 #ifdef BSLS_PLATFORM__OS_UNIX
@@ -107,8 +104,8 @@ void getLogFileName(bsl::string                  *logFileName,
     // Load, into the specified 'logFileName', the filename that is obtained by
     // replacing every '%'-escape sequence in the specified 'logFilePattern'
     // with the corresponding field of the local time calculated from the
-    // current time in GMT and the specified 'localTimeOffset'.  Load the
-    // current time in GMT into the specified 'timestamp'.
+    // current time in UTC and the specified 'localTimeOffset'.  Load the
+    // current time in UTC into the specified 'timestamp'.
 {
     BSLS_ASSERT(logFileName);
     BSLS_ASSERT(timestamp);
@@ -169,20 +166,20 @@ void getLogFileName(bsl::string                  *logFileName,
     *logFileName = os.str();
 }
 
-bool hasDatetimeInfo(const char *fileNamePattern)
-    // Return 'true' if the specified 'fileNamePattern' contains a recognized
+bool hasDatetimeInfo(const char *logFilePattern)
+    // Return 'true' if the specified 'logFilePattern' contains a recognized
     // '%'-escape sequence, and false otherwise.  The recognized escape
     // sequence are "%Y", "%M", "%D", "%h", "%m", "%s", and "%%".
 
 {
-    for (const char *c = fileNamePattern; *c != '\0'; ++c) {
-        if ('%' == *c) {
-            ++c;
-            if ('\0' == *c) {
+    for (; *logFilePattern; ++logFilePattern) {
+        if ('%' == *logFilePattern) {
+            ++logFilePattern;
+            if ('\0' == *logFilePattern) {
                 return false;                                         // RETURN
             }
 
-            switch(*c) {
+            switch(*logFilePattern) {
               case 'Y':
               case 'M':
               case 'D':
@@ -209,11 +206,10 @@ int openLogFile(bsl::ostream *stream, const char *filename)
     BSLS_ASSERT(filename);
 
     const bool fileExistFlag = bdesu_FileUtil::exists(filename);
-    bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(
-                                                         filename,
-                                                         true,
-                                                         fileExistFlag,
-                                                         true);
+    bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(filename,
+                                                             true,
+                                                             fileExistFlag,
+                                                             true);
 
     bdesu_FdStreamBuf *streamBuf = dynamic_cast<bdesu_FdStreamBuf *>(
                                                               stream->rdbuf());
@@ -230,13 +226,34 @@ int openLogFile(bsl::ostream *stream, const char *filename)
     }
 
     if (fileExistFlag) {
-        // On some platforms, the put pointer is not set to the end of file
-        // until the first output.
+        // Set the put pointer to the end of the file because the put pointer
+        // may not be set until the first output on some platforms.
 
         stream->seekp(0, bsl::ios::end);
     }
     stream->clear();
     return 0;
+}
+
+void getNextRotationDatetime(bdet_Datetime                *result,
+                             const bdet_Datetime&          startTime,
+                             const bdet_DatetimeInterval&  interval,
+                             const bdet_Datetime&          fileCreationTime)
+    // Load, into the specified 'result', the next scheduled rotation time
+    // after the specified 'fileCreationTime' for a schedule that has a start
+    // reference time indicated by the specified 'startTime' and rotated every
+    // specified 'interval'.
+{
+    BSLS_ASSERT(result);
+
+    int timeLeft = -((fileCreationTime - startTime).totalMilliseconds()
+                    % interval.totalMilliseconds());
+    if (0 >= timeLeft) {
+        timeLeft += interval.totalMilliseconds();
+    }
+
+    *result = fileCreationTime;
+    result->addMilliseconds(timeLeft);
 }
 
 }  // close unnamed namespace
@@ -338,7 +355,14 @@ int bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
         }
     }
 
-    if (0 != openLogFile(&d_logFileStream, d_logFileName.c_str())) {
+    if (0 < d_rotationInterval.totalSeconds()) {
+        getNextRotationDatetime(&d_nextRotationTime,
+                                d_rotationReferenceTime,
+                                d_rotationInterval,
+                                d_logFileTimestamp);
+    }
+
+    if (0 != openLogFile(&d_logOutStream, d_logFileName.c_str())) {
         fprintf(stderr, "Cannot open new log file: %s\n",
                 d_logFileName.c_str());
         return ROTATE_SUCCESS != returnStatus
@@ -351,10 +375,10 @@ int bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
 
 int  bael_FileObserver2::rotateIfNecessary(
                                       bsl::string          *rotatedLogFileName,
-                                      const bdet_Datetime& currentLogTime)
+                                      const bdet_Datetime&  currentLogTime)
 {
     BSLS_ASSERT(d_rotationSize >= 0);
-    BSLS_ASSERT(d_rotationLifetime.totalSeconds() >= 0);
+    BSLS_ASSERT(d_rotationInterval.totalSeconds() >= 0);
     BSLS_ASSERT(rotatedLogFileName);
 
     if (!d_logStreamBuf.isOpened()) {
@@ -365,15 +389,15 @@ int  bael_FileObserver2::rotateIfNecessary(
         // 'tellp' returns -1 on failure.  Rotate the log file if either
         // 'tellp' fails, or the rotation size is exceeded.
 
-        if (static_cast<bsls_Types::Uint64>(d_logFileStream.tellp()) >
+        if (static_cast<bsls_Types::Uint64>(d_logOutStream.tellp()) >
             static_cast<bsls_Types::Uint64>(d_rotationSize) * 1024) {
 
             return rotateFile(rotatedLogFileName);                    // RETURN
         }
     }
 
-    if (d_rotationLifetime.totalSeconds()
-              && (currentLogTime - d_logFileTimestamp) >= d_rotationLifetime) {
+    if (d_rotationInterval.totalSeconds()
+     && d_nextRotationTime < currentLogTime) {
         return rotateFile(rotatedLogFileName);                        // RETURN
     }
     return 1;
@@ -382,7 +406,7 @@ int  bael_FileObserver2::rotateIfNecessary(
 // CREATORS
 bael_FileObserver2::bael_FileObserver2(bslma_Allocator *basicAllocator)
 : d_logStreamBuf(bdesu_FileUtil::INVALID_FD, false)
-, d_logFileStream(&d_logStreamBuf)
+, d_logOutStream(&d_logStreamBuf)
 , d_logFilePattern(basicAllocator)
 , d_logFileName(basicAllocator)
 , d_logFileFunctor(
@@ -391,7 +415,7 @@ bael_FileObserver2::bael_FileObserver2(bslma_Allocator *basicAllocator)
 , d_localTimeOffset(bdetu_SystemTime::localTimeOffset())
 , d_publishInLocalTime(false)
 , d_rotationSize(0)
-, d_rotationLifetime(0)
+, d_rotationInterval(0)
 , d_onRotationCb()
 , d_rotationCbMutex()
 {
@@ -415,8 +439,13 @@ void bael_FileObserver2::disableFileLogging()
 
 void bael_FileObserver2::disableLifetimeRotation()
 {
+    disableTimeIntervalRotation();
+}
+
+void bael_FileObserver2::disableTimeIntervalRotation()
+{
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    d_rotationLifetime.setTotalSeconds(0);
+    d_rotationInterval.setTotalSeconds(0);
 }
 
 void bael_FileObserver2::disableSizeRotation()
@@ -446,7 +475,21 @@ int bael_FileObserver2::enableFileLogging(const char *fileNamePattern)
                    d_logFilePattern.c_str(),
                    d_localTimeOffset);
 
-    return openLogFile(&d_logFileStream, d_logFileName.c_str());
+    // Use the last modification time of the log file if it exists.  The
+    // 'getLastModificationTime' method will simply fail without modifying
+    // 'd_logFileTimestamp' if the log file does not already exists.
+
+    bdesu_FileUtil::getLastModificationTime(&d_logFileTimestamp,
+                                            d_logFileName);
+
+    if (0 < d_rotationInterval.totalSeconds()) {
+        getNextRotationDatetime(&d_nextRotationTime,
+                                d_rotationReferenceTime,
+                                d_rotationInterval,
+                                d_logFileTimestamp);
+    }
+
+    return openLogFile(&d_logOutStream, d_logFileName.c_str());
 }
 
 int bael_FileObserver2::enableFileLogging(const char *fileNamePattern,
@@ -501,9 +544,9 @@ void bael_FileObserver2::publish(const bael_Record&  record,
                                            record.fixedFields().timestamp());
 
         if (d_logStreamBuf.isOpened()) {
-            d_logFileFunctor(d_logFileStream, record);
+            d_logFileFunctor(d_logOutStream, record);
 
-            if (!d_logFileStream) {
+            if (!d_logOutStream) {
                 fprintf(stderr, "Error on file stream for %s: %s\n",
                         d_logFileName.c_str(), bsl::strerror(getErrorCode()));
 
@@ -523,11 +566,33 @@ void bael_FileObserver2::publish(const bael_Record&  record,
 void bael_FileObserver2::rotateOnLifetime(
                                      const bdet_DatetimeInterval& timeInterval)
 {
-    const int totalSeconds = timeInterval.totalSeconds();
-    BSLS_ASSERT(totalSeconds > 0);
+    rotateOnTimeInterval(timeInterval);
+}
+
+void bael_FileObserver2::rotateOnTimeInterval(
+                                         const bdet_DatetimeInterval& interval)
+{
+    rotateOnTimeInterval(interval, bdetu_SystemTime::nowAsDatetimeLocal());
+}
+
+void bael_FileObserver2::rotateOnTimeInterval(
+                               const bdet_DatetimeInterval& interval,
+                               const bdet_Datetime&         referenceStartTime)
+{
+    BSLS_ASSERT(0 < interval.totalMilliseconds());
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    d_rotationLifetime.setTotalSeconds(totalSeconds);
+    d_rotationInterval = interval;
+    d_rotationReferenceTime = referenceStartTime - d_localTimeOffset;
+
+    // Need to determine the next rotation time if the file is already opened.
+
+    if (d_logStreamBuf.isOpened()) {
+        getNextRotationDatetime(&d_nextRotationTime,
+                                d_rotationReferenceTime,
+                                d_rotationInterval,
+                                d_logFileTimestamp);
+    }
 }
 
 void bael_FileObserver2::rotateOnSize(int size)
@@ -556,9 +621,6 @@ void bael_FileObserver2::setOnFileRotationCallback(
 bool bael_FileObserver2::isFileLoggingEnabled() const
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-
-    // The standard says that 'fstream::is_open()' is a non-'const' method.
-    // However, 'streambuf::is_open()' is 'const'.
 
     return d_logStreamBuf.isOpened();
 }
@@ -589,7 +651,7 @@ bool bael_FileObserver2::isPublishInLocalTimeEnabled() const
 bdet_DatetimeInterval bael_FileObserver2::rotationLifetime() const
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    return d_rotationLifetime;
+    return d_rotationInterval;
 }
 
 int bael_FileObserver2::rotationSize() const
