@@ -273,6 +273,7 @@ bool veryVeryVeryVerbose;
 class MyTestObject;
 class MyDerivedObject;
 class MySecondDerivedObject;
+
 typedef MyTestObject TObj;
 typedef bdema_ManagedPtr<MyTestObject> Obj;
 typedef bdema_ManagedPtr<const MyTestObject> CObj;
@@ -402,6 +403,12 @@ class CountedStackDeleter {
 int g_deleteCount = 0;
 
 static void countedNilDelete(void *, void*) {
+    static int& deleteCount = g_deleteCount;
+    ++g_deleteCount;
+}
+
+template<class TARGET_TYPE>
+static void templateNilDelete(TARGET_TYPE *, void*) {
     static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
 }
@@ -1512,6 +1519,32 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            bslma_Allocator * pNullAlloc = 0;
+            TObj *p = new (ta) MyTestObject(&numDeletes);
+            ASSERT_SAFE_FAIL_RAW(Obj x(p, pNullAlloc));
+            ASSERT_SAFE_PASS_RAW(Obj y(p, &ta));
+            ASSERT_SAFE_PASS_RAW(Obj z(0, pNullAlloc));
+
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+
+//#define BDEMA_MANAGEDPTR_TEST_NULL_FACTORY_COMPILE_FAIL
+#if defined(BDEMA_MANAGEDPTR_TEST_NULL_FACTORY_COMPILE_FAIL)
+        {
+            int i = 0;
+            bdema_ManagedPtr<int> x(&i, 0);
+            bdema_ManagedPtr<int> x(0, 0);
+        }
+#endif
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout <<
@@ -1556,7 +1589,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocatorMonitor tam(ta);
 
             MyTestObject obj(&numDeletes);
-            Obj o(&obj, 0, &countedNilDelete);
+            Obj o(&obj, 0, &templateNilDelete<MyTestObject>);
         }
         ASSERT(1 == numDeletes);
         LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);

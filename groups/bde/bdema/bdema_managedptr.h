@@ -512,6 +512,8 @@ class bdema_ManagedPtr {
         // function.
 
     // NOT IMPLEMENTED
+    bdema_ManagedPtr(BDEMA_TYPE *ptr, bdema_ManagedPtr_Nullptr::Type);
+
     void operator==(const bdema_ManagedPtr&) const;
     void operator!=(const bdema_ManagedPtr&) const;
         // The two operator overloads are declared as 'private' but never
