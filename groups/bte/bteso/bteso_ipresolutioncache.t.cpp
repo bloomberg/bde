@@ -209,9 +209,8 @@ extern "C" void* MyThread(void* arg_p) {
 
 class TestResolver {
     // DATA
-    int  d_count;
-    int  d_numAddresses;
-    bool d_exceptionFlag;
+    static int  s_count;
+    static int  s_numAddresses;
 
   public:
     // CLASS METHOD
@@ -231,12 +230,9 @@ class TestResolver {
                          // TestResolver
                          // ------------
 
-TestResolver::TestResolver()
-: d_count(0);
-, d_numAddresses(1);
-, d_exceptionFlag(false);
-{
-}
+
+int TestResolver::s_count        = 0;
+int TestResolver::s_numAddresses = 1;
 
 int TestResolver::callback(bsl::vector<bteso_IPv4Address> *hostAddresses,
                            const char                     *hostName,
