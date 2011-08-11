@@ -558,21 +558,17 @@ private:
         // from the managed pointer referred-to by the specified 'ref' object
         // to this managed pointer.  Note that the managed pointer referred-to
         // by 'ref' will be re-initialized to an unset state.  This constructor
-        // is used to construct from a managed pointer rvalue.
+        // is used to construct from a managed pointer rvalue, or from a
+        // managed pointer to a "compatible" type, where "compatible" means a
+        // built-in conversion from 'OTHER_TYPE *' to 'BDEMA_TYPE *' is
+        // defined, e.g, 'derived *' -> 'base *', 'int *' -> 'const int *', or
+        // 'any_type *' -> 'void *'.
 
     bdema_ManagedPtr(bdema_ManagedPtr& other);
         // Construct a 'bdema_ManagedPtr' and transfer the value and ownership
         // from the specified 'other' managed pointer to this managed
         // pointer.  Note that 'other' will be re-initialized to an unset
         // state.
-
-    //template <class BDEMA_OTHER_TYPE>
-    //bdema_ManagedPtr(bdema_ManagedPtr<BDEMA_OTHER_TYPE>& other);
-    //    // Construct a 'bdema_ManagedPtr' and transfer the value and ownership
-    //    // from the specified 'other' managed pointer this managed pointer.
-    //    // Note that 'other' will be re-initialized to an unset state.
-    //    // Compilation will fail unless 'BDEMA_OTHER_TYPE *' is convertible to
-    //    // 'BDEMA_TYPE*'.
 
     template <class BDEMA_OTHER_TYPE>
     bdema_ManagedPtr(bdema_ManagedPtr<BDEMA_OTHER_TYPE>& alias,
@@ -948,15 +944,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(bdema_ManagedPtr& other)
 : d_members(other.d_members)
 {
 }
-
-//template <class BDEMA_TYPE>
-//template <class BDEMA_OTHER_TYPE>
-//inline
-//bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
-//                                     bdema_ManagedPtr<BDEMA_OTHER_TYPE>& other)
-//:   d_members(other.d_members)
-//{
-//}
 
 template <class BDEMA_TYPE>
 template <class BDEMA_OTHER_TYPE>

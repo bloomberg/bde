@@ -940,8 +940,12 @@ int main(int argc, char *argv[])
         // CLEAR and RELEASE
         //
         // Concerns:
-        //   That clear and release work properly.
-        //   Clear reclaims resources/runs deleter
+        //: 1 'clear' destroys the managed object (if any) and re-ininitializes
+        //:   the managed pointer to an unset state.
+        //:
+        //: 2 'clear' destroys any managed object using the stored 'deleter'.
+        //:
+        //   That release works properly.
         //   Release gives up ownership of resources without running deleters
         //
         //   Test each function behaves correctly given one of the following
@@ -959,7 +963,7 @@ int main(int argc, char *argv[])
         //
         // Tested:
         //   void clear();
-        //   bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
+        //   bsl::pair<TYPE*, bdema_ManagedPtrDeleter> release();
         //
         // ADD NEGATIVE TESTING FOR operator*()
         // --------------------------------------------------------------------
@@ -1259,11 +1263,11 @@ int main(int argc, char *argv[])
         // ALIAS SUPPORT TEST
         //
         // Concerns:
-        //   class can hold an alias
+        //   managed pointer can hold an alias
         //   'ptr()' returns the alias pointer, and not the managed pointer
         //   correct deleter is run when an aliased pointer is destroyed
-        //   appropriate object as cleared/deleters run when assigning to/from an aliased managed pointer
-        //   class can alias itself
+        //   appropriate object is cleared/deleters run when assigning to/from an aliased managed pointer
+        //   a managed pointer can alias itself
         //   alias type need not be the same as the managed type (often isn't)
         //   aliasing a null pointer clears the managed pointer, releasing any previously held object
         //
@@ -1554,7 +1558,7 @@ int main(int argc, char *argv[])
         //   contract).
         //
         // Tested:
-        //   bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
+        //   bdema_ManagedPtr(BDEMA_TYPE *ptr, FACTORY *factory)
         //   bdema_ManagedPtr(BDEMA_TYPE *, void *, DeleterFunc);
         //   bdema_ManagedPtr(BDEMA_TYPE *,
         //                    void *, 
