@@ -467,9 +467,12 @@ class bdema_ManagedPtr {
     // Nevertheless, both shall exist or else the managed pointer is *unset*
     // (i.e., manages no object, has no deleter, and points to 0).
 
-    // PRIVATE TYPES
+    // INTERFACE TYPES
+public:
     typedef bdema_ManagedPtrDeleter::Deleter DeleterFunc;
 
+private:
+    // PRIVATE TYPES
     typedef typename bsls_UnspecifiedBool<bdema_ManagedPtr>::BoolType BoolType;
     // 'BoolType' is an alias for an unspecified type that is implicitly
     // convertible to 'bool', but will not promote to 'int'.  This (opaque)

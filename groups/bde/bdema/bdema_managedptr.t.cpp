@@ -1360,47 +1360,95 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest operator bdema_ManagedPtr_Ref<OTHER>()\n";
 
-        int numDeletes = 0;
+        LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
         {
-            // this test tests creation of a ref from the same type of
-            // managedPtr, then assignment to a managedptr.
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
 
-            Obj o2;
+            int numDeletes = 0;
+
             {
-                TObj *p = new (da) MyTestObject(&numDeletes);
-                Obj o(p);
+                TObj x(&numDeletes);
+                Obj  o(&x, 0, countedNilDelete);
 
                 bdema_ManagedPtr_Ref<TObj> r = o;
-                o2 = r;
+                LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+                ASSERT(0 == numDeletes);
 
-                ASSERT(o2.ptr() == p);
+                ASSERT(&x == r.base()->pointer());
+                ASSERT(&x == r.base()->deleter().object());
+                ASSERT(0 == r.base()->deleter().factory());
+                ASSERT(&countedNilDelete == r.base()->deleter().deleter());
             }
-            ASSERT(0 == numDeletes);
+            LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+            ASSERT(1 == numDeletes);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+
+//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_CONVERT_TO_REF_FROM_CONST
+#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_CONVERT_TO_REF_FROM_CONST)
+            {
+                TObj x(&numDeletes);
+                const Obj o(&x, 0, countedNilDelete);
+
+                bdema_ManagedPtr_Ref<TObj> r = o;   // should not compile
+                LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+                ASSERT(0 == numDeletes);
+            }
+#endif
         }
-        ASSERT(1 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\tbdema_ManagedPtr(bdema_ManagedPtr &original)\n";
+        if (verbose) cout << "\tbdema_ManagedPtr(bdema_ManagedPtr &donor)\n";
 
-        numDeletes = 0;
         {
-            TObj *p = new (da) MyTestObject(&numDeletes);
-            Obj o(p);
-            ASSERT(o.ptr() == p);
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
 
-            Obj o2(o);
-            ASSERT(o2.ptr() == p);
-            ASSERT(0 == o.ptr());
+            g_deleteCount = 0;
+            int numDeletes = 0;
+            {
+                TObj x(&numDeletes);
+                Obj  o(&x, 0, countedNilDelete);
+                ASSERT(&x == o.ptr());
+
+                Obj o2(o);
+                ASSERT( 0 ==  o.ptr());
+                ASSERT(&x == o2.ptr());
+                ASSERT(&x == o2.deleter().object());
+                ASSERT( 0 == o2.deleter().factory());
+                ASSERT(&countedNilDelete == o2.deleter().deleter());
+            }
+
+            LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+            ASSERT(1 == numDeletes);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+
+//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_MOVE_CONSTRUCT_FROM_CONST
+#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_MOVE_CONSTRUCT_FROM_CONST)
+            {
+                TObj x(&numDeletes);
+                const Obj  o(&x, 0, countedNilDelete);
+                ASSERT(&x == o.ptr());
+
+                Obj o2(o);  // should not compile
+                ASSERT(!"The preceding line should not have compiled");
+            }
+#endif
         }
-        ASSERT(1 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout <<
              "\tTest bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref)\n";
 
-        numDeletes = 0;
+        int numDeletes = 0;
         {
             // this cast tests both a cast while creating the ref,
             // and the constructor from a ref.
@@ -1434,6 +1482,16 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
+// examples to demonstrate:
+        // Moving from lvalues:
+        //   derived->base
+        //   no-cv -> const
+        //   anything -> void
+        //
+        // Moving from rvalues:
+        //   as above, plus...
+        //   rvalue of same type
+
 //#define BDEMA_TEST_COMPILE_TIME_FAIL_INCOMPATIBLE_POINTERS
 #if defined BDEMA_TEST_COMPILE_TIME_FAIL_INCOMPATIBLE_POINTERS
         {
@@ -1449,6 +1507,11 @@ int main(int argc, char *argv[])
 
             bdema_ManagedPtr<long> l_ptr(local_factory::exec());
         }
+
+        // Additional failures to demonstrate
+        //   base -> derived type (a likely user error)
+        //   const -> non-const
+        //   void -> anything but void
 #endif
       } break;
       case 8: {
@@ -1568,20 +1631,47 @@ int main(int argc, char *argv[])
             bslma_TestAllocatorMonitor dam(da);
 
             {
-                typedef void (*DeleterFunc)(MyTestObject *, void *);
-                DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
+                Obj::DeleterFunc deleter = &bdema_ManagedPtr_FactoryDeleter<
+                                   MyTestObject, bslma_TestAllocator>::deleter;
 
                 bslma_TestAllocatorMonitor tam(ta);
 
                 TObj *p = new (ta) MyTestObject(&numDeletes);
-                Obj o(p, (void *) &ta, deleterFunc);
+                Obj o(p, &ta, deleter);
+
+                ASSERT(o.ptr() == p);
+                ASSERT(o.deleter().object() == p);
+                ASSERT(o.deleter().factory() == &ta);
+                ASSERT(o.deleter().deleter() == deleter);
             }
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+#ifdef BDE_BUILD_TARGET_EXC
+            if (verbose) cout << "\t\tNegative testing\n";
+
+            {
+                bslma_TestAllocatorMonitor tam(ta);
+
+                bsls_AssertTestHandlerGuard guard;
+
+                Obj::DeleterFunc deleter = 0;
+                TObj *p = new (ta) MyTestObject(&numDeletes);
+
+                ASSERT_SAFE_FAIL_RAW(Obj o(p, &ta, deleter));
+                ASSERT_SAFE_FAIL_RAW(Obj o(p, &ta, 0));
+
+                // clean-up
+                ta.deleteObject(p);
+            }
+#else
+            if (verbose) cout << "\tNegative testing disabled due to lack of "
+                                 "exception support\n";
+#endif
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
             ASSERT(gam.isInUseSame());
             ASSERT(gam.isMaxSame());
         }
-        ASSERT(1 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1596,7 +1686,6 @@ int main(int argc, char *argv[])
 
             bslma_TestAllocatorMonitor tam(ta);
             {
-
                 TObj *p = new (ta) MyTestObject(&numDeletes);
                 Obj o(p, &ta, &myTestDeleter);
             }
