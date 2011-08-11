@@ -50,9 +50,9 @@ BDES_IDENT("$Id: $")
 // an invalid New York local time, since clocks were advanced by one hour as of
 // 2:00am EST.  The change from EDT back to EST in New York in 2010 occurred on
 // November 7 as of 2:00am EDT.  Due to this transition, "Nov 7, 2010 1:30am"
-// is a valid New York local time, but it is ambiguous because it corresponds
-// to two possible clock times, 1:30am EDT and 1:30am EST (since clocks were
-// regressed by one hour as of 2:00am EDT).
+// is a valid New York local time.  However, that local time is ambiguous
+// because it corresponds to two possible clock times, 1:30am EDT and 1:30am
+// EST, since clocks were regressed by one hour as of 2:00am EDT (7:00am GMT).
 //
 ///Usage
 ///-----
@@ -70,7 +70,7 @@ BDES_IDENT("$Id: $")
 //  baetzo_LocalTimeValidity::Enum value =
 //                            baetzo_LocalTimeValidity::BAETZO_VALID_AMBIGUOUS;
 //..
-// Next, we store a pointer to its ASCII representation in a variable
+// Now, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
 //..
 //  const char *asciiValue = baetzo_LocalTimeValidity::toAscii(value);
@@ -134,16 +134,16 @@ struct baetzo_LocalTimeValidity {
         // for this and all of its nested objects.  If 'level' is negative,
         // suppress indentation of the first line.  If 'spacesPerLevel' is
         // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.  See 'toAscii' for
+        // the initial indentation (as governed by 'level').  See 'toAscii' for
         // what constitutes the string representation of a
         // 'baetzo_LocalTimeValidity::Enum' value.
 
     static const char *toAscii(baetzo_LocalTimeValidity::Enum value);
         // Return the non-modifiable string representation corresponding to the
-        // specified enumeration 'value'.  The string representation of 'value'
-        // matches its corresponding enumerator name with the "BAETZO_" prefix
-        // elided.  For example:
+        // specified enumeration 'value', if it exists, and a unique (error)
+        // string otherwise.  The string representation of 'value' matches its
+        // corresponding enumerator name with the "BAETZO_" prefix elided.  For
+        // example:
         //..
         //  bsl::cout << baetzo_LocalTimeValidity::toAscii(
         //                      baetzo_LocalTimeValidity::BAETZO_VALID_UNIQUE);
@@ -163,8 +163,7 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
                          baetzo_LocalTimeValidity::Enum value);
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
-    // reference to 'stream'.  If 'stream' is not valid on entry, this
-    // operation has no effect.  See 'toAscii' for what constitutes the string
+    // reference to 'stream'.  See 'toAscii' for what constitutes the string
     // representation of a 'baetzo_LocalTimeValidity::Enum' value.  Note that
     // this method has the same behavior as
     //..
@@ -191,11 +190,11 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
