@@ -1326,8 +1326,8 @@ int main(int argc, char *argv[])
         // MOVE-SEMANTICS
         //
         // Concerns:
-        //: 1 No constructor allocates any memory from the default or global
-        //:   allocators.
+        //: 1 No constructor nor conversion operator allocates any memory from
+        //:   the default or global allocators.
         //:
         //: 2 Each constructor takes ownership of the passed managed object.
         //:
@@ -1391,6 +1391,38 @@ int main(int argc, char *argv[])
             ASSERT(gam.isInUseSame());
             ASSERT(gam.isMaxSame());
 
+            g_deleteCount = 0;
+            numDeletes = 0;
+            {
+                // To test conversion from an rvalue, we must bind the
+                // the temporary to a function argument in order to prolong the
+                // lifetime of the temporary until after testing is complete.
+                // We must bind the temporary to a 'bdema_ManagedPtr_Ref' and
+                // not a whole 'bdema_ManagedPtr' because we are testing an
+                // implementation detail of that move-constructor that would be
+                // invoked.
+                struct local {
+                    static void test(void * px,
+                                     bdema_ManagedPtr_Ref<TObj> r) {
+                        LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+
+                        ASSERT(px == r.base()->pointer());
+                        ASSERT(px == r.base()->deleter().object());
+                        ASSERT(0 == r.base()->deleter().factory());
+                        ASSERT(&countedNilDelete == r.base()->deleter().deleter());
+                    }
+                };
+
+                TObj x(&numDeletes);
+                local::test( &x, (Obj(&x, 0, countedNilDelete)));
+            }
+            LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+            ASSERT(1 == numDeletes);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+
 //#define BDEMA_MANAGEDPTR_COMPILE_FAIL_CONVERT_TO_REF_FROM_CONST
 #if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_CONVERT_TO_REF_FROM_CONST)
             {
@@ -1417,6 +1449,28 @@ int main(int argc, char *argv[])
             {
                 TObj x(&numDeletes);
                 Obj  o(&x, 0, countedNilDelete);
+                ASSERT(&x == o.ptr());
+
+                Obj o2(o);
+                ASSERT( 0 ==  o.ptr());
+                ASSERT(&x == o2.ptr());
+                ASSERT(&x == o2.deleter().object());
+                ASSERT( 0 == o2.deleter().factory());
+                ASSERT(&countedNilDelete == o2.deleter().deleter());
+            }
+
+            LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+            ASSERT(1 == numDeletes);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+
+            g_deleteCount = 0;
+            numDeletes = 0;
+            {
+                TObj x(&numDeletes);
+                Obj  o = Obj(&x, 0, countedNilDelete);
                 ASSERT(&x == o.ptr());
 
                 Obj o2(o);
