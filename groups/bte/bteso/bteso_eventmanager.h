@@ -193,6 +193,14 @@ class bteso_EventManager {
         // handle.
 
     // ACCESSORS
+    virtual bool canRegisterSockets() const = 0;
+        // Return 'true' if this event manager can register additional sockets,
+        // and 'false' otherwise.
+
+    virtual bool hasLimitedSocketCapacity() const = 0;
+        // Return 'true' if this event manager has limited socket capacity, and
+        // 'false' otherwise.
+
     virtual int isRegistered(const bteso_SocketHandle::Handle& handle,
                              const bteso_EventType::Type       event)
                                                                      const = 0;

@@ -415,6 +415,14 @@ class bteso_DefaultEventManager<bteso_Platform::POLL>
         // handle.
 
     // ACCESSORS
+    bool canRegisterSockets() const;
+        // Return 'true' if this event manager can register additional sockets,
+        // and 'false' otherwise.
+
+    bool hasLimitedSocketCapacity() const;
+        // Return 'true' if this event manager has limited socket capacity, and
+        // 'false' otherwise.
+
     int isRegistered(const bteso_SocketHandle::Handle& handle,
                      const bteso_EventType::Type       event) const;
         // Return 1 if the specified 'event' is registered with this event
@@ -428,6 +436,29 @@ class bteso_DefaultEventManager<bteso_Platform::POLL>
         // Return the number of socket events currently registered with this
         // event manager for the specified 'handle'.
 };
+
+//-----------------------------------------------------------------------------
+//                      INLINE FUNCTIONS' DEFINITIONS
+//-----------------------------------------------------------------------------
+
+           // =====================================================
+           // class bteso_DefaultEventManager<bteso_Platform::POLL>
+           // =====================================================
+
+// ACCESSORS
+inline
+bool bteso_DefaultEventManager<bteso_Platform::POLL>::
+                                                     canRegisterSockets() const
+{
+    return true;
+}
+
+inline
+bool bteso_DefaultEventManager<bteso_Platform::POLL>::
+                                               hasLimitedSocketCapacity() const
+{
+    return false;
+}
 
 }  // close namespace BloombergLP
 

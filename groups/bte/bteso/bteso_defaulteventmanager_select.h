@@ -309,6 +309,10 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
         // Return 'true' if this event manager can register additional sockets,
         // and 'false' otherwise.
 
+    bool hasLimitedSocketCapacity() const;
+        // Return 'true' if this event manager has limited socket capacity, and
+        // 'false' otherwise.
+
     int isRegistered(const bteso_SocketHandle::Handle& handle,
                      const bteso_EventType::Type       event) const;
         // Return 1 if the specified 'event' is registered with this event
@@ -336,6 +340,13 @@ inline
 int bteso_DefaultEventManager<bteso_Platform::SELECT>::numEvents() const
 {
     return static_cast<int>(d_events.size());
+}
+
+inline
+bool bteso_DefaultEventManager<bteso_Platform::SELECT>::
+                                               hasLimitedSocketCapacity() const
+{
+    return true;
 }
 
 }  // close enterprise namespace

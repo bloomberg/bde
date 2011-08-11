@@ -574,9 +574,13 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
         // callbacks are dispatched.
 
     // ACCESSORS
-    bool canRegisterSockets() const;
+    virtual bool canRegisterSockets() const;
         // Return 'true' if this event manager can register additional sockets,
         // and 'false' otherwise.
+
+    virtual bool hasLimitedSocketCapacity() const;
+        // Return 'true' if this event manager has limited socket capacity, and
+        // 'false' otherwise.
 
     virtual int isRegistered(const bteso_SocketHandle::Handle& handle,
                              bteso_EventType::Type             event) const;
@@ -667,6 +671,12 @@ int btemt_TcpTimerEventManager::enable()
 }
 
 // ACCESSORS
+inline
+bool btemt_TcpTimerEventManager::hasLimitedSocketCapacity() const
+{
+    return d_manager_p->hasLimitedSocketCapacity();
+}
+
 inline
 bteso_TimeMetrics *btemt_TcpTimerEventManager::timeMetrics() const
 {

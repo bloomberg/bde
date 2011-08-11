@@ -807,26 +807,17 @@ void btemt_TcpTimerEventManager::controlCb()
                 d_requestPool.deleteObjectRaw(req);
             } break;
             case btemt_TcpTimerEventManager_Request::NUM_SOCKET_EVENTS: {
-                int result =
-                    d_manager_p->numSocketEvents(req->socketHandle());
+                int result = d_manager_p->numSocketEvents(req->socketHandle());
                 req->setResult(result);
                 req->signal();
             } break;
             case btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKETS: {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-                bool result = true;
+                BSLS_ASSERT(d_manager_p->hasLimitedSocketCapacity());
 
-                bteso_DefaultEventManager<bteso_Platform::SELECT> *selectMgr =
-             dynamic_cast<bteso_DefaultEventManager<bteso_Platform::SELECT> *>(
-                                                                  d_manager_p);
-                BSLS_ASSERT(selectMgr);
-                result = selectMgr->canRegisterSockets();
+                bool result = d_manager_p->canRegisterSockets();
 
                 req->setResult((int) result);
                 req->signal();
-#else
-                BSLS_ASSERT(false);
-#endif
             } break;
             case btemt_TcpTimerEventManager_Request::IS_REGISTERED: {
                 req->setResult(
@@ -1579,15 +1570,12 @@ void btemt_TcpTimerEventManager::deregisterAll()
 // ACCESSORS
 bool btemt_TcpTimerEventManager::canRegisterSockets() const
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+    if (!d_manager_p->hasLimitedSocketCapacity()) {
+        return true;                                                  // RETURN
+    }
+
     if (bcemt_ThreadUtil::isEqual(bcemt_ThreadUtil::self(), d_dispatcher)) {
-        bteso_DefaultEventManager<bteso_Platform::SELECT> *selectMgr =
-             dynamic_cast<bteso_DefaultEventManager<bteso_Platform::SELECT> *>(
-                                                                  d_manager_p);
-
-        BSLS_ASSERT(selectMgr);
-
-        return selectMgr->canRegisterSockets();                       // RETURN
+        return d_manager_p->canRegisterSockets();                     // RETURN
     }
 
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_stateLock);
@@ -1632,20 +1620,11 @@ bool btemt_TcpTimerEventManager::canRegisterSockets() const
         // Processing thread is disabled -- upgrade to write lock
         // and process request in this thread.
 
-        bteso_DefaultEventManager<bteso_Platform::SELECT> *selectMgr =
-             dynamic_cast<bteso_DefaultEventManager<bteso_Platform::SELECT> *>(
-                                                                  d_manager_p);
-
-        BSLS_ASSERT(selectMgr);
-
-        result = selectMgr->canRegisterSockets();
+        result = d_manager_p->canRegisterSockets();
       }
     }
 
     return result;
-#else
-    return true;
-#endif
 }
 
 int btemt_TcpTimerEventManager::isRegistered(
