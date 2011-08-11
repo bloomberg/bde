@@ -117,7 +117,8 @@ static inline void copySet(fd_set *dst, const fd_set& src)
 
 static void convert(struct timeval           *result,
                     const bdet_TimeInterval&  value)
-    // TBD: Do
+    // Convert the specified 'value' of 'bdet_TimeInterval' to a 'timeval',
+    // and load into the specified 'result'.
 {
     BSLS_ASSERT(result);
 
