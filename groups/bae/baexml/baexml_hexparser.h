@@ -11,7 +11,8 @@ BDES_IDENT("$Id: $")
 //
 //@DEPRECATED: This functionality will be moved to bdede w/ a new interface.
 //
-//@CLASSES: baexml_HexParser: push parser for hex types.
+//@CLASSES:
+//   baexml_HexParser: push parser for hex types
 //
 //@SEE_ALSO:
 //

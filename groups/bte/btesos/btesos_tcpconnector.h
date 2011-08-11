@@ -18,8 +18,8 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a synchronous connector to TCP-based
 // servers that adheres to 'btesc_ChannelAllocator' protocol.  Both timed and
-// non-timed (synchronous) channels can be allocated in a non-timed fashion as
-// indicated by the following table:
+// non-timed (synchronous) channels can be allocated in a non-timed fashion
+// using the 'allocateTimed' and 'allocate' methods respectively.
 //
 // The connector has the flexibility of changing the address of the peer server
 // at run-time (and producing channels connected to this end-point) without any
@@ -97,12 +97,7 @@ BDES_IDENT("$Id: $")
 //   btesc_TimedChannel *channel = connector.allocateTimed(&status);
 //   if (!channel) {
 //       assert(0 >= status);     // Async.  interrupts are *not* enabled.
-//       if (status) {
-//           bsl::cout << "Failed to connect to the peer." << bsl::endl;
-//       }
-//       else {
-//           bsl::cout << "Connection attempt has timed out." << bsl::endl;
-//       }
+//       bsl::cout << "Failed to connect to the peer." << bsl::endl;
 //       // In any case, invalidate the allocator, and exit.
 //       connector.invalidate();
 //       return -1;
@@ -175,13 +170,13 @@ class bslma_Allocator;
 
 class btesos_TcpConnector : public btesc_ChannelAllocator {
     // This class implements a 'btesc'-style timed channel allocator for
-    // client-side (i.e., "connected") sockets.  The allocations can be timed
-    // or not-timed and produce either timed or non-timed channels.  The return
-    // status for any operation mandated by 'btesc_TimedChannelAllocator'
-    // protocol is negative for a failure, 0 on timeout, and positive for a
-    // (restartable) interrupt on an underlying system call.  This connector
-    // provides the ability to change the end-points at run-time without any
-    // effect on the state of any channels currently managed by this connector.
+    // client-side (i.e., "connected") sockets.  The allocations are not-timed
+    // and produce either timed or non-timed channels.  The return status for
+    // any operation mandated by 'btesc_ChannelAllocator' protocol is negative
+    // for a failure, and positive for a (restartable) interrupt on an
+    // underlying system call.  This connector provides the ability to change
+    // the end-points at run-time without any effect on the state of any
+    // channels currently managed by this connector.
 
     bdema_Pool                                    d_pool;
         // memory pool for channels
@@ -199,15 +194,15 @@ class btesos_TcpConnector : public btesc_ChannelAllocator {
         // a flag to be set if this acceptor is invalid
 
   private:
-    btesos_TcpConnector(const btesos_TcpConnector&); // not impl.
-    btesos_TcpConnector&
-            operator=(const btesos_TcpConnector&);        // not impl.
+    // NOT IMPLEMENTED
+    btesos_TcpConnector(const btesos_TcpConnector&);
+    btesos_TcpConnector& operator=(const btesos_TcpConnector&);
   public:
     // CREATORS
-    btesos_TcpConnector(
+    explicit btesos_TcpConnector(
             bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
             bslma_Allocator                              *basicAllocator = 0);
-        // Create a timed connector that uses the specified 'factory' to create
+        // Create a connector that uses the specified 'factory' to create
         // stream sockets.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The behavior is undefined if 'factory'
@@ -219,7 +214,7 @@ class btesos_TcpConnector : public btesc_ChannelAllocator {
              bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
              int                                           numElements,
              bslma_Allocator                              *basicAllocator = 0);
-        // Create a timed connector that uses the specified 'factory' to create
+        // Create a connector that uses the specified 'factory' to create
         // stream sockets with enough internal capacity to accommodate up to
         // the specified 'numElements' channels without reallocation.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
