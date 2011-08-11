@@ -1512,10 +1512,22 @@ int main(int argc, char *argv[])
 
         int numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor tam(ta);
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
 
-            TObj *p = new (ta) MyTestObject(&numDeletes);
-            Obj o(p, &ta);
+            {
+                bslma_TestAllocatorMonitor tam(ta);
+
+                TObj *p = new (ta) MyTestObject(&numDeletes);
+                Obj o(p, &ta);
+
+                TObj *q = o.ptr();
+                LOOP2_ASSERT(p, q, p == q);
+            }
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
         }
         ASSERT(1 == numDeletes);
 
@@ -1552,13 +1564,22 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            typedef void (*DeleterFunc)(MyTestObject *, void *);
-            DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
 
-            bslma_TestAllocatorMonitor tam(ta);
+            {
+                typedef void (*DeleterFunc)(MyTestObject *, void *);
+                DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
 
-            TObj *p = new (ta) MyTestObject(&numDeletes);
-            Obj o(p, (void *) &ta, deleterFunc);
+                bslma_TestAllocatorMonitor tam(ta);
+
+                TObj *p = new (ta) MyTestObject(&numDeletes);
+                Obj o(p, (void *) &ta, deleterFunc);
+            }
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
         }
         ASSERT(1 == numDeletes);
 
@@ -1570,10 +1591,20 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor tam(ta);
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
 
-            TObj *p = new (ta) MyTestObject(&numDeletes);
-            Obj o(p, &ta, &myTestDeleter);
+            bslma_TestAllocatorMonitor tam(ta);
+            {
+
+                TObj *p = new (ta) MyTestObject(&numDeletes);
+                Obj o(p, &ta, &myTestDeleter);
+            }
+            ASSERT(tam.isInUseSame());
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
         }
         ASSERT(1 == numDeletes);
 
@@ -2087,9 +2118,11 @@ int main(int argc, char *argv[])
         {
             const bdema_ManagedPtr_Members empty(0, 0, 0);
             ASSERT(0 == empty.pointer());
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
             ASSERT(0 == empty.deleter().object());
             ASSERT(0 == empty.deleter().factory());
             ASSERT(0 == empty.deleter().deleter());
+#endif
 
             int deleteCount = 0;
             {
@@ -2132,9 +2165,11 @@ int main(int argc, char *argv[])
         {
             bdema_ManagedPtr_Members members(0, 0, 0);
             ASSERT(0 == members.pointer());
+#if defined BSLS_ASSERT_LEVEL_ASSERT_SAFE
             ASSERT(0 == members.deleter().object());
             ASSERT(0 == members.deleter().factory());
             ASSERT(0 == members.deleter().deleter());
+#endif
 
             int x;
             double y;
@@ -2146,9 +2181,11 @@ int main(int argc, char *argv[])
 
             members.set(0, 0, 0);
             ASSERT(0 == members.pointer());
+#if defined BSLS_ASSERT_LEVEL_ASSERT_SAFE
             ASSERT(0 == members.deleter().object());
             ASSERT(0 == members.deleter().factory());
             ASSERT(0 == members.deleter().deleter());
+#endif
 
             {
                 int deleteCount = 0;
