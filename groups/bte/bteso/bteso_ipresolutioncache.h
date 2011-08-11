@@ -19,20 +19,20 @@ BDES_IDENT("$Id: $")
 //  bteso_resolveutil, bteso_ipv4address
 //
 //@DESCRIPTION: This component defines a class, 'bteso_IpResolutionCache', that
-// serves as a cache of 'bsl::vector<bteso_IPv4Address>' objects.  A
-// 'bteso_IpResolutionCache' object is supplied a
+// serves as a cache of 'bteso_IPv4Address' objects that are associated with a
+// hostname.  A 'bteso_IpResolutionCache' object is supplied a
 // 'bteso_ResolveUtil::ResolveByNameCallback' function on construction that it
-// uses to obtain the set of IP addresses for a given hostname.  The provided
-// 'resolveAddress' method returns a set of IP addresses for the supplied
-// hostname, either returning values already residing in the cache, or, if the
-// values have expired or are not already present in the cache, invokes the
-// supplied 'ResolveByNameCallback' is to obtain a set of IP addresses to
-// return, which is also cached for subsequent re-use.  IP addresses for a
-// hostname that are stored in the cache are considered valid for a
-// user-defined time interval, set by the 'setTimeToLiveInSeconds' method.
-// Stored IP addresses older than the configured interval are considered stale,
-// and a subsequent request for the associated hostname will refresh that set
-// of IP addresses by calling the supplied 'ResolveByNameCallback' again.
+// uses to obtain the set of IP addresses for a given hostname.  The
+// 'resolveAddress' method returns a set of IP addresses for a supplied
+// hostname.  'resolveAddress' either returns values already residing in the
+// cache if they haven't expire, or invokes the supplied
+// 'ResolveByNameCallback' to obtain a set of IP addresses, which it then
+// caches for subsequent re-use.  IP addresses stored in the cache are
+// considered valid for a user-defined time interval, set by the
+// 'setTimeToLive' method.  Stored IP addresses older than the configured
+// interval are considered stale, and a subsequent request for the associated
+// hostname will refresh that set of IP addresses by calling the supplied
+// 'ResolveByNameCallback' again.
 //
 ///Thread Safety
 ///-------------
@@ -70,12 +70,23 @@ BDES_IDENT("$Id: $")
 //  int rc = cache.resolveAddress(&ipAddresses, "www.bloomberg.com", 1);
 //  assert(0 == rc);
 //  assert(1 == ipAddresses.size());
+//..
+// Now, we write the address to stdout:
+//..
 //  bsl::cout << "IP Address: " << ipAddresses[0] << std::endl;
 //..
-//  Finally, we verify that a subsequent call to 'lookupAddress' returns 0 for
-//  "www.bloomberg.com" indicating its addresses are stored in the cache, but
-//  returns 1 for "www.businessweek.com", indicating its addresses are not
-//  stored in the cache:
+// The output of the preceding operation will look like:
+//..
+//  IP Address: 63.85.36.34:0
+//..
+// Note that the IP address may differ depending on the configurations of the
+// machine that the code is executed on.
+//
+// Finally, we verify that a subsequent
+// call to 'lookupAddress' returns 0 for "www.bloomberg.com" indicating its
+// addresses are stored in the cache, but returns non-zero for
+// "www.businessweek.com", indicating its addresses are not stored in the
+// cache:
 //..
 //  assert(0 == cache.lookupAddress(&ipAddresses, "www.bloomberg.com", 1));
 //  assert(0 != cache.lookupAddress(&ipAddresses, "www.businessweek.com", 1));
@@ -84,13 +95,14 @@ BDES_IDENT("$Id: $")
 ///Example 2: Using Address Cache with 'bteso_ResolveUtil'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate how to configure the 'bteso_ResolverUtil'
-// component to use the cache for resolving IP addresses.
+// component to use a 'bteso_IpResolutionCache' object for resolving IP
+// addresses.
 //
 // First, we create a cache for the IP addresses:
 //..
 //  bteso_IpResolutionCache cache;
 //..
-// Now, we set the callback for 'bteso_ResolveUtil' by using 'bdef_BindUtil':
+// Then, we set the callback for 'bteso_ResolveUtil' by using 'bdef_BindUtil':
 //..
 //  using namespace bdef_PlaceHolders;
 //  bteso_ResolveUtil::setResolveByNameCallback(
@@ -101,12 +113,19 @@ BDES_IDENT("$Id: $")
 //                                    _3,
 //                                    _4));
 //..
-// Finally, we call the 'bteso_ResolveUtil::getAddress' method to retrieve the
+// Next, we call the 'bteso_ResolveUtil::getAddress' method to retrieve the
 // IPv4 address of 'www.bloomberg.com':
 //..
 //  bteso_IPv4Address ipAddress;
 //  bteso_ResolveUtil::getAddress(&ipAddress, "www.bloomberg.com");
+//..
+// Now, we write the address to stdout:
+//..
 //  bsl::cout << "IP Address: " << ipAddress << std::endl;
+//..
+// Finally, we observe the output to be in the form:
+//..
+//  IP Address: 63.85.36.34:0
 //..
 
 #ifndef INCLUDED_BTESCM_VERSION
@@ -141,8 +160,8 @@ BDES_IDENT("$Id: $")
 #include <bcemt_readlockguard.h>
 #endif
 
-#ifndef INCLUDED_BDET_TIMEINTERVAL
-#include <bdet_timeinterval.h>
+#ifndef INCLUDED_BDET_DATETIMEINTERVAL
+#include <bdet_datetimeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -167,9 +186,11 @@ class bteso_IpResolutionCache_Data;  // defined in .cpp
 
 class bteso_IpResolutionCache_Entry {
     // This class provides an entry type that can be used in a map.  It
-    // contains a shared pointer to a 'bteso_IpResolutionCache_Data' object,
-    // which stores a set of IP addresses and their expiration time, and a
+    // contains a shared pointer to a 'bteso_IpResolutionCache_Data' object
+    // (which stores a set of IP addresses and their creation time) and a
     // mutex variable to indicate whether there is a thread updating the data.
+    // Note that synchronization of the data of an entry is managed by the
+    // cache containing this entry.
 
   public:
     typedef bcema_SharedPtr<const bteso_IpResolutionCache_Data> DataPtr;
@@ -199,27 +220,38 @@ class bteso_IpResolutionCache_Entry {
 
     bteso_IpResolutionCache_Entry(
                                 const bteso_IpResolutionCache_Entry& original);
-        // Create a 'bteso_IpResolutionCache_Entry' object that points to the
-        // same data as the specified 'original'.  Note that this copy
-        // constructor is needed for its use in a 'bsl::map'.
+        // Create a 'bteso_IpResolutionCache_Entry' object that refers to the
+        // same data as the specified 'original'.  The newly created entry does
+        // not share an 'updatingLock' with 'original'.  Note that this copy
+        // constructor is provided to allow an entry to be stored in a
+        // 'bsl::map'.
 
     // MANIPULATORS
     void setData(DataPtr value);
         // Set the shared pointer, 'data', to refer to the same
-        // 'bteso_IpResolutionCache_Data' object as the specified 'value'.
+        // 'bteso_IpResolutionCache_Data' object as the specified 'value'.  The
+        // behavior is undefined unless the calling thread have a write lock on
+        // the cache containing this entry.
 
     bcemt_Mutex& updatingLock() const;
-        // Return a reference providing modifiable access to the mutex variable
-        // of this object.  Locking the mutex variable signals this thread is
-        // retrieving new data, but does *not* synchronize access to 'd_data'.
+        // Return a reference providing modifiable access to a mutex used to
+        // signal a thread is retrieving new 'data'.  Note that 'updatingLock'
+        // does *not* synchronize access to 'data', access to 'data' is
+        // synchronized by a read-write mutex in the cache containing this
+        // entry.
 
     void reset();
-        // Reset the shared pointer, 'data', to the empty state.
+        // Reset the shared pointer, 'data', to the empty state.  The behavior
+        // is undefined unless the calling thread have a write lock on the
+        // cache containing this entry.
 
     // ACCESSORS
     DataPtr data() const;
         // Return a shared pointer to the non-modifiable
-        // 'bteso_IpResolutionCache_Data' referred to by this object.
+        // 'bteso_IpResolutionCache_Data' referred to by this object.  The
+        // behavior is undefined unless the calling thread have a read lock on
+        // the cache containing this entry.
+
 };
 
                         // =============================
@@ -253,8 +285,8 @@ class bteso_IpResolutionCache {
 
     AddressMap             d_cache;             // map to store the data
 
-    int                    d_timeToLiveInSeconds;
-                                                // time before the data expires
+    bdet_DatetimeInterval  d_timeToLive;        // configured interval for old
+                                                // to become stale
 
     mutable bcemt_RWMutex  d_rwLock;            // access synchronization for
                                                 // reading/writing to 'd_cache'
@@ -269,11 +301,14 @@ class bteso_IpResolutionCache {
     int getCacheData(bteso_IpResolutionCache_Entry::DataPtr *result,
                      const char                             *hostname,
                      int                                    *errorCode);
-        // Load, into the specified 'result', a 'bcema_SharedPtr' pointing to a
-        // vector of addresses for the specified 'hostname', and load, into the
-        // specified 'errorCode', the error code returned by the callback
-        // function (if the data is not cached).  Return 0 on success, and a
-        // negative value otherwise.
+        // Load, into the specified 'result', a 'bcema_SharedPtr' referring to
+        // a vector of addresses for the specified 'hostname', and, if an error
+        // occurs, load into the specified 'errorCode', the error code returned
+        // by the callback function.  If the cache already contains an entry
+        // for 'hostname' younger than the configured time-to-live, that entry
+        // is returned, otherwise the callback supplied at construction is
+        // called to populate a new entry, which is stored in the cache and
+        // returned.  Return 0 on success, and a non-zero value otherwise.
 
   private:
     // NOT IMPLEMENTED
@@ -300,7 +335,7 @@ class bteso_IpResolutionCache {
         // used.
 
     // MANIPULATORS
-    void clear();
+    void removeAll();
         // Remove all cached data.
 
     int resolveAddress(bsl::vector<bteso_IPv4Address> *result,
@@ -312,15 +347,20 @@ class bteso_IpResolutionCache {
         // 'maxNumAddresses' on success.  Optionally specify 'errorCode' to
         // store the error code returned by the resolver callback if the data
         // is not cached.  If 'errorCode' is 0, the error code of the callback
-        // is ignored.  Return '0' on success with no effect on the
-        // 'errorCode', and a non-zero value with no effect on 'result'
-        // otherwise.  The behavior is undefined unless '0 < maxNumAddresses'.
+        // is ignored.  If the cache already contains an entry for 'hostname'
+        // younger than the configured time-to-live, that entry is returned,
+        // otherwise the callback supplied at construction is called to
+        // populate a new entry, which is stored in the cache and returned.
+        // Return 0 on success with no effect on the 'errorCode', and a
+        // non-zero value with no effect on 'result' otherwise.  The behavior
+        // is undefined unless '0 < maxNumAddresses'.
 
-    void setTimeToLiveInSeconds(int value);
+    void setTimeToLive(const bdet_DatetimeInterval& value);
         // Set the time the cached IP addresses for a particular hostname may
-        // exist before they are considered stale.  The behavior is undefined
-        // unless '0 < value'.  Note that this function does *not* affect data
-        // that is already cached.
+        // exist before they are considered stale.  A 'value' of 0 seconds
+        // indicates the addresses will never expire.  The behavior is
+        // undefined unless '0 <= value.seconds()'.  Note that this function
+        // will affect data that is already cached.
 
     // ACCESSORS
     bslma_Allocator *allocator() const;
@@ -344,10 +384,10 @@ class bteso_IpResolutionCache {
         // addresses from a hostname when the hostname is not already in the
         // cache.
 
-    int timeToLiveInSeconds() const;
-        // Return the time the set of IP addresses for a particular hostname
-        // may exist in the cache before they become stale.  Note that
-        // '0 < timeToLiveInSeconds()'.
+    const bdet_DatetimeInterval& timeToLive() const;
+        // Return a reference providing non-modifiable access to the time a set
+        // of IP addresses for a particular hostname may exist in the cache
+        // before they become stale.  Note that '0 <= timeToLive().seconds()'.
 };
 
 // ===========================================================================
@@ -392,12 +432,12 @@ bteso_IpResolutionCache_Entry::DataPtr bteso_IpResolutionCache_Entry::data()
 // MANIPULATORS
 
 inline
-void bteso_IpResolutionCache::setTimeToLiveInSeconds(int value)
+void bteso_IpResolutionCache::setTimeToLive(const bdet_DatetimeInterval& value)
 {
-    BSLS_ASSERT_SAFE(0 < value);
+    BSLS_ASSERT_SAFE(0 <= value.totalSeconds());
 
     bcemt_WriteLockGuard<bcemt_RWMutex> writeLockGuard(&d_rwLock);
-    d_timeToLiveInSeconds = value;
+    d_timeToLive = value;
 }
 
 // ACCESSORS
@@ -411,15 +451,14 @@ inline
 bteso_IpResolutionCache::ResolveByNameCallback
                               bteso_IpResolutionCache::resolverCallback() const
 {
-    bcemt_ReadLockGuard<bcemt_RWMutex> readLockGuard(&d_rwLock);
     return d_resolverCallback;
 }
 
 inline
-int bteso_IpResolutionCache::timeToLiveInSeconds() const
+const bdet_DatetimeInterval& bteso_IpResolutionCache::timeToLive() const
 {
     bcemt_ReadLockGuard<bcemt_RWMutex> readLockGuard(&d_rwLock);
-    return d_timeToLiveInSeconds;
+    return d_timeToLive;
 }
 
 }  // close namespace BloombergLP

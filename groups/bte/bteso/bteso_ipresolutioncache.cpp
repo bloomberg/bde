@@ -21,18 +21,17 @@ int createCacheData(
            bteso_IpResolutionCache_Entry::DataPtr         *result,
            const char                                     *hostname,
            int                                            *errorCode,
-           int                                             timeToLive,
+           const bdet_Datetime&                            currentTime,
            bteso_IpResolutionCache::ResolveByNameCallback  resolverCallback,
            bslma_Allocator                                *basicAllocator = 0)
     // Load, into the specified 'result', a shared pointer to a newly created
     // 'bteso_IpResolutionCache_Data' object containing the IPv4 addresses of
     // the host with the specified 'hostname' (retrieved using the specified
-    // 'resolverCallback'), which will expire after the number of seconds
-    // indicated by the specified 'timeToLive', and load, into the specified
-    // 'errorCode', the error code of 'resolverCallback' if it fails.
-    // Optionally specify a 'basicAllocator' used to supply memory.  If
-    // 'basicAllocator' is 0, the currently installed default allocator is
-    // used.
+    // 'resolverCallback') and having the specified 'currentTime' as the load
+    // time, and load into the specified 'errorCode', the error code of
+    // 'resolverCallback' if it fails.  Optionally specify a 'basicAllocator'
+    // used to supply memory.  If 'basicAllocator' is 0, the currently
+    // installed default allocator is used.
 {
     bsl::vector<bteso_IPv4Address> hostAddresses;
 
@@ -41,12 +40,9 @@ int createCacheData(
         return rc;                                                    // RETURN
     }
 
-    bdet_TimeInterval expirationTime = bdetu_SystemTime::now();
-    expirationTime.addSeconds(timeToLive);
-
     result->createInplace(basicAllocator,
                           hostAddresses,
-                          expirationTime,
+                          currentTime,
                           basicAllocator);
     return 0;
 }
@@ -56,14 +52,14 @@ int createCacheData(
                         // ==================================
 
 class bteso_IpResolutionCache_Data {
-    // This class provides storage for the a set of IP addresses and a
-    // 'bdet_TimeInterval' to indicate the time these addresses expires.
+    // This class provides storage for a set of IP addresses and a
+    // 'bdet_Datetime' to indicate the time these addresses were populated.
 
     // DATA
-    bsl::vector<bteso_IPv4Address> d_addresses;       // set of IP addresses
+    bsl::vector<bteso_IPv4Address> d_addresses;     // set of IP addresses
 
-    bdet_TimeInterval              d_expirationTime;  // time from epoch until
-                                                      // this data expires
+    bdet_Datetime                  d_creationTime;  // time at which this
+                                                    // object is created
   private:
     // NOT IMPLEMENTED
     bteso_IpResolutionCache_Data(const bteso_IpResolutionCache_Data&);
@@ -78,23 +74,21 @@ class bteso_IpResolutionCache_Data {
     // CREATOR
     bteso_IpResolutionCache_Data(
                     const bsl::vector<bteso_IPv4Address>&  ipAddresses,
-                    const bdet_TimeInterval&               expirationTime,
+                    const bdet_Datetime&                   creationTime,
                     bslma_Allocator                       *basicAllocator = 0);
-        // Create an object storing the specified 'ipAddresses', which expires
-        // at the specified 'expirationTime' (expressed as the !ABSOLUTE! time
-        // from 00:00:00 UTC, January 1, 1970).  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object storing the specified 'ipAddresses', and having the
+        // specified 'creationTime'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     // ACCESSORS
     const bsl::vector<bteso_IPv4Address>& addresses() const;
         // Return a reference providing non-modifiable access to the IP
         // addresses stored in this object.
 
-    const bdet_TimeInterval& expirationTime() const;
-        // Return a reference providing non-modifiable access to the time
-        // (expressed as the !ABSOLUTE! time from 00:00:00 UTC, January 1,
-        // 1970) addresses in the object expires.
+    const bdet_Datetime& creationTime() const;
+        // Return a reference providing non-modifiable access to the time this
+        // object was created.
 };
 
                         // ----------------------------------
@@ -104,10 +98,10 @@ class bteso_IpResolutionCache_Data {
 // CREATORS
 bteso_IpResolutionCache_Data::bteso_IpResolutionCache_Data(
                      const bsl::vector<bteso_IPv4Address>&  addresses,
-                     const bdet_TimeInterval&               expirationTime,
+                     const bdet_Datetime&                   creationTime,
                      bslma_Allocator                       *basicAllocator)
 : d_addresses(addresses, basicAllocator)
-, d_expirationTime(expirationTime)
+, d_creationTime(creationTime)
 {
 }
                         // -----------------------------------
@@ -135,9 +129,9 @@ const bsl::vector<bteso_IPv4Address>& bteso_IpResolutionCache_Data::addresses()
     return d_addresses;
 }
 
-const bdet_TimeInterval& bteso_IpResolutionCache_Data::expirationTime() const
+const bdet_Datetime& bteso_IpResolutionCache_Data::creationTime() const
 {
-    return d_expirationTime;
+    return d_creationTime;
 }
 
                         // ------------------------------
@@ -148,7 +142,7 @@ const bdet_TimeInterval& bteso_IpResolutionCache_Data::expirationTime() const
 bteso_IpResolutionCache::bteso_IpResolutionCache(
                                                bslma_Allocator *basicAllocator)
 : d_cache(basicAllocator)
-, d_timeToLiveInSeconds(3600)
+, d_timeToLive(0, 1)
 , d_rwLock()
 , d_resolverCallback(bteso_ResolveUtil::defaultResolveByNameCallback())
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
@@ -159,7 +153,7 @@ bteso_IpResolutionCache::bteso_IpResolutionCache(
                                        ResolveByNameCallback  resolverCallback,
                                        bslma_Allocator       *basicAllocator)
 : d_cache(basicAllocator)
-, d_timeToLiveInSeconds(3600)
+, d_timeToLive(0, 1)
 , d_rwLock()
 , d_resolverCallback(resolverCallback)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
@@ -179,6 +173,8 @@ int bteso_IpResolutionCache::getCacheData(
     bteso_IpResolutionCache_Entry::DataPtr dataPtr;
     bteso_IpResolutionCache_Entry *entry = 0;
 
+    const bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT();
+
     {
         bcemt_ReadLockGuard<bcemt_RWMutex> readLockGuard(&d_rwLock);
 
@@ -186,7 +182,8 @@ int bteso_IpResolutionCache::getCacheData(
         if (d_cache.end() == it) {
             // The IP addresses of 'hostname' has never been cached.
 
-            bcemt_ReadLockGuardUnlock<bcemt_RWMutex> readLockGuard(&d_rwLock);
+            bcemt_ReadLockGuardUnlock<bcemt_RWMutex>
+                                                    readUnlockGuard(&d_rwLock);
 
             // Acquire write lock to create entry for the map.
 
@@ -203,10 +200,11 @@ int bteso_IpResolutionCache::getCacheData(
         dataPtr = entry->data();
         if (dataPtr.ptr()) {
             // Check if the data is expired and, if it is, try to acquire the
-            // lock to indicate this thread is refreshing the data.
+            // 'updatingLock' of 'entry' to indicate this thread is refreshing
+            // the data.
 
-            const bdet_TimeInterval now = bdetu_SystemTime::now();
-            if (now <= dataPtr->expirationTime()
+            if (0 == d_timeToLive.totalSeconds()
+             || now < dataPtr->creationTime() + d_timeToLive
              || 0 != entry->updatingLock().tryLock()) {
                 // Data is not expired or another thread is already refreshing
                 // the data.  Return existing data.
@@ -216,13 +214,17 @@ int bteso_IpResolutionCache::getCacheData(
             }
         }
         else {
-            // Data does not exist.
+            // Data has never been loaded.
 
-            readLockGuard.release()->unlock();
+            {
+                bcemt_ReadLockGuardUnlock<bcemt_RWMutex>
+                                                    readUnlockGuard(&d_rwLock);
 
-            // Lock the entry to indicate the data is being acquired.
+                // Lock the entry's 'updatingLock' to indicate the data is
+                // being acquired.
 
-            entry->updatingLock().lock();
+                entry->updatingLock().lock();
+            }
 
             dataPtr = entry->data();
             if (0 != dataPtr.ptr()) {
@@ -231,8 +233,7 @@ int bteso_IpResolutionCache::getCacheData(
 
                 entry->updatingLock().unlock();
 
-                bcemt_ReadLockGuard<bcemt_RWMutex> readLockGuard(&d_rwLock);
-                *result = entry->data();
+                *result = dataPtr;
                 return 0;                                             // RETURN
             }
         }
@@ -249,7 +250,7 @@ int bteso_IpResolutionCache::getCacheData(
     int rc = createCacheData(&dataPtr,
                              hostname,
                              errorCode,
-                             d_timeToLiveInSeconds,
+                             now,
                              d_resolverCallback,
                              d_allocator_p);
 
@@ -295,7 +296,7 @@ int bteso_IpResolutionCache::resolveAddress(
     return 0;
 }
 
-void bteso_IpResolutionCache::clear()
+void bteso_IpResolutionCache::removeAll()
 {
     bcemt_WriteLockGuard<bcemt_RWMutex> writeLockGuard(&d_rwLock);
 

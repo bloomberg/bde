@@ -133,12 +133,12 @@ namespace BloombergLP {
 
 class bteso_IpResolutionCache_Data {
     // This class provides storage for the a set of IP addresses and a
-    // 'bdet_TimeInterval' to indicate the time these addresses expires.
+    // 'bdet_Datetime' to indicate the time these addresses expires.
 
     // DATA
     bsl::vector<bteso_IPv4Address> d_addresses;       // set of IP addresses
 
-    bdet_TimeInterval              d_expirationTime;  // time from epoch until
+    bdet_Datetime                  d_creationTime;  // time from epoch until
                                                       // this data expires
   private:
     // NOT IMPLEMENTED
@@ -154,10 +154,10 @@ class bteso_IpResolutionCache_Data {
     // CREATOR
     bteso_IpResolutionCache_Data(
                     const bsl::vector<bteso_IPv4Address>&  ipAddresses,
-                    const bdet_TimeInterval&               expirationTime,
+                    const bdet_Datetime&                   creationTime,
                     bslma_Allocator                       *basicAllocator = 0);
         // Create an object storing the specified 'ipAddresses', which expires
-        // at the specified 'expirationTime' (expressed as the !ABSOLUTE! time
+        // at the specified 'creationTime' (expressed as the !ABSOLUTE! time
         // from 00:00:00 UTC, January 1, 1970).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -167,7 +167,7 @@ class bteso_IpResolutionCache_Data {
         // Return a reference providing non-modifiable access to the IP
         // addresses stored in this object.
 
-    const bdet_TimeInterval& expirationTime() const;
+    const bdet_Datetime& creationTime() const;
         // Return a reference providing non-modifiable access to the time
         // (expressed as the !ABSOLUTE! time from 00:00:00 UTC, January 1,
         // 1970) addresses in the object expires.
@@ -439,7 +439,7 @@ extern "C" void *workerThread(void *arg)
 
     barrier.wait();
 
-    for (int testRun = 0; testRun < 5; ++testRun) {
+    for (int testRun = 0; testRun < 20; ++testRun) {
         for (int i = 0; i < NUM_DATA; ++i) {
             const char              *ID = DATA[i].d_hostname;
             const bteso_IPv4Address  IP = bteso_IPv4Address(
@@ -453,7 +453,7 @@ extern "C" void *workerThread(void *arg)
 
     bcemt_ThreadUtil::microSleep(0, 1);
 
-    for (int testRun = 0; testRun < 5; ++testRun) {
+    for (int testRun = 0; testRun < 20; ++testRun) {
         for (int i = 0; i < NUM_DATA; ++i) {
             const char              *ID = DATA[i].d_hostname;
             const bteso_IPv4Address  IP = bteso_IPv4Address(
@@ -695,7 +695,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 
         //
-        // clear
+        // removeAll
         // --------------------------------------------------------------------
 
         if (verbose) { cout << "Testing 'resolveAddress'" << endl; }
@@ -738,7 +738,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, 0 == X.lookupAddress(&mV, NAME, 1));
             }
 
-            mX.clear();
+            mX.removeAll();
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE     = DATA[ti].d_line;
@@ -775,12 +775,12 @@ int main(int argc, char *argv[])
         bcema_TestAllocator testAllocator;
 
         enum {
-            NUM_THREADS = 10
+            NUM_THREADS = 20
         };
 
         bcemt_Barrier barrier(NUM_THREADS);
         Obj mX(&testConcurrencyCallback, &testAllocator); const Obj& X = mX;
-        mX.setTimeToLiveInSeconds(1);
+        mX.setTimeToLive(bdet_DatetimeInterval(0, 0, 0, 1));
 
         using namespace bdef_PlaceHolders;
         bteso_ResolveUtil::setResolveByNameCallback(
@@ -890,7 +890,7 @@ int main(int argc, char *argv[])
         {
             bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
             Obj X(&TestResolver::callback, &oa);
-            X.setTimeToLiveInSeconds(2);
+            X.setTimeToLive(bdet_DatetimeInterval(0, 0, 0, 2));
 
             Vec mV;
             ASSERT(0 == X.resolveAddress(&mV, "A", 1));
@@ -973,7 +973,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   const string& description() const;
-        //   bool timeToLiveInSeconds() const;
+        //   bool timeToLive() const;
         //   int resolverCallback() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
@@ -983,7 +983,7 @@ int main(int argc, char *argv[])
         // Attribute Types
 
         typedef Obj::ResolveByNameCallback T1;     // 'resolverCallback'
-        typedef int                        T2;     // 'timeToLiveInSeconds'
+        typedef bdet_DatetimeInterval      T2;     // 'timeToLive'
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -992,15 +992,15 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------
 
         const T1 D1 = bteso_ResolveUtil::defaultResolveByNameCallback();
-                               // 'resolverCallback'
-        const T2 D2 = 3600;    // 'timeToLiveInSeconds'
+                            // 'resolverCallback'
+        const T2 D2(0, 1);  // 'timeToLive'
 
         // -------------------------------------------------------
         // 'A' values
         // -------------------------------------------------------
 
-        const T1 A1   = &TestResolver::callback;
-        const T2 A2   = 1;
+        const T1 A1 = &TestResolver::callback;
+        const T2 A2(1);
 
         if (verbose) cout <<
            "\nCreate two test allocators; install one as the default." << endl;
@@ -1021,8 +1021,8 @@ int main(int argc, char *argv[])
             const T1& resolverCallback = X.resolverCallback();
             LOOP2_ASSERT(D1, resolverCallback, D1 == resolverCallback);
 
-            const T2& timeToLiveInSeconds = X.timeToLiveInSeconds();
-            LOOP2_ASSERT(D2, timeToLiveInSeconds, D2 == timeToLiveInSeconds);
+            const T2& timeToLive = X.timeToLive();
+            LOOP2_ASSERT(D2, timeToLive, D2 == timeToLive);
 
             ASSERT(&oa == X.allocator());
         }
@@ -1030,14 +1030,14 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nApply primary manipulators and verify expected values." << endl;
 
-        if (veryVerbose) { T_ Q(timeToLiveInSeconds) }
+        if (veryVerbose) { T_ Q(timeToLive) }
         {
-            mX.setTimeToLiveInSeconds(A2);
+            mX.setTimeToLive(A2);
 
             bslma_TestAllocatorMonitor oam(oa), dam(da);
 
-            const T2& timeToLiveInSeconds = X.timeToLiveInSeconds();
-            LOOP2_ASSERT(A2, timeToLiveInSeconds, A2 == timeToLiveInSeconds);
+            const T2& timeToLive = X.timeToLive();
+            LOOP2_ASSERT(A2, timeToLive, A2 == timeToLive);
 
             ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
         }
@@ -1167,7 +1167,7 @@ int main(int argc, char *argv[])
         //   baetzo_LocalTimeDescriptor(bslma_Allocator *bA = 0);
         //   ~baetzo_LocalTimeDescriptor();
         //   setDescription(const StringRef& value);
-        //   setTimeToLiveInSeconds(bool value);
+        //   setTimeToLive(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1177,7 +1177,7 @@ int main(int argc, char *argv[])
         // Attribute Types
 
         typedef Obj::ResolveByNameCallback T1;     // 'resolverCallback'
-        typedef int                        T2;     // 'timeToLiveInSeconds'
+        typedef bdet_DatetimeInterval      T2;     // 'timeToLive'
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1185,17 +1185,17 @@ int main(int argc, char *argv[])
 
         const T1 D1 = bteso_ResolveUtil::defaultResolveByNameCallback();
                                // 'resolverCallback'
-        const T2 D2 = 3600;    // 'timeToLiveInSeconds'
+        const T2 D2(0, 1);    // 'timeToLive'
 
         // 'A' values
 
-        const T1 A1   = &TestResolver::callback;
-        const T2 A2   = 1;
+        const T1 A1 = &TestResolver::callback;
+        const T2 A2(1);
 
         // 'B' values
 
         const T1 B1;            // Default constructed value.
-        const T2 B2 = INT_MAX;
+        const T2 B2(INT_MAX);
 
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
@@ -1254,28 +1254,28 @@ int main(int argc, char *argv[])
 
             LOOP3_ASSERT(CONFIG, D1, X.resolverCallback(),
                          D1 == X.resolverCallback());
-            LOOP3_ASSERT(CONFIG, D2, X.timeToLiveInSeconds(),
-                         D2 == X.timeToLiveInSeconds());
+            LOOP3_ASSERT(CONFIG, D2, X.timeToLive(),
+                         D2 == X.timeToLive());
 
             // -----------------------------------------------------
             // Verify that each attribute is independently settable.
             // -----------------------------------------------------
 
-            // 'timeToLiveInSeconds'
+            // 'timeToLive'
             {
                 bslma_TestAllocatorMonitor tam(oa);
 
-                mX.setTimeToLiveInSeconds(A2);
+                mX.setTimeToLive(A2);
                 LOOP_ASSERT(CONFIG, D1 == X.resolverCallback());
-                LOOP_ASSERT(CONFIG, A2 == X.timeToLiveInSeconds());
+                LOOP_ASSERT(CONFIG, A2 == X.timeToLive());
 
-                mX.setTimeToLiveInSeconds(B2);
+                mX.setTimeToLive(B2);
                 LOOP_ASSERT(CONFIG, D1 == X.resolverCallback());
-                LOOP_ASSERT(CONFIG, B2 == X.timeToLiveInSeconds());
+                LOOP_ASSERT(CONFIG, B2 == X.timeToLive());
 
-                mX.setTimeToLiveInSeconds(D2);
+                mX.setTimeToLive(D2);
                 LOOP_ASSERT(CONFIG, D1 == X.resolverCallback());
-                LOOP_ASSERT(CONFIG, D2 == X.timeToLiveInSeconds());
+                LOOP_ASSERT(CONFIG, D2 == X.timeToLive());
 
                 LOOP_ASSERT(CONFIG, tam.isTotalSame());
             }
@@ -1315,8 +1315,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\tdescription" << endl;
             {
-                ASSERT_SAFE_PASS(obj.setTimeToLiveInSeconds(1));
-                ASSERT_SAFE_FAIL(obj.setTimeToLiveInSeconds(0));
+                ASSERT_SAFE_PASS(obj.setTimeToLive(1));
+                ASSERT_SAFE_FAIL(obj.setTimeToLive(0));
             }
         }
       } break;
@@ -1448,7 +1448,8 @@ int main(int argc, char *argv[])
         // 'A' values: Should cause memory allocation if possible.
         // -------------------------------------------------------
 
-        const T1  A1   = Entry::DataPtr(new Data(Vec(), bdet_TimeInterval()));
+        const T1  A1   = Entry::DataPtr(new Data(Vec(),
+                                        bdet_Datetime(1, 1, 1)));
 
         Entry mX;  const Entry& X = mX;
 
@@ -1558,7 +1559,7 @@ int main(int argc, char *argv[])
         //   baetzo_LocalTimeDescriptor(bslma_Allocator *bA = 0);
         //   ~baetzo_LocalTimeDescriptor();
         //   setDescription(const StringRef& value);
-        //   setTimeToLiveInSeconds(bool value);
+        //   setTimeToLive(bool value);
         //   setResolverCallback(int value);
         // --------------------------------------------------------------------
 
@@ -1575,7 +1576,7 @@ int main(int argc, char *argv[])
         // 'A' values
 
         const Entry::DataPtr  A1(new Data(vector<bteso_IPv4Address>(),
-                                          bdet_TimeInterval(0.0),
+                                          bdet_Datetime(1, 1, 1),
                                           &scratch));
 
 
@@ -1584,7 +1585,7 @@ int main(int argc, char *argv[])
         Entry::DataPtr b1;
         b1.createInplace(&scratch,
                          vector<bteso_IPv4Address>(),
-                         bdet_TimeInterval(0.0),
+                         bdet_Datetime(1, 1, 1),
                          &scratch);
         const Entry::DataPtr& B1 = b1;
 
