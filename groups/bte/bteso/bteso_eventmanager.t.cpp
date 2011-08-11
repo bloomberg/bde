@@ -159,6 +159,12 @@ class my_EventManager : public bteso_EventManager {
             const bteso_SocketHandle::Handle& handle,
             const bteso_EventType::Type       event) const
         { *d_fun = 10; return 0; }
+
+    virtual bool canRegisterSockets() const
+        { *d_fun = 11; return true; }
+
+    virtual bool hasLimitedSocketCapacity() const
+        { *d_fun = 12; return true; }
 };
 
 //==========================================================================

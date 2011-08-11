@@ -207,6 +207,14 @@ private:
         // Remove all parameter data saved for the previous function calls.
 
     // ACCESSORS
+    virtual bool canRegisterSockets() const;
+        // Return 'true' if this event manager can register additional sockets,
+        // and 'false' otherwise.
+
+    virtual bool hasLimitedSocketCapacity() const;
+        // Return 'true' if this event manager has limited socket capacity, and
+        // 'false' otherwise.
+
     virtual int isRegistered(const bteso_SocketHandle::Handle& handle,
                              const bteso_EventType::Type       event) const;
         // Dummy function: record this operation details such as parameters
@@ -325,6 +333,16 @@ const bsl::vector<HelperEventManager::OperationDetails>&
                              // ---------
                              // ACCESSORS
                              // ---------
+
+bool HelperEventManager::canRegisterSockets() const
+{
+    return true;
+}
+
+bool HelperEventManager::hasLimitedSocketCapacity() const
+{
+    return true;
+}
 
 int HelperEventManager::numSocketEvents(
                         const bteso_SocketHandle::Handle& socketHandle) const

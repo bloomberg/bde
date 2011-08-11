@@ -460,6 +460,12 @@ class my_TimerEventManager : public bteso_TimerEventManager {
     int rescheduleTimer(const void               *timerId,
                         const bdet_TimeInterval&  expiryTime)
         { *d_fun = 15; return 0; }
+
+    bool canRegisterSockets() const
+        { *d_fun = 16; return true; }
+
+    bool hasLimitedSocketCapacity() const
+        { *d_fun = 17; return true; }
 };
 
 //==========================================================================
