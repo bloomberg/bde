@@ -625,36 +625,16 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
-#ifndef INCLUDED_BCES_ATOMICUTILIMPL_SPARC32
-#include <bces_atomicutilimpl_sparc32.h>
-#endif
-
-#ifndef INCLUDED_BCES_ATOMICUTILIMPL_SPARCV9
-#include <bces_atomicutilimpl_sparcv9.h>
-#endif
-
-#ifndef INCLUDED_BCES_ATOMICUTILIMPL_AMD64
-#include <bces_atomicutilimpl_amd64.h>
-#endif
-
-#ifndef INCLUDED_BCES_ATOMICUTILIMPL_IA64
-#include <bces_atomicutilimpl_ia64.h>
-#endif
-
-#ifndef INCLUDED_BCES_ATOMICUTILIMPL_INTEL_PENTIUM
-#include <bces_atomicutilimpl_intel_pentium.h>
-#endif
-
-#ifndef INCLUDED_BCES_ATOMICUTILIMPL_POWERPC
-#include <bces_atomicutilimpl_powerpc.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORMUTIL
 #include <bsls_platformutil.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
 namespace BloombergLP {
@@ -670,12 +650,16 @@ struct bces_AtomicUtil {
     // Each operation is guaranteed to execute atomically on the current
     // architecture (as defined by bsls_Platform::Cpu).
 
+  private:
+      enum { SPIN_UNLOCKED = 0, SPIN_LOCKED = 1 };
+
+  public:
     // TYPES
-    typedef bces_AtomicUtilImpl<bsls_Platform::Cpu>            Impl;
-    typedef bces_AtomicUtilImpl<bsls_Platform::Cpu>::Int       Int;
-    typedef bces_AtomicUtilImpl<bsls_Platform::Cpu>::Int64     Int64;
-    typedef bces_AtomicUtilImpl<bsls_Platform::Cpu>::Pointer   Pointer;
-    typedef bces_AtomicUtilImpl<bsls_Platform::Cpu>::SpinLock  SpinLock;
+    typedef bsls_AtomicOperations::Imp              Impl;
+    typedef bsls_AtomicOperations::Types::Int       Int;
+    typedef bsls_AtomicOperations::Types::Int64     Int64;
+    typedef bsls_AtomicOperations::Types::Pointer   Pointer;
+    typedef bsls_AtomicOperations::Types::Int       SpinLock;
 
     // CLASS METHODS
     static void initInt(bces_AtomicUtil::Int *atomicInt, int initalValue = 0);
@@ -919,7 +903,7 @@ void bces_AtomicUtil::initPointer(bces_AtomicUtil::Pointer *atomicPtr,
 inline
 void bces_AtomicUtil::initSpinLock(bces_AtomicUtil::SpinLock *spinlock)
 {
-    Impl::initSpinLock(spinlock);
+    spinlock->d_value = 0;
 }
 
 inline
@@ -969,13 +953,13 @@ void bces_AtomicUtil::setIntRelaxed(bces_AtomicUtil::Int *atomicInt, int value)
 inline
 int bces_AtomicUtil::getInt(const bces_AtomicUtil::Int& atomicInt)
 {
-    return Impl::getInt(atomicInt);
+    return Impl::getInt(&atomicInt);
 }
 
 inline
 int bces_AtomicUtil::getIntRelaxed(const bces_AtomicUtil::Int& atomicInt)
 {
-    return Impl::getIntRelaxed(atomicInt);
+    return Impl::getIntRelaxed(&atomicInt);
 }
 
 inline
@@ -1087,26 +1071,26 @@ inline
 bsls_PlatformUtil::Int64 bces_AtomicUtil::getInt64(
                                        const bces_AtomicUtil::Int64& atomicInt)
 {
-    return Impl::getInt64(atomicInt);
+    return Impl::getInt64(&atomicInt);
 }
 
 inline
 bsls_PlatformUtil::Int64 bces_AtomicUtil::getInt64Relaxed(
                                        const bces_AtomicUtil::Int64& atomicInt)
 {
-    return Impl::getInt64Relaxed(atomicInt);
+    return Impl::getInt64Relaxed(&atomicInt);
 }
 
 inline
 void *bces_AtomicUtil::getPtr(const bces_AtomicUtil::Pointer& atomicPtr)
 {
-    return Impl::getPtr(atomicPtr);
+    return const_cast<void *>(Impl::getPtr(&atomicPtr));
 }
 
 inline
 void *bces_AtomicUtil::getPtrRelaxed(const bces_AtomicUtil::Pointer& atomicPtr)
 {
-    return Impl::getPtrRelaxed(atomicPtr);
+    return const_cast<void *>(Impl::getPtrRelaxed(&atomicPtr));
 }
 
 inline
@@ -1143,20 +1127,34 @@ void *bces_AtomicUtil::testAndSwapPtr(bces_AtomicUtil::Pointer *atomicPtr,
 inline
 void bces_AtomicUtil::spinLock(bces_AtomicUtil::SpinLock *spinlock)
 {
-    Impl::spinLock(spinlock);
+    do {
+        if (Impl::getIntAcquire(spinlock) == SPIN_UNLOCKED) {
+            if (Impl::swapIntAcqRel(spinlock, SPIN_LOCKED) == SPIN_UNLOCKED) {
+                return;
+            }
+        }
+    } while(1);
 }
 
 inline
 int bces_AtomicUtil::spinTryLock(bces_AtomicUtil::SpinLock *spinlock,
-                                 int                         retries)
+                                 int                        retries)
 {
-    return Impl::spinTryLock(spinlock, retries);
+    do {
+        if (Impl::getIntAcquire(spinlock) == SPIN_UNLOCKED) {
+            if (Impl::swapIntAcqRel(spinlock, SPIN_LOCKED) == SPIN_UNLOCKED) {
+                return 0;
+            }
+        }
+    } while(retries--);
+
+    return -1;
 }
 
 inline
 void bces_AtomicUtil::spinUnlock(bces_AtomicUtil::SpinLock *spinlock)
 {
-    Impl::spinUnlock(spinlock);
+    Impl::setIntRelease(spinlock, SPIN_UNLOCKED);
 }
 
 }  // close namespace BloombergLP

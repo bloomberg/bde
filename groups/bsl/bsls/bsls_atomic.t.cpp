@@ -1,14 +1,10 @@
-// bces_atomictypes.t.cpp           -*-C++-*-
+// bsls_atomic.t.cpp                                                  -*-C++-*-
+#include <bsls_atomic.h>
 
-#include <bces_atomictypes.h>
+#include <bsls_types.h>
 
-#include <bslma_allocator.h>
-#include <bslma_default.h>       // for usage example(s)
-#include <bsls_objectbuffer.h>
-#include <bsls_platformutil.h>
-
-#include <bsl_cstdlib.h>               // atoi()
-#include <bsl_iostream.h>
+#include <stdlib.h>               // atoi(), rand()
+#include <iostream>
 
 // For thread support
 #ifdef BSLS_PLATFORM__OS_WINDOWS
@@ -16,11 +12,12 @@
 typedef HANDLE thread_t;
 #else
 #include <pthread.h>
+#include <unistd.h>
 typedef pthread_t thread_t;
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace std;
 
 //=============================================================================
 //                                   TEST PLAN
@@ -28,18 +25,18 @@ using namespace bsl;  // automatically added by script
 //                                   Overview
 //                                   --------
 // This component provides a set of wrapper classes for their respective
-// 'bces_AtomicUtil' types and operations.  Since the provided classes are
-// only proxies to the respective atomic operations, this test driver
-// only verifies that each class and operation, is properly "hooked up" to its
-// respective 'bces_AtomicUtil' type and operation.
+// atomic types and operations.  Since the provided classes are only proxies to
+// the respective atomic operations, this test driver only verifies that each
+// class and operation, is properly "hooked up" to its respective atomic type
+// and operation.
 //
 //-----------------------------------------------------------------------------
-// bces_AtomicInt
+// bsls_AtomicInt
 // --------------
-// [ 2] bces_AtomicInt();
-// [ 3] bces_AtomicInt(const bces_AtomicInt& rhs);
-// [ 3] bces_AtomicInt(int value);
-// [ 2] ~bces_AtomicInt();
+// [ 2] bsls_AtomicInt();
+// [ 3] bsls_AtomicInt(const bsls_AtomicInt& rhs);
+// [ 3] bsls_AtomicInt(int value);
+// [ 2] ~bsls_AtomicInt();
 // [ 5] int swap(int swapValue);
 // [ 5] int testAndSwap(int compareValue,int swapValue);
 // [ 4] int add(int value);
@@ -47,52 +44,44 @@ using namespace bsl;  // automatically added by script
 // [ 6] int operator ++(int);
 // [ 6] int operator --();
 // [ 6] int operator --(int);
-// [ 3] bces_AtomicInt& operator= (const bces_AtomicInt& rhs);
-// [ 2] bces_AtomicInt& operator= (int value);
+// [ 3] bsls_AtomicInt& operator= (const bsls_AtomicInt& rhs);
+// [ 2] bsls_AtomicInt& operator= (int value);
 // [ 4] void operator +=(int value);
 // [ 4] void operator -=(int value);
 // [ 2] operator int() const;
 //
-// bces_AtomicInt64
+// bsls_AtomicInt64
 // ----------------
-// [ 2] bces_AtomicInt64();
-// [ 3] bces_AtomicInt64(const bces_AtomicInt64& original);
-// [ 3] bces_AtomicInt64(bsls_PlatformUtil::Int64 value);
-// [ 2] ~bces_AtomicInt64();
-// [ 4] bsls_PlatformUtil::Int64 add(bsls_PlatformUtil::Int64 value);
-// [ 5] bsls_PlatformUtil::Int64 swap(bsls_PlatformUtil::Int64 swapValue);
-// [ 5] bsls_PlatformUtil::Int64 testAndSwap(bsls_PlatformUtil::Int64 ...
-// [ 6] bsls_PlatformUtil::Int64 operator ++();
-// [ 6] bsls_PlatformUtil::Int64 operator ++(int);
-// [ 6] bsls_PlatformUtil::Int64 operator --();
-// [ 6] bsls_PlatformUtil::Int64 operator --(int);
-// [ 3] bces_AtomicInt64& operator= (const bces_AtomicInt64& rhs);
-// [ 2] bces_AtomicInt64& operator= (bsls_PlatformUtil::Int64 value);
-// [ 4] void operator +=(bsls_PlatformUtil::Int64 value);
-// [ 4] void operator -=(bsls_PlatformUtil::Int64 value);
-// [ 2] operator bsls_PlatformUtil::Int64() const;
+// [ 2] bsls_AtomicInt64();
+// [ 3] bsls_AtomicInt64(const bsls_AtomicInt64& original);
+// [ 3] bsls_AtomicInt64(bsls_Types::Int64 value);
+// [ 2] ~bsls_AtomicInt64();
+// [ 4] bsls_Types::Int64 add(bsls_Types::Int64 value);
+// [ 5] bsls_Types::Int64 swap(bsls_Types::Int64 swapValue);
+// [ 5] bsls_Types::Int64 testAndSwap(bsls_Types::Int64 ...
+// [ 6] bsls_Types::Int64 operator ++();
+// [ 6] bsls_Types::Int64 operator ++(int);
+// [ 6] bsls_Types::Int64 operator --();
+// [ 6] bsls_Types::Int64 operator --(int);
+// [ 3] bsls_AtomicInt64& operator= (const bsls_AtomicInt64& rhs);
+// [ 2] bsls_AtomicInt64& operator= (bsls_Types::Int64 value);
+// [ 4] void operator +=(bsls_Types::Int64 value);
+// [ 4] void operator -=(bsls_Types::Int64 value);
+// [ 2] operator bsls_Types::Int64() const;
 //
-// bces_AtomicPointer
+// bsls_AtomicPointer
 // ------------------
-// [ 2] bces_AtomicPointer();
-// [ 3] bces_AtomicPointer(const bces_AtomicPointer<T>& original);
-// [ 3] bces_AtomicPointer(const T* value);
-// [ 2] ~bces_AtomicPointer();
+// [ 2] bsls_AtomicPointer();
+// [ 3] bsls_AtomicPointer(const bsls_AtomicPointer<T>& original);
+// [ 3] bsls_AtomicPointer(const T* value);
+// [ 2] ~bsls_AtomicPointer();
 // [ 5] T* swap(const T* swapValue);
 // [ 5] T* testAndSwap(const T* compareValue, const T* swapValue);
-// [ 3] bces_AtomicPointer<T>& operator= (const bces_AtomicPointer<T>& rhs);
-// [ 2] bces_AtomicPointer<T>& operator= (const T *value);
+// [ 3] bsls_AtomicPointer<T>& operator= (const bsls_AtomicPointer<T>& rhs);
+// [ 2] bsls_AtomicPointer<T>& operator= (const T *value);
 // [ 2] T& operator*() const;
 // [ 3] T* operator->() const;
 // [ 2] operator T*() const;
-//
-// bces_SpinLock
-// -------------
-// [ 7] bces_SpinLock();
-// [ 7] ~bces_SpinLock();
-// [ 7] void lock();
-// [ 7] int tryLock(int retries=100);
-// [ 7] void unlock();
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -103,16 +92,22 @@ using namespace bsl;  // automatically added by script
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i) {
+int verbose = 0;
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i) {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}
+
+# define ASSERT(X) do { aSsErT(!(X), #X, __LINE__); } while (0)
 
 //=============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
@@ -145,20 +140,6 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct APTestObj;
-
-typedef bces_AtomicInt                      AI;
-typedef bces_AtomicInt64                    AI64;
-typedef bces_AtomicPointer<APTestObj>       AP;
-typedef bces_AtomicPointer<const APTestObj> CAP;
-typedef bces_SpinLock                       SL;
-
-typedef bsls_PlatformUtil::Int64            Int64;
-
-//=============================================================================
-//                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
-//-----------------------------------------------------------------------------
-
 struct APTestObj
     // This structure is used to test Atomic Pointers the self method
     // returns the 'this' pointer of this object.  The method is used
@@ -168,22 +149,82 @@ struct APTestObj
         // Return a pointer to this object.
 };
 
+typedef bsls_AtomicInt                      AI;
+typedef bsls_AtomicInt64                    AI64;
+typedef bsls_AtomicPointer<APTestObj>       AP;
+typedef bsls_AtomicPointer<const APTestObj> CAP;
+
+typedef bsls_Types::Int64            Int64;
+
+//=============================================================================
+//                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//-----------------------------------------------------------------------------
+
 namespace {
 
+template <typename INT>
+struct LockData
+{
+    INT flags[2];
+    INT turn;     // 0 or 1 - index into d_flags
+};
+
+template <typename INT>
+class PetersonsLock
+    // PetersonsLock class implements the Peterson's locking algorithms for two
+    // concurrently executing threads, using atomic operations on integers with
+    // acquire/release/relaxed memory ordering semantics.
+    //
+    // For the analysis of this algorithm see:
+    // http://www.justsoftwaresolutions.co.uk/threading/
+    //                                   petersons_lock_with_C++0x_atomics.html
+{
+public:
+    PetersonsLock(int id, LockData<INT>& lockData)
+        : d_id(id)
+        , d_data(lockData)
+    {
+        ASSERT(id == 0 || id == 1);
+    }
+
+    void lock()
+    {
+        d().flags[d_id].storeRelaxed(1);
+        d().turn.swapAcqRel(1 - d_id);
+
+        while (d().flags[1 - d_id].loadAcquire()
+            && d().turn.loadAcquire() == 1 - d_id)
+            // Contrary to justsoftwaresolutions 'turn' load needs to be
+            // 'loadAcquire'.
+        {
+            continue;
+        }
+    }
+
+    void unlock()
+    {
+        d().flags[d_id].storeRelease(0);
+    }
+
+private:
+    LockData<INT>& d() const
+    {
+        return d_data;
+    }
+
+private:
+    int             d_id;   // 0 or 1 - id of the thread that owns this object
+    LockData<INT>&  d_data;
+};
+
+template <typename INT>
 class PetersonsLockSeqCst
     // PetersonsLock class implements the Peterson's locking algorithms for two
     // concurrently executing threads, using atomic operations on integers with
     // sequencial consistency memory ordering semantics.
 {
 public:
-    struct Data
-    {
-        bces_AtomicInt  flags[2];
-        bces_AtomicInt  turn;     // 0 or 1 - index into d_flags
-    };
-
-public:
-    PetersonsLockSeqCst(int id, Data& lockData)
+    PetersonsLockSeqCst(int id, LockData<INT>& lockData)
         : d_id(id)
         , d_data(lockData)
     {
@@ -207,14 +248,14 @@ public:
     }
 
 private:
-    Data& d() const
+    LockData<INT>& d() const
     {
         return d_data;
     }
 
 private:
-    int     d_id;       // 0 or 1 - id of the thread that owns this object
-    Data&   d_data;
+    int             d_id;   // 0 or 1 - id of the thread that owns this object
+    LockData<INT>&  d_data;
 };
 
 template <typename LOCK>
@@ -234,9 +275,9 @@ struct Guard
     LOCK& d_lock;
 };
 
-bces_AtomicInt s_data1(0);
-bces_AtomicInt s_data2(0);
-bces_AtomicInt s_data3(1);
+bsls_AtomicInt s_data1(0);
+bsls_AtomicInt s_data2(0);
+bsls_AtomicInt s_data3(1);
 
 template <typename LOCK>
 void testAtomicLocking(LOCK& lock, int iterations)
@@ -248,9 +289,9 @@ void testAtomicLocking(LOCK& lock, int iterations)
             // read shared data
             Guard<LOCK> guard(lock);
 
-            int data1 = s_data1.relaxedLoad();
-            int data2 = s_data2.relaxedLoad();
-            int data3 = s_data3.relaxedLoad();
+            int data1 = s_data1.loadRelaxed();
+            int data2 = s_data2.loadRelaxed();
+            int data3 = s_data3.loadRelaxed();
 
             ASSERT(data1 == -data2 && data1 + 1 == data3);
         }
@@ -259,9 +300,9 @@ void testAtomicLocking(LOCK& lock, int iterations)
             Guard<LOCK> guard(lock);
 
             int data = rand();
-            s_data1.relaxedStore(data);
-            s_data2.relaxedStore(-data);
-            s_data3.relaxedStore(data + 1);
+            s_data1.storeRelaxed(data);
+            s_data2.storeRelaxed(-data);
+            s_data3.storeRelaxed(data + 1);
         }
     }
 }
@@ -314,23 +355,109 @@ void joinThread(thread_t thr)
 }
 
 
-template <typename LOCK>
+template <template <typename> class LOCK, typename INT>
 void testCaseMemOrder()
 {
     int iterations = 10000000;
 
-    typename LOCK::Data lockData;
-    LOCK lock0(0, lockData);
-    LOCK lock1(1, lockData);
+    LockData<INT> lockData;
+    LOCK<INT> lock0(0, lockData);
+    LOCK<INT> lock1(1, lockData);
 
-    AtomicLockingThreadParam<LOCK> param0(lock0, iterations);
-    AtomicLockingThreadParam<LOCK> param1(lock1, iterations);
+    AtomicLockingThreadParam<LOCK<INT> > param0(lock0, iterations);
+    AtomicLockingThreadParam<LOCK<INT> > param1(lock1, iterations);
 
-    thread_t thr0 = createThread(&testAtomicLockingThreadFunc<LOCK>, &param0);
-    thread_t thr1 = createThread(&testAtomicLockingThreadFunc<LOCK>, &param1);
+    thread_t thr0 =
+               createThread(&testAtomicLockingThreadFunc<LOCK<INT> >, &param0);
+    thread_t thr1 =
+               createThread(&testAtomicLockingThreadFunc<LOCK<INT> >, &param1);
 
     joinThread(thr0);
     joinThread(thr1);
+}
+
+
+void testSharedCountWrite(int& data,
+                          bsls_AtomicInt& shared,
+                          bsls_AtomicInt& done)
+{
+    while (!done.loadRelaxed()) {
+        while (shared.loadRelaxed() > 1) {
+            const_cast<int volatile &>(data) = shared.loadRelaxed();
+            shared.addAcqRel(-1);           // plays the role of store release
+        }
+    }
+}
+
+void testSharedCountRead(int& data,
+                         bsls_AtomicInt& shared,
+                         bsls_AtomicInt& done)
+{
+    for (int i = 0; i < 10000000; ++i) {
+        shared.storeRelease(10);
+
+        while (shared.loadRelaxed() != 1) {
+            ;
+        }
+
+        if (shared.addAcqRel(-1) == 0) {    // plays the role of load acquire
+            ASSERT(const_cast<int volatile &>(data) == 2);
+        }
+        else {
+            ASSERT(false && "logic error in test");
+        }
+    }
+
+    done.storeRelaxed(1);
+}
+
+struct SharedCountThreadParam
+{
+    typedef void (*ThreadFunc)(int&, bsls_AtomicInt&, bsls_AtomicInt&);
+
+    SharedCountThreadParam(int& data,
+                           bsls_AtomicInt& shared,
+                           bsls_AtomicInt& done,
+                           ThreadFunc func)
+        : d_data(data)
+        , d_shared(shared)
+        , d_done(done)
+        , d_func(func)
+    {}
+
+    int&            d_data;
+    bsls_AtomicInt& d_shared;
+    bsls_AtomicInt& d_done;
+    ThreadFunc      d_func;
+};
+
+void *testSharedCountThreadFunc(void *arg)
+{
+    SharedCountThreadParam *param
+        = reinterpret_cast<SharedCountThreadParam *>(arg);
+
+    param->d_func(param->d_data, param->d_shared, param->d_done);
+    return 0;
+}
+
+void testCaseSharedPtr()
+{
+    bsls_AtomicInt shared;
+    bsls_AtomicInt done;
+    int data = 0;
+
+    SharedCountThreadParam paramReader(data, shared, done,
+                                       &testSharedCountRead);
+    thread_t thrReader = createThread(&testSharedCountThreadFunc,
+                                      &paramReader);
+
+    SharedCountThreadParam paramWriter(data, shared, done,
+                                       &testSharedCountWrite);
+    thread_t thrWriter = createThread(&testSharedCountThreadFunc,
+                                      &paramWriter);
+
+    joinThread(thrReader);
+    joinThread(thrWriter);
 }
 
 }
@@ -357,9 +484,9 @@ void waitAllThreads()
 {
 }
 
-static bces_AtomicInt64 transactionCount;
-static bces_AtomicInt64 successCount;
-static bces_AtomicInt64 failureCount;
+static bsls_AtomicInt64 transactionCount;
+static bsls_AtomicInt64 successCount;
+static bsls_AtomicInt64 failureCount;
 
 void serverMain()
 {
@@ -370,211 +497,411 @@ void serverMain()
     waitAllThreads();
 }
 
-// EXAMPLE 2
+///Example 2: Thread-safe Counted Handle
+///- - - - - - - - - - - - - - - - - - -
+// The following example demonstrates the use of atomic integer operations to
+// implement a thread-safe ref-counted handle similar to a shared pointer.
+// Each handle (of type 'my_CountedHandle') maintains a pointer to a
+// representation object, 'my_CountedHandleRep', which in turn, stores both a
+// pointer to the managed object and a reference counter.
+//
+// Both the handle class and the representation class are template classes with
+// two template parameters.  The template parameter, 'INSTANCE', represents the
+// type of the "instance", or managed object.
+//
+// A representation object can be shared by several handle objects.  When a
+// handle object is assigned to a second handle object, the address of the
+// representation is copied to the second handle, and the reference count on
+// the representation is atomically incremented.  When a handle releases its
+// reference to the representation, it atomically decrements the reference
+// count.  If the resulting reference count becomes 0 (and there are no more
+// references to the object), the handle deletes the representation object and
+// the representation object, in turn, deletes the managed object ('INSTANCE').
+//
+///Class 'my_CountedHandleRep'
+/// -  -  -  -  -  -  -  -  -
+// First, we define class 'my_CountedHandleRep'.  This class manages a single
+// 'INSTANCE' object on behalf of multiple "handle" objects; since different
+// "handle" objects may be active in different threads, class
+// 'my_CountedHandleRep' must be (fully) thread-safe.  Specifically, methods
+// 'increment' and 'decrement' must work atomically.
+//
+// The class declaration for 'my_CountedHandleRep' is identical to the same
+// class in component 'bsls_atomicoperations', with a single exception: member
+// 'd_count' is of type 'bsls_AtomicInt', rather than
+// 'bsls_AtomicOperations::Int'.  Whereas 'bsls_AtomicOperations::Int' is
+// merely a 'typedef' for a platform-specific data type to be used in atomic
+// integer operations, 'bsls_AtomicInt' encapsulates those atomic operations as
+// member functions and operator overloads.  Class 'my_CountedHandleRep' will
+// benefit from this encapsulation: Its method implementations will be able to
+// operate on 'd_count' as if it were a standard integer.
+//
+// Note that, as in the example in component 'bsls_atomicoperations', this rep
+// class is intended to be used only by class 'my_CountedHandle', and thus all
+// methods of class 'my_CountedHandleRep' are declared private, and 'friend'
+// status is granted to class 'my_CountedHandle':
+//..
+                        // =========================
+                        // class my_CountedHandleRep
+                        // =========================
 
-template <class INSTANCE, class FACTORY>
+template <class INSTANCE>
 class my_CountedHandle;
 
-template <class INSTANCE, class FACTORY>
+template <class INSTANCE>
 class my_CountedHandleRep {
-    bces_AtomicInt  d_count;       // number of active references
-    INSTANCE        *d_instance_p;  // address of managed instance
-    FACTORY         *d_factory_p;   // held but not owned
-    bslma_Allocator *d_allocator_p; // held but not owned
-    friend class my_CountedHandle<INSTANCE, FACTORY>;
-  private: // not implemented
+
+    // DATA
+    bsls_AtomicInt   d_count;        // number of active references
+    INSTANCE        *d_instance_p;   // address of managed instance
+
+    // FRIENDS
+    friend class my_CountedHandle<INSTANCE>;
+
+    // NOT IMPLEMENTED
     my_CountedHandleRep(const my_CountedHandleRep&);
     my_CountedHandleRep& operator=(const my_CountedHandleRep&);
+
   private:
-    // CLASS METHODS
+    // PRIVATE CLASS METHODS
     static void
-    deleteObject(my_CountedHandleRep<INSTANCE, FACTORY> *object);
-    // CREATORS
-    my_CountedHandleRep(INSTANCE        *instance,
-                           FACTORY         *factory,
-                           bslma_Allocator *basicAllocator);
+    deleteObject(my_CountedHandleRep<INSTANCE> *object);
+
+    // PRIVATE CREATORS
+    my_CountedHandleRep(INSTANCE *instance);
     ~my_CountedHandleRep();
-    // MANIPULATORS
+
+    // PRIVATE MANIPULATORS
     void increment();
     int decrement();
 };
-
+//..
+///Class 'my_CountedHandle'
+///-  -  -  -  -  -  -  - -
+// Then, we create class 'my_CountedHandle' that provides an individual handle
+// to the shared, reference-counted object.  Each 'my_CountedHandle' object
+// acts as a smart pointer, supplying an overloaded 'operator->' that provides
+// access to the underlying 'INSTANCE' object via pointer semantics.
+//
+// 'my_CountedHandle' can also be copied freely; the copy constructor will use
+// the 'increment' method from 'my_CountedHandleRep' to note the extra copy.
+// Similarly, the destructor will call 'my_CountedHandleRep::decrement' to note
+// that there is one fewer handle the underlying 'INSTANCE' has, and delete the
+// "rep" object when its reference count is reduced to zero.
+//
+// Similar to 'my_CountedHandleRep', the class declaration for
+// 'my_CountedHandle' is identical to that in 'bsls_atomicoperations':
+//..
                         // ======================
                         // class my_CountedHandle
                         // ======================
 
-template <class INSTANCE, class FACTORY>
+template <class INSTANCE>
 class my_CountedHandle {
-    my_CountedHandleRep<INSTANCE, FACTORY> *d_rep_p;  // shared rep.
+
+    // DATA
+    my_CountedHandleRep<INSTANCE> *d_rep_p;  // shared rep.
+
   public:
     // CREATORS
     my_CountedHandle();
-    my_CountedHandle(INSTANCE        *instance,
-                        FACTORY         *factory,
-                        bslma_Allocator *basicAllocator = 0);
-    my_CountedHandle(const my_CountedHandle<INSTANCE, FACTORY>& other);
+    my_CountedHandle(INSTANCE        *instance);
+
+    my_CountedHandle(const my_CountedHandle<INSTANCE>& other);
+
     ~my_CountedHandle();
-     // ACCESSORS
+
+    // ACCESSORS
     INSTANCE *operator->() const;
     int numReferences() const;
 };
-
-template <class INSTANCE, class FACTORY>
+//..
+///Function Definitions for 'my_CountedHandleRep'
+///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+// Next, we provide a definition for the 'static' 'deleteObject' method, which
+// is called by the destructor for class 'my_CountedHandle' for the last
+// instance of 'my_CountedHandle' using the given "rep" object:
+//..
+template <class INSTANCE>
 inline
-void my_CountedHandleRep<INSTANCE, FACTORY>::deleteObject(
-                             my_CountedHandleRep<INSTANCE, FACTORY> *object)
+void my_CountedHandleRep<INSTANCE>::deleteObject(
+                                     my_CountedHandleRep<INSTANCE> *object)
 {
-    object->~my_CountedHandleRep();
-    object->d_allocator_p->deallocate(object);
+    delete object;
 }
-
-template <class INSTANCE, class FACTORY>
+//..
+// Then, we define the constructor for the 'my_CountedHandleRep<INSTANCE>'
+// class.  Member 'd_count' is initialized to 1, reflecting the fact that this
+// constructor will be called by a new instance of 'my_CountedHandle', which
+// instance is our first and only handle when this constructor is called:
+// notice that 'd_count' (of type 'bsls_AtomicInt') is initialized as if it
+// were a simple integer; its constructor guarantees that the initialization is
+// done atomically.
+//..
+template <class INSTANCE>
 inline
-my_CountedHandleRep<INSTANCE, FACTORY>::
-                        my_CountedHandleRep(INSTANCE        *instance,
-                                            FACTORY         *factory,
-                                            bslma_Allocator *basicAllocator)
+my_CountedHandleRep<INSTANCE>:: my_CountedHandleRep(INSTANCE *instance)
 : d_instance_p(instance)
-, d_factory_p(factory)
-, d_allocator_p(basicAllocator)
 , d_count(1)
 {
 }
-
-template <class INSTANCE, class FACTORY>
+//..
+// Then, we define the destructor, which just deletes 'my_CountedHandle'
+// 'd_instance_p':
+//..
+template <class INSTANCE>
 inline
-my_CountedHandleRep<INSTANCE, FACTORY>::~my_CountedHandleRep()
+my_CountedHandleRep<INSTANCE>::~my_CountedHandleRep()
 {
-    d_factory_p->deallocate(d_instance_p);
+    delete d_instance_p;
 }
+//..
+// Next, we define method 'increment', which is called by 'my_CountedHandle'
+// to add a new reference to the current "rep" object, which simply increments
+// 'd_count', using the prefix 'operator++':
+//..
 // MANIPULATORS
-template <class INSTANCE, class FACTORY>
+template <class INSTANCE>
 inline
-void my_CountedHandleRep<INSTANCE, FACTORY>::increment()
+void my_CountedHandleRep<INSTANCE>::increment()
 {
     ++d_count;
 }
-
-template <class INSTANCE, class FACTORY>
+//..
+// The above operation must be done atomically in a multi-threaded context;
+// class 'bsls_AtomicInt' provides this guarantee for all its overloaded
+// operators, and 'my_CountedHandleRep' relies upon this guarantee.
+//
+// Then, we implement method 'decrement', which is called by 'my_CountedHandle'
+// when a reference to the current "rep" object is being deleted:
+//..
+template <class INSTANCE>
 inline
-int my_CountedHandleRep<INSTANCE, FACTORY>::decrement()
+int my_CountedHandleRep<INSTANCE>::decrement()
 {
     return --d_count;
 }
+//..
+// This method atomically decrements the number of references to this
+// 'my_CountedHandleRep' and, once again, atomicity is guaranteed by the
+// underlying type of 'd_count'.
+//
+///Function Definitions for 'my_CountedHandle'
+///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+// Next, we define the first constructor for 'my_CountedHandle', which is used
+// when creating a handle for a new 'INSTANCE'; note that the 'INSTANCE' is
+// constructed separately, and a pointer to that object is passed as the first
+// argument ('object'):
+//..
                         // ----------------------
                         // class my_CountedHandle
                         // ----------------------
 
-template <class INSTANCE, class FACTORY>
+// CREATORS
+template <class INSTANCE>
 inline
-my_CountedHandle<INSTANCE, FACTORY>::my_CountedHandle()
-: d_rep_p(0)
+my_CountedHandle<INSTANCE>::my_CountedHandle(INSTANCE *object)
 {
+    d_rep_p = new my_CountedHandleRep<INSTANCE>(object);
 }
-
-template <class INSTANCE, class FACTORY>
+//..
+// Then, we define the copy constructor; the new object copies the underlying
+// 'my_CountedHandleRep' and then increments its counter:
+//..
+template <class INSTANCE>
 inline
-my_CountedHandle<INSTANCE, FACTORY>::my_CountedHandle(
-                                             INSTANCE        *object,
-                                             FACTORY         *factory,
-                                             bslma_Allocator *basicAllocator)
-{
-    bslma_Allocator *ba = bslma_Default::allocator(basicAllocator);
-    d_rep_p = new(ba->allocate(sizeof *d_rep_p))
-                my_CountedHandleRep<INSTANCE, FACTORY>(object, factory, ba);
-}
-
-template <class INSTANCE, class FACTORY>
-inline
-my_CountedHandle<INSTANCE, FACTORY>::my_CountedHandle(
-                           const my_CountedHandle<INSTANCE, FACTORY>& other)
+my_CountedHandle<INSTANCE>::my_CountedHandle(
+                                   const my_CountedHandle<INSTANCE>& other)
 : d_rep_p(other.d_rep_p)
 {
     if (d_rep_p) {
         d_rep_p->increment();
     }
 }
-
-template <class INSTANCE, class FACTORY>
+//..
+// Next, we define the destructor which decrements the "rep" object's reference
+// count using the 'decrement' method.  The 'decrement' method returns the
+// object's reference count after the decrement is completed, and
+// 'my_CountedHandle' uses this value to determine whether the "rep" object
+// should be deleted:
+//..
+template <class INSTANCE>
 inline
-my_CountedHandle<INSTANCE, FACTORY>::~my_CountedHandle()
+my_CountedHandle<INSTANCE>::~my_CountedHandle()
 {
     if (d_rep_p && 0 == d_rep_p->decrement()) {
-        my_CountedHandleRep<INSTANCE, FACTORY>::deleteObject(d_rep_p);
+        my_CountedHandleRep<INSTANCE>::deleteObject(d_rep_p);
     }
 }
-
-template <class INSTANCE, class FACTORY>
+//..
+// Now, we define member 'operator->()', which provides basic pointer semantics
+// for 'my_CountedHandle':
+//..
+// ACCESSORS
+template <class INSTANCE>
 inline
-INSTANCE *my_CountedHandle<INSTANCE, FACTORY>::operator->() const
+INSTANCE *my_CountedHandle<INSTANCE>::operator->() const
 {
     return d_rep_p->d_instance_p;
 }
-
-template <class INSTANCE, class FACTORY>
+//..
+// Finally, we define method 'numReferences', which returns the value of the
+// reference counter:
+//..
+template <class INSTANCE>
 inline
-int my_CountedHandle<INSTANCE, FACTORY>::numReferences() const
+int my_CountedHandle<INSTANCE>::numReferences() const
 {
-    return d_rep_p ? bces_AtomicUtil::getInt(d_rep_p->d_count) : 0;
+    return d_rep_p ? d_rep_p->d_count : 0;
 }
-
-// EXAMPLE 3
+//..
+// Note that, while class 'my_CountedHandleRep' is itself fully thread-safe, it
+// does not guarantee thread safety for the 'INSTANCE' object.  In order to
+// provide thread safety for the 'INSTANCE' in the general case, the "rep"
+// would need to use a more general concurrency mechanism such as a mutex.
+//
+///Example 3: Thread-Safe Lock-Free Singly-Linked List
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates the use of atomic pointers to implement a fast and
+// thread-aware, yet fast single-linked list.  The example class,
+// 'my_PtrStack', is a templatized pointer stack, supporting 'push' and 'pop'
+// methods.  The class is implemented using a single-linked list.  Nodes in the
+// list are linked together using atomic operations.  Instance of this
+// structure are allocated using the provided allocator.  When nodes are freed,
+// they are cached on a free list.  This free list is also implemented as a
+// single-linked list, using atomic pointer operations.
+//
+// This example parallels the third usage example given for component
+// 'bsls_atomicoperations', presenting a different implementation of
+// 'my_PtrStack<T>', with an identical public interface.  Note that, where the
+// 'bsls_atomicoperations' example uses the basic data type
+// 'bsls_AtomicOperations::Types::Pointer' for members 'd_list' and
+// 'd_freeList', this implementation uses instead the higher-level type
+// 'bsls_AtomicPointer<T>'.
+//
+// First, we create class template, 'my_PtrStack', parameterized by 'TYPE'.
+// Instances of this template maintain a list of nodes and a free-node list.
+// Each node has a pointer to a data item, 'd_item_p', a link to the next node
+// in the list, 'd_next_p' and an atomic flag, 'd_inUseFlag', intended for
+// lock-free list manipulation.  The definition of the 'my_PtrStack' class is
+// provided below:
+//..
 template <class TYPE>
 class my_PtrStack {
-    struct Node {
-        TYPE                 *d_item;
-        Node                 *d_next;
-        bces_AtomicUtil::Int d_dirtyBit;
+    // TYPES
+    typedef struct Node {
+        TYPE                 *d_item_p;
+        Node                 *d_next_p;
+        bsls_AtomicInt        d_inUseFlag; // used to lock this node
     };
-    bces_AtomicPointer<Node>  d_list_p;
-    bces_AtomicPointer<Node>  d_freeList_p;
-    bslma_Allocator *d_allocator_p;
+
+    // DATA
+    bsls_AtomicPointer<Node>  d_list;
+    bsls_AtomicPointer<Node>  d_freeList;
+
+    // PRIVATE MANIPULATORS
     Node *allocateNode();
     void freeNode(Node *node);
+    void deleteNodes(Node *node);
+
   public:
-    my_PtrStack(bslma_Allocator *allocator=0);
+    // CREATORS
+    my_PtrStack();
    ~my_PtrStack();
-    void push(TYPE* item);
+
+    // MANIPULATORS
+    void push(TYPE *item);
     TYPE *pop();
 };
-
+//..
+// Then, we write a constructor that default-initializes the stack.  In the
+// corresponding example in 'bsls_atomicoperations', the constructor must also
+// initialize the atomic pointer 'd_freeList'.  Since this example uses the
+// encapsulated type 'bsls_AtomicPointer', initialization of these member
+// variables is done in their default constructors.  Hence, no explicit code is
+// required in this constructor:
+//..
+// CREATORS
 template <class TYPE>
-inline my_PtrStack<TYPE>::my_PtrStack(bslma_Allocator *allocator)
-: d_allocator_p(allocator)
+inline my_PtrStack<TYPE>::my_PtrStack()
 {
+}
+//..
+// Next, we define the 'deleteNodes' and the destructor function to delete
+// nodes that the 'my_PtrStack' object owns.  Note that we don't need to worry
+// about the concurrent access to node lists in the destructor, as destructor
+// can be executed in only a single thread:
+//..
+template <class TYPE>
+inline void my_PtrStack<TYPE>::deleteNodes(Node *node)
+{
+    while (node) {
+        Node *next = node->d_next_p;
+        delete node;
+        node = next;
+    }
 }
 
 template <class TYPE>
 inline my_PtrStack<TYPE>::~my_PtrStack()
 {
+    deleteNodes(d_list);
+    deleteNodes(d_freeList);
 }
-
+//..
+// Then, we define method 'allocateNode' to get a node from the free list in
+// the thread-safe manner by leveraging atomic operations to ensure proper
+// thread synchronization:
+//..
+// PRIVATE MANIPULATORS
 template <class TYPE>
-inline
-typename my_PtrStack<TYPE>::Node* my_PtrStack<TYPE>::allocateNode()
+typename my_PtrStack<TYPE>::Node *my_PtrStack<TYPE>::allocateNode()
 {
     Node *node;
-    do {
-        node = d_freeList_p;
+    while (1) {
+        node = d_freeList; // get the current head
         if (!node) {
             break;
         }
-        if (bces_AtomicUtil::swapInt(&node->d_dirtyBit, 1)) {
+//..
+// Next, we try locking the node, and start over if locking fails:
+//..
+        if (node->d_inUseFlag.swapInt(1)) {
             continue;
         }
-        if (d_freeList_p.testAndSwap(node, node->d_next) == node) {
+//..
+// Then, we atomically modify the head if it has not changed.  'testAndSwap'
+// compares 'd_freeList' to 'node', replacing 'node' with 'node->d_next_p' only
+// if it matches 'd_freeList'.  If 'd_freeList' did not match 'node', then the
+// free list has been changed on another thread, between its assignment to the
+// 'node' and the call to 'testAndSwap'.  If the list head has changed, then
+// try again:
+//..
+        if (d_freeList.testAndSwap(node, node->d_next_p) == node) {
             break;
         }
-        bces_AtomicUtil::setInt(&node->d_dirtyBit, 0);
-    } while (1);
-    if (!node) {
-        bslma_Allocator *ba = bslma_Default::allocator(d_allocator_p);
-        node = new(*ba) Node();
-        bces_AtomicUtil::setInt(&node->d_dirtyBit, 1);
+
+        // Unlock the node.
+        node->d_inUseFlag = 0;
     }
+//..
+// Next, we allocate a new node if there were no nodes in the free node list:
+//..
+    if (!node) {
+        node = new Node();  // should allocate with 'd_allocator_p', but
+                            // here we use 'new' directly for simplicity
+        node->d_inUseFlag = 1;
+    }
+
     return node;
 }
-
+//..
+// Note that the 'node' is returned in the locked state and remained
+// locked until it is added to the free list.
+//
+// Then, we define the 'freeNode' method to add a given 'node' to the free
+// list; 'freeNode' also needs to be synchronized using atomic operations:
+//..
 template <class TYPE>
 inline void my_PtrStack<TYPE>::freeNode(Node *node)
 {
@@ -582,55 +909,75 @@ inline void my_PtrStack<TYPE>::freeNode(Node *node)
         return;
     }
 
-    do {
-        node->d_next = d_freeList_p;
-        if (d_freeList_p.testAndSwap(node->d_next, node) == node->d_next) {
+    while (1) {
+        node->d_next_p = d_freeList;
+        // Atomically test and swap the head of the list with the
+        // new node.  If the list head has been changed (by another
+        // thread), try again.
+        if (d_freeList.testAndSwap(node->d_next_p, node) == node->d_next_p)
+        {
             break;
         }
-    } while(1);
-    bces_AtomicUtil::setInt(&node->d_dirtyBit, 0);
-}
+    }
 
+    // unlock the 'node'
+    node->d_inUseFlag = 0;
+}
+//..
+// Now, we begin to define the public "stack-like" interface for 'my_PtrStack'.
+// Note that the 'push' method is similar to 'freeNode', except that it assigns
+// an item value and operates on 'd_list', which maintains the list of active
+// nodes:
+//..
+// MANIPULATORS
 template <class TYPE>
-inline void my_PtrStack<TYPE>::push( TYPE* item )
+void my_PtrStack<TYPE>::push(TYPE *item)
 {
     Node *node = allocateNode();
-    node->d_item = item;
-    do {
-        node->d_next = d_list_p;
-        if (d_list_p.testAndSwap(node->d_next, node) == node->d_next) {
+    node->d_item_p = item;
+    while (1) {
+        node->d_next_p = d_list;
+        if (d_list.testAndSwap(node->d_next_p, node) == node->d_next_p) {
             break;
         }
-    } while(1);
-    bces_AtomicUtil::setInt(&node->d_dirtyBit, 0);
-}
+    }
 
+    node->d_inUseFlag = 0;
+}
+//..
+// Finally, we define the 'pop' method which removes the node from the top
+// of active node list, 'd_list', adds it to the free-node list, and returns
+// the data item contained in the node to the caller:
+//..
 template <class TYPE>
-inline TYPE *my_PtrStack<TYPE>::pop()
+TYPE *my_PtrStack<TYPE>::pop()
 {
     Node *node;
-    do {
-        node = d_list_p;
+    while (1) {
+        node = d_list;
         if (!node) {
             break;
         }
 
-        if (bces_AtomicUtil::swapInt(&node->d_dirtyBit, 1)) {
-            continue;
+        if (node->d_inUseFlag.swapInt(1)) {
+            continue;  // node is locked
         }
 
-        if (d_list_p.testAndSwap(node, node->d_next) == node) {
-            break;
+        if (d_list.testAndSwap(node, node->d_next_p) == node) {
+            break;  // node list is being modified in another thread
         }
 
-        bces_AtomicUtil::setInt(&node->d_dirtyBit, 0);
-    } while (1);
+        node->d_inUseFlag = 0;
+    }
 
-    TYPE *item = node ? node->d_item : 0;
-    if (node)
+    TYPE *item = node ? node->d_item_p : 0;
+    if (node) {
         freeNode(node);
+    }
     return item;
 }
+//..
+// Notice that if the stack was empty, a NULL pointer is returned.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -639,7 +986,7 @@ inline TYPE *my_PtrStack<TYPE>::pop()
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
@@ -647,6 +994,45 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 9: {
+        // TESTING USAGE Examples
+        //
+        // Plan:
+        //
+        // Testing:
+        {
+            my_PtrStack<int> stack;
+        }
+        {
+            my_CountedHandle<double> handle(NULL);
+        }
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING MEMORY ORDERING OF ATOMIC OPERATIONS USED IN SHARED POINTER
+        //
+        // Concerns:
+        //   Atomic operations commonly used to implement a shared pointer
+        //   class implement the guaranteed memory orderings.
+        //
+        // Plan:
+        //  1. Emulate the operations on shared count typically used in a
+        //     shared pointer class:
+        //    a. increment the shared count,
+        //    b. decrement the shared count,
+        //    c. access the shared data after the count is decremented.
+        //  2. Create and start two threads that perform the above operations
+        //     on the same shared count, and also manipulate the shared data.
+        //  3. What the shared count is decremented to 0, verify that the
+        //     shared data is in expected state.
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << "\nTesting atomic operations used in shared pointer"
+                 << "\n================================================"
+                 << endl;
+
+        testCaseSharedPtr();
+      } break;
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING MEMORY ORDERING GUARANTEES OF ATOMIC OPERATIONS
         //
@@ -670,61 +1056,21 @@ int main(int argc, char *argv[])
                           << "\n=================================="
                           << endl;
 
-        if (verbose) cout << "\nTesting sequencial consistency" << endl;
+        if (verbose) cout << "\tTesting sequencial consistency" << endl;
 
-        testCaseMemOrder<PetersonsLockSeqCst>();
+        if (verbose) cout << "\t\twith bsls_AtomicInt" << endl;
+        testCaseMemOrder<PetersonsLockSeqCst, bsls_AtomicInt>();
 
-      } break;
-      case 8: {
-        // TESTING USAGE Examples
-        //
-        // Plan:
-        //
-        // Testing:
-        {
-            my_PtrStack<int> stack;
-        }
-        {
-            my_CountedHandle<double, bslma_Allocator> handle;
-        }
-      } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // TESTING Spinlocks
-        //   Test basic spinlock behavior.
-        //
-        // Plan:
-        //   Performing basic non-threaded tests to assert that the lock,
-        //   unlock, and trylock operations are working correctly.
-        //
-        // Testing:
-        //   initSpinLock(bces_AtomicUtil::SpinLock *aSpin);
-        //   spinLock(bces_AtomicUtil::SpinLock *aSpin);
-        //   spinTryLock(bces_AtomicUtil::SpinLock *aSpin, int retries);
-        //   spinUnlock(bces_AtomicUtil::SpinLock *aSpin);
-        // --------------------------------------------------------------------
+        if (verbose) cout << "\t\twith bsls_AtomicInt64" << endl;
+        testCaseMemOrder<PetersonsLockSeqCst, bsls_AtomicInt64>();
 
-        if (verbose) cout << "\nTesting Spinlocks"
-                          << "\n================="
-                          << endl;
-        {
-            int result;
-            SL s;
+        if (verbose) cout << "\tTesting acquire/release" << endl;
 
-            s.lock();
+        if (verbose) cout << "\t\twith bsls_AtomicInt" << endl;
+        testCaseMemOrder<PetersonsLock, bsls_AtomicInt>();
 
-            result = s.tryLock(100);
-            ASSERT(0 != result);
-
-            s.unlock();
-
-            result = s.tryLock(1);
-            ASSERT(0 == result);
-            result = s.tryLock(1);
-            ASSERT(0 != result);
-
-            s.unlock();
-        }
+        if (verbose) cout << "\t\twith bsls_AtomicInt64" << endl;
+        testCaseMemOrder<PetersonsLock, bsls_AtomicInt64>();
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -749,10 +1095,10 @@ int main(int argc, char *argv[])
         //  int operator ++(int);
         //  int operator --();
         //  int operator --(int);
-        //  bsls_PlatformUtil::Int64 operator ++();
-        //  bsls_PlatformUtil::Int64 operator ++(int);
-        //  bsls_PlatformUtil::Int64 operator --();
-        //  bsls_PlatformUtil::Int64 operator --(int);
+        //  bsls_Types::Int64 operator ++();
+        //  bsls_Types::Int64 operator ++(int);
+        //  bsls_Types::Int64 operator --();
+        //  bsls_Types::Int64 operator --(int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Increment/Decrement Manipulators"
@@ -1019,8 +1365,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   int swap(int swapValue);
         //   int testAndSwap(int compareValue,int swapValue);
-        //   bsls_PlatformUtil::Int64 swap(bsls_PlatformUtil::Int64 swapValue);
-        //   bsls_PlatformUtil::Int64 testAndSwap(bsls_PlatformUtil::Int64 ...
+        //   bsls_Types::Int64 swap(bsls_Types::Int64 swapValue);
+        //   bsls_Types::Int64 testAndSwap(bsls_Types::Int64 ...
         //   T* swap(const T* swapValue);
         //   T* testAndSwap(const T* compareValue, const T* swapValue);
         // --------------------------------------------------------------------
@@ -1310,9 +1656,9 @@ int main(int argc, char *argv[])
         //   int add(int value);
         //   void operator +=(int value);
         //   void operator -=(int value);
-        //   bsls_PlatformUtil::Int64 add(bsls_PlatformUtil::Int64 value);
-        //   void operator +=(bsls_PlatformUtil::Int64 value);
-        //   void operator -=(bsls_PlatformUtil::Int64 value);
+        //   bsls_Types::Int64 add(bsls_Types::Int64 value);
+        //   void operator +=(bsls_Types::Int64 value);
+        //   void operator -=(bsls_Types::Int64 value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1577,15 +1923,15 @@ int main(int argc, char *argv[])
         //   Verify that the value of 'x', 'y', and 'z' are correct.
         //
         // Testing:
-        //   bces_AtomicInt(const bces_AtomicInt& rhs);
-        //   bces_AtomicInt(int value);
-        //   bces_AtomicInt& operator= (const bces_AtomicInt& rhs);
-        //   bces_AtomicInt64(const bces_AtomicInt64& original);
-        //   bces_AtomicInt64(bsls_PlatformUtil::Int64 value);
-        //   bces_AtomicInt64& operator= (const bces_AtomicInt64& rhs);
-        //   bces_AtomicPointer(const bces_AtomicPointer<T>& original);
-        //   bces_AtomicPointer(const T* value);
-        //   bces_AtomicPointer<T>& operator=(const bces_AtomicPointer<T>&);
+        //   bsls_AtomicInt(const bsls_AtomicInt& rhs);
+        //   bsls_AtomicInt(int value);
+        //   bsls_AtomicInt& operator= (const bsls_AtomicInt& rhs);
+        //   bsls_AtomicInt64(const bsls_AtomicInt64& original);
+        //   bsls_AtomicInt64(bsls_Types::Int64 value);
+        //   bsls_AtomicInt64& operator= (const bsls_AtomicInt64& rhs);
+        //   bsls_AtomicPointer(const bsls_AtomicPointer<T>& original);
+        //   bsls_AtomicPointer(const T* value);
+        //   bsls_AtomicPointer<T>& operator=(const bsls_AtomicPointer<T>&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Primary Manipulators"
@@ -1612,11 +1958,11 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
 
-                AI x(VAL);  const AI& X = x;
-                AI y(X);    const AI& Y = y;
-                AI z;       const AI& Z = z;
+                AI x(VAL);              const AI& X = x;
+                AI y(X.loadRelaxed());  const AI& Y = y;
+                AI z;                   const AI& Z = z;
 
-                z = X;
+                z = X.loadRelaxed();
                 if (veryVerbose) {
                     T_(); P_(X); P_(Y); P_(Z); P(VAL);
                 }
@@ -1647,11 +1993,11 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Int64 VAL = VALUES[i].d_value;
 
-                AI64 x(VAL); const AI64& X = x;
-                AI64 y(X);   const AI64& Y = y;
-                AI64 z;      const AI64& Z = z;
+                AI64 x(VAL);                const AI64& X = x;
+                AI64 y(X.loadRelaxed());    const AI64& Y = y;
+                AI64 z;                     const AI64& Z = z;
 
-                z = X;
+                z = X.loadRelaxed();
                 if (veryVerbose) {
                     T_(); P_(X); P_(Y); P_(Z); P(VAL);
                 }
@@ -1662,7 +2008,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                          "\nTesting 'bces_AtomicPointer' Primary Manipulators"
+                          "\nTesting 'bsls_AtomicPointer' Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -1683,11 +2029,11 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_VALUES; ++i) {
                 APTestObj* VAL  = VALUES[i].d_value;
 
-                AP x(VAL); const AP& X = x;
-                AP y(X);   const AP& Y = y;
-                AP z;      const AP& Z = z;
+                AP x(VAL);              const AP& X = x;
+                AP y(X.loadRelaxed());  const AP& Y = y;
+                AP z;                   const AP& Z = z;
 
-                z = X;
+                z = X.loadRelaxed();
                 if (veryVerbose) {
                     T_(); P_(X); P_(Y); P_(Z); P(VAL);
                 }
@@ -1711,20 +2057,20 @@ int main(int argc, char *argv[])
         //   sequence independent test values, set the value using the basic
         //   manipulator('operator=').  Verify that the value is correct using
         //   the respective direct accessor('operator int',
-        //   'operator bsls_PlatformUtil::Int64', 'operator T*').
+        //   'operator bsls_Types::Int64', 'operator T*').
         //
         // Testing:
-        //   bces_AtomicInt();
-        //   ~bces_AtomicInt()
-        //   bces_AtomicInt& operator= (int value);
+        //   bsls_AtomicInt();
+        //   ~bsls_AtomicInt()
+        //   bsls_AtomicInt& operator= (int value);
         //   operator int() const;;
-        //   bces_AtomicInt64();
-        //   ~bces_AtomicInt64();
-        //   bces_AtomicInt64& operator= (bsls_PlatformUtil::Int64 value);
-        //   operator bsls_PlatformUtil::Int64() const;
-        //   bces_AtomicPointer();
-        //   bces_AtomicPointer<T>& operator= (const T *value);
-        //   ~bces_AtomicPointer();
+        //   bsls_AtomicInt64();
+        //   ~bsls_AtomicInt64();
+        //   bsls_AtomicInt64& operator= (bsls_Types::Int64 value);
+        //   operator bsls_Types::Int64() const;
+        //   bsls_AtomicPointer();
+        //   bsls_AtomicPointer<T>& operator= (const T *value);
+        //   ~bsls_AtomicPointer();
         //   T& operator*() const;
         //   T* operator->() const;
         //   operator T*() const;
@@ -1733,7 +2079,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Primary Manipulators"
                           << "\n============================" << endl;
 
-        if (verbose) cout << "\nTesting 'bces_AtomicInt' Primary Manipulators"
+        if (verbose) cout << "\nTesting 'bsls_AtomicInt' Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -1766,7 +2112,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'bces_AtomicInt64' Primary Manipulators"
+            cout << "\nTesting 'bsls_AtomicInt64' Primary Manipulators"
                  << endl;
         {
             static const struct {
@@ -1799,7 +2145,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                          "\nTesting 'bces_AtomicPointer' Primary Manipulators"
+                          "\nTesting 'bsls_AtomicPointer' Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -1870,6 +2216,12 @@ int main(int argc, char *argv[])
         mX1 = XVA;
         ASSERT(XVA == mX1);
 
+        mX1.storeRelaxed(XVB);
+        ASSERT(mX1.loadRelaxed() == XVB);
+
+        mX1.storeRelease(XVC);
+        ASSERT(mX1.loadAcquire() == XVC);
+
         mX1 = 0;
         ASSERT(0 == mX1);
 
@@ -1896,20 +2248,38 @@ int main(int argc, char *argv[])
         mX1 += XVB;
         ASSERT(XVB == mX1);
 
+        mX1.addRelaxed(XVC);
+        ASSERT(mX1 == XVB + XVC);
+
+        mX1.addAcqRel(XVA);
+        ASSERT(mX1 == XVA + XVB + XVC);
+
         mX1 = 0;
         ASSERT(0 == mX1);
 
-        lresult = mX1.swap(XVC);
+        lresult = mX1.swap(XVA);
         ASSERT(0 == lresult);
-        ASSERT(XVC == mX1);
+        ASSERT(mX1 == XVA);
 
-        lresult = mX1.testAndSwap(XVA,XVB);
+        lresult = mX1.swapAcqRel(XVC);
+        ASSERT(lresult == XVA);
+        ASSERT(mX1 == XVC);
+
+        lresult = mX1.testAndSwap(XVA, XVB);
         ASSERT(XVC == lresult);
         ASSERT(XVC == mX1);
 
-        lresult = mX1.testAndSwap(XVC,0);
+        lresult = mX1.testAndSwap(XVC, 0);
         ASSERT(XVC == lresult);
         ASSERT(0 == mX1);
+
+        lresult = mX1.testAndSwapAcqRel(XVC, XVA);
+        ASSERT(lresult == 0);
+        ASSERT(mX1 == 0);
+
+        lresult = mX1.testAndSwapAcqRel(0, XVA);
+        ASSERT(lresult == 0);
+        ASSERT(mX1 == XVA);
 
         // Pointers
         // --------
@@ -1933,26 +2303,6 @@ int main(int argc, char *argv[])
         ASSERT(PVC == pResult);
         ASSERT(((APTestObj*)0) == mP1);
 
-        // Spin Locks
-        // ----------
-
-        if (veryVerbose) cout << endl
-                              << "\tSpin Locks" << endl
-                              << "\t----------" << endl;
-
-        SL mS1;
-
-        mS1.lock();
-
-        lresult = mS1.tryLock(100);
-        ASSERT(0 != lresult);
-
-        mS1.unlock();
-
-        lresult = mS1.tryLock(1);
-        ASSERT(0 == lresult);
-
-        mS1.unlock();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -1968,7 +2318,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
