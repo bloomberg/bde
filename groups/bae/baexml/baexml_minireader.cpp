@@ -18,76 +18,81 @@ BDES_IDENT_RCSID(baexml_minireader_cpp,"$Id$ $CSID$")
 // implemented.  This component presents a parser that has the following
 // control flow:
 //..
-//                               '?'
-//                             +----- scanProcessingInstruction 
-//                             |
-//                             |      - set type PROCESSING_INSTRUCTION
-//                             |      - set nodeName  (ex xml) 
-//                             |      - set nodeValue (ex version='1.0') 
-//                             |      - sets state to ST_TAG_END
-//                             |
-//                             |                               +--- COMMENT
-//                             |                               |
-//                             |                               |<!--
-//                             | '!'                           |
-//                             |                               |  - set type
-//                             |                               |    COMMENT
-//                             |                               |  - set value
-//                             |                               |    to comment
-//                             |                               |  - set state
-//                             |                               |    ST_TAG_END
-//                             |                               |
-//                             +----- scanExclaimConstruct ----+
-//                             |                               |
-//                             |                               |<![CDATA[..]]>
-//                             |                               |
-//                             |                               +--- CDATA
-//                             |                                  - set type
-//                             ^                                    CDATA
-//                             |                                  - set value
-//                             |                                    to escaped
-//                             |                                    data
-//                             |                                  - set state
-//                             |                                    ST_TAG_END
-//                             |
-//                             | default
-//  INITIAL   scanOpenTag -----+---->---- scanStartElement --+-- scanAttrs
-//     |          |            |                             |
-//     |          |            |   - set type ELEMENT        +-- check empty
-//     |          |            |   - set nodeName                element
-//     |          |            |     (ex 'Request')
-//     |          |            v   - set state to ST_TAG_END     - set flags
-//     |          |            |                                   EMPTY
-//     |          |            |
-//     |      '<' |            | '/'
-//     |          |            +----- scanEndElement --+-- END_ELEMENT
-//     |          |                                    | 
-//     |          |                                    +-- ST_TAG_END
-//     |          ^                                    |  
-//     |          |                                    +-- Decrement num of
-//     |          |                                        active nodes
-//     |          |---------<-------+                 
-//     |          |                 |
-//     v          |                 |
-//  scanNode -->--+                 |
-//     |          |                 |
-//     |          |                 | '<'
-//     |          v                 |
-//     |          | default         ^
-//     |          |                 |
-//     |          |                 |
-//     |       scanText ---+--------+
-//     |                   |
-//     |                   +--- WHITESPACE
-//     |                   |
-//     |                   +--- TEXT
-//     |                   |
-//     |                   +--- Replace Char References
-//     |                   |
-//     |                   |
-//     |                   |
-//     |----------<--------+
-//     |         EOF
+//          +------------------------------<----------------------------------+
+//          |                                                                 |
+//          |                                                                 ^
+//          |                                                                 |
+//          |                    '?'                                          |
+//          |                  +--->- scanProcessingInstruction ------------>-+
+//          |                  |      - set type PROCESSING_INSTRUCTION       |
+//          |                  |      - set nodeName  (ex xml)                |
+//          |                  |      - set nodeValue (ex version='1.0')      ^
+//          |                  |      - sets state to ST_TAG_END              |
+//          |                  |                                              |
+//          |                  |                               '<!--'         |
+//          |                  ^                              +--- COMMENT ->-+
+//          |                  |                              |  - set type   |
+//          |                  |                              ^    COMMENT    |
+//          |                  |                              |  - set value  ^
+//          |                  |                              |    to comment |
+//          |                  |                              |  - set state  |
+//          V                  |                              |    ST_TAG_END |
+//          |                  |  '!'                         |               |
+//          |                  +---->- scanExclaimConstruct --+               |
+//          |                  |                              |               |
+//          |                  |                              |               |
+//          |                  |                              V               |
+//          |                  |                              |               |
+//          |                  |                              |'<![CDATA['    |
+//          |                  |                              +----- CDATA ->-+
+//          |                  |                                 - set type   |
+//          |                  ^                                   CDATA      |
+//          |                  |                                 - set value  |
+//          |                  |                                   to escaped ^
+//          |                  |                                   data       |
+//          |                  |                                 - set state  |
+//          |                  |                                   ST_TAG_END |
+//          |                  |                                              |
+//          |                  | default                                      |
+//  INITIAL | scanOpenTag -----+----->----- scanStartElement ------->---------+
+//     |    |     |            |            - set type ELEMENT                |
+//     |    |     |            |            - set nodeName                    |
+//     |    |     |            |              (ex 'Request')                  |
+//     |    |     |            |            - scanAttrs                       |
+//     |    |     |            |            - check for empty element         |
+//     |    |     |            |               - set flags to EMPTY           |
+//     |    |     |            v            - set state to ST_TAG_END         |
+//     |    |     |            |                                              |
+//     |    |     |            |                                              |
+//     |    |     | '<'        |  '/'                                         |
+//     |    |     |            +------->--- scanEndElement ---------->--------+
+//     |    |     |                         - END_ELEMENT
+//     |    |     |                         - set state to ST_TAG_END
+//     |    |     |                         - decrement num of active nodes
+//     |    |     |
+//     |    |     ^
+//     |-<--+     |
+//     |          |
+//     |          |---------<-------------------+                 
+//     |          |                             |
+//     v          |                             |
+//  scanNode -->--+                             |
+//     |          |                             |
+//     |          |                             | '<'
+//     |          v                             |
+//     |          | default                     ^
+//     |          |                             |
+//     |          |                             |
+//     |          +---->--- scanText ---->------+
+//     |               - WHITESPACE / TEXT      |
+//     |               - if TEXT                |
+//     |                  - Replace Char        |
+//     |                    References          V EOF
+//     |                                        |
+//     |                                        |
+//     |                                        |
+//     |-------------------<--------------------+
+//     |         
 //     v
 //    END
 //..

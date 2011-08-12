@@ -410,8 +410,7 @@ const char *printTextReplacingXMLEscapes(
           } break;
 
           case LESS_THAN: {
-            // Check if the '<' is the beginning of a CDATA section.  If so,
-            // write all the characters till the CDATA end identifier.
+            // Check if the '<' is the beginning of a CDATA section.
 
             const char CDATA_BEGIN_TAG[] = "<![CDATA[";
             const char CDATA_END_TAG[]   = "]]>";
@@ -460,6 +459,9 @@ const char *printTextReplacingXMLEscapes(
                     stream.setstate(bsl::ios_base::failbit);
                     return tmp;  // error position                  RETURN
                 }
+
+                // The entire CDATA section needs to be written as is, update
+                // 'data' but no need to update 'runBegin'.
 
                 data = endTag + CDATA_END_LEN;
             }
