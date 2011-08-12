@@ -36,6 +36,7 @@ const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle
 struct ThreadStartupInfo{
     // Control structure used to pass startup information to the thread entry
     // function.
+
     bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle  d_handle;
     bcemt_ThreadFunction                                       d_function;
     void                                                      *d_threadArg;
@@ -45,6 +46,7 @@ struct ThreadStartupInfo{
 struct ThreadSpecificDestructor {
     // This structure implements a linked list of destructors associated
     // with thread-specific key.
+
     bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Key  d_key;
     bcemt_KeyDestructorFunction                             d_destructor;
     ThreadSpecificDestructor                               *d_next;
@@ -82,6 +84,7 @@ static CRITICAL_SECTION          s_returnValueMapLock;
 
 struct HandleLess {
     bool operator()(HANDLE x, HANDLE y) const
+        // compare two 'HANDLE' objects
     {
         return (unsigned long long)(x) < (unsigned long long)(y);
     }
@@ -133,7 +136,7 @@ int bcemt_threadutil_win32_Initialize()
 #endif
             InterlockedExchange(&s_initializationState, INITIALIZED);
         }
-        return INITIALIZED == s_initializationState ? 0 : 1;
+        return INITIALIZED == s_initializationState ? 0 : 1;          // RETURN
     }
 }
 
@@ -350,6 +353,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::join(
            void                                                       **status)
 {
     // Cannot self - join
+
     if (!handle.d_handle || handle.d_id == GetCurrentThreadId()) {
         return 1;                                                     // RETURN
     }
@@ -362,6 +366,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::join(
 #ifdef BCEMT_USE_RETURN_VALUE_MAP
     // In this case, we ignore 'exitStatus', but we're still fetching
     // it in to get the 'result' value
+
     if (status) {
         EnterCriticalSection(&s_returnValueMapLock);
         if (s_returnValueMapValid) {

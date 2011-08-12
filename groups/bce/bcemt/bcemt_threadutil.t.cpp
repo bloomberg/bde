@@ -551,7 +551,7 @@ int main(int argc, char *argv[])
         // Spawning threads fails on HPUX if 'inheritSchedule != true'.
 
         if (1) break;
-#endif  
+#endif
 
         using namespace MULTIPRIORITY_USAGE_TEST_CASE;
 

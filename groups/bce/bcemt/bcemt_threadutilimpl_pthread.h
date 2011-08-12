@@ -204,9 +204,9 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // Return the platform specific identifier associated with the thread
         // specified by 'threadHandle'.
 
-    static bool isEqual(const Handle& lhs, const Handle& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' thread handles,
-        // identify the same thread, and 'false' otherwise.
+    static bool isEqual(const Handle& a, const Handle& b);
+        // Return 'true' if the specified 'a' and 'b' thread handles, identify
+        // the same thread, and 'false' otherwise.
 
     static Id selfId();
         // Return an identifier that can be used to uniquely identify the
@@ -239,9 +239,9 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // Note that this value is only valid until the thread terminates and
         // may be reused thereafter.
 
-    static bool isEqualId(const Id& lhs, const Id& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' thread id identify
-        // the same thread, and 'false' otherwise.
+    static bool isEqualId(const Id& a, const Id& b);
+        // Return 'true' if the specified 'a' and 'b' thread id identify the
+        // same thread, and 'false' otherwise.
 
     static int createKey(Key *key, bcemt_KeyDestructorFunction destructor);
         // Load, into the specified 'key', an identifier that can be used to
@@ -330,10 +330,10 @@ bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::nativeHandle(
 
 inline
 bool bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::isEqual(
-          const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle& lhs,
-          const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle& rhs)
+            const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle& a,
+            const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle& b)
 {
-    return pthread_equal(lhs, rhs);
+    return pthread_equal(a, b);
 }
 
 inline
@@ -377,10 +377,10 @@ bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::idAsInt(const Id& threadId)
 
 inline
 bool bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::isEqualId(
-              const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Id& lhs,
-              const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Id& rhs)
+                const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Id& a,
+                const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Id& b)
 {
-    return pthread_equal(lhs, rhs);
+    return pthread_equal(a, b);
 }
 
 inline

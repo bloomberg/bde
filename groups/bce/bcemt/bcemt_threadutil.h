@@ -427,14 +427,14 @@ struct bcemt_ThreadUtil {
 
                        // *** Thread Identification ***
 
-    static bool isEqual(const Handle& lhs, const Handle& rhs);
+    static bool isEqual(const Handle& a, const Handle& b);
         // Return 'true' if the specified 'lhs' thread handle identifies the
         // same thread as the specified 'rhs' thread handle, or if both 'lhs'
         // and 'rhs' are invalid handles, and 'false' otherwise.  Note that if
         // *either* of 'lhs' or 'rhs' is an invalid handle, but not both, this
         // method returns 'false'.
 
-    static bool isEqualId(const Id& lhs, const Id& rhs);
+    static bool isEqualId(const Id& a, const Id& b);
         // Return 'true' if the specified 'lhs' thread identifier is associated
         // with the same thread as the specified 'rhs' thread identifier, and
         // 'false' otherwise.
@@ -630,8 +630,8 @@ bcemt_ThreadUtil::nativeHandle(const bcemt_ThreadUtil::Handle& handle)
 }
 
 inline
-bool bcemt_ThreadUtil::isEqual(const bcemt_ThreadUtil::Handle& lhs,
-                               const bcemt_ThreadUtil::Handle& rhs)
+bool bcemt_ThreadUtil::isEqual(const bcemt_ThreadUtil::Handle& a,
+                               const bcemt_ThreadUtil::Handle& b)
 {
     // Some implementations (notably pthreads) do not define the result of
     // comparing invalid handles.  In practice, they work by comparing the
@@ -639,9 +639,9 @@ bool bcemt_ThreadUtil::isEqual(const bcemt_ThreadUtil::Handle& lhs,
     // behavior.  For uniform behavior across platforms, we explicitly check
     // for invalid handles.
 
-    return invalidHandle() == lhs
-           ? (invalidHandle() == rhs)
-           : (invalidHandle() == rhs ? false : Imp::isEqual(lhs, rhs));
+    return invalidHandle() == a
+           ? (invalidHandle() == b)
+           : (invalidHandle() == b ? false : Imp::isEqual(a, b));
 }
 
 inline
@@ -650,14 +650,14 @@ bcemt_ThreadUtil::Id bcemt_ThreadUtil::selfId()
     return Imp::selfId();
 }
 
-inline bsls_PlatformUtil::Uint64
-bcemt_ThreadUtil::selfIdAsInt()
+inline
+bsls_PlatformUtil::Uint64 bcemt_ThreadUtil::selfIdAsInt()
 {
     return Imp::selfIdAsInt();
 }
 
-inline bsls_PlatformUtil::Uint64
-bcemt_ThreadUtil::selfIdAsUint64()
+inline
+bsls_PlatformUtil::Uint64 bcemt_ThreadUtil::selfIdAsUint64()
 {
     return Imp::selfIdAsUint64();
 }
@@ -676,10 +676,10 @@ int bcemt_ThreadUtil::idAsInt(const bcemt_ThreadUtil::Id& id)
 }
 
 inline
-bool bcemt_ThreadUtil::isEqualId(const bcemt_ThreadUtil::Id& lhs,
-                                 const bcemt_ThreadUtil::Id& rhs)
+bool bcemt_ThreadUtil::isEqualId(const bcemt_ThreadUtil::Id& a,
+                                 const bcemt_ThreadUtil::Id& b)
 {
-    return Imp::isEqualId(lhs, rhs);
+    return Imp::isEqualId(a, b);
 }
 
 inline

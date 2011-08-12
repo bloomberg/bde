@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
                     P_(LINE) P_(POLICY) P(NORM_URGENT_PRI);
                 }
                 else {
-                    P_(LINE) P_(POLICY) 
+                    P_(LINE) P_(POLICY)
                     P_(URGENT_PRIORITY) P(NOT_URGENT_PRIORITY);
                 }
             }

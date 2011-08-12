@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
         //   Li 32: Other (0, 0, 0), Fifo (1, 1, 99), Rr (1, 1, 99)
         //   Li 64: Other (0, 0, 0), Fifo (1, 1, 99), Rr (1, 1, 99)
         // --------------------------------------------------------------------
-        
+
         bcemt_ThreadAttributes attr;
 
 #define MAXPRI(policy)  (bcemt_ThreadAttributes::getMaxSchedPriority(policy))

@@ -16,6 +16,8 @@ namespace BloombergLP {
 extern "C" {
 
 void *bcemt_ThreadUtil_threadFunc(void *arg)
+    // extern "C" formatted routine which allows us to call a C++ functor
+    // through the pthreads interface (which is written in C)
 {
     typedef bcemt_ThreadUtil::Invokable Invokable;
     bdema_ManagedPtr<Invokable> functionPtr(
@@ -45,7 +47,6 @@ int bcemt_ThreadUtil::convertToSchedPriority(
     double ret = (maxPri - minPri) * normalizedSchedulingPriority +
                                                                   minPri + 0.5;
     return (int) bsl::floor(ret);
-                                                                
 }
 
 int bcemt_ThreadUtil::create(bcemt_ThreadUtil::Handle           *handle,

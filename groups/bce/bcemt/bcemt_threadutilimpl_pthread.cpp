@@ -63,7 +63,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 
     int rc = pthread_attr_init(dest);
     if (0 != rc) {
-        return rc;
+        return rc;                                                    // RETURN
     }
     rc |= pthread_attr_setdetachstate(
                              dest,
