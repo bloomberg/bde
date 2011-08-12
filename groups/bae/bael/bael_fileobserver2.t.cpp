@@ -175,7 +175,8 @@ bsl::string::size_type replaceSecondSpace(bsl::string *s, char value)
     return index;
 }
 
-bdet_Datetime getCurrentLocalTime() {
+bdet_Datetime getCurrentLocalTime()
+{
     time_t currentTime = time(0);
     struct tm localtm;
 #ifdef BSLS_PLATFORM__OS_WINDOWS
@@ -348,8 +349,8 @@ class LogRotationCallbackTester {
     bcema_SharedPtr<Rep> d_rep;
 
   public:
-
     // PUBLIC CONSTANTS
+
     enum {
         UNINITIALIZED = INT_MIN
     };
@@ -458,7 +459,8 @@ void publishRecord(Obj *mX, const char *message)
 }
 
 
-int getNumLines(const char *filename) {
+int getNumLines(const char *filename)
+{
     bsl::ifstream fs;
     fs.open(filename, bsl::ifstream::in);
     fs.clear();
@@ -474,7 +476,8 @@ int getNumLines(const char *filename) {
     return numLines;
 }
 
-int getFileSize(const char *filename) {
+int getFileSize(const char *filename)
+{
     bsl::ifstream fs;
     fs.open(filename, bsl::ifstream::in);
     fs.clear();

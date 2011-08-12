@@ -1,4 +1,4 @@
-// bdesu_fileutil.h   -*-C++-*-
+// bdesu_fileutil.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDESU_FILEUTIL
 #define INCLUDED_BDESU_FILEUTIL
 
@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a set of portable utilities for file system access.
 //
 //@CLASSES:
-//    bdesu_FileUtil: struct which scopes file system utilities
+//  bdesu_FileUtil: struct which scopes file system utilities
 //
 //@SEE_ALSO: bdesu_pathutil
 //
@@ -227,13 +227,14 @@ struct bdesu_FileUtil {
                                bool                writableFlag,
                                bool                existFlag,
                                bool                appendFlag = false);
-        // Open the file at the specified 'path' with write permission as
-        // specified by 'writableFlag'.  If 'existFlag' is true, succeed only
-        // if the file exists; otherwise, succeed only if it does not exist
-        // (in which case create it).  Optionally, if 'writableFlag' is true,
-        // specify 'appendFlag' to indicate whether the file should be open in
-        // append mode.  'appendFlag' has no effect if 'writableFlag' is false.
-        // Return a FileDescriptor for the file on success, or 'INVALID_FD'
+        // Open the file at the specified 'path' for writing if the specified
+        // 'writableFlag' is 'true', and for reading otherwise.  If the
+        // specified 'existFlag' is 'true', succeed only if the file exists;
+        // otherwise, succeed only if it does not exist (in which case create
+        // it).  Optionally, if 'writableFlag' is 'true', specify 'appendFlag'
+        // to indicate whether the file should be opened in append mode.
+        // 'appendFlag' has no effect if 'writableFlag' is false.  Return a
+        // valid 'FileDescriptor' for the file on success, or 'INVALID_FD'
         // otherwise.  Note that two calls are necessary to open a file which
         // may or may not exist.  Also note that if 'writableFlag' and
         // 'existFlag' are both 'false', this function will necessarily fail.

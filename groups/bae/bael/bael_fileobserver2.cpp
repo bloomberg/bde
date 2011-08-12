@@ -29,6 +29,7 @@ BDES_IDENT_RCSID(bael_fileobserver2_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_iomanip.h>
@@ -51,6 +52,15 @@ BDES_IDENT_RCSID(bael_fileobserver2_cpp,"$Id$ $CSID$")
 namespace {
 
 using namespace BloombergLP;
+
+enum {
+    // status code for the call back function.
+
+    ROTATE_SUCCESS                  =  0,
+    ROTATE_RENAME_ERROR             = -1,
+    ROTATE_NEW_LOG_ERROR            = -2,
+    ROTATE_RENAME_AND_NEW_LOG_ERROR = -3
+};
 
 int getErrorCode(void)
     // Return the system-specific error code.
@@ -166,7 +176,7 @@ void getLogFileName(bsl::string                  *logFileName,
     *logFileName = os.str();
 }
 
-bool hasDatetimeInfo(const char *logFilePattern)
+bool hasEscapePattern(const char *logFilePattern)
     // Return 'true' if the specified 'logFilePattern' contains a recognized
     // '%'-escape sequence, and false otherwise.  The recognized escape
     // sequence are "%Y", "%M", "%D", "%h", "%m", "%s", and "%%".
@@ -189,8 +199,6 @@ bool hasDatetimeInfo(const char *logFilePattern)
               case '%': {
                 return true;                                          // RETURN
               } break;
-              default: {
-              } break;
             }
         }
     }
@@ -211,16 +219,23 @@ int openLogFile(bsl::ostream *stream, const char *filename)
                                                              fileExistFlag,
                                                              true);
 
+    if (fd == bdesu_FileUtil::INVALID_FD) {
+        fprintf(
+              stderr,
+              "Cannot open log file %s: %s.  File logging will be disabled!\n",
+              filename, bsl::strerror(getErrorCode()));
+        return -1;                                                    // RETURN
+    }
+
     bdesu_FdStreamBuf *streamBuf = dynamic_cast<bdesu_FdStreamBuf *>(
                                                               stream->rdbuf());
     BSLS_ASSERT(streamBuf);
 
-    streamBuf->reset(fd, true, true, true);
-
-    if (!streamBuf->isOpened()) {
+    if (0 != streamBuf->reset(fd, true, true, true)) {
         fprintf(
               stderr,
-              "Cannot open log file %s: %s.  File logging will be disabled!\n",
+              "Cannot close previous log file %s: %s.  "
+              "File logging will be disabled!\n",
               filename, bsl::strerror(getErrorCode()));
         return -1;                                                    // RETURN
     }
@@ -235,21 +250,31 @@ int openLogFile(bsl::ostream *stream, const char *filename)
     return 0;
 }
 
-void getNextRotationDatetime(bdet_Datetime                *result,
-                             const bdet_Datetime&          startTime,
+void computeNextRotationTime(bdet_Datetime                *result,
+                             const bdet_Datetime&          referenceStartTime,
                              const bdet_DatetimeInterval&  interval,
                              const bdet_Datetime&          fileCreationTime)
     // Load, into the specified 'result', the next scheduled rotation time
     // after the specified 'fileCreationTime' for a schedule that has a start
-    // reference time indicated by the specified 'startTime' and rotated every
-    // specified 'interval'.
+    // reference time indicated by the specified 'referenceStartTime' and
+    // rotated every specified 'interval'.  The behavior is undefined unless
+    // '0 <= interval.totalMilliseconds()'.
 {
     BSLS_ASSERT(result);
+    BSLS_ASSERT(0 <= interval.totalMilliseconds()).
 
-    int timeLeft = -((fileCreationTime - startTime).totalMilliseconds()
-                    % interval.totalMilliseconds());
-    if (0 >= timeLeft) {
-        timeLeft += interval.totalMilliseconds();
+    bsls_Types::Int64 timeLeft =
+                    (fileCreationTime - referenceStartTime).totalMilliseconds()
+                    % interval.totalMilliseconds();
+
+    // The modulo operator may return a negative number depending on
+    // implementation.
+
+    if (timeLeft >= 0) {
+        timeLeft = interval.totalMilliseconds() - timeLeft;
+    }
+    else {
+        timeLeft = -timeLeft;
     }
 
     *result = fileCreationTime;
@@ -330,9 +355,14 @@ int bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
 
     BSLS_ASSERT(d_logFilePattern.size() > 0);
 
-    d_logStreamBuf.clear();
-
     int returnStatus = ROTATE_SUCCESS;
+
+    if (0 != d_logStreamBuf.clear()) {
+        fprintf(stderr, "Unable to close old log file: %s\n",
+                d_logFileName.c_str());
+        returnStatus = ROTATE_RENAME_ERROR;                           // RETURN
+    }
+
     getLogFileName(&d_logFileName,
                    &d_logFileTimestamp,
                    d_logFilePattern.c_str(),
@@ -356,7 +386,7 @@ int bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
     }
 
     if (0 < d_rotationInterval.totalSeconds()) {
-        getNextRotationDatetime(&d_nextRotationTime,
+        computeNextRotationTime(&d_nextRotationTime,
                                 d_rotationReferenceTime,
                                 d_rotationInterval,
                                 d_logFileTimestamp);
@@ -475,15 +505,16 @@ int bael_FileObserver2::enableFileLogging(const char *fileNamePattern)
                    d_logFilePattern.c_str(),
                    d_localTimeOffset);
 
-    // Use the last modification time of the log file if it exists.  The
+    // Use the last modification time of the log file to calculate the next
+    // rotation time if the log file already exists.  The
     // 'getLastModificationTime' method will simply fail without modifying
-    // 'd_logFileTimestamp' if the log file does not already exists.
+    // 'd_logFileTimestamp' if the log file does not already exist.
 
     bdesu_FileUtil::getLastModificationTime(&d_logFileTimestamp,
                                             d_logFileName);
 
     if (0 < d_rotationInterval.totalSeconds()) {
-        getNextRotationDatetime(&d_nextRotationTime,
+        computeNextRotationTime(&d_nextRotationTime,
                                 d_rotationReferenceTime,
                                 d_rotationInterval,
                                 d_logFileTimestamp);
@@ -497,7 +528,7 @@ int bael_FileObserver2::enableFileLogging(const char *fileNamePattern,
 {
     BSLS_ASSERT(fileNamePattern);
 
-    if (appendTimestampFlag && !hasDatetimeInfo(fileNamePattern)) {
+    if (appendTimestampFlag && !hasEscapePattern(fileNamePattern)) {
         bsl::string pattern(fileNamePattern);
         pattern += ".%T";
         return enableFileLogging(pattern.c_str());                    // RETURN
@@ -588,7 +619,7 @@ void bael_FileObserver2::rotateOnTimeInterval(
     // Need to determine the next rotation time if the file is already opened.
 
     if (d_logStreamBuf.isOpened()) {
-        getNextRotationDatetime(&d_nextRotationTime,
+        computeNextRotationTime(&d_nextRotationTime,
                                 d_rotationReferenceTime,
                                 d_rotationInterval,
                                 d_logFileTimestamp);
