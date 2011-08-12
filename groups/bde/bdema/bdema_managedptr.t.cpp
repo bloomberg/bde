@@ -22,16 +22,21 @@ using namespace bsl;  // automatically added by script
 //                             ---------
 // The 'bdema_managedptr' component provides a small number of classes that
 // combine to provide a common solution to the problem of managing and
-// transferring ownership of a dynamically allocated object.  We choose to test
-// each class in turn, according to their
+// transferring ownership of a dynamically allocated object.  It further
+// contains a number of private classes to supply important implementation
+// details, while the test driver introduces a reasonable ammount of test
+// machinery in order to carefully observe the correct handling of callbacks.
+// We choose to test each class in turn, starting with the test machinery,
+// according to their internal levelization in the component implementation.
 //
+// [ 2] Test machinery
 // [ 3] imp. class bdema_ManagedPtr_Members
-// [ 4] imp. class bdema_ManagedPtr_Ref       (this one needs negative testing)
-// [ 5] imp. class bdema_ManagedPtr_FactoryDeleter  (this one needs negative testing)
-// [13] class bdema_ManagedPtrNilDeleter
-// [14] class bdema_ManagedPtrNoOpDeleter
+// [ 4] imp. class bdema_ManagedPtr_Ref
+// [ 5] imp. class bdema_ManagedPtr_FactoryDeleter
 //      class bdema_ManagedPtr
-
+// [13] class bdema_ManagedPtrNilDeleter   [DEPRECATED]
+// [14] class bdema_ManagedPtrNoOpDeleter
+//
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
