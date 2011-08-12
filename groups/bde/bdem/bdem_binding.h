@@ -216,11 +216,10 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Given the large number of classes provided by this component, we present
-// three examples illustrating basic use of several of the binding classes.
-// The three examples make use of a common schema and common data, which is
-// described in this initial section.  The three examples follow in separate
-// sub-sections.
+// Given the large number of classes provided by this component, we present two
+// examples illustrating basic use of several of the binding classes.  The two
+// examples make use of a common schema and common data, which is described in
+// this initial section.  The two examples follow in separate sub-sections.
 //
 // The schema used in these examples is shown in Figure 1 below:
 //..
