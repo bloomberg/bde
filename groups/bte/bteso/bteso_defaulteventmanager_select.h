@@ -307,7 +307,10 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
     // ACCESSORS
     bool canRegisterSockets() const;
         // Return 'true' if this event manager can register additional sockets,
-        // and 'false' otherwise.
+        // and 'false' otherwise.  Note that if 'canRegisterSockets' is
+        // 'false' then a subsequent call to register an event (without an
+        // intervening call to deregister an event) will result in undefined
+        // behavior.
 
     bool hasLimitedSocketCapacity() const;
         // Return 'true' if this event manager has limited socket capacity, and

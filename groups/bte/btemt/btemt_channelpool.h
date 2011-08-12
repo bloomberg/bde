@@ -994,7 +994,10 @@ class btemt_ChannelPool {
 
     // PRIVATE MANIPULATORS
     btemt_TcpTimerEventManager *createNewEventManagers();
-        // TBD
+        // Create additional event managers according to the 'numNewThreads'
+        // attribute of the stored channel pool configuration.  Return the
+        // address to the first additional event manager on success, and 0
+        // otherwise.
 
     btemt_TcpTimerEventManager *allocateEventManager();
         // From the set of current event managers, find the most idle one
