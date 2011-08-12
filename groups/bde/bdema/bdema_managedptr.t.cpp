@@ -45,11 +45,10 @@ using namespace bsl;  // automatically added by script
 // a 'bdema_ManagedPtr' acts exactly as a pointer wherever one is expected.
 //-----------------------------------------------------------------------------
 // [ 6] bdema_ManagedPtr();
-// [ 6] bdema_ManagedPtr(nullptr_t);
+// [ 6] bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type);
 // [ 6] template<class TARGET_TYPE> bdema_ManagedPtr(TARGET_TYPE *ptr);
-// [ 9] bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
 // [ 9] bdema_ManagedPtr(bdema_ManagedPtr& original);
-// [ 9] ??? bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &original) ???
+// [ 9] bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
 // [10] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
 // [ 8] bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
 // [ 8] bdema_ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
@@ -63,7 +62,6 @@ using namespace bsl;  // automatically added by script
 // [10] void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
 // [12] void swap(bdema_ManagedPt& rhs);
 // [12] bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
-// [12] bdema_ManagedPtr& operator=(bdema_ManagedPtr<OTHER> &rhs)
 // [12] bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
 // [13] void clear();
 // [13] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
@@ -1082,7 +1080,6 @@ int main(int argc, char *argv[])
         //    the testing is adequate.]
         //   void swap(bdema_ManagedPtr<BDEMA_TYPE>& rhs);
         //   bdema_ManagedPtr& operator=(bdema_ManagedPtr<BDEMA_TYPE> &rhs);
-        //   bdema_ManagedPtr& operator=(bdema_ManagedPtr<OTHER> &rhs)
         //   bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
         // --------------------------------------------------------------------
 
