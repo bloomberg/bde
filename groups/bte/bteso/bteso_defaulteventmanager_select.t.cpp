@@ -18,10 +18,9 @@
 #include <bsl_c_stdlib.h>     // atoi()
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
-typedef bteso_DefaultEventManager<bteso_Platform::SELECT> Obj;
 
 //=============================================================================
 //                             TEST PLAN
@@ -30,41 +29,14 @@ typedef bteso_DefaultEventManager<bteso_Platform::SELECT> Obj;
 //                              --------
 // Test the corresponding event manager component by using
 // 'bteso_EventManagerTester' to exercise the "standard" test which applies to
-// any event manager's test.  There are two event managers to test:
+// any event manager's test.
 //
-// - bteso_DefaultEventManager_SelectRaw: with limited capacity
-// - bteso_DefaultEventManager<bteso_Platform::SELECT>: with unlimited capacity
-//
-// and so the tests will be performed once for each.  Since differences exist
-// in implementation between different event manager components, a
-// "customized" test is also given for this event manager.  The "customized"
-// test is implemented by utilizing the same script grammar and the same script
-// interpreting defined in 'bteso_EventManagerTester' function but a new set of
-// data to test this specific event manager component.
+// Since differences exist in implementation between different event manager
+// components, a "customized" test is also given for this event manager.  The
+// "customized" test is implemented by utilizing the same script grammar and
+// the same script interpreting defined in 'bteso_EventManagerTester' function
+// but a new set of data to test this specific event manager component.
 //-----------------------------------------------------------------------------
-// CLASS bteso_DefaultEventManager_SelectRaw:
-// - - - - - - - - - - - - - - - - - - - -  -
-// CLASS METHODS
-// [ 3] bteso_DefaultEventManager_SelectRaw::compareFdSets
-// [ 3] bteso_DefaultEventManager_SelectRaw::canBeRegistered
-//
-// CREATORS
-// [ 4] bteso_DefaultEventManager_SelectRaw
-// [ 4] ~bteso_DefaultEventManager_SelectRaw
-//
-// MANIPULATORS
-// [ 5] bteso_DefaultEventManager_SelectRaw::registerSocketEvent
-// [ 6] bteso_DefaultEventManager_SelectRaw::deregisterSocketEvent
-// [ 7] bteso_DefaultEventManager_SelectRaw::deregisterSocket
-// [ 8] bteso_DefaultEventManager_SelectRaw::deregisterAll
-// [ 9] bteso_DefaultEventManager_SelectRaw::dispatch
-//
-// ACCESSORS
-// [17] bteso_DefaultEventManager_SelectRaw::canRegisterSocket
-// [ 3] bteso_DefaultEventManager_SelectRaw::numSocketEvents
-// [ 3] bteso_DefaultEventManager_SelectRaw::numEvents
-// [ 3] bteso_DefaultEventManager_SelectRaw::isRegistered
-//
 // CLASS bteso_DefaultEventManager<bteso_Platform::SELECT>
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // CREATORS
@@ -79,7 +51,8 @@ typedef bteso_DefaultEventManager<bteso_Platform::SELECT> Obj;
 // [15] dispatch
 //
 // ACCESSORS
-// [17] canRegisterSocket
+// [17] canRegisterSockets
+// [17] hasLimitedSocketCapacity
 // [10] numSocketEvents
 // [10] numEvents
 // [10] isRegistered
@@ -90,8 +63,8 @@ typedef bteso_DefaultEventManager<bteso_Platform::SELECT> Obj;
 // [ 2] Assumptions about 'select' system call
 // [-4] TESTING PERFORMANCE 'registerSocketEvent'
 // [-3] TESTING PERFORMANCE 'dispatch'
-// [-2] TESTING PERFORMANCE '_SelectRaw::registerSocketEvent'
-// [-1] TESTING PERFORMANCE '_SelectRaw::dispatch'
+// [-2] TESTING PERFORMANCE 'registerSocketEvent'
+// [-1] TESTING PERFORMANCE 'dispatch'
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -151,6 +124,9 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+typedef bteso_DefaultEventManager<bteso_Platform::SELECT> Obj;
+
+
 enum {
     FAIL    = -1,
     SUCCESS = 0
@@ -174,14 +150,12 @@ enum {
     };
 #endif
 
-typedef bteso_DefaultEventManager<bteso_Platform::SELECT> bteso_DefaultEventManager_SelectRaw;
-
 //=============================================================================
 //                        HELPER FUNCTIONS AND CLASSES
 //-----------------------------------------------------------------------------
 
-void checkDeadConnectCallback(bteso_SocketHandle::Handle handle,
-                              bool *hasExecutedFlag)
+void checkDeadConnectCallback(bteso_SocketHandle::Handle  handle,
+                              bool                       *hasExecutedFlag)
     // Check, for case 16, that the connection status of the specified 'handle'
     // is not good, and set 'hasExecutedFlag' to 'true'.
 {
@@ -193,14 +167,14 @@ void checkDeadConnectCallback(bteso_SocketHandle::Handle handle,
 }
 
 class RawEventManagerTest : public bteso_EventManager {
-  // This class is a thin wrapper around 'Obj'
-  // that adheres to 'bteso_EventManager' protocol.  It is used to exercise
-  // standard tests for the "raw" event manager.
-      Obj d_impl;
+    // This class is a thin wrapper around 'Obj' that adheres to
+    // 'bteso_EventManager' protocol.
 
-  private:
-      RawEventManagerTest(const RawEventManagerTest&);
-      RawEventManagerTest& operator=(const RawEventManagerTest);
+    Obj d_impl;
+
+    RawEventManagerTest(const RawEventManagerTest&);
+    RawEventManagerTest& operator=(const RawEventManagerTest);
+
   public:
     // CREATORS
     RawEventManagerTest(bteso_TimeMetrics *timeMetric     = 0,
@@ -926,8 +900,8 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "TESTING '_SelectRaw::dispatch'" << endl
-                 << "==============================" << endl;;
+                 << "TESTING 'dispatch'" << endl
+                 << "==================" << endl;;
 
         if (verbose)
             cout << "\tStandard test for 'dispatch'" << endl;
@@ -1059,8 +1033,8 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "TESTING '_SelectRaw::deregisterAll'" << endl
-                 << "===================================" << endl;
+                 << "TESTING 'deregisterAll'" << endl
+                 << "=======================" << endl;
         {
             RawEventManagerTest mX(&timeMetric, &testAllocator);
             bteso_EventManagerTester::testDeregisterAll(&mX, controlFlag);
@@ -1088,8 +1062,8 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "TESTING '_SelectRaw::deregisterSocket'" << endl
-                 << "======================================" << endl;
+                 << "TESTING 'deregisterSocket'" << endl
+                 << "==========================" << endl;
         {
             RawEventManagerTest mX(&timeMetric, &testAllocator);
             bteso_EventManagerTester::testDeregisterSocket(&mX, controlFlag);
@@ -1117,8 +1091,8 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "TESTING '_SelectRaw::deregisterSocketEvent'" << endl
-                 << "===========================================" << endl;
+                 << "TESTING 'deregisterSocketEvent'" << endl
+                 << "===============================" << endl;
         if (verbose)
             cout << "\tStandard test for 'deregisterSocketEvent'" << endl;
 
@@ -1195,8 +1169,8 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "TESTING '_SelectRaw::registerSocketEvent'" << endl
-                 << "=========================================" << endl;
+                 << "TESTING 'registerSocketEvent'" << endl
+                 << "=============================" << endl;
 
         if (verbose)
             cout << "\tStandard test for 'registerSocketEvent'" << endl;
@@ -1276,8 +1250,8 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
         if (verbose)
               cout << endl
-                   << "TESTING ACCESSORS FOR '_SelectRaw' MANAGER" << endl
-                   << "==========================================" << endl;
+                   << "TESTING ACCESSORS" << endl
+                   << "=================" << endl;
         {
             RawEventManagerTest mX(&timeMetric, &testAllocator);
             bteso_EventManagerTester::testAccessors(&mX, controlFlag);
@@ -1623,7 +1597,7 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // -----------------------------------------------------------------
-        // TESTING PERFORMANCE OF '_SelectRaw::dispatch' METHOD:
+        // TESTING PERFORMANCE OF 'dispatch' METHOD:
         //   Get performance data.
         //
         // Plan:
@@ -1673,8 +1647,8 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                << "PERFORMANCE TESTING '_SelectRaw::dispatch'" << endl
-                << "==========================================" << endl;
+                << "PERFORMANCE TESTING 'dispatch'" << endl
+                << "==============================" << endl;
         {
             const char *FILENAME = "selectRawDispatch.dat";
 
@@ -1702,7 +1676,7 @@ int main(int argc, char *argv[])
       } break;
       case -2: {
         // -----------------------------------------------------------------
-        // TESTING PERFORMANCE '_SelectRaw::registerSocketEvent' METHOD:
+        // TESTING PERFORMANCE 'registerSocketEvent' METHOD:
         //   Get performance data.
         //
         // Plan:
@@ -1752,8 +1726,8 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-            << "PERFORMANCE TESTING '_SelectRaw::registerSocketEvent'" << endl
-            << "=====================================================" << endl;
+            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
+            << "=========================================" << endl;
         {
             const char *FILENAME = "selectRawRegister.dat";
 

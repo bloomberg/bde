@@ -341,7 +341,7 @@ bool HelperEventManager::canRegisterSockets() const
 
 bool HelperEventManager::hasLimitedSocketCapacity() const
 {
-    return true;
+    return false;
 }
 
 int HelperEventManager::numSocketEvents(

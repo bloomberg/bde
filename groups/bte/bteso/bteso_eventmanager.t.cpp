@@ -49,6 +49,8 @@ static void aSsErT(int c, const char *s, int i)
 // [ 1] void deregisterSocketEvent(const Handle& handle, Type event);
 // [ 1] void deregisterSocket(const bteso_SocketHandle::Handle& handle);
 // [ 1] void deregisterAll();
+// [ 1] bool canRegisterSockets() const;
+// [ 1] bool hasLimitedSocketCapacity() const;
 // [ 1] int numSocketEvents();
 // [ 1] int numEvents();
 // [ 1] int isRegistered(const Handle& handle, const Type event);
@@ -119,6 +121,9 @@ class my_EventManager : public bteso_EventManager {
                 //  7: deregisterAll
                 //  8: numSocketEvents
                 //  9: numEvents
+                // 10: isRegistered
+                // 11: canRegisterSockets
+                // 12: hasLimitedSocketCapacity
 
   public:
     my_EventManager(int *fun) : d_fun(fun) { }
@@ -220,6 +225,9 @@ int main(int argc, char *argv[]) {
         //                bteso_EventType::Type             event);
         //   void deregisterSocket(const bteso_SocketHandle::Handle& handle);
         //   void deregisterAll();
+        //   bool canRegisterSockets() const;
+        //   bool hasLimitedSocketCapacity() const;
+        //   bool isRegistered() const;
         //   int numSocketEvents(const bteso_SocketHandle::Handle& handle);
         //   int numEvents();
         // -----------------------------------------------------------------
@@ -271,6 +279,12 @@ int main(int argc, char *argv[]) {
 
             m.isRegistered(h, e);
             ASSERT(10 == function);
+
+            m.canRegisterSockets();
+            ASSERT(11 == function);
+
+            m.hasLimitedSocketCapactity();
+            ASSERT(12 == function);
         }
 
         // Destructor should have been invoked.

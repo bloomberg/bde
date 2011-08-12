@@ -57,6 +57,9 @@ static void aSsErT(int c, const char *s, int i)
 // [ 1] void deregisterTimer(const void *handle);
 // [ 1] void deregisterAllTimers();
 // [ 1] void deregisterAll();
+// [ 1] bool canRegisterSockets() const;
+// [ 1] bool hasLimitedSocketCapacity() const;
+// [ 1] int  isRegistered(const Handle& handle, const Type event);
 // [ 1] void numTimers();
 // [ 1] void numSocketEvents(const bteso_SocketHandle::Handle& handle);
 //--------------------------------------------------------------------------
@@ -406,6 +409,8 @@ class my_TimerEventManager : public bteso_TimerEventManager {
                 // 13: numEvents
                 // 14: isRegistered
                 // 15: rescheduleTimer
+                // 16: canRegisterSockets
+                // 17: hasLimitedSocketCapacity
 
   public:
     my_TimerEventManager(int *fun) : d_fun(fun) { }
@@ -520,6 +525,9 @@ int main(int argc, char *argv[]) {
         //   int deregisterTimer(const void *handle);
         //   int deregisterAllTimers();
         //   void deregisterAll();
+        //   bool canRegisterSockets() const;
+        //   bool hasLimitedSocketCapacity() const;
+        //   bool isRegistered() const;
         //   int numTimers();
         //   int numSocketEvents(const bteso_SocketHandle::Handle& handle);
         // -----------------------------------------------------------------
@@ -579,6 +587,12 @@ int main(int argc, char *argv[]) {
 
         t.isRegistered(h, e);
         ASSERT(14 == i);
+
+        t.canRegisterSockets();
+        ASSERT(15 == i);
+
+        t.hasLimitedSocketCapacity();
+        ASSERT(16 == i);
 
         delete m;
         ASSERT(1 == i);

@@ -170,6 +170,9 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
                           bteso_EventManager::Callback,
                           bteso_EventHash>              EventMap;
 
+    // Due to the initialization dependency between 'd_eventsAllocator'
+    // and 'd_events' their declaration order should always be as follows.
+
     bcema_PoolAllocator d_eventsAllocator;   // event map allocator
 
     bsl::hash_map<bteso_Event, bteso_EventManager::Callback, bteso_EventHash>
@@ -192,26 +195,18 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
 
     bteso_TimeMetrics  *d_timeMetric; // time metrics given to this object
 
-    bsl::vector<EventMap::iterator> d_signaledRead;
-    bsl::vector<EventMap::iterator> d_signaledWrite;
-                                      // temporary arrays used by dispatch
-
     // PRIVATE ACCESSORS
-    bool checkInternalInvariants();
+    bool checkInternalInvariants() const;
         // Verify that every socket handle that is registered in the
         // specified 'events' is set in the appropriate set (e.g., either
         // 'readSet' or 'writeSet' depending on whether or not this is a
         // READ or WRITE event).  Return 'true' on success, and 'false'
         // otherwise.
 
-    int canBeRegistered(const bteso_SocketHandle::Handle& handle);
-        // Return 1 if the specified 'handle' can be registered with this
-        // 'select'-based event manager and 0 otherwise.
-
     int dispatchCallbacks(int           numEvents,
                           const fd_set& readSet,
                           const fd_set& writeSet,
-                          const fd_set& exceptSet);
+                          const fd_set& exceptSet) const;
         // Dispatch the specified 'numEvents' callbacks from the specified
         // 'readSet', 'writeSet', and 'exceptSet' file descriptor sets that
         // were signalled as ready.
