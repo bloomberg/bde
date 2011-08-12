@@ -150,6 +150,39 @@ void createSmallStackSizeThread()
 }  // close unnamed namespace
 
 //-----------------------------------------------------------------------------
+//                       Multipriority Usage Test Case
+//-----------------------------------------------------------------------------
+
+namespace MULTIPRIORITY_USAGE_TEST_CASE {
+
+// Note that in practice, thread priorities only seem to make a difference
+// when multiple stopped threads are simultaneously ready to run, so we won't
+// see any effect of the different priorities in this case.
+
+struct MostUrgentThreadFunctor {
+    void operator()()
+    {
+        bsl::printf("Most urgent\n");
+    }
+};
+
+struct FairlyUrgentThreadFunctor {
+    void operator()()
+    {
+        bsl::printf("Fairly urgent\n");
+    }
+};
+
+struct LeastUrgentThreadFunctor {
+    void operator()()
+    {
+        bsl::printf("Least urgent\n");
+    }
+};
+
+}  // close namespace MULTIPRIORITY_USAGE_TEST_CASE
+
+//-----------------------------------------------------------------------------
 //                                    TEST CASE 7
 //-----------------------------------------------------------------------------
 
@@ -495,6 +528,124 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 9: {
+        // --------------------------------------------------------------------
+        // MULTIPLE PRIORITY THREADS
+        //
+        // Concern:
+        //   Need to demonstrate setting priorities for threads.  Note that we
+        //   don't demonstrate the different priorities actually having an
+        //   effect, we just demonstrate how to set them.
+        //
+        // Plan:
+        //   Spawn 3 threads with different priorities.  Note that this test
+        //   works on Windows even though priorities are ignored there, and on
+        //   Linux even though the max priority equals the min priority.  This
+        //   is because we don't do any testing of which thread runs first, in
+        //   fact, since there are only 3 threads and they are all EXTREMELY
+        //   short jobs, there probably won't be any contention for processors
+        //   at all.  This is just to demonstrate the interface.
+        // --------------------------------------------------------------------
+
+#ifdef BSLS_PLATFORM__OS_HPUX
+        // Spawning threads fails on HPUX if 'inheritSchedule != true'.
+
+        if (1) break;
+#endif  
+
+        using namespace MULTIPRIORITY_USAGE_TEST_CASE;
+
+        enum { STACK_SIZE = 256 * 1024 };
+
+        bcemt_ThreadUtil::Handle handles[3];
+        int rc;
+
+        bcemt_ThreadAttributes attributes;
+        attributes.setStackSize(STACK_SIZE);
+        attributes.setInheritSchedule(false);
+        const bcemt_ThreadAttributes::SchedulingPolicy policy =
+                                     bcemt_ThreadAttributes::BCEMT_SCHED_OTHER;
+        attributes.setSchedulingPolicy(policy);
+
+        attributes.setSchedulingPriority(
+                        bcemt_ThreadUtil::convertToSchedPriority(policy, 1.0));
+        rc = bcemt_ThreadUtil::create(&handles[0],
+                                      attributes,
+                                      MostUrgentThreadFunctor());
+        ASSERT(0 == rc);
+
+        attributes.setSchedulingPriority(
+                        bcemt_ThreadUtil::convertToSchedPriority(policy, 0.5));
+        rc = bcemt_ThreadUtil::create(&handles[1],
+                                      attributes,
+                                      FairlyUrgentThreadFunctor());
+        ASSERT(0 == rc);
+
+        attributes.setSchedulingPriority(
+                        bcemt_ThreadUtil::convertToSchedPriority(policy, 0.0));
+        rc = bcemt_ThreadUtil::create(&handles[2],
+                                      attributes,
+                                      LeastUrgentThreadFunctor());
+        ASSERT(0 == rc);
+
+        for (int i = 0; i < 3; ++i) {
+            rc = bcemt_ThreadUtil::join(handles[i]);
+            ASSERT(0 == rc);
+        }
+      }  break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // CONVERTTOSCHEDPRIORITY
+        //
+        // Concern:
+        //   That 'convertToSchedPriority' works as specced.
+        //
+        // Plan:
+        //   Call 'get{Min,Max}SchedPriority' and compare the results they
+        //   return to results reterned by 'convertToSchedPriority'.
+        // --------------------------------------------------------------------
+
+        typedef bcemt_ThreadAttributes Attr;
+
+        Attr::SchedulingPolicy policies[] = { Attr::BCEMT_SCHED_OTHER,
+                                              Attr::BCEMT_SCHED_FIFO,
+                                              Attr::BCEMT_SCHED_RR,
+                                              Attr::BCEMT_SCHED_DEFAULT };
+        enum { NUM_POLICIES = sizeof policies / sizeof *policies };
+
+        for (int i = 0; i < NUM_POLICIES; ++i) {
+            const int POLICY = policies[i];
+
+            const int minPri = Obj::getMinSchedPriority(POLICY);
+            const int maxPri = Obj::getMaxSchedPriority(POLICY);
+
+            const int loPri = Obj::convertToSchedPriority(POLICY, 0.0);
+            LOOP2_ASSERT(loPri, minPri, loPri == minPri);
+
+            const int midPri = Obj::convertToSchedPriority(POLICY, 0.5);
+            LOOP2_ASSERT(midPri, minPri, midPri >= minPri);
+            LOOP2_ASSERT(midPri, maxPri, midPri <= maxPri);
+
+            const int hiPri = Obj::convertToSchedPriority(POLICY, 1.0);
+            LOOP2_ASSERT(hiPri, maxPri, hiPri == maxPri);
+
+            if (hiPri != loPri) {
+                LOOP2_ASSERT(hiPri, loPri, hiPri >= loPri + 2);
+
+                LOOP2_ASSERT(midPri, hiPri, midPri < hiPri);
+                LOOP2_ASSERT(midPri, loPri, midPri > loPri);
+            }
+            else {
+#if !defined(BSLS_PLATFORM__OS_LINUX) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+                // This should only happen on Linux and Windows
+                ASSERT(0);
+#endif
+
+                LOOP2_ASSERT(midPri, hiPri, midPri == hiPri);
+                LOOP2_ASSERT(midPri, loPri, midPri == loPri);
+            }
+        }
+      }  break;
       case 7: {
         // --------------------------------------------------------------------
         // STACK SIZE
