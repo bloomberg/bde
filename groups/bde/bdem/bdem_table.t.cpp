@@ -2171,7 +2171,7 @@ DEFINE_TEST_CASE(21) {
     // TESTING 'reserveRaw' and 'getCapacityRaw'
     //
     // Concerns:
-    // 1 'reserveRaw' correctly forwards to the method 
+    // 1 'reserveRaw' correctly forwards to the method
     //   'bdem_TableImp::reserveRaw'.
     //
     // Plan:
@@ -2179,44 +2179,44 @@ DEFINE_TEST_CASE(21) {
     // Testing:
     //   void reserveRaw(int numRows);
     // --------------------------------------------------------------------
- 
+
     if (verbose) cout << "\nTesting 'reserveRaw' and 'getCapacityRaw'"
-                      << "\n=================================================" 
+                      << "\n================================================="
                       << endl;
-    
+
     static const Strategy STRATEGY_DATA[] = {
             BDEM_PASS_THROUGH,
             BDEM_WRITE_ONCE,
             BDEM_WRITE_MANY
     };
     enum { STRATEGY_LEN = sizeof(STRATEGY_DATA) / sizeof(*STRATEGY_DATA) };
-    
+
     for (int i = 0; i < STRATEGY_LEN; i++) {
- 
+
         const Strategy STRATEGY = STRATEGY_DATA[i];
-        
+
         bslma_TestAllocator ta1("TestAllocator 1", veryVeryVeryVerbose);
         bslma_TestAllocator ta2("TestAllocator 2", veryVeryVeryVerbose);
-    
+
         Obj    mX(STRATEGY, &ta1); const Obj&    X = mX;
         ObjImp mY(STRATEGY, &ta2); const ObjImp& Y = mY;
-        
+
         for (int j = 1; j <= 1024; j <<= 1) {
             mX.reserveRaw(j);
             mY.reserveRaw(j);
- 
-            LOOP4_ASSERT(i, 
+
+            LOOP4_ASSERT(i,
                          j,
                          X.getCapacityRaw(),
                          Y.getCapacityRaw(),
                          X.getCapacityRaw() == Y.getCapacityRaw());
- 
+
             LOOP4_ASSERT(i,
                          j,
                          ta1.numBytesInUse(),
                          ta2.numBytesInUse(),
                          ta1.numBytesInUse() == ta2.numBytesInUse());
-            
+
             LOOP4_ASSERT(i,
                          j,
                          ta1.numBytesTotal(),

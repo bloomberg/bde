@@ -487,7 +487,7 @@ class bdem_ChoiceArrayImp {
         // Remove the item stored at the specified 'dstIndex' in this choice
         // array imp.  The behavior is undefined unless
         // '0 <= dstIndex < length()'.
-    
+
     void reserveRaw(bsl::size_t numItems);
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified 'numItems' without replenishment (i.e., without
@@ -545,7 +545,7 @@ class bdem_ChoiceArrayImp {
         // 'getCapacityRaw() - length()' represents the number of items that
         // can be inserted with the guarantee of no replenishment (no internal
         // allocation).
-    
+
     int length() const;
         // Return the number of items in this choice array imp.
 
@@ -672,7 +672,7 @@ bdem_ChoiceArrayImp::CatalogContainer::catalog() const
                         // -----------------
 
 // ACCESSORS
-inline 
+inline
 bsl::size_t bdem_ChoiceArrayImp::getCapacityRaw() const
 {
     return d_headers.capacity();
