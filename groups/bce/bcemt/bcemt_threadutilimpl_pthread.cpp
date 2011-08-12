@@ -49,7 +49,7 @@ int localPthreadsPolicy(int policy)
 #endif
     }
 
-    BSLS_ASSERT(0);
+    BSLS_ASSERT_OPT(0);
 }
 
 static int initPthreadAttribute(pthread_attr_t                *dest,
@@ -61,12 +61,13 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 {
     typedef bcemt_ThreadAttributes Attr;
 
-    int rc = 0;
-
-    rc |= pthread_attr_init(dest);
+    int rc = pthread_attr_init(dest);
+    if (0 != rc) {
+        return rc;
+    }
     rc |= pthread_attr_setdetachstate(
-                        dest,
-                        Attr::BCEMT_CREATE_DETACHED == src.detachedState()
+                             dest,
+                             Attr::BCEMT_CREATE_DETACHED == src.detachedState()
                                                     ? PTHREAD_CREATE_DETACHED
                                                     : PTHREAD_CREATE_JOINABLE);
 
@@ -82,41 +83,13 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
         int pthreadPolicy = localPthreadsPolicy(src.schedulingPolicy());
         rc |= pthread_attr_setschedpolicy(dest, pthreadPolicy);
 
-        const int minPri = sched_get_priority_min(pthreadPolicy);
-#if defined(BSLS_PLATFORM__OS_AIX)
-        enum { MAX_AIX_NON_SUPERUSER_PRIORITY = 60 };
-            // Note max prirority returned is 127 regardless of policy on
-            // AIX
-
-        const int maxPri = 0 != geteuid()
-                         ? MAX_AIX_NON_SUPERUSER_PRIORITY
-                         : sched_get_priority_max(pthreadPolicy);
-#else
-        const int maxPri = sched_get_priority_max(pthreadPolicy);
-#endif
-
         int priority = src.schedulingPriority();
-        if (Attr::BCEMT_UNSET_NORMALIZED_PRIORITY !=
-                                          src.normalizedSchedulingPriority()) {
-            BSLS_ASSERT(Attr::BCEMT_UNSET_PRIORITY == priority);
-
-            priority =
-                (int) ((maxPri - minPri) * src.normalizedSchedulingPriority() +
-                                                                 minPri + 0.5);
+        if (Attr::BCEMT_UNSET_PRIORITY != priority) {
+            sched_param param;
+            rc |= pthread_attr_getschedparam(dest, &param);
+            param.sched_priority = priority;
+            rc |= pthread_attr_setschedparam(dest, &param);
         }
-        sched_param param;
-        rc |= pthread_attr_getschedparam(dest, &param);
-        if (Attr::BCEMT_UNSET_PRIORITY == priority) {
-            priority = param.sched_priority;
-        }
-        if      (priority < minPri) {
-            priority = minPri;
-        }
-        else if (priority > maxPri) {
-            priority = maxPri;
-        }
-        param.sched_priority = priority;
-        rc |= pthread_attr_setschedparam(dest, &param);
     }
 
     enum { STACK_FUDGE = 8192 };

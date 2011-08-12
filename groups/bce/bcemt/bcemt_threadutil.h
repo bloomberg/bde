@@ -131,6 +131,87 @@ BDES_IDENT("$Id: $")
 //                                            &initValue);
 //  }
 //..
+///Setting Thread Priorities
+///- - - - - - - - - - - - -
+// On most platforms it is not possible for a non-superuser to benefit from
+// setting thread scheduling priorities.  To do so, one must set the
+// 'schedulingPriorityy' attribute on the thread attributes to be used at
+// thread creation.  The range of legal values depends upon the value of the
+// 'schedulingPolicy' attribute.  Note that the attributes object's thread
+// priorities and policy are both ignored unless the 'inheritSchedule'
+// attribute is 'false' (its default value is 'true').
+//..
+// Ability of non-superusers to benefit by using thread priorities by platform:
+//
+//           Can Use
+// Platform  Priorities  Reasons / Restrictions
+// --------  ----------  ------------------------------------------------------
+// Solaris   Yes
+//
+// AIX       Yes         spawning of threads fails if 'schedulingPolicy' is
+//                       'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR'
+//
+// Linux     No          spawning of threads fails if 'schedulingPolicy' is
+//                       'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR';
+//                       'getMinSchedPriority == getMaxSchedPriority'
+//                       otherwise
+//
+// HPUX      No          spawning of threads fails if 'inheritSchedule'
+//                       is 'false'.
+//
+// Windows   No          'schedulingPolicy', 'schedulingPriority', and
+//                       'inheritSchedule' are ignored.
+//..
+// We will give an example of where we are on Solaris or AIX and we want to
+// start 3 threads with different priorities.  We use the
+// 'translateSchedulingPriority' function to translate a normalized,
+// floating-point priority in the range '[ 0.0, 1.0 ]' to an integer priority
+// in the range '[ getMinSchedPriority, getMaxSchedPriority ]' to set the
+// 'schedulingPriority' attribute.
+//..
+//  void runSeveralThreads()
+//      // Create 3 threads with different priorities and then wait for them
+//      // all to finish.
+//  {
+//      enum { STACK_SIZE = 256 * 1024 };
+//
+//      bcemt_ThreadUtil::Handle handles[3];
+//      int rc;
+//
+//      bcemt_ThreadAttributes attributes;
+//      attributes.setStackSize(STACK_SIZE);
+//      attributes.setInheritSchedule(false);
+//      const bcemt_ThreadAttributes::SchedulingPolicy policy =
+//                                   bcemt_ThreadAttributes::BCEMT_SCHED_OTHER;
+//      attributes.setSchedulingPolicy(policy);
+//
+//      attributes.setSchedulingPriority(
+//                      bcemt_ThreadUtil::convertToSchedPriority(policy, 1.0));
+//      rc = bcemt_ThreadUtil::create(&handles[0],
+//                                    attributes,
+//                                    MostUrgentThreadFunctor());
+//      assert(0 == rc);
+//
+//      attributes.setSchedulingPriority(
+//                      bcemt_ThreadUtil::convertToSchedPriority(policy, 0.5));
+//      rc = bcemt_ThreadUtil::create(&handles[1],
+//                                    attributes,
+//                                    FairlyUrgentThreadFunctor());
+//      assert(0 == rc);
+//
+//      attributes.setSchedulingPriority(
+//                      bcemt_ThreadUtil::convertToSchedPriority(policy, 0.0));
+//      rc = bcemt_ThreadUtil::create(&handles[2],
+//                                    attributes,
+//                                    LeastUrgentThreadFunctor());
+//      assert(0 == rc);
+//
+//      for (int i = 0; i < 3; ++i) {
+//          bcemt_ThreadUtil::join(handles[i]);
+//          assert(0 == rc);
+//      }
+//  }
+//..
 
 #ifndef INCLUDED_BCESCM_VERSION
 #include <bcescm_version.h>
@@ -214,6 +295,19 @@ struct bcemt_ThreadUtil {
 
     // CLASS METHODS
                          // *** Thread Management ***
+
+    static int convertToSchedPriority(int    schedulingPolicy,
+                                      double normalizedSchedulingPriority);
+        // Return an integer scheduling priority converted from the specified
+        // 'normalizedSchedulingPrioirity', for the specified
+        // 'schedulingPolicy'.  The result is suitable to be passed to
+        // 'bcemt_ThreadAttributes::setSchedulingPriority'.  The behavior is
+        // undefined unless 'schedulingPolicy' is -1 or a value defined by the
+        // type 'bcemt_ThreadAttributes::SchedulingPolicy', and unless
+        // 'normalizedSchedulingPriority' is a value in the range
+        // '[ 0.0, 1.0 ]'.  Note that higher values of
+        // 'normalizedSchedulingPriority' are considered to represent more
+        // urgent priorities.
 
     static int create(Handle                        *handle,
                       const bcemt_ThreadAttributes&  attributes,

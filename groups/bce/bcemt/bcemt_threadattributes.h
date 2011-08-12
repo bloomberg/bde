@@ -30,18 +30,11 @@ BDES_IDENT("$Id: $")
 //  inheritSchedule     bool                   'true'
 //  schedulingPolicy    enum SchedulingPolicy  BCEMT_SCHED_DEFAULT
 //  schedulingPriority  int                    BCEMT_UNSET_PRIORITY
-//  normalizedSchedulingPriority
-//                      float                  BCEMT_UNSET_NORMALIZED_PRIORITY
 //
 //  Name                          Constraint
 //  ------------------            -------------------------------------
 //  stackSize                     unset or >= 0
 //  guardSize                     unset or >= 0
-//  normalizedSchedulingPriority  unset* or '[ 0.0, 1.0 ]'
-//
-// *: Note that at least one of 'schedulingPriority' and
-// 'normalizedSchedulingPriority' must be unset.  If both are unset, the
-// priority of created threads has a platform & policy based default.
 //..
 ///'detachedState' Attribute
 ///- - - - - - - - - - - - -
@@ -88,12 +81,11 @@ BDES_IDENT("$Id: $")
 // thread's 'schedulingPolicy' and 'schedulingPriority' attributes should be
 // taken from the calling thread and the configured values of those thread
 // attributes should be ignored.  If 'inheritSchedule' is 'false', then the
-// 'schedulingPolicy' and 'schedulingPriority' or
-// 'normalizedSchedulingPriority' attribute values should be used to configure
-// a thread.  Note that this attribute is currently ignored on Windows (as are
-// 'schedulingPolicy', 'schedulingPriority', and
-// 'normalizedSchedulingPriority'), and on HPUX, for non-superusers, thread
-// creation fails unless the 'inheritSchedule()' is 'true'.
+// 'schedulingPolicy' and 'schedulingPriority' attribute values should be used
+// to configure a thread.  Note that this attribute is currently ignored on
+// Windows (as are 'schedulingPolicy' and 'schedulingPriority'), and on HPUX,
+// for non-superusers, thread creation fails unless the 'inheritSchedule()' is
+// 'true'.
 //
 ///'schedulingPolicy' Attribute
 /// - - - - - - - - - - - - - -
@@ -111,24 +103,15 @@ BDES_IDENT("$Id: $")
 // for a non-superuser, thread creation fails if the policy is
 // 'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR'.
 //
-///'schedulingPriority' & 'normalizedSchedulingPriority' Attributes
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The 'schedulingPriority' and 'normalizedSchedulingPriority' attributes
-// provide two different means of specifying the intended scheduling priority
-// of a created thread.  The 'schedulingPriority' attribute is a platform
-// specific value which can range from the minimum to the maximum values for
-// the configured 'schedulingPolicy' with higher numbers indicating a more
-// urgent priority.  Functions to obtain these minimum and maximum values are
-// in 'bcemt_threadutil'.  The 'normalizedSchedlingPriority' attribute is a
-// platform-independent priority in the range '[ 0.0, 1.0 ]' with 0.0
-// indicating the least urgent priority and 1.0 indicating the most urgent
-// priority.
-
-TBD: discuss with John: what happens if both are configured?
-
-// These
-// attributes are both ignored unless 'inheritSchedule' is 'false'.  Note that
-// these attributes are both currently ignored on Windows.
+///'schedulingPriority' Attribute
+/// - - - - - - - - - - - - - - -
+// The 'schedulingPriority' attribute is a platform specific value which can
+// range from the minimum to the maximum values for the configured
+// 'schedulingPolicy' with higher numbers indicating a more urgent priority.
+// Functions to obtain these minimum and maximum values are in
+// 'bcemt_threadutil'.  These attributes are both ignored unless
+// 'inheritSchedule' is 'false'.  Note that these attributes are both currently
+// ignored on Windows.
 //
 ///Usage
 ///-----
@@ -203,7 +186,7 @@ TBD: discuss with John: what happens if both are configured?
 //      // referring to the spawned thread to the specified '*threadHandle'.
 //  {
 //      int stackSize = attributes.stackSize();
-//      if (stackSize < 0) {
+//      if (BCEMT_UNSET_STACK_SIZE == stackSize) {
 //          stackSize = bcemt_Default::defaultThreadStackSize();
 //      }
 //      // Add a "fudge factor" to 'stackSize' to ensure that the client
@@ -220,22 +203,13 @@ TBD: discuss with John: what happens if both are configured?
 //  #endif
 //
 //      int guardSize = attributes.guardSize();
-//      if (guardSize < 0) {
+//      if (BCEMT_UNSET_GUARD_SIZE == guardSize) {
 //          guardSize = bcemt_Default::nativeDefaultThreadGuardSize();
 //      }
 //
 //      int policy = attributes.schedulingPolicy();
 //      int priority = attributes.schedulingPriority();
-//      float normalizedPriority = attributes.normalizedSchedulingPriority();
-//      if (BCEMT_UNSET_NORMALIZED_PRIORITY != normalizedPriority) {
-//          assert(BCEMT_UNSET_PRIORITY == priority);
-//
-//          int minPri = myMinPriority(policy);
-//          int maxPri = myMaxPriority(policy);
-//          priority =
-//               (int) ((maxPri - minPri) * normalizedPriority + minPri + 0.5);
-//      }
-//      else if (BCEMT_UNSET_PRIORITY == priority) {
+//      if (BCEMT_UNSET_PRIORITY == priority) {
 //          priority = operatingSystemDefaultPriority(policy);
 //      }
 //
@@ -313,8 +287,7 @@ class bcemt_ThreadAttributes {
 
         BCEMT_UNSET_STACK_SIZE          = -1,
         BCEMT_UNSET_GUARD_SIZE          = -1,
-        BCEMT_UNSET_PRIORITY            = INT_MIN,
-        BCEMT_UNSET_NORMALIZED_PRIORITY = -1
+        BCEMT_UNSET_PRIORITY            = INT_MIN
     };
 
   private:
@@ -333,11 +306,6 @@ class bcemt_ThreadAttributes {
 
     int              d_schedulingPriority;  // thread priority (higher numbers
                                             // more urgent)
-
-    float            d_normalizedSchedulingPriority;
-                                            // scheduling priority normalized
-                                            // in the range '[ 0, 1 ]' (higher
-                                            // numbers more urgent)
 
     int              d_stackSize;           // size of thread's stack
 
@@ -373,26 +341,18 @@ class bcemt_ThreadAttributes {
     bcemt_ThreadAttributes();
         // Create a 'bcemt_ThreadAttributes' object having the (default)
         // attribute values:
-        //: o 'detachedState()              == BCEMT_CREATE_JOINABLE'
-        //: o 'guardSize()                  == BCEMT_UNSET_GUARD_SIZE'
-        //: o 'inheritSchedule()            == true'
-        //: o 'schedulingPolicy()           == BCEMT_SCHED_DEFAULT'
-        //: o 'schedulingPriority()         == BCEMT_UNSET_PRIORITY'
-        //: o 'normalizedSchedulingPriority()
-	//:                                 == BCEMT_UNSET_NORMALIZED_PRIORITY'
-        //: o 'stackSize()                  == BCEMT_UNSET_STACK_SIZE'
+        //: o 'detachedState()      == BCEMT_CREATE_JOINABLE'
+        //: o 'guardSize()          == BCEMT_UNSET_GUARD_SIZE'
+        //: o 'inheritSchedule()    == true'
+        //: o 'schedulingPolicy()   == BCEMT_SCHED_DEFAULT'
+        //: o 'schedulingPriority() == BCEMT_UNSET_PRIORITY'
+        //: o 'stackSize()          == BCEMT_UNSET_STACK_SIZE'
 
     bcemt_ThreadAttributes(const bcemt_ThreadAttributes& original);
         // Create a 'bcemt_ThreadAttributes' object having the same value
         // as the specified 'original' object.
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    // The following destructor is generated by the compiler, except in "SAFE"
-    // build modes (e.g., to enable the checking of class invariants).
-
-    ~bcemt_ThreadAttributes();
-        // Destroy this object.
-#endif
+    // ~bcemt_ThreadAttributes(); -- compiler generated
 
     // MANIPULATORS
     bcemt_ThreadAttributes& operator=(const bcemt_ThreadAttributes& rhs);
@@ -403,15 +363,6 @@ class bcemt_ThreadAttributes {
     void setDetachedState(DetachedState value);
         // Set the 'detachedState' attribute of this object to the specified
         // 'value'.
-
-    void setNormalizedSchedulingPriority(float value);
-        // Set the 'normalizedSchedulingPriority' attribute of this object to
-        // the specified 'value'.  The behavior is undefined if 'value' is not
-        // in the range '[0, 1]' or 'BCEMT_UNSET_NORMALIZED_PRIORITY', or if
-        // 'setSchedulingPolicy' has been called on this thread attributes
-        // object.  Note that this attribute is ignored on Windows or if
-        // 'inheritSchedule()' is 'true', and is currently ignored on the
-        // Windows platform.
 
     void setGuardSize(int value);
         // Set the 'guardSize' attribute of this object to the specified
@@ -444,26 +395,19 @@ class bcemt_ThreadAttributes {
         // 'inheritSchedule()' is 'false'.  Priorities must be in the range
         // 'min <= priority <= max' where 'min == getMinSchedPriority(policy)'
         // and 'max == getMaxSchedPriority(policy)'.  Higher values of 'value'
-        // signify more urgent priorities.  The behavior is undefined if
-        // 'setNormalizedSchedulingPolicy' has been called on this object.
-        // Note that this attribute is currently ignored on Windows.
+        // signify more urgent priorities.  Note that this attribute is
+        // currently ignored on Windows.
 
     void setStackSize(int value);
-        // Set 'stackSize' attribute of this object to the specified 'value'
-        // (in bytes).  If 'stackSize' has not been set, thread creation will
-        // use the default value specified by 'bcemt_default'.  It should be
-        // possible to create automatic variables/buffers of 'stackSize' bytes
-        // in the create thread.  However, if any subroutine calls occur
-        // additional stack size will be needed.
+        // Set the 'stackSize' attribute of this object to the specified
+        // 'value.  If 'stackSize' is 'BCEMT_UNSET_STACK_SIZE', thread creation
+        // will use the default value provided by 'bcemt_default'.  See the
+        // component doc for a detailed description of the meaning of this
+        // attribute.
 
     // ACCESSORS
     DetachedState detachedState() const;
         // Return the value of the 'detachedState' attribute of this object.
-
-    float normalizedSchedulingPriority() const;
-        // Return the value of the 'normalizedSchedulingPriority' attribute of
-        // this object.  Note that this value is either
-        // 'BCEMT_UNSET_NORMALIZED_PRIORITY' or in the range '[ 0, 1 ]'.
 
     int guardSize() const;
         // Return the value of the 'guardSize' attribute of this object.
@@ -485,17 +429,19 @@ class bcemt_ThreadAttributes {
 // FREE OPERATORS
 bool operator==(const bcemt_ThreadAttributes& lhs,
                 const bcemt_ThreadAttributes& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' thread attributes objects
-    // have the same value, and 'false' otherwise.  Two thread attributes
-    // objects have the same value if they have the same values for all of
-    // their respective attributes.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'bcemt_ThreadAttributes' objects have
+    // the same value if the corresponding values of their 'detachedState',
+    // 'guardSize', 'inheritSchedule', 'schedulingPolicy',
+    // 'schedulingPriority', and 'stackSize' attributes are the same.
 
 bool operator!=(const bcemt_ThreadAttributes& lhs,
                 const bcemt_ThreadAttributes& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' thread attributes objects
-    // do not have the same value, and 'false' otherwise.  Two thread
-    // attributes objects do not have the same value if any of their respective
-    // attributes differ in value.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'baetzo_LocalTimeDescriptor'
+    // objects do not have the same value if the corresponding values of their
+    // 'detachedState', 'guardSize', 'inheritSchedule', 'schedulingPolicy',
+    // 'schedulingPriority', and 'stackSize' attributes are not the same.
 
 // ===========================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -509,25 +455,14 @@ bool operator!=(const bcemt_ThreadAttributes& lhs,
 inline
 bcemt_ThreadAttributes::bcemt_ThreadAttributes(
                                         const bcemt_ThreadAttributes& original)
-: d_detachedState(               original.d_detachedState)
-, d_guardSize(                   original.d_guardSize)
-, d_inheritSchedule(             original.d_inheritSchedule)
-, d_schedulingPolicy(            original.d_schedulingPolicy)
-, d_schedulingPriority(          original.d_schedulingPriority)
-, d_normalizedSchedulingPriority(original.d_normalizedSchedulingPriority)
-, d_stackSize(                   original.d_stackSize)
+: d_detachedState(original.d_detachedState)
+, d_guardSize(original.d_guardSize)
+, d_inheritSchedule(original.d_inheritSchedule)
+, d_schedulingPolicy(original.d_schedulingPolicy)
+, d_schedulingPriority(original.d_schedulingPriority)
+, d_stackSize(original.d_stackSize)
 {
 }
-
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-inline
-bcemt_ThreadAttributes::~bcemt_ThreadAttributes()
-{
-    BSLS_ASSERT_SAFE(
-            BCEMT_UNSET_PRIORITY            == d_schedulingPriority ||
-            BCEMT_UNSET_NORMALIZED_PRIORITY == d_normalizedSchedulingPriority);
-}
-#endif
 
 // MANIPULATORS
 inline
@@ -539,7 +474,6 @@ bcemt_ThreadAttributes& bcemt_ThreadAttributes::operator=(
     d_inheritSchedule              = rhs.d_inheritSchedule;
     d_schedulingPolicy             = rhs.d_schedulingPolicy;
     d_schedulingPriority           = rhs.d_schedulingPriority;
-    d_normalizedSchedulingPriority = rhs.d_normalizedSchedulingPriority;
     d_stackSize                    = rhs.d_stackSize;
 
     return *this;
@@ -550,16 +484,6 @@ void bcemt_ThreadAttributes::setDetachedState(
                                    bcemt_ThreadAttributes::DetachedState value)
 {
     d_detachedState = value;
-}
-
-inline
-void bcemt_ThreadAttributes::setNormalizedSchedulingPriority(float value)
-{
-    BSLS_ASSERT_OPT(BCEMT_UNSET_PRIORITY == d_schedulingPriority);
-    BSLS_ASSERT_SAFE(value >= 0.0);
-    BSLS_ASSERT_SAFE(value <= 1.0);
-
-    d_normalizedSchedulingPriority = value;
 }
 
 inline
@@ -584,9 +508,6 @@ void bcemt_ThreadAttributes::setSchedulingPolicy(
 inline
 void bcemt_ThreadAttributes::setSchedulingPriority(int value)
 {
-    BSLS_ASSERT_OPT(BCEMT_UNSET_NORMALIZED_PRIORITY ==
-                                               d_normalizedSchedulingPriority);
-
     d_schedulingPriority = value;
 }
 
@@ -602,12 +523,6 @@ bcemt_ThreadAttributes::DetachedState
 bcemt_ThreadAttributes::detachedState() const
 {
     return d_detachedState;
-}
-
-inline
-float bcemt_ThreadAttributes::normalizedSchedulingPriority() const
-{
-    return d_normalizedSchedulingPriority;
 }
 
 inline

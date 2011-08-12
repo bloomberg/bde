@@ -346,9 +346,12 @@ int main(int argc, char *argv[])
             bcemt_ThreadAttributes urgentAttr(notUrgentAttr);
 
             if (NORM_PRI) {
-                notUrgentAttr.setNormalizedSchedulingPriority(
-                                                          NORM_NOT_URGENT_PRI);
-                urgentAttr.   setNormalizedSchedulingPriority(NORM_URGENT_PRI);
+                notUrgentAttr.setSchedulingPriority(
+                                      bcemt_ThreadUtil::convertToSchedPriority(
+                                                 POLICY, NORM_NOT_URGENT_PRI));
+                urgentAttr.   setSchedulingPriority(
+                                      bcemt_ThreadUtil::convertToSchedPriority(
+                                                 POLICY, NORM_URGENT_PRI));
             }
             else {
                 notUrgentAttr.setSchedulingPriority(NOT_URGENT_PRIORITY);

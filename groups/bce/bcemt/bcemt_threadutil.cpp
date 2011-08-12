@@ -5,8 +5,11 @@
 BDES_IDENT_RCSID(bcemt_threadutil_cpp,"$Id$ $CSID$")
 
 #include <bdema_managedptr.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+
+#include <bsl_cmath.h>
 
 namespace BloombergLP {
 
@@ -14,11 +17,12 @@ extern "C" {
 
 void *bcemt_ThreadUtil_threadFunc(void *arg)
 {
-   typedef bcemt_ThreadUtil::Invokable Invokable;
-   bdema_ManagedPtr<Invokable> functionPtr((Invokable *)arg,
-                                           ((Invokable *)arg)->getAllocator());
-   (*functionPtr)();
-   return 0;
+    typedef bcemt_ThreadUtil::Invokable Invokable;
+    bdema_ManagedPtr<Invokable> functionPtr(
+                                          (Invokable *) arg,
+                                          ((Invokable *) arg)->getAllocator());
+    (*functionPtr)();
+    return 0;
 }
 
 }  // extern "C"
@@ -28,6 +32,22 @@ void *bcemt_ThreadUtil_threadFunc(void *arg)
                             // -----------------------
 
 // CLASS METHODS
+int bcemt_ThreadUtil::convertToSchedPriority(
+                                           int    schedulingPolicy,
+                                           double normalizedSchedulingPriority)
+{
+    BSLS_ASSERT_OPT(normalizedSchedulingPriority >= 0.0);
+    BSLS_ASSERT_OPT(normalizedSchedulingPriority <= 1.0);
+
+    int minPri = getMinSchedPriority(schedulingPolicy);
+    int maxPri = getMaxSchedPriority(schedulingPolicy);
+
+    double ret = (maxPri - minPri) * normalizedSchedulingPriority +
+                                                                  minPri + 0.5;
+    return (int) bsl::floor(ret);
+                                                                
+}
+
 int bcemt_ThreadUtil::create(bcemt_ThreadUtil::Handle           *handle,
                              const bcemt_ThreadAttributes&       attributes,
                              const bcemt_ThreadUtil::Invokable&  function)

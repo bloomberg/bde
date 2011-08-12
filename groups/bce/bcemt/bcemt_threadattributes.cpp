@@ -114,7 +114,6 @@ bcemt_ThreadAttributes::bcemt_ThreadAttributes()
 , d_inheritSchedule(1)
 , d_schedulingPolicy(BCEMT_SCHED_DEFAULT)
 , d_schedulingPriority(BCEMT_UNSET_PRIORITY)
-, d_normalizedSchedulingPriority(BCEMT_UNSET_NORMALIZED_PRIORITY)
 , d_stackSize(BCEMT_UNSET_STACK_SIZE)
 {}
 
@@ -127,8 +126,6 @@ bool operator==(const bcemt_ThreadAttributes& lhs,
            lhs.d_inheritSchedule            == rhs.d_inheritSchedule         &&
            lhs.d_schedulingPolicy           == rhs.d_schedulingPolicy        &&
            lhs.d_schedulingPriority         == rhs.d_schedulingPriority      &&
-           lhs.d_normalizedSchedulingPriority ==
-                                          rhs.d_normalizedSchedulingPriority &&
            lhs.d_stackSize               == rhs.d_stackSize;
 }
 
