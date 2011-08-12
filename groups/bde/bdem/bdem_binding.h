@@ -501,8 +501,9 @@ BDES_IDENT("$Id: $")
 //        ]
 //      ]
 //..
-///Usage Example 1
-///- - - - - - - -
+//
+///Example 1
+///- - - - -
 // This first example illustrates basic use of row bindings.  First we create
 // a row binding useful for accessing elements of 'teamA' using the constructor
 // that takes a 'const bdem_List *', a 'const bdem_Schema *', and a
@@ -577,8 +578,9 @@ BDES_IDENT("$Id: $")
 //  Team A revised revenue (knuts x M) = 113.2
 //  Michael Blix is another team leader.
 //..
-///Usage Example 2
-///- - - - - - - -
+//
+///Example 2
+///- - - - -
 // This second example illustrates row, table, and column bindings used in
 // combination to print out the members of the Widgets department.  We create
 // a row binding to access the contents of the department:
