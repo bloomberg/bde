@@ -205,14 +205,16 @@ static void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 typedef bdem_ChoiceArrayImp      CAI;
+typedef bdem_ChoiceArrayImp      Obj;
 
-typedef bdem_Properties          Prop;
-typedef bdem_Descriptor          Desc;
-typedef bdem_ElemType            EType;
-typedef bdem_ElemRef             ERef;
-typedef bdem_ConstElemRef        CERef;
-typedef bdem_ElemType            EType;
-typedef bdem_AggregateOption     AggOption;
+typedef bdem_Properties                          Prop;
+typedef bdem_Descriptor                          Desc;
+typedef bdem_ElemType                            EType;
+typedef bdem_ElemRef                             ERef;
+typedef bdem_ConstElemRef                        CERef;
+typedef bdem_ElemType                            EType;
+typedef bdem_AggregateOption                     AggOption;
+typedef bdem_AggregateOption::AllocationStrategy Strategy;
 
 typedef bsl::vector<EType::Type> Catalog;
 
@@ -228,11 +230,21 @@ typedef bdet_TimeTz              TimeTz;
 typedef bdex_TestInStream        In;
 typedef bdex_TestOutStream       Out;
 
+static const bdem_AggregateOption::AllocationStrategy BDEM_PASS_THROUGH =
+             bdem_AggregateOption::BDEM_PASS_THROUGH;
+
+static const bdem_AggregateOption::AllocationStrategy BDEM_WRITE_MANY =
+             bdem_AggregateOption::BDEM_WRITE_MANY;
+
+static const bdem_AggregateOption::AllocationStrategy BDEM_WRITE_ONCE =
+             bdem_AggregateOption::BDEM_WRITE_ONCE;
+
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
+static bool verbose = 0;
+static bool veryVerbose = 0;
+static bool veryVeryVerbose = 0;
+static bool veryVeryVeryVerbose = 0;
 
 #define READ(OBJ, STREAM) {\
 OBJ.bdexStreamIn(STREAM, VERSION, inLookup.lookupTable(),DESCRIPTORS);\
@@ -1157,8 +1169,9 @@ int main(int argc, char *argv[])
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     bslma_TestAllocator defaultAlloc;
     bslma_DefaultAllocatorGuard allocGuard(&defaultAlloc);
@@ -1249,7 +1262,7 @@ int main(int argc, char *argv[])
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Simple example illustrating how one might use a choice imp
@@ -1266,12 +1279,12 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "USAGE EXAMPLE" << bsl::endl
-                               << "=============" << bsl::endl;
+        if (verbose) cout << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
 
         bdem_ChoiceArrayImp mX = computeResults();
       } break;
-      case 16: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING BSLMA ALLOCATOR MODEL AND ALLOCATOR TRAITS
         //
@@ -1290,15 +1303,163 @@ int main(int argc, char *argv[])
         //   bdema allocator model
         //   correct declaration of bslalg_TypeTraitUsesBslmaAllocator
         // --------------------------------------------------------------------
-        if (verbose) bsl::cout << "\nTesting allocator traits"
-                               << "\n========================" << bsl::endl;
+        if (verbose) cout << "\nTesting allocator traits"
+                               << "\n========================" << endl;
 
-        typedef bdem_ChoiceArrayImp Obj;
 
         ASSERT((0 == bslmf_IsConvertible<bslma_Allocator*, Obj>::VALUE));
         ASSERT((1 ==
              bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
 
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING: 'getRowsCapacityRaw()' method
+        //
+        // Concerns:
+        //  1 Reserving memory actually causes capacity to change consistently.
+        //  2 Inserting rows less in number than difference between the rows
+        //    contained in the table and its capacity, does not alter capacity.
+        //  3 Inserting more rows than 'capacity' makes 'capacity' increase.
+        //
+        // Plan:
+        //  1 Verify that the 'getRowsCapacityRaw' method returns the exact
+        //    capacity reserved through 'reserveNumRowsRaw' for progressive
+        //    calls of 'reserveNumRowsRaw'.
+        //  2 Verify that  the 'getRowsCapacityRaw' method returns the exact
+        //    amount of rows inserted via 'insertNullRows', for progressive
+        //    insertions of rows.
+        // --------------------------------------------------------------------
+        if (verbose) cout << "TESTING: 'getCapacityRaw'" << endl
+                          << "============================" << endl;
+
+        static const Strategy STRATEGY_DATA[] = {
+            BDEM_PASS_THROUGH,
+            BDEM_WRITE_ONCE,
+            BDEM_WRITE_MANY
+        };
+        enum { STRATEGY_LEN = sizeof(STRATEGY_DATA) / sizeof(*STRATEGY_DATA) };
+
+        const int MAX_NUM_ROWS = 4096;  // power of 2
+
+        if (veryVerbose) cout << "\tTesting all allocation strategies\n"
+                              << endl;
+
+        for (int i = 0; i < STRATEGY_LEN; ++i) {
+
+            const Strategy STRATEGY = STRATEGY_DATA[i];
+
+            if (verbose) cout << "\nTesting using 'reserveRaw'" << endl;
+
+            for (int j = 1; j <= MAX_NUM_ROWS; j <<= 1) {
+
+                const int EXPECTED_CAPACITY = j;
+                if (veryVerbose) {  P(i) P_(j) }
+                 bslma_TestAllocator ta("TestAllocator",
+                                        veryVeryVeryVerbose);
+
+                 Obj mX(STRATEGY, &ta); const Obj& X = mX;
+                 ASSERT(0 == X.getCapacityRaw());
+
+                 if (veryVeryVerbose) cout << "\t\tReserving memory\n" << endl;
+                 mX.reserveRaw(EXPECTED_CAPACITY);
+                 LOOP2_ASSERT(EXPECTED_CAPACITY,
+                              X.getCapacityRaw(),
+                              EXPECTED_CAPACITY == X.getCapacityRaw());
+            }
+
+            if (verbose) cout << "\nTesting using 'insertNullItems'" << endl;
+            for (int j = 1; j <= MAX_NUM_ROWS; j <<= 1) {
+
+                const int EXPECTED_CAPACITY = j;
+                if (veryVerbose) { P(i) P_(j) }
+
+                Obj mX(STRATEGY); const Obj& X = mX;
+                ASSERT(0 == X.getCapacityRaw());
+
+                if (veryVeryVerbose) cout << "\t\tInserting rows.\n" << endl;
+
+                // Use this vector as an oracle for capacity.
+
+                bsl::vector<char> capacityOracle;
+                for (int k = 0;
+                         k < MAX_NUM_ROWS;
+                         k += j) {
+                    mX.insertNullItems(k, j);
+                    capacityOracle.insert(capacityOracle.begin(), j, 'a');
+
+                    const int EXPECTED_CAPACITY = capacityOracle.capacity();
+                    LOOP2_ASSERT(EXPECTED_CAPACITY,
+                                 X.getCapacityRaw(),
+                                 EXPECTED_CAPACITY == X.getCapacityRaw());
+                }
+            }
+        }
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING: 'reserveNumRowsRaw' method
+        //
+        // Concerns:
+        //  1 Geometric memory growth is disabled by default.
+        //  2 When geometric memory growth is enabled, memory actually grows
+        //    geometrically.
+        //  3 When geometric memory growth is disabled, memory grows non
+        //    geometrically.
+        //
+        // Plan:
+        //  1 Verify that inserting rows in different chunk sizes, after enough
+        //    memory is reserved through 'reserveNumRowsRaw' does not allocate
+        //    any extra memory.
+        // --------------------------------------------------------------------
+        if (verbose) cout << "TESTING: 'reserveNumRowsRaw'" << endl
+                          << "============================" << endl;
+
+
+        if (verbose) cout << "\nTesting the default memory growth" << endl;
+
+        static
+        const Strategy STRATEGY_DATA[] = {
+            BDEM_PASS_THROUGH,
+            BDEM_WRITE_ONCE,
+            BDEM_WRITE_MANY
+        };
+        enum { STRATEGY_LEN = sizeof(STRATEGY_DATA) / sizeof(*STRATEGY_DATA) };
+
+        const int MAX_NUM_ITEMS = 4096;  // power of 2
+
+        if (veryVerbose) cout << "\tTesting Strategies\n" << endl;
+
+        for (int i = 0; i < STRATEGY_LEN; ++i) {
+
+            const Strategy STRATEGY = STRATEGY_DATA[i];
+
+            if (veryVerbose) cout << "\tInserting Items\n" << endl;
+
+            for (int j = 1; j <= MAX_NUM_ITEMS; j <<= 1) {
+
+                if (veryVerbose) {  P(i) P_(j) }
+                 bslma_TestAllocator ta("TestAllocator",
+                                        veryVeryVeryVerbose);
+
+                 Obj mX(STRATEGY, &ta); const Obj& X = mX;
+
+                 if (veryVeryVerbose) cout << "\t\tReserving memory\n" << endl;
+                 mX.reserveRaw(MAX_NUM_ITEMS);
+
+                 size_t NUM_BYTES = ta.numBytesMax();
+                 for (int k = 0;
+                          k < MAX_NUM_ITEMS;
+                          k += j) {
+                     mX.insertNullItems(k, j);
+                 }
+                 LOOP4_ASSERT(i,
+                              j,
+                              ta.numBytesMax(),
+                              NUM_BYTES,
+                              ta.numBytesMax() <= NUM_BYTES);
+              }
+        }
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -1331,9 +1492,9 @@ int main(int argc, char *argv[])
         //   static const bdem_Descriptor d_choiceArrayAttr;
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting d_choiceArrayAttr Struct"
+        if (verbose) cout << "\nTesting d_choiceArrayAttr Struct"
                                << "\n================================"
-                               << bsl::endl;
+                               << endl;
         const Desc &d = CAI::d_choiceArrayAttr;
         {
             // TEST 1. d_elemENUM
@@ -1565,8 +1726,8 @@ int main(int argc, char *argv[])
         //   void removeItems(int, int)
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting removeItem METHODS"
-                               << "\n==========================" << bsl::endl;
+        if (verbose) cout << "\nTesting removeItem METHODS"
+                               << "\n==========================" << endl;
         {
             if (verbose) {
                 cout << "\tTest removeItem(int, int) for "
@@ -1763,8 +1924,8 @@ int main(int argc, char *argv[])
           };
           const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) bsl::cout << "\nTesting insertItem METHOD"
-                               << "\n=========================" << bsl::endl;
+        if (verbose) cout << "\nTesting insertItem METHOD"
+                               << "\n=========================" << endl;
         {
             if (verbose) {
                 cout << "\tTest insert(i,bdem_ChoiceHeader) for choice arrays"
@@ -1978,8 +2139,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTesting reset Functions"
-                         "\n=======================" << bsl::endl;
+            cout << "\nTesting reset Functions"
+                         "\n=======================" << endl;
         }
         const Desc **D = DESCRIPTORS;
         {
@@ -2049,9 +2210,9 @@ int main(int argc, char *argv[])
         //   bdem_ElemRef makeSelection(int index, int selection);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting makeSelection Functions"
+        if (verbose) cout << "\nTesting makeSelection Functions"
                                   "\n==============================="
-                               << bsl::endl;
+                               << endl;
 
         // makeSelection for choice arrays on the set of test data
         // specified in the DATA table
@@ -2217,7 +2378,7 @@ int main(int argc, char *argv[])
         //   bdex_OutStream& streamOut(bdex_OutStream& stream, int) const;
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Streaming Functionality"
+        if (verbose) cout << "\nTesting Streaming Functionality"
                                << "\n==============================="
                                << endl;
 
@@ -2460,8 +2621,8 @@ int main(int argc, char *argv[])
         //   bdem_ChoiceArrayImp& operator=(const bdem_ChoiceArrayImp& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Assignment Operator"
-                               << "\n===========================" << bsl::endl;
+        if (verbose) cout << "\nTesting Assignment Operator"
+                               << "\n===========================" << endl;
 
         if (verbose) {
             cout << "\tTesting basic assignment" << endl;
@@ -2476,8 +2637,8 @@ int main(int argc, char *argv[])
             for (int vI = 0; vI < NUM_DATA; ++vI) {
                 const char *SPECV = DATA[vI].d_catalogSpec;
                 if (veryVerbose) {
-                    bsl::cout << "\tTesting table spec '" << SPECU << "'"
-                              << " and '" << SPECV << "'" << bsl::endl;
+                    cout << "\tTesting table spec '" << SPECU << "'"
+                              << " and '" << SPECV << "'" << endl;
                 }
 
                 Catalog catU;
@@ -2545,8 +2706,8 @@ int main(int argc, char *argv[])
             bslma_TestAllocator tAlloc(veryVeryVerbose);
 
             if (veryVerbose) {
-                bsl::cout << "\tTesting table spec '" << SPEC << "'"
-                          << bsl::endl;
+                cout << "\tTesting table spec '" << SPEC << "'"
+                          << endl;
             }
 
             Catalog cat;
@@ -2605,8 +2766,8 @@ int main(int argc, char *argv[])
         //                       bslma_Allocator            *basicAllocator);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Copy Constructor"
-                               << "\n========================" << bsl::endl;
+        if (verbose) cout << "\nTesting Copy Constructor"
+                               << "\n========================" << endl;
 
         for (int testI = 0; testI < NUM_DATA; ++testI) {
             // for each test in the DATA table
@@ -2616,8 +2777,8 @@ int main(int argc, char *argv[])
             const int   LEN  = bsl::strlen(SPEC);
 
             if (veryVerbose) {
-                bsl::cout << "\tTesting table spec '" << SPEC << "'"
-                          << bsl::endl;
+                cout << "\tTesting table spec '" << SPEC << "'"
+                          << endl;
             }
 
             bslma_TestAllocator tAlloc1(veryVeryVerbose);
@@ -2782,12 +2943,12 @@ int main(int argc, char *argv[])
         //  operator!=(const bdem_ChoiceArrayImp&, const bdem_ChoiceArrayImp&);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Equality Operators"
-                               << "\n==========================" << bsl::endl;
+        if (verbose) cout << "\nTesting Equality Operators"
+                               << "\n==========================" << endl;
 
         if (veryVerbose) {
-            bsl::cout << "\tTesting equality choice array"
-                      << bsl::endl;
+            cout << "\tTesting equality choice array"
+                      << endl;
         }
 
         bslma_TestAllocator       testAllocator1(veryVeryVerbose);
@@ -2986,12 +3147,12 @@ int main(int argc, char *argv[])
         //   operator<<(ostream&, const bdem_ChoiceArrayImp&);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << bsl::endl
-                               << "Testing Output Functions" << bsl::endl
-                               << "========================" << bsl::endl;
+        if (verbose) cout << endl
+                               << "Testing Output Functions" << endl
+                               << "========================" << endl;
         {
             if (veryVerbose) {
-                bsl::cout << "\tTesting empty choice array" << bsl::endl;
+                cout << "\tTesting empty choice array" << endl;
             }
 
             const char *EXP_P1 = "    {\n"
@@ -3352,7 +3513,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << endl
+            cout << endl
                       <<"TESTING HELPER FUNCTION populateData" << endl
                       <<"====================================" << endl;
         }
@@ -3362,10 +3523,10 @@ int main(int argc, char *argv[])
             const char *SPEC = "ABCDEFGHIJKLMNOPQRSTWQXYZabcd";
             const int LEN = strlen(SPEC);
 
-            if (verbose) bsl::cout << "TESTING 'populateCatalog'" << endl;
+            if (verbose) cout << "TESTING 'populateCatalog'" << endl;
             {
                 if (veryVerbose) {
-                    bsl::cout << "Testing with empty string" << endl;
+                    cout << "Testing with empty string" << endl;
                 }
                 // create and populate mX
                 bslma_TestAllocator tAlloc(veryVeryVerbose);
@@ -3377,7 +3538,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == X.numSelections());
             }
             {
-                if (veryVerbose) bsl::cout << "Testing all types" << endl;
+                if (veryVerbose) cout << "Testing all types" << endl;
                 char spec [] = "%";
                 for (int i = 0; i < LEN; ++i) {
                     spec[0] = SPEC[i];
@@ -3401,7 +3562,7 @@ int main(int argc, char *argv[])
             }
             {
                 if (veryVerbose) {
-                    bsl::cout << "Testing a large invocation touching"
+                    cout << "Testing a large invocation touching"
                                  "all tokens multiple times" << endl;
                 }
                 // create a spec string and a matching vector of ETypes
@@ -3491,10 +3652,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTESTING PRIMARY MANIPULATORS AND ACCESSORS"
-                      << bsl::endl
+            cout << "\nTESTING PRIMARY MANIPULATORS AND ACCESSORS"
+                      << endl
                       << "============================================"
-                      << bsl::endl;
+                      << endl;
         }
 
         // Test empty choice array
@@ -4026,7 +4187,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << endl
+            cout << endl
                       << "PRIMARY CONSTRUCTOR" << endl
                       << "===================" << endl;
         }
@@ -4560,15 +4721,15 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << endl
+            cout << endl
                       <<"TESTING HELPER FUNCTION populateCatalog" << endl
                       <<"=======================================" << endl;
         }
         {
-            if (verbose) bsl::cout << "TESTING 'populateCatalog'" << endl;
+            if (verbose) cout << "TESTING 'populateCatalog'" << endl;
             {
                 if (veryVerbose) {
-                    bsl::cout << "Testing with empty string" << endl;
+                    cout << "Testing with empty string" << endl;
                 }
                 Catalog c;
                 populateCatalog(&c,"");
@@ -4579,7 +4740,7 @@ int main(int argc, char *argv[])
                 }
             }
             {
-                if (veryVerbose) bsl::cout << "Testing all types" << endl;
+                if (veryVerbose) cout << "Testing all types" << endl;
                 char spec [] = "%";
                 for (int i = 0; i < SPEC_LEN; ++i) {
                     spec[0] = SPECIFICATIONS[i];
@@ -4595,7 +4756,7 @@ int main(int argc, char *argv[])
             }
             {
                 if (veryVerbose) {
-                    bsl::cout << "Testing a large invocation touching"
+                    cout << "Testing a large invocation touching"
                                  "all tokens multiple times" << endl;
                 }
 
@@ -4629,7 +4790,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'getValueA'." << bsl::endl;
+        if (verbose) cout << "\nTesting 'getValueA'." << endl;
         {
             ASSERT(A00   == *(char *) getValueA(SPECIFICATIONS[0]));
             ASSERT(A01   == *(short *) getValueA(SPECIFICATIONS[1]));
@@ -4679,7 +4840,7 @@ int main(int argc, char *argv[])
                    *(bsl::vector<TimeTz> *) getValueA(SPECIFICATIONS[29]));
         }
 
-        if (verbose) bsl::cout << "\nTesting 'getValueB'." << bsl::endl;
+        if (verbose) cout << "\nTesting 'getValueB'." << endl;
         {
             ASSERT(B00   == *(char *) getValueB(SPECIFICATIONS[0]));
             ASSERT(B01   == *(short *) getValueB(SPECIFICATIONS[1]));
@@ -4725,7 +4886,7 @@ int main(int argc, char *argv[])
                    *(bsl::vector<TimeTz> *) getValueB(SPECIFICATIONS[29]));
         }
 
-        if (verbose) bsl::cout << "\nTesting 'getValueN'." << bsl::endl;
+        if (verbose) cout << "\nTesting 'getValueN'." << endl;
         {
             ASSERT(N00       == *(char *) getValueN(SPECIFICATIONS[0]));
             ASSERT(N01       == *(short *) getValueN(SPECIFICATIONS[1]));
@@ -4812,13 +4973,13 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << endl
+        if (verbose) cout << endl
                                << "BREATHING TEST" << endl
                                << "==============" << endl;
 
         {
             if (verbose) {
-                bsl::cout << "\tDefault construct CAI mX" << bsl::endl;
+                cout << "\tDefault construct CAI mX" << endl;
             }
             bslma_TestAllocator alloc(veryVeryVerbose);
             CAI mX(&alloc); const CAI& X = mX;
@@ -4826,14 +4987,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.length());
 
             if (veryVerbose) {
-                bsl::cout << "\tX:" << bsl::endl;
-                X.print(bsl::cout, 1, 4);
+                cout << "\tX:" << endl;
+                X.print(cout, 1, 4);
             }
 
             const int INT_VAL = 100;
             if (verbose) {
-                bsl::cout << "\tModify mX to hold int with Value: "
-                          << INT_VAL << bsl::endl;
+                cout << "\tModify mX to hold int with Value: "
+                          << INT_VAL << endl;
             }
 
             // create mX with INT as the only selection type
@@ -4858,14 +5019,14 @@ int main(int argc, char *argv[])
             ASSERT(EType::BDEM_INT == X.selectionType(0));
             ASSERT(INT_VAL == *(const int *) X.theItem(0).selectionPointer());
             if (veryVerbose) {
-                bsl::cout << "\tX:" << bsl::endl;
-                X.print(bsl::cout, 1, 4);
-                bsl::cout << "\tConstruct CAI mY holding a string"
-                          << bsl::endl;
-                bsl::cout << "\tX:" << bsl::endl;
-                X.print(bsl::cout, 1, 4);
-                bsl::cout << "\tConstruct CAI mY holding a string"
-                          << bsl::endl;
+                cout << "\tX:" << endl;
+                X.print(cout, 1, 4);
+                cout << "\tConstruct CAI mY holding a string"
+                          << endl;
+                cout << "\tX:" << endl;
+                X.print(cout, 1, 4);
+                cout << "\tConstruct CAI mY holding a string"
+                          << endl;
             }
 
             // create a second object mY
@@ -4886,10 +5047,10 @@ int main(int argc, char *argv[])
             ASSERT(X != Y);
             ASSERT(!(X == Y));
             if (veryVerbose) {
-                bsl::cout << "\tY:" << bsl::endl;
-                Y.print(bsl::cout, 1, 4);
-                bsl::cout << "\tModify mY to have value "
-                          << "\"Hello World\"" << bsl::endl;
+                cout << "\tY:" << endl;
+                Y.print(cout, 1, 4);
+                cout << "\tModify mY to have value "
+                          << "\"Hello World\"" << endl;
             }
 
             const bsl::string STR_VAL = "Hello World";
@@ -4901,9 +5062,9 @@ int main(int argc, char *argv[])
             ASSERT(STR_VAL ==
                    *(const bsl::string *) Y.theItem(0).selectionPointer());
             if (veryVerbose) {
-                bsl::cout << "\tY:" << bsl::endl;
-                Y.print(bsl::cout, 1, 4);
-                bsl::cout << "\tCopy Construct mZ from mY" << bsl::endl;
+                cout << "\tY:" << endl;
+                Y.print(cout, 1, 4);
+                cout << "\tCopy Construct mZ from mY" << endl;
             }
             CAI mZ(mY, &alloc); const CAI& Z = mZ;
             ASSERT(1 == Z.numSelections());
@@ -4923,13 +5084,13 @@ int main(int argc, char *argv[])
             ASSERT(Z == Y);
             ASSERT(!(Z != Y));
             if (veryVerbose) {
-                bsl::cout << "\tX:" << bsl::endl;
-                X.print(bsl::cout, 1, 4);
-                bsl::cout << "\tY:" << bsl::endl;
-                Y.print(bsl::cout, 1, 4);
-                bsl::cout << "\tZ:" << bsl::endl;
-                Z.print(bsl::cout, 1, 4);
-                bsl::cout << "\tAssign mX to mY" << bsl::endl;
+                cout << "\tX:" << endl;
+                X.print(cout, 1, 4);
+                cout << "\tY:" << endl;
+                Y.print(cout, 1, 4);
+                cout << "\tZ:" << endl;
+                Z.print(cout, 1, 4);
+                cout << "\tAssign mX to mY" << endl;
             }
             mY = mX;
             ASSERT(1 == X.numSelections());
@@ -4947,14 +5108,14 @@ int main(int argc, char *argv[])
             ASSERT(Z != Y);
             ASSERT(!(Z == Y));
             if (veryVerbose) {
-                bsl::cout << "\tX:" << bsl::endl;
-                X.print(bsl::cout, 1, 4);
-                bsl::cout << "\tY:" << bsl::endl;
-                Y.print(bsl::cout, 1, 4);
-                bsl::cout << "\tZ:" << bsl::endl;
-                Z.print(bsl::cout, 1, 4);
-                bsl::cout << "\tConstruct CAI mA holding a double"
-                          << bsl::endl;
+                cout << "\tX:" << endl;
+                X.print(cout, 1, 4);
+                cout << "\tY:" << endl;
+                Y.print(cout, 1, 4);
+                cout << "\tZ:" << endl;
+                Z.print(cout, 1, 4);
+                cout << "\tConstruct CAI mA holding a double"
+                          << endl;
             }
             EType::Type catalog3[] = { EType::BDEM_DOUBLE };
             bslma_TestAllocator ta(verbose);
@@ -4974,9 +5135,9 @@ int main(int argc, char *argv[])
             ASSERT(DBL_VAL ==
                             *(const double *) A.theItem(0).selectionPointer());
             if (veryVerbose) {
-                bsl::cout << "\tA:" << bsl::endl;
-                A.print(bsl::cout, 1, 4);
-                bsl::cout << "\tStream out each choice array" << bsl::endl;
+                cout << "\tA:" << endl;
+                A.print(cout, 1, 4);
+                cout << "\tStream out each choice array" << endl;
             }
             bdex_TestOutStream os(&alloc);
             X.bdexStreamOut(os,
@@ -5025,20 +5186,20 @@ int main(int argc, char *argv[])
             ASSERT(A == objVec[3]);
             ASSERT(!(A != objVec[3]));
             if (veryVerbose) {
-                bsl::cout << "\tX:" << bsl::endl;
-                X.print(bsl::cout, 1, 4);
-                bsl::cout << "\tY:" << bsl::endl;
-                Y.print(bsl::cout, 1, 4);
-                bsl::cout << "\tZ:" << bsl::endl;
-                Z.print(bsl::cout, 1, 4);
-                bsl::cout << "\tA:" << bsl::endl;
-                A.print(bsl::cout, 1, 4);
+                cout << "\tX:" << endl;
+                X.print(cout, 1, 4);
+                cout << "\tY:" << endl;
+                Y.print(cout, 1, 4);
+                cout << "\tZ:" << endl;
+                Z.print(cout, 1, 4);
+                cout << "\tA:" << endl;
+                A.print(cout, 1, 4);
             }
         }
 
-        if (verbose) bsl::cout << "\n\tTesting default construction"
+        if (verbose) cout << "\n\tTesting default construction"
                                << "\n\t============================"
-                               << bsl::endl;
+                               << endl;
         {
             bslma_TestAllocator t(veryVeryVerbose);
 
@@ -5047,9 +5208,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.length());
         }
 
-        if (verbose) bsl::cout << "\n\tTesting different specs"
+        if (verbose) cout << "\n\tTesting different specs"
                                   "\n\t======================="
-                               << bsl::endl;
+                               << endl;
 
         {
             for (int j = NUM_DATA - 1; j < NUM_DATA; ++j) {
@@ -5224,7 +5385,7 @@ int main(int argc, char *argv[])
                                            X.theItem(k).selectionPointer(),S));
 
                     if (verbose) {
-                        bsl::cout << "bdex Streaming" << bsl::endl;
+                        cout << "bdex Streaming" << endl;
                     }
                     {
                         bdex_TestOutStream os;
@@ -5249,7 +5410,7 @@ int main(int argc, char *argv[])
                     }
 
                     if (verbose) {
-                        bsl::cout << "Assignment operator" << bsl::endl;
+                        cout << "Assignment operator" << endl;
                     }
                     {
                         bslma_TestAllocator ta(veryVeryVerbose);
@@ -5265,7 +5426,7 @@ int main(int argc, char *argv[])
                     }
 
                     if (verbose) {
-                        bsl::cout << "Copy constructor" << bsl::endl;
+                        cout << "Copy constructor" << endl;
                     }
                     {
                         bslma_TestAllocator ta(verbose);
@@ -5275,7 +5436,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(S, !(X != Y));
                     }
                     {
-                        if (veryVerbose) { bsl::cout << X << bsl::endl; }
+                        if (veryVerbose) { cout << X << endl; }
                     }
                 }
 
@@ -5293,14 +5454,14 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
+        bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
         bsl::cerr << "Error, non-zero test status = " << testStatus << "."
-                  << bsl::endl;
+                  << endl;
     }
 
     return testStatus;

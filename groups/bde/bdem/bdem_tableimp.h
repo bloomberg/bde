@@ -470,12 +470,12 @@ class bdem_TableImp {
         // '0 <= numBytes'.  Note that this method has no effect unless the
         // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
 
-    void reserveRowsRaw(bsl::size_t numRows);
+    void reserveRaw(bsl::size_t numRows);
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified 'numRows' with minimal replenishment (i.e.,
-        // with mininal internal allocation). The behavior is undefined unless
-        // '0 < numRows'.
-    
+        // with mininal internal allocation). If '0 == numRows' the operation
+        // has no effect.
+
     void reset(const bdem_ElemType::Type     columnTypes[],
                int                           numColumns,
                const bdem_Descriptor *const *attrLookupTbl);
@@ -550,11 +550,11 @@ class bdem_TableImp {
         // Return the type of the column at the specified 'columnIndex' in this
         // table.  The behavior is undefined unless
         // '0 <= columnIndex < numColumns()'.
-    
-    bsl::size_t getRowsCapacityRaw() const;
+
+    bsl::size_t getCapacityRaw() const;
         // Return the number of rows for which memory has already been
         // allocated (whether inserted or not).  Note that
-        // 'getRowsCapacityRaw() - size()' represents the number of rows that
+        // 'getCapacityRaw() - size()' represents the number of rows that
         // can be inserted with the guarantee of minimal memory replenishment
         // (minimal internal allocation).
 
@@ -659,8 +659,20 @@ bool operator!=(const bdem_TableImp& lhs, const bdem_TableImp& rhs);
 // PRIVATE GEOMETRIC MEMORY GROWTH
 
 void bdem_TableImp_enableGeometricMemoryGrowth();
+    // Enable geometric memory growth, upon insertion, for 'bdem_TableImp'
+    // objects in the current process.  This method is *not* *thread-safe*,
+    // and should be invoked by the owner of 'main'.
+
 void bdem_TableImp_disableGeometricMemoryGrowth();
+    // Disable geometric memory growth, upon insertion, for 'bdem_TableImp'
+    // objects in the current process.  This method is *not* *thread-safe*,
+    // and should be invoked by the owner of 'main'.
+
 bool bdem_TableImp_isGeometricMemoryGrowth();
+    // Return 'true' if 'bdem_TableImp_enableGeometricMemoryGrowth' was
+    // previously called and no other call to
+    // 'bdem_TableImp_disableGeometricMemoryGrowth' was made, and return 'false'
+    // otherwise.
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS

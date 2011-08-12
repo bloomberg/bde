@@ -2168,20 +2168,21 @@ DEFINE_TEST_CASE(22) {
 
 DEFINE_TEST_CASE(21) {
     // --------------------------------------------------------------------
-    // TESTING 'reserveRowsRaw' and 'getRowsCapacityRaw'
+    // TESTING 'reserveRaw' and 'getCapacityRaw'
     //
     // Concerns:
-    // 1 'reserveRowsRaw' correctly forwards to the method 
-    //   'bdem_TableImp::reserveRowsRaw'.
+    // 1 'reserveRaw' correctly forwards to the method 
+    //   'bdem_TableImp::reserveRaw'.
     //
     // Plan:
     //
     // Testing:
-    //   void reserveRowsRaw(int numRows);
+    //   void reserveRaw(int numRows);
     // --------------------------------------------------------------------
  
-    if (verbose) cout << "\nTesting 'reserveRowsRaw'"
-                      << "\n=======================" << endl;
+    if (verbose) cout << "\nTesting 'reserveRaw' and 'getCapacityRaw'"
+                      << "\n=================================================" 
+                      << endl;
     
     static const Strategy STRATEGY_DATA[] = {
             BDEM_PASS_THROUGH,
@@ -2201,14 +2202,14 @@ DEFINE_TEST_CASE(21) {
         ObjImp mY(STRATEGY, &ta2); const ObjImp& Y = mY;
         
         for (int j = 1; j <= 1024; j <<= 1) {
-            mX.reserveRowsRaw(j);
-            mY.reserveRowsRaw(j);
+            mX.reserveRaw(j);
+            mY.reserveRaw(j);
  
             LOOP4_ASSERT(i, 
                          j,
-                         X.getRowsCapacityRaw(),
-                         Y.getRowsCapacityRaw(),
-                         X.getRowsCapacityRaw() == Y.getRowsCapacityRaw());
+                         X.getCapacityRaw(),
+                         Y.getCapacityRaw(),
+                         X.getCapacityRaw() == Y.getCapacityRaw());
  
             LOOP4_ASSERT(i,
                          j,

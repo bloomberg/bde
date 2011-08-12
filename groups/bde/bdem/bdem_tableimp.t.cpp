@@ -99,7 +99,7 @@ using namespace bsl;  // automatically added by script
 //
 ////ACCESSORS
 // [ 7] columnType()
-// [11] getRowsCapacityRaw()
+// [11] getCapacityRaw()
 // [ 7] numRows()
 // [ 7] numColumns()
 // [ 7] row()
@@ -178,7 +178,7 @@ static void aSsErT(int c, const char *s, int i)
 typedef bdem_TableImp Obj;
 typedef char DescriptorType;
 typedef bdem_ElemType ET;
-typedef bdem_AggregateOption::AllocationStrategy Strategy ;
+typedef bdem_AggregateOption::AllocationStrategy Strategy;
 
 
 const bdem_ElemType::Type DESCRIPTOR_TYPE_ENUM = bdem_ElemType::BDEM_CHAR;
@@ -533,7 +533,7 @@ int main(int argc, char *argv[])
         //: 4 Turn on geometric growth with
         //:   'bdem_TableImp_enableGeometricMemoryGrowth' and verify that
         //:   the capacity of the table grows exactly as specified by
-        //:   'reserveRowsRaw'.
+        //:   'reserveRaw'.
         // --------------------------------------------------------------------
         if (verbose) cout << "TESTING PRIVATE MEMORY GROWTH FLAG\n"
                              "=================================="  << endl;
@@ -585,8 +585,8 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < NUM_ROWS; ++j) {
                     mX.insertNullRows(j, 1);
                     LOOP2_ASSERT(j,
-                                 X.getRowsCapacityRaw(),
-                                 j + 1 == X.getRowsCapacityRaw());
+                                 X.getCapacityRaw(),
+                                 j + 1 == X.getCapacityRaw());
                 }
             }
         }
@@ -594,7 +594,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\nEnabling geometric memory growth" << endl;
         {
             bdem_TableImp_enableGeometricMemoryGrowth();
-            
+
             ASSERT(true == bdem_TableImp_isGeometricMemoryGrowth());
 
             for (int i = 0; i < STRATEGY_LEN; ++i) {
@@ -609,8 +609,8 @@ int main(int argc, char *argv[])
                     LOOP4_ASSERT(i,
                                  j,
                                  EXP_CAPACITY,
-                                 X.getRowsCapacityRaw(),
-                                 EXP_CAPACITY == X.getRowsCapacityRaw());
+                                 X.getCapacityRaw(),
+                                 EXP_CAPACITY == X.getCapacityRaw());
                 }
             }
         }
@@ -623,18 +623,18 @@ int main(int argc, char *argv[])
                     bslma_TestAllocator ta("TestAllocator",
                                            veryVeryVeryVerbose);
                     Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
-                    mX.reserveRowsRaw(j + 1);
+                    mX.reserveRaw(j + 1);
                     LOOP3_ASSERT(i,
                                  j,
-                                 X.getRowsCapacityRaw(),
-                                 j + 1 == X.getRowsCapacityRaw());
+                                 X.getCapacityRaw(),
+                                 j + 1 == X.getCapacityRaw());
                 }
             }
         }
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING: 'getRowsCapacityRaw()' method
+        // TESTING: 'getCapacityRaw()' method
         //
         // Concerns:
         //  1 Reserving memory actually causes capacity to change consistently.
@@ -643,10 +643,10 @@ int main(int argc, char *argv[])
         //  3 Inserting more rows than 'capacity' makes 'capacity' increase.
         //
         // Plan:
-        //  1 Verify that the 'getRowsCapacityRaw' method returns the exact
+        //  1 Verify that the 'getCapacityRaw' method returns the exact
         //    capacity reserved through 'reserveNumRowsRaw' for progressive
         //    calls of 'reserveNumRowsRaw'.
-        //  2 Verify that  the 'getRowsCapacityRaw' method returns the exact
+        //  2 Verify that  the 'getCapacityRaw' method returns the exact
         //    amount of rows inserted via 'insertNullRows', for progressive
         //    insertions of rows.
         // --------------------------------------------------------------------
@@ -669,7 +669,7 @@ int main(int argc, char *argv[])
 
             const Strategy STRATEGY = STRATEGY_DATA[i];
 
-            if (verbose) cout << "\nTesting using 'reserveRowsRaw'" << endl;
+            if (verbose) cout << "\nTesting using 'reserveRaw'" << endl;
 
             for (int j = 1; j <= MAX_NUM_ROWS; j <<= 1) {
 
@@ -679,13 +679,13 @@ int main(int argc, char *argv[])
                                         veryVeryVeryVerbose);
 
                  Obj mX(STRATEGY, &ta); const Obj& X = mX;
-                 ASSERT(0 == X.getRowsCapacityRaw());
+                 ASSERT(0 == X.getCapacityRaw());
 
                  if (veryVeryVerbose) cout << "\t\tReserving memory\n" << endl;
-                 mX.reserveRowsRaw(EXPECTED_CAPACITY);
+                 mX.reserveRaw(EXPECTED_CAPACITY);
                  LOOP2_ASSERT(EXPECTED_CAPACITY,
-                              X.getRowsCapacityRaw(),
-                              EXPECTED_CAPACITY == X.getRowsCapacityRaw());
+                              X.getCapacityRaw(),
+                              EXPECTED_CAPACITY == X.getCapacityRaw());
             }
 
             if (verbose) cout << "\nTesting using 'insertNullRows'" << endl;
@@ -695,7 +695,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { P(i) P_(j) }
 
                 Obj mX(STRATEGY); const Obj& X = mX;
-                ASSERT(0 == X.getRowsCapacityRaw());
+                ASSERT(0 == X.getCapacityRaw());
 
                 if (veryVeryVerbose) cout << "\t\tInserting rows.\n" << endl;
                 for (int k = 0;
@@ -704,8 +704,8 @@ int main(int argc, char *argv[])
                     mX.insertNullRows(k, j);
                     const int EXPECTED_CAPACITY = k + j;
                     LOOP2_ASSERT(EXPECTED_CAPACITY,
-                                 X.getRowsCapacityRaw(),
-                                 EXPECTED_CAPACITY == X.getRowsCapacityRaw());
+                                 X.getCapacityRaw(),
+                                 EXPECTED_CAPACITY == X.getCapacityRaw());
                 }
             }
         }
@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
 
 
         if (verbose) cout << "\nTesting the default memory growth" << endl;
-            
+
         bdem_TableImp_enableGeometricMemoryGrowth();
 
         typedef bdem_AggregateOption::AllocationStrategy Strategy ;
@@ -744,13 +744,24 @@ int main(int argc, char *argv[])
         };
         enum { STRATEGY_LEN = sizeof(STRATEGY_DATA) / sizeof(*STRATEGY_DATA) };
 
-        const int MAX_NUM_ROWS = 32;  // power of 2
+        const int MAX_NUM_ROWS = 4096;  // power of 2
 
         if (veryVerbose) cout << "\tTesting Strategies\n" << endl;
 
         for (int i = 0; i < STRATEGY_LEN; ++i) {
 
             const Strategy STRATEGY = STRATEGY_DATA[i];
+
+            if (verbose) cout << "Testing 'reserveRaw(0)'" << endl;
+            {
+                bslma_TestAllocator ta("TestAllocator",
+                                        veryVeryVeryVerbose);
+
+                Obj mX(STRATEGY, &ta); const Obj& X = mX;
+                const size_t NUM_BYTES = ta.numBytesMax();
+                mX.reserveRaw(0);
+                ASSERT(ta.numBytesMax() == NUM_BYTES);
+            }
 
             if (veryVerbose) cout << "\tInserting Rows\n" << endl;
 
@@ -763,7 +774,7 @@ int main(int argc, char *argv[])
                  Obj mX(STRATEGY, &ta); const Obj& X = mX;
 
                  if (veryVeryVerbose) cout << "\t\tReserving memory\n" << endl;
-                 mX.reserveRowsRaw(MAX_NUM_ROWS);
+                 mX.reserveRaw(MAX_NUM_ROWS);
 
                  size_t NUM_BYTES = ta.numBytesMax();
                  if (BDEM_PASS_THROUGH == STRATEGY) {

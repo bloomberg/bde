@@ -508,21 +508,22 @@ void bdem_TableImp::removeRow(int rowIndex)
                                        1);
 }
 
-bsl::size_t bdem_TableImp::getRowsCapacityRaw() const
+bsl::size_t bdem_TableImp::getCapacityRaw() const
 {
     return d_rows.capacity();
 }
 
-void bdem_TableImp::reserveRowsRaw(bsl::size_t numRows)
+void bdem_TableImp::reserveRaw(bsl::size_t numRows)
 {
-    BSLS_ASSERT(0 < numRows);
-    
+    if(0 == numRows) {
+        return;                                                       // RETURN
+    }
+
     const int newSize = nullBitsArraySize(this->numRows() + numRows);
     
-    d_allocatorManager.reserveMemory(8 * numRows + sizeof(int) * newSize);
+    d_allocatorManager.reserveMemory(2 * 8 * numRows + sizeof(int) * newSize);
     d_rowPool.reserveCapacity(numRows);
     d_rows.reserve(d_rows.size() + numRows);
-    
     d_nullBits.reserve(d_nullBits.size() + newSize);
 }
 

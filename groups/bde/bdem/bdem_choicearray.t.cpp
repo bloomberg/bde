@@ -214,36 +214,46 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdem_ChoiceArray         Obj;
+typedef bdem_ChoiceArray              Obj;
+typedef bdem_ChoiceArrayImp           ObjImp;
 
-typedef bdem_Properties          Prop;
-typedef bdem_Descriptor          Desc;
-typedef bdem_ElemType            EType;
-typedef bdem_ElemRef             ERef;
-typedef bdem_ConstElemRef        CERef;
-typedef bdem_AggregateOption     AggOption;
-typedef bdem_Choice              Choice;
-typedef bdem_ChoiceArrayItem     Item;
+typedef bdem_Properties               Prop;
+typedef bdem_Descriptor               Desc;
+typedef bdem_ElemType                 EType;
+typedef bdem_ElemRef                  ERef;
+typedef bdem_ConstElemRef             CERef;
+typedef bdem_AggregateOption          AggOption;
+typedef AggOption::AllocationStrategy Strategy;
+typedef bdem_Choice                   Choice;
+typedef bdem_ChoiceArrayItem          Item;
 
-typedef bsl::vector<EType::Type> Catalog;
+typedef bsl::vector<EType::Type>      Catalog;
 
-typedef bsls_Types::Int64        Int64;
+typedef bsls_Types::Int64             Int64;
 
-typedef bdet_Datetime            Datetime;
-typedef bdet_Date                Date;
-typedef bdet_Time                Time;
-typedef bdet_DatetimeTz          DatetimeTz;
-typedef bdet_DateTz              DateTz;
-typedef bdet_TimeTz              TimeTz;
+typedef bdet_Datetime                 Datetime;
+typedef bdet_Date                     Date;
+typedef bdet_Time                     Time;
+typedef bdet_DatetimeTz               DatetimeTz;
+typedef bdet_DateTz                   DateTz;
+typedef bdet_TimeTz                   TimeTz;
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
+static bool verbose = 0;
+static bool veryVerbose = 0;
+static bool veryVeryVerbose = 0;
+static bool veryVeryVeryVerbose = 0;
 
-static const AggOption::AllocationStrategy PASSTH =
-                                                  AggOption::BDEM_PASS_THROUGH;
+
+static const bdem_AggregateOption::AllocationStrategy BDEM_PASS_THROUGH =
+             bdem_AggregateOption::BDEM_PASS_THROUGH;
+
+static const bdem_AggregateOption::AllocationStrategy BDEM_WRITE_MANY =
+             bdem_AggregateOption::BDEM_WRITE_MANY;
+
+static const bdem_AggregateOption::AllocationStrategy BDEM_WRITE_ONCE =
+             bdem_AggregateOption::BDEM_WRITE_ONCE;
 
 typedef bdex_TestInStream                In;
 typedef bdex_TestOutStream               Out;
@@ -1224,6 +1234,7 @@ int main(int argc, char *argv[])
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
 // Note: on Windows, the function pointers in bdem_Properties::d_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
@@ -1240,7 +1251,7 @@ int main(int argc, char *argv[])
     mB31 = fB31();
 #endif
 
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     // define a set of test specs we will use in subsequent tests
     const struct TestRow {
@@ -1332,7 +1343,7 @@ int main(int argc, char *argv[])
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING BSLMA ALLOCATOR MODEL AND ALLOCATOR TRAITS
         //
@@ -1361,7 +1372,7 @@ int main(int argc, char *argv[])
              bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
 
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         //
@@ -1468,7 +1479,7 @@ int main(int argc, char *argv[])
         ASSERT(bdem_ChoiceArray() == choiceArray);
 
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //
@@ -1543,6 +1554,65 @@ int main(int argc, char *argv[])
         if (verbose) b.print(bsl::cout);
 
       } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING 'reserveRaw' and 'getCapacityRaw'
+        //
+        // Concerns:
+        // 1 'reserveRaw' correctly forwards to the method 
+        //   'bdem_ChoiceArray::reserveRaw'.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   void reserveRaw(int numItems);
+        // --------------------------------------------------------------------
+     
+        if (verbose) cout << "\nTesting 'reserveRaw' and 'getCapacitiyRaw'"
+                          << "\n=========================================" 
+                          << endl;
+        
+        static const Strategy STRATEGY_DATA[] = {
+                BDEM_PASS_THROUGH,
+                BDEM_WRITE_ONCE,
+                BDEM_WRITE_MANY
+        };
+        enum { STRATEGY_LEN = sizeof(STRATEGY_DATA) / sizeof(*STRATEGY_DATA) };
+        
+        for (int i = 0; i < STRATEGY_LEN; i++) {
+     
+            const Strategy STRATEGY = STRATEGY_DATA[i];
+            
+            bslma_TestAllocator ta1("TestAllocator 1", veryVeryVeryVerbose);
+            bslma_TestAllocator ta2("TestAllocator 2", veryVeryVeryVerbose);
+        
+            Obj    mX(STRATEGY, &ta1); const Obj&    X = mX;
+            ObjImp mY(STRATEGY, &ta2); const ObjImp& Y = mY;
+            
+            for (int j = 1; j <= 1024; j <<= 1) {
+                mX.reserveRaw(j);
+                mY.reserveRaw(j);
+     
+                LOOP4_ASSERT(i, 
+                             j,
+                             X.getCapacityRaw(),
+                             Y.getCapacityRaw(),
+                             X.getCapacityRaw() == Y.getCapacityRaw());
+     
+                LOOP4_ASSERT(i,
+                             j,
+                             ta1.numBytesInUse(),
+                             ta2.numBytesInUse(),
+                             ta1.numBytesInUse() == ta2.numBytesInUse());
+                
+                LOOP4_ASSERT(i,
+                             j,
+                             ta1.numBytesTotal(),
+                             ta2.numBytesTotal(),
+                             ta1.numBytesTotal() == ta2.numBytesTotal());
+            }
+        }
+      }
       case 16: {
         // --------------------------------------------------------------------
         // TESTING 'removeItem' METHODS:
@@ -1664,7 +1734,7 @@ int main(int argc, char *argv[])
                     populateData(&mA,VALUES_A);
 
                     // create a control copy X
-                    Obj mX(mA,PASSTH,&testAllocator);
+                    Obj mX(mA, BDEM_PASS_THROUGH, &testAllocator);
                     const Obj &X = mX;
 
                     // remove the element
@@ -2655,7 +2725,7 @@ int main(int argc, char *argv[])
                       if (veryVerbose) { P(SPECU); }
 
                       Catalog catU = ggCatalog(SPECU);
-                      Obj mU(catU, PASSTH, &tAlloc);
+                      Obj mU(catU, BDEM_PASS_THROUGH, &tAlloc);
                       const Obj &U = mU;
                       populateData(&mU, VALUES_A);
 
@@ -2933,7 +3003,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == alloc2.numBytesInUse());
             ASSERT(OB == badAlloc.numBytesInUse());
 
-            Obj a2(ORIG,PASSTH);
+            Obj a2(ORIG, BDEM_PASS_THROUGH);
             ASSERT(N <  alloc1.numBytesInUse()); N = alloc1.numBytesInUse();
             ASSERT(0 == alloc2.numBytesInUse());
             ASSERT(OB  == badAlloc.numBytesInUse());
@@ -2945,7 +3015,7 @@ int main(int argc, char *argv[])
             ASSERT(M < alloc2.numBytesInUse());  M = alloc2.numBytesInUse();
             ASSERT(OB  == badAlloc.numBytesInUse());
 
-            Obj b2(ORIG,PASSTH,&alloc2);
+            Obj b2(ORIG, BDEM_PASS_THROUGH, &alloc2);
             ASSERT(N == alloc1.numBytesInUse());
             ASSERT(M <  alloc2.numBytesInUse());
             ASSERT(OB  == badAlloc.numBytesInUse());
@@ -2973,7 +3043,7 @@ int main(int argc, char *argv[])
 
             // create an array using the BDEM_PASS_THROUGH mode
             Obj a1(ORIG,&alloc1);
-            Obj a2(ORIG,PASSTH,&alloc2);
+            Obj a2(ORIG,BDEM_PASS_THROUGH,&alloc2);
 
             // create an array using BDEM_WRITE_ONCE mode
             Obj b2(ORIG,AggOption::BDEM_WRITE_ONCE,&alloc2B);
@@ -3029,8 +3099,8 @@ int main(int argc, char *argv[])
                         // validate the copy constructed versions are identical
                         Obj a1(ORIG);                       const Obj& A1 = a1;
                         Obj a2(ORIG,&testAllocator);        const Obj& A2 = a2;
-                        Obj b1(ORIG,PASSTH);                const Obj& B1 = a1;
-                        Obj b2(ORIG,PASSTH,&testAllocator); const Obj& B2 = a2;
+                        Obj b1(ORIG,BDEM_PASS_THROUGH);                const Obj& B1 = a1;
+                        Obj b2(ORIG,BDEM_PASS_THROUGH,&testAllocator); const Obj& B2 = a2;
 
                         ASSERT(ORIG == A1);
                         ASSERT(ORIG == A2);
@@ -3042,8 +3112,8 @@ int main(int argc, char *argv[])
                     if (LEN>0) {
                         Obj a1(ORIG);                       const Obj& A1 = a1;
                         Obj a2(ORIG,&testAllocator);        const Obj& A2 = a2;
-                        Obj b1(ORIG,PASSTH);                const Obj& B1 = a1;
-                        Obj b2(ORIG,PASSTH,&testAllocator); const Obj& B2 = a2;
+                        Obj b1(ORIG,BDEM_PASS_THROUGH);                const Obj& B1 = a1;
+                        Obj b2(ORIG,BDEM_PASS_THROUGH,&testAllocator); const Obj& B2 = a2;
 
                         ASSERT(ORIG == A1);
                         ASSERT(ORIG == A2);
@@ -3070,8 +3140,8 @@ int main(int argc, char *argv[])
                     {
                         Obj a1(ORIG);                       const Obj& A1 = a1;
                         Obj a2(ORIG,&testAllocator);        const Obj& A2 = a2;
-                        Obj b1(ORIG,PASSTH);                const Obj& B1 = a1;
-                        Obj b2(ORIG,PASSTH,&testAllocator); const Obj& B2 = a2;
+                        Obj b1(ORIG,BDEM_PASS_THROUGH);                const Obj& B1 = a1;
+                        Obj b2(ORIG,BDEM_PASS_THROUGH,&testAllocator); const Obj& B2 = a2;
 
                         ASSERT(ORIG == A1);
                         ASSERT(ORIG == A2);
@@ -3169,11 +3239,11 @@ int main(int argc, char *argv[])
             Obj a1;
             ASSERT(N <  alloc1.numBytesInUse()); N = alloc1.numBytesInUse();
             ASSERT(0 == alloc2.numBytesInUse());
-            Obj a2(PASSTH);
+            Obj a2(BDEM_PASS_THROUGH);
             ASSERT(N < alloc1.numBytesInUse());  N = alloc1.numBytesInUse();
             ASSERT(0 == alloc2.numBytesInUse());
 
-            Obj a3(&cat.front(),cat.size(), PASSTH);
+            Obj a3(&cat.front(),cat.size(), BDEM_PASS_THROUGH);
             ASSERT(N < alloc1.numBytesInUse());  N = alloc1.numBytesInUse();
             ASSERT(0 == alloc2.numBytesInUse());
 
@@ -3191,11 +3261,11 @@ int main(int argc, char *argv[])
             ASSERT(N == alloc1.numBytesInUse());
             ASSERT(M < alloc2.numBytesInUse());  M = alloc2.numBytesInUse();
 
-            Obj b2(PASSTH,&alloc2);
+            Obj b2(BDEM_PASS_THROUGH,&alloc2);
             ASSERT(N == alloc1.numBytesInUse());
             ASSERT(M <  alloc2.numBytesInUse()); M = alloc2.numBytesInUse();
 
-            Obj b3(&cat.front(),cat.size(),PASSTH,&alloc2);
+            Obj b3(&cat.front(),cat.size(),BDEM_PASS_THROUGH,&alloc2);
             ASSERT(N == alloc1.numBytesInUse());
             ASSERT(M < alloc2.numBytesInUse());  M = alloc2.numBytesInUse();
 
@@ -3226,8 +3296,8 @@ int main(int argc, char *argv[])
 
             // create an array using the BDEM_PASS_THROUGH mode
             Obj a1(&alloc1);
-            Obj a2(PASSTH,&alloc2);
-            Obj a3(&cat.front(),cat.size(),PASSTH,&alloc3);
+            Obj a2(BDEM_PASS_THROUGH,&alloc2);
+            Obj a3(&cat.front(),cat.size(),BDEM_PASS_THROUGH,&alloc3);
             Obj a4(&cat.front(),cat.size(),&alloc4);
             Obj a5(cat,&alloc5);
             // create an array using BDEM_WRITE_ONCE mode
@@ -3274,7 +3344,7 @@ int main(int argc, char *argv[])
                 BEGIN_BSLMA_EXCEPTION_TEST {
                     // test variants with no catalog
                     Obj a1(&ta);                          const Obj &A1 = a1;
-                    Obj a2(PASSTH,&ta);                   const Obj &A2 = a2;
+                    Obj a2(BDEM_PASS_THROUGH,&ta);                   const Obj &A2 = a2;
 
                     ASSERT(0 == A1.numSelections());
                     ASSERT(0 == A2.numSelections());
@@ -3291,7 +3361,7 @@ int main(int argc, char *argv[])
                     const EType::Type *cPtr = (CATALOG.size()>0) ?
                                                    &CATALOG.front() : NULL;
 
-                    Obj a3(cPtr,CATALOG.size(),PASSTH,&ta); const Obj &A3 = a3;
+                    Obj a3(cPtr,CATALOG.size(),BDEM_PASS_THROUGH,&ta); const Obj &A3 = a3;
                     Obj a4(cPtr,CATALOG.size(),&ta);        const Obj &A4 = a4;
                     Obj a5(CATALOG,&ta);                    const Obj &A5 = a5;
 
@@ -3367,14 +3437,14 @@ int main(int argc, char *argv[])
                     bslma_Allocator *alloc2;
             } ALLOC[] = {
                 {
-                    PASSTH,
-                    PASSTH,
+                    BDEM_PASS_THROUGH,
+                    BDEM_PASS_THROUGH,
                     &testAllocator1,
                     &testAllocator1
                 },
                 {
-                    PASSTH,
-                    PASSTH,
+                    BDEM_PASS_THROUGH,
+                    BDEM_PASS_THROUGH,
                     &testAllocator1,
                     &testAllocator2
                 },
@@ -3797,7 +3867,7 @@ int main(int argc, char *argv[])
 
             bslma_TestAllocator alloc1(veryVeryVerbose);
             Catalog cat = ggCatalog(SPEC);
-            Obj mX(cat, PASSTH,&alloc1);    const Obj& X = mX;
+            Obj mX(cat, BDEM_PASS_THROUGH,&alloc1);    const Obj& X = mX;
 
             // Set Element j, to a catalog value of j
             for (int j = 0; j < cat.size(); ++j)
@@ -3882,7 +3952,7 @@ int main(int argc, char *argv[])
                     bsl::cout << "\tTesting with empty string" << bsl::endl;
                 }
                 // create and populate mX
-                Obj mX(NULL,0,PASSTH,&tAlloc);       const Obj &X = mX;
+                Obj mX(NULL,0,BDEM_PASS_THROUGH,&tAlloc);       const Obj &X = mX;
                 populateData(&mX,VALUES_A);
 
                 ASSERT(0 == X.length());
@@ -4236,13 +4306,13 @@ int main(int argc, char *argv[])
             ASSERT(0 == alloc2.numBlocksTotal());
 
             // create an array using the default allocator
-            Obj a(cat,PASSTH);
+            Obj a(cat,BDEM_PASS_THROUGH);
             ASSERT(0 < alloc1.numBytesTotal());
             ASSERT(0 == alloc2.numBytesTotal());
             const int N = alloc1.numBytesTotal();
 
             // create an array using alloc 2
-            Obj b(cat,PASSTH, &alloc2);
+            Obj b(cat,BDEM_PASS_THROUGH, &alloc2);
             ASSERT(N == alloc1.numBytesTotal());
             ASSERT(0  < alloc2.numBytesTotal());
         }

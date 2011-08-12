@@ -554,7 +554,7 @@ class bdem_ChoiceArray {
         // array.  The behavior is undefined unless '0 <= typesCatalogLen' and
         // 'typesCatalog' has at least 'typesCatalogLen' values.
 
-    void reserveItems(bsl::size_t numItems);
+    void reserveRaw(bsl::size_t numItems);
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified 'numItems' without replenishment (i.e., without
         // internal allocation).
@@ -607,6 +607,13 @@ class bdem_ChoiceArray {
         // Return a reference to the non-modifiable choice array item at the
         // specified 'itemIndex' in this choice array.  The behavior is
         // undefined unless '0 <= itemIndex < length()'.
+    
+    bsl::size_t getCapacityRaw() const;
+        // Return the number of items for which memory has already been
+        // allocated (whether inserted or not).  Note that
+        // 'getCapacityRaw() - length()' represents the number of items that
+        // can be inserted with the guarantee of no replenishment (no internal
+        // allocation).
 
     int length() const;
         // Return the number of choice array items in this choice array.
@@ -714,6 +721,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bdem_ChoiceArray& rhs);
                         // -----------------
 
 // ACCESSORS
+inline
+bsl::size_t bdem_ChoiceArray::getCapacityRaw() const
+{
+    return d_arrayImp.getCapacityRaw();
+}
+
 inline
 int bdem_ChoiceArray::length() const
 {
@@ -904,6 +917,12 @@ void bdem_ChoiceArray::makeItemsNull(int index, int numItems)
     BSLS_ASSERT_SAFE(index + numItems <= length());
 
     d_arrayImp.makeItemsNull(index, numItems);
+}
+
+inline
+void bdem_ChoiceArray::reserveRaw(bsl::size_t numItems)
+{
+    d_arrayImp.reserveRaw(numItems);
 }
 
 inline
