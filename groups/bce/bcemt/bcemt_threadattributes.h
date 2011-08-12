@@ -111,7 +111,8 @@ BDES_IDENT("$Id: $")
 // Functions to obtain these minimum and maximum values are in
 // 'bcemt_threadutil'.  These attributes are both ignored unless
 // 'inheritSchedule' is 'false'.  Note that these attributes are both currently
-// ignored on Windows.
+// ignored on Windows.  For more information on thread priorities, see the
+// component documentation for 'bcemt_threadutil'.
 //
 ///Usage
 ///-----
@@ -274,11 +275,12 @@ class bcemt_ThreadAttributes {
         // This enumeration provides values used to distinguish between
         // different thread scheduling policies.
 
-        BCEMT_SCHED_OTHER   = 0,  // default OS scheduling policy
+        BCEMT_SCHED_OTHER   = 0,  // unspecified, OS-dependent scheduling
+                                  // policy
         BCEMT_SCHED_FIFO    = 1,  // first-in-first-out scheduling policy
         BCEMT_SCHED_RR      = 2,  // round-robin scheduling policy
-        BCEMT_SCHED_DEFAULT = 3   // whatever policy is the default for the
-                                  // native thread implementation
+        BCEMT_SCHED_DEFAULT = 3   // default OS scheduling policy, usually
+                                  // BCEMT_SCHED_OTHER
     };
 
     enum {
@@ -396,7 +398,9 @@ class bcemt_ThreadAttributes {
         // 'min <= priority <= max' where 'min == getMinSchedPriority(policy)'
         // and 'max == getMaxSchedPriority(policy)'.  Higher values of 'value'
         // signify more urgent priorities.  Note that this attribute is
-        // currently ignored on Windows.
+        // currently ignored on Windows.  For more information on thread
+        // priorities, see the component documentation for this component and
+        // for 'bcemt_threadutil'.
 
     void setStackSize(int value);
         // Set the 'stackSize' attribute of this object to the specified
@@ -443,9 +447,9 @@ bool operator!=(const bcemt_ThreadAttributes& lhs,
     // 'detachedState', 'guardSize', 'inheritSchedule', 'schedulingPolicy',
     // 'schedulingPriority', and 'stackSize' attributes are not the same.
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                          // ----------------------------
                          // class bcemt_ThreadAttributes
