@@ -11,7 +11,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for HTTP entity processors.
 //
-//@CLASSES: baenet_HttpEntityProcessor: protocol for HTTP entity processors
+//@CLASSES:
+//   baenet_HttpEntityProcessor: protocol for HTTP entity processors
 //
 //@SEE_ALSO: baenet_httpheader baenet_httpstartline
 //

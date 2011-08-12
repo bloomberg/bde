@@ -308,6 +308,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_algorithm.h>
 #endif
 
+#ifndef INCLUDED_BSL_UTILITY
+#include <bsl_utility.h>
+#endif
+
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_BDEMA_DEFAULT

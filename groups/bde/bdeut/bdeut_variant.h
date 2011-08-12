@@ -658,6 +658,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -5066,8 +5070,7 @@ struct bdeut_Variant_SwapVisitor {
     inline
     void operator() (TYPE& value)
     {
-        using bsl::swap;
-        swap(*reinterpret_cast<TYPE *>(d_buffer_p), value);
+        bslalg_SwapUtil::swap(reinterpret_cast<TYPE *>(d_buffer_p), &value);
     }
 };
 
