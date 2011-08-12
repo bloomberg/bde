@@ -8,6 +8,7 @@
 #include <bslmf_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_algorithm.h>   // to test swap
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy()
 #include <bsl_iostream.h>
@@ -281,8 +282,8 @@ MySecondDerivedObject::MySecondDerivedObject(int *counter)
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class CountedStackDeleter {
-
+class CountedStackDeleter
+{
     volatile int *d_deleteCounter_p;
 
     CountedStackDeleter(const CountedStackDeleter& orig); //=delete;
@@ -302,6 +303,19 @@ class CountedStackDeleter {
     }
 };
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+struct IncrementIntFactory
+{
+    void deleteObject(int *object)
+    {
+        ASSERT(object);
+        ++*object;
+    }
+};
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 int g_deleteCount = 0;
 
 static void countedNilDelete(void *, void*) {
@@ -314,17 +328,6 @@ static void templateNilDelete(TARGET_TYPE *, void*) {
     static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
 }
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-struct IncrementIntFactory
-{
-    void deleteObject(int *object)
-    {
-        ASSERT(object);
-        ++*object;
-    }
-};
 
 //=============================================================================
 //                              CREATORS TEST
@@ -983,11 +986,15 @@ int main(int argc, char *argv[])
         //   [Just because a function is tested, we do not (yet) confirm that
         //    the testing is adequate.]
         //   void swap(bdema_ManagedPtr<BDEMA_TYPE>& rhs);
-        //   bdema_ManagedPtr& operator=(bdema_ManagedPtr<BDEMA_TYPE> &rhs);
+        //   bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
         //   bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
         // --------------------------------------------------------------------
 
         using namespace CREATORS_TEST_NAMESPACE;
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest operator bdema_ManagedPtr_Ref<OTHER>()\n";
 
         int numDeletes = 0;
         {
@@ -1002,7 +1009,106 @@ int main(int argc, char *argv[])
             ASSERT(o.ptr() == p2);
             ASSERT(o2.ptr() == p);
         }
-        ASSERT(2 == numDeletes);
+        LOOP_ASSERT(numDeletes, 2 == numDeletes);
+
+        if (verbose) cout << "\t\tswap with null pointer\n";
+
+        numDeletes = 0;
+        {
+            TObj *p =  new (da) MyTestObject(&numDeletes);
+
+            Obj o(p);
+            Obj o2;
+
+            o.swap(o2);
+
+            ASSERT(!o.ptr());
+            ASSERT(o2.ptr() == p);
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+
+            o.swap(o2);
+
+            ASSERT(o.ptr() == p);
+            ASSERT(!o2.ptr());
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+        if (verbose) cout << "\t\tswap deleters\n";
+
+        numDeletes = 0;
+        {
+            bslma_TestAllocator ta1("object1", veryVeryVeryVerbose);
+            bslma_TestAllocator ta2("object2", veryVeryVeryVerbose);
+
+            TObj *p =  new (ta1) MyTestObject(&numDeletes);
+            TObj *p2 = new (ta2) MyTestObject(&numDeletes);
+
+            Obj o(p, &ta1);
+            Obj o2(p2, &ta2);
+
+            o.swap(o2);
+
+            ASSERT(o.ptr() == p2);
+            ASSERT(o2.ptr() == p);
+
+            ASSERT(&ta2 == o.deleter().factory());
+            ASSERT(&ta1 == o2.deleter().factory());
+        }
+        LOOP_ASSERT(numDeletes, 2 == numDeletes);
+
+        if (verbose) cout << "\t\tswap aliases\n";
+
+        numDeletes = 0;
+        {
+            bslma_TestAllocator ta1("object1", veryVeryVeryVerbose);
+            bslma_TestAllocator ta2("object2", veryVeryVeryVerbose);
+
+            int * p3 = new (ta2) int;
+            *p3 = 42;
+
+            TObj *p =  new (ta1) MyTestObject(&numDeletes);
+            MyDerivedObject d2(&numDeletes);
+
+            bdema_ManagedPtr<int> o3(p3, &ta2);
+            Obj o(p, &ta1);
+            Obj o2(o3, &d2);
+
+            o.swap(o2);
+
+            ASSERT( o.ptr() == &d2);
+            ASSERT(o2.ptr() ==   p);
+
+            ASSERT(p3 ==  o.deleter().object());
+            ASSERT( p == o2.deleter().object());
+            ASSERT(&ta2 ==  o.deleter().factory());
+            ASSERT(&ta1 == o2.deleter().factory());
+        }
+        LOOP_ASSERT(numDeletes, 2 == numDeletes);
+
+//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_SWAP_FOR_DIFFERENT_TYPES
+#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_SWAP_FOR_DIFFERENT_TYPES)
+            {
+                // confirm that the various implicit conversions in this
+                // component do not accidentally introduce a dangerous 'swap'.
+                bdema_ManagedPtr<int> x;
+                bdema_ManagedPtr<double> y;
+                x.swap(y);  // should not compile
+                y.swap(x);  // should not compile
+
+                bdema_ManagedPtr<MyTestObject> b;
+                bdema_ManagedPtr<MyDerivedObject> d;
+                b.swap(d);  // should not compile
+                d.swap(b);  // should not compile
+
+                using std::swap;
+                swap(x, y);  // should not compile
+                swap(b, d);  // should not compile
+            }
+#endif
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest operator=(bdema_ManagedPtr &rhs)\n";
 
         numDeletes = 0;
         {

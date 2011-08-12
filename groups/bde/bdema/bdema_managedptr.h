@@ -616,7 +616,7 @@ private:
     bdema_ManagedPtr(BDEMA_TYPE *ptr,
                      bdema_ManagedPtr_Nullptr::Type,
                      void      (*deleter)(BDEMA_TYPE *, void*));
-        // [DEPRECATED] Construct a managed pointer to manage the specified
+        // [!DEPRECATED!] Construct a managed pointer to manage the specified
         // 'ptr' using the specified 'deleter' to destroy 'ptr' when this
         // managed pointer is destroyed or re-assigned (unless it is released
         // before then).  If '0 == ptr', then this object will be initialized
@@ -636,7 +636,7 @@ private:
     bdema_ManagedPtr(BDEMA_TYPE *ptr,
                      FACTORY    *factory,
                      void      (*deleter)(BDEMA_TYPE *, FACTORY *));
-        // [DEPRECATED] Construct a managed pointer to manage the specified
+        // [!DEPRECATED!] Construct a managed pointer to manage the specified
         // 'ptr' using the specified 'deleter' and associated 'factory' to
         // destroy 'ptr' when this managed pointer is destroyed or re-assigned
         // (unless it is released before then).  If 0 == 'ptr', then this
@@ -662,7 +662,7 @@ private:
         // specified 'rhs' managed pointer, and return a reference to this
         // object.  Note that 'rhs' will be re-initialized to an unset state
         // and that the previous contents of this pointer (if any) are
-        // destroyed unless this pointer and 'rhs' point to the same object.
+        // destroyed unless this pointer and 'rhs' manage the same object.
 
     bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
         // Transfer the value and ownership from the managed pointer supplying
@@ -724,7 +724,7 @@ private:
     void load(BDEMA_TYPE *ptr,
               bdema_ManagedPtr_Nullptr::Type,
               void      (*deleter)(BDEMA_TYPE *, void*));
-        // [DEPRECATED] Destroy the current managed object (if any) and
+        // [!DEPRECATED!] Destroy the current managed object (if any) and
         // re-initialize this managed pointer to manage the specified 'ptr'
         // using the specified// 'deleter' with argument 'ptr' and '0' when
         // this managed pointer is destroyed or re-assigned, unless it is
@@ -745,7 +745,7 @@ private:
     void load(BDEMA_TYPE *ptr,
               FACTORY    *factory,
               void      (*deleter)(BDEMA_TYPE *, FACTORY *));
-        // [DEPRECATED] Destroy the current managed object (if any) and
+        // [!DEPRECATED!] Destroy the current managed object (if any) and
         // re-initialize this managed pointer to manage the specified 'ptr'
         // using the specified 'deleter' with arguments 'ptr' and the specified
         // 'factory' to destroy 'ptr' when this managed pointer is destroyed or
