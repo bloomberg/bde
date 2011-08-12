@@ -703,6 +703,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\treadExact" << endl;
             {
+                char buf[100] = { "" };
+                ++buf[0];                  // suppress unused variable warning
                 const Obj X(fileNameBuffer);
                 ASSERT_SAFE_PASS(X.readExact(buf, 0, 0));
                 ASSERT_SAFE_FAIL(X.readExact(0,   0, 0));
