@@ -283,7 +283,7 @@ int main(int argc, char *argv[]) {
             m.canRegisterSockets();
             ASSERT(11 == function);
 
-            m.hasLimitedSocketCapactity();
+            m.hasLimitedSocketCapacity();
             ASSERT(12 == function);
         }
 

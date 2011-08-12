@@ -149,10 +149,10 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
     // Iterate through all the events to find out which file descriptors have
     // been set and invoke their respective callbacks.
 
-    EventMap::iterator it(d_events.begin()), end(d_events.end());
+    EventMap::const_iterator it(d_events.begin()), end(d_events.end());
 
-    bsl::vector<EventMap::iterator> signaledReads(numEvents);
-    bsl::vector<EventMap::iterator> signaledWrites(numEvents);
+    bsl::vector<EventMap::const_iterator> signaledReads(numEvents);
+    bsl::vector<EventMap::const_iterator> signaledWrites(numEvents);
 
     for (; numEvents > 0 && it != end; ++it) {
         const bteso_Event& event = it->first;
@@ -180,7 +180,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
     int numReads      = signaledReads.size();
 
     for (int i = 0; i < numReads; ++i) {
-        EventMap::iterator callbackIt = signaledReads[i];
+        EventMap::const_iterator callbackIt = signaledReads[i];
         if (d_events.end() != callbackIt) {
             ++numDispatched;
             (callbackIt->second)();
@@ -190,7 +190,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
     int numWrites = signaledWrites.size();
 
     for (int i = 0; i < numWrites; ++i) {
-        EventMap::iterator callbackIt = signaledWrites[i];
+        EventMap::const_iterator callbackIt = signaledWrites[i];
         if (d_events.end() != callbackIt) {
             ++numDispatched;
             (callbackIt->second)();
