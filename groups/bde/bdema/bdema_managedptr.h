@@ -313,10 +313,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
-#endif
-
 #ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
 #include <bsls_unspecifiedbool.h>
 #endif
@@ -337,8 +333,8 @@ class bdema_ManagedPtr_Ref;
                      // =====================================
 
 struct bdema_ManagedPtr_Nullptr {
-    // This 'struct' provides a typedef for a type that can match an null
-    // pointer constant, but is not a pointer itself.  This provides a limited
+    // This 'struct' provides a typedef for a type that can match a null
+    // pointer literal, but is not a pointer itself.  This provides a limited
     // emulation of the C++11 'std::nullptr_t' type.
 
   private:
@@ -355,11 +351,15 @@ struct bdema_ManagedPtr_Nullptr {
 class bdema_ManagedPtr_Members {
     // Non-type-specific managed pointer member variables.  This type exists
     // so that a 'bdema_ManagedPtr_Ref' can point to the representation of a
-    // 'bdema_ManagedPtr' even if the ref object is instantiated on a different
-    // type than the managed pointer type (e.g. in the case of conversions).
-    // 'bdema_ManagerPtr_Members' also "erases" the types of each member, so
-    // that the same object code can be shared between multiple instantiations
-    // of the 'bdema_ManagedPtr' class template, reducing template bloat.
+    // 'bdema_ManagedPtr' even if the '_Ref' object is instantiated on a
+    // different type than the managed pointer type (e.g. in the case of
+    // conversions or aliasing).  'bdema_ManagerPtr_Members' also "erases" the
+    // types of each member, so that the same object code can be shared between
+    // multiple instantiations of the 'bdema_ManagedPtr' class template,
+    // reducing template bloat.  Note that objects of this type may have an
+    // "unset" state, where the 'd_obj_p' pointer has a null value, and the
+    // 'd_deleter' member does not have a specified value.  If 'd_obj_p' has
+    // a null pointer value, then this object must be in an unset state.
 
 public:
     // TRAITS
@@ -382,13 +382,13 @@ private:
 public:
     //CREATORS
     bdema_ManagedPtr_Members();
-        // Default constructor.  Sets 'd_obj_p' to 0, and default constructs
-        // 'd_deleter'.
+        // Create a 'bdema_ManagedPtr_Members' object in an unset state.  Sets
+        // 'd_obj_p' to 0, and default constructs 'd_deleter'.
 
     explicit bdema_ManagedPtr_Members(bdema_ManagedPtr_Members& other);
-        // Create a 'bdema_ManagedPtr_Members' object having the 'ptr' and
-        // 'rep' of the specified 'other', and then put 'other' into an unset
-        // state.
+        // Create a 'bdema_ManagedPtr_Members' object having the same 'd_obj_p'
+        // and, if that 'd_obj_p' is not null, 'd_deleter' values as the
+        // specified 'other', and then put 'other' into an unset state.
 
     bdema_ManagedPtr_Members(void *object, void *factory, DeleterFunc deleter);
         // If 'object' is null, create a 'bdema_ManagedPtr_Members' object that
@@ -396,50 +396,52 @@ public:
         // 'bdema_ManagedPtr_Members' object having the specified 'object',
         // 'factory' and 'deleter'.
 
-    //! ~bdema_ManagedPtr_Members();
+    //! ~bdema_ManagedPtr_Members() = default;
         // Destroy this 'bdema_ManagedPtr_Members' object.  Note that this
         // trivial destructor's definition is compiler generated.
 
     //MANIPULATORS
     void clear();
-        // Reset this managed pointer to an unset state.  If this managed
-        // pointer currently has a value, then the managed instance will not
-        // be destroyed.
+        // Reset this object to an unset state.  Note that any previously
+        // managed object will not be destroyed.
 
     void move(bdema_ManagedPtr_Members& other);
-        // Re-initialize this
-        // managed pointer to the specified 'ptr' pointer value, the specified
-        // 'object' pointer value, and the specified 'deleter' function, using
-        // the specified 'factory'.  The specified 'ptr' points to the object
-        // that will be referred to by the '*' and '->' operators, while the
-        // specified 'object' points to the object that will be destroyed and
-        // deallocated when this ManagedPtr is destroyed.
+        // Re-initialize this object, having the same 'd_obj_p' and, if that
+        // 'd_obj_p' is not null, 'd_deleter' values as the specified 'other',
+        // and then put 'other' into an unset set.  Note that any previously
+        // managed object will not be destroyed.
 
     void set(void *object, void *factory, DeleterFunc deleter);
-        // Re-initialize this managed pointer to the specified 'object' pointer
+        // Re-initialize thisobject with the specified 'object' pointer
         // value, and the specified 'deleter' function, using the specified
-        // 'factory'.
+        // 'factory'.  Note that any previously managed object will not be
+        // destroyed.
 
     void setAliasPtr(void *ptr);
-        // The specified 'ptr' points to the object
-        // that will be referred to by the '*' and '->' operators, while the
-        // specified 'object' points to the object that will be destroyed and
-        // deallocated when this ManagedPtr is destroyed.
+        // Set 'd_obj_p' to have the specified 'ptr' value.  If 'ptr' is null
+        // then this object will have an unset state.
 
     void swap(bdema_ManagedPtr_Members& other);
-        // Efficiently exchange the value of this object with the value of the
+        // Efficiently exchange the state of this object with the state of the
         // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.
+        // exception-safety guarantee.  Note that if either object is in an
+        // unset state, there are no guarantees about the unset state that may
+        // be exchanged, other than 'd_obj_p' shall be null.
 
     //ACCESSORS
     void runDeleter() const;
-        // Destroy the current managed object(if any).  Note that calling this
-        // method twice without assigning a new pointer to manage will produce
-        // undefined behavior, unless this object's current deleter
-        // specifically supports 
+        // Destroy the currently managed object(if any).  Note that calling
+        // this method twice without assigning a new pointer to manage will
+        // produce undefined behavior, unless this object's current deleter
+        // specifically supports such usage.
 
     void                          *pointer() const;
+        // Return a pointer to the currently managed object.
+
     const bdema_ManagedPtrDeleter& deleter() const;
+        // Return the 'bdema_ManagedPtrDeleter' object that should be used to
+        // destroy the currently managed object, if any.  Behavior is
+        // undefined unless 'pointer()' is not null.
 };
 
                            // ======================
@@ -465,25 +467,27 @@ class bdema_ManagedPtr {
     // 'BDEMA_TYPE', may differ from the managed object of type 'OTHERTYPE'
     // (see the section "Aliasing" in the component-level documentation).
     // Nevertheless, both shall exist or else the managed pointer is *unset*
-    // (i.e., manages no object, has no deleter, and points to 0).
+    // (i.e., manages no object, has an unspecified deleter, and points to 0).
 
     // INTERFACE TYPES
 public:
     typedef bdema_ManagedPtrDeleter::Deleter DeleterFunc;
+        // The function-pointer type of a function to be used to destroy a
+        // managed object held by this 'bdema_ManagedPtr' object.
 
 private:
     // PRIVATE TYPES
     typedef typename bsls_UnspecifiedBool<bdema_ManagedPtr>::BoolType BoolType;
-    // 'BoolType' is an alias for an unspecified type that is implicitly
-    // convertible to 'bool', but will not promote to 'int'.  This (opaque)
-    // type can be used as an "unspecified boolean type" for converting a
-    // managed pointer to 'bool' in contexts such as 'if (mp) { ... }' without
-    // actually having a conversion to 'bool' or being less-than comparable
-    // (either of which would also enable undesirable implicit comparisons of
-    // managed pointers to 'int' and less-than comparisons).
+        // 'BoolType' is an alias for an unspecified type that is implicitly
+        // convertible to 'bool', but will not promote to 'int'.  This (opaque)
+        // type can be used as an "unspecified boolean type" for converting a
+        // managed pointer to 'bool' in contexts such as 'if (mp) { ... }'
+        // without actually having a conversion to 'bool' or being less-than
+        // comparable (either of which would also enable undesirable implicit
+        // comparisons of managed pointers to 'int' and less-than comparisons).
 
-    struct Unspecified {}; // private type to guarantee bslmf_EnableIf
-                           // disambiguates
+    struct Unspecified {}; // private type to guarantee 'bslmf_EnableIf'
+                           // disambiguates in all cases.
 
     // COMPONENT-PRIVATE MACROS TO SIMPLIFY DECLARING FUNCTION TEMPLATES
 #define BDEMA_COMPATIBLE_POINTERS_ONLY                                  \
@@ -519,16 +523,18 @@ private:
 
     void operator==(const bdema_ManagedPtr&) const;
     void operator!=(const bdema_ManagedPtr&) const;
-        // The two operator overloads are declared as 'private' but never
+        // These two operator overloads are declared as 'private' but never
         // defined in order to eliminate accidental equality comparisons that
-        // would occur through the implicit conversion to an unspecified
-        // boolean type.  Note that the return type of 'void' is chosen as it
-        // will often produce a clearer error message than relying on the
-        // 'private' control failure.
+        // would occur through the implicit conversion to 'BoolType'.  Note
+        // that the return type of 'void' is chosen as it will often produce a
+        // clearer error message than relying on the 'private' control failure.
+        // Note that these private operators will not be needed with C++11,
+        // where an 'explicit operator bool()' conversion operator would be
+        // prefered.
 
     // FRIENDS
-    template <class OTHER> friend class bdema_ManagedPtr;
-
+    template <class OTHER> friend class bdema_ManagedPtr;  // required only for
+                                                           // alias support
   public:
     // CREATORS
     bdema_ManagedPtr();
@@ -643,28 +649,23 @@ private:
     // MANIPULATORS
     bdema_ManagedPtr& operator=(bdema_ManagedPtr& rhs);
         // Assign to this managed pointer the value and ownership of the
-        // specified 'rhs' managed pointer.  Note that 'rhs' will be
-        // re-initialized to an unset state and that the previous contents of
-        // this pointer (if any) are destroyed unless this pointer and 'rhs'
-        // point to the same object.
-        // TBD document 'return' and note no-op when self assigning.
-
-    template <class BDEMA_OTHERTYPE>
-    bdema_ManagedPtr& operator=(bdema_ManagedPtr<BDEMA_OTHERTYPE>& rhs);
-        // Assign to this managed pointer the value and ownership of the
-        // specified 'rhs' managed pointer.  Note that 'rhs' will be
-        // re-initialized to an unset state and that the previous contents of
-        // this pointer (if any) are destroyed unless this pointer and 'rhs'
-        // point to the same object.  Note the deleter from rhs will
-        // be copied, so at destruction, that, rather than ~BDEMA_TYPE(), will
-        // be called.
+        // specified 'rhs' managed pointer, and return a reference to this
+        // object.  Note that 'rhs' will be re-initialized to an unset state
+        // and that the previous contents of this pointer (if any) are
+        // destroyed unless this pointer and 'rhs' point to the same object.
+        // Note that this function will have no effect if 'rhs' is a reference
+        // to this object.
 
     bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
-        // Transfer the value and ownership from the specified 'ref' managed
-        // pointer to this managed pointer.  Note that 'ref' will be
-        // re-initialized to an unset state and that the previous contents of
-        // this pointer (if any) are destroyed unless this pointer and 'ref'
-        // point to the same object.
+        // Transfer the value and ownership from the managed pointer supplying
+        // the specified 'ref' to this managed pointer.  Note that 'ref' will
+        // be re-initialized to an unset state and that the previous contents
+        // of this pointer (if any) are destroyed unless this pointer and 'ref'
+        // point to the same object.  This operator is used to assign from a
+        // managed pointer rvalue, or from a managed pointer to a "compatible"
+        // type, where "compatible" means a built-in conversion from
+        // 'OTHER_TYPE *' to 'BDEMA_TYPE *' is defined, e.g, 'derived *' ->
+        // 'base *', 'T *' -> 'const T *', or 'T *' -> 'void *'.
 
     template <class BDEMA_OTHER_TYPE>
     operator bdema_ManagedPtr_Ref<BDEMA_OTHER_TYPE>();
@@ -1167,19 +1168,6 @@ void bdema_ManagedPtr<BDEMA_TYPE>::swap(bdema_ManagedPtr& rhs)
 template <class BDEMA_TYPE>
 bdema_ManagedPtr<BDEMA_TYPE>&
 bdema_ManagedPtr<BDEMA_TYPE>::operator=(bdema_ManagedPtr& rhs)
-{   // Must protect against self-assignment due to destructive move
-    if (&d_members != &rhs.d_members) {
-        d_members.runDeleter();
-        d_members.move(rhs.d_members);
-    }
-
-    return *this;
-}
-
-template <class BDEMA_TYPE>
-template <class BDEMA_OTHERTYPE>
-bdema_ManagedPtr<BDEMA_TYPE>&
-bdema_ManagedPtr<BDEMA_TYPE>::operator=(bdema_ManagedPtr<BDEMA_OTHERTYPE>& rhs)
 {   // Must protect against self-assignment due to destructive move
     if (&d_members != &rhs.d_members) {
         d_members.runDeleter();

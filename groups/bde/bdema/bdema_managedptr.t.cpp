@@ -521,8 +521,8 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
         int numdels = 0;
 
         {
-//            B *b_p = 0;
-//            A *a_p = b_p;
+            B *b_p = 0;
+            A *a_p = b_p;
     //..
     // are legal expressions, then the statements
     //..
@@ -1190,6 +1190,15 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
         }
         ASSERT(1 == numDeletes);
+
+//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_ASSIGN_FROM_INCOMPATIBLE_TYPE
+#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_ASSIGN_FROM_INCOMPATIBLE_TYPE)
+            {
+                bdema_ManagedPtr<int> x;
+                bdema_ManagedPtr<double> y;
+                y = x;  // This should fail to compile.
+            }
+#endif
       } break;
       case 11: {
         // --------------------------------------------------------------------
