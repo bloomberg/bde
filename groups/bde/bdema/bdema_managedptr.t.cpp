@@ -1,11 +1,11 @@
 // bdema_managedptr.t.cpp          -*-C++-*-
 
 #include <bdema_managedptr.h>
-#include <bslma_allocator.h>                    // for testing only
-#include <bslma_defaultallocatorguard.h>        // for testing only
-#include <bslma_testallocator.h>                // for testing only
+#include <bslma_allocator.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 #include <bslmf_assert.h>
-#include <bslmf_issame.h>
 #include <bsls_asserttest.h>
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -147,104 +147,6 @@ void aSsErT(int c, const char *s, int i) {
 // ============================================================================
 //                               TEST APPARATUS
 // ----------------------------------------------------------------------------
-// JSL: REMOVE THIS after it is moved to the test allocator.
-// JSL: change the name to 'bslma_TestAllocatorMonitor'.
-
-class bslma_TestAllocatorMonitor {
-    // TBD
-
-    // DATA
-    bsls_Types::Int64                d_lastInUse;
-    bsls_Types::Int64                d_lastMax;
-    bsls_Types::Int64                d_lastTotal;
-    const bslma_TestAllocator *const d_allocator_p;
-
-  public:
-    // CREATORS
-    bslma_TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
-        // TBD
-
-    ~bslma_TestAllocatorMonitor();
-        // TBD
-
-    // ACCESSORS
-    bool isInUseSame() const;
-        // TBD
-
-    bool isInUseUp() const;
-        // TBD
-
-    bool isMaxSame() const;
-        // TBD
-
-    bool isMaxUp() const;
-        // TBD
-
-    bool isTotalSame() const;
-        // TBD
-
-    bool isTotalUp() const;
-        // TBD
-};
-
-// CREATORS
-inline
-bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
-                                     const bslma_TestAllocator& basicAllocator)
-: d_lastInUse(basicAllocator.numBlocksInUse())
-, d_lastMax(basicAllocator.numBlocksMax())
-, d_lastTotal(basicAllocator.numBlocksTotal())
-, d_allocator_p(&basicAllocator)
-{
-}
-
-inline
-bslma_TestAllocatorMonitor::~bslma_TestAllocatorMonitor()
-{
-}
-
-// ACCESSORS
-inline
-bool bslma_TestAllocatorMonitor::isInUseSame() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() == d_lastInUse;
-}
-
-inline
-bool bslma_TestAllocatorMonitor::isInUseUp() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() != d_lastInUse;
-}
-
-inline
-bool bslma_TestAllocatorMonitor::isMaxSame() const
-{
-    return d_allocator_p->numBlocksMax() == d_lastMax;
-}
-
-inline
-bool bslma_TestAllocatorMonitor::isMaxUp() const
-{
-    return d_allocator_p->numBlocksMax() != d_lastMax;
-}
-
-inline
-bool bslma_TestAllocatorMonitor::isTotalSame() const
-{
-    return d_allocator_p->numBlocksTotal() == d_lastTotal;
-}
-
-inline
-bool bslma_TestAllocatorMonitor::isTotalUp() const
-{
-    return d_allocator_p->numBlocksTotal() != d_lastTotal;
-}
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // AJM: MIGRATE THIS to the 'bsls_asserttest' component after BDE 2.9 branches.
 class bsls_AssertTestHandlerGuard {
     // Purpose
@@ -268,10 +170,7 @@ bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-bool             verbose;
-bool         veryVerbose;
-bool     veryVeryVerbose;
-bool veryVeryVeryVerbose;
+bool verbose;
 
 class MyTestObject;
 class MyDerivedObject;
@@ -755,10 +654,10 @@ namespace USAGE_EXAMPLE {
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-                verbose = argc > 2;
-            veryVerbose = argc > 3;
-        veryVeryVerbose = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+                     verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
