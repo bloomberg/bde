@@ -155,11 +155,14 @@ typedef bdema_ManagedPtrDeleter Obj;
 template<typename T>
 struct statelessFactory
 {
-    void destroy(T *object) const {
-        ASSERT(object);
-        ++*object;
-    }
+    void destroy(T *object) const;
 };
+
+template<typename T>
+void statelessFactory<T>::destroy(T *object) const {
+    ASSERT(object);
+    ++*object;
+}
 
 template<typename T>
 class statefulFactory
@@ -170,18 +173,24 @@ class statefulFactory
   public:
     statefulFactory() : d_data(), d_empty(true) {}
 
-    T *create() { 
-        if (!d_empty) { return 0; }
+    T *create();
 
-        d_empty = false;
-        return &d_data; 
-    }
-
-    void destroy(T *object) const {
-        ASSERT(object == &d_data);
-        d_empty = true;
-    }
+    void destroy(T *object) const;
 };
+
+template<typename T>
+T *statefulFactory<T>::create() { 
+    if (!d_empty) { return 0; }
+
+    d_empty = false;
+    return &d_data; 
+}
+
+template<typename T>
+void statefulFactory<T>::destroy(T *object) const {
+    ASSERT(object == &d_data);
+    d_empty = true;
+}
 
 // ============================================================================
 //                     GLOBAL FUNCTIONS FOR TESTING
