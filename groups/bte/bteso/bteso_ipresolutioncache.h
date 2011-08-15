@@ -189,12 +189,15 @@ class bteso_IpResolutionCache_Data;  // defined in .cpp
 
 class bteso_IpResolutionCache_Entry {
     // This class implements an entry type that is used in the 'bsl::map'
-    // contained in a 'bteso_IpResolutionCache' object.  Each object of this
-    // class contains a shared pointer to a 'bteso_IpResolutionCache_Data'
+    // contained in a 'bteso_IpResolutionCache' object.  This is an
+    // implementation centric class, with each object of this
+    // class containing a shared pointer to a 'bteso_IpResolutionCache_Data'
     // object (which stores a set of IP addresses and its creation time) and a
     // mutex variable to indicate whether there is a thread updating the data.
-    // Note that synchronization of the data of an entry is managed by the
-    // cache containing the entry.
+    // This class allows a thread to continue accessing existing data while
+    // another thread lock the mutex variable and update the data.  Note
+    // that synchronization of the data of an entry is managed by the cache
+    // containing the entry.
 
   public:
     typedef bcema_SharedPtr<const bteso_IpResolutionCache_Data> DataPtr;
