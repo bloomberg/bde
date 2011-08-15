@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a meta-function that maps a 'TYPE' to its alignment.
 //
 //@CLASSES:
-// bsls_AlignmentFromType: mechanism to compute alignment for a given 'TYPE'
+//   bsls_AlignmentFromType: mechanism to compute alignment for a given 'TYPE'
 //
 //@SEE_ALSO: bsls_alignmenttotype
 //

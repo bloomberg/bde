@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide raw buffers with user-specified size and alignment.
 //
 //@CLASSES:
-//  bsls_AlignedBuffer: Uninitialized buffer of specified size and alignment
+//   bsls_AlignedBuffer: Uninitialized buffer of specified size and alignment
 //
 //@SEE_ALSO: bsls_objectbuffer, bsls_alignmenttotype
 //
