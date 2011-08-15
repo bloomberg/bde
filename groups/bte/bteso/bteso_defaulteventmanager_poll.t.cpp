@@ -296,6 +296,58 @@ int main(int argc, char *argv[]) {
                                  bteso_TimeMetrics::BTESO_CPU_BOUND);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case -3: {
+        // -----------------------------------------------------------------
+        // REPRODUCE SCRIPT TESTS
+        // -----------------------------------------------------------------
+
+        int numBytes, rc, dispatched;
+
+        char ioBuf[10 * 1024];
+
+        bteso_TimeMetrics timeMetric(
+                                   bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
+                                   bteso_TimeMetrics::BTESO_CPU_BOUND);
+        bteso_DefaultEventManager<bteso_Platform::POLL> mX(&timeMetric);
+
+        bteso_SocketHandle::Handle socket[2];
+
+        rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
+                             socket, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+        ASSERT(0 == rc);
+
+#if 0
+        numBytes = 64;
+        bteso_EventManager::Callback writeCb1(
+                    bdef_BindUtil::bind( &genericCb
+                                       , bteso_EventType::BTESO_WRITE
+                                       , socket[0]
+                                       , numBytes
+                                       , &mX));
+
+        mX.registerSocketEvent(socket[0], bteso_EventType::BTESO_WRITE,
+                                   writeCb1);
+#endif
+
+        numBytes = 24;
+        bteso_EventManager::Callback readCb(
+                    bdef_BindUtil::bind( &genericCb
+                                       , bteso_EventType::BTESO_READ
+                                       , socket[0]
+                                       , numBytes
+                                       , &mX));
+
+        mX.registerSocketEvent(socket[0],
+                               bteso_EventType::BTESO_READ,
+                               readCb);
+
+        bsl::memset(ioBuf, 0xab, sizeof ioBuf);
+        rc = bteso_SocketImpUtil::write(socket[1], ioBuf, 64);
+        LOOP_ASSERT(rc, 64 == rc);
+
+        dispatched = mX.dispatch(0);
+        LOOP_ASSERT(dispatched, 2 == dispatched);
+      }  break;
       case -2: {
         // -----------------------------------------------------------------
         // PERFORMANCE TESTING 'registerSocketEvent':
@@ -828,19 +880,18 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "Testing 'dispatch' method." << endl
                                   << "==========================" << endl;
 
+#ifndef BSLS_PLATFORM__OS_SOLARIS
         if (verbose)
             cout << "Standard test for 'dispatch'" << endl
                  << "============================" << endl;
         {
-// TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_SOLARIS
             Obj mX(&timeMetric, &testAllocator);
 
             int fails = bteso_EventManagerTester::testDispatch(&mX,
                                                                controlFlag);
             ASSERT(0 == fails);
-#endif
         }
+#endif
 
         if (verbose)
             cout << "Customized test for 'dispatch'" << endl
@@ -1348,7 +1399,6 @@ int main(int argc, char *argv[]) {
             }
         }
       } break;
-
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
