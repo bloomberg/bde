@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
                                         (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
 #     include_next <pthread.h>
 #   else
-#     include BSL_NATIVE_C_LIB_HEADER(pthread.h)
+#     include BSL_NATIVE_SYS_TIME_HEADER(pthread.h)
 #   endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
                                         (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
 #     include_next <pthread.h>
 #   else
-#     include BSL_NATIVE_C_LIB_HEADER(pthread.h)
+#     include BSL_NATIVE_SYS_TIME_HEADER(pthread.h)
 #   endif
 
 // This native header does not define any symbols in namespace 'std' to import,
