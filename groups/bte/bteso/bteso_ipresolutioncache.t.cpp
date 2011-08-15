@@ -300,9 +300,8 @@ void resolve(bcemt_Mutex    *updateMutex,
     timer.start();
 
     for (vector<string>::const_iterator it = hostname->begin();
-         it != hostname->end();
-         ++it)
-    {
+                                        it != hostname->end();
+                                        ++it) {
         switch (*option) {
           case DEFAULT: {
             for (int i = 0; i < NUM_CALLS; ++i) {
@@ -627,8 +626,10 @@ int main(int argc, char *argv[])
 // of either "www.bloomberg.com" and "www.businessweek.com":
 //..
     bsl::vector<bteso_IPv4Address> ipAddresses;
-    ASSERT(0 != cache.lookupAddress(&ipAddresses, "www.bloomberg.com", 1));
-    ASSERT(0 != cache.lookupAddress(&ipAddresses, "www.businessweek.com", 1));
+    ASSERT(0 != cache.lookupAddressRaw(&ipAddresses, "www.bloomberg.com", 1));
+    ASSERT(0 != cache.lookupAddressRaw(&ipAddresses,
+                                       "www.businessweek.com",
+                                       1));
 //..
 // Next, we call the 'resolveAddress' method to retrieve one of the IPv4
 // address for "www.bloomberg.com" and print it out.  Since this is the first
@@ -640,12 +641,14 @@ int main(int argc, char *argv[])
     ASSERT(1 == ipAddresses.size());
     bsl::cout << "IP Address: " << ipAddresses[0] << std::endl;
 //..
-//  Finally, we verify that subsequent call to 'lookupAddress' return 0 to
+//  Finally, we verify that subsequent call to 'lookupAddressRaw' return 0 to
 //  indicate "www.bloomberg.com" is stored in the cache, but not
 //  "www.businessweek.com":
 //..
-    ASSERT(0 == cache.lookupAddress(&ipAddresses, "www.bloomberg.com", 1));
-    ASSERT(0 != cache.lookupAddress(&ipAddresses, "www.businessweek.com", 1));
+    ASSERT(0 == cache.lookupAddressRaw(&ipAddresses, "www.bloomberg.com", 1));
+    ASSERT(0 != cache.lookupAddressRaw(&ipAddresses,
+                                       "www.businessweek.com",
+                                       1));
 //..
 }
 {
@@ -735,7 +738,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, NAME,
                              0 == X.resolveAddress(&mV, NAME, 1));
 
-                LOOP_ASSERT(LINE, 0 == X.lookupAddress(&mV, NAME, 1));
+                LOOP_ASSERT(LINE, 0 == X.lookupAddressRaw(&mV, NAME, 1));
             }
 
             mX.removeAll();
@@ -750,12 +753,12 @@ int main(int argc, char *argv[])
 
                 if (verbose) { P_(LINE) P_(NAME) P(ADDR); }
 
-                LOOP_ASSERT(LINE, 0 != X.lookupAddress(&mV, NAME, 1));
+                LOOP_ASSERT(LINE, 0 != X.lookupAddressRaw(&mV, NAME, 1));
 
                 LOOP2_ASSERT(LINE, NAME,
                              0 == X.resolveAddress(&mV, NAME, 1));
 
-                LOOP_ASSERT(LINE, 0 == X.lookupAddress(&mV, NAME, 1));
+                LOOP_ASSERT(LINE, 0 == X.lookupAddressRaw(&mV, NAME, 1));
             }
         }
       } break;
@@ -862,10 +865,10 @@ int main(int argc, char *argv[])
                 }
 
                 if (CACHED) {
-                    LOOP_ASSERT(LINE, 0 == X.lookupAddress(&mV, NAME, 1));
+                    LOOP_ASSERT(LINE, 0 == X.lookupAddressRaw(&mV, NAME, 1));
                 }
                 else {
-                    LOOP_ASSERT(LINE, 0 != X.lookupAddress(&mV, NAME, 1));
+                    LOOP_ASSERT(LINE, 0 != X.lookupAddressRaw(&mV, NAME, 1));
                 }
 
                 LOOP2_ASSERT(LINE, NAME,
@@ -880,7 +883,7 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(LINE, ADDR, mV[0], ADDR == mV[0]);
 
-                LOOP_ASSERT(LINE, 0 == X.lookupAddress(&mV, NAME, 1));
+                LOOP_ASSERT(LINE, 0 == X.lookupAddressRaw(&mV, NAME, 1));
             }
         }
 

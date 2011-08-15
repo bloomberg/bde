@@ -23,16 +23,21 @@ int createCacheData(
            int                                            *errorCode,
            const bdet_Datetime&                            currentTime,
            bteso_IpResolutionCache::ResolveByNameCallback  resolverCallback,
-           bslma_Allocator                                *basicAllocator = 0)
+           bslma_Allocator                                *basicAllocator)
     // Load, into the specified 'result', a shared pointer to a newly created
-    // 'bteso_IpResolutionCache_Data' object containing the IPv4 addresses of
-    // the host with the specified 'hostname' (retrieved using the specified
+    // 'bteso_IpResolutionCache_Data' object (using the specified
+    // 'basicAllocator' to supply memory) containing the IPv4 addresses of the
+    // host having the specified 'hostname' (retrieved using the specified
     // 'resolverCallback') and having the specified 'currentTime' as the load
     // time, and load into the specified 'errorCode', the error code of
-    // 'resolverCallback' if it fails.  Optionally specify a 'basicAllocator'
-    // used to supply memory.  If 'basicAllocator' is 0, the currently
-    // installed default allocator is used.
+    // 'resolverCallback' if it fails.  If 'basicAllocator' is 0, the currently
+    // installed default allocator is used.  The behavior is undefined if
+    // 'resolverCallback' is empty.
 {
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(hostname);
+    BSLS_ASSERT(resolverCallback);
+
     bsl::vector<bteso_IPv4Address> hostAddresses;
 
     int rc = resolverCallback(&hostAddresses, hostname, INT_MAX, errorCode);
@@ -104,23 +109,6 @@ bteso_IpResolutionCache_Data::bteso_IpResolutionCache_Data(
 , d_creationTime(creationTime)
 {
 }
-                        // -----------------------------------
-                        // class bteso_IpResolutionCache_Entry
-                        // -----------------------------------
-
-// CREATORS
-bteso_IpResolutionCache_Entry::bteso_IpResolutionCache_Entry()
-: d_data()
-, d_updatingLock()
-{
-}
-
-bteso_IpResolutionCache_Entry::bteso_IpResolutionCache_Entry(
-                                    const bteso_IpResolutionCache_Entry& other)
-: d_data(other.d_data)
-, d_updatingLock()
-{
-}
 
 // ACCESSORS
 const bsl::vector<bteso_IPv4Address>& bteso_IpResolutionCache_Data::addresses()
@@ -158,6 +146,7 @@ bteso_IpResolutionCache::bteso_IpResolutionCache(
 , d_resolverCallback(resolverCallback)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
+    BSLS_ASSERT(resolverCallback);
 }
 
 // MANIPULATORS
@@ -273,7 +262,7 @@ int bteso_IpResolutionCache::resolveAddress(
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostname);
-    BSLS_ASSERT(0 < maxNumAddresses);
+    BSLS_ASSERT(1 <= maxNumAddresses);
 
     bteso_IpResolutionCache_Entry::DataPtr dataPtr;
 
@@ -301,21 +290,28 @@ void bteso_IpResolutionCache::removeAll()
     bcemt_WriteLockGuard<bcemt_RWMutex> writeLockGuard(&d_rwLock);
 
     for (AddressMap::iterator it = d_cache.begin();
-         it != d_cache.end();
-         ++it) {
+                              it != d_cache.end();
+                              ++it) {
         it->second.reset();
     }
 }
 
 // ACCESSORS
-int bteso_IpResolutionCache::lookupAddress(
+int bteso_IpResolutionCache::lookupAddressRaw(
                          bsl::vector<bteso_IPv4Address> *result,
                          const char                     *hostname,
                          int                             maxNumAddresses) const
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostname);
-    BSLS_ASSERT(0 < maxNumAddresses);
+    BSLS_ASSERT(1 <= maxNumAddresses);
+
+    enum {
+        // Return values
+
+        SUCCESS = 0,
+        FAILURE = -1
+    };
 
     bteso_IpResolutionCache_Entry::DataPtr dataPtr;
 
@@ -323,13 +319,13 @@ int bteso_IpResolutionCache::lookupAddress(
         bcemt_ReadLockGuard<bcemt_RWMutex> readLockGuard(&d_rwLock);
         AddressMap::const_iterator it = d_cache.find(hostname);
         if (d_cache.end() == it) {
-            return -1;                                                // RETURN
+            return FAILURE;                                           // RETURN
         }
         dataPtr = it->second.data();
     }
 
     if (0 == dataPtr.ptr()) {
-        return -1;                                                    // RETURN
+        return FAILURE;                                               // RETURN
     }
 
     int size = bsl::min(maxNumAddresses, (int)dataPtr->addresses().size());
@@ -337,7 +333,7 @@ int bteso_IpResolutionCache::lookupAddress(
     bsl::copy(dataPtr->addresses().begin(),
               dataPtr->addresses().begin() + size,
               result->begin());
-    return 0;
+    return SUCCESS;
 }
 
 }  // close namespace BloombergLP
