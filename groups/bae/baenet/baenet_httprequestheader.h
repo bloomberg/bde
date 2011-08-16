@@ -11,7 +11,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a value-semantic HTTP request header.
 //
-//@CLASSES: baenet_HttpRequestHeader: value-semantic HTTP request header
+//@CLASSES:
+//   baenet_HttpRequestHeader: value-semantic HTTP request header
 //
 //@SEE_ALSO: baenet_httpresponseheader
 //

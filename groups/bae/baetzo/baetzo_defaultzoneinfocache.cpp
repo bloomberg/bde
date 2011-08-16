@@ -35,16 +35,17 @@ static const char *BAETZO_DATA_LOCATIONS[] = {
 };
 
 // STATIC DATA
-static baetzo_ZoneinfoCache *singletonCachePtr = 0;  // default cache
+static baetzo_ZoneinfoCache *systemSingletonCachePtr = 0;  // default sys cache
+static baetzo_ZoneinfoCache *userSingletonCachePtr   = 0;  // default usr cache
 
 // STATIC HELPER FUNCTIONS
 static
-baetzo_ZoneinfoCache *initDefaultCache()
-    // Return the address of a modifiable singleton default default-cache
-    // instance, initializing that instance if this method has not perviously
-    // been called.  Subsequent calls to this method return the previously
-    // created (singleton) instance with no other effect.  This methods is
-    // *not* thread safe.
+baetzo_ZoneinfoCache *initSystemDefaultCache()
+    // Return the address of a modifiable singleton default, system-wide,
+    // default-cache instance, initializing that instance if this method has
+    // not perviously been called.  Subsequent calls to this method return the
+    // previously created (singleton) instance with no other effect.  This
+    // methods is *not* thread safe.
 {
     bslma_Allocator *allocator = bslma_Default::globalAllocator();
 
@@ -64,12 +65,16 @@ baetzo_ZoneinfoCache *initDefaultCache()
 // PRIVATE CLASS METHODS
 baetzo_ZoneinfoCache *baetzo_DefaultZoneinfoCache::instance()
 {
+    if (userSingletonCachePtr) {
+        return userSingletonCachePtr;                                 // RETURN
+    }
+
     BCEMT_ONCE_DO {
-        if (0 == singletonCachePtr) {
-            singletonCachePtr = initDefaultCache();
+        if (0 == systemSingletonCachePtr) {
+            systemSingletonCachePtr = initSystemDefaultCache();
         }
     }
-    return singletonCachePtr;
+    return systemSingletonCachePtr;
 }
 
 // CLASS METHODS
@@ -96,7 +101,7 @@ const char *baetzo_DefaultZoneinfoCache::defaultZoneinfoDataLocation()
                           << "falling back on default location: "
                           << *pathPtr
                           << BAEL_LOG_END;
-             return *pathPtr;                                         // RETURN
+            return *pathPtr;                                          // RETURN
          }
     }
 
@@ -122,13 +127,8 @@ void baetzo_DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
 baetzo_ZoneinfoCache *baetzo_DefaultZoneinfoCache::setDefaultCache(
                                                    baetzo_ZoneinfoCache *cache)
 {
-    BSLS_ASSERT_SAFE(cache);
-
-    // We must call 'instance' here to ensure the default default-instance is
-    // created if it has not been previously been created.
-
-    baetzo_ZoneinfoCache *previous = singletonCachePtr;
-    singletonCachePtr = cache;
+    baetzo_ZoneinfoCache *previous = userSingletonCachePtr;
+    userSingletonCachePtr = cache;
     return previous;
 }
 
