@@ -1,0 +1,118 @@
+ baesu.txt
+
+@PURPOSE: Provide a portable facility for obtaining & printing a stack trace
+
+@AUTHOR: Bill Chapman (bchapman2)
+
+@DESCRIPTION: The 'baesu' package provides a facility for obtaining and
+ printing a stack trace at run time.
+
+/Usage
+/-----
+
+This example shows how to obtain a stack trace and print it to a stream, all
+by calling just the static function
+'baesu_StackTracePrintUtil::printStackTrace'.
+
+First, we define a recursive function 'recurseAndPrintStack' that recurses
+to the specified 'depth', then calls
+'baesu_StackTracePrintUtil::printStackTrace' to obtain a stack trace and
+print it to 'cout'.  When we call 'printStackTrace', neither of the optional
+arguments corresponding to 'maxFrames' or 'demanglingPreferredFlag' are
+supplied; 'maxFrames' defaults to at least 1024 (which is more than we
+need), and 'demanglingPreferredFlag' defaults to 'true'.
+
+static
+void recurseAndPrintStack(int *depth)
+    // Recurse to the specified 'depth', then print out the stack trace to
+    // 'cout'.
+{
+    if (--*depth > 0) {
+        recurseAndPrintStack(depth);
+    }
+    else {
+        baesu_StackTracePrintUtil::printStackTrace(cout);
+    }
+
+    ++*depth;   // Prevent compiler from optimizing tail recursion as a
+                // loop.
+}
+
+Then, we call 'recurseAndPrintStack' from the main program.
+
+int main()
+{
+    int depth = 5;
+    recurseAndPrintStack(&depth);
+    assert(5 == depth);
+}
+
+Now, invoking the main program on AIX produces the following output:
+
+(0): BloombergLP::baesu_StackTracePrintUtil::.printStackTrace(
+     std::basic_ostream<char,std::char_traits<char> >&,int,bool)+0x170 at
+     0x1000a2c8 source:baesu_stacktraceprintutil.cpp:52 in
+     baesu_stacktraceprintutil.t.dbg_
+(1): .recurseAndPrintStack(int*)+0x58 at 0x1000a118
+     source:baesu_stacktraceprintutil.t.cpp:652 in
+     baesu_stacktraceprintutil.t.dbg_
+(2): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+     source:baesu_stacktraceprintutil.t.cpp:650
+     in baesu_stacktraceprintutil.t.dbg_
+(3): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+     source:baesu_stacktraceprintutil.t.cpp:650 in
+     baesu_stacktraceprintutil.t.dbg_
+(4): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+     source:baesu_stacktraceprintutil.t.cpp:650 in
+     baesu_stacktraceprintutil.t.dbg_
+(5): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+     source:baesu_stacktraceprintutil.t.cpp:650 in
+     baesu_stacktraceprintutil.t.dbg_
+(6): .main+0x2f4 at 0x10000a4c source:baesu_stacktraceprintutil.t.cpp:724
+     in baesu_stacktraceprintutil.t.dbg_
+(7): .__start+0x6c at 0x1000020c source:crt0main.s in
+     baesu_stacktraceprintutil.t.dbg_
+
+Finally, we observe the following about the above output to 'cout'.  Notice
+that since the actual output would write each stack trace frame all on a
+single line, and all the lines here were longer than 80 characters, it has
+been manually edited to wrap and have every line be less than 80 columns.
+Also note the program name is truncated to 32 characters in length.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'baesu' package has 10 components having five levels of dependency.  The
+ table below shows the hierarchical ordering of the components.  The package
+ prefix and underscore ('baesu_') are omitted from the full component names
+ for layout efficiency.  The ordering within each level is simply alphabetical
+ and has no architectural significance.
+..
+  Level 5: stacktraceprintutil
+
+  Level 4: stacktraceutil
+
+  Level 3: stacktraceresolverimpl_elf        stacktraceresolverimpl_windows
+           stacktraceresolverimpl_xcoff
+
+  Level 2: stacktrace
+
+  Level 1: stacktraceframe                   stacktraceresolver_filehelper
+
+  Level 0: objectfileformat                  stackaddressutil
+..
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'baesu'.  Components
+ intended for internal use within the package and not intended for direct use
+ by package clients are marked with '*'.
+..
+  'baesu_stacktraceprintutil' - obtain & print stack trace in a single call
+
+  'baesu_stacktraceutil'      - low-level obtain & print stack trace
+
+  'baesu_stacktraceframe'     - value type describing 1 frame of stack trace
+
+  'baesu_stacktrace'          - sequence of stack trace frames
+
+  'baesu_stackaddressutil'    - means of getting return addresses from stack
+..

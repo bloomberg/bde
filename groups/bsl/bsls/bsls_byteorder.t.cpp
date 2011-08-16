@@ -1,12 +1,13 @@
-// bsls_byteorder.t.cpp         -*-C++-*-
+// bsls_byteorder.t.cpp                                               -*-C++-*-
 
 #include <bsls_byteorder.h>
 
 #include <bsls_platform.h>
 
-#include <bsls_types.h> 
+#include <bsls_types.h>
 
-#include <cstdlib>     // atoi()
+#include <stdlib.h>     // atoi()
+#include <stdio.h>      // printf()
 #include <iostream>
 
 #ifdef BSLS_PLATFORM__OS_UNIX   // htons(), htonl(), ntohs(), ntohl()

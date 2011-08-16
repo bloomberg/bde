@@ -106,49 +106,6 @@ struct baenet_HttpStatusCode {
       , BAENET_SERVICE_UNAVAILABLE             = 503
       , BAENET_GATEWAY_TIME_OUT                = 504
       , BAENET_HTTP_VERSION_NOT_SUPPORTED      = 505
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-      , CONTINUE                        = BAENET_CONTINUE
-      , SWITCHING_PROTOCOLS             = BAENET_SWITCHING_PROTOCOLS
-      , OK                              = BAENET_OK
-      , CREATED                         = BAENET_CREATED
-      , ACCEPTED                        = BAENET_ACCEPTED
-      , NON_AUTHORITATIVE_INFORMATION   = BAENET_NON_AUTHORITATIVE_INFORMATION
-      , NO_CONTENT                      = BAENET_NO_CONTENT
-      , RESET_CONTENT                   = BAENET_RESET_CONTENT
-      , PARTIAL_CONTENT                 = BAENET_PARTIAL_CONTENT
-      , MULTIPLE_CHOICES                = BAENET_MULTIPLE_CHOICES
-      , MOVED_PERMANENTLY               = BAENET_MOVED_PERMANENTLY
-      , FOUND                           = BAENET_FOUND
-      , SEE_OTHER                       = BAENET_SEE_OTHER
-      , NOT_MODIFIED                    = BAENET_NOT_MODIFIED
-      , USE_PROXY                       = BAENET_USE_PROXY
-      , TEMPORARY_REDIRECT              = BAENET_TEMPORARY_REDIRECT
-      , BAD_REQUEST                     = BAENET_BAD_REQUEST
-      , UNAUTHORIZED                    = BAENET_UNAUTHORIZED
-      , PAYMENT_REQUIRED                = BAENET_PAYMENT_REQUIRED
-      , FORBIDDEN                       = BAENET_FORBIDDEN
-      , NOT_FOUND                       = BAENET_NOT_FOUND
-      , METHOD_NOT_ALLOWED              = BAENET_METHOD_NOT_ALLOWED
-      , NOT_ACCEPTABLE                  = BAENET_NOT_ACCEPTABLE
-      , PROXY_AUTHENTICATION_REQUIRED   = BAENET_PROXY_AUTHENTICATION_REQUIRED
-      , REQUEST_TIME_OUT                = BAENET_REQUEST_TIME_OUT
-      , CONFLICT                        = BAENET_CONFLICT
-      , GONE                            = BAENET_GONE
-      , LENGTH_REQUIRED                 = BAENET_LENGTH_REQUIRED
-      , PRECONDITION_FAILED             = BAENET_PRECONDITION_FAILED
-      , REQUEST_ENTITY_TOO_LARGE        = BAENET_REQUEST_ENTITY_TOO_LARGE
-      , REQUEST_URI_TOO_LARGE           = BAENET_REQUEST_URI_TOO_LARGE
-      , UNSUPPORTED_MEDIA_TYPE          = BAENET_UNSUPPORTED_MEDIA_TYPE
-      , REQUESTED_RANGE_NOT_SATISFIABLE =
-                                         BAENET_REQUESTED_RANGE_NOT_SATISFIABLE
-      , EXPECTATION_FAILED              = BAENET_EXPECTATION_FAILED
-      , INTERNAL_SERVER_ERROR           = BAENET_INTERNAL_SERVER_ERROR
-      , NOT_IMPLEMENTED                 = BAENET_NOT_IMPLEMENTED
-      , BAD_GATEWAY                     = BAENET_BAD_GATEWAY
-      , SERVICE_UNAVAILABLE             = BAENET_SERVICE_UNAVAILABLE
-      , GATEWAY_TIME_OUT                = BAENET_GATEWAY_TIME_OUT
-      , HTTP_VERSION_NOT_SUPPORTED      = BAENET_HTTP_VERSION_NOT_SUPPORTED
-#endif
     };
 
     enum {

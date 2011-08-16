@@ -66,10 +66,6 @@ struct baenet_HttpTransferEncoding {
     enum Value {
         BAENET_CHUNKED  = 0
       , BAENET_IDENTITY = 1
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-      , CHUNKED  = BAENET_CHUNKED
-      , IDENTITY = BAENET_IDENTITY
-#endif
     };
 
     enum {

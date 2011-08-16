@@ -562,16 +562,8 @@ int main(int argc, char *argv[]) {
 
             if (!channel) {
                 ASSERT(0 >= status);    // Async interrupts are *not* enabled.
-                if (status) {
-                    if (verbose) bsl::cout << "Failed to connect to the peer."
-                                           << bsl::endl;
-                }
-                else {
-                    if (verbose) {
-                        bsl::cout << "Connection attempt has timed out."
-                                  << bsl::endl;
-                    }
-                }
+                if (verbose) bsl::cout << "Failed to connect to the peer."
+                                       << bsl::endl;
                 // In any case, invalidate the allocator, and exit.
                 connector.invalidate();
                 return -1;

@@ -614,7 +614,6 @@ int btemt_SessionPool::stop()
     }
 
     d_handles.removeAll();
-    d_numSessions = 0;
 
     return ret;
 }
