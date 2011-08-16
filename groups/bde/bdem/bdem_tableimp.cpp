@@ -508,7 +508,7 @@ void bdem_TableImp::removeRow(int rowIndex)
                                        1);
 }
 
-bsl::size_t bdem_TableImp::getCapacityRaw() const
+bsl::size_t bdem_TableImp::capacityRaw() const
 {
     return d_rows.capacity();
 }

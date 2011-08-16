@@ -99,7 +99,7 @@ using namespace bsl;  // automatically added by script
 //
 ////ACCESSORS
 // [ 7] columnType()
-// [11] getCapacityRaw()
+// [11] capacityRaw()
 // [ 7] numRows()
 // [ 7] numColumns()
 // [ 7] row()
@@ -585,8 +585,8 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < NUM_ROWS; ++j) {
                     mX.insertNullRows(j, 1);
                     LOOP2_ASSERT(j,
-                                 X.getCapacityRaw(),
-                                 j + 1 == X.getCapacityRaw());
+                                 X.capacityRaw(),
+                                 j + 1 == X.capacityRaw());
                 }
             }
         }
@@ -609,8 +609,8 @@ int main(int argc, char *argv[])
                     LOOP4_ASSERT(i,
                                  j,
                                  EXP_CAPACITY,
-                                 X.getCapacityRaw(),
-                                 EXP_CAPACITY == X.getCapacityRaw());
+                                 X.capacityRaw(),
+                                 EXP_CAPACITY == X.capacityRaw());
                 }
             }
         }
@@ -626,15 +626,15 @@ int main(int argc, char *argv[])
                     mX.reserveRaw(j + 1);
                     LOOP3_ASSERT(i,
                                  j,
-                                 X.getCapacityRaw(),
-                                 j + 1 == X.getCapacityRaw());
+                                 X.capacityRaw(),
+                                 j + 1 == X.capacityRaw());
                 }
             }
         }
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING: 'getCapacityRaw()' method
+        // TESTING: 'capacityRaw()' method
         //
         // Concerns:
         //  1 Reserving memory actually causes capacity to change consistently.
@@ -643,10 +643,10 @@ int main(int argc, char *argv[])
         //  3 Inserting more rows than 'capacity' makes 'capacity' increase.
         //
         // Plan:
-        //  1 Verify that the 'getCapacityRaw' method returns the exact
+        //  1 Verify that the 'capacityRaw' method returns the exact
         //    capacity reserved through 'reserveNumRowsRaw' for progressive
         //    calls of 'reserveNumRowsRaw'.
-        //  2 Verify that  the 'getCapacityRaw' method returns the exact
+        //  2 Verify that  the 'capacityRaw' method returns the exact
         //    amount of rows inserted via 'insertNullRows', for progressive
         //    insertions of rows.
         // --------------------------------------------------------------------
@@ -679,13 +679,13 @@ int main(int argc, char *argv[])
                                         veryVeryVeryVerbose);
 
                  Obj mX(STRATEGY, &ta); const Obj& X = mX;
-                 ASSERT(0 == X.getCapacityRaw());
+                 ASSERT(0 == X.capacityRaw());
 
                  if (veryVeryVerbose) cout << "\t\tReserving memory\n" << endl;
                  mX.reserveRaw(EXPECTED_CAPACITY);
                  LOOP2_ASSERT(EXPECTED_CAPACITY,
-                              X.getCapacityRaw(),
-                              EXPECTED_CAPACITY == X.getCapacityRaw());
+                              X.capacityRaw(),
+                              EXPECTED_CAPACITY == X.capacityRaw());
             }
 
             if (verbose) cout << "\nTesting using 'insertNullRows'" << endl;
@@ -695,7 +695,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { P(i) P_(j) }
 
                 Obj mX(STRATEGY); const Obj& X = mX;
-                ASSERT(0 == X.getCapacityRaw());
+                ASSERT(0 == X.capacityRaw());
 
                 if (veryVeryVerbose) cout << "\t\tInserting rows.\n" << endl;
                 for (int k = 0;
@@ -704,8 +704,8 @@ int main(int argc, char *argv[])
                     mX.insertNullRows(k, j);
                     const int EXPECTED_CAPACITY = k + j;
                     LOOP2_ASSERT(EXPECTED_CAPACITY,
-                                 X.getCapacityRaw(),
-                                 EXPECTED_CAPACITY == X.getCapacityRaw());
+                                 X.capacityRaw(),
+                                 EXPECTED_CAPACITY == X.capacityRaw());
                 }
             }
         }

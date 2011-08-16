@@ -1183,10 +1183,10 @@ class bdem_Table {
         // Load into the specified 'result', the sequence of column types in
         // this table.
 
-    bsl::size_t getCapacityRaw() const;
+    bsl::size_t capacityRaw() const;
         // Return the number of rows for which memory has already been
         // allocated (whether inserted or not).  Note that
-        // 'getCapacityRaw() - size()' represents the number of rows that
+        // 'capacityRaw() - size()' represents the number of rows that
         // can be inserted with the guarantee of minimal memory replenishment
         // (minimal internal allocation).
     
@@ -2071,9 +2071,9 @@ bdem_ElemType::Type bdem_Table::columnType(int columnIndex) const
 }
 
 inline
-bsl::size_t bdem_Table::getCapacityRaw() const
+bsl::size_t bdem_Table::capacityRaw() const
 {
-    return d_tableImp.getCapacityRaw();
+    return d_tableImp.capacityRaw();
 }
 
 inline

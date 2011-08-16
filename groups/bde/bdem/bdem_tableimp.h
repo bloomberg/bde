@@ -551,10 +551,10 @@ class bdem_TableImp {
         // table.  The behavior is undefined unless
         // '0 <= columnIndex < numColumns()'.
 
-    bsl::size_t getCapacityRaw() const;
+    bsl::size_t capacityRaw() const;
         // Return the number of rows for which memory has already been
         // allocated (whether inserted or not).  Note that
-        // 'getCapacityRaw() - size()' represents the number of rows that
+        // 'capacityRaw() - size()' represents the number of rows that
         // can be inserted with the guarantee of minimal memory replenishment
         // (minimal internal allocation).
 

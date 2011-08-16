@@ -1330,7 +1330,7 @@ int main(int argc, char *argv[])
         //    amount of rows inserted via 'insertNullRows', for progressive
         //    insertions of rows.
         // --------------------------------------------------------------------
-        if (verbose) cout << "TESTING: 'getCapacityRaw'" << endl
+        if (verbose) cout << "TESTING: 'capacityRaw'" << endl
                           << "============================" << endl;
 
         static const Strategy STRATEGY_DATA[] = {
@@ -1359,13 +1359,13 @@ int main(int argc, char *argv[])
                                         veryVeryVeryVerbose);
 
                  Obj mX(STRATEGY, &ta); const Obj& X = mX;
-                 ASSERT(0 == X.getCapacityRaw());
+                 ASSERT(0 == X.capacityRaw());
 
                  if (veryVeryVerbose) cout << "\t\tReserving memory\n" << endl;
                  mX.reserveRaw(EXPECTED_CAPACITY);
                  LOOP2_ASSERT(EXPECTED_CAPACITY,
-                              X.getCapacityRaw(),
-                              EXPECTED_CAPACITY == X.getCapacityRaw());
+                              X.capacityRaw(),
+                              EXPECTED_CAPACITY == X.capacityRaw());
             }
 
             if (verbose) cout << "\nTesting using 'insertNullItems'" << endl;
@@ -1375,7 +1375,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { P(i) P_(j) }
 
                 Obj mX(STRATEGY); const Obj& X = mX;
-                ASSERT(0 == X.getCapacityRaw());
+                ASSERT(0 == X.capacityRaw());
 
                 if (veryVeryVerbose) cout << "\t\tInserting rows.\n" << endl;
 
@@ -1390,8 +1390,8 @@ int main(int argc, char *argv[])
 
                     const int EXPECTED_CAPACITY = capacityOracle.capacity();
                     LOOP2_ASSERT(EXPECTED_CAPACITY,
-                                 X.getCapacityRaw(),
-                                 EXPECTED_CAPACITY == X.getCapacityRaw());
+                                 X.capacityRaw(),
+                                 EXPECTED_CAPACITY == X.capacityRaw());
                 }
             }
         }

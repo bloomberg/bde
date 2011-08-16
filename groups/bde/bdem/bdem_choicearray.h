@@ -608,10 +608,10 @@ class bdem_ChoiceArray {
         // specified 'itemIndex' in this choice array.  The behavior is
         // undefined unless '0 <= itemIndex < length()'.
     
-    bsl::size_t getCapacityRaw() const;
+    bsl::size_t capacityRaw() const;
         // Return the number of items for which memory has already been
         // allocated (whether inserted or not).  Note that
-        // 'getCapacityRaw() - length()' represents the number of items that
+        // 'capacityRaw() - length()' represents the number of items that
         // can be inserted with the guarantee of no replenishment (no internal
         // allocation).
 
@@ -722,9 +722,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bdem_ChoiceArray& rhs);
 
 // ACCESSORS
 inline
-bsl::size_t bdem_ChoiceArray::getCapacityRaw() const
+bsl::size_t bdem_ChoiceArray::capacityRaw() const
 {
-    return d_arrayImp.getCapacityRaw();
+    return d_arrayImp.capacityRaw();
 }
 
 inline

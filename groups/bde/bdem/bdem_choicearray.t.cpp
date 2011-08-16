@@ -1556,7 +1556,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'reserveRaw' and 'getCapacityRaw'
+        // TESTING 'reserveRaw' and 'capacityRaw'
         //
         // Concerns:
         // 1 'reserveRaw' correctly forwards to the method
@@ -1595,9 +1595,9 @@ int main(int argc, char *argv[])
 
                 LOOP4_ASSERT(i,
                              j,
-                             X.getCapacityRaw(),
-                             Y.getCapacityRaw(),
-                             X.getCapacityRaw() == Y.getCapacityRaw());
+                             X.capacityRaw(),
+                             Y.capacityRaw(),
+                             X.capacityRaw() == Y.capacityRaw());
 
                 LOOP4_ASSERT(i,
                              j,

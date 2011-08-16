@@ -2168,7 +2168,7 @@ DEFINE_TEST_CASE(22) {
 
 DEFINE_TEST_CASE(21) {
     // --------------------------------------------------------------------
-    // TESTING 'reserveRaw' and 'getCapacityRaw'
+    // TESTING 'reserveRaw' and 'capacityRaw'
     //
     // Concerns:
     // 1 'reserveRaw' correctly forwards to the method
@@ -2180,7 +2180,7 @@ DEFINE_TEST_CASE(21) {
     //   void reserveRaw(int numRows);
     // --------------------------------------------------------------------
 
-    if (verbose) cout << "\nTesting 'reserveRaw' and 'getCapacityRaw'"
+    if (verbose) cout << "\nTesting 'reserveRaw' and 'capacityRaw'"
                       << "\n================================================="
                       << endl;
 
@@ -2207,9 +2207,9 @@ DEFINE_TEST_CASE(21) {
 
             LOOP4_ASSERT(i,
                          j,
-                         X.getCapacityRaw(),
-                         Y.getCapacityRaw(),
-                         X.getCapacityRaw() == Y.getCapacityRaw());
+                         X.capacityRaw(),
+                         Y.capacityRaw(),
+                         X.capacityRaw() == Y.capacityRaw());
 
             LOOP4_ASSERT(i,
                          j,
