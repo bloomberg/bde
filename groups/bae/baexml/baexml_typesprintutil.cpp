@@ -6,6 +6,7 @@ BDES_IDENT_RCSID(baexml_typesprintutil_cpp,"$Id$ $CSID$")
 
 #include <bdede_base64encoder.h>
 #include <bdeu_print.h>
+#include <bdeu_string.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -59,7 +60,7 @@ const char *printTextReplacingXMLEscapes(
                                       const baexml_EncoderOptions *options = 0)
     // Format the specified 'data' buffer of the specified 'dataLength' to the
     // specified output 'stream' using the 'bdeat_FormattingMode::BDEAT_TEXT'
-    // formatting mode. and using the specified encoder 'options'.  Return 0 on
+    // formatting mode, and using the specified encoder 'options'.  Return 0 on
     // success, and a non-negative value otherwise.  If 'dataLength' is -1,
     // then detect automatically the null character as the end of the string.
     // If 'data' is invalid UTF-8 or contains a null character and
@@ -409,10 +410,61 @@ const char *printTextReplacingXMLEscapes(
           } break;
 
           case LESS_THAN: {
-            stream.write(runBegin, data - runBegin);
-            static const char lt[] = "&lt;";
-            stream.write(lt, sizeof(lt) - 1);
-            runBegin = ++data;
+            // Check if the '<' is the beginning of a CDATA section.
+
+            const char CDATA_BEGIN_TAG[] = "<![CDATA[";
+            const char CDATA_END_TAG[]   = "]]>";
+            const int  CDATA_BEGIN_LEN   = sizeof(CDATA_BEGIN_TAG) - 1;
+            const int  CDATA_END_LEN     = sizeof(CDATA_END_TAG) - 1;
+
+            if ((-1 != dataLength && end - data < CDATA_BEGIN_LEN)
+             || bsl::strncmp(data, CDATA_BEGIN_TAG, CDATA_BEGIN_LEN)) {
+
+                // Not a CDATA section.  Just convert '<' to '&lt;'.
+
+                stream.write(runBegin, data - runBegin);
+                static const char lt[] = "&lt;";
+                stream.write(lt, sizeof(lt) - 1);
+                runBegin = ++data;
+            }
+            else {
+                const char *endTag;
+                if (-1 == dataLength) {
+                    endTag = bsl::strstr(data, CDATA_END_TAG);
+                }
+                else {
+                    endTag = bdeu_String::strstr(data,
+                                                 end - data,
+                                                 CDATA_END_TAG,
+                                                 CDATA_END_LEN);
+                }
+
+                if (!endTag) {
+                    stream.write(runBegin, data - runBegin);
+                    stream.setstate(bsl::ios_base::failbit);
+                    return data;  // error position                      RETURN
+                }
+
+                // There cannot be embedded CDATA sections within a CDATA
+                // section.  We check that the CDATA_BEGIN_TAG does not appear
+                // within this CDATA section.
+
+                const char *tmp = bdeu_String::strstr(data + CDATA_BEGIN_LEN,
+                                                      endTag - data,
+                                                      CDATA_BEGIN_TAG,
+                                                      CDATA_BEGIN_LEN);
+
+                if (tmp) {
+                    stream.write(runBegin, data - runBegin);
+                    stream.setstate(bsl::ios_base::failbit);
+                    return tmp;  // error position                  RETURN
+                }
+
+                // The entire CDATA section needs to be written as is, update
+                // 'data' but no need to update 'runBegin'.
+
+                data = endTag + CDATA_END_LEN;
+            }
           } break;
 
           case GREATER_THAN: {
