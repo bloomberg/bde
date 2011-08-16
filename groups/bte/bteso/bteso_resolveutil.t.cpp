@@ -399,18 +399,15 @@ int main(int argc, char *argv[])
                     if (veryVerbose)
                         cout << "\t\tWith user-installed callback." << endl;
 
-                    // TBD: Find some way to test this after changing type to
-                    // bdef_function
-
                     Callback expCallback = Obj::defaultResolveByNameCallback();
                     Callback callback    = Obj::currentResolveByNameCallback();
-                    //LOOP3_ASSERT(LINE, expCallback, callback,
-                    //             expCallback == callback);
+                    LOOP3_ASSERT(LINE, expCallback, callback,
+                                 expCallback == callback);
 
                     callback = Obj::setResolveByNameCallback(
                                                      &myResolveByNameCallback);
-                    //LOOP3_ASSERT(LINE, expCallback, callback,
-                    //             expCallback == callback);
+                    LOOP3_ASSERT(LINE, expCallback, callback,
+                                 expCallback == callback);
 
                     // Failed attempt.
 
@@ -447,15 +444,14 @@ int main(int argc, char *argv[])
                     if (veryVerbose)
                         cout << "\t\tWith default callback." << endl;
 
-                    // TBD: Find some way to test this after changing type to
-                    // bdef_function
-
                     expCallback = Obj::defaultResolveByNameCallback();
                     callback    = Obj::currentResolveByNameCallback();
-                    //LOOP3_ASSERT(LINE, expCallback, callback,
-                    //             expCallback != callback);
+                    LOOP3_ASSERT(LINE, expCallback, callback,
+                                 expCallback != callback);
 
                     callback = Obj::setResolveByNameCallback(expCallback);
+                    LOOP3_ASSERT(LINE, &myResolveByNameCallback, callback,
+                                 &myResolveByNameCallback == callback);
 
                     if (EXP_ADDR) {
                         expResult.setIpAddress(EXP_ADDR);
@@ -619,17 +615,13 @@ int main(int argc, char *argv[])
 
                     Callback expCallback = Obj::defaultResolveByNameCallback();
                     Callback callback    = Obj::currentResolveByNameCallback();
-
-                    // TBD: Find some way to test this after changing type to
-                    // bdef_function
-
-                    //LOOP3_ASSERT(LINE, expCallback, callback,
-                    //             expCallback == callback);
+                    LOOP3_ASSERT(LINE, expCallback, callback,
+                                 expCallback == callback);
 
                     callback = Obj::setResolveByNameCallback(
                                                      &myResolveByNameCallback);
-                    //LOOP3_ASSERT(LINE, expCallback, callback,
-                    //             expCallback == callback);
+                    LOOP3_ASSERT(LINE, expCallback, callback,
+                                 expCallback == callback);
 
                     // Failed attempt.
 
@@ -684,16 +676,12 @@ int main(int argc, char *argv[])
 
                     expCallback = Obj::defaultResolveByNameCallback();
                     callback    = Obj::currentResolveByNameCallback();
-
-                    // TBD: Find some way to test this after changing type to
-                    // bdef_function
-
-                    //LOOP3_ASSERT(LINE, expCallback, callback,
-                    //             expCallback != callback);
+                    LOOP3_ASSERT(LINE, expCallback, callback,
+                                 expCallback != callback);
 
                     callback = Obj::setResolveByNameCallback(expCallback);
-                    //LOOP3_ASSERT(LINE, &myResolveByNameCallback, callback,
-                    //             &myResolveByNameCallback == callback);
+                    LOOP3_ASSERT(LINE, &myResolveByNameCallback, callback,
+                                 &myResolveByNameCallback == callback);
 
                     resultArray.assign(16, UNUSED_ADDRESS);
                     errCode = UNUSED_VALUE;

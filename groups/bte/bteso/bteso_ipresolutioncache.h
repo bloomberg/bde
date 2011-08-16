@@ -20,19 +20,19 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a mechanism, 'bteso_IpResolutionCache',
 // that serves as a cache of 'bteso_IPv4Address' objects that are associated
-// with a hostname.  A 'bteso_IpResolutionCache' object is supplied a
-// 'bdef_Function' object, 'bteso_ResolveUtil::ResolveByNameCallback', at
-// construction, which it subsequently uses to obtain the set of IP addresses
-// for a given hostname.  The 'resolveAddress' method returns a set of IP
-// addresses for a supplied hostname.  'resolveAddress' either returns values
-// already residing in the cache (if they haven't expired), or invokes the
-// supplied 'ResolveByNameCallback' to obtain the set of IP addresses, which
-// are then cached for subsequent use.  IP addresses stored in the cache are
-// considered valid for a user-defined time interval, set by the
-// 'setTimeToLive' method.  Stored IP addresses older than the configured
-// interval are considered stale, and a subsequent request for the associated
-// hostname will refresh that set of IP addresses by again invoking the
-// 'ResolveByNameCallback' object supplied at construction.
+// with a hostname.  A 'bteso_IpResolutionCache' object is supplied the address
+// of a 'bteso_ResolveUtil::ResolveByNameCallback' function at construction,
+// which it subsequently uses to obtain the set of IP addresses for a given
+// hostname.  The 'resolveAddress' method returns a set of IP addresses for a
+// supplied hostname.  'resolveAddress' either returns values already residing
+// in the cache (if they haven't expired), or invokes the supplied
+// 'ResolveByNameCallback' to obtain the set of IP addresses, which are then
+// cached for subsequent use.  IP addresses stored in the cache are considered
+// valid for a user-defined time interval, set by the 'setTimeToLive' method.
+// Stored IP addresses older than the configured interval are considered stale,
+// and a subsequent request for the associated hostname will refresh that set
+// of IP addresses by again invoking the 'ResolveByNameCallback' object
+// supplied at construction.
 //
 ///Thread Safety
 ///-------------
@@ -101,26 +101,58 @@ BDES_IDENT("$Id: $")
 // component to use a 'bteso_IpResolutionCache' object for resolving IP
 // addresses.
 //
-// First, we create a cache for the IP addresses:
+// In order to use a 'bteso_IpResolutionCache' as the resolution callback in
+// 'bteso_ResolveUtil', we must wrap the call to
+// 'bteso_IpResolutionCache::resolveAddress' in a free function.
+//
+// When configuring 'bteso_ResolveUtil', a singleton cache should be created to
+// ensure the cache exist for all calls to 'bteso_ResolveUtil::getAddress'.
+// First, we declare a pointer to the singleton cache:
 //..
-//  bteso_IpResolutionCache cache;
+//  static bteso_IpResolutionCache *singletonCachePtr = 0;
 //..
-// Then, we set the callback for 'bteso_ResolveUtil' by using 'bdef_BindUtil':
+// Then, we create a function that initializes the singleton cache on the first
+// execution and returns the address of the cache:
 //..
-//  using namespace bdef_PlaceHolders;
-//  bteso_ResolveUtil::setResolveByNameCallback(
-//                bdef_BindUtil::bind(&bteso_IpResolutionCache::resolveAddress,
-//                                    &cache,
-//                                    _1,
-//                                    _2,
-//                                    _3,
-//                                    _4));
+//  static
+//  bteso_IpResolutionCache *instance()
+//  {
+//      BCEMT_ONCE_DO {
+//          if (0 == singletonCachePtr) {
+//              bslma_Allocator *allocator = bslma_Default::globalAllocator();
+//              static bteso_IpResolutionCache cache(allocator);
+//              singletonCachePtr = &cache;
+//          }
+//      }
+//      return singletonCachePtr;
+//  }
 //..
-// Next, we call the 'bteso_ResolveUtil::getAddress' method to retrieve the
+// Next, we create a free function to wrap the
+// 'bteso_IpResolutionCache::resolveAddress' method:
+//..
+//  static
+//  int resolverCallback(bsl::vector<bteso_IPv4Address> *hostAddresses,
+//                       const char                     *hostName,
+//                       int                             numAddresses,
+//                       int                            *errorCode)
+//  {
+//      return instance()->resolveAddress(hostAddresses,
+//                                        hostName,
+//                                        numAddresses,
+//                                        errorCode);
+//  }
+//..
+// Now, we set the callback for 'bteso_ResolveUtil' to the free function we
+// just created:
+//..
+//  bteso_ResolveUtil::setResolveByNameCallback(&resolverCallback);
+//..
+// Finally, we call the 'bteso_ResolveUtil::getAddress' method to retrieve the
 // IPv4 address of 'www.bloomberg.com':
 //..
-//  bteso_IPv4Address ipAddress;
-//  bteso_ResolveUtil::getAddress(&ipAddress, "www.bloomberg.com");
+//  bteso_IPv4Address ipv4;
+//  bteso_ResolveUtil::getAddress(&ipv4, "www.bloomberg.com");
+//  bsl::cout << "IP Address: " << ipv4 << std::endl;
 //..
 // Now, we write the address to stdout:
 //..
@@ -393,9 +425,9 @@ class bteso_IpResolutionCache {
         // addresses even if they become stale.
 
     ResolveByNameCallback resolverCallback() const;
-        // Return the 'bdef_Function' object that is used for resolving the IP
-        // addresses from a hostname when the hostname is not already in the
-        // cache or the IP addresses are staled.
+        // Return the address of the callback function that is used for
+        // resolving the IP addresses from a hostname when the hostname is not
+        // already in the cache or the IP addresses are staled.
 
     const bdet_DatetimeInterval& timeToLive() const;
         // Return a reference providing non-modifiable access to the time a set

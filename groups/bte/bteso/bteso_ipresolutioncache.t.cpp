@@ -5,7 +5,6 @@
 #include <bsls_stopwatch.h>
 
 #include <bdef_bind.h>
-#include <bdef_placeholder.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
@@ -203,6 +202,58 @@ extern "C" void* MyThread(void* arg_p) {
 //                     GLOBAL CONSTANTS USED FOR TESTING
 // ----------------------------------------------------------------------------
 
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+///Example 2: Using Address Cache with 'bteso_ResolveUtil'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we demonstrate how to configure the 'bteso_ResolverUtil'
+// component to use a 'bteso_IpResolutionCache' object for resolving IP
+// addresses.
+//
+// In order to use a 'bteso_IpResolutionCache' as the resolution callback in
+// 'bteso_ResolveUtil', we must wrap the call to
+// 'bteso_IpResolutionCache::resolveAddress' in a free function.
+//
+// When configuring 'bteso_ResolveUtil', a singleton cache should be created to
+// ensure the cache exist for all calls to 'bteso_ResolveUtil::getAddress'.
+// First, we declare a pointer to the singleton cache:
+//..
+    static bteso_IpResolutionCache *singletonCachePtr = 0;
+//..
+// Then, we create a function that initializes the singleton cache on the first
+// execution and returns the address of the cache:
+//..
+    static
+    bteso_IpResolutionCache *instance()
+    {
+        BCEMT_ONCE_DO {
+            if (0 == singletonCachePtr) {
+                bslma_Allocator *allocator = bslma_Default::globalAllocator();
+                static bteso_IpResolutionCache cache(allocator);
+                singletonCachePtr = &cache;
+            }
+        }
+        return singletonCachePtr;
+    }
+//..
+// Next, we create a free function to wrap the
+// 'bteso_IpResolutionCache::resolveAddress' method:
+//..
+    static
+    int resolverCallback(bsl::vector<bteso_IPv4Address> *hostAddresses,
+                         const char                     *hostName,
+                         int                             numAddresses,
+                         int                            *errorCode)
+    {
+        return instance()->resolveAddress(hostAddresses,
+                                          hostName,
+                                          numAddresses,
+                                          errorCode);
+    }
+//..
+
                          // ============
                          // TestResolver
                          // ============
@@ -374,7 +425,7 @@ namespace BTESO_IPRESOLUTIONCACHE_CONCURRENCY {
 
 struct TimeZoneData {
         int         d_line;       // line number
-        const char *d_hostname;         // time zone id
+        const char *d_hostname;   // time zone id
         int         d_ipAddress;  // utc offset in seconds for descriptor
 } DATA[] = {
     { L_,  "ID_A",  1 },
@@ -444,9 +495,10 @@ extern "C" void *workerThread(void *arg)
             const bteso_IPv4Address  IP = bteso_IPv4Address(
                                      BSLS_BYTEORDER_HTONL(DATA[i].d_ipAddress),
                                      0);
-            bteso_IPv4Address result;
-            bteso_ResolveUtil::getAddress(&result, ID);
-            ASSERT(IP == result);
+            bsl::vector<bteso_IPv4Address> result;
+            mX.resolveAddress(&result, ID, 1);
+            ASSERT(1  == result.size());
+            ASSERT(IP == result[0]);
         }
     }
 
@@ -458,9 +510,9 @@ extern "C" void *workerThread(void *arg)
             const bteso_IPv4Address  IP = bteso_IPv4Address(
                                      BSLS_BYTEORDER_HTONL(DATA[i].d_ipAddress),
                                      0);
-            bteso_IPv4Address result;
-            bteso_ResolveUtil::getAddress(&result, ID);
-            ASSERT(IP == result);
+            bsl::vector<bteso_IPv4Address> result;
+            mX.resolveAddress(&result, ID, 1);
+            ASSERT(IP == result[0]);
         }
     }
 
@@ -651,26 +703,12 @@ int main(int argc, char *argv[])
                                        1));
 //..
 }
+
 {
-///Example 2: Using Address Cache with 'bteso_ResolveUtil'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we demonstrate how to configure the 'bteso_ResolverUtil'
-// component to use the cache for resolving IP addresses.
-//
-// First, we create a cache for the IP addresses:
+// Now, we set the callback for 'bteso_ResolveUtil' to the free function we
+// just created:
 //..
-    bteso_IpResolutionCache cache;
-//..
-// Now, we set the callback for 'bteso_ResolveUtil' by using 'bdef_BindUtil':
-//..
-    using namespace bdef_PlaceHolders;
-    bteso_ResolveUtil::setResolveByNameCallback(
-                  bdef_BindUtil::bind(&bteso_IpResolutionCache::resolveAddress,
-                                      &cache,
-                                      _1,
-                                      _2,
-                                      _3,
-                                      _4));
+    bteso_ResolveUtil::setResolveByNameCallback(&resolverCallback);
 //..
 // Finally, we call the 'bteso_ResolveUtil::getAddress' method to retrieve the
 // IPv4 address of 'www.bloomberg.com':
@@ -678,6 +716,14 @@ int main(int argc, char *argv[])
     bteso_IPv4Address ipv4;
     bteso_ResolveUtil::getAddress(&ipv4, "www.bloomberg.com");
     bsl::cout << "IP Address: " << ipv4 << std::endl;
+//..
+// Now, we write the address to stdout:
+//..
+//  bsl::cout << "IP Address: " << ipAddress << std::endl;
+//..
+// Finally, we observe the output to be in the form:
+//..
+//  IP Address: 63.85.36.34:0
 //..
 }
       } break;
@@ -784,15 +830,6 @@ int main(int argc, char *argv[])
         bcemt_Barrier barrier(NUM_THREADS);
         Obj mX(&testConcurrencyCallback, &testAllocator); const Obj& X = mX;
         mX.setTimeToLive(bdet_DatetimeInterval(0, 0, 0, 1));
-
-        using namespace bdef_PlaceHolders;
-        bteso_ResolveUtil::setResolveByNameCallback(
-                  bdef_BindUtil::bind(&bteso_IpResolutionCache::resolveAddress,
-                                      &mX,
-                                      _1,
-                                      _2,
-                                      _3,
-                                      _4));
 
         ThreadData args = { &mX, &barrier };
         executeInParallel(NUM_THREADS, workerThread, &args);
@@ -1188,7 +1225,7 @@ int main(int argc, char *argv[])
 
         const T1 D1 = bteso_ResolveUtil::defaultResolveByNameCallback();
                                // 'resolverCallback'
-        const T2 D2(0, 1);    // 'timeToLive'
+        const T2 D2(0, 1);     // 'timeToLive'
 
         // 'A' values
 
@@ -1197,7 +1234,7 @@ int main(int argc, char *argv[])
 
         // 'B' values
 
-        const T1 B1;            // Default constructed value.
+        const T1 B1 = 0;
         const T2 B2(INT_MAX);
 
         if (verbose) cout << "\nTesting with various allocator configurations."
@@ -1745,15 +1782,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            Obj cache;
-            using namespace bdef_PlaceHolders;
-            bteso_ResolveUtil::setResolveByNameCallback(
-                  bdef_BindUtil::bind(&bteso_IpResolutionCache::resolveAddress,
-                                      &cache,
-                                      _1,
-                                      _2,
-                                      _3,
-                                      _4));
+            bteso_ResolveUtil::setResolveByNameCallback(&resolverCallback);
 
             bteso_IPv4Address ipv4;
             int err;
@@ -1790,15 +1819,7 @@ int main(int argc, char *argv[])
         hostnames.push_back("hp1");
         hostnames.push_back("nysbldo1");
 
-        Obj cache;
-        using namespace bdef_PlaceHolders;
-        bteso_ResolveUtil::setResolveByNameCallback(
-                  bdef_BindUtil::bind(&bteso_IpResolutionCache::resolveAddress,
-                                      &cache,
-                                      _1,
-                                      _2,
-                                      _3,
-                                      _4));
+        bteso_ResolveUtil::setResolveByNameCallback(&resolverCallback);
 
         for (int ti = 0; ti < NUM_OPTION; ++ti) {
             int OPT = OPTION[ti];

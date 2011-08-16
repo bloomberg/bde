@@ -30,13 +30,13 @@ int createCacheData(
     // host having the specified 'hostname' (retrieved using the specified
     // 'resolverCallback') and having the specified 'currentTime' as the load
     // time, and load into the specified 'errorCode', the error code of
-    // 'resolverCallback' if it fails.  If 'basicAllocator' is 0, the currently
-    // installed default allocator is used.  The behavior is undefined if
+    // 'resolverCallback' if it fails.  The behavior is undefined if
     // 'resolverCallback' is empty.
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostname);
     BSLS_ASSERT(resolverCallback);
+    BSLS_ASSERT(basicAllocator);
 
     bsl::vector<bteso_IPv4Address> hostAddresses;
 

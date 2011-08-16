@@ -107,10 +107,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BDEF_FUNCTION
-#include <bdef_function.h>
-#endif
-
 namespace BloombergLP {
 
 class bteso_IPv4Address;
@@ -135,11 +131,11 @@ struct bteso_ResolveUtil {
 
   public:
     // TYPES
-    typedef bdef_Function<int (*)(bsl::vector<bteso_IPv4Address> *addresses,
-                                  const char                     *hostName,
-                                  int                             numAddresses,
-                                  int                            *errorCode)>
-                                                         ResolveByNameCallback;
+    typedef int (*ResolveByNameCallback)(
+                                 bsl::vector<bteso_IPv4Address> *hostAddresses,
+                                 const char                     *hostName,
+                                 int                             numAddresses,
+                                 int                            *errorCode);
         // Invoked by 'getAddress' and 'getAddresses', 'ResolveByNameCallback'
         // is an alias for a pointer to a re-entrant function that returns
         // 'int' and takes as arguments a vector of 'hostAddresses', the
@@ -217,7 +213,7 @@ struct bteso_ResolveUtil {
         // Load into the specified 'result' the name of the local machine as
         // configured by the system administrator.  Return 0 on success, and
         // non-zero (with no effect on 'result') otherwise.  Note that on
-        // Windows 'bteso_SocketImpUtil::initialize()' must have been called to
+        // Windows 'bteso_SocketImpUtil::startup()' must have been called to
         // initialize the socket layer before calling this method.
 
     static ResolveByNameCallback setResolveByNameCallback(
