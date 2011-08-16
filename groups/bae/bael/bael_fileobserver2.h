@@ -321,9 +321,10 @@ class bael_FileObserver2 : public bael_Observer {
     int                    d_rotationSize;             // maximum log file size
                                                        // before rotation
 
-    bdet_Datetime          d_rotationReferenceTime;    // the reference start
-                                                       // time for a time-based
-                                                       // rotation
+    bdet_Datetime          d_rotationReferenceLocalTime;
+                                                       // the reference start
+                                                       // *local* time for a
+                                                       // time-based rotation
 
     bdet_DatetimeInterval  d_rotationInterval;         // time interval between
                                                        // two time-based

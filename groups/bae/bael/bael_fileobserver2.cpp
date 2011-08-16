@@ -252,6 +252,7 @@ int openLogFile(bsl::ostream *stream, const char *filename)
 
 void computeNextRotationTime(bdet_Datetime                *result,
                              const bdet_Datetime&          referenceStartTime,
+                             const bdet_DatetimeInterval&  localTimeOffset,
                              const bdet_DatetimeInterval&  interval,
                              const bdet_Datetime&          fileCreationTime)
     // Load, into the specified 'result', the next scheduled rotation time
@@ -263,9 +264,10 @@ void computeNextRotationTime(bdet_Datetime                *result,
     BSLS_ASSERT(result);
     BSLS_ASSERT(0 < interval.totalMilliseconds());
 
-    bsls_Types::Int64 timeLeft =
-                    (fileCreationTime - referenceStartTime).totalMilliseconds()
-                    % interval.totalMilliseconds();
+    bsls_Types::Int64 timeLeft = (fileCreationTime
+                                  - referenceStartTime
+                                  + localTimeOffset).totalMilliseconds()
+                               % interval.totalMilliseconds();
 
     // The modulo operator may return a negative number depending on
     // implementation.
@@ -389,7 +391,8 @@ int bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
 
     if (0 < d_rotationInterval.totalSeconds()) {
         computeNextRotationTime(&d_nextRotationTime,
-                                d_rotationReferenceTime,
+                                d_rotationReferenceLocalTime,
+                                d_localTimeOffset,
                                 d_rotationInterval,
                                 d_logFileTimestamp);
     }
@@ -517,7 +520,8 @@ int bael_FileObserver2::enableFileLogging(const char *fileNamePattern)
 
     if (0 < d_rotationInterval.totalSeconds()) {
         computeNextRotationTime(&d_nextRotationTime,
-                                d_rotationReferenceTime,
+                                d_rotationReferenceLocalTime,
+                                d_localTimeOffset,
                                 d_rotationInterval,
                                 d_logFileTimestamp);
     }
@@ -605,7 +609,9 @@ void bael_FileObserver2::rotateOnLifetime(
 void bael_FileObserver2::rotateOnTimeInterval(
                                          const bdet_DatetimeInterval& interval)
 {
-    rotateOnTimeInterval(interval, bdetu_SystemTime::nowAsDatetimeLocal());
+    rotateOnTimeInterval(interval,
+                         bdetu_SystemTime::nowAsDatetimeGMT()
+                                                          + d_localTimeOffset);
 }
 
 void bael_FileObserver2::rotateOnTimeInterval(
@@ -616,13 +622,18 @@ void bael_FileObserver2::rotateOnTimeInterval(
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_rotationInterval = interval;
-    d_rotationReferenceTime = referenceStartTime - d_localTimeOffset;
+
+    // Reference time is stored as local time as conversion to UTC time may
+    // cause an underflow (or overflow).
+
+    d_rotationReferenceLocalTime = referenceStartTime;
 
     // Need to determine the next rotation time if the file is already opened.
 
     if (d_logStreamBuf.isOpened()) {
         computeNextRotationTime(&d_nextRotationTime,
-                                d_rotationReferenceTime,
+                                d_rotationReferenceLocalTime,
+                                d_localTimeOffset,
                                 d_rotationInterval,
                                 d_logFileTimestamp);
     }
@@ -663,9 +674,6 @@ bool bael_FileObserver2::isFileLoggingEnabled(bsl::string *result) const
     BSLS_ASSERT(result);
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-
-    // The standard says that 'fstream::is_open()' is a non-'const' method.
-    // However, 'streambuf::is_open()' is 'const'.
 
     bool rc = d_logStreamBuf.isOpened();
     if (rc) {
