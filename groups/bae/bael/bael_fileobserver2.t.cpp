@@ -373,7 +373,7 @@ class LogRotationCallbackTester {
         // supplied at construction to the specified 'logFileName'.
     {
         ++d_rep->d_invocations;
-        d_rep->d_status           = status;
+        d_rep->d_status          = status;
         d_rep->d_rotatedFileName = rotatedFileName;
 
     }
@@ -1121,7 +1121,9 @@ int main(int argc, char *argv[])
         //:
         //: 3 Rotation callback is *not* invoked if a rotation did not occur.
         //:
-        //: 4 Rotation callback is invoked in such a way that the file observer
+        //: 4 Rotation callback supply the name of the rotated log file.
+        //:
+        //: 5 Rotation callback is invoked in such a way that the file observer
         //:   is not locked during the callback.
         //
         // Plan:
@@ -1129,6 +1131,11 @@ int main(int argc, char *argv[])
         //:
         //: 2 Call 'forceRotation' when logging is not enable and verify that
         //:   the callback is not invoked. (C-3)
+        //:
+        //: 3 Setup the test callback function.  Call 'forceRotation' and
+        //:   verify that the callback is invoked.
+        //:
+        //: 4 
         //
         // Testing:
         //    void setOnFileRotationCallback(const OnFileRotationCallback&);
@@ -1175,19 +1182,21 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-            ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
-
-            bsl::string temp;
-            ASSERT(X.isFileLoggingEnabled(&temp));
+            ASSERT(0 == mX.enableFileLogging((filename + ".%T").c_str()));
 
             for (int i = 0; i < 3; ++i) {
                 // A sleep is required because timestamp resolution is 1 second
                 bcemt_ThreadUtil::microSleep(100, 1);
 
+                bsl::string logName;
+                ASSERT(X.isFileLoggingEnabled(&logName));
+
                 mX.forceRotation();
-                ASSERT(1            == callback.numInvocations());
-                ASSERT(0            == callback.status());
-                //ASSERT(files.back() == callback.rotatedFileName());
+                LOOP2_ASSERT(i, callback.numInvocations(),
+                             1 == callback.numInvocations());
+                LOOP2_ASSERT(i, callback.status(), 0 == callback.status());
+                LOOP3_ASSERT(i, logName, callback.rotatedFileName(),
+                             logName == callback.rotatedFileName());
 
                 if (veryVeryVerbose) {
                     P(callback.rotatedFileName());
@@ -1213,7 +1222,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-            ASSERT(0 == mX.enableFileLogging(filename.c_str(), false));
+            ASSERT(0 == mX.enableFileLogging(filename.c_str()));
 
             bsl::string temp;
             ASSERT(X.isFileLoggingEnabled(&temp));

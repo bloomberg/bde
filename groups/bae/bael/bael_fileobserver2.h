@@ -371,11 +371,11 @@ class bael_FileObserver2 : public bael_Observer {
         // if the log file is larger than the allowable size, and if a rotation
         // is performed, load into the specified 'rotatedLogFileName' the name
         // of the rotated file.  Return 0 if the log file is rotated
-        // successfully, a positive value if a rotation did not occur, and a
-        // negative value otherwise.  The rotation schedule and the allowable
-        // file size are set by the 'rotateOnTimeInterval' and the
-        // 'rotateOnSize' methods respectively.  The behavior is undefined
-        // unless the caller acquired the lock for this object.
+        // successfully, a positive value if a rotation was determined to be
+        // unnecessary, and a negative value otherwise.  The rotation schedule
+        // and the allowable file size are set by the 'rotateOnTimeInterval'
+        // and the 'rotateOnSize' methods respectively.  The behavior is
+        // undefined unless the caller acquired the lock for this object.
 
   public:
     // CREATORS

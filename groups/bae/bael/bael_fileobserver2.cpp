@@ -261,7 +261,7 @@ void computeNextRotationTime(bdet_Datetime                *result,
     // '0 <= interval.totalMilliseconds()'.
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(0 <= interval.totalMilliseconds()).
+    BSLS_ASSERT(0 < interval.totalMilliseconds());
 
     bsls_Types::Int64 timeLeft =
                     (fileCreationTime - referenceStartTime).totalMilliseconds()
@@ -362,6 +362,8 @@ int bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
                 d_logFileName.c_str());
         returnStatus = ROTATE_RENAME_ERROR;                           // RETURN
     }
+
+    *rotatedLogFileName = d_logFileName;
 
     getLogFileName(&d_logFileName,
                    &d_logFileTimestamp,
