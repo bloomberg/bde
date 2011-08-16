@@ -218,16 +218,13 @@ extern "C" void* MyThread(void* arg_p) {
 //
 // When configuring 'bteso_ResolveUtil', a singleton cache should be created to
 // ensure the cache exist for all calls to 'bteso_ResolveUtil::getAddress'.
-// First, we declare a pointer to the singleton cache:
-//..
-    static bteso_IpResolutionCache *singletonCachePtr = 0;
-//..
-// Then, we create a function that initializes the singleton cache on the first
-// execution and returns the address of the cache:
+// First, we create a function that initializes the singleton cache on the
+// first execution and returns the address of the cache:
 //..
     static
-    bteso_IpResolutionCache *instance()
+    bteso_IpResolutionCache *ipCacheInstance()
     {
+        static bteso_IpResolutionCache *singletonCachePtr = 0;
         BCEMT_ONCE_DO {
             if (0 == singletonCachePtr) {
                 bslma_Allocator *allocator = bslma_Default::globalAllocator();
@@ -238,7 +235,7 @@ extern "C" void* MyThread(void* arg_p) {
         return singletonCachePtr;
     }
 //..
-// Next, we create a free function to wrap the
+// Then, we create a free function to wrap the
 // 'bteso_IpResolutionCache::resolveAddress' method:
 //..
     static
@@ -247,10 +244,10 @@ extern "C" void* MyThread(void* arg_p) {
                          int                             numAddresses,
                          int                            *errorCode)
     {
-        return instance()->resolveAddress(hostAddresses,
-                                          hostName,
-                                          numAddresses,
-                                          errorCode);
+        return ipCacheInstance()->resolveAddress(hostAddresses,
+                                                 hostName,
+                                                 numAddresses,
+                                                 errorCode);
     }
 //..
 
@@ -1648,10 +1645,8 @@ int main(int argc, char *argv[])
             // 'data'
             {
                 mX.setData(A1);
-                //ASSERT(dataA == reinterpret_cast<const int *>(X.data().ptr()));
 
                 mX.setData(B1);
-                //ASSERT(dataB == _cast<bcemaconst int *>(X.data().ptr()));
             }
         }
       } break;
