@@ -3337,8 +3337,6 @@ int main(int argc, char *argv[])
         //:13 Any argument can be 'const'.
         //:
         //:14 Any memory allocation is exception neutral.
-        //:
-        //:15 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create three sets of attribute values for the object: ('D')
@@ -3478,8 +3476,7 @@ int main(int argc, char *argv[])
             // Verify any attribute allocators are installed properly.
             // -------------------------------------------------------
 
-            LOOP_ASSERT(CONFIG,
-                        &oa == X.timeZoneId().get_allocator().mechanism());
+            LOOP_ASSERT(CONFIG, &oa == X.timeZoneId().allocator());
 
             // Also invoke the object's 'allocator' accessor.
 
