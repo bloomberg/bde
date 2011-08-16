@@ -307,12 +307,12 @@ class bteso_IpResolutionCache {
     // requests the addresses for a hostname, those addresses are retrieved
     // (using the 'resolverCallback' supplied at construction), and cached for
     // future use.  Subsequent requests for the same hostname return the cached
-    // information (unless staled).  The cached addresses remains in the cache
-    // for a user-defined time, which defaults to one hour.  Stored IP
-    // addresses older than the configured interval are considered stale, and a
-    // subsequent request for the associated hostname will refresh that set of
-    // IP addresses by calling the 'resolverCallback', supplied at
-    // construction.
+    // information (unless the information is stale).  The cached addresses
+    // remains in the cache for a user-defined time, which defaults to one
+    // hour.  Stored IP addresses older than the configured interval are
+    // considered stale, and a subsequent request for the associated hostname
+    // will refresh that set of IP addresses by calling the 'resolverCallback',
+    // supplied at construction.
     //
     // This class:
     //: o is *exception-neutral*
@@ -418,7 +418,7 @@ class bteso_IpResolutionCache {
         // Load, into the specified 'result', the IPv4 addresses of the host
         // with the specified 'hostname' up to the specified 'maxNumAddresses'
         // if the data already exist in the cache (regardless of whether the
-        // addresses are staled).  Return 0 if the data has been previously
+        // addresses are stale).  Return 0 if the data has been previously
         // cached (by a call to 'resolveAddress'), and a non-zero value with no
         // effect on 'result' otherwise.  The behavior is undefined unless '1
         // <= maxNumAddresses'.  Note that this method will not refresh the
@@ -427,7 +427,7 @@ class bteso_IpResolutionCache {
     ResolveByNameCallback resolverCallback() const;
         // Return the address of the callback function that is used for
         // resolving the IP addresses from a hostname when the hostname is not
-        // already in the cache or the IP addresses are staled.
+        // already in the cache or the IP addresses are stale.
 
     const bdet_DatetimeInterval& timeToLive() const;
         // Return a reference providing non-modifiable access to the time a set
