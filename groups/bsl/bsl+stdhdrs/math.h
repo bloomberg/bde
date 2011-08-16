@@ -31,9 +31,9 @@ BSLS_IDENT("$Id: $")
 #endif  /* INCLUDED_NATIVE_C_MATH */
 
 // <math.h> header on Sun defines 'struct exception' which interferes with
-// 'std::exception'
-#if defined(BSLS_PLATFORM__CMP_SUN)
-#   define exception __math_exception
+// 'std::exception'. RW library has a workaround for this, but STLPort doesn't.
+#if defined(BSLS_PLATFORM__CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
+#   define exception math_exception
 #endif
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 
 #endif  /* BSL_OVERRIDES_STD */
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM__CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
 #   undef exception
 #endif
 
