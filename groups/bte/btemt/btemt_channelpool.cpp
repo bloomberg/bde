@@ -2251,36 +2251,6 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
                              // -----------------
 
 // PRIVATE MANIPULATORS
-btemt_TcpTimerEventManager *btemt_ChannelPool::createNewEventManagers()
-{
-    if (!d_config.numNewThreads().isNull()) {
-        const int numNewThreads = d_config.numNewThreads().value();
-
-        if (numNewThreads <= 0) {
-            return 0;                                                 // RETURN
-        }
-
-        for (int i = 0; i < numNewThreads; ++i) {
-            btemt_TcpTimerEventManager *manager =
-                new (*d_allocator_p) btemt_TcpTimerEventManager(
-                                     btemt_TcpTimerEventManager::BTEMT_NO_HINT,
-                                     d_collectTimeMetrics,
-                                     d_allocator_p);
-            if (d_startFlag) {
-                bcemt_Attribute attr;
-                attr.setStackSize(d_config.threadStackSize());
-                manager->enable(attr);
-            }
-            else {
-                manager->disable();
-            }
-            d_managers.push_back(manager);
-        }
-        return d_managers[d_config.maxThreads()];                     // RETURN
-    }
-    return 0;
-}
-
 btemt_TcpTimerEventManager *
 btemt_ChannelPool::allocateEventManager()
 {
@@ -2290,7 +2260,7 @@ btemt_ChannelPool::allocateEventManager()
     if (1 == numManagers) {
         return d_managers[0]->canRegisterSockets()
              ? d_managers[0]
-             : createNewEventManagers();                              // RETURN
+             : 0;                                                     // RETURN
     }
 
     int result = 0;
@@ -2301,7 +2271,7 @@ btemt_ChannelPool::allocateEventManager()
     while (!d_managers[result]->canRegisterSockets()) {
         ++result;
         if (result >= numManagers) {
-            return createNewEventManagers();                          // RETURN
+            return 0;                                                 // RETURN
         }
     }
 

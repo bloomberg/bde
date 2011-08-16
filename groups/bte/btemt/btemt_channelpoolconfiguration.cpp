@@ -124,14 +124,8 @@ const bdeat_AttributeInfo
         sizeof("CollectTimeMetrics") - 1,      // name length
         "",// annotation
         bdeat_FormattingMode::BDEAT_DEFAULT
-    },
-    {
-        ATTRIBUTE_ID_NUM_NEW_THREADS,
-        "NumNewThreads",                  // name
-        sizeof("NumNewThreads") - 1,      // name length
-        "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
     }
+
 };
 
                                // -------------
@@ -170,23 +164,6 @@ const bdeat_AttributeInfo *btemt_ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[9])=='U' &&
                 bsl::toupper(name[10])=='T') {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT];
-            }
-        } break;
-        case 13: {
-            if (bsl::toupper(name[0])=='N' &&
-                bsl::toupper(name[1])=='U' &&
-                bsl::toupper(name[2])=='M' &&
-                bsl::toupper(name[3])=='N' &&
-                bsl::toupper(name[4])=='E' &&
-                bsl::toupper(name[5])=='W' &&
-                bsl::toupper(name[6])=='T' &&
-                bsl::toupper(name[7])=='H' &&
-                bsl::toupper(name[8])=='R' &&
-                bsl::toupper(name[9])=='E' &&
-                bsl::toupper(name[10])=='A' &&
-                bsl::toupper(name[11])=='D' &&
-                bsl::toupper(name[12])=='S') {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NUM_NEW_THREADS];
             }
         } break;
         case 14: {
@@ -483,8 +460,6 @@ const bdeat_AttributeInfo *btemt_ChannelPoolConfiguration::lookupAttributeInfo(
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE];
       case ATTRIBUTE_ID_COLLECT_TIME_METRICS:
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS];
-      case ATTRIBUTE_ID_NUM_NEW_THREADS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NUM_NEW_THREADS];
 
       default:
         return 0;
@@ -495,7 +470,7 @@ const bdeat_AttributeInfo *btemt_ChannelPoolConfiguration::lookupAttributeInfo(
                                // -------------
 
 int btemt_ChannelPoolConfiguration::maxSupportedBdexVersion() {
-    return 6;
+    return 5;
 }
 
 int btemt_ChannelPoolConfiguration::maxSupportedVersion() {
@@ -540,7 +515,6 @@ btemt_ChannelPoolConfiguration::btemt_ChannelPoolConfiguration(
 , d_maxMessageSizeIn(original.d_maxMessageSizeIn)
 , d_threadStackSize(original.d_threadStackSize)
 , d_collectTimeMetrics(original.d_collectTimeMetrics)
-, d_numNewThreads(original.d_numNewThreads)
 {
 }
 
@@ -584,7 +558,6 @@ btemt_ChannelPoolConfiguration::operator=(
         d_maxMessageSizeIn   = rhs.d_maxMessageSizeIn;
         d_threadStackSize    = rhs.d_threadStackSize;
         d_collectTimeMetrics = rhs.d_collectTimeMetrics;
-        d_numNewThreads      = rhs.d_numNewThreads;
     }
     return *this;
 }
@@ -614,8 +587,7 @@ bool operator==(const btemt_ChannelPoolConfiguration& lhs,
         lhs.d_typMessageSizeIn   == rhs.d_typMessageSizeIn  &&
         lhs.d_maxMessageSizeIn   == rhs.d_maxMessageSizeIn  &&
         lhs.d_threadStackSize    == rhs.d_threadStackSize   &&
-        lhs.d_collectTimeMetrics == rhs.d_collectTimeMetrics &&
-        lhs.d_numNewThreads      == rhs.d_numNewThreads;
+        lhs.d_collectTimeMetrics == rhs.d_collectTimeMetrics;
 }
 
 bsl::ostream& operator<<(bsl::ostream&                         output,
@@ -635,8 +607,7 @@ bsl::ostream& operator<<(bsl::ostream&                         output,
            << "\ttypIncomingMessageSize : " << config.d_typMessageSizeIn <<"\n"
            << "\tmaxIncomingMessageSize : " << config.d_maxMessageSizeIn <<"\n"
            << "\tthreadStackSize        : " << config.d_threadStackSize  <<"\n"
-        << "\tcollectTimeMetrics     : " << config.d_collectTimeMetrics << "\n"
-           << "\tnumNewThreads          : " << config.d_numNewThreads
+           << "\tcollectTimeMetrics     : " << config.d_collectTimeMetrics
            << "\n]\n";
 
     return output;
