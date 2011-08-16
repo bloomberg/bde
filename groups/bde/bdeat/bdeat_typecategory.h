@@ -80,10 +80,8 @@ BDES_IDENT("$Id: $")
 // 'bdeat_TypeCategoryFunctions::select' function to provide the necessary
 // runtime logic that determines its runtime category.
 //
-///Usage
-///-----
-///Example 1
-///- - - - -
+///Usage Example 1
+///---------------
 // The following snippets of code illustrate the usage of this component.  We
 // will create a 'printCategoryAndValue' function that is parameterized by
 // 'TYPE':
@@ -167,6 +165,7 @@ BDES_IDENT("$Id: $")
 //  {
 //      bsl::ostringstream oss;
 //
+//
 //      int intVal = 123;
 //
 //      printCategoryAndValue(oss, intVal);
@@ -182,7 +181,7 @@ BDES_IDENT("$Id: $")
 //      nullableInt = 321;
 //
 //      printCategoryAndValue(oss, nullableInt);
-//      assert("NullableValue: 321" == oss.str());
+//      assert("NullableValue: 321" << oss.str());
 //      oss.str("");
 //
 //      bsl::vector<int> vec;
@@ -192,12 +191,12 @@ BDES_IDENT("$Id: $")
 //      vec.push_back(987);
 //
 //      printCategoryAndValue(oss, vec);
-//      assert("Array: [ 123 345 987 ]" == oss.str());
+//      assert("Array: [ 123 345 987 ]", oss);
 //  }
 //..
 //
-///Example 2
-///- - - - -
+///Usage Example 2
+///---------------
 // The following snippets of code illustrate the usage of dynamic types.
 // Suppose we have a type that can, at runtime, be either a 'bsl::vector<char>'
 // or a 'bsl::string':
@@ -240,77 +239,76 @@ BDES_IDENT("$Id: $")
 //      struct bdeat_TypeCategoryDeclareDynamic<VectorCharOrString> {
 //          enum { VALUE = 1 };
 //      };
-//
 //..
 // Still in the 'BloombergLP' namespace, we will open the
 // 'bdeat_TypeCategoryFunctions' namespace and implement the relevant
 // functions:
 //..
-//  namespace bdeat_TypeCategoryFunctions {
+//      namespace bdeat_TypeCategoryFunctions {
 //
-//  bdeat_TypeCategory::Value
-//  bdeat_typeCategorySelect(const VectorCharOrString& object)
-//  {
-//      if (object.isVectorChar()) {
-//          return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;          // RETURN
-//      }
-//      else if (object.isString()) {
-//          return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;         // RETURN
-//      }
+//          template <>
+//          bdeat_TypeCategory::Value
+//          select<VectorCharOrString>(const VectorCharOrString& object)
+//          {
+//              if (object.isVectorChar()) {
+//                  return bdeat_TypeCategory::ARRAY_CATEGORY;
+//              }
+//              else if (object.isString()) {
+//                  return bdeat_TypeCategory::SIMPLE_CATEGORY;
+//              }
 //
-//      assert(0);
-//      return static_cast<bdeat_TypeCategory::Value>(-1);
-//  }
+//              assert(0);
+//          }
 //
-//  template <typename MANIPULATOR>
-//  int bdeat_typeCategoryManipulateArray(VectorCharOrString *object,
-//                                        MANIPULATOR&        manipulator)
-//  {
-//      if (object->isVectorChar()) {
-//          return manipulator(&object->theVectorChar(),
-//                             bdeat_TypeCategory::Array());          // RETURN
-//      }
+//          template <typename MANIPULATOR>
+//          int manipulateArray(VectorCharOrString *object,
+//                              MANIPULATOR&        manipulator)
+//          {
+//              if (object->isVectorChar()) {
+//                  return manipulator(&object->theVectorChar(),
+//                                     bdeat_TypeCategory::Array());
+//              }
 //
-//      return manipulator(object, bslmf_Nil());
-//  }
+//              return manipulator(object, bslmf_Nil());
+//          }
 //
-//  template <typename MANIPULATOR>
-//  int bdeat_typeCategoryManipulateSimple(VectorCharOrString *object,
-//                                         MANIPULATOR&        manipulator)
-//  {
-//      if (object->isString()) {
-//          return manipulator(&object->theString(),
-//                             bdeat_TypeCategory::Simple());         // RETURN
-//      }
+//          template <typename MANIPULATOR>
+//          int manipulateSimple(VectorCharOrString *object,
+//                               MANIPULATOR&        manipulator)
+//          {
+//              if (object->isString()) {
+//                  return manipulator(&object->theString(),
+//                                     bdeat_TypeCategory::Simple());
+//              }
 //
-//      return manipulator(object, bslmf_Nil());
-//  }
+//              return manipulator(object, bslmf_Nil());
+//          }
 //
-//  template <typename ACCESSOR>
-//  int bdeat_typeCategoryAccessArray(const VectorCharOrString& object,
-//                                    ACCESSOR&                 accessor)
-//  {
-//      if (object.isVectorChar()) {
-//          return accessor(object.theVectorChar(),
-//                          bdeat_TypeCategory::Array());             // RETURN
-//      }
+//          template <typename ACCESSORS>
+//          int accessArray(VectorCharOrString *object,
+//                          ACCESSORS&          accessor)
+//          {
+//              if (object.isVectorChar()) {
+//                  return accessor(object.theVectorChar(),
+//                                  bdeat_TypeCategory::Array());
+//              }
 //
-//      return accessor(object, bslmf_Nil());
-//  }
+//              return accessor(object, bslmf_Nil());
+//          }
 //
-//  template <typename ACCESSOR>
-//  int bdeat_typeCategoryAccessSimple(const VectorCharOrString& object,
-//                                     ACCESSOR&                 accessor)
-//  {
-//      if (object.isString()) {
-//          return accessor(object.theString(),
-//                          bdeat_TypeCategory::Simple());            // RETURN
-//      }
+//          template <typename ACCESSOR>
+//          int accessSimple(VectorCharOrString *object,
+//                           ACCESSOR&           accessor)
+//          {
+//              if (object.isString()) {
+//                  return accessor(object.theString(),
+//                                  bdeat_TypeCategory::Simple());
+//              }
 //
-//      return accessor(object, bslmf_Nil());
-//  }
+//              return accessor(object, bslmf_Nil());
+//          }
 //
-//  }  // close namespace bdeat_TypeCategoryFunctions
+//      }  // close namespace bdeat_TypeCategoryFunctions
 //  }  // close namespace BloombergLP
 //..
 // Now we will create an accessor that dumps the contents of the visited object
@@ -347,31 +345,31 @@ BDES_IDENT("$Id: $")
 // accessor and pick the correct method to invoke based on the runtime state of
 // the 'VectorCharOrString' object:
 //..
-// void runUsageExample2()
-// {
-//     bsl::ostringstream oss;
-//     DumpObject         accessor = { &oss };
+//  void runUsageExample2()
+//  {
+//      bsl::ostringstream oss;
+//      DumpObject         accessor = { &oss };
 //
-//     VectorCharOrString object;
-//     int                ret;
+//      VectorCharOrString object;
+//      int                ret;
 //
-//     object.makeVectorChar();
-//     object.theVectorChar().push_back('H');
-//     object.theVectorChar().push_back('e');
-//     object.theVectorChar().push_back('l');
-//     object.theVectorChar().push_back('l');
-//     object.theVectorChar().push_back('o');
+//      object.makeVectorChar();
+//      object.theVectorChar().push_back('H');
+//      object.theVectorChar().push_back('e');
+//      object.theVectorChar().push_back('l');
+//      object.theVectorChar().push_back('l');
+//      object.theVectorChar().push_back('o');
 //
-//     ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
-//     assert("Array = \"Hello\"" == oss.str());
-//     oss.str("");
+//      ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
+//      assert("Array = \"Hello\"" == oss.str());
+//      oss.str("");
 //
-//     object.makeString();
-//     object.theString() = "World";
+//      object.makeString();
+//      object.theString() = "World";
 //
-//     ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
-//     assert("Simple = World" == oss.str());
-// }
+//      ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
+//      assert("Simple = World" == oss.str());
+//  }
 //..
 
 #ifndef INCLUDED_BDESCM_VERSION
