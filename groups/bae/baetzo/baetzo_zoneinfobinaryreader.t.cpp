@@ -16,6 +16,8 @@
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 #include <bsl_fstream.h>
+#include <bsl_cstring.h>
+#include <bsl_cstdlib.h>
 #include <bsls_byteorder.h>
 #include <bsls_types.h>
 
@@ -24,6 +26,11 @@ using namespace BloombergLP;
 using bsl::cout;
 using bsl::endl;
 using bsl::flush;
+using bsl::memcpy;
+using bsl::memset;
+using bsl::memcmp;
+using bsl::atoi;
+using bsl::exit;
 
 // ============================================================================
 //                                  TEST PLAN

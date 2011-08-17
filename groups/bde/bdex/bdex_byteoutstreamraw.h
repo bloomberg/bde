@@ -235,6 +235,13 @@ class bdex_ByteOutStreamRaw {
     friend bsl::ostream& operator<<(bsl::ostream&                stream,
                                     const bdex_ByteOutStreamRaw& object);
 
+    // NOT DEFINED
+    bdex_ByteOutStreamRaw(const bdex_ByteOutStreamRaw&);
+    bdex_ByteOutStreamRaw& operator=(const bdex_ByteOutStreamRaw&);
+
+    bool operator==(const bdex_ByteOutStreamRaw&) const;
+    bool operator!=(const bdex_ByteOutStreamRaw&) const;
+
   public:
     // CREATORS
     bdex_ByteOutStreamRaw(char *buffer, int length = 0x7fffffff);

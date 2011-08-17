@@ -339,6 +339,9 @@ class bdeut_StrTokenRefIter {
     bdeut_StrTokenRefIter(const bdeut_StrTokenRefIter&);
     bdeut_StrTokenRefIter& operator=(const bdeut_StrTokenRefIter&);
 
+    bool operator==(const bdeut_StrTokenRefIter&) const;
+    bool operator!=(const bdeut_StrTokenRefIter&) const;
+
   public:
     // CREATORS
     bdeut_StrTokenRefIter(const char *input, const char *softDelims);

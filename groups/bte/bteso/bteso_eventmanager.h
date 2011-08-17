@@ -9,11 +9,11 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Define a protocol for socket-event multiplexer.
 //
-//@CLASSES: bteso_EventManager: socket-event multiplexer protocol
+//@CLASSES:
+//   bteso_EventManager: socket-event multiplexer protocol
 //
-//@SEE_ALSO: bteso_defaulteventmanager bteso_tcptimereventmanager
-//
-//@SEE_ALSO: bteso_eventmanagertest
+//@SEE_ALSO: bteso_defaulteventmanager, bteso_tcptimereventmanager,
+//           bteso_eventmanagertest
 //
 //@AUTHOR: Cheenu Srinivasan (csriniva)
 //

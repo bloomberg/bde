@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for multiplexing sockets events and timers.
 //
-//@CLASSES: bteso_TimerEventManager: socket event/timer multiplexer protocol
+//@CLASSES:
+//   bteso_TimerEventManager: socket event/timer multiplexer protocol
 //
 //@AUTHOR: Cheenu Srinivasan (csriniva)
 //

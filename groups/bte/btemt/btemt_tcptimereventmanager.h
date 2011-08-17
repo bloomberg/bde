@@ -154,7 +154,8 @@ BDES_IDENT("$Id: $")
 //
 //      void *timerId = manager.registerTimer(now, callback);
 //      assert(timerId);
-//      manager.enableDisableDispatch(1);
+//      int rc = manager.enable();
+//      assert(0 == rc);
 //      while(1) {
 //          // Monitor 'workQueue' here
 //          // ...
@@ -504,9 +505,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     virtual void deregisterTimer(const void *timerId);
         // Deregister the callback associated with the specified 'timerId'
         // (returned when the timer callback was registered) so that the
-        // callback will not be invoked at the appointed time.  Return 0 on
-        // successful removal and a negative value on error.  If the specified
-        // 'timerId' is not registered, return -1.
+        // callback will not be invoked at the appointed time.
 
     int disable();
         // Destroy the internal thread responsible for monitoring sockets and

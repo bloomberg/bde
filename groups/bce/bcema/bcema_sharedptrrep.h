@@ -28,7 +28,7 @@ BDES_IDENT("$Id: $")
 // what action should be taken when these reference counts reach zero.
 //
 ///Shared and Weak References
-/// - - - - - - - - - - - - -
+///--------------------------
 // There are two types of references to shared objects:
 //
 // 1) A shared reference allows users to share the ownership of an object and

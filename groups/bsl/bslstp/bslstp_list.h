@@ -97,6 +97,10 @@
 #include <bslmf_metaint.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ADDRESSOF
+#include <bsls_addressof.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -331,7 +335,7 @@ protected:
     BSLS_TRY {
 
       BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-          &__p->_M_data, __x,
+          BSLS_ADDRESSOF(__p->_M_data), __x,
           this->_M_node.bslmaAllocator());
 
     }
@@ -440,9 +444,8 @@ public:
     _Node* __n = (_Node*) __position._M_node;
     __prev_node->_M_next = __next_node;
     __next_node->_M_prev = __prev_node;
-    // MODIFIED BY ARTHUR
-    // bsl::_bslstp_Destroy(&__n->_M_data);
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(&__n->_M_data);
+    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+                                                 BSLS_ADDRESSOF(__n->_M_data));
     this->_M_node.deallocate(__n, 1);
     return iterator((_Node*)__next_node);
     }
@@ -763,9 +766,8 @@ _List_base<_Tp,_Alloc>::clear()
   while (__cur != this->_M_node._M_data) {
     _List_node<_Tp>* __tmp = __cur;
     __cur = (_List_node<_Tp>*) __cur->_M_next;
-    // MODIFIED BY ARTHUR
-    // _STLP_STD::_bslstp_Destroy(&__tmp->_M_data);
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(&__tmp->_M_data);
+    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+                                               BSLS_ADDRESSOF(__tmp->_M_data));
     this->_M_node.deallocate(__tmp, 1);
   }
   this->_M_node._M_data->_M_next = this->_M_node._M_data;

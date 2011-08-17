@@ -26,7 +26,7 @@ BDES_IDENT("$Id: $")
 ///-----
 // In this section we show the intended usage of this component.
 //
-///Example 1: Obtaining return addresses and verifying their validity
+///Example 1: Obtaining Return Addresses and Verifying Their Validity
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we demonstrate how to obtain a collection of
 // function return addresses using 'getStackAddresses'.
