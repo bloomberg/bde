@@ -214,6 +214,7 @@ using bsl::flush;
 //      void setItem(int index, const VALTYPE& value) const;
 // [16] template <typename VALTYPE>
 //      void append(const VALTYPE& newItem) const;
+// [20] const bcem_Aggregate reserveRaw(size_t numItems) const;
 // [16] template <typename VALTYPE>
 //      void insert(int pos, const VALTYPE& newItem) const;
 // [15] void resize(int newSize) const;
@@ -4001,7 +4002,7 @@ static void testCase31(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
 static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
     // --------------------------------------------------------------------
-    // TESTING: 'capacityRaw' method
+    // ACCESSOR 'capacityRaw'
     //
     // Concerns:
     //: 1 'capacityRaw' correctly forwards to the appropriate
@@ -4021,7 +4022,7 @@ static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
     //:   [C-3]
     //
     // Testing the following functions:
-    //     const bcem_Aggregate capacityRaw(size_t numItems) const;
+    //   const bcem_Aggregate capacityRaw() const;
     // --------------------------------------------------------------------
 
     if (verbose) cout << "Testing with a table type aggregate" << endl;
@@ -4118,7 +4119,7 @@ static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
 static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
     // --------------------------------------------------------------------
-    // TESTING: 'reserveRaw'
+    // MANIPULATOR 'reserveRaw'
     //
     // Concerns:
     //: 1 'reserveRaw' correctly forwards to the appropriate
