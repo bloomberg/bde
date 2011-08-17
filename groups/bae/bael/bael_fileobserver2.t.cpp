@@ -326,13 +326,13 @@ class LogRotationCallbackTester {
     // whether 'bael_FileObserver2' calls the log-rotation callback
     // appropriately.
 
-   // PRIVATE TYPES
-   struct Rep {
+    // PRIVATE TYPES
+    struct Rep {
         int         d_invocations;
         int         d_status;
         bsl::string d_rotatedFileName;
 
-        Rep(bslma_Allocator *allocator)
+        explicit Rep(bslma_Allocator *allocator)
         : d_invocations(0)
         , d_status(0)
         , d_rotatedFileName(allocator)
@@ -423,7 +423,7 @@ class ReentrantRotationCallback {
 
   public:
 
-    ReentrantRotationCallback(Obj *observer)
+    explicit ReentrantRotationCallback(Obj *observer)
     : d_observer_p(observer)
     {
     }
@@ -528,10 +528,10 @@ int main(int argc, char *argv[])
         //: 1 Setup test infrastructure.
         //:
         //: 2 Call 'rotateOnTimeInterval' with boundary values on the reference
-        //:   start time, and verify that rotation occurs on scehdule.
+        //:   start time, and verify that rotation occurs on schedule.
         //:
         //: 3 Call 'rotateOnTimeInterval' with a large interval and a reference
-        //:   time such that the next roation will occur soon.  Verify that
+        //:   time such that the next rotation will occur soon.  Verify that
         //:   rotation occurs on the scheduled time.
         //
         // Testing:
@@ -677,7 +677,7 @@ int main(int argc, char *argv[])
         //:   schedule for the next rotation is not affected.  (C-2)
         //:
         //: 5 Cause a rotation to occur between scheduled rotations and verify
-        //:   that the roatation schedule is not affected.  (C-3)
+        //:   that the rotation schedule is not affected.  (C-3)
         //:
         //: 6 Disable and then re-enable file logging and verify rotation
         //:   schedule is not affect.  (C-4)
@@ -1485,13 +1485,6 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             removeFilesByPrefix(smallFile.c_str());
             multiplexObserver.deregisterObserver(&mX);
-
-            if (testStatus > 0) {
-                cout << "Error, non-zero test status = " << testStatus
-                     << "." << endl;
-            }
-
-            return testStatus;
         }
 #endif
       } break;
