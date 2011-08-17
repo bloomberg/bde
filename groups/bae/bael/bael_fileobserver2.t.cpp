@@ -568,7 +568,8 @@ int main(int argc, char *argv[])
 
         BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
 
-        if (veryVerbose) cout << "Testing absolute time reference" << endl;
+        if (veryVerbose) cout <<
+                         "Test lower bound of absolute time reference" << endl;
         {
             mX.disableFileLogging();
 
@@ -590,7 +591,8 @@ int main(int argc, char *argv[])
             cb.reset();
         }
 
-        if (veryVerbose) cout << "Testing absolute time reference" << endl;
+        if (veryVerbose) cout <<
+                         "Test upper bound of absolute time reference" << endl;
         {
             mX.disableFileLogging();
 
@@ -637,12 +639,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 ==
                    bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
-
-            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
-
-
-            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-
         }
 
       } break;
@@ -1154,12 +1150,11 @@ int main(int argc, char *argv[])
 
             mX.disableSizeRotation();
 
-            // Set to rotate
+            // Set to rotate every second
             mX.rotateOnTimeInterval(bdet_DatetimeInterval(0, 0, 0, 1));
             buffer[1] = 0;  // Don't need to write much for time-based rotation
 
             for (int i = 0; i < 3; ++i) {
-                // A sleep is required because timestamp resolution is 1 second
                 bcemt_ThreadUtil::microSleep(100, 1);
 
                 publishRecord(&mX, buffer);
