@@ -367,7 +367,7 @@ void resolve(bcemt_Mutex    *updateMutex,
           } break;
           case PUTENV: {
             for (int i = 0; i < NUM_CALLS; ++i) {
-                putenv("NSORDER=bind,local");
+                setenv("NSORDER", "bind,local", 1);
                 int rc = bteso_ResolveUtil::getAddressDefault(&address,
                                                               it->c_str());
                 BSLS_ASSERT(!rc);
@@ -375,7 +375,7 @@ void resolve(bcemt_Mutex    *updateMutex,
           } break;
           case CACHE_AND_PUTENV: {
             for (int i = 0; i < NUM_CALLS; ++i) {
-                putenv("NSORDER=bind,local");
+                setenv("NSORDER", "bind,local", 1);
                 int rc = bteso_ResolveUtil::getAddress(&address,
                                                        it->c_str());
                 BSLS_ASSERT(!rc);
@@ -1352,8 +1352,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\tdescription" << endl;
             {
-                ASSERT_SAFE_PASS(obj.setTimeToLive(1));
-                ASSERT_SAFE_FAIL(obj.setTimeToLive(0));
+                ASSERT_SAFE_FAIL(obj.setTimeToLive(bdet_DatetimeInterval(0)));
+                ASSERT_SAFE_PASS(obj.setTimeToLive(
+                                           bdet_DatetimeInterval(0, 0, 0, 1)));
             }
         }
       } break;
