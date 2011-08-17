@@ -607,7 +607,7 @@ class bdem_ChoiceArray {
         // Return a reference to the non-modifiable choice array item at the
         // specified 'itemIndex' in this choice array.  The behavior is
         // undefined unless '0 <= itemIndex < length()'.
-    
+
     bsl::size_t capacityRaw() const;
         // Return the number of items for which memory has already been
         // allocated (whether inserted or not).  Note that

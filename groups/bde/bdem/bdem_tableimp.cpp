@@ -23,7 +23,7 @@ BDES_IDENT_RCSID(bdem_tableimp_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 // LOCAL VARIABLES
 
-static bool bdem_TableImp_geometricMemoryGrowthFlag = false;
+static bool geometricMemoryGrowthFlag = false;
 
 // LOCAL CONSTANTS
 enum {
@@ -42,8 +42,7 @@ int computeRowSize(const bdem_RowLayout *layout)
                                & ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
 }
 
-
-    static
+static
 int nullBitsArraySize(int numBits)
     // Return the size of the null bits array required to store at least
     // the specified 'numBits'.  The behavior is undefined unless
@@ -520,11 +519,23 @@ void bdem_TableImp::reserveRaw(bsl::size_t numRows)
     }
 
     const int newSize = nullBitsArraySize(this->numRows() + numRows);
-    
-    d_allocatorManager.reserveMemory(2 * 8 * numRows + sizeof(int) * newSize);
+
+    // Reserve 2 times 8 bytes, once for the 'd_rows.reserve' invocation and
+    // once for the initializaiton of the 'bdem_RowData' when inserting a row.
+    // Add the memory necessary for the new size of 'd_nullBits'.  Note that
+    // this calculation leaves out the memory used by the array of null bits in
+    // the initialization of 'bdem_RowData', because it's not possible to
+    // access the function to calculate its size from here: the extra memory
+    // obtained by invoking 'reserve' on a sequential allocator or a multi pool
+    // ('BDEM_WRITE_ONCE' and 'BDEM_PASS_THROUGH' respectively) seems to be
+    // enough to make up for this approximation.  Also note that in case of
+    // 'BDEM_PASS_THROUGH' the 'd_allocatorManager.reserveMemory' call will
+    // have no effect.
+
+    d_allocatorManager.reserveMemory(2 * 8 * numRows +  sizeof(int) * newSize);
     d_rowPool.reserveCapacity(numRows);
     d_rows.reserve(d_rows.size() + numRows);
-    d_nullBits.reserve(d_nullBits.size() + newSize);
+    d_nullBits.reserve(newSize);
 }
 
 void bdem_TableImp::reset(const bdem_ElemType::Type  columnTypes[],
@@ -553,7 +564,7 @@ bdem_RowData& bdem_TableImp::insertRow(int                 dstRowIndex,
         d_nullBits.resize(newSize, 0);
     }
 
-    if (!bdem_TableImp_geometricMemoryGrowthFlag) {
+    if (!geometricMemoryGrowthFlag) {
         d_rows.reserve(numRows() + 1);
         d_rowPool.reserveCapacity(1);
     }
@@ -612,7 +623,7 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
     // 'tempRows' is used to address aliasing concerns.
 
 
-    if (!bdem_TableImp_geometricMemoryGrowthFlag) {
+    if (!geometricMemoryGrowthFlag) {
         d_rows.reserve(originalSize + numRows);
         d_rowPool.reserveCapacity(numRows);
     }
@@ -690,7 +701,7 @@ void bdem_TableImp::insertNullRows(int dstRowIndex, int numRows)
     }
 
 
-    if (!bdem_TableImp_geometricMemoryGrowthFlag) {
+    if (!geometricMemoryGrowthFlag) {
         d_rowPool.reserveCapacity(numRows);
         d_rows.reserve(this->numRows() + numRows);
     }
@@ -985,17 +996,17 @@ bool operator==(const bdem_TableImp& lhs, const bdem_TableImp& rhs)
 // PRIVATE GEOMETRIC MEMORY GROWTH
 void bdem_TableImp_enableGeometricMemoryGrowth()
 {
-    bdem_TableImp_geometricMemoryGrowthFlag = true;
+    geometricMemoryGrowthFlag = true;
 }
 
 void bdem_TableImp_disableGeometricMemoryGrowth()
 {
-    bdem_TableImp_geometricMemoryGrowthFlag = false;
+    geometricMemoryGrowthFlag = false;
 }
 
 bool bdem_TableImp_isGeometricMemoryGrowth()
 {
-    return bdem_TableImp_geometricMemoryGrowthFlag;
+    return geometricMemoryGrowthFlag;
 }
 
 }  // close namespace BloombergLP

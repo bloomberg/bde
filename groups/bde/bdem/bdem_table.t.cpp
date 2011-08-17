@@ -150,6 +150,7 @@ using namespace bsl;  // automatically added by script
 // [12] void removeRows(int startIndex, int rowCount);
 // [17] void removeAllRows();
 // [17] void removeAll();
+// [21] void reserveRaw(bsl::size_t);
 // [14] void setColumnValue(int colIdx, const bdem_ConstElemRef& value);
 // [14] void setColumnBool(int colIdx, bool value);
 // [14] void setColumnChar(int colIdx, char value);
@@ -190,6 +191,7 @@ using namespace bsl;  // automatically added by script
 //
 // ACCESSORS
 // [ 4] const bdem_Row& operator[](int rowIndex) const;
+// [21] bsl::size_t capacityRaw() const;
 // [ 4] bdem_ElemType::Type columnType(int index) const;
 // [ 4] void columnTypes(bsl::vector<bdem_ElemType::Type> *result) const;
 // [15] bool isAnyInColumnNonNull(int columnIndex) const;
@@ -2159,8 +2161,6 @@ DEFINE_TEST_CASE(22) {
         if (verbose) cout << "\nTesting allocator traits"
                           << "\n========================" << endl;
 
-        typedef bdem_Table Obj;
-
         ASSERT((0 == bslmf_IsConvertible<bslma_Allocator*, Obj>::VALUE));
         ASSERT((1 ==
              bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
@@ -2171,13 +2171,20 @@ DEFINE_TEST_CASE(21) {
     // TESTING 'reserveRaw' and 'capacityRaw'
     //
     // Concerns:
-    // 1 'reserveRaw' correctly forwards to the method
-    //   'bdem_TableImp::reserveRaw'.
+    //: 1 'reserveRaw' correctly forwards to the method
+    //:   'bdem_TableImp::reserveRaw'.
+    //: 2 'capacityRaw' correctly forwards to the method
+    //:   'bdem_TableImp::capacityRaw'.
     //
     // Plan:
+    //: 1 Invoke 'reserveRaw' on a 'bdem_Table' object and on a 'bdem_TableImp'
+    //:   object and verify that the same amount of memory is allocated, for
+    //:   different values of the input and that the method 'capacityRaw'
+    //:   return the same value from both objects.  [C-1,2]
     //
     // Testing:
-    //   void reserveRaw(int numRows);
+    //   void reserveRaw(bsl::size_t);
+    //   bsl::size_t capacityRaw();
     // --------------------------------------------------------------------
 
     if (verbose) cout << "\nTesting 'reserveRaw' and 'capacityRaw'"

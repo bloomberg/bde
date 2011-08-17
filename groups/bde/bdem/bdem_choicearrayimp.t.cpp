@@ -1314,24 +1314,28 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING: 'getRowsCapacityRaw()' method
+        // TESTING: 'capacityRaw()' method
         //
         // Concerns:
-        //  1 Reserving memory actually causes capacity to change consistently.
-        //  2 Inserting rows less in number than difference between the rows
-        //    contained in the table and its capacity, does not alter capacity.
-        //  3 Inserting more rows than 'capacity' makes 'capacity' increase.
+        //: 1 Reserving memory actually causes capacity to change consistently.
+        //: 2 Inserting rows less in number than difference between the rows
+        //:   contained in the table and its capacity, does not alter capacity.
+        //: 3 Inserting more rows than 'capacity' makes 'capacity' increase.
         //
         // Plan:
-        //  1 Verify that the 'getRowsCapacityRaw' method returns the exact
-        //    capacity reserved through 'reserveNumRowsRaw' for progressive
-        //    calls of 'reserveNumRowsRaw'.
-        //  2 Verify that  the 'getRowsCapacityRaw' method returns the exact
-        //    amount of rows inserted via 'insertNullRows', for progressive
-        //    insertions of rows.
+        //: 1 Verify that the 'capacityRaw' method returns the exact capacity
+        //:   reserved through 'reserveRaw' for progressive calls of
+        //:  'reserveRaw'.
+        //: 2 Verify that  the 'capacityRaw' method returns the exact amount of
+        //:   items inserted via 'insertNullItems', for progressive insertions
+        //:   of rows.
+        //
+        //  Testing:
+        //    bsl::size_t capacityRaw() const
         // --------------------------------------------------------------------
+
         if (verbose) cout << "TESTING: 'capacityRaw'" << endl
-                          << "============================" << endl;
+                          << "======================" << endl;
 
         static const Strategy STRATEGY_DATA[] = {
             BDEM_PASS_THROUGH,
@@ -1398,22 +1402,25 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING: 'reserveNumRowsRaw' method
+        // TESTING: 'reserveRaw' method
         //
         // Concerns:
-        //  1 Geometric memory growth is disabled by default.
-        //  2 When geometric memory growth is enabled, memory actually grows
-        //    geometrically.
-        //  3 When geometric memory growth is disabled, memory grows non
-        //    geometrically.
+        //: 1 Enough memory is reserved to minimize the allocation upon calls
+        //:   of 'insertNullItems'.
+        //: 2 No allocation is performed by the object allocator, when
+        //:   inserting items for which memory was previously reserved.
         //
         // Plan:
-        //  1 Verify that inserting rows in different chunk sizes, after enough
-        //    memory is reserved through 'reserveNumRowsRaw' does not allocate
-        //    any extra memory.
+        //: 1 Verify that inserting items in different chunk sizes, after
+        //: enough memory is reserved through 'reserveItems' does not allocate
+        //: any extra memory.  [C-1,2]
+        //
+        // Testing:
+        //   void reserveRaw(bsl::size_t);
         // --------------------------------------------------------------------
-        if (verbose) cout << "TESTING: 'reserveNumRowsRaw'" << endl
-                          << "============================" << endl;
+
+        if (verbose) cout << "TESTING: 'reserveRaw'" << endl
+                          << "=====================" << endl;
 
 
         if (verbose) cout << "\nTesting the default memory growth" << endl;

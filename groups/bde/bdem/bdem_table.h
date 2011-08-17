@@ -1037,13 +1037,14 @@ class bdem_Table {
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified 'numBytes' without replenishment (i.e., without
         // internal allocation).  The behavior is undefined unless
-        // '0 <= numBytes'.
-    
+        // '0 <= numBytes'.  Note that this method has no effect unless the
+        //  internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
+
     void reserveRaw(bsl::size_t numRows);
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified 'numRows' with minimal replenishment (i.e.,
         // with mininal internal allocation).
-        
+
     void reset(const bdem_ElemType::Type columnTypes[],
                int                       numColumns);
         // Remove all of the rows from this table and set the sequence of
@@ -1189,7 +1190,7 @@ class bdem_Table {
         // 'capacityRaw() - size()' represents the number of rows that
         // can be inserted with the guarantee of minimal memory replenishment
         // (minimal internal allocation).
-    
+
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified
         // 'columnIndex' in any row of this table is null, and 'false'
@@ -1645,7 +1646,7 @@ void bdem_Table::reserveRaw(bsl::size_t numRows)
 {
     d_tableImp.reserveRaw(numRows);
 }
-    
+
 inline
 void bdem_Table::reset(const bdem_ElemType::Type columnTypes[],
                        int                       numColumns)

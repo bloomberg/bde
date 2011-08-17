@@ -669,10 +669,12 @@ void bdem_TableImp_disableGeometricMemoryGrowth();
     // and should be invoked by the owner of 'main'.
 
 bool bdem_TableImp_isGeometricMemoryGrowth();
-    // Return 'true' if 'bdem_TableImp_enableGeometricMemoryGrowth' was
-    // previously called and no other call to
-    // 'bdem_TableImp_disableGeometricMemoryGrowth' was made, and return 'false'
-    // otherwise.
+    // Return 'true' if the capacity of 'bdem_TableImp' objects (in the current
+    // process) is configured to grow geometrically, and 'false' otherwise
+    // (linear growth).  Note that geometric growth is enabled,
+    // for the entire process, using
+    // 'bdem_TableImp_enableGeometricMemoryGrowth', and disabled using
+    // 'bdem_TableImp_disableGeometricMemoryGrowth'.
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS

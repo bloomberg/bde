@@ -253,6 +253,7 @@ using bsl::flush;
 // [ 6] bdet_Time asTime() const;
 // [ 6] bdet_TimeTz asTimeTz() const;
 // [ 7] bdem_ConstElemRef asElemRef() const;
+// [21] bsl::size_t capacityRaw() const;
 // [ 5] bool hasField(const char *fieldName) const;
 // [ 5] bcem_Aggregate field(NameOrIndex fieldOrIdx) const;
 // [ 5] bcem_Aggregate field(NameOrIndex fieldOrIdx1,
@@ -4000,26 +4001,27 @@ static void testCase31(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
 static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
     // --------------------------------------------------------------------
-    // TESTING: 'getCapacityRaw' method
+    // TESTING: 'capacityRaw' method
     //
     // Concerns:
-    //: 1 'getCapacityRaw' correctly forwards to the appropriate
+    //: 1 'capacityRaw' correctly forwards to the appropriate
     //:   lower level function, when the type underlying the aggregate is
     //:   an array type.
-    //  2 The method loads the correct value in its output parameter.
-    //  3 The method returns an error-aggregate if invoked on a
-    //    'bcem_Aggregate' whose type is not an array-type.
+    //: 2 The method loads the correct value in its output parameter.
+    //: 3 The method returns an error-aggregate if invoked on a
+    //:   'bcem_Aggregate' whose type is not an array-type.
     //
     // Plan:
-    //  1 Instantiate one aggregate for each array type, and verify that
-    //    invoking 'getCapacityRaw' on the aggregate loads the same value
-    //    as the one returned by invoking the corresponding 'capacity' method
-    //    on the underlying array type.
-    //  2 Instantiate a 'bcem_Aggregate' with an underlying non-array
-    //    'BDE_ELEM' type and verify that an error-aggregate is returned.
+    //: 1 Instantiate one aggregate for each array type, and verify that
+    //:   invoking 'capacityRaw' on the aggregate loads the same value
+    //:   as the one returned by invoking the corresponding 'capacity' method
+    //:   on the underlying array type.  [C-1,2]
+    //: 2 Instantiate a 'bcem_Aggregate' with an underlying non-array
+    //:   'BDE_ELEM' type and verify that an error-aggregate is returned.
+    //:   [C-3]
     //
     // Testing the following functions:
-    //     const bcem_Aggregate getCapacityRaw(size_t numItems) const;
+    //     const bcem_Aggregate capacityRaw(size_t numItems) const;
     // --------------------------------------------------------------------
 
     if (verbose) cout << "Testing with a table type aggregate" << endl;
@@ -4034,9 +4036,9 @@ static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         tableAggregate.reserveRaw(i);
 
         size_t aggregateCapacity = 1492;  // arbitrary flag value
-        size_t tableCapacity = table.getCapacityRaw();
+        size_t tableCapacity = table.capacityRaw();
         const bcem_Aggregate RESULT =
-                             tableAggregate.getCapacityRaw(&aggregateCapacity);
+                             tableAggregate.capacityRaw(&aggregateCapacity);
 
         LOOP2_ASSERT(i,
                      tableCapacity,
@@ -4059,9 +4061,9 @@ static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         choiceArrayAggregate.reserveRaw(i);
 
         size_t aggregateCapacity = 1492;  // arbitrary flag value
-        size_t choiceArrayCapacity = choiceArray.getCapacityRaw();
+        size_t choiceArrayCapacity = choiceArray.capacityRaw();
         const bcem_Aggregate RESULT =
-                   choiceArrayAggregate.getCapacityRaw(&aggregateCapacity);
+                   choiceArrayAggregate.capacityRaw(&aggregateCapacity);
 
         LOOP2_ASSERT(i,
                      choiceArrayCapacity,
@@ -4088,7 +4090,7 @@ static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         size_t aggregateCapacity = 1492;  // arbitrary flag value
         size_t scalarArrayCapacity = scalarArray.capacity();
         const bcem_Aggregate RESULT =
-                       scalarArrayAggregate.getCapacityRaw(&aggregateCapacity);
+                       scalarArrayAggregate.capacityRaw(&aggregateCapacity);
 
         LOOP2_ASSERT(i,
                      scalarArrayCapacity,
@@ -4107,7 +4109,7 @@ static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         bcem_Aggregate listAggregate(bdem_ElemType::BDEM_LIST, list);
 
         size_t capacity = 1492;  // arbitrary flag value
-        const bcem_Aggregate RESULT = listAggregate.getCapacityRaw(&capacity);
+        const bcem_Aggregate RESULT = listAggregate.capacityRaw(&capacity);
         ASSERT(!bcem_Aggregate::areEquivalent(RESULT, listAggregate));
         ASSERT(RESULT.isError());
         ASSERT(1492 == capacity);
@@ -4116,25 +4118,29 @@ static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
 static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
     // --------------------------------------------------------------------
-    // TESTING: 'reserveCapacityRaw'
+    // TESTING: 'reserveRaw'
     //
     // Concerns:
-    //: 1 'reserveCapacityRaw' correctly forwards to the appropriate
+    //: 1 'reserveRaw' correctly forwards to the appropriate
     //:   lower level function, when the type underlying the aggregate is
     //:   an array type.
-    //: 2 'reserveCapacityRaw' does not allocate memory and returns an
+    //: 2 'reserveRaw' does not allocate memory and returns an
     //:   error aggregate when the type underlying the aggregate is not an
     //:   array type.
     //
     // Plan:
-    //  1 Instantiate one aggregate for each array type, and verify that
-    //    invoking 'reserveRaw' on the aggregate allocates the same
-    //    amount of memory as invoking the correspoding 'reserve' method on
-    //    the underlying array type.
+    //: 1 Instantiate one aggregate for each array type, and verify that
+    //:   invoking 'reserveRaw' on the aggregate allocates the same
+    //:   amount of memory as invoking the correspoding 'reserve' method on
+    //:   the underlying array type.  [C-1]
+    //: 2 Instantiate a 'bcem_Aggregate' with an underlying non-array
+    //:   'BDE_ELEM' type and verify that an error-aggregate is returned.
+    //:   [C-3]
     //
     // Testing the following functions:
     //     const bcem_Aggregate reserveRaw(size_t numItems) const;
     // --------------------------------------------------------------------
+    
     if (verbose) cout << "Testing with a table-type aggregate" << endl;
 
     for (int i = 1; i <= 4096; i <<= 1)

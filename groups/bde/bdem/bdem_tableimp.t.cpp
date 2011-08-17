@@ -92,14 +92,14 @@ using namespace bsl;  // automatically added by script
 // [ 7] setColumnValue()
 // [ 7] setColumnValueRaw()
 // [ 5] reserveMemory()
-// [12] reserveMemoryRaw()
+// [11] reserveRaw()
 // [ 8] bdexStreamInImp()
 // TBD
 // [  ] rowElemRef()
 //
 ////ACCESSORS
 // [ 7] columnType()
-// [11] capacityRaw()
+// [12] capacityRaw()
 // [ 7] numRows()
 // [ 7] numColumns()
 // [ 7] row()
@@ -112,6 +112,11 @@ using namespace bsl;  // automatically added by script
 // [ 8] bdexStreamOutImp()
 // [10] print()
 // [ 1] BREATHING TEST
+
+// PRIVATE GEOMETRIC MEMORY GROWTH
+// [13] bdem_TableImp_isGeometricMemoryGrowth()
+// [13] bdem_TableImp_enableGeometricMemoryGrowth()
+// [13] bdem_TableImp_disableGeometricMemoryGrowth()
 
 //=============================================================================
 //            STANDARD BDE ASSERT TEST MACRO
@@ -534,9 +539,16 @@ int main(int argc, char *argv[])
         //:   'bdem_TableImp_enableGeometricMemoryGrowth' and verify that
         //:   the capacity of the table grows exactly as specified by
         //:   'reserveRaw'.
+        //
+        //  Testing:
+        //    bdem_TableImp_isGeometricMemoryGrowth();
+        //    bdem_TableImp_enableGeometricMemoryGrowth();
+        //    bdem_TableImp_disableGeometricMemoryGrowth();
         // --------------------------------------------------------------------
-        if (verbose) cout << "TESTING PRIVATE MEMORY GROWTH FLAG\n"
-                             "=================================="  << endl;
+
+        if (verbose) cout << "TESTING PRIVATE MEMORY GROWTH FLAG" << endl
+                          << "==================================" << endl;
+
         static const Strategy STRATEGY_DATA[] = {
                 BDEM_PASS_THROUGH,
                 BDEM_WRITE_ONCE,
@@ -576,7 +588,7 @@ int main(int argc, char *argv[])
         {
             ASSERT(false == bdem_TableImp_isGeometricMemoryGrowth());
 
-            const int NUM_ROWS = 64;
+            const int NUM_ROWS = 1024;
 
             for (int i = 0; i < STRATEGY_LEN; ++i) {
                 bslma_TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
@@ -637,21 +649,25 @@ int main(int argc, char *argv[])
         // TESTING: 'capacityRaw()' method
         //
         // Concerns:
-        //  1 Reserving memory actually causes capacity to change consistently.
-        //  2 Inserting rows less in number than difference between the rows
-        //    contained in the table and its capacity, does not alter capacity.
-        //  3 Inserting more rows than 'capacity' makes 'capacity' increase.
+        //: 1 Reserving memory actually causes capacity to change consistently.
+        //: 2 Inserting rows less in number than difference between the rows
+        //:   contained in the table and its capacity, does not alter capacity.
+        //: 3 Inserting more rows than 'capacity' makes 'capacity' increase.
         //
         // Plan:
-        //  1 Verify that the 'capacityRaw' method returns the exact
-        //    capacity reserved through 'reserveNumRowsRaw' for progressive
-        //    calls of 'reserveNumRowsRaw'.
-        //  2 Verify that  the 'capacityRaw' method returns the exact
-        //    amount of rows inserted via 'insertNullRows', for progressive
-        //    insertions of rows.
+        //: 1 Verify that the 'capacityRaw' method returns the exact
+        //:   capacity reserved through 'reserveRaw' for progressive
+        //:   calls of 'reserveRaw'.
+        //: 2 Verify that  the 'capacityRaw' method returns the exact
+        //:   amount of rows inserted via 'insertNullRows', for progressive
+        //:   insertions of rows.
+        //
+        // Testing:
+        //   bsl::size_t capacityRaw() const
         // --------------------------------------------------------------------
-        if (verbose) cout << "TESTING: 'getCapacityRowsRaw'" << endl
-                          << "============================" << endl;
+
+        if (verbose) cout << "TESTING: 'capacityRaw'" << endl
+                          << "======================" << endl;
 
         static const Strategy STRATEGY_DATA[] = {
             BDEM_PASS_THROUGH,
@@ -660,7 +676,7 @@ int main(int argc, char *argv[])
         };
         enum { STRATEGY_LEN = sizeof(STRATEGY_DATA) / sizeof(*STRATEGY_DATA) };
 
-        const int MAX_NUM_ROWS = 16;  // power of 2
+        const int MAX_NUM_ROWS = 1024;  // power of 2
 
         if (veryVerbose) cout << "\tTesting all allocation strategies\n"
                               << endl;
@@ -712,27 +728,25 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING: 'reserveNumRowsRaw' method
+        // TESTING: 'reserveRaw' method
         //
         // Concerns:
-        //  1 Geometric memory growth is disabled by default.
-        //  2 When geometric memory growth is enabled, memory actually grows
-        //    geometrically.
-        //  3 When geometric memory growth is disabled, memory grows non
-        //    geometrically.
+        //: 1 Enough memory is reserved to minimize the allocation upon calls
+        //:   of 'insertNullRows'.
+        //: 2 No allocation is performed by the object allocator, when
+        //:   inserting rows that were previously reserved, minus the minimal
+        //:   allocation that cannot be avoided.
         //
         // Plan:
-        //  1 Verify that inserting rows in different chunk sizes, after enough
-        //    memory is reserved through 'reserveNumRowsRaw' does not allocate
-        //    any extra memory.
+        //: 1 Verify that inserting rows in different chunk sizes, after enough
+        //:   memory is reserved through 'reserveRaw' does not allocate
+        //:   any extra memory.
+        //
+        // Testing:
+        //   void reserveRaw(bsl::size_t)
         // --------------------------------------------------------------------
-        if (verbose) cout << "TESTING: 'reserveNumRowsRaw'" << endl
-                          << "============================" << endl;
-
-
-        if (verbose) cout << "\nTesting the default memory growth" << endl;
-
-        bdem_TableImp_enableGeometricMemoryGrowth();
+        if (verbose) cout << "TESTING: 'reserveRaw'" << endl
+                          << "=====================" << endl;
 
         typedef bdem_AggregateOption::AllocationStrategy Strategy ;
 
@@ -742,60 +756,127 @@ int main(int argc, char *argv[])
             BDEM_WRITE_ONCE,
             BDEM_WRITE_MANY
         };
+
         enum { STRATEGY_LEN = sizeof(STRATEGY_DATA) / sizeof(*STRATEGY_DATA) };
 
         const int MAX_NUM_ROWS = 4096;  // power of 2
 
-        if (veryVerbose) cout << "\tTesting Strategies\n" << endl;
+        if (verbose) cout << "\nTesting with geometric memory growth" << endl;
+        {
+            bdem_TableImp_enableGeometricMemoryGrowth();
 
-        for (int i = 0; i < STRATEGY_LEN; ++i) {
+            if (veryVerbose) cout << "\tTesting Strategies\n" << endl;
 
-            const Strategy STRATEGY = STRATEGY_DATA[i];
+            for (int i = 0; i < STRATEGY_LEN; ++i) {
 
-            if (verbose) cout << "Testing 'reserveRaw(0)'" << endl;
-            {
-                bslma_TestAllocator ta("TestAllocator",
-                                        veryVeryVeryVerbose);
+                const Strategy STRATEGY = STRATEGY_DATA[i];
 
-                Obj mX(STRATEGY, &ta); const Obj& X = mX;
-                const size_t NUM_BYTES = ta.numBytesMax();
-                mX.reserveRaw(0);
-                ASSERT(ta.numBytesMax() == NUM_BYTES);
+                if (verbose) cout << "Testing 'reserveRaw(0)'" << endl;
+                {
+                    bslma_TestAllocator ta("TestAllocator",
+                                            veryVeryVeryVerbose);
+
+                    Obj mX(STRATEGY, &ta); const Obj& X = mX;
+                    const size_t NUM_BYTES = ta.numBytesMax();
+                    mX.reserveRaw(0);
+                    ASSERT(ta.numBytesMax() == NUM_BYTES);
+                }
+
+                if (veryVerbose) cout << "\tInserting Rows\n" << endl;
+
+                for (int j = 1; j <= MAX_NUM_ROWS; j <<= 1) {
+
+                    if (veryVerbose) {  P(i) P_(j) }
+                     bslma_TestAllocator ta("TestAllocator",
+                                            veryVeryVeryVerbose);
+
+                     Obj mX(STRATEGY, &ta); const Obj& X = mX;
+
+                     if (veryVeryVerbose) {
+                          cout << "\t\tReserving memory\n" << endl;
+                     }
+                     mX.reserveRaw(MAX_NUM_ROWS);
+
+                     size_t NUM_BYTES = ta.numBytesMax();
+                     if (BDEM_PASS_THROUGH == STRATEGY) {
+
+                         // Add extra memory for Pass Through - 'bdem_RowData'
+                         // allocate extra pointers when inserting null rows.
+
+                         NUM_BYTES += 8 * 2 * MAX_NUM_ROWS;
+                     }
+
+                     for (int k = 0;
+                              k < MAX_NUM_ROWS;
+                              k += j) {
+                         mX.insertNullRows(k, j);
+                     }
+                     LOOP4_ASSERT(i,
+                                  j,
+                                  ta.numBytesMax(),
+                                  NUM_BYTES,
+                                  ta.numBytesMax() <= NUM_BYTES);
+                  }
             }
+        }
 
-            if (veryVerbose) cout << "\tInserting Rows\n" << endl;
+        if (verbose) cout << "\nTesting without memory growth" << endl;
+        {
+            bdem_TableImp_disableGeometricMemoryGrowth();
 
-            for (int j = 1; j <= MAX_NUM_ROWS; j <<= 1) {
+            if (veryVerbose) cout << "\tTesting Strategies\n" << endl;
 
-                if (veryVerbose) {  P(i) P_(j) }
-                 bslma_TestAllocator ta("TestAllocator",
-                                        veryVeryVeryVerbose);
+            for (int i = 0; i < STRATEGY_LEN; ++i) {
 
-                 Obj mX(STRATEGY, &ta); const Obj& X = mX;
+                const Strategy STRATEGY = STRATEGY_DATA[i];
 
-                 if (veryVeryVerbose) cout << "\t\tReserving memory\n" << endl;
-                 mX.reserveRaw(MAX_NUM_ROWS);
+                if (verbose) cout << "Testing 'reserveRaw(0)'" << endl;
+                {
+                    bslma_TestAllocator ta("TestAllocator",
+                                            veryVeryVeryVerbose);
 
-                 size_t NUM_BYTES = ta.numBytesMax();
-                 if (BDEM_PASS_THROUGH == STRATEGY) {
+                    Obj mX(STRATEGY, &ta); const Obj& X = mX;
+                    const size_t NUM_BYTES = ta.numBytesMax();
+                    mX.reserveRaw(0);
+                    ASSERT(ta.numBytesMax() == NUM_BYTES);
+                }
 
-                     // Add extra memory for Pass Through - 'bdem_RowData'
-                     // allocate extra pointers when inserting null rows.
+                if (veryVerbose) cout << "\tInserting Rows\n" << endl;
 
-                     NUM_BYTES += 8 * 2 * MAX_NUM_ROWS;
-                 }
+                for (int j = 1; j <= MAX_NUM_ROWS; j <<= 1) {
 
-                 for (int k = 0;
-                          k < MAX_NUM_ROWS;
-                          k += j) {
-                     mX.insertNullRows(k, j);
-                 }
-                 LOOP4_ASSERT(i,
-                              j,
-                              ta.numBytesMax(),
-                              NUM_BYTES,
-                              ta.numBytesMax() <= NUM_BYTES);
-              }
+                    if (veryVerbose) {  P(i) P_(j) }
+                     bslma_TestAllocator ta("TestAllocator",
+                                            veryVeryVeryVerbose);
+
+                     Obj mX(STRATEGY, &ta); const Obj& X = mX;
+
+                     if (veryVeryVerbose) {
+                         cout << "\t\tReserving memory\n" << endl;
+                     }
+                     mX.reserveRaw(MAX_NUM_ROWS);
+
+                     size_t NUM_BYTES = ta.numBytesMax();
+                     if (BDEM_PASS_THROUGH == STRATEGY) {
+
+                         // Add extra memory for Pass Through - 'bdem_RowData'
+                         // allocate extra pointers when inserting null rows.
+
+                         NUM_BYTES += 8 * 2 * MAX_NUM_ROWS;
+                     }
+
+                     for (int k = 0;
+                              k < MAX_NUM_ROWS;
+                              k += j) {
+                         mX.insertNullRows(k, j);
+                     }
+                     LOOP4_ASSERT(i,
+                                  j,
+                                  ta.numBytesMax(),
+                                  NUM_BYTES,
+                                  ta.numBytesMax() <= NUM_BYTES);
+                  }
+            }
         }
       } break;
       case 10: {

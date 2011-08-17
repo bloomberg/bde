@@ -1362,8 +1362,8 @@ int main(int argc, char *argv[])
         //   bdema allocator model
         //   correct declaration of bslalg_TypeTraitUsesBslmaAllocator
         // --------------------------------------------------------------------
-        if (verbose) bsl::cout << "\nTesting allocator traits"
-                               << "\n========================" << bsl::endl;
+        if (verbose) cout << "\nTesting allocator traits"
+                          << "\n========================" << endl;
 
         typedef bdem_ChoiceArray Obj;
 
@@ -1382,8 +1382,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   Usage example 2
         // --------------------------------------------------------------------
-        if (verbose) bsl::cout << "\nUSAGE EXAMPLE 2"
-                               << "\n===============" << bsl::endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE 2"
+                          << "\n===============" << endl;
 
         ///Example 2
         ///- - - - -
@@ -1559,18 +1559,25 @@ int main(int argc, char *argv[])
         // TESTING 'reserveRaw' and 'capacityRaw'
         //
         // Concerns:
-        // 1 'reserveRaw' correctly forwards to the method
-        //   'bdem_ChoiceArray::reserveRaw'.
+        //: 1 'reserveRaw' correctly forwards to the method
+        //:   'bdem_ChoiceArray::reserveRaw'.
+        //: 2 'capacityRaw' correctly forwards to the method
+        //:   'bdem_ChoiceArray::capacityRaw'.
         //
         // Plan:
+        //: 1 Invoke 'reserveRaw' on a 'bdem_ChoiceArray' object and on a
+        //:   'bdem_ChoiceArrayImp' object and verify that the same amount of
+        //:   memory is allocated, for different values of the input and that
+        //:   the method 'capacityRaw' return the same value from both
+        //:   objects.  [C-1,2]
         //
         // Testing:
-        //   void reserveRaw(int numItems);
+        //   void reserveRaw(bsl::size_t numItems);
+        //   bsl::size_t capacityRaw();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'reserveRaw' and 'getCapacitiyRaw'"
-                          << "\n========================================="
-                          << endl;
+        if (verbose) cout << "Testing 'reserveRaw' and 'getCapacitiyRaw'\n"
+                          << "==========================================\n"
 
         static const Strategy STRATEGY_DATA[] = {
                 BDEM_PASS_THROUGH,
