@@ -548,7 +548,7 @@ private:
 
     template<class BDEMA_TARGET_TYPE>
     explicit 
-    bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr, BDEMA_COMPATIBLE_POINTERS_ONLY=0);
+    bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr);
         // Construct a managed pointer that manages the specified 'ptr' using
         // the current default allocator to destroy 'ptr' when this managed
         // pointer is destroyed or re-assigned, unless it is released before
@@ -936,8 +936,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type)
 
 template<class BDEMA_TYPE>
 template<class BDEMA_TARGET_TYPE>
-bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-                                               BDEMA_COMPATIBLE_POINTERS_ONLY)
+bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr)
 : d_members(stripPointerType(ptr),
             bslma_Default::allocator(),
             &bdema_ManagedPtr_FactoryDeleter<BDEMA_TARGET_TYPE,bslma_Allocator>
