@@ -2783,7 +2783,7 @@ int bcem_Aggregate_Util::visitArray(void                *array,
 // PRIVATE CLASS METHODS
 template <typename TYPE>
 inline
-bdem_ElemType::Type bcem_Aggregate::getBdemType(const TYPE& value)
+bdem_ElemType::Type bcem_Aggregate::getBdemType(const TYPE&)
 {
     return (bdem_ElemType::Type) bdem_SelectBdemType<TYPE>::VALUE;
 }

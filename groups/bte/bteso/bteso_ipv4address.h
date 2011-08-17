@@ -86,6 +86,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+
 namespace BloombergLP {
 
                          // =======================
@@ -117,6 +122,10 @@ class bteso_IPv4Address {
                                     // However, its value is undefined.
 
   public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(bteso_IPv4Address,
+                                 bslalg_TypeTraitBitwiseCopyable);
+
     // TYPES
     enum {
         BTESO_ANY_ADDRESS = 0,      // Indicate that it is up to the service
