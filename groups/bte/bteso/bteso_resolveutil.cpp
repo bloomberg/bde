@@ -367,8 +367,8 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
                           // static data s_callback_p
                           // ========================
 
-bteso_ResolveUtil::ResolveByNameCallback
-s_callback_p = &defaultResolveByNameImp;
+bteso_ResolveUtil::ResolveByNameCallback s_callback_p =
+                                                      &defaultResolveByNameImp;
 
 }  // closing unnamed namespace
 
@@ -391,10 +391,7 @@ int bteso_ResolveUtil::getAddress(bteso_IPv4Address *result,
                                                 sizeof stackBuffer);
     bsl::vector<bteso_IPv4Address> buffer(&allocator);
 
-    if ((*s_callback_p)(&buffer,
-                        hostName,
-                        1,
-                        errorCode) || buffer.size() < 1) {
+    if (s_callback_p(&buffer, hostName, 1, errorCode) || buffer.size() < 1) {
         return -1;
     }
 
@@ -434,7 +431,7 @@ int bteso_ResolveUtil::getAddresses(bsl::vector<bteso_IPv4Address> *result,
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostName);
 
-    return (*s_callback_p)(result, hostName, INT_MAX, errorCode);
+    return s_callback_p(result, hostName, INT_MAX, errorCode);
 }
 
 int bteso_ResolveUtil::getServicePort(bteso_IPv4Address *result,

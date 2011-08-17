@@ -93,6 +93,15 @@ class bdef_Vfunc4 {
     bdefr_Vfunc4<A1, A2, A3, A4> *d_rep_p;
         // polymorphic functor representation
 
+    // NOT IMPLEMENTED
+    bool operator==(const bdef_Vfunc4&) const;
+    bool operator!=(const bdef_Vfunc4&) const;
+
+    template<class B1, class B2, class B3, class B4>
+    bool operator==(const bdef_Vfunc4<B1, B2, B3, B4>&) const;
+    template<class B1, class B2, class B3, class B4>
+    bool operator!=(const bdef_Vfunc4<B1, B2, B3, B4>&) const;
+
   public:
     // CREATORS
     bdef_Vfunc4();

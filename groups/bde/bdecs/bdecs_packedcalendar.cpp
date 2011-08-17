@@ -7,6 +7,7 @@ BDES_IDENT_RCSID(bdecs_packedcalendar_cpp,"$Id$ $CSID$")
 #include <bdet_date.h>
 #include <bdeu_print.h>
 
+#include <bslalg_swaputil.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
 
@@ -531,13 +532,12 @@ void bdecs_PackedCalendar::swap(bdecs_PackedCalendar& other)
     // 'swap' is undefined for objects with non-equal allocators.
     BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
-    using bsl::swap;
-    swap(d_firstDate, other.d_firstDate);
-    swap(d_lastDate, other.d_lastDate);
-    swap(d_weekendDays, other.d_weekendDays);
-    swap(d_holidayOffsets, other.d_holidayOffsets);
-    swap(d_holidayCodesIndex, other.d_holidayCodesIndex);
-    swap(d_holidayCodes, other.d_holidayCodes);
+    bslalg_SwapUtil::swap(&d_firstDate,         &other.d_firstDate);
+    bslalg_SwapUtil::swap(&d_lastDate,          &other.d_lastDate);
+    bslalg_SwapUtil::swap(&d_weekendDays,       &other.d_weekendDays);
+    bslalg_SwapUtil::swap(&d_holidayOffsets,    &other.d_holidayOffsets);
+    bslalg_SwapUtil::swap(&d_holidayCodesIndex, &other.d_holidayCodesIndex);
+    bslalg_SwapUtil::swap(&d_holidayCodes,      &other.d_holidayCodes);
 }
 
 void bdecs_PackedCalendar::addDay(const bdet_Date& date)

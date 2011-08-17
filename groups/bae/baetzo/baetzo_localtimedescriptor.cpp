@@ -16,6 +16,7 @@ namespace BloombergLP {
                         // --------------------------------
 
 // ACCESSORS
+
                                   // Aspects
 
 bsl::ostream& baetzo_LocalTimeDescriptor::print(
@@ -61,7 +62,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:
@@ -71,3 +72,4 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
+

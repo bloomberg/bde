@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide common reader protocol for parsing XML documents.
 //
-//@CLASSES: baexml_Reader
+//@CLASSES:
+//   baexml_Reader: protocol for fast, forward-only access to XML data stream
 //
 //@SEE_ALSO: baexml_validatingreader,
 //           baexml_elementattribute,

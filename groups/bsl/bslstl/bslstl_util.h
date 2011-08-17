@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for utility functions for STL functionality.
 //
 //@CLASSES:
-//  bslstl_Util: namespace for utility functions
+//          bslstl_Util: namespace for utility functions
 //  bslstl_UtilIterator: discriminates integral formal parameters
 //
 //@SEE_ALSO:

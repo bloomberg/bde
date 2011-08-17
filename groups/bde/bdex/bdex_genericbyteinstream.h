@@ -395,6 +395,18 @@ class bdex_GenericByteInStream {
     StreamBuf *d_streamBuf;  // held, not owned
     bool       d_valid;      // indicates stream validity
 
+    // NOT DEFINED
+    bdex_GenericByteInStream(const bdex_GenericByteInStream&);
+    bdex_GenericByteInStream& operator=(const bdex_GenericByteInStream&);
+
+    bool operator==(const bdex_GenericByteInStream&) const;
+    bool operator!=(const bdex_GenericByteInStream&) const;
+
+    template<class OTHER_BUF>
+    bool operator==(const bdex_GenericByteInStream<OTHER_BUF>&) const;
+    template<class OTHER_BUF>
+    bool operator!=(const bdex_GenericByteInStream<OTHER_BUF>&) const;
+
   public:
     // CREATORS
     bdex_GenericByteInStream(StreamBuf *streamBuffer);

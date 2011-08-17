@@ -81,6 +81,10 @@
 #include <bslalg_scalardestructionprimitives.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ADDRESSOF
+#include <bsls_addressof.h>
+#endif
+
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
 #endif
@@ -194,9 +198,8 @@ protected:
     _Node* __next = (_Node*) (__pos->_M_next);
     _Slist_node_base* __next_next = __next->_M_next;
     __pos->_M_next = __next_next;
-    // MODIFIED BY ARTHUR
-    // bsl::_bslstp_Destroy(&__next->_M_data);
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(&__next->_M_data);
+    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+                                              BSLS_ADDRESSOF(__next->_M_data));
     _M_head.deallocate(__next,1);
     return __next_next;
   }
@@ -258,10 +261,8 @@ private:
   _Node* _M_create_node(const value_type& __x = _Tp()) {
     _Node* __node = this->_M_head.allocate(1);
     BSLS_TRY {
-      // MODIFIED BY ARTHUR
-      // _bslstp_Copy_Construct(&__node->_M_data, __x);
       typedef BloombergLP::bslalg_ScalarPrimitives primitive;
-      primitive::copyConstruct(&__node->_M_data,
+      primitive::copyConstruct(BSLS_ADDRESSOF(__node->_M_data),
                                __x,
                                this->get_allocator().mechanism());
       __node->_M_next = 0;
@@ -399,9 +400,8 @@ public:
   void pop_front() {
     _Node* __node = (_Node*) this->_M_head._M_data._M_next;
     this->_M_head._M_data._M_next = __node->_M_next;
-    // MODIFIED BY ARTHUR
-    // bsl::_bslstp_Destroy(&__node->_M_data);
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(&__node->_M_data);
+    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+                                              BSLS_ADDRESSOF(__node->_M_data));
     this->_M_head.deallocate(__node, 1);
   }
 
@@ -757,9 +757,8 @@ _Slist_base<_Tp,_Alloc>::_M_erase_after(_Slist_node_base* __before_first,
   while (__cur != __last_node) {
     _Slist_node<_Tp>* __tmp = __cur;
     __cur = (_Slist_node<_Tp>*) __cur->_M_next;
-    // MODIFIED BY ARTHUR
-    // bsl::_bslstp_Destroy(&__tmp->_M_data);
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(&__tmp->_M_data);
+    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+                                               BSLS_ADDRESSOF(__tmp->_M_data));
     _M_head.deallocate(__tmp,1);
   }
   __before_first->_M_next = __last_node;

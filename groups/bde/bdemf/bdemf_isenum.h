@@ -11,7 +11,8 @@ BDES_IDENT("$Id: $")
 //
 //@DEPRECATED: Use 'bslmf_isenum' instead.
 //
-//@CLASSES: bdemf_IsEnum
+//@CLASSES:
+//   bdemf_IsEnum: meta-function for detecting enumerated types
 //
 //@SEE_ALSO:
 //
