@@ -645,6 +645,38 @@ struct baetzo_TimeZoneUtil {
         // success, and a non-zero value with no effect otherwise.  A return
         // value of 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' was not recognized.
+
+    static int validateLocalTime(bool                   *result,
+                                 const bdet_DatetimeTz&  localTime,
+                                 const char             *timeZoneId);
+        // Load, into the specified 'result', 'true' if the offset from UTC of
+        // the specified 'localTime' (i.e., 'localTime.offset()') is consistent
+        // with the actual local time offset, as indicated by time zone data,
+        // at the UTC time 'localTime.gmtDatetime()' in the time zone indicated
+        // by the specified 'timeZoneId', and 'false' otherwise.  Return 0 on
+        // success, and a non-zero value with 'false' loaded into 'result'
+        // otherwise.  A return value of
+        // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // 'timeZoneId' is not recognized.  Note that this operation verifies
+        // that the properties of the provided local time are consistent with
+        // the time zone data.
+
+    static int validateLocalTime(bool                      *result,
+                                 const baet_LocalDatetime&  localTime);
+        // Load, into the specified 'result', 'true' if the time zone
+        // identifier of the specified 'localTime' (i.e.,
+        // 'localTime.timeZoneId()') is a valid identifier, and the offset from
+        // UTC of 'localTime' (i.e., 'localTime.datetimeTz().offset()') is
+        // consistent with the actual local time offset, as indicated by time
+        // zone data, at the UTC time 'localTime.dateTimeTz().gmtDatetime()' in
+        // the time zone inidicated by 'localTime.timeZoneId()', and 'false'
+        // otherwise.  Return 0 on success, and a non-zero value with 'false'
+        // loaded into 'result' otherwise.  A return value of
+        // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // 'timeZoneId' is not recognized.  Note that this operation verifies
+        // that the properties of the provided local time are consistent with
+        // the time zone data.
+
 };
 
 // ============================================================================
@@ -790,6 +822,18 @@ int baetzo_TimeZoneUtil::loadLocalTimePeriod(
     return loadLocalTimePeriodForUtc(result,
                                      timeZoneId,
                                      localTime.gmtDatetime());
+}
+
+inline
+int baetzo_TimeZoneUtil::validateLocalTime(
+                                          bool                      *result,
+                                          const baet_LocalDatetime&  localTime)
+{
+    BSLS_ASSERT_SAFE(result);
+
+    return validateLocalTime(result,
+                             localTime.datetimeTz(),
+                             localTime.timeZoneId().c_str());
 }
 
 }  // close namespace BloombergLP

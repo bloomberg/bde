@@ -8,39 +8,43 @@
 BDES_IDENT("$Id: $")
 
 //@PURPOSE: Define the communication packet structures between client,
-// btemt_QueryDispatcher, btemt_QueryProcessor, and server.
+// 'btemt_QueryDispatcher', 'btemt_QueryProcessor', and server.
 //
-//@CLASSES: btemt_Query btemt_QueryRequest btemt_QueryResult
-//          btemt_QueryResponse
+//@CLASSES:
+//         btemt_Query: query as submitted to 'btemt_QueryDispatcher' 
+//  btemt_QueryRequest: query as received by 'btemt_QueryProcessor'
+//   btemt_QueryResult: response from  server for 'btemt_QueryProcessor'
+// btemt_QueryResponse: server response as received by 'btemt_QueryDispatcher'
 //
 //@SEE_ALSO: btemt_QueryDispatcher btemt_QueryProcessor
 //
 //@AUTHOR: Xiheng Xu (xxu)
 //
-//@DESCRIPTION: This class defines four communication packet structures
-// between client, btemt_QueryDispatcher, btemt_QueryProcessor, and server.
-// The following table shows how the four parties communicate through the
-// btemt_Query* framework using these packets.
+//@DESCRIPTION: This class defines four communication packet structures between
+// client, 'btemt_QueryDispatcher', 'btemt_QueryProcessor', and server.  The
+// following table shows how the four parties communicate through the
+// 'btemt_Query' framework using these packets.
 //..
-// * btemt_Query         - client prepares this and asks btemt_QueryDispatcher
-//                         to send it to a connected btemt_QueryProcessor
+// * 'btemt_Query'         - Client prepares this and asks
+//                           'btemt_QueryDispatcher' to send it to a connected
+//                           'btemt_QueryProcessor'.
 //
-// * btemt_QueryRequest  - btemt_QueryProcessor reads the client's query
-//                         request in the format of this packet for server to
-//                         process.
+// * 'btemt_QueryRequest'  - 'btemt_QueryProcessor' reads the client's query
+//                           request in the format of this packet for server to
+//                           process.
 //
-// * btemt_QueryResult   - server prepares this and asks btemt_QueryProcessor
-//                         to send it back to the originating
-//                         btemt_QueryDispatcher.
+// * 'btemt_QueryResult'   - Server prepares this and asks
+//                           'btemt_QueryProcessor' to send it back to the
+//                           originating 'btemt_QueryDispatcher'.
 //
-// * btemt_QueryResponse - btemt_QueryDispatcher reads the server's query
-//                         response in the format of this packet for client to
-//                         process
+// * 'btemt_QueryResponse' - 'btemt_QueryDispatcher' reads the server's query
+//                           response in the format of this packet for client
+//                           to process
 //..
 //
-// All four packet classes have their underlying data object as a bdem_List,
+// All four packet classes have their underlying data object as a 'bdem_List',
 // which the client and the server prepare and process as query and query
-// response.  They all use bdema_ManagedPtr to the underlying data object and
+// response.  They all use 'bdema_ManagedPtr' to the underlying data object and
 // therefore they're decidedly not value semantic.  This arrangement achieves
 // efficient passing of data between the communicating entities.
 //
@@ -80,10 +84,11 @@ namespace BloombergLP {
 
 class btemt_Query {
     // This is a packet structure for client to give queries to the
-    // btemt_QueryDispatcher.  The dispatcher in turn serializes both this
+    // 'btemt_QueryDispatcher'.  The dispatcher in turn serializes both this
     // packet and an assigned queryId for the packet onto the wire.  This is
-    // not a value-semantic object as it implements bsl::auto_ptr
-    // semantics.  (see bdema_managedptr)
+    // not a value-semantic object as it implements 'bsl::auto_ptr' semantics
+    // (see 'bdema_managedptr').
+
     bdema_ManagedPtr<bdem_List> d_query;
                                     // query data.
     void                       *d_category;
@@ -99,42 +104,42 @@ class btemt_Query {
   public:
     // CREATORS
     btemt_Query();
-        // Create an empty object that doesn't manage any bdem_List.
+        // Create an empty object that doesn't manage any 'bdem_List'.
 
     btemt_Query(btemt_Query& rhs);
-        // Create an object that manages the bdem_List previously managed by
+        // Create an object that manages the 'bdem_List' previously managed by
         // 'rhs'.  This is not a regular copy constructor.  'rhs' no longer
-        // owns the managed bdem_List after this constructor.
+        // owns the managed 'bdem_List' after this constructor.
 
     ~btemt_Query();
-        // Destroy the object.  The managed bdem_List no longer exists after
+        // Destroy the object.  The managed 'bdem_List' no longer exists after
         // this destructor.
 
     // MANIPULATORS
     btemt_Query& operator=(btemt_Query& rhs);
         // Assign the 'rhs' to this object, which after this call manages the
-        // bdem_List that was managed by 'rhs'.  This is not a regular
-        // operator=.  'rhs' no longer manages the bdem_List after this
+        // 'bdem_List' that was managed by 'rhs'.  This is not a regular
+        // 'operator='.  'rhs' no longer manages the 'bdem_List' after this
         // assignment.
 
     void setQuery(bdema_ManagedPtr<bdem_List>& query);
-        // Transfer the managed bdem_List in 'query' to this object.  'query'
-        // no longer manages the just-transferred bdem_List.
+        // Transfer the managed 'bdem_List' in 'query' to this object.  'query'
+        // no longer manages the just-transferred 'bdem_List'.
 
     void setCategory(void *category);
         // Set 'category' in this object.
 
     bdema_ManagedPtr<bdem_List>& query();
-        // Give away the managed bdem_List, which is no longer owned by this
+        // Give away the managed 'bdem_List', which is no longer owned by this
         // object if the return value is assigned.  If return value is not
         // assigned, the call has no effect.
 
     // ACCESSORS
     const bdem_List& query() const;
-        // Return a constant reference to the managed bdem_List.  The returned
-        // reference is valid as long as the bdem_List is being managed by
-        // this object.  Behavior is undefined unless this object manages a
-        // bdem_List.
+        // Return a constant reference to the managed 'bdem_List'.  The
+        // returned reference is valid as long as the 'bdem_List' is being
+        // managed by this object.  Behavior is undefined unless this object
+        // manages a 'bdem_List'.
 
     void *category() const;
         // Return the category.
@@ -142,31 +147,32 @@ class btemt_Query {
 
 // FREE OPERATORS
 bool operator==(const btemt_Query& lhs, const btemt_Query& rhs);
-    // Return true 1) if both 'lhs' and 'rhs' have the same category, and
-    // operator== returns true for their managed bdem_List objects, or 2) if
-    // neither manages a bdem_List object, but both have the same category.
-    // Return false otherwise.
+    // Return 'true' 1) if both 'lhs' and 'rhs' have the same category, and
+    // 'operator==' returns 'true' for their managed 'bdem_List' objects, or 2)
+    // if neither manages a 'bdem_List' object, but both have the same
+    // category.  Return 'false' otherwise.
 
 inline
 bool operator!=(const btemt_Query& lhs, const btemt_Query& rhs);
-    // Return true 1) if 'lhs' and 'rhs' don't have the same category, or
-    // 2) if operator!= returns true on their managed bdem_List objects, or
-    // 3) if only one of 'lhs' and 'rhs' manages a bdem_List object.  Return
-    // false otherwise.
+    // Return 'true' 1) if 'lhs' and 'rhs' don't have the same category, or 2)
+    // if 'operator!=' returns 'true' on their managed 'bdem_List' objects, or
+    // 3) if only one of 'lhs' and 'rhs' manages a 'bdem_List' object.  Return
+    // 'false' otherwise.
 
 bsl::ostream& operator<<(bsl::ostream& os, const btemt_Query& rhs);
     // Output 'rhs' onto 'os'.  Behavior is undefined unless 'rhs' manages a
-    // bdem_List object.
+    // 'bdem_List' object.
 
                         // ========================
                         // class btemt_QueryRequest
                         // ========================
+
 class btemt_QueryRequest {
-    // This is a packet structure that a btemt_QueryProcessor parses out of
-    // the wire from a btemt_QueryDispatcher.  The packet contains query data
-    // for the server to process and a queryId for the btemt_QueryProcessor to
-    // prepare query response.  This is not a value-semantic object as it
-    // implements bsl::auto_ptr semantics (see bdema_managedptr).
+    // This is a packet structure that a 'btemt_QueryProcessor' parses out of
+    // the wire from a 'btemt_QueryDispatcher'.  The packet contains query data
+    // for the server to process and a queryId for the 'btemt_QueryProcessor'
+    // to prepare query response.  This is not a value-semantic object as it
+    // implements 'bsl::auto_ptr' semantics (see 'bdema_managedptr').
 
     typedef bsls_PlatformUtil::Int64 Int64;
 
@@ -181,42 +187,42 @@ class btemt_QueryRequest {
   public:
     // CREATORS
     btemt_QueryRequest();
-        // Create an empty object that doesn't manage any bdem_List.
+        // Create an empty object that doesn't manage any 'bdem_List'.
 
     btemt_QueryRequest(btemt_QueryRequest& rhs);
-        // Create an object that manages the bdem_List previously managed by
+        // Create an object that manages the 'bdem_List' previously managed by
         // 'rhs'.  This is not a regular copy constructor.  'rhs' no longer
-        // owns the managed bdem_List after this constructor.
+        // owns the managed 'bdem_List' after this constructor.
 
     ~btemt_QueryRequest();
-        // Destroy the object.  The managed bdem_List no longer exists after
+        // Destroy the object.  The managed 'bdem_List' no longer exists after
         // this destructor.
 
     // MANIPULATORS
     btemt_QueryRequest& operator=(btemt_QueryRequest& rhs);
         // Assign the 'rhs' to this object, which after this call manages the
-        // bdem_List that was managed by 'rhs'.  This is not a regular
-        // operator=.  'rhs' no longer manages the bdem_List after this
+        // 'bdem_List' that was managed by 'rhs'.  This is not a regular
+        // 'operator='.  'rhs' no longer manages the 'bdem_List' after this
         // assignment.
 
     void setQuery(bdema_ManagedPtr<bdem_List>& query);
-        // Transfer the managed bdem_List in 'query' to this object.  'query'
-        // no longer manages the just-transferred bdem_List.
+        // Transfer the managed 'bdem_List' in 'query' to this object.  'query'
+        // no longer manages the just-transferred 'bdem_List'.
 
     void setQueryId(const Int64& queryId);
         // Set 'queryId' in this object.
 
     bdema_ManagedPtr<bdem_List>& query();
-        // Give away the managed bdem_List, which is no longer owned by this
+        // Give away the managed 'bdem_List', which is no longer owned by this
         // object if the return value is assigned.  If return value is not
         // assigned, the call has no effect.
 
     // ACCESSORS
     const bdem_List& query() const;
-        // Return a constant reference to the managed bdem_List.  The returned
-        // reference is valid as long as the bdem_List is being managed by
-        // this object.  Behavior is undefined unless this object manages a
-        // bdem_List.
+        // Return a constant reference to the managed 'bdem_List'.  The
+        // returned reference is valid as long as the 'bdem_List' is being
+        // managed by this object.  Behavior is undefined unless this object
+        // manages a 'bdem_List'.
 
     Int64 queryId() const;
         // Return the queryId.
@@ -224,21 +230,21 @@ class btemt_QueryRequest {
 
 // FREE OPERATORS
 bool operator==(const btemt_QueryRequest& lhs, const btemt_QueryRequest& rhs);
-    // Return true if 1) if both 'lhs' and 'rhs' have the same queryId, and
-    // operator== returns true for their managed bdem_List objects, or 2) if
-    // neither manages a bdem_List object, but both have the same queryId.
-    // Return false otherwise.
+    // Return 'true' if 1) if both 'lhs' and 'rhs' have the same queryId, and
+    // 'operator==' returns 'true' for their managed 'bdem_List' objects, or 2)
+    // if neither manages a 'bdem_List' object, but both have the same queryId.
+    // Return 'false' otherwise.
 
 inline
 bool operator!=(const btemt_QueryRequest& lhs, const btemt_QueryRequest& rhs);
-    // Return true 1) if 'lhs' and 'rhs' don't have the same queryId, or 2) if
-    // operator!= returns true on their managed bdem_List objects, or 3) if
-    // only one of 'lhs' and 'rhs' manages a bdem_List object.  Return false
-    // otherwise.
+    // Return 'true' 1) if 'lhs' and 'rhs' don't have the same queryId, or 2)
+    // if 'operator!=' returns 'true' on their managed 'bdem_List' objects, or
+    // 3) if only one of 'lhs' and 'rhs' manages a 'bdem_List' object.  Return
+    // 'false' otherwise.
 
 bsl::ostream& operator<<(bsl::ostream& os, const btemt_QueryRequest& rhs);
     // Output 'rhs' onto 'os'.  Behavior is undefined unless 'rhs' manages a
-    // bdem_List object.
+    // 'bdem_List' object.
 
                         // =======================
                         // class btemt_QueryResult
@@ -246,11 +252,12 @@ bsl::ostream& operator<<(bsl::ostream& os, const btemt_QueryRequest& rhs);
 
 class btemt_QueryResult {
     // This is a packet structure for server to give query results back to the
-    // btemt_QueryProcessor.  The processor in turn serializes both this packet
-    // and the queryId it keeps while receiving the corresponding
-    // btemt_QueryRequest packet, as well as a BTEMT_SUCCESS status onto the
-    // wire to the btemt_QueryDispatcher.  This is not a value-semantic object
-    // as it implements bsl::auto_ptr semantics (see bdema_managedptr).
+    // 'btemt_QueryProcessor'.  The processor in turn serializes both this
+    // packet and the 'queryId' it keeps while receiving the corresponding
+    // 'btemt_QueryRequest' packet, as well as a 'BTEMT_SUCCESS' status onto
+    // the wire to the 'btemt_QueryDispatcher'.  This is not a value-semantic
+    // object as it implements 'bsl::auto_ptr' semantics (see
+    // 'bdema_managedptr').
 
     bdema_ManagedPtr<bdem_List> d_queryResponse;
                                     // query response data.
@@ -266,42 +273,42 @@ class btemt_QueryResult {
   public:
     // CREATORS
     btemt_QueryResult();
-        // Create an empty object that doesn't manage any bdem_List.
+        // Create an empty object that doesn't manage any 'bdem_List'.
 
     btemt_QueryResult(btemt_QueryResult& rhs);
-        // Create an object that manages the bdem_List previously managed by
+        // Create an object that manages the 'bdem_List' previously managed by
         // 'rhs'.  This is not a regular copy constructor.  'rhs' no longer
-        // owns the managed bdem_List after this constructor.
+        // owns the managed 'bdem_List' after this constructor.
 
     ~btemt_QueryResult();
-        // Destroy the object.  The managed bdem_List no longer exists after
+        // Destroy the object.  The managed 'bdem_List' no longer exists after
         // this destructor.
 
     // MANIPULATORS
     btemt_QueryResult& operator=(btemt_QueryResult& rhs);
         // Assign the 'rhs' to this object, which after this call manages the
-        // bdem_List that was managed by 'rhs'.  This is not a regular
-        // operator=.  'rhs' no longer owns the managed bdem_List after this
-        // assignment.
+        // 'bdem_List' that was managed by 'rhs'.  This is not a regular
+        // 'operator='.  'rhs' no longer owns the managed 'bdem_List' after
+        // this assignment.
 
     void setQueryResponse(bdema_ManagedPtr<bdem_List>& queryResponse);
-        // Transfer the managed bdem_List in 'queryResponse' to this object.
-        // 'queryResponse' no longer manages the just-transferred bdem_List.
+        // Transfer the managed 'bdem_List' in 'queryResponse' to this object.
+        // 'queryResponse' no longer manages the just-transferred 'bdem_List'.
 
     void setSequenceNum(int sequenceNum);
         // Set 'sequenceNum' in this object.
 
     bdema_ManagedPtr<bdem_List>& queryResponse();
-        // Give away the managed bdem_List, which is no longer owned by this
+        // Give away the managed 'bdem_List', which is no longer owned by this
         // object if the return value is assigned.  If return value is not
         // assigned, the call has no effect.
 
     // ACCESSORS
     const bdem_List& queryResponse() const;
-        // Return a constant reference to the managed bdem_List.  The returned
-        // reference is valid as long as the bdem_List is being managed by
-        // this object.  Behavior is undefined unless this object manages a
-        // bdem_List.
+        // Return a constant reference to the managed 'bdem_List'.  The
+        // returned reference is valid as long as the 'bdem_List' is being
+        // managed by this object.  Behavior is undefined unless this object
+        // manages a 'bdem_List'.
 
     int sequenceNum() const;
         // Return the sequence number.
@@ -309,33 +316,33 @@ class btemt_QueryResult {
 
 // FREE OPERATORS
 bool operator==(const btemt_QueryResult& lhs, const btemt_QueryResult& rhs);
-    // Return true if 1) both 'lhs' and 'rhs' have the same sequence number,
-    // and operator== returns true for their managed bdem_List objects, or
-    // 2) if neither manages a bdem_List object, but both have the same
-    // sequence number.  Return false otherwise.
+    // Return 'true' if 1) both 'lhs' and 'rhs' have the same sequence number,
+    // and 'operator==' returns 'true' for their managed 'bdem_List' objects,
+    // or 2) if neither manages a 'bdem_List' object, but both have the same
+    // sequence number.  Return 'false' otherwise.
 
 inline
 bool operator!=(const btemt_QueryResult& lhs, const btemt_QueryResult& rhs);
-    // Return true 1) if 'lhs' and 'rhs' don't have the same sequence number,
-    // or 2) if operator!= returns true on their managed bdem_List objects, or
-    // 3) if only one of 'lhs' and 'rhs' manages a bdem_List object.  Return
-    // false otherwise.
+    // Return 'true' 1) if 'lhs' and 'rhs' don't have the same sequence number,
+    // or 2) if 'operator!=' returns 'true' on their managed 'bdem_List'
+    // objects, or 3) if only one of 'lhs' and 'rhs' manages a 'bdem_List'
+    // object.  Return 'false' otherwise.
 
 bsl::ostream& operator<<(bsl::ostream& os, const btemt_QueryResult& rhs);
     // Output 'rhs' onto 'os'.  Behavior is undefined unless 'rhs' manages a
-    // bdem_List object.
+    // 'bdem_List' object.
 
                         // =========================
                         // class btemt_QueryResponse
                         // =========================
 
 class btemt_QueryResponse {
-    // This is a packet structure that btemt_QueryDispatcher parses out of
-    // the wire from a btemt_QueryProcessor and gives back to originating
+    // This is a packet structure that 'btemt_QueryDispatcher' parses out of
+    // the wire from a 'btemt_QueryProcessor' and gives back to originating
     // client.  The packet contains the query result data, sequence number of
-    // this result, status and a queryId the query result is responding
-    // to.  This is not a value-semantic object as it implements bsl::auto_ptr
-    // semantics (see bdema_managedptr).
+    // this result, status and a 'queryId' the query result is responding to.
+    // This is not a value-semantic object as it implements 'bsl::auto_ptr'
+    // semantics (see 'bdema_managedptr').
   public:
     enum Status {
         // The packet can use this to indicate server processing status to the
@@ -372,27 +379,27 @@ class btemt_QueryResponse {
   public:
     // CREATORS
     btemt_QueryResponse();
-        // Create an empty object that doesn't manage any bdem_List.
+        // Create an empty object that doesn't manage any 'bdem_List'.
 
     btemt_QueryResponse(btemt_QueryResponse& rhs);
-        // Create an object that manages the bdem_List previously managed by
+        // Create an object that manages the 'bdem_List' previously managed by
         // 'rhs'.  This is not a regular copy constructor.  'rhs' no longer
-        // owns the managed bdem_List after this constructor.
+        // owns the managed 'bdem_List' after this constructor.
 
     ~btemt_QueryResponse();
-        // Destroy the object.  The managed bdem_List no longer exists after
+        // Destroy the object.  The managed 'bdem_List' no longer exists after
         // this destructor.
 
     // MANIPULATORS
     btemt_QueryResponse& operator=(btemt_QueryResponse& rhs);
         // Assign the 'rhs' to this object, which after this call manages the
-        // bdem_List that was managed by 'rhs'.  This is not a regular
-        // operator=.  'rhs' no longer owns the managed bdem_List after this
-        // assignment.
+        // 'bdem_List' that was managed by 'rhs'.  This is not a regular
+        // 'operator='.  'rhs' no longer owns the managed 'bdem_List' after
+        // this assignment.
 
     void setQueryResponse(bdema_ManagedPtr<bdem_List>& queryResponse);
-        // Transfer the managed bdem_List in 'queryResponse' to this object.
-        // 'queryResponse' no longer manages the just-transferred bdem_List.
+        // Transfer the managed 'bdem_List' in 'queryResponse' to this object.
+        // 'queryResponse' no longer manages the just-transferred 'bdem_List'.
 
     void setQueryId(const Int64& queryId);
         // Set 'queryId' in this object.
@@ -404,17 +411,17 @@ class btemt_QueryResponse {
         // Set 'status' in this object.
 
     bdema_ManagedPtr<bdem_List>& queryResponse();
-        // Return a constant reference to the managed bdem_List.  The returned
-        // reference is valid as long as the bdem_List is being managed by
-        // this object.  Behavior is undefined unless this object manages a
-        // bdem_List.
+        // Return a constant reference to the managed 'bdem_List'.  The
+        // returned reference is valid as long as the 'bdem_List' is being
+        // managed by this object.  Behavior is undefined unless this object
+        // manages a 'bdem_List'.
 
     // ACCESSORS
     const bdem_List& queryResponse() const;
-        // Return a constant reference to the managed bdem_List.  The returned
-        // reference is valid as long as the bdem_List is being managed by
-        // this object.  Behavior is undefined unless this object manages a
-        // bdem_List.
+        // Return a constant reference to the managed 'bdem_List'.  The
+        // returned reference is valid as long as the 'bdem_List' is being
+        // managed by this object.  Behavior is undefined unless this object
+        // manages a 'bdem_List'.
 
     Int64 queryId() const;
         // Return the queryId.
@@ -429,24 +436,24 @@ class btemt_QueryResponse {
 // FREE OPERATORS
 bool operator==(const btemt_QueryResponse& lhs,
                 const btemt_QueryResponse& rhs);
-    // Return true if 1) both 'lhs' and 'rhs' have the same sequence number,
-    // same queryId and same status, and operator== returns true for their
-    // managed bdem_List objects, or 2) if neither manages a bdem_List object,
-    // but both have the same sequence number, same queryId, and same status.
-    // Return false otherwise.
+    // Return 'true' if 1) both 'lhs' and 'rhs' have the same sequence number,
+    // same queryId and same status, and 'operator==' returns 'true' for their
+    // managed 'bdem_List' objects, or 2) if neither manages a 'bdem_List'
+    // object, but both have the same sequence number, same queryId, and same
+    // status.  Return 'false' otherwise.
 
 inline
 bool operator!=(const btemt_QueryResponse& lhs,
                const btemt_QueryResponse& rhs);
-    // Return true 1) if 'lhs' and 'rhs' don't have the same sequence number,
-    // or same queryId, or same status, or 2) if operator!= returns true on
-    // their managed bdem_List objects, or 3) if only one of 'lhs' and 'rhs'
-    // manages a bdem_List object.  Return false otherwise.
+    // Return 'true' 1) if 'lhs' and 'rhs' don't have the same sequence number,
+    // or same queryId, or same status, or 2) if 'operator!=' returns 'true' on
+    // their managed 'bdem_List' objects, or 3) if only one of 'lhs' and 'rhs'
+    // manages a 'bdem_List' object.  Return 'false' otherwise.
 
 bsl::ostream& operator<<(bsl::ostream& os,
                          const btemt_QueryResponse& rhs);
     // Output 'rhs' onto 'os'.  Behavior is undefined unless 'rhs' manages a
-    // bdem_List object.
+    // 'bdem_List' object.
 
 // ===========================================================================
 //                      INLINE AND TEMPLATE FUNCTION DEFINITIONS
@@ -638,7 +645,7 @@ bool operator!=(const btemt_QueryResult& lhs, const btemt_QueryResult& rhs)
                         // =========================
                         // class btemt_QueryResponse
                         // =========================
-//CREATORS
+// CREATORS
 inline
 btemt_QueryResponse::btemt_QueryResponse()
 : d_sequenceNum(-1)

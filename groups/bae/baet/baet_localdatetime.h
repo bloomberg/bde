@@ -14,7 +14,8 @@ BDES_IDENT("$Id: $ $CSID: $")
 //
 //@AUTHOR: Stefano Pacifico (spacifico1),
 //         Mike Giroux (mgiroux),
-//         Henry Verschell (hverschell)
+//         Henry Verschell (hverschell),
+//         Steven Breitstein (sbreitstein)
 //
 //@SEE_ALSO: bdet_datetimetz
 //
@@ -35,9 +36,9 @@ BDES_IDENT("$Id: $ $CSID: $")
 //  datetimeTz    bdet_DatetimeTz    January 1, 0001, 24:00:00.000+0000
 //  timeZoneId    bsl::string        ""
 //..
-//: o datetimeTz: date, time, and offset from UTC of the local time.
+//: o 'datetimeTz': date, time, and offset from UTC of the local time.
 //:
-//: o timeZoneId: unique identifier representing the local time zone.
+//: o 'timeZoneId': unique identifier representing the local time zone.
 //
 // For example, in New York on January 1, 2011, at 10 a.m. the local offset
 // from UTC is -5 hours, and a standard time zone identifier for New York is
@@ -52,36 +53,36 @@ BDES_IDENT("$Id: $ $CSID: $")
 //
 ///Usage
 ///-----
-// In this usage example we illustrate how to create and use a
-// 'baet_LocalDatetime' object:
+// In this section we show intended usage of this component.
 //
-// First, we create a default-initialized 'baet_LocalDatetime':
+///Example 1: Creation and Use of a 'baet_LocalDatetime' Object
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we default-construct a 'baet_LocalDatetime' object:
 //..
 //  baet_LocalDatetime localDatetime;
 //..
 // Next, we update the time referred to by 'localDatetime' to the New York
-// time "December 25, 2009, 11:00" with the time zone identifier set to
+// time "December 25, 2009, 11:00" with the time-zone identifier set to
 // "America/New_York":
 //..
 //  bdet_Datetime   datetime(2009, 12, 25, 11, 00, 00);
 //  bdet_DatetimeTz datetimeTz(datetime, -5 * 60);  // offset is specified
 //                                                  // in minutes from UTC
-//
 //  bsl::string     timeZoneId("America/New_York");
 //  localDatetime.setDatetimeTz(datetimeTz);
-//  localDatetime.setTimeZoneId(timeZoneId.c_str());
+//  localDatetime.setTimeZoneId(timeZoneId);
 //
 //  assert(datetimeTz == localDatetime.datetimeTz());
 //  assert(timeZoneId == localDatetime.timeZoneId());
 //..
-// Next, we change the time zone id to another string, for example
+// Now, we change the time-zone identifier to another string, for example
 // "Europe/Berlin":
 //..
 //  bsl::string anotherTimeZoneId("Europe/Berlin");
-//  localDatetime.setTimeZoneId(anotherTimeZoneId.c_str());
+//  localDatetime.setTimeZoneId(anotherTimeZoneId);
 //
-//  assert(anotherTimeZoneId == localDatetime.timeZoneId());
 //  assert(datetimeTz        == localDatetime.datetimeTz());
+//  assert(anotherTimeZoneId == localDatetime.timeZoneId());
 //..
 // Finally, we stream 'localDatetime' to 'bsl::cout':
 //..
@@ -89,7 +90,7 @@ BDES_IDENT("$Id: $ $CSID: $")
 //..
 // This statement produces the following output on 'stdout':
 //..
-//  [ 25DEC2009_11:00:00.000-0820, Europe/Berlin ]
+//  [ 25DEC2009_11:00:00.000-0500 "Europe/Berlin" ]
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -98,6 +99,10 @@ BDES_IDENT("$Id: $ $CSID: $")
 
 #ifndef INCLUDED_BDET_DATETIMETZ
 #include <bdet_datetimetz.h>
+#endif
+
+#ifndef INCLUDED_BDEUT_STRINGREF
+#include <bdeut_stringref.h>
 #endif
 
 #ifndef INCLUDED_BDEX_INSTREAMFUNCTIONS
@@ -114,10 +119,6 @@ BDES_IDENT("$Id: $ $CSID: $")
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSL_ALGORITHM
-#include <bsl_algorithm.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -147,7 +148,7 @@ class baet_LocalDatetime {
     //: o is *exception-neutral*
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
-    // For terminology: bsldoc_terminology
+    // For terminology see 'bsldoc_glossary'.
 
     // DATA
     bdet_DatetimeTz d_datetimeTz;  // local date-time and offset from UTC
@@ -160,6 +161,9 @@ class baet_LocalDatetime {
                                   bslalg_TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
+
+                        // Aspects
+
     static int maxSupportedBdexVersion();
         // Return the most current 'bdex' streaming version number supported by
         // this class.  (See the package-group-level documentation for more
@@ -169,14 +173,16 @@ class baet_LocalDatetime {
     explicit baet_LocalDatetime(bslma_Allocator *basicAllocator = 0);
         // Create a 'baet_LocalDatetime' object having the (default) attribute
         // values:
-        //: o 'datetimeTz() == bdet_DatetimeTz()'
-        //: o 'timeZoneId() == ""'
+        //..
+        //  datetimeTz() == bdet_DatetimeTz()
+        //  timeZoneId() == ""
+        //..
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     baet_LocalDatetime(const bdet_DatetimeTz&  datetimeTz,
-                       const char             *timeZoneId,
+                       const bdeut_StringRef&  timeZoneId,
                        bslma_Allocator        *basicAllocator = 0);
         // Create a 'baet_LocalDatetime' object having the specified
         // 'datetimeTz' and 'timeZoneId' attribute values.  Optionally specify
@@ -184,7 +190,7 @@ class baet_LocalDatetime {
         // the currently installed default allocator is used.
 
     baet_LocalDatetime(const baet_LocalDatetime&  original,
-                       bslma_Allocator           *bslma_Allocator = 0);
+                       bslma_Allocator           *basicAllocator = 0);
         // Create a 'baet_LocalDatetime' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -202,9 +208,24 @@ class baet_LocalDatetime {
         // Set the 'datetimeTz' attribute of this object to the specified
         // 'value'.
 
-    void setTimeZoneId(const char *value);
+    void setTimeZoneId(const bdeut_StringRef& value);
         // Set the 'timeZoneId' attribute of this object to the specified
         // 'value'.
+
+                        // Aspects
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // providing modifiable access to 'stream'.  If 'stream' is initially
+        // invalid, this operation has no effect.  If 'stream' becomes invalid
+        // during this operation, this object is valid, but its value is
+        // undefined.  If 'version' is not supported, 'stream' is marked
+        // invalid and this object is unaltered.  Note that no version is read
+        // from 'stream'.  (See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.)
 
     void swap(baet_LocalDatetime& other);
         // Efficiently exchange the value of this object with the value of the
@@ -212,56 +233,49 @@ class baet_LocalDatetime {
         // exception-safety guarantee.  The behavior is undefined unless this
         // object was created with the same allocator as was 'other'.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // (See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.)
-
     // ACCESSORS
-    bslma_Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the currently
-        // installed default allocator is used.
-
     const bdet_DatetimeTz& datetimeTz() const;
-        // Return the value of the 'datetimeTz' attribute of this object.
+        // Return a reference providing non-modifiable access to the
+        // 'datetimeTz' attribute of this object.
 
     const bsl::string& timeZoneId() const;
         // Return a reference providing non-modifiable access to the
         // 'timeZoneId' attribute of this object.
 
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
-                        int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in
-        // a human-readable format, and return a reference to 'stream'.
-        // Optionally specify an initial indentation 'level', whose absolute
-        // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute
-        // value indicates the number of spaces per indentation level for this
-        // and all of its nested objects.  If 'level' is negative, suppress
-        // indentation of the first line.  If 'spacesPerLevel' is negative,
-        // format the entire output on one line, suppressing all but the
-        // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the
-        // format is not fully specified, and can change without notice.
+                        // Aspects
+
+    bslma_Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // Write this value to the specified output 'stream' using the
-        // specified 'version' format, and return a reference to the modifiable
-        // 'stream'.  If 'stream' is initially invalid, this operation has no
-        // effect.  If 'version' is not supported, 'stream' is invalidated.
-        // Note that in no event is 'version' written to 'stream'.  (See the
-        // 'bdex' package-level documentation for more information on 'bdex'
-        // streaming of value-semantic types and containers.)
+        // specified 'version' format, and return a reference providing
+        // modifiable access to 'stream'.  If 'stream' is initially invalid,
+        // this operation has no effect.  If 'version' is not supported,
+        // 'stream' is invalidated.  Note that in no event is 'version' written
+        // to 'stream'.  (See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.)
+
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output 'stream' in a
+        // human-readable format, and return a reference providing modifiable
+        // access to 'stream'.  Optionally specify an initial indentation
+        // 'level', whose absolute value is incremented recursively for nested
+        // objects.  If 'level' is specified, optionally specify
+        // 'spacesPerLevel', whose absolute value indicates the number of
+        // spaces per indentation level for this and all of its nested objects.
+        // If 'level' is negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // 'level').  If 'stream' is not valid on entry, this operation has no
+        // effect.  Note that the format is not fully specified, and can change
+        // without notice.
 };
 
 // FREE OPERATORS
@@ -269,24 +283,25 @@ bool operator==(const baet_LocalDatetime& lhs,
                 const baet_LocalDatetime& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'baet_LocalDatetime' objects have the
-    // same value if the corresponding values of their 'datetimeTz' and
+    // same value if all of the corresponding values of their 'datetimeTz' and
     // 'timeZoneId' attributes are the same.
 
 bool operator!=(const baet_LocalDatetime& lhs,
                 const baet_LocalDatetime& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'baet_LocalDatetime'
-    // objects do not have the same value if the corresponding values of
+    // objects do not have the same value if any of the corresponding values of
     // their 'datetimeTz' or 'timeZoneId' attributes are not the same.
 
 bsl::ostream& operator<<(bsl::ostream&             stream,
                          const baet_LocalDatetime& localDatetime);
-    // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference to
-    // 'stream'.  If 'stream' is not valid on entry, this operation has no
-    // effect.  Note that this human-readable format is not fully specified
-    // and can change without notice.  Also note that this method has the same
-    // behavior as 'object.print(stream, 0, -1)'.
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference providing
+    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as 'object.print(stream, 0, -1)' with the
+    // attribute names elided.
 
 // FREE FUNCTIONS
 void swap(baet_LocalDatetime& a, baet_LocalDatetime& b);
@@ -304,6 +319,9 @@ void swap(baet_LocalDatetime& a, baet_LocalDatetime& b);
                         // ------------------------
 
 // CLASS METHODS
+
+                        // Aspects
+
 inline
 int baet_LocalDatetime::maxSupportedBdexVersion()
 {
@@ -320,10 +338,10 @@ baet_LocalDatetime::baet_LocalDatetime(bslma_Allocator *basicAllocator)
 
 inline
 baet_LocalDatetime::baet_LocalDatetime(const bdet_DatetimeTz&  datetimeTz,
-                                       const char             *timeZoneId,
+                                       const bdeut_StringRef&  timeZoneId,
                                        bslma_Allocator        *basicAllocator)
 : d_datetimeTz(datetimeTz)
-, d_timeZoneId(timeZoneId, basicAllocator)
+, d_timeZoneId(timeZoneId.begin(), timeZoneId.end(), basicAllocator)
 {
 }
 
@@ -341,21 +359,40 @@ inline
 baet_LocalDatetime&
 baet_LocalDatetime::operator=(const baet_LocalDatetime& rhs)
 {
-    bslma_Allocator *allocator = d_timeZoneId.get_allocator().mechanism();
-    baet_LocalDatetime(rhs, allocator).swap(*this);
+    d_timeZoneId = rhs.d_timeZoneId;  // first to allow strong guarantee
+    d_datetimeTz = rhs.d_datetimeTz;
     return *this;
 }
 
 inline
-void baet_LocalDatetime::setDatetimeTz(const bdet_DatetimeTz& datetimeTz)
+void baet_LocalDatetime::setDatetimeTz(const bdet_DatetimeTz& value)
 {
-    d_datetimeTz = datetimeTz;
+    d_datetimeTz = value;
 }
 
 inline
-void baet_LocalDatetime::setTimeZoneId(const char *timeZoneId)
+void baet_LocalDatetime::setTimeZoneId(const bdeut_StringRef& value)
 {
-    d_timeZoneId.assign(timeZoneId);
+    d_timeZoneId.assign(value.begin(), value.end());
+}
+
+                        // Aspects
+
+template <class STREAM>
+STREAM& baet_LocalDatetime::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bdex_InStreamFunctions::streamIn(stream, d_timeZoneId, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_datetimeTz, 1);
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
 }
 
 inline
@@ -367,30 +404,7 @@ void baet_LocalDatetime::swap(baet_LocalDatetime& other)
     bsl::swap(d_timeZoneId, other.d_timeZoneId);
 }
 
-template <class STREAM>
-STREAM& baet_LocalDatetime::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_datetimeTz, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_timeZoneId, 1);
-          } break;
-          default: {
-            stream.invalidate();  // unrecognized version number
-          }
-        }
-    }
-    return stream;
-}
-
 // ACCESSORS
-inline
-bslma_Allocator *baet_LocalDatetime::allocator() const
-{
-    return d_timeZoneId.get_allocator().mechanism();
-}
-
 inline
 const bdet_DatetimeTz& baet_LocalDatetime::datetimeTz() const
 {
@@ -403,14 +417,22 @@ const bsl::string& baet_LocalDatetime::timeZoneId() const
     return d_timeZoneId;
 }
 
+                        // Aspects
+
+inline
+bslma_Allocator *baet_LocalDatetime::allocator() const
+{
+    return d_timeZoneId.get_allocator().mechanism();
+}
+
 template <class STREAM>
 STREAM& baet_LocalDatetime::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) {
           case 1: {
-            bdex_OutStreamFunctions::streamOut(stream, d_datetimeTz, 1);
             bdex_OutStreamFunctions::streamOut(stream, d_timeZoneId, 1);
+            bdex_OutStreamFunctions::streamOut(stream, d_datetimeTz, 1);
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
@@ -431,24 +453,18 @@ bool operator==(const baet_LocalDatetime& lhs, const baet_LocalDatetime& rhs)
 inline
 bool operator!=(const baet_LocalDatetime& lhs, const baet_LocalDatetime& rhs)
 {
-    return !(lhs == rhs);
-}
-
-inline
-std::ostream& operator<<(std::ostream&             stream,
-                         const baet_LocalDatetime& localDatetime)
-{
-    return localDatetime.print(stream, 0, -1);
+    return lhs.datetimeTz() != rhs.datetimeTz()
+        || lhs.timeZoneId() != rhs.timeZoneId();
 }
 
 // FREE FUNCTIONS
 inline
-void swap(baet_LocalDatetime& lhs, baet_LocalDatetime& rhs)
+void swap(baet_LocalDatetime& a, baet_LocalDatetime& b)
 {
-    lhs.swap(rhs);
+    a.swap(b);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

@@ -21,10 +21,6 @@ bsl::ostream& baetzo_DstPolicy::print(bsl::ostream&          stream,
                                       int                    level,
                                       int                    spacesPerLevel)
 {
-    if (stream.bad()) {
-        return stream;                                                // RETURN
-    }
-
     bdeu_Print::indent(stream, level, spacesPerLevel);
 
     stream << baetzo_DstPolicy::toAscii(value);
@@ -46,16 +42,17 @@ const char *baetzo_DstPolicy::toAscii(baetzo_DstPolicy::Enum value)
       CASE(UNSPECIFIED)
       default: return "(* UNKNOWN *)";
     }
+
 #undef CASE
 }
 
 }  // close namespace BloombergLP
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
