@@ -282,7 +282,7 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
         // Simultaneous registration of incompatible events for the same socket
         // 'handle' will result in undefined behavior.  Return 0 on success and
         // a non-zero value otherwise.  The behavior is undefined unless
-        // 'true == canRegisterSockets()'.
+        // 'canRegisterSockets()' is 'true'.
 
     void deregisterSocketEvent(const bteso_SocketHandle::Handle& handle,
                                bteso_EventType::Type             event);
@@ -308,8 +308,12 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
         // behavior.
 
     bool hasLimitedSocketCapacity() const;
-        // Return 'true' if this event manager has limited socket capacity, and
-        // 'false' otherwise.
+        // Return 'true' if this event manager has a limited socket capacity,
+        // and 'false' otherwise.  Note that if 'hasLimitedSocketCapacity' is
+        // 'true' then 'canRegisterSockets' may either return 'true' or
+        // 'false' depending on whether the socket capacity of this event
+        // manager has been reached, but if 'hasLimitedSocketCapacity' is
+        // 'false' then 'canRegisterSockets' is (always) 'true'.
 
     int isRegistered(const bteso_SocketHandle::Handle& handle,
                      const bteso_EventType::Type       event) const;
