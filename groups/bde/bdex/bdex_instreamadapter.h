@@ -486,6 +486,18 @@ class bdex_InStreamAdapter : public bdex_InStream {
     // DATA
     STREAM *d_stream_p;  // stream to read from (held, not owned)
 
+    // NOT DEFINED
+    bdex_InStreamAdapter(const bdex_InStreamAdapter&);
+    bdex_InStreamAdapter& operator=(const bdex_InStreamAdapter&);
+
+    bool operator==(const bdex_InStreamAdapter&) const;
+    bool operator!=(const bdex_InStreamAdapter&) const;
+
+    template<class OTHER_STREAM>
+    bool operator==(const bdex_InStreamAdapter<OTHER_STREAM>&) const;
+    template<class OTHER_STREAM>
+    bool operator!=(const bdex_InStreamAdapter<OTHER_STREAM>&) const;
+
   public:
     // CREATORS
     bdex_InStreamAdapter(STREAM *stream);

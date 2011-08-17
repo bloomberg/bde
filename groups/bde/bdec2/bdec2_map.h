@@ -548,6 +548,15 @@ class bdec2_MapIter {
     int d_nextSlotIndex;  // next slot index
     int d_numSlots;       // number of slots
 
+    // NOT IMPLEMENTED
+    //bool operator==(const bdec2_MapIter&) const;
+    //bool operator!=(const bdec2_MapIter&) const;
+
+    //template<class KEY2, class VALUE2, class HASH2>
+    //bool operator==(const bdec2_MapIter<KEY2,VALUE2,HASH2>&) const;
+    //template<class KEY2, class VALUE2, class HASH2>
+    //bool operator!=(const bdec2_MapIter<KEY2,VALUE2,HASH2>&) const;
+
   public:
     // CREATORS
     bdec2_MapIter(const bdec2_Map<KEY, VALUE, HASH>& map);
@@ -607,6 +616,14 @@ class bdec2_MapManip {
     // NOT IMPLEMENTED
     bdec2_MapManip(const bdec2_MapManip&);
     bdec2_MapManip& operator=(const bdec2_MapManip&);
+
+    bool operator==(const bdec2_MapManip&) const;
+    bool operator!=(const bdec2_MapManip&) const;
+
+    template<class KEY2, class VALUE2, class HASH2>
+    bool operator==(const bdec2_MapManip<KEY2,VALUE2,HASH2>&) const;
+    template<class KEY2, class VALUE2, class HASH2>
+    bool operator!=(const bdec2_MapManip<KEY2,VALUE2,HASH2>&) const;
 
   public:
     // CREATORS

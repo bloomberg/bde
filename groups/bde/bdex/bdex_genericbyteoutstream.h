@@ -239,6 +239,18 @@ class bdex_GenericByteOutStream {
     StreamBuf *d_streamBuf;  // held, not owned
     bool       d_valid;      // indicates stream validity
 
+    // NOT DEFINED
+    bdex_GenericByteOutStream(const bdex_GenericByteOutStream&);
+    bdex_GenericByteOutStream& operator=(const bdex_GenericByteOutStream&);
+
+    bool operator==(const bdex_GenericByteOutStream&) const;
+    bool operator!=(const bdex_GenericByteOutStream&) const;
+
+    template<class OTHER_BUF>
+    bool operator==(const bdex_GenericByteOutStream<OTHER_BUF>&) const;
+    template<class OTHER_BUF>
+    bool operator!=(const bdex_GenericByteOutStream<OTHER_BUF>&) const;
+
   public:
     // CREATORS
     bdex_GenericByteOutStream(StreamBuf *streamBuffer);
