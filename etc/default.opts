@@ -79,6 +79,7 @@
 *           qnt     BUILD_TYPE  = -DBDE_BUILD_TARGET_QNT
 *           safe    BUILD_TYPE  = -DBDE_BUILD_TARGET_SAFE
 *           safe2   BUILD_TYPE  = -DBDE_BUILD_TARGET_SAFE_2
+*           stlport BUILD_TYPE  = -DBDE_BUILD_TARGET_STLPORT
 
 *           _   BDE_CFLAGS  = $(BUILD_TYPE)
 *           _   BDE_CXXFLAGS    = $(BUILD_TYPE)
@@ -104,9 +105,9 @@
 # For Windows, Uplid.pm deduces compiler version from availble cl.exe.
 # Let's set this to a bogus value here.
 !! windows                    _       BDE_COMPILERVERSION_FLAG = 999.999
-!! unix-SunOS-*-*-cc          _       BDE_COMPILERVERSION_FLAG = 5.9
-!! unix-SunOS-i386-*-cc       _       BDE_COMPILERVERSION_FLAG = 5.9
-!! unix-SunOS-i386-*-cc      64       BDE_COMPILERVERSION_FLAG = 5.9
+!! unix-SunOS-*-*-cc          _       BDE_COMPILERVERSION_FLAG = 5.10
+!! unix-SunOS-i386-*-cc       _       BDE_COMPILERVERSION_FLAG = 5.10
+!! unix-SunOS-i386-*-cc      64       BDE_COMPILERVERSION_FLAG = 5.10
 !! unix-SunOS-*-*-gcc         _       BDE_COMPILERVERSION_FLAG = 4.3.2
 !! unix-HP_UX-*-*-acc         _       BDE_COMPILERVERSION_FLAG = 6.2
 !! unix-HP_UX-*-*-gcc         _       BDE_COMPILERVERSION_FLAG = 4.3.2
@@ -145,12 +146,11 @@ unix-                   _       RETRY       = $(BDE_BINDIR)retry $(RETRY_OPT)
 !! unix-Cygwin          _       RETRY       =
 !! windows-             _       RETRY       =
 
-unix-                   _       RETRY_ON_EXIT   = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -x!0 --
+unix-                   _       RETRY_ON_EXIT   = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -x'!0' --
 !! unix-Cygwin          _       RETRY_ON_EXIT   =
 !! windows-             _       RETRY_ON_EXIT   =
 
-unix-                   _       RETRY_ON_SIGNAL = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -s!0 --
-
+unix-                   _       RETRY_ON_SIGNAL = $(RETRY) -a 3 -t $(RETRY_TIMEOUT) -s'!0' --
 !! unix-Cygwin          _       RETRY_ON_SIGNAL =
 !! windows-             _       RETRY_ON_SIGNAL =
 
@@ -414,7 +414,8 @@ windows-        shr BDE_DCL_EXPORT  = " "
 #        -Wc,--ignore_fptr_lang_linkage
 # DRQS 18912346: HP needs -D__STDC_LIMIT_MACROS to define LLONG_MIN/MAX and ULLONG_MAX
 # 20100330 - we need -D_HP_SOURCE so bb_inttypes.h defines ulonglong_t and longlong_t for a_comdb2
-!! unix-HP_UX-*-*-* _   DEF_CXXFLAGS    = -AA -z +W749 +Ovolatile=__unordered -Wc,--ignore_fptr_lang_linkage -D_SYS_SYSMACROS_INCLUDED -D__STDC_LIMIT_MACROS -D_HP_SOURCE
+# DRQS 23276327: added -Wc,--no_nonconst_ref_anachronism
+!! unix-HP_UX-*-*-* _   DEF_CXXFLAGS    = -AA -z +W749 +Ovolatile=__unordered -Wc,--ignore_fptr_lang_linkage -D_SYS_SYSMACROS_INCLUDED -D__STDC_LIMIT_MACROS -D_HP_SOURCE -Wc,--no_nonconst_ref_anachronism
 
 # IMPORTANT: use of stat and utime to preserve timestamps on the processed file!
 !! windows-     _   PROCESS_INC = perl -e "$$d=pop(@ARGV); $$o=$$d; $$/=undef; while ($$i=shift @ARGV) { $$mtime=((stat $$i)[9]); open I,$$i; if (-d $$d) { $$i=~m|([\w.]+)$$| and $$o=$$d.'\\'.$$1 }; open O,'>'.$$o; $$c=<I>; $$c=~s/^    static ([^({;]+;)$$/    ::GROUP::_DCL static $$1/mg; print O $$c; close I; close O; utime $$mtime,$$mtime,$$o; }; print \"\tpreprocessed to $$d\n\"" --
@@ -838,14 +839,7 @@ windows         _   MT_LIBTYPE  = L
 
 # Flags used by cscompile/glint and supported by gcc 4.3.2 (not necessarily
 # supported by gcc 3.4.3):
-unix-SunOS-*-*-gcc  _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
-    -Wall -Wextra -Wformat-security -Wformat-y2k -Winit-self \
-    -Wlogical-op -Wno-long-long -Wno-unknown-pragmas \
-    -Wpacked -Wpointer-arith -Wstrict-overflow -Wvla -Wvolatile-register-var \
-    -Wwrite-strings -Wno-unused-value -Wno-char-subscripts -Dlint -Wsign-compare \
-    -Wparentheses -fdiagnostics-show-option
-
-unix-HP_UX-*-*-gcc  _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
+*-*-*-*-gcc _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
     -Wall -Wextra -Wformat-security -Wformat-y2k -Winit-self \
     -Wlogical-op -Wno-long-long -Wno-unknown-pragmas \
     -Wpacked -Wpointer-arith -Wstrict-overflow -Wvla -Wvolatile-register-var \
@@ -866,7 +860,7 @@ unix-SunOS-*-*-gcc  64  GCCEXTRAWFLAGS  =   \
 
 # add -Winline to help catch inline reordering issues.  Note that this is not a
 # cscompile/glint option.
-unix-SunOS-*-*-gcc  _  GCCEXTRAWFLAGS  = -Winline
+*-*-*-*-gcc  _  GCCEXTRAWFLAGS  = -Winline
 
 *                       _   CC64FLAGS   =
 *-*-*-*-gcc             _   CC64FLAGS   = -m32
@@ -896,6 +890,11 @@ unix-Linux-*-*-gcc      64  CC64FLAGS   = -fPIC
 
 # DRQS 22147649 -- allow PIC builds for static libs under SunOS
 unix-SunOS-sparc-*-cc      pic  BDE_CXXFLAGS   = -xcode=pic32
+
+# enable support for building with the Sun supplied version of STLPort as the
+# default implementation of the Standard Library
+unix-SunOS-*-*-cc       stlport     BDE_CXXFLAGS    = -library=stlport4 -template=no%extdef
+unix-SunOS-*-*-cc       stlport     BDE_LDFLAGS     = -library=stlport4
 
 #old flags
 unix-AIX-*-*-CC64   _   CC64FLAGS   = -q64
@@ -939,13 +938,13 @@ unix-                   _   CC      = $(RETRY_ON_SIGNAL) cc -DUSE_REAL_MALLOC $(
 !! unix-AIX-*-*-xlc-10.0 _   CC      = $(XLC_LIBPATH) $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(XLC_LOCATION)/vac/bin/xlc   $(CC64FLAGS) -qxflag=NoKeepDebugMetaTemplateType
 !! unix-AIX-*-*-xlc-10.0 mt   CC     = $(XLC_LIBPATH) $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(XLC_LOCATION)/vac/bin/xlc_r $(CC64FLAGS) -qxflag=NoKeepDebugMetaTemplateType
 
-!! unix-SunOS-*-*-gcc   _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/opt/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-SunOS-*-*-gcc-4.1.1 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/swtlib/gcc-4.1.1/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-SunOS-*-*-gcc-4.2.0 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbcm/infrastructure/etc/g++-4.2.0 -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-SunOS-*-*-gcc-4.3.0 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.0/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-SunOS-*-*-gcc-4.3.2 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.2/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-AIX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /bbs/opt/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-HP_UX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /opt/swt/bin/gcc -DUSE_REAL_MALLOC -pedantic $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-SunOS-*-*-gcc   _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/opt/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-SunOS-*-*-gcc-4.1.1 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/swtlib/gcc-4.1.1/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-SunOS-*-*-gcc-4.2.0 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbcm/infrastructure/etc/g++-4.2.0 -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-SunOS-*-*-gcc-4.3.0 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.0/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-SunOS-*-*-gcc-4.3.2 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.2/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-AIX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /bbs/opt/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-HP_UX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /opt/swt/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 !! unix-Linux-*-*-gcc   _   CC      = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 !! unix-FreeBSD-*-*-gcc   _   CC      = $(RETRY_ON_SIGNAL) /usr/bin/gcc $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 windows-        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /nologo /W3 /D"WIN32" /D"_WINDOWS" /D"_MBCS" /D"NOMINMAX" /DNOGDI $(CC64FLAGS)
@@ -957,16 +956,15 @@ windows-        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /nologo /W3 /D"WIN32" /D
 unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 !! unix-SunOS-*-*-cc-5.2   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/SUNWspro61/bin/CC $(CXX64FLAGS)
 !! unix-SunOS-*-*-cc-5.5   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bb/util/common/studio8-v10/SUNWspro/bin/CC $(CXX64FLAGS)
-!! unix-SunOS-*-*-cc-5.9   _   STUDIO_LOC = /bb/util/common/studio12-v4/
+
+!! unix-SunOS-*-*-cc-5.9   _   STUDIO_LOC = /bb/util/common/studio12-v4
+!! unix-SunOS-*-*-cc-5.10  _   STUDIO_LOC = /bb/util/common/SS12U1-20101214
+
 !! unix-SunOS-*-*-cc-5.9   _    CC        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/SUNWspro/bin/cc $(CC64FLAGS)
 !! unix-SunOS-*-*-cc-5.9   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/SUNWspro/bin/CC $(CXX64FLAGS)
-!! unix-SunOS-*-*-cc-5.10  _   STUDIO_LOC = /bb/util/common/SS12U1-20101214/
-!! unix-SunOS-*-*-cc-5.10  _    CC        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/sunstudio12.1/bin/cc $(CC64FLAGS)
-!! unix-SunOS-*-*-cc-5.10  _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/sunstudio12.1/bin/CC $(CXX64FLAGS)
 
 !! unix-HP_UX-*-*-*        _   CXX        = $(RETRY_ON_SIGNAL) $(ACC_BIN)/aCC $(CXX64FLAGS)
 
-!! unix-HP_UX           _       PLINK_ARCH      = hp
 !! unix-SunOS-i386-*-cc-5.8   _ CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/SUNWspro/bin/CC $(CXX64FLAGS)
 !! unix-SunOS-i386-*-cc-5.8   64    CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/SUNWspro/bin/CC $(CXX64FLAGS)
 
@@ -996,15 +994,15 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 !! unix-AIX-*-*-xlc-10.0 _   CXX     = LIBPATH=$(XLC_LOCATION)/lib $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(XLC_LOCATION)/vacpp/bin/xlC $(CC64FLAGS)
 !! unix-AIX-*-*-xlc-10.0 mt  CXX     = LIBPATH=$(XLC_LOCATION)/lib $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(XLC_LOCATION)/vacpp/bin/xlC_r $(CC64FLAGS)
 
-!! unix-SunOS-*-*-gcc   _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/opt/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-SunOS-*-*-gcc-4.1.1 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/swtlib/gcc-4.1.1/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-SunOS-*-*-gcc-4.2.0 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbcm/infrastructure/etc/g++-4.2.0 -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-SunOS-*-*-gcc-4.3.0 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.0/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-SunOS-*-*-gcc-4.3.2 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.2/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-SunOS-*-*-gcc   _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/opt/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-SunOS-*-*-gcc-4.1.1 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/swtlib/gcc-4.1.1/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-SunOS-*-*-gcc-4.2.0 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbcm/infrastructure/etc/g++-4.2.0 $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-SunOS-*-*-gcc-4.3.0 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.0/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-SunOS-*-*-gcc-4.3.2 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.2/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
-!! unix-AIX-*-*-gcc _   CXX         = $(RETRY_ON_SIGNAL) /bbs/opt/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-AIX-*-*-gcc _   CXX         = $(RETRY_ON_SIGNAL) /bbs/opt/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
-!! unix-HP_UX-*-*-gcc _   CXX         = $(RETRY_ON_SIGNAL) /opt/swt/bin/g++ -pedantic $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-HP_UX-*-*-gcc _   CXX         = $(RETRY_ON_SIGNAL) /opt/swt/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
 !! unix-FreeBSD-*-*-gcc   _   CXX         = $(RETRY_ON_SIGNAL) g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
@@ -1138,6 +1136,8 @@ unix-*                  _   RATIONAL_WIN_OPT = -windows=no
 *                       _       PLINK_ARCH      =
 !! unix-SunOS           _       PLINK_ARCH      = sundev1
 !! unix-AIX             _       PLINK_ARCH      = ibm
+!! unix-HP_UX           _       PLINK_ARCH      = hp
+!! unix-Linux           _       PLINK_ARCH      = linux
 
 !! *            _   BBSRC       = /bbsrc/proot/include
 !! *            _   BBSRCBBINC  = $(BBSRC)/bbinc
