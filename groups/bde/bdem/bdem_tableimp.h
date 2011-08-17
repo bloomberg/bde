@@ -555,8 +555,8 @@ class bdem_TableImp {
         // Return the number of rows for which memory has already been
         // allocated (whether inserted or not).  Note that
         // 'capacityRaw() - size()' represents the number of rows that
-        // can be inserted with the guarantee of minimal memory replenishment
-        // (minimal internal allocation).
+        // can be inserted with minimal memory replenishment (minimal internal
+        // allocation).
 
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified
