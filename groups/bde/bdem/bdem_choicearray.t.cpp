@@ -122,6 +122,7 @@ using namespace bsl;  // automatically added by script
 // [15]  void insertItem(int, const bdem_Choice&);
 // [15]  void insertItem(int, const bdem_ChoiceArrayItem&);
 // [15]  void insertNullItems(int,int);
+// [17]  void reserveRaw(bsl::size_t numItems);
 // [16]  void removeItem(int ,int );
 // [16]  void removeItem(int );
 // [16]  void removeAllItems();
@@ -130,6 +131,7 @@ using namespace bsl;  // automatically added by script
 // [ 3]  int numSelections() const;
 // [ 3]  bdem_ElemType::Type selectionType(int selectionIndex) const;
 // [ 3]  void selectionTypes(bsl::vector<EType::Type> *result) const;
+// [17]  bsl::size_t capacityRaw() const;
 // [ 4]  void int length() const;
 // [ 4]  const bdem_ChoiceArrayItem& operator[](int index) const;
 // [ 4]  bool isEmpty() const;
@@ -1556,7 +1558,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'reserveRaw' and 'capacityRaw'
+        // METHODS 'reserveRaw' and 'capacityRaw'
         //
         // Concerns:
         //: 1 'reserveRaw' correctly forwards to the method
@@ -1573,7 +1575,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void reserveRaw(bsl::size_t numItems);
-        //   bsl::size_t capacityRaw();
+        //   bsl::size_t capacityRaw() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing 'reserveRaw' and 'getCapacitiyRaw'\n"

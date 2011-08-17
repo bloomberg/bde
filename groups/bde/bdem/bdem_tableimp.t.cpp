@@ -92,14 +92,14 @@ using namespace bsl;  // automatically added by script
 // [ 7] setColumnValue()
 // [ 7] setColumnValueRaw()
 // [ 5] reserveMemory()
-// [11] reserveRaw()
+// [11] void reserveRaw(bsl::size_t numRows);
 // [ 8] bdexStreamInImp()
 // TBD
 // [  ] rowElemRef()
 //
 ////ACCESSORS
 // [ 7] columnType()
-// [12] capacityRaw()
+// [12] bsl::size_t capacityRaw() const;
 // [ 7] numRows()
 // [ 7] numColumns()
 // [ 7] row()
@@ -743,7 +743,7 @@ int main(int argc, char *argv[])
         //:   any extra memory.
         //
         // Testing:
-        //   void reserveRaw(bsl::size_t)
+        //   void reserveRaw(bsl::size_t numRows);
         // --------------------------------------------------------------------
         if (verbose) cout << "TESTING: 'reserveRaw'" << endl
                           << "=====================" << endl;

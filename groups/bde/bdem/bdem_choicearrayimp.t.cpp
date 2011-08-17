@@ -118,13 +118,16 @@ using namespace bsl;  // automatically added by script
 // [10] bdex_InStream& streamIn(bdex_InStream& stream, int version);
 // [11] bdem_ElemRef makeSelection(int index, int selection);
 // [12] void clear();
+// [16] void reserveRaw(bsl::size_t);
 // [12] void reset();
 // [12] void reset(const bdem_ElemType::Type [], int,
 //                 const bdem_Descriptor *const);
 // [13] void insertItem(int, const bdem_ChoiceHeader&);
 // [14] void removeItem(int);
 // [14] void removeItems(int,int)
+//
 // ACCESSORS
+// [17] bsl::size_t capacityRaw() const;
 // [ 3] int numSelections() const;
 // [ 3] bdem_ElemType::Type selectionType(int selection) const;
 // [ 4] const bdem_ChoiceHeader& operator[] (int index) const;
@@ -1331,7 +1334,7 @@ int main(int argc, char *argv[])
         //:   of rows.
         //
         //  Testing:
-        //    bsl::size_t capacityRaw() const
+        //    bsl::size_t capacityRaw() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING: 'capacityRaw'" << endl
