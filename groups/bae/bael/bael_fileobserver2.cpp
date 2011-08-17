@@ -367,6 +367,8 @@ int bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
 
     *rotatedLogFileName = d_logFileName;
 
+    const bdet_Datetime oldLogFileTimestamp = d_logFileTimestamp;
+
     getLogFileName(&d_logFileName,
                    &d_logFileTimestamp,
                    d_logFilePattern.c_str(),
@@ -376,7 +378,7 @@ int bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
         bsl::string newFileName(d_logFileName);
         newFileName += '.';
         newFileName +=
-                    getTimestampSuffix(d_logFileTimestamp + d_localTimeOffset);
+                   getTimestampSuffix(oldLogFileTimestamp + d_localTimeOffset);
 
         if (0 == bsl::rename(d_logFileName.c_str(), newFileName.c_str())) {
             *rotatedLogFileName = newFileName;

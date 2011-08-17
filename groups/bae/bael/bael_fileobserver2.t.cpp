@@ -514,20 +514,28 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING TIME-BASED ROTATION
         //
         // Concern:
-        //  1. 'rotateOnTimeInterval' can take on any valid datetime value.
-        //
-        //  2. Reference time is inputted as a local time.
-        //
-        //  3. 
+        //: 1 'rotateOnTimeInterval' accepts any valid datetime value as the
+        //:   reference time.
+        //:
+        //: 2 Reference time is a local time.
         //
         // Plan:
+        //: 1 Setup test infrastructure.
+        //:
+        //: 2 Call 'rotateOnTimeInterval' with boundary values on the reference
+        //:   start time, and verify that rotation occurs on scehdule.
+        //:
+        //: 3 Call 'rotateOnTimeInterval' with a large interval and a reference
+        //:   time such that the next roation will occur soon.  Verify that
+        //:   rotation occurs on the scheduled time.
         //
         // Testing:
+        //  void rotateOnTimeInterval(const DtInterval& i, const Datetime& r);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Time-Based Rotation"
@@ -552,10 +560,9 @@ int main(int argc, char *argv[])
 
         bael_LoggerManager::initSingleton(&mX, configuration);
 
-        bsl::string filename = tempFileName(veryVerbose);
+        const bsl::string BASENAME = tempFileName(veryVerbose);
 
-
-        ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
         ASSERT(X.isFileLoggingEnabled());
         ASSERT(0 == cb.numInvocations());
 
@@ -564,13 +571,18 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Testing absolute time reference" << endl;
         {
             mX.disableFileLogging();
+
+            // Ensure log file did not exist
+
+            bdesu_FileUtil::remove(BASENAME.c_str());
+
             mX.rotateOnTimeInterval(bdet_DatetimeInterval(0, 0, 0, 3),
                                     bdet_Datetime(1, 1, 1));
 
-            ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
             bcemt_ThreadUtil::microSleep(100, 3);
-            BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
@@ -581,13 +593,18 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Testing absolute time reference" << endl;
         {
             mX.disableFileLogging();
+
+            // Ensure log file did not exist
+
+            bdesu_FileUtil::remove(BASENAME.c_str());
+
             mX.rotateOnTimeInterval(bdet_DatetimeInterval(0, 0, 0, 3),
                                     bdet_Datetime(9999, 12, 31));
 
-            ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
             bcemt_ThreadUtil::microSleep(100, 3);
-            BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
@@ -600,23 +617,28 @@ int main(int argc, char *argv[])
             // Reset reference start time.
 
             mX.disableFileLogging();
+
+            // Ensure log file did not exist
+
+            bdesu_FileUtil::remove(BASENAME.c_str());
+
             bdet_Datetime refTime = bdetu_SystemTime::nowAsDatetimeLocal();
             refTime += bdet_DatetimeInterval(-1, 0, 0, 3);
             mX.rotateOnTimeInterval(bdet_DatetimeInterval(1), refTime);
-            ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
-            BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
             bcemt_ThreadUtil::microSleep(100, 3);
-            BAEL_LOG_TRACE << "log 2" << BAEL_LOG_END;
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 ==
                    bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
 
-            BAEL_LOG_TRACE << "log 2" << BAEL_LOG_END;
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
@@ -624,110 +646,166 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING TIME-BASED ROTATION
         //
         // Concern:
-        //  1. Time-based rotation occurs as scheduled
-        //
-        //  2. A rotation that occurred between two scheduled rotations does
-        //     not affect the schedule.
-        //
-        //  3. Disabling file logging does not affect rotation schedule.
-        //
-        //  4. Rotation schedule is not affected if the previous rotation was
-        //     delayed because not record was published at the scheduled time
-        //     of rotation.
+        //: 1 Time-based rotation occurs as scheduled
+        //:
+        //: 2 Rotation schedule is not affected if the previous rotation was
+        //:   delayed because not record was published at the scheduled time
+        //:   of rotation.
+        //:
+        //: 3 A rotation that occurred between two scheduled rotations does
+        //:   not affect the schedule.
+        //:
+        //: 4 Disabling file logging does not affect rotation schedule.
+        //:
+        //: 5 'disableLifetimeRotation' prevents further time-base rotation.
         //
         // Plan:
+        //: 1 Setup test infrastructure.
+        //:
+        //: 2 Set to rotate every 3 seconds.
+        //:
+        //: 3 Log an record before 3 seconds, and ensure that no rotation
+        //:   occurs.  Then log a record after the 3 second and verify an
+        //:   rotation occurs.  (C-1)
+        //:
+        //: 4 Delay logging such that the rotation is delayed.  Then verify the
+        //:   schedule for the next rotation is not affected.  (C-2)
+        //:
+        //: 5 Cause a rotation to occur between scheduled rotations and verify
+        //:   that the roatation schedule is not affected.  (C-3)
+        //:
+        //: 6 Disable and then re-enable file logging and verify rotation
+        //:   schedule is not affect.  (C-4)
+        //:
+        //: 7 Call 'disableTimeIntervalRotation' and verify that time-based
+        //:   rotation is disabled.
         //
         // Testing:
+        //  void rotateOnTimeInterval(const bdet_DatetimeInterval& interval);
+        //  void disableTimeIntervalRotation();
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Time-Based Rotation"
                           << "\n===========================" << endl;
 
-        bael_LoggerManagerConfiguration configuration;
 
+        if (veryVerbose) cout << "Test infrastructure setup" << endl;
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        bael_LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
                                                      bael_Severity::BAEL_OFF,
                                                      bael_Severity::BAEL_TRACE,
                                                      bael_Severity::BAEL_OFF,
                                                      bael_Severity::BAEL_OFF));
 
-        bcema_TestAllocator ta(veryVeryVeryVerbose);
+        Obj mX(&ta); const Obj& X = mX;
 
-        Obj mX(&ta);  const Obj& X = mX;
+        bael_LoggerManager::initSingleton(&mX, configuration);
+
+        const bsl::string BASENAME = tempFileName(veryVerbose);
 
         // Set callback to monitor rotation.
 
         RotCb cb(Z);
         mX.setOnFileRotationCallback(cb);
 
-        bael_LoggerManager::initSingleton(&mX, configuration);
+        BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
 
         mX.rotateOnTimeInterval(bdet_DatetimeInterval(0, 0, 0, 3));
 
-
-        bsl::string filename = tempFileName(veryVerbose);
-        ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
         ASSERT(X.isFileLoggingEnabled());
         ASSERT(0 == cb.numInvocations());
 
-        BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
-
         BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
 
-        ASSERT(1 == bdesu_FileUtil::exists(filename.c_str()));
+        ASSERT(1 == bdesu_FileUtil::exists(BASENAME.c_str()));
         LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
-        if (veryVerbose) cout << "Testing normal rotation" << endl;
+        if (veryVerbose) cout << "Test normal rotation" << endl;
         {
+            cb.reset();
             bcemt_ThreadUtil::microSleep(100, 2);
 
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
             bcemt_ThreadUtil::microSleep(100, 1);
 
-            BAEL_LOG_TRACE << "log 2" << BAEL_LOG_END;
-            ASSERT(1 == cb.numInvocations());
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
-        if (veryVerbose) cout << "Testing interrupted rotation" << endl;
+        if (veryVerbose) cout << "Test delayed logging" << endl;
         {
+            cb.reset();
+            bcemt_ThreadUtil::microSleep(100, 5);
+
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+
+            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
+            ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
+
+            bcemt_ThreadUtil::microSleep(100, 1);
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+
+            LOOP_ASSERT(cb.numInvocations(), 2 == cb.numInvocations());
+            ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
+        }
+
+        if (veryVerbose) cout <<
+                           "Test rotation between scheduled rotations" << endl;
+        {
+            cb.reset();
             bcemt_ThreadUtil::microSleep(100, 1);
 
             mX.forceRotation();
 
-            LOOP_ASSERT(cb.numInvocations(), 2 == cb.numInvocations());
+            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
 
             bcemt_ThreadUtil::microSleep(100, 2);
 
-            BAEL_LOG_TRACE << "log 3" << BAEL_LOG_END;
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
-            LOOP_ASSERT(cb.numInvocations(), 3 == cb.numInvocations());
+            LOOP_ASSERT(cb.numInvocations(), 2 == cb.numInvocations());
             ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
-        if (veryVerbose) cout << "Testing interrupted rotation" << endl;
+        if (veryVerbose) cout <<
+                       "Test disabling file logging between rotations" << endl;
         {
+            cb.reset();
             bcemt_ThreadUtil::microSleep(100, 3);
-
-            // Reset reference start time.
 
             mX.disableFileLogging();
 
-            mX.rotateOnTimeInterval(bdet_DatetimeInterval(0, 0, 0, 3));
+            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
-            ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
-            BAEL_LOG_TRACE << "log 4" << BAEL_LOG_END;
-
-            LOOP_ASSERT(cb.numInvocations(), 4 == cb.numInvocations());
+            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
+        }
+
+        if (veryVerbose) cout << "Test 'disableTimeIntervalRotation" << endl;
+        {
+            cb.reset();
+            bcemt_ThreadUtil::microSleep(100, 3);
+
+            mX.disableTimeIntervalRotation();
+
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+
+            LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
 
       } break;
@@ -736,16 +814,17 @@ int main(int argc, char *argv[])
         // ROTATE WHEN OPENING EXISTING FILE
         //
         // Concerns:
-        //  1. 'rotateOnSize' triggers a rotation as expected even if the log
-        //     file already exist.
+        //: 1 'rotateOnSize' triggers a rotation as expected even if the log
+        //:   file already exist.
         //
         // Plan:
-        //  1. Set 'rotateOnSize' to 1k, create a file with approximately 0.5k.
-        //  2. Write another 0.5k to the file and verify that that file is
-        //     rotated.
+        //: 1 Set 'rotateOnSize' to 1k, create a file with approximately 0.5k.
+        //:
+        //: 2 Write another 0.5k to the file and verify that that file is
+        //:   rotated.
         //
         // Testing:
-        //  Concern: 'rotateOnSize' triggers correctly for existing files
+        //  CONCERN: 'rotateOnSize' triggers correctly for existing files
         // --------------------------------------------------------------------
         bael_LoggerManagerConfiguration configuration;
 
@@ -768,21 +847,21 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
-            bsl::string filename = tempFileName(veryVerbose);
+            const bsl::string BASENAME = tempFileName(veryVerbose);
 
             BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
 
             if (verbose) cout << "Testing setup." << endl;
             {
-                ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+                ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
                 mX.rotateOnSize(1);
                 ASSERT(X.isFileLoggingEnabled());
 
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
 
-                ASSERT(1 == bdesu_FileUtil::exists(filename.c_str()));
+                ASSERT(1 == bdesu_FileUtil::exists(BASENAME.c_str()));
 
-                ASSERT(2 == getNumLines(filename.c_str()));
+                ASSERT(2 == getNumLines(BASENAME.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
                 ASSERT(0 == cb.numInvocations());
             }
@@ -796,7 +875,7 @@ int main(int argc, char *argv[])
                 BAEL_LOG_TRACE << buffer << BAEL_LOG_END;
                 mX.disableFileLogging();
 
-                ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+                ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
                 BAEL_LOG_TRACE << 'x' << BAEL_LOG_END;
 
@@ -805,7 +884,7 @@ int main(int argc, char *argv[])
                 BAEL_LOG_TRACE << buffer << BAEL_LOG_END;
                 BAEL_LOG_TRACE << 'x' << BAEL_LOG_END;
 
-                ASSERT(1 == bdesu_FileUtil::exists(filename.c_str()));
+                ASSERT(1 == bdesu_FileUtil::exists(BASENAME.c_str()));
                 ASSERT(1 == cb.numInvocations());
                 ASSERT(1 ==
                          bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
@@ -814,128 +893,19 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING ROTATION FILENAME CONFLICTS
-        //
-        // Concerns:
-        //  1. A timestamp is appended to a file the rotated file has the same
-        //     name as the current log file.
-        //  2. Timestamp is appended if necessary for any type of rotations.
-        //
-        // Plan:
-        //  1. Setup the observer such that there will be a conflict in the
-        //     file name.
-        //  2. Call 'forceRotation' to cause file rotation and verify that the
-        //     new file has the expected extension.
-        //  3. Perform 'forceRotation' again and verify that the file is
-        //     rotated properly.
-        //  4. Trigger a rotation on file size and verify the files are rotated
-        //     as expected.
-        //
-        // Testing:
-        //   CONCERN: Filename conflicts on rotations are resolved.
-        // --------------------------------------------------------------------
-        if (verbose) cout << "Testing Rotation Filename Conflicts" << endl;
-
-        bcema_TestAllocator ta(veryVeryVeryVerbose);
-
-        bael_LoggerManagerConfiguration configuration;
-
-        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                              bael_Severity::BAEL_OFF,
-                                              bael_Severity::BAEL_TRACE,
-                                              bael_Severity::BAEL_OFF,
-                                              bael_Severity::BAEL_OFF));
-
-        Obj mX(&ta);  const Obj& X = mX;
-        bael_LoggerManager::initSingleton(&mX, configuration);
-
-        RotCb cb(Z);
-        mX.setOnFileRotationCallback(cb);
-
-        bsl::string filename = tempFileName(veryVerbose);
-
-        const int YEAR = bdetu_SystemTime::nowAsDatetime().year();
-        bsl::ostringstream oss;
-        oss << filename << '.' << YEAR;
-        bsl::string LOGNAME = oss.str();
-
-        BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
-
-        bsl::vector<bsl::string> files(Z);
-
-        ASSERT(0 == mX.enableFileLogging((filename + ".%Y").c_str(), false));
-        ASSERT(X.isFileLoggingEnabled());
-
-        ASSERT(1 == bdesu_FileUtil::exists(LOGNAME.c_str()));
-
-        if (verbose) cout << "Testing forced rotation." << endl;
-        {
-            mX.forceRotation();
-
-            ASSERT(1 == cb.numInvocations());
-            ASSERT(0 == cb.status());
-            ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName()));
-            ASSERT(0 == getNumLines(cb.rotatedFileName().c_str()));
-            files.push_back(cb.rotatedFileName());
-
-            BAEL_LOG_TRACE << "log 2" << BAEL_LOG_END;
-            BAEL_LOG_TRACE << "log 2" << BAEL_LOG_END;
-
-            bcemt_ThreadUtil::microSleep(0, 1);
-
-            mX.forceRotation();
-
-            ASSERT(2 == cb.numInvocations());
-            ASSERT(0 == cb.status());
-            ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName()));
-            ASSERT(4 == getNumLines(cb.rotatedFileName().c_str()));
-            ASSERT(files.back() != cb.rotatedFileName());
-            files.push_back(cb.rotatedFileName());
-
-            BAEL_LOG_TRACE << "log 3" << BAEL_LOG_END;
-            BAEL_LOG_TRACE << "log 3" << BAEL_LOG_END;
-            BAEL_LOG_TRACE << "log 3" << BAEL_LOG_END;
-
-            ASSERT(2 == cb.numInvocations());
-            ASSERT(1 == bdesu_FileUtil::exists(LOGNAME.c_str()));
-            ASSERT(6 == getNumLines(LOGNAME.c_str()));
-        }
-
-        if (verbose) cout << "Testing rotate on size." << endl;
-        {
-            ASSERT(0 == X.rotationSize());
-            mX.rotateOnSize(1);
-            ASSERT(1 == X.rotationSize());
-
-            char buffer[1024];
-            memset(buffer, 'x', sizeof buffer);
-            buffer[sizeof buffer - 1] = '\0';
-
-            bcemt_ThreadUtil::microSleep(0, 1);
-
-            BAEL_LOG_TRACE << buffer << BAEL_LOG_END;
-            BAEL_LOG_TRACE << "x" << BAEL_LOG_END;
-
-            ASSERT(3 == cb.numInvocations());
-            ASSERT(0 == cb.status());
-            ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName()));
-            ASSERT(1024 <  getFileSize(cb.rotatedFileName().c_str()));
-            ASSERT(files.back() != cb.rotatedFileName());
-            files.push_back(cb.rotatedFileName());
-        }
-      } break;
-      case 6: {
-        // --------------------------------------------------------------------
         // TESTING ROTATE ON SIZE ON EXISTING FILE
         //
         // Concerns:
-        //   Rotate on size is based on file size and not the number of bytes
-        //   written to the file.
+        //: 1 Rotate on size is based on file size and not the number of bytes
+        //:   written to the file.
         //
         // Plan:
-        //   Disable any rotation and create a file over 1 KB and then disable
-        //   file logging.  Enable 'rotateOnSize', start logging again and
-        //   verify that the file is rotated on first log.
+        //: 1 Disable any rotation and create a file over 1 KB and then disable
+        //:   file logging.  Enable 'rotateOnSize', start logging again and
+        //:   verify that the file is rotated on first log.
+        //
+        // Concern:
+        //  CONCERN: Rotation on size is based on file size
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Test-case infrastructure setup." << endl;
@@ -958,11 +928,11 @@ int main(int argc, char *argv[])
         mX.setOnFileRotationCallback(cb);
 
         {
-            bsl::string filename = tempFileName(veryVerbose);
+            const bsl::string BASENAME = tempFileName(veryVerbose);
 
             BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
 
-            ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
             ASSERT(X.isFileLoggingEnabled());
 
             char buffer[1024];
@@ -974,13 +944,13 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             ASSERT(!X.isFileLoggingEnabled());
 
-            ASSERT(1024 < getFileSize(filename.c_str()));
+            ASSERT(1024 < getFileSize(BASENAME.c_str()));
 
             ASSERT(0 == X.rotationSize());
             mX.rotateOnSize(1);
             ASSERT(1 == X.rotationSize());
 
-            ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
             ASSERT(X.isFileLoggingEnabled());
 
             BAEL_LOG_TRACE << "x" << BAEL_LOG_END;
@@ -991,7 +961,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName()));
         }
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING Log file rotation callback
         //
@@ -1074,9 +1044,9 @@ int main(int argc, char *argv[])
             mX.setOnFileRotationCallback(cb);
             ASSERT(0 == cb.numInvocations());
 
-            bsl::string filename = tempFileName(veryVerbose);
+            const bsl::string BASENAME = tempFileName(veryVerbose);
 
-            ASSERT(0 == mX.enableFileLogging((filename + ".%T").c_str()));
+            ASSERT(0 == mX.enableFileLogging((BASENAME + ".%T").c_str()));
 
             bsl::vector<bsl::string> files(Z);
             for (int i = 0; i < 3; ++i) {
@@ -1100,7 +1070,7 @@ int main(int argc, char *argv[])
             }
 
             for (int i = 0; i < files.size(); ++i) {
-                 bdesu_FileUtil::remove(files[i]);
+                bdesu_FileUtil::remove(files[i]);
             }
         }
         if (veryVerbose) cout <<
@@ -1112,9 +1082,9 @@ int main(int argc, char *argv[])
             mX.setOnFileRotationCallback(cb);
             ASSERT(0 == cb.numInvocations());
 
-            bsl::string filename = tempFileName(veryVerbose);
+            const bsl::string BASENAME = tempFileName(veryVerbose);
 
-            ASSERT(0 == mX.enableFileLogging(filename.c_str()));
+            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
             bsl::vector<bsl::string> files(Z);
             bsl::string logName;
@@ -1151,9 +1121,9 @@ int main(int argc, char *argv[])
             mX.setOnFileRotationCallback(cb);
             ASSERT(0 == cb.numInvocations());
 
-            bsl::string filename = tempFileName(veryVerbose);
+            const bsl::string BASENAME = tempFileName(veryVerbose);
 
-            ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
+            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str(), true));
             mX.rotateOnSize(1);
 
             ASSERT(X.isFileLoggingEnabled());
@@ -1172,8 +1142,8 @@ int main(int argc, char *argv[])
 
                 publishRecord(&mX, buffer);
 
-                ASSERT(1 == cb.numInvocations());
-                ASSERT(0 == cb.status());
+                LOOP2_ASSERT(i, cb.numInvocations(), 1 == cb.numInvocations());
+                LOOP2_ASSERT(i, cb.numInvocations(), 0 == cb.status());
 
                 if (veryVeryVerbose) {
                     P(cb.rotatedFileName());
@@ -1194,8 +1164,8 @@ int main(int argc, char *argv[])
 
                 publishRecord(&mX, buffer);
 
-                ASSERT(1 == cb.numInvocations());
-                ASSERT(0 == cb.status());
+                LOOP2_ASSERT(i, cb.numInvocations(), 1 == cb.numInvocations());
+                LOOP2_ASSERT(i, cb.numInvocations(), 0 == cb.status());
 
                 if (veryVeryVerbose) {
                     P(cb.rotatedFileName());
@@ -1221,6 +1191,206 @@ int main(int argc, char *argv[])
 
             mX.forceRotation();  //  The test is whether this call will lock
                                  //  the task.
+        }
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING ROTATED FILENAME
+        //
+        // Concerns:
+        //: 1 A timestamp is appended to a file the rotated file has the same
+        //:   name as the current log file.
+        //:
+        //: 2 The callback function is correctly supplied with the name of the
+        //:   rotated file.
+        //
+        // Plans:
+        //: 1 Setup the test infrastructure, including a callback.
+        //:
+        //: 2 Create a table of patterns and the expected names.
+        //:
+        //: 3 For each row in the table:
+        //:   1 Enable file logging and ensure the time before and after call
+        //:     to 'enableFileLogging' is within the same second.  If not,
+        //:     disable and re-enable file logging again until we can get the
+        //:     log file timestamp with certainty.
+        //:
+        //:   2 Verify the correct log is created
+        //:
+        //:   3 Perform a force rotation and verify the rotated log has the
+        //:     correct filename.
+        //
+        // Testing:
+        //  CONCERN: Rotated log filenames are as expected
+        // --------------------------------------------------------------------
+        if (verbose) cout << "Testing filename pattern" << endl;
+
+        if (veryVerbose) cout << "Test infrastructure setup." << endl;
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        bael_LoggerManagerConfiguration configuration;
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_TRACE,
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_OFF));
+
+        Obj mX(&ta); const Obj& X = mX;
+
+        bael_LoggerManager::initSingleton(&mX, configuration);
+
+        const bsl::string BASENAME = tempFileName(veryVerbose);
+
+        RotCb cb(Z);
+        mX.setOnFileRotationCallback(cb);
+
+        BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+
+        if (veryVerbose) cout <<
+                               "Create table of distinct test values." << endl;
+
+        static const struct {
+            int         d_line;
+            const char *d_suffix;
+            const char *d_expectedPattern;
+            bool        d_uniqueNameFlag;
+        } DATA[] = {
+
+        //LINE SUFFIX     PATTERN      UNIQUE
+
+        { L_,  "",        "",          false},
+        { L_,  "%Y",      "Y",         false},
+        { L_,  "%Y%M%D",  "YMD",       false},
+        { L_,  ".%T",     ".YMD_hms",  true},
+
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (veryVerbose) cout << "Test filenames" << endl;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE = DATA[ti].d_line;
+            const char *SUF  = DATA[ti].d_suffix;
+            const char *PAT  = DATA[ti].d_expectedPattern;
+            const bool  UNI  = DATA[ti].d_uniqueNameFlag;
+
+            bdet_Datetime startDatetime, endDatetime;
+
+            // loop until startDatetime is equal to endDatetime
+            do {
+                startDatetime = getCurrentLocalTime();
+
+                LOOP_ASSERT(LINE, 0 == mX.enableFileLogging(
+                                                    (BASENAME + SUF).c_str()));
+                LOOP_ASSERT(LINE, X.isFileLoggingEnabled());
+                LOOP_ASSERT(LINE, 1 == mX.enableFileLogging(
+                                                    (BASENAME + SUF).c_str()));
+
+                endDatetime = getCurrentLocalTime();
+
+                if (startDatetime.date()   != endDatetime.date()
+                 || startDatetime.hour()   != endDatetime.hour()
+                 || startDatetime.minute() != endDatetime.minute()
+                 || startDatetime.second() != endDatetime.second()) {
+                    // not sure the exact time when the log file was
+                    // opened because startDatetime and endDatetime are
+                    // different; will try it again
+                    bsl::string fn;
+                    ASSERT(1 == mX.isFileLoggingEnabled(&fn));
+                    mX.disableFileLogging();
+                    ASSERT(0 == bsl::remove(fn.c_str()));
+                }
+
+            } while (!X.isFileLoggingEnabled());
+
+            LOOP_ASSERT(LINE, startDatetime.year()   == endDatetime.year());
+            LOOP_ASSERT(LINE, startDatetime.month()  == endDatetime.month());
+            LOOP_ASSERT(LINE, startDatetime.day()    == endDatetime.day());
+            LOOP_ASSERT(LINE, startDatetime.hour()   == endDatetime.hour());
+            LOOP_ASSERT(LINE, startDatetime.minute() == endDatetime.minute());
+            LOOP_ASSERT(LINE, startDatetime.second() == endDatetime.second());
+
+            BAEL_LOG_INFO<< "log" << BAEL_LOG_END;
+
+            // now construct the name of the log file from
+            // startDatetime
+
+            bsl::ostringstream oss;
+            oss << BASENAME;
+            for (const char *c = PAT; *c != '\0'; ++c) {
+                switch (*c) {
+                  case 'Y': {
+                    oss << bsl::setw(4) << bsl::setfill('0')
+                        << startDatetime.year();
+                  } break;
+                  case 'M': {
+                    oss << bsl::setw(2) << bsl::setfill('0')
+                        << startDatetime.month();
+                  } break;
+                  case 'D': {
+                    oss << bsl::setw(2) << bsl::setfill('0')
+                        << startDatetime.day();
+                  } break;
+                  case 'h': {
+                    oss << bsl::setw(2) << bsl::setfill('0')
+                        << startDatetime.hour();
+                  } break;
+                  case 'm': {
+                    oss << bsl::setw(2) << bsl::setfill('0')
+                        << startDatetime.minute();
+                  } break;
+                  case 's': {
+                    oss << bsl::setw(2) << bsl::setfill('0')
+                        << startDatetime.second();
+                  } break;
+                  default: {
+                    oss << *c;
+                  } break;
+                }
+            }
+
+            const bsl::string LOGNAME = oss.str().c_str();
+            LOOP_ASSERT(LINE, 1 == bdesu_FileUtil::exists(LOGNAME.c_str()));
+
+            bcemt_ThreadUtil::microSleep(100, 1);
+            mX.forceRotation();
+
+            mX.disableFileLogging();
+
+            LOOP_ASSERT(LINE, 1 == bdesu_FileUtil::exists(LOGNAME.c_str()));
+
+            bsl::string ROTATED_NAME = LOGNAME;
+            if (!UNI) {
+                oss << '.';
+                oss << bsl::setw(4) << bsl::setfill('0')
+                         << startDatetime.year();
+                oss << bsl::setw(2) << bsl::setfill('0')
+                         << startDatetime.month();
+                oss << bsl::setw(2) << bsl::setfill('0')
+                         << startDatetime.day();
+                oss << '_';
+                oss << bsl::setw(2) << bsl::setfill('0')
+                         << startDatetime.hour();
+                oss << bsl::setw(2) << bsl::setfill('0')
+                         << startDatetime.minute();
+                oss << bsl::setw(2) << bsl::setfill('0')
+                         << startDatetime.second();
+
+                ROTATED_NAME = oss.str();
+                LOOP2_ASSERT(LINE, ROTATED_NAME.c_str(),
+                            1 == bdesu_FileUtil::exists(ROTATED_NAME.c_str()));
+                LOOP_ASSERT(LINE, 2 == getNumLines(ROTATED_NAME.c_str()));
+            }
+
+            LOOP2_ASSERT(ti, cb.numInvocations(), 1 == cb.numInvocations());
+            LOOP2_ASSERT(ti, cb.status(), 0 == cb.status());
+            LOOP2_ASSERT(ti, cb.rotatedFileName(),
+                         ROTATED_NAME == cb.rotatedFileName());
+
+            cb.reset();
+            removeFilesByPrefix(BASENAME.c_str());
         }
       } break;
       case 4: {
