@@ -519,7 +519,11 @@ int main(int argc, char *argv[])
         // TESTING TIME-BASED ROTATION
         //
         // Concern:
-        //  1. rotateOnTimeInterval can take on any valid datetime value.
+        //  1. 'rotateOnTimeInterval' can take on any valid datetime value.
+        //
+        //  2. Reference time is inputted as a local time.
+        //
+        //  3. 
         //
         // Plan:
         //
