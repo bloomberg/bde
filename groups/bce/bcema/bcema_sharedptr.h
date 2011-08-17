@@ -2694,12 +2694,17 @@ template <class TYPE>
 inline
 void bcema_SharedPtr<TYPE>::reset()
 {
-    if (d_rep_p) {
-        d_rep_p->releaseRef();
-    }
+    bcema_SharedPtrRep *rep = d_rep_p;
 
-    d_ptr_p = 0;
+    // Clear 'd_rep_p' first so that a self-referencing shared pointer's
+    // destructor does not try to call 'releaseRef' again.
+
     d_rep_p = 0;
+    d_ptr_p = 0;
+
+    if (rep) {
+        rep->releaseRef();
+    }
 }
 
 template <class TYPE>

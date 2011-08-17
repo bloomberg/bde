@@ -12,18 +12,20 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   baesu_StackTraceResolverImpl<Elf>: symbol resolution for ELF objects
 //
-//@SEE_ALSO: baesu_stacktraceresolverimpl_{windows,xcoff}
+//@SEE_ALSO: baesu_stacktraceresolverimpl_windows,
+//           baesu_stacktraceresolverimpl_xcoff
 //
 //@AUTHOR: Oleg Semenov (osemenov), Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides a class, baesu_StackTraceResolver<Elf>,
-// that, given a vector of 'baesu_StackTraceFrame's that have only their
-// 'address' fields set, resolves all other fields in those frames.  The Elf
-// object file format is used on Linux, Solaris, and HP-UX platforms.
-//: The ELF format is described by documents at
-//: http://en.wikipedia.org/wiki/Executable_and_Linkable_Format and
-//: http://downloads.openwatcom.org/ftp/devel/docs/elf-64-gen.pdf
-//: http://www.sco.com/developers/gabi/latest/contents.html
+//@DESCRIPTION: This component provides a class,
+// 'baesu_StackTraceResolver<Elf>', that, given a vector of
+// 'baesu_StackTraceFrame's that have only their 'address' fields set, resolves
+// all other fields in those frames.  The Elf object file format is used on
+// Linux, Solaris, and HP-UX platforms.  The Elf format is described by
+// documents at:
+//: o 'http://en.wikipedia.org/wiki/Executable_and_Linkable_Format'
+//: o 'http://downloads.openwatcom.org/ftp/devel/docs/elf-64-gen.pdf'
+//: o 'http://www.sco.com/developers/gabi/latest/contents.html'
 //
 ///Usage
 ///-----
