@@ -151,15 +151,12 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
 
     EventMap::const_iterator it(d_events.begin()), end(d_events.end());
 
-    bsl::vector<EventMap::const_iterator> signaledReads(numEvents);
-    bsl::vector<EventMap::const_iterator> signaledWrites(numEvents);
-
     for (; numEvents > 0 && it != end; ++it) {
         const bteso_Event& event = it->first;
         if (bteso_EventType::BTESO_READ == event.type()
          || bteso_EventType::BTESO_ACCEPT == event.type()) {
             if (FD_ISSET(event.handle(), &readSet)) {
-                signaledReads.push_back(it);
+                d_signaledReads.push_back(event);
                 --numEvents;
             }
         }
@@ -170,32 +167,37 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
 #else
             if (FD_ISSET(event.handle(), &writeSet)) {
 #endif
-                signaledWrites.push_back(it);
+                d_signaledWrites.push_back(event);
                 --numEvents;
             }
         }
     }
 
     int numDispatched = 0;
-    int numReads      = signaledReads.size();
+    int numReads      = d_signaledReads.size();
 
     for (int i = 0; i < numReads; ++i) {
-        EventMap::const_iterator callbackIt = signaledReads[i];
+        EventMap::const_iterator callbackIt =
+                                             d_events.find(d_signaledReads[i]);
         if (d_events.end() != callbackIt) {
             ++numDispatched;
             (callbackIt->second)();
         }
     }
 
-    int numWrites = signaledWrites.size();
+    int numWrites = d_signaledWrites.size();
 
     for (int i = 0; i < numWrites; ++i) {
-        EventMap::const_iterator callbackIt = signaledWrites[i];
+        EventMap::const_iterator callbackIt =
+                                            d_events.find(d_signaledWrites[i]);
         if (d_events.end() != callbackIt) {
             ++numDispatched;
             (callbackIt->second)();
         }
     }
+
+    d_signaledReads.clear();
+    d_signaledWrites.clear();
 
     return numDispatched;
 }
@@ -209,10 +211,15 @@ bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
 , d_numWrite(0)
 , d_maxFd(0)
 , d_timeMetric(0)
+, d_signaledReads(basicAllocator)
+, d_signaledWrites(basicAllocator)
 {
     FD_ZERO(&d_readSet);
     FD_ZERO(&d_writeSet);
     FD_ZERO(&d_exceptSet);
+
+    d_signaledReads.reserve(BTESO_MAX_NUM_HANDLES);
+    d_signaledWrites.reserve(BTESO_MAX_NUM_HANDLES);
 }
 
 bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
@@ -224,15 +231,23 @@ bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
 , d_numWrite(0)
 , d_maxFd(0)
 , d_timeMetric(timeMetric)
+, d_signaledReads(basicAllocator)
+, d_signaledWrites(basicAllocator)
 {
     FD_ZERO(&d_readSet);
     FD_ZERO(&d_writeSet);
     FD_ZERO(&d_exceptSet);
+
+    d_signaledReads.reserve(BTESO_MAX_NUM_HANDLES);
+    d_signaledWrites.reserve(BTESO_MAX_NUM_HANDLES);
 }
 
 bteso_DefaultEventManager<bteso_Platform::SELECT>::~bteso_DefaultEventManager()
 {
     BSLS_ASSERT(checkInternalInvariants());
+    BSLS_ASSERT(0 == d_signaledReads.size());
+    BSLS_ASSERT(0 == d_signaledWrites.size());
+
     d_events.clear();
 }
 
@@ -371,7 +386,6 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::registerSocketEvent(
                                  const bteso_EventType::Type         eventType,
                                  const bteso_EventManager::Callback& callback)
 {
-    // TBD: Finalize
 #ifdef BTESO_PLATFORM__BSD_SOCKETS
     BSLS_ASSERT(handle < BTESO_MAX_NUM_HANDLES);
 #else

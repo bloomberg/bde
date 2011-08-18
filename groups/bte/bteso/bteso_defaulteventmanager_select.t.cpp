@@ -461,7 +461,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(hlsc, true == hlsc);
         }
 
-        // TBD: Complete
         if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
         {
             Obj mX;  const Obj& X = mX;
@@ -469,7 +468,7 @@ int main(int argc, char *argv[])
 
             int errorCode = 0;
             bteso_SocketHandle::Handle handle = 0;
-            for (; handle < Obj::BTESO_MAX_NUM_HANDLES - 1; ++handle) {
+            for (; handle < Obj::BTESO_MAX_NUM_HANDLES; ++handle) {
 
                 if (veryVerbose) { P(handle) }
 
@@ -489,7 +488,7 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
             }
 
-            ASSERT(handle == Obj::BTESO_MAX_NUM_HANDLES - 1);
+            ASSERT(handle == Obj::BTESO_MAX_NUM_HANDLES);
 
             if (verbose) cout << "Negative Testing." << endl;
             {
@@ -498,10 +497,10 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P(handle) }
 
-                ASSERT(mX.canRegisterSockets());
+                ASSERT(!mX.canRegisterSockets());
 
                 bdef_Function<void (*)()> cb1, cb2;
-                ASSERT_PASS(mX.registerSocketEvent(
+                ASSERT_FAIL(mX.registerSocketEvent(
                                            (bteso_SocketHandle::Handle) handle,
                                            bteso_EventType::BTESO_READ,
                                            cb1));
