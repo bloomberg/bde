@@ -470,6 +470,17 @@ class bdem_TableImp {
         // '0 <= numBytes'.  Note that this method has no effect unless the
         // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
 
+    void reserveRaw(bsl::size_t numRows);
+        // Reserve sufficient memory to satisfy allocations required to insert
+        // at least the specified 'numRows' if the allocation strategy
+        // specified for this table is 'BDEM_WRITE_MANY' or 'BDEM_WRITE_ONCE'.
+        // Memory, in addition to the footprint of a row, used to initialize a
+        // row upon insertion is *not*  reserved if the allocation strategy
+        // specified for this table is 'BDEM_PASSTHROUGH' or
+        // 'BDEM_SUBORDINATE'.  Note that in the future this method may
+        // guarantee that no extra allocation will take place unless the data
+        // held by the row allocate memory itself.
+
     void reset(const bdem_ElemType::Type     columnTypes[],
                int                           numColumns,
                const bdem_Descriptor *const *attrLookupTbl);
@@ -544,6 +555,11 @@ class bdem_TableImp {
         // Return the type of the column at the specified 'columnIndex' in this
         // table.  The behavior is undefined unless
         // '0 <= columnIndex < numColumns()'.
+
+    bsl::size_t capacityRaw() const;
+        // Return the number of rows for which memory was previously allocated
+        // upon insertion or via a call to 'reserveRaw'.
+        // Note that it is always true: 'size() <= capacityRaw()'.
 
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified
@@ -642,6 +658,15 @@ bool operator!=(const bdem_TableImp& lhs, const bdem_TableImp& rhs);
     // value if they have differing numbers of rows or columns, the respective
     // column types differ in at least one column position, or corresponding
     // values at any (row, column) position are not the same.
+
+// PRIVATE GEOMETRIC MEMORY GROWTH (TEMPORARY)
+void bdem_TableImp_enableGeometricMemoryGrowth();
+    // Enable geometric memory growth, upon insertion, for 'bdem_TableImp'
+    // objects in the current process.  By default, memory is obtained on
+    // and "as needed" basis.  Note that this method is provided,
+    // *temporarily*, as part of an overall transition strategy to move toward
+    // geometric memory growth being the default, and eventually the only
+    // option.  Also note that this method is *not* *thread-safe*,
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS

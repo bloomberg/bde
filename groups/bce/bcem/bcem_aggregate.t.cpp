@@ -214,6 +214,7 @@ using bsl::flush;
 //      void setItem(int index, const VALTYPE& value) const;
 // [16] template <typename VALTYPE>
 //      void append(const VALTYPE& newItem) const;
+// [29] const bcem_Aggregate reserveRaw(size_t numItems) const;
 // [16] template <typename VALTYPE>
 //      void insert(int pos, const VALTYPE& newItem) const;
 // [15] void resize(int newSize) const;
@@ -253,6 +254,7 @@ using bsl::flush;
 // [ 6] bdet_Time asTime() const;
 // [ 6] bdet_TimeTz asTimeTz() const;
 // [ 7] bdem_ConstElemRef asElemRef() const;
+// [30] bsl::size_t capacityRaw() const;
 // [ 5] bool hasField(const char *fieldName) const;
 // [ 5] bcem_Aggregate field(NameOrIndex fieldOrIdx) const;
 // [ 5] bcem_Aggregate field(NameOrIndex fieldOrIdx1,
@@ -328,7 +330,7 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] ggSchema, ggList, ggTable, ggChoice, ggChoiceArray
-// [29] USAGE EXAMPLE
+// [31] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //==========================================================================
@@ -3563,7 +3565,7 @@ enum {
 //-----------------------------------------------------------------------------
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-static void testCase31(bool verbose, bool veryVerbose, bool veryVeryVerbose)
+static void testCase33(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 {
     // --------------------------------------------------------------------
     // TESTING 'isUnset':
@@ -3700,7 +3702,7 @@ static void testCase31(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 }
 #endif
 
-static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose)
+static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose) 
 {
     // --------------------------------------------------------------------
     // TESTING 'makeError' error message:
@@ -3792,7 +3794,7 @@ static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose)
     }
 }
 
-static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
+static void testCase31(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Simple example illustrating how one might use an aggregate.
@@ -4088,6 +4090,259 @@ static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
     ASSERT(result.errorCode() == bcem_Aggregate::BCEM_ERR_BAD_ARRAYINDEX);
     if (verbose) tst::cout << result.errorMessage();
 //..
+}
+
+static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
+    // --------------------------------------------------------------------
+    // ACCESSOR 'capacityRaw'
+    //
+    // Concerns:
+    //: 1 'capacityRaw' correctly forwards to the appropriate
+    //:   lower level function, when the type underlying the aggregate is
+    //:   an array type.
+    //: 2 The method loads the correct value in its output parameter.
+    //: 3 The method returns an error-aggregate if invoked on a
+    //:   'bcem_Aggregate' whose type is not an array-type.
+    //
+    // Plan:
+    //: 1 Instantiate one aggregate for each array type, and verify that
+    //:   invoking 'capacityRaw' on the aggregate loads the same value
+    //:   as the one returned by invoking the corresponding 'capacity' method
+    //:   on the underlying array type.  [C-1,2]
+    //: 2 Instantiate a 'bcem_Aggregate' with an underlying non-array
+    //:   'BDE_ELEM' type and verify that an error-aggregate is returned.
+    //:   [C-3]
+    //
+    // Testing the following functions:
+    //   const bcem_Aggregate capacityRaw() const;
+    // --------------------------------------------------------------------
+
+    if (verbose) cout << "Testing with a table type aggregate" << endl;
+
+    for (int i = 1; i <= 4096; i <<= 1)
+    {
+        bdem_Table table;
+        bcem_Aggregate tableAggregate(bdem_ElemType::BDEM_TABLE,
+                                      table);
+
+        table.reserveRaw(i);
+        tableAggregate.reserveRaw(i);
+
+        size_t aggregateCapacity = 1492;  // arbitrary flag value
+        size_t tableCapacity = table.capacityRaw();
+        const bcem_Aggregate RESULT =
+                             tableAggregate.capacityRaw(&aggregateCapacity);
+
+        LOOP2_ASSERT(i,
+                     tableCapacity,
+                     i == tableCapacity);
+        LOOP2_ASSERT(i,
+                     aggregateCapacity,
+                     i == aggregateCapacity);
+        LOOP_ASSERT(i, bcem_Aggregate::areEquivalent(RESULT, tableAggregate));
+    }
+
+    if (verbose) cout << "Testing with a choice array type aggregate" << endl;
+
+    for (int i = 1; i <= 4096; i <<= 1)
+    {
+        bdem_ChoiceArray choiceArray;
+        bcem_Aggregate choiceArrayAggregate(bdem_ElemType::BDEM_CHOICE_ARRAY,
+                                            choiceArray);
+
+        choiceArray.reserveRaw(i);
+        choiceArrayAggregate.reserveRaw(i);
+
+        size_t aggregateCapacity = 1492;  // arbitrary flag value
+        size_t choiceArrayCapacity = choiceArray.capacityRaw();
+        const bcem_Aggregate RESULT =
+                   choiceArrayAggregate.capacityRaw(&aggregateCapacity);
+
+        LOOP2_ASSERT(i,
+                     choiceArrayCapacity,
+                     i == choiceArrayCapacity);
+        LOOP2_ASSERT(i,
+                     aggregateCapacity,
+                     i == aggregateCapacity);
+        LOOP_ASSERT(
+                  i,
+                  bcem_Aggregate::areEquivalent(RESULT, choiceArrayAggregate));
+    }
+
+    if (verbose) cout << "Testing with a scalar array type aggregate" << endl;
+
+    for (int i = 1; i <= 4096; i <<= 1)
+    {
+        bsl::vector<int> scalarArray;
+        bcem_Aggregate scalarArrayAggregate(bdem_ElemType::BDEM_INT_ARRAY,
+                                            scalarArray);
+
+        scalarArray.reserve(i);
+        scalarArrayAggregate.reserveRaw(i);
+
+        size_t aggregateCapacity = 1492;  // arbitrary flag value
+        size_t scalarArrayCapacity = scalarArray.capacity();
+        const bcem_Aggregate RESULT =
+                       scalarArrayAggregate.capacityRaw(&aggregateCapacity);
+
+        LOOP2_ASSERT(i,
+                     scalarArrayCapacity,
+                     i == scalarArrayCapacity);
+        LOOP2_ASSERT(i,
+                     aggregateCapacity,
+                     i == aggregateCapacity);
+        LOOP_ASSERT(
+                  i,
+                  bcem_Aggregate::areEquivalent(RESULT, scalarArrayAggregate));
+    }
+
+    if (verbose) cout << "Testing with a non-array type aggregate" << endl;
+    {
+        bdem_List list;
+        bcem_Aggregate listAggregate(bdem_ElemType::BDEM_LIST, list);
+
+        size_t capacity = 1492;  // arbitrary flag value
+        const bcem_Aggregate RESULT = listAggregate.capacityRaw(&capacity);
+        ASSERT(!bcem_Aggregate::areEquivalent(RESULT, listAggregate));
+        ASSERT(RESULT.isError());
+        ASSERT(1492 == capacity);
+    }
+}
+
+static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
+    // --------------------------------------------------------------------
+    // MANIPULATOR 'reserveRaw'
+    //
+    // Concerns:
+    //: 1 'reserveRaw' correctly forwards to the appropriate
+    //:   lower level function, when the type underlying the aggregate is
+    //:   an array type.
+    //: 2 'reserveRaw' does not allocate memory and returns an
+    //:   error aggregate when the type underlying the aggregate is not an
+    //:   array type.
+    //
+    // Plan:
+    //: 1 Instantiate one aggregate for each array type, and verify that
+    //:   invoking 'reserveRaw' on the aggregate allocates the same
+    //:   amount of memory as invoking the correspoding 'reserve' method on
+    //:   the underlying array type.  [C-1]
+    //: 2 Instantiate a 'bcem_Aggregate' with an underlying non-array
+    //:   'BDE_ELEM' type and verify that an error-aggregate is returned.
+    //:   [C-3]
+    //
+    // Testing the following functions:
+    //     const bcem_Aggregate reserveRaw(size_t numItems) const;
+    // --------------------------------------------------------------------
+
+    if (verbose) cout << "Testing with a table-type aggregate" << endl;
+
+    for (int i = 1; i <= 4096; i <<= 1)
+    {
+        bslma_TestAllocator ta("TableTestAllocator", false);
+        bslma_TestAllocator aa("AggregateTestAllocator", false);
+
+        bdem_Table table(&ta);
+        bcem_Aggregate tableAggregate(bdem_ElemType::BDEM_TABLE,
+                                      table,
+                                      &aa);
+
+        const size_t NUM_BYTES_TABLE     = ta.numBytesTotal();
+        const size_t NUM_BYTES_AGGREGATE = aa.numBytesTotal();
+
+        table.reserveRaw(i);
+        const bcem_Aggregate RESULT = tableAggregate.reserveRaw(i);
+        LOOP_ASSERT(i, bcem_Aggregate::areEquivalent(RESULT, tableAggregate));
+
+        const size_t DELTA_TABLE = NUM_BYTES_TABLE - ta.numBytesTotal();
+        const size_t DELTA_AGGREGATE =
+                                      NUM_BYTES_AGGREGATE - aa.numBytesTotal();
+        LOOP3_ASSERT(i,
+                     DELTA_TABLE,
+                     DELTA_AGGREGATE,
+                     DELTA_TABLE == DELTA_AGGREGATE);
+    }
+
+    if (verbose) cout << "Testing with a choice-array-type aggregate" << endl;
+
+    for (int i = 1; i <= 4096; i <<= 1)
+    {
+        bslma_TestAllocator ca("ChoiceArrayTestAllocator", false);
+        bslma_TestAllocator aa("AggregateTestAllocator", false);
+
+        bdem_ChoiceArray choiceArray(&ca);
+        bcem_Aggregate choiceArrayAggregate(bdem_ElemType::BDEM_CHOICE_ARRAY,
+                                            choiceArray,
+                                            &aa);
+
+        const size_t NUM_BYTES_CHOICEARRAY = ca.numBytesTotal();
+        const size_t NUM_BYTES_AGGREGATE   = aa.numBytesTotal();
+
+        choiceArray.reserveRaw(i);
+        const bcem_Aggregate RESULT = choiceArrayAggregate.reserveRaw(i);
+        LOOP_ASSERT(
+                  i,
+                  bcem_Aggregate::areEquivalent(RESULT, choiceArrayAggregate));
+
+        const size_t DELTA_CHOICEARRAY =
+                                    NUM_BYTES_CHOICEARRAY - ca.numBytesTotal();
+        const size_t DELTA_AGGREGATE =
+                                      NUM_BYTES_AGGREGATE - aa.numBytesTotal();
+        LOOP3_ASSERT(i,
+                     DELTA_CHOICEARRAY,
+                     DELTA_AGGREGATE,
+                     DELTA_CHOICEARRAY == DELTA_AGGREGATE);
+    }
+
+    if (verbose) cout << "Testing with a scalar-array-type aggregate" << endl;
+
+    for (int i = 1; i <= 4096; i <<= 1)
+    {
+        bslma_TestAllocator sa("ScalarArrayTestAllocator", false);
+        bslma_TestAllocator aa("AggregateTestAllocator", false);
+
+        bsl::vector<int> scalarArray(&sa);
+        bcem_Aggregate scalarArrayAggregate(bdem_ElemType::BDEM_INT_ARRAY,
+                                            scalarArray,
+                                            &aa);
+
+        const size_t NUM_BYTES_SCALARARRAY = sa.numBytesTotal();
+        const size_t NUM_BYTES_AGGREGATE = aa.numBytesTotal();
+
+        scalarArray.reserve(i);
+        const bcem_Aggregate RESULT = scalarArrayAggregate.reserveRaw(i);
+        LOOP_ASSERT(
+                  i,
+                  bcem_Aggregate::areEquivalent(RESULT, scalarArrayAggregate));
+
+        const size_t DELTA_SCALARARRAY =
+                                    NUM_BYTES_SCALARARRAY - sa.numBytesTotal();
+        const size_t DELTA_AGGREGATE =
+                                      NUM_BYTES_AGGREGATE - aa.numBytesTotal();
+        LOOP3_ASSERT(i,
+                     DELTA_SCALARARRAY,
+                     DELTA_AGGREGATE,
+                     DELTA_SCALARARRAY == DELTA_AGGREGATE);
+    }
+
+    if (verbose) cout << "Testing with a non-array type aggregate" << endl;
+    {
+        bslma_TestAllocator la("ListArrayTestAllocator", false);
+        bslma_TestAllocator aa("AggregateTestAllocator", false);
+
+        bdem_List list(&la);
+        bcem_Aggregate listAggregate(bdem_ElemType::BDEM_LIST, list, &aa);
+
+        const size_t NUM_BYTES_SCALARARRAY = la.numBytesTotal();
+        const size_t NUM_BYTES_AGGREGATE = aa.numBytesTotal();
+
+        const bcem_Aggregate RESULT = listAggregate.reserveRaw(1);
+
+        ASSERT(NUM_BYTES_SCALARARRAY == la.numBytesTotal());
+        ASSERT(NUM_BYTES_AGGREGATE   == aa.numBytesTotal());
+
+        ASSERT(!bcem_Aggregate::areEquivalent(RESULT, listAggregate));
+        ASSERT(RESULT.isError());
+    }
 }
 
 static void testCase28(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
@@ -7033,7 +7288,8 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 Schema schema; const Schema& SCHEMA = schema;
                 ggSchema(&schema, SPEC);
                 const RecDef *RECORD = &SCHEMA.record(SCHEMA.numRecords() - 1);
-                const RecDef *SUB_REC = &SCHEMA.record(SCHEMA.numRecords() - 2);
+                const RecDef *SUB_REC =
+                                       &SCHEMA.record(SCHEMA.numRecords() - 2);
                 ConstRecDefShdPtr crp(RECORD, NilDeleter(), 0);
                 const ConstRecDefShdPtr& CRP = crp;
 
@@ -16158,8 +16414,10 @@ int main(int argc, char *argv[])
 #define CASE(NUMBER) \
     case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-        CASE(31);
+        CASE(33);
 #endif
+        CASE(32);
+        CASE(31);
         CASE(30);
         CASE(29);
         CASE(28);
@@ -16212,4 +16470,4 @@ int main(int argc, char *argv[])
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ---------------------------- END-OF-FILE ---------------------------------
