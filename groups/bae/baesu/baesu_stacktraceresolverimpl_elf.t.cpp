@@ -506,7 +506,7 @@ int main(int argc, char *argv[])
                                       "<BloombergLP::"
                                       "baesu_ObjectFileFormat::Elf>::"
                                       "resolve(";
-                int resNameLen = bsl::strlen(resName);
+                int resNameLen = (int) bsl::strlen(resName);
                 const char *name4 = stackTrace[4].symbolName().c_str();
                 LOOP2_ASSERT(name4, resName,
                                           safeCmp(name4, resName, resNameLen));

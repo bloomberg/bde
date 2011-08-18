@@ -96,6 +96,10 @@ class bcef_Vfunc0 {
 
     bcefr_Vfunc0 *d_rep_p;  // polymorphic functor representation
 
+    // NOT IMPLEMENTED
+    bool operator==(const bcef_Vfunc0&) const;
+    bool operator!=(const bcef_Vfunc0&) const;
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcef_Vfunc0,
