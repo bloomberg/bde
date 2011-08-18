@@ -500,6 +500,14 @@ class bael_FileObserver : public bael_Observer {
         // interval of 24 hours would configure a periodic rotation at midnight
         // each day.
 
+    void setOnFileRotationCallback(
+         const bael_FileObserver2::OnFileRotationCallback& onRotationCallback);
+        // Set the specified 'onRotationCallback' to be invoked after each time
+        // this file observer attempts perform a log file rotation.  The
+        // behavior is undefined if the supplied function calls either
+        // 'setOnFileRotationCallback', 'forceRotation', or 'publish' on this
+        // file observer.
+
     void setStdoutThreshold(bael_Severity::Level stdoutThreshold);
         // Set the minimum severity of messages logged to 'stdout' by this file
         // observer to the specified 'stdoutThreshold' level.  Note that if the
@@ -598,16 +606,17 @@ void bael_FileObserver::disableSizeRotation()
 }
 
 inline
-int bael_FileObserver::enableFileLogging(const char *fileName)
+int bael_FileObserver::enableFileLogging(const char *logFilenamePattern)
 {
-    return d_fileObserver2.enableFileLogging(fileName);
+    return d_fileObserver2.enableFileLogging(logFilenamePattern);
 }
 
 inline
-int bael_FileObserver::enableFileLogging(const char *fileName,
+int bael_FileObserver::enableFileLogging(const char *logFilenamePattern,
                                          bool        timestampFlag)
 {
-    return d_fileObserver2.enableFileLogging(fileName, timestampFlag);
+    return d_fileObserver2.enableFileLogging(logFilenamePattern,
+                                             timestampFlag);
 }
 
 inline
@@ -642,6 +651,13 @@ void bael_FileObserver::rotateOnTimeInterval(
                                const bdet_Datetime&         referenceStartTime)
 {
     d_fileObserver2.rotateOnTimeInterval(interval, referenceStartTime);
+}
+
+inline
+void bael_FileObserver::setOnFileRotationCallback(
+          const bael_FileObserver2::OnFileRotationCallback& onRotationCallback)
+{
+    d_fileObserver2.setOnFileRotationCallback(onRotationCallback);
 }
 
 // ACCESSORS

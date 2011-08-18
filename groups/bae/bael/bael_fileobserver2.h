@@ -505,7 +505,6 @@ class bael_FileObserver2 : public bael_Observer {
         // interval of 24 hours would configure a periodic rotation at midnight
         // each day.
 
-
     void setLogFileFunctor(const LogRecordFunctor& logFileFunctor);
         // Set the formatting functor used when writing records to the log file
         // of this file observer to the specified 'logFileFunctor'.  Note that
