@@ -333,9 +333,9 @@ int TestResolver::numAddresses()
     return s_numAddresses;
 }
 
-const int NUM_CALLS = 20;
+const int NUM_CALLS = 50;
 
-enum { DEFAULT = 0, CACHE, PUTENV, CACHE_AND_PUTENV };
+enum { DEFAULT, CACHE };
 
 static
 void resolve(bcemt_Mutex    *updateMutex,
@@ -365,25 +365,6 @@ void resolve(bcemt_Mutex    *updateMutex,
             for (int i = 0; i < NUM_CALLS; ++i) {
                 int rc = bteso_ResolveUtil::getAddress(&address,
                                                        it->c_str());
-                BSLS_ASSERT(!rc);
-            }
-          } break;
-          case PUTENV: {
-            for (int i = 0; i < NUM_CALLS; ++i) {
-#ifdef BSLS_PLATFORM__OS_AIX
-                setenv("NSORDER", "bind,local", 1);
-#endif
-                int rc = bteso_ResolveUtil::getAddressDefault(&address,
-                                                              it->c_str());
-                BSLS_ASSERT(!rc);
-            }
-          } break;
-          case CACHE_AND_PUTENV: {
-            for (int i = 0; i < NUM_CALLS; ++i) {
-#ifdef BSLS_PLATFORM__OS_AIX
-                setenv("NSORDER", "bind,local", 1);
-#endif
-                int rc = bteso_ResolveUtil::getAddress(&address, it->c_str());
                 BSLS_ASSERT(!rc);
             }
           } break;
@@ -1684,7 +1665,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Test apparatus" << endl;
 
-        if (veryVerbose) cout << "Create table of distinct configurations" << endl;
+        if (veryVerbose) cout <<
+                             "Create table of distinct configurations" << endl;
 
         struct {
             int d_line;
@@ -1820,10 +1802,10 @@ int main(int argc, char *argv[])
         bcemt_Mutex updateMutex;
         int option = 0;
 
-        const int THREAD_CNT[] = {1, 2, 5, 10, 20};
+        const int THREAD_CNT[] = {5};
         const int NUM_THREAD_CNT = sizeof THREAD_CNT / sizeof *THREAD_CNT;
 
-        const int OPTION[] = {PUTENV, CACHE_AND_PUTENV};
+        const int OPTION[] = {DEFAULT, CACHE};
         const int NUM_OPTION = sizeof OPTION / sizeof *OPTION;
 
         bsl::vector<bsl::string> hostnames;
@@ -1835,17 +1817,21 @@ int main(int argc, char *argv[])
 
         bteso_ResolveUtil::setResolveByNameCallback(&resolverCallback);
 
-        for (int ti = 0; ti < NUM_OPTION; ++ti) {
-            int OPT = OPTION[ti];
-            P(OPT);
-            for (int tj = 0; tj < NUM_THREAD_CNT; ++tj) {
-                double      totalSystemTime = 0;
-                double      totalUserTime   = 0;
-                double      totalWallTime   = 0;
+        for (int tj = 0; tj < NUM_THREAD_CNT; ++tj) {
+            const int THREAD = THREAD_CNT[tj];
+            //P(THREAD);
 
-                const int THREAD = THREAD_CNT[tj];
-                P(THREAD);
+            for (int ti = 0; ti < NUM_OPTION; ++ti) {
+                int OPT = OPTION[ti];
+                //P(OPT);
 
+                double totalSystemTime = 0;
+                double totalUserTime   = 0;
+                double totalWallTime   = 0;
+
+#ifdef BSLS_PLATFORM__OS_AIX
+    setenv("NSORDER", "bind,local", 1);
+#endif
                 bcep_FixedThreadPool::Job job = bdef_BindUtil::bind(
                                                               &resolve,
                                                               &updateMutex,
@@ -1864,11 +1850,14 @@ int main(int argc, char *argv[])
 
                 pool.drain();
 
-                cout << "Total System Time: " << totalSystemTime << endl;
-                cout << "Total User Time: "   << totalUserTime   << endl;
-                cout << "Total Wall Time: "   << totalWallTime   << endl;
+                double rate = (THREAD * NUM_CALLS) / (totalWallTime / NUM_CALLS);
 
+                //cout << "Total System Time: " << totalSystemTime << endl;
+                //cout << "Total User Time: "   << totalUserTime   << endl;
+                //cout << "Total Wall Time: "   << totalWallTime   << endl;
+                cout << rate << '\t';
             }
+            cout << endl;
         }
 
       } break;
