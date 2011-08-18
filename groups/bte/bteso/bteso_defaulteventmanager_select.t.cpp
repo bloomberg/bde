@@ -15,6 +15,8 @@
 #include <bdef_function.h>
 #include <bdef_bind.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsl_c_stdlib.h>     // atoi()
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
@@ -57,7 +59,7 @@ using namespace bsl;  // automatically added by script
 // [10] numEvents
 // [10] isRegistered
 //-----------------------------------------------------------------------------
-// [17] USAGE
+// [18] USAGE
 // [16] TESTING CONCERN: exception set on windows (DRQS 11464834)
 // [ 1] BREATHING TEST
 // [ 2] Assumptions about 'select' system call
@@ -119,6 +121,13 @@ static void aSsErT(int c, const char *s, int i)
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -337,7 +346,7 @@ int main(int argc, char *argv[])
                                  bteso_TimeMetrics::BTESO_CPU_BOUND);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 19: {
         // -----------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -360,26 +369,107 @@ int main(int argc, char *argv[])
                  << "'bteso_defaulteventmanager_poll' component." << endl;
 
       } break;
-      case 17: {
-        // -----------------------------------------------------------------
-        // TESTING 'canRegisterSockets'
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING 'dispatchCallbacks'
+        //   Dispatching signaled user callbacks works correctly even if one
+        //   of the callbacks deregisters all socket events.
         //
         // Plan:
+        //   Create a socket pair and register a read and write events on both
+        //   sockets in the pair.  The registered callback would invoke
+        //   'deregisterAll'.  Dispatch the callbacks (with a timeout)
+        //   and verify that the callback is invoked correctly
+        //
+        // Testing:
+        //   int dispatchCallbacks(...)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+              << "VERIFYING 'deregisterAll' IN 'dispatch' CALLBACK" << endl
+              << "================================================" << endl;
+
+        enum { NUM_BYTES = 16 };
+
+        Obj mX; const Obj& X = mX;
+
+        bteso_SocketHandle::Handle socket[2];
+
+        int rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
+                             socket, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+        ASSERT(0 == rc);
+
+        bdef_Function<void (*)()> deregisterCallback(
+                bdef_MemFnUtil::memFn(&Obj::deregisterAll, &mX));
+
+        ASSERT(0 == mX.registerSocketEvent(socket[0],
+                                           bteso_EventType::BTESO_READ,
+                                           deregisterCallback));
+        ASSERT(0 == mX.registerSocketEvent(socket[0],
+                                           bteso_EventType::BTESO_WRITE,
+                                           deregisterCallback));
+        ASSERT(0 == mX.registerSocketEvent(socket[1],
+                                           bteso_EventType::BTESO_READ,
+                                           deregisterCallback));
+        ASSERT(0 == mX.registerSocketEvent(socket[1],
+                                           bteso_EventType::BTESO_WRITE,
+                                           deregisterCallback));
+
+        char wBuffer[NUM_BYTES];
+        memset(wBuffer,'4', NUM_BYTES);
+        rc = bteso_SocketImpUtil::write(socket[0], &wBuffer, NUM_BYTES, 0);
+        ASSERT(0 < rc);
+        rc = bteso_SocketImpUtil::write(socket[1], &wBuffer, NUM_BYTES, 0);
+        ASSERT(0 < rc);
+
+        ASSERT(1 == mX.dispatch(bdet_TimeInterval(1.0), 0));
+
+      } break;
+
+      case 17: {
+        // -----------------------------------------------------------------
+        // TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity'
+        //
+        // Concern:
+        //: 1 'hasLimitiedSocketCapacity' returns 'true'.
+        //:
+        //: 2 'canRegisterSockets' returns 'true' upto 'BTESO_MAX_NUM_HANDLES'
+        //:   handles are registered and 'false' after that.
+        //
+        // Plan:
+        //: 1 Assert that 'hasLimitedSocketCapacity' returns 'true'.
+        //:
+        //: 2 Register socket events upto 'BTESO_MAX_NUM_HANDLES'.  Verify
+        //:   that 'canRegisterSockets' always returns 'true'.  After that
+        //:   limit confirm that 'canRegisterSockets' returns 'false'.
         //
         // Testing:
         //   bool canRegisterSockets() const;
+        //   bool hasLimitedSocketCapacity() const;
         // -----------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "TESTING 'canRegisterSockets'" << endl
-                          << "============================" << endl;
 
+        if (verbose) cout << endl
+                << "TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity"
+                << endl
+                << "=========================================================="
+                << endl;
+
+        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
         {
             Obj mX;  const Obj& X = mX;
-            if (veryVerbose) { P(FD_SETSIZE); }
+            bool hlsc = X.hasLimitedSocketCapacity();
+            LOOP_ASSERT(hlsc, true == hlsc);
+        }
+
+        // TBD: Complete
+        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            if (veryVerbose) { P(Obj::BTESO_MAX_NUM_HANDLES); }
 
             int errorCode = 0;
             bteso_SocketHandle::Handle handle = 0;
-            for (; handle < FD_SETSIZE - 1; ++handle) {
+            for (; handle < Obj::BTESO_MAX_NUM_HANDLES - 1; ++handle) {
 
                 if (veryVerbose) { P(handle) }
 
@@ -399,8 +489,30 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
             }
 
-            ASSERT(handle == FD_SETSIZE - 1);
-//             ASSERT(!mX.canRegisterSockets());
+            ASSERT(handle == Obj::BTESO_MAX_NUM_HANDLES - 1);
+
+            if (verbose) cout << "Negative Testing." << endl;
+            {
+                bsls_AssertFailureHandlerGuard hG(
+                                              bsls_AssertTest::failTestDriver);
+
+                if (veryVerbose) { P(handle) }
+
+                ASSERT(mX.canRegisterSockets());
+
+                bdef_Function<void (*)()> cb1, cb2;
+                ASSERT_PASS(mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_READ,
+                                           cb1));
+
+                ASSERT_FAIL(mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_WRITE,
+                                           cb2));
+
+                ASSERT(!mX.canRegisterSockets());
+            }
         }
       } break;
       case 16: {
