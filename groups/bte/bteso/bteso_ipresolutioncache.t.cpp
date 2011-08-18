@@ -27,6 +27,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_byteorder.h>
 
+#include <bsls_platform.h>                    // for testing only
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -317,7 +319,8 @@ bteso_IPv4Address TestResolver::lastIPv4Added()
 
 void TestResolver::reset()
 {
-    s_count = 0;
+    s_count        = 0;
+    s_numAddresses = 1;
 }
 
 void TestResolver::setNumAddresses(int value)
@@ -367,7 +370,9 @@ void resolve(bcemt_Mutex    *updateMutex,
           } break;
           case PUTENV: {
             for (int i = 0; i < NUM_CALLS; ++i) {
+#ifdef BSLS_PLATFORM__OS_AIX
                 setenv("NSORDER", "bind,local", 1);
+#endif
                 int rc = bteso_ResolveUtil::getAddressDefault(&address,
                                                               it->c_str());
                 BSLS_ASSERT(!rc);
@@ -375,9 +380,10 @@ void resolve(bcemt_Mutex    *updateMutex,
           } break;
           case CACHE_AND_PUTENV: {
             for (int i = 0; i < NUM_CALLS; ++i) {
+#ifdef BSLS_PLATFORM__OS_AIX
                 setenv("NSORDER", "bind,local", 1);
-                int rc = bteso_ResolveUtil::getAddress(&address,
-                                                       it->c_str());
+#endif
+                int rc = bteso_ResolveUtil::getAddress(&address, it->c_str());
                 BSLS_ASSERT(!rc);
             }
           } break;
@@ -1345,16 +1351,16 @@ int main(int argc, char *argv[])
         {
             bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
 
-            bslma_TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma_TestAllocator da("default", veryVeryVeryVerbose);
             bslma_Default::setDefaultAllocatorRaw(&da);
 
-            Obj obj;
+            Obj mX;
 
             if (veryVerbose) cout << "\tdescription" << endl;
             {
-                ASSERT_SAFE_FAIL(obj.setTimeToLive(bdet_DatetimeInterval(0)));
-                ASSERT_SAFE_PASS(obj.setTimeToLive(
-                                           bdet_DatetimeInterval(0, 0, 0, 1)));
+                ASSERT_SAFE_FAIL(mX.setTimeToLive(
+                                          bdet_DatetimeInterval(0, 0, 0, -1)));
+                ASSERT_SAFE_PASS(mX.setTimeToLive(bdet_DatetimeInterval(0)));
             }
         }
       } break;
@@ -1664,13 +1670,21 @@ int main(int argc, char *argv[])
         //:
         //: 3 The number of addresses returned are as expected.
         //:
-        //: 4 '
+        //: 4 'reset' puts the 'TestResolver' back to its default state.
         //:
         //
         // Plan:
         //
+        //: 1 Create a tabel of distinct configurations for 'TestResolver'
+        //:
+        //: 2 
+        //
         //
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "Test apparatus" << endl;
+
+        if (veryVerbose) cout << "Create table of distinct configurations" << endl;
 
         struct {
             int d_line;
@@ -1678,14 +1692,16 @@ int main(int argc, char *argv[])
             int d_maxNumAddresses;
         } DATA[] = {
 
-        { L_,       0,       1 },
-        { L_,       1,       1 },
-        { L_,       0,       2 },
-        { L_,       1,       2 },
-        { L_, INT_MAX,       2 },
-        { L_,       0, INT_MAX },
-        { L_,       1, INT_MAX },
-        { L_,       2, INT_MAX },
+        //LINE  RETURN      MAX
+
+        { L_,        0,       1 },
+        { L_,        1,       1 },
+        { L_,        0,       2 },
+        { L_,        1,       2 },
+        { L_,  INT_MAX,       2 },
+        { L_,        0, INT_MAX },
+        { L_,        1, INT_MAX },
+        { L_,        2, INT_MAX },
 
         };
 
@@ -1736,7 +1752,9 @@ int main(int argc, char *argv[])
         {
             TestResolver::reset();
             const int CNT = TestResolver::count();
+            const int NUM = TestResolver::numAddresses();
             LOOP_ASSERT(CNT, 0 == CNT);
+            LOOP_ASSERT(NUM, 1 == NUM);
         }
       } break;
       case 1: {
