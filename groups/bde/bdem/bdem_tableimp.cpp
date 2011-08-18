@@ -5,6 +5,7 @@
 BDES_IDENT_RCSID(bdem_tableimp_cpp,"$Id$ $CSID$")
 
 #include <bdem_functiontemplates.h>
+
 #include <bdeu_print.h>
 
 #include <bslma_autorawdeleter.h>
@@ -997,11 +998,6 @@ bool operator==(const bdem_TableImp& lhs, const bdem_TableImp& rhs)
 void bdem_TableImp_enableGeometricMemoryGrowth()
 {
     geometricMemoryGrowthFlag = true;
-}
-
-void bdem_TableImp_disableGeometricMemoryGrowth()
-{
-    geometricMemoryGrowthFlag = false;
 }
 
 bool bdem_TableImp_isGeometricMemoryGrowth()

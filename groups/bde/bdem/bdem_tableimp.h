@@ -471,10 +471,15 @@ class bdem_TableImp {
         // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
 
     void reserveRaw(bsl::size_t numRows);
-        // Reserve sufficient memory to satisfy allocation requests for at
-        // least the specified 'numRows' with minimal replenishment (i.e.,
-        // with mininal internal allocation). If '0 == numRows' the operation
-        // has no effect.
+        // Reserve sufficient memory to satisfy allocations required to insert
+        // at least the specified 'numRows' if the allocation strategy
+        // specified for this table is 'BDEM_WRITE_MANY' or 'BDEM_WRITE_ONCE'.
+        // Memory, in addition to the footprint of a row, used to initialize a
+        // row upon insertion is *not*  reserved if the allocation strategy
+        // specified for this table is 'BDEM_PASSTHROUGH' or
+        // 'BDEM_SUBORDINATE'.  Note that in the future this method may
+        // guarantee that no extra allocation will take place unless the data
+        // held by the row allocate memory itself.
 
     void reset(const bdem_ElemType::Type     columnTypes[],
                int                           numColumns,
@@ -552,11 +557,9 @@ class bdem_TableImp {
         // '0 <= columnIndex < numColumns()'.
 
     bsl::size_t capacityRaw() const;
-        // Return the number of rows for which memory has already been
-        // allocated (whether inserted or not).  Note that
-        // 'capacityRaw() - size()' represents the number of rows that
-        // can be inserted with minimal memory replenishment (minimal internal
-        // allocation).
+        // Return the number of rows for which memory was previously allocated
+        // upon insertion or via a call to 'reserveRaw'.
+        // Note that it is always true: 'size() < capacityRaw()'.
 
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified
@@ -656,25 +659,14 @@ bool operator!=(const bdem_TableImp& lhs, const bdem_TableImp& rhs);
     // column types differ in at least one column position, or corresponding
     // values at any (row, column) position are not the same.
 
-// PRIVATE GEOMETRIC MEMORY GROWTH
-
+// PRIVATE GEOMETRIC MEMORY GROWTH (TEMPORARY)
 void bdem_TableImp_enableGeometricMemoryGrowth();
     // Enable geometric memory growth, upon insertion, for 'bdem_TableImp'
-    // objects in the current process.  This method is *not* *thread-safe*,
-    // and should be invoked by the owner of 'main'.
-
-void bdem_TableImp_disableGeometricMemoryGrowth();
-    // Disable geometric memory growth, upon insertion, for 'bdem_TableImp'
-    // objects in the current process.  This method is *not* *thread-safe*,
-    // and should be invoked by the owner of 'main'.
-
-bool bdem_TableImp_isGeometricMemoryGrowth();
-    // Return 'true' if the capacity of 'bdem_TableImp' objects (in the current
-    // process) is configured to grow geometrically, and 'false' otherwise
-    // (linear growth).  Note that geometric growth is enabled,
-    // for the entire process, using
-    // 'bdem_TableImp_enableGeometricMemoryGrowth', and disabled using
-    // 'bdem_TableImp_disableGeometricMemoryGrowth'.
+    // objects in the current process.  By default, memory is obtained on
+    // and "as needed" basis.  Note that this method is provided,
+    // *temporarily*, as part of an overall transition strategy to move toward
+    // geometric memory growth being the default, and eventually the only
+    // option.  Also note that this method is *not* *thread-safe*,
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS

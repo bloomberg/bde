@@ -1041,9 +1041,15 @@ class bdem_Table {
         //  internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
 
     void reserveRaw(bsl::size_t numRows);
-        // Reserve sufficient memory to satisfy allocation requests for at
-        // least the specified 'numRows' with minimal replenishment (i.e.,
-        // with mininal internal allocation).
+        // Reserve sufficient memory to satisfy allocations required to insert
+        // at least the specified 'numRows' if the allocation strategy
+        // specified for this table is 'BDEM_WRITE_MANY' or 'BDEM_WRITE_ONCE'.
+        // Memory, in addition to the footprint of a row, used to initialize a
+        // row upon insertion is *not*  reserved if the allocation strategy
+        // specified for this table is 'BDEM_PASSTHROUGH' or
+        // 'BDEM_SUBORDINATE'.  Note that in the future this method may
+        // guarantee that no extra allocation will take place unless the data
+        // held by the row allocate memory itself.
 
     void reset(const bdem_ElemType::Type columnTypes[],
                int                       numColumns);
@@ -1185,11 +1191,9 @@ class bdem_Table {
         // this table.
 
     bsl::size_t capacityRaw() const;
-        // Return the number of rows for which memory has already been
-        // allocated (whether inserted or not).  Note that
-        // 'capacityRaw() - size()' represents the number of rows that
-        // can be inserted with the guarantee of minimal memory replenishment
-        // (minimal internal allocation).
+        // Return the number of rows for which memory was previously allocated
+        // upon insertion or via a call to 'reserveRaw'.
+        // Note that it is always true: 'size() < capacityRaw()'.
 
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified

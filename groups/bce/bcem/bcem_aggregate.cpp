@@ -1516,9 +1516,10 @@ bcem_Aggregate& bcem_Aggregate::operator=(const bcem_Aggregate& rhs)
 const bcem_Aggregate  bcem_Aggregate::reserveRaw(bsl::size_t numItems)
 {
     if(!bdem_ElemType::isArrayType(d_dataType)) {
-        return makeError(BCEM_ERR_NOT_AN_ARRAY,
-                         "Attempt to reserve on non-array aggregate of type %s",
-                         bdem_ElemType::toAscii(d_dataType));
+        return makeError(
+                       BCEM_ERR_NOT_AN_ARRAY,
+                       "Attempt to reserve on non-array aggregate of type %s",
+                       bdem_ElemType::toAscii(d_dataType));
     }
 
     int status = 0;

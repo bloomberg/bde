@@ -1317,7 +1317,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING: 'capacityRaw()' method
+        // TESTING: 'capacityRaw' method
         //
         // Concerns:
         //: 1 Reserving memory actually causes capacity to change consistently.
@@ -3729,7 +3729,7 @@ int main(int argc, char *argv[])
                     ASSERT(X.theItem(0).selector() == -1);
                     ASSERT(X.theItem(0).isSelectionNull());
 
-                    // Set the choice  and verify it's modified value
+                    // Set the choice and verify it's modified value
                     const char  type   = SPECIFICATIONS[j];
                     const void *valueA = getValueA(type);
                     mX.theModifiableItem(0).makeSelection(j, valueA);

@@ -1558,7 +1558,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // METHODS 'reserveRaw' and 'capacityRaw'
+        // 'reserveRaw' and 'capacityRaw' METHODS
         //
         // Concerns:
         //: 1 'reserveRaw' correctly forwards to the method
@@ -1579,7 +1579,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing 'reserveRaw' and 'getCapacitiyRaw'\n"
-                          << "==========================================\n"
+                          << "==========================================\n";
 
         static const Strategy STRATEGY_DATA[] = {
                 BDEM_PASS_THROUGH,
@@ -3108,8 +3108,9 @@ int main(int argc, char *argv[])
                         // validate the copy constructed versions are identical
                         Obj a1(ORIG);                       const Obj& A1 = a1;
                         Obj a2(ORIG,&testAllocator);        const Obj& A2 = a2;
-                        Obj b1(ORIG,BDEM_PASS_THROUGH);                const Obj& B1 = a1;
-                        Obj b2(ORIG,BDEM_PASS_THROUGH,&testAllocator); const Obj& B2 = a2;
+                        Obj b1(ORIG,BDEM_PASS_THROUGH);     const Obj& B1 = a1;
+                        Obj b2(ORIG,BDEM_PASS_THROUGH,&testAllocator);
+                                                            const Obj& B2 = a2;
 
                         ASSERT(ORIG == A1);
                         ASSERT(ORIG == A2);
@@ -3121,8 +3122,9 @@ int main(int argc, char *argv[])
                     if (LEN>0) {
                         Obj a1(ORIG);                       const Obj& A1 = a1;
                         Obj a2(ORIG,&testAllocator);        const Obj& A2 = a2;
-                        Obj b1(ORIG,BDEM_PASS_THROUGH);                const Obj& B1 = a1;
-                        Obj b2(ORIG,BDEM_PASS_THROUGH,&testAllocator); const Obj& B2 = a2;
+                        Obj b1(ORIG,BDEM_PASS_THROUGH);     const Obj& B1 = a1;
+                        Obj b2(ORIG,BDEM_PASS_THROUGH,&testAllocator);
+                                                            const Obj& B2 = a2;
 
                         ASSERT(ORIG == A1);
                         ASSERT(ORIG == A2);
@@ -3149,8 +3151,9 @@ int main(int argc, char *argv[])
                     {
                         Obj a1(ORIG);                       const Obj& A1 = a1;
                         Obj a2(ORIG,&testAllocator);        const Obj& A2 = a2;
-                        Obj b1(ORIG,BDEM_PASS_THROUGH);                const Obj& B1 = a1;
-                        Obj b2(ORIG,BDEM_PASS_THROUGH,&testAllocator); const Obj& B2 = a2;
+                        Obj b1(ORIG,BDEM_PASS_THROUGH);     const Obj& B1 = a1;
+                        Obj b2(ORIG,BDEM_PASS_THROUGH,&testAllocator);
+                                                            const Obj& B2 = a2;
 
                         ASSERT(ORIG == A1);
                         ASSERT(ORIG == A2);
@@ -3353,7 +3356,7 @@ int main(int argc, char *argv[])
                 BEGIN_BSLMA_EXCEPTION_TEST {
                     // test variants with no catalog
                     Obj a1(&ta);                          const Obj &A1 = a1;
-                    Obj a2(BDEM_PASS_THROUGH,&ta);                   const Obj &A2 = a2;
+                    Obj a2(BDEM_PASS_THROUGH,&ta);        const Obj &A2 = a2;
 
                     ASSERT(0 == A1.numSelections());
                     ASSERT(0 == A2.numSelections());
@@ -3370,7 +3373,8 @@ int main(int argc, char *argv[])
                     const EType::Type *cPtr = (CATALOG.size()>0) ?
                                                    &CATALOG.front() : NULL;
 
-                    Obj a3(cPtr,CATALOG.size(),BDEM_PASS_THROUGH,&ta); const Obj &A3 = a3;
+                    Obj a3(cPtr,CATALOG.size(),BDEM_PASS_THROUGH,&ta);
+                                                            const Obj &A3 = a3;
                     Obj a4(cPtr,CATALOG.size(),&ta);        const Obj &A4 = a4;
                     Obj a5(CATALOG,&ta);                    const Obj &A5 = a5;
 
@@ -3961,7 +3965,7 @@ int main(int argc, char *argv[])
                     bsl::cout << "\tTesting with empty string" << bsl::endl;
                 }
                 // create and populate mX
-                Obj mX(NULL,0,BDEM_PASS_THROUGH,&tAlloc);       const Obj &X = mX;
+                Obj mX(NULL,0,BDEM_PASS_THROUGH,&tAlloc);    const Obj &X = mX;
                 populateData(&mX,VALUES_A);
 
                 ASSERT(0 == X.length());

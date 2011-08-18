@@ -1422,8 +1422,8 @@ bdem_List gList(const char *spec, const bdem_List& referenceList)
     // Return a list composed of the specified 'referenceList' elements
     // identified by the characters in the specified 'spec' string.  Valid
     // input consists of uppercase letters where the index of each letter in
-    // "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef" is in the range [0
-    // .. srcList.length()-1].  Note that this function assumes that the
+    // "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef" is in the range
+    // '[0 .. srcList.length() - 1]'.  Note that this function assumes that the
     // 'bdem_List' copy constructor and its 'appendElement' method have been
     // demonstrate to work properly.
 {
@@ -2168,7 +2168,7 @@ DEFINE_TEST_CASE(22) {
 
 DEFINE_TEST_CASE(21) {
     // --------------------------------------------------------------------
-    // TESTING 'reserveRaw' and 'capacityRaw'
+    // 'reserveRaw' and 'capacityRaw' METHODS
     //
     // Concerns:
     //: 1 'reserveRaw' correctly forwards to the method
@@ -8643,8 +8643,8 @@ DEFINE_TEST_CASE(5) {
         if (veryVeryVerbose) { T_ T_ P(T2AB) }
 
 // TBD
-//Q(FIX ME - CHAR data should be enclosed in single-quotes when printed)
-//Q(FIX ME - STRING data should be enclosed in double-quotes when printed)
+//Q(CHAR data should be enclosed in single-quotes when printed)
+//Q(STRING data should be enclosed in double-quotes when printed)
 //
 //Note: doing these fixes would involve changing bdem_properties.cpp, and
 //affect the print() behavior of many components, so many .t.cpp's would have

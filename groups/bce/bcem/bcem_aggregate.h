@@ -1264,12 +1264,14 @@ class bcem_Aggregate {
 
     const bcem_Aggregate reserveRaw(bsl::size_t numItems);
         // Reserve sufficient memory to satisfy allocation requests for at
-        // least the specified 'numItems' with minimal replenishment (i.e.,
-        // with mininal internal allocation) in the scalar array, choice array,
-        // or table referenced by this aggregate.  Return the value of this
-        // aggregate on success or an error aggregate if this aggregate does
-        // not reference an array type.  Return the value of this object on
-        // successs, and error aggregate otherwise.
+        // least the specified 'numItems' in the scalar array, choice array and
+        // table.  If the aggregate references a table and  if the allocation
+        // strategy specified for this aggregate is 'BDEM_PASS_THROUGH' or
+        // 'BDEM_SUBORDINATE', then,  memory,  in addition to the footprint of
+        // a row, required to initialize a row upon insertion is *not*
+        // reserved (see 'bdem_table').  Return the value of this aggregate on
+        // success or an error aggregate if this aggregate does not reference
+        // an array type.
 
     const bcem_Aggregate& reset();
         // Reset this object to the void aggregate ('BDEM_VOID' data type, no
@@ -1827,13 +1829,12 @@ class bcem_Aggregate {
     // ACCESSORS
     const bcem_Aggregate capacityRaw(bsl::size_t *capacity) const;
         // Load, in the specified 'capacity',  the number of items for which
-        // memory has already been allocated (inserted or not) in the scalar
-        // array, choice array, or table referenced by this aggregate.  Return
-        // the value of this aggregate on success or an error aggregate
-        // if this aggregate does not reference an array type.  Note that
-        // '*capacity - length()' represents the number of items that can be
-        // inserted in the underlying array with minimal memory replenishment
-        // (minimal internal allocation).
+        // memory was previously allocated in the scalar array, choice array or
+        // table referenced by this aggregate, upon insertion or via a call to
+        // 'reserveRaw'.  Return the value of this aggregate on
+        // success or an error aggregate if this aggregate does not reference
+        // an array type.  Note that it is always true:
+        // 'length() < capacityRaw()'.
 
     bool isError() const;
         // Return 'true' if this object was returned from a function that

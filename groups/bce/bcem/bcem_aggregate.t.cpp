@@ -4141,7 +4141,7 @@ static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
     // Testing the following functions:
     //     const bcem_Aggregate reserveRaw(size_t numItems) const;
     // --------------------------------------------------------------------
-    
+
     if (verbose) cout << "Testing with a table-type aggregate" << endl;
 
     for (int i = 1; i <= 4096; i <<= 1)
@@ -4162,7 +4162,8 @@ static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         LOOP_ASSERT(i, bcem_Aggregate::areEquivalent(RESULT, tableAggregate));
 
         const size_t DELTA_TABLE = NUM_BYTES_TABLE - ta.numBytesTotal();
-        const size_t DELTA_AGGREGATE = NUM_BYTES_AGGREGATE - aa.numBytesTotal();
+        const size_t DELTA_AGGREGATE =
+                                      NUM_BYTES_AGGREGATE - aa.numBytesTotal();
         LOOP3_ASSERT(i,
                      DELTA_TABLE,
                      DELTA_AGGREGATE,
@@ -4192,7 +4193,8 @@ static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         const size_t DELTA_CHOICEARRAY =
                                     NUM_BYTES_CHOICEARRAY - ca.numBytesTotal();
-        const size_t DELTA_AGGREGATE = NUM_BYTES_AGGREGATE - aa.numBytesTotal();
+        const size_t DELTA_AGGREGATE =
+                                      NUM_BYTES_AGGREGATE - aa.numBytesTotal();
         LOOP3_ASSERT(i,
                      DELTA_CHOICEARRAY,
                      DELTA_AGGREGATE,
@@ -4222,7 +4224,8 @@ static void testCase29(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         const size_t DELTA_SCALARARRAY =
                                     NUM_BYTES_SCALARARRAY - sa.numBytesTotal();
-        const size_t DELTA_AGGREGATE = NUM_BYTES_AGGREGATE - aa.numBytesTotal();
+        const size_t DELTA_AGGREGATE =
+                                      NUM_BYTES_AGGREGATE - aa.numBytesTotal();
         LOOP3_ASSERT(i,
                      DELTA_SCALARARRAY,
                      DELTA_AGGREGATE,
@@ -7193,7 +7196,8 @@ static void testCase19(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 Schema schema; const Schema& SCHEMA = schema;
                 ggSchema(&schema, SPEC);
                 const RecDef *RECORD = &SCHEMA.record(SCHEMA.numRecords() - 1);
-                const RecDef *SUB_REC = &SCHEMA.record(SCHEMA.numRecords() - 2);
+                const RecDef *SUB_REC =
+                                       &SCHEMA.record(SCHEMA.numRecords() - 2);
                 ConstRecDefShdPtr crp(RECORD, NilDeleter(), 0);
                 const ConstRecDefShdPtr& CRP = crp;
 
