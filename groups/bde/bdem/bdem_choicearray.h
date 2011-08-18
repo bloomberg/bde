@@ -611,7 +611,7 @@ class bdem_ChoiceArray {
     bsl::size_t capacityRaw() const;
         // Return the number of items for which memory was previously allocated
         // upon insertion or via a call to 'reserveRaw'.
-        // Note that it is always true: 'lenght() < capacityRaw()'.
+        // Note that it is always true: 'lenght() <= capacityRaw()'.
 
     int length() const;
         // Return the number of choice array items in this choice array.

@@ -1834,7 +1834,7 @@ class bcem_Aggregate {
         // 'reserveRaw'.  Return the value of this aggregate on
         // success or an error aggregate if this aggregate does not reference
         // an array type.  Note that it is always true:
-        // 'length() < capacityRaw()'.
+        // 'length() <= capacityRaw()'.
 
     bool isError() const;
         // Return 'true' if this object was returned from a function that

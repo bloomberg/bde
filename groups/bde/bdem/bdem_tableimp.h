@@ -559,7 +559,7 @@ class bdem_TableImp {
     bsl::size_t capacityRaw() const;
         // Return the number of rows for which memory was previously allocated
         // upon insertion or via a call to 'reserveRaw'.
-        // Note that it is always true: 'size() < capacityRaw()'.
+        // Note that it is always true: 'size() <= capacityRaw()'.
 
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified
