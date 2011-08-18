@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for memory block growth strategies.
 //
 //@CLASSES:
-//  bsls_BlockGrowth: namespace for enumerated growth strategy values
+//   bsls_BlockGrowth: namespace for enumerated growth strategy values
 //
 //@SEE_ALSO: bsls_alignment
 //

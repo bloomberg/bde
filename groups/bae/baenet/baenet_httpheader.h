@@ -11,7 +11,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for HTTP headers.
 //
-//@CLASSES: baenet_HttpHeader: protocol for HTTP headers
+//@CLASSES:
+//   baenet_HttpHeader: protocol for HTTP headers
 //
 //@SEE_ALSO: baenet_httpbasicheaderfields
 //

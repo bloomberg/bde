@@ -4354,6 +4354,16 @@ public:
     }
 };
 
+class SelfReference
+{
+    // DATA
+    bcema_SharedPtr<SelfReference> d_dataPtr;
+
+  public:
+    // MANIPULATORS
+    void setData(bcema_SharedPtr<SelfReference>& value) { d_dataPtr = value; }
+    void release() { d_dataPtr.reset(); }
+};
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -4374,7 +4384,37 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-    case 20: {
+    case 21: {
+        // --------------------------------------------------------------------
+        // TESTING 'reset' using a self-referenced shared ptr (DRQS 26465543)
+        //
+        // Concerns: 
+        //: 1 Resetting the last reference to a self-referenced shared pointer
+        //:   calls 'releaseRef' only once.
+        //
+        // Plan:
+        //: 1 Create a self-referring shared pointer.
+        //:
+        //: 2 Call 'reset' on the referenced object. 
+        //:
+        //: 3 Verify that an assertion failure does not happen (in any mode).
+        //
+        // Testing:
+        //   void reset();
+        // --------------------------------------------------------------------
+
+        SelfReference *ptr;
+        {
+            bcema_SharedPtr<SelfReference> mX;
+            mX.createInplace();
+            mX->setData(mX);
+            ptr = mX.ptr();
+        }
+
+        ptr->release();
+      } break;        
+      case 20: {
+        // --------------------------------------------------------------------
         // TESTING constructing from ManagedPtr
         // 
         // Concerns: 
@@ -4386,6 +4426,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bcema_SharedPtr(bdema_ManagedPtr<OT> & original);
+        // --------------------------------------------------------------------
 
         ManagedPtrTestDeleter<int> deleter;
 
@@ -4454,7 +4495,8 @@ int main(int argc, char *argv[])
                                                          makeOutofplaceRep(x,
                                                                            t,
                                                                            t);
-            bcema_SharedPtrOutofplaceRep<int, bslma_TestAllocator*>&impl = *implPtr;
+            bcema_SharedPtrOutofplaceRep<int, bslma_TestAllocator*>&impl
+                                                              = *implPtr;
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
 
             impl.acquireRef();
@@ -6766,8 +6808,6 @@ int main(int argc, char *argv[])
         //   bool unique() const;
         //   int use_count() const;
         //   void clear();
-        //   void reset();
-        //
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

@@ -238,6 +238,7 @@ static void aSsErT(int c, const char *s, int i)
 typedef baesu_StackTraceFrame Obj;
 
 typedef bsls_Types::UintPtr   UintPtr;
+typedef bsls_Types::Int64     Int64;
 
 // Attribute Types
 typedef const void *T1;  // 'address'
@@ -618,9 +619,9 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 class bslma_TestAllocatorMonitor {
 
     // DATA
-    int                              d_lastInUse;
-    int                              d_lastMax;
-    int                              d_lastTotal;
+    Int64                              d_lastInUse;
+    Int64                              d_lastMax;
+    Int64                              d_lastTotal;
     const bslma_TestAllocator *const d_allocator_p;
 
   public:

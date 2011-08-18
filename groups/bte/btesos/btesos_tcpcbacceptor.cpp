@@ -255,7 +255,8 @@ void btesos_TcpCbAcceptor::acceptCb() {
                                                                 d_manager_p,
                                                                 d_allocator_p);
             bsl::vector<btesc_CbChannel*>::iterator idx =
-                bsl::lower_bound(d_channels.begin(), d_channels.end(), result);
+                bsl::lower_bound(d_channels.begin(), d_channels.end(),
+                                 static_cast<btesc_CbChannel*>(result));
             d_channels.insert(idx, result);
             d_currentRequest_p->invokeTimed(result, 0);
         }
@@ -266,7 +267,8 @@ void btesos_TcpCbAcceptor::acceptCb() {
                                          d_manager_p,
                                          d_allocator_p);
             bsl::vector<btesc_CbChannel*>::iterator idx =
-                bsl::lower_bound(d_channels.begin(), d_channels.end(), result);
+                bsl::lower_bound(d_channels.begin(), d_channels.end(),
+                                 static_cast<btesc_CbChannel*>(result));
             d_channels.insert(idx, result);
             d_currentRequest_p->invoke(result, 0);
         }

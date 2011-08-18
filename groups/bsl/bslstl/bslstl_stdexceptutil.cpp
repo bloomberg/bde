@@ -8,6 +8,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_platform.h>
 
 #include <stdexcept>
+#include <string>
 
 #ifdef BSLSTL_STDEXCEPTUTIL_NORETURN
 #error BSLSTL_STDEXCEPTUTIL_NORETURN \

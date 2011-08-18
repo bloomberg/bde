@@ -866,6 +866,12 @@ class bcem_Aggregate {
                                                           // aggregate in bit
                                                           // 0
 
+    // PRIVATE CLASS METHODS
+    template <typename TYPE>
+    static bdem_ElemType::Type getBdemType(const TYPE& value);
+        // Return the 'bdem_ElemType::Type' corresponding to the parameterized
+        // 'value'.
+
     // PRIVATE MANIPULATORS
     int assignToNillableScalarArrayImp(const bdem_ElemRef& value) const;
     int assignToNillableScalarArrayImp(const bdem_ConstElemRef& value) const;
@@ -2844,6 +2850,35 @@ int bcem_Aggregate_Util::visitArray(void                *array,
                         // class bcem_Aggregate
                         //---------------------
 
+// PRIVATE CLASS METHODS
+template <typename TYPE>
+inline
+bdem_ElemType::Type bcem_Aggregate::getBdemType(const TYPE&)
+{
+    return (bdem_ElemType::Type) bdem_SelectBdemType<TYPE>::VALUE;
+}
+
+template <>
+inline
+bdem_ElemType::Type bcem_Aggregate::getBdemType(const bdem_ConstElemRef& value)
+{
+    return value.type();
+}
+
+template <>
+inline
+bdem_ElemType::Type bcem_Aggregate::getBdemType(const bdem_ElemRef& value)
+{
+    return value.type();
+}
+
+template <>
+inline
+bdem_ElemType::Type bcem_Aggregate::getBdemType(const bcem_Aggregate& value)
+{
+    return value.dataType();
+}
+
 // PRIVATE MANIPULATORS
 template <typename TYPE>
 inline
@@ -2930,8 +2965,9 @@ bcem_Aggregate::toEnum(const VALUETYPE& value, bslmf_MetaInt<0> direct) const
     if (bdem_Convert::convert(&intVal, value)) {
         return makeError(
                 BCEM_ERR_BAD_CONVERSION,
-                "Invalid conversion to enumeration \"%s\"",
-                bcem_Aggregate_Util::enumerationName(enumerationConstraint()));
+                "Invalid conversion to enumeration \"%s\" from \"%s\"",
+                bcem_Aggregate_Util::enumerationName(enumerationConstraint()),
+                bdem_ElemType::toAscii(getBdemType(value)));
     }
     return toEnum(intVal, direct);
 }
@@ -2987,9 +3023,11 @@ int bcem_Aggregate::setValueInPlace(const VALTYPE& value)
     else {
         bdem_ElemRef elemRef = asElemRef();
         if (bdem_Convert::convert(&elemRef, value)) {
-            *this = makeError(BCEM_ERR_BAD_CONVERSION,
-                              "Invalid conversion when setting %s value",
-                              bdem_ElemType::toAscii(d_dataType));
+            *this = makeError(
+                           BCEM_ERR_BAD_CONVERSION,
+                           "Invalid conversion when setting %s value from %s",
+                           bdem_ElemType::toAscii(d_dataType),
+                           bdem_ElemType::toAscii(getBdemType(value)));
             return BCEM_ERR_BAD_CONVERSION;                           // RETURN
         }
     }
@@ -3032,8 +3070,10 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
 {
     int status = bdem_Convert::toBdemType(d_value.ptr(), dataType, value);
     if (status) {
-        *this = makeError(BCEM_ERR_BAD_CONVERSION, "Invalid conversion to %s",
-                          bdem_ElemType::toAscii(dataType));
+        *this = makeError(BCEM_ERR_BAD_CONVERSION,
+                          "Invalid conversion to %s from %s",
+                          bdem_ElemType::toAscii(dataType),
+                          bdem_ElemType::toAscii(getBdemType(value)));
     }
     else {
         d_isTopLevelAggregateNull.createInplace(basicAllocator, 0);
@@ -3149,8 +3189,11 @@ const bcem_Aggregate bcem_Aggregate::setValue(const VALTYPE& value) const
         bdem_ElemRef elemRef = asElemRef();
         if (bdem_Convert::convert(&elemRef, value)) {
             return makeError(BCEM_ERR_BAD_CONVERSION,
-                             "Invalid conversion when setting %s value",
-                             bdem_ElemType::toAscii(d_dataType));     // RETURN
+                             "Invalid conversion when setting "
+                             "%s value from %s value",
+                             bdem_ElemType::toAscii(d_dataType),
+                             bdem_ElemType::toAscii(getBdemType(value)));
+                                                                      // RETURN
         }
     }
 

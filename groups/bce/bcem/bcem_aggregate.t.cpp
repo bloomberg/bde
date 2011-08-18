@@ -214,7 +214,7 @@ using bsl::flush;
 //      void setItem(int index, const VALTYPE& value) const;
 // [16] template <typename VALTYPE>
 //      void append(const VALTYPE& newItem) const;
-// [20] const bcem_Aggregate reserveRaw(size_t numItems) const;
+// [29] const bcem_Aggregate reserveRaw(size_t numItems) const;
 // [16] template <typename VALTYPE>
 //      void insert(int pos, const VALTYPE& newItem) const;
 // [15] void resize(int newSize) const;
@@ -254,7 +254,7 @@ using bsl::flush;
 // [ 6] bdet_Time asTime() const;
 // [ 6] bdet_TimeTz asTimeTz() const;
 // [ 7] bdem_ConstElemRef asElemRef() const;
-// [21] bsl::size_t capacityRaw() const;
+// [30] bsl::size_t capacityRaw() const;
 // [ 5] bool hasField(const char *fieldName) const;
 // [ 5] bcem_Aggregate field(NameOrIndex fieldOrIdx) const;
 // [ 5] bcem_Aggregate field(NameOrIndex fieldOrIdx1,
@@ -330,7 +330,7 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] ggSchema, ggList, ggTable, ggChoice, ggChoiceArray
-// [29] USAGE EXAMPLE
+// [31] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //==========================================================================
@@ -3565,7 +3565,7 @@ enum {
 //-----------------------------------------------------------------------------
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
+static void testCase33(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 {
     // --------------------------------------------------------------------
     // TESTING 'isUnset':
@@ -3701,6 +3701,98 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
     }
 }
 #endif
+
+static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose) 
+{
+    // --------------------------------------------------------------------
+    // TESTING 'makeError' error message:
+    //
+    // Concerns:
+    //: 1 'makeError' prints the expected error message.
+    //
+    // Plan:
+    //
+    // Testing:
+    // --------------------------------------------------------------------
+
+    if (verbose) tst::cout << "\nTESTING 'makeError'"
+                           << "\n===================" << bsl::endl;
+
+    {
+        const char        AA = 'X';
+              bdet_Date   BB(1, 1, 1);
+        const bsl::string S1("Invalid conversion to CHAR from DATE");
+        const bsl::string S2("Invalid conversion when setting "
+                             "CHAR value from DATE value");
+
+        {
+            Obj mX(ET::BDEM_CHAR, BB);  const Obj& X = mX;
+
+            ASSERT(X.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(S1 == X.errorMessage());
+
+            Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
+            const Obj ERR = Y.setValue(BB);
+
+            ASSERT(!Y.isError());
+            ASSERT(ERR.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(S2 == ERR.errorMessage());
+        }
+
+        {
+            CERef CER(&BB, EAL::lookupTable()[ET::BDEM_DATE]);
+            Obj mX(ET::BDEM_CHAR, CER);  const Obj& X = mX;
+
+            ASSERT(X.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(S1 == X.errorMessage());
+
+            Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
+            const Obj ERR = Y.setValue(BB);
+
+            ASSERT(!Y.isError());
+            ASSERT(ERR.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(S2 == ERR.errorMessage());
+        }
+
+        {
+            ERef ER(&BB, EAL::lookupTable()[ET::BDEM_DATE]);
+            Obj mX(ET::BDEM_CHAR, ER);  const Obj& X = mX;
+
+            ASSERT(X.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            LOOP_ASSERT(X.errorMessage(), S1 == X.errorMessage());
+
+            Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
+            const Obj ERR = Y.setValue(BB);
+
+            ASSERT(!Y.isError());
+            ASSERT(ERR.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(S2 == ERR.errorMessage());
+        }
+
+        {
+            Obj mZ(ET::BDEM_DATE, BB);
+            Obj mX(ET::BDEM_CHAR, mZ);  const Obj& X = mX;
+
+            ASSERT(X.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == X.errorCode());
+            ASSERT(S1 == X.errorMessage());
+
+            Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
+            const Obj ERR = Y.setValue(BB);
+
+            ASSERT(!Y.isError());
+            ASSERT(ERR.isError());
+            ASSERT(bcem_Aggregate::BCEM_ERR_BAD_CONVERSION == ERR.errorCode());
+            ASSERT(S2 == ERR.errorMessage());
+        }
+    }
+}
 
 static void testCase31(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // --------------------------------------------------------------------
@@ -16322,8 +16414,9 @@ int main(int argc, char *argv[])
 #define CASE(NUMBER) \
     case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-        CASE(32);
+        CASE(33);
 #endif
+        CASE(32);
         CASE(31);
         CASE(30);
         CASE(29);
@@ -16377,4 +16470,4 @@ int main(int argc, char *argv[])
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ---------------------------- END-OF-FILE ---------------------------------
