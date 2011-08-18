@@ -123,6 +123,14 @@ class bdex_TestOutStream {
 
     // FRIENDS
     friend bsl::ostream& operator<<(bsl::ostream&, const bdex_TestOutStream&);
+
+    // NOT DEFINED
+    bdex_TestOutStream(const bdex_TestOutStream&);
+    bdex_TestOutStream& operator=(const bdex_TestOutStream&);
+
+    bool operator==(const bdex_TestOutStream&) const;
+    bool operator!=(const bdex_TestOutStream&) const;
+
   public:
     // CREATORS
     bdex_TestOutStream(bslma_Allocator *basicAllocator = 0);

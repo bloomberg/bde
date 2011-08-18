@@ -180,6 +180,10 @@ class baecs_Journal_PageHeaderReadGuard {
                                      const baecs_Journal_PageHeaderReadGuard&);
     baecs_Journal_PageHeaderReadGuard& operator=(
                                      const baecs_Journal_PageHeaderReadGuard&);
+
+    bool operator==(const baecs_Journal_PageHeaderReadGuard&) const;
+    bool operator!=(const baecs_Journal_PageHeaderReadGuard&) const;
+
   public:
     // CREATORS
     baecs_Journal_PageHeaderReadGuard(const baecs_Journal *journal,
@@ -231,6 +235,10 @@ class baecs_Journal_PageHeaderWriteGuard {
     baecs_Journal           *d_journal_p;
     unsigned                 d_page;
     baecs_JournalPageHeader *d_header_p;
+
+    // NOT IMPLEMENTED
+    bool operator==(const baecs_Journal_PageHeaderWriteGuard&) const;
+    bool operator!=(const baecs_Journal_PageHeaderWriteGuard&) const;
 
   public:
     // CREATORS

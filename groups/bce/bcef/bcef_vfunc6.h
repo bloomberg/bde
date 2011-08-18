@@ -99,6 +99,15 @@ class bcef_Vfunc6 {
     bcefr_Vfunc6<A1, A2, A3, A4, A5, A6> *d_rep_p;
         // polymorphic functor representation
 
+    // NOT IMPLEMENTED
+    bool operator==(const bcef_Vfunc6&) const;
+    bool operator!=(const bcef_Vfunc6&) const;
+
+    template<class B1, class B2, class B3, class B4, class B5, class B6>
+    bool operator==(const bcef_Vfunc6<B1, B2, B3, B4, B5, B6>&) const;
+    template<class B1, class B2, class B3, class B4, class B5, class B6>
+    bool operator!=(const bcef_Vfunc6<B1, B2, B3, B4, B5, B6>&) const;
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcef_Vfunc6,

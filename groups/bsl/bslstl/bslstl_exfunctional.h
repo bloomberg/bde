@@ -73,6 +73,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>  // for 'std::unary_function'
 #define INCLUDED_FUNCTIONAL
@@ -84,6 +88,19 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 namespace bsl {
+
+#if defined(BDE_BUILD_TARGET_STLPORT)
+
+// STLPort provides these definitions in the 'std' namespace.
+using native_std::unary_compose;
+using native_std::binary_compose;
+using native_std::identity;
+using native_std::select1st;
+using native_std::select2nd;
+using native_std::compose1;
+using native_std::compose2;
+
+#else
 
                     // ========================
                     // class bsl::unary_compose
@@ -242,6 +259,8 @@ compose2(const OPERATION1& fn1,
 {
     return binary_compose<OPERATION1, OPERATION2, OPERATION3>(fn1, fn2, fn3);
 }
+
+#endif  // BDE_BUILD_TARGET_STLPORT
 
                     // ===========================
                     // class bsl::StringComparator

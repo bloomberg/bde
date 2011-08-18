@@ -25,6 +25,16 @@ BSLS_IDENT("$Id: $")
 
 #include <cmath>
 
+#if !defined(BDE_DONT_ALLOW_TRANSITIVE_INCLUDES) && \
+     defined(BDE_BUILD_TARGET_STLPORT)           && \
+     (!defined(BSL_LEGACY) || BSL_LEGACY == 1)
+
+// Code in Robo depends on <math.h> included transitively with <cmath> and it
+// fails to build otherwise in the stlport4 mode on Sun.
+#include <math.h>
+
+#endif
+
 namespace bsl
 {
     // Import selected symbols into bsl namespace

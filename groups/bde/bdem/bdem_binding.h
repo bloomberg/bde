@@ -216,11 +216,10 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Given the large number of classes provided by this component, we present
-// three examples illustrating basic use of several of the binding classes.
-// The three examples make use of a common schema and common data, which is
-// described in this initial section.  The three examples follow in separate
-// sub-sections.
+// Given the large number of classes provided by this component, we present two
+// examples illustrating basic use of several of the binding classes.  The two
+// examples make use of a common schema and common data, which is described in
+// this initial section.  The two examples follow in separate sub-sections.
 //
 // The schema used in these examples is shown in Figure 1 below:
 //..
@@ -501,8 +500,9 @@ BDES_IDENT("$Id: $")
 //        ]
 //      ]
 //..
-///Usage Example 1
-///- - - - - - - -
+//
+///Example 1
+///- - - - -
 // This first example illustrates basic use of row bindings.  First we create
 // a row binding useful for accessing elements of 'teamA' using the constructor
 // that takes a 'const bdem_List *', a 'const bdem_Schema *', and a
@@ -577,8 +577,9 @@ BDES_IDENT("$Id: $")
 //  Team A revised revenue (knuts x M) = 113.2
 //  Michael Blix is another team leader.
 //..
-///Usage Example 2
-///- - - - - - - -
+//
+///Example 2
+///- - - - -
 // This second example illustrates row, table, and column bindings used in
 // combination to print out the members of the Widgets department.  We create
 // a row binding to access the contents of the department:

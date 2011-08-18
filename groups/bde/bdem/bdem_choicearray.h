@@ -103,14 +103,14 @@ BDES_IDENT("$Id: $")
 // object simultaneously in separate threads.
 //
 ///Usage
-//------
+///-----
 // We provide two examples.  The first one is self-contained and shows basic
 // usage.  The second one will show how to populate the 'bdem_ChoiceArray' with
 // data, output the array to a data stream, read the value from the stream into
 // a new object, and access the values individually.
 //
 ///Example 1
-///---------
+///- - - - -
 // In the following example, we create a couple of 'bdem_ChoiceArray' objects,
 // add items in two different ways, and print the results.
 //..
