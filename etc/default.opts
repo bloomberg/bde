@@ -837,14 +837,17 @@ windows         _   MT_LIBTYPE  = L
 #==============================================================================
 # Regular Compiler
 
-# Flags used by cscompile/glint and supported by gcc 4.3.2 (not necessarily
-# supported by gcc 3.4.3):
+# Flags used by cscompile/glint and supported by gcc 4.3.2 (split into those supported
+# by gcc 3.4.3, then by those supported by gcc 4+):
 *-*-*-*-gcc _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
     -Wall -Wextra -Wformat-security -Wformat-y2k -Winit-self \
-    -Wlogical-op -Wno-long-long -Wno-unknown-pragmas \
-    -Wpacked -Wpointer-arith -Wstrict-overflow -Wvla -Wvolatile-register-var \
+    -Wno-long-long -Wno-unknown-pragmas \
+    -Wpacked -Wpointer-arith \
     -Wwrite-strings -Wno-unused-value -Wno-char-subscripts -Dlint -Wsign-compare \
-    -Wparentheses -fdiagnostics-show-option
+    -Wparentheses
+
+*-*-*-*-gcc-4 _  GCCEXTRAWFLAGS  = -Wlogical-op -Wstrict-overflow -Wvla \
+    -Wvolatile-register-var -fdiagnostics-show-option
 
 # Once the DRQS 22615679 warnings are cleaned up, we can reconsider making this
 # error= to force these 64-bit portability warnings to be treated as errors.
