@@ -434,7 +434,7 @@ int  bael_FileObserver2::rotateIfNecessary(
     }
 
     if (d_rotationInterval.totalSeconds()
-     && d_nextRotationTime < currentLogTime) {
+     && d_nextRotationTime <= currentLogTime) {
         return rotateFile(rotatedLogFileName);                        // RETURN
     }
     return 1;

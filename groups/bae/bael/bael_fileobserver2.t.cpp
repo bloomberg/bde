@@ -577,12 +577,12 @@ int main(int argc, char *argv[])
 
             bdesu_FileUtil::remove(BASENAME.c_str());
 
-            mX.rotateOnTimeInterval(bdet_DatetimeInterval(0, 0, 0, 3),
+            mX.rotateOnTimeInterval(bdet_DatetimeInterval(0, 0, 0, 2),
                                     bdet_Datetime(1, 1, 1));
 
             ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
-            bcemt_ThreadUtil::microSleep(100, 3);
+            bcemt_ThreadUtil::microSleep(0, 2);
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
@@ -600,12 +600,12 @@ int main(int argc, char *argv[])
 
             bdesu_FileUtil::remove(BASENAME.c_str());
 
-            mX.rotateOnTimeInterval(bdet_DatetimeInterval(0, 0, 0, 3),
+            mX.rotateOnTimeInterval(bdet_DatetimeInterval(0, 0, 0, 2),
                                     bdet_Datetime(9999, 12, 31));
 
             ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
-            bcemt_ThreadUtil::microSleep(100, 3);
+            bcemt_ThreadUtil::microSleep(0, 2);
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
-            bcemt_ThreadUtil::microSleep(100, 3);
+            bcemt_ThreadUtil::microSleep(0, 3);
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
 
@@ -728,12 +728,12 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Test normal rotation" << endl;
         {
             cb.reset();
-            bcemt_ThreadUtil::microSleep(100, 2);
+            bcemt_ThreadUtil::microSleep(0, 2);
 
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
-            bcemt_ThreadUtil::microSleep(100, 1);
+            bcemt_ThreadUtil::microSleep(0, 1);
 
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
@@ -743,14 +743,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Test delayed logging" << endl;
         {
             cb.reset();
-            bcemt_ThreadUtil::microSleep(100, 5);
+            bcemt_ThreadUtil::microSleep(0, 5);
 
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
 
-            bcemt_ThreadUtil::microSleep(100, 1);
+            bcemt_ThreadUtil::microSleep(0, 1);
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 2 == cb.numInvocations());
@@ -761,14 +761,14 @@ int main(int argc, char *argv[])
                            "Test rotation between scheduled rotations" << endl;
         {
             cb.reset();
-            bcemt_ThreadUtil::microSleep(100, 1);
+            bcemt_ThreadUtil::microSleep(0, 1);
 
             mX.forceRotation();
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
 
-            bcemt_ThreadUtil::microSleep(100, 2);
+            bcemt_ThreadUtil::microSleep(0, 2);
 
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
 
@@ -780,7 +780,7 @@ int main(int argc, char *argv[])
                        "Test disabling file logging between rotations" << endl;
         {
             cb.reset();
-            bcemt_ThreadUtil::microSleep(100, 3);
+            bcemt_ThreadUtil::microSleep(0, 3);
 
             mX.disableFileLogging();
 
@@ -795,7 +795,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Test 'disableTimeIntervalRotation" << endl;
         {
             cb.reset();
-            bcemt_ThreadUtil::microSleep(100, 3);
+            bcemt_ThreadUtil::microSleep(0, 3);
 
             mX.disableTimeIntervalRotation();
 
@@ -1047,7 +1047,7 @@ int main(int argc, char *argv[])
             bsl::vector<bsl::string> files(Z);
             for (int i = 0; i < 3; ++i) {
                 // A sleep is required because timestamp resolution is 1 second
-                bcemt_ThreadUtil::microSleep(100, 1);
+                bcemt_ThreadUtil::microSleep(0, 1);
 
                 bsl::string logName;
                 ASSERT(X.isFileLoggingEnabled(&logName));
@@ -1088,7 +1088,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 3; ++i) {
                 // A sleep is required because timestamp resolution is 1 second
-                bcemt_ThreadUtil::microSleep(100, 1);
+                bcemt_ThreadUtil::microSleep(0, 1);
 
                 mX.forceRotation();
                 ASSERT(1       == cb.numInvocations());
@@ -1134,7 +1134,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 3; ++i) {
                 // A sleep is required because timestamp resolution is 1 second
-                bcemt_ThreadUtil::microSleep(100, 1);
+                bcemt_ThreadUtil::microSleep(0, 1);
 
                 publishRecord(&mX, buffer);
 
@@ -1155,7 +1155,7 @@ int main(int argc, char *argv[])
             buffer[1] = 0;  // Don't need to write much for time-based rotation
 
             for (int i = 0; i < 3; ++i) {
-                bcemt_ThreadUtil::microSleep(100, 1);
+                bcemt_ThreadUtil::microSleep(0, 1);
 
                 publishRecord(&mX, buffer);
 
@@ -1349,7 +1349,7 @@ int main(int argc, char *argv[])
             const bsl::string LOGNAME = oss.str().c_str();
             LOOP_ASSERT(LINE, 1 == bdesu_FileUtil::exists(LOGNAME.c_str()));
 
-            bcemt_ThreadUtil::microSleep(100, 1);
+            bcemt_ThreadUtil::microSleep(0, 1);
             mX.forceRotation();
 
             mX.disableFileLogging();
