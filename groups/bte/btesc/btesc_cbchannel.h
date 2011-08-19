@@ -350,8 +350,8 @@ BDES_IDENT("$Id: $")
 //  negative          x         Error
 //..
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
 // The 'btesc' style of callback channel interface can be used to transmit an
 // atomic (or partial) byte sequences of known size across an arbitrary
 // concrete connected channel.  For example, the following functions might be
