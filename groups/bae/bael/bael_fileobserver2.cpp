@@ -497,15 +497,15 @@ void bael_FileObserver2::disablePublishInLocalTime()
     d_publishInLocalTime = false;
 }
 
-int bael_FileObserver2::enableFileLogging(const char *fileNamePattern)
+int bael_FileObserver2::enableFileLogging(const char *logFilenamePattern)
 {
-    BSLS_ASSERT(fileNamePattern);
+    BSLS_ASSERT(logFilenamePattern);
 
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     if (d_logStreamBuf.isOpened()) {
         return 1;                                                     // RETURN
     }
-    d_logFilePattern = fileNamePattern;
+    d_logFilePattern = logFilenamePattern;
 
     getLogFileName(&d_logFileName,
                    &d_logFileTimestamp,
@@ -531,18 +531,18 @@ int bael_FileObserver2::enableFileLogging(const char *fileNamePattern)
     return openLogFile(&d_logOutStream, d_logFileName.c_str());
 }
 
-int bael_FileObserver2::enableFileLogging(const char *fileNamePattern,
+int bael_FileObserver2::enableFileLogging(const char *logFilenamePattern,
                                           bool        appendTimestampFlag)
 {
-    BSLS_ASSERT(fileNamePattern);
+    BSLS_ASSERT(logFilenamePattern);
 
-    if (appendTimestampFlag && !hasEscapePattern(fileNamePattern)) {
-        bsl::string pattern(fileNamePattern);
+    if (appendTimestampFlag && !hasEscapePattern(logFilenamePattern)) {
+        bsl::string pattern(logFilenamePattern);
         pattern += ".%T";
         return enableFileLogging(pattern.c_str());                    // RETURN
     }
 
-    return enableFileLogging(fileNamePattern);
+    return enableFileLogging(logFilenamePattern);
 }
 
 void bael_FileObserver2::forceRotation()
