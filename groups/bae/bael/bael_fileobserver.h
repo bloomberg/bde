@@ -23,7 +23,7 @@ BDES_IDENT("$Id: $")
 //..
 //                ,-----------------.
 //               ( bael_FileObserver )
-//                `------------------'
+//                `-----------------'
 //                         |              ctor
 //                         |              disableFileLogging
 //                         |              disableLifetimeRotation

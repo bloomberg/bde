@@ -476,14 +476,14 @@ int getNumLines(const char *filename)
     return numLines;
 }
 
-int getFileSize(const char *filename)
+bsls_Types::Int64 getFileSize(const char *filename)
 {
     bsl::ifstream fs;
     fs.open(filename, bsl::ifstream::in);
     fs.clear();
     ASSERT(fs.is_open());
 
-    int fileSize = 0;
+    bsls_Types::Int64 fileSize = 0;
 
     bsl::string line;
     while (getline(fs, line)) {
@@ -2660,24 +2660,39 @@ int main(int argc, char *argv[])
 #endif
       } break;
       case -1: {
-        typedef bdesu_FileUtil::FileDescriptor FdType;
+        bael_LoggerManagerConfiguration configuration;
 
-        FdType fd = bdesu_FileUtil::open("temp.txt",
-                                         true,
-                                         true,
-                                         true);
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_TRACE,
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_OFF));
 
-        bdesu_FdStreamBuf streamBuffer(fd,
-                                       true,    // writable
-                                       true);   // 'fd' won't be closed
-                                                // when 'streamBuffer' is
-                                                // destroyed
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
 
-        bsl::ostream os(&streamBuffer);
+        Obj mX(&ta);  const Obj& X = mX;
+        bael_LoggerManager::initSingleton(&mX, configuration);
 
-        std::cout << os.tellp() << std::endl;
-        os << "test" << std::endl;
-        std::cout << os.tellp() << std::endl;
+        const bsl::string BASENAME = tempFileName(veryVerbose);
+
+        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
+        ASSERT(X.isFileLoggingEnabled());
+
+        BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+
+        P(BASENAME);
+
+        char buffer[1026];
+        memset(buffer, 'x', sizeof buffer);
+        buffer[sizeof buffer - 1] = '\0';
+
+        // Write over 3 GB
+        for (int i = 0; i < 5000000; ++i) {
+            BAEL_LOG_WARN << buffer << BAEL_LOG_END;
+        }
+
+        //bdesu_FileUtil::remove(BASENAME.c_str());
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
