@@ -472,14 +472,13 @@ class bdem_TableImp {
 
     void reserveRaw(bsl::size_t numRows);
         // Reserve sufficient memory to satisfy allocations required to insert
-        // at least the specified 'numRows' if the allocation strategy
-        // specified for this table is 'BDEM_WRITE_MANY' or 'BDEM_WRITE_ONCE'.
-        // Memory, in addition to the footprint of a row, used to initialize a
-        // row upon insertion is *not*  reserved if the allocation strategy
-        // specified for this table is 'BDEM_PASSTHROUGH' or
-        // 'BDEM_SUBORDINATE'.  Note that in the future this method may
-        // guarantee that no extra allocation will take place unless the data
-        // held by the row allocate memory itself.
+        // at least the specified 'numRows'.  Memory, in addition to the
+        // footprint of a row, used to initialize a row upon insertion, is
+        // *not* reserved if the allocation strategy specified for this table
+        // is 'BDEM_PASSTHROUGH' or 'BDEM_SUBORDINATE'.  Note that in the
+        // future this method may guarantee that no extra allocation will take
+        // place unless the data element held by the row allocate memory
+        // itself for every allocation strategy.
 
     void reset(const bdem_ElemType::Type     columnTypes[],
                int                           numColumns,
@@ -558,8 +557,8 @@ class bdem_TableImp {
 
     bsl::size_t capacityRaw() const;
         // Return the number of rows for which memory was previously allocated
-        // upon insertion or via a call to 'reserveRaw'.
-        // Note that it is always true: 'size() <= capacityRaw()'.
+        // upon insertion or via a call to 'reserveRaw'.  Note that 
+        // 'size() <= capacityRaw()' is an invariant of this class.
 
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified

@@ -521,19 +521,20 @@ void bdem_TableImp::reserveRaw(bsl::size_t numRows)
 
     const int newSize = nullBitsArraySize(this->numRows() + numRows);
 
-    // Reserve 2 times 8 bytes, once for the 'd_rows.reserve' invocation and
-    // once for the initializaiton of the 'bdem_RowData' when inserting a row.
-    // Add the memory necessary for the new size of 'd_nullBits'.  Note that
-    // this calculation leaves out the memory used by the array of null bits in
-    // the initialization of 'bdem_RowData', because it's not possible to
-    // access the function to calculate its size from here: the extra memory
-    // obtained by invoking 'reserve' on a sequential allocator or a multi pool
-    // ('BDEM_WRITE_ONCE' and 'BDEM_PASS_THROUGH' respectively) seems to be
-    // enough to make up for this approximation.  Also note that in case of
-    // 'BDEM_PASS_THROUGH' the 'd_allocatorManager.reserveMemory' call will
-    // have no effect.
+    // Reserve 2 times BSLS_MAX_ALIGNMENT, once for the 'd_rows.reserve'
+    // invocation and once for the initializaiton of the 'bdem_RowData' when
+    // inserting a row.  Add the memory necessary for the new size of
+    // 'd_nullBits'.  Note that this calculation leaves out the memory used by
+    // the array of null bits in the initialization of 'bdem_RowData', because
+    // it's not possible to access the function to calculate its size from
+    // here: the extra memory obtained by invoking 'reserve' on a sequential
+    // allocator or a multi pool ('BDEM_WRITE_ONCE' and 'BDEM_PASS_THROUGH'
+    // respectively) seems to be enough to make up for this approximation.
+    // Also note that in case of 'BDEM_PASS_THROUGH' the
+    // 'd_allocatorManager.reserveMemory' call will have no effect.
 
-    d_allocatorManager.reserveMemory(2 * 8 * numRows +  sizeof(int) * newSize);
+    d_allocatorManager.reserveMemory(2 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT 
+                                       * numRows +  sizeof(int) * newSize);
     d_rowPool.reserveCapacity(numRows);
     d_rows.reserve(d_rows.size() + numRows);
     d_nullBits.reserve(newSize);
