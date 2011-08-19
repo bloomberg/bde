@@ -7,32 +7,45 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide configurable default values for BCE
+//@PURPOSE: Provide utilities to set and get default values for BCE.
 //
 //@CLASSES:
-//  bcemt_Default: configurable default values for BCE
+//  bcemt_Default: namespace for utilities managing default BCE values
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@SEE_ALSO: bcemt_threadattributes, bcemt_threadutil
 //
 //@DESCRIPTION: This component provides configurable default values for
-// BCE-relevant parameters.  It currently configures thread stack size, but may
-// be expanded to configure other items.
+// BCE-relevant parameters.  It currently provides functions that access the
+// platform's native default stack size and guard size, as well as operations
+// to access and modify the BCE library's default stack size.  The BCE default
+// stack size is initially configured to be the platform's native stack size.
 //
-// The property 'stackSize' is defined such that a thread spawned with a given
-// 'stackSize' will be able to declare a buffer of size
-// 'stackSize - OVERHEAD' bytes in the top level function call of the created
-// thread, where 'OVERHEAD' is a small integer constant value.
+// The stack size values accessed and managed by this component are intended to
+// indicate stack size such that a created with a given stack size will be able
+// to declare a buffer of that size (in bytes) in the thread entry function of
+// the created thread (see 'bcemt_threadutil').
 //
 ///Usage
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Demonstrate accessing the default thread stack size:
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Demonstrate Accessing & Modifying the Default Thread Stack Size:
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
-// First, we examine the native thread stack size:
+// In this example we demonstrate how to configure the platform's native and
+// BCE configured default stack sizes, and then to set the default stack size
+// used by BCE.  Note that the value returned by 'defaultThreadStackSize' may
+// be adjusted from that provided by the underlying operating system to reflect
+// the actual amount of stack memory available to a created thread.  For
+// example, on Itanium platforms (HPUX) the value will be scaled down from the
+// operating system supplied value to account for the extra stack space devoted
+// to storing registers.  Note that operations creating a thread should perform
+// a similar inverse adjustment when configuring the new thread's stack size
+// (see 'bcemt_threadutil').
+//
+// First, we examine the platform's native thread stack size:
 //..
 //  const int nativeDefault = bcemt_Default::nativeDefaultThreadStackSize();
 //
@@ -43,16 +56,16 @@ BDES_IDENT("$Id: $")
 //..
 //  assert(bcemt_Default::defaultThreadStackSize() == nativeDefault);
 //..
-// Next, we define 'newDefaultStackSize' to some size other than the native
-// default size:
+// Next, we define 'newDefaultStackSize' to some size other than the platform's
+// native default stack size:
 //..
 //  const int newDefaultStackSize = nativeDefault * 2;
 //..
-// Now, we set the default size to the new size:
+// Now, we set the default size for BCE to the new size:
 //..
 //  bcemt_Default::setDefaultThreadStackSize(newDefaultStackSize);
 //..
-// Finally, we verify that the default thread stack size has been set to the
+// Finally, we verify that BCE's default thread stack size has been set to the
 // value we specified:
 //..
 //  assert(bcemt_Default::defaultThreadStackSize() == newDefaultStackSize);
@@ -71,9 +84,10 @@ namespace BloombergLP {
 
 struct bcemt_Default {
     // This 'struct' provides a namespace for a suite of functions that are
-    // used to manage configuration of default values used in 'bce'.
+    // used to manage the configuration of default values used in 'bce'.
     // Specifically, these functions manage the default value of thread stack
-    // size, but may be extended to govern more traits in the future.
+    // size and provide access to the platform's native guard size, but may be
+    // extended to govern more traits in the future.
 
     // CLASS METHODS
     static int defaultThreadStackSize();

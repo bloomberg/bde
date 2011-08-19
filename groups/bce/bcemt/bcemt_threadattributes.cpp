@@ -6,7 +6,7 @@
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-#include <bsl_limits.h>
+#include <bsl_c_limits.h>
 
 #if defined(BCES_PLATFORM__POSIX_THREADS)
 # include <pthread.h>
@@ -49,7 +49,7 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
 #endif
       } break;
       default: {
-        return bsl::numeric_limits<int>::min();                       // RETURN
+        return INT_MIN;                                               // RETURN
       }
     }
 
@@ -97,7 +97,7 @@ int bcemt_ThreadAttributes::getMinSchedPriority(int policy)
 #endif
       } break;
       default: {
-        return bsl::numeric_limits<int>::min();                       // RETURN
+        return INT_MIN;                                               // RETURN
       }
     }
 
@@ -121,19 +121,19 @@ bcemt_ThreadAttributes::bcemt_ThreadAttributes()
 bool operator==(const bcemt_ThreadAttributes& lhs,
                 const bcemt_ThreadAttributes& rhs)
 {
-    return lhs.d_detachedState              == rhs.d_detachedState           &&
-           lhs.d_guardSize                  == rhs.d_guardSize               &&
-           lhs.d_inheritSchedule            == rhs.d_inheritSchedule         &&
-           lhs.d_schedulingPolicy           == rhs.d_schedulingPolicy        &&
-           lhs.d_schedulingPriority         == rhs.d_schedulingPriority      &&
-           lhs.d_stackSize               == rhs.d_stackSize;
+    return lhs.d_detachedState      == rhs.d_detachedState      &&
+           lhs.d_guardSize          == rhs.d_guardSize          &&
+           lhs.d_inheritSchedule    == rhs.d_inheritSchedule    &&
+           lhs.d_schedulingPolicy   == rhs.d_schedulingPolicy   &&
+           lhs.d_schedulingPriority == rhs.d_schedulingPriority &&
+           lhs.d_stackSize          == rhs.d_stackSize;
 }
 
 }  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

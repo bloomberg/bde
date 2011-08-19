@@ -18,9 +18,8 @@ BDES_IDENT("$Id: $")
 // attribute class, 'bcemt_ThreadAttributes', for describing attributes of a
 // thread in a platform-independent way.
 //
-// The default values and constraints for the various thread attributes
-// supported by 'bcemt_ThreadAttributes' are listed in the following two
-// tables:
+// The default values and constraints for the attributes provided by
+// 'bcemt_ThreadAttributes' are listed in the following two tables:
 //..
 //  Name                Type                   Default
 //  ------------------  ---------------------  -------------------------------
@@ -60,8 +59,8 @@ BDES_IDENT("$Id: $")
 // variable of the configured 'stackSize' bytes in its thread-entry function.
 // Note that this means the provided value may be adjusted on some platforms
 // before being passed to the underlying representation -- for example, on
-// Itanium (HPUX), the value must be scaled up to account for the fact that the
-// architecture will split the stack in two.
+// Itanium (HPUX), the value must be scaled up to account for the extra stack
+// space devoted to register storage.
 //
 ///'guardSize' Attribute
 ///- - - - - - - - - - -
@@ -79,13 +78,11 @@ BDES_IDENT("$Id: $")
 ///- - - - - - - - - - - - - -
 // The 'inheritSchedule' attribute, if 'true', indicates that a created
 // thread's 'schedulingPolicy' and 'schedulingPriority' attributes should be
-// taken from the calling thread and the configured values of those thread
+// taken from its parent thread and the configured values of those thread
 // attributes should be ignored.  If 'inheritSchedule' is 'false', then the
 // 'schedulingPolicy' and 'schedulingPriority' attribute values should be used
-// to configure a thread.  Note that this attribute is currently ignored on
-// Windows (as are 'schedulingPolicy' and 'schedulingPriority'), and on HPUX,
-// for non-superusers, thread creation fails unless the 'inheritSchedule()' is
-// 'true'.
+// to configure a thread.  See the 'bcemt_threadutil' component doc for
+// information about what platforms support this attribute.
 //
 ///'schedulingPolicy' Attribute
 /// - - - - - - - - - - - - - -
@@ -98,10 +95,9 @@ BDES_IDENT("$Id: $")
 // privileges.  'BCEMT_SCHED_FIFO' indicates a thread should run until it
 // yields or is interrupted by a thread of higher priority.  'BCEMT_SCHED_RR'
 // is the same, except that the created thread will be interrupted by a ready
-// thread of equal priority after a finite time-slice.  Note that this
-// attribute is currently ignored on Windows.  Also note that on AIX and Linux,
-// for a non-superuser, thread creation fails if the policy is
-// 'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR'.
+// thread of equal priority after a finite time-slice.  This attribute is
+// ignored unless 'inheritSchedule' is 'false'.  See the 'bcemt_threadutil'
+// component doc for information about what platforms support this attribute.
 //
 ///'schedulingPriority' Attribute
 /// - - - - - - - - - - - - - - -
@@ -109,10 +105,9 @@ BDES_IDENT("$Id: $")
 // range from the minimum to the maximum values for the configured
 // 'schedulingPolicy' with higher numbers indicating a more urgent priority.
 // Functions to obtain these minimum and maximum values are in
-// 'bcemt_threadutil'.  These attributes are both ignored unless
-// 'inheritSchedule' is 'false'.  Note that these attributes are both currently
-// ignored on Windows.  For more information on thread priorities, see the
-// component documentation for 'bcemt_threadutil'.
+// 'bcemt_threadutil'.  This attribute is ignored unless 'inheritSchedule' is
+// 'false'.  See the 'bcemt_threadutil' component doc for information about
+// what platforms support this attribute.
 //
 ///Usage
 ///-----
@@ -134,13 +129,14 @@ BDES_IDENT("$Id: $")
 //      // 'attributes', running the specified 'function', and assign a handle
 //      // referring to the spawned thread to the specified '*threadHandle'.
 //..
-// and routines that will return the minimum and maximum thread priority given
-// a scheduling policy.  Note that similar methods exist in 'bcemt_threadutil'.
+// Then, we declare two routines that will return the minimum and maximum
+// thread priority given a scheduling policy.  Note that similar methods exist
+// in 'bcemt_threadutil'.
 //..
 //  int myMinPriority(bcemt_ThreadAttributes::SchedulingPolicy policy);
 //  int myMaxPriority(bcemt_ThreadAttributes::SchedulingPolicy policy);
 //..
-// Then we define a function that we will use as our thread entry point.  This
+// Next we define a function that we will use as our thread entry point.  This
 // function declares a single variable on the stack of predetermined size.
 //..
 //  enum { BUFFER_SIZE = 128 * 1024 };
@@ -153,31 +149,41 @@ BDES_IDENT("$Id: $")
 //      // additional automatic variables.
 //  }
 //..
-// Next, we demonstrate configuring a 'bcemt_ThreadAttributes' object
-// describing the properties a thread we will create.  We create a thread
-// attributes object, 'attributes', then set its 'stackSize' attribute to a
-// value large enough to accomodate the 'BUFFER_SIZE' buffer used by
-// 'myThreadFunction'.  Note that we use 'BUFFER_SIZE' as illustration, in
-// practice it is difficult or impossible to gauge the exact amount of stack
-// size required for a typical thread, and the value supplied should be a
-// reasonable *upper* bound on the anticipated requirement.
+// Then, we define our main function, in which we demonstrate configuring a
+// 'bcemt_ThreadAttributes' object describing the properties a thread we will
+// create.
 //..
-//  bcemt_ThreadAttributes attributes;
-//  attributes.setStackSize(BUFFER_SIZE);
+//  int main()
+//  {
+//..
+// Next, we create a thread attributes object, 'attributes', and set its
+// 'stackSize' attribute to a value large enough to accomodate the
+// 'BUFFER_SIZE' buffer used by 'myThreadFunction'.  Note that we use
+// 'BUFFER_SIZE' as illustration, in practice it is difficult or impossible to
+// gauge the exact amount of stack size required for a typical thread, and the
+// value supplied should be a reasonable *upper* bound on the anticipated
+// requirement.
+//..
+//      bcemt_ThreadAttributes attributes;
+//      attributes.setStackSize(BUFFER_SIZE);
 //..
 // Then, we set the 'detachedState' property to 'BCEMT_CREATE_DETACHED',
 // indicating that the thread will not be joinable, and its resources will be
 // reclaimed upon termination.
 //..
-//  attributes.setDetachedState(bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED);
+//      attributes.setDetachedState(
+//                              bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED);
 //..
 // Now, we create a thread, using the attributes configured above:
 //..
-//  int handle;
-//  myThreadCreate(&handle, attributes, &myThreadFunction);
+//      int handle;
+//      myThreadCreate(&handle, attributes, &myThreadFunction);
+//
+//      ...
+//  }
 //..
 // Finally, we define the thread creation function, and show how a thread
-// attributes object might be interpreted:
+// attributes object might be interpreted by it:
 //..
 //  void myThreadCreate(int                           *threadHandle,
 //                      const bcemt_ThreadAttributes&  attributes,
@@ -224,6 +230,8 @@ BDES_IDENT("$Id: $")
 //                                  function);
 //  }
 //..
+// Notice that the 'stackSize' attribute is adjusted so that its meaning is
+// platform neutral.
 
 #ifndef INCLUDED_BCESCM_VERSION
 #include <bcescm_version.h>
@@ -284,20 +292,25 @@ class bcemt_ThreadAttributes {
     };
 
     enum {
-        // The 'stackSize' and 'guardSize' attributes are initialized to these
-        // values when a thread attributes object is default constructed.
+        // The following constants indicate that the 'stackSize', 'guardSize',
+        // and 'schedulingPrioity' attributes, respectively, are unspecified
+        // and the thread creation routine is use platform-specific defaults.
+        // These attributes are initialized to these values when a thread
+        // attributes object is default constructed.
 
-        BCEMT_UNSET_STACK_SIZE          = -1,
-        BCEMT_UNSET_GUARD_SIZE          = -1,
-        BCEMT_UNSET_PRIORITY            = INT_MIN
+        BCEMT_UNSET_STACK_SIZE = -1,
+        BCEMT_UNSET_GUARD_SIZE = -1,
+        BCEMT_UNSET_PRIORITY   = INT_MIN
     };
 
   private:
     // DATA
-    DetachedState    d_detachedState;       // whether the threaad is detached
+    DetachedState    d_detachedState;       // whether the thread is detached
                                             // or joinable
 
-    int              d_guardSize;           // size of guard area on stack
+    int              d_guardSize;           // size of guard area provided
+                                            // beyond the end of the configured
+                                            // thread's stack
 
     bool             d_inheritSchedule;     // whether the thread inherits its
                                             // scheduling policy & priority
@@ -307,9 +320,9 @@ class bcemt_ThreadAttributes {
                                             // execution
 
     int              d_schedulingPriority;  // thread priority (higher numbers
-                                            // more urgent)
+                                            // indicate more urgency)
 
-    int              d_stackSize;           // size of thread's stack
+    int              d_stackSize;           // size of the thread's stack
 
     // FRIENDS
     friend bool operator==(const bcemt_ThreadAttributes&,
@@ -354,7 +367,7 @@ class bcemt_ThreadAttributes {
         // Create a 'bcemt_ThreadAttributes' object having the same value
         // as the specified 'original' object.
 
-    // ~bcemt_ThreadAttributes(); -- compiler generated
+    // ~bcemt_ThreadAttributes() = default;
 
     // MANIPULATORS
     bcemt_ThreadAttributes& operator=(const bcemt_ThreadAttributes& rhs);
@@ -378,29 +391,26 @@ class bcemt_ThreadAttributes {
         // 'value'.  A value of 'false' for the inherit schedule attribute
         // indicates that a thread should *not* inherit the scheduling policy
         // and priority of the thread that created it, and a value of 'true'
-        // indicates that the thread *should* inherit these attributes.  Note
-        // that this attribute is ignored on Windows, and that on HPUX, for non
-        // superusers, thread creation fails unless 'inheritSchedule()' is
-        // 'true'.
+        // indicates that the thread *should* inherit these attributes.  Use of
+        // this attribute is platform-dependent, for details, see the component
+        // doc of 'bcemt_threadutil'.
 
     void setSchedulingPolicy(SchedulingPolicy value);
         // Set the value of the 'schedulingPolicy' attribute of this object to
         // the specified 'value'.  This attribute is ignored unless
-        // 'inheritSchedule() = false'.  Note that this attribute is currently
-        // ignored on Windows, and that on Linux and AIX, for non-superusers,
-        // thread creation fails if 'schedulingPolicy' is 'BCEMT_SCHED_FIFO' or
-        // 'BCEMT_SCHED_RR'.
+        // 'inheritSchedule' is 'false'.  Use of this attribute is
+        // platform-dependent, for details, see the component doc of
+        // 'bcemt_threadutil'.
 
     void setSchedulingPriority(int value);
         // Set the 'schedulingPriority' attribute of this object to the
         // specified 'value'.  This attribute is ignored unless
-        // 'inheritSchedule()' is 'false'.  Priorities must be in the range
-        // 'min <= priority <= max' where 'min == getMinSchedPriority(policy)'
-        // and 'max == getMaxSchedPriority(policy)'.  Higher values of 'value'
-        // signify more urgent priorities.  Note that this attribute is
-        // currently ignored on Windows.  For more information on thread
-        // priorities, see the component documentation for this component and
-        // for 'bcemt_threadutil'.
+        // 'inheritSchedule()' is 'false'.  The valid range of priorities
+        // depends upon the platform and 'schedulingPolicy' attributes.  The
+        // minimum and maximum priorities are determined by methods in
+        // 'bcemt_threadutil'.  Higher values of 'value' signify more urgent
+        // priorities.  Use of this attribute is platform-dependent, for
+        // details, see the component doc of 'bcemt_threadutil'.
 
     void setStackSize(int value);
         // Set the 'stackSize' attribute of this object to the specified
@@ -473,12 +483,12 @@ inline
 bcemt_ThreadAttributes& bcemt_ThreadAttributes::operator=(
                                              const bcemt_ThreadAttributes& rhs)
 {
-    d_detachedState                = rhs.d_detachedState;
-    d_guardSize                    = rhs.d_guardSize;
-    d_inheritSchedule              = rhs.d_inheritSchedule;
-    d_schedulingPolicy             = rhs.d_schedulingPolicy;
-    d_schedulingPriority           = rhs.d_schedulingPriority;
-    d_stackSize                    = rhs.d_stackSize;
+    d_detachedState      = rhs.d_detachedState;
+    d_guardSize          = rhs.d_guardSize;
+    d_inheritSchedule    = rhs.d_inheritSchedule;
+    d_schedulingPolicy   = rhs.d_schedulingPolicy;
+    d_schedulingPriority = rhs.d_schedulingPriority;
+    d_stackSize          = rhs.d_stackSize;
 
     return *this;
 }
@@ -493,6 +503,8 @@ void bcemt_ThreadAttributes::setDetachedState(
 inline
 void bcemt_ThreadAttributes::setGuardSize(int value)
 {
+    BSLS_ASSERT_SAFE(BCEMT_UNSET_GUARD_SIZE == value || value >= 0);
+
     d_guardSize = value;
 }
 
@@ -518,6 +530,8 @@ void bcemt_ThreadAttributes::setSchedulingPriority(int value)
 inline
 void bcemt_ThreadAttributes::setStackSize(int value)
 {
+    BSLS_ASSERT_SAFE(BCEMT_UNSET_STACK_SIZE == value || value >= 0);
+
     d_stackSize = value;
 }
 
@@ -574,7 +588,7 @@ bool operator!=(const bcemt_ThreadAttributes& lhs,
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
