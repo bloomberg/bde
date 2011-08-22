@@ -305,6 +305,8 @@ int main(int argc, char *argv[]) {
 
         char ioBuf[10 * 1024];
 
+        bdet_TimeInterval timeout(0.1);
+
         bteso_TimeMetrics timeMetric(
                                    bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
                                    bteso_TimeMetrics::BTESO_CPU_BOUND);
@@ -316,7 +318,6 @@ int main(int argc, char *argv[]) {
                              socket, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
         ASSERT(0 == rc);
 
-#if 0
         numBytes = 64;
         bteso_EventManager::Callback writeCb1(
                     bdef_BindUtil::bind( &genericCb
@@ -327,7 +328,6 @@ int main(int argc, char *argv[]) {
 
         mX.registerSocketEvent(socket[0], bteso_EventType::BTESO_WRITE,
                                    writeCb1);
-#endif
 
         numBytes = 24;
         bteso_EventManager::Callback readCb(
@@ -345,7 +345,7 @@ int main(int argc, char *argv[]) {
         rc = bteso_SocketImpUtil::write(socket[1], ioBuf, 64);
         LOOP_ASSERT(rc, 64 == rc);
 
-        dispatched = mX.dispatch(0);
+        dispatched = mX.dispatch(timeout, 0);
         LOOP_ASSERT(dispatched, 2 == dispatched);
       }  break;
       case -2: {
