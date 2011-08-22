@@ -1590,7 +1590,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // CREATORS TEST
+        // CREATORS WITH FACTORY OR DELETER
         //
         // Concerns:
         //: 1 No constructor allocates any memory from the default or global
@@ -2022,8 +2022,34 @@ int main(int argc, char *argv[])
 
         int numDeletes = 0;
         {
+            if (veryVerbose) cout << "\t\tBasic test object\n";
+
             bslma_TestAllocatorMonitor dam(da);
             Obj o;
+
+            ASSERT(0 == o.ptr());
+            ASSERT(dam.isTotalSame());
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tvoid type\n";
+
+            bslma_TestAllocatorMonitor dam(da);
+            bdema_ManagedPtr<void> o;
+
+            ASSERT(0 == o.ptr());
+            ASSERT(dam.isTotalSame());
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tconst-qualified int\n";
+
+            bslma_TestAllocatorMonitor dam(da);
+            bdema_ManagedPtr<const int> o;
 
             ASSERT(0 == o.ptr());
             ASSERT(dam.isTotalSame());
@@ -2036,6 +2062,8 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
+            if (veryVerbose) cout << "\t\tBasic test object\n";
+
             bslma_TestAllocatorMonitor dam(da);
             Obj o(0);
 
@@ -2044,13 +2072,24 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == numDeletes);
 
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tvoid type\n";
 
-        if (verbose) cout << "\tTest constructing void* with a null pointer\n";
+            bslma_TestAllocatorMonitor dam(da);
+            VObj o(0);
+
+            ASSERT(0 == o.ptr());
+            ASSERT(dam.isTotalSame());
+        }
+        ASSERT(0 == numDeletes);
 
         numDeletes = 0;
         {
+            if (veryVerbose) cout << "\t\tconst-qualified int\n";
+
             bslma_TestAllocatorMonitor dam(da);
-            VObj o(0);
+            bdema_ManagedPtr<const int> o(0);
 
             ASSERT(0 == o.ptr());
             ASSERT(dam.isTotalSame());
@@ -2063,6 +2102,8 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
+            if (veryVerbose) cout << "\t\tBasic test object\n";
+
             bslma_TestAllocatorMonitor dam(da);
             {
                 TObj *p = new (da) MyTestObject(&numDeletes);
@@ -2119,6 +2160,44 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tconst-qualified int\n";
+
+            bslma_TestAllocatorMonitor dam(da);
+            {
+                const int *p = new (da) const int;
+
+                bslma_TestAllocatorMonitor dam2(da);
+                bdema_ManagedPtr<const int> o(p);
+
+                ASSERT(o.ptr() == p);
+                ASSERT(dam2.isInUseSame());
+            }
+            ASSERT(dam.isTotalUp());
+            ASSERT(dam.isInUseSame());
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tint -> const int conversion\n";
+
+            bslma_TestAllocatorMonitor dam(da);
+            {
+                int *p = new (da) int;
+
+                bslma_TestAllocatorMonitor dam2(da);
+                bdema_ManagedPtr<const int> o(p);
+
+                ASSERT(o.ptr() == p);
+                ASSERT(dam2.isInUseSame());
+            }
+            ASSERT(dam.isTotalUp());
+            ASSERT(dam.isInUseSame());
+        }
+        ASSERT(0 == numDeletes);
+
 //#define TEST_FOR_COMPILE_ERRORS
 #if defined TEST_FOR_COMPILE_ERRORS
         // This segment of the test case examines the quality of compiler
@@ -2144,6 +2223,18 @@ int main(int argc, char *argv[])
 //            ASSERT(o.ptr() == p);
         }
         ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            const int *p = new (da) const int;
+
+            bslma_TestAllocatorMonitor dam2(da);
+            bdema_ManagedPtr<int> o(p);
+
+//            ASSERT(o.ptr() == p);
+        }
+        ASSERT(0 == numDeletes);
+
 #endif
       } break;
       case 5: {

@@ -458,7 +458,8 @@ class bdema_ManagedPtr {
     // instance may be accessed directly using the '->' operator, or the
     // dereference operator (operator '*') can be used to get a reference to
     // that object.  See the component-level documentation for a thorough
-    // description and examples of its many usages.
+    // description and examples of its many usages.  The specified 'BDEMA_TYPE'
+    // may be 'const'-qualified, but shall not be 'volatile' qualified.
     //
     // Note that the object managed by a managed pointer instance is usually
     // the same as the object pointed to by that instance (of the same
