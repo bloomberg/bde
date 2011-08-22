@@ -889,6 +889,60 @@ namespace CASE35 {
 
 void poolStateCb(int            state,
                  int            source,
+                 int            severity)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              serverId,
+                    int              state,
+                    void            *arg,
+                    int             *id)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Channel state callback called with"
+                  << " Channel Id: " << channelId
+                  << " Server Id: "  << serverId
+                  << " State: " << state << bsl::endl;
+    }
+    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
+        *id = channelId;
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     bcema_Blob      *msg,
+                     int              channelId,
+                     void            *arg)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Blob Based Read Cb called with"
+                  << " Channel Id: " << channelId
+                  << " of length: "  << msg->length() << bsl::endl;
+    }
+    *needed = 1;
+    msg->removeAll();
+}
+
+}
+
+//-----------------------------------------------------------------------------
+// CASE 32
+//-----------------------------------------------------------------------------
+
+namespace CASE32 {
+
+void poolStateCb(int            state,
+                 int            source,
                  int            severity,
                  bcemt_Barrier *barrier)
 {
@@ -7994,114 +8048,71 @@ int main(int argc, char *argv[])
                 << "========================================================="
                 << endl;
 
+        using namespace CASE35;
+
+        if (verbose) cout << "Testing 'connect'" << endl;
+        {
+            btemt_ChannelPoolConfiguration config;
+            config.setMaxThreads(1);
+            if (verbose) {
+                P(config);
+            }
+
+            int channelId;
+            btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                           bdef_BindUtil::bind(&channelStateCb,
+                                                               _1, _2, _3, _4,
+                                                               &channelId));
+
+            btemt_ChannelPool::PoolStateChangeCallback poolCb(
+                                              bdef_BindUtil::bind(&poolStateCb,
+                                                                  _1, _2, _3));
+
+            btemt_ChannelPool::BlobBasedReadCallback dataCb(&blobBasedReadCb);
+
+            btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
+
+            ASSERT(0 == pool.start());
+
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
-        {
-            Obj mX;  const Obj& X = mX;
-            bool hlsc = X.hasLimitedSocketCapacity();
-            LOOP_ASSERT(hlsc, true == hlsc);
-        }
-
-        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
-        {
-            for (int i = 0; i < 2; ++i) {
-                Obj mX;  const Obj& X = mX;
-
-                if (i) {
-                    mX.enable();
-                }
-
-                const int MAX_NUM_HANDLES = FD_SETSIZE;
-
-                bteso_SocketHandle::Handle handle = 0;
-                for (; handle < Obj::BTESO_MAX_NUM_HANDLES; ++handle) {
-
-                    if (veryVerbose) { P(handle) }
-
-                    ASSERT(mX.canRegisterSockets());
-
-                    bdef_Function<void (*)()> cb1, cb2;
-                    int rc = mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_READ,
-                                           cb1);
-                    ASSERT(!rc);
-
-                    rc = mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_WRITE,
-                                           cb2);
-                    ASSERT(!rc);
-                }
-
-                ASSERT(handle == Obj::BTESO_MAX_NUM_HANDLES);
-
-                if (verbose) cout << "Negative Testing." << endl;
-                {
-                    bsls_AssertFailureHandlerGuard hG(
-                                              bsls_AssertTest::failTestDriver);
-
-                    if (veryVerbose) { P(handle) }
-
-                    ASSERT(!mX.canRegisterSockets());
-
-                    bdef_Function<void (*)()> cb1, cb2;
-                    ASSERT_FAIL(mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_READ,
-                                           cb1));
-
-                    ASSERT_FAIL(mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_WRITE,
-                                           cb2));
-
-                    ASSERT(!mX.canRegisterSockets());
-                }
-            }
-        }
+            const int MAX_NUM_HANDLES = FD_SETSIZE;
 #else
-        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
-        {
-            Obj mX;  const Obj& X = mX;
-            bool hlsc = X.hasLimitedSocketCapacity();
-            LOOP_ASSERT(hlsc, false == hlsc);
-        }
+            const int MAX_NUM_HANDLES = FD_SETSIZE;
+#endif
+            const int SERVER_PORT     = 31178;
+            const int SERVER_ID       = 100;
 
-        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
-        {
-            Obj mX;  const Obj& X = mX;
+            bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+            vector<bteso_StreamSocket<bteso_IPv4Address> *> sockets;
+            int numExpChannels = 0;
 
-#ifdef BSLS_PLATFORM__OS_LINUX
-            ASSERT(mX.canRegisterSockets());
-#else
-            const int MAX_NUM_HANDLES = 66000;
+            int rc = pool.listen(SERVER_PORT,
+                                 MAX_NUM_HANDLES,
+                                 SERVER_ID,
+                                 bdet_TimeInterval(1),
+                                 true,
+                                 true);
 
-            bteso_SocketHandle::Handle handle = 0;
-            for (; handle < MAX_NUM_HANDLES; ++handle) {
+            bteso_IPv4Address serverAddr;
+            ASSERT(0 == pool.getServerAddress(&serverAddr, SERVER_ID));
 
-                if (veryVerbose) { P(handle) }
+            for (int i = 0; i < MAX_NUM_HANDLES; ++i) {
+                if (veryVerbose) { P(i) }
 
-                ASSERT(mX.canRegisterSockets());
+                const int SERVER_ID = 100;
+                const int SOURCE_ID = 200;
 
-                bdef_Function<void (*)()> cb1, cb2;
-                int rc = mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_READ,
-                                           cb1);
-                ASSERT(!rc);
+                bteso_StreamSocket<bteso_IPv4Address> *socket =
+                                                            factory.allocate();
+                sockets.push_back(socket);
 
-                rc = mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_WRITE,
-                                           cb2);
-                ASSERT(!rc);
+                ASSERT(0 == socket->connect(serverAddr));
             }
 
-            ASSERT(mX.canRegisterSockets());
-#endif
+            for (int i = 0; i < sockets.size(); ++i) {
+                factory.deallocate(sockets[i]);
+            }
         }
-#endif
       } break;
 
       case 34: {
@@ -8383,7 +8394,7 @@ int main(int argc, char *argv[])
                  << "\n===================================================="
                  << endl;
 
-        using namespace CASE35;
+        using namespace CASE32;
 
         const struct {
             int         d_line;
