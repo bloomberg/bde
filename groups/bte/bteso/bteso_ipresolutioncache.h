@@ -236,14 +236,12 @@ class bteso_IpResolutionCache_Entry {
 
   private:
     // DATA
-    DataPtr             d_data;          // pointer to a
-                                         // 'bteso_IpResolutionCache_Data'
-                                         // object
+    DataPtr     d_data;          // pointer to a 'bteso_IpResolutionCache_Data'
+                                 // object
 
-    mutable bcemt_Mutex d_updatingLock;  // mutex used to signal that a
-                                         // thread is retrieving new data (but
-                                         // does *not* synchronize access to
-                                         // 'd_data')
+    bcemt_Mutex d_updatingLock;  // mutex used to signal that a thread is
+                                 // retrieving new data (but does *not*
+                                 // synchronize access to 'd_data')
 
   private:
     // NOT IMPLEMENTED
@@ -272,18 +270,18 @@ class bteso_IpResolutionCache_Entry {
         // the calling thread has a write lock on the cache containing this
         // entry.
 
-    bcemt_Mutex& updatingLock() const;
-        // Return a reference providing modifiable access to a mutex used to
-        // signal a thread is retrieving new 'data'.  Note that 'updatingLock'
-        // does *not* synchronize access to 'data'; access to 'data' is
-        // synchronized by a read-write mutex in the cache containing this
-        // entry.
-
     void reset();
         // Reset this object to hold a null reference to a
         // 'bteso_IpResolutionCache_Data' object.  The behavior is undefined
         // unless the calling thread has a write lock on the cache containing
         // this entry.
+
+    bcemt_Mutex& updatingLock();
+        // Return a reference providing modifiable access to a mutex used to
+        // signal a thread is retrieving new 'data'.  Note that 'updatingLock'
+        // does *not* synchronize access to 'data'; access to 'data' is
+        // synchronized by a read-write mutex in the cache containing this
+        // entry.
 
     // ACCESSORS
     DataPtr data() const;
@@ -291,7 +289,6 @@ class bteso_IpResolutionCache_Entry {
         // 'bteso_IpResolutionCache_Data' object referred to by this object.
         // The behavior is undefined unless the calling thread has a read lock
         // on the cache containing this entry.
-
 };
 
                         // =============================
@@ -470,7 +467,7 @@ void bteso_IpResolutionCache_Entry::reset()
 }
 
 inline
-bcemt_Mutex& bteso_IpResolutionCache_Entry::updatingLock() const
+bcemt_Mutex& bteso_IpResolutionCache_Entry::updatingLock()
 {
     return d_updatingLock;
 }
