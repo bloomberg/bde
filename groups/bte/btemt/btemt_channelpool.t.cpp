@@ -8074,11 +8074,11 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == pool.start());
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-            const int MAX_NUM_HANDLES = FD_SETSIZE;
-#else
-            const int MAX_NUM_HANDLES = FD_SETSIZE;
-#endif
+// #ifdef BSLS_PLATFORM__OS_WINDOWS
+//             const int MAX_NUM_HANDLES = FD_SETSIZE;
+// #else
+            const int MAX_NUM_HANDLES = 100;
+// #endif
             const int SERVER_PORT     = 31178;
             const int SERVER_ID       = 100;
 
@@ -8108,6 +8108,10 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == socket->connect(serverAddr));
             }
+
+//             bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+//             sockets.push_back(socket);
+//             ASSERT(0 == socket->connect(serverAddr));
 
             for (int i = 0; i < sockets.size(); ++i) {
                 factory.deallocate(sockets[i]);
@@ -15104,6 +15108,7 @@ int main(int argc, char *argv[])
             factory.deallocate(channels[i].first);
         }
       } break;
+
       default: {
         cerr << "WARNING: CASE " << test << " NOT FOUND." << endl;
         testStatus = -1;
