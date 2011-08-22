@@ -1875,66 +1875,329 @@ int main(int argc, char *argv[])
 
         using namespace CREATORS_TEST_NAMESPACE;
 
+        if (verbose) cout << "\tTest bdema_ManagedPtr::load()\n";
+
         int numDeletes = 0;
         {
-            TObj *p = new (da) MyTestObject(&numDeletes);
-            Obj o(p);
+            if (veryVerbose) cout << "\tMyTestObject\n";
 
-            ASSERT(o);
+            Obj o;
+
+            ASSERT(!o.ptr());
             ASSERT(0 == numDeletes);
 
             o.load();
-            ASSERT(!o); // should not be testing operator! until test 13
+            ASSERT(!o.ptr()); // should not be testing operator! until test 13
 
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tload() a simple managed pointer\n";
+
+            TObj *p = new (da) MyTestObject(&numDeletes);
+            Obj o(p);
+
+            ASSERT(o.ptr() == p);
+            ASSERT(0 == numDeletes);
+
+            o.load();
+
+            ASSERT(!o); // should not be testing operator! until test 13
             ASSERT(1 == numDeletes);
         }
         ASSERT(1 == numDeletes);
 
         numDeletes = 0;
         {
+            if (veryVerbose) cout << "\tdema_ManagedPtr<void>\n";
+
+            VObj o;
+
+            ASSERT(!o.ptr());
+            ASSERT(0 == numDeletes);
+
+            o.load();
+            ASSERT(!o.ptr()); // should not be testing operator! until test 13
+
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tload() a simple managed pointer\n";
+
+            TObj *p = new (da) MyTestObject(&numDeletes);
+            VObj o(p);
+
+            ASSERT(o.ptr() == p);
+            ASSERT(0 == numDeletes);
+
+            o.load();
+
+            ASSERT(!o.ptr()); // should not be testing operator! until test 13
+            ASSERT(1 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest bdema_ManagedPtr::load(nullptr)\n";
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\tMyTestObject\n";
+
+            Obj o;
+
+            ASSERT(!o.ptr());
+            ASSERT(0 == numDeletes);
+
+            o.load(0);
+            ASSERT(!o.ptr()); // should not be testing operator! until test 13
+
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tload(0) a simple managed pointer\n";
+
+            TObj *p = new (da) MyTestObject(&numDeletes);
+            Obj o(p);
+
+            ASSERT(o.ptr() == p);
+            ASSERT(0 == numDeletes);
+
+            o.load(0);
+
+            ASSERT(!o); // should not be testing operator! until test 13
+            ASSERT(1 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\tdema_ManagedPtr<void>\n";
+
+            VObj o;
+
+            ASSERT(!o.ptr());
+            ASSERT(0 == numDeletes);
+
+            o.load(0);
+            ASSERT(!o.ptr()); // should not be testing operator! until test 13
+
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tload(0) a simple managed pointer\n";
+
+            TObj *p = new (da) MyTestObject(&numDeletes);
+            VObj o(p);
+
+            ASSERT(o.ptr() == p);
+            ASSERT(0 == numDeletes);
+
+            o.load(0);
+
+            ASSERT(!o.ptr()); // should not be testing operator! until test 13
+            ASSERT(1 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest bdema_ManagedPtr::load(T*)\n";
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout <<
+                                    "\t\tload into an empty managed pointer\n";
+
+            TObj *p = new (da) MyTestObject(&numDeletes);
+            Obj o;
+
+            ASSERT(!o.ptr());
+            ASSERT(0 == numDeletes);
+
+            o.load(p);
+
+            ASSERT(o.ptr() == p);
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout <<
+                                    "\t\tload into a simple managed pointer\n";
+
             TObj *p =  new (da) MyTestObject(&numDeletes);
             TObj *p2 = new (da) MyTestObject(&numDeletes);
             Obj o(p);
 
-            ASSERT(o);
+            ASSERT(o.ptr() == p);
             ASSERT(0 == numDeletes);
 
             o.load(p2);
-            ASSERT(o);
 
+            ASSERT(o.ptr() == p2);
             ASSERT(1 == numDeletes);
         }
         ASSERT(2 == numDeletes);
 
         numDeletes = 0;
         {
+            if (veryVerbose) cout <<
+                       "\t\tload derived type into a simple managed pointer\n";
+
             TObj *p =  new (da) MyTestObject(&numDeletes);
-            TObj *p2 = new (da) MyTestObject(&numDeletes);
+            TDObj *p2 = new (da) MyDerivedObject(&numDeletes);
             Obj o(p);
 
-            ASSERT(o);
+            ASSERT(o.ptr() == p);
             ASSERT(0 == numDeletes);
 
             o.load(p2, &da);
-            ASSERT(o);
 
+            ASSERT(o.ptr() == p2);
             ASSERT(1 == numDeletes);
         }
         ASSERT(2 == numDeletes);
 
         numDeletes = 0;
         {
-            typedef void (*DeleterFunc)(MyTestObject *, void *);
-            DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
+            if (veryVerbose) cout <<
+                                    "\t\tload into an empty void pointer\n";
+
+            TObj *p = new (da) MyTestObject(&numDeletes);
+            VObj o;
+
+            ASSERT(!o.ptr());
+            ASSERT(0 == numDeletes);
+
+            o.load(p);
+
+            ASSERT(o.ptr() == p);
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout <<
+                                    "\t\tload into a non-empty void pointer\n";
 
             TObj *p =  new (da) MyTestObject(&numDeletes);
             TObj *p2 = new (da) MyTestObject(&numDeletes);
-            Obj o(p);
-            o.load(p2, (void *) &da, deleterFunc);
+            VObj o(p);
 
+            ASSERT(o.ptr() == p);
+            ASSERT(0 == numDeletes);
+
+            o.load(p2);
+
+            ASSERT(o.ptr() == p2);
             ASSERT(1 == numDeletes);
         }
         ASSERT(2 == numDeletes);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest bdema_ManagedPtr::load(T*, factory)\n";
+
+        numDeletes = 0;
+        {
+            typedef bdema_ManagedPtr<int> MyObj;
+
+            int a = 0;
+            IncrementIntFactory incrementer;
+
+            {
+                MyObj o;
+                ASSERT(!o.ptr());
+                ASSERT(0 == numDeletes);
+                ASSERT(0 == a);
+
+                o.load(&a, &incrementer);
+
+                ASSERT(o.ptr() == &a);
+                ASSERT(0 == numDeletes);
+                ASSERT(0 == a);
+            }
+
+            ASSERT(1 == a);
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            typedef bdema_ManagedPtr<int> MyObj;
+
+            int a = 0;
+            IncrementIntFactory incrementer;
+
+            {
+                MyObj o;
+                ASSERT(!o.ptr());
+                ASSERT(0 == numDeletes);
+                ASSERT(0 == a);
+
+                o.load(&a, &incrementer);
+
+                ASSERT(o.ptr() == &a);
+                ASSERT(0 == numDeletes);
+                ASSERT(0 == a);
+
+                // should reloading the same pointer assert?
+                o.load(&a, &incrementer);
+
+                ASSERT(o.ptr() == &a);
+                ASSERT(0 == numDeletes);
+                ASSERT(1 == a);
+            }
+
+            ASSERT(2 == a);
+        }
+        ASSERT(0 == numDeletes);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout <<
+                   "\tTest bdema_ManagedPtr::load(T*, factory, DeleterFunc)\n";
+
+        g_deleteCount = 0;
+        numDeletes    = 0;
+        {
+            TObj *p =  new (da) MyTestObject(&numDeletes);
+            MyTestObject b(&numDeletes);
+            Obj o(p);
+
+            ASSERT(o.ptr() == p);
+            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+
+            o.load(&b, 0, &countedNilDelete);
+
+            ASSERT(o.ptr() == &b);
+            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        }
+        LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+        LOOP_ASSERT(numDeletes, 2 == numDeletes);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest bdema_ManagedPtr::load(T*, factory,"
+                             " deleter(T *, factory))\n";
 
         numDeletes = 0;
         {
@@ -1948,6 +2211,29 @@ int main(int argc, char *argv[])
         }
         ASSERT(2 == numDeletes);
 
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout <<
+                       "\t\tload derived type into a simple managed pointer\n";
+
+            typedef void (*DeleterFunc)(MyTestObject *, void *);
+            DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
+
+            TObj *p =  new (da) MyTestObject(&numDeletes);
+            TObj *p2 = new (da) MyTestObject(&numDeletes);
+            Obj o(p);
+
+            o.load(p2, (void *) &da, deleterFunc);
+
+            ASSERT(1 == numDeletes);
+        }
+        ASSERT(2 == numDeletes);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest bdema_ManagedPtr::load(T*, nullptr,"
+                             " deleter(T *, void *)\n";
+
 
         numDeletes = 0;
         {
@@ -1960,21 +2246,17 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == numDeletes);
 
-        numDeletes = 0;
+//#define BDEMA_MANAGEDPTR_TEST_COMPILE_FAIL_LOAD_INCOMPATIBLE_TYPE
+#if defined(BDEMA_MANAGEDPTR_TEST_COMPILE_FAIL_LOAD_INCOMPATIBLE_TYPE)
         {
-            typedef bdema_ManagedPtr<int> MyObj;
+            int i = 0;
+            bdema_ManagedPtr<double> x;
+            x.load(&i);
 
-            int a = 0;
-            IncrementIntFactory incrementer;
-
-            {
-                MyObj o;
-                o.load(&a, &incrementer);
-            }
-
-            ASSERT(1 == a);
+            const double d = 0.0;
+            x.load(&d);
         }
-        ASSERT(0 == numDeletes);
+#endif
       } break;
       case 6: {
         // --------------------------------------------------------------------
