@@ -533,7 +533,7 @@ void bdem_TableImp::reserveRaw(bsl::size_t numRows)
     // Also note that in case of 'BDEM_PASS_THROUGH' the
     // 'd_allocatorManager.reserveMemory' call will have no effect.
 
-    d_allocatorManager.reserveMemory(2 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT 
+    d_allocatorManager.reserveMemory(2 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
                                        * numRows +  sizeof(int) * newSize);
     d_rowPool.reserveCapacity(numRows);
     d_rows.reserve(d_rows.size() + numRows);

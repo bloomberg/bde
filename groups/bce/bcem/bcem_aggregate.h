@@ -1270,12 +1270,16 @@ class bcem_Aggregate {
 
     const bcem_Aggregate reserveRaw(bsl::size_t numItems);
         // Reserve sufficient memory to satisfy allocation requests for at
-        // least the specified 'numItems' in the scalar array, choice array and
-        // table.  If the aggregate references a table and  if the allocation
-        // strategy specified for this aggregate is 'BDEM_PASS_THROUGH' or
-        // 'BDEM_SUBORDINATE', then,  memory,  in addition to the footprint of
-        // a row, required to initialize a row upon insertion is *not*
-        // reserved (see 'bdem_table').  Return the value of this aggregate on
+        // least the specified, additional 'numItems' if this aggregate
+        // references a scalar or choice array , or reserve sufficient memory
+        // to satisfy allocation requests for at least the footprint of
+        // additional 'numItems' rows, if this aggregate references a table.
+        // In the latter case, memory needed to initialize a row upon
+        // insertion, *may* or may *not* be reserved depending on the
+        // allocation mode.  In the future, this method may strengthen its
+        // guarantee such that no additional allocation will occur upon row
+        // insertion (regardless of allocation mode) unless a data element
+        // itself allocates memory.  Return the value of this aggregate on
         // success or an error aggregate if this aggregate does not reference
         // an array type.
 
@@ -1834,13 +1838,17 @@ class bcem_Aggregate {
 
     // ACCESSORS
     const bcem_Aggregate capacityRaw(bsl::size_t *capacity) const;
-        // Load, in the specified 'capacity',  the number of items for which
-        // memory was previously allocated in the scalar array, choice array or
-        // table referenced by this aggregate, upon insertion or via a call to
-        // 'reserveRaw'.  Return the value of this aggregate on
-        // success or an error aggregate if this aggregate does not reference
-        // an array type.  Note that it is always true:
-        // 'length() <= capacityRaw()'.
+        // Load, in the specified 'capacity', the total number of items for
+        // which sufficient memory is currently allocated if this aggregate
+        // references a scalar or choice array, or load the total number of row
+        // footprints for which sufficient memory is currently allocated, if
+        // this aggregate references a table.  In the latter case, inserting
+        // rows that do not exceed this capacity *may* or may *not* result in
+        // additional allocations depending on the allocation mode, and whether
+        // any row data element itself allocates memory (see the 'reserveRaw'
+        // method).  Return the value of this aggregate on success or an error
+        // aggregate if this aggregate does not reference an array type.  Note
+        // that 'length() <= capacityRaw()' is an invariant of this class.
 
     bool isError() const;
         // Return 'true' if this object was returned from a function that

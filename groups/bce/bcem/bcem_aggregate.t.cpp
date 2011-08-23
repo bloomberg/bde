@@ -3702,7 +3702,7 @@ static void testCase33(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 }
 #endif
 
-static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose) 
+static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 {
     // --------------------------------------------------------------------
     // TESTING 'makeError' error message:
