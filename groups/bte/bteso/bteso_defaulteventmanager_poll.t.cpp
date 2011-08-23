@@ -9,14 +9,18 @@
 #include <bteso_eventmanagertester.h>
 #include <bteso_platform.h>
 #include <bteso_flag.h>
-#include <bslma_testallocator.h>
+
+#include <bcemt_thread.h>
+
 #include <bdetu_systemtime.h>
 #include <bdet_timeinterval.h>
-#include <bcemt_thread.h>
 #include <bdef_function.h>
 #include <bdef_bind.h>
 #include <bdef_memfn.h>
+
+#include <bslma_testallocator.h>
 #include <bsls_platform.h>
+
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_c_stdio.h>
@@ -312,22 +316,14 @@ int main(int argc, char *argv[]) {
                                    bteso_TimeMetrics::BTESO_CPU_BOUND);
         bteso_DefaultEventManager<bteso_Platform::POLL> mX(&timeMetric);
 
-        bteso_SocketHandle::Handle socket[2];
+        bteso_SocketHandle::Handle socket[4];
 
         rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
-                             socket, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+                           socket,   bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
         ASSERT(0 == rc);
-
-        numBytes = 64;
-        bteso_EventManager::Callback writeCb1(
-                    bdef_BindUtil::bind( &genericCb
-                                       , bteso_EventType::BTESO_WRITE
-                                       , socket[0]
-                                       , numBytes
-                                       , &mX));
-
-        mX.registerSocketEvent(socket[0], bteso_EventType::BTESO_WRITE,
-                                   writeCb1);
+        rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
+                           socket+2, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+        ASSERT(0 == rc);
 
         numBytes = 24;
         bteso_EventManager::Callback readCb(
@@ -336,17 +332,37 @@ int main(int argc, char *argv[]) {
                                        , socket[0]
                                        , numBytes
                                        , &mX));
-
         mX.registerSocketEvent(socket[0],
                                bteso_EventType::BTESO_READ,
                                readCb);
+
+        numBytes = 64;
+        bteso_EventManager::Callback writeCb1(
+                    bdef_BindUtil::bind( &genericCb
+                                       , bteso_EventType::BTESO_WRITE
+                                       , socket[0]
+                                       , numBytes
+                                       , &mX));
+        mX.registerSocketEvent(socket[0], bteso_EventType::BTESO_WRITE,
+                                   writeCb1);
 
         bsl::memset(ioBuf, 0xab, sizeof ioBuf);
         rc = bteso_SocketImpUtil::write(socket[1], ioBuf, 64);
         LOOP_ASSERT(rc, 64 == rc);
 
-        dispatched = mX.dispatch(timeout, 0);
+//      dispatched = mX.dispatch(timeout, 0);
+
+        bcemt_ThreadUtil::microSleep(40 * 1000);
+
+        dispatched = mX.dispatch(0);
         LOOP_ASSERT(dispatched, 2 == dispatched);
+
+        mX.deregisterSocketEvent(socket[0], bteso_EventType::BTESO_WRITE);
+
+        bcemt_ThreadUtil::microSleep(40 * 1000);
+
+        dispatched == mX.dispatch(bteso_Flag::BTESO_ASYNC_INTERRUPT);
+        LOOP_ASSERT(dispatched, 1 == dispatched);
       }  break;
       case -2: {
         // -----------------------------------------------------------------
