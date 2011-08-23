@@ -53,10 +53,11 @@ using namespace bsl;  // automatically added by script
 // [ 5] static Offset getAvailableSpace(FileDescriptor);
 // [ 6] static Offset getFileSize(const bsl::string&);
 // [ 6] static Offset getFileSize(const char *);
+// [ 8] FD open(const char *p, bool writable, bool exist, bool append);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE 1
-// [ 8] USAGE EXAMPLE 2
+// [ 9] USAGE EXAMPLE 1
+// [10] USAGE EXAMPLE 2
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -226,8 +227,10 @@ int main(int argc, char *argv[]) {
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
     switch(test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -314,7 +317,7 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
 
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -404,6 +407,69 @@ int main(int argc, char *argv[]) {
 
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // APPEND TEST
+        //
+        // Concerns:
+        //  1. A 'write' puts data at the end of the file when open in append
+        //     mode.
+        //  2. A 'write' puts data at the end of the file when open in append
+        //     mode even after a seek.
+        //  3. 'isAppend' is default to 'false'.
+        //
+        // Plan:
+        //  1. Create a file in append mode, write a charater, use seek to
+        //     change the position of output, write another character, and
+        //     verify that the new character is added after the original
+        //     character.
+        //  2. Reopen the file in append mode, write a charater and ensure that
+        //     it is added to the end of the file.
+        //  3. Reopen the file in normal mode, write a charater and ensure that
+        //     it overwrites the data in the file instead of appending to it.
+        //
+        // Testing:
+        //   FD open(const char *p, bool writable, bool exist, bool append);
+        // --------------------------------------------------------------------
+
+        bsl::string fileName(tempFileName());
+
+        if (verbose) { P(fileName) }
+
+        bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(
+                                                  fileName, true, false, true);
+        ASSERT(bdesu_FileUtil::INVALID_FD != fd);
+
+        bdesu_FileUtil::write(fd, "A", 1);
+        char result[16];
+
+        bdesu_FileUtil::seek(fd, 0, bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(1 == bdesu_FileUtil::read(fd, result, sizeof result));
+
+        bdesu_FileUtil::seek(fd, 0, bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING);
+        bdesu_FileUtil::write(fd, "B", 1);
+
+        bdesu_FileUtil::seek(fd, 0, bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(2 == bdesu_FileUtil::read(fd, result, sizeof result));
+
+        bdesu_FileUtil::close(fd);
+
+        fd = bdesu_FileUtil::open(fileName, true, true, true);
+        bdesu_FileUtil::write(fd, "C", 1);
+        bdesu_FileUtil::seek(fd, 0, bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(3 == bdesu_FileUtil::read(fd, result, sizeof result));
+
+        bdesu_FileUtil::close(fd);
+
+        fd = bdesu_FileUtil::open(fileName, true, true);
+        bdesu_FileUtil::write(fd, "D", 1);
+        bdesu_FileUtil::close(fd);
+
+        fd = bdesu_FileUtil::open(fileName, false, true);
+        ASSERT(3 == bdesu_FileUtil::read(fd, result, sizeof result));
+        bdesu_FileUtil::close(fd);
+
       } break;
       case 7: {
         // --------------------------------------------------------------------

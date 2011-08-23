@@ -1513,6 +1513,42 @@ bcem_Aggregate& bcem_Aggregate::operator=(const bcem_Aggregate& rhs)
     return *this;
 }
 
+const bcem_Aggregate  bcem_Aggregate::reserveRaw(bsl::size_t numItems)
+{
+    if(!bdem_ElemType::isArrayType(d_dataType)) {
+        return makeError(
+                       BCEM_ERR_NOT_AN_ARRAY,
+                       "Attempt to reserve on non-array aggregate of type %s",
+                       bdem_ElemType::toAscii(d_dataType));
+    }
+
+    int status = 0;
+
+    void *valuePtr = d_value.ptr();
+    switch (d_dataType) {
+      case bdem_ElemType::BDEM_TABLE: {
+        bdem_Table& table = *(bdem_Table*)valuePtr;
+        table.reserveRaw(numItems);
+      } break;
+      case bdem_ElemType::BDEM_CHOICE_ARRAY: {
+        bdem_ChoiceArray& array = *(bdem_ChoiceArray*)valuePtr;
+        array.reserveRaw(numItems);
+      } break;
+      default: {
+        bcem_Aggregate_ArrayReserver reserver(numItems);
+        status = bcem_Aggregate_Util::visitArray(valuePtr,
+                                                 d_dataType,
+                                                 &reserver);
+      }
+    }
+
+    if (status < 0) {
+        return makeError(status, "Attempt to reserve %Zu items into %s ",
+                         numItems, bdem_ElemType::toAscii(d_dataType));
+    }
+    return *this;
+}
+
 const bcem_Aggregate& bcem_Aggregate::reset()
 {
     d_dataType = bdem_ElemType::BDEM_VOID;
@@ -2235,6 +2271,38 @@ bdem_ElemRef bcem_Aggregate::fieldRefByIndex(int index) const
 const bcem_Aggregate bcem_Aggregate::operator[](int index) const
 {
     return fieldImp(false, index);  // TBD pass true?
+}
+
+const bcem_Aggregate bcem_Aggregate::capacityRaw(bsl::size_t *capacity) const
+{
+    BSLS_ASSERT(0 != capacity);
+
+    if (!bdem_ElemType::isArrayType(d_dataType)) {
+        return makeError(BCEM_ERR_NOT_AN_ARRAY,                       // RETURN
+                         "Attempt to get capacity on non-array aggregate of"
+                         "  type %s", bdem_ElemType::toAscii(d_dataType));
+    }
+
+    void *valuePtr = d_value.ptr();
+
+    switch (d_dataType) {
+      case bdem_ElemType::BDEM_TABLE: {
+        bdem_Table& table = *(bdem_Table*)valuePtr;
+        *capacity = table.capacityRaw();
+      } break;
+      case bdem_ElemType::BDEM_CHOICE_ARRAY: {
+        bdem_ChoiceArray& array = *(bdem_ChoiceArray*)valuePtr;
+        *capacity = array.capacityRaw();
+      } break;
+      default: {
+        bcem_Aggregate_ArrayCapacitor capacitor;
+        *capacity = bcem_Aggregate_Util::visitArray(
+                                             valuePtr,
+                                             d_dataType,
+                                             &capacitor);
+      }
+    }
+    return *this;
 }
 
 int bcem_Aggregate::length() const

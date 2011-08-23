@@ -5,6 +5,7 @@
 BDES_IDENT_RCSID(bdem_tableimp_cpp,"$Id$ $CSID$")
 
 #include <bdem_functiontemplates.h>
+
 #include <bdeu_print.h>
 
 #include <bslma_autorawdeleter.h>
@@ -21,6 +22,9 @@ BDES_IDENT_RCSID(bdem_tableimp_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 namespace BloombergLP {
+// LOCAL VARIABLES
+
+static bool geometricMemoryGrowthFlag = false;
 
 // LOCAL CONSTANTS
 enum {
@@ -504,6 +508,38 @@ void bdem_TableImp::removeRow(int rowIndex)
                                        1);
 }
 
+bsl::size_t bdem_TableImp::capacityRaw() const
+{
+    return d_rows.capacity();
+}
+
+void bdem_TableImp::reserveRaw(bsl::size_t numRows)
+{
+    if(0 == numRows) {
+        return;                                                       // RETURN
+    }
+
+    const int newSize = nullBitsArraySize(this->numRows() + numRows);
+
+    // Reserve 2 times BSLS_MAX_ALIGNMENT, once for the 'd_rows.reserve'
+    // invocation and once for the initializaiton of the 'bdem_RowData' when
+    // inserting a row.  Add the memory necessary for the new size of
+    // 'd_nullBits'.  Note that this calculation leaves out the memory used by
+    // the array of null bits in the initialization of 'bdem_RowData', because
+    // it's not possible to access the function to calculate its size from
+    // here: the extra memory obtained by invoking 'reserve' on a sequential
+    // allocator or a multi pool ('BDEM_WRITE_ONCE' and 'BDEM_PASS_THROUGH'
+    // respectively) seems to be enough to make up for this approximation.
+    // Also note that in case of 'BDEM_PASS_THROUGH' the
+    // 'd_allocatorManager.reserveMemory' call will have no effect.
+
+    d_allocatorManager.reserveMemory(2 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT 
+                                       * numRows +  sizeof(int) * newSize);
+    d_rowPool.reserveCapacity(numRows);
+    d_rows.reserve(d_rows.size() + numRows);
+    d_nullBits.reserve(newSize);
+}
+
 void bdem_TableImp::reset(const bdem_ElemType::Type  columnTypes[],
                           int                        numColumns,
                           const bdem_Descriptor     *const *attrLookupTbl)
@@ -530,8 +566,10 @@ bdem_RowData& bdem_TableImp::insertRow(int                 dstRowIndex,
         d_nullBits.resize(newSize, 0);
     }
 
-    d_rows.reserve(numRows() + 1);
-    d_rowPool.reserveCapacity(1);
+    if (!geometricMemoryGrowthFlag) {
+        d_rows.reserve(numRows() + 1);
+        d_rowPool.reserveCapacity(1);
+    }
 
     bdem_RowData *newRow = new (d_rowPool) bdem_RowData(
                                        d_rowLayout_p,
@@ -567,8 +605,8 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
         return;                                                       // RETURN
     }
 
-    const int originalLength = this->numRows();
-    const int newSize        = nullBitsArraySize(originalLength + numRows);
+    const int originalSize = this->numRows();
+    const int newSize      = nullBitsArraySize(originalSize + numRows);
     if ((int)d_nullBits.size() < newSize) {
         d_nullBits.resize(newSize, 0);
     }
@@ -586,9 +624,12 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
 
     // 'tempRows' is used to address aliasing concerns.
 
-    d_rows.reserve(this->numRows() + numRows);
 
-    d_rowPool.reserveCapacity(numRows);
+    if (!geometricMemoryGrowthFlag) {
+        d_rows.reserve(originalSize + numRows);
+        d_rowPool.reserveCapacity(numRows);
+    }
+
     bsl::vector<bdem_RowData *> tempRows;
     tempRows.resize(numRows);
 
@@ -626,7 +667,7 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
     // Open up space for nullness bits of new rows.
 
     bdeu_BitstringUtil::insertRaw(&d_nullBits.front(),
-                                  originalLength,
+                                  originalSize,
                                   dstRowIndex,
                                   numRows);
 
@@ -661,8 +702,11 @@ void bdem_TableImp::insertNullRows(int dstRowIndex, int numRows)
         d_nullBits.resize(newSize, 0);
     }
 
-    d_rowPool.reserveCapacity(numRows);
-    d_rows.reserve(this->numRows() + numRows);
+
+    if (!geometricMemoryGrowthFlag) {
+        d_rowPool.reserveCapacity(numRows);
+        d_rows.reserve(this->numRows() + numRows);
+    }
 
     for (int i = 0; i < numRows; ++i) {
         // If allocate() or constructor throws an exception,
@@ -949,6 +993,17 @@ bool operator==(const bdem_TableImp& lhs, const bdem_TableImp& rhs)
     }
 
     return true;
+}
+
+// PRIVATE GEOMETRIC MEMORY GROWTH
+void bdem_TableImp_enableGeometricMemoryGrowth()
+{
+    geometricMemoryGrowthFlag = true;
+}
+
+bool bdem_TableImp_isGeometricMemoryGrowth()
+{
+    return geometricMemoryGrowthFlag;
 }
 
 }  // close namespace BloombergLP

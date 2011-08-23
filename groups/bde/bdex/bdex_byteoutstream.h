@@ -207,6 +207,13 @@ class bdex_ByteOutStream {
 
     friend bsl::ostream& operator<<(bsl::ostream&, const bdex_ByteOutStream&);
 
+    // NOT DEFINED
+    bdex_ByteOutStream(const bdex_ByteOutStream&);
+    bdex_ByteOutStream& operator=(const bdex_ByteOutStream&);
+
+    bool operator==(const bdex_ByteOutStream&) const;
+    bool operator!=(const bdex_ByteOutStream&) const;
+
   public:
     // CREATORS
     bdex_ByteOutStream(bslma_Allocator *basicAllocator = 0);
