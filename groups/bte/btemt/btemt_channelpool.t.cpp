@@ -764,7 +764,7 @@ void writerThread(unsigned threadIndex)
     int oldSignal = 0;
 
     bcema_Blob blob(&blobFactory);
-    for (iter = 0; iter < maxWritesPerThread && 
+    for (iter = 0; iter < maxWritesPerThread &&
                    consecutiveFailures < maxConsecutiveFailures; ++iter) {
         int randVal = rand_r(&threadIndex);
         int nBytes  = minMsgSize + randVal % (maxMsgSize - minMsgSize + 1);
@@ -801,7 +801,7 @@ extern "C" void* threadFunctionCase36(void *data)
     Obj           *pool     = testData->d_pool_p;
     int            id       = testData->d_channelId;
     bcemt_Barrier *barrier  = testData->d_barrier_p;;
-    
+
     bcema_Blob b(&f);
     b.setLength(CACHE_HI_WAT);
 
@@ -887,9 +887,21 @@ void blobBasedReadCb(int             *needed,
 
 namespace CASE35 {
 
-void poolStateCb(int            state,
-                 int            source,
-                 int            severity)
+static int numChannels = 0;
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+
+static const int MAX_NUM_HANDLES = FD_SETSIZE;
+
+#else
+
+static const int MAX_NUM_HANDLES = 64;
+
+#endif
+
+void poolCb(int              state,
+            int              source,
+            int              severity)
 {
     if (veryVerbose) {
         bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
@@ -897,6 +909,29 @@ void poolStateCb(int            state,
                   << " State: " << state
                   << " Source: "  << source
                   << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void poolStateCb(int              state,
+                 int              source,
+                 int              severity,
+                 int             *currState,
+                 bcemt_Mutex     *mutex,
+                 bcemt_Condition *condition)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+
+    bcemt_LockGuard<bcemt_Mutex> guard(mutex);
+    ++numChannels;
+    if (MAX_NUM_HANDLES == numChannels) {
+        *currState = state;
+        condition->signal();
     }
 }
 
@@ -8036,8 +8071,34 @@ int main(int argc, char *argv[])
         // TESTING ERROR HANDLING IN CASE OF LIMITED SOCKET CAPACITY
         //
         // Concern:
+        //: 1 If there are no socket limits then all of the below functions
+        //:   return success (i.e. no error).
+        //:
+        //: 2 After the socket limit is exceeded the pool state callback is
+        //:   called with the appropriate error state.
+        //:
+        //: 3 'listen'ing on more than the socket limit returns an error.
+        //:
+        //: 4 'connect'ing on more than the socket limit returns an error.
+        //:
+        //: 5 'import'ing on more than the socket limit returns an error.
+        //:
         //
         // Plan:
+        //: 1 Try to 'listen' to greater than the socket limit sockets and
+        //:   verify that the appropriate pool state callback is called.
+        //:
+        //: 2 Try to 'listen' to greater than the socket limit sockets and
+        //:   verify that 'listen' returns an error.
+        //:
+        //: 3 Try to 'connect' to greater than the socket limit sockets and
+        //:   verify that 'connect' returns an error.
+        //:
+        //: 4 Try to 'import' to greater than the socket limit sockets and
+        //:   verify that 'import' returns an error.
+        //:
+        //: 5 If there are no socket limits than no error is encountered in
+        //:   any of the above cases.
         //
         // Testing:
         // -----------------------------------------------------------------
@@ -8050,71 +8111,323 @@ int main(int argc, char *argv[])
 
         using namespace CASE35;
 
-        if (verbose) cout << "Testing 'connect'" << endl;
+        if (verbose) cout << "Testing 'listen' with callback" << endl;
         {
             btemt_ChannelPoolConfiguration config;
-            config.setMaxThreads(1);
-            if (verbose) {
-                P(config);
-            }
+            for (int i = 0; i < 2; i++) {
+                const int NUM_THREADS = 0 == i ? 1 : 5;
 
-            int channelId;
-            btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                config.setMaxThreads(NUM_THREADS);
+                if (verbose) {
+                    P(config);
+                }
+
+                int channelId;
+                btemt_ChannelPool::ChannelStateChangeCallback channelCb(
                                            bdef_BindUtil::bind(&channelStateCb,
                                                                _1, _2, _3, _4,
                                                                &channelId));
 
-            btemt_ChannelPool::PoolStateChangeCallback poolCb(
-                                              bdef_BindUtil::bind(&poolStateCb,
-                                                                  _1, _2, _3));
+                int             currState = 0;
+                bcemt_Mutex     mutex;
+                bcemt_Condition condition;
+                btemt_ChannelPool::PoolStateChangeCallback poolCb(
+                                            bdef_BindUtil::bind(&poolStateCb,
+                                                                _1, _2, _3,
+                                                                &currState,
+                                                                &mutex,
+                                                                &condition));
 
-            btemt_ChannelPool::BlobBasedReadCallback dataCb(&blobBasedReadCb);
+                btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                                             &blobBasedReadCb);
 
-            btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
+                btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
 
-            ASSERT(0 == pool.start());
+                ASSERT(0 == pool.start());
 
-// #ifdef BSLS_PLATFORM__OS_WINDOWS
-//             const int MAX_NUM_HANDLES = FD_SETSIZE;
-// #else
-            const int MAX_NUM_HANDLES = 100;
-// #endif
-            const int SERVER_PORT     = 31178;
-            const int SERVER_ID       = 100;
+                const int SERVER_PORT     = 33100;
+                const int SERVER_ID       = 100;
+                const int SOURCE_ID       = 200;
 
-            bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-            vector<bteso_StreamSocket<bteso_IPv4Address> *> sockets;
-            int numExpChannels = 0;
+                bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+                vector<bteso_StreamSocket<bteso_IPv4Address> *> sockets;
+                int numExpChannels = 0;
 
-            int rc = pool.listen(SERVER_PORT,
-                                 MAX_NUM_HANDLES,
-                                 SERVER_ID,
-                                 bdet_TimeInterval(1),
-                                 true,
-                                 true);
+                int rc = pool.listen(SERVER_PORT,
+                                     MAX_NUM_HANDLES,
+                                     SERVER_ID,
+                                     bdet_TimeInterval(1),
+                                     true,
+                                     true);
 
-            bteso_IPv4Address serverAddr;
-            ASSERT(0 == pool.getServerAddress(&serverAddr, SERVER_ID));
+                bteso_IPv4Address serverAddr;
+                ASSERT(0 == pool.getServerAddress(&serverAddr, SERVER_ID));
 
-            for (int i = 0; i < MAX_NUM_HANDLES; ++i) {
-                if (veryVerbose) { P(i) }
+                if (veryVerbose) { P(MAX_NUM_HANDLES) }
 
-                const int SERVER_ID = 100;
-                const int SOURCE_ID = 200;
+                for (int i = 0; i < MAX_NUM_HANDLES; ++i) {
+                    if (veryVerbose) { P(i) }
+
+                    bteso_StreamSocket<bteso_IPv4Address> *socket =
+                                                            factory.allocate();
+                    sockets.push_back(socket);
+
+                    ASSERT(0 == socket->connect(serverAddr));
+                }
 
                 bteso_StreamSocket<bteso_IPv4Address> *socket =
                                                             factory.allocate();
                 sockets.push_back(socket);
-
                 ASSERT(0 == socket->connect(serverAddr));
+
+                while (1) {
+                    bcemt_LockGuard<bcemt_Mutex> guard(&mutex);
+                    if (MAX_NUM_HANDLES <= numChannels) {
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                        LOOP_ASSERT(currState,
+                        btemt_PoolMsg::BTEMT_EVENT_MANAGER_LIMIT == currState);
+#else
+                        LOOP_ASSERT(currState, 0 == currState);
+#endif
+                        break;
+                    }
+                    else {
+                        condition.wait(&mutex);
+                    }
+                }
+
+                ASSERT(0 == pool.stop());
+
+                const int numSockets = sockets.size();
+                for (int i = 0; i < numSockets; ++i) {
+                    factory.deallocate(sockets[i]);
+                }
             }
+        }
 
-//             bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
-//             sockets.push_back(socket);
-//             ASSERT(0 == socket->connect(serverAddr));
+        if (verbose) cout << "Testing 'listen' return code" << endl;
+        {
+            btemt_ChannelPoolConfiguration config;
+            for (int ni = 0; ni < 2; ni++) {
+                const int NUM_THREADS = 0 == ni ? 1 : 5;
 
-            for (int i = 0; i < sockets.size(); ++i) {
-                factory.deallocate(sockets[i]);
+                config.setMaxThreads(NUM_THREADS);
+                if (verbose) {
+                    P(config);
+                }
+
+                int channelId;
+                btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                           bdef_BindUtil::bind(&channelStateCb,
+                                                               _1, _2, _3, _4,
+                                                               &channelId));
+
+                btemt_ChannelPool::PoolStateChangeCallback poolCb(
+                                              bdef_BindUtil::bind(&poolCb,
+                                                                  _1, _2, _3));
+
+                btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                                             &blobBasedReadCb);
+
+                btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
+
+                ASSERT(0 == pool.start());
+
+                const int SERVER_PORT     = 31178;
+                const int SERVER_ID       = 100;
+
+                bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+                vector<bteso_StreamSocket<bteso_IPv4Address> *> sockets;
+                int numExpChannels = 0;
+
+                if (veryVerbose) { P(MAX_NUM_HANDLES) }
+
+                int i = 0;
+                for (; i < MAX_NUM_HANDLES; ++i) {
+                    if (veryVerbose) { P(i) }
+
+                    int rc = pool.listen(SERVER_PORT + i,
+                                         MAX_NUM_HANDLES,
+                                         SERVER_ID + i,
+                                         bdet_TimeInterval(1),
+                                         true,
+                                         true);
+
+                    ASSERT(0 == rc);
+                }
+
+                int rc = pool.listen(SERVER_PORT + i,
+                                     MAX_NUM_HANDLES,
+                                     SERVER_ID + i,
+                                     bdet_TimeInterval(1),
+                                     true,
+                                     true);
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                LOOP_ASSERT(rc, -12 == rc);
+#else
+                LOOP_ASSERT(rc, 0 == rc);
+#endif
+                ASSERT(0 == pool.stop());
+            }
+        }
+
+        if (verbose) cout << "Testing 'connect'" << endl;
+        {
+            btemt_ChannelPoolConfiguration config;
+            for (int ni = 0; ni < 2; ni++) {
+                const int NUM_THREADS = 0 == ni ? 1 : 5;
+
+                config.setMaxThreads(NUM_THREADS);
+                if (verbose) {
+                    P(config);
+                }
+
+                int channelId;
+                btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                           bdef_BindUtil::bind(&channelStateCb,
+                                                               _1, _2, _3, _4,
+                                                               &channelId));
+
+                btemt_ChannelPool::PoolStateChangeCallback poolCb(
+                                              bdef_BindUtil::bind(&poolCb,
+                                                                  _1, _2, _3));
+
+                btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                                             &blobBasedReadCb);
+
+                btemt_ChannelPool listenPool(channelCb,
+                                             dataCb,
+                                             poolCb,
+                                             config);
+                btemt_ChannelPool connectPool(channelCb,
+                                              dataCb,
+                                              poolCb,
+                                              config);
+
+                ASSERT(0 == listenPool.start());
+                ASSERT(0 == connectPool.start());
+
+                const int SERVER_PORT     = 31178;
+                const int SERVER_ID       = 100;
+                const int SOURCE_ID       = 200;
+
+                int rc = listenPool.listen(SERVER_PORT,
+                                           MAX_NUM_HANDLES + 1,
+                                           SERVER_ID,
+                                           bdet_TimeInterval(1),
+                                           true,
+                                           true);
+
+                ASSERT(0 == rc);
+
+                bteso_IPv4Address serverAddr;
+                ASSERT(0 == listenPool.getServerAddress(&serverAddr,
+                                                        SERVER_ID));
+
+                bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+                vector<bteso_StreamSocket<bteso_IPv4Address> *> sockets;
+                int numExpChannels = 0;
+
+                if (veryVerbose) { P(MAX_NUM_HANDLES) }
+
+                int i = 0;
+                for (; i < MAX_NUM_HANDLES; ++i) {
+                    if (veryVerbose) { P(i) }
+
+                    int rc = connectPool.connect(serverAddr,
+                                                 1,
+                                                 bdet_TimeInterval(1),
+                                                 SOURCE_ID + i,
+                                                 true,
+                                                 Obj::BTEMT_CLOSE_BOTH);
+
+                    ASSERT(0 == rc);
+                }
+
+                rc = connectPool.connect(serverAddr,
+                                         1,
+                                         bdet_TimeInterval(1),
+                                         SOURCE_ID + i,
+                                         true,
+                                         Obj::BTEMT_CLOSE_BOTH);
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                LOOP_ASSERT(rc, -3 == rc);
+#else
+                LOOP_ASSERT(rc, 0 == rc);
+#endif
+                ASSERT(0 == listenPool.stop());
+                ASSERT(0 == connectPool.stop());
+            }
+        }
+
+        if (verbose) cout << "Testing 'import'" << endl;
+        {
+            btemt_ChannelPoolConfiguration config;
+            for (int ni = 0; ni < 2; ni++) {
+                const int NUM_THREADS = 0 == ni ? 1 : 5;
+
+                config.setMaxThreads(NUM_THREADS);
+                if (verbose) {
+                    P(config);
+                }
+
+                int channelId;
+                btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                           bdef_BindUtil::bind(&channelStateCb,
+                                                               _1, _2, _3, _4,
+                                                               &channelId));
+
+                btemt_ChannelPool::PoolStateChangeCallback poolCb(
+                                            bdef_BindUtil::bind(&poolCb,
+                                                                _1, _2, _3));
+
+                btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                                             &blobBasedReadCb);
+
+                bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+
+                btemt_ChannelPool pool(channelCb,
+                                       dataCb,
+                                       poolCb,
+                                       config);
+
+                ASSERT(0 == pool.start());
+
+                const int SERVER_PORT = 31178;
+                const int SERVER_ID   = 100;
+                const int SRC_ID      = 200;
+
+                if (veryVerbose) { P(MAX_NUM_HANDLES) }
+
+                int i = 0;
+                for (; i < MAX_NUM_HANDLES; ++i) {
+                    if (veryVerbose) { P(i) }
+
+                    bteso_StreamSocket<bteso_IPv4Address> *socket =
+                                                            factory.allocate();
+
+                    ASSERT(0 == socket->bind(bteso_IPv4Address()));
+                    ASSERT(0 == socket->listen(5));
+
+                    int rc = pool.import(socket, &factory, SRC_ID + i);
+
+                    ASSERT(!rc);
+                }
+
+                bteso_StreamSocket<bteso_IPv4Address> *socket =
+                                                            factory.allocate();
+                ASSERT(0 == socket->bind(bteso_IPv4Address()));
+                ASSERT(0 == socket->listen(5));
+
+                int rc = pool.import(socket, &factory, SRC_ID + i);
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                LOOP_ASSERT(rc, -2 == rc);
+#else
+                LOOP_ASSERT(rc, !rc);
+#endif
+                ASSERT(0 == pool.stop());
             }
         }
       } break;
@@ -8142,7 +8455,7 @@ int main(int argc, char *argv[])
         //: write random data on a channel with random intervals of spinning.
         //: The hope is that with sufficient attempts the value of
         //: 'd_writeCacheSize' would become invalid.  This condition can be
-        //: checked by trying to write data of length cache hi watermark (and 
+        //: checked by trying to write data of length cache hi watermark (and
         //: then one plus the cache hi watermark).  The former should succeed
         //: and the latter should fail.  If both conditions do not return the
         //: expected return code then we have reproduced the bug.
@@ -8225,7 +8538,7 @@ int main(int argc, char *argv[])
         // fork threads
         for (int i = 0; i < NT; ++i) {
             bcemt_ThreadUtil::Handle handle;
-            rc = bcemt_ThreadUtil::create(&handle, 
+            rc = bcemt_ThreadUtil::create(&handle,
                                         bdef_BindUtil::bind(&writerThread, i));
             ASSERT(!rc);
         }
@@ -8258,14 +8571,14 @@ int main(int argc, char *argv[])
           rc = channelPool->setWriteCacheHiWatermark(channelId,
                                                      CACHE_HI_WAT * 2);
           ASSERT(!rc);
-          
+
           rc = write(CACHE_HI_WAT);
           ASSERT(!rc);
         }
         else {
           rc = channelPool->setWriteCacheHiWatermark(channelId, 1);
           ASSERT(!rc);
-          
+
           rc = write(CACHE_HI_WAT + 1);
           ASSERT(rc);
         }
@@ -8357,7 +8670,7 @@ int main(int argc, char *argv[])
 
         rc = socket->write(TEXT, LEN);
         LOOP2_ASSERT(LEN, rc, LEN == rc);
-        
+
         bdet_TimeInterval time = bdetu_SystemTime::now() + 2;  // wait for 2
                                                                // secs
         rc = dataCbBarrier.timedWait(time);
