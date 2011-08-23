@@ -195,6 +195,11 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
 
     bteso_TimeMetrics  *d_timeMetric; // time metrics given to this object
 
+    mutable bsl::vector<bteso_Event> d_signaledReads;
+    mutable bsl::vector<bteso_Event> d_signaledWrites;
+                                      // temporary arrays used to dispatch
+                                      // callbacks
+
     // PRIVATE ACCESSORS
     bool checkInternalInvariants() const;
         // Verify that every socket handle that is registered in the
