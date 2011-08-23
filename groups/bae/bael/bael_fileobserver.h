@@ -226,7 +226,7 @@ BDES_IDENT("$Id: $")
 //      // Rotate the file when its size becomes greater than or equal to 256
 //      // mega-bytes.
 //
-//  fileObserver.rotateOnLifetime(bdet_DatetimeInterval(1));
+//  fileObserver.rotateOnTimeInterval(bdet_DatetimeInterval(1));
 //      // Rotate the file every 24 hours.
 //..
 // Note that in this configuration the user may end up with multiple log files
@@ -467,9 +467,11 @@ class bael_FileObserver : public bael_Observer {
 
     void forceRotation();
         // Forcefully perform a log file rotation by this file observer.  Close
-        // the current log file, optionally rename it as indicated by the most
-        // recent successful call to 'enableFileLogging', and open a new log
-        // file.  This method has no effect if file logging is not enabled.
+        // the current log file, rename the log file if necessary, and open a
+        // new log file.  See the "Rotated File Naming" section under
+        // @DESCRIPTION in the component-level documentation for details on
+        // filenames of the rotated log files.  This method has no effect if
+        // file logging is not enabled.
 
     void rotateOnSize(int size);
         // Set this file observer to perform log file rotation when the size of
