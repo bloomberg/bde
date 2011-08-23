@@ -203,8 +203,8 @@ class bteso_IpResolutionCache_Data {
 typedef bteso_IpResolutionCache                Obj;
 typedef bteso_IpResolutionCache_Entry          Entry;
 typedef bteso_IpResolutionCache_Data           Data;
-typedef bteso_IPv4Address                 IPv4;
-typedef bsl::vector<bteso_IPv4Address>    Vec;
+typedef bteso_IPv4Address                      IPv4;
+typedef bsl::vector<bteso_IPv4Address>         Vec;
 typedef bteso_IpResolutionCache_Entry::DataPtr DataPtr;
 
 struct ThreadInfo {
@@ -368,6 +368,7 @@ int TestResolver::callback(bsl::vector<bteso_IPv4Address> *hostAddresses,
                           bteso_IPv4Address(BSLS_BYTEORDER_HTONL(s_count), 0));
     }
 
+    (void) hostName;  // quash potential compiler warning
     return 0;
 }
 
@@ -564,7 +565,7 @@ extern "C" void *workerThread(void *arg)
     ThreadData *p = (ThreadData*)arg;
     bcemt_Barrier& barrier = *p->d_barrier_p;
 
-    Obj &mX = *p->d_cache_p; const Obj &X = mX;
+    Obj &mX = *p->d_cache_p;
 
     // Begin the test.
 
@@ -785,7 +786,7 @@ int main(int argc, char *argv[])
     int rc = cache.resolveAddress(&ipAddresses, "www.bloomberg.com", 1);
     ASSERT(0 == rc);
     ASSERT(1 == ipAddresses.size());
-    bsl::cout << "IP Address: " << ipAddresses[0] << std::endl;
+    if (verbose) bsl::cout << "IP Address: " << ipAddresses[0] << std::endl;
 //..
 //  Finally, we verify that subsequent call to 'lookupAddressRaw' return 0 to
 //  indicate "www.bloomberg.com" is stored in the cache, but not
@@ -807,13 +808,12 @@ int main(int argc, char *argv[])
 // Finally, we call the 'bteso_ResolveUtil::getAddress' method to retrieve the
 // IPv4 address of 'www.bloomberg.com':
 //..
-    bteso_IPv4Address ipv4;
-    bteso_ResolveUtil::getAddress(&ipv4, "www.bloomberg.com");
-    bsl::cout << "IP Address: " << ipv4 << std::endl;
+    bteso_IPv4Address ipAddress;
+    bteso_ResolveUtil::getAddress(&ipAddress, "www.bloomberg.com");
 //..
 // Now, we write the address to stdout:
 //..
-//  bsl::cout << "IP Address: " << ipAddress << std::endl;
+    if (verbose) bsl::cout << "IP Address: " << ipAddress << std::endl;
 //..
 // Finally, we observe the output to be in the form:
 //..
@@ -873,7 +873,7 @@ int main(int argc, char *argv[])
                 if (verbose) { P_(LINE) P_(NAME) P(ADDR); }
 
                 LOOP2_ASSERT(LINE, NAME,
-                             0 == X.resolveAddress(&mV, NAME, 1));
+                             0 == X.resolveAddress(&mV, NAME, 1, &err));
 
                 LOOP_ASSERT(LINE, 0 == X.lookupAddressRaw(&mV, NAME, 1));
             }
@@ -893,7 +893,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, 0 != X.lookupAddressRaw(&mV, NAME, 1));
 
                 LOOP2_ASSERT(LINE, NAME,
-                             0 == X.resolveAddress(&mV, NAME, 1));
+                             0 == X.resolveAddress(&mV, NAME, 1, &err));
 
                 LOOP_ASSERT(LINE, 0 == X.lookupAddressRaw(&mV, NAME, 1));
             }
@@ -937,7 +937,7 @@ int main(int argc, char *argv[])
         };
 
         bcemt_Barrier barrier(NUM_THREADS);
-        Obj mX(&testConcurrencyCallback, &testAllocator); const Obj& X = mX;
+        Obj mX(&testConcurrencyCallback, &testAllocator);
         mX.setTimeToLive(bdet_DatetimeInterval(0, 0, 0, 0, 100));
 
         ThreadData args = { &mX, &barrier };
@@ -1131,7 +1131,6 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t'resolveAddress'" << endl;
             {
                 Vec mV;
-                int err;
 
                 ASSERT_PASS(X.resolveAddress(&mV, "A", 1));
                 ASSERT_FAIL(X.resolveAddress(0,   "A", 1));
@@ -1205,7 +1204,6 @@ int main(int argc, char *argv[])
         // 'A' values
         // -------------------------------------------------------
 
-        const T1 A1 = &TestResolver::callback;
         const T2 A2(1);
 
         if (verbose) cout <<
@@ -1394,12 +1392,10 @@ int main(int argc, char *argv[])
 
         // 'A' values
 
-        const T1 A1 = &TestResolver::callback;
         const T2 A2(1);
 
         // 'B' values
 
-        const T1 B1 = 0;
         const T2 B2(INT_MAX);
 
         if (verbose) cout << "\nTesting with various allocator configurations."
@@ -1552,7 +1548,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "" << endl;
         {
-            Entry mX;  const Entry &X = mX;
+            Entry mX;
             mX.updatingLock().lock();
 
             ThreadInfo args;
@@ -1915,7 +1911,6 @@ int main(int argc, char *argv[])
 
 
         bsl::vector<bteso_IPv4Address> addresses;
-        int errorCode = 0;
 
         {
             bteso_IPv4Address ipv4;
@@ -1969,17 +1964,15 @@ int main(int argc, char *argv[])
         const int THREAD_CNT[] = {5};
         const int NUM_THREAD_CNT = sizeof THREAD_CNT / sizeof *THREAD_CNT;
 
-        const int OPTION[] = {DEFAULT, CACHE};
-        const int NUM_OPTION = sizeof OPTION / sizeof *OPTION;
-
         bsl::vector<bsl::string> hostnames;
         hostnames.push_back("sundev1");
-        //hostnames.push_back("nylxdev1");
-        //hostnames.push_back("ibm1");
-        //hostnames.push_back("hp1");
-        //hostnames.push_back("nysbldo1");
+        hostnames.push_back("nylxdev1");
+        hostnames.push_back("ibm1");
+        hostnames.push_back("hp1");
+        hostnames.push_back("nysbldo1");
 
-        ipCacheInstance()->setTimeToLive(bdet_DatetimeInterval(0, 0, 0, 0, 100));
+        ipCacheInstance()->setTimeToLive(
+                                       bdet_DatetimeInterval(0, 0, 0, 0, 100));
         bteso_ResolveUtil::setResolveByNameCallback(&resolverCallback);
 
         for (int tj = 0; tj < NUM_THREAD_CNT; ++tj) {

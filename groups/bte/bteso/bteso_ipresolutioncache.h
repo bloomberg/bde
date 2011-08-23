@@ -147,9 +147,8 @@ BDES_IDENT("$Id: $")
 // Finally, we call the 'bteso_ResolveUtil::getAddress' method to retrieve the
 // IPv4 address of 'www.bloomberg.com':
 //..
-//  bteso_IPv4Address ipv4;
-//  bteso_ResolveUtil::getAddress(&ipv4, "www.bloomberg.com");
-//  bsl::cout << "IP Address: " << ipv4 << std::endl;
+//  bteso_IPv4Address ipAddress;
+//  bteso_ResolveUtil::getAddress(&ipAddress, "www.bloomberg.com");
 //..
 // Now, we write the address to stdout:
 //..
