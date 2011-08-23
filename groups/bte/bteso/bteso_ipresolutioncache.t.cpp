@@ -38,35 +38,26 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
+// This componenet implements a mechanism for storing resolved IP
+// address.  The test driver will test the component in both a single threaded
+// adn multithreaded environmenet.
 //
-// Primary Manipulators:
-//: o 'setAttribute'
-//
-// Basic Accessors:
-//: o 'allocator' (orthogonal to value)
-//: o 'attribute'
-//
-// Global Concerns:
-//: o
-//
-// Global Assumptions:
-//: o
 // ----------------------------------------------------------------------------
 // class bteso_IpResolutionCache
 //
 // CREATORS
 // [ 6] bteso_IpResolutionCache(bslma_Allocator *bA);
-// [  ] bteso_IpResolutionCache(Callback cb, bslma_Allocator *bA);
+// [ 7] bteso_IpResolutionCache(Callback cb, bslma_Allocator *bA);
 // [ 6] ~bteso_IpResolutionCache();
 //
 // MANIPULATORS
-// [  ] void removeAll();
+// [10] void removeAll();
 // [ 8] int resolveAddress(vector *r, const char *h, int n, int *e);
 // [ 6] void setTimeToLive(const bdet_DatetimeInterval& value);
 //
 // ACCESSORS
 // [ 7] bslma_Allocator *allocator() const;
-// [  ] int lookupAddressRaw(vector *res, const char *host, int num);
+// [ 8] int lookupAddressRaw(vector *res, const char *host, int num);
 // [ 7] ResolveByNameCallback resolverCallback();
 // [ 7] const bdet_DatetimeInterval& timeToLive();
 // ----------------------------------------------------------------------------
@@ -74,12 +65,12 @@ using namespace bsl;
 //
 // CREATORS
 // [ 3] bteso_IpResolutionCache_Entry();
-// [  ] bteso_IpResolutionCache_Entry(const IpResolutionCache_Entry& orig);
+// [ 4] bteso_IpResolutionCache_Entry(const IpResolutionCache_Entry& orig);
 // [ 3] ~bteso_IpResolutionCache_Entry();
 //
 // MANIPULATORS
 // [ 3] void setData(DataPtr value);
-// [  ] void reset();
+// [ 3] void reset();
 //
 // ACCESSORS
 // [ 4] DataPtr data();
@@ -87,7 +78,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE
-// [ 2] CONCERN: Test apparatues is working as expected.
+// [ 2] CONCERN: Test apparatus is working as expected.
 // [ 9] CONCERN: bteso_IpResolutionCache works with multiple threads
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -95,7 +86,8 @@ using namespace bsl;
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -277,7 +269,7 @@ enum {
                          // ============
 
 class TestResolver {
-    // This class provide a mechanism to resolve IP addresses given a host anem
+    // This class provide a mechanism to resolve IP addresses given a host name
     // for testing purposes.  The returned IP addresses depends on the number
     // of times the callback is invoked.
 
@@ -309,7 +301,8 @@ class TestResolver {
         // start of the program or the last time 'reset' was invoked.
 
     static int errorCode();
-        // Return the error code that will be returned by the 'callback' method.
+        // Return the error code that will be returned by the 'callback'
+        // method.
 
     static bteso_IPv4Address lastIPv4Added();
         // Return the last IP addresses that was returned by the 'callback'
@@ -356,7 +349,7 @@ int TestResolver::callback(bsl::vector<bteso_IPv4Address> *hostAddresses,
         if (errorCode) {
             *errorCode = s_errorCode;
         }
-        return s_errorCode;
+        return s_errorCode;                                           // RETURN
     }
     ++s_count;
 
@@ -535,7 +528,7 @@ int testConcurrencyCallback(bsl::vector<bteso_IPv4Address> *hostAddresses,
                             int                             maxNumAddresses,
                             int                            *errorCode)
     // Load, into the specified 'hostAddresses', the IP address based on the
-    // specifed 'hostName'.  Load into the specified 'errorCode', a value of 0
+    // specified 'hostName'.  Load into the specified 'errorCode', a value of 0
     // if 'errorCode' is not null.  The behavior is undefined unless
     // 'maxNumAddresses >= 1'.
 {
@@ -823,7 +816,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // bteso_IpResolutionCache
+        // MANIPULATORS 'removeAll'
         //
         // Concerns:
         //: 1 'removeAll' removes the data in the cache such that they are
@@ -833,6 +826,7 @@ int main(int argc, char *argv[])
         //: 1 Insert a set of data into the cache.
         //:
         //: 2 Call 'removeAll' and verify that the data has been removed.
+        //:   (C-1)
         //
         // Testing:
         //   void removeAll();
@@ -910,7 +904,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Configure cache to expire in 100 ms.
         //:
-        //: 2 Spawn multiple threads, for each thread:
+        //: 2 Spawn multiple threads, for each thread (C-1):
         //:
         //:   1 Call 'resolveAddress' multiple times.  Sleep for 100ms such
         //:     that the data in the cache expires and call 'resolveAddress'
@@ -921,7 +915,7 @@ int main(int argc, char *argv[])
         //:     the expected address is returned each time.
         //
         // Testing:
-        //   resolveaddress multithread
+        //   CONCERN: bteso_IpResolutionCache works with multiple threads
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING CONCURRENCY" << endl
@@ -945,7 +939,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // bteso_IpResolutionCache
+        // MANIPULATORS 'resolveAddress'
         //
         // Concerns:
         //: 1 Data is cached on the first call.
@@ -962,30 +956,39 @@ int main(int argc, char *argv[])
         //:
         //: 7 Value is not cached on error.
         //:
-        //: 8 Memory allocation is from the object's allocator.
+        //: 8 'lookupAddressRaw' returns 0 if the data is cached, and non-zero
+        //:   if data has not been cached.
         //:
-        //: 9 Any memory allocationis exception neutral.
+        //: 9 Memory allocation is from the object's allocator.
         //:
-        //:10 QoI: Asserted precondition violations are detected when enabled.
+        //:10 Any memory allocation is exception neutral.
+        //:
+        //:11 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create a table of distinct test parameters.
         //:
         //: 2 Call 'resolveAddress' for each value and verify that the return
-        //:   value is as expected.
+        //:   value is as expected.  Use 'lookupAddressRaw' to verify the data
+        //:   is stored in the cache.  (C-1..2, 5, 8..10)
         //:
         //: 3 Set expiration time to a small interval and call 'resolveAddress'
         //:   to retrieve a value.  Wait until the data becomes stale, call
         //:   'resolveAddress' and verify that new data replaces the old one.
+        //:   (C-3..4)
         //:
         //: 4 Set expiration time to 0 and verify that data does not expires
         //:   immediately.
         //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).
+        //: 5 Configure the test resovler to return error.  Verify error code
+        //:   is returned correctly and address is nto cached  (C-6..7)
+        //:
+        //: 6 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-11)
         //
         // Testing:
         //   int resolveAddress(vector *r, const char *h, int n, int *e);
+        //   int lookupAddressRaw(vector *res, const char *host, int num);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1181,6 +1184,7 @@ int main(int argc, char *argv[])
         //   ResolveByNameCallback resolverCallback();
         //   const bdet_DatetimeInterval& timeToLive();
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl
                         << "'bteso_IpResolutionCache' BASIC ACCESSORS" << endl
                         << "=========================================" << endl;
@@ -1196,7 +1200,7 @@ int main(int argc, char *argv[])
         // 'D' values: These are the default-constructed values.
         // -----------------------------------------------------
 
-        const T1 D1 = bteso_ResolveUtil::defaultResolveByNameCallback();
+        const T1 D1(bteso_ResolveUtil::defaultResolveByNameCallback());
                             // 'resolverCallback'
         const T2 D2(0, 1);  // 'timeToLive'
 
@@ -1204,6 +1208,7 @@ int main(int argc, char *argv[])
         // 'A' values
         // -------------------------------------------------------
 
+        const T1 A1(&TestResolver::callback);
         const T2 A2(1);
 
         if (verbose) cout <<
@@ -1217,11 +1222,11 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                  "\nCreate an object, passing in the other allocator." << endl;
 
-        Obj mX(&oa);  const Obj& X = mX;
-
         if (verbose) cout <<
                 "\nVerify all basic accessors report expected values." << endl;
         {
+            Obj mX(&oa);  const Obj& X = mX;
+
             const T1& resolverCallback = X.resolverCallback();
             LOOP2_ASSERT(D1, resolverCallback, D1 == resolverCallback);
 
@@ -1236,9 +1241,14 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ Q(timeToLive) }
         {
+            Obj mX(A1, &oa);  const Obj& X = mX;
+
             mX.setTimeToLive(A2);
 
             bslma_TestAllocatorMonitor oam(oa), dam(da);
+
+            const T1& resolverCallback = X.resolverCallback();
+            LOOP2_ASSERT(A1, resolverCallback, A1 == resolverCallback);
 
             const T2& timeToLive = X.timeToLive();
             LOOP2_ASSERT(A2, timeToLive, A2 == timeToLive);
@@ -1531,12 +1541,14 @@ int main(int argc, char *argv[])
         //:   'bteso_IpResolutionCacheEntry' object.
         //
         // Plan:
-        //: 1 Retrive lock with the 'updatingLock' method.  Lock and verify
+        //: 1 Retrieve lock with the 'updatingLock' method.  Lock and verify
         //:   that tryLock fails; unlock and verify that tryLock succeeds.
+        //:   (C-1)
         //
         // Testing:
         //   bcemt_Mutex& updatingLock() const;
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl
                      << "'bteso_IpResolutionCacheEntry::updateLock()'" << endl
                      << "============================================" << endl;
@@ -1588,7 +1600,6 @@ int main(int argc, char *argv[])
             if (verbose) {
                 P(args.d_retval);
             }
-
         }
       } break;
       case 4: {
@@ -1617,8 +1628,8 @@ int main(int argc, char *argv[])
         //:   expected value.
         //:
         //: 3 Use the corresponding primary manipulator to set the attribute to
-        //:   a unique value, and use the corresponding basic accessor to verify
-        //:   the new expected value.
+        //:   a unique value, and use the corresponding basic accessor to
+        //:   verify the new expected value.  (C-1..4)
         //
         // Testing:
         //   int data() const;
@@ -1644,8 +1655,7 @@ int main(int argc, char *argv[])
         // 'A' values: Should cause memory allocation if possible.
         // -------------------------------------------------------
 
-        const T1  A1   = Entry::DataPtr(new Data(Vec(),
-                                        bdet_Datetime(1, 1, 1)));
+        const T1  A1 = Entry::DataPtr(new Data(Vec(), bdet_Datetime(1, 1, 1)));
 
         Entry mX;  const Entry& X = mX;
 
@@ -1662,6 +1672,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) { T_ Q(data) }
         {
             mX.setData(A1);
+
+            const T1& data = X.data();
+            LOOP2_ASSERT(A1, data, A1 == data);
+        }
+
+        if (verbose) cout << "\nCopy Constructor." << endl;
+        {
+            const Entry Y(X);
 
             const T1& data = X.data();
             LOOP2_ASSERT(A1, data, A1 == data);
@@ -1684,10 +1702,10 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create three sets of distant attribute values, ('D'), ('A'), and
         //:   ('B'), with ('D') corresponding to the default-constructed
-        //:   object
+        //:   object.
         //:
         //: 2 Set each attribute with each of the values and use the individual
-        //:   accessors to verify the attributes are set correctly.
+        //:   accessors to verify the attributes are set correctly.  (C-1..3)
         //
         // Testing:
         //   bteso_IpResolutionCache_Entry();
@@ -1723,11 +1741,11 @@ int main(int argc, char *argv[])
                          &scratch);
         const Entry::DataPtr& B1 = b1;
 
+        Entry mX;  const Entry& X = mX;
+
         if (verbose) cout << "\nTesting primary manipulators."
                           << endl;
         {
-            Entry mX;  const Entry& X = mX;
-
             // -------------------------------------
             // Verify the object's attribute values.
             // -------------------------------------
@@ -1747,6 +1765,12 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(B1, X.data(), B1 == X.data());
             }
         }
+
+        if (verbose) cout << "\nTest 'reset'" << endl;
+        {
+            mX.reset();
+            LOOP2_ASSERT(D1, X.data(), D1 == X.data());
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1762,17 +1786,16 @@ int main(int argc, char *argv[])
         //: 3 The number of addresses returned are as expected.
         //:
         //: 4 'reset' puts the 'TestResolver' back to its default state.
-        //:
         //
         // Plan:
-        //
-        //: 1 Create a tabel of distinct configurations for 'TestResolver'
+        //: 1 Create a table of distinct configurations for 'TestResolver'
         //:
         //: 2 For each entry in the table, invoke the callback of the
         //:   'TestResolver' and verify that the expected result is returned.
+        //:   (C-1..3)
         //:
         //: 3 Call 'reset' and verify 'TestResolver' is returned its initial
-        //:   state.
+        //:   state.  (C-4)
         //
         // Testing:
         //   CONCERN: Test apparatus is working as expected.
@@ -1946,6 +1969,14 @@ int main(int argc, char *argv[])
       case -1: {
         // --------------------------------------------------------------------
         //  MULTITHREADED PERFORMANCE TEST
+
+        //  Concern:
+        //: 1 The cache provides performance improvement
+        //
+        //  Plan:
+        //: 1 Register the cache callback to 'bteso_ResolveUtil' and compare
+        //:   the performance between the cache and the default resolver.
+        //:   (C-1)
         // --------------------------------------------------------------------
 
         if (argc <= 2) {
@@ -1954,6 +1985,8 @@ int main(int argc, char *argv[])
                  << "\toption" << endl
                  << "\t\t0 - default" << endl
                  << "\t\t1 - cached" << endl;
+
+            return 1;                                                 // RETURN
         }
         int option   = atoi(argv[2]);
         int numCalls = argc > 3 ? atoi(argv[3]) : 20;  // default number of
