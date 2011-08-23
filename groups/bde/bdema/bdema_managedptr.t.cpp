@@ -2234,7 +2234,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tTest bdema_ManagedPtr::load(T*, nullptr,"
                              " deleter(T *, void *)\n";
 
-
         numDeletes = 0;
         {
             typedef bdema_ManagedPtr<int> MyObj;

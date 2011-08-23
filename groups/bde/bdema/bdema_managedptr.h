@@ -313,6 +313,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
 #include <bsls_unspecifiedbool.h>
 #endif
@@ -549,7 +553,12 @@ private:
 
     template<class BDEMA_TARGET_TYPE>
     explicit 
-    bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr, BDEMA_COMPATIBLE_POINTERS_ONLY=0);
+    bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr
+#if !defined(BSLS_PLATFORM__CMP_SUN) // compiler 5.10 crashes with this idiom
+                    , BDEMA_COMPATIBLE_POINTERS_ONLY=0);
+#else
+                    );
+#endif
         // Construct a managed pointer that manages the specified 'ptr' using
         // the current default allocator to destroy 'ptr' when this managed
         // pointer is destroyed or re-assigned, unless it is released before
@@ -937,13 +946,22 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type)
 
 template<class BDEMA_TYPE>
 template<class BDEMA_TARGET_TYPE>
-bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-                                               BDEMA_COMPATIBLE_POINTERS_ONLY)
+bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr
+#if !defined(BSLS_PLATFORM__CMP_SUN)
+                , BDEMA_COMPATIBLE_POINTERS_ONLY)
+#else
+                )
+#endif
 : d_members(stripPointerType(ptr),
             bslma_Default::allocator(),
             &bdema_ManagedPtr_FactoryDeleter<BDEMA_TARGET_TYPE,bslma_Allocator>
                                                                      ::deleter)
 {
+#if defined(BSLS_PLATFORM__CMP_SUN) // only while 'enable_if' not supported
+    BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>::
+                                                                       VALUE));
+#endif
+
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     if(!ptr) {
         d_members.clear();
