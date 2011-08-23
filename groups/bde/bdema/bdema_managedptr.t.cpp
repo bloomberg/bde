@@ -2447,7 +2447,7 @@ int main(int argc, char *argv[])
 
             bslma_TestAllocatorMonitor dam(da);
             {
-                const int *p = new (da) const int;
+                const int *p = new (da) const int(0);
 
                 bslma_TestAllocatorMonitor dam2(da);
                 bdema_ManagedPtr<const int> o(p);
