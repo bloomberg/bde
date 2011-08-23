@@ -25,7 +25,7 @@ using namespace bsl;  // automatically added by script
 // combine to provide a common solution to the problem of managing and
 // transferring ownership of a dynamically allocated object.  It further
 // contains a number of private classes to supply important implementation
-// details, while the test driver introduces a reasonable ammount of test
+// details, while the test driver introduces a reasonable amount of test
 // machinery in order to carefully observe the correct handling of callbacks.
 // We choose to test each class in turn, starting with the test machinery,
 // according to their internal levelization in the component implementation.
@@ -97,7 +97,8 @@ namespace {
 //-----------------------------------------------------------------------------
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i) {
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -198,13 +199,13 @@ class MyTestObject {
     // can be tested.  It also signals when its destructor is run by
     // incrementing an externally managed counter, supplied when each object
     // is created.  Finally, it exposes an internal data structure that can be
-    // use to demonstate the 'bdema_ManagedPtr' aliasing facility.
+    // use to demonstrate the 'bdema_ManagedPtr' aliasing facility.
 
     volatile int *d_deleteCounter_p;
     mutable int   d_value[2];
 
   public:
-    MyTestObject(int *counter);
+    explicit MyTestObject(int *counter);
 
     // Use compiler-generated copy constructor and assignment operator
     // MyTestObject(MyTestObject const& orig);
@@ -234,6 +235,7 @@ inline
 int *MyTestObject::valuePtr(int index) const
 {
     BSLS_ASSERT_SAFE(2 > index);
+
     return d_value + index;
 }
 
@@ -246,12 +248,12 @@ volatile int* MyTestObject::deleteCounter() const
 
 class MyDerivedObject : public MyTestObject
 {
-    // This test-class has the same destructor-counting behavior as 
+    // This test-class has the same destructor-counting behavior as
     // 'MyTestObject', but offers a derived class in order to test correct
     // behavior when handling derived->base conversions.
 
   public:
-    MyDerivedObject(int *counter);
+    explicit MyDerivedObject(int *counter);
     // Use compiler-generated copy and destruction
 };
 
@@ -265,12 +267,12 @@ MyDerivedObject::MyDerivedObject(int *counter)
 
 class MySecondDerivedObject : public MyTestObject
 {
-    // This test-class has the same destructor-counting behavior as 
+    // This test-class has the same destructor-counting behavior as
     // 'MyTestObject', but offers a second, distinct, derived class in order to
     // test correct behavior when handling derived->base conversions.
 
   public:
-    MySecondDerivedObject(int *counter);
+    explicit MySecondDerivedObject(int *counter);
     // Use compiler-generated copy and destruction
 };
 
@@ -286,11 +288,13 @@ class CountedStackDeleter
 {
     volatile int *d_deleteCounter_p;
 
-    CountedStackDeleter(const CountedStackDeleter& orig); //=delete;
-    CountedStackDeleter& operator=(const CountedStackDeleter& orig); //=delete;
+  private:
+    // NOT IMPLEMENTED
+    CountedStackDeleter(const CountedStackDeleter&); //=delete;
+    CountedStackDeleter& operator=(const CountedStackDeleter&); //=delete;
 
   public:
-    CountedStackDeleter(int *counter) : d_deleteCounter_p(counter) {}
+    explicit CountedStackDeleter(int *counter) : d_deleteCounter_p(counter) {}
 
     //! ~CountedStackDeleter();
         // Destroy this object.
@@ -298,7 +302,8 @@ class CountedStackDeleter
     // ACCESSORS
     volatile int *deleteCounter() const { return d_deleteCounter_p; }
 
-    void deleteObject(void *) const {
+    void deleteObject(void *) const
+    {
         ++*d_deleteCounter_p;
     }
 };
@@ -318,13 +323,15 @@ struct IncrementIntFactory
 
 int g_deleteCount = 0;
 
-static void countedNilDelete(void *, void*) {
+static void countedNilDelete(void *, void*)
+{
     static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
 }
 
 template<class TARGET_TYPE>
-static void templateNilDelete(TARGET_TYPE *, void*) {
+static void templateNilDelete(TARGET_TYPE *, void*)
+{
     static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
 }
@@ -339,10 +346,13 @@ struct SS {
     char  d_buf[100];
     int  *d_numDeletes_p;
 
-    SS(int *numDeletes) {
+    explicit SS(int *numDeletes)
+    {
         d_numDeletes_p = numDeletes;
     }
-    ~SS() {
+
+    ~SS()
+    {
         ++*d_numDeletes_p;
     }
 };
@@ -414,7 +424,8 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 // type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
 // In other words, consider the following code snippets:
 //..
-    void implicitCastingExample() {
+    void implicitCastingExample()
+    {
 //..
 // If the statements:
 //..
@@ -538,7 +549,7 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 // stated, the managed instance will be destroyed correctly regardless of how
 // it is cast.
 
-} // namespace TYPE_CASTING_TEST_NAMESPACE
+}  // close namespace TYPE_CASTING_TEST_NAMESPACE
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -649,7 +660,7 @@ namespace USAGE_EXAMPLE {
     }
 //..
 
-} // namespace USAGE_EXAMPLE
+}  // close namespace USAGE_EXAMPLE
 
 //=============================================================================
 //                  TEST PROGRAM
@@ -785,7 +796,7 @@ int main(int argc, char *argv[])
 
         int x;
         int y;
-        bdema_ManagedPtr<int> p(&x, 0, 
+        bdema_ManagedPtr<int> p(&x, 0,
                                 &bdema_ManagedPtrNoOpDeleter::deleter);
 
         p.load(&y, 0, &bdema_ManagedPtrNoOpDeleter::deleter);
@@ -832,7 +843,7 @@ int main(int argc, char *argv[])
 
         int x;
         int y;
-        bdema_ManagedPtr<int> p(&x, 0, 
+        bdema_ManagedPtr<int> p(&x, 0,
                                 &bdema_ManagedPtrNilDeleter<int>::deleter);
 
         p.load(&y, 0, &bdema_ManagedPtrNilDeleter<int>::deleter);
@@ -845,7 +856,7 @@ int main(int argc, char *argv[])
         // CLEAR and RELEASE
         //
         // Concerns:
-        //: 1 'clear' destroys the managed object (if any) and re-ininitializes
+        //: 1 'clear' destroys the managed object (if any) and re-initializes
         //:   the managed pointer to an unset state.
         //:
         //: 2 'clear' destroys any managed object using the stored 'deleter'.
@@ -1419,7 +1430,8 @@ int main(int argc, char *argv[])
                 // invoked.
                 struct local {
                     static void test(void * px,
-                                     bdema_ManagedPtr_Ref<TObj> r) {
+                                     bdema_ManagedPtr_Ref<TObj> r)
+                    {
                         LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
 
                         ASSERT(px == r.base()->pointer());
@@ -1574,7 +1586,8 @@ int main(int argc, char *argv[])
             bdema_ManagedPtr<double> d_ptr(i_ptr);
 
             struct local_factory {
-                static bdema_ManagedPtr<double> exec() {
+                static bdema_ManagedPtr<double> exec()
+                {
                     return bdema_ManagedPtr<double>();
                 }
             };
@@ -1631,7 +1644,7 @@ int main(int argc, char *argv[])
         //   bdema_ManagedPtr(BDEMA_TYPE *ptr, FACTORY *factory)
         //   bdema_ManagedPtr(BDEMA_TYPE *, void *, DeleterFunc);
         //   bdema_ManagedPtr(BDEMA_TYPE *,
-        //                    void *, 
+        //                    void *,
         //                    void(*)(BDEMA_TYPE *, FACTORY *))
         //   bdema_ManagedPtr(BDEMA_TYPE *ptr,
         //                    bdema_ManagedPtr_Nullptr::Type,
@@ -1794,7 +1807,7 @@ int main(int argc, char *argv[])
         // Testing 'load' overloads
         //
         // Concerns:
-        //: 1 Calling 'load' on an empty managed pointer assigns ownership of 
+        //: 1 Calling 'load' on an empty managed pointer assigns ownership of
         //:   the pointer passed as the argument.
         //:
         //: 2 Calling 'load' on a 'bdema_ManagedPtr' that owns a non-null
@@ -2526,7 +2539,7 @@ int main(int argc, char *argv[])
         // having a single pointer as its only attribute; it does not offer the
         // traditional range of value-semantic operations such as equality
         // comparison and printing.  Its test concerns and plan are closely
-        // modelled after such a value-semantic type.
+        // modeled after such a value-semantic type.
         //
         // Concerns:
         //: 1 TBD Enumerate concerns
@@ -2538,7 +2551,7 @@ int main(int argc, char *argv[])
         //    explicit bdema_ManagedPtr_Ref(bdema_ManagedPtr_Members *base);
         //    bdema_ManagedPtr_Ref(const bdema_ManagedPtr_Ref& original);
         //    ~bdema_ManagedPtr_Ref();
-        //    bdema_ManagedPtr_Ref& opetator=(const bdema_ManagedPtr_Ref&);
+        //    bdema_ManagedPtr_Ref& operator=(const bdema_ManagedPtr_Ref&);
         //    bdema_ManagedPtr_Members *base() const;
         // --------------------------------------------------------------------
 
@@ -2907,7 +2920,8 @@ int main(int argc, char *argv[])
 
             struct local {
                 int d_x;
-                static void deleter(void *a, void *b) {
+                static void deleter(void *a, void *b)
+                {
                     local * pThis = reinterpret_cast<local *>(a);
                     ASSERT(&pThis->d_x == b);
                     ASSERT(13 == pThis->d_x);
@@ -3051,7 +3065,7 @@ int main(int argc, char *argv[])
             MyTestObject x(&dummy);
             MyTestObject y(&dummy);
 
-            bdema_ManagedPtr<MyTestObject> p(&x, &factory, 
+            bdema_ManagedPtr<MyTestObject> p(&x, &factory,
                                              &doNothingDeleter);
 
             p.load(&y, &factory, &TestFactory::deleter);
@@ -3120,7 +3134,7 @@ int main(int argc, char *argv[])
         //:     counter.
         //:   4 Confirm the 'int' counter value has not changed.
         //:   5 Destroy the test object and confirm the 'int' counter value
-        //:     has incremeneted by exactly 1.
+        //:     has incremented by exactly 1.
         //:   6 Create a second object of tested type, having the address of
         //:     the 'int' counter.
         //:   7 Create a copy of the second test object, and confirm both test
@@ -3626,17 +3640,17 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Two 'bdema_ManagedPtr<T>' objects should not be comparable with
-		//:   the equality operator.
-		//
+        //:   the equality operator.
+        //
         //: 2 Two objects of different instantiations of the 'bdema_ManagedPtr'
-		//:   class template should not be comparable with the equality
-		//:   operator
+        //:   class template should not be comparable with the equality
+        //:   operator
         //
         // Plan:
         //   The absence of a specific operator will be tested by failing to
-		//   compile test code using that operator.  These tests will be
-		//   configured to compile only when specific macros are defined as
-		//   part of the build configuration, and not routinely tested.
+        //   compile test code using that operator.  These tests will be
+        //   configured to compile only when specific macros are defined as
+        //   part of the build configuration, and not routinely tested.
         //
         // Testing:
         //   This test is checking for the *absence* of the following operators
@@ -3654,61 +3668,61 @@ int main(int argc, char *argv[])
 
 #if defined BDEMA_MANAGEDPTR_TEST_NO_HOMOGENEOUS_COMPARISON
         {
-		    bdema_ManagedPtr<int> x;
+            bdema_ManagedPtr<int> x;
             bool b;
 
-		    // The following six lines should fail to compile
-		    b = (x == x);
-		    b = (x != x);
+            // The following six lines should fail to compile
+            b = (x == x);
+            b = (x != x);
         }
 #endif
 
 #if defined BDEMA_MANAGEDPTR_TEST_NO_HOMOGENEOUS_ORDERING
         {
-		    bdema_ManagedPtr<int> x;
+            bdema_ManagedPtr<int> x;
             bool b;
 
-		    // The following six lines should fail to compile
-		    b = (x <  x);
-		    b = (x <= x);
-		    b = (x >= x);
-		    b = (x >  x);
+            // The following six lines should fail to compile
+            b = (x <  x);
+            b = (x <= x);
+            b = (x >= x);
+            b = (x >  x);
         }
 #endif
 
 #if defined BDEMA_MANAGEDPTR_TEST_NO_HETEROGENEOUS_COMPARISON
         {
-		    bdema_ManagedPtr<int>    x;
-		    bdema_ManagedPtr<double> y;
+            bdema_ManagedPtr<int>    x;
+            bdema_ManagedPtr<double> y;
 
             bool b;
 
-		    // The following twelve lines should fail to compile
-		    b = (x == y);
-		    b = (x != y);
+            // The following twelve lines should fail to compile
+            b = (x == y);
+            b = (x != y);
 
             b = (y == x);
-		    b = (y != x);
+            b = (y != x);
         }
 #endif
 
 #if defined BDEMA_MANAGEDPTR_TEST_NO_HETEROGENEOUS_ORDERING
         {
-		    bdema_ManagedPtr<int>    x;
-		    bdema_ManagedPtr<double> y;
+            bdema_ManagedPtr<int>    x;
+            bdema_ManagedPtr<double> y;
 
             bool b;
 
-		    // The following twelve lines should fail to compile
-		    b = (x <  y);
-		    b = (x <= y);
-		    b = (x >= y);
-		    b = (x >  y);
+            // The following twelve lines should fail to compile
+            b = (x <  y);
+            b = (x <= y);
+            b = (x >= y);
+            b = (x >  y);
 
-		    b = (y <  x);
-		    b = (y <= x);
-		    b = (y >= x);
-		    b = (y >  x);
+            b = (y <  x);
+            b = (y <= x);
+            b = (y >= x);
+            b = (y >  x);
         }
 #endif
       } break;

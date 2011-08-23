@@ -21,7 +21,7 @@ namespace BloombergLP {
 // ACCESSORS
                                   // Aspects
 
-bsl::ostream& 
+bsl::ostream&
 bdema_ManagedPtrDeleter::print(bsl::ostream& stream,
                                int           level,
                                int           spacesPerLevel) const

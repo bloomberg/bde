@@ -89,7 +89,8 @@ using namespace bsl;
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -159,7 +160,8 @@ struct statelessFactory
 };
 
 template<typename T>
-void statelessFactory<T>::destroy(T *object) const {
+void statelessFactory<T>::destroy(T *object) const
+{
     ASSERT(object);
     ++*object;
 }
@@ -179,15 +181,17 @@ class statefulFactory
 };
 
 template<typename T>
-T *statefulFactory<T>::create() { 
+T *statefulFactory<T>::create()
+{
     if (!d_empty) { return 0; }
 
     d_empty = false;
-    return &d_data; 
+    return &d_data;
 }
 
 template<typename T>
-void statefulFactory<T>::destroy(T *object) const {
+void statefulFactory<T>::destroy(T *object) const
+{
     ASSERT(object == &d_data);
     d_empty = true;
 }
@@ -353,7 +357,7 @@ int main(int argc, char *argv[])
             Obj mX(OBJECT, FACTORY, DELETER); const Obj& X = mX;
 
             if (veryVerbose) { T_ P_(LINE) P(X) }
-            
+
             // clear global flags
             g_i1 = 0;
             g_i2 = 0;
@@ -361,7 +365,7 @@ int main(int argc, char *argv[])
 
             mX.deleteManagedObject();
 
-            // one of these should fail until I fix up the aeert condition
+            // one of these should fail until I fix up the assert condition
             if (OBJECT != &g_i1) {
                 LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
             }
@@ -856,8 +860,8 @@ int main(int argc, char *argv[])
             void        *const FACTORY1 = DEFAULT_DATA[ti].d_factory;
             const Obj::Deleter DELETER1 = DEFAULT_DATA[ti].d_deleter;
 
-            if (veryVerbose) { 
-                T_ P_(LINE1) P_(OBJECT1) P_(FACTORY1) P_(DELETER1) 
+            if (veryVerbose) {
+                T_ P_(LINE1) P_(OBJECT1) P_(FACTORY1) P_(DELETER1)
             }
 
             // Ensure an object compares correctly with itself (alias test).
@@ -874,8 +878,8 @@ int main(int argc, char *argv[])
                 void        *const FACTORY2 = DEFAULT_DATA[tj].d_factory;
                 const Obj::Deleter DELETER2 = DEFAULT_DATA[tj].d_deleter;
 
-                if (veryVerbose) { 
-                    T_ T_ P_(LINE2) P_(OBJECT2) P_(FACTORY2) P_(DELETER2) 
+                if (veryVerbose) {
+                    T_ T_ P_(LINE2) P_(OBJECT2) P_(FACTORY2) P_(DELETER2)
                 }
 
                 const bool EXP = ti == tj;  // expected for equality comparison
@@ -928,7 +932,7 @@ int main(int argc, char *argv[])
         //   In order to produce predictable pointer values to test against
         //   predefined string literals (specified at compile-time) we will
         //   cast specific integral values to pointers.  While it would be
-        //   undefined behaviour to use the result of dereferencing any of
+        //   undefined behavior to use the result of dereferencing any of
         //   these pointers, it will be perfectly well defined to simply
         //   print their values.
         //
@@ -996,7 +1000,7 @@ int main(int argc, char *argv[])
             int           d_level;
             int           d_spacesPerLevel;
 
-            uintptr_t     d_object;        // enter unsigned numbers into the 
+            uintptr_t     d_object;        // enter unsigned numbers into the
             uintptr_t     d_factory;       // table, as we cannot enter pointer
             uintptr_t     d_deleter;       // constants.  Convert later.
 
@@ -1034,7 +1038,7 @@ int main(int argc, char *argv[])
                                                       "object = 0xdeadf00d"  SP
                                                       "factory = 0xbadb100d" SP
                                                       "deleter = 0x12345678" SP
-                                                      "]"                    
+                                                      "]"
                                                                              },
 
         // ------------------------------------------------------------------
@@ -1113,7 +1117,7 @@ int main(int argc, char *argv[])
         //LINE L SPL  OBJECT      FACTORY     DELETER  EXP
         //---- - ---  ------      -------     -------  ---
 
-        { L_, -9, -9, 0xdeadf00d, 0xbadb100d, 0x12345678,  
+        { L_, -9, -9, 0xdeadf00d, 0xbadb100d, 0x12345678,
                                       "[ 0xdeadf00d 0xbadb100d 0x12345678 ]" },
 
         { L_, -9, -9, 0xd155ea5e, 0xf1a5c0e5, 0xbadd15c0,

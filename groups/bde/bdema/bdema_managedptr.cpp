@@ -1,4 +1,4 @@
-// bdema_managedptr.cpp            -*-C++-*-
+// bdema_managedptr.cpp                                               -*-C++-*-
 #include <bdema_managedptr.h>
 
 #include <bdes_ident.h>
@@ -34,7 +34,7 @@ bdema_ManagedPtr_Members::bdema_ManagedPtr_Members(
                                                bdema_ManagedPtr_Members& other)
 : d_obj_p(other.d_obj_p)
 {
-    if(d_obj_p) {    
+    if(d_obj_p) {
         d_deleter = other.d_deleter;
     }
     other.clear();
@@ -49,10 +49,11 @@ void bdema_ManagedPtr_Members::clear()
 }
 
 void bdema_ManagedPtr_Members::move(bdema_ManagedPtr_Members& other)
-{   
+{
     // if 'other.d_obj_p' is null then 'other.d_deleter' may not be initialized
     // but 'set' takes care of that concern.  deleter passed by ref, so no read
     // of uninitialized memory occurs
+
     BSLS_ASSERT(this != &other);
 
     d_obj_p = other.d_obj_p;
@@ -74,6 +75,7 @@ void bdema_ManagedPtr_Members::set(void        *object,
 {
     // Note that 'factory' may be null if 'deleter' supports it, so cannot be
     // asserted here.
+
     BSLS_ASSERT_SAFE(0 != deleter || 0 == object);
 
     d_obj_p = object;
@@ -87,7 +89,8 @@ void bdema_ManagedPtr_Members::set(void        *object,
 #endif
 }
 
-void bdema_ManagedPtr_Members::swap(bdema_ManagedPtr_Members & other) {
+void bdema_ManagedPtr_Members::swap(bdema_ManagedPtr_Members & other)
+{
     if (!d_obj_p) {
         d_obj_p       = other.d_obj_p;
         d_deleter     = other.d_deleter;
@@ -117,7 +120,7 @@ void bdema_ManagedPtrNoOpDeleter::deleter(void *, void*)
 {
 }
 
-}
+}  // close namespace BloombergLP
 // ---------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005

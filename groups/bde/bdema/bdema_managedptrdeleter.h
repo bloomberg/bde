@@ -1,4 +1,4 @@
-// bdema_managedptr.h                                                 -*-C++-*-
+// bdema_managedptrdeleter.h                                          -*-C++-*-
 #ifndef INCLUDED_BDEMA_MANAGEDPTRDELETER
 #define INCLUDED_BDEMA_MANAGEDPTRDELETER
 
@@ -31,7 +31,7 @@ BDES_IDENT("$Id: $")
 //..
 //: o object: address of the object to be destroyed by the factory.
 //:
-//: o factory: address of the factory object that is reponsible for destroying
+//: o factory: address of the factory object that is responsible for destroying
 //:            'object'
 //: o deleter: address of the function that knows how to restore the erased
 //:            types of 'object' and 'factory', and how to invoke the 'factory'
@@ -63,7 +63,7 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSL_OSTREAM
+#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
 
@@ -80,7 +80,7 @@ class bdema_ManagedPtrDeleter {
     // the 'deleter' function, optionally supplied through the constructors or
     // through the 'set' method.  It is stored in a sub-structure to allow the
     // compiler to copy it more efficiently.
-    
+
 //    //See the Attributes section under @DESCRIPTION in the
 //    // component-level documentation.  Note that the class invariants are
 //    // identically the constraints on the individual attributes.
@@ -131,13 +131,13 @@ class bdema_ManagedPtrDeleter {
     //! bdema_ManagedPtrDeleter& operator=(const bdema_ManagedPtrDeleter& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.  Note
-        // that this trivial copy-assignment operator's definintion is compiler
+        // that this trivial copy-assignment operator's definition is compiler
         // generated.
 
     void set(void *object, void *factory, Deleter deleter);
         // Set this 'bdema_ManagedPtrDeleter' to refer to the object and
         // factory instance located at the specified 'object' and 'factory'
-        // memory locations, and to the specified 'deleter'.  Note that 
+        // memory locations, and to the specified 'deleter'.  Note that
         // 'object' and 'factory' may be null if and only if the specified
         // 'deleter' function permits null pointers.
 
