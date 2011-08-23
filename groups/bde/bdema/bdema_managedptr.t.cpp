@@ -977,6 +977,7 @@ int main(int argc, char *argv[])
         //     simple
         //     simple with factory
         //     simple with factory and deleter
+        //     simple with null factory and deleter
         //     aliased
         //     aliased (original created with factory)
         //     aliased (original created with factory and deleter)
@@ -1233,8 +1234,16 @@ int main(int argc, char *argv[])
         //: X No 'bdema_ManagedPtr' method should allocate any memory.
         //
         // Plan:
-        //   TBD...
-        //
+        //   Test each accessor for the expected value on each of the following
+        //   cases:
+        //     empty
+        //     simple
+        //     simple with factory
+        //     simple with factory and deleter
+        //     simple with null factory and deleter
+        //     aliased
+        //     aliased (original created with factory)
+        //     aliased (original created with factory and deleter)
         // Tested:
         //   operator BoolType() const;
         //   TYPE& operator*() const;
@@ -1247,8 +1256,112 @@ int main(int argc, char *argv[])
 
         using namespace CREATORS_TEST_NAMESPACE;
 
-        // testing 'deleter()' accessor and 'release().second'
+        bslma_TestAllocatorMonitor gam(globalAllocator);
+        bslma_TestAllocatorMonitor dam(da);
+
+        bslma_TestAllocator ta("object", veryVeryVeryVerbose);
+
+        if (verbose) cout << "\tTest accessors on empty object\n";
+
         int numDeletes = 0;
+        {
+            const Obj o;
+
+            ASSERT(!o);
+            ASSERT(0 == o.ptr());
+            ASSERT(0 == o.operator->());
+
+#ifdef BDE_BUILD_TARGET_EXC
+            if (verbose) cout << "\t\tNegative testing operator*\n";
+
+            {
+                bsls_AssertTestHandlerGuard guard;
+
+                ASSERT_SAFE_FAIL(*o);
+                ASSERT_SAFE_FAIL(o.deleter());
+            }
+#else
+            if (verbose) cout << "\tNegative testing disabled due to lack of "
+                                 "exception support\n";
+#endif
+        }
+
+        {
+            const Obj o(0);
+
+            ASSERT(!o);
+            ASSERT(0 == o.ptr());
+            ASSERT(0 == o.operator->());
+
+#ifdef BDE_BUILD_TARGET_EXC
+            if (verbose) cout << "\t\tNegative testing operator*\n";
+
+            {
+                bsls_AssertTestHandlerGuard guard;
+
+                ASSERT_SAFE_FAIL(*o);
+                ASSERT_SAFE_FAIL(o.deleter());
+            }
+#endif
+        }
+
+        ASSERT(0 == numDeletes);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest accessors on simple object\n";
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout <<
+                         "\tTest accessors on simple object using a factory\n";
+
+        numDeletes = 0;
+        {
+            bslma_TestAllocatorMonitor tam(ta);
+
+            TObj *p = new (ta) MyTestObject(&numDeletes);
+            Obj o(p, &ta);
+
+            TObj *q = o.ptr();
+            LOOP2_ASSERT(p, q, p == q);
+        }
+        ASSERT(1 == numDeletes);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout <<
+        "\tTest accessors on simple object using both a factory and deleter\n";
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout <<
+          "\tTest accessors on simple object using a deleter but no factory\n";
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest accessors on aliased object\n";
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout <<
+                        "\tTest accessors on aliased object using a factory\n";
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest accessors on aliased object using both"
+                             "a factory and deleter\n";
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout <<
+         "\tTest accessors on aliased object using a deleter but no factory\n";
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#if 0
+        // testing 'deleter()' accessor and 'release().second'
+        numDeletes = 0;
         {
             TObj *p;
             {
@@ -1284,6 +1397,12 @@ int main(int argc, char *argv[])
             }
             ASSERT(da.numDeallocation() == numDeallocation + 1);
         }
+#endif
+
+        ASSERT(dam.isInUseSame());
+        ASSERT(dam.isMaxSame());
+        ASSERT(gam.isInUseSame());
+        ASSERT(gam.isMaxSame());
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -2623,6 +2742,15 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtr_Members
+        //  This class looks far too big to test in a single test case.
+        //  Really ought to break out into the following test cases:
+        //    basic ctor/dtor
+        //    set function
+        //    basic accessors  (pointer/deleter)
+        //    value ctor
+        //    setAlias
+        //    move operations
+        //    runDeleter
         //
         // Concerns:
         //: 1 TBD Enumerate concerns
@@ -2666,11 +2794,6 @@ int main(int argc, char *argv[])
         {
             const bdema_ManagedPtr_Members empty(0, 0, 0);
             ASSERT(0 == empty.pointer());
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-            ASSERT(0 == empty.deleter().object());
-            ASSERT(0 == empty.deleter().factory());
-            ASSERT(0 == empty.deleter().deleter());
-#endif
 
             int deleteCount = 0;
             {
@@ -2697,6 +2820,10 @@ int main(int argc, char *argv[])
 
                 {
                     bsls_AssertTestHandlerGuard guard;
+
+                    const bdema_ManagedPtr_Members empty(0, 0, 0);
+                    ASSERT_SAFE_FAIL(empty.deleter());
+
                     int x;
                     ASSERT_SAFE_FAIL(bdema_ManagedPtr_Members bd(&x, &del, 0));
                     ASSERT_SAFE_PASS(bdema_ManagedPtr_Members gd( 0, &del, 0));
@@ -2713,11 +2840,6 @@ int main(int argc, char *argv[])
         {
             bdema_ManagedPtr_Members members(0, 0, 0);
             ASSERT(0 == members.pointer());
-#if defined BSLS_ASSERT_LEVEL_ASSERT_SAFE
-            ASSERT(0 == members.deleter().object());
-            ASSERT(0 == members.deleter().factory());
-            ASSERT(0 == members.deleter().deleter());
-#endif
 
             int x;
             double y;
@@ -2729,10 +2851,17 @@ int main(int argc, char *argv[])
 
             members.set(0, 0, 0);
             ASSERT(0 == members.pointer());
-#if defined BSLS_ASSERT_LEVEL_ASSERT_SAFE
-            ASSERT(0 == members.deleter().object());
-            ASSERT(0 == members.deleter().factory());
-            ASSERT(0 == members.deleter().deleter());
+
+#ifdef BDE_BUILD_TARGET_EXC
+                if (verbose) cout << "\t\tNegative testing\n";
+
+                {
+                    bsls_AssertTestHandlerGuard guard;
+                    ASSERT_SAFE_FAIL(members.deleter());
+                }
+#else
+                if (verbose) cout << "\tNegative testing disabled due to lack"
+                                     " of exception support\n";
 #endif
 
             {
@@ -2786,11 +2915,8 @@ int main(int argc, char *argv[])
 
                     simple.set(0, 0, 0);
                     ASSERT(0 == simple.pointer());
-#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
-                    ASSERT(0 == simple.deleter().object());
-                    ASSERT(0 == simple.deleter().factory());
-                    ASSERT(0 == simple.deleter().deleter());
-#endif
+                    ASSERT_SAFE_FAIL(simple.deleter());
+
                     ASSERT_SAFE_FAIL(simple.setAliasPtr(&y));
                     ASSERT_SAFE_PASS(simple.setAliasPtr(0));
                 }
@@ -2948,9 +3074,12 @@ int main(int argc, char *argv[])
         {
             bdema_ManagedPtr_Members empty(0, 0, 0);
             ASSERT(0 == empty.pointer());
-            ASSERT(0 == empty.deleter().object());
-            ASSERT(0 == empty.deleter().factory());
-            ASSERT(0 == empty.deleter().deleter());
+#ifdef BDE_BUILD_TARGET_EXC
+            {
+                bsls_AssertTestHandlerGuard guard;
+                ASSERT_SAFE_FAIL(empty.deleter());
+            }
+#endif
 
             int x;
             double y;
@@ -2968,19 +3097,29 @@ int main(int argc, char *argv[])
 
             empty.swap(simple);
             ASSERT(0 == simple.pointer());
-//            ASSERT(0 == simple.deleter().object());
             ASSERT(&x == empty.pointer());
             ASSERT(&x == empty.deleter().object());
             ASSERT(&y == empty.deleter().factory());
             ASSERT(&countedNilDelete == empty.deleter().deleter());
+#ifdef BDE_BUILD_TARGET_EXC
+            {
+                bsls_AssertTestHandlerGuard guard;
+                ASSERT_SAFE_FAIL(simple.deleter());
+            }
+#endif
 
             empty.swap(simple);
             ASSERT(0 == empty.pointer());
-//            ASSERT(0 == empty.deleter().object());
             ASSERT(&x == simple.pointer());
             ASSERT(&x == simple.deleter().object());
             ASSERT(&y == simple.deleter().factory());
             ASSERT(&countedNilDelete == simple.deleter().deleter());
+#ifdef BDE_BUILD_TARGET_EXC
+            {
+                bsls_AssertTestHandlerGuard guard;
+                ASSERT_SAFE_FAIL(empty.deleter());
+            }
+#endif
 
             short s;
             float f;

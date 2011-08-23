@@ -1353,6 +1353,8 @@ void *bdema_ManagedPtr_Members::pointer() const
 inline
 const bdema_ManagedPtrDeleter& bdema_ManagedPtr_Members::deleter() const
 {
+    BSLS_ASSERT_SAFE(d_obj_p);
+
     return d_deleter;
 }
 
