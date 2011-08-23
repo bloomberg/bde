@@ -1826,7 +1826,7 @@ int main(int argc, char *argv[])
                          NUM == TestResolver::numAddresses());
 
             bsl::vector<bteso_IPv4Address> addr;
-            int                            error;
+            int                            error = -1;
 
             const bsl::vector<bteso_IPv4Address> &ADDR = addr;
             const int                            &ERR = error;
@@ -1843,7 +1843,7 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, EXP_IP, IP, EXP_IP == IP);
             }
 
-            LOOP3_ASSERT(LINE, CNT, ERR, 0 == ERR);
+            LOOP2_ASSERT(LINE, ERR, -1 == ERR);  // ERR should be unchanged
 
             LOOP3_ASSERT(LINE, EXP_IP, TestResolver::lastIPv4Added(),
                          EXP_IP == TestResolver::lastIPv4Added());
