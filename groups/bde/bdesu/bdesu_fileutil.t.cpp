@@ -14,6 +14,16 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+
+// Needed for using 'stat64' on HP
+#ifdef BSLS_PLATFORM__OS_HPUX
+    #ifndef _LARGEFILE64_SOURCE
+        #define _LARGEFILE64_SOURCE 1
+    #endif
+#endif
+#include <sys/stat.h>
+
+#include <sys/types.h>
 #else
 #include <windows.h>  // for Sleep
 #endif
@@ -43,10 +53,11 @@ using namespace bsl;  // automatically added by script
 // [ 5] static Offset getAvailableSpace(FileDescriptor);
 // [ 6] static Offset getFileSize(const bsl::string&);
 // [ 6] static Offset getFileSize(const char *);
+// [ 8] FD open(const char *p, bool writable, bool exist, bool append);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE 1
-// [ 8] USAGE EXAMPLE 2
+// [ 9] USAGE EXAMPLE 1
+// [10] USAGE EXAMPLE 2
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -216,8 +227,10 @@ int main(int argc, char *argv[]) {
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
     switch(test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -304,7 +317,7 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
 
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -395,6 +408,69 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
       } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // APPEND TEST
+        //
+        // Concerns:
+        //  1. A 'write' puts data at the end of the file when open in append
+        //     mode.
+        //  2. A 'write' puts data at the end of the file when open in append
+        //     mode even after a seek.
+        //  3. 'isAppend' is default to 'false'.
+        //
+        // Plan:
+        //  1. Create a file in append mode, write a charater, use seek to
+        //     change the position of output, write another character, and
+        //     verify that the new character is added after the original
+        //     character.
+        //  2. Reopen the file in append mode, write a charater and ensure that
+        //     it is added to the end of the file.
+        //  3. Reopen the file in normal mode, write a charater and ensure that
+        //     it overwrites the data in the file instead of appending to it.
+        //
+        // Testing:
+        //   FD open(const char *p, bool writable, bool exist, bool append);
+        // --------------------------------------------------------------------
+
+        bsl::string fileName(tempFileName());
+
+        if (verbose) { P(fileName) }
+
+        bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(
+                                                  fileName, true, false, true);
+        ASSERT(bdesu_FileUtil::INVALID_FD != fd);
+
+        bdesu_FileUtil::write(fd, "A", 1);
+        char result[16];
+
+        bdesu_FileUtil::seek(fd, 0, bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(1 == bdesu_FileUtil::read(fd, result, sizeof result));
+
+        bdesu_FileUtil::seek(fd, 0, bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING);
+        bdesu_FileUtil::write(fd, "B", 1);
+
+        bdesu_FileUtil::seek(fd, 0, bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(2 == bdesu_FileUtil::read(fd, result, sizeof result));
+
+        bdesu_FileUtil::close(fd);
+
+        fd = bdesu_FileUtil::open(fileName, true, true, true);
+        bdesu_FileUtil::write(fd, "C", 1);
+        bdesu_FileUtil::seek(fd, 0, bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(3 == bdesu_FileUtil::read(fd, result, sizeof result));
+
+        bdesu_FileUtil::close(fd);
+
+        fd = bdesu_FileUtil::open(fileName, true, true);
+        bdesu_FileUtil::write(fd, "D", 1);
+        bdesu_FileUtil::close(fd);
+
+        fd = bdesu_FileUtil::open(fileName, false, true);
+        ASSERT(3 == bdesu_FileUtil::read(fd, result, sizeof result));
+        bdesu_FileUtil::close(fd);
+
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // SIMPLE MATCHING TEST
@@ -420,7 +496,7 @@ int main(int argc, char *argv[]) {
         for(int i=0; i<4; ++i) {
             char name[16];
             sprintf(name, "woof.a.%d", i);
-            bdesu_FileUtil::FileDescriptor fd = 
+            bdesu_FileUtil::FileDescriptor fd =
                 bdesu_FileUtil::open(name, true, false);
             bdesu_FileUtil::close(fd);
         }
@@ -434,7 +510,7 @@ int main(int argc, char *argv[]) {
         ASSERT(vs[1] == "woof.a.1");
         ASSERT(vs[2] == "woof.a.2");
         ASSERT(vs[3] == "woof.a.3");
-        
+
         bdesu_FileUtil::setWorkingDirectory("..");
         bdesu_FileUtil::remove(dirName, true);
       } break;
@@ -465,7 +541,7 @@ int main(int argc, char *argv[]) {
 #ifdef BSLS_PLATFORM__OS_WINDOWS
         string fileName("getFileSizeTest.txt");  // not sure where to put it
 #else
-        string fileName("/bb/data/tmp/getFileSizeTest.txt");
+        string fileName("/tmp/getFileSizeTest.txt");
 #endif
         bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(fileName,
                                                                  true,
@@ -484,11 +560,11 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) cout << "\n1. Normal file" << endl;
 
             bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(fileName);
-            ASSERT(bytes == off);
+            LOOP2_ASSERT(bytes, off, bytes == off);
 
             bdesu_FileUtil::Offset off2 = bdesu_FileUtil::getFileSize(
                                                              fileName.c_str());
-            ASSERT(bytes == off2);
+            LOOP2_ASSERT(bytes, off2, bytes == off2);
 
             if (veryVerbose) {
                 cout << "Expected " << bytes << endl;
@@ -502,35 +578,36 @@ int main(int argc, char *argv[]) {
         {
             if (veryVerbose) cout << "\n2. Normal directory" << endl;
 
-#ifdef BSLS_PLATFORM__OS_AIX
-            const int EXPECTED = 256;
-#elif defined(BSLS_PLATFORM__OS_SOLARIS)
-            const int EXPECTED = 512;
-#elif defined(BSLS_PLATFORM__OS_LINUX)
-            const int EXPECTED = 4096;
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
-            const int EXPECTED = 0;    // windows directories are 0 sized
-#elif defined(BSLS_PLATFORM__OS_HPUX)
-            const int EXPECTED = 96;   // weird
-#else
-            const int EXPECTED = 512;  // unknown platform... stick with 512
-#endif
-
 #ifdef BSLS_PLATFORM__OS_WINDOWS
             string dirName("getFileSizeDir");
+
+            // windows directories are 0 sized
+
+            const bdesu_FileUtil::Offset EXPECTED = 0;
 #else
-            string dirName("/bb/data/tmp/getFileSizeDir");
+            string dirName("/tmp/getFileSizeDir");
 #endif
 
             int ret = bdesu_FileUtil::createDirectories(dirName, true);
             ASSERT(0 == ret);
+
+            // On UNIX use stat64 as an oracle: the file size of a directory
+            // depends on the file system.
+
+#ifndef BSLS_PLATFORM__OS_WINDOWS
+            struct stat64 oracleInfo;
+            int rc = ::stat64(dirName.c_str(), &oracleInfo);
+            ASSERT(0 == rc);
+
+            bdesu_FileUtil::Offset EXPECTED = oracleInfo.st_size;
+#endif
 
             bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(dirName);
             LOOP2_ASSERT(EXPECTED, off, EXPECTED == off);
 
             bdesu_FileUtil::Offset off2 = bdesu_FileUtil::getFileSize(
                                                              dirName.c_str());
-            ASSERT(EXPECTED == off2);
+            LOOP2_ASSERT(EXPECTED, off2, EXPECTED == off2);
 
             if (veryVerbose) {
                 cout << "Expected " << EXPECTED << endl;
@@ -580,7 +657,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (veryVerbose) cout << "\n5. Symbolic Links" << endl;
-            system("ln -s /bb/data/tmp/getFileSizeTest.txt testLink");
+            system("ln -s /tmp/getFileSizeTest.txt testLink");
 
             string fileName("testLink");
             bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(fileName);
@@ -897,21 +974,21 @@ int main(int argc, char *argv[]) {
 
             int socketFd = socket(AF_UNIX, SOCK_STREAM, 0);
             LOOP_ASSERT(socketFd, socketFd >= 0);
-            
+
             struct sockaddr_un address;
             address.sun_family = AF_UNIX;
             sprintf(address.sun_path, filename.c_str());
 
             // Add one to account for the null terminator for the filename.
 
-            const int ADDR_LEN = sizeof(address.sun_family) + 
+            const int ADDR_LEN = sizeof(address.sun_family) +
                                  filename.size() +
                                  1;
-             
+
             int rc = bind(socketFd, (struct sockaddr *)&address, ADDR_LEN);
             LOOP3_ASSERT(rc, errno, strerror(errno), 0 == rc);
 
-            
+
             LOOP_ASSERT(filename, bdesu_FileUtil::exists(filename));
             LOOP_ASSERT(filename, !bdesu_FileUtil::isDirectory(filename));
             LOOP_ASSERT(filename, !bdesu_FileUtil::isRegularFile(filename));
@@ -1180,7 +1257,7 @@ int main(int argc, char *argv[]) {
         // Concern: Whether 'getFileSize' can detect a large file (> 4GB) since
         //          the file size becomes a 64-bit number.
         //
-        // Plan: Create a large file in "/bb/data/tmp" and check the file size.
+        // Plan: Create a large file in "/tmp" and check the file size.
         //       Remove it afterwards.
         //
         // --------------------------------------------------------------------
@@ -1194,10 +1271,10 @@ int main(int argc, char *argv[]) {
 
         if (veryVerbose) cout << "\n3. Large File" << endl;
 
-        system("dd if=/dev/zero of=/bb/data/tmp/fiveGBFile "
+        system("dd if=/dev/zero of=/tmp/fiveGBFile "
                "bs=1024000 count=5000");
 
-        string fileName("/bb/data/tmp/fiveGBFile");
+        string fileName("/tmp/fiveGBFile");
 
         bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(fileName);
         ASSERT(5120000000LL == off);
@@ -1216,7 +1293,7 @@ int main(int argc, char *argv[]) {
 #endif
       } break;
       case -2: {
-        static const char* foo = "/bb/data/tmp/blahblah.tmp";
+        static const char* foo = "/tmp/blahblah.tmp";
         bdesu_FileUtil::remove(foo);
         bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(foo, 1, 0);
         int pageSize = bdesu_MemoryUtil::pageSize();

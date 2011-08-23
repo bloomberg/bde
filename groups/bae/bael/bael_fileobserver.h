@@ -17,12 +17,17 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Guillaume Morin (gmorin1), Gang Chen (gchen20)
 //
 //@DESCRIPTION: This component provides a concrete implementation of the
-// 'bael_Observer' protocol for receiving and processing log records:
+// 'bael_Observer' protocol for publishing log records to a user-specified
+// file.  The following inheritance hierarchy diagram shows the classes
+// involved and their methods:
 //..
+//                ,-----------------.
 //               ( bael_FileObserver )
+//                `-----------------'
 //                         |              ctor
 //                         |              disableFileLogging
 //                         |              disableLifetimeRotation
+//                         |              disableTimeIntervalRotation
 //                         |              disableSizeRotation
 //                         |              disableStdoutLoggingPrefix
 //                         |              disableUserFieldsLogging
@@ -34,6 +39,7 @@ BDES_IDENT("$Id: $")
 //                         |              forceRotation
 //                         |              rotateOnSize
 //                         |              rotateOnLifetime
+//                         |              rotateOnTimeInterval
 //                         |              setStdoutThreshold
 //                         |              setLogFormat
 //                         |              isFileLoggingEnabled
@@ -45,14 +51,15 @@ BDES_IDENT("$Id: $")
 //                         |              localTimeOffset
 //                         |              getLogFormat
 //                         V
+//                  ,-------------.
 //                 ( bael_Observer )
+//                  `-------------'
 //                                        dtor
 //                                        publish
 //..
-// An instance of 'bael_FileObserver' processes the log records it receives
-// through its 'publish' method by writing them to 'stdout', if they have an
-// appropriate severity, and optionally to a user-specified file.  The format
-// of published log records is user-configurable (see "Log Record Formatting"
+// A 'bael_FileObserver' object processes the log records received through its
+// 'publish' method by writing them to a user-specified file.  The format of
+// published log records is user-configurable (see "Log Record Formatting"
 // below).  In addition, a file observer may be configured to perform automatic
 // log file rotation (see "Log File Rotation" below).
 //
@@ -99,23 +106,62 @@ BDES_IDENT("$Id: $")
 ///Log Record Timestamps
 ///---------------------
 // By default, the timestamp attributes of published records are written in UTC
-// time.  This behavior can be changed by calling 'enablePublishInLocalTime()'
+// time.  This behavior can be changed by calling 'enablePublishInLocalTime'
 // which will cause timestamp attributes to be written in local time instead.
+//
+///Log Filename Pattern
+///--------------------
+// The 'enableFileLogging' method allow the use of '%'-escape sequences to
+// specify the log filename.  The recognized sequences are as follows:
+//..
+//   %Y - current year (four digits with leading zeros)
+//   %M - current month (two digits with leading zeros)
+//   %D - current day (two digits with leading zeros)
+//   %h - current hour (two digits with leading zeros)
+//   %m - current minute (two digits with leading zeros)
+//   %s - current second (two digits with leading zeros)
+//   %T - current datetime, equivalent to "%Y%M%D_%h%m%s"
+//..
+// For example, a log filename pattern of "task.log.%Y%M%D_%h%m%s" will yield
+// the a filename with the appearance of "task.log.20110501_123000" if the file
+// is opened on '01-May-2011 12:30:00'.
 //
 ///Log File Rotation
 ///-----------------
 // A 'bael_FileObserver' may be configured to perform automatic rotation of
-// log files based on simple file rotation conditions (or rules).  Rotation
-// rules may be established based on the size of the log file (i.e., a
-// "rotation-on-size" rule), and the length of time that the log file has been
-// opened (i.e., a "rotation-on-lifetime" rule).  These rules are independently
-// enabled by the 'rotateOnSize' and 'rotateOnLifetime' methods, respectively.
-// If both rules are in effect, log file rotation is performed when either rule
-// applies.  When file rotation occurs, the current log file is closed and
-// optionally renamed as indicated by the most recent successful call to
-// 'enableFileLogging' (e.g., a typical configuration will cause the file
-// to be renamed by appending a timestamp of the form '.YYYYMMDD_HHMMSS').
-// Finally, a new log file is opened.
+// log files based on simple file rotation conditions (or rules).
+//
+///File Rotation Conditions
+/// - - - - - - - - - - - -
+// Rotation rules may be established based on the size of the log file (i.e., a
+// "rotation-on-size" rule), and a periodic time interval (i.e., a
+// "rotation-on-time-interval" rule).  These rules are independently enabled by
+// the 'rotateOnSize' and 'rotateOnTimeInterval' methods, respectively.  If
+// both rules are in effect, log file rotation is performed when either rule
+// applies.
+//
+///Rotated File Naming
+///- - - - - - - - - -
+// When file rotation occurs, a new log filename is generated using the pattern
+// supplied to 'enableFileLogging'.  If the new log filename is the same as the
+// old log filename, the old log file is renamed by appending a timestamp in
+// the form ".%Y%M%D_%h%m%s".
+//
+// The table below demonstrates the names of the log files opened at
+// '2011-May-11 12:30:00' and rotated in the same day based on the filename
+// patterns:
+//..
+// ----------------+-------------------------+---------------------------------
+//  Pattern        | Name Before Rotation    | Name After Rotation
+// ----------------+-------------------------+---------------------------------
+//  "a.log"        | "a.log"                 | "a.log.20110520_123000"
+//  "a.log.%T"     | "a.log.20110520_123000" | "a.log.20110520_123000"
+//  "a.log.%Y"     | "a.log.2011"            | "a.log.2011_20110520_123000"
+//  "a.log.%Y%M%D" | "a.log.20110520"        | "a.log.20110520_20110520_123000"
+// ----------------+-------------------------+---------------------------------
+//..
+// Note that timestamp pattern elements in a log file name are typically
+// selected so they produce unique names for each rotation.
 //
 ///Thread-Safety
 ///-------------
@@ -224,10 +270,10 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+class bslma_Allocator;
+
 class bael_Context;
 class bael_Record;
-
-class bslma_Allocator;
 
                           // =======================
                           // class bael_FileObserver
@@ -276,6 +322,7 @@ class bael_FileObserver : public bael_Observer {
     bael_FileObserver2         d_fileObserver2;      // forward most operations
                                                      // this object
 
+  private:
     // NOT IMPLEMENTED
     bael_FileObserver(const bael_FileObserver&);
     bael_FileObserver& operator=(const bael_FileObserver&);
@@ -290,7 +337,7 @@ class bael_FileObserver : public bael_Observer {
         // 'stdoutThreshold' level.  If 'stdoutThreshold' is not specified, log
         // records are published to 'stdout' if their severity is at least as
         // severe as 'bael_Severity::BAEL_WARN'.  The timestamp attribute of
-        // published records is written in local time by default.  Optionally
+        // published records is written in GMT time by default.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  Note that user-defined fields are published to 'stdout' by
@@ -320,9 +367,16 @@ class bael_FileObserver : public bael_Observer {
         // effect if file logging is not enabled.
 
     void disableLifetimeRotation();
-        // Disable log file rotation based on log file lifetime for this file
-        // observer.  This method has no effect if rotation-on-lifetime is not
-        // enabled.
+        // Disable log file rotation based on periodic time interval for this
+        // file observer.  This method has no effect if
+        // rotation-on-time-interval is not enabled.
+        //
+        // DEPRECATED: Use 'disableTimeIntervalRotation' instead.
+
+    void disableTimeIntervalRotation();
+        // Disable log file rotation based on periodic time interval for this
+        // file observer.  This method has no effect if
+        // rotation-on-time-interval is not enabled.
 
     void disableSizeRotation();
         // Disable log file rotation based on log file size for this file
@@ -347,13 +401,12 @@ class bael_FileObserver : public bael_Observer {
         // time by this file observer.  This method has no effect if publishing
         // in local time is not enabled.
 
-    int enableFileLogging(const char *logFilenamePattern,
-                          bool        timestampFlag = false);
-        // Enable logging of all messages published to this file observer to
-        // a file indicated by the specified 'logFilenamePattern' and the
-        // optionally-specified 'timestampFlag'.  The basename of
-        // 'logFilenamePattern' may contain '%'-escape sequences that are
-        // interpreted as follows:
+    int enableFileLogging(const char *logFilenamePattern);
+        // Enable logging of all messages published to this file observer to a
+        // file indicated by the specified 'logFilenamePattern'.  Return 0 on
+        // success, a positive value if file logging is already enabled, and a
+        // negative value otherwise.  The basename of 'logFilenamePattern' may
+        // contain '%'-escape sequences that are interpreted as follows:
         //..
         //   %Y - current year (four digits with leading zeros)
         //   %M - current month (two digits with leading zeros)
@@ -361,19 +414,31 @@ class bael_FileObserver : public bael_Observer {
         //   %h - current hour (two digits with leading zeros)
         //   %m - current minute (two digits with leading zeros)
         //   %s - current second (two digits with leading zeros)
-        //   %% - the empty string
+        //   %T - current datetime, equivalent to "%Y%M%D_%h%m%s"
         //..
         // Each time a log file is opened by this file observer (upon a
         // successful call to this method and following each log file rotation)
         // the name of the log file is derived from 'logFilenamePattern' by
-        // interpolating the above recognized '%'-escape sequences and
-        // optionally appending '.%Y%M%D_%H%M%S' (the current timestamp).  The
-        // timestamp is appended to the filename *only* if 'timestampFlag' is
-        // 'true' *and* the basename of 'logFilenamePattern' does *not* contain
-        // any of the '%'-escape sequences recognized by this method.
+        // interpreting the above recognized '%'-escape sequences.  On
+        // rotation, the current log file is closed, and a new log-file name is
+        // derived.  If the newly derived log-file name is the same as that of
+        // the current (rotated) log file, the current log file is renamed by
+        // appending a timestamp of the form ".%Y%M%D_%h%m%s".  Then, the new
+        // log file is opened for logging.
+
+    int enableFileLogging(const char *logFilenamePattern,
+                          bool        appendTimestampFlag);
+        // Enable logging of all messages published to this file observer to a
+        // file indicated by the specified 'logFilenamePattern' and append a
+        // timestamp to the log filename if specified 'appendTimestampFlag' is
+        // set to 'true'.  Return 0 on success, a positive value if file
+        // logging is already enabled, and a negative value otherwise.  If the
+        // 'appendTimestampFlag' is 'true' and 'logFilenamePattern' does not
+        // contain any '%'-escape sequence, this method behaves as if ".%T" is
+        // appended to 'logFilenamePattern'.
         //
-        // Return 0 on success, a positive value if file logging is already
-        // enabled, and a negative value for any I/O error.
+        // DEPRECATED: Use 'enableFileLogging(logFilenamePattern)' instead (use
+        // the ".%T" pattern to replicate 'appendTimestampFlag' being enabled).
 
     void enableStdoutLoggingPrefix();
         // Enable this file observer to use the default long output format
@@ -409,14 +474,39 @@ class bael_FileObserver : public bael_Observer {
     void rotateOnSize(int size);
         // Set this file observer to perform log file rotation when the size of
         // the file exceeds the specified 'size' (in kilo-bytes).  This rule
-        // replaces any rotation-on-size rule currently in effect, if any.  The
+        // replaces any rotation-on-size rule currently in effect.  The
         // behavior is undefined unless 'size > 0'.
 
     void rotateOnLifetime(const bdet_DatetimeInterval& timeInterval);
-        // Set this file observer to perform log file rotation when the length
-        // of time that the file has been opened exceeds the specified
-        // 'timeInterval'.  This rule replaces any rotation-on-lifetime rule
-        // currently in effect, if any.
+        // Set this file observer to perform a periodic log-file rotation at
+        // multiples of the specified 'interval'.  The behavior is undefined
+        // unless '0 < interval.totalMilliseconds()'.  This rule replaces any
+        // rotation-on-time-interval rule currently in effect.
+        //
+        // DEPRECATED: Use 'rotateOnTimeInterval' instead.
+
+    void rotateOnTimeInterval(const bdet_DatetimeInterval& interval);
+    void rotateOnTimeInterval(const bdet_DatetimeInterval& interval,
+                              const bdet_Datetime&         referenceStartTime);
+        // Set this file observer to perform a periodic log-file rotation at
+        // multiples of the specified 'interval'.  Optionally, specify
+        // 'referenceStartTime' indicating the *local* datetime to use as the
+        // starting point for computing the periodic rotation schedule.  If
+        // 'referenceStartTime' is unspecified, the current time is used.  The
+        // behavior is undefined unless '0 < interval.totalMilliseconds()'.
+        // This rule replaces any rotation-on-time-interval rule currently in
+        // effect.  Note that 'referenceStartTime' may be a fixed time in the
+        // past.  E.g., a reference time of 'bdet_Datetime(1, 1, 1)' and an
+        // interval of 24 hours would configure a periodic rotation at midnight
+        // each day.
+
+    void setOnFileRotationCallback(
+         const bael_FileObserver2::OnFileRotationCallback& onRotationCallback);
+        // Set the specified 'onRotationCallback' to be invoked after each time
+        // this file observer attempts perform a log file rotation.  The
+        // behavior is undefined if the supplied function calls either
+        // 'setOnFileRotationCallback', 'forceRotation', or 'publish' on this
+        // file observer.
 
     void setStdoutThreshold(bael_Severity::Level stdoutThreshold);
         // Set the minimum severity of messages logged to 'stdout' by this file
@@ -504,16 +594,29 @@ void bael_FileObserver::disableLifetimeRotation()
 }
 
 inline
+void bael_FileObserver::disableTimeIntervalRotation()
+{
+    d_fileObserver2.disableTimeIntervalRotation();
+}
+
+inline
 void bael_FileObserver::disableSizeRotation()
 {
     d_fileObserver2.disableSizeRotation();
 }
 
 inline
-int bael_FileObserver::enableFileLogging(const char *fileName,
+int bael_FileObserver::enableFileLogging(const char *logFilenamePattern)
+{
+    return d_fileObserver2.enableFileLogging(logFilenamePattern);
+}
+
+inline
+int bael_FileObserver::enableFileLogging(const char *logFilenamePattern,
                                          bool        timestampFlag)
 {
-    return d_fileObserver2.enableFileLogging(fileName, timestampFlag);
+    return d_fileObserver2.enableFileLogging(logFilenamePattern,
+                                             timestampFlag);
 }
 
 inline
@@ -533,6 +636,28 @@ void bael_FileObserver::rotateOnLifetime(
                                      const bdet_DatetimeInterval& timeInterval)
 {
     d_fileObserver2.rotateOnLifetime(timeInterval);
+}
+
+inline
+void bael_FileObserver::rotateOnTimeInterval(
+                                         const bdet_DatetimeInterval& interval)
+{
+    d_fileObserver2.rotateOnTimeInterval(interval);
+}
+
+inline
+void bael_FileObserver::rotateOnTimeInterval(
+                               const bdet_DatetimeInterval& interval,
+                               const bdet_Datetime&         referenceStartTime)
+{
+    d_fileObserver2.rotateOnTimeInterval(interval, referenceStartTime);
+}
+
+inline
+void bael_FileObserver::setOnFileRotationCallback(
+          const bael_FileObserver2::OnFileRotationCallback& onRotationCallback)
+{
+    d_fileObserver2.setOnFileRotationCallback(onRotationCallback);
 }
 
 // ACCESSORS

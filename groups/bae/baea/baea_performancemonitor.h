@@ -4,9 +4,10 @@
 
 //@PURPOSE: Provide a mechanism to collect process performance measures.
 //
-//@CLASSES: baea_PerformanceMonitor: monitor process performance
-//          baea_PerformanceMonitor::Statistics: performance stats
-//          baea_PerformanceMonitor::ConstIterator:: stats iteration
+//@CLASSES:
+//                  baea_PerformanceMonitor: monitor process performance
+//      baea_PerformanceMonitor::Statistics: performance stats
+//   baea_PerformanceMonitor::ConstIterator: stats iteration
 //
 //@AUTHOR: Matthew Millett (mmillett2)
 //

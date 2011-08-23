@@ -705,8 +705,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_CLIMITS
@@ -865,6 +865,12 @@ class bcem_Aggregate {
                                                           // top-level
                                                           // aggregate in bit
                                                           // 0
+
+    // PRIVATE CLASS METHODS
+    template <typename TYPE>
+    static bdem_ElemType::Type getBdemType(const TYPE& value);
+        // Return the 'bdem_ElemType::Type' corresponding to the parameterized
+        // 'value'.
 
     // PRIVATE MANIPULATORS
     int assignToNillableScalarArrayImp(const bdem_ElemRef& value) const;
@@ -1261,6 +1267,17 @@ class bcem_Aggregate {
         // the same as the allocator for 'rhs'.  Note that if 'rhs' is an
         // error aggregate, then this aggregate will be assigned the same
         // error state.
+
+    const bcem_Aggregate reserveRaw(bsl::size_t numItems);
+        // Reserve sufficient memory to satisfy allocation requests for at
+        // least the specified 'numItems' in the scalar array, choice array and
+        // table.  If the aggregate references a table and  if the allocation
+        // strategy specified for this aggregate is 'BDEM_PASS_THROUGH' or
+        // 'BDEM_SUBORDINATE', then,  memory,  in addition to the footprint of
+        // a row, required to initialize a row upon insertion is *not*
+        // reserved (see 'bdem_table').  Return the value of this aggregate on
+        // success or an error aggregate if this aggregate does not reference
+        // an array type.
 
     const bcem_Aggregate& reset();
         // Reset this object to the void aggregate ('BDEM_VOID' data type, no
@@ -1816,6 +1833,15 @@ class bcem_Aggregate {
         // containers.
 
     // ACCESSORS
+    const bcem_Aggregate capacityRaw(bsl::size_t *capacity) const;
+        // Load, in the specified 'capacity',  the number of items for which
+        // memory was previously allocated in the scalar array, choice array or
+        // table referenced by this aggregate, upon insertion or via a call to
+        // 'reserveRaw'.  Return the value of this aggregate on
+        // success or an error aggregate if this aggregate does not reference
+        // an array type.  Note that it is always true:
+        // 'length() <= capacityRaw()'.
+
     bool isError() const;
         // Return 'true' if this object was returned from a function that
         // detected an error.  If this function returns 'true', then
@@ -1892,7 +1918,7 @@ class bcem_Aggregate {
     char asChar() const;
     short asShort() const;
     int asInt() const;
-    bsls_PlatformUtil::Int64 asInt64() const;
+    bsls_Types::Int64 asInt64() const;
     float asFloat() const;
     double asDouble() const;
     bdet_Datetime asDatetime() const;
@@ -2395,9 +2421,27 @@ class bcem_Aggregate_ArrayInserter {
         // has not yet been called.
 };
 
-                           // =====================================
-                           // local class bcem_Aggregate_ArraySizer
-                           // =====================================
+                        // =========================================
+                        // local class bcem_Aggregate_ArrayCapacitor
+                        // =========================================
+
+struct  bcem_Aggregate_ArrayCapacitor {
+    // Functor that returns the capacity of a sequence container.  The
+    // capacity of a sequence container is the number of elements for which
+    // memory is already allocated.
+
+    // MANIPULATORS
+    template <typename ARRAYTYPE>
+    int operator()(ARRAYTYPE *array)
+    {
+        return  array->capacity();
+    }
+
+};
+
+                        // =====================================
+                        // local class bcem_Aggregate_ArraySizer
+                        // =====================================
 
 struct bcem_Aggregate_ArraySizer {
     // Function object to return the size of a sequence container.  The size of
@@ -2408,6 +2452,38 @@ struct bcem_Aggregate_ArraySizer {
     int operator()(ARRAYTYPE *array) const
     {
         return (int)array->size();
+    }
+};
+
+                        // ========================================
+                        // local class bcem_Aggregate_ArrayReserver
+                        // ========================================
+
+class bcem_Aggregate_ArrayReserver {
+    // Function object to reserve memory in a sequence container for the
+    // number of objects indicated at construction.
+
+    // DATA
+    bsl::size_t d_numItems;
+
+    // NOT IMPLEMENTED
+    bcem_Aggregate_ArrayReserver(const bcem_Aggregate_ArrayReserver&);
+    bcem_Aggregate_ArrayReserver& operator=(
+                                          const bcem_Aggregate_ArrayReserver&);
+
+  public:
+    // CREATORS
+    bcem_Aggregate_ArrayReserver(bsl::size_t numItems)
+    : d_numItems(numItems)
+    {
+    }
+
+    // ACCESSORS
+    template <typename ARRAYTYPE>
+    int operator()(ARRAYTYPE *array) const
+    {
+        array->reserve(d_numItems);
+        return 0;
     }
 };
 
@@ -2774,6 +2850,35 @@ int bcem_Aggregate_Util::visitArray(void                *array,
                         // class bcem_Aggregate
                         //---------------------
 
+// PRIVATE CLASS METHODS
+template <typename TYPE>
+inline
+bdem_ElemType::Type bcem_Aggregate::getBdemType(const TYPE&)
+{
+    return (bdem_ElemType::Type) bdem_SelectBdemType<TYPE>::VALUE;
+}
+
+template <>
+inline
+bdem_ElemType::Type bcem_Aggregate::getBdemType(const bdem_ConstElemRef& value)
+{
+    return value.type();
+}
+
+template <>
+inline
+bdem_ElemType::Type bcem_Aggregate::getBdemType(const bdem_ElemRef& value)
+{
+    return value.type();
+}
+
+template <>
+inline
+bdem_ElemType::Type bcem_Aggregate::getBdemType(const bcem_Aggregate& value)
+{
+    return value.dataType();
+}
+
 // PRIVATE MANIPULATORS
 template <typename TYPE>
 inline
@@ -2860,8 +2965,9 @@ bcem_Aggregate::toEnum(const VALUETYPE& value, bslmf_MetaInt<0> direct) const
     if (bdem_Convert::convert(&intVal, value)) {
         return makeError(
                 BCEM_ERR_BAD_CONVERSION,
-                "Invalid conversion to enumeration \"%s\"",
-                bcem_Aggregate_Util::enumerationName(enumerationConstraint()));
+                "Invalid conversion to enumeration \"%s\" from \"%s\"",
+                bcem_Aggregate_Util::enumerationName(enumerationConstraint()),
+                bdem_ElemType::toAscii(getBdemType(value)));
     }
     return toEnum(intVal, direct);
 }
@@ -2917,9 +3023,11 @@ int bcem_Aggregate::setValueInPlace(const VALTYPE& value)
     else {
         bdem_ElemRef elemRef = asElemRef();
         if (bdem_Convert::convert(&elemRef, value)) {
-            *this = makeError(BCEM_ERR_BAD_CONVERSION,
-                              "Invalid conversion when setting %s value",
-                              bdem_ElemType::toAscii(d_dataType));
+            *this = makeError(
+                           BCEM_ERR_BAD_CONVERSION,
+                           "Invalid conversion when setting %s value from %s",
+                           bdem_ElemType::toAscii(d_dataType),
+                           bdem_ElemType::toAscii(getBdemType(value)));
             return BCEM_ERR_BAD_CONVERSION;                           // RETURN
         }
     }
@@ -2962,8 +3070,10 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
 {
     int status = bdem_Convert::toBdemType(d_value.ptr(), dataType, value);
     if (status) {
-        *this = makeError(BCEM_ERR_BAD_CONVERSION, "Invalid conversion to %s",
-                          bdem_ElemType::toAscii(dataType));
+        *this = makeError(BCEM_ERR_BAD_CONVERSION,
+                          "Invalid conversion to %s from %s",
+                          bdem_ElemType::toAscii(dataType),
+                          bdem_ElemType::toAscii(getBdemType(value)));
     }
     else {
         d_isTopLevelAggregateNull.createInplace(basicAllocator, 0);
@@ -3079,8 +3189,11 @@ const bcem_Aggregate bcem_Aggregate::setValue(const VALTYPE& value) const
         bdem_ElemRef elemRef = asElemRef();
         if (bdem_Convert::convert(&elemRef, value)) {
             return makeError(BCEM_ERR_BAD_CONVERSION,
-                             "Invalid conversion when setting %s value",
-                             bdem_ElemType::toAscii(d_dataType));     // RETURN
+                             "Invalid conversion when setting "
+                             "%s value from %s value",
+                             bdem_ElemType::toAscii(d_dataType),
+                             bdem_ElemType::toAscii(getBdemType(value)));
+                                                                      // RETURN
         }
     }
 

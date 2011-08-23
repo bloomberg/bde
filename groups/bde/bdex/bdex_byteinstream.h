@@ -389,6 +389,13 @@ class bdex_ByteInStream {
     friend bsl::ostream& operator<<(bsl::ostream&            stream,
                                     const bdex_ByteInStream& object);
 
+    // NOT DEFINED
+    bdex_ByteInStream(const bdex_ByteInStream&);
+    bdex_ByteInStream& operator=(const bdex_ByteInStream&);
+
+    bool operator==(const bdex_ByteInStream&) const;
+    bool operator!=(const bdex_ByteInStream&) const;
+
   private:
     // PRIVATE CLASS METHODS
     static char *cloneBuffer(const char      *buffer,

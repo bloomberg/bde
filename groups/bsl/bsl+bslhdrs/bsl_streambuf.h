@@ -25,6 +25,16 @@ BSLS_IDENT("$Id: $")
 
 #include <streambuf>
 
+#if !defined(BDE_DONT_ALLOW_TRANSITIVE_INCLUDES) && \
+     defined(BDE_BUILD_TARGET_STLPORT)           && \
+     (!defined(BSL_LEGACY) || BSL_LEGACY == 1)
+
+// Code in Robo depends on <ios> included transitively with <streambuf> and it
+// fails to build otherwise in the stlport4 mode on Sun.
+#include <bsl_ios.h>
+
+#endif
+
 namespace bsl
 {
     // Import selected symbols into bsl namespace
@@ -33,11 +43,7 @@ namespace bsl
     using native_std::bad_exception;
     using native_std::basic_streambuf;
     using native_std::bidirectional_iterator_tag;
-    using native_std::codecvt;
-    using native_std::codecvt_base;
-    using native_std::codecvt_byname;
     using native_std::ctype;
-    using native_std::ctype_base;
     using native_std::ctype_byname;
     using native_std::exception;
     using native_std::forward_iterator_tag;

@@ -9,11 +9,12 @@
 
 #include <bsls_types.h>  // for testing only
 
+#include <iostream>
+#include <limits>
+
 #include <cstddef>  // offsetof() macro
-#include <climits>  // MAX_INT
 #include <cstdlib>  // atoi()
 #include <cstring>
-#include <iostream>
 
 using namespace BloombergLP;
 using namespace std;
@@ -44,12 +45,12 @@ using namespace std;
 // [ 2] static MaxAlignedType
 //
 // CLASS METHODS
-// [ 3] static int calculateAlignmentFromSize(int size);
+// [ 3] static int calculateAlignmentFromSize(std::size_t size);
 // [ 4] static int calculateAlignmentOffset(void *, int);
 // [ 5] static bool is2ByteAligned(const void *);
 // [ 5] static bool is4ByteAligned(const void *);
 // [ 5] static bool is8ByteAligned(const void *);
-// [ 6] static int roundUpToMaximalAlignment(int size);
+// [ 6] static int roundUpToMaximalAlignment(std::size_t);
 //-----------------------------------------------------------------------------
 // [ 7] USAGE EXAMPLE -- Ensure the usage example compiles and works.
 //=============================================================================
@@ -142,7 +143,7 @@ struct Test8BytesAlignedType {
 // We can implement the 'naturallyAlign' helper function easily using the
 // methods defined in this class:
 //..
-    void *naturallyAlign(void **currentAddress, int size)
+    void *naturallyAlign(void **currentAddress, std::size_t size)
     {
         int   alignment = bsls_AlignmentUtil::calculateAlignmentFromSize(size);
         int   offset    = bsls_AlignmentUtil::calculateAlignmentOffset(
@@ -375,7 +376,7 @@ int main(int argc, char *argv[])
         //   argument up to the nearest multiple of 'sizeof(MaxAlign)'.
         //
         // Testing:
-        //   static int roundUpToMaximalAlignment(int size);
+        //   static int roundUpToMaximalAlignment(std::size size);
         // --------------------------------------------------------------------
 
         ASSERT(0 == Class::roundUpToMaximalAlignment(0));
@@ -588,7 +589,7 @@ int main(int argc, char *argv[])
                                                                       ALIGN);
                     LOOP_ASSERT(LINE, bsls_AssertTest::tryProbe(RESULT));
 
-//                    LOOP4_ASSERT(LINE, SIZE, ALIGN, a, ALIGN == a);
+//                  LOOP4_ASSERT(LINE, ADDRESS, ALIGN, a, ALIGN == a);
                 }
                 catch (const bsls_AssertTestException& e) {
                     LOOP_ASSERT(LINE, bsls_AssertTest::catchProbe(RESULT,
@@ -622,7 +623,7 @@ int main(int argc, char *argv[])
         //   Area test over meaningful range of inputs.
         //
         // Testing:
-        //   int bsls_AlignmentUtil::calculateAlignmentFromSize(int);
+        //   int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -693,18 +694,18 @@ int main(int argc, char *argv[])
             // relevant 'BSLS_ASSERT' macro is enabled.
 
             static struct {
-                int         d_lineNumber;
-                const char *d_assertBuildType;
-                char        d_expectedResult;
-                int         d_input;
-                int         d_expected;
+                int          d_lineNumber;
+                const char  *d_assertBuildType;
+                char         d_expectedResult;
+                std::size_t  d_input;
+                int          d_expected;
             } const DATA[] = {
                 // LINE  TYPE  RESULT  SIZE  ALIGN
                 // ----  ----  ------  ----  -----
-                {  L_,   "S",  'F',    -1,      0 },
                 {  L_,   "S",  'F',     0,      0 },
                 {  L_,   "S",  'P',     1,      1 },
-                {  L_,   "S",  'P',    INT_MAX, 1 }
+                {  L_,   "S",  'P',
+       std::numeric_limits<std::size_t>::max(), 1 }
             };
             const int DATA_SIZE = sizeof DATA / sizeof *DATA;
 
@@ -730,7 +731,8 @@ int main(int argc, char *argv[])
 
                 // The relevant assert is active in this build
                 try {
-                    int a = bsls_AlignmentUtil::calculateAlignmentFromSize(
+                    int a = 0;
+                    a = bsls_AlignmentUtil::calculateAlignmentFromSize(
                                                                          SIZE);
                     LOOP_ASSERT(LINE, bsls_AssertTest::tryProbe(RESULT));
 

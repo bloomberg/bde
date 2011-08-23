@@ -3371,6 +3371,27 @@ int main(int argc, char *argv[])
                 { L_,  "'Hello' World!",         "&apos;Hello&apos; World!"  },
                 { L_,  "Hello \"World\"",        "Hello &quot;World&quot;"   },
 
+                { L_,  "<![CDATA&]]>",     "&lt;![CDATA&amp;]]&gt;"          },
+                   //           ^ missing '['
+
+                { L_,  "![CDATA[&]]>",     "![CDATA[&amp;]]&gt;"             },
+                   //   ^ missing '<'
+
+                { L_,  "![CRATA[&]]>",     "![CRATA[&amp;]]&gt;"             },
+                   //      ^ missing 'D'
+
+                { L_,  "<![CDATA[&<>![]'\"]]>",     "<![CDATA[&<>![]'\"]]>"  },
+                { L_,  "Hello<![CDATA[&<>![]'\"]]>",
+                                           "Hello<![CDATA[&<>![]'\"]]>"      },
+                { L_,  "<![CDATA[&<>![]'\"]]>World",
+                                           "<![CDATA[&<>![]'\"]]>World"      },
+                { L_,  "Hello<![CDATA[&<>![]'\"]]>World",
+                                           "Hello<![CDATA[&<>![]'\"]]>World" },
+                { L_,  "CDATA<![CDATA[&<>![]'\"]]>",
+                                           "CDATA<![CDATA[&<>![]'\"]]>"      },
+                { L_,  "<![CDATA[&<>![]'\"]]]]>",
+                                           "<![CDATA[&<>![]'\"]]]]>"         },
+
                 // Two-byte character sequences.
 
                 { L_,  "\xc2\x80",               "\xc2\x80"                  },
@@ -4090,6 +4111,18 @@ int main(int argc, char *argv[])
                 { L_,  "\xed\xbf\x7f",                                       },
                 { L_,  "\xed\xbf\xc0",                                       },
                 { L_,  "\xed\xbf\xff",                                       },
+
+                { L_,  "<![CDATA[&<>![]'\"",                                 },
+                   //                     ^ missing "]]>"
+
+                { L_,  "<![CDATA[&<>![]'\"]]",                               },
+                   //                       ^ missing ">"
+
+                { L_,  "<![CDATA[&<>![]'\"]>",                               },
+                   //                     ^ missing "]"
+
+                { L_,  "<![CDATA[&<>![]'\"<![CDATA[]]>",                     },
+                   //                     ^ extra CDATA tag 
 
             };
             const int NUM_DATA = sizeof INVALID_DATA / sizeof *INVALID_DATA;
