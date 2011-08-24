@@ -316,12 +316,12 @@ bool operator!=(const baetzo_LocalTimeDescriptor& lhs,
 bsl::ostream& operator<<(bsl::ostream&                     stream,
                          const baetzo_LocalTimeDescriptor& object);
     // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference to
-    // 'stream'.  If 'stream' is not valid on entry, this operation has no
-    // effect.  Note that this human-readable format is not fully specified
-    // and can change without notice.  Also note that this method has the same
-    // behavior as 'object.print(stream, 0, -1)', but with the attribute names
-    // elided.
+    // output 'stream' in a single-line format, and return a reference
+    // providing modifiable access to 'stream'.  If 'stream' is not valid on
+    // entry, this operation has no effect.  Note that this human-readable
+    // format is not fully specified and can change without notice.  Also note
+    // that this method has the same behavior as 'object.print(stream, 0, -1)',
+    // but with the attribute names elided.
 
 // FREE FUNCTIONS
 void swap(baetzo_LocalTimeDescriptor& a, baetzo_LocalTimeDescriptor& b);

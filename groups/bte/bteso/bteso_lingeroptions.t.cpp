@@ -50,7 +50,7 @@ using namespace bsl;
 //: o 'timeout'
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [ 8] -- swap is not implemented for this class.
+//: o [ 8] -- 'swap' is not implemented for this class.
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
@@ -66,7 +66,7 @@ using namespace bsl;
 //:   o copy-assignment
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [10] static int maxSupportedBdexVersion();
+// [10] int maxSupportedBdexVersion();
 //
 // CREATORS
 // [ 2] bteso_LingerOptions();
@@ -175,10 +175,10 @@ typedef bdex_TestOutStream  Out;
 BSLMF_ASSERT((bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseMoveable>::VALUE));
 
 // ============================================================================
-//                     GLOBAL CONSTANTS USED FOR TESTING
+//                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
 
-// Define DEFAULT DATA used by test cases 3, 7, 8, 9, and 10
+// Define DEFAULT DATA (potentially) used by test cases 3, 7, (8), 9, and (10)
 
 struct DefaultDataRow {
     int         d_line;           // source line number
@@ -208,6 +208,9 @@ const DefaultDataRow DEFAULT_DATA[] =
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 ///Usage
 ///-----
 // In this section we show intended usage of this component.
@@ -222,43 +225,43 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //
 // First, we define a cross-platform compatible typedef for a socket handle:
 //..
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-    typedef SOCKET Handle;
-#else
-    typedef int Handle;
-#endif
+    #ifdef BSLS_PLATFORM__OS_WINDOWS
+        typedef SOCKET Handle;
+    #else
+        typedef int Handle;
+    #endif
 //..
 // Then, we declare the function, 'setLingerOptions', that takes a 'Handle' and
 // a 'bteso_LingerOptions' object, and sets the linger options for 'Handle':
 //..
-int setLingerOptions(Handle                     handle,
-                     const bteso_LingerOptions& lingerOptions)
-{
+    int setLingerOptions(Handle                     handle,
+                         const bteso_LingerOptions& lingerOptions)
+    {
 //..
-// Next, we declare the 'struct' needed to set the linger options:
+// Next, we define a 'typedef' for the 'struct' needed to set the linger
+// options:
 //..
-    #if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_CYGWIN)
-    typedef linger LingerData;
-    #elif defined(BSLS_PLATFORM__OS_WINDOWS) \
-       || defined(BSLS_PLATFORM__OS_CYGWIN)
-    typedef LINGER LingerData;
+    #if defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
+        typedef LINGER LingerData;
+    #else
+        typedef linger LingerData;
     #endif
 //..
 // Then, we initialize a 'LingerData' object with data from 'lingerOptions',
 // which will be supplied to the 'setsockopt' system call:
 //..
-    LingerData linger;
-    linger.l_onoff  = lingerOptions.lingerFlag();
-    linger.l_linger = lingerOptions.timeout();
+        LingerData linger;
+        linger.l_onoff  = lingerOptions.lingerFlag();
+        linger.l_linger = lingerOptions.timeout();
 //..
 // Next, we configure the linger options for the socket:
 //..
-    return ::setsockopt(handle,
-                        SOL_SOCKET,
-                        SO_LINGER,
-                        reinterpret_cast<void *>(&linger),
-                        sizeof linger);
-}
+        return ::setsockopt(handle,
+                            SOL_SOCKET,
+                            SO_LINGER,
+                            reinterpret_cast<void *>(&linger),
+                            sizeof linger);
+    }
 //..
 
 // ============================================================================
@@ -286,6 +289,7 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -319,14 +323,13 @@ int main(int argc, char *argv[])
 //..
     setLingerOptions(socketHandle, option);
 //..
-
-
       } break;
       case 10: {
         // --------------------------------------------------------------------
         // BDEX STREAMING
-        //   Ensure that we can serialize the value of any object of the class,
-        //   and then deserialize that value back into any object of the class.
+        //   Ensure that we can externalize the value of any object of the
+        //   class, and then unexternalize that value back into any object of
+        //   the class.
         //
         // Concerns:
         //: 1 The class method 'maxSupportedBdexVersion' returns the expected
@@ -335,93 +338,153 @@ int main(int argc, char *argv[])
         //: 2 The signature and return type of 'bdexStreamOut' and
         //:   'bdexStreamIn' are standard.
         //:
-        //: 2 'bdexStreamOut' and 'bdexStreamIn' correctly externalize and
+        //: 3 'bdexStreamOut' and 'bdexStreamIn' correctly externalize and
         //:   unexternalize the object respectively when given a valid stream.
         //:
-        //: 3 'bdexStreamOut' does not stream out more data than necessary.
+        //: 4 'bdexStreamOut' does not stream out more data than necessary.
         //:
-        //: 4 A stream that was valid remains valid after a successful
+        //: 5 A stream that was valid remains valid after a successful
         //:   'bdexStreamOut' or 'bdexStreamIn' operation.
         //:
-        //: 5 'bdexStreamIn' does not modify the object when given an empty or
+        //: 6 'bdexStreamIn' does not modify the object when given an empty or
         //:   invalid stream.
         //:
-        //: 6 'stream' is invalidated for unsupported version.
-        //:
-        //: 7 BDEX streaming is exception neutral.
+        //: 7 'bdexStreamOut' and 'bdexStreamIn' invalidate the supplied stream
+        //:   if supplied with an unsupported version number.
         //:
         //: 8 'bdexStreamIn' invalidate the input stream if it contains invalid
         //:   data.
         //:
-        //: 9 'bdexStreamIn' puts the obejct into a valid state if the input
+        //: 9 'bdexStreamIn' invalidate the input stream if it contains
+        //:   incomplete data.
+        //:
+        //:10 'bdexStreamIn' puts the obejct into a valid state if the input
         //:   stream contains invalid data.
+        //:
+        //:11 BDEX streaming is exception neutral.
         //
         // Plan:
-        //: 1 maxSupportedBdexVersion...
+        //: 1 Invoke 'maxSupportedBdexVersion' and verify the expected version
+        //:   number is returned.  (C-1)
         //:
+        //: 2 Use the address of 'bdexStreamIn' and 'bdexStreamOut' to
+        //:   initialize a member-function pointer having the appropriate
+        //:   signature and return type.  (C-2)
         //:
-        //: 2 Using the table-driven technique:
+        //: 3 Using the table-driven technique, specify a set of (unique) valid
+        //:   object values (one per row) in terms of their individual
+        //:   attributes, including (a) first, the default value, and (b)
+        //:   boundary values corresponding to every range of values that each
+        //:   individual attribute can independently attain.
         //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, and (b) boundary values corresponding to every
-        //:     range of values that each individual attribute can
-        //:     independently attain.
+        //: 4 For each supported version, 'V':  (C-3..5, 11)
         //:
-        //: 3 For each row 'R1' in the table of P-1:
+        //:   1 For each row 'R1' in the table of P-3:  (C-3..5, 11)
         //:
-        //:   1 Use the value constructor to create a 'const' 'Obj', 'Z', each
-        //:     having the value corresponding to 'R1'.
+        //:     1 Use the value constructor to create a 'const' 'Obj', 'Z',
+        //:       each having the value corresponding to 'R1'.
         //:
-        //:   2 Create a 'bdex_TestOutStream', 'out', and call 'bdexStreamOut'
-        //:     to externalize values of 'Z' to 'out'.
+        //:     2 Create an empty 'bdex_TestOutStream', 'out'.
         //:
-        //:   3 For each row 'R2' in the table of P-3:  (C-1..3, 6..8)
+        //:     3 Invoke 'bdexStreamOut', passing 'V' as the version number and
+        //:       'out' as the output stream, to externalize values of 'Z'.
         //:
-        //:     1 Create an object 'X' having the value 'R2'.
+        //:     4 For each row 'R2' in the table of P-3:  (C-3..5, 11)
         //:
-        //:     2 Create a 'bdex_TestInStream', 'in', having the same data as
-        //:       'out'.
+        //:       1 Use the value constructor to create a modifiable 'Obj',
+        //:         'mX', having the value 'R2'.
         //:
-        //:     3 Call 'bdexStreamIn' to unexternalization data in 'in' to 'X'
-        //:       and verify that 'X' equals 'Z'.
+        //:       2 Create a 'bdex_TestInStream', 'in', having the same data as
+        //:         'out'.
         //:
-        //:     4 Verify that 'in' is valid and empty.
+        //:       3 Invoke 'bdexStreamIn', passing 'V' as the version number
+        //:         and 'in' as the input stream,  to unexternalization data in
+        //:         'in' to 'mX' in the presence of exception (using the
+        //:         'BDEX_EXCEPTION_TEST_*' macros).  (C-11)
         //:
-        //: 3 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:
+        //:       4 Use the eqaulity-comparison operator to verify that 'mX'
+        //:         now has the same value as 'Z'.  (C-3)
         //:
-        //:   1 Use the value constructor to create a 'const' 'Obj' 'Z' and a
-        //:     modifiable 'Obj' 'mX' having the value 'V'.
+        //:       5 Verify that 'in' is valid and empty.  (C-4..5)
         //:
-        //:   2 Create an empty 'bdex_TestInStream', 'in'.
+        //: 5 For each supported version, 'V':  (C-6)
         //:
-        //:   3 Call 'mX.bdexStreamIn' on 'in' and verify that 'mX' is not
-        //:     changed by comparing with 'Z' and 'in' is now invalid.
+        //:   1 For each row (representing a distinct object value, 'R') in the
+        //:     table described in P-3:  (C-6)
         //:
-        //:   4 Call 'mX.bdexStreamIn' on 'in' again and verify that 'mX' is
-        //:     still not changed by comparing with 'Z' and 'in' is invalid.
+        //:     1 Use the value constructor to create a 'const' 'Obj' 'Z' and a
+        //:       modifiable 'Obj' 'mX' having the value 'R'.
         //:
-        //: 4 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:
+        //:     2 Create an empty 'bdex_TestInStream', 'in'.
         //:
-        //:   1 Use the value constructor to create a 'const' 'Obj' 'Z' having
-        //:     the value 'V'.
+        //:     3 Invoke 'bdexStreamIn', passing 'V' as the version number and
+        //:       'in' as the input stream,  to unexternalization data in 'in'
+        //:       to 'mX'.
         //:
-        //:   2 Create a 'bdex_TestOutStream', 'out', and call 'bdexStreamOut'
-        //:     to externalize values of 'Z' to 'out'.
+        //:     4 Use the eqaulity-comparison operator to verify that 'mX'
+        //:       still has the same value as 'Z'.
         //:
-        //:   3 For 'i' equal 0 to size of data in 'out':
+        //:     5 Verify that 'in' is now invalid.
         //:
-        //:     1 Create a 'bdex_TestOutStream' 'in' with the first 'i' bytes
-        //:       of the data in 'out'.
+        //:     3 Invoke 'bdexStreamIn' again, passing 'V' as the version
+        //:       number and 'in' as the input stream,  to unexternalization
+        //:       data in 'in' to 'mX'.
         //:
-        //:     2 Create a modifiable 'Obj' 'mX' using the default constructor.
+        //:     7 Use the eqaulity-comparison operator to verify that 'mX'
+        //:       still has the same value as 'Z'.
         //:
-        //:     3 
+        //:     8 Verify that 'in' is still invalid.  (C-6)
+        //:
+        //: 6 For each supported version, 'V':  (C-10)
+        //:
+        //:   1 For each row (representing a distinct object value, 'R') in the
+        //:     table described in P-3:  (C-10)
+        //:
+        //:     1 Use the value constructor to create a 'const' 'Obj' 'Z'
+        //:       having the value 'R'.
+        //:
+        //:     2 Create an empty 'bdex_TestOutStream', 'out'.
+        //:
+        //:     3 Invoke 'bdexStreamOut', passing 'V' as the version number and
+        //:       'out' as the output stream, to externalize values of 'Z'.
+        //:
+        //:     4 For 'i' equals 0 to the size of the data in 'out':  (C-10)
+        //:
+        //:       1 Create a 'bdex_TestOutStream' 'in' having the first 'i'
+        //:         bytes of the data in 'out'.
+        //:
+        //:       2 Create a modifiable 'Obj' 'mX' using the default
+        //:         constructor.
+        //:
+        //:       3 Invoke 'bdexStreamIn', passing 'V' as the version number
+        //:         and 'in' as the input stream,  to unexternalization data in
+        //:         'in' to 'mX'.
+        //:
+        //:       4 Verify that 'in' is invalid.  (C-9)
+        //:
+        //:       5 Allow the destructor to verify class invariant in the
+        //:         appropriate build mode (C-10)
+        //:
+        //: 7 For each supported version, 'V':  (C-8, 10)
+        //:   1 Create a 'bdex_TestInStream', 'in', with invalid data.
+        //:
+        //:   2 Create a modifiable 'Obj' 'mX' using the default constructor.
+        //:
+        //:   3 Invoke 'bdexStreamIn', passing 'V' as the version number and
+        //:     'in' as the input stream,  to unexternalization data in 'in' to
+        //:     'mX'.
+        //:
+        //:   4 Verify the input stream is invalidated.  (C-8)
+        //:
+        //:   5 Allow the destructor to verify class invariant in the
+        //:     appropriate build mode (C-10)
+        //:
+        //: 8 Invoke 'bdexStreamOut' and 'bdexStreamIn', passing 0 and
+        //:   'maxSupportedBdexVersion() + 1' as the version number, and verify
+        //:   that the supplied stream is invalidated.  (C-7)
         //
         // Testing:
-        //   static int maxSupportedBdexVersion();
+        //   int maxSupportedBdexVersion();
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // --------------------------------------------------------------------
@@ -429,8 +492,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "BDEX STREAMING" << endl
                           << "==============" << endl;
-
-        // scalar and array object values for various stream tests
 
         if (verbose) cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
         {
@@ -454,17 +515,17 @@ int main(int argc, char *argv[])
 
         const int MAX_VERSION = Obj::maxSupportedBdexVersion();
 
-        if (verbose) cout <<
-                            "\nUse a table of distinct object values." << endl;
+        if (verbose) cout << "\nUse table of distinct object values." << endl;
 
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
         if (verbose) cout <<
-                  "\nTesting 'streamOut' and (valid) 'streamIn' functionality."
-                                                                       << endl;
+         "\nTesting 'streamOut' and (valid) 'streamIn' functionality." << endl;
+
         for (int version = 1; version <= MAX_VERSION; ++version) {
             const int V = version;
+            if (veryVerbose) { T_ P(V) }
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int  LINE1    = DATA[ti].d_line;
@@ -495,109 +556,132 @@ int main(int argc, char *argv[])
                     in.setSuppressVersionCheck(1);
 
                     BEGIN_BDEX_EXCEPTION_TEST { in.reset();
+                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
                         mX.bdexStreamIn(in, V);
                     } END_BDEX_EXCEPTION_TEST
 
                     LOOP2_ASSERT(LINE1, LINE2, Z == X);
                     LOOP2_ASSERT(LINE1, LINE2, in);
                     LOOP2_ASSERT(LINE1, LINE2, in.isEmpty());
-
-                    in.reset();
-                    int  timeout;
-                    bool flag;
-
-                    bdex_InStreamFunctions::streamIn(in, timeout, V);
-                    bdex_InStreamFunctions::streamIn(in, flag, V);
-
-                    LOOP4_ASSERT(LINE1, LINE2, TIMEOUT1, timeout,
-                                 TIMEOUT1 == timeout);
-                    LOOP4_ASSERT(LINE1, LINE2, FLAG1, flag,
-                                 FLAG1 == flag);
                 }
             }
         }
 
-        if (verbose) cout << "\tOn empty and invalid streams." << endl;
+        if (verbose) cout << "\nOn empty and invalid streams." << endl;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE    = DATA[ti].d_line;
-            const int  TIMEOUT = DATA[ti].d_timeout;
-            const bool FLAG    = DATA[ti].d_lingerFlag;
+        for (int version = 1; version <= MAX_VERSION; ++version) {
+            const int V = version;
+            if (veryVerbose) { T_ P(V) }
 
-            const Obj Z(TIMEOUT, FLAG);
-            Obj mX(Z);  const Obj& X = mX;
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE    = DATA[ti].d_line;
+                const int  TIMEOUT = DATA[ti].d_timeout;
+                const bool FLAG    = DATA[ti].d_lingerFlag;
 
-            if (veryVerbose) { T_ P_(LINE) P(Z) P(X) }
+                const Obj Z(TIMEOUT, FLAG);
+                Obj mX(Z);  const Obj& X = mX;
 
-            LOOP3_ASSERT(LINE, Z, X, Z == X);
+                if (veryVerbose) { T_ P_(LINE) P(Z) P(X) }
 
-            In in;   In &testInStream = in;
-            in.setSuppressVersionCheck(1);
+                LOOP3_ASSERT(LINE, Z, X, Z == X);
 
-            LOOP_ASSERT(LINE, in);
-            LOOP_ASSERT(LINE, in.isEmpty());
+                In in;
+                in.setSuppressVersionCheck(1);
 
-            // Ensure that reading from an empty or invalid input stream
-            // leaves the stream invalid and the target object unchanged.
+                LOOP_ASSERT(LINE, in);
+                LOOP_ASSERT(LINE, in.isEmpty());
 
-            BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                mX.bdexStreamIn(in, MAX_VERSION);
-            } END_BDEX_EXCEPTION_TEST
+                // Ensure that reading from an empty or invalid input stream
+                // leaves the stream invalid and the target object unchanged.
 
-            LOOP_ASSERT(LINE, !in);
-            LOOP2_ASSERT(LINE, X, Obj() == X);
+                mX.bdexStreamIn(in, V);
 
-            BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                mX.bdexStreamIn(in, MAX_VERSION);
-            } END_BDEX_EXCEPTION_TEST
+                LOOP_ASSERT(LINE, !in);
+                LOOP2_ASSERT(LINE, X, Obj() == X);
 
-            LOOP_ASSERT(LINE, !in);
-            LOOP2_ASSERT(LINE, X, Obj() == X);
+                mX.bdexStreamIn(in, V);
+
+                LOOP_ASSERT(LINE, !in);
+                LOOP2_ASSERT(LINE, X, Obj() == X);
+            }
         }
 
         if (verbose) cout <<
-                         "\tOn incomplete (but otherwise valid) data." << endl;
+                         "\nOn incomplete (but otherwise valid) data." << endl;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE    = DATA[ti].d_line;
-            const int         TIMEOUT = DATA[ti].d_timeout;
-            const bool        FLAG    = DATA[ti].d_lingerFlag;
+        for (int version = 1; version <= MAX_VERSION; ++version) {
+            const int V = version;
+            if (veryVerbose) { T_ P(V) }
 
-            const Obj Z(TIMEOUT, FLAG);
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE    = DATA[ti].d_line;
+                const int         TIMEOUT = DATA[ti].d_timeout;
+                const bool        FLAG    = DATA[ti].d_lingerFlag;
 
-            Out out;
-            Z.bdexStreamOut(out, MAX_VERSION);
-            LOOP_ASSERT(LINE, out);
+                const Obj Z(TIMEOUT, FLAG);
 
-            for (int i = 0; i < out.length(); ++i) {
+                if (veryVerbose) { T_ P_(LINE) P(Z) }
 
-                if (veryVerbose) { T_ P(i) }
+                Out out;
+                Z.bdexStreamOut(out, V);
+                LOOP_ASSERT(LINE, out);
 
-                In in(out.data(), i);   In &testInStream = in;
-                in.setSuppressVersionCheck(1);
+                for (int i = 0; i < out.length(); ++i) {
+                    if (veryVerbose) { T_ P(i) }
 
-                Obj mX;  const Obj& X = mX;
+                    In in(out.data(), i);
+                    in.setSuppressVersionCheck(1);
 
-                BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                    mX.bdexStreamIn(in, MAX_VERSION);
-                } END_BDEX_EXCEPTION_TEST
+                    Obj mX;  const Obj& X = mX;
 
-                if (i != out.length()) {
+                    mX.bdexStreamIn(in, V);
+
                     LOOP_ASSERT(i, !in);
-                    LOOP_ASSERT(i, Obj() == X);
-                }
-                else {
-                    LOOP_ASSERT(i, in);
                     LOOP_ASSERT(i, Obj() == X);
                 }
             }
         }
 
+        if (verbose) cout << "\nStream with invalid data." << endl;
 
-        if (verbose) cout << "\t\tBad version." << endl;
+        for (int version = 1; version <= MAX_VERSION; ++version) {
+            const int V = version;
+            if (veryVerbose) { T_ P(V) }
+
+            const int  D1 = 0;
+            const bool D2 = false;
+
+            {
+                Out out;
+
+                bdex_OutStreamFunctions::streamOut(out, -1, 1);
+                bdex_OutStreamFunctions::streamOut(out, D2, 1);
+
+                In in(out.data(), out.length());
+                Obj mX;
+                in.setSuppressVersionCheck(1);
+                mX.bdexStreamIn(in, V);
+
+                ASSERT(!in);
+            }
+            {
+                Out out;
+
+                bdex_OutStreamFunctions::streamOut(out, D1, 1);
+                bdex_OutStreamFunctions::streamOut(out, D2, 1);
+
+                In in(out.data(), out.length());
+                Obj mX;
+                in.setSuppressVersionCheck(1);
+                mX.bdexStreamIn(in, V);
+
+                ASSERT(in);
+            }
+        }
+
+        if (verbose) cout << "\nBad version." << endl;
         {
             const Obj Z;
-
             {
                 Out out;
                 Z.bdexStreamOut(out, 0);
@@ -614,53 +698,17 @@ int main(int argc, char *argv[])
                 ASSERT(out);
 
                 Obj mX;
-                In in(out.data(), out.length());  In &testInStream = in;
-                in.setSuppressVersionCheck(1);
-
-                BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                    mX.bdexStreamIn(in, 0);
-                } END_BDEX_EXCEPTION_TEST
-
-                ASSERT(!in);
-
-                BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                    mX.bdexStreamIn(in, 2);
-                } END_BDEX_EXCEPTION_TEST
-
-                ASSERT(!in);
-            }
-        }
-
-        if (verbose) cout << "\tStream with invalid data." << endl;
-        {
-            const int  D1 = 0;
-            const bool D2 = false;
-
-            {
-                Out out;
-
-                bdex_OutStreamFunctions::streamOut(out, -1, 1);
-                bdex_OutStreamFunctions::streamOut(out, D2, 1);
-
                 In in(out.data(), out.length());
-                Obj mX;  const Obj& X = mX;
                 in.setSuppressVersionCheck(1);
-                mX.bdexStreamIn(in, MAX_VERSION);
+
+                mX.bdexStreamIn(in, 0);
 
                 ASSERT(!in);
-            }
-            {
-                Out out;
+                in.reset();
 
-                bdex_OutStreamFunctions::streamOut(out, D1, 1);
-                bdex_OutStreamFunctions::streamOut(out, D2, 1);
+                mX.bdexStreamIn(in, 2);
 
-                In in(out.data(), out.length());
-                Obj mX;  const Obj& X = mX;
-                in.setSuppressVersionCheck(1);
-                mX.bdexStreamIn(in, MAX_VERSION);
-
-                ASSERT(in);
+                ASSERT(!in);
             }
         }
       } break;
@@ -688,13 +736,11 @@ int main(int argc, char *argv[])
         //:   pointer having the appropriate signature and return type for the
         //:   copy-assignment operator defined in this component.  (C-2)
         //:
-        //: 2 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, and (b) boundary values corresponding to every
-        //:     range of values that each individual attribute can
-        //:     independently attain.
+        //: 2 Using the table-driven technique, specify a set of (unique) valid
+        //:   object values (one per row) in terms of their individual
+        //:   attributes, including (a) first, the default value, and (b)
+        //:   boundary values corresponding to every range of values that each
+        //:   individual attribute can independently attain.
         //:
         //: 3 For each row 'R1' (representing a distinct object value, 'V') in
         //:   the table described in P-3:  (C-1, 3..4)
@@ -734,13 +780,14 @@ int main(int argc, char *argv[])
         //:
         //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
         //:
-        //:   3 Assign 'mX' from 'Z'.  (C-5)
+        //:   3 Assign 'mX' from 'Z'.
         //:
         //:   4 Verify that the address of the return value is the same as that
-        //:     of 'mX'.
+        //:     of 'mX'.  (C-3)
         //:
         //:   5 Use the equality-comparison operator to verify that the
-        //:     target object, 'mX', still has the same value as that of 'ZZ'.
+        //:     target object, 'Z', still has the same value as that of 'ZZ'.
+        //:     (C-5)
         //
         // Testing:
         //   operator=(const bteso_LingerOptions& rhs);
@@ -762,11 +809,13 @@ int main(int argc, char *argv[])
             (void)operatorAssignment;  // quash potential compiler warning
         }
 
-        if (verbose) cout <<
-                            "\nUse a table of distinct object values." << endl;
+        if (verbose) cout << "\nUse table of distinct object values." << endl;
 
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        if (verbose) cout <<
+                         "\nCopy-assign every value into every value." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE1    = DATA[ti].d_line;
@@ -805,7 +854,7 @@ int main(int argc, char *argv[])
                 LOOP4_ASSERT(LINE1, LINE2, ZZ, Z, ZZ == Z);
             }
 
-            // self-assignment
+            if (verbose) cout << "Testing self-assignment" << endl;
 
             {
                       Obj mX(TIMEOUT1, FLAG1);
@@ -854,13 +903,11 @@ int main(int argc, char *argv[])
         //: 3 The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, and (b) boundary values corresponding to every
-        //:     range of values that each individual attribute can
-        //:     independently attain.
+        //: 1 Using the table-driven technique, specify a set of (unique) valid
+        //:   object values (one per row) in terms of their individual
+        //:   attributes, including (a) first, the default value, and (b)
+        //:   boundary values corresponding to every range of values that each
+        //:   individual attribute can independently attain.
         //:
         //: 2 For each row (representing a distinct object value, 'V') in the
         //:   table described in P-1:  (C-1..3)
@@ -887,11 +934,13 @@ int main(int argc, char *argv[])
                           << "COPY CONSTRUCTOR" << endl
                           << "================" << endl;
 
-        if (verbose) cout <<
-                            "\nUse a table of distinct object values." << endl;
+        if (verbose) cout << "\nUse table of distinct object values." << endl;
 
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        if (verbose) cout <<
+                        "\nCopy construct an object from every value." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE    = DATA[ti].d_line;
@@ -968,6 +1017,8 @@ int main(int argc, char *argv[])
         //:   comparison operators defined in this component.
         //:   (C-9..12)
         //:
+        //: 2 Set up attribute types with distinct values for ...TBD
+        //:
         //: 2 Using the table-driven technique, specify a set of distinct
         //:   object values (one per row) in terms of their individual salient
         //:   attributes such that for each salient attribute, there exists a
@@ -1019,18 +1070,23 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
                                                                        << endl;
-
+        // ---------------
         // Attribute Types
+        // ---------------
 
         typedef int  T1;               // 'timeout'
         typedef bool T2;               // 'lingerFlag'
 
+        // -----------------------------
         // Attribute 1 Values: 'timeout'
+        // -----------------------------
 
         const T1 A1 = 1;               // baseline
         const T1 B1 = INT_MAX;
 
+        // --------------------------------
         // Attribute 2 Values: 'lingerFlag'
+        // --------------------------------
 
         const T2 A2 = false;           // baseline
         const T2 B2 = true;
@@ -1129,32 +1185,31 @@ int main(int argc, char *argv[])
         //:   respectively, member-function and free-function pointers having
         //:   the appropriate signatures and return types.  (C-4, 6)
         //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5, 7)
-        //:
-        //:   1 Define twelve carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the
-        //:     two formatting parameters, along with the expected output
+        //: 2 Using the table-driven technique, define twelve carefully
+        //:   selected combinations of (two) object values ('A' and 'B'),
+        //:   having distinct values for each corresponding salient attribute,
+        //:   and various values for the two formatting parameters, along with
+        //:   the expected output
         //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
         //:     1 { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
         //:     2 { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
         //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
         //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
         //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
+        //: 3 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
         //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', unless the parameters are,
-        //:       arbitrarily, (-9, -9), in which case 'operator<<' will be
-        //:       invoked instead.
+        //:   1 Using a 'const' 'Obj', supply each object value and pair of
+        //:     formatting parameters to 'print', unless the parameters are,
+        //:     arbitrarily, (-9, -9), in which case 'operator<<' will be
+        //:     invoked instead.
         //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
+        //:   2 Use a standard 'ostringstream' to capture the actual output.
         //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 7)
+        //:   3 Verify the address of what is returned is that of the
+        //:     supplied stream.  (C-5, 7)
         //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3)
+        //:   4 Compare the contents captured in P-2.2.2 with what is
+        //:     expected.  (C-1..3)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -1478,10 +1533,12 @@ int main(int argc, char *argv[])
                           << "VALUE CTOR" << endl
                           << "==========" << endl;
 
-        if (verbose) cout <<
-                            "\nUse a table of distinct object values." << endl;
+        if (verbose) cout << "\nUse table of distinct object values." << endl;
+
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        if (verbose) cout << "\nCreate an object with every value." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE    = DATA[ti].d_line;
@@ -1578,8 +1635,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   bteso_LingerOptions();
         //   ~bteso_LingerOptions();
-        //   setTimeout(int value);
         //   setLingerFlag(bool value);
+        //   setTimeout(int value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1603,7 +1660,12 @@ int main(int argc, char *argv[])
         const int    B1 = INT_MAX;
         const bool   B2 = false;
 
+        if (verbose) cout <<
+                     "Create an object using the default constructor." << endl;
+
         Obj mX;  const Obj& X = mX;
+
+        if (verbose) cout << "Verify the object's attribute values." << endl;
 
         // -------------------------------------
         // Verify the object's attribute values.
@@ -1612,11 +1674,12 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(D1, X.timeout(),    D1 == X.timeout());
         LOOP2_ASSERT(D2, X.lingerFlag(), D2 == X.lingerFlag());
 
-        // -----------------------------------------------------
-        // Verify that each attribute is independently settable.
-        // -----------------------------------------------------
+        if (verbose) cout <<
+               "Verify that each attribute is independently settable." << endl;
 
+        // ---------
         // 'timeout'
+        // ---------
         {
             mX.setTimeout(A1);
             ASSERT(A1 == X.timeout());
@@ -1631,7 +1694,9 @@ int main(int argc, char *argv[])
             ASSERT(D2 == X.lingerFlag());
         }
 
+        // ------------
         // 'lingerFlag'
+        // ------------
         {
             mX.setLingerFlag(A2);
             ASSERT(D1 == X.timeout());
@@ -1646,9 +1711,11 @@ int main(int argc, char *argv[])
             ASSERT(D2 == X.lingerFlag());
         }
 
-        // Corroborate attribute independence.
+        if (verbose) cout << "Corroborate attribute independence." << endl;
         {
+            // ---------------------------------------
             // Set all attributes to their 'A' values.
+            // ---------------------------------------
 
             mX.setTimeout(A1);
             mX.setLingerFlag(A2);
@@ -1656,7 +1723,9 @@ int main(int argc, char *argv[])
             ASSERT(A1 == X.timeout());
             ASSERT(A2 == X.lingerFlag());
 
+            // ---------------------------------------
             // Set all attributes to their 'B' values.
+            // ---------------------------------------
 
             mX.setTimeout(B1);
 

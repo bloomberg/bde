@@ -224,7 +224,7 @@ BSLMF_ASSERT((bslalg_HasTrait<Obj,
                               bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
 
 // ============================================================================
-//                     GLOBAL CONSTANTS USED FOR TESTING
+//                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
 
 // Define 'bsl::string' value long enough to ensure dynamic memory allocation.
@@ -414,6 +414,7 @@ int main(int argc, char *argv[])
       case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -749,7 +750,7 @@ int main(int argc, char *argv[])
         //:   object, 'Z', is a reference to the target object, 'mX', and both
         //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
         //:   row (representing a distinct object value, 'V') in the table
-        //:   described in P-3:  (C-9)
+        //:   described in P-3:  (C-9, 10)
         //:
         //:   1 Create a 'bslma_TestAllocator' object, 'oa'.
         //:
@@ -764,10 +765,11 @@ int main(int argc, char *argv[])
         //:     (C-9)
         //:
         //:   5 Verify that the address of the return value is the same as that
-        //:     of 'mX'.
+        //:     of 'mX'.  (C-5)
         //:
         //:   6 Use the equality-comparison operator to verify that the
-        //:     target object, 'mX', still has the same value as that of 'ZZ'.
+        //:     target object, 'Z', still has the same value as that of 'ZZ'.
+        //:     (C-10)
         //:
         //:   7 Use the 'allocator' accessor of 'mX' to verify that it is still
         //:     the object allocator.

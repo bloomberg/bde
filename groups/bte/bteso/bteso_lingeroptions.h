@@ -64,19 +64,14 @@ BDES_IDENT("$Id: $")
 //                       const bteso_LingerOptions& lingerOptions)
 //  {
 //..
-// Next, we declare the 'struct' needed to set the linger options:
+// Next, we define a 'typedef' for the 'struct' needed to set the linger
+// options:
 //..
-//      struct LingerData {
-//      #if defined(BSLS_PLATFORM__OS_UNIX) \
-//       && !defined(BSLS_PLATFORM__OS_CYGWIN)
-//          int l_onoff;
-//          int l_linger;
-//      #elif defined(BSLS_PLATFORM__OS_WINDOWS) \
-//         || defined(BSLS_PLATFORM__OS_CYGWIN)
-//          u_short l_onoff;
-//          u_short l_linger;
-//      #endif
-//      };
+//  #if defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
+//      typedef LINGER LingerData;
+//  #else
+//      typedef linger LingerData;
+//  #endif
 //..
 // Then, we initialize a 'LingerData' object with data from 'lingerOptions',
 // which will be supplied to the 'setsockopt' system call:
@@ -283,12 +278,12 @@ bool operator!=(const bteso_LingerOptions& lhs,
 bsl::ostream& operator<<(bsl::ostream&              stream,
                          const bteso_LingerOptions& object);
     // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference to
-    // 'stream'.  If 'stream' is not valid on entry, this operation has no
-    // effect.  Note that this human-readable format is not fully specified
-    // and can change without notice.  Also note that this method has the same
-    // behavior as 'object.print(stream, 0, -1)' with the attribute names
-    // elided.
+    // output 'stream' in a single-line format, and return a reference
+    // providing modifiable access to 'stream'.  If 'stream' is not valid on
+    // entry, this operation has no effect.  Note that this human-readable
+    // format is not fully specified and can change without notice.  Also note
+    // that this method has the same behavior as 'object.print(stream, 0, -1)',
+    // but with the attribute names elided.
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
@@ -381,8 +376,8 @@ STREAM& bteso_LingerOptions::bdexStreamOut(STREAM& stream, int version) const
             stream.invalidate();
           }
         }
-        return stream;                                                // RETURN
     }
+    return stream;
 }
 
 inline
