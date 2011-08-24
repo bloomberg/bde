@@ -48,6 +48,13 @@
 #include <bsl_algorithm.h>
 
 #include <bsl_cstring.h>
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+#define _CRT_RAND_S                             // this macro must be defined
+                                                // before including stdlib.h
+                                                // to get rand_s on Windows
+#endif
+
 #include <bsl_cstdlib.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -767,7 +774,12 @@ void writerThread(unsigned threadIndex)
     bcema_Blob blob(&blobFactory);
     for (iter = 0; iter < maxWritesPerThread && 
                    consecutiveFailures < maxConsecutiveFailures; ++iter) {
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+        int randVal = rand_s(&threadIndex);
+#else 
         int randVal = rand_r(&threadIndex);
+#endif
         int nBytes  = minMsgSize + randVal % (maxMsgSize - minMsgSize + 1);
         blob.setLength(nBytes);
 
@@ -7800,7 +7812,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nREPRODUCING DRQS 20199908"
+            cout << "\nREPRODUCING DRQS 25245489"
                  << "\n========================="
                  << endl;
 
