@@ -87,9 +87,11 @@ using namespace bsl;
 //                    STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -97,7 +99,10 @@ static void aSsErT(int c, const char *s, int i)
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+# define ASSERT(X) do { aSsErT(!(X), #X, __LINE__); } while (0)
+
+}
 
 // ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
