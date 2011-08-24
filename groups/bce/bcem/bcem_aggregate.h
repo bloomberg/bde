@@ -2456,6 +2456,11 @@ class  bcem_Aggregate_ArrayCapacitor {
     int operator()(ARRAYTYPE *array)
     {
         *d_capacity_p = array->capacity();
+
+        // Return 0 because of the constraint on the signature of this functor
+        // by the method 'bcem_Aggregate_Util::visitArray'. The return value
+        // should not be used.
+
         return 0;
     }
 
