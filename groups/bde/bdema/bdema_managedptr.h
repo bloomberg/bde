@@ -1067,7 +1067,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
                                                               FACTORY *factory)
 : d_members(stripPointerType(ptr),
             factory,
-            &typename bdema_ManagedPtr_FactoryDeleterType<BDEMA_TYPE, FACTORY>
+            &bdema_ManagedPtr_FactoryDeleterType<BDEMA_TYPE, FACTORY>
                                                                ::Type::deleter)
 {
     BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
