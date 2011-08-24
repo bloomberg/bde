@@ -2439,6 +2439,11 @@ class  bcem_Aggregate_ArrayCapacitor {
     //DATA
     bsl::size_t *d_capacity_p;  // pointer to memory where to load the capacity
 
+  private:
+    // NOT IMPLEMENTED
+    bcem_Aggregate_ArrayCapacitor(const bcem_Aggregate_ArrayCapacitor&);
+    bcem_Aggregate_ArrayCapacitor& operator=(
+                                          const bcem_Aggregate_ArrayCapacitor&);
   public:
     // CREATOR
     bcem_Aggregate_ArrayCapacitor(bsl::size_t *capacity)
