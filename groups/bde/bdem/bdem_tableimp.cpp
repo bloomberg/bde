@@ -515,15 +515,15 @@ bsl::size_t bdem_TableImp::capacityRaw() const
 
 void bdem_TableImp::reserveRaw(bsl::size_t numRows)
 {
-    if(0 == numRows) {
+    if(capacityRaw() >= numRows) {
         return;                                                       // RETURN
     }
 
-    const int newSize = nullBitsArraySize(this->numRows() + numRows);
+    const int newSize = nullBitsArraySize(numRows);
 
-    // Reserve 2 times BSLS_MAX_ALIGNMENT, once for the 'd_rows.reserve'
-    // invocation and once for the initializaiton of the 'bdem_RowData' when
-    // inserting a row.  Add the memory necessary for the new size of
+    // Reserve 2 times BSLS_MAX_ALIGNMENT initializaiton of the 'bdem_RowData'
+    // when inserting a row (once for the (empty) data and once for the new
+    // 'nullBits' vector).  Add the memory necessary for the new size of
     // 'd_nullBits'.  Note that this calculation leaves out the memory used by
     // the array of null bits in the initialization of 'bdem_RowData', because
     // it's not possible to access the function to calculate its size from
@@ -534,9 +534,10 @@ void bdem_TableImp::reserveRaw(bsl::size_t numRows)
     // 'd_allocatorManager.reserveMemory' call will have no effect.
 
     d_allocatorManager.reserveMemory(2 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
-                                       * numRows +  sizeof(int) * newSize);
-    d_rowPool.reserveCapacity(numRows);
-    d_rows.reserve(d_rows.size() + numRows);
+                                       * (numRows - capacityRaw())
+                                       +  sizeof(int) * newSize);
+    d_rowPool.reserveCapacity(numRows - capacityRaw());
+    d_rows.reserve(numRows);
     d_nullBits.reserve(newSize);
 }
 
