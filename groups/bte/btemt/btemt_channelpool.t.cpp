@@ -7811,10 +7811,9 @@ int main(int argc, char *argv[])
         //  DRQS 25245489
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "\nREPRODUCING DRQS 25245489"
-                 << "\n========================="
-                 << endl;
+        if (verbose) cout << "\nREPRODUCING DRQS 25245489"
+                          << "\n========================="
+                          << endl;
 
         using namespace CASE37;
 
