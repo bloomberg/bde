@@ -46,7 +46,6 @@
 #include <bdeut_strtokeniter.h>
 
 #include <bsl_algorithm.h>
-
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iomanip.h>
@@ -767,7 +766,12 @@ void writerThread(unsigned threadIndex)
     bcema_Blob blob(&blobFactory);
     for (iter = 0; iter < maxWritesPerThread && 
                    consecutiveFailures < maxConsecutiveFailures; ++iter) {
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+        int randVal = rand();
+#else 
         int randVal = rand_r(&threadIndex);
+#endif
         int nBytes  = minMsgSize + randVal % (maxMsgSize - minMsgSize + 1);
         blob.setLength(nBytes);
 
@@ -7799,10 +7803,9 @@ int main(int argc, char *argv[])
         //  DRQS 25245489
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "\nREPRODUCING DRQS 20199908"
-                 << "\n========================="
-                 << endl;
+        if (verbose) cout << "\nREPRODUCING DRQS 25245489"
+                          << "\n========================="
+                          << endl;
 
         using namespace CASE37;
 
