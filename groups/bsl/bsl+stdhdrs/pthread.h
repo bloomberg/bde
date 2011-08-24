@@ -1,6 +1,6 @@
-/* math.h                                                            -*-C-*- */
-#ifndef INCLUDED_NATIVE_C_MATH
-#define INCLUDED_NATIVE_C_MATH
+/* pthread.h                                                         -*-C-*- */
+#ifndef INCLUDED_NATIVE_C_PTHREAD
+#define INCLUDED_NATIVE_C_PTHREAD
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -24,25 +24,24 @@ BSLS_IDENT("$Id: $")
 */
 
 /*
-// Note that 'math.h' is meant for multiple inclusion on ibm - therefore only
-// the ident is protected by the guard.
+// Note that 'pthread.h' is meant for multiple inclusion on linux - therefore
+// only the ident is protected by the guard.
 */
 
-#endif  /* INCLUDED_NATIVE_C_MATH */
-
-// <math.h> header on Sun defines 'struct exception' which interferes with
-// 'std::exception'. RW library has a workaround for this, but STLPort doesn't.
-#if defined(BSLS_PLATFORM__CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
-#   define exception math_exception
-#endif
+#endif  /* INCLUDED_NATIVE_C_PTHREAD */
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATH
+#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_C_LIB_HEADER(math.h)
+#   if defined(BSLS_PLATFORM__CMP_GNU) && \
+                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#     include_next <pthread.h>
+#   else
+#     include BSL_NATIVE_SYS_TIME_HEADER(pthread.h)
+#   endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
 
@@ -52,29 +51,30 @@ BSLS_IDENT("$Id: $")
 
 #   ifndef BSL_STDHDRS_RUN_EPILOGUE
 #   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_math
+#   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_pthread
 #   endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATH
+#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_C_LIB_HEADER(math.h)
+#   if defined(BSLS_PLATFORM__CMP_GNU) && \
+                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#     include_next <pthread.h>
+#   else
+#     include BSL_NATIVE_SYS_TIME_HEADER(pthread.h)
+#   endif
 
 // This native header does not define any symbols in namespace 'std' to import,
 // so the following include is not necessary:
-// #include <bsl_c_math.h>
+// #include <bsl_c_pthread.h>
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_math
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_math
+#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_pthread
+#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_pthread
 #   include <bsl_stdhdrs_epilogue.h>
 #   endif
 
 #endif  /* BSL_OVERRIDES_STD */
-
-#if defined(BSLS_PLATFORM__CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
-#   undef exception
-#endif
 
 /*
 // ---------------------------------------------------------------------------
