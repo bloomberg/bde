@@ -67,14 +67,18 @@ using bsl::flush;
 // [ 2] void disableLifetimeRotation()
 // [ 2] void disableSizeRotation()
 // [ 1] void disablePublishInLocalTime()
+// [ 9] void disableTimeIntervalRotation();
 // [ 1] int enableFileLogging(const char *fileName, bool timestampFlag = false)
 // [ 1] void enablePublishInLocalTime()
 // [ 1] void publish(const bael_Record& record, const bael_Context& context)
 // [ 2] void forceRotation()
 // [ 2] void rotateOnSize(int size)
+// [ 9] void rotateOnTimeInterval(const bdet_DatetimeInterval& interval);
 // [ 2] void rotateOnLifetime(bdet_DatetimeInterval timeInterval)
+// [10] void rotateOnTimeInterval(const DtInterval& i, const Datetime& r);
 // [ 1] void setLogFileFunctor(const logRecordFunctor& logFileFunctor);
 // [ 3] void setMaxLogFiles();
+// [ 6] void setOnFileRotationCallback(const OnFileRotationCallback&);
 // [ 3] int removeExcessLogFiles();
 //
 // ACCESSORS
@@ -84,7 +88,9 @@ using bsl::flush;
 // [ 2] int rotationSize() const
 // [ 3] int maxLogFiles() const;
 //-----------------------------------------------------------------------------
-// [ 5] CONCERN: Filename conflicts on rotations are resolved.
+// [ 5] CONCERN: Rotated log filenames are as expected
+// [ 8] CONCERN: 'rotateOnSize' triggers correctly for existing files
+// [ 7] CONCERN: Rotation on size is based on file size
 
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
@@ -528,11 +534,11 @@ int main(int argc, char *argv[])
         //: 1 Setup test infrastructure.
         //:
         //: 2 Call 'rotateOnTimeInterval' with boundary values on the reference
-        //:   start time, and verify that rotation occurs on schedule.
+        //:   start time, and verify that rotation occurs on schedule.  (C-1)
         //:
         //: 3 Call 'rotateOnTimeInterval' with a large interval and a reference
         //:   time such that the next rotation will occur soon.  Verify that
-        //:   rotation occurs on the scheduled time.
+        //:   rotation occurs on the scheduled time.  (C-2)
         //
         // Testing:
         //  void rotateOnTimeInterval(const DtInterval& i, const Datetime& r);
@@ -637,8 +643,7 @@ int main(int argc, char *argv[])
 
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 ==
-                   bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
       } break;
@@ -679,7 +684,7 @@ int main(int argc, char *argv[])
         //:   schedule is not affect.  (C-4)
         //:
         //: 7 Call 'disableTimeIntervalRotation' and verify that time-based
-        //:   rotation is disabled.
+        //:   rotation is disabled.  (C-5)
         //
         // Testing:
         //  void rotateOnTimeInterval(const bdet_DatetimeInterval& interval);
@@ -817,7 +822,7 @@ int main(int argc, char *argv[])
         //: 1 Set 'rotateOnSize' to 1k, create a file with approximately 0.5k.
         //:
         //: 2 Write another 0.5k to the file and verify that that file is
-        //:   rotated.
+        //:   rotated.  (C-1)
         //
         // Testing:
         //  CONCERN: 'rotateOnSize' triggers correctly for existing files
@@ -862,7 +867,8 @@ int main(int argc, char *argv[])
                 ASSERT(0 == cb.numInvocations());
             }
 
-            if (verbose) cout << "Testing rotation." << endl;
+            if (verbose) cout <<
+                          "Testing file observer with existing file." << endl;
             {
                 char buffer[512];
                 memset(buffer, 'x', sizeof buffer);
@@ -898,7 +904,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Disable any rotation and create a file over 1 KB and then disable
         //:   file logging.  Enable 'rotateOnSize', start logging again and
-        //:   verify that the file is rotated on first log.
+        //:   verify that the file is rotated on first log.  (C-1)
         //
         // Concern:
         //  CONCERN: Rotation on size is based on file size
@@ -1173,7 +1179,6 @@ int main(int argc, char *argv[])
             for (int i = 0; i < files.size(); ++i) {
                 bdesu_FileUtil::remove(files[i]);
             }
-
         }
 
         if (veryVerbose) cout << "\tTest a re-entrant rotation" << endl;
@@ -2660,6 +2665,19 @@ int main(int argc, char *argv[])
 #endif
       } break;
       case -1: {
+        // --------------------------------------------------------------------
+        // LARGE FILE TEST
+        //
+        // Concern:
+        //: 1 'bael_FileObserver2' is able to write to a file over 2 GB.
+        //
+        // Plan:
+        //: 1 Keep logging to a file until it is over 5 GB.  Manually verify
+        //:   the file created is as expected.
+        //
+        // Testing:
+        //   CONCERN: 'bael_FileObserver2' is able to write to a file over 2 GB
+        // --------------------------------------------------------------------
         bael_LoggerManagerConfiguration configuration;
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
@@ -2686,7 +2704,7 @@ int main(int argc, char *argv[])
         memset(buffer, 'x', sizeof buffer);
         buffer[sizeof buffer - 1] = '\0';
 
-        // Write over 3 GB
+        // Write over 5 GB
         for (int i = 0; i < 5000000; ++i) {
             BAEL_LOG_WARN << buffer << BAEL_LOG_END;
         }
