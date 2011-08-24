@@ -1269,15 +1269,17 @@ class bcem_Aggregate {
         // error state.
 
     const bcem_Aggregate reserveRaw(bsl::size_t numItems);
-        // Reserve sufficient memory to satisfy allocation requests for at
-        // least the specified 'numItems' in the scalar array, choice array and
-        // table.  If the aggregate references a table and  if the allocation
-        // strategy specified for this aggregate is 'BDEM_PASS_THROUGH' or
-        // 'BDEM_SUBORDINATE', then,  memory,  in addition to the footprint of
-        // a row, required to initialize a row upon insertion is *not*
-        // reserved (see 'bdem_table').  Return the value of this aggregate on
-        // success or an error aggregate if this aggregate does not reference
-        // an array type.
+        // Reserve sufficient memory for at least the specified 'numItems' if
+        // this aggregate references a scalar or choice array, or reserve
+        // sufficient memory for at least the footprint of 'numItems' rows, if
+        // this aggregate references a table.  In the latter case, additional
+        // memory needed to initialize a new row upon insertion, *may* or may
+        // *not* be reserved depending on the allocation mode.  In the future,
+        // this method may strengthen its guarantee such that no additional
+        // allocation will occur upon row insertion (regardless of allocation
+        // mode) unless a data element itself allocates memory.  Return the
+        // value of this aggregate on success or an error aggregate if this
+        // aggregate does not reference an array type.
 
     const bcem_Aggregate& reset();
         // Reset this object to the void aggregate ('BDEM_VOID' data type, no
@@ -1834,13 +1836,17 @@ class bcem_Aggregate {
 
     // ACCESSORS
     const bcem_Aggregate capacityRaw(bsl::size_t *capacity) const;
-        // Load, in the specified 'capacity',  the number of items for which
-        // memory was previously allocated in the scalar array, choice array or
-        // table referenced by this aggregate, upon insertion or via a call to
-        // 'reserveRaw'.  Return the value of this aggregate on
-        // success or an error aggregate if this aggregate does not reference
-        // an array type.  Note that it is always true:
-        // 'length() <= capacityRaw()'.
+        // Load, in the specified 'capacity', the total number of items for
+        // which sufficient memory is currently allocated if this aggregate
+        // references a scalar or choice array, or load the total number of row
+        // footprints for which sufficient memory is currently allocated, if
+        // this aggregate references a table.  In the latter case, inserting
+        // rows that do not exceed this capacity *may* or may *not* result in
+        // additional allocations depending on the allocation mode, and whether
+        // any row data element itself allocates memory (see the 'reserveRaw'
+        // method).  Return the value of this aggregate on success or an error
+        // aggregate if this aggregate does not reference an array type.  Note
+        // that 'length() <= capacityRaw()' is an invariant of this class.
 
     bool isError() const;
         // Return 'true' if this object was returned from a function that
@@ -2425,16 +2431,37 @@ class bcem_Aggregate_ArrayInserter {
                         // local class bcem_Aggregate_ArrayCapacitor
                         // =========================================
 
-struct  bcem_Aggregate_ArrayCapacitor {
-    // Functor that returns the capacity of a sequence container.  The
-    // capacity of a sequence container is the number of elements for which
-    // memory is already allocated.
+class  bcem_Aggregate_ArrayCapacitor {
+    // Functor that loads the capacity of a sequence container into a parameter
+    // passed in the constructor.  The capacity of a sequence container is the
+    // number of elements for which memory is already allocated.
+
+    //DATA
+    bsl::size_t *d_capacity_p;  // pointer to memory where to load the capacity
+
+  private:
+    // NOT IMPLEMENTED
+    bcem_Aggregate_ArrayCapacitor(const bcem_Aggregate_ArrayCapacitor&);
+    bcem_Aggregate_ArrayCapacitor& operator=(
+                                          const bcem_Aggregate_ArrayCapacitor&);
+  public:
+    // CREATOR
+    bcem_Aggregate_ArrayCapacitor(bsl::size_t *capacity)
+    : d_capacity_p(capacity)
+    {
+    }
 
     // MANIPULATORS
     template <typename ARRAYTYPE>
     int operator()(ARRAYTYPE *array)
     {
-        return  array->capacity();
+        *d_capacity_p = array->capacity();
+
+        // Return 0 because of the constraint on the signature of this functor
+        // by the method 'bcem_Aggregate_Util::visitArray'. The return value
+        // should not be used.
+
+        return 0;
     }
 
 };
