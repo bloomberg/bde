@@ -2431,16 +2431,27 @@ class bcem_Aggregate_ArrayInserter {
                         // local class bcem_Aggregate_ArrayCapacitor
                         // =========================================
 
-struct  bcem_Aggregate_ArrayCapacitor {
-    // Functor that returns the capacity of a sequence container.  The
-    // capacity of a sequence container is the number of elements for which
-    // memory is already allocated.
+class  bcem_Aggregate_ArrayCapacitor {
+    // Functor that loads the capacity of a sequence container into a parameter
+    // passed in the constructor.  The capacity of a sequence container is the
+    // number of elements for which memory is already allocated.
+
+    //DATA
+    bsl::size_t *d_capacity_p;  // pointer to memory where to load the capacity
+
+  public:
+    // CREATOR
+    bcem_Aggregate_ArrayCapacitor(bsl::size_t *capacity)
+    : d_capacity_p(capacity)
+    {
+    }
 
     // MANIPULATORS
     template <typename ARRAYTYPE>
     int operator()(ARRAYTYPE *array)
     {
-        return  array->capacity();
+        *d_capacity_p = array->capacity();
+        return 0;
     }
 
 };

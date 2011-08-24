@@ -2295,11 +2295,10 @@ const bcem_Aggregate bcem_Aggregate::capacityRaw(bsl::size_t *capacity) const
         *capacity = array.capacityRaw();
       } break;
       default: {
-        bcem_Aggregate_ArrayCapacitor capacitor;
-        *capacity = bcem_Aggregate_Util::visitArray(
-                                             valuePtr,
-                                             d_dataType,
-                                             &capacitor);
+        bcem_Aggregate_ArrayCapacitor capacitor(capacity);
+        bcem_Aggregate_Util::visitArray(valuePtr,
+                                        d_dataType,
+                                        &capacitor);
       }
     }
     return *this;
