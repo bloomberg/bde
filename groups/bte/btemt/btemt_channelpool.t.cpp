@@ -7872,9 +7872,11 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE 3
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nREPRODUCING DRQS 25245489"
-                          << "\n========================="
+        if (verbose) cout << "\nTESTING USAGE EXAMPLE 3"
+                          << "\n======================="
                           << endl;
+
+        using namespace USAGE_EXAMPLE_3_NAMESPACE;
 
         const struct {
             int           d_line;
