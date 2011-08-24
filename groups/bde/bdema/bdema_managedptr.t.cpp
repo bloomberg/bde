@@ -1416,7 +1416,7 @@ int main(int argc, char *argv[])
                     ASSERT_SAFE_FAIL(o.deleter());
                 }
 #endif
-                typeid(*o); // should parse, even if it cannot be called
+                //typeid(*o); // should parse, even if it cannot be called
             }
 
             ASSERT(dam.isInUseSame());
@@ -1443,7 +1443,7 @@ int main(int argc, char *argv[])
                     ASSERT_SAFE_FAIL(o.deleter());
                 }
 #endif
-                typeid(*o); // should parse, even if it cannot be called
+                //typeid(*o); // should parse, even if it cannot be called
             }
 
             ASSERT(dam.isInUseSame());
