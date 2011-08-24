@@ -46,15 +46,7 @@
 #include <bdeut_strtokeniter.h>
 
 #include <bsl_algorithm.h>
-
 #include <bsl_cstring.h>
-
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-#define _CRT_RAND_S                             // this macro must be defined
-                                                // before including stdlib.h
-                                                // to get rand_s on Windows
-#endif
-
 #include <bsl_cstdlib.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -776,7 +768,7 @@ void writerThread(unsigned threadIndex)
                    consecutiveFailures < maxConsecutiveFailures; ++iter) {
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
-        int randVal = rand_s(&threadIndex);
+        int randVal = rand();
 #else 
         int randVal = rand_r(&threadIndex);
 #endif
