@@ -1269,19 +1269,17 @@ class bcem_Aggregate {
         // error state.
 
     const bcem_Aggregate reserveRaw(bsl::size_t numItems);
-        // Reserve sufficient memory to satisfy allocation requests for at
-        // least the specified, additional 'numItems' if this aggregate
-        // references a scalar or choice array , or reserve sufficient memory
-        // to satisfy allocation requests for at least the footprint of
-        // additional 'numItems' rows, if this aggregate references a table.
-        // In the latter case, memory needed to initialize a row upon
-        // insertion, *may* or may *not* be reserved depending on the
-        // allocation mode.  In the future, this method may strengthen its
-        // guarantee such that no additional allocation will occur upon row
-        // insertion (regardless of allocation mode) unless a data element
-        // itself allocates memory.  Return the value of this aggregate on
-        // success or an error aggregate if this aggregate does not reference
-        // an array type.
+        // Reserve sufficient memory for at least the specified 'numItems' if
+        // this aggregate references a scalar or choice array, or reserve
+        // sufficient memory for at least the footprint of 'numItems' rows, if
+        // this aggregate references a table.  In the latter case, additional
+        // memory needed to initialize a new row upon insertion, *may* or may
+        // *not* be reserved depending on the allocation mode.  In the future,
+        // this method may strengthen its guarantee such that no additional
+        // allocation will occur upon row insertion (regardless of allocation
+        // mode) unless a data element itself allocates memory.  Return the
+        // value of this aggregate on success or an error aggregate if this
+        // aggregate does not reference an array type.
 
     const bcem_Aggregate& reset();
         // Reset this object to the void aggregate ('BDEM_VOID' data type, no
