@@ -178,6 +178,14 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_ALGORITHM
 #endif
 
+#if defined(BDE_BUILD_TARGET_STLPORT)
+// Code in Robo depends on these headers included transitively with <string>
+// and it fails to build otherwise in the stlport4 mode on Sun.
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#endif
+
 #endif
 
 namespace bsl {
