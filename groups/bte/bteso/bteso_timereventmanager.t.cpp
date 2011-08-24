@@ -562,9 +562,6 @@ int main(int argc, char *argv[]) {
         t.deregisterAllSocketEvents();
         ASSERT(7 == i);
 
-        t.rescheduleTimer(tmr, ti);
-        ASSERT(15 == i);
-
         t.deregisterTimer(tmr);
         ASSERT(8 == i);
 
@@ -588,11 +585,14 @@ int main(int argc, char *argv[]) {
         t.isRegistered(h, e);
         ASSERT(14 == i);
 
-        t.canRegisterSockets();
+        t.rescheduleTimer(tmr, ti);
         ASSERT(15 == i);
 
-        t.hasLimitedSocketCapacity();
+        t.canRegisterSockets();
         ASSERT(16 == i);
+
+        t.hasLimitedSocketCapacity();
+        ASSERT(17 == i);
 
         delete m;
         ASSERT(1 == i);
