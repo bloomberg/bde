@@ -305,6 +305,10 @@ BDES_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_IF
+#include <bslmf_if.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
 #endif
@@ -670,6 +674,32 @@ class bdema_ManagedPtr {
         // 'DeleterFunc' (with two 'void *' arguments) should be preferred for
         // new code.
 
+    template <class FACTORY, class FACTORY_BASE>
+    bdema_ManagedPtr(BDEMA_TYPE *ptr,
+                     FACTORY    *factory,
+                     void      (*deleter)(BDEMA_TYPE *, FACTORY_BASE *),
+                     typename bslmf_EnableIf<
+                              bslmf_IsConvertible<FACTORY*, FACTORY_BASE*>
+                                                         ::VALUE>::type * = 0);
+        // [!DEPRECATED!] Construct a managed pointer to manage the specified
+        // 'ptr' using the specified 'deleter' and associated 'factory' to
+        // destroy 'ptr' when this managed pointer is destroyed or re-assigned
+        // (unless it is released before then).  If 0 == 'ptr', then this
+        // object will be initialized to an unset state.  The behavior is
+        // undefined if 'ptr' is already managed by another managed pointer.
+        // Note that if '0 == factory' then behavior is undefined unless
+        // 'deleter' accepts null pointers in the second argument.  Note that
+        // this function is *deprecated* as it relies on undefined compiler
+        // behavior for its implementation, that happens to to perform as
+        // required on every known compiler.  The overload taking a
+        // 'DeleterFunc' (with two 'void *' arguments) should be preferred for
+        // new code.  Note that this overload has been added to support a
+        // single known call in 'basapi_clientutil.h' and the hope is to retire
+        // it permanently before a 'load' overload is also requested.  It also
+        // supports deleter functions that take 'bslma_Allocator*' for their
+        // factory parameter, when 'FACTORY' implements the 'bslma_Allocator'
+        // protocol.
+
     ~bdema_ManagedPtr();
         // Destroy this managed pointer object and any managed object by
         // invoking the user-supplied deleter.  Note that this destructor does
@@ -934,6 +964,30 @@ class bdema_ManagedPtr_Ref {
         // Return a pointer to
 };
 
+             // =================================================
+             // private class bdema_ManagedPtr_FactoryDeleterType
+             // =================================================
+
+template <class BDEMA_TYPE, class BDEMA_FACTORY>
+struct bdema_ManagedPtr_FactoryDeleterType {
+    // This metafunction class-template provides a means to compute the
+    // preferred deleter function for a factory class for those overloads of
+    // 'bdema_ManagedPtr' that supply only a factory, and no additional deleter
+    // function.  The intent is to use a common deleter function for all
+    // allocators that implement the 'bslma_Allocator' protocol, rather than
+    // create a special deleter function based on the complete type of each
+    // allocator, each doing the same thing (invoking the virtual function
+    // 'deleteObject').
+    typedef
+    typename bslmf_If<
+                  bslmf_IsConvertible<BDEMA_FACTORY*, bslma_Allocator*>::VALUE,
+                  bslma_Allocator,
+                  BDEMA_FACTORY>::Type
+             factory_type;
+
+    typedef bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE, factory_type> Type;
+};
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -1013,7 +1067,8 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
                                                               FACTORY *factory)
 : d_members(stripPointerType(ptr),
             factory,
-            &bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE, FACTORY>::deleter)
+            &typename bdema_ManagedPtr_FactoryDeleterType<BDEMA_TYPE, FACTORY>
+                                                               ::Type::deleter)
 {
     BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
 
@@ -1112,7 +1167,9 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr, FACTORY *factory)
 {
     BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
 
-    typedef bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE,FACTORY> DeleterFactory;
+    typedef
+    typename bdema_ManagedPtr_FactoryDeleterType<BDEMA_TYPE, FACTORY>::Type
+                                                                DeleterFactory;
 
     d_members.runDeleter();
     d_members.set(stripPointerType(ptr),
@@ -1164,6 +1221,22 @@ bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
                   reinterpret_cast<DeleterFunc>(deleter));
 }
 
+template <class BDEMA_TYPE>
+template <class FACTORY, class FACTORY_BASE>
+bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr( 
+                          BDEMA_TYPE *ptr,
+                          FACTORY    *factory,
+                          void      (*deleter)(BDEMA_TYPE *, FACTORY_BASE *),
+                          typename bslmf_EnableIf<
+                                   bslmf_IsConvertible<FACTORY*, FACTORY_BASE*>
+                                                              ::VALUE>::type *)
+: d_members(stripPointerType(ptr),
+            factory,
+            reinterpret_cast<DeleterFunc>(deleter))
+{
+    BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
+    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+}
 
 template <class BDEMA_TYPE>
 template <class BDEMA_OTHER_TYPE>
@@ -1393,15 +1466,15 @@ bdema_ManagedPtr_Members *bdema_ManagedPtr_Ref<BDEMA_TYPE>::base() const
                     // struct bdema_ManagedPtr_FactoryDeleter
                     // --------------------------------------
 
-template <class BDEMA_TYPE, typename FACTORY>
+template <class BDEMA_TYPE, typename BDEMA_FACTORY>
 inline
-void bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE,FACTORY>::deleter(void *object,
-                                                                 void *factory)
+void bdema_ManagedPtr_FactoryDeleter<BDEMA_TYPE, BDEMA_FACTORY>::deleter(
+                                                   void *object, void *factory)
 {
     BSLS_ASSERT_SAFE(0 != object);
     BSLS_ASSERT_SAFE(0 != factory);
 
-    reinterpret_cast<FACTORY *>(factory)->deleteObject(
+    reinterpret_cast<BDEMA_FACTORY *>(factory)->deleteObject(
                                        reinterpret_cast<BDEMA_TYPE *>(object));
 }
 

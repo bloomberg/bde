@@ -100,8 +100,8 @@ using namespace bsl;  // automatically added by script
 // [15] class bdema_ManagedPtrNoOpDeleter
 //
 // [ 3] imp. class bdema_ManagedPtr_Members
-// [ 4] imp. class bdema_ManagedPtr_Ref             (this one needs negative testing)
-// [ 5] imp. class bdema_ManagedPtr_FactoryDeleter  (this one needs negative testing)
+// [ 4] imp. class bdema_ManagedPtr_Ref
+// [ 5] imp. class bdema_ManagedPtr_FactoryDeleter
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TESTING TEST MACHINERY
@@ -339,7 +339,9 @@ struct IncrementIntFactory
 };
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+// The two deleters defined below do not use the factory (or even object)
+// argument to perform their bookkeeping.  They are typically used to test
+// overloads taking 'NULL' factories.
 int g_deleteCount = 0;
 
 static void countedNilDelete(void *, void*)
@@ -354,6 +356,20 @@ static void templateNilDelete(TARGET_TYPE *, void*)
     static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
 }
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+template<class BDEMA_TYPE>
+class AllocatorDeleter
+{
+  public:
+      static void deleter(BDEMA_TYPE *ptr, bslma_Allocator *alloc) {
+          BSLS_ASSERT_SAFE(0 != ptr);
+          BSLS_ASSERT_SAFE(0 != alloc);
+
+          alloc->deleteObject(ptr);
+      }
+};
 
 //=============================================================================
 //                              CREATORS TEST
@@ -1334,7 +1350,7 @@ int main(int argc, char *argv[])
                                                       &DefaultDeleter::deleter;
 
         bslma_TestAllocator ta("object", veryVeryVeryVerbose);
-        bslma_Allocator *pta = &ta;
+//        bslma_Allocator *pta = &ta;
 
         if (verbose) cout << "\tTest accessors on empty object\n";
 
@@ -1534,7 +1550,8 @@ int main(int argc, char *argv[])
 
             {
                 TObj *p = new (ta) MyTestObject(&numDeletes);
-                Obj mO(p, pta); const Obj& o = mO;
+                Obj mO(p, &ta); const Obj& o = mO;
+//                Obj mO(p, pta); const Obj& o = mO;
 
                 ASSERT(o);
                 ASSERT(!!o);
@@ -1972,9 +1989,8 @@ int main(int argc, char *argv[])
         //   TBD...
         //
         //   Go through the constructors in the order in which they are
-        //   declared in the ManagedPtr class and exercise all of them,
-        //   exercising the ManagedPtrRef class when need to exercise the
-        //   ManagedPtr class.
+        //   declared in the ManagedPtr class and exercise all of them.
+        //
         //   Remember to pass '0' as a null-pointer literal to all arguments
         //   that accept pointers (with negative testing if that is out of
         //   contract).
@@ -2140,6 +2156,58 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
 
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest bdema_ManagedPtr(TYPE *, FACTORY *,"
+                             " void (*)(BDEMA_TYPE *, FACTORY_BASE*)\n";
+
+        numDeletes = 0;
+        {
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
+
+            {
+                bslma_TestAllocatorMonitor tam(ta);
+
+                TObj *p = new (ta) MyTestObject(&numDeletes);
+                Obj o(p, &ta, &AllocatorDeleter<TObj>::deleter);
+
+                TObj *q = o.ptr();
+                LOOP2_ASSERT(p, q, p == q);
+            }
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+        }
+        ASSERT(1 == numDeletes);
+
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            bslma_Allocator * pNullAlloc = 0;
+            TObj *p = new (ta) MyTestObject(&numDeletes);
+            ASSERT_SAFE_FAIL_RAW(Obj x(p, pNullAlloc));
+            ASSERT_SAFE_PASS_RAW(Obj y(p, &ta));
+            ASSERT_SAFE_PASS_RAW(Obj z(0, pNullAlloc));
+
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+
+//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY
+#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY)
+        {
+            int i = 0;
+            bdema_ManagedPtr<int> x(&i, 0);
+            bdema_ManagedPtr<int> x(0, 0);
+        }
+#endif
       } break;
       case 7: {
         // --------------------------------------------------------------------
