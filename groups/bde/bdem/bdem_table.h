@@ -1042,12 +1042,12 @@ class bdem_Table {
 
     void reserveRaw(bsl::size_t numRows);
         // Reserve sufficient memory to hold at least the footprints for the
-        // specified, additional 'numRows'.  Other memory needed to
-        // initialize a row upon insertion *may* or may *not* be reserved,
-        // depending on the allocation mode.  In the future, this method may
-        // strengthen its guarantee such that no additional allocation will
-        // occur upon row insertion (regardless of allocation mode) unless
-        // a row data element itself allocates memory.
+        // specified 'numRows'.  Other memory needed to initialize a row upon
+        // insertion *may* or may *not* be reserved, depending on the
+        // allocation mode.  In the future, this method may strengthen its
+        // guarantee such that no additional allocation will occur upon row
+        // insertion (regardless of allocation mode) unless a row data element
+        // itself allocates memory.
 
     void reset(const bdem_ElemType::Type columnTypes[], int numColumns);
         // Remove all of the rows from this table and set the sequence of
