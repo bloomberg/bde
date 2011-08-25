@@ -339,14 +339,14 @@ bool operator!=(
 
 // CLASS METHODS
 inline
-int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
+int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
                                                 getMinSchedPriority(int policy)
 {
     return -1;    // priorities not supported on Windows
 }
 
 inline
-int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
+int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
                                                 getMaxSchedPriority(int policy)
 {
     return -1;    // priorities not supported on Windows
