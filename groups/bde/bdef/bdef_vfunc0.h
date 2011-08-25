@@ -90,6 +90,10 @@ class bdef_Vfunc0 {
 
     bdefr_Vfunc0 *d_rep_p;  // polymorphic functor representation
 
+    // NOT IMPLEMENTED
+    bool operator==(const bdef_Vfunc0&) const;
+    bool operator!=(const bdef_Vfunc0&) const;
+
   public:
     // CREATORS
     bdef_Vfunc0();

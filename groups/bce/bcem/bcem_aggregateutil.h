@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities for manipulating 'bcem_Aggregate' objects.
 //
-//@CLASSES: bcem_AggregateUtil: Utility functions for 'bcem_Aggregate' objects
+//@CLASSES:
+//   bcem_AggregateUtil: utility functions for 'bcem_Aggregate' objects
 //
 //@AUTHOR: David Rubin (drubin6)
 //
@@ -2253,7 +2254,6 @@ int bcem_AggregateUtil::fromAggregateImp(
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
-    int            rc    = 0;
 
     if (field.isError()) {
         return field.errorCode();
@@ -2334,7 +2334,6 @@ int bcem_AggregateUtil::fromAggregateImp(
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
-    int            rc    = 0;
 
     if (field.isError()) {
         return field.errorCode();
@@ -2418,7 +2417,6 @@ int bcem_AggregateUtil::fromAggregateImp(
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
-    int            rc    = 0;
 
     if (field.isError()) {
         return field.errorCode();

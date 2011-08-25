@@ -487,6 +487,18 @@ class bdex_OutStreamAdapter : public bdex_OutStream {
 
     STREAM *d_stream_p;  // pointer to stream (held, not owned)
 
+    // NOT DEFINED
+    bdex_OutStreamAdapter(const bdex_OutStreamAdapter&);
+    bdex_OutStreamAdapter& operator=(const bdex_OutStreamAdapter&);
+
+    bool operator==(const bdex_OutStreamAdapter&) const;
+    bool operator!=(const bdex_OutStreamAdapter&) const;
+
+    template<class OTHER_STREAM>
+    bool operator==(const bdex_OutStreamAdapter<OTHER_STREAM>&) const;
+    template<class OTHER_STREAM>
+    bool operator!=(const bdex_OutStreamAdapter<OTHER_STREAM>&) const;
+
   public:
 
     // CREATORS

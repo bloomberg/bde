@@ -105,9 +105,9 @@
 # For Windows, Uplid.pm deduces compiler version from availble cl.exe.
 # Let's set this to a bogus value here.
 !! windows                    _       BDE_COMPILERVERSION_FLAG = 999.999
-!! unix-SunOS-*-*-cc          _       BDE_COMPILERVERSION_FLAG = 5.9
-!! unix-SunOS-i386-*-cc       _       BDE_COMPILERVERSION_FLAG = 5.9
-!! unix-SunOS-i386-*-cc      64       BDE_COMPILERVERSION_FLAG = 5.9
+!! unix-SunOS-*-*-cc          _       BDE_COMPILERVERSION_FLAG = 5.10
+!! unix-SunOS-i386-*-cc       _       BDE_COMPILERVERSION_FLAG = 5.10
+!! unix-SunOS-i386-*-cc      64       BDE_COMPILERVERSION_FLAG = 5.10
 !! unix-SunOS-*-*-gcc         _       BDE_COMPILERVERSION_FLAG = 4.3.2
 !! unix-HP_UX-*-*-acc         _       BDE_COMPILERVERSION_FLAG = 6.2
 !! unix-HP_UX-*-*-gcc         _       BDE_COMPILERVERSION_FLAG = 4.3.2
@@ -837,21 +837,17 @@ windows         _   MT_LIBTYPE  = L
 #==============================================================================
 # Regular Compiler
 
-# Flags used by cscompile/glint and supported by gcc 4.3.2 (not necessarily
-# supported by gcc 3.4.3):
-unix-SunOS-*-*-gcc  _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
+# Flags used by cscompile/glint and supported by gcc 4.3.2 (split into those supported
+# by gcc 3.4.3, then by those supported by gcc 4+):
+*-*-*-*-gcc _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
     -Wall -Wextra -Wformat-security -Wformat-y2k -Winit-self \
-    -Wlogical-op -Wno-long-long -Wno-unknown-pragmas \
-    -Wpacked -Wpointer-arith -Wstrict-overflow -Wvla -Wvolatile-register-var \
+    -Wno-long-long -Wno-unknown-pragmas \
+    -Wpacked -Wpointer-arith \
     -Wwrite-strings -Wno-unused-value -Wno-char-subscripts -Dlint -Wsign-compare \
-    -Wparentheses -fdiagnostics-show-option
+    -Wparentheses
 
-unix-HP_UX-*-*-gcc  _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
-    -Wall -Wextra -Wformat-security -Wformat-y2k -Winit-self \
-    -Wlogical-op -Wno-long-long -Wno-unknown-pragmas \
-    -Wpacked -Wpointer-arith -Wstrict-overflow -Wvla -Wvolatile-register-var \
-    -Wwrite-strings -Wno-unused-value -Wno-char-subscripts -Dlint -Wsign-compare \
-    -Wparentheses -fdiagnostics-show-option
+*-*-*-*-gcc-4 _  GCCEXTRAWFLAGS  = -Wlogical-op -Wstrict-overflow -Wvla \
+    -Wvolatile-register-var -fdiagnostics-show-option
 
 # Once the DRQS 22615679 warnings are cleaned up, we can reconsider making this
 # error= to force these 64-bit portability warnings to be treated as errors.
@@ -867,7 +863,7 @@ unix-SunOS-*-*-gcc  64  GCCEXTRAWFLAGS  =   \
 
 # add -Winline to help catch inline reordering issues.  Note that this is not a
 # cscompile/glint option.
-unix-SunOS-*-*-gcc  _  GCCEXTRAWFLAGS  = -Winline
+*-*-*-*-gcc  _  GCCEXTRAWFLAGS  = -Winline
 
 *                       _   CC64FLAGS   =
 *-*-*-*-gcc             _   CC64FLAGS   = -m32
@@ -963,12 +959,12 @@ windows-        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /nologo /W3 /D"WIN32" /D
 unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 !! unix-SunOS-*-*-cc-5.2   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/SUNWspro61/bin/CC $(CXX64FLAGS)
 !! unix-SunOS-*-*-cc-5.5   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bb/util/common/studio8-v10/SUNWspro/bin/CC $(CXX64FLAGS)
-!! unix-SunOS-*-*-cc-5.9   _   STUDIO_LOC = /bb/util/common/studio12-v4/
+
+!! unix-SunOS-*-*-cc-5.9   _   STUDIO_LOC = /bb/util/common/studio12-v4
+!! unix-SunOS-*-*-cc-5.10  _   STUDIO_LOC = /bb/util/common/SS12U1-20101214
+
 !! unix-SunOS-*-*-cc-5.9   _    CC        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/SUNWspro/bin/cc $(CC64FLAGS)
 !! unix-SunOS-*-*-cc-5.9   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/SUNWspro/bin/CC $(CXX64FLAGS)
-!! unix-SunOS-*-*-cc-5.10  _   STUDIO_LOC = /bb/util/common/SS12U1-20101214/
-!! unix-SunOS-*-*-cc-5.10  _    CC        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/sunstudio12.1/bin/cc $(CC64FLAGS)
-!! unix-SunOS-*-*-cc-5.10  _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/sunstudio12.1/bin/CC $(CXX64FLAGS)
 
 !! unix-HP_UX-*-*-*        _   CXX        = $(RETRY_ON_SIGNAL) $(ACC_BIN)/aCC $(CXX64FLAGS)
 

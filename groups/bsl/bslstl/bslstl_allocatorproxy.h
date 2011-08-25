@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Wrapper for STL-style allocators to encapsulate 'bslma' semantics.
 //
 //@CLASSES:
-//  bslstl_AllocatorProxy:
-//  bslstl_AllocatorProxyBslmaBase:
-//  bslstl_AllocatorProxyNonBslmaBase:
+//              bslstl_AllocatorProxy: proxy class for STL-style containers
+//     bslstl_AllocatorProxyBslmaBase: base class for 'bslstl_AllocatorProxy'
+//  bslstl_AllocatorProxyNonBslmaBase: base class for 'bslstl_AllocatorProxy'
 //
 //@SEE_ALSO:
 //

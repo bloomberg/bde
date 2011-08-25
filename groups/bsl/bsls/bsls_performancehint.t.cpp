@@ -181,7 +181,7 @@ void testCase1(int argc, bool assert)
     timer.start();
 
     for (int x = 0; x < TESTSIZE; ++x) {
-        int y = std::rand() % 10;
+        int y = rand() % 10;
 
         // Incorrect usage of 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' since there
         // is only a one in ten chance that this branch is taken.
@@ -211,7 +211,7 @@ void testCase1(int argc, bool assert)
     timer.start();
 
     for (int x = 0; x < TESTSIZE; ++x) {
-        int y = std::rand() % 10;
+        int y = rand() % 10;
 
         // Correct usage of 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' since there
         // is only a one in ten chance that this branch is taken.
@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example 2"
                           << "\n=======================" << endl;
 
-        int x = std::rand() % 4;
+        int x = rand() % 4;
 
         // Incorrect usage of 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT', since the
         // probability of getting a 3 is equivalent to other numbers (0, 1, 2).

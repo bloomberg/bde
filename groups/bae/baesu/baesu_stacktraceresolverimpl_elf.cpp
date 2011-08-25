@@ -625,7 +625,7 @@ Local::StackTraceResolver::CurrentSegment::CurrentSegment(
     // 'resolveSegment', the contents of both of these arrays are zeroed, and
     // only first N elements will be populated, where 'N <= d_numFrames.
 
-    const int bytesToAllocate = numFrames * sizeof(void *);
+    const int bytesToAllocate = numFrames * (int) sizeof(void *);
     d_framePtrs_p = (baesu_StackTraceFrame **)
                                     basicAllocator->allocate(bytesToAllocate);
     d_addresses_p = (const void **) basicAllocator->allocate(bytesToAllocate);
@@ -642,7 +642,7 @@ void Local::StackTraceResolver::CurrentSegment::reset()
     d_stringTableOffset = 0;
     d_stringTableSize   = 0;
 
-    const int bytesToZero = d_numFrames * sizeof(void *);
+    const int bytesToZero = d_numFrames * (int) sizeof(void *);
     memset(d_framePtrs_p, 0, bytesToZero);
     memset(d_addresses_p, 0, bytesToZero);
 }
