@@ -1998,12 +1998,15 @@ int main(int argc, char *argv[])
         // Tested:
         //   bdema_ManagedPtr(BDEMA_TYPE *ptr, FACTORY *factory)
         //   bdema_ManagedPtr(BDEMA_TYPE *, void *, DeleterFunc);
-        //   bdema_ManagedPtr(BDEMA_TYPE *,
-        //                    void *,
-        //                    void(*)(BDEMA_TYPE *, FACTORY *))
         //   bdema_ManagedPtr(BDEMA_TYPE *ptr,
         //                    bdema_ManagedPtr_Nullptr::Type,
         //                    void(*)(BDEMA_TYPE *, void*));
+        //   bdema_ManagedPtr(BDEMA_TYPE *,
+        //                    void *,
+        //                    void(*)(BDEMA_TYPE *, FACTORY *))
+        //   bdema_ManagedPtr(BDEMA_TYPE *,
+        //                    FACTORY *,
+        //                    void(*)(BDEMA_TYPE *, FACTORY_BASE *))
         // --------------------------------------------------------------------
 
         using namespace CREATORS_TEST_NAMESPACE;
@@ -2435,7 +2438,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\tTest bdema_ManagedPtr::load(T*)\n";
+        if (verbose) cout << "\tTest load(T*)\n";
 
         numDeletes = 0;
         {
@@ -2532,7 +2535,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\tTest bdema_ManagedPtr::load(T*, factory)\n";
+        if (verbose) cout << "\tTest load(T*, factory)\n";
 
         numDeletes = 0;
         {
@@ -2591,8 +2594,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout <<
-                   "\tTest bdema_ManagedPtr::load(T*, factory, DeleterFunc)\n";
+        if (verbose) cout << "\tTest load(T*, factory, DeleterFunc)\n";
 
         g_deleteCount = 0;
         numDeletes    = 0;
@@ -2616,8 +2618,8 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\tTest bdema_ManagedPtr::load(T*, factory,"
-                             " deleter(T *, factory))\n";
+        if (verbose) cout <<
+                           "\tTest load(T*, factory, deleter(T *, factory))\n";
 
         numDeletes = 0;
         {
@@ -2643,7 +2645,11 @@ int main(int argc, char *argv[])
             TObj *p2 = new (da) MyTestObject(&numDeletes);
             Obj o(p);
 
-            o.load(p2, (void *) &da, deleterFunc);
+            // Test must pass without this workaround, for compatibility
+            // We might want to test the workaround separately, but believe
+            // that is not necessary.
+//          o.load(p2, (void *) &da, deleterFunc);
+            o.load(p2, &da, deleterFunc);
 
             ASSERT(1 == numDeletes);
         }
@@ -2651,8 +2657,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\tTest bdema_ManagedPtr::load(T*, nullptr,"
-                             " deleter(T *, void *)\n";
+        if (verbose) cout << "\tTest load(T*, nullptr, deleter(T *, void *)\n";
 
         numDeletes = 0;
         {

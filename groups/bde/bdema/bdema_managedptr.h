@@ -503,24 +503,6 @@ class bdema_ManagedPtr {
     struct Unspecified {}; // private type to guarantee 'bslmf_EnableIf'
                            // disambiguates in all cases.
 
-    // COMPONENT-PRIVATE MACROS TO SIMPLIFY DECLARING FUNCTION TEMPLATES
-#define BDEMA_COMPATIBLE_POINTERS_ONLY                                  \
-    typename bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,    \
-                                                BDEMA_TYPE *>::VALUE,   \
-                            Unspecified>::type *
-    // This macro can be used to restrict pointer-types deduced in function
-    // template signatures to only those that are convertible to 'BDEMA_TYPE *'
-    // such as from pointers to derived types to pointer-to-unambiguous-base,
-    // or from 'T *' to 'const T *' (but not the other way around).
-
-#define BDEMA_VOID_FOR_COMPATIPLE_POINTERS_ONLY                              \
-    typename bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,         \
-                                                BDEMA_TYPE *>::VALUE>::type
-    // This macro can be used to restrict pointer-types deduced in function
-    // template signatures to only those that are convertible to 'BDEMA_TYPE *'
-    // such as from pointers to derived types to pointer-to-unambiguous-base,
-    // or from 'T *' to 'const T *' (but not the other way around).
-
     // DATA
     bdema_ManagedPtr_Members d_members;
 
@@ -553,6 +535,24 @@ class bdema_ManagedPtr {
     // FRIENDS
     template <class OTHER>
     friend class bdema_ManagedPtr;  // required only for alias support
+
+    // COMPONENT-PRIVATE MACROS TO SIMPLIFY DECLARING FUNCTION TEMPLATES
+#define BDEMA_COMPATIBLE_POINTERS_ONLY                                  \
+    typename bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,    \
+                                                BDEMA_TYPE *>::VALUE,   \
+                            Unspecified>::type *
+    // This macro can be used to restrict pointer-types deduced in function
+    // template signatures to only those that are convertible to 'BDEMA_TYPE *'
+    // such as from pointers to derived types to pointer-to-unambiguous-base,
+    // or from 'T *' to 'const T *' (but not the other way around).
+
+#define BDEMA_VOID_FOR_COMPATIPLE_POINTERS_ONLY                              \
+    typename bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,         \
+                                                BDEMA_TYPE *>::VALUE>::type
+    // This macro can be used to restrict pointer-types deduced in function
+    // template signatures to only those that are convertible to 'BDEMA_TYPE *'
+    // such as from pointers to derived types to pointer-to-unambiguous-base,
+    // or from 'T *' to 'const T *' (but not the other way around).
 
   public:
     // CREATORS
@@ -656,24 +656,6 @@ class bdema_ManagedPtr {
         // a 'DeleterFunc' (with two 'void *' arguments) should be preferred
         // for new code.
 
-    template <class FACTORY>
-    bdema_ManagedPtr(BDEMA_TYPE *ptr,
-                     FACTORY    *factory,
-                     void      (*deleter)(BDEMA_TYPE *, FACTORY *));
-        // [!DEPRECATED!] Construct a managed pointer to manage the specified
-        // 'ptr' using the specified 'deleter' and associated 'factory' to
-        // destroy 'ptr' when this managed pointer is destroyed or re-assigned
-        // (unless it is released before then).  If 0 == 'ptr', then this
-        // object will be initialized to an unset state.  The behavior is
-        // undefined if 'ptr' is already managed by another managed pointer.
-        // Note that if '0 == factory' then behavior is undefined unless
-        // 'deleter' accepts null pointers in the second argument.  Note that
-        // this function is *deprecated* as it relies on undefined compiler
-        // behavior for its implementation, that happens to to perform as
-        // required on every known compiler.  The overload taking a
-        // 'DeleterFunc' (with two 'void *' arguments) should be preferred for
-        // new code.
-
     template <class FACTORY, class FACTORY_BASE>
     bdema_ManagedPtr(BDEMA_TYPE *ptr,
                      FACTORY    *factory,
@@ -693,12 +675,7 @@ class bdema_ManagedPtr {
         // behavior for its implementation, that happens to to perform as
         // required on every known compiler.  The overload taking a
         // 'DeleterFunc' (with two 'void *' arguments) should be preferred for
-        // new code.  Note that this overload has been added to support a
-        // single known call in 'basapi_clientutil.h' and the hope is to retire
-        // it permanently before a 'load' overload is also requested.  It also
-        // supports deleter functions that take 'bslma_Allocator*' for their
-        // factory parameter, when 'FACTORY' implements the 'bslma_Allocator'
-        // protocol.
+        // new code.
 
     ~bdema_ManagedPtr();
         // Destroy this managed pointer object and any managed object by
@@ -791,10 +768,34 @@ class bdema_ManagedPtr {
         // 'DeleterFunc' (with two 'void *' arguments) should be preferred for
         // new code.
 
-    template <class FACTORY>
+#if 0
+    template <class FACTORY, class FACTORY_BASE>
     void load(BDEMA_TYPE *ptr,
               FACTORY    *factory,
-              void      (*deleter)(BDEMA_TYPE *, FACTORY *));
+              void      (*deleter)(BDEMA_TYPE *, FACTORY_BASE *),
+              typename bslmf_EnableIf<
+                           bslmf_IsConvertible<FACTORY*,FACTORY_BASE*>::VALUE
+                                                                 >::type* = 0);
+#else
+    template <class BDEMA_TARGET_TYPE, class FACTORY, class FACTORY_BASE>
+    typename bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
+                                                BDEMA_TYPE *>::VALUE
+                            &&
+                            bslmf_IsConvertible<FACTORY *,
+                                                FACTORY_BASE *>::VALUE
+                           >::type
+    load(BDEMA_TARGET_TYPE *ptr,
+         FACTORY    *factory,
+         void      (*deleter)(BDEMA_TARGET_TYPE *, FACTORY_BASE *))
+    {
+        BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+
+        d_members.runDeleter();
+        d_members.set(stripPointerType(ptr),
+                      factory,
+                      reinterpret_cast<DeleterFunc>(deleter));
+    }
+#endif
         // [!DEPRECATED!] Destroy the current managed object (if any) and
         // re-initialize this managed pointer to manage the specified 'ptr'
         // using the specified 'deleter' with arguments 'ptr' and the specified
@@ -1109,6 +1110,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
     BSLS_ASSERT_SAFE(0 != deleter);
 }
 
+#if 0
 template <class BDEMA_TYPE>
 template <class FACTORY>
 inline
@@ -1116,6 +1118,24 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
                                  BDEMA_TYPE *ptr,
                                  FACTORY    *factory,
                                  void      (*deleter)(BDEMA_TYPE *, FACTORY*) )
+: d_members(stripPointerType(ptr),
+            factory,
+            reinterpret_cast<DeleterFunc>(deleter))
+{
+    BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
+    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+}
+#endif
+
+template <class BDEMA_TYPE>
+template <class FACTORY, class FACTORY_BASE>
+bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr( 
+                          BDEMA_TYPE *ptr,
+                          FACTORY    *factory,
+                          void      (*deleter)(BDEMA_TYPE *, FACTORY_BASE *),
+                          typename bslmf_EnableIf<
+                                   bslmf_IsConvertible<FACTORY*, FACTORY_BASE*>
+                                                              ::VALUE>::type *)
 : d_members(stripPointerType(ptr),
             factory,
             reinterpret_cast<DeleterFunc>(deleter))
@@ -1205,13 +1225,34 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
                   reinterpret_cast<DeleterFunc>(deleter));
 }
 
+#if 0 // inline for MS compiler, enable_if bug
+#if 0
 template <class BDEMA_TYPE>
-template <class FACTORY>
+template <class FACTORY, class FACTORY_BASE>
 inline
 void
 bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
                                    FACTORY    *factory,
-                                   void (*deleter)(BDEMA_TYPE *, FACTORY *))
+                                   void (*deleter)(BDEMA_TYPE*, FACTORY_BASE*),
+                                   typename
+                                   bslmf_EnableIf<
+                                   bslmf_IsConvertible<FACTORY*, FACTORY_BASE*>
+                                                              ::VALUE>::type *)
+#else
+template <class BDEMA_TYPE>
+template <class BDEMA_TARGET_TYPE, class FACTORY, class FACTORY_BASE>
+inline
+typename bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
+                                            BDEMA_TYPE *>::VALUE
+                        &&
+                        bslmf_IsConvertible<FACTORY *,
+                                            FACTORY_BASE *>::VALUE
+                       >::type
+bdema_ManagedPtr<BDEMA_TYPE>::load(
+              BDEMA_TARGET_TYPE *ptr,
+              FACTORY           *factory,
+              void             (*deleter)(BDEMA_TARGET_TYPE *, FACTORY_BASE *))
+#endif
 {
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
@@ -1220,23 +1261,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
                   factory,
                   reinterpret_cast<DeleterFunc>(deleter));
 }
-
-template <class BDEMA_TYPE>
-template <class FACTORY, class FACTORY_BASE>
-bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr( 
-                          BDEMA_TYPE *ptr,
-                          FACTORY    *factory,
-                          void      (*deleter)(BDEMA_TYPE *, FACTORY_BASE *),
-                          typename bslmf_EnableIf<
-                                   bslmf_IsConvertible<FACTORY*, FACTORY_BASE*>
-                                                              ::VALUE>::type *)
-: d_members(stripPointerType(ptr),
-            factory,
-            reinterpret_cast<DeleterFunc>(deleter))
-{
-    BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-}
+#endif
 
 template <class BDEMA_TYPE>
 template <class BDEMA_OTHER_TYPE>
