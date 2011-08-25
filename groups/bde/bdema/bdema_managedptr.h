@@ -536,28 +536,67 @@ class bdema_ManagedPtr {
     template <class OTHER>
     friend class bdema_ManagedPtr;  // required only for alias support
 
-    // COMPONENT-PRIVATE MACROS TO SIMPLIFY DECLARING FUNCTION TEMPLATES
-#define BDEMA_COMPATIBLE_POINTERS_ONLY                                  \
-    typename bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,    \
-                                                BDEMA_TYPE *>::VALUE,   \
-                            Unspecified>::type *
-    // This macro can be used to restrict pointer-types deduced in function
-    // template signatures to only those that are convertible to 'BDEMA_TYPE *'
-    // such as from pointers to derived types to pointer-to-unambiguous-base,
-    // or from 'T *' to 'const T *' (but not the other way around).
-
+    // CLASS-SPECIFIC METAFUNCTIONS
     template <class BDEMA_TARGET_TYPE>
-    struct IsCompatiblePointer :
+    struct EnableConstructorIfCompatiblePointer :
         bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>
                                                                        ::VALUE>
     {
+        // This metafunction can be used in a SFINAE context to declare and
+        // define a constructor template only if the specified
+        // 'BDEMA_TARGET_TYPE' is compatible with a 'bdema_ManagedPtr'
+        // parameterized on 'BDEMA_TYPE'.  A target type is compatible with the
+        // host type if the host type is more as or more const-qualified, and
+        // if there is the host is a base class of the target type, or the host
+        // type is a 'void' type.
+        // This metafunction can be used to restrict pointer-types deduced in
+        // constructor template signatures to only those that are convertible
+        // to 'BDEMA_TYPE *' such as from pointers to derived types to
+        // pointer-to-unambiguous-base, or from 'T *' to 'const T *' (but not
+        // the other way around).
     };
 
-    template <class BDEMA_TARGET_TYPE, class FACTORY, class FACTORY_BASE>
-    struct IsCompatibleDeleter :
-        bslmf_EnableIf<bslmf_IsConvertible<FACTORY *, FACTORY_BASE *>::VALUE,
-                       typename IsCompatiblePointer<BDEMA_TARGET_TYPE>::type>
+    template <class BDEMA_TARGET_TYPE>
+    struct EnableIfCompatiblePointer :
+        bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>
+                                                                       ::VALUE>
     {
+        // This metafunction can be used in a SFINAE context to declare and
+        // define a function template only if the specified 'BDEMA_TARGET_TYPE'
+        // is compatible with a 'bdema_ManagedPtr' parameterized on
+        // 'BDEMA_TYPE'.  A target type is compatible with the host type if
+        // the host type is more as or more const-qualified, and if there is
+        // the host is a base class of the target type, or the host type is
+        // a 'void' type.
+        // This metafunction can be used to restrict pointer-types deduced in
+        // function template signatures to only those that are convertible to
+        // 'BDEMA_TYPE *' such as from pointers to derived types to
+        // pointer-to-unambiguous-base, or from 'T *' to 'const T *' (but not
+        // the other way around).
+    };
+
+    template <class BDEMA_TARGET_TYPE,
+              class BDEMA_TARGET_BASE,
+              class BDEMA_FACTORY,
+              class BDEMA_BASE_FACTORY>
+    struct EnableIfCompatibleDeleter :
+        bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
+                                           BDEMA_TARGET_BASE *>::VALUE
+                    && bslmf_IsConvertible<BDEMA_FACTORY *,
+                                           BDEMA_BASE_FACTORY *>::VALUE,
+                   typename EnableIfCompatiblePointer<BDEMA_TARGET_TYPE>::type>
+    {
+        // This metafunction can be used in a SFINAE context to declare and
+        // define a function template only if the specified 'BDEMA_TARGET_TYPE'
+        // is compatible with a 'bdema_ManagedPtr' parameterized on
+        // 'BDEMA_TYPE'; and if a deleter function taking two arguments of
+        // the types 'BDEMA_TARGET_TYPE *' and 'BASEFACTORY*' could be called
+        // to destroy an object of type 'BDEMA_TARGET_TYPE' using a factory
+        // of type 'FACTORY', which has a method 'deleteObject' to perform the
+        // actual destruction.  A target type is compatible with the host type
+        // if the host type is more as or more const-qualified, and if there is
+        // the host is a base class of the target type, or the host type is
+        // a 'void' type.
     };
 
   public:
@@ -575,7 +614,8 @@ class bdema_ManagedPtr {
     explicit
     bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr
 #if !defined(BSLS_PLATFORM__CMP_SUN) // compiler 5.10 crashes with this idiom
-                    , BDEMA_COMPATIBLE_POINTERS_ONLY=0);
+    , typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type *
+                                                                          = 0);
 #else
                     );
 #endif
@@ -662,13 +702,18 @@ class bdema_ManagedPtr {
         // a 'DeleterFunc' (with two 'void *' arguments) should be preferred
         // for new code.
 
-    template <class BDEMA_TARGET_TYPE, class FACTORY, class FACTORY_BASE>
+    template <class BDEMA_TARGET_TYPE,
+              class BDEMA_TARGET_BASE,
+              class BDEMA_FACTORY,
+              class BDEMA_BASE_FACTORY>
     bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-                     FACTORY    *factory,
-                     void      (*deleter)(BDEMA_TYPE *, FACTORY_BASE *),
-                     typename IsCompatibleDeleter<BDEMA_TARGET_TYPE, 
-                                                  FACTORY, 
-                                                  FACTORY_BASE>::type* = 0);
+                     BDEMA_FACTORY     *factory,
+                     void (*deleter)(BDEMA_TARGET_BASE*, BDEMA_BASE_FACTORY*),
+                     typename
+                     EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE, 
+                                               BDEMA_TARGET_BASE, 
+                                               BDEMA_FACTORY, 
+                                               BDEMA_BASE_FACTORY>::type* = 0);
         // [!DEPRECATED!] Construct a managed pointer to manage the specified
         // 'ptr' using the specified 'deleter' and associated 'factory' to
         // destroy 'ptr' when this managed pointer is destroyed or re-assigned
@@ -724,8 +769,7 @@ class bdema_ManagedPtr {
         // managed pointer to an unset state.
 
     template<class BDEMA_TARGET_TYPE>
-    //BDEMA_VOID_FOR_COMPATIPLE_POINTERS_ONLY
-    typename IsCompatiblePointer<BDEMA_TARGET_TYPE>::type
+    typename EnableIfCompatiblePointer<BDEMA_TARGET_TYPE>::type
     load(BDEMA_TARGET_TYPE *ptr)
         // Destroy the current managed object (if any) and re-initialize this
         // managed pointer to manage the specified 'ptr' using the default
@@ -735,6 +779,10 @@ class bdema_ManagedPtr {
         // The behavior is undefined if 'ptr' is already managed by another
         // managed pointer.
     {
+        // Note that this function is defined inline in the class definition in
+        // order to work around bugs in compilers that fail to recognise an
+        // out-of-line definition as matching this same declaration.
+
         typedef 
         bdema_ManagedPtr_FactoryDeleter<BDEMA_TARGET_TYPE,bslma_Allocator>
                                                                 DeleterFactory;
@@ -785,12 +833,18 @@ class bdema_ManagedPtr {
         // as required on every known compiler.  The overload taking a
         // 'DeleterFunc' (with two 'void *' arguments) should be preferred for
         // new code.
-    template <class BDEMA_TARGET_TYPE, class FACTORY, class FACTORY_BASE>
-    typename IsCompatibleDeleter<BDEMA_TARGET_TYPE, FACTORY, FACTORY_BASE>
-                                                                         ::type
+
+    template <class BDEMA_TARGET_TYPE,
+              class BDEMA_TARGET_BASE,
+              class BDEMA_FACTORY,
+              class BDEMA_BASE_FACTORY>
+    typename EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE,
+                                       BDEMA_TARGET_BASE,
+                                       BDEMA_FACTORY, 
+                                       BDEMA_BASE_FACTORY>::type
     load(BDEMA_TARGET_TYPE *ptr,
-         FACTORY    *factory,
-         void      (*deleter)(BDEMA_TARGET_TYPE *, FACTORY_BASE *))
+         BDEMA_FACTORY     *factory,
+         void             (*deleter)(BDEMA_TARGET_BASE*, BDEMA_BASE_FACTORY*))
         // [!DEPRECATED!] Destroy the current managed object (if any) and
         // re-initialize this managed pointer to manage the specified 'ptr'
         // using the specified 'deleter' with arguments 'ptr' and the specified
@@ -804,6 +858,10 @@ class bdema_ManagedPtr {
         // overload taking a 'DeleterFunc' (with two 'void *' arguments) should
         // be preferred for new code.
     {
+        // Note that this function is defined inline in the class definition in
+        // order to work around bugs in compilers that fail to recognise an
+        // out-of-line definition as matching this same declaration.
+
         BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
         d_members.runDeleter();
@@ -1014,11 +1072,11 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type)
 
 template<class BDEMA_TYPE>
 template<class BDEMA_TARGET_TYPE>
-bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr
 #if !defined(BSLS_PLATFORM__CMP_SUN)
-                , BDEMA_COMPATIBLE_POINTERS_ONLY)
+bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
+       typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type*)
 #else
-                )
+bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr)
 #endif
 : d_members(stripPointerType(ptr),
             bslma_Default::allocator(),
@@ -1114,14 +1172,19 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
 }
 
 template <class BDEMA_TYPE>
-template <class BDEMA_TARGET_TYPE, class FACTORY, class FACTORY_BASE>
+template <class BDEMA_TARGET_TYPE,
+          class BDEMA_TARGET_BASE,
+          class BDEMA_FACTORY,
+          class BDEMA_BASE_FACTORY>
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
-                            BDEMA_TARGET_TYPE *ptr,
-                            FACTORY    *factory,
-                            void      (*deleter)(BDEMA_TYPE *, FACTORY_BASE *),
-                            typename IsCompatibleDeleter<BDEMA_TARGET_TYPE, 
-                                                         FACTORY, 
-                                                         FACTORY_BASE>::type*)
+                      BDEMA_TARGET_TYPE *ptr,
+                      BDEMA_FACTORY     *factory,
+                      void (*deleter)(BDEMA_TARGET_BASE*, BDEMA_BASE_FACTORY*),
+                      typename
+                      EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE, 
+                                                BDEMA_TARGET_BASE, 
+                                                BDEMA_FACTORY, 
+                                                BDEMA_BASE_FACTORY>::type*)
 : d_members(stripPointerType(ptr),
             factory,
             reinterpret_cast<DeleterFunc>(deleter))

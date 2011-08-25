@@ -1350,7 +1350,6 @@ int main(int argc, char *argv[])
                                                       &DefaultDeleter::deleter;
 
         bslma_TestAllocator ta("object", veryVeryVeryVerbose);
-//        bslma_Allocator *pta = &ta;
 
         if (verbose) cout << "\tTest accessors on empty object\n";
 
@@ -1376,8 +1375,8 @@ int main(int argc, char *argv[])
                     ASSERT_SAFE_FAIL(o.deleter());
                 }
 #else
-                if (verbose) cout << "\tNegative testing disabled due to lack of "
-                                     "exception support\n";
+                if (verbose) cout << "\tNegative testing disabled due to lack"
+                                     " of exception support\n";
 #endif
             }
 
@@ -1551,7 +1550,6 @@ int main(int argc, char *argv[])
             {
                 TObj *p = new (ta) MyTestObject(&numDeletes);
                 Obj mO(p, &ta); const Obj& o = mO;
-//                Obj mO(p, pta); const Obj& o = mO;
 
                 ASSERT(o);
                 ASSERT(!!o);
@@ -2004,9 +2002,9 @@ int main(int argc, char *argv[])
         //   bdema_ManagedPtr(BDEMA_TYPE *,
         //                    void *,
         //                    void(*)(BDEMA_TYPE *, FACTORY *))
-        //   bdema_ManagedPtr(BDEMA_TYPE *,
-        //                    FACTORY *,
-        //                    void(*)(BDEMA_TYPE *, FACTORY_BASE *))
+        //   bdema_ManagedPtr(BDEMA_TARGET_TYPE *,
+        //                    BDEMA_FACTORY *,
+        //                    void(*)(BDEMA_TARGET_BASE *, FACTORY_BASE *))
         // --------------------------------------------------------------------
 
         using namespace CREATORS_TEST_NAMESPACE;
@@ -2161,16 +2159,16 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\tTest bdema_ManagedPtr(TYPE *, FACTORY *,"
-                             " void (*)(BDEMA_TYPE *, FACTORY_BASE*)\n";
+        if (verbose) cout << "\tTest bdema_ManagedPtr(TARGET_TYPE*, FACTORY*,"
+                             " void (*)(TARGET_BASE*, FACTORY_BASE*)\n";
 
         numDeletes = 0;
         {
             bslma_TestAllocatorMonitor gam(globalAllocator);
             bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor tam(ta);
 
             {
-                bslma_TestAllocatorMonitor tam(ta);
 
                 TObj *p = new (ta) MyTestObject(&numDeletes);
                 Obj o(p, &ta, &AllocatorDeleter<TObj>::deleter);
@@ -2178,12 +2176,43 @@ int main(int argc, char *argv[])
                 TObj *q = o.ptr();
                 LOOP2_ASSERT(p, q, p == q);
             }
+            ASSERT(1 == numDeletes);
+            ASSERT(tam.isInUseSame());
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
             ASSERT(gam.isInUseSame());
             ASSERT(gam.isMaxSame());
         }
-        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout <<
+                       "\t\tload derived type into a simple managed pointer\n";
+
+            typedef void (*DeleterFunc)(MyTestObject *, void *);
+            DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
+
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor tam(ta);
+
+            {
+
+                TDObj *p = new (ta) MyDerivedObject(&numDeletes);
+                Obj o;
+
+                // Test must pass without this workaround, for compatibility
+                // We might want to test the workaround separately, but believe
+                // that is not necessary.
+                o.load(p, &ta, deleterFunc);
+            }
+            ASSERT(1 == numDeletes);
+            ASSERT(tam.isInUseSame());
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+        }
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\tNegative testing\n";
@@ -2287,9 +2316,9 @@ int main(int argc, char *argv[])
         //   void load(BDEMA_TYPE *ptr,
         //             bdema_ManagedPtr_Nullptr::Type,
         //             void      (*deleter)(BDEMA_TYPE *, void*));
-        //   void load(BDEMA_TYPE *ptr,
-        //             FACTORY *factory,
-        //             void(*deleter)(BDEMA_TYPE *,FACTORY*))
+        //   void load(BDEMA_TARGET_TYPE *ptr,
+        //             BDEMA_FACTORY *factory,
+        //             void(*deleter)(BDEMA_TARGET_BASE*,BDEMA_BASE_FACTORY*))
         //   ~bdema_ManagedPtr();
         // --------------------------------------------------------------------
 
@@ -2649,6 +2678,27 @@ int main(int argc, char *argv[])
             // We might want to test the workaround separately, but believe
             // that is not necessary.
 //          o.load(p2, (void *) &da, deleterFunc);
+            o.load(p2, &da, deleterFunc);
+
+            ASSERT(1 == numDeletes);
+        }
+        ASSERT(2 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout <<
+                       "\t\tload derived type into a simple managed pointer\n";
+
+            typedef void (*DeleterFunc)(MyTestObject *, void *);
+            DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
+
+            TObj *p =  new (da) MyTestObject(&numDeletes);
+            TDObj *p2 = new (da) MyDerivedObject(&numDeletes);
+            Obj o(p);
+
+            // Test must pass without this workaround, for compatibility
+            // We might want to test the workaround separately, but believe
+            // that is not necessary.
             o.load(p2, &da, deleterFunc);
 
             ASSERT(1 == numDeletes);
