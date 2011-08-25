@@ -779,7 +779,6 @@ void writerThread(unsigned threadIndex)
         oldSignal = sig;
 
         int rc = channelPool->write(s_channelId, blob);
-        LOOP_ASSERT(rc, !rc);
 
         if (rc == 0) {
             consecutiveFailures = 0;
