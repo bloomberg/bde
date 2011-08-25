@@ -9,7 +9,7 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#include <bsl_limits.h>
+#include <bsl_c_limits.h>
 
 #if   defined(BCES_PLATFORM__POSIX_THREADS)
 # include <pthread.h>
@@ -24,8 +24,10 @@ BDES_IDENT_RCSID(bcemt_default_cpp,"$Id$ $CSID$")
 
 static BloombergLP::bces_AtomicInt defaultThreadStackSizeValue = -1;
 
-#ifdef BSLS_PLATFORM__OS_SOLARIS
-static int solarisNativeDefaultThreadStackSize()
+#if  defined(BCES_PLATFORM__POSIX_THREADS)
+
+# ifdef BSLS_PLATFORM__OS_SOLARIS
+static int getNativeDefaultThreadStackSize()
     // Return the native thread stack size for Solaris.
 {
     // 1 megabyte on 32 bit, 2 megabytes on 64 bit
@@ -33,11 +35,10 @@ static int solarisNativeDefaultThreadStackSize()
     enum { SOLARIS_DEFAULT_STACK_SIZE = 256 * 1024 * sizeof(void *) };
     return SOLARIS_DEFAULT_STACK_SIZE;
 }
-#endif
-
-#if  defined(BCES_PLATFORM__POSIX_THREADS) && \
-    !defined(BSLS_PLATFORM__OS_SOLARIS)
-static int pthreadsNativeDefaultThreadStackSize()
+// POSIX_THREADS && Solaris
+# else
+// POSIX_THREADS && !Solaris
+static int getNativeDefaultThreadStackSize()
     // Return the native thread stack size for pthreads platforms other than
     // Solaris.
 {
@@ -52,30 +53,34 @@ static int pthreadsNativeDefaultThreadStackSize()
         BSLS_ASSERT(0 == rc);
         rc = pthread_attr_destroy(&attr);
         BSLS_ASSERT(0 == rc);
-
-        BSLS_ASSERT(threadStackSize > 0);
-        const int maxint = bsl::numeric_limits<int>::max();
-        BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(maxint));
     }
 
-# ifdef PTHREAD_STACK_MIN
-    BSLS_ASSERT(threadStackSize >= PTHREAD_STACK_MIN);
-# endif
+    BSLS_ASSERT(threadStackSize > 0);
+    BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(INT_MAX));
 
-# ifdef BSLS_PLATFORM__OS_HPUX
-    // Default size reported by pthreads is the sum of two equal stack sizes,
-    // we want our 'stack size' to mean the size of just one stack.  This will
-    // be doubled back again in 'create'.
+#  ifdef PTHREAD_STACK_MIN
+    BSLS_ASSERT(threadStackSize >= PTHREAD_STACK_MIN);
+#  endif
+
+#  ifdef BSLS_PLATFORM__OS_HPUX
+    // On HPUX (Itanium) there is an additional stack for register storage,
+    // effectively halving the amount of memory available to clients, so we
+    // adjust the returned value to reflect the amount of memory that will be
+    // available for initializing data on the stack.  Note that mechanisms for
+    // creating a thread should have a corresponding inverse of this adjustment
+    // (see 'bcemt_threadutil').
 
     threadStackSize /= 2;
-# endif
+#  endif
 
-    return (int) threadStackSize;
+    return static_cast<int>(threadStackSize);
 }
-#endif
-
-#if defined(BCES_PLATFORM__WIN32_THREADS)
-static int windowsNativeDefaultThreadStackSize()
+// !Solaris
+# endif
+// POSIX_THREADS
+#else
+// WIN32_THREADS
+static int getNativeDefaultThreadStackSize()
     // Return the native thread stack size for Windows.
 {
     enum { WINDOWS_DEFAULT_STACK_SIZE = 0x100000 };    // 1 megabyte
@@ -94,11 +99,11 @@ static int windowsNativeDefaultThreadStackSize()
     }
 
     BSLS_ASSERT(threadStackSize > 0);
-    BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(
-                                             bsl::numeric_limits<int>::max()));
+    BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(INT_MAX));
 
-    return (int) threadStackSize;
+    return static_cast<int>(threadStackSize);
 }
+// WIN32_THREADS
 #endif
 
 
@@ -115,34 +120,21 @@ int bcemt_Default::defaultThreadStackSize()
 
 int bcemt_Default::nativeDefaultThreadStackSize()
 {
-    static bces_AtomicInt ret = -1;
+    static volatile int ret = -1;
 
-    if (ret.relaxedLoad() < 0) {
-
-#if  defined(BCES_PLATFORM__POSIX_THREADS)
-# if defined(BSLS_PLATFORM__OS_SOLARIS)
-        ret = solarisNativeDefaultThreadStackSize();
-# else
-        ret = pthreadsNativeDefaultThreadStackSize();
-# endif
-#elif defined(BCES_PLATFORM__WIN32_THREADS)
-        ret = windowsNativeDefaultThreadStackSize();
-#else
-# error unrecognized threading platform
-#endif
-
+    if (ret < 0) {
+        ret = getNativeDefaultThreadStackSize();
     }
 
-    return ret.relaxedLoad();
+    return ret;
 }
 
 int bcemt_Default::nativeDefaultThreadGuardSize()
 {
-    static bces_AtomicInt ret = -1;
-
-    if (ret.relaxedLoad() < 0) {
-
 #if defined(BCES_PLATFORM__POSIX_THREADS)
+    static volatile int ret = -1;
+
+    if (ret < 0) {
         pthread_attr_t attr;
         int rc = pthread_attr_init(&attr);
         BSLS_ASSERT(0 == rc);
@@ -155,17 +147,17 @@ int bcemt_Default::nativeDefaultThreadGuardSize()
         BSLS_ASSERT(0 == rc);
 
         BSLS_ASSERT(guardSizeT > 0);
-        BSLS_ASSERT(guardSizeT <= static_cast<bsl::size_t>(
-                                             bsl::numeric_limits<int>::max()));
+        BSLS_ASSERT(guardSizeT <= static_cast<bsl::size_t>(INT_MAX));
 
-        ret = (int) guardSizeT;
-#else
-        ret = 0;    // ignored on Windows
-#endif
-
+        ret = static_cast<int>(guardSizeT);
     }
 
-    return ret.relaxedLoad();
+    return ret;
+#else
+    // WIN32_THREADS
+
+    return 0;    // guard size is ignored on Windows
+#endif
 }
 
 int bcemt_Default::recommendedDefaultThreadStackSize()
@@ -187,7 +179,7 @@ int bcemt_Default::recommendedDefaultThreadStackSize()
 void bcemt_Default::setDefaultThreadStackSize(int stackSize)
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS) && defined(PTHREAD_STACK_MIN)
-    BSLS_ASSERT_OPT(stackSize >= (int) PTHREAD_STACK_MIN);
+    BSLS_ASSERT_OPT(stackSize >= static_cast<int>(PTHREAD_STACK_MIN));
 #else
     BSLS_ASSERT_OPT(stackSize > 0);
 #endif
