@@ -11,6 +11,8 @@ BDES_IDENT_RCSID(bcemt_threadutil_cpp,"$Id$ $CSID$")
 
 #include <bsl_cmath.h>
 
+#include <bsl_c_limits.h>
+
 namespace BloombergLP {
 
 extern "C" {
@@ -35,14 +37,20 @@ void *bcemt_ThreadUtil_threadFunc(void *arg)
 
 // CLASS METHODS
 int bcemt_ThreadUtil::convertToSchedPriority(
-                                           int    schedulingPolicy,
-                                           double normalizedSchedulingPriority)
+         bcemt_ThreadAttributes::SchedulingPolicy policy,
+         double                                   normalizedSchedulingPriority)
 {
+    BSLS_ASSERT_OPT(policy >= bcemt_ThreadAttributes::BCEMT_SCHED_MIN);
+    BSLS_ASSERT_OPT(policy <= bcemt_ThreadAttributes::BCEMT_SCHED_MAX);
+
     BSLS_ASSERT_OPT(normalizedSchedulingPriority >= 0.0);
     BSLS_ASSERT_OPT(normalizedSchedulingPriority <= 1.0);
 
-    int minPri = getMinSchedPriority(schedulingPolicy);
-    int maxPri = getMaxSchedPriority(schedulingPolicy);
+    const int minPri = getMinSchedPriority(policy);
+    const int maxPri = getMaxSchedPriority(policy);
+
+    BSLS_ASSERT_OPT(INT_MIN != minPri);
+    BSLS_ASSERT_OPT(INT_MIN != maxPri);
 
     double ret = (maxPri - minPri) * normalizedSchedulingPriority +
                                                                   minPri + 0.5;

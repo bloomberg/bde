@@ -17,7 +17,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 
 #include <bsl_ctime.h>
-#include <bsl_limits.h>
+#include <bsl_c_limits.h>
 
 #include <pthread.h>
 
@@ -160,9 +160,6 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
     typedef bcemt_ThreadAttributes Attr;
 
     switch (policy) {
-      case -1: {
-        policy = sched_getscheduler(0);
-      }  break;
       case Attr::BCEMT_SCHED_FIFO: {
         policy = SCHED_FIFO;
       }  break;
@@ -180,7 +177,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
 #endif
       }  break;
       default: {
-        return bsl::numeric_limits<int>::min();                       // RETURN
+        return INT_MIN;                                               // RETURN
       }
     }
 
@@ -193,9 +190,6 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
     typedef bcemt_ThreadAttributes Attr;
 
     switch (policy) {
-      case -1: {
-        policy = sched_getscheduler(0);
-      }  break;
       case Attr::BCEMT_SCHED_FIFO: {
         policy = SCHED_FIFO;
       }  break;
@@ -213,24 +207,25 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
 #endif
       }  break;
       default: {
-        return bsl::numeric_limits<int>::min();                       // RETURN
+        return INT_MIN;                                               // RETURN
       }
     }
 
-    int pri = sched_get_priority_max(policy);
+    int priority = sched_get_priority_max(policy);
 
 # if defined(BSLS_PLATFORM__OS_AIX)
-    // Note max prirority returned is 127 regardless of policy on AIX
+    // Note max prirority returned is 127 regardless of policy on AIX, yet for
+    // non-superusers, thread creation fails if 'priority > 60'.
 
     enum { MAX_NON_SUPERUSER_PRIORITY = 60 };
 
-    if (pri > MAX_NON_SUPERUSER_PRIORITY && 0 != geteuid()) {
-        pri = MAX_NON_SUPERUSER_PRIORITY;
+    if (priority > MAX_NON_SUPERUSER_PRIORITY && 0 != geteuid()) {
+        priority = MAX_NON_SUPERUSER_PRIORITY;
     }
 
 # endif
 
-    return pri;
+    return priority;
 }
 
 int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleep(

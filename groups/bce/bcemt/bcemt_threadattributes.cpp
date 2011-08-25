@@ -27,10 +27,6 @@ namespace BloombergLP {
 int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS)
-    if (-1 == policy) {
-        policy = sched_getscheduler(0);
-    }
-
     switch (policy) {
       case BCEMT_SCHED_FIFO: {
         policy = SCHED_FIFO;
@@ -75,10 +71,6 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(int policy)
 int bcemt_ThreadAttributes::getMinSchedPriority(int policy)
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS)
-    if (-1 == policy) {
-        policy = sched_getscheduler(0);
-    }
-
     switch (policy) {
       case BCEMT_SCHED_FIFO: {
         policy = SCHED_FIFO;

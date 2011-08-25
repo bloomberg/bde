@@ -127,22 +127,18 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // made once the thread terminates to reclaim any system resources
         // associated with the newly created identifier.
 
-    static int getMinSchedPriority(int policy = -1);
+    static int getMinSchedPriority(int policy);
         // Return the non-negative minimum available priority for the
         // optionally-specified 'policy' on success, where 'policy' is of type
-        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  If no policy is
-        // specified, the minimum priority for the process's policy is
-        // returned.  Return 'INT_MIN' on error.  Note that for some
-        // platform / policy cominations,
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
+        // error.  Note that for some platform / policy cominations,
         // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
 
-    static int getMaxSchedPriority(int policy = -1);
+    static int getMaxSchedPriority(int policy);
         // Return the non-negative maximum available priority for the
         // optionally-specified 'policy' on success, where 'policy' is of type
-        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  If no policy is
-        // specified, the maximum priority for the process's policy is
-        // returned.  Return 'INT_MIN' on error.  Note that for some
-        // platform / policy cominations,
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
+        // error.  Note that for some platform / policy cominations,
         // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
 
     static int join(Handle& threadHandle, void **status = (void**)0);

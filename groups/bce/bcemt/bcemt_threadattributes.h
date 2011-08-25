@@ -287,8 +287,11 @@ class bcemt_ThreadAttributes {
                                   // policy
         BCEMT_SCHED_FIFO    = 1,  // first-in-first-out scheduling policy
         BCEMT_SCHED_RR      = 2,  // round-robin scheduling policy
-        BCEMT_SCHED_DEFAULT = 3   // default OS scheduling policy, usually
-                                  // BCEMT_SCHED_OTHER
+        BCEMT_SCHED_DEFAULT = 3,  // default OS scheduling policy, usually
+                                  // equivalent to 'BCEMT_SCHED_OTHER'
+
+        BCEMT_SCHED_MIN     = BCEMT_SCHED_OTHER,
+        BCEMT_SCHED_MAX     = BCEMT_SCHED_DEFAULT
     };
 
     enum {
@@ -332,22 +335,18 @@ class bcemt_ThreadAttributes {
 
   public:
     // CLASS METHODS
-    static int getMaxSchedPriority(int policy = -1);
+    static int getMaxSchedPriority(int policy);
         // Return the non-negative maximum available priority for the
-        // optionally-specified 'policy' on success.  If no policy is
-        // specified, the maximum priority for the process's policy is
-        // returned.  Return 'INT_MIN' on error.  Note that for some
-        // platform / policy cominations,
+        // optionally-specified 'policy' on success.  Return 'INT_MIN' on
+        // error.  Note that for some platform / policy cominations,
         // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
         //
         // DEPRECATED: use 'bcemt_ThreadUtil' instead.
 
-    static int getMinSchedPriority(int policy = -1);
+    static int getMinSchedPriority(int policy);
         // Return the non-negative minimum available priority for the
-        // optionally-specified 'policy' on success.  If no policy is
-        // specified, the minimum priority for the process's policy is
-        // returned.  Return 'INT_MIN' on error.  Note that for some
-        // platform / policy cominations,
+        // optionally-specified 'policy' on success.  Return 'INT_MIN' on
+        // error.  Note that for some platform / policy cominations,
         // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
         //
         // DEPRECATED: use 'bcemt_ThreadUtil' instead.
@@ -410,7 +409,9 @@ class bcemt_ThreadAttributes {
         // minimum and maximum priorities are determined by methods in
         // 'bcemt_threadutil'.  Higher values of 'value' signify more urgent
         // priorities.  Use of this attribute is platform-dependent, for
-        // details, see the component doc of 'bcemt_threadutil'.
+        // details, see the component doc of 'bcemt_threadutil'.  Note that the
+        // default value of this attribute is not guaranteed to be within the
+        // valid range for the platform and scheduling policy.
 
     void setStackSize(int value);
         // Set the 'stackSize' attribute of this object to the specified

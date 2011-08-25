@@ -160,21 +160,21 @@ namespace MULTIPRIORITY_USAGE_TEST_CASE {
 // see any effect of the different priorities in this case.
 
 struct MostUrgentThreadFunctor {
-    void operator()()
+    void operator()() const
     {
         bsl::printf("Most urgent\n");
     }
 };
 
 struct FairlyUrgentThreadFunctor {
-    void operator()()
+    void operator()() const
     {
         bsl::printf("Fairly urgent\n");
     }
 };
 
 struct LeastUrgentThreadFunctor {
-    void operator()()
+    void operator()() const
     {
         bsl::printf("Least urgent\n");
     }
@@ -555,41 +555,33 @@ int main(int argc, char *argv[])
 
         using namespace MULTIPRIORITY_USAGE_TEST_CASE;
 
-        enum { STACK_SIZE = 256 * 1024 };
+        enum { NUM_THREADS = 3 };
 
-        bcemt_ThreadUtil::Handle handles[3];
-        int rc;
+        bcemt_ThreadUtil::Handle handles[NUM_THREADS];
+        bcemt_ThreadUtil::Invokable functions[NUM_THREADS] = {
+                                                  MostUrgentThreadFunctor(),
+                                                  FairlyUrgentThreadFunctor(),
+                                                  LeastUrgentThreadFunctor() };
+        double priorities[NUM_THREADS] = { 1.0, 0.5, 0.0 };
 
         bcemt_ThreadAttributes attributes;
-        attributes.setStackSize(STACK_SIZE);
         attributes.setInheritSchedule(false);
         const bcemt_ThreadAttributes::SchedulingPolicy policy =
                                      bcemt_ThreadAttributes::BCEMT_SCHED_OTHER;
         attributes.setSchedulingPolicy(policy);
 
-        attributes.setSchedulingPriority(
-                        bcemt_ThreadUtil::convertToSchedPriority(policy, 1.0));
-        rc = bcemt_ThreadUtil::create(&handles[0],
-                                      attributes,
-                                      MostUrgentThreadFunctor());
-        ASSERT(0 == rc);
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            attributes.setSchedulingPriority(
+                      bcemt_ThreadUtil::convertToSchedPriority(policy,
+                                                               priorities[i]));
+            int rc = bcemt_ThreadUtil::create(&handles[i],
+                                              attributes,
+                                              functions[i]);
+            ASSERT(0 == rc);
+        }
 
-        attributes.setSchedulingPriority(
-                        bcemt_ThreadUtil::convertToSchedPriority(policy, 0.5));
-        rc = bcemt_ThreadUtil::create(&handles[1],
-                                      attributes,
-                                      FairlyUrgentThreadFunctor());
-        ASSERT(0 == rc);
-
-        attributes.setSchedulingPriority(
-                        bcemt_ThreadUtil::convertToSchedPriority(policy, 0.0));
-        rc = bcemt_ThreadUtil::create(&handles[2],
-                                      attributes,
-                                      LeastUrgentThreadFunctor());
-        ASSERT(0 == rc);
-
-        for (int i = 0; i < 3; ++i) {
-            rc = bcemt_ThreadUtil::join(handles[i]);
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            int rc = bcemt_ThreadUtil::join(handles[i]);
             ASSERT(0 == rc);
         }
       }  break;
@@ -614,7 +606,7 @@ int main(int argc, char *argv[])
         enum { NUM_POLICIES = sizeof policies / sizeof *policies };
 
         for (int i = 0; i < NUM_POLICIES; ++i) {
-            const int POLICY = policies[i];
+            const Attr::SchedulingPolicy POLICY = policies[i];
 
             const int minPri = Obj::getMinSchedPriority(POLICY);
             const int maxPri = Obj::getMaxSchedPriority(POLICY);
