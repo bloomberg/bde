@@ -219,7 +219,7 @@ class MyTestObject {
     // incrementing an externally managed counter, supplied when each object
     // is created.  Finally, it exposes an internal data structure that can be
     // use to demonstrate the 'bdema_ManagedPtr' aliasing facility.
-
+  protected:
     volatile int *d_deleteCounter_p;
     mutable int   d_value[2];
 
@@ -273,13 +273,23 @@ class MyDerivedObject : public MyTestObject
 
   public:
     explicit MyDerivedObject(int *counter);
-    // Use compiler-generated copy and destruction
+    // Use compiler-generated copy
+
+    ~MyDerivedObject();
+        // Increment the stored reference to a counter by 100, then destroy
+        // this object.
 };
 
 inline
 MyDerivedObject::MyDerivedObject(int *counter)
 : MyTestObject(counter)
 {
+}
+
+inline
+MyDerivedObject::~MyDerivedObject()
+{
+    (*d_deleteCounter_p) += 99; // +1 from base -> 100
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -292,13 +302,23 @@ class MySecondDerivedObject : public MyTestObject
 
   public:
     explicit MySecondDerivedObject(int *counter);
-    // Use compiler-generated copy and destruction
+    // Use compiler-generated copy
+
+    ~MySecondDerivedObject();
+        // Increment the stored reference to a counter by 10000, then destroy
+        // this object.
 };
 
 inline
 MySecondDerivedObject::MySecondDerivedObject(int *counter)
 : MyTestObject(counter)
 {
+}
+
+inline
+MySecondDerivedObject::~MySecondDerivedObject()
+{
+    (*d_deleteCounter_p) += 9999;  // +1 from base -> 10000
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -535,10 +555,10 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
             ASSERT(4 == *i_mp1);
 #endif
 
-            ASSERT(2 == numdels);
+            ASSERT(200 == numdels);
         }
 
-        ASSERT(4 == numdels);
+        ASSERT(400 == numdels);
     } // implicitCastingExample()
 //..
 //
@@ -790,7 +810,7 @@ int main(int argc, char *argv[])
             returnSecondDerivedPtr(&numdels, &ta);
         }
 
-        LOOP_ASSERT(numdels, 6 == numdels);
+        LOOP_ASSERT(numdels, 20202 == numdels);
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -1172,7 +1192,7 @@ int main(int argc, char *argv[])
             ASSERT(&ta2 ==  o.deleter().factory());
             ASSERT(&ta1 == o2.deleter().factory());
         }
-        LOOP_ASSERT(numDeletes, 2 == numDeletes);
+        LOOP_ASSERT(numDeletes, 101 == numDeletes);
 
 //#define BDEMA_MANAGEDPTR_COMPILE_FAIL_SWAP_FOR_DIFFERENT_TYPES
 #if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_SWAP_FOR_DIFFERENT_TYPES)
@@ -1230,7 +1250,7 @@ int main(int argc, char *argv[])
 
             ASSERT(o.ptr() == p2);
         }
-        ASSERT(2 == numDeletes);
+        ASSERT(101 == numDeletes);
 
         numDeletes = 0;
         {
@@ -1284,7 +1304,7 @@ int main(int argc, char *argv[])
             ASSERT(!o);
             ASSERT(0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 100 == numDeletes);
 
 //#define BDEMA_MANAGEDPTR_COMPILE_FAIL_ASSIGN_FROM_INCOMPATIBLE_TYPE
 #if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_ASSIGN_FROM_INCOMPATIBLE_TYPE)
@@ -1530,7 +1550,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == numDeletes);
             }
 
-            ASSERT(2 == numDeletes);
+            ASSERT(101 == numDeletes);
             ASSERT(dam.isInUseSame());
             ASSERT(gam.isInUseSame());
             ASSERT(gam.isMaxSame());
@@ -1601,7 +1621,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == numDeletes);
             }
 
-            ASSERT(2 == numDeletes);
+            ASSERT(101 == numDeletes);
             ASSERT(tam.isInUseSame());
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
@@ -1908,7 +1928,7 @@ int main(int argc, char *argv[])
 
             ASSERT(o2.ptr() == p);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 100 == numDeletes);
 
         numDeletes = 0;
         {
@@ -1920,7 +1940,7 @@ int main(int argc, char *argv[])
             ASSERT(o.ptr() == p);
             ASSERT(0 == d.ptr());
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 100 == numDeletes);
 
 // examples to demonstrate:
         // Moving from lvalues:
@@ -2055,7 +2075,7 @@ int main(int argc, char *argv[])
                 TObj *q = o.ptr();
                 LOOP2_ASSERT(p, q, p == q);
             }
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
             ASSERT(tam.isInUseSame());
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
@@ -2078,7 +2098,7 @@ int main(int argc, char *argv[])
                 void *q = o.ptr();
                 LOOP2_ASSERT(p, q, p == q);
             }
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
             ASSERT(tam.isInUseSame());
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
@@ -2256,7 +2276,7 @@ int main(int argc, char *argv[])
                 // that is not necessary.
                 o.load(p, &ta, deleterFunc);
             }
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
             ASSERT(tam.isInUseSame());
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
@@ -2575,7 +2595,7 @@ int main(int argc, char *argv[])
             ASSERT(o.ptr() == p2);
             LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
-        ASSERT(2 == numDeletes);
+        ASSERT(101 == numDeletes);
 
         numDeletes = 0;
         {
@@ -2673,6 +2693,59 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == numDeletes);
 
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "Store a derived pointer\n";
+
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
+ 
+            bslma_TestAllocator ta("object", veryVeryVeryVerbose);
+            bslma_TestAllocatorMonitor tam(ta);
+
+            {
+                Obj o;
+                
+                TDObj *p = new (ta) MyDerivedObject(&numDeletes);
+                o.load(p, &ta);
+
+                TObj *q = o.ptr();
+                LOOP2_ASSERT(p, q, p == q);
+            }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERT(tam.isInUseSame());
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+        }
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "Store in a bdema_ManagedPtr<void>\n";
+
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
+ 
+            bslma_TestAllocator ta("object", veryVeryVeryVerbose);
+            bslma_TestAllocatorMonitor tam(ta);
+
+            {
+                VObj o;
+
+                TObj *p = new (ta) MyDerivedObject(&numDeletes);
+                o.load(p, &ta);
+
+                void *q = o.ptr();
+                LOOP2_ASSERT(p, q, p == q);
+            }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERT(tam.isInUseSame());
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+        }
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\tTest load(T*, factory, DeleterFunc)\n";
@@ -2755,7 +2828,7 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
-        ASSERT(2 == numDeletes);
+        ASSERT(101 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2943,10 +3016,10 @@ int main(int argc, char *argv[])
                 ASSERT(dynamic_cast<MyDerivedObject *>(o.ptr()) == p);
                 ASSERT(dam2.isInUseSame());
             }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
             ASSERT(dam.isTotalUp());
             ASSERT(dam.isInUseSame());
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
 
         if (verbose) cout << "\tTest valid pointer passed to void*\n";
@@ -2963,10 +3036,10 @@ int main(int argc, char *argv[])
                 ASSERT(o.ptr() == p);
                 ASSERT(dam2.isInUseSame());
             }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
             ASSERT(dam.isTotalUp());
             ASSERT(dam.isInUseSame());
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -3715,7 +3788,7 @@ int main(int argc, char *argv[])
             ASSERT(&destructorCount == mt.deleteCounter());
             LOOP_ASSERT(destructorCount, 0 == destructorCount);
         }
-        ASSERT(1 == destructorCount);
+        LOOP_ASSERT(destructorCount, 1 == destructorCount);
 
         destructorCount = 0;
         {
@@ -3738,7 +3811,7 @@ int main(int argc, char *argv[])
             ASSERT(&destructorCount == dt.deleteCounter());
             LOOP_ASSERT(destructorCount, 0 == destructorCount);
         }
-        ASSERT(1 == destructorCount);
+        ASSERT(100 == destructorCount);
 
         destructorCount = 0;
         {
@@ -3749,9 +3822,9 @@ int main(int argc, char *argv[])
                 ASSERT(&destructorCount == dt2.deleteCounter());
                 LOOP_ASSERT(destructorCount, 0 == destructorCount);
             }
-            LOOP_ASSERT(destructorCount, 1 == destructorCount);
+            LOOP_ASSERT(destructorCount, 100 == destructorCount);
         }
-        ASSERT(2 == destructorCount);
+        ASSERT(200 == destructorCount);
 
         if (verbose) cout << "\tTest class MySecondDerivedObject\n";
 
@@ -3761,7 +3834,7 @@ int main(int argc, char *argv[])
             ASSERT(&destructorCount == st.deleteCounter());
             LOOP_ASSERT(destructorCount, 0 == destructorCount);
         }
-        ASSERT(1 == destructorCount);
+        LOOP_ASSERT(destructorCount, 10000 == destructorCount);
 
         destructorCount = 0;
         {
@@ -3772,9 +3845,9 @@ int main(int argc, char *argv[])
                 ASSERT(&destructorCount == st2.deleteCounter());
                 LOOP_ASSERT(destructorCount, 0 == destructorCount);
             }
-            LOOP_ASSERT(destructorCount, 1 == destructorCount);
+            LOOP_ASSERT(destructorCount, 10000 == destructorCount);
        }
-       ASSERT(2 == destructorCount);
+       ASSERT(20000 == destructorCount);
 
        if (verbose) cout << "\tTest pointer conversions\n";
 
@@ -3928,7 +4001,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == o2.ptr());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 100 == numDeletes);
 
         if (verbose) cout << "\tTest conversion assignment.\n";
 
@@ -3956,7 +4029,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == o2.ptr());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 100 == numDeletes);
 
         if (verbose)
             cout << "\tTest conversion construction from an rvalue.\n";
@@ -3968,7 +4041,7 @@ int main(int argc, char *argv[])
             ASSERT(X.ptr());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 100 == numDeletes);
 
         if (verbose)
             cout << "\tTest conversion assignment from an rvalue.\n";
@@ -3982,7 +4055,7 @@ int main(int argc, char *argv[])
             ASSERT(X.ptr());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 100 == numDeletes);
 
         if (verbose) cout << "\tTest alias construction.\n";
 
@@ -4016,7 +4089,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == o.ptr());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 100 == numDeletes);
 
         if (verbose) cout << "\tTest 'load' method.\n";
 
