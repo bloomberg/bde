@@ -336,6 +336,9 @@ class bslma_Allocator;
 template <class BDEMA_TYPE>
 class bdema_ManagedPtr_Ref;
 
+template <class BDEMA_TYPE, typename FACTORY>
+struct bdema_ManagedPtr_FactoryDeleter;
+
                      // =====================================
                      // private class bdema_ManagedPtrMembers
                      // =====================================
