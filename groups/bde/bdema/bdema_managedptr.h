@@ -336,7 +336,7 @@ class bslma_Allocator;
 template <class BDEMA_TYPE>
 class bdema_ManagedPtr_Ref;
 
-template <class BDEMA_TYPE, typename FACTORY>
+template <class BDEMA_TYPE, typename BDEMA_FACTORY>
 struct bdema_ManagedPtr_FactoryDeleter;
 
 template <class BDEMA_TYPE, class BDEMA_FACTORY>
@@ -976,7 +976,7 @@ struct bdema_ManagedPtrNoOpDeleter {
     // This utility class provides a general no-op deleter, which is useful
     // when creating managed pointers to stack-allocated objects.
 
-    static void deleter(void *object, void *);
+    static void deleter(void *, void *);
         // Deleter function that does nothing.
 };
 
@@ -991,7 +991,7 @@ struct bdema_ManagedPtrNilDeleter {
     // objects.  Note that the non-template class 'bdema_ManagedPtrNoOpDeleter'
     // should be used in preference to this deprecated class.
 
-    static void deleter(void *object, void *);
+    static void deleter(void *, void *);
         // Deleter function that does nothing.
 };
 
@@ -999,7 +999,7 @@ struct bdema_ManagedPtrNilDeleter {
                    // struct bdema_ManagedPtr_FactoryDeleter
                    // ======================================
 
-template <class BDEMA_TYPE, typename FACTORY>
+template <class BDEMA_TYPE, typename BDEMA_FACTORY>
 struct bdema_ManagedPtr_FactoryDeleter {
     // This utility provides a general deleter for objects that provide
     // a 'deleteObject' operation (e.g., 'bslma_Allocator', 'bdema_Pool').
@@ -1109,6 +1109,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type)
 
 template<class BDEMA_TYPE>
 template<class BDEMA_TARGET_TYPE>
+inline
 #if !defined(BSLS_PLATFORM__CMP_SUN)
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
         typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type)
@@ -1127,6 +1128,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr)
 }
 
 template <class BDEMA_TYPE>
+inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
                                           bdema_ManagedPtr_Ref<BDEMA_TYPE> ref)
 : d_members(*ref.base())
@@ -1206,6 +1208,7 @@ template <class BDEMA_TARGET_TYPE,
           class BDEMA_TARGET_BASE,
           class BDEMA_FACTORY,
           class BDEMA_BASE_FACTORY>
+inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
                       BDEMA_TARGET_TYPE *ptr,
                       BDEMA_FACTORY     *factory,
@@ -1251,7 +1254,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(bdema_ManagedPtr_Nullptr::Type)
 }
 
 template <class BDEMA_TYPE>
-inline
+//inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
                                         void       *factory,
                                         DeleterFunc deleter)
@@ -1354,6 +1357,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::operator bdema_ManagedPtr_Ref<BDEMA_OTHER_TYPE>()
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TYPE *,
                                       BDEMA_OTHER_TYPE *>::VALUE));
+
     return bdema_ManagedPtr_Ref<BDEMA_OTHER_TYPE>(&d_members);
 }
 
@@ -1521,7 +1525,6 @@ void bdema_ManagedPtrNilDeleter<BDEMA_TYPE>::deleter(void *, void*)
 
 }  // close namespace BloombergLP
 
-#undef BDEMA_COMPATIBLE_POINTERS_ONLY
 #endif
 
 // ---------------------------------------------------------------------------

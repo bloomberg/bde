@@ -43,9 +43,6 @@ bdema_ManagedPtr_Members::bdema_ManagedPtr_Members(
 void bdema_ManagedPtr_Members::clear()
 {
     d_obj_p = 0;
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    d_deleter.clear();
-#endif
 }
 
 void bdema_ManagedPtr_Members::move(bdema_ManagedPtr_Members& other)
@@ -60,11 +57,6 @@ void bdema_ManagedPtr_Members::move(bdema_ManagedPtr_Members& other)
     if (other.d_obj_p) {
         d_deleter = other.d_deleter;
     }
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    else {
-        d_deleter.clear();
-    }
-#endif
 
     other.clear();
 }
@@ -82,11 +74,6 @@ void bdema_ManagedPtr_Members::set(void        *object,
     if (object) {
         d_deleter.set(object, factory, deleter);
     }
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    else {
-        d_deleter.clear();
-    }
-#endif
 }
 
 void bdema_ManagedPtr_Members::swap(bdema_ManagedPtr_Members & other)

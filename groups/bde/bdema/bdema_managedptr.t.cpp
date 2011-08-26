@@ -1,4 +1,4 @@
-// bdema_managedptr.t.cpp          -*-C++-*-
+// bdema_managedptr.t.cpp                                             -*-C++-*-
 
 #include <bdema_managedptr.h>
 #include <bslma_allocator.h>
