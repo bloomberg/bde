@@ -339,6 +339,9 @@ class bdema_ManagedPtr_Ref;
 template <class BDEMA_TYPE, typename FACTORY>
 struct bdema_ManagedPtr_FactoryDeleter;
 
+template <class BDEMA_TYPE, class BDEMA_FACTORY>
+struct bdema_ManagedPtr_FactoryDeleterType;
+
                      // =====================================
                      // private class bdema_ManagedPtrMembers
                      // =====================================
