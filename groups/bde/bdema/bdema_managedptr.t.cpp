@@ -928,11 +928,11 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == numDeletes);
             o.clear();
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
             ASSERT(!o && !o.ptr());
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -950,7 +950,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
             da.deleteObject(p);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         // testing 'release().second'
         numDeletes = 0;
@@ -972,7 +972,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
             da.deleteObject(p);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
 #if 0
         // testing 'deleter()' accessor and 'release().second'
@@ -995,7 +995,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
             da.deleteObject(p);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         {
             bsls_Types::Int64 numDeallocation = da.numDeallocation();
@@ -1209,7 +1209,7 @@ int main(int argc, char *argv[])
             o = o2;
 
             ASSERT(!o2);
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
             ASSERT(o.ptr() == p2);
         }
@@ -1226,7 +1226,7 @@ int main(int argc, char *argv[])
             o = o2;
 
             ASSERT(!o2);
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
             ASSERT(o.ptr() == p2);
         }
@@ -1249,7 +1249,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == numDeletes);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -1268,9 +1268,9 @@ int main(int argc, char *argv[])
             ASSERT(!o2);
             ASSERT(!o);
 
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -1284,7 +1284,7 @@ int main(int argc, char *argv[])
             ASSERT(!o);
             ASSERT(0 == numDeletes);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
 //#define BDEMA_MANAGEDPTR_COMPILE_FAIL_ASSIGN_FROM_INCOMPATIBLE_TYPE
 #if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_ASSIGN_FROM_INCOMPATIBLE_TYPE)
@@ -1678,7 +1678,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == numDeletes);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
 
         bsls_Types::Int64 numDeallocation = da.numDeallocation();
@@ -1766,7 +1766,7 @@ int main(int argc, char *argv[])
                 ASSERT(&countedNilDelete == r.base()->deleter().deleter());
             }
             LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
             ASSERT(gam.isInUseSame());
@@ -1799,7 +1799,7 @@ int main(int argc, char *argv[])
                 local::test( &x, (Obj(&x, 0, countedNilDelete)));
             }
             LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
             ASSERT(gam.isInUseSame());
@@ -1842,7 +1842,7 @@ int main(int argc, char *argv[])
             }
 
             LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
             ASSERT(gam.isInUseSame());
@@ -1864,7 +1864,7 @@ int main(int argc, char *argv[])
             }
 
             LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
             ASSERT(gam.isInUseSame());
@@ -1908,7 +1908,7 @@ int main(int argc, char *argv[])
 
             ASSERT(o2.ptr() == p);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -1920,7 +1920,7 @@ int main(int argc, char *argv[])
             ASSERT(o.ptr() == p);
             ASSERT(0 == d.ptr());
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
 // examples to demonstrate:
         // Moving from lvalues:
@@ -2018,6 +2018,8 @@ int main(int argc, char *argv[])
 
         int numDeletes = 0;
         {
+            if (veryVerbose) cout << "Store a basic pointer\n";
+
             bslma_TestAllocatorMonitor gam(globalAllocator);
             bslma_TestAllocatorMonitor dam(da);
 
@@ -2035,7 +2037,54 @@ int main(int argc, char *argv[])
             ASSERT(gam.isInUseSame());
             ASSERT(gam.isMaxSame());
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "Store a derived pointer\n";
+
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor tam(ta);
+
+            {
+
+                TDObj *p = new (ta) MyDerivedObject(&numDeletes);
+                Obj o(p, &ta);
+
+                TObj *q = o.ptr();
+                LOOP2_ASSERT(p, q, p == q);
+            }
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERT(tam.isInUseSame());
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+        }
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "Store in a bdema_ManagedPtr<void>\n";
+
+            bslma_TestAllocatorMonitor gam(globalAllocator);
+            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor tam(ta);
+
+            {
+                TObj *p = new (ta) MyDerivedObject(&numDeletes);
+                VObj o(p, &ta);
+
+                void *q = o.ptr();
+                LOOP2_ASSERT(p, q, p == q);
+            }
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERT(tam.isInUseSame());
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+        }
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\tNegative testing\n";
@@ -2047,8 +2096,6 @@ int main(int argc, char *argv[])
             TObj *p = new (ta) MyTestObject(&numDeletes);
             ASSERT_SAFE_FAIL_RAW(Obj x(p, pNullAlloc));
             ASSERT_SAFE_PASS_RAW(Obj y(p, &ta));
-            ASSERT_SAFE_PASS_RAW(Obj z(0, pNullAlloc));
-
         }
 #else
         if (verbose) cout << "\tNegative testing disabled due to lack of "
@@ -2060,7 +2107,10 @@ int main(int argc, char *argv[])
         {
             int i = 0;
             bdema_ManagedPtr<int> x(&i, 0);
-            bdema_ManagedPtr<int> x(0, 0);
+            bdema_ManagedPtr<int> y(0, 0));
+
+            bslma_Allocator * pNullAlloc = 0;
+            bdema_ManagedPtr<int> z(0, pNullAlloc));
         }
 #endif
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2138,7 +2188,7 @@ int main(int argc, char *argv[])
             ASSERT(gam.isInUseSame());
             ASSERT(gam.isMaxSame());
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2154,7 +2204,7 @@ int main(int argc, char *argv[])
             MyTestObject obj(&numDeletes);
             Obj o(&obj, 0, &templateNilDelete<MyTestObject>);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
         LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2176,7 +2226,7 @@ int main(int argc, char *argv[])
                 TObj *q = o.ptr();
                 LOOP2_ASSERT(p, q, p == q);
             }
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
             ASSERT(tam.isInUseSame());
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
@@ -2206,7 +2256,7 @@ int main(int argc, char *argv[])
                 // that is not necessary.
                 o.load(p, &ta, deleterFunc);
             }
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
             ASSERT(tam.isInUseSame());
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
@@ -2224,7 +2274,6 @@ int main(int argc, char *argv[])
             TObj *p = new (ta) MyTestObject(&numDeletes);
             ASSERT_SAFE_FAIL_RAW(Obj x(p, pNullAlloc));
             ASSERT_SAFE_PASS_RAW(Obj y(p, &ta));
-            ASSERT_SAFE_PASS_RAW(Obj z(0, pNullAlloc));
 
         }
 #else
@@ -2237,7 +2286,10 @@ int main(int argc, char *argv[])
         {
             int i = 0;
             bdema_ManagedPtr<int> x(&i, 0);
-            bdema_ManagedPtr<int> x(0, 0);
+            bdema_ManagedPtr<int> y(0, 0);
+
+            bslma_Allocator * pNullAlloc = 0;
+            bdema_ManagedPtr<int> z(0, pNullAlloc));
         }
 #endif
       } break;
@@ -2358,9 +2410,9 @@ int main(int argc, char *argv[])
             o.load();
 
             ASSERT(!o); // should not be testing operator! until test 13
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -2391,9 +2443,9 @@ int main(int argc, char *argv[])
             o.load();
 
             ASSERT(!o.ptr()); // should not be testing operator! until test 13
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2428,9 +2480,9 @@ int main(int argc, char *argv[])
             o.load(0);
 
             ASSERT(!o); // should not be testing operator! until test 13
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -2461,9 +2513,9 @@ int main(int argc, char *argv[])
             o.load(0);
 
             ASSERT(!o.ptr()); // should not be testing operator! until test 13
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2485,7 +2537,7 @@ int main(int argc, char *argv[])
             ASSERT(o.ptr() == p);
             ASSERT(0 == numDeletes);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -2502,7 +2554,7 @@ int main(int argc, char *argv[])
             o.load(p2);
 
             ASSERT(o.ptr() == p2);
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
         ASSERT(2 == numDeletes);
 
@@ -2521,7 +2573,7 @@ int main(int argc, char *argv[])
             o.load(p2, &da);
 
             ASSERT(o.ptr() == p2);
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
         ASSERT(2 == numDeletes);
 
@@ -2541,7 +2593,7 @@ int main(int argc, char *argv[])
             ASSERT(o.ptr() == p);
             ASSERT(0 == numDeletes);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -2558,7 +2610,7 @@ int main(int argc, char *argv[])
             o.load(p2);
 
             ASSERT(o.ptr() == p2);
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
         ASSERT(2 == numDeletes);
 
@@ -2658,7 +2710,7 @@ int main(int argc, char *argv[])
 
             o.load(p2, &da, &myTestDeleter);
 
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
         ASSERT(2 == numDeletes);
 
@@ -2680,7 +2732,7 @@ int main(int argc, char *argv[])
 //          o.load(p2, (void *) &da, deleterFunc);
             o.load(p2, &da, deleterFunc);
 
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
         ASSERT(2 == numDeletes);
 
@@ -2701,7 +2753,7 @@ int main(int argc, char *argv[])
             // that is not necessary.
             o.load(p2, &da, deleterFunc);
 
-            ASSERT(1 == numDeletes);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
         }
         ASSERT(2 == numDeletes);
 
@@ -2873,7 +2925,7 @@ int main(int argc, char *argv[])
             ASSERT(dam.isTotalUp());
             ASSERT(dam.isInUseSame());
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
 
         if (verbose) cout << "\tTest derived-to-base pointer in constructor\n";
@@ -2894,7 +2946,7 @@ int main(int argc, char *argv[])
             ASSERT(dam.isTotalUp());
             ASSERT(dam.isInUseSame());
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
 
         if (verbose) cout << "\tTest valid pointer passed to void*\n";
@@ -2914,7 +2966,7 @@ int main(int argc, char *argv[])
             ASSERT(dam.isTotalUp());
             ASSERT(dam.isInUseSame());
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -2970,7 +3022,7 @@ int main(int argc, char *argv[])
 
 //            ASSERT(o.ptr() == p);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         // const-conversion
         numDeletes = 0;
@@ -2980,7 +3032,7 @@ int main(int argc, char *argv[])
 
 //            ASSERT(o.ptr() == p);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -2989,7 +3041,7 @@ int main(int argc, char *argv[])
 
             ASSERT(o.ptr() == p);
         }
-        ASSERT(1 == numDeletes);
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
 
 #endif

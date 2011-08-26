@@ -521,6 +521,16 @@ class bdema_ManagedPtr {
   private:
     // NOT IMPLEMENTED
     bdema_ManagedPtr(BDEMA_TYPE *, bdema_ManagedPtr_Nullptr::Type);
+        // It is never defined behavior to pass a null literal a a factory.
+
+  private:
+    // NOT IMPLEMENTED
+    template <class BDEMA_FACTORY>
+    bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type, BDEMA_FACTORY *);
+        // It is an error to pass a null pointer literal along with a non-null
+        // factory.  If you really must create an empty managed pointer that
+        // ignores the passed factory, pass a variable holding a null pointer
+        // as the first argument.
 
   private:
     // NOT IMPLEMENTED
@@ -542,8 +552,9 @@ class bdema_ManagedPtr {
     // CLASS-SPECIFIC METAFUNCTIONS
     template <class BDEMA_TARGET_TYPE>
     struct EnableConstructorIfCompatiblePointer :
-        bslmf_EnableIf<bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>
-                                                                       ::VALUE>
+        bslmf_EnableIf<
+            bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>::VALUE,
+            Unspecified>
     {
         // This metafunction can be used in a SFINAE context to declare and
         // define a constructor template only if the specified
@@ -609,16 +620,18 @@ class bdema_ManagedPtr {
 
     explicit bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type);
         // Construct a managed pointer that is in an unset state.  Note that
-        // this constructor is necessary to match a single null literal
-        // argument, as the only other viable constructor is a template that
-        // cannot deduce the pointed-to type from a null pointer literal.
+        // these constructor are necessary to match a null-pointer literal
+        // arguments, in order to break ambiguities and provide valid type
+        // deduction with the other constructor templates in this class.
 
     template<class BDEMA_TARGET_TYPE>
     explicit
     bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr
 #if !defined(BSLS_PLATFORM__CMP_SUN) // compiler 5.10 crashes with this idiom
-    , typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type *
-                                                                          = 0);
+    //, typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type *
+    //                                                                      = 0);
+    , typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type
+                                                              = Unspecified());
 #else
                     );
 #endif
@@ -667,14 +680,22 @@ class bdema_ManagedPtr {
         // initialized to an unset state.  The behavior is undefined if 'ptr'
         // is already managed by a managed pointer other than 'alias'.
 
-    template <class FACTORY>
-    bdema_ManagedPtr(BDEMA_TYPE *ptr, FACTORY *factory);
+    template <class BDEMA_TARGET_TYPE, class BDEMA_FACTORY>
+    bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr, BDEMA_FACTORY *factory
+#if !defined(BSLS_PLATFORM__CMP_SUN) // compiler 5.10 crashes with this idiom
+//    , typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type *
+//                                                                          = 0);
+    , typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type
+                                                              = Unspecified());
+#else
+                    );
+#endif
         // Construct a managed pointer to manage the specified 'ptr' using the
         // specified 'factory' to destroy 'ptr' when this managed pointer is
         // destroyed or re-assigned, unless it is released before then.  The
-        // 'FACTORY' class can be any class that has a 'deleteObject' method.
+        // 'BDEMA_FACTORY' class can be any class that has a 'deleteObject' method.
         // 'bslma_Allocator' or any class derived from 'bslma_Allocator' meets
-        // the requirements for 'FACTORY'.  If '0 == ptr', then this
+        // the requirements for 'BDEMA_FACTORY'.  If '0 == ptr', then this
         // object will be initialized to an unset state.  The behavior is
         // undefined if 'ptr' is already managed by another managed pointer.
 
@@ -1077,7 +1098,8 @@ template<class BDEMA_TYPE>
 template<class BDEMA_TARGET_TYPE>
 #if !defined(BSLS_PLATFORM__CMP_SUN)
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-       typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type*)
+//       typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type*)
+       typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type)
 #else
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr)
 #endif
@@ -1126,15 +1148,27 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
 }
 
 template <class BDEMA_TYPE>
-template <class FACTORY>
+template <class BDEMA_TARGET_TYPE, class BDEMA_FACTORY>
 inline
-bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
-                                                              FACTORY *factory)
+#if !defined(BSLS_PLATFORM__CMP_SUN) // compiler 5.10 crashes with this idiom
+bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
+                                               BDEMA_FACTORY     *factory,
+//      typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type *)
+        typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type)
+#else
+bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
+                                               BDEMA_FACTORY     *factory)
+#endif
 : d_members(stripPointerType(ptr),
             factory,
-            &bdema_ManagedPtr_FactoryDeleterType<BDEMA_TYPE, FACTORY>
-                                                               ::Type::deleter)
+            &bdema_ManagedPtr_FactoryDeleterType<BDEMA_TARGET_TYPE,
+                                                 BDEMA_FACTORY>::Type::deleter)
 {
+#if defined(BSLS_PLATFORM__CMP_SUN) // only while 'enable_if' not supported
+    BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>::
+                                                                       VALUE));
+#endif
+
     BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
