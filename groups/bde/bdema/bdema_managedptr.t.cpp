@@ -526,7 +526,7 @@ static void doNothingDeleter(void *object, void *)
 // The second factory argument should be tested with:
 //: o '0' literal
 //: o 'bslma_Allocator *'
-//: o 'g_ta' to test the specific 'bslma_TestAllocator' derived factory type
+//: o 'ta' to test the specific 'bslma_TestAllocator' derived factory type
 //: 0 SOME OTHER FACTORY TYPE NOT DERIVED FROM BSLMA_TESTALLOCATOR
 //
 // The 'deleter' argument will be tested with each of:
@@ -777,6 +777,193 @@ void loadMyTestProtocol(int   line,
     // 'object()', 'factory()' and 'deleter()'
 }
 
+template<typename POINTER_TYPE>
+void loadMyEmptyProtocol(int   line, 
+                         int   index,
+                         bdema_ManagedPtr<POINTER_TYPE> *p,
+                         int  *deleteCount, 
+                         int  *deleteDelta,
+                         bool *useDefault,
+                         bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    MyTestObject        *pO = 0;
+    bslma_TestAllocator *pA = 0;
+
+    p->load(pO, pA);
+    *deleteDelta = 0;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+
+#ifdef BDE_BUILD_TARGET_EXC
+    if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+    {
+        bsls_AssertTestHandlerGuard guard;
+
+        int localDeleteCount = 0;
+
+        pO = new(*ta)MyTestObject(&localDeleteCount);
+
+        ASSERT_SAFE_FAIL(p->load(pO, pA));
+
+        ta->deleteObject(pO);
+        LOOP_ASSERT(localDeleteCount, 1 == localDeleteCount);
+    }
+#else
+    if (verbose) cout << "\tNegative testing disabled due to lack of "
+                         "exception support\n";
+#endif
+
+}
+
+//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY
+#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY)
+void loadMyNullFactory()
+{
+    int i = 0;
+    bdema_ManagedPtr<int> x(&i, 0);
+    bdema_ManagedPtr<int> y( 0, 0);
+
+    bslma_Allocator * pNullAlloc = 0;
+    bdema_ManagedPtr<int> z(0, pNullAlloc);
+}
+#endif
+
+template<typename POINTER_TYPE>
+void loadDerivedFactory(int   line, 
+                        int   index,
+                        bdema_ManagedPtr<POINTER_TYPE> *p,
+                        int  *deleteCount, 
+                        int  *deleteDelta,
+                        bool *useDefault,
+                        bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    MyDerivedObject *pO = new(*ta)MyDerivedObject(deleteCount);
+
+    p->load(pO, ta);
+    *deleteDelta = 100;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+
+    // If we are feeling brave, verify that 'p.deleter()' has the expected
+    // 'object()', 'factory()' and 'deleter()'
+}
+
+template<typename POINTER_TYPE>
+void loadDerivedProtocol(int   line, 
+                         int   index,
+                         bdema_ManagedPtr<POINTER_TYPE> *p,
+                         int  *deleteCount, 
+                         int  *deleteDelta,
+                         bool *useDefault,
+                         bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    MyDerivedObject *pO = new(*ta)MyDerivedObject(deleteCount);
+
+    p->load(pO, (bslma_Allocator*)ta);
+    *deleteDelta = 100;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+
+    // If we are feeling brave, verify that 'p.deleter()' has the expected
+    // 'object()', 'factory()' and 'deleter()'
+}
+
+template<typename POINTER_TYPE>
+void loadDerivedEmptyProtocol(int   line, 
+                              int   index,
+                              bdema_ManagedPtr<POINTER_TYPE> *p,
+                              int  *deleteCount, 
+                              int  *deleteDelta,
+                              bool *useDefault,
+                              bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    MyDerivedObject     *pO = 0;
+    bslma_TestAllocator *pA = 0;
+
+    p->load(pO, pA);
+    *deleteDelta = 0;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+
+#ifdef BDE_BUILD_TARGET_EXC
+    if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+    {
+        bsls_AssertTestHandlerGuard guard;
+
+        int localDeleteCount = 0;
+
+        pO = new(*ta)MyDerivedObject(&localDeleteCount);
+
+        ASSERT_SAFE_FAIL(p->load(pO, pA));
+
+        ta->deleteObject(pO);
+        LOOP_ASSERT(localDeleteCount, 100 == localDeleteCount);
+    }
+#else
+    if (verbose) cout << "\tNegative testing disabled due to lack of "
+                         "exception support\n";
+#endif
+
+}
+
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 void testLoad() {
@@ -806,7 +993,11 @@ void testLoad() {
             //&loadMyConstObject<TestTarget>,
             &loadMyDerivedObject<TestTarget>,
             &loadMyTestFactory  <TestTarget>,
-            &loadMyTestProtocol <TestTarget>
+            &loadMyTestProtocol <TestTarget>,
+            &loadMyEmptyProtocol<TestTarget>,
+            &loadDerivedFactory <TestTarget>,
+            &loadDerivedProtocol<TestTarget>,
+            &loadDerivedEmptyProtocol<TestTarget>
         };
         static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
@@ -823,6 +1014,26 @@ void testLoad() {
 
             bool useDefault = false;
 
+            {
+                bslma_TestAllocator ta("MyTestObject", g_veryVeryVeryVerbose);
+                TestPointer p;
+                ASSERT(0 == p.ptr());
+
+                deleteCount = 0;
+                deleteDelta = 0;
+                TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
+            }
+            LOOP2_ASSERT(deleteCount,   deleteDelta,
+                         deleteCount == deleteDelta);
+
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            if(!useDefault) {
+                LOOP_ASSERT(i, dam.isMaxSame());
+            }
+
             for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
                 bslma_TestAllocatorMonitor dam2(da);
 
@@ -833,6 +1044,7 @@ void testLoad() {
 
                 deleteCount = 0;
                 deleteDelta = 0;
+                useDefault  = false;
                 TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
 
                 deleteCount = 0;
@@ -880,7 +1092,11 @@ void testLoad() {
             &loadMyConstObject  <TestTarget>,
             &loadMyDerivedObject<TestTarget>,
             &loadMyTestFactory  <TestTarget>,
-            &loadMyTestProtocol <TestTarget>
+            &loadMyTestProtocol <TestTarget>,
+            &loadMyEmptyProtocol<TestTarget>,
+            &loadDerivedFactory <TestTarget>,
+            &loadDerivedProtocol<TestTarget>,
+            &loadDerivedEmptyProtocol<TestTarget>
         };
         static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
@@ -897,6 +1113,26 @@ void testLoad() {
 
             bool useDefault = false;
 
+            {
+                bslma_TestAllocator ta("MyTestObject", g_veryVeryVeryVerbose);
+                TestPointer p;
+                ASSERT(0 == p.ptr());
+
+                deleteCount = 0;
+                deleteDelta = 0;
+                TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
+            }
+            LOOP2_ASSERT(deleteCount,   deleteDelta,
+                         deleteCount == deleteDelta);
+
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            if(!useDefault) {
+                LOOP_ASSERT(i, dam.isMaxSame());
+            }
+
             for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
                 bslma_TestAllocatorMonitor dam2(da);
 
@@ -907,6 +1143,7 @@ void testLoad() {
 
                 deleteCount = 0;
                 deleteDelta = 0;
+                useDefault  = false;
                 TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
 
                 deleteCount = 0;
@@ -950,11 +1187,15 @@ void testLoad() {
         static const TestFn TEST_ARRAY[] = {
             &loadEmptyPointer <TestTarget>,
             &loadNullPointer  <TestTarget>,
-            //&loadMyObject      <TestTarget>,
-            //&loadMyConstObject <TestTarget>,
+            //&loadMyObject       <TestTarget>,
+            //&loadMyConstObject  <TestTarget>,
             &loadMyDerivedObject<TestTarget>,
-            //&loadMyTestFactory <TestTarget>,
-            //&loadMyTestProtocol<TestTarget>
+            //&loadMyTestFactory  <TestTarget>,
+            //&loadMyTestProtocol <TestTarget>,
+            //&loadMyEmptyProtocol<TestTarget>,
+            &loadDerivedFactory <TestTarget>,
+            &loadDerivedProtocol<TestTarget>,
+            &loadDerivedEmptyProtocol<TestTarget>
         };
         static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
@@ -971,6 +1212,26 @@ void testLoad() {
 
             bool useDefault = false;
 
+            {
+                bslma_TestAllocator ta("MyTestObject", g_veryVeryVeryVerbose);
+                TestPointer p;
+                ASSERT(0 == p.ptr());
+
+                deleteCount = 0;
+                deleteDelta = 0;
+                TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
+            }
+            LOOP2_ASSERT(deleteCount,   deleteDelta,
+                         deleteCount == deleteDelta);
+
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            if(!useDefault) {
+                LOOP_ASSERT(i, dam.isMaxSame());
+            }
+
             for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
                 bslma_TestAllocatorMonitor dam2(da);
 
@@ -981,6 +1242,7 @@ void testLoad() {
 
                 deleteCount = 0;
                 deleteDelta = 0;
+                useDefault  = false;
                 TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
 
                 deleteCount = 0;
@@ -1028,7 +1290,11 @@ void testLoad() {
             //&loadMyConstObject<TestTarget>,
             &loadMyDerivedObject<TestTarget>,
             &loadMyTestFactory  <TestTarget>,
-            &loadMyTestProtocol <TestTarget>
+            &loadMyTestProtocol <TestTarget>,
+            &loadMyEmptyProtocol<TestTarget>,
+            &loadDerivedFactory <TestTarget>,
+            &loadDerivedProtocol<TestTarget>,
+            &loadDerivedEmptyProtocol<TestTarget>
         };
         static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
@@ -1045,6 +1311,26 @@ void testLoad() {
 
             bool useDefault = false;
 
+            {
+                bslma_TestAllocator ta("MyTestObject", g_veryVeryVeryVerbose);
+                TestPointer p;
+                ASSERT(0 == p.ptr());
+
+                deleteCount = 0;
+                deleteDelta = 0;
+                TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
+            }
+            LOOP2_ASSERT(deleteCount,   deleteDelta,
+                         deleteCount == deleteDelta);
+
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            if(!useDefault) {
+                LOOP_ASSERT(i, dam.isMaxSame());
+            }
+
             for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
                 bslma_TestAllocatorMonitor dam2(da);
 
@@ -1055,6 +1341,7 @@ void testLoad() {
 
                 deleteCount = 0;
                 deleteDelta = 0;
+                useDefault  = false;
                 TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
 
                 deleteCount = 0;
@@ -1102,7 +1389,11 @@ void testLoad() {
             &loadMyConstObject  <TestTarget>,
             &loadMyDerivedObject<TestTarget>,
             &loadMyTestFactory  <TestTarget>,
-            &loadMyTestProtocol <TestTarget>
+            &loadMyTestProtocol <TestTarget>,
+            &loadMyEmptyProtocol<TestTarget>,
+            &loadDerivedFactory <TestTarget>,
+            &loadDerivedProtocol<TestTarget>,
+            &loadDerivedEmptyProtocol<TestTarget>
         };
         static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
@@ -1119,6 +1410,26 @@ void testLoad() {
 
             bool useDefault = false;
 
+            {
+                bslma_TestAllocator ta("MyTestObject", g_veryVeryVeryVerbose);
+                TestPointer p;
+                ASSERT(0 == p.ptr());
+
+                deleteCount = 0;
+                deleteDelta = 0;
+                TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
+            }
+            LOOP2_ASSERT(deleteCount,   deleteDelta,
+                         deleteCount == deleteDelta);
+
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            if(!useDefault) {
+                LOOP_ASSERT(i, dam.isMaxSame());
+            }
+
             for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
                 bslma_TestAllocatorMonitor dam2(da);
 
@@ -1129,6 +1440,7 @@ void testLoad() {
 
                 deleteCount = 0;
                 deleteDelta = 0;
+                useDefault  = false;
                 TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
 
                 deleteCount = 0;
@@ -2824,10 +3136,10 @@ int main(int argc, char *argv[])
         {
             int i = 0;
             bdema_ManagedPtr<int> x(&i, 0);
-            bdema_ManagedPtr<int> y(0, 0));
+            bdema_ManagedPtr<int> y( 0, 0);
 
             bslma_Allocator * pNullAlloc = 0;
-            bdema_ManagedPtr<int> z(0, pNullAlloc));
+            bdema_ManagedPtr<int> z(0, pNullAlloc);
         }
 #endif
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3003,10 +3315,10 @@ int main(int argc, char *argv[])
         {
             int i = 0;
             bdema_ManagedPtr<int> x(&i, 0);
-            bdema_ManagedPtr<int> y(0, 0);
+            bdema_ManagedPtr<int> y( 0, 0);
 
             bslma_Allocator * pNullAlloc = 0;
-            bdema_ManagedPtr<int> z(0, pNullAlloc));
+            bdema_ManagedPtr<int> z(0, pNullAlloc);
         }
 #endif
       } break;
