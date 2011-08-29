@@ -820,8 +820,8 @@ class bdema_ManagedPtr {
         bdema_ManagedPtr_FactoryDeleter<BDEMA_TARGET_TYPE,bslma_Allocator>
                                                                 DeleterFactory;
 
-        this->load((BDEMA_TYPE*)ptr,
-                   (void*)bslma_Default::allocator(),
+        this->load(static_cast<BDEMA_TYPE *>(ptr),
+                   static_cast<void *>(bslma_Default::allocator()),
                    &DeleterFactory::deleter
                   );
     }
@@ -849,7 +849,9 @@ class bdema_ManagedPtr {
                                                      BDEMA_FACTORY>::Type
                                                                 DeleterFactory;
 
-        this->load((BDEMA_TYPE*)ptr, (void*)factory, &DeleterFactory::deleter);
+        this->load(static_cast<BDEMA_TYPE *>(ptr),
+                   static_cast<void *>(factory),
+                   &DeleterFactory::deleter);
     }
 
     template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>
@@ -881,7 +883,7 @@ class bdema_ManagedPtr {
         BSLS_ASSERT_SAFE(ptr || 0 != deleter);
 
         this->load(static_cast<BDEMA_TYPE *>(ptr),
-                   0,
+                   static_cast<void *>(0),
                    reinterpret_cast<DeleterFunc>(deleter));
     }
 
@@ -915,8 +917,8 @@ class bdema_ManagedPtr {
 
         BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-        this->load((BDEMA_TYPE*)ptr,
-                   (void*)factory,
+        this->load(static_cast<BDEMA_TYPE *>(ptr),
+                   static_cast<void *>(factory),
                    reinterpret_cast<DeleterFunc>(deleter));
     }
 
