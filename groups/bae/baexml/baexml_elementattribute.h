@@ -269,9 +269,14 @@ class baexml_ElementAttribute {
             // generated from the default attribute value in the DTD or
             // schema.
 
-        BAEXML_ATTR_IS_NSDECL  = 0x0002
+        BAEXML_ATTR_IS_NSDECL  = 0x0002,
             // Set this bit if this attribute represents a namespace
             // declaration.
+
+        BAEXML_ATTR_IS_XSIDECL = 0x0003
+            // Set this bit if this attribute represents a XML schema instance
+            // declaration.
+
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
       , ATTR_NO_FLAGS   = BAEXML_ATTR_NO_FLAGS
       , ATTR_IS_DEFAULT = BAEXML_ATTR_IS_DEFAULT

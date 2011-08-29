@@ -11690,7 +11690,7 @@ int main(int argc, char *argv[])
                             = {
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                                 "<MySequenceWithNillables>\n"
-                                "    <Attribute1/>\n"
+                                "    <Attribute1 xsi:nil='true'/>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "    <Attribute3>\n"
                                 "        <Attribute1>987</Attribute1>\n"

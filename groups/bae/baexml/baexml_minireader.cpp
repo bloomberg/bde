@@ -73,7 +73,7 @@ BDES_IDENT_RCSID(baexml_minireader_cpp,"$Id$ $CSID$")
 //     |    |     ^
 //     |-<--+     |
 //     |          |
-//     |          |---------<-------------------+                 
+//     |          |---------<-------------------+
 //     |          |                             |
 //     v          |                             |
 //  scanNode -->--+                             |
@@ -92,7 +92,7 @@ BDES_IDENT_RCSID(baexml_minireader_cpp,"$Id$ $CSID$")
 //     |                                        |
 //     |                                        |
 //     |-------------------<--------------------+
-//     |         
+//     |
 //     v
 //    END
 //..
@@ -1700,8 +1700,11 @@ baexml_MiniReader::addAttribute()
         //  prefix:localName
         localName = colon + 1;
         *colon = 0;            // temporary set terminating zero
-        if (bsl::strcmp(d_attrNamePtr, "xmlns") == 0) {
+        if (!bsl::strcmp(d_attrNamePtr, "xmlns")) {
             flags |= Attribute::BAEXML_ATTR_IS_NSDECL;
+        }
+        else if (!bsl::strcmp(d_attrNamePtr, "xsi")) {
+            flags |= Attribute::BAEXML_ATTR_IS_XSIDECL;
         }
         else {
             prefix = colon;    // later it will be corrected
@@ -1709,7 +1712,7 @@ baexml_MiniReader::addAttribute()
         *colon = ':';          // restore
     }
 
-    if ((flags & Attribute::BAEXML_ATTR_IS_NSDECL) != 0) {
+    if (flags & Attribute::BAEXML_ATTR_IS_NSDECL) {
 
         prefix = "xmlns";
         namespaceUri = "http://www.w3.org/2000/xmlns/";
@@ -1717,15 +1720,21 @@ baexml_MiniReader::addAttribute()
 
         d_prefixes->pushPrefix(localName, d_attrValPtr);
     }
+    else if (flags & Attribute::BAEXML_ATTR_IS_XSIDECL) {
+
+        prefix = "xsi";
+        namespaceUri = "http://www.w3.org/2001/XMLSchema-instance";
+        namespaceId = d_prefixes->lookupNamespaceId(prefix);
+    }
 
     Attribute attr(d_prefixes,
-        d_attrNamePtr,
-        d_attrValPtr,
-        prefix,
-        localName,
-        namespaceId,
-        namespaceUri,
-        flags);
+                   d_attrNamePtr,
+                   d_attrValPtr,
+                   prefix,
+                   localName,
+                   namespaceId,
+                   namespaceUri,
+                   flags);
 
     currentNode().addAttribute(attr);
     return 0;
