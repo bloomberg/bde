@@ -1424,7 +1424,8 @@ int main(int argc, char *argv[])
 
                 for (int i = 0; i < NUM_TIMERS; ++i) {
                     flags[i] = 0;
-                    timeValues[i] = bdetu_SystemTime::now();
+                    timeValues[i] = bdetu_SystemTime::now() +
+                                                          bdet_TimeInterval(2);
                     bdef_Function<void (*)()> functor(
                         bdef_BindUtil::bind(&timerCallback,
                                             &flags[i], &timeValues[i],
@@ -1433,19 +1434,25 @@ int main(int argc, char *argv[])
                     void *id = mX.registerTimer(timeValues[i],
                                                 functor);
                     LOOP_ASSERT(i, id);
-                }
+
+                    LOOP2_ASSERT(i + 1, X.numTimers(),
+                                 i + 1 == X.numTimers());
+                    LOOP2_ASSERT(i + 1, X.numEvents(),
+                                 i + 1 == X.numEvents());
+               }
+
                 if (veryVerbose) {
                     cout << "\t\tRegistered " << NUM_TIMERS
                          << " timers." << endl;
                 }
-                bcemt_ThreadUtil::sleep(delta);
+                bcemt_ThreadUtil::microSleep(0, 5);
 
                 ASSERT(0 == mX.disable());
                 for (int i = 0; i < NUM_TIMERS; ++i) {
                     LOOP_ASSERT(i, 1 == flags[i]);
                 }
-                ASSERT(0 == X.numTimers());
-                ASSERT(0 == X.numEvents());
+                LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
+                LOOP_ASSERT(X.numEvents(), 0 == X.numEvents());
             }
         }
       } break;
