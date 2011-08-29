@@ -852,9 +852,15 @@ class bdema_ManagedPtr {
         this->load((BDEMA_TYPE*)ptr, (void*)factory, &DeleterFactory::deleter);
     }
 
-    void load(BDEMA_TYPE *ptr,
-              bdema_ManagedPtr_Nullptr::Type,
-              void      (*deleter)(BDEMA_TYPE *, void*));
+    template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>
+    typename EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE,
+                                       BDEMA_TARGET_BASE,
+                                       void,
+                                       void
+                                      >::type
+    load(BDEMA_TARGET_TYPE *ptr,
+         bdema_ManagedPtr_Nullptr::Type,
+         void             (*deleter)(BDEMA_TARGET_BASE *, void*))
         // [!DEPRECATED!] Destroy the current managed object (if any) and
         // re-initialize this managed pointer to manage the specified 'ptr'
         // using the specified// 'deleter' with argument 'ptr' and '0' when
@@ -871,6 +877,13 @@ class bdema_ManagedPtr {
         // as required on every known compiler.  The overload taking a
         // 'DeleterFunc' (with two 'void *' arguments) should be preferred for
         // new code.
+    {
+        BSLS_ASSERT_SAFE(ptr || 0 != deleter);
+
+        this->load(static_cast<BDEMA_TYPE *>(ptr),
+                   0,
+                   reinterpret_cast<DeleterFunc>(deleter));
+    }
 
     template <class BDEMA_TARGET_TYPE,
               class BDEMA_TARGET_BASE,
@@ -1267,6 +1280,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
                   deleter);
 }
 
+#if 0
 template <class BDEMA_TYPE>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
@@ -1277,6 +1291,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
 
     this->load(ptr, 0, reinterpret_cast<DeleterFunc>(deleter));
 }
+#endif
 
 template <class BDEMA_TYPE>
 template <class BDEMA_OTHER_TYPE>

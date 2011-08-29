@@ -52,6 +52,7 @@ using namespace bsl;  // automatically added by script
 //  #define BDEMA_MANAGEDPTR_COMPILE_FAIL_MOVE_CONSTRUCT_FROM_CONST
 //  #define BDEMA_MANAGEDPTR_COMPILE_FAIL_INCOMPATIBLE_POINTERS
 //  #define BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY
+//  #define BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_DELETER
 //  #define BDEMA_MANAGEDPTR_COMPILE_FAIL_LOAD_INCOMPATIBLE_TYPE
 //  #define BDEMA_MANAGEDPTR_COMPILE_FAIL_CONSTRUCT_FROM_INCOMPATIBLE_POINTER
 //  #define BDEMA_MANAGEDPTR_COMPILE_FAIL_HOMOGENEOUS_COMPARISON
@@ -424,6 +425,37 @@ typedef bdema_ManagedPtr<char> ChObj;
 //                    FILE-STATIC FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+template<typename BDEMA_TYPE>
+static void deleteWithDefaultAllocator(void *ptr, void *factory)
+{
+    bslma_Allocator *pDa = bslma_Default::defaultAllocator();
+    BDEMA_TYPE *p = reinterpret_cast<BDEMA_TYPE *>(ptr);
+    pDa->deleteObject(p);
+}
+
+template<typename BDEMA_TYPE>
+static void deleteTypeWithDefaultAllocator(BDEMA_TYPE *ptr, void *factory)
+{
+    bslma_Allocator *pDa = bslma_Default::defaultAllocator();
+    pDa->deleteObject(ptr);
+}
+
+template<typename BDEMA_TYPE>
+static void deleteWithBslmaAllocatorFactory(void *ptr, void *factory)
+{
+    bslma_Allocator *pAlloc = reinterpret_cast<bslma_Allocator *>(factory);
+    BDEMA_TYPE *p = reinterpret_cast<BDEMA_TYPE *>(ptr);
+    pAlloc->deleteObject(p);
+}
+
+template<typename BDEMA_TYPE>
+static void deleteTypeWithBslmaAllocatorFactory(BDEMA_TYPE *ptr,
+                                                 void *factory)
+{
+    bslma_Allocator *pAlloc = reinterpret_cast<bslma_Allocator *>(factory);
+    pAlloc->deleteObject(ptr);
+}
+
 static void myTestDeleter(TObj *object, bslma_TestAllocator *allocator)
 {
     allocator->deleteObject(object);
@@ -709,6 +741,9 @@ void loadMyDerivedObject(int   line,
     // 'object()', 'factory()' and 'deleter()'
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following functions load a 'bdema_ManagedPtr' object using a factory
+
 template<typename POINTER_TYPE>
 void loadMyTestFactory(int   line, 
                        int   index,
@@ -964,6 +999,393 @@ void loadDerivedEmptyProtocol(int   line,
 
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following functions load a 'bdema_ManagedPtr' object using both a
+// factory and a deleter
+
+template<typename POINTER_TYPE>
+void loadMyTestFactoryNullDeleter(int   line, 
+                                  int   index,
+                                  bdema_ManagedPtr<POINTER_TYPE> *p,
+                                  int  *deleteCount, 
+                                  int  *deleteDelta,
+                                  bool *useDefault,
+                                  bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    MyTestObject        *pO = 0;
+    bslma_TestAllocator *pA = 0;
+
+    p->load(pO, pA, 0);
+    *deleteDelta = 0;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+
+#ifdef BDE_BUILD_TARGET_EXC
+    if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+    {
+        bsls_AssertTestHandlerGuard guard;
+
+        int localDeleteCount = 0;
+
+        pO = new(*ta)MyTestObject(&localDeleteCount);
+
+        ASSERT_SAFE_FAIL(p->load(pO, ta, 0));
+
+        ta->deleteObject(pO);
+        LOOP_ASSERT(localDeleteCount, 1 == localDeleteCount);
+    }
+#else
+    if (verbose) cout << "\tNegative testing disabled due to lack of "
+                         "exception support\n";
+#endif
+}
+
+//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_DELETER
+#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_DELETER)
+void loadMyNullFactory()
+{
+    int i = 0;
+    bdema_ManagedPtr<int> x(&i, 0, 0);
+    bdema_ManagedPtr<int> y( 0, 0, 0);
+
+    // These are currently runtime (UB) failures, rather than compile-time.
+    bslma_Allocator * pNullAlloc = 0;
+    bdema_ManagedPtr<int> z(&i, pNullAlloc, 0);
+    bdema_ManagedPtr<int> zz(0, pNullAlloc, 0);
+}
+#endif
+
+template<typename POINTER_TYPE>
+void loadMyTestNoFactoryDefaultDeleter(int   line, 
+                                       int   index,
+                                       bdema_ManagedPtr<POINTER_TYPE> *p,
+                                       int  *deleteCount, 
+                                       int  *deleteDelta,
+                                       bool *useDefault,
+                                       bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    bslma_Allocator *pA = bslma_Default::defaultAllocator();
+    MyTestObject    *pO = new(*pA)MyTestObject(deleteCount);
+    *useDefault         = true;
+
+    p->load(pO, 0, &deleteWithDefaultAllocator<MyTestObject>);
+    *deleteDelta = 1;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+}
+
+template<typename POINTER_TYPE>
+void loadMyTestBslmaFactoryDeleter(int   line, 
+                                   int   index,
+                                   bdema_ManagedPtr<POINTER_TYPE> *p,
+                                   int  *deleteCount, 
+                                   int  *deleteDelta,
+                                   bool *useDefault,
+                                   bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    MyTestObject    *pO = new(*ta)MyTestObject(deleteCount);
+
+    p->load(pO, ta, &deleteWithBslmaAllocatorFactory<MyTestObject>);
+    *deleteDelta = 1;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+}
+
+template<typename POINTER_TYPE>
+void loadMyTestTypeNoFactoryDefaultDeleter(int   line, 
+                                           int   index,
+                                           bdema_ManagedPtr<POINTER_TYPE> *p,
+                                           int  *deleteCount, 
+                                           int  *deleteDelta,
+                                           bool *useDefault,
+                                           bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    bslma_Allocator *pA = bslma_Default::defaultAllocator();
+    MyTestObject    *pO = new(*pA)MyTestObject(deleteCount);
+    *useDefault         = true;
+
+    p->load(pO, 0, &deleteTypeWithDefaultAllocator<MyTestObject>);
+    *deleteDelta = 1;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+}
+
+template<typename POINTER_TYPE>
+void loadMyTestTypeBslmaFactoryDeleter(int   line, 
+                                       int   index,
+                                       bdema_ManagedPtr<POINTER_TYPE> *p,
+                                       int  *deleteCount, 
+                                       int  *deleteDelta,
+                                       bool *useDefault,
+                                       bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    MyTestObject*pO = new(*ta)MyTestObject(deleteCount);
+
+    p->load(pO, ta, &deleteTypeWithBslmaAllocatorFactory<MyTestObject>);
+    *deleteDelta = 1;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+}
+
+template<typename POINTER_TYPE>
+void loadMyDerivedFactoryNullDeleter(int   line, 
+                                     int   index,
+                                     bdema_ManagedPtr<POINTER_TYPE> *p,
+                                     int  *deleteCount, 
+                                     int  *deleteDelta,
+                                     bool *useDefault,
+                                     bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    MyDerivedObject     *pO = 0;
+    bslma_TestAllocator *pA = 0;
+
+    p->load(pO, pA, 0);
+    *deleteDelta = 0;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+
+#ifdef BDE_BUILD_TARGET_EXC
+    if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+    {
+        bsls_AssertTestHandlerGuard guard;
+
+        int localDeleteCount = 0;
+
+        pO = new(*ta)MyDerivedObject(&localDeleteCount);
+
+        ASSERT_SAFE_FAIL(p->load(pO, ta, 0));
+
+        ta->deleteObject(pO);
+        LOOP_ASSERT(localDeleteCount, 100 == localDeleteCount);
+    }
+#else
+    if (verbose) cout << "\tNegative testing disabled due to lack of "
+                         "exception support\n";
+#endif
+}
+
+template<typename POINTER_TYPE>
+void loadMyDerivedNoFactoryDefaultDeleter(int   line, 
+                                          int   index,
+                                          bdema_ManagedPtr<POINTER_TYPE> *p,
+                                          int  *deleteCount, 
+                                          int  *deleteDelta,
+                                          bool *useDefault,
+                                          bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    bslma_Allocator *pA = bslma_Default::defaultAllocator();
+    MyDerivedObject    *pO = new(*pA)MyDerivedObject(deleteCount);
+    *useDefault         = true;
+
+    p->load(pO, 0, &deleteWithDefaultAllocator<MyDerivedObject>);
+    *deleteDelta = 100;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+}
+
+template<typename POINTER_TYPE>
+void loadMyDerivedBslmaFactoryDeleter(int   line, 
+                                      int   index,
+                                      bdema_ManagedPtr<POINTER_TYPE> *p,
+                                      int  *deleteCount, 
+                                      int  *deleteDelta,
+                                      bool *useDefault,
+                                      bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    MyDerivedObject    *pO = new(*ta)MyDerivedObject(deleteCount);
+
+    p->load(pO, ta, &deleteWithBslmaAllocatorFactory<MyDerivedObject>);
+    *deleteDelta = 100;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+}
+
+template<typename POINTER_TYPE>
+void loadMyDerivedTypeNoFactoryDefaultDeleter(int   line, 
+                                              int   index,
+                                              bdema_ManagedPtr<POINTER_TYPE>*p,
+                                              int  *deleteCount, 
+                                              int  *deleteDelta,
+                                              bool *useDefault,
+                                              bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    bslma_Allocator *pA = bslma_Default::defaultAllocator();
+    MyDerivedObject    *pO = new(*pA)MyDerivedObject(deleteCount);
+    *useDefault         = true;
+
+    p->load(pO, 0, &deleteTypeWithDefaultAllocator<MyDerivedObject>);
+    *deleteDelta = 100;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+}
+
+template<typename POINTER_TYPE>
+void loadMyDerivedTypeBslmaFactoryDeleter(int   line, 
+                                          int   index,
+                                          bdema_ManagedPtr<POINTER_TYPE> *p,
+                                          int  *deleteCount, 
+                                          int  *deleteDelta,
+                                          bool *useDefault,
+                                          bslma_TestAllocator *ta)
+{
+    // Assert pre-conditions
+    LOOP2_ASSERT(line,  p, 0 !=  p);
+    LOOP2_ASSERT(line,  deleteCount, 0 !=  deleteCount);
+    LOOP2_ASSERT(line, *deleteCount, 0 == *deleteCount);
+    LOOP2_ASSERT(line,  deleteDelta, 0 !=  deleteDelta);
+    LOOP2_ASSERT(line,  useDefault,  0 !=  useDefault);
+    LOOP2_ASSERT(line,  ta, 0 !=  ta);
+
+    const int expectedCount = *deleteDelta;
+
+    MyDerivedObject*pO = new(*ta)MyDerivedObject(deleteCount);
+
+    p->load(pO, ta, &deleteTypeWithBslmaAllocatorFactory<MyDerivedObject>);
+    *deleteDelta = 100;
+
+    LOOP4_ASSERT(line, index, expectedCount, *deleteCount,
+                 expectedCount == *deleteCount);
+
+    POINTER_TYPE *ptr = p->ptr();
+    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+}
+
+
+// untested concerns
+//   more varieties of base/derive conversion on deleter types
+//   const object pointers with factory loads
+//   const object pointers with deleter loads
+//   const object pointers with factory/deleter loads
+//   const factory pointers
+//   const factory pointers with deleters
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 void testLoad() {
@@ -987,17 +1409,32 @@ void testLoad() {
                                bslma_TestAllocator*);
 
         static const TestFn TEST_ARRAY[] = {
+            // default test
             &loadEmptyPointer   <TestTarget>,
+            // single object-pointer tests
             &loadNullPointer    <TestTarget>,
             &loadMyObject       <TestTarget>,
             //&loadMyConstObject<TestTarget>,
             &loadMyDerivedObject<TestTarget>,
+            // factory tests
             &loadMyTestFactory  <TestTarget>,
             &loadMyTestProtocol <TestTarget>,
             &loadMyEmptyProtocol<TestTarget>,
             &loadDerivedFactory <TestTarget>,
             &loadDerivedProtocol<TestTarget>,
-            &loadDerivedEmptyProtocol<TestTarget>
+            &loadDerivedEmptyProtocol<TestTarget>,
+            // deleter tests
+            &loadMyTestFactoryNullDeleter<TestTarget>,
+            &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyTestBslmaFactoryDeleter<TestTarget>,
+            &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
+            &loadMyDerivedFactoryNullDeleter<TestTarget>,
+            &loadMyDerivedNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
+            &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>
+            // deleter testt phase 2
         };
         static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
@@ -1086,17 +1523,32 @@ void testLoad() {
                                bslma_TestAllocator*);
 
         static const TestFn TEST_ARRAY[] = {
+            // default test
             &loadEmptyPointer   <TestTarget>,
+            // single object-pointer tests
             &loadNullPointer    <TestTarget>,
             &loadMyObject       <TestTarget>,
             &loadMyConstObject  <TestTarget>,
             &loadMyDerivedObject<TestTarget>,
+            // factory tests
             &loadMyTestFactory  <TestTarget>,
             &loadMyTestProtocol <TestTarget>,
             &loadMyEmptyProtocol<TestTarget>,
             &loadDerivedFactory <TestTarget>,
             &loadDerivedProtocol<TestTarget>,
-            &loadDerivedEmptyProtocol<TestTarget>
+            &loadDerivedEmptyProtocol<TestTarget>,
+            // deleter tests
+            &loadMyTestFactoryNullDeleter<TestTarget>,
+            &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyTestBslmaFactoryDeleter<TestTarget>,
+            &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
+            &loadMyDerivedFactoryNullDeleter<TestTarget>,
+            &loadMyDerivedNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
+            &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>
+            // deleter testt phase 2
         };
         static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
@@ -1185,17 +1637,32 @@ void testLoad() {
                                bslma_TestAllocator*);
 
         static const TestFn TEST_ARRAY[] = {
+            // default test
             &loadEmptyPointer <TestTarget>,
+            // single object-pointer tests
             &loadNullPointer  <TestTarget>,
             //&loadMyObject       <TestTarget>,
             //&loadMyConstObject  <TestTarget>,
             &loadMyDerivedObject<TestTarget>,
+            // factory tests
             //&loadMyTestFactory  <TestTarget>,
             //&loadMyTestProtocol <TestTarget>,
             //&loadMyEmptyProtocol<TestTarget>,
             &loadDerivedFactory <TestTarget>,
             &loadDerivedProtocol<TestTarget>,
-            &loadDerivedEmptyProtocol<TestTarget>
+            &loadDerivedEmptyProtocol<TestTarget>,
+            // deleter tests
+            //&loadMyTestFactoryNullDeleter<TestTarget>,
+            //&loadMyTestNoFactoryDefaultDeleter<TestTarget>,
+            //&loadMyTestBslmaFactoryDeleter<TestTarget>,
+            //&loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
+            //&loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
+            &loadMyDerivedFactoryNullDeleter<TestTarget>,
+            &loadMyDerivedNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
+            &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>
+            // deleter testt phase 2
         };
         static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
@@ -1284,17 +1751,32 @@ void testLoad() {
                                bslma_TestAllocator*);
 
         static const TestFn TEST_ARRAY[] = {
+            // default test
             &loadEmptyPointer   <TestTarget>,
+            // single object-pointer tests
             &loadNullPointer    <TestTarget>,
             &loadMyObject       <TestTarget>,
             //&loadMyConstObject<TestTarget>,
             &loadMyDerivedObject<TestTarget>,
+            // factory tests
             &loadMyTestFactory  <TestTarget>,
             &loadMyTestProtocol <TestTarget>,
             &loadMyEmptyProtocol<TestTarget>,
             &loadDerivedFactory <TestTarget>,
             &loadDerivedProtocol<TestTarget>,
-            &loadDerivedEmptyProtocol<TestTarget>
+            &loadDerivedEmptyProtocol<TestTarget>,
+            // deleter tests
+            &loadMyTestFactoryNullDeleter<TestTarget>,
+            &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyTestBslmaFactoryDeleter<TestTarget>,
+            &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
+            &loadMyDerivedFactoryNullDeleter<TestTarget>,
+            &loadMyDerivedNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
+            &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>
+            // deleter testt phase 2
         };
         static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
@@ -1383,17 +1865,32 @@ void testLoad() {
                                bslma_TestAllocator*);
 
         static const TestFn TEST_ARRAY[] = {
+            // default test
             &loadEmptyPointer   <TestTarget>,
+            // single object-pointer tests
             &loadNullPointer    <TestTarget>,
             &loadMyObject       <TestTarget>,
             &loadMyConstObject  <TestTarget>,
             &loadMyDerivedObject<TestTarget>,
+            // factory tests
             &loadMyTestFactory  <TestTarget>,
             &loadMyTestProtocol <TestTarget>,
             &loadMyEmptyProtocol<TestTarget>,
             &loadDerivedFactory <TestTarget>,
             &loadDerivedProtocol<TestTarget>,
-            &loadDerivedEmptyProtocol<TestTarget>
+            &loadDerivedEmptyProtocol<TestTarget>,
+            // deleter tests
+            &loadMyTestFactoryNullDeleter<TestTarget>,
+            &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyTestBslmaFactoryDeleter<TestTarget>,
+            &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
+            &loadMyDerivedFactoryNullDeleter<TestTarget>,
+            &loadMyDerivedNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
+            &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
+            &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>
+            // deleter testt phase 2
         };
         static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
