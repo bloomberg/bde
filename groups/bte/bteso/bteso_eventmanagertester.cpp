@@ -118,14 +118,14 @@ void* threadSignalGenerator(void *arg)
 
     pthread_kill(socketInfo.d_tid, SIGSYS);
     if (socketInfo.d_ctrlFlag & bteso_EventManagerTester::BTESO_VERY_VERBOSE) {
-        std::printf("Thread %d generated a SIGSYS signal.\n",
-                    bcemt_ThreadUtil::selfIdAsInt());
+        std::printf("Thread %llu generated a SIGSYS signal.\n",
+                    bcemt_ThreadUtil::selfIdAsUint64());
         std::fflush(stdout);
     }
     bcemt_ThreadUtil::microSleep(3 * BASE_TIME);
     pthread_kill(socketInfo.d_tid, SIGSYS);
     if (socketInfo.d_ctrlFlag & bteso_EventManagerTester::BTESO_VERY_VERBOSE) {
-        std::printf("Thread %d delivered another SIGSYS signal to %d.\n",
+        std::printf("Thread %llu delivered another SIGSYS signal to %d.\n",
                     bcemt_ThreadUtil::selfIdAsInt(),
                     bcemt_ThreadUtil::idAsInt(
                               bcemt_ThreadUtil::handleToId(socketInfo.d_tid)));
@@ -145,8 +145,8 @@ void* threadSignalGenerator(void *arg)
 
         if (socketInfo.d_ctrlFlag &
                                 bteso_EventManagerTester::BTESO_VERY_VERBOSE) {
-            std::printf("Thread %d writes %d bytes to socket %d.\n",
-                        bcemt_ThreadUtil::selfIdAsInt(),
+            std::printf("Thread %llu writes %d bytes to socket %d.\n",
+                        bcemt_ThreadUtil::selfIdAsUint64(),
                         len,
                         socketInfo.d_socket);
             std::fflush(stdout);
@@ -157,9 +157,9 @@ void* threadSignalGenerator(void *arg)
                 BSLS_ASSERT(0);
             }
             else {
-                std::printf("Thread %d doesn't write the right number of bytes"
-                            " to socket %d.\n",
-                            bcemt_ThreadUtil::selfIdAsInt(),
+                std::printf("Thread %llu doesn't write the right number of"
+                            " bytes to socket %d.\n",
+                            bcemt_ThreadUtil::selfIdAsUint64(),
                             socketInfo.d_socket);
                 std::fflush(stdout);
             }
