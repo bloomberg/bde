@@ -288,6 +288,14 @@ void computeNextRotationTime(bdet_Datetime                *result,
 
     *result = fileCreationTime;
     result->addMilliseconds(timeLeft);
+
+    // Prevent rotation at 'referenceStartTime' as this may cause an empty log
+    // to be generated if 'rotateOnTimeInterval' is called after
+    // 'enableFileLogging'.
+
+    if (*result == referenceStartTime - localTimeOffset) {
+        *result += interval;
+    }
 }
 
 }  // close unnamed namespace
