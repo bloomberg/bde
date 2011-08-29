@@ -472,6 +472,13 @@ void bdem_ChoiceArrayImp::reset(const bdem_ElemType::Type    selectionTypes[],
     }
 }
 
+void bdem_ChoiceArrayImp::reserveRaw(bsl::size_t numItems)
+{
+    const int newSize = nullBitsArraySize(length() + numItems);
+    d_nullBits.reserve(newSize);
+    d_headers.reserve(d_headers.size() + numItems);
+}
+
 // ACCESSORS
 bdem_ConstElemRef bdem_ChoiceArrayImp::itemElemRef(int itemIndex) const
 {

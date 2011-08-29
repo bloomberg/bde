@@ -483,7 +483,8 @@ class btemt_PoolMsg {
         BTEMT_CHANNEL_LIMIT,                // channel limit reached
         BTEMT_CAPACITY_LIMIT,               // capacity limit reached
         BTEMT_ERROR_BINDING_CLIENT_ADDR,    // error binding client address
-        BTEMT_ERROR_SETTING_OPTIONS         // error setting socket options
+        BTEMT_ERROR_SETTING_OPTIONS,        // error setting socket options
+        BTEMT_EVENT_MANAGER_LIMIT           // event manager limit reached
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
       , ACCEPT_TIMEOUT   = BTEMT_ACCEPT_TIMEOUT

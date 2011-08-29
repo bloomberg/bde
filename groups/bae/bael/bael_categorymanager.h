@@ -687,6 +687,9 @@ class bael_CategoryManagerIter {
     bael_CategoryManagerIter(const bael_CategoryManagerIter& original);
     bael_CategoryManagerIter& operator=(const bael_CategoryManagerIter& rhs);
 
+    bool operator==(const bael_CategoryManagerIter&) const;
+    bool operator!=(const bael_CategoryManagerIter&) const;
+
   public:
     // CREATORS
     explicit bael_CategoryManagerIter(
@@ -735,6 +738,9 @@ class bael_CategoryManagerManip {
     // NOT IMPLEMENTED
     bael_CategoryManagerManip(const bael_CategoryManagerManip& original);
     bael_CategoryManagerManip& operator=(const bael_CategoryManagerManip& rhs);
+
+    bool operator==(const bael_CategoryManagerManip&) const;
+    bool operator!=(const bael_CategoryManagerManip&) const;
 
   public:
     // CREATORS

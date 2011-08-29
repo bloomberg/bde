@@ -278,6 +278,98 @@ void publishRecord(Obj *mX, const char *message)
     mX->publish(record, context);
 }
 
+class LogRotationCallbackTester {
+    // This class can be used as a functor matching the signature of
+    // 'bael_FileObserver2::OnFileRotationCallback'.  This class records every
+    // invocation of the function-call operator, and is intended to test
+    // whether 'bael_FileObserver2' calls the log-rotation callback
+    // appropriately.
+
+    // PRIVATE TYPES
+    struct Rep {
+        int         d_invocations;
+        int         d_status;
+        bsl::string d_rotatedFileName;
+
+        explicit Rep(bslma_Allocator *allocator)
+        : d_invocations(0)
+        , d_status(0)
+        , d_rotatedFileName(allocator)
+        {
+        }
+
+      private:
+        // NOT IMPLEMENTED
+        Rep(const Rep&);
+        Rep& operator=(const Rep&);
+    };
+
+    // DATA
+    bcema_SharedPtr<Rep> d_rep;
+
+  public:
+    // PUBLIC CONSTANTS
+
+    enum {
+        UNINITIALIZED = INT_MIN
+    };
+
+    explicit LogRotationCallbackTester(bslma_Allocator *allocator)
+        // Create a callback tester that will use the specified 'status' and
+        // 'logFileName' to record the arguments to the function call
+        // operator.  Set '*status' to 'UNINITIALIZED' and set '*logFileName'
+        // to the empty string.
+    : d_rep()
+    {
+        d_rep.createInplace(allocator, allocator);
+        reset();
+    }
+
+    void operator()(int                status,
+                    const bsl::string& rotatedFileName)
+        // Set the value at the status address supplied at construction to the
+        // specified 'status', and set the value at the log file name address
+        // supplied at construction to the specified 'logFileName'.
+    {
+        ++d_rep->d_invocations;
+        d_rep->d_status          = status;
+        d_rep->d_rotatedFileName = rotatedFileName;
+
+    }
+
+    void reset()
+        // Set '*status' to 'UNINITIALIZED' and set '*logFileName' to the
+        // empty string.
+    {
+        d_rep->d_invocations     = 0;
+        d_rep->d_status          = UNINITIALIZED;
+        d_rep->d_rotatedFileName = "";
+
+    }
+
+    // ACCESSORS
+    int numInvocations() const { return d_rep->d_invocations; }
+        // Return the number of times that the function-call operator has been
+        // invoked since the most recent call to 'reset', or if 'reset' has
+        // not been called, since this objects construction.
+
+    int status() const { return d_rep->d_status; }
+        // Return the status passed to the most recent invocation of the
+        // function-call operation, or 'UNINITIALIZED' if 'numInvocations' is
+        // 0.
+
+    const bsl::string& rotatedFileName() const
+        // Return a reference to the non-modifiable file name supplied to the
+        // most recent invocation of the function-call operator, or the empty
+        // string if 'numInvocations' is 0.
+    {
+        return d_rep->d_rotatedFileName;
+    }
+
+};
+
+typedef LogRotationCallbackTester RotCb;
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -299,6 +391,35 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING 'setOnFileRotationCallback'
+        //
+        // Concerns:
+        //: 1 'setOnFileRotationCallback' is properly forwarded to the
+        //:   corresponding function in 'bael_FileObserver2'
+        //
+        // Plan:
+        //: 1 Setup callback with 'setOnFileRotationCallback' and verify that
+        //:   the callback is invoked on rotation.
+        //
+        // Testing:
+        //  void setOnFileRotationCallback(const OnFileRotationCallback&);
+        // --------------------------------------------------------------------
+
+        Obj mX;
+        bsl::string filename = tempFileName(veryVerbose);
+
+        RotCb cb(Z);
+        mX.setOnFileRotationCallback(cb);
+
+        ASSERT(0 == cb.numInvocations());
+
+        mX.enableFileLogging(filename.c_str());
+        mX.forceRotation();
+
+        ASSERT(1 == cb.numInvocations());
+      } break;
       case 4: {
 #ifdef BSLS_PLATFORM__OS_UNIX
         // don't run this if we're in the debugger because the debugger

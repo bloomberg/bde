@@ -1038,7 +1038,18 @@ class bdem_Table {
         // least the specified 'numBytes' without replenishment (i.e., without
         // internal allocation).  The behavior is undefined unless
         // '0 <= numBytes'.  Note that this method has no effect unless the
-        // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
+        //  internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
+
+    void reserveRaw(bsl::size_t numRows);
+        // Reserve sufficient memory to satisfy allocations required to insert
+        // at least the specified 'numRows' if the allocation strategy
+        // specified for this table is 'BDEM_WRITE_MANY' or 'BDEM_WRITE_ONCE'.
+        // Memory, in addition to the footprint of a row, used to initialize a
+        // row upon insertion is *not*  reserved if the allocation strategy
+        // specified for this table is 'BDEM_PASSTHROUGH' or
+        // 'BDEM_SUBORDINATE'.  Note that in the future this method may
+        // guarantee that no extra allocation will take place unless the data
+        // held by the row allocate memory itself.
 
     void reset(const bdem_ElemType::Type columnTypes[],
                int                       numColumns);
@@ -1178,6 +1189,11 @@ class bdem_Table {
     void columnTypes(bsl::vector<bdem_ElemType::Type> *result) const;
         // Load into the specified 'result', the sequence of column types in
         // this table.
+
+    bsl::size_t capacityRaw() const;
+        // Return the number of rows for which memory was previously allocated
+        // upon insertion or via a call to 'reserveRaw'.
+        // Note that it is always true: 'size() <= capacityRaw()'.
 
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified
@@ -1630,6 +1646,12 @@ void bdem_Table::reserveMemory(int numBytes)
 }
 
 inline
+void bdem_Table::reserveRaw(bsl::size_t numRows)
+{
+    d_tableImp.reserveRaw(numRows);
+}
+
+inline
 void bdem_Table::reset(const bdem_ElemType::Type columnTypes[],
                        int                       numColumns)
 {
@@ -2051,6 +2073,12 @@ bdem_ElemType::Type bdem_Table::columnType(int columnIndex) const
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
 
     return d_tableImp.columnType(columnIndex);
+}
+
+inline
+bsl::size_t bdem_Table::capacityRaw() const
+{
+    return d_tableImp.capacityRaw();
 }
 
 inline
