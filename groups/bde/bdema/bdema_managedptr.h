@@ -545,8 +545,6 @@ class bdema_ManagedPtr {
 
   private:
     // NOT IMPLEMENTED
-//    template <class BDEMA_ANY_TYPE, typename BDEMA_ANY_FACTORY>
-//    void load(BDEMA_ANY_TYPE *,
     template <typename BDEMA_ANY_FACTORY>
     void load(BDEMA_TYPE *,
               BDEMA_ANY_FACTORY *,
@@ -555,8 +553,6 @@ class bdema_ManagedPtr {
 
   private:
     // NOT IMPLEMENTED
-//    template <class BDEMA_ANY_TYPE>
-//    void load(BDEMA_ANY_TYPE *,
     void load(BDEMA_TYPE *,
               bdema_ManagedPtr_Nullptr::Type,
               bdema_ManagedPtr_Nullptr::Type);
