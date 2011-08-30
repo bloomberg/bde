@@ -148,6 +148,18 @@ void aSsErT(int c, const char *s, int i)
        #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
+#define LOOP5_ASSERT(I,J,K,L,M,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
+       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
+       #M << ": " << M << "\n"; \
+       aSsErT(1, #X, __LINE__); } }
+
+#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
+       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
+       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
+       aSsErT(1, #X, __LINE__); } }
+
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -610,21 +622,24 @@ static void doNothingDeleter(void *object, void *)
 //X doLoadOderiv
 //X doLoadOCderiv
 
-//: Note that null values for correctly types factories should assert in each
-//: case where there is no deleter.  Add negative testing to these cases:
-// doLoadOnullFbase
-// doLoadObaseFbase
-// doLoadOCbaseFbase
-// doLoadOderivFbase
-// doLoadOCderivFbase
+//- doLoadOnullFbase    [COMPILE-FAIL]
+//- doLoadOnullFtest    [COMPILE-FAIL]
+//X doLoadObaseFbase
+//X doLoadObaseFtest
+//X doLoadOCbaseFbase
+//X doLoadOCbaseFtest
+//X doLoadOderivFbase
+//X doLoadOderivFtest
+//X doLoadOCderivFbase
+//X doLoadOCderivFtest
 
-//: Note that null values for correctly types factories should assert in each
-//: case where there is no deleter.  Add negative testing to these cases:
-// doLoadOnullFtest
-// doLoadObaseFtest
-// doLoadOCbaseFtest
-// doLoadOderivFtest
-// doLoadOCderivFtest
+//X doLoadObaseFbaseDnull
+//X doLoadObaseFtestDnull
+//X doLoadOderivFbaseDnull
+//X doLoadOderivFtestDnull
+
+// TBD Can we store a 'void *' object with a knowledgable factory?
+//     (I think we require a knowledgable deleter to handle such type erasure)
 
 // WOULD THESE SERVE ANY PURPOSE, OR PURELY DELETER TESTS?
 // doLoadOnullFdflt
@@ -654,196 +669,202 @@ static void doNothingDeleter(void *object, void *)
 // doLoadOderivFVdflt
 // doLoadOCderivFVdflt
 
-//     Object    Factory    Deleter
-//  ---------    -------    -------
-//          -          -          -
-//          0          -          -
-//       base          -          -
-// const base          -          -
-//    derived          -          -
-//          0          0          -     [COMPILE FAIL]???
-//       base          0          -     [COMPILE FAIL]
-// const base          0          -     [COMPILE FAIL]
-//    derived          0          -     [COMPILE FAIL]
-//          0          0          0     [COMPILE FAIL]???
-//       base          0          0     [COMPILE FAIL]
-// const base          0          0     [COMPILE FAIL]
-//    derived          0          0     [COMPILE FAIL]
-//          0       void          -     [COMPILE FAIL]???
-//       base       void          -     [COMPILE FAIL]
-// const base       void          -     [COMPILE FAIL]
-//    derived       void          -     [COMPILE FAIL]
-//          0       void          0     [COMPILE FAIL]???
-//       base       void          0     [COMPILE FAIL]
-// const base       void          0     [COMPILE FAIL]
-//    derived       void          0     [COMPILE FAIL]
-//          0      bslma          -     
-//       base      bslma          -     
-// const base      bslma          -     
-//    derived      bslma          -     
-//          0      bslma          0     [COMPILE FAIL]???
-//       base      bslma          0     [COMPILE FAIL]
-// const base      bslma          0     [COMPILE FAIL]
-//    derived      bslma          0     [COMPILE FAIL]
-//          0       Test          -     
-//       base       Test          -     
-// const base       Test          -     
-//    derived       Test          -     
-//          0       Test          0     [COMPILE FAIL]???
-//       base       Test          0     [COMPILE FAIL]
-// const base       Test          0     [COMPILE FAIL]
-//    derived       Test          0     [COMPILE FAIL]
-
 template<typename POINTER_TYPE>
 struct TestLoadArgs {
     int  *d_deleteCount; 
     int  *d_deleteDelta;
     bool *d_useDefault;
     bslma_TestAllocator *d_ta;
+    unsigned int d_config;
     bdema_ManagedPtr<POINTER_TYPE> *d_p;
 };
 
 template<typename POINTER_TYPE>
-void validateTestLoadArgs(int line, const TestLoadArgs<POINTER_TYPE>& args)
+void validateTestLoadArgs(int callLine,
+                          int testLine,
+                          const TestLoadArgs<POINTER_TYPE>& args)
 {
     // Assert pre-conditions that are appropriate for every call using 'args'.
-    LOOP2_ASSERT(line,  args.d_p, 0 !=  args.d_p);
-    LOOP2_ASSERT(line,  args.d_deleteCount, 0 !=  args.d_deleteCount);
-    LOOP2_ASSERT(line, *args.d_deleteCount, 0 == *args.d_deleteCount);
-    LOOP2_ASSERT(line,  args.d_deleteDelta, 0 !=  args.d_deleteDelta);
-    LOOP2_ASSERT(line,  args.d_useDefault,  0 !=  args.d_useDefault);
-    LOOP2_ASSERT(line,  args.d_ta, 0 !=  args.d_ta);
+    LOOP3_ASSERT(callLine, testLine,  args.d_p, 0 !=  args.d_p);
+    LOOP3_ASSERT(callLine, testLine,  args.d_deleteCount, 0 !=  args.d_deleteCount);
+    LOOP3_ASSERT(callLine, testLine, *args.d_deleteCount, 0 == *args.d_deleteCount);
+    LOOP3_ASSERT(callLine, testLine,  args.d_deleteDelta, 0 !=  args.d_deleteDelta);
+    LOOP3_ASSERT(callLine, testLine,  args.d_useDefault,  0 !=  args.d_useDefault);
+    LOOP3_ASSERT(callLine, testLine,  args.d_ta, 0 !=  args.d_ta);
+    LOOP3_ASSERT(callLine, testLine,  args.d_config, 8 > args.d_config);
 }
 
 template<typename POINTER_TYPE>
-void doLoad(int line, int index, const TestLoadArgs<POINTER_TYPE>& args)
+void doLoad(int callLine, int testLine, int index,
+            const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
 
     const int expectedCount = *args.d_deleteDelta;
 
     args.d_p->load();
     *args.d_deleteDelta = 0;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP3_ASSERT(line, index, ptr, 0 == ptr);
+    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
 
     // As 'p' is empty, none of its other properties have a defined state.
 }
 
 template<typename POINTER_TYPE>
-void doLoadOnull(int line, int index, const TestLoadArgs<POINTER_TYPE>& args)
+void doLoadOnull(int callLine, int testLine, int index,
+                 const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
 
     const int expectedCount = *args.d_deleteDelta;
 
     args.d_p->load(0);
     *args.d_deleteDelta = 0;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP3_ASSERT(line, index, ptr, 0 == ptr);
+    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
 
     // As 'p' is empty, none of its other properties have a defined state.
 }
 
 template<typename POINTER_TYPE>
-void doLoadObase(int line, int index, const TestLoadArgs<POINTER_TYPE>& args)
+void doLoadObase(int callLine, int testLine, int index,
+                 const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
 
     const int expectedCount = *args.d_deleteDelta;
 
-    bslma_Allocator& da = *bslma_Default::defaultAllocator();
-    MyTestObject *pO = new(da)MyTestObject(args.d_deleteCount);
-    *args.d_useDefault = true;
+    MyTestObject *pO = 0;
+    if(nullObject) {
+        args.d_p->load(pO);
+        *args.d_deleteDelta = 0;
+    }
+    else {
+        bslma_Allocator& da = *bslma_Default::defaultAllocator();
+        pO = new(da)MyTestObject(args.d_deleteCount);
+        *args.d_useDefault = true;
 
-    args.d_p->load(pO);
-    *args.d_deleteDelta = 1;
+        args.d_p->load(pO);
+        *args.d_deleteDelta = 1;
+    }
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 
     // If we are feeling brave, verify that 'p.deleter()' has the expected
     // 'object()', 'factory()' and 'deleter()'
 }
 
 template<typename POINTER_TYPE>
-void doLoadOCbase(int line, int index, const TestLoadArgs<POINTER_TYPE>& args)
+void doLoadOCbase(int callLine, int testLine, int index,
+                  const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
 
     const int expectedCount = *args.d_deleteDelta;
 
-    bslma_Allocator& da = *bslma_Default::defaultAllocator();
-    const MyTestObject *pO = new(da)MyTestObject(args.d_deleteCount);
-    *args.d_useDefault = true;
+    const MyTestObject *pO = 0;
+    if(nullObject) {
+        args.d_p->load(pO);
+        *args.d_deleteDelta = 0;
+    }
+    else {
+        bslma_Allocator& da = *bslma_Default::defaultAllocator();
+        pO = new(da)MyTestObject(args.d_deleteCount);
+        *args.d_useDefault = true;
 
-    args.d_p->load(pO);
-    *args.d_deleteDelta = 1;
+        args.d_p->load(pO);
+        *args.d_deleteDelta = 1;
+    }
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 
     // If we are feeling brave, verify that 'p.deleter()' has the expected
     // 'object()', 'factory()' and 'deleter()'
 }
 
 template<typename POINTER_TYPE>
-void doLoadOderiv(int line, int index, const TestLoadArgs<POINTER_TYPE>& args)
+void doLoadOderiv(int callLine, int testLine, int index,
+                  const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
 
     const int expectedCount = *args.d_deleteDelta;
 
-    bslma_Allocator& da = *bslma_Default::defaultAllocator();
-    MyDerivedObject *pO = new(da)MyDerivedObject(args.d_deleteCount);
-    *args.d_useDefault = true;
+    MyDerivedObject *pO = 0;
+    if(nullObject) {
+        args.d_p->load(pO);
+        *args.d_deleteDelta = 0;
+    }
+    else {
+        bslma_Allocator& da = *bslma_Default::defaultAllocator();
+        pO = new(da)MyDerivedObject(args.d_deleteCount);
+        *args.d_useDefault = true;
 
-    args.d_p->load(pO);
-    *args.d_deleteDelta = 100;
+        args.d_p->load(pO);
+        *args.d_deleteDelta = 100;
+    }
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 
     // If we are feeling brave, verify that 'p.deleter()' has the expected
     // 'object()', 'factory()' and 'deleter()'
 }
 
 template<typename POINTER_TYPE>
-void doLoadOCderiv(int line, int index, const TestLoadArgs<POINTER_TYPE>& args)
+void doLoadOCderiv(int callLine, int testLine, int index,
+                   const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
 
     const int expectedCount = *args.d_deleteDelta;
 
-    bslma_Allocator& da = *bslma_Default::defaultAllocator();
-    const MyDerivedObject *pO = new(da)MyDerivedObject(args.d_deleteCount);
-    *args.d_useDefault = true;
+    const MyDerivedObject *pO = 0;
+    if(nullObject) {
+        args.d_p->load(pO);
+        *args.d_deleteDelta = 0;
+    }
+    else {
+        bslma_Allocator& da = *bslma_Default::defaultAllocator();
+        pO = new(da)MyDerivedObject(args.d_deleteCount);
+        *args.d_useDefault = true;
 
-    args.d_p->load(pO);
-    *args.d_deleteDelta = 100;
+        args.d_p->load(pO);
+        *args.d_deleteDelta = 100;
+    }
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 
     // If we are feeling brave, verify that 'p.deleter()' has the expected
     // 'object()', 'factory()' and 'deleter()'
@@ -853,185 +874,463 @@ void doLoadOCderiv(int line, int index, const TestLoadArgs<POINTER_TYPE>& args)
 // The following functions load a 'bdema_ManagedPtr' object using a factory
 
 template<typename POINTER_TYPE>
-void loadMyTestFactory(int line, 
+void doLoadObaseFbase(int callLine, int testLine,  
+                      int index,
+                      const TestLoadArgs<POINTER_TYPE>& args)
+{
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+
+    const int expectedCount = *args.d_deleteDelta;
+
+    bool negativeTesting = !nullObject && nullFactory;
+    int localDeleteCount = 0;
+
+    MyTestObject *pO = 0;
+    if(!nullObject) {
+        pO = new(*args.d_ta)MyTestObject(negativeTesting ? &localDeleteCount
+                                                         : args.d_deleteCount);
+    }
+
+    bslma_Allocator *pF = nullFactory
+                        ? 0
+                        : args.d_ta;
+
+    if(!negativeTesting) {
+        args.d_p->load(pO, pF);
+        *args.d_deleteDelta = nullObject ? 0 : 1;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 1 == localDeleteCount);
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+    }
+
+    // If we are feeling brave, verify that 'p.deleter()' has the expected
+    // 'object()', 'factory()' and 'deleter()'
+}
+
+template<typename POINTER_TYPE>
+void doLoadObaseFtest(int callLine, int testLine, 
+                      int index,
+                      const TestLoadArgs<POINTER_TYPE>& args)
+{
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+
+    const int expectedCount = *args.d_deleteDelta;
+
+    bool negativeTesting = !nullObject && nullFactory;
+    int localDeleteCount = 0;
+
+    MyTestObject *pO = 0;
+    if(!nullObject) {
+        pO = new(*args.d_ta)MyTestObject(negativeTesting ? &localDeleteCount
+                                                         : args.d_deleteCount);
+    }
+
+    bslma_TestAllocator *pF = nullFactory
+                            ? 0
+                            : args.d_ta;
+
+    if(!negativeTesting) {
+        args.d_p->load(pO, pF);
+        *args.d_deleteDelta = nullObject ? 0 : 1;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 1 == localDeleteCount);
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+    }
+
+    // If we are feeling brave, verify that 'p.deleter()' has the expected
+    // 'object()', 'factory()' and 'deleter()'
+}
+
+template<typename POINTER_TYPE>
+void doLoadOCbaseFbase(int callLine, int testLine,  
                        int index,
                        const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
 
     const int expectedCount = *args.d_deleteDelta;
 
-    MyTestObject *pO = new(*args.d_ta)MyTestObject(args.d_deleteCount);
+    bool negativeTesting = !nullObject && nullFactory;
+    int localDeleteCount = 0;
 
-    args.d_p->load(pO, args.d_ta);
-    *args.d_deleteDelta = 1;
+    const MyTestObject *pO = 0;
+    if(!nullObject) {
+        pO = new(*args.d_ta)MyTestObject(negativeTesting ? &localDeleteCount
+                                                         : args.d_deleteCount);
+    }
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
+    bslma_Allocator *pF = nullFactory
+                        ? 0
+                        : args.d_ta;
 
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    if(!negativeTesting) {
+        args.d_p->load(pO, pF);
+        *args.d_deleteDelta = nullObject ? 0 : 1;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 1 == localDeleteCount);
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+    }
 
     // If we are feeling brave, verify that 'p.deleter()' has the expected
     // 'object()', 'factory()' and 'deleter()'
 }
 
 template<typename POINTER_TYPE>
-void loadMyTestProtocol(int line, 
+void doLoadOCbaseFtest(int callLine, int testLine, 
+                       int index,
+                       const TestLoadArgs<POINTER_TYPE>& args)
+{
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+
+    const int expectedCount = *args.d_deleteDelta;
+
+    bool negativeTesting = !nullObject && nullFactory;
+    int localDeleteCount = 0;
+
+    const MyTestObject *pO = 0;
+    if(!nullObject) {
+        pO = new(*args.d_ta)MyTestObject(negativeTesting ? &localDeleteCount
+                                                         : args.d_deleteCount);
+    }
+
+    bslma_TestAllocator *pF = nullFactory
+                            ? 0
+                            : args.d_ta;
+
+    if(!negativeTesting) {
+        args.d_p->load(pO, pF);
+        *args.d_deleteDelta = nullObject ? 0 : 1;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 1 == localDeleteCount);
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+    }
+
+    // If we are feeling brave, verify that 'p.deleter()' has the expected
+    // 'object()', 'factory()' and 'deleter()'
+}
+
+template<typename POINTER_TYPE>
+void doLoadOderivFbase(int callLine, int testLine, 
+                       int index,
+                       const TestLoadArgs<POINTER_TYPE>& args)
+{
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+
+    const int expectedCount = *args.d_deleteDelta;
+
+    bool negativeTesting = !nullObject && nullFactory;
+    int localDeleteCount = 0;
+
+    MyDerivedObject *pO = 0;
+    if(!nullObject) {
+        pO = new(*args.d_ta)MyDerivedObject( negativeTesting 
+                                           ? &localDeleteCount
+                                           : args.d_deleteCount);
+    }
+
+    bslma_Allocator *pF = nullFactory
+                        ? 0
+                        : args.d_ta;
+
+    if(!negativeTesting) {
+        args.d_p->load(pO, pF);
+        *args.d_deleteDelta = nullObject ? 0 : 100;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 100 == localDeleteCount);
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+    }
+
+    // If we are feeling brave, verify that 'p.deleter()' has the expected
+    // 'object()', 'factory()' and 'deleter()'
+}
+
+template<typename POINTER_TYPE>
+void doLoadOderivFtest(int callLine, int testLine, 
+                       int index,
+                       const TestLoadArgs<POINTER_TYPE>& args)
+{
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+
+    const int expectedCount = *args.d_deleteDelta;
+
+    bool negativeTesting = !nullObject && nullFactory;
+    int localDeleteCount = 0;
+
+    MyDerivedObject *pO = 0;
+    if(!nullObject) {
+        pO = new(*args.d_ta)MyDerivedObject( negativeTesting 
+                                           ? &localDeleteCount
+                                           : args.d_deleteCount);
+    }
+
+    bslma_TestAllocator *pF = nullFactory
+                            ? 0
+                            : args.d_ta;
+
+    if(!negativeTesting) {
+        args.d_p->load(pO, pF);
+        *args.d_deleteDelta = nullObject ? 0 : 100;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 100 == localDeleteCount);
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+    }
+
+    // If we are feeling brave, verify that 'p.deleter()' has the expected
+    // 'object()', 'factory()' and 'deleter()'
+}
+
+template<typename POINTER_TYPE>
+void doLoadOCderivFbase(int callLine, int testLine, 
                         int index,
                         const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
 
     const int expectedCount = *args.d_deleteDelta;
 
-    MyTestObject *pO = new(*args.d_ta)MyTestObject(args.d_deleteCount);
+    bool negativeTesting = !nullObject && nullFactory;
+    int localDeleteCount = 0;
 
-    args.d_p->load(pO, static_cast<bslma_Allocator*>(args.d_ta));
-    *args.d_deleteDelta = 1;
+    const MyDerivedObject *pO = 0;
+    if(!nullObject) {
+        pO = new(*args.d_ta)MyDerivedObject( negativeTesting 
+                                           ? &localDeleteCount
+                                           : args.d_deleteCount);
+    }
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
+    bslma_Allocator *pF = nullFactory
+                        ? 0
+                        : args.d_ta;
 
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    if(!negativeTesting) {
+        args.d_p->load(pO, pF);
+        *args.d_deleteDelta = nullObject ? 0 : 100;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 100 == localDeleteCount);
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+    }
 
     // If we are feeling brave, verify that 'p.deleter()' has the expected
     // 'object()', 'factory()' and 'deleter()'
 }
 
 template<typename POINTER_TYPE>
-void loadMyEmptyProtocol(int line, 
-                         int index,
-                         const TestLoadArgs<POINTER_TYPE>& args)
-{
-    validateTestLoadArgs(line, args); // Assert pre-conditions
-
-    const int expectedCount = *args.d_deleteDelta;
-
-    MyTestObject        *pO = 0;
-    bslma_TestAllocator *pA = 0;
-
-    args.d_p->load(pO, pA);
-    *args.d_deleteDelta = 0;
-
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
-
-#ifdef BDE_BUILD_TARGET_EXC
-    if (verbose) cout << "\tNegative testing null factory pointer\n";
-
-    {
-        bsls_AssertTestHandlerGuard guard;
-
-        int localDeleteCount = 0;
-
-        pO = new(*args.d_ta)MyTestObject(&localDeleteCount);
-
-        ASSERT_SAFE_FAIL(args.d_p->load(pO, pA));
-
-        args.d_ta->deleteObject(pO);
-        LOOP_ASSERT(localDeleteCount, 1 == localDeleteCount);
-    }
-#else
-    if (verbose) cout << "\tNegative testing disabled due to lack of "
-                         "exception support\n";
-#endif
-
-}
-
-template<typename POINTER_TYPE>
-void loadDerivedFactory(int line, 
+void doLoadOCderivFtest(int callLine, int testLine, 
                         int index,
                         const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
 
     const int expectedCount = *args.d_deleteDelta;
 
-    MyDerivedObject *pO = new(*args.d_ta)MyDerivedObject(args.d_deleteCount);
+    bool negativeTesting = !nullObject && nullFactory;
+    int localDeleteCount = 0;
 
-    args.d_p->load(pO, args.d_ta);
-    *args.d_deleteDelta = 100;
-
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
-
-    // If we are feeling brave, verify that 'p.deleter()' has the expected
-    // 'object()', 'factory()' and 'deleter()'
-}
-
-template<typename POINTER_TYPE>
-void loadDerivedProtocol(int line, 
-                         int index,
-                         const TestLoadArgs<POINTER_TYPE>& args)
-{
-    validateTestLoadArgs(line, args); // Assert pre-conditions
-
-    const int expectedCount = *args.d_deleteDelta;
-
-    MyDerivedObject *pO = new(*args.d_ta)MyDerivedObject(args.d_deleteCount);
-
-    args.d_p->load(pO, static_cast<bslma_Allocator*>(args.d_ta));
-    *args.d_deleteDelta = 100;
-
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
-
-    // If we are feeling brave, verify that 'p.deleter()' has the expected
-    // 'object()', 'factory()' and 'deleter()'
-}
-
-template<typename POINTER_TYPE>
-void loadDerivedEmptyProtocol(int line, 
-                              int index,
-                              const TestLoadArgs<POINTER_TYPE>& args)
-{
-    validateTestLoadArgs(line, args); // Assert pre-conditions
-
-    const int expectedCount = *args.d_deleteDelta;
-
-    MyDerivedObject     *pO = 0;
-    bslma_TestAllocator *pA = 0;
-
-    args.d_p->load(pO, pA);
-    *args.d_deleteDelta = 0;
-
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
-
-#ifdef BDE_BUILD_TARGET_EXC
-    if (verbose) cout << "\tNegative testing null factory pointer\n";
-
-    {
-        bsls_AssertTestHandlerGuard guard;
-
-        int localDeleteCount = 0;
-
-        pO = new(*args.d_ta)MyDerivedObject(&localDeleteCount);
-
-        ASSERT_SAFE_FAIL(args.d_p->load(pO, pA));
-
-        args.d_ta->deleteObject(pO);
-        LOOP_ASSERT(localDeleteCount, 100 == localDeleteCount);
+    const MyDerivedObject *pO = 0;
+    if(!nullObject) {
+        pO = new(*args.d_ta)MyDerivedObject( negativeTesting 
+                                           ? &localDeleteCount
+                                           : args.d_deleteCount);
     }
-#else
-    if (verbose) cout << "\tNegative testing disabled due to lack of "
-                         "exception support\n";
-#endif
 
+    bslma_TestAllocator *pF = nullFactory
+                            ? 0
+                            : args.d_ta;
+
+    if(!negativeTesting) {
+        args.d_p->load(pO, pF);
+        *args.d_deleteDelta = nullObject ? 0 : 100;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 100 == localDeleteCount);
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+    }
+
+    // If we are feeling brave, verify that 'p.deleter()' has the expected
+    // 'object()', 'factory()' and 'deleter()'
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1039,46 +1338,217 @@ void loadDerivedEmptyProtocol(int line,
 // factory and a deleter
 
 template<typename POINTER_TYPE>
-void loadMyTestFactoryNullDeleter(int line, 
-                                  int index,
-                                  const TestLoadArgs<POINTER_TYPE>& args)
+void doLoadObaseFbaseDnull(int callLine, int testLine,
+                           int index,
+                           const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
 
     const int expectedCount = *args.d_deleteDelta;
 
-    MyTestObject        *pO = 0;
-    bslma_TestAllocator *pA = 0;
+    bool negativeTesting = !nullObject;
+    int localDeleteCount = 0;
 
-    args.d_p->load(pO, pA, 0);
-    *args.d_deleteDelta = 0;
-
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
-
-#ifdef BDE_BUILD_TARGET_EXC
-    if (verbose) cout << "\tNegative testing null factory pointer\n";
-
-    {
-        bsls_AssertTestHandlerGuard guard;
-
-        int localDeleteCount = 0;
-
+    MyTestObject *pO = 0;
+    if(!nullObject) {
         pO = new(*args.d_ta)MyTestObject(&localDeleteCount);
-
-        ASSERT_SAFE_FAIL(args.d_p->load(pO, args.d_ta, 0));
-
-        args.d_ta->deleteObject(pO);
-        LOOP_ASSERT(localDeleteCount, 1 == localDeleteCount);
     }
+
+    bslma_Allocator *pF = nullFactory
+                        ? 0
+                        : args.d_ta;
+
+    if (!negativeTesting) {
+        args.d_p->load(pO, pF, 0);
+        *args.d_deleteDelta = 0;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF, 0));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 1 == localDeleteCount);
+        }
 #else
-    if (verbose) cout << "\tNegative testing disabled due to lack of "
-                         "exception support\n";
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
 #endif
+    }
 }
+
+template<typename POINTER_TYPE>
+void doLoadObaseFtestDnull(int callLine, int testLine,
+                           int index,
+                           const TestLoadArgs<POINTER_TYPE>& args)
+{
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+
+    const int expectedCount = *args.d_deleteDelta;
+
+    bool negativeTesting = !nullObject;
+    int localDeleteCount = 0;
+
+    MyTestObject *pO = 0;
+    if(!nullObject) {
+        pO = new(*args.d_ta)MyTestObject(&localDeleteCount);
+    }
+
+    bslma_TestAllocator *pF = nullFactory
+                            ? 0
+                            : args.d_ta;
+
+    if (!negativeTesting) {
+        args.d_p->load(pO, pF, 0);
+        *args.d_deleteDelta = 0;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF, 0));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 1 == localDeleteCount);
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+    }
+}
+
+template<typename POINTER_TYPE>
+void doLoadOderivFbaseDnull(int callLine, int testLine,
+                            int index,
+                            const TestLoadArgs<POINTER_TYPE>& args)
+{
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+
+    const int expectedCount = *args.d_deleteDelta;
+
+    bool negativeTesting = !nullObject;
+    int localDeleteCount = 0;
+
+    MyDerivedObject *pO = 0;
+    if(!nullObject) {
+        pO = new(*args.d_ta)MyDerivedObject(&localDeleteCount);
+    }
+
+    bslma_Allocator *pF = nullFactory
+                        ? 0
+                        : args.d_ta;
+
+    if (!negativeTesting) {
+        args.d_p->load(pO, pF, 0);
+        *args.d_deleteDelta = 0;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF, 0));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 100 == localDeleteCount);
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+    }
+}
+
+template<typename POINTER_TYPE>
+void doLoadOderivFtestDnull(int callLine, int testLine,
+                            int index,
+                            const TestLoadArgs<POINTER_TYPE>& args)
+{
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+
+    const int expectedCount = *args.d_deleteDelta;
+
+    bool negativeTesting = !nullObject;
+    int localDeleteCount = 0;
+
+    MyDerivedObject *pO = 0;
+    if(!nullObject) {
+        pO = new(*args.d_ta)MyDerivedObject(&localDeleteCount);
+    }
+
+    bslma_TestAllocator *pF = nullFactory
+                            ? 0
+                            : args.d_ta;
+
+    if (!negativeTesting) {
+        args.d_p->load(pO, pF, 0);
+        *args.d_deleteDelta = 0;
+
+        LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                     expectedCount == *args.d_deleteCount);
+
+        POINTER_TYPE *ptr = args.d_p->ptr();
+        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    }
+    else {
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing null factory pointer\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(args.d_p->load(pO, pF, 0));
+
+            args.d_ta->deleteObject(pO);
+            LOOP_ASSERT(localDeleteCount, 100 == localDeleteCount);
+        }
+#else
+        if (verbose) cout << "\tNegative testing disabled due to lack of "
+                             "exception support\n";
+#endif
+    }
+}
+
 
 //#define BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_DELETER
 #if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_DELETER)
@@ -1112,11 +1582,15 @@ void loadMyNullFactory()
 #endif
 
 template<typename POINTER_TYPE>
-void loadMyTestNoFactoryDefaultDeleter(int line, 
+void loadMyTestNoFactoryDefaultDeleter(int callLine, int testLine,
                                        int index,
                                        const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+    bool nullDeleter = args.d_config & 4;
 
     const int expectedCount = *args.d_deleteDelta;
 
@@ -1127,19 +1601,23 @@ void loadMyTestNoFactoryDefaultDeleter(int line,
     args.d_p->load(pO, 0, &deleteWithDefaultAllocator<MyTestObject>);
     *args.d_deleteDelta = 1;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 template<typename POINTER_TYPE>
-void loadMyTestBslmaFactoryDeleter(int line, 
+void loadMyTestBslmaFactoryDeleter(int callLine, int testLine,
                                    int index,
                                    const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+    bool nullDeleter = args.d_config & 4;
 
     const int expectedCount = *args.d_deleteDelta;
 
@@ -1148,19 +1626,23 @@ void loadMyTestBslmaFactoryDeleter(int line,
     args.d_p->load(pO, args.d_ta, &deleteWithBslmaAllocatorFactory<MyTestObject>);
     *args.d_deleteDelta = 1;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 template<typename POINTER_TYPE>
-void loadMyTestTypeNoFactoryDefaultDeleter(int line, 
+void loadMyTestTypeNoFactoryDefaultDeleter(int callLine, int testLine,
                                            int index,
                                         const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+    bool nullDeleter = args.d_config & 4;
 
     const int expectedCount = *args.d_deleteDelta;
 
@@ -1171,19 +1653,23 @@ void loadMyTestTypeNoFactoryDefaultDeleter(int line,
     args.d_p->load(pO, 0, &deleteTypeWithDefaultAllocator<MyTestObject>);
     *args.d_deleteDelta = 1;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 template<typename POINTER_TYPE>
-void loadMyTestTypeBslmaFactoryDeleter(int line, 
+void loadMyTestTypeBslmaFactoryDeleter(int callLine, int testLine,
                                        int index,
                                        const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+    bool nullDeleter = args.d_config & 4;
 
     const int expectedCount = *args.d_deleteDelta;
 
@@ -1192,61 +1678,23 @@ void loadMyTestTypeBslmaFactoryDeleter(int line,
     args.d_p->load(pO, args.d_ta, &deleteTypeWithBslmaAllocatorFactory<MyTestObject>);
     *args.d_deleteDelta = 1;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 template<typename POINTER_TYPE>
-void loadMyDerivedFactoryNullDeleter(int line, 
-                                     int index,
-                                     const TestLoadArgs<POINTER_TYPE>& args)
-{
-    validateTestLoadArgs(line, args); // Assert pre-conditions
-
-    const int expectedCount = *args.d_deleteDelta;
-
-    MyDerivedObject     *pO = 0;
-    bslma_TestAllocator *pA = 0;
-
-    args.d_p->load(pO, pA, 0);
-    *args.d_deleteDelta = 0;
-
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
-
-#ifdef BDE_BUILD_TARGET_EXC
-    if (verbose) cout << "\tNegative testing null factory pointer\n";
-
-    {
-        bsls_AssertTestHandlerGuard guard;
-
-        int localDeleteCount = 0;
-
-        pO = new(*args.d_ta)MyDerivedObject(&localDeleteCount);
-
-        ASSERT_SAFE_FAIL(args.d_p->load(pO, args.d_ta, 0));
-
-        args.d_ta->deleteObject(pO);
-        LOOP_ASSERT(localDeleteCount, 100 == localDeleteCount);
-    }
-#else
-    if (verbose) cout << "\tNegative testing disabled due to lack of "
-                         "exception support\n";
-#endif
-}
-
-template<typename POINTER_TYPE>
-void loadMyDerivedNoFactoryDefaultDeleter(int line, 
+void loadMyDerivedNoFactoryDefaultDeleter(int callLine, int testLine,
                                           int index,
                                         const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+    bool nullDeleter = args.d_config & 4;
 
     const int expectedCount = *args.d_deleteDelta;
 
@@ -1257,19 +1705,23 @@ void loadMyDerivedNoFactoryDefaultDeleter(int line,
     args.d_p->load(pO, 0, &deleteWithDefaultAllocator<MyDerivedObject>);
     *args.d_deleteDelta = 100;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 template<typename POINTER_TYPE>
-void loadMyDerivedBslmaFactoryDeleter(int line, 
+void loadMyDerivedBslmaFactoryDeleter(int callLine, int testLine,
                                       int index,
                                       const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+    bool nullDeleter = args.d_config & 4;
 
     const int expectedCount = *args.d_deleteDelta;
 
@@ -1278,19 +1730,23 @@ void loadMyDerivedBslmaFactoryDeleter(int line,
     args.d_p->load(pO, args.d_ta, &deleteWithBslmaAllocatorFactory<MyDerivedObject>);
     *args.d_deleteDelta = 100;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 template<typename POINTER_TYPE>
-void loadMyDerivedTypeNoFactoryDefaultDeleter(int line, 
+void loadMyDerivedTypeNoFactoryDefaultDeleter(int callLine, int testLine,
                                               int index,
                                         const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+    bool nullDeleter = args.d_config & 4;
 
     const int expectedCount = *args.d_deleteDelta;
 
@@ -1301,19 +1757,23 @@ void loadMyDerivedTypeNoFactoryDefaultDeleter(int line,
     args.d_p->load(pO, 0, &deleteTypeWithDefaultAllocator<MyDerivedObject>);
     *args.d_deleteDelta = 100;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 template<typename POINTER_TYPE>
-void loadMyDerivedNoFactoryBaseDefaultDeleter(int line, 
+void loadMyDerivedNoFactoryBaseDefaultDeleter(int callLine, int testLine,
                                               int index,
                                         const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+    bool nullDeleter = args.d_config & 4;
 
     const int expectedCount = *args.d_deleteDelta;
 
@@ -1324,20 +1784,25 @@ void loadMyDerivedNoFactoryBaseDefaultDeleter(int line,
     args.d_p->load(pO, 0, &deleteTypeWithDefaultAllocator<MyTestObject>);
     *args.d_deleteDelta = 100;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 template<typename POINTER_TYPE>
 void loadMyDerivedAsBaseNoFactoryDefaultDeleter(
-                                        int line, 
+                                        int callLine,
+                                        int testLine,
                                         int index,
                                         const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+    bool nullDeleter = args.d_config & 4;
 
     const int expectedCount = *args.d_deleteDelta;
 
@@ -1348,19 +1813,23 @@ void loadMyDerivedAsBaseNoFactoryDefaultDeleter(
     args.d_p->load(pO, 0, &deleteTypeWithDefaultAllocator<MyTestObject>);
     *args.d_deleteDelta = 100;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 template<typename POINTER_TYPE>
-void loadMyDerivedTypeBslmaFactoryDeleter(int line, 
+void loadMyDerivedTypeBslmaFactoryDeleter(int callLine, int testLine, 
                                           int index,
                                         const TestLoadArgs<POINTER_TYPE>& args)
 {
-    validateTestLoadArgs(line, args); // Assert pre-conditions
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+    bool nullFactory = args.d_config & 2;
+    bool nullDeleter = args.d_config & 4;
 
     const int expectedCount = *args.d_deleteDelta;
 
@@ -1369,11 +1838,11 @@ void loadMyDerivedTypeBslmaFactoryDeleter(int line,
     args.d_p->load(pO, args.d_ta, &deleteTypeWithBslmaAllocatorFactory<MyDerivedObject>);
     *args.d_deleteDelta = 100;
 
-    LOOP4_ASSERT(line, index, expectedCount, *args.d_deleteCount,
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
                  expectedCount == *args.d_deleteCount);
 
     POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP4_ASSERT(line, index, pO, ptr, pO == ptr);
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 
@@ -1387,7 +1856,9 @@ void loadMyDerivedTypeBslmaFactoryDeleter(int line,
 //   const factory pointers with deleters
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 template<typename TEST_TARGET, typename TEST_FUNCTION_TYPE>
-void testLoadOps(typename TEST_FUNCTION_TYPE *TEST_ARRAY, int TEST_ARRAY_SIZE)
+void testLoadOps(int callLine,
+                 typename TEST_FUNCTION_TYPE *TEST_ARRAY,
+                 int TEST_ARRAY_SIZE)
 {
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
@@ -1409,76 +1880,81 @@ void testLoadOps(typename TEST_FUNCTION_TYPE *TEST_ARRAY, int TEST_ARRAY_SIZE)
     args.d_useDefault  = &useDefault;
 
 
-    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        bslma_TestAllocatorMonitor gam(ga);
-        bslma_TestAllocatorMonitor dam(da);
+    for(unsigned configI = 0; configI != 8; ++configI) {
+        for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+            bslma_TestAllocatorMonitor gam(ga);
+            bslma_TestAllocatorMonitor dam(da);
 
-        useDefault = false;
+            useDefault = false;
+            args.d_config = configI;
 
-        {
-            bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
-            TestPointer p;
-            ASSERT(0 == p.ptr());
+            {
+                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                TestPointer p;
+                ASSERT(0 == p.ptr());
 
-            args.d_p  = &p;
-            args.d_ta = &ta;
+                args.d_p  = &p;
+                args.d_ta = &ta;
 
-            deleteCount = 0;
-            deleteDelta = 0;
-//            TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
-            TEST_ARRAY[i](L_, i, args);
-        }
-        LOOP2_ASSERT(deleteCount,   deleteDelta,
-                     deleteCount == deleteDelta);
-
-        LOOP_ASSERT(i, gam.isInUseSame());
-        LOOP_ASSERT(i, gam.isMaxSame());
-
-        LOOP_ASSERT(i, dam.isInUseSame());
-        if(!useDefault) {
-            LOOP_ASSERT(i, dam.isMaxSame());
-        }
-
-        for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
-            bslma_TestAllocatorMonitor dam2(da);
-
-            bslma_TestAllocator ta("TestLoad 2", g_veryVeryVeryVerbose);
-
-            TestPointer p;
-            ASSERT(0 == p.ptr());
-
-            args.d_p  = &p;
-            args.d_ta = &ta;
-
-            deleteCount = 0;
-            deleteDelta = 0;
-            useDefault  = false;
-//            TEST_ARRAY[i](L_, i, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
-            TEST_ARRAY[i](L_, i, args);
-
-            deleteCount = 0;
-//            TEST_ARRAY[j](L_, j, &p, &deleteCount, &deleteDelta, &useDefault, &ta);
-            TEST_ARRAY[j](L_, j, args);
-
-            // Clear 'deleteCount' before 'p' is destroyed.
-            deleteCount = 0;
+                deleteCount = 0;
+                deleteDelta = 0;
+                TEST_ARRAY[i](callLine, L_, i, args);
+            }
+            LOOP2_ASSERT(deleteCount,   deleteDelta,
+                         deleteCount == deleteDelta);
 
             LOOP_ASSERT(i, gam.isInUseSame());
             LOOP_ASSERT(i, gam.isMaxSame());
 
+            LOOP_ASSERT(i, dam.isInUseSame());
             if(!useDefault) {
-                LOOP_ASSERT(i, dam2.isInUseSame());
-                LOOP_ASSERT(i, dam2.isMaxSame());
+                LOOP_ASSERT(i, dam.isMaxSame());
             }
+
+            for(unsigned configJ = 0; configJ != 8; ++configJ) {            
+                for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
+                    bslma_TestAllocatorMonitor dam2(da);
+
+                    bslma_TestAllocator ta("TestLoad 2",
+                                           g_veryVeryVeryVerbose);
+
+                    TestPointer p;
+                    ASSERT(0 == p.ptr());
+
+                    args.d_p  = &p;
+                    args.d_ta = &ta;
+                    args.d_config = configI;
+
+                    deleteCount = 0;
+                    deleteDelta = 0;
+                    useDefault  = false;
+                    TEST_ARRAY[i](callLine, L_, i, args);
+
+                    args.d_config = configJ;
+                    deleteCount = 0;
+                    TEST_ARRAY[j](callLine, L_, j, args);
+
+                    // Clear 'deleteCount' before 'p' is destroyed.
+                    deleteCount = 0;
+
+                    LOOP_ASSERT(i, gam.isInUseSame());
+                    LOOP_ASSERT(i, gam.isMaxSame());
+
+                    if(!useDefault) {
+                        LOOP_ASSERT(i, dam2.isInUseSame());
+                        LOOP_ASSERT(i, dam2.isMaxSame());
+                    }
+                }
+            }
+
+            // Validate the final deleter run when 'p' is destroyed.
+            LOOP2_ASSERT(deleteCount,   deleteDelta,
+                         deleteCount == deleteDelta);
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
         }
-
-        // Validate the final deleter run when 'p' is destroyed.
-        LOOP2_ASSERT(deleteCount,   deleteDelta,
-                     deleteCount == deleteDelta);
-
-        LOOP_ASSERT(i, dam.isInUseSame());
-        LOOP_ASSERT(i, gam.isInUseSame());
-        LOOP_ASSERT(i, gam.isMaxSame());
     }
 }
 
@@ -3404,27 +3880,27 @@ int main(int argc, char *argv[])
         //     Then verify the new target is destroyed when test object goes out of scope.
         //
         // Tested:
-        //   void load(bdema_ManagedPtr_Nullptr::Type =0);
-        //   void load(BDEMA_TARGET_TYPE *ptr);
-        //   void load(BDEMA_TYPE *ptr, FACTORY *factory);
-        //   void load(BDEMA_TYPE *ptr, void *factory, DeleterFunc deleter);
-        //   void load(BDEMA_TYPE *ptr,
+        //   void load(bdema_ManagedPtr_Nullptr::Type =0)
+        //   void load(BDEMA_TARGET_TYPE *ptr)
+        //   void load(BDEMA_TARGET_TYPE *ptr, FACTORY *factory)
+        //   void load(BDEMA_TYPE *ptr, void *factory, DeleterFunc deleter)
+        //   void load(BDEMA_TARGET_TYPE *ptr,
         //             bdema_ManagedPtr_Nullptr::Type,
-        //             void      (*deleter)(BDEMA_TYPE *, void*));
+        //             void      (*deleter)(BDEMA_TARGET_BASE *, void*))
         //   void load(BDEMA_TARGET_TYPE *ptr,
         //             BDEMA_FACTORY *factory,
         //             void(*deleter)(BDEMA_TARGET_BASE*,BDEMA_BASE_FACTORY*))
-        //   ~bdema_ManagedPtr();
+        //   ~bdema_ManagedPtr()
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'load' overloads"
                           << "\n------------------------" << endl;
 
-
         {
             typedef MyTestObject TestTarget;
             typedef bdema_ManagedPtr<TestTarget> TestPointer;
-            typedef void (*TestFn)(int, int, const TestLoadArgs<TestTarget> &);
+            typedef void (*TestFn)(int, int, int,
+                                   const TestLoadArgs<TestTarget> &);
 
             static const TestFn TEST_ARRAY[] = {
                 // default test
@@ -3436,19 +3912,23 @@ int main(int argc, char *argv[])
                 &doLoadOderiv   <TestTarget>,
                 //&doLoadOCderiv<TestTarget>,
                 // factory tests
-                &loadMyTestFactory  <TestTarget>,
-                &loadMyTestProtocol <TestTarget>,
-                &loadMyEmptyProtocol<TestTarget>,
-                &loadDerivedFactory <TestTarget>,
-                &loadDerivedProtocol<TestTarget>,
-                &loadDerivedEmptyProtocol<TestTarget>,
+                &doLoadObaseFbase  <TestTarget>,
+                &doLoadObaseFtest  <TestTarget>,
+                //&doLoadOCbaseFbase<TestTarget>,
+                //&doLoadOCbaseFtest<TestTarget>,
+                &doLoadOderivFbase <TestTarget>,
+                &doLoadOderivFtest <TestTarget>,
+                //&doLoadOCderivFbase<TestTarget>,
+                //&doLoadOCderivFtest<TestTarget>,
                 // deleter tests
-                &loadMyTestFactoryNullDeleter<TestTarget>,
+                &doLoadObaseFbaseDnull <TestTarget>,
+                &doLoadObaseFtestDnull <TestTarget>,
+                &doLoadOderivFbaseDnull<TestTarget>,
+                &doLoadOderivFtestDnull<TestTarget>,
                 &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestBslmaFactoryDeleter<TestTarget>,
                 &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedFactoryNullDeleter<TestTarget>,
                 &loadMyDerivedNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
                 &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
@@ -3460,7 +3940,7 @@ int main(int argc, char *argv[])
             static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
 
-            testLoadOps<TestTarget>(&TEST_ARRAY[0], TEST_ARRAY_SIZE);
+            testLoadOps<TestTarget>(L_, &TEST_ARRAY[0], TEST_ARRAY_SIZE);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3468,7 +3948,8 @@ int main(int argc, char *argv[])
         {
             typedef const MyTestObject TestTarget;
             typedef bdema_ManagedPtr<TestTarget> TestPointer;
-            typedef void (*TestFn)(int, int, const TestLoadArgs<TestTarget> &);
+            typedef void (*TestFn)(int, int, int,
+                                   const TestLoadArgs<TestTarget> &);
 
             static const TestFn TEST_ARRAY[] = {
                 // default test
@@ -3480,19 +3961,23 @@ int main(int argc, char *argv[])
                 &doLoadOderiv <TestTarget>,
                 &doLoadOCderiv<TestTarget>,
                 // factory tests
-                &loadMyTestFactory  <TestTarget>,
-                &loadMyTestProtocol <TestTarget>,
-                &loadMyEmptyProtocol<TestTarget>,
-                &loadDerivedFactory <TestTarget>,
-                &loadDerivedProtocol<TestTarget>,
-                &loadDerivedEmptyProtocol<TestTarget>,
+                &doLoadObaseFbase  <TestTarget>,
+                &doLoadObaseFtest  <TestTarget>,
+                &doLoadOCbaseFbase <TestTarget>,
+                &doLoadOCbaseFtest <TestTarget>,
+                &doLoadOderivFbase <TestTarget>,
+                &doLoadOderivFtest <TestTarget>,
+                &doLoadOCderivFbase<TestTarget>,
+                &doLoadOCderivFtest<TestTarget>,
                 // deleter tests
-                &loadMyTestFactoryNullDeleter<TestTarget>,
+                &doLoadObaseFbaseDnull <TestTarget>,
+                &doLoadObaseFtestDnull <TestTarget>,
+                &doLoadOderivFbaseDnull<TestTarget>,
+                &doLoadOderivFtestDnull<TestTarget>,
                 &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestBslmaFactoryDeleter<TestTarget>,
                 &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedFactoryNullDeleter<TestTarget>,
                 &loadMyDerivedNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
                 &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
@@ -3504,7 +3989,7 @@ int main(int argc, char *argv[])
             static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
 
-            testLoadOps<TestTarget>(&TEST_ARRAY[0], TEST_ARRAY_SIZE);
+            testLoadOps<TestTarget>(L_, &TEST_ARRAY[0], TEST_ARRAY_SIZE);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3512,9 +3997,10 @@ int main(int argc, char *argv[])
         {
             typedef MyDerivedObject TestTarget;
             typedef bdema_ManagedPtr<TestTarget> TestPointer;
-            typedef void (*TestFn)(int, int, const TestLoadArgs<TestTarget> &);
+            typedef void (*TestFn)(int, int, int,
+                                   const TestLoadArgs<TestTarget> &);
 
-           static const TestFn TEST_ARRAY[] = {
+            static const TestFn TEST_ARRAY[] = {
                 // default test
                 &doLoad<TestTarget>,
                 // single object-pointer tests
@@ -3524,19 +4010,23 @@ int main(int argc, char *argv[])
                 &doLoadOderiv   <TestTarget>,
                 //&doLoadOCderiv<TestTarget>,
                 // factory tests
-                //&loadMyTestFactory  <TestTarget>,
-                //&loadMyTestProtocol <TestTarget>,
-                //&loadMyEmptyProtocol<TestTarget>,
-                &loadDerivedFactory <TestTarget>,
-                &loadDerivedProtocol<TestTarget>,
-                &loadDerivedEmptyProtocol<TestTarget>,
+                //&doLoadObaseFbase<TestTarget>,
+                //&doLoadObaseFtest<TestTarget>,
+                //&doLoadOCbaseFbase <TestTarget>,
+                //&doLoadOCbaseFtest <TestTarget>,
+                &doLoadOderivFbase <TestTarget>,
+                &doLoadOderivFtest <TestTarget>,
+                //&doLoadOCderivFbase<TestTarget>,
+                //&doLoadOCderivFtest<TestTarget>,
                 // deleter tests
-                //&loadMyTestFactoryNullDeleter<TestTarget>,
+                //&doLoadObaseFbaseDnull<TestTarget>,
+                //&doLoadObaseFtestDnull<TestTarget>,
+                &doLoadOderivFbaseDnull <TestTarget>,
+                &doLoadOderivFtestDnull <TestTarget>,
                 //&loadMyTestNoFactoryDefaultDeleter<TestTarget>,
                 //&loadMyTestBslmaFactoryDeleter<TestTarget>,
                 //&loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
                 //&loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedFactoryNullDeleter<TestTarget>,
                 &loadMyDerivedNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
                 &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
@@ -3548,7 +4038,7 @@ int main(int argc, char *argv[])
             static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
 
-            testLoadOps<TestTarget>(&TEST_ARRAY[0], TEST_ARRAY_SIZE);
+            testLoadOps<TestTarget>(L_, &TEST_ARRAY[0], TEST_ARRAY_SIZE);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3556,7 +4046,8 @@ int main(int argc, char *argv[])
         {
             typedef void TestTarget;
             typedef bdema_ManagedPtr<TestTarget> TestPointer;
-            typedef void (*TestFn)(int, int, const TestLoadArgs<TestTarget> &);
+            typedef void (*TestFn)(int, int, int,
+                                   const TestLoadArgs<TestTarget> &);
 
             static const TestFn TEST_ARRAY[] = {
                 // default test
@@ -3568,19 +4059,23 @@ int main(int argc, char *argv[])
                 &doLoadOderiv   <TestTarget>,
                 //&doLoadOCderiv<TestTarget>,
                 // factory tests
-                &loadMyTestFactory  <TestTarget>,
-                &loadMyTestProtocol <TestTarget>,
-                &loadMyEmptyProtocol<TestTarget>,
-                &loadDerivedFactory <TestTarget>,
-                &loadDerivedProtocol<TestTarget>,
-                &loadDerivedEmptyProtocol<TestTarget>,
+                &doLoadObaseFbase  <TestTarget>,
+                &doLoadObaseFtest  <TestTarget>,
+                //&doLoadOCbaseFbase <TestTarget>,
+                //&doLoadOCbaseFtest <TestTarget>,
+                &doLoadOderivFbase <TestTarget>,
+                &doLoadOderivFtest <TestTarget>,
+                //&doLoadOCderivFbase<TestTarget>,
+                //&doLoadOCderivFtest<TestTarget>,
                 // deleter tests
-                &loadMyTestFactoryNullDeleter<TestTarget>,
+                &doLoadObaseFbaseDnull <TestTarget>,
+                &doLoadObaseFtestDnull <TestTarget>,
+                &doLoadOderivFbaseDnull<TestTarget>,
+                &doLoadOderivFtestDnull<TestTarget>,
                 &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestBslmaFactoryDeleter<TestTarget>,
                 &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedFactoryNullDeleter<TestTarget>,
                 &loadMyDerivedNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
                 &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
@@ -3592,7 +4087,7 @@ int main(int argc, char *argv[])
             static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
 
-            testLoadOps<TestTarget>(&TEST_ARRAY[0], TEST_ARRAY_SIZE);
+            testLoadOps<TestTarget>(L_, &TEST_ARRAY[0], TEST_ARRAY_SIZE);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3600,7 +4095,8 @@ int main(int argc, char *argv[])
         {
             typedef const void TestTarget;
             typedef bdema_ManagedPtr<TestTarget> TestPointer;
-            typedef void (*TestFn)(int, int, const TestLoadArgs<TestTarget> &);
+            typedef void (*TestFn)(int, int, int,
+                                   const TestLoadArgs<TestTarget> &);
 
             static const TestFn TEST_ARRAY[] = {
                 // default test
@@ -3612,19 +4108,23 @@ int main(int argc, char *argv[])
                 &doLoadOderiv <TestTarget>,
                 &doLoadOCderiv<TestTarget>,
                 // factory tests
-                &loadMyTestFactory  <TestTarget>,
-                &loadMyTestProtocol <TestTarget>,
-                &loadMyEmptyProtocol<TestTarget>,
-                &loadDerivedFactory <TestTarget>,
-                &loadDerivedProtocol<TestTarget>,
-                &loadDerivedEmptyProtocol<TestTarget>,
+                &doLoadObaseFbase  <TestTarget>,
+                &doLoadObaseFtest  <TestTarget>,
+                &doLoadOCbaseFbase <TestTarget>,
+                &doLoadOCbaseFtest <TestTarget>,
+                &doLoadOderivFbase <TestTarget>,
+                &doLoadOderivFtest <TestTarget>,
+                &doLoadOCderivFbase<TestTarget>,
+                &doLoadOCderivFtest<TestTarget>,
                 // deleter tests
-                &loadMyTestFactoryNullDeleter<TestTarget>,
+                &doLoadObaseFbaseDnull <TestTarget>,
+                &doLoadObaseFtestDnull <TestTarget>,
+                &doLoadOderivFbaseDnull<TestTarget>,
+                &doLoadOderivFtestDnull<TestTarget>,
                 &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestBslmaFactoryDeleter<TestTarget>,
                 &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedFactoryNullDeleter<TestTarget>,
                 &loadMyDerivedNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
                 &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
@@ -3636,251 +4136,16 @@ int main(int argc, char *argv[])
             static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
 
-            testLoadOps<TestTarget>(&TEST_ARRAY[0], TEST_ARRAY_SIZE);
+            testLoadOps<TestTarget>(L_, &TEST_ARRAY[0], TEST_ARRAY_SIZE);
         }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         using namespace CREATORS_TEST_NAMESPACE;
 
-        if (verbose) cout << "\tTest bdema_ManagedPtr::load()\n";
-
-        int numDeletes = 0;
-        {
-            if (veryVerbose) cout << "\tMyTestObject\n";
-
-            Obj o;
-
-            ASSERT(!o.ptr());
-            ASSERT(0 == numDeletes);
-
-            o.load();
-            ASSERT(!o.ptr()); // should not be testing operator! until test 13
-
-            ASSERT(0 == numDeletes);
-        }
-        ASSERT(0 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout << "\t\tload() a simple managed pointer\n";
-
-            TObj *p = new (da) MyTestObject(&numDeletes);
-            Obj o(p);
-
-            ASSERT(o.ptr() == p);
-            ASSERT(0 == numDeletes);
-
-            o.load();
-
-            ASSERT(!o); // should not be testing operator! until test 13
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout << "\tdema_ManagedPtr<void>\n";
-
-            VObj o;
-
-            ASSERT(!o.ptr());
-            ASSERT(0 == numDeletes);
-
-            o.load();
-            ASSERT(!o.ptr()); // should not be testing operator! until test 13
-
-            ASSERT(0 == numDeletes);
-        }
-        ASSERT(0 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout << "\t\tload() a simple managed pointer\n";
-
-            TObj *p = new (da) MyTestObject(&numDeletes);
-            VObj o(p);
-
-            ASSERT(o.ptr() == p);
-            ASSERT(0 == numDeletes);
-
-            o.load();
-
-            ASSERT(!o.ptr()); // should not be testing operator! until test 13
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\tTest bdema_ManagedPtr::load(nullptr)\n";
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout << "\tMyTestObject\n";
-
-            Obj o;
-
-            ASSERT(!o.ptr());
-            ASSERT(0 == numDeletes);
-
-            o.load(0);
-            ASSERT(!o.ptr()); // should not be testing operator! until test 13
-
-            ASSERT(0 == numDeletes);
-        }
-        ASSERT(0 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout << "\t\tload(0) a simple managed pointer\n";
-
-            TObj *p = new (da) MyTestObject(&numDeletes);
-            Obj o(p);
-
-            ASSERT(o.ptr() == p);
-            ASSERT(0 == numDeletes);
-
-            o.load(0);
-
-            ASSERT(!o); // should not be testing operator! until test 13
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout << "\tdema_ManagedPtr<void>\n";
-
-            VObj o;
-
-            ASSERT(!o.ptr());
-            ASSERT(0 == numDeletes);
-
-            o.load(0);
-            ASSERT(!o.ptr()); // should not be testing operator! until test 13
-
-            ASSERT(0 == numDeletes);
-        }
-        ASSERT(0 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout << "\t\tload(0) a simple managed pointer\n";
-
-            TObj *p = new (da) MyTestObject(&numDeletes);
-            VObj o(p);
-
-            ASSERT(o.ptr() == p);
-            ASSERT(0 == numDeletes);
-
-            o.load(0);
-
-            ASSERT(!o.ptr()); // should not be testing operator! until test 13
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\tTest load(T*)\n";
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout <<
-                                    "\t\tload into an empty managed pointer\n";
-
-            TObj *p = new (da) MyTestObject(&numDeletes);
-            Obj o;
-
-            ASSERT(!o.ptr());
-            ASSERT(0 == numDeletes);
-
-            o.load(p);
-
-            ASSERT(o.ptr() == p);
-            ASSERT(0 == numDeletes);
-        }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout <<
-                                    "\t\tload into a simple managed pointer\n";
-
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-            TObj *p2 = new (da) MyTestObject(&numDeletes);
-            Obj o(p);
-
-            ASSERT(o.ptr() == p);
-            ASSERT(0 == numDeletes);
-
-            o.load(p2);
-
-            ASSERT(o.ptr() == p2);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        }
-        ASSERT(2 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout <<
-                       "\t\tload derived type into a simple managed pointer\n";
-
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-            TDObj *p2 = new (da) MyDerivedObject(&numDeletes);
-            Obj o(p);
-
-            ASSERT(o.ptr() == p);
-            ASSERT(0 == numDeletes);
-
-            o.load(p2, &da);
-
-            ASSERT(o.ptr() == p2);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        }
-        ASSERT(101 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout <<
-                                    "\t\tload into an empty void pointer\n";
-
-            TObj *p = new (da) MyTestObject(&numDeletes);
-            VObj o;
-
-            ASSERT(!o.ptr());
-            ASSERT(0 == numDeletes);
-
-            o.load(p);
-
-            ASSERT(o.ptr() == p);
-            ASSERT(0 == numDeletes);
-        }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout <<
-                                    "\t\tload into a non-empty void pointer\n";
-
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-            TObj *p2 = new (da) MyTestObject(&numDeletes);
-            VObj o(p);
-
-            ASSERT(o.ptr() == p);
-            ASSERT(0 == numDeletes);
-
-            o.load(p2);
-
-            ASSERT(o.ptr() == p2);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        }
-        ASSERT(2 == numDeletes);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
         if (verbose) cout << "\tTest load(T*, factory)\n";
 
-        numDeletes = 0;
+        int numDeletes = 0;
         {
             typedef bdema_ManagedPtr<int> MyObj;
 

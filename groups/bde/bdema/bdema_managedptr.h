@@ -880,6 +880,10 @@ class bdema_ManagedPtr {
         // 'DeleterFunc' (with two 'void *' arguments) should be preferred for
         // new code.
     {
+        // Note that this function is defined inline in the class definition in
+        // order to work around bugs in compilers that fail to recognise an
+        // out-of-line definition as matching this same declaration.
+
         BSLS_ASSERT_SAFE(ptr || 0 != deleter);
 
         this->load(static_cast<BDEMA_TYPE *>(ptr),
@@ -1281,19 +1285,6 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
                   factory,
                   deleter);
 }
-
-#if 0
-template <class BDEMA_TYPE>
-inline
-void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE *ptr,
-                                        bdema_ManagedPtr_Nullptr::Type,
-                                        void (*deleter)(BDEMA_TYPE *, void*))
-{
-    BSLS_ASSERT_SAFE(0 != deleter);
-
-    this->load(ptr, 0, reinterpret_cast<DeleterFunc>(deleter));
-}
-#endif
 
 template <class BDEMA_TYPE>
 template <class BDEMA_OTHER_TYPE>
