@@ -543,6 +543,25 @@ class bdema_ManagedPtr {
                      bdema_ManagedPtr_Nullptr::Type);
         // It is never defined behavior to pass a null literal a a factory.
 
+  private:
+    // NOT IMPLEMENTED
+//    template <class BDEMA_ANY_TYPE, typename BDEMA_ANY_FACTORY>
+//    void load(BDEMA_ANY_TYPE *,
+    template <typename BDEMA_ANY_FACTORY>
+    void load(BDEMA_TYPE *,
+              BDEMA_ANY_FACTORY *,
+              bdema_ManagedPtr_Nullptr::Type);
+        // It is never defined behavior to pass a null literal a a factory.
+
+  private:
+    // NOT IMPLEMENTED
+//    template <class BDEMA_ANY_TYPE>
+//    void load(BDEMA_ANY_TYPE *,
+    void load(BDEMA_TYPE *,
+              bdema_ManagedPtr_Nullptr::Type,
+              bdema_ManagedPtr_Nullptr::Type);
+        // It is never defined behavior to pass a null literal a a factory.
+
   // TBD DO WE WANT TO DECLARE SOME PRIVATE OVERLOADS OF 'load'?
 
   private:
