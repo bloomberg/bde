@@ -3905,12 +3905,14 @@ int main(int argc, char *argv[])
             static const TestFn TEST_ARRAY[] = {
                 // default test
                 &doLoad<TestTarget>,
+
                 // single object-pointer tests
                 &doLoadOnull    <TestTarget>,
                 &doLoadObase    <TestTarget>,
                 //&doLoadOCbase <TestTarget>,
                 &doLoadOderiv   <TestTarget>,
                 //&doLoadOCderiv<TestTarget>,
+
                 // factory tests
                 &doLoadObaseFbase  <TestTarget>,
                 &doLoadObaseFtest  <TestTarget>,
@@ -3920,11 +3922,13 @@ int main(int argc, char *argv[])
                 &doLoadOderivFtest <TestTarget>,
                 //&doLoadOCderivFbase<TestTarget>,
                 //&doLoadOCderivFtest<TestTarget>,
+
                 // deleter tests
                 &doLoadObaseFbaseDnull <TestTarget>,
                 &doLoadObaseFtestDnull <TestTarget>,
                 &doLoadOderivFbaseDnull<TestTarget>,
                 &doLoadOderivFtestDnull<TestTarget>,
+
                 &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestBslmaFactoryDeleter<TestTarget>,
                 &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
@@ -3933,7 +3937,6 @@ int main(int argc, char *argv[])
                 &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
                 &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>,
-                // deleter test phase 2
                 &loadMyDerivedNoFactoryBaseDefaultDeleter<TestTarget>,
                 &loadMyDerivedAsBaseNoFactoryDefaultDeleter<TestTarget>
             };
@@ -3954,12 +3957,14 @@ int main(int argc, char *argv[])
             static const TestFn TEST_ARRAY[] = {
                 // default test
                 &doLoad<TestTarget>,
+
                 // single object-pointer tests
                 &doLoadOnull  <TestTarget>,
                 &doLoadObase  <TestTarget>,
                 &doLoadOCbase <TestTarget>,
                 &doLoadOderiv <TestTarget>,
                 &doLoadOCderiv<TestTarget>,
+
                 // factory tests
                 &doLoadObaseFbase  <TestTarget>,
                 &doLoadObaseFtest  <TestTarget>,
@@ -3969,11 +3974,13 @@ int main(int argc, char *argv[])
                 &doLoadOderivFtest <TestTarget>,
                 &doLoadOCderivFbase<TestTarget>,
                 &doLoadOCderivFtest<TestTarget>,
+
                 // deleter tests
                 &doLoadObaseFbaseDnull <TestTarget>,
                 &doLoadObaseFtestDnull <TestTarget>,
                 &doLoadOderivFbaseDnull<TestTarget>,
                 &doLoadOderivFtestDnull<TestTarget>,
+
                 &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestBslmaFactoryDeleter<TestTarget>,
                 &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
@@ -3982,7 +3989,6 @@ int main(int argc, char *argv[])
                 &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
                 &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>,
-                // deleter test phase 2
                 &loadMyDerivedNoFactoryBaseDefaultDeleter<TestTarget>,
                 &loadMyDerivedAsBaseNoFactoryDefaultDeleter<TestTarget>
             };
@@ -4003,12 +4009,14 @@ int main(int argc, char *argv[])
             static const TestFn TEST_ARRAY[] = {
                 // default test
                 &doLoad<TestTarget>,
+
                 // single object-pointer tests
                 &doLoadOnull    <TestTarget>,
                 //&doLoadObase  <TestTarget>,
                 //&doLoadOCbase <TestTarget>,
                 &doLoadOderiv   <TestTarget>,
                 //&doLoadOCderiv<TestTarget>,
+
                 // factory tests
                 //&doLoadObaseFbase<TestTarget>,
                 //&doLoadObaseFtest<TestTarget>,
@@ -4018,11 +4026,13 @@ int main(int argc, char *argv[])
                 &doLoadOderivFtest <TestTarget>,
                 //&doLoadOCderivFbase<TestTarget>,
                 //&doLoadOCderivFtest<TestTarget>,
+
                 // deleter tests
                 //&doLoadObaseFbaseDnull<TestTarget>,
                 //&doLoadObaseFtestDnull<TestTarget>,
                 &doLoadOderivFbaseDnull <TestTarget>,
                 &doLoadOderivFtestDnull <TestTarget>,
+
                 //&loadMyTestNoFactoryDefaultDeleter<TestTarget>,
                 //&loadMyTestBslmaFactoryDeleter<TestTarget>,
                 //&loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
@@ -4031,7 +4041,6 @@ int main(int argc, char *argv[])
                 &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
                 &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>,
-                // deleter testt phase 2
                 &loadMyDerivedNoFactoryBaseDefaultDeleter<TestTarget>
                 //&loadMyDerivedAsBaseNoFactoryDefaultDeleter<TestTarget>
             };
@@ -4052,12 +4061,14 @@ int main(int argc, char *argv[])
             static const TestFn TEST_ARRAY[] = {
                 // default test
                 &doLoad<TestTarget>,
+
                 // single object-pointer tests
                 &doLoadOnull    <TestTarget>,
                 &doLoadObase    <TestTarget>,
                 //&doLoadOCbase <TestTarget>,
                 &doLoadOderiv   <TestTarget>,
                 //&doLoadOCderiv<TestTarget>,
+
                 // factory tests
                 &doLoadObaseFbase  <TestTarget>,
                 &doLoadObaseFtest  <TestTarget>,
@@ -4067,11 +4078,13 @@ int main(int argc, char *argv[])
                 &doLoadOderivFtest <TestTarget>,
                 //&doLoadOCderivFbase<TestTarget>,
                 //&doLoadOCderivFtest<TestTarget>,
+
                 // deleter tests
                 &doLoadObaseFbaseDnull <TestTarget>,
                 &doLoadObaseFtestDnull <TestTarget>,
                 &doLoadOderivFbaseDnull<TestTarget>,
                 &doLoadOderivFtestDnull<TestTarget>,
+
                 &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestBslmaFactoryDeleter<TestTarget>,
                 &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
@@ -4080,7 +4093,6 @@ int main(int argc, char *argv[])
                 &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
                 &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>,
-                // deleter testt phase 2
                 &loadMyDerivedNoFactoryBaseDefaultDeleter<TestTarget>,
                 &loadMyDerivedAsBaseNoFactoryDefaultDeleter<TestTarget>
             };
@@ -4101,12 +4113,14 @@ int main(int argc, char *argv[])
             static const TestFn TEST_ARRAY[] = {
                 // default test
                 &doLoad<TestTarget>,
+
                 // single object-pointer tests
                 &doLoadOnull  <TestTarget>,
                 &doLoadObase  <TestTarget>,
                 &doLoadOCbase <TestTarget>,
                 &doLoadOderiv <TestTarget>,
                 &doLoadOCderiv<TestTarget>,
+
                 // factory tests
                 &doLoadObaseFbase  <TestTarget>,
                 &doLoadObaseFtest  <TestTarget>,
@@ -4116,11 +4130,13 @@ int main(int argc, char *argv[])
                 &doLoadOderivFtest <TestTarget>,
                 &doLoadOCderivFbase<TestTarget>,
                 &doLoadOCderivFtest<TestTarget>,
+
                 // deleter tests
                 &doLoadObaseFbaseDnull <TestTarget>,
                 &doLoadObaseFtestDnull <TestTarget>,
                 &doLoadOderivFbaseDnull<TestTarget>,
                 &doLoadOderivFtestDnull<TestTarget>,
+
                 &loadMyTestNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyTestBslmaFactoryDeleter<TestTarget>,
                 &loadMyTestTypeNoFactoryDefaultDeleter<TestTarget>,
@@ -4129,7 +4145,6 @@ int main(int argc, char *argv[])
                 &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
                 &loadMyDerivedTypeNoFactoryDefaultDeleter<TestTarget>,
                 &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>,
-                // deleter testt phase 2
                 &loadMyDerivedNoFactoryBaseDefaultDeleter<TestTarget>,
                 &loadMyDerivedAsBaseNoFactoryDefaultDeleter<TestTarget>
             };

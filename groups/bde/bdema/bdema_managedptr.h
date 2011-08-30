@@ -537,6 +537,16 @@ class bdema_ManagedPtr {
 
   private:
     // NOT IMPLEMENTED
+    template <class BDEMA_FACTORY>
+    bdema_ManagedPtr(BDEMA_TYPE *,
+                     BDEMA_FACTORY *,
+                     bdema_ManagedPtr_Nullptr::Type);
+        // It is never defined behavior to pass a null literal a a factory.
+
+  // TBD DO WE WANT TO DECLARE SOME PRIVATE OVERLOADS OF 'load'?
+
+  private:
+    // NOT IMPLEMENTED
     void operator==(const bdema_ManagedPtr&) const;
     void operator!=(const bdema_ManagedPtr&) const;
         // These two operator overloads are declared as 'private' but never
