@@ -1857,7 +1857,7 @@ void loadMyDerivedTypeBslmaFactoryDeleter(int callLine, int testLine,
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 template<typename TEST_TARGET, typename TEST_FUNCTION_TYPE>
 void testLoadOps(int callLine,
-                 typename TEST_FUNCTION_TYPE *TEST_ARRAY,
+                 TEST_FUNCTION_TYPE *TEST_ARRAY,
                  int TEST_ARRAY_SIZE)
 {
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
