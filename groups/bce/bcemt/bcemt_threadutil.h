@@ -133,21 +133,20 @@ BDES_IDENT("$Id: $")
 //..
 ///Setting Thread Priorities
 ///- - - - - - - - - - - - -
-// 'bcemt_ThreadUtil' allows clients to specify the priority of newly created
+// 'bcemt_ThreadUtil' allows clients to configure the priority of newly created
 // threads by setting the 'inheritSchedule', 'schedulingPolicy', and
-// 'schedulingPriority' attributes of a thread attributes object and supplying
-// that object to the 'create' method.  The range of legal values for
-// 'schedulingPriority' depends on both the platform and the value of
-// 'schedulingPolicy' and can be obtained from the 'getMinSchedPriority' and
-// 'getMaxSchedPriority' methods.  Both 'schedulingPolicy' and
-// 'schedulingPriority' are ignored unless 'inheritSchedule' is 'false' (the
-// default value is 'true').  Note that not only is effective setting of thread
-// priorities only workable on some combinations of platforms and user
-// priviledges, but setting the thread policy and priority appropriately for
-// one platform may cause thread creation to fail on another platform.  Also
-// note that the default value of thread priority may be outside the valid
-// range defined by
-// '[ getMinSchedPriority(policy), getMaxSchedPriority(policy) ]'.
+// 'schedulingPriority' of a thread attributes object supplied to the 'create'
+// method.  The range of legal values for 'schedulingPriority' depends on both
+// the platform and the value of 'schedulingPolicy'; and can be obtained from
+// the 'getMinSchedulingPriority' and 'getMaxSchedulingPriority' methods.  Both
+// 'schedulingPolicy' and 'schedulingPriority' are ignored unless
+// 'inheritSchedule' is 'false' (the default value is 'true').  Note that not
+// only is effective setting of thread priorities only workable on some
+// combinations of platforms and user priviledges, but setting the thread
+// policy and priority appropriately for one platform may cause thread creation
+// to fail on another platform.  Also note that the default value of thread
+// priority may be outside the valid range defined by
+// '[ getMinSchedulingPriority(policy), getMaxSchedulingPriority(policy) ]'.
 //..
 // Platform  Restrictions
 // --------  ------------------------------------------------------------------
@@ -157,26 +156,25 @@ BDES_IDENT("$Id: $")
 // AIX       For non-priviledged clients, spawning of threads fails if
 //           'schedulingPolicy' is 'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR'.
 //
-// Linux     Non-priviledged clients *CAN* *NOT* make effective use of thread
+// Linux     Non-priviledged clients *can* *not* make effective use of thread
 //           priorities -- spawning of threads fails if 'schedulingPolicy' is
 //           'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR', and
-//           'getMinSchedPriority == getMaxSchedPriority' if the policy has
-//           any other value.
+//           'getMinSchedulingPriority == getMaxSchedulingPriority' if the
+//           policy has any other value.
 //
-// HPUX      Non-priviledged clients *CAN* *NOT* make effective use of thread
+// HPUX      Non-priviledged clients *can* *not* make effective use of thread
 //           priorities -- spawning of threads fails if 'inheritSchedule'
 //           is 'false'.
 //
-// Windows   Clients *CAN* *NOT* make effective use of thread priorities --
+// Windows   Clients *can* *not* make effective use of thread priorities --
 //           'schedulingPolicy', 'schedulingPriority', and 'inheritSchedule'
 //           are ignored for all clients.
 //..
-// We will give an example of where we are on Solaris or AIX and we want to
-// start 3 threads with different priorities.  We use the
-// 'convertToSchedPriority' function to translate a normalized, floating-point
-// priority in the range '[ 0.0, 1.0 ]' to an integer priority in the range
-// '[ getMinSchedPriority, getMaxSchedPriority ]' to set the
-// 'schedulingPriority' attribute.
+// In this example we demonstrate creating 3 threads with different priorities.
+// We use the 'convertToSchedulingPriority' function to translate a normalized,
+// floating-point priority in the range '[ 0.0, 1.0 ]' to an integer priority
+// in the range '[ getMinSchedulingPriority, getMaxSchedulingPriority ]' to set
+// the 'schedulingPriority' attribute.
 //..
 //  void runSeveralThreads()
 //      // Create 3 threads with different priorities and then wait for them
@@ -199,7 +197,7 @@ BDES_IDENT("$Id: $")
 //
 //      for (int i = 0; i < NUM_THREADS; ++i) {
 //          attributes.setSchedulingPriority(
-//                    bcemt_ThreadUtil::convertToSchedPriority(policy,
+//               bcemt_ThreadUtil::convertToSchedulingPriority(policy,
 //                                                             priorities[i]));
 //          int rc = bcemt_ThreadUtil::create(&handles[i],
 //                                            attributes,
@@ -299,10 +297,9 @@ struct bcemt_ThreadUtil {
     // CLASS METHODS
                          // *** Thread Management ***
 
-    static int convertToSchedPriority(
-                      bcemt_ThreadAttributes::SchedulingPolicy
-                                                 policy,
-                      double                     normalizedSchedulingPriority);
+    static int convertToSchedulingPriority(
+        bcemt_ThreadAttributes::SchedulingPolicy policy,
+        double                                   normalizedSchedulingPriority);
         // Return an integer scheduling priority appropriate for the specified
         // 'normalizedSchedulingPriority' and the specified 'policy'.  Higher
         // values of 'normalizedSchedulingPriority' are considered to represent
@@ -382,19 +379,25 @@ struct bcemt_ThreadUtil {
         // the exit status.  Note that the preferred method of exiting a thread
         // is to return from the entry point function.
 
-    static int getMinSchedPriority(int policy);
-        // Return the non-negative minimum available priority for the
-        // optionally-specified 'policy' on success, where 'policy' is of type
-        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
-        // error.  Note that for some platform / policy cominations,
-        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+    static int getMinSchedulingPriority(
+                              bcemt_ThreadAttributes::SchedulingPolicy policy);
+        // Return the minimum available priority for the 'policy', where
+        // 'policy' is of type 'bcemt_ThreadAttributes::SchedulingPolicy'.
+        // Note that for some platform / policy cominations,
+        // 'getMinSchedulingPriority(policy)' and
+        // 'getMaxSchedulingPriority(policy)' return the same value.  The
+        // behavior is undefined unless 'policy' is a valid value of enum
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.
 
-    static int getMaxSchedPriority(int policy);
-        // Return the non-negative maximum available priority for the
-        // optionally-specified 'policy' on success, where 'policy' is of type
-        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
-        // error.  Note that for some platform / policy cominations,
-        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+    static int getMaxSchedulingPriority(
+                              bcemt_ThreadAttributes::SchedulingPolicy policy);
+        // Return the maximum available priority for the 'policy', where
+        // 'policy' is of type 'bcemt_ThreadAttributes::SchedulingPolicy'.
+        // Note that for some platform / policy cominations,
+        // 'getMinSchedulingPriority(policy)' and
+        // 'getMaxSchedulingPriority(policy)' return the same value.  The
+        // behavior is undefined unless 'policy' is a valid value of enum
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.
 
     static int join(Handle& handle, void **status = 0);
         // Suspend execution of the current thread until the thread referred to
@@ -559,15 +562,17 @@ int bcemt_ThreadUtil::create(bcemt_ThreadUtil::Handle *handle,
 }
 
 inline
-int bcemt_ThreadUtil::getMinSchedPriority(int policy)
+int bcemt_ThreadUtil::getMinSchedulingPriority(
+                               bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
-    return Imp::getMinSchedPriority(policy);
+    return Imp::getMinSchedulingPriority(policy);
 }
 
 inline
-int bcemt_ThreadUtil::getMaxSchedPriority(int policy)
+int bcemt_ThreadUtil::getMaxSchedulingPriority(
+                               bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
-    return Imp::getMaxSchedPriority(policy);
+    return Imp::getMaxSchedulingPriority(policy);
 }
 
 inline

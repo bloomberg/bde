@@ -42,6 +42,10 @@ BDES_IDENT("$Id: $")
 
 // Platform-specific implementation starts here.
 
+#ifndef INCLUDED_BCEMT_THREADATTRIBUTES
+#include <bcemt_threadattributes.h>
+#endif
+
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
 #endif
@@ -82,8 +86,6 @@ extern "C" {
 };
 
 namespace BloombergLP {
-
-class bcemt_ThreadAttributes;
 
 template <typename THREAD_POLICY>
 struct bcemt_ThreadUtilImpl;
@@ -166,14 +168,16 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // made once the thread terminates to reclaim any system resources
         // associated with the newly created identifier.
 
-    static int getMinSchedPriority(int policy);
+    static int getMinSchedPriority(
+                              bcemt_ThreadAttributes::SchedulingPolicy policy);
         // Return the non-negative minimum available priority for the
         // optionally-specified 'policy' on success, where 'policy' is of type
         // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
         // error.  Note that for some platform / policy cominations,
         // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
 
-    static int getMaxSchedPriority(int policy);
+    static int getMaxSchedPriority(
+                              bcemt_ThreadAttributes::SchedulingPolicy policy);
         // Return the non-negative maximum available priority for the
         // optionally-specified 'policy' on success, where 'policy' is of type
         // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
@@ -340,14 +344,16 @@ bool operator!=(
 // CLASS METHODS
 inline
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
-                                                getMinSchedPriority(int policy)
+                         getMinSchedPriority(
+                               bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
     return -1;    // priorities not supported on Windows
 }
 
 inline
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
-                                                getMaxSchedPriority(int policy)
+                         getMaxSchedPriority(
+                               bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
     return -1;    // priorities not supported on Windows
 }

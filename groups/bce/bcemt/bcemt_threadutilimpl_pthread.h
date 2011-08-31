@@ -42,6 +42,10 @@ BDES_IDENT("$Id: $")
 
 // Platform-specific implementation starts here.
 
+#ifndef INCLUDED_BCEMT_THREADATTRIBUTES
+#include <bcemt_threadattributes.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -58,7 +62,6 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
 class bdet_TimeInterval;
-class bcemt_ThreadAttributes;
 
 template <typename THREAD_POLICY>
 struct bcemt_ThreadUtilImpl;
@@ -127,19 +130,25 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // made once the thread terminates to reclaim any system resources
         // associated with the newly created identifier.
 
-    static int getMinSchedPriority(int policy);
-        // Return the non-negative minimum available priority for the
-        // optionally-specified 'policy' on success, where 'policy' is of type
-        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
-        // error.  Note that for some platform / policy cominations,
-        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+    static int getMinSchedulingPriority(
+                              bcemt_ThreadAttributes::SchedulingPolicy policy);
+        // Return the minimum available priority for the 'policy', where
+        // 'policy' is of type 'bcemt_ThreadAttributes::SchedulingPolicy'.
+        // Note that for some platform / policy cominations,
+        // 'getMinSchedulingPriority(policy)' and
+        // 'getMaxSchedulingPriority(policy)' return the same value.  The
+        // behavior is undefined unless 'policy' is a valid value of enum
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.
 
-    static int getMaxSchedPriority(int policy);
-        // Return the non-negative maximum available priority for the
-        // optionally-specified 'policy' on success, where 'policy' is of type
-        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
-        // error.  Note that for some platform / policy cominations,
-        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+    static int getMaxSchedulingPriority(
+                              bcemt_ThreadAttributes::SchedulingPolicy policy);
+        // Return the maximum available priority for the 'policy', where
+        // 'policy' is of type 'bcemt_ThreadAttributes::SchedulingPolicy'.
+        // Note that for some platform / policy cominations,
+        // 'getMinSchedulingPriority(policy)' and
+        // 'getMaxSchedulingPriority(policy)' return the same value.  The
+        // behavior is undefined unless 'policy' is a valid value of enum
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.
 
     static int join(Handle& threadHandle, void **status = (void**)0);
         // Suspend execution of the current thread until the thread specified

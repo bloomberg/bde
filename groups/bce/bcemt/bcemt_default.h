@@ -17,10 +17,11 @@ BDES_IDENT("$Id: $")
 //@SEE_ALSO: bcemt_threadattributes, bcemt_threadutil
 //
 //@DESCRIPTION: This component provides configurable default values for
-// BCE-relevant parameters.  It currently provides functions that access the
-// platform's native default stack size and guard size, as well as operations
-// to access and modify the BCE library's default stack size.  The BCE default
-// stack size is initially configured to be the platform's native stack size.
+// BCE-relevant parameters.  It currently provides operations to access and
+// modify the BCE library's default stack size, as well as functions that
+// access the platform's native default stack size and guard size.  The BCE
+// default stack size is initially configured to be the platform's native stack
+// size.
 //
 // The stack size values accessed and managed by this component are intended to
 // indicate stack size such that a created with a given stack size will be able
@@ -31,10 +32,9 @@ BDES_IDENT("$Id: $")
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Demonstrate Accessing & Modifying the Default Thread Stack Size:
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//
-// In this example we demonstrate how to configure the platform's native and
+///Example 1: Demonstrate Accessing & Modifying the Default Thread Stack Size
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we demonstrate how to access both the platform's native and
 // BCE configured default stack sizes, and then to set the default stack size
 // used by BCE.  Note that the value returned by 'defaultThreadStackSize' may
 // be adjusted from that provided by the underlying operating system to reflect
@@ -54,7 +54,7 @@ BDES_IDENT("$Id: $")
 // Then, we verify that when 'defaultThreadStackSize' is called, it returns the
 // native size:
 //..
-//  assert(bcemt_Default::defaultThreadStackSize() == nativeDefault);
+//  assert(nativeDefault == bcemt_Default::defaultThreadStackSize());
 //..
 // Next, we define 'newDefaultStackSize' to some size other than the platform's
 // native default stack size:
@@ -121,7 +121,7 @@ struct bcemt_Default {
     static void setDefaultThreadStackSize(int stackSize);
         // Set the default thread stack size to the specified 'stackSize' (in
         // bytes).  If a minimum thread stack size is known for the underlying
-        // platform (ie 'PTHREAD_STACK_MIN' is defined) and 'stackSize' is
+        // platform (i.e. 'PTHREAD_STACK_MIN' is defined) and 'stackSize' is
         // below that minimum, it will be rounded up to that minimum.  The
         // behavior is undefined unless 'stackSize > 0'.
 };

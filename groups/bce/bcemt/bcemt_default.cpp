@@ -35,9 +35,7 @@ static int getNativeDefaultThreadStackSize()
     enum { SOLARIS_DEFAULT_STACK_SIZE = 256 * 1024 * sizeof(void *) };
     return SOLARIS_DEFAULT_STACK_SIZE;
 }
-// POSIX_THREADS && Solaris
-# else
-// POSIX_THREADS && !Solaris
+# else // POSIX_THREADS && !Solaris
 static int getNativeDefaultThreadStackSize()
     // Return the native thread stack size for pthreads platforms other than
     // Solaris.
@@ -66,20 +64,17 @@ static int getNativeDefaultThreadStackSize()
     // On HPUX (Itanium) there is an additional stack for register storage,
     // effectively halving the amount of memory available to clients, so we
     // adjust the returned value to reflect the amount of memory that will be
-    // available for initializing data on the stack.  Note that mechanisms for
-    // creating a thread should have a corresponding inverse of this adjustment
-    // (see 'bcemt_threadutil').
+    // available to clients for initializing data on the stack.  Note that
+    // mechanisms for creating a thread should have a corresponding inverse of
+    // this adjustment (see 'bcemt_threadutil').
 
     threadStackSize /= 2;
 #  endif
 
     return static_cast<int>(threadStackSize);
 }
-// !Solaris
 # endif
-// POSIX_THREADS
-#else
-// WIN32_THREADS
+#else // WIN32_THREADS
 static int getNativeDefaultThreadStackSize()
     // Return the native thread stack size for Windows.
 {
@@ -103,7 +98,6 @@ static int getNativeDefaultThreadStackSize()
 
     return static_cast<int>(threadStackSize);
 }
-// WIN32_THREADS
 #endif
 
 
@@ -111,7 +105,7 @@ namespace BloombergLP {
 
 int bcemt_Default::defaultThreadStackSize()
 {
-    if (defaultThreadStackSizeValue.relaxedLoad() < 0) {
+    if (defaultThreadStackSizeValue < 0) {
         defaultThreadStackSizeValue = nativeDefaultThreadStackSize();
     }
 

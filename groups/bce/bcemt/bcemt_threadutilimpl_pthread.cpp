@@ -72,7 +72,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
                                                     : PTHREAD_CREATE_JOINABLE);
 
     int guardSize = src.guardSize();
-    if (guardSize < 0) {
+    if (Attr::BCEMT_UNSET_GUARD_SIZE == guardSize) {
         guardSize = bcemt_Default::nativeDefaultThreadGuardSize();
     }
     rc |= pthread_attr_setguardsize(dest, guardSize);
@@ -92,17 +92,17 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
         }
     }
 
-    enum { STACK_FUDGE = 8192 };
-        // Before 'STACK_FUDGE' was added, in bcemt_threadutil.t.cpp cases -2
-        // and -4, Linux was crashing about 4K away from the end of the stack
-        // in 32 & 64 bit.  All other unix platforms were running past the
-        // end of the stack without crashing.
+    enum { STACK_ADJUSTMENT = 8192 };
+        // Before 'STACK_ADJUSTMENT' was added, in bcemt_threadutil.t.cpp cases
+        // -2 and -4, Linux was crashing about 4K away from the end of the
+        // stack in 32 & 64 bit.  All other unix platforms were running past
+        // the end of the stack without crashing.
 
     int stackSize = src.stackSize();
-    if (stackSize < 0) {
+    if (Attr::BCEMT_UNSET_STACK_SIZE == stackSize) {
         stackSize = bcemt_Default::defaultThreadStackSize();
     }
-    stackSize += STACK_FUDGE;
+    stackSize += STACK_ADJUSTMENT;
 #if defined(BSLS_PLATFORM__OS_HPUX)
     // The Itanium divides the stack into two sections: a variable stack and a
     // control stack.  To make 'stackSize' have the same meaning across
@@ -155,72 +155,111 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::create(
 }
 
 int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
-                                                getMinSchedPriority(int policy)
+                        getMinSchedulingPriority(
+                               bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
     typedef bcemt_ThreadAttributes Attr;
 
+    int pPolicy;
+
     switch (policy) {
       case Attr::BCEMT_SCHED_FIFO: {
-        policy = SCHED_FIFO;
+        pPolicy = SCHED_FIFO;
       }  break;
       case Attr::BCEMT_SCHED_RR: {
-        policy = SCHED_RR;
+        pPolicy = SCHED_RR;
       }  break;
       case Attr::BCEMT_SCHED_OTHER: {
-        policy = SCHED_OTHER;
+        pPolicy = SCHED_OTHER;
       }  break;
       case Attr::BCEMT_SCHED_DEFAULT: {
 #if defined(BSLS_PLATFORM__OS_HPUX)
-        policy = SCHED_HPUX;
+        pPolicy = SCHED_HPUX;
 #else
-        policy = SCHED_OTHER;
+        pPolicy = SCHED_OTHER;
 #endif
       }  break;
       default: {
-        return INT_MIN;                                               // RETURN
+        BSLS_ASSERT_OPT(0);
       }
     }
 
-    return sched_get_priority_min(policy);
+    int priority = sched_get_priority_min(pPolicy);
+
+# if defined(BSLS_PLATFORM__OS_AIX)
+    // Note on AIX all priorities below 40 are equivalent to a priority of 40.
+    // See AIX doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/
+    // index.jsp?topic=%2Fcom.ibm.aix.basetechref%2Fdoc%2Fbasetrf1%2F
+    // pthread_setschedparam.htm"
+
+    enum { MIN_AIX_PRIORITY = 40 };
+
+    if (priority < MIN_AIX_PRIORITY) {
+        priority = MIN_AIX_PRIORITY;
+    }
+
+# endif
+
+    return priority;
 }
 
 int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
-                                                getMaxSchedPriority(int policy)
+                        getMaxSchedulingPriority(
+                               bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
     typedef bcemt_ThreadAttributes Attr;
 
+    int pPolicy;
+
     switch (policy) {
       case Attr::BCEMT_SCHED_FIFO: {
-        policy = SCHED_FIFO;
+        pPolicy = SCHED_FIFO;
       }  break;
       case Attr::BCEMT_SCHED_RR: {
-        policy = SCHED_RR;
+        pPolicy = SCHED_RR;
       }  break;
       case Attr::BCEMT_SCHED_OTHER: {
-        policy = SCHED_OTHER;
+        pPolicy = SCHED_OTHER;
       }  break;
       case Attr::BCEMT_SCHED_DEFAULT: {
 #if defined(BSLS_PLATFORM__OS_HPUX)
-        policy = SCHED_HPUX;
+        pPolicy = SCHED_HPUX;
 #else
-        policy = SCHED_OTHER;
+        pPolicy = SCHED_OTHER;
 #endif
       }  break;
       default: {
-        return INT_MIN;                                               // RETURN
+        BSLS_ASSERT_OPT(0);
       }
     }
 
-    int priority = sched_get_priority_max(policy);
+    int priority = sched_get_priority_max(pPolicy);
 
 # if defined(BSLS_PLATFORM__OS_AIX)
-    // Note max prirority returned is 127 regardless of policy on AIX, yet for
-    // non-superusers, thread creation fails if 'priority > 60'.
+    // Note max prirority returned above is 127 regardless of policy on AIX,
+    // yet for non-superusers, thread creation fails if 'priority > 60'.  See
+    // AIX doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/index.jsp?
+    // topic=%2Fcom.ibm.aix.basetechref%2Fdoc%2Fbasetrf1%2F
+    // pthread_setschedparam.htm"
 
-    enum { MAX_NON_SUPERUSER_PRIORITY = 60 };
+    enum { MAX_AIX_NON_ROOT_PRIORITY = 60,
+           MAX_AIX_PRIORITY          = 80 };
 
-    if (priority > MAX_NON_SUPERUSER_PRIORITY && 0 != geteuid()) {
-        priority = MAX_NON_SUPERUSER_PRIORITY;
+    if (0 == geteuid()) {
+        // priviledged user
+
+        // On AIX 5.3 and above, all priorities above 80 are equivalent to 80.
+
+        if (priority > MAX_AIX_PRIORITY) {
+            priority = MAX_AIX_PRIORITY;
+        }
+    }
+    else {
+        // non-priviledged user
+
+        if (priority > MAX_AIX_NON_ROOT_PRIORITY) {
+            priority = MAX_AIX_NON_ROOT_PRIORITY;
+        }
     }
 
 # endif

@@ -36,7 +36,7 @@ void *bcemt_ThreadUtil_threadFunc(void *arg)
                             // -----------------------
 
 // CLASS METHODS
-int bcemt_ThreadUtil::convertToSchedPriority(
+int bcemt_ThreadUtil::convertToSchedulingPriority(
          bcemt_ThreadAttributes::SchedulingPolicy policy,
          double                                   normalizedSchedulingPriority)
 {
@@ -46,11 +46,14 @@ int bcemt_ThreadUtil::convertToSchedPriority(
     BSLS_ASSERT_OPT(normalizedSchedulingPriority >= 0.0);
     BSLS_ASSERT_OPT(normalizedSchedulingPriority <= 1.0);
 
-    const int minPri = getMinSchedPriority(policy);
-    const int maxPri = getMaxSchedPriority(policy);
+    const int minPri = getMinSchedulingPriority(policy);
+    const int maxPri = getMaxSchedulingPriority(policy);
 
-    BSLS_ASSERT_OPT(INT_MIN != minPri);
-    BSLS_ASSERT_OPT(INT_MIN != maxPri);
+    // These two asserts should never fail -- just an internal consistency
+    // check.
+
+    BSLS_ASSERT(INT_MIN != minPri);
+    BSLS_ASSERT(INT_MIN != maxPri);
 
     double ret = (maxPri - minPri) * normalizedSchedulingPriority +
                                                                   minPri + 0.5;

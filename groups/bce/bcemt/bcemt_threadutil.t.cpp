@@ -572,7 +572,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_THREADS; ++i) {
             attributes.setSchedulingPriority(
-                      bcemt_ThreadUtil::convertToSchedPriority(policy,
+                 bcemt_ThreadUtil::convertToSchedulingPriority(policy,
                                                                priorities[i]));
             int rc = bcemt_ThreadUtil::create(&handles[i],
                                               attributes,
@@ -587,14 +587,14 @@ int main(int argc, char *argv[])
       }  break;
       case 8: {
         // --------------------------------------------------------------------
-        // CONVERTTOSCHEDPRIORITY
+        // CONVERTTOSCHEDULINGPRIORITY
         //
         // Concern:
-        //   That 'convertToSchedPriority' works as specced.
+        //   That 'convertToSchedulingPriority' works as specced.
         //
         // Plan:
         //   Call 'get{Min,Max}SchedPriority' and compare the results they
-        //   return to results reterned by 'convertToSchedPriority'.
+        //   return to results reterned by 'convertToSchedulingPriority'.
         // --------------------------------------------------------------------
 
         typedef bcemt_ThreadAttributes Attr;
@@ -608,17 +608,20 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_POLICIES; ++i) {
             const Attr::SchedulingPolicy POLICY = policies[i];
 
-            const int minPri = Obj::getMinSchedPriority(POLICY);
-            const int maxPri = Obj::getMaxSchedPriority(POLICY);
+            const int minPri = Obj::getMinSchedulingPriority(POLICY);
+            const int maxPri = Obj::getMaxSchedulingPriority(POLICY);
 
-            const int loPri = Obj::convertToSchedPriority(POLICY, 0.0);
+            ASSERT(Attr::getMinSchedPriority(POLICY) == minPri);
+            ASSERT(Attr::getMaxSchedPriority(POLICY) == maxPri);
+
+            const int loPri =  Obj::convertToSchedulingPriority(POLICY, 0.0);
             LOOP2_ASSERT(loPri, minPri, loPri == minPri);
 
-            const int midPri = Obj::convertToSchedPriority(POLICY, 0.5);
+            const int midPri = Obj::convertToSchedulingPriority(POLICY, 0.5);
             LOOP2_ASSERT(midPri, minPri, midPri >= minPri);
             LOOP2_ASSERT(midPri, maxPri, midPri <= maxPri);
 
-            const int hiPri = Obj::convertToSchedPriority(POLICY, 1.0);
+            const int hiPri =  Obj::convertToSchedulingPriority(POLICY, 1.0);
             LOOP2_ASSERT(hiPri, maxPri, hiPri == maxPri);
 
             if (hiPri != loPri) {

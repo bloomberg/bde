@@ -30,16 +30,16 @@ BDES_IDENT("$Id: $")
 //  schedulingPolicy    enum SchedulingPolicy  BCEMT_SCHED_DEFAULT
 //  schedulingPriority  int                    BCEMT_UNSET_PRIORITY
 //
-//  Name                          Constraint
-//  ------------------            -------------------------------------
-//  stackSize                     unset or >= 0
-//  guardSize                     unset or >= 0
+//  Name          Constraint
+//  ---------     -------------------------------------------------------
+//  stackSize     'BCEMT_UNSET_STACK_SIZE == stackSize || stackSize >= 0'
+//  guardSize     'BCEMT_UNSET_GUARD_SIZE == guardSize || guardSize >= 0'
 //..
 ///'detachedState' Attribute
 ///- - - - - - - - - - - - -
 // The 'detachedState' attribute indicates whether an associated thread should
 // be created in a joinable or detached state, through the enum values
-// 'BCEMT_CREATE_JOINABLE' or 'BCEMT_CREATE_DETACHED', respectively.  A thread
+// 'BCEMT_CREATE_JOINABLE' and 'BCEMT_CREATE_DETACHED', respectively.  A thread
 // in the joinable state will have its exit status maintained after thread
 // termination.  Any thread can join with a joinable thread (see
 // 'bcemt_threadutil'), in which case the joining thread will block, waiting
@@ -81,8 +81,8 @@ BDES_IDENT("$Id: $")
 // taken from its parent thread and the configured values of those thread
 // attributes should be ignored.  If 'inheritSchedule' is 'false', then the
 // 'schedulingPolicy' and 'schedulingPriority' attribute values should be used
-// to configure a thread.  See the 'bcemt_threadutil' component doc for
-// information about what platforms support this attribute.
+// to configure a thread.  See 'bcemt_threadutil' for information about support
+// for this attribute.
 //
 ///'schedulingPolicy' Attribute
 /// - - - - - - - - - - - - - -
@@ -96,18 +96,18 @@ BDES_IDENT("$Id: $")
 // yields or is interrupted by a thread of higher priority.  'BCEMT_SCHED_RR'
 // is the same, except that the created thread will be interrupted by a ready
 // thread of equal priority after a finite time-slice.  This attribute is
-// ignored unless 'inheritSchedule' is 'false'.  See the 'bcemt_threadutil'
-// component doc for information about what platforms support this attribute.
+// ignored unless 'inheritSchedule' is 'false'.  See 'bcemt_threadutil' for
+// information about support for this attribute.
 //
 ///'schedulingPriority' Attribute
 /// - - - - - - - - - - - - - - -
-// The 'schedulingPriority' attribute is a platform specific value which can
-// range from the minimum to the maximum values for the configured
-// 'schedulingPolicy' with higher numbers indicating a more urgent priority.
-// Functions to obtain these minimum and maximum values are in
+// The 'schedulingPriority' attribute is a platform specific value whose valid
+// values range from the minimum to the maximum value for the associated
+// 'schedulingPolicy', with higher numbers indicating a more urgent priority.
+// Functions to obtain the minimum and maximum values are in
 // 'bcemt_threadutil'.  This attribute is ignored unless 'inheritSchedule' is
-// 'false'.  See the 'bcemt_threadutil' component doc for information about
-// what platforms support this attribute.
+// 'false'.  See 'bcemt_threadutil' for information about support for this
+// attribute.
 //
 ///Usage
 ///-----
@@ -153,7 +153,7 @@ BDES_IDENT("$Id: $")
 // 'bcemt_ThreadAttributes' object describing the properties a thread we will
 // create.
 //..
-//  int main()
+//  int testMain()
 //  {
 //..
 // Next, we create a thread attributes object, 'attributes', and set its
@@ -237,6 +237,10 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -285,8 +289,11 @@ class bcemt_ThreadAttributes {
 
         BCEMT_SCHED_OTHER   = 0,  // unspecified, OS-dependent scheduling
                                   // policy
+
         BCEMT_SCHED_FIFO    = 1,  // first-in-first-out scheduling policy
+
         BCEMT_SCHED_RR      = 2,  // round-robin scheduling policy
+
         BCEMT_SCHED_DEFAULT = 3,  // default OS scheduling policy, usually
                                   // equivalent to 'BCEMT_SCHED_OTHER'
 
@@ -335,21 +342,27 @@ class bcemt_ThreadAttributes {
 
   public:
     // CLASS METHODS
-    static int getMaxSchedPriority(int policy);
-        // Return the non-negative maximum available priority for the
-        // optionally-specified 'policy' on success.  Return 'INT_MIN' on
-        // error.  Note that for some platform / policy cominations,
-        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+    static int getMaxSchedPriority(SchedulingPolicy policy);
+        // Return the maximum available priority for the 'policy', where
+        // 'policy' is of type 'bcemt_ThreadAttributes::SchedulingPolicy'.
+        // Note that for some platform / policy cominations,
+        // 'getMinSchedPriority(policy)' and 'getMaxSchedPriority(policy)'
+        // return the same value.  The behavior is undefined unless 'policy' is
+        // a valid value of enum 'bcemt_ThreadAttributes::SchedulingPolicy'.
         //
-        // DEPRECATED: use 'bcemt_ThreadUtil' instead.
+        // DEPRECATED: use 'bcemt_ThreadUtil::getMaxSchedulingPriority'
+        // instead.
 
-    static int getMinSchedPriority(int policy);
-        // Return the non-negative minimum available priority for the
-        // optionally-specified 'policy' on success.  Return 'INT_MIN' on
-        // error.  Note that for some platform / policy cominations,
-        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+    static int getMinSchedPriority(SchedulingPolicy policy);
+        // Return the minimum available priority for the 'policy', where
+        // 'policy' is of type 'bcemt_ThreadAttributes::SchedulingPolicy'.
+        // Note that for some platform / policy cominations,
+        // 'getMinSchedPriority(policy)' and 'getMaxSchedPriority(policy)'
+        // return the same value.  The behavior is undefined unless 'policy' is
+        // a valid value of enum 'bcemt_ThreadAttributes::SchedulingPolicy'.
         //
-        // DEPRECATED: use 'bcemt_ThreadUtil' instead.
+        // DEPRECATED: use 'bcemt_ThreadUtil::getMinSchedulingPriority'
+        // instead.
 
     // CREATORS
     bcemt_ThreadAttributes();
@@ -376,30 +389,35 @@ class bcemt_ThreadAttributes {
     // MANIPULATORS
     void setDetachedState(DetachedState value);
         // Set the 'detachedState' attribute of this object to the specified
-        // 'value'.
+        // 'value'.  A value of 'BCEMT_CREATE_JOINABLE' (the default) indicates
+        // that a thread must be joined after it terminates to clean up its
+        // resources; a value of 'BCEMT_CREATE_DETACHED' (the only other legal
+        // value) indicates that the resources will be cleaned up automatically
+        // upon thread termination and the thread must not be joined.  The
+        // behavior is undefined unless 'value' is a valid value defined by the
+        // enum 'DetachedState'.
 
     void setGuardSize(int value);
         // Set the 'guardSize' attribute of this object to the specified
-        // 'value' (in bytes).  If 'guardSize < 0', the default value as
-        // defined by the platform is used (which is typically the size of a
-        // page).  If guard size has not been set, a created thread will have
-        // the native guard size (see 'bcemt_default').
+        // 'value' (in bytes).  If 'BCEMT_UNSET_GUARD_SIZE == guardSize', the
+        // default value as defined by the platform is used, which is typically
+        // the size of one or two pages (see 'bcemt_default).  The behavior is
+        // undefined unless 'BCEMT_UNSET_GUARD_SIZE == guardSize' or
+        // 'guardSize >= 0'.
 
     void setInheritSchedule(bool value);
         // Set the 'inheritSchedule' attribute of this object to the specified
         // 'value'.  A value of 'false' for the inherit schedule attribute
         // indicates that a thread should *not* inherit the scheduling policy
         // and priority of the thread that created it, and a value of 'true'
-        // indicates that the thread *should* inherit these attributes.  Use of
-        // this attribute is platform-dependent, for details, see the component
-        // doc of 'bcemt_threadutil'.
+        // indicates that the thread *should* inherit these attributes.  See
+        // 'bcemt_threadutil' for information about support for this attribute.
 
     void setSchedulingPolicy(SchedulingPolicy value);
         // Set the value of the 'schedulingPolicy' attribute of this object to
         // the specified 'value'.  This attribute is ignored unless
-        // 'inheritSchedule' is 'false'.  Use of this attribute is
-        // platform-dependent, for details, see the component doc of
-        // 'bcemt_threadutil'.
+        // 'inheritSchedule' is 'false'.  See 'bcemt_threadutil' for
+        // information about this attribute.
 
     void setSchedulingPriority(int value);
         // Set the 'schedulingPriority' attribute of this object to the
@@ -408,37 +426,57 @@ class bcemt_ThreadAttributes {
         // depends upon the platform and 'schedulingPolicy' attributes.  The
         // minimum and maximum priorities are determined by methods in
         // 'bcemt_threadutil'.  Higher values of 'value' signify more urgent
-        // priorities.  Use of this attribute is platform-dependent, for
-        // details, see the component doc of 'bcemt_threadutil'.  Note that the
-        // default value of this attribute is not guaranteed to be within the
-        // valid range for the platform and scheduling policy.
+        // priorities.  See 'bcemt_threadutil' for information about this
+        // attribute.
 
     void setStackSize(int value);
         // Set the 'stackSize' attribute of this object to the specified
         // 'value.  If 'stackSize' is 'BCEMT_UNSET_STACK_SIZE', thread creation
-        // will use the default value provided by 'bcemt_default'.  See the
-        // component doc for a detailed description of the meaning of this
-        // attribute.
+        // will use the default stack size value provided by 'bcemt_default'.
+        // The behavior is undefined unless
+        // 'BCEMT_UNSET_STACK_SIZE == stackSize' or 'stackSize >= 0'.
 
     // ACCESSORS
     DetachedState detachedState() const;
-        // Return the value of the 'detachedState' attribute of this object.
+        // Return the value of the 'detachedState' attribute of this object.  A
+        // value of 'BCEMT_CREATE_JOINABLE' indicates that a thread must be
+        // joined after it terminates to clean up its resources; a value of
+        // 'BCEMT_CREATE_DETACHED' (the only other legal value) indicates that
+        // the resources will be cleaned up automatically upon thread
+        // termination and the thread must not be joined.
 
     int guardSize() const;
-        // Return the value of the 'guardSize' attribute of this object.
+        // Return the value of the 'guardSize' attribute of this object.  If
+        // 'BCEMT_UNSET_GUARD_SIZE == guardSize', the default value as defined
+        // by the platform is used, which is typically the size of one or two
+        // pages (see 'bcemt_default).
 
     bool inheritSchedule() const;
         // Return the value of the 'inheritSchedule' attribute of this object.
+        // A value of 'false' for the inherit schedule attribute indicates that
+        // a thread should *not* inherit the scheduling policy and priority of
+        // the thread that created it, and a value of 'true' indicates that the
+        // thread *should* inherit these attributes.  See 'bcemt_threadutil'
+        // for information about support for this attribute.
 
     SchedulingPolicy schedulingPolicy() const;
         // Return the value of the 'schedulingPolicy' attribute of this object.
+        // This attribute is ignored unless 'inheritSchedule' is 'false'.  See
+        // 'bcemt_threadutil' for information about this attribute.
 
     int schedulingPriority() const;
         // Return the value of the 'schedulingPriority' attribute of this
-        // object.
+        // object.  This attribute is ignored unless 'inheritSchedule()' is
+        // 'false'.  The valid range of priorities depends upon the platform
+        // and 'schedulingPolicy' attributes.  The minimum and maximum
+        // priorities are determined by methods in 'bcemt_threadutil'.  Higher
+        // values of 'value' signify more urgent priorities.  See
+        // 'bcemt_threadutil' for information about this attribute.
 
     int stackSize() const;
-        // Return the value of the 'stackSize' attribute of this object.
+        // Return the value of the 'stackSize' attribute of this object.  If
+        // 'stackSize' is 'BCEMT_UNSET_STACK_SIZE', thread creation will use
+        // the default stack size value provided by 'bcemt_default'.
 };
 
 // FREE OPERATORS
@@ -498,13 +536,18 @@ inline
 void bcemt_ThreadAttributes::setDetachedState(
                                    bcemt_ThreadAttributes::DetachedState value)
 {
+    BSLS_ASSERT_SAFE(BCEMT_CREATE_DETACHED == value ||
+                     BCEMT_CREATE_JOINABLE == value);
+
     d_detachedState = value;
 }
 
 inline
 void bcemt_ThreadAttributes::setGuardSize(int value)
 {
-    BSLS_ASSERT_SAFE(BCEMT_UNSET_GUARD_SIZE == value || value >= 0);
+    BSLMF_ASSERT(-1 == BCEMT_UNSET_GUARD_SIZE);
+
+    BSLS_ASSERT_SAFE(value >= -1);
 
     d_guardSize = value;
 }
@@ -519,6 +562,9 @@ inline
 void bcemt_ThreadAttributes::setSchedulingPolicy(
                                 bcemt_ThreadAttributes::SchedulingPolicy value)
 {
+    BSLS_ASSERT_SAFE(value >= BCEMT_SCHED_MIN);
+    BSLS_ASSERT_SAFE(value <= BCEMT_SCHED_MAX);
+
     d_schedulingPolicy = value;
 }
 
@@ -531,7 +577,9 @@ void bcemt_ThreadAttributes::setSchedulingPriority(int value)
 inline
 void bcemt_ThreadAttributes::setStackSize(int value)
 {
-    BSLS_ASSERT_SAFE(BCEMT_UNSET_STACK_SIZE == value || value >= 0);
+    BSLMF_ASSERT(-1 == BCEMT_UNSET_STACK_SIZE);
+
+    BSLS_ASSERT_SAFE(value >= 1);
 
     d_stackSize = value;
 }

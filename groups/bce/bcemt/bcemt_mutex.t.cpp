@@ -136,10 +136,10 @@ int translatePriority(bcemt_ThreadAttributes::SchedulingPolicy policy,
                       bool                                     low)
 {
     if (low) {
-        return bcemt_ThreadUtil::getMinSchedPriority(policy);         // RETURN
+        return bcemt_ThreadUtil::getMinSchedulingPriority(policy);    // RETURN
     }
     else {
-        return bcemt_ThreadUtil::getMaxSchedPriority(policy);         // RETURN
+        return bcemt_ThreadUtil::getMaxSchedulingPriority(policy);    // RETURN
     }
 }
 
@@ -347,10 +347,10 @@ int main(int argc, char *argv[])
 
             if (NORM_PRI) {
                 notUrgentAttr.setSchedulingPriority(
-                                      bcemt_ThreadUtil::convertToSchedPriority(
+                                 bcemt_ThreadUtil::convertToSchedulingPriority(
                                                  POLICY, NORM_NOT_URGENT_PRI));
                 urgentAttr.   setSchedulingPriority(
-                                      bcemt_ThreadUtil::convertToSchedPriority(
+                                 bcemt_ThreadUtil::convertToSchedulingPriority(
                                                  POLICY, NORM_URGENT_PRI));
             }
             else {
