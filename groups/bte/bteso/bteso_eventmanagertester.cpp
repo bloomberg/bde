@@ -572,7 +572,6 @@ static int ggHelper(bteso_EventManager         *mX,
             }
             deadline.addMilliseconds(msecs);
             ret = mX->dispatch(deadline, flags);
-
             if (rc != ret) {
                 return FAIL;
             }
@@ -1150,8 +1149,8 @@ bteso_EventManagerTester::testDispatch(bteso_EventManager *mX, int flags)
           {L_, "+0w28720; Dn,1; +0w26000; Dn120,0; -0w; T0"                 },
 #endif
 #if defined(BSLS_PLATFORM__OS_AIX)
-          {L_, "+0w8192; Dn,1; +0w8192; Dn300,1; Dn150,0; -0w; T0"          },
-          {L_, "+0w8192; Dn,1; +0w8192; Dn120,1; Dn150,0; -0w; T0"          },
+          {L_, "+0w8192; Dn,1; +0w8192; Dn500,1; Dn,1; -0w; T0"             },
+          {L_, "+0w8192; Dn,1; +0w8192; Dn300,1; Dn,1; -0w; T0"             },
 #endif
 #if defined(BSLS_PLATFORM__OS_SOLARIS)
           {L_, "+0w73728; Dn,1; +0w26000; Dn150,0; -0w; T0"                 },
