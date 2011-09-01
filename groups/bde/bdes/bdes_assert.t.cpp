@@ -1,9 +1,10 @@
 // bdes_assert.t.cpp                                                  -*-C++-*-
 #include <bdes_assert.h>
 
-#include <bsls_assert.h>
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
+#include <bsls_assert.h>
+#include <bsls_asserttestexception.h>
 
 #include <bsl_cstdlib.h>  // 'strcmp'
 #include <bsl_iostream.h>
@@ -11,9 +12,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
 // The DEPRECATED component is now implemented in 'bsls_assert'.  The test
@@ -22,15 +23,15 @@ using namespace bsl;  // automatically added by script
 // component.  Forwarding is implemented using 'typedef' for classes, and by
 // '#define' for macros.
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 2] bdes_Assert
 // [ 2] bdes_AssertFailureHandlerGuard
 // [ 1] BDE_ASSERT_CPP(X)
 // [ 1] BDE_ASSERT_H(X)
 
-//==========================================================================
+// ============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -42,7 +43,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
 
@@ -71,41 +72,18 @@ static void aSsErT(int c, const char *s, int i) {
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
 
-//=============================================================================
-//                  GLOBAL VARIABLES CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
-
-int     globalVerbose = 0;
-int globalVeryVerbose = 0;
-
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-static bool handlerCalled = false;
-
-static
-void handler(const char *text, const char *file, int line)
-{
-    if (globalVeryVerbose) cout << "handler" << ": "
-                                <<  text     << "; "
-                                <<  file     << "; "
-                                <<  line     << endl;
-    handlerCalled = true;
-}
-
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -113,9 +91,6 @@ int main(int argc, char *argv[])
     int         verbose = argc > 2;
     int     veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
-
-        globalVerbose =     verbose;
-    globalVeryVerbose = veryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -126,15 +101,15 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Has each type defined in this component been 'typedef'ed to
-        //:   the expected sucessor type?
+        //:   the expected successor type?
         //
         // Plan:
         //: 1 Do compile-time comparison of the types using 'BSLMF_ASSERT' and
         //:   'bslmf_IsSame'.
         //
         // Testing:
-        //   bdes_Assert;
-        //   bdes_AssertFailureHandlerGuard;
+        //   bdes_Assert
+        //   bdes_AssertFailureHandlerGuard
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -143,15 +118,14 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "Correctness of 'bdes_Assert'" << endl;
 
-        const int cmp1 = bslmf_IsSame<bdes_Assert, bsls_Assert>::VALUE;
-        BSLMF_ASSERT(1 == cmp1);
+        BSLMF_ASSERT(1 == (bslmf_IsSame<bdes_Assert, bsls_Assert>::VALUE));
 
         if (veryVerbose) cout
                   << "Correctness of 'bdes_AssertFailureHandlerGuard'" << endl;
 
-        const int cmp2 = bslmf_IsSame<bdes_AssertFailureHandlerGuard,
-                                      bsls_AssertFailureHandlerGuard>::VALUE;
-        BSLMF_ASSERT(1 == cmp2);
+        BSLMF_ASSERT(1 ==
+                        (bslmf_IsSame<bdes_AssertFailureHandlerGuard,
+                                      bsls_AssertFailureHandlerGuard>::VALUE));
 
       } break;
 
@@ -168,27 +142,27 @@ int main(int argc, char *argv[])
         //:   'BDE_BUILD_TARGET_DBG' compile-time flags are defined.
         //:
         //: 3 When enabled, the 'BDE_ASSERT_H' macro has the same behavior as
-        //:   the 'BSL_ASSERT_SAFE' macro.
+        //:   the 'BSLS_ASSERT_SAFE' macro.
         //:
         //: 4 When enabled, the 'BDE_ASSERT_CPP' macro has the same behavior as
-        //:   the 'BSL_ASSERT' macro.
+        //:   the 'BSLS_ASSERT' macro.
         //
         // Plan:
-        //: 1 In build-modes where the macros of interest should be disbled
+        //: 1 In build-modes where the macros of interest should be disabled
         //:   create expressions that will fail to compile or fail to run
         //:   unless those macros expand to nothing.
         //:
         //: 2 In a build-mode where the 'BDE_ASSERT_H' macro is enabled:
         //:   1 Define a conveniently observable behavior for the successor
-        //:     macro, 'BSL_ASSERT_SAFE'.
+        //:     macro, 'BSLS_ASSERT_SAFE'.
         //:   2 See if that behavior occurs when 'BDE_ASSERT_H' fails, and
-        //:     doesn't occur when 'BDE_ASSERT_H' passses.
+        //:     doesn't occur when 'BDE_ASSERT_H' passes.
         //
         //: 3 In a build-mode where the 'BDE_ASSERT_CPP' macro is enabled:
         //:   1 Define a conveniently observable behavior for the successor
-        //:     macro, 'BSL_ASSERT'.
+        //:     macro, 'BSLS_ASSERT'.
         //:   2 See if that behavior occurs when 'BDE_ASSERT_CPP' fails, and
-        //:     doesn't occur when 'BDE_ASSERT_CPP' passses.
+        //:     doesn't occur when 'BDE_ASSERT_CPP' passes.
         //
         // Testing:
         //   BDE_ASSERT_CPP(X)
@@ -216,54 +190,108 @@ int main(int argc, char *argv[])
 #endif // !defined(BDE_BUILD_TARGET_SAFE)
 #endif // BSL_LEGACY == 0
 
+#if defined(BDE_BUILD_TARGET_EXC)
+        bsls_Assert::setFailureHandler(bsls_Assert::failThrow);
+
         if (veryVerbose) cout << "Confirm 'BDE_ASSERT_H' behavior" << endl;
-
         {
-            bsls_Assert::setFailureHandler(handler);
+            bool handlerCalledViaHWithTrue;
+            try {
+                BDE_ASSERT_H(true);
+                handlerCalledViaHWithTrue = false;
+            } catch (bsls_AssertTestException) {
+                handlerCalledViaHWithTrue = true;
+            }
+            if (veryVeryVerbose) { T_ P(handlerCalledViaHWithTrue) }
 
-            handlerCalled = false;
-            BDE_ASSERT_H(true);
-            bool handlerCalled_H_true     = handlerCalled;
+            bool handlerCalledViaHWithFalse;
+            try {
+                BDE_ASSERT_H(false);
+                handlerCalledViaHWithFalse = false;
+            } catch (bsls_AssertTestException) {
+                handlerCalledViaHWithFalse = true;
+            }
+            if (veryVeryVerbose) { T_ P(handlerCalledViaHWithFalse) }
 
-            handlerCalled = false;
-            BDE_ASSERT_H(false);
-            bool handlerCalled_H_false    = handlerCalled;
+            bool handlerCalledViaSafeWithTrue;
+            try {
+                BSLS_ASSERT_SAFE(true);
+                handlerCalledViaSafeWithTrue = false;
 
-            handlerCalled = false;
-            BSLS_ASSERT_SAFE(true);
-            bool handlerCalled_SAFE_true  = handlerCalled;
+            } catch (bsls_AssertTestException) {
+                handlerCalledViaSafeWithTrue = true;
+            }
+            if (veryVeryVerbose) { T_ P(handlerCalledViaSafeWithTrue) }
 
-            handlerCalled = false;
-            BSLS_ASSERT_SAFE(false);
-            bool handlerCalled_SAFE_false = handlerCalled;
+            bool handlerCalledViaSafeWithFalse;
+            try {
+                BSLS_ASSERT_SAFE(false);
+                handlerCalledViaSafeWithFalse = false;
+            } catch (bsls_AssertTestException) {
+                handlerCalledViaSafeWithFalse = true;
+            }
+            if (veryVeryVerbose) { T_ P(handlerCalledViaSafeWithFalse) }
 
-            ASSERT(handlerCalled_H_true  == handlerCalled_SAFE_true);
-            ASSERT(handlerCalled_H_false == handlerCalled_SAFE_false);
+            LOOP2_ASSERT(handlerCalledViaHWithTrue,
+                         handlerCalledViaSafeWithTrue,
+                         handlerCalledViaHWithTrue
+                      == handlerCalledViaSafeWithTrue);
+
+            LOOP2_ASSERT(handlerCalledViaHWithFalse,
+                         handlerCalledViaSafeWithFalse,
+                         handlerCalledViaHWithFalse
+                      == handlerCalledViaSafeWithFalse);
         }
 
         if (veryVerbose) cout << "Confirm 'BDE_ASSERT_CPP' behavior" << endl;
         {
-            bsls_Assert::setFailureHandler(handler);
+            bool handlerCalledViaCppWithTrue;
+            try {
+                BDE_ASSERT_H(true);
+                handlerCalledViaCppWithTrue = false;
+            } catch (bsls_AssertTestException) {
+                handlerCalledViaCppWithTrue = true;
+            }
+            if (veryVeryVerbose) { T_ P(handlerCalledViaCppWithTrue) }
 
-            handlerCalled = false;
-            BDE_ASSERT_CPP(true);
-            bool handlerCalled_CPP_true  = handlerCalled;
+            bool handlerCalledViaCppWithFalse;
+            try {
+                BDE_ASSERT_H(false);
+                handlerCalledViaCppWithFalse = false;
+            } catch (bsls_AssertTestException) {
+                handlerCalledViaCppWithFalse = true;
+            }
+            if (veryVeryVerbose) { T_ P(handlerCalledViaCppWithFalse) }
 
-            handlerCalled = false;
-            BDE_ASSERT_CPP(false);
-            bool handlerCalled_CPP_false = handlerCalled;
+            bool handlerCalledVia_WithTrue;
+            try {
+                BSLS_ASSERT_SAFE(true);
+                handlerCalledVia_WithTrue = false;
+            } catch (bsls_AssertTestException) {
+                handlerCalledVia_WithTrue = true;
+            }
+            if (veryVeryVerbose) { T_ P(handlerCalledVia_WithTrue) }
 
-            handlerCalled = false;
-            BSLS_ASSERT(true);
-            bool handlerCalled__true     = handlerCalled;
+            bool handlerCalledVia_WithFalse;
+            try {
+                BSLS_ASSERT_SAFE(false);
+                handlerCalledVia_WithFalse = false;
+            } catch (bsls_AssertTestException) {
+                handlerCalledVia_WithFalse = true;
+            }
+            if (veryVeryVerbose) { T_ P(handlerCalledVia_WithFalse) }
 
-            handlerCalled = false;
-            BSLS_ASSERT(false);
-            bool handlerCalled__false    = handlerCalled;
+            LOOP2_ASSERT(handlerCalledViaCppWithTrue,
+                         handlerCalledVia_WithTrue,
+                         handlerCalledViaCppWithTrue
+                      == handlerCalledVia_WithTrue);
 
-            ASSERT(handlerCalled_CPP_true  == handlerCalled__true);
-            ASSERT(handlerCalled_CPP_false == handlerCalled__false);
+            LOOP2_ASSERT(handlerCalledViaCppWithFalse,
+                         handlerCalledVia_WithFalse,
+                         handlerCalledViaCppWithFalse
+                      == handlerCalledVia_WithFalse);
         }
+#endif // if defined(BDE_BUILD_TARGET_EXC)
 
       } break;
 
@@ -280,11 +308,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ------------------------------ END-OF-FILE ---------------------------------
