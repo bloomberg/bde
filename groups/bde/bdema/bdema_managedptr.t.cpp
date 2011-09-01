@@ -439,7 +439,7 @@ typedef bdema_ManagedPtr<char> ChObj;
 //-----------------------------------------------------------------------------
 
 template<typename BDEMA_TYPE>
-static void deleteWithDefaultAllocator(void *ptr, void *)
+void deleteWithDefaultAllocator(void *ptr, void *)
 {
     // Use default allocator as the deleter, ignore the passed factory pointer
     bslma_Allocator *pDa = bslma_Default::defaultAllocator();
@@ -448,7 +448,7 @@ static void deleteWithDefaultAllocator(void *ptr, void *)
 }
 
 template<typename BDEMA_TYPE>
-static void deleteTypeWithDefaultAllocator(BDEMA_TYPE *ptr, void *)
+void deleteTypeWithDefaultAllocator(BDEMA_TYPE *ptr, void *)
 {
     // Use default allocator as the deleter, ignore the passed factory pointer
     bslma_Allocator *pDa = bslma_Default::defaultAllocator();
@@ -456,7 +456,7 @@ static void deleteTypeWithDefaultAllocator(BDEMA_TYPE *ptr, void *)
 }
 
 template<typename BDEMA_TYPE>
-static void deleteWithBslmaAllocatorFactory(void *ptr, void *factory)
+void deleteWithBslmaAllocatorFactory(void *ptr, void *factory)
 {
     bslma_Allocator *pAlloc = reinterpret_cast<bslma_Allocator *>(factory);
     BDEMA_TYPE *p = reinterpret_cast<BDEMA_TYPE *>(ptr);
@@ -464,7 +464,7 @@ static void deleteWithBslmaAllocatorFactory(void *ptr, void *factory)
 }
 
 template<typename BDEMA_TYPE>
-static void deleteTypeWithBslmaAllocatorFactory(BDEMA_TYPE *ptr,
+void deleteTypeWithBslmaAllocatorFactory(BDEMA_TYPE *ptr,
                                                  void *factory)
 {
     bslma_Allocator *pAlloc = reinterpret_cast<bslma_Allocator *>(factory);
