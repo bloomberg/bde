@@ -799,6 +799,7 @@ struct Fbase {
     }
 
     enum { USE_DEFAULT = false };
+    enum { DELETER_USES_FACTORY = true};
 };
 
 struct Ftest {
@@ -809,9 +810,10 @@ struct Ftest {
     }
 
     enum { USE_DEFAULT = false };
+    enum { DELETER_USES_FACTORY = true};
 };
 
-struct Fdefault {
+struct Fdflt {
     typedef bslma_Allocator FactoryType;
 
     static FactoryType *factory(bslma_TestAllocator *) {
@@ -819,12 +821,112 @@ struct Fdefault {
     }
 
     enum { USE_DEFAULT = true };
+    enum { DELETER_USES_FACTORY = false};
 };
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                             Deleter Policies
 
+template<class ObjectPolicy, class FactoryPolicy>
+struct DusedObjFac {
+    typedef typename  ObjectPolicy::ObjectType  ObjectType;
+    typedef typename FactoryPolicy::FactoryType FactoryType;
+
+    typedef void DeleterType(ObjectType*, FactoryType *);
+
+    enum {DELETER_USES_FACTORY = FactoryPolicy::DELETER_USES_FACTORY};
+
+    static void doDelete(ObjectType * object, FactoryType * factory) {
+        if (DELETER_USES_FACTORY) {
+            factory->deleteObject(object);
+        }
+        else {
+            deleteTypeWithDefaultAllocator(object, factory);
+        }
+    }
+
+    static DeleterType *deleter() {
+        return &doDelete;
+    }
+};
+
+template<class ObjectPolicy, class FactoryPolicy>
+struct DusedObjVoid {
+    typedef typename  ObjectPolicy::ObjectType  ObjectType;
+    typedef typename FactoryPolicy::FactoryType FactoryType;
+
+    typedef void DeleterType(ObjectType*, void *);
+
+    enum {DELETER_USES_FACTORY = FactoryPolicy::DELETER_USES_FACTORY};
+
+    static void doDelete(ObjectType * object, void * factory) {
+        if (DELETER_USES_FACTORY) {
+            FactoryType *fac = reinterpret_cast<FactoryType *>(factory);
+            fac->deleteObject(object);
+        }
+        else {
+            deleteTypeWithDefaultAllocator(object, factory);
+        }
+    }
+
+    static DeleterType *deleter() {
+        return &doDelete;
+    }
+};
+
+template<class ObjectPolicy, class FactoryPolicy>
+struct DusedVoidFac {
+    typedef typename  ObjectPolicy::ObjectType  ObjectType;
+    typedef typename FactoryPolicy::FactoryType FactoryType;
+
+    typedef void DeleterType(void *, FactoryType *);
+
+    enum {DELETER_USES_FACTORY = FactoryPolicy::DELETER_USES_FACTORY};
+
+    static void doDelete(void * object, FactoryType * factory) {
+        ObjectType *obj = reinterpret_cast<ObjectType *>(object);
+        if (DELETER_USES_FACTORY) {
+            factory->deleteObject(obj);
+        }
+        else {
+            deleteTypeWithDefaultAllocator(obj, factory);
+        }
+    }
+
+    static DeleterType *deleter() {
+        return &doDelete;
+    }
+};
+
+template<class ObjectPolicy, class FactoryPolicy>
+struct DusedVoidVoid {
+    typedef typename  ObjectPolicy::ObjectType  ObjectType;
+    typedef typename FactoryPolicy::FactoryType FactoryType;
+
+    typedef void DeleterType(void*, void *);
+
+    enum {DELETER_USES_FACTORY = FactoryPolicy::DELETER_USES_FACTORY};
+
+    static void doDelete(void * object, void * factory) {
+        ObjectType *obj = reinterpret_cast<ObjectType *>(object);
+        if (DELETER_USES_FACTORY) {
+            FactoryType *fac = reinterpret_cast<FactoryType *>(factory);
+            fac->deleteObject(obj);
+        }
+        else {
+            deleteTypeWithDefaultAllocator(obj, factory);
+        }
+    }
+
+    static DeleterType *deleter() {
+        return &doDelete;
+    }
+};
+
+
 //=============================================================================
+// No policies needed for 'load' of empty managed pointers
+
 template<typename POINTER_TYPE>
 void doLoad(int callLine, int testLine, int index,
             const TestLoadArgs<POINTER_TYPE>& args)
@@ -865,6 +967,9 @@ void doLoadOnull(int callLine, int testLine, int index,
     // As 'p' is empty, none of its other properties have a defined state.
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// A simple object policy governs loading a single argument
+
 template<class POINTER_TYPE, class ObjectPolicy>
 void doLoadObject(int callLine, int testLine, int index,
                   const TestLoadArgs<POINTER_TYPE>& args)
@@ -902,7 +1007,8 @@ void doLoadObject(int callLine, int testLine, int index,
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The following functions load a 'bdema_ManagedPtr' object using a factory
+// The following functions load a 'bdema_ManagedPtr' object using a factory.
+// We now require separate policies for Object and Factory types
 
 template<class POINTER_TYPE, class ObjectPolicy, class FactoryPolicy>
 void doLoadObjectFactory(int callLine, int testLine, int index,
@@ -988,7 +1094,11 @@ void doLoadObjectFactory(int callLine, int testLine, int index,
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following functions load a 'bdema_ManagedPtr' object using both a
-// factory and a deleter
+// factory and a deleter.
+// First we perform negative testing when the 'deleter' argument is equal to
+// a null pointer.  Note that passing a null pointer literal will produce a
+// compile time error in this case, so we store the null in a variable of the
+// desired function-pointer type.
 
 template<class POINTER_TYPE, class ObjectPolicy, class FactoryPolicy>
 void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
@@ -1067,189 +1177,10 @@ void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#if 0
-struct DdefVoidVoid {
-    template<typename ObjectPolicy>
-    struct Policy {
-        typedef typename ObjectPolicy::ObjectType ObjectType;
-
-        typedef void DeleterType(void*, void*);
-
-        static void doDelete(void * object, void *) {
-            ObjectType *obj = static_cast<ObjectType *>(object);
-
-            bslma_Allocator *alloc = bslma_Default::defaultAllocator();
-            alloc->deleteObject(obj);
-        }
-
-        static DeleterType *deleter() {
-            return &doDelete;
-        }
-    };
-};
-
-struct DdefVoidBsl {
-    template<typename ObjectPolicy>
-    struct Policy {
-        typedef typename ObjectPolicy::ObjectType ObjectType;
-
-        typedef void DeleterType(void*, bslma_Allocator *);
-
-        static void doDelete(void * object, bslma_Allocator *) {
-            ObjectType *obj = static_cast<ObjectType *>(object);
-
-            bslma_Allocator *alloc = bslma_Default::defaultAllocator();
-            alloc->deleteObject(obj);
-        }
-
-        static DeleterType *deleter() {
-            return &doDelete;
-        }
-    };
-};
-
-struct DdefObjVoid {
-    template<typename ObjectPolicy>
-    struct Policy {
-        typedef typename ObjectPolicy::ObjectType ObjectType;
-
-        typedef void DeleterType(ObjectType*, void*);
-
-        static void doDelete(ObjectType *object, void *) {
-            ObjectType *obj = static_cast<ObjectType *>(object);
-
-            bslma_Allocator *alloc = bslma_Default::defaultAllocator();
-            alloc->deleteObject(obj);
-        }
-
-        static DeleterType *deleter() {
-            return &doDelete;
-        }
-    };
-};
-
-struct DdefObjBsl {
-    template<class ObjectPolicy>
-    struct Policy {
-        typedef typename ObjectPolicy::ObjectType ObjectType;
-
-        typedef void DeleterType(ObjectType*, bslma_Allocator *);
-
-        static void doDelete(ObjectType * object, bslma_Allocator *) {
-            bslma_Allocator *alloc = bslma_Default::defaultAllocator();
-            alloc->deleteObject(object);
-        }
-
-        static DeleterType *deleter() {
-            return &doDelete;
-        }
-    };
-};
-#endif
-
-template<class ObjectPolicy, class FactoryPolicy>
-struct DdefObjFac {
-    typedef typename  ObjectPolicy::ObjectType  ObjectType;
-    typedef typename FactoryPolicy::FactoryType FactoryType;
-
-    typedef void DeleterType(ObjectType*, FactoryType *);
-
-    static void doDelete(ObjectType * object, FactoryType * factory) {
-        factory->deleteObject(object);
-    }
-
-    static DeleterType *deleter() {
-        return &doDelete;
-    }
-};
-
-template<class ObjectPolicy, class FactoryPolicy>
-struct DdefObjVoid {
-    typedef typename  ObjectPolicy::ObjectType  ObjectType;
-    typedef typename FactoryPolicy::FactoryType FactoryType;
-
-    typedef void DeleterType(ObjectType*, void *);
-
-    static void doDelete(ObjectType * object, void * factory) {
-        FactoryType *fac = reinterpret_cast<FactoryType *>(factory);
-        fac->deleteObject(object);
-    }
-
-    static DeleterType *deleter() {
-        return &doDelete;
-    }
-};
-
-template<class ObjectPolicy, class FactoryPolicy>
-struct DdefVoidFac {
-    typedef typename  ObjectPolicy::ObjectType  ObjectType;
-    typedef typename FactoryPolicy::FactoryType FactoryType;
-
-    typedef void DeleterType(void *, FactoryType *);
-
-    static void doDelete(void * object, FactoryType * factory) {
-        ObjectType *obj = reinterpret_cast<ObjectType *>(object);
-        factory->deleteObject(obj);
-    }
-
-    static DeleterType *deleter() {
-        return &doDelete;
-    }
-};
-
-template<class ObjectPolicy, class FactoryPolicy>
-struct DdefVoidVoid {
-    typedef typename  ObjectPolicy::ObjectType  ObjectType;
-    typedef typename FactoryPolicy::FactoryType FactoryType;
-
-    typedef void DeleterType(void*, void *);
-
-    static void doDelete(void * object, void * factory) {
-        ObjectType *obj = reinterpret_cast<ObjectType *>(object);
-        FactoryType *fac = reinterpret_cast<FactoryType *>(factory);
-        fac->deleteObject(obj);
-    }
-
-    static DeleterType *deleter() {
-        return &doDelete;
-    }
-};
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-template<class POINTER_TYPE, class ObjectPolicy, class DeleterHost>
-void doLoadObjectFnullDeleter(int callLine, int testLine, int index,
-                              const TestLoadArgs<POINTER_TYPE>& args)
-{
-    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
-
-    bool nullObject  = args.d_config & 1;
-
-    const int expectedCount = *args.d_deleteDelta;
-
-    typedef typename  ObjectPolicy::ObjectType  ObjectType;
-    typedef DeleterHost::template Policy<ObjectPolicy> DeleterPolicy;
-    typedef typename DeleterPolicy::DeleterType DeleterType;
-
-    ObjectType *pO = 0;
-    if (!nullObject) {
-        bslma_Allocator *pA = bslma_Default::defaultAllocator();
-        pO = new(*pA)ObjectType(args.d_deleteCount);
-        *args.d_useDefault  = true;
-        *args.d_deleteDelta = ObjectPolicy::DELETE_DELTA;
-    }
-
-    DeleterType *deleter = DeleterPolicy::deleter();
-    args.d_p->load(pO, 0, deleter);
-
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
-}
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Next we supply the actual deleter argument, which now requires three
+// separate policies.  Note that the 'deleter' policy is in turn parameterized
+// on the types it expects to see, which may be different to (but compatible
+// with) the actual 'object' and 'factory' policies used in a given test.
 
 template<class POINTER_TYPE,
          class ObjectPolicy, class FactoryPolicy, class DeleterPolicy>
@@ -1261,27 +1192,21 @@ void doLoadOjbectFactoryDeleter(int callLine, int testLine, int index,
     bool nullObject  = args.d_config & 1;
     bool nullFactory = args.d_config & 2;
 
-    if(nullFactory) {
+    if(nullFactory && FactoryPolicy::DELETER_USES_FACTORY) {
         // It is perfectly well defined to pass a null pointer as the factory
         // if it is not going to be used by the deleter.  We cannot assert
         // this condition in the 'bdema_ManagedPtr' component, so simply exit
         // from this test case, rather than try negative testing strategies.
-        // TBD: The deleter policy could advertise whether it uses the
-        //      'factory' parameter as one of its detectable 'enum's.
+        // Note that some factory/deleter policies do not actually use the
+        // factory argument when running the deleter.  These must be allowed
+        // to continue through the rest of this test.
         return;
     }
 
     const int expectedCount = *args.d_deleteDelta;
 
-    // If we are negative-testing, we will create and destroy any targtet
-    // object entirely within this function, so must track with a local counter
-    // instead of the 'args' counter.
-//    int localDeleteCount = 0;
-
     typedef typename  ObjectPolicy::ObjectType  ObjectType;
     typedef typename FactoryPolicy::FactoryType FactoryType;
-
-//    typedef DeleterHost::template Policy<ObjectPolicy, FactoryPolicy> DeleterPolicy;
     typedef typename DeleterPolicy::DeleterType DeleterType;
 
     // We need two factory pointers, 'pAlloc' is used for all necessary
@@ -1312,161 +1237,50 @@ void doLoadOjbectFactoryDeleter(int callLine, int testLine, int index,
     LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Finally we test the small set of policies that combine to allow passing
+// a null pointer literal as the factory.  This requires a deleter that will
+// not use the factory pointer.
+template<class POINTER_TYPE, class ObjectPolicy, class DeleterPolicy>
+void doLoadObjectFnullDeleter(int callLine, int testLine, int index,
+                              const TestLoadArgs<POINTER_TYPE>& args)
+{
+    BSLMF_ASSERT(!DeleterPolicy::DELETER_USES_FACTORY);
+
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    bool nullObject  = args.d_config & 1;
+
+    const int expectedCount = *args.d_deleteDelta;
+
+    typedef typename  ObjectPolicy::ObjectType  ObjectType;
+    //typedef DeleterHost::template Policy<ObjectPolicy> DeleterPolicy;
+    typedef typename DeleterPolicy::DeleterType DeleterType;
+
+    ObjectType *pO = 0;
+    if (!nullObject) {
+        bslma_Allocator *pA = bslma_Default::defaultAllocator();
+        pO = new(*pA)ObjectType(args.d_deleteCount);
+        *args.d_useDefault  = true;
+        *args.d_deleteDelta = ObjectPolicy::DELETE_DELTA;
+    }
+
+    DeleterType *deleter = DeleterPolicy::deleter();
+    args.d_p->load(pO, 0, deleter);
+
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                 expectedCount == *args.d_deleteCount);
+
+    POINTER_TYPE *ptr = args.d_p->ptr();
+    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+}
+
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-template<typename POINTER_TYPE>
-void loadMyDerivedNoFactoryBaseDefaultDeleter(int callLine, int testLine, int index,
-                                              const TestLoadArgs<POINTER_TYPE>& args)
-{
-    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
-
-    bool nullObject  = args.d_config & 1;
-    bool nullFactory = args.d_config & 2;
-
-    const int expectedCount = *args.d_deleteDelta;
-
-    bslma_Allocator *pA = bslma_Default::defaultAllocator();
-    MyDerivedObject *pO = new(*pA)MyDerivedObject(args.d_deleteCount);
-    *args.d_useDefault  = true;
-
-    args.d_p->load(pO, 0, &deleteTypeWithDefaultAllocator<MyTestObject>);
-    *args.d_deleteDelta = 100;
-
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
-}
-
-template<typename POINTER_TYPE>
-void loadMyDerivedAsBaseNoFactoryDefaultDeleter(int callLine, int testLine, int index,
-                                                const TestLoadArgs<POINTER_TYPE>& args)
-{
-    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
-
-    bool nullObject  = args.d_config & 1;
-    bool nullFactory = args.d_config & 2;
-
-    const int expectedCount = *args.d_deleteDelta;
-
-    bslma_Allocator *pA = bslma_Default::defaultAllocator();
-    MyTestObject    *pO = new(*pA)MyDerivedObject(args.d_deleteCount);
-    *args.d_useDefault  = true;
-
-    args.d_p->load(pO, 0, &deleteTypeWithDefaultAllocator<MyTestObject>);
-    *args.d_deleteDelta = 100;
-
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
-}
-
-
-template<typename POINTER_TYPE>
-void loadMyTestBslmaFactoryDeleter(int callLine, int testLine, int index,
-                                   const TestLoadArgs<POINTER_TYPE>& args)
-{
-    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
-
-    bool nullObject  = args.d_config & 1;
-    bool nullFactory = args.d_config & 2;
-
-    const int expectedCount = *args.d_deleteDelta;
-
-    MyTestObject    *pO = new(*args.d_ta)MyTestObject(args.d_deleteCount);
-
-    args.d_p->load(pO, args.d_ta, &deleteWithBslmaAllocatorFactory<MyTestObject>);
-    *args.d_deleteDelta = 1;
-
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
-}
-
-template<typename POINTER_TYPE>
-void loadMyTestTypeBslmaFactoryDeleter(int callLine, int testLine, int index,
-                                       const TestLoadArgs<POINTER_TYPE>& args)
-{
-    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
-
-    bool nullObject  = args.d_config & 1;
-    bool nullFactory = args.d_config & 2;
-
-    const int expectedCount = *args.d_deleteDelta;
-
-    MyTestObject*pO = new(*args.d_ta)MyTestObject(args.d_deleteCount);
-
-    args.d_p->load(pO, args.d_ta, &deleteTypeWithBslmaAllocatorFactory<MyTestObject>);
-    *args.d_deleteDelta = 1;
-
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
-}
-
-template<typename POINTER_TYPE>
-void loadMyDerivedBslmaFactoryDeleter(int callLine, int testLine,
-                                      int index,
-                                      const TestLoadArgs<POINTER_TYPE>& args)
-{
-    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
-
-    bool nullObject  = args.d_config & 1;
-    bool nullFactory = args.d_config & 2;
-
-    const int expectedCount = *args.d_deleteDelta;
-
-    MyDerivedObject *pO = new(*args.d_ta)MyDerivedObject(args.d_deleteCount);
-
-    args.d_p->load(pO, args.d_ta, &deleteWithBslmaAllocatorFactory<MyDerivedObject>);
-    *args.d_deleteDelta = 100;
-
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
-}
-
-template<typename POINTER_TYPE>
-void loadMyDerivedTypeBslmaFactoryDeleter(int callLine, int testLine, 
-                                          int index,
-                                        const TestLoadArgs<POINTER_TYPE>& args)
-{
-    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
-
-    bool nullObject  = args.d_config & 1;
-    bool nullFactory = args.d_config & 2;
-
-    const int expectedCount = *args.d_deleteDelta;
-
-    MyDerivedObject*pO = new(*args.d_ta)MyDerivedObject(args.d_deleteCount);
-
-    args.d_p->load(pO, args.d_ta, &deleteTypeWithBslmaAllocatorFactory<MyDerivedObject>);
-    *args.d_deleteDelta = 100;
-
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
-                 expectedCount == *args.d_deleteCount);
-
-    POINTER_TYPE *ptr = args.d_p->ptr();
-    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
-}
-
-
 // untested concerns
+//   base and derived object types that are not polymorphic
 //   more varieties of base/derive conversion on deleter types
-//                CONSTNESS
-//   const object pointers with deleter loads
-//   const object pointers with factory/deleter loads
-//   const factory pointers
-//   const factory pointers with deleters
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 template<typename TEST_TARGET, typename TEST_FUNCTION_TYPE>
 void testLoadOps(int callLine,
@@ -3552,199 +3366,262 @@ int main(int argc, char *argv[])
                 //&doLoadObjectFactory<TestTarget, OCderiv, Ftest>,
 
                 // deleter tests
-#if 0
-                &doLoadObjectFnullDeleter<TestTarget, Obase,   DdefVoidVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DdefVoidVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DdefVoidVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DdefVoidVoid>,
+                &doLoadObjectFnullDeleter<TestTarget, Obase,   DusedVoidVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidVoid<OCbase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidVoid<Oderiv, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<OCderiv, Fdflt> >,
 
-                &doLoadObjectFnullDeleter<TestTarget, Obase,   DdefObjVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DdefObjVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DdefObjVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DdefObjVoid>,
-#endif
+                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<OCbase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<Oderiv, Fdflt> >,
+
+
+                &doLoadObjectFnullDeleter<TestTarget, Obase,   DusedObjVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedObjVoid<OCbase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjVoid<Oderiv, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<OCderiv, Fdflt> >,
+
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<OCbase, Fdflt> >,
+
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                            DusedObjFac< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Oderiv,  Fbase > >,
+                                            DusedObjFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Oderiv,  Ftest > >,
+                                            DusedObjFac< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                //                            DdefObjFac< OCbase,  Ftest > >,
+                //                            DusedObjFac< OCbase,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                            DdefObjFac< OCderiv, Fbase > >,
+                //                            DusedObjFac< OCderiv, Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCderiv, Ftest > >,
+                //                            DusedObjFac< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                            DusedObjFac< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCbase,  Ftest > >,
+                //                            DusedObjFac< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< OCbase,  Fbase > >,
-
-
-
+                                            DusedObjFac< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                            DusedObjFac< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Oderiv,  Fbase > >,
+                                            DusedObjFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Oderiv,  Ftest > >,
+                                            DusedObjFac< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                //                            DdefObjFac< OCbase,  Ftest > >,
+                //                            DusedObjFac< OCbase,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                            DdefObjFac< OCderiv, Fbase > >,
+                //                            DusedObjFac< OCderiv, Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCderiv, Ftest > >,
+                //                            DusedObjFac< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                            DusedObjFac< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCbase,  Ftest > >,
+                //                            DusedObjFac< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                           DdefVoidFac< Obase,   Ftest > >,
+                                           DusedVoidFac< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< Oderiv,  Fbase > >,
+                                           DusedVoidFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Oderiv,  Ftest > >,
+                                           DusedVoidFac< Oderiv,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Obase,   Ftest > >,
+                                           DusedVoidFac< Obase,   Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< OCbase,  Fbase > >,
+                                           DusedVoidFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< OCbase,  Fbase > >,
+                                           DusedVoidFac< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                           DdefObjVoid< Obase,   Ftest > >,
+                                           DusedObjVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< Oderiv,  Fbase > >,
+                                           DusedObjVoid< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Oderiv,  Ftest > >,
+                                           DusedObjVoid< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                //                           DdefObjVoid< OCbase,  Fbase > >,
+                //                           DusedObjVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                //                           DdefObjVoid< OCbase,  Ftest > >,
+                //                           DusedObjVoid< OCbase,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                           DdefObjVoid< OCderiv, Fbase > >,
+                //                           DusedObjVoid< OCderiv, Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                           DdefObjVoid< OCderiv, Ftest > >,
+                //                           DusedObjVoid< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                           DdefObjVoid< OCbase,  Fbase > >,
+                //                           DusedObjVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                           DdefObjVoid< OCbase,  Fbase > >,
+                //                           DusedObjVoid< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Obase,   Ftest > >,
+                                           DusedObjVoid< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                           DdefObjVoid< OCbase,  Ftest > >,
+                //                           DusedObjVoid< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                          DdefVoidVoid< Obase,   Ftest > >,
+                                          DusedVoidVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< Oderiv,  Fbase > >,
+                                          DusedVoidVoid< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Oderiv,  Ftest > >,
+                                          DusedVoidVoid< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                //                          DdefVoidVoid< OCbase,  Fbase > >,
+                //                          DusedVoidVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                //                          DdefVoidVoid< OCbase,  Ftest > >,
+                //                          DusedVoidVoid< OCbase,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                          DdefVoidVoid< OCderiv, Fbase > >,
+                //                          DusedVoidVoid< OCderiv, Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                          DdefVoidVoid< OCderiv, Ftest > >,
+                //                          DusedVoidVoid< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                          DdefVoidVoid< OCbase,  Fbase > >,
+                //                          DusedVoidVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                          DdefVoidVoid< OCbase,  Fbase > >,
+                //                          DusedVoidVoid< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Obase,   Ftest > >,
+                                          DusedVoidVoid< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                          DdefVoidVoid< OCbase,  Ftest > >,
+                //                          DusedVoidVoid< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
 
 
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                            DusedObjFac< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< Oderiv,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                //                            DusedObjFac< OCbase,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                            DusedObjFac< OCderiv, Fdflt > >,
 
-                &loadMyTestBslmaFactoryDeleter<TestTarget>,
-                &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                            DusedObjFac< OCbase,  Fdflt > >,
 
-                &loadMyDerivedNoFactoryBaseDefaultDeleter<TestTarget>,
-                &loadMyDerivedAsBaseNoFactoryDefaultDeleter<TestTarget>,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                           DusedVoidFac< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< Oderiv,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< Obase,   Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                           DusedObjVoid< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< Oderiv,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                //                           DusedObjVoid< OCbase,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                           DusedObjVoid< OCderiv, Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                           DusedObjVoid< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                          DusedVoidVoid< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< Oderiv,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                //                          DusedVoidVoid< OCbase,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                          DusedVoidVoid< OCderiv, Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                          DusedVoidVoid< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< OCbase,  Fdflt > >,
+
 
                 // negative tests - deleter has null pointer value
                 // note that null pointer literal would be a compile-fail test
@@ -3793,159 +3670,226 @@ int main(int argc, char *argv[])
                 &doLoadObjectFactory<TestTarget, OCderiv, Ftest>,
 
                 // deleter tests
-#if 0
-                &doLoadObjectFnullDeleter<TestTarget, Obase,   DdefVoidVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DdefVoidVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DdefVoidVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DdefVoidVoid>,
+                &doLoadObjectFnullDeleter<TestTarget, Obase,   DusedVoidVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidVoid<OCbase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidVoid<Oderiv, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<OCderiv, Fdflt> >,
 
-                &doLoadObjectFnullDeleter<TestTarget, Obase,   DdefObjVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DdefObjVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DdefObjVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DdefObjVoid>,
-#endif
+                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<OCbase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<Oderiv, Fdflt> >,
+
+
+                &doLoadObjectFnullDeleter<TestTarget, Obase,   DusedObjVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedObjVoid<OCbase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjVoid<Oderiv, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<OCderiv, Fdflt> >,
+
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<OCbase, Fdflt> >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                            DusedObjFac< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                                            DdefObjFac< OCbase,  Ftest > >,
+                                            DusedObjFac< OCbase,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Oderiv,  Fbase > >,
+                                            DusedObjFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Oderiv,  Ftest > >,
+                                            DusedObjFac< Oderiv,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                            DdefObjFac< OCderiv, Fbase > >,
+                                            DusedObjFac< OCderiv, Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                            DdefObjFac< OCderiv, Ftest > >,
+                                            DusedObjFac< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                            DusedObjFac< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                            DdefObjFac< OCbase,  Ftest > >,
+                                            DusedObjFac< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                           DdefVoidFac< Obase,   Ftest > >,
+                                           DusedVoidFac< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< Oderiv,  Fbase > >,
+                                           DusedVoidFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Oderiv,  Ftest > >,
+                                           DusedVoidFac< Oderiv,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Obase,   Ftest > >,
+                                           DusedVoidFac< Obase,   Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< OCbase,  Fbase > >,
+                                           DusedVoidFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< OCbase,  Fbase > >,
+                                           DusedVoidFac< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                           DdefObjVoid< Obase,   Ftest > >,
+                                           DusedObjVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                                           DdefObjVoid< OCbase,  Ftest > >,
+                                           DusedObjVoid< OCbase,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< Oderiv,  Fbase > >,
+                                           DusedObjVoid< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Oderiv,  Ftest > >,
+                                           DusedObjVoid< Oderiv,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                           DdefObjVoid< OCderiv, Fbase > >,
+                                           DusedObjVoid< OCderiv, Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                           DdefObjVoid< OCderiv, Ftest > >,
+                                           DusedObjVoid< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Obase,   Ftest > >,
+                                           DusedObjVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                           DdefObjVoid< OCbase,  Ftest > >,
+                                           DusedObjVoid< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                          DdefVoidVoid< Obase,   Ftest > >,
+                                          DusedVoidVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                                          DdefVoidVoid< OCbase,  Ftest > >,
+                                          DusedVoidVoid< OCbase,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< Oderiv,  Fbase > >,
+                                          DusedVoidVoid< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Oderiv,  Ftest > >,
+                                          DusedVoidVoid< Oderiv,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                          DdefVoidVoid< OCderiv, Fbase > >,
+                                          DusedVoidVoid< OCderiv, Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                          DdefVoidVoid< OCderiv, Ftest > >,
+                                          DusedVoidVoid< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Obase,   Ftest > >,
+                                          DusedVoidVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                          DdefVoidVoid< OCbase,  Ftest > >,
+                                          DusedVoidVoid< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
 
-                &loadMyTestBslmaFactoryDeleter<TestTarget>,
-                &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>,
 
-                &loadMyDerivedNoFactoryBaseDefaultDeleter<TestTarget>,
-                &loadMyDerivedAsBaseNoFactoryDefaultDeleter<TestTarget>,
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                            DusedObjFac< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                                            DusedObjFac< OCbase,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< Oderiv,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                            DusedObjFac< OCderiv, Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                            DusedObjFac< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                           DusedVoidFac< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< Oderiv,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< Obase,   Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                           DusedObjVoid< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                                           DusedObjVoid< OCbase,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< Oderiv,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                           DusedObjVoid< OCderiv, Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                           DusedObjVoid< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                          DusedVoidVoid< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                                          DusedVoidVoid< OCbase,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< Oderiv,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                          DusedVoidVoid< OCderiv, Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                          DusedVoidVoid< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< OCbase,  Fdflt > >,
+
 
                 // negative tests - deleter has null pointer value
                 // note that null pointer literal would be a compile-fail test
@@ -3994,200 +3938,265 @@ int main(int argc, char *argv[])
                 //&doLoadObjectFactory<TestTarget, OCderiv, Ftest>,
 
                 // deleter tests
-#if 0
-                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DdefVoidVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, Obase,   DdefVoidVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DdefVoidVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DdefVoidVoid>,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidVoid<Oderiv, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, Obase,   DusedVoidVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidVoid<OCbase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<OCderiv, Fdflt> >,
 
-                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DdefObjVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, Obase,   DdefObjVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DdefObjVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DdefObjVoid>,
-#endif
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<OCbase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<Oderiv, Fdflt> >,
+
+
+                //&doLoadObjectFnullDeleter<TestTarget, Obase,   DusedObjVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedObjVoid<OCbase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjVoid<Oderiv, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<OCderiv, Fdflt> >,
+
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<OCbase, Fdflt> >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Oderiv,  Fbase > >,
+                                            DusedObjFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Oderiv,  Ftest > >,
+                                            DusedObjFac< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                //                            DdefObjFac< Obase,   Fbase > >,
+                //                            DusedObjFac< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                //                            DdefObjFac< Obase,   Ftest > >,
+                //                            DusedObjFac< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                //                            DdefObjFac< OCbase,  Ftest > >,
+                //                            DusedObjFac< OCbase,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                            DdefObjFac< OCderiv, Fbase > >,
+                //                            DusedObjFac< OCderiv, Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCderiv, Ftest > >,
+                //                            DusedObjFac< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                            DusedObjFac< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCbase,  Ftest > >,
+                //                            DusedObjFac< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
 
 
 
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Oderiv,  Fbase > >,
+                                            DusedObjFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Oderiv,  Ftest > >,
+                                            DusedObjFac< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                //                            DdefObjFac< Obase,   Fbase > >,
+                //                            DusedObjFac< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                //                            DdefObjFac< Obase,   Ftest > >,
+                //                            DusedObjFac< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                //                            DdefObjFac< OCbase,  Ftest > >,
+                //                            DusedObjFac< OCbase,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                            DdefObjFac< OCderiv, Fbase > >,
+                //                            DusedObjFac< OCderiv, Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCderiv, Ftest > >,
+                //                            DusedObjFac< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                            DusedObjFac< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCbase,  Ftest > >,
+                //                            DusedObjFac< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< Oderiv,  Fbase > >,
+                                           DusedVoidFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Oderiv,  Ftest > >,
+                                           DusedVoidFac< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                //                           DdefVoidFac< Obase,   Fbase > >,
+                //                           DusedVoidFac< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                //                           DdefVoidFac< Obase,   Ftest > >,
+                //                           DusedVoidFac< Obase,   Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Obase,   Ftest > >,
-
-                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< OCbase,  Fbase > >,
-                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< OCbase,  Fbase > >,
-
+                                           DusedVoidFac< Obase,   Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< Oderiv,  Fbase > >,
+                                           DusedVoidFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Oderiv,  Ftest > >,
+                                           DusedVoidFac< OCbase,  Fbase > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
+                                           DusedObjVoid< Oderiv,  Fbase > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
+                                           DusedObjVoid< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                //                           DdefObjVoid< Obase,   Fbase > >,
+                //                           DusedObjVoid< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                //                           DdefObjVoid< Obase,   Ftest > >,
+                //                           DusedObjVoid< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                //                           DdefObjVoid< OCbase,  Fbase > >,
+                //                           DusedObjVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                //                           DdefObjVoid< OCbase,  Ftest > >,
+                //                           DusedObjVoid< OCbase,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                           DdefObjVoid< OCderiv, Fbase > >,
+                //                           DusedObjVoid< OCderiv, Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                           DdefObjVoid< OCderiv, Ftest > >,
+                //                           DusedObjVoid< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                           DdefObjVoid< OCbase,  Fbase > >,
+                //                           DusedObjVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                           DdefObjVoid< OCbase,  Fbase > >,
+                //                           DusedObjVoid< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Obase,   Ftest > >,
+                                           DusedObjVoid< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                           DdefObjVoid< OCbase,  Ftest > >,
+                //                           DusedObjVoid< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< Oderiv,  Fbase > >,
+                                          DusedVoidVoid< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Oderiv,  Ftest > >,
+                                          DusedVoidVoid< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                //                          DdefVoidVoid< Obase,   Fbase > >,
+                //                          DusedVoidVoid< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                //                          DdefVoidVoid< Obase,   Ftest > >,
+                //                          DusedVoidVoid< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                //                          DdefVoidVoid< OCbase,  Fbase > >,
+                //                          DusedVoidVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                //                          DdefVoidVoid< OCbase,  Ftest > >,
+                //                          DusedVoidVoid< OCbase,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                          DdefVoidVoid< OCderiv, Fbase > >,
+                //                          DusedVoidVoid< OCderiv, Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                          DdefVoidVoid< OCderiv, Ftest > >,
+                //                          DusedVoidVoid< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                          DdefVoidVoid< OCbase,  Fbase > >,
+                //                          DusedVoidVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                          DdefVoidVoid< OCbase,  Fbase > >,
+                //                          DusedVoidVoid< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Obase,   Ftest > >,
+                                          DusedVoidVoid< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                          DdefVoidVoid< OCbase,  Ftest > >,
+                //                          DusedVoidVoid< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
 
 
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< Oderiv,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                //                            DusedObjFac< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                //                            DusedObjFac< OCbase,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                            DusedObjFac< OCderiv, Fdflt > >,
 
-                //&loadMyTestBslmaFactoryDeleter<TestTarget>,
-                //&loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                            DusedObjFac< OCbase,  Fdflt > >,
 
-                &loadMyDerivedNoFactoryBaseDefaultDeleter<TestTarget>,
-                //&loadMyDerivedAsBaseNoFactoryDefaultDeleter<TestTarget>
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< OCbase,  Fdflt > >,
+
+
+                //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                //                           DusedVoidFac< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< Oderiv,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< Obase,   Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< Oderiv,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                //                           DusedObjVoid< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                //                           DusedObjVoid< OCbase,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                           DusedObjVoid< OCderiv, Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                           DusedObjVoid< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< Oderiv,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                //                          DusedVoidVoid< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                //                          DusedVoidVoid< OCbase,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                          DusedVoidVoid< OCderiv, Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                          DusedVoidVoid< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< OCbase,  Fdflt > >,
+
 
                 // negative tests - deleter has null pointer value
                 // note that null pointer literal would be a compile-fail test
@@ -4236,159 +4245,225 @@ int main(int argc, char *argv[])
                 //&doLoadObjectFactory<TestTarget, OCderiv, Ftest>,
 
                 // deleter tests
-#if 0
-                &doLoadObjectFnullDeleter<TestTarget, Obase,   DdefVoidVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DdefVoidVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DdefVoidVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DdefVoidVoid>,
+                &doLoadObjectFnullDeleter<TestTarget, Obase,   DusedVoidVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidVoid<OCbase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidVoid<Oderiv, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<OCderiv, Fdflt> >,
 
-                &doLoadObjectFnullDeleter<TestTarget, Obase,   DdefObjVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DdefObjVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DdefObjVoid>,
-                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DdefObjVoid>,
-#endif
+                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<OCbase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<Oderiv, Fdflt> >,
+
+
+                &doLoadObjectFnullDeleter<TestTarget, Obase,   DusedObjVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedObjVoid<OCbase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjVoid<Oderiv, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<OCderiv, Fdflt> >,
+
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjVoid<Obase, Fdflt> >,
+                //&doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<OCbase, Fdflt> >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                            DusedObjFac< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Oderiv,  Fbase > >,
+                                            DusedObjFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Oderiv,  Ftest > >,
+                                            DusedObjFac< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                //                            DdefObjFac< OCbase,  Ftest > >,
+                //                            DusedObjFac< OCbase,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                            DdefObjFac< OCderiv, Fbase > >,
+                //                            DusedObjFac< OCderiv, Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCderiv, Ftest > >,
+                //                            DusedObjFac< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCbase,  Fbase > >,
+                //                            DusedObjFac< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                            DusedObjFac< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                            DdefObjFac< OCbase,  Ftest > >,
+                //                            DusedObjFac< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                           DdefVoidFac< Obase,   Ftest > >,
+                                           DusedVoidFac< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< Oderiv,  Fbase > >,
+                                           DusedVoidFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Oderiv,  Ftest > >,
+                                           DusedVoidFac< Oderiv,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Obase,   Ftest > >,
+                                           DusedVoidFac< Obase,   Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< OCbase,  Fbase > >,
+                                           DusedVoidFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< OCbase,  Fbase > >,
+                                           DusedVoidFac< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                           DdefObjVoid< Obase,   Ftest > >,
+                                           DusedObjVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< Oderiv,  Fbase > >,
+                                           DusedObjVoid< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Oderiv,  Ftest > >,
+                                           DusedObjVoid< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                //                           DdefObjVoid< OCbase,  Fbase > >,
+                //                           DusedObjVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                //                           DdefObjVoid< OCbase,  Ftest > >,
+                //                           DusedObjVoid< OCbase,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                           DdefObjVoid< OCderiv, Fbase > >,
+                //                           DusedObjVoid< OCderiv, Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                           DdefObjVoid< OCderiv, Ftest > >,
+                //                           DusedObjVoid< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                           DdefObjVoid< OCbase,  Fbase > >,
+                //                           DusedObjVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                           DdefObjVoid< OCbase,  Fbase > >,
+                //                           DusedObjVoid< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Obase,   Ftest > >,
+                                           DusedObjVoid< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                           DdefObjVoid< OCbase,  Ftest > >,
+                //                           DusedObjVoid< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                          DdefVoidVoid< Obase,   Ftest > >,
+                                          DusedVoidVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< Oderiv,  Fbase > >,
+                                          DusedVoidVoid< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Oderiv,  Ftest > >,
+                                          DusedVoidVoid< Oderiv,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                //                          DdefVoidVoid< OCbase,  Fbase > >,
+                //                          DusedVoidVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                //                          DdefVoidVoid< OCbase,  Ftest > >,
+                //                          DusedVoidVoid< OCbase,  Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                          DdefVoidVoid< OCderiv, Fbase > >,
+                //                          DusedVoidVoid< OCderiv, Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                          DdefVoidVoid< OCderiv, Ftest > >,
+                //                          DusedVoidVoid< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                //                          DdefVoidVoid< OCbase,  Fbase > >,
+                //                          DusedVoidVoid< OCbase,  Fbase > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                          DdefVoidVoid< OCbase,  Fbase > >,
+                //                          DusedVoidVoid< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Obase,   Ftest > >,
+                                          DusedVoidVoid< Obase,   Ftest > >,
                 //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                //                          DdefVoidVoid< OCbase,  Ftest > >,
+                //                          DusedVoidVoid< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
 
 
-                &loadMyTestBslmaFactoryDeleter<TestTarget>,
-                &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>,
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                            DusedObjFac< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                //                            DusedObjFac< OCbase,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< Oderiv,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                            DusedObjFac< OCderiv, Fdflt > >,
 
-                &loadMyDerivedNoFactoryBaseDefaultDeleter<TestTarget>,
-                &loadMyDerivedAsBaseNoFactoryDefaultDeleter<TestTarget>,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                            DusedObjFac< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                           DusedVoidFac< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< Oderiv,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< Obase,   Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                           DusedObjVoid< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                //                           DusedObjVoid< OCbase,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< Oderiv,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                           DusedObjVoid< OCderiv, Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                           DusedObjVoid< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                          DusedVoidVoid< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                //                          DusedVoidVoid< OCbase,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< Oderiv,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                          DusedVoidVoid< OCderiv, Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< Obase,   Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                          DusedVoidVoid< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< OCbase,  Fdflt > >,
+
 
                 // negative tests - deleter has null pointer value
                 // note that null pointer literal would be a compile-fail test
@@ -4437,159 +4512,255 @@ int main(int argc, char *argv[])
                 &doLoadObjectFactory<TestTarget, OCderiv, Ftest>,
 
                 // deleter tests
-#if 0
-                &doLoadObjectFnullDeleter<TestTarget, Obase,   DdefVoidVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DdefVoidVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DdefVoidVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DdefVoidVoid>,
+                &doLoadObjectFnullDeleter<TestTarget, Obase,   DusedVoidVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidVoid<OCbase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidVoid<Oderiv, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<OCderiv, Fdflt> >,
 
-                &doLoadObjectFnullDeleter<TestTarget, Obase,   DdefObjVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DdefObjVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DdefObjVoid>,
-                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DdefObjVoid>,
-#endif
+                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<OCbase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidVoid<Oderiv, Fdflt> >,
+
+
+                &doLoadObjectFnullDeleter<TestTarget, Obase,   DusedObjVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedObjVoid<OCbase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjVoid<Oderiv, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<OCderiv, Fdflt> >,
+
+                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjVoid<Obase, Fdflt> >,
+                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<OCbase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedObjVoid<Obase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<Obase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjVoid<Oderiv, Fdflt> >,
+
+                // These scenarios all fail because we do not support passing a
+                // null pointer literal to the factory argument if the deleter
+                // type names the factory.  The factory type in the deleter
+                // function type must be 'void *' in this case.
+//                &doLoadObjectFnullDeleter<TestTarget, Obase,   DusedVoidFac<Obase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidFac<OCbase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidFac<Oderiv, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidFac<OCderiv, Fdflt> >,
+
+//                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedVoidFac<Obase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedVoidFac<Obase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidFac<Obase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidFac<OCbase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedVoidFac<Oderiv, Fdflt> >,
+
+
+//                &doLoadObjectFnullDeleter<TestTarget, Obase,   DusedObjFac<Obase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedObjFac<OCbase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjFac<Oderiv, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjFac<OCderiv, Fdflt> >,
+
+//                &doLoadObjectFnullDeleter<TestTarget, OCbase,  DusedObjFac<Obase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, Oderiv,  DusedObjFac<Obase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjFac<Obase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjFac<OCbase, Fdflt> >,
+//                &doLoadObjectFnullDeleter<TestTarget, OCderiv, DusedObjFac<Oderiv, Fdflt> >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                           DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                           DusedObjFac< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                           DusedObjFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                                            DdefObjFac< OCbase,  Ftest > >,
+                                           DusedObjFac< OCbase,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Oderiv,  Fbase > >,
+                                           DusedObjFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Oderiv,  Ftest > >,
+                                           DusedObjFac< Oderiv,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                            DdefObjFac< OCderiv, Fbase > >,
+                                           DusedObjFac< OCderiv, Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                            DdefObjFac< OCderiv, Ftest > >,
+                                           DusedObjFac< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Fbase > >,
+                                            DusedObjFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< Obase,   Ftest > >,
+                                            DusedObjFac< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                            DdefObjFac< OCbase,  Ftest > >,
+                                            DusedObjFac< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                            DdefObjFac< OCbase,  Fbase > >,
+                                            DusedObjFac< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                           DdefVoidFac< Obase,   Ftest > >,
+                                           DusedVoidFac< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< Oderiv,  Fbase > >,
+                                           DusedVoidFac< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Oderiv,  Ftest > >,
+                                           DusedVoidFac< Oderiv,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Obase,   Fbase > >,
+                                           DusedVoidFac< Obase,   Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< Obase,   Ftest > >,
+                                           DusedVoidFac< Obase,   Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefVoidFac< OCbase,  Fbase > >,
+                                           DusedVoidFac< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefVoidFac< OCbase,  Fbase > >,
+                                           DusedVoidFac< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                           DdefObjVoid< Obase,   Ftest > >,
+                                           DusedObjVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                                           DdefObjVoid< OCbase,  Ftest > >,
+                                           DusedObjVoid< OCbase,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< Oderiv,  Fbase > >,
+                                           DusedObjVoid< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Oderiv,  Ftest > >,
+                                           DusedObjVoid< Oderiv,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                           DdefObjVoid< OCderiv, Fbase > >,
+                                           DusedObjVoid< OCderiv, Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                           DdefObjVoid< OCderiv, Ftest > >,
+                                           DusedObjVoid< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Obase,   Fbase > >,
+                                           DusedObjVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< Obase,   Ftest > >,
+                                           DusedObjVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                           DdefObjVoid< OCbase,  Ftest > >,
+                                           DusedObjVoid< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                           DdefObjVoid< OCbase,  Fbase > >,
+                                           DusedObjVoid< OCbase,  Fbase > >,
 
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fbase,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Ftest,
-                                          DdefVoidVoid< Obase,   Ftest > >,
+                                          DusedVoidVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-                                          DdefVoidVoid< OCbase,  Ftest > >,
+                                          DusedVoidVoid< OCbase,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< Oderiv,  Fbase > >,
+                                          DusedVoidVoid< Oderiv,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Oderiv,  Ftest > >,
+                                          DusedVoidVoid< Oderiv,  Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                          DdefVoidVoid< OCderiv, Fbase > >,
+                                          DusedVoidVoid< OCderiv, Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                          DdefVoidVoid< OCderiv, Ftest > >,
+                                          DusedVoidVoid< OCderiv, Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Obase,   Fbase > >,
+                                          DusedVoidVoid< Obase,   Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< Obase,   Ftest > >,
+                                          DusedVoidVoid< Obase,   Ftest > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-                                          DdefVoidVoid< OCbase,  Ftest > >,
+                                          DusedVoidVoid< OCbase,  Ftest > >,
 
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fbase,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
                 &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Ftest,
-                                          DdefVoidVoid< OCbase,  Fbase > >,
+                                          DusedVoidVoid< OCbase,  Fbase > >,
 
 
-                &loadMyTestBslmaFactoryDeleter<TestTarget>,
-                &loadMyTestTypeBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedBslmaFactoryDeleter<TestTarget>,
-                &loadMyDerivedTypeBslmaFactoryDeleter<TestTarget>,
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                            DusedObjFac< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                                            DusedObjFac< OCbase,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< Oderiv,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                            DusedObjFac< OCderiv, Fdflt > >,
 
-                &loadMyDerivedNoFactoryBaseDefaultDeleter<TestTarget>,
-                &loadMyDerivedAsBaseNoFactoryDefaultDeleter<TestTarget>,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                            DusedObjFac< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                            DusedObjFac< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                           DusedVoidFac< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< Oderiv,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< Obase,   Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedVoidFac< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                           DusedObjVoid< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                                           DusedObjVoid< OCbase,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< Oderiv,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                           DusedObjVoid< OCderiv, Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                           DusedObjVoid< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                           DusedObjVoid< OCbase,  Fdflt > >,
+
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Obase,   Fdflt,
+                                          DusedVoidVoid< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                                          DusedVoidVoid< OCbase,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< Oderiv,  Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                          DusedVoidVoid< OCderiv, Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< Obase,   Fdflt > >,
+                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                          DusedVoidVoid< OCbase,  Fdflt > >,
+
+                &doLoadOjbectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
+                                          DusedVoidVoid< OCbase,  Fdflt > >,
+
 
                 // negative tests - deleter has null pointer value
                 // note that null pointer literal would be a compile-fail test
@@ -4609,20 +4780,26 @@ int main(int argc, char *argv[])
                 // from 'const T*' to 'void *' when destroying through the
                 // 'factory' pointer, and that const-qualification is not
                 // allowed.
-//                &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
-//                                           DdefVoidFac< OCbase,  Fbase > >,
-//                &doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
-//                                           DdefVoidFac< OCbase,  Ftest > >,
-//                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-//                                           DdefVoidFac< OCderiv, Fbase > >,
-//                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-//                                           DdefVoidFac< OCderiv, Ftest > >,
-//                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
-//                                           DdefVoidFac< OCbase,  Fbase > >,
-//                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-//                                           DdefVoidFac< OCbase,  Fbase > >,
-//                &doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
-//                                           DdefVoidFac< OCbase,  Ftest > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fbase,
+                //                           DusedVoidFac< OCbase,  Fbase > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Ftest,
+                //                           DusedVoidFac< OCbase,  Ftest > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
+                //                           DusedVoidFac< OCderiv, Fbase > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
+                //                           DusedVoidFac< OCderiv, Ftest > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fbase,
+                //                           DusedVoidFac< OCbase,  Fbase > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
+                //                           DusedVoidFac< OCbase,  Fbase > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Ftest,
+                //                           DusedVoidFac< OCbase,  Ftest > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                //                           DusedVoidFac< OCbase,  Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                           DusedVoidFac< OCderiv, Fdflt > >,
+                //&doLoadOjbectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                //                           DusedVoidFac< OCbase,  Fdflt > >,
             };
             static const int TEST_ARRAY_SIZE = 
                                       sizeof(TEST_ARRAY)/sizeof(TEST_ARRAY[0]);
