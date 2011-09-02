@@ -16,21 +16,23 @@ BDES_IDENT("$Id: $")
 //
 //@SEE_ALSO: bcemt_threadattributes, bcemt_threadutil
 //
-//@DESCRIPTION: This component provides configurable default values for
-// BCE-relevant parameters.  It currently provides operations to access and
+//@DESCRIPTION: This component defines a utility 'struct', 'bcemt_Default',
+// that is a name space for pure functions used for providing access to, and
+// configuring, default values for BCE-relevant parameters.  The
+// 'bcemt_Default' utility currently provides static methods to access and
 // modify the BCE library's default stack size, as well as functions that
 // access the platform's native default stack size and guard size.  The BCE
 // default stack size is initially configured to be the platform's native stack
 // size.
 //
-// The stack size values accessed and managed by this component are intended to
-// indicate stack size such that a created with a given stack size will be able
-// to declare a buffer of that size (in bytes) in the thread entry function of
-// the created thread (see 'bcemt_threadutil').
+// The stack-size values accessed and managed by this component indicate that a
+// stack created with a given size will be able to declare a buffer of that
+// size (in bytes) in the thread entry function of the created thread (see
+// 'bcemt_threadutil').
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates the intended usage of this component.
 //
 ///Example 1: Demonstrate Accessing & Modifying the Default Thread Stack Size
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -51,8 +53,8 @@ BDES_IDENT("$Id: $")
 //
 //  assert(nativeDefault > 0);
 //..
-// Then, we verify that when 'defaultThreadStackSize' is called, it returns the
-// native size:
+// Then, we verify that, when 'defaultThreadStackSize' is called, it returns
+// the native size:
 //..
 //  assert(nativeDefault == bcemt_Default::defaultThreadStackSize());
 //..
@@ -98,9 +100,9 @@ struct bcemt_Default {
         // 'setDefaultThreadStackSize'.
 
     static int nativeDefaultThreadStackSize();
-        // Return the default thread stack size (in bytes) determined by the
-        // underlying platform.  Note that this value reflects semantics, and
-        // may be influenced by the choice of platform, environment variables,
+        // Return the "native" default thread stack size (in bytes) as
+        // determined by the underlying platform.  Note that this value may be
+        // influenced by the choice of platform, environment variables,
         // compiler/linker options, or shell configuration, and typically
         // varies wildly among different platforms.
 
@@ -112,18 +114,18 @@ struct bcemt_Default {
         // vary somewhat among different platforms.
 
     static int recommendedDefaultThreadStackSize();
-        // Return a reasonable value for the default thread stack size (in
+        // Return a "reasonable" value for the default thread stack size (in
         // bytes), which, unlike 'nativeDefaultThreadStackSize', is constant
         // across all platforms of a given word size.  This value is large
         // enough to guarantee that an automatic array of at least 250 * 1024
         // pointers may be declared in the top level routine of the thread.
 
-    static void setDefaultThreadStackSize(int stackSize);
-        // Set the default thread stack size to the specified 'stackSize' (in
-        // bytes).  If a minimum thread stack size is known for the underlying
-        // platform (i.e. 'PTHREAD_STACK_MIN' is defined) and 'stackSize' is
-        // below that minimum, it will be rounded up to that minimum.  The
-        // behavior is undefined unless 'stackSize > 0'.
+    static void setDefaultThreadStackSize(int numBytes);
+        // Set the default thread stack size to the specified 'numBytes'.  If a
+        // minimum thread stack size is known for the underlying platform (i.e.
+        // 'PTHREAD_STACK_MIN' is defined) and 'numBytes' is below that
+        // minimum, the stack size will be that minimum.  The behavior is
+        // undefined unless '0 <= numBytes'.
 };
 
 }  // close namespace BloombergLP

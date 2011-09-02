@@ -11,7 +11,7 @@
 
 #include <bsl_c_limits.h>
 
-#if   defined(BCES_PLATFORM__POSIX_THREADS)
+#if defined(BCES_PLATFORM__POSIX_THREADS)
 # include <pthread.h>
 #elif defined(BCES_PLATFORM__WIN32_THREADS)
 # include <windows.h>
@@ -24,7 +24,7 @@ BDES_IDENT_RCSID(bcemt_default_cpp,"$Id$ $CSID$")
 
 static BloombergLP::bces_AtomicInt defaultThreadStackSizeValue = -1;
 
-#if  defined(BCES_PLATFORM__POSIX_THREADS)
+#if defined(BCES_PLATFORM__POSIX_THREADS)
 
 # ifdef BSLS_PLATFORM__OS_SOLARIS
 static int getNativeDefaultThreadStackSize()
@@ -53,7 +53,7 @@ static int getNativeDefaultThreadStackSize()
         BSLS_ASSERT(0 == rc);
     }
 
-    BSLS_ASSERT(threadStackSize > 0);
+    BSLS_ASSERT(1 <= threadStackSize);
     BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(INT_MAX));
 
 #  ifdef PTHREAD_STACK_MIN
@@ -93,7 +93,7 @@ static int getNativeDefaultThreadStackSize()
         threadStackSize = header->SizeOfStackReserve;
     }
 
-    BSLS_ASSERT(threadStackSize > 0);
+    BSLS_ASSERT(1 <= threadStackSize);
     BSLS_ASSERT(threadStackSize <= static_cast<bsl::size_t>(INT_MAX));
 
     return static_cast<int>(threadStackSize);
@@ -170,15 +170,15 @@ int bcemt_Default::recommendedDefaultThreadStackSize()
     return RECOMMENDED_DEFAULT_STACKSIZE;
 }
 
-void bcemt_Default::setDefaultThreadStackSize(int stackSize)
+void bcemt_Default::setDefaultThreadStackSize(int numBytes)
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS) && defined(PTHREAD_STACK_MIN)
-    BSLS_ASSERT_OPT(stackSize >= static_cast<int>(PTHREAD_STACK_MIN));
+    BSLS_ASSERT_OPT(numBytes >= static_cast<int>(PTHREAD_STACK_MIN));
 #else
-    BSLS_ASSERT_OPT(stackSize > 0);
+    BSLS_ASSERT_OPT(numBytes > 0);
 #endif
 
-    defaultThreadStackSizeValue = stackSize;
+    defaultThreadStackSizeValue = numBytes;
 }
 
 }  // close enterprise namespace
