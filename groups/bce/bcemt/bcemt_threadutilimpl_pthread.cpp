@@ -110,6 +110,14 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 
     stackSize *= 2;
 #endif
+#if defined(PTHREAD_STACK_MIN)
+    // Note sometimes PTHREAD_STACK_MIN is a function.
+
+    const int pthreadStackMin = PTHREAD_STACK_MIN;
+    if (stackSize < pthreadStackMin) {
+        stackSize = pthreadStackMin;
+    }
+#endif
     rc |= pthread_attr_setstacksize(dest, stackSize);
 
     return rc;
