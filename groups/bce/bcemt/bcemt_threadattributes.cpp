@@ -48,7 +48,7 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(
 #endif
       }  break;
       default: {
-	BSLS_ASSERT_OPT(0);
+        BSLS_ASSERT_OPT(0);
       }
     }
 
@@ -113,7 +113,7 @@ int bcemt_ThreadAttributes::getMinSchedPriority(
 #endif
       }  break;
       default: {
-	BSLS_ASSERT_OPT(0);
+        BSLS_ASSERT_OPT(0);
       }
     }
 
