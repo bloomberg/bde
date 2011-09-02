@@ -14,17 +14,11 @@ BDES_IDENT("$Id: $")
 //
 //@SEE_ALSO: bcemt_threadattributes, bcemt_default
 //
-//@DESCRIPTION: This component provides a suite of procedures to create and
-// join threads, manipulate thread handles, and (on some platforms) access
-// thread-local storage.
-//
-///Usage
-///-----
-// The 'bcemt_ThreadUtil' class comprises a suite of types and pure procedures
-// that provides the ability to create and destroy threads, to attach "foreign
-// threads" (that is, threads created outside of 'bcemt'), and to join threads
-// (make one thread block and wait for another thread to exit).  The following
-// series of examples illustrate basic use of 'bcemt_ThreadUtil'.
+//@DESCRIPTION: This component defineds a utility 'struct', 'bcemt_ThreadUtil',
+// that serves as a name space for suit of pure functions to create threads,
+// join them (make one thread block and wait for another thread to exit),
+// manipulate thread handles, manipulate the current thread, and (on some
+// platforms) access thread-local storage.
 //
 ///Creating a Simple Thread with Default Attributes
 /// - - - - - - - - - - - - - - - - - - - - - - - -
@@ -37,6 +31,70 @@ BDES_IDENT("$Id: $")
 // function becomes the main driver for the new thread; when it returns, the
 // thread terminates.
 //
+///Thread Identity
+///- - - - - - - -
+// A thread is identified by an object of the opaque type
+// 'bcemt_ThreadUtil::Handle'.  A handle of this type is returned when a thread
+// is created (with 'bcemt_ThreadUtil::create').  A client can also retrieve a
+// 'Handle' for the "current" thread via the 'self' method:
+//..
+//  bcemt_ThreadUtil::Handle myHandle = bcemt_ThreadUtil::self();
+//..
+// Several thread manipulation functions in 'bcemt_ThreadUtil' take a thread
+// handle, or pointer to a thread handle, as an argument.  To facilitate
+// compatibility with existing systems and allow for non-portable operations,
+// clients also have access to the 'bcemt_ThreadUtil::NativeHandle' type, which
+// exposes the underlying, platform-specific thread identifier type:
+//..
+//  bcemt_ThreadUtil::NativeHandle myNativeHandle;
+//  myNativeHandle = bcemt_ThreadUtil::nativeHandle();
+//..
+//
+///Setting Thread Priorities
+///- - - - - - - - - - - - -
+// 'bcemt_ThreadUtil' allows clients to configure the priority of newly created
+// threads by setting the 'inheritSchedule', 'schedulingPolicy', and
+// 'schedulingPriority' of a thread attributes object supplied to the 'create'
+// method.  The range of legal values for 'schedulingPriority' depends on both
+// the platform and the value of 'schedulingPolicy'; and can be obtained from
+// the 'getMinSchedulingPriority' and 'getMaxSchedulingPriority' methods.  Both
+// 'schedulingPolicy' and 'schedulingPriority' are ignored unless
+// 'inheritSchedule' is 'false' (the default value is 'true').  Note that not
+// only is effective setting of thread priorities only workable on some
+// combinations of platforms and user priviledges, but setting the thread
+// policy and priority appropriately for one platform may cause thread creation
+// to fail on another platform.  Also note that an unset thread
+// priority may be interpreted as being outside the valid range defined by
+// '[ getMinSchedulingPriority(policy), getMaxSchedulingPriority(policy) ]'.
+//..
+// Platform  Restrictions
+// --------  ------------------------------------------------------------------
+// Solaris   None.
+//
+// AIX       For non-priviledged clients, spawning of threads fails if
+//           'schedulingPolicy' is 'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR'.
+//
+// Linux     Non-priviledged clients *can* *not* make effective use of thread
+//           priorities -- spawning of threads fails if 'schedulingPolicy' is
+//           'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR', and
+//           'getMinSchedulingPriority == getMaxSchedulingPriority' if the
+//           policy has any other value.
+//
+// HPUX      Non-priviledged clients *can* *not* make effective use of thread
+//           priorities -- spawning of threads fails if 'inheritSchedule'
+//           is 'false'.
+//
+// Windows   Clients *can* *not* make effective use of thread priorities --
+//           'schedulingPolicy', 'schedulingPriority', and 'inheritSchedule'
+//           are ignored for all clients.
+//..
+//
+///Usage
+///-----
+// This section illustrates the usage of this component.
+//
+///Example 1: Creating a Simple Thread with Default Attributes
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example creates a thread using the default attribute settings.  Upon
 // creation, the thread executes the user-supplied C-linkage function
 // 'myThreadFunction' that counts 5 seconds before terminating:
@@ -77,26 +135,8 @@ BDES_IDENT("$Id: $")
 //  Another second has passed.
 //  A five second interval has elapsed.
 //..
-///Thread Identity
-///- - - - - - - -
-// A thread is identified by an object of the opaque type
-// 'bcemt_ThreadUtil::Handle'.  A handle of this type is returned when a thread
-// is created (with 'bcemt_ThreadUtil::create').  A client can also retrieve a
-// 'Handle' for the "current" thread via the 'self' method:
-//..
-//  bcemt_ThreadUtil::Handle myHandle = bcemt_ThreadUtil::self();
-//..
-// Several thread manipulation functions in 'bcemt_ThreadUtil' take a thread
-// handle, or pointer to a thread handle, as an argument.  To facilitate
-// compatibility with existing systems and allow for non-portable operations,
-// clients also have access to the 'bcemt_ThreadUtil::NativeHandle' type, which
-// exposes the underlying, platform-specific thread identifier type:
-//..
-//  bcemt_ThreadUtil::NativeHandle myNativeHandle;
-//  myNativeHandle = bcemt_ThreadUtil::nativeHandle();
-//..
-///Creating a Simple Thread with User-Specified Attributes
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Creating a Simple Thread with User-Specified Attributes
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Alternatively, the attributes of a thread can be explicitly specified by
 // supplying a 'bcemt_ThreadAttributes' object to the 'create' method.  For
 // instance, we could specify a smaller stack size for a thread to conserve
@@ -131,45 +171,9 @@ BDES_IDENT("$Id: $")
 //                                            &initValue);
 //  }
 //..
-///Setting Thread Priorities
-///- - - - - - - - - - - - -
-// 'bcemt_ThreadUtil' allows clients to configure the priority of newly created
-// threads by setting the 'inheritSchedule', 'schedulingPolicy', and
-// 'schedulingPriority' of a thread attributes object supplied to the 'create'
-// method.  The range of legal values for 'schedulingPriority' depends on both
-// the platform and the value of 'schedulingPolicy'; and can be obtained from
-// the 'getMinSchedulingPriority' and 'getMaxSchedulingPriority' methods.  Both
-// 'schedulingPolicy' and 'schedulingPriority' are ignored unless
-// 'inheritSchedule' is 'false' (the default value is 'true').  Note that not
-// only is effective setting of thread priorities only workable on some
-// combinations of platforms and user priviledges, but setting the thread
-// policy and priority appropriately for one platform may cause thread creation
-// to fail on another platform.  Also note that the default value of thread
-// priority may be outside the valid range defined by
-// '[ getMinSchedulingPriority(policy), getMaxSchedulingPriority(policy) ]'.
-//..
-// Platform  Restrictions
-// --------  ------------------------------------------------------------------
 //
-// Solaris   None.
-//
-// AIX       For non-priviledged clients, spawning of threads fails if
-//           'schedulingPolicy' is 'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR'.
-//
-// Linux     Non-priviledged clients *can* *not* make effective use of thread
-//           priorities -- spawning of threads fails if 'schedulingPolicy' is
-//           'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR', and
-//           'getMinSchedulingPriority == getMaxSchedulingPriority' if the
-//           policy has any other value.
-//
-// HPUX      Non-priviledged clients *can* *not* make effective use of thread
-//           priorities -- spawning of threads fails if 'inheritSchedule'
-//           is 'false'.
-//
-// Windows   Clients *can* *not* make effective use of thread priorities --
-//           'schedulingPolicy', 'schedulingPriority', and 'inheritSchedule'
-//           are ignored for all clients.
-//..
+///Example 3: Setting Thread Priorities
+/// - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate creating 3 threads with different priorities.
 // We use the 'convertToSchedulingPriority' function to translate a normalized,
 // floating-point priority in the range '[ 0.0, 1.0 ]' to an integer priority

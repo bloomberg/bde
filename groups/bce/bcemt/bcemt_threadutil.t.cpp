@@ -192,7 +192,7 @@ template <int BUFFER_SIZE>
 struct Func {
     void operator()()
     {
-        char buffer[BUFFER_SIZE];
+        char buffer[BUFFER_SIZE == 0 ? 1 : BUFFER_SIZE];
         static char *pc;
 
         for (pc = buffer; pc < buffer + BUFFER_SIZE; ++pc) {
@@ -668,7 +668,7 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        TC::testStackSize<        1>();
+        TC::testStackSize<    0    >();
         TC::testStackSize<    1 * K>();
         TC::testStackSize<    2 * K>();
         TC::testStackSize<    3 * K>();
