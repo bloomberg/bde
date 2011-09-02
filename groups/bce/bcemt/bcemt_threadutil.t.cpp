@@ -196,7 +196,7 @@ struct Func {
         static char *pc;
 
         for (pc = buffer; pc < buffer + BUFFER_SIZE; ++pc) {
-            *pc = (char) 0xa3;
+            *pc = (char) 0xa3;    // assign garbage
         }
     }
 };
@@ -204,12 +204,6 @@ struct Func {
 template <int BUFFER_SIZE>
 void testStackSize()
 {
-#ifdef PTHREAD_STACK_MIN
-    if (PTHREAD_STACK_MIN > BUFFER_SIZE) {
-        return;                                                       // RETURN
-    }
-#endif
-
     bcemt_ThreadAttributes attr;
     attr.setStackSize(BUFFER_SIZE);
     attr.setGuardSize(0);
@@ -662,11 +656,13 @@ int main(int argc, char *argv[])
 
         enum { K = 1024 };
 
-#ifdef PTHREAD_STACK_MIN
         if (verbose) {
+#ifdef PTHREAD_STACK_MIN
             P(PTHREAD_STACK_MIN);
-        }
+#else
+            cout << "'PTHREAD_STACK_MIN' undefined\n";
 #endif
+        }
 
         TC::testStackSize<    0    >();
         TC::testStackSize<    1 * K>();
