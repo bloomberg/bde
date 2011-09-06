@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 
 using namespace BloombergLP;
 
@@ -172,26 +173,45 @@ namespace {
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Computing a Hash of a String
+///Example 1: Finding the Position of One String Inside Another
 ///- - - - - - - - - - - - - - - - - - - -
-// Let's suppose we need to compute a hash of a string which is defined by two
-// pointers: to the start and to the end of the string.
+// In this example we demonstrate how to search for the first occurrence of one
+// string in another using 'bslstl_StringRefData' objects to represent the
+// strings.
 //
-// First, we define a function, 'computeHash', that takes a
-// 'bslstl_StringRefData' string as an argument and returns the hash of that
-// string as 'unsigned int':
+// First, we define a function, 'findSubstring', that takes a string to be
+// searched, a string to search for, and returns the position of the second
+// string inside the first string:
 //..
-unsigned computeHash(const bslstl_StringRefData<char>& str)
+const char *findSubstring(const bslstl_StringRefData<char>& string,
+                          const bslstl_StringRefData<char>& substr)
 {
-    unsigned hash = 3069134613U;
+    ptrdiff_t count1 = string.end() - string.begin();
+    ptrdiff_t count2 = substr.end() - substr.begin();
 
-    for (const char *p = str.begin(); p != str.end(); ++p)
-        hash = (hash << 5) ^ (hash >> 27) ^ *p;
+    for (const char *p1 = string.begin();
+         count1 >= count2;
+         ++p1, --count1)
+    {
+        const char *q1 = p1;
 
-    return hash;
+        for (const char *q2 = substr.begin(); ; ++q1, ++q2)
+        {
+            if (q2 == substr.end()) {
+                return p1;
+            }
+            else {
+                if (*q1 != *q2) {
+                    break;
+                }
+            }
+        }
+    }
+
+    return string.end();
 }
 //..
-// Note that we're using 'begin' and 'end' attributes of the
+// Notice that we're using 'begin' and 'end' attributes of the
 // 'bslstl_StringRefData' object to access the string characters.
 
 }
@@ -231,15 +251,18 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Usage Example"
                             "\n=====================\n");
 
-// Then, we call it with a string literal argument:
+// Now, we call the function we just defined with two string literal arguments:
 //..
-        const char str[] = "C string";
-        unsigned   hash  = computeHash(bslstl_StringRefData<char>(
-                                                      str, str + sizeof(str)));
+const char string[] = "find substring";
+const char substr[] = "ring";
+const char * pos    =
+    findSubstring(
+        bslstl_StringRefData<char>(string, string + sizeof(string)),
+        bslstl_StringRefData<char>(substr, substr + sizeof(substr)));
 //..
-// Finally, we compare the computed hash with the expected value:
+// Finally, we check that the function produced the correct result:
 //..
-        ASSERT(hash == 3354902561U);
+ASSERT(pos == string + 10);
 //..
       } break;
       case 10: {

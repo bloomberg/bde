@@ -15,18 +15,17 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
 //@DESCRIPTION: This component provides a complex-constrained in-core
-// (value-semantic) attribute class, 'bslstl_StringRefData', that is used as a
-// base class for 'bslstl_StringRef' and serves as a data container for
-// 'bslstl_StringRef' without providing much of the functionality of its own.
-// This allows to use 'bslstl_StringRefData' in the 'bsl::string' class and
-// enable the convertion from 'bslstl_StringRef' to 'bsl::string'.  Without
-// this class 'bslstl_StringRef' and 'bsl::string' would have a circular
-// dependency on each other.
+// (value-semantic) attribute class, 'bslstl_StringRefData', that represents a
+// reference to character string data.  Note that 'bslstl_StringRefData' is
+// used as a base class for 'bslstl_StringRef' and as an argument to
+// 'bsl::string' constructor enabling a convertion from 'bslstl_StringRef' to
+// 'bsl::string' without a circular dependency between these two classes.
 //
-// 'bslstl_StringRefData' holds two pointers: a pointer to the start of a
-// string and a pointer to the end of the string.  It's parameterized with type
-// 'CHAR_TYPE' and its supposed to work with strings composed of 'CHAR_TYPE'
-// characters.
+// A 'bslstl_StringRefData' object holds two pointers; 'begin' points to the
+// first character of a contiguous array of characters forming a string, and
+// 'end' points to an address one past the last character in the string.  If
+// 'begin' and 'end' are equal the string is empty.  The referenced string may
+// not be null terminated, and may contain embedded nulls.
 //
 ///Attributes
 ///----------
@@ -36,45 +35,67 @@ BSLS_IDENT("$Id: $")
 //  begin  const CHAR_TYPE *  0        begin <= end && !begin == !end
 //  end    const CHAR_TYPE *  0        begin <= end && !begin == !end
 //..
-//: o begin: a pointer to the start of the string.
+//: o begin: a pointer to the first character of the string.
 //:
-//: o end: a pointer to the end of the string.
+//: o end: a pointer to one past the last character of the string.
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// In this section we show intended usage of this component
 //
-///Example 1: Computing a Hash of a String
+///Example 1: Finding the Position of One String Inside Another
 ///- - - - - - - - - - - - - - - - - - - -
-// Let's suppose we need to compute a hash of a string which is defined by two
-// pointers: to the start and to the end of the string.
+// In this example we demonstrate how to search for the first occurrence of one
+// string in another using 'bslstl_StringRefData' objects to represent the
+// strings.
 //
-// First, we define a function, 'computeHash', that takes a
-// 'bslstl_StringRefData' string as an argument and returns the hash of that
-// string as 'unsigned int':
+// First, we define a function, 'findSubstring', that takes a string to be
+// searched, a string to search for, and returns the position of the second
+// string inside the first string:
 //..
-//  unsigned computeHash(const bslstl_StringRefData<char>& str)
+//  const char *findSubstring(const bslstl_StringRefData<char>& string,
+//                            const bslstl_StringRefData<char>& substr)
 //  {
-//      unsigned hash = 3069134613U;
+//      ptrdiff_t count1 = string.end() - string.begin();
+//      ptrdiff_t count2 = substr.end() - substr.begin();
 //
-//      for (const char *p = str.begin(); p != str.end(); ++p)
-//          hash = (hash << 5) ^ (hash >> 27) ^ *p;
+//      for (const char *p1 = string.begin();
+//           count1 >= count2;
+//           ++p1, --count1)
+//      {
+//          const char *q1 = p1;
 //
-//      return hash;
+//          for (const char *q2 = substr.begin(); ; ++q1, ++q2)
+//          {
+//              if (q2 == substr.end()) {
+//                  return p1;
+//              }
+//              else {
+//                  if (*q1 != *q2) {
+//                      break;
+//                  }
+//              }
+//          }
+//      }
+//
+//      return string.end();
 //  }
 //..
-// Note that we're using 'begin' and 'end' attributes of the
+// Notice that we're using 'begin' and 'end' attributes of the
 // 'bslstl_StringRefData' object to access the string characters.
 //
-// Then, we call it with a string literal argument:
+// Now, we call the function we just defined with two string literal arguments:
 //..
-//      const char str[] = "C string";
-//      unsigned   hash  = computeHash(bslstl_StringRefData<char>(
-//                                                    str, str + sizeof(str)));
+//  const char string[] = "find substring";
+//  const char substr[] = "ring";
+//  const char * pos    =
+//      findSubstring(
+//          bslstl_StringRefData<char>(string, string + sizeof(string)),
+//          bslstl_StringRefData<char>(substr, substr + sizeof(substr)));
 //..
-// Finally, we compare the computed hash with the expected value:
+// Finally, we check that the function produced the correct result:
 //..
-//      assert(hash == 3354902561U);
+//  assert(pos == string + 10);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -93,12 +114,11 @@ namespace BloombergLP {
 
 template <typename CHAR_TYPE>
 class bslstl_StringRefData {
-    // This is a base class for 'bslstl_StringRef'.  It's defined here to
-    // break a circular dependency between 'bslstl_StringRef' and
-    // 'bsl::string'.  'bsl::string' has a constructor that takes
-    // 'const bslstl_StringRefData&' parameter, so that an object of the
-    // derived 'bslstl_StringRef' class can be passed to that constructor.
-    // This is the only valid use of this class.
+    // This complex-constrained in-core (value-semantic) attribute class
+    // represents a reference to character string data.  See the Attributes
+    // section under @DESCRIPTION in the component-level documentation for
+    // information on the class attributes.  Note that the class invariants are
+    // identically the constraints on the individual attributes.
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
@@ -107,22 +127,26 @@ class bslstl_StringRefData {
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
     // For terminology see 'bsldoc_glossary'.
-  private:
+
     // DATA
     const CHAR_TYPE *d_begin;   // address of first character of a string or 0
+
     const CHAR_TYPE *d_end;     // address one past last character of a string
                                 // or 0 if 'd_begin==0'
 
   public:
     // CREATORS
     bslstl_StringRefData();
-        // Construct a 'bslstl_StringRefData' object with both 'd_begin' and
-        // 'd_end' pointers initialized with a value of 0.
+        // Create a 'bslstl_StringRefData' object the default attribute values:
+        //..
+        //  begin() == 0
+        //  end()   == 0
+        //..
 
     bslstl_StringRefData(const CHAR_TYPE *begin, const CHAR_TYPE *end);
-        // Construct a 'bslstl_StringRefData' object with the specified
-        // 'begin' and 'end' pointers to the start and end of a string.  The
-        // behavior is undefined unless 'begin <= end' and '!begin == !end'.
+        // Create a 'bslstl_StringRefData' object the specified 'begin' and
+        // 'end' attribute values.  The behavior is undefined unless 'begin <=
+        // end' and '!begin == !end'.
 
     //! bslstl_StringRefData(const bslstl_StringRefData&) = default;
     //! ~bslstl_StringRefData() = default;
@@ -132,11 +156,11 @@ class bslstl_StringRefData {
 
     // ACCESSORS
     const CHAR_TYPE *begin() const;
-        // Return the pointer to the start of the string.  Note that the return
-        // value can be 0, in which case 'end()' returns 0 as well.
+        // Return the address of the first character of the string.  Note that
+        // the return value can be 0, in which case 'end()' returns 0 as well.
 
     const CHAR_TYPE *end() const;
-        // Return the pointer past the end of the string.  Note that the return
+        // Return the address past the end of the string.  Note that the return
         // value can be 0, in which case 'begin()' returns 0 as well.
 };
 
