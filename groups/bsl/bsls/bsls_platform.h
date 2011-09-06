@@ -417,8 +417,11 @@ struct bsls_Platform_Assert;
     // application developers.  Given the frequency of these warnings and the
     // lack of a portable and clear workaround, it is likely that these
     // 'pragma's will remain for the foreseeable future.
+    #pragma warning(disable : 4347)  // Compiler fixed func-templates in 2003
+    #pragma warning(disable : 4350)  // Compiler fixed call & with temp in 2003
     #pragma warning(disable : 4345)  // Compiler fixed 0-initialization in 2003
     #pragma warning(disable : 4351)  // Compiler fixed 0-initialization in 2005
+    #pragma warning(disable : 4686)  // Compiler fixed template thing in 2003
     #pragma warning(disable : 4800)  // forcing value to bool 'true' or 'false'
     #pragma warning(disable : 4396)  // odd inline/friend conflict
     #pragma warning(disable : 4913)  // using built-in , rather than user-def
@@ -430,6 +433,20 @@ struct bsls_Platform_Assert;
     #pragma warning(disable : 4290)  // MSVC ignores exception specifications
     #pragma warning(disable : 4673)  // warns that warning 4670 follows
     #pragma warning(disable : 4670)  // thrown exception has inaccessible base
+
+    #pragma warning(disable : 4514)  // unused inline function
+    #pragma warning(disable : 4571)  // catch(...) no longer handles SEH
+    #pragma warning(disable : 4574)  // #ifdef on macro defined to be 0
+    #pragma warning(disable : 4668)  // undefined macros #if as 0
+    #pragma warning(disable : 4640)  // fn-local static init not threadsafe
+
+    // These nags could be hints to document private ops in derived class
+    #pragma warning(disable : 4625)  // base class copy ctor is private
+    #pragma warning(disable : 4626)  // base class operator= is private
+
+    // These informational hints might be useful on rare occasions
+    #pragma warning(disable : 4710)  // function was not inlined
+    #pragma warning(disable : 4820)  // padding bytes added to data structure
     #endif
 
     #ifdef BDE_HIDE_COMMON_WINDOWS_WARNINGS // config macro name
