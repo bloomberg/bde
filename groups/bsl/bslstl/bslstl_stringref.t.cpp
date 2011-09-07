@@ -35,7 +35,7 @@ using namespace bsl;  // automatically added by script
 //
 // MANIPULATORS
 // [ 2] bslstl_StringRef& operator=(const bslstl_StringRef& rhs);
-// [ 6] void clear();
+// [ 6] void reset();
 // [ 6] void assign(const char *begin, const char *end);
 // [ 6] void assign(const char *begin, int length);
 // [ 6] void assign(const char *begin);
@@ -1707,7 +1707,7 @@ int main(int argc, char *argv[])
         //   strings.
         //
         // Testing:
-        // void clear();
+        // void reset();
         // void assign(const char *begin, const char *end);
         // void assign(const char *begin, int length);
         // void assign(const char *begin);
@@ -1718,11 +1718,11 @@ int main(int argc, char *argv[])
                                << "\n=============================="
                                << std::endl;
 
-        if (verbose) std::cout << "\nTesting:\n\t'clear()'\n\t'assign()'"
+        if (verbose) std::cout << "\nTesting:\n\t'reset()'\n\t'assign()'"
                                << "\n= = = = = = = = = = = ="
                                << std::endl;
         if (veryVerbose)
-            std::cout << "\nclear()"
+            std::cout << "\nreset()"
                       << "\n=  =  ="
                       << std::endl;
         {
@@ -1733,7 +1733,7 @@ int main(int argc, char *argv[])
           ASSERT(ES1.length()  == 0);
           ASSERT(ES1.begin()   == ES1.end());
 
-          es1.clear();
+          es1.reset();
 
           ASSERT(ES1.empty());
           ASSERT(ES1.length()  == 0);
@@ -1746,7 +1746,7 @@ int main(int argc, char *argv[])
           ASSERT(ES2.length()  == 0);
           ASSERT(ES2.begin()   == ES2.end());
 
-          es2.clear();
+          es2.reset();
 
           ASSERT(ES2.empty());
           ASSERT(ES2.length()  == 0);
@@ -1759,7 +1759,7 @@ int main(int argc, char *argv[])
           ASSERT(NES.length()  != 0);
           ASSERT(NES.begin()   != NES.end());
 
-          nes.clear();
+          nes.reset();
 
           ASSERT(NES.empty());
           ASSERT(NES.length()  == 0);
@@ -1773,7 +1773,7 @@ int main(int argc, char *argv[])
           ASSERT(NESS.length()  != 0);
           ASSERT(NESS.begin()   != NESS.end());
 
-          ness.clear();
+          ness.reset();
 
           ASSERT(NESS.empty());
           ASSERT(NESS.length()  == 0);
@@ -2687,7 +2687,7 @@ int main(int argc, char *argv[])
             if (verbose) { P(X2); }
 
             ASSERT(X2 != X1);
-            x2.clear();
+            x2.reset();
             ASSERT(X2 == X1);
         }
 

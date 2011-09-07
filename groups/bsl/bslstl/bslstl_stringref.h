@@ -10,20 +10,20 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a reference to a 'const' string.
 //
 //@CLASSES:
-//  bslstl_StringRefImp: reference wrapper for a 'const' basic_string
-//  bslstl_StringRef: typedef for the 'char' character type
-//  bslstl_WideStringRef: typedef for the 'wchar_t' character type
+//  bslstl_StringRefImp: reference wrapper for a generic string
+//  bslstl_StringRef: reference wrapper for a 'char' string
+//  bslstl_StringRefWide: reference wrapper for a 'wchar_t' string
 //
 //@AUTHOR: Vladimir Kliatchko (vkliatch), Anthony Comerico (acomeric)
 //
 //@DESCRIPTION: This component defines classes that provide a reference to a
 // sequence of non-modifiable characters, i.e., a 'const' string.  The type of
 // characters in the 'const' string can be either 'char' (for
-// 'bslstl_StringRef' class) or 'wchar_t' (for 'bslstl_WideStringRef' class).
-// Many operations on 'bslstl_StringRef' (e.g., 'operator==') apply to the
-// referenced string without having to dereference the string.  However, since
-// the referenced string is 'const', the copy assignment has the pointer
-// semantics.
+// 'bslstl_StringRef' class) or 'wchar_t' (for 'bslstl_StringRefWide' class).
+// Many operations on 'bslstl_StringRef' apply to the referenced string (e.g.,
+// 'operator==' compares referenced strings, not whether 'bslstl_StringRef'
+// objects reference the same string).  However, since the referenced string is
+// 'const', the copy assignment has the pointer semantics.
 //
 // The string that is referenced by a 'bslstl_StringRef' object need not be
 // null-terminated.  Moreover, the string may contain embedded null ('\0')
@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 //      d_label = label;  // 'MyClass::d_label' is of type 'bsl::string'
 //  }
 //..
-// and a typical call to this method:
+// Then consider a typical call to this method:
 //..
 //  MyClass myClassObj;
 //  myClassObj.setLabel("hello");
@@ -129,36 +129,34 @@ BSLS_IDENT("$Id: $")
 // algorithm.  This delegation is made possible by the STL-compatible iterators
 // provided by the 'begin' and 'end' accessors.
 //
-// We make several calls to 'getNumBlanks' with strings of various forms to
+// Then, make several calls to 'getNumBlanks' with strings of various forms to
 // illustrate the benefit of having 'getNumBlanks' take a 'bslstl_StringRef'
 // argument.
 //
-// Next, we verify tolerance of 'bslstl_StringRef' objects that are empty:
+// We start by demonstrating the behavior of empty 'bslstl_String' objects,
+// which are treated as if they reference an empty string:
 //..
 //  bslstl_StringRef emptyRef;
 //  int numBlanks = getNumBlanks(emptyRef);
 //  assert(0 == numBlanks);
-//..
-// Empty 'bslstl_StringRef' objects are treated as if they reference an empty
-// string:
-//..
+//
 //  assert(true  == (emptyRef   == ""));
 //  assert(false == ("anything" <  emptyRef));
 //..
-// Then, we (implicitly) construct a 'bsl::string' object from
+// Next, we (implicitly) construct a 'bsl::string' object from
 // 'bslstl_StringRef':
 //..
 //  bsl::string empty(emptyRef);
 //  assert(0 == empty.size());
 //..
-// Next, we call 'getNumBlanks' on a string literal and assert that the number
+// Then, we call 'getNumBlanks' on a string literal and assert that the number
 // of blanks returned is as expected:
 //..
 //  numBlanks = getNumBlanks("Good things come to those who wait.");
 //  assert(6 == numBlanks);
 //..
-// The following 'poem' is a longer string that we make use of in the rest of
-// this usage example:
+// Next, we define a string literal, 'poem', which is a longer string that we
+// make use of in the rest of this usage example:
 //..
 //  const char poem[] =                  // by William Butler Yeats (1865-1939)
 //      "O love is the crooked thing,\n"          //  5 blanks
@@ -193,8 +191,8 @@ BSLS_IDENT("$Id: $")
 //  assert((57 - 29) == line.length());
 //  assert("There is nobody wise enough\n" == line);
 //..
-// Then, we call 'getNumBlanks' with a 'bsl::string' initialized to the contents
-// of the 'poem':
+// Then, we call 'getNumBlanks' with a 'bsl::string' initialized to the
+// contents of the 'poem':
 //..
 //  const bsl::string poemString(poem);
 //  numBlanks = getNumBlanks(poemString);
@@ -211,7 +209,7 @@ BSLS_IDENT("$Id: $")
 //  std::memcpy(poemWithNulls, poem, poemLength + 1);
 //  assert(0 == std::strcmp(poem, poemWithNulls));
 //..
-// And we replace each occurrence of '\n' in 'poemWithNulls' with '\0':
+// Then, we replace each occurrence of '\n' in 'poemWithNulls' with '\0':
 //..
 //  std::replace(poemWithNulls, poemWithNulls + poemLength, '\n', '\0');
 //  assert(0 != std::strcmp(poem, poemWithNulls));
@@ -274,6 +272,7 @@ class bslstl_StringRefImp : public bslstl_StringRefData<CHAR_TYPE> {
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
     // For terminology see 'bsldoc_glossary'.
+
   private:
     typedef bslstl_StringRefData<CHAR_TYPE> Base;
 
@@ -342,9 +341,11 @@ class bslstl_StringRefImp : public bslstl_StringRefData<CHAR_TYPE> {
 
     // MANIPULATORS
     bslstl_StringRefImp& operator=(const bslstl_StringRefImp& rhs);
-        // Assign to this string reference the specified 'rhs' string
-        // reference.  The string bound to 'rhs', if any, must remain valid for
-        // as long as it is bound to this string reference.
+        // Modify this string reference to refer to the same string as the
+        // specified 'rhs' string reference.  REturn a reference providing
+        // modifiable access to this object.  Note, that the string bound to
+        // 'rhs', if any, must remain valid for as long as it is bound to this
+        // string reference.
 
     void assign(const CHAR_TYPE *data, int length);
         // Bind this string reference to the string at the specified 'data'
@@ -378,13 +379,15 @@ class bslstl_StringRefImp : public bslstl_StringRefData<CHAR_TYPE> {
         // bound to this string reference.
 
     void assign(const bslstl_StringRefImp<CHAR_TYPE>& stringRef);
-        // Assign to this string reference the binding of the specified
-        // 'stringRef'.  The string bound to 'stringRef', if any, must remain
-        // valid for as long as it is bound to this string reference.
+        // Modify this string reference to refer to the same string as the
+        // specified 'stringRef'.  Note, that the string bound to 'stringRef',
+        // if any, must remain valid for as long as it is bound to this string
+        // reference.
 
-    void clear();
-        // Clear this string reference.  'begin', 'end' and length() accessors
-        // return 0, and 'empty returns 'true' after this method call.
+    void reset();
+        // Resets this string reference to a default state.  After this method
+        // call 'begin', 'end' and length() accessors will return 0, and
+        // 'empty' will returns 'true' .
 
     // ACCESSORS
     const_reference operator[](int index) const;
@@ -434,29 +437,29 @@ bool operator==(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
-bool operator==(const bsl::basic_string<CHAR_TYPE>& lhs,
+bool operator==(const bsl::basic_string<CHAR_TYPE>&   lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
-bool operator==(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
+bool operator==(const bslstl_StringRefImp<CHAR_TYPE>&      lhs,
                 const native_std::basic_string<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator==(const native_std::basic_string<CHAR_TYPE>& lhs,
+                const bslstl_StringRefImp<CHAR_TYPE>&      rhs);
+
+template <typename CHAR_TYPE>
+bool operator==(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
+                const bsl::basic_string<CHAR_TYPE>&   rhs);
+
+template <typename CHAR_TYPE>
+bool operator==(const CHAR_TYPE                      *lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator==(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-                const bsl::basic_string<CHAR_TYPE>& rhs);
-
-template <typename CHAR_TYPE>
-bool operator==(const CHAR_TYPE *lhs,
-                const bslstl_StringRefImp<CHAR_TYPE>& rhs);
-
-template <typename CHAR_TYPE>
-bool operator==(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-                const CHAR_TYPE *rhs);
-    // Return 'true' if the strings indicated by the specified 'lhs' and 'rhs'
+                const CHAR_TYPE                      *rhs);
+    // Return 'true' if the strings refered to by the specified 'lhs' and 'rhs'
     // have the same lexicographic value, and 'false' otherwise.  Two strings
     // have the same lexicographic value if they are the same length and the
     // values at each respective character position are the same.  Null strings
@@ -467,29 +470,29 @@ bool operator!=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
-bool operator!=(const bsl::basic_string<CHAR_TYPE>& lhs,
+bool operator!=(const bsl::basic_string<CHAR_TYPE>&   lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator!=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-                const bsl::basic_string<CHAR_TYPE>& rhs);
+                const bsl::basic_string<CHAR_TYPE>&   rhs);
 
 template <typename CHAR_TYPE>
-bool operator!=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
+bool operator!=(const bslstl_StringRefImp<CHAR_TYPE>&      lhs,
                 const native_std::basic_string<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator!=(const native_std::basic_string<CHAR_TYPE>& lhs,
-                const bslstl_StringRefImp<CHAR_TYPE>& rhs);
+                const bslstl_StringRefImp<CHAR_TYPE>&      rhs);
 
 template <typename CHAR_TYPE>
-bool operator!=(const CHAR_TYPE *lhs,
+bool operator!=(const CHAR_TYPE                      *lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator!=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-                const CHAR_TYPE *rhs);
-    // Return 'true' if the strings indicated by the specified 'lhs' and 'rhs'
+                const CHAR_TYPE                      *rhs);
+    // Return 'true' if the strings refered to by the specified 'lhs' and 'rhs'
     // do not have the same lexicographic value, and 'false' otherwise.  Two
     // strings do not have the same lexicographic value if they differ in
     // length or differ in at least one respective character position.  Null
@@ -500,62 +503,62 @@ bool operator<(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
-bool operator<(const bsl::basic_string<CHAR_TYPE>& lhs,
+bool operator<(const bsl::basic_string<CHAR_TYPE>&   lhs,
                const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator<(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-               const bsl::basic_string<CHAR_TYPE>& rhs);
+               const bsl::basic_string<CHAR_TYPE>&   rhs);
 
 template <typename CHAR_TYPE>
-bool operator<(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
+bool operator<(const bslstl_StringRefImp<CHAR_TYPE>&      lhs,
                const native_std::basic_string<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator<(const native_std::basic_string<CHAR_TYPE>& lhs,
-               const bslstl_StringRefImp<CHAR_TYPE>& rhs);
+               const bslstl_StringRefImp<CHAR_TYPE>&      rhs);
 
 template <typename CHAR_TYPE>
-bool operator<(const CHAR_TYPE *lhs,
+bool operator<(const CHAR_TYPE                      *lhs,
                const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator<(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-               const CHAR_TYPE *rhs);
-    // Return 'true' if the string indicated by the specified 'lhs' is
-    // lexicographically less than the string indicated by the specified 'rhs',
-    // and 'false' otherwise.  Null strings are treated *as* *if* they were the
-    // empty string.
+               const CHAR_TYPE                      *rhs);
+    // Return 'true' if the string refered to by the specified 'lhs' is
+    // lexicographically less than the string refered to by the specified
+    // 'rhs', and 'false' otherwise.  Null strings are treated *as* *if* they
+    // were the empty string.
 
 template <typename CHAR_TYPE>
 bool operator>(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
-bool operator>(const bsl::basic_string<CHAR_TYPE>& lhs,
+bool operator>(const bsl::basic_string<CHAR_TYPE>&   lhs,
                const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator>(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-               const bsl::basic_string<CHAR_TYPE>& rhs);
+               const bsl::basic_string<CHAR_TYPE>&   rhs);
 
 template <typename CHAR_TYPE>
-bool operator>(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
+bool operator>(const bslstl_StringRefImp<CHAR_TYPE>&      lhs,
                const native_std::basic_string<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator>(const native_std::basic_string<CHAR_TYPE>& lhs,
-               const bslstl_StringRefImp<CHAR_TYPE>& rhs);
+               const bslstl_StringRefImp<CHAR_TYPE>&      rhs);
 
 template <typename CHAR_TYPE>
-bool operator>(const CHAR_TYPE *lhs,
+bool operator>(const CHAR_TYPE                      *lhs,
                const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator>(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-               const CHAR_TYPE *rhs);
-    // Return 'true' if the string indicated by the specified 'lhs' is
-    // lexicographically greater than the string indicated by the specified
+               const CHAR_TYPE                      *rhs);
+    // Return 'true' if the string refered to by the specified 'lhs' is
+    // lexicographically greater than the string refered to by the specified
     // 'rhs', and 'false' otherwise.  Null strings are treated *as* *if* they
     // were the empty string.
 
@@ -564,30 +567,30 @@ bool operator<=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
-bool operator<=(const bsl::basic_string<CHAR_TYPE>& lhs,
+bool operator<=(const bsl::basic_string<CHAR_TYPE>&   lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator<=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-                const bsl::basic_string<CHAR_TYPE>& rhs);
+                const bsl::basic_string<CHAR_TYPE>&   rhs);
 
 template <typename CHAR_TYPE>
-bool operator<=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
+bool operator<=(const bslstl_StringRefImp<CHAR_TYPE>&      lhs,
                 const native_std::basic_string<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator<=(const native_std::basic_string<CHAR_TYPE>& lhs,
-                const bslstl_StringRefImp<CHAR_TYPE>& rhs);
+                const bslstl_StringRefImp<CHAR_TYPE>&      rhs);
 
 template <typename CHAR_TYPE>
-bool operator<=(const CHAR_TYPE *lhs,
+bool operator<=(const CHAR_TYPE                      *lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator<=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-                const CHAR_TYPE *rhs);
-    // Return 'true' if the string indicated by the specified 'lhs' is
-    // lexicographically less than or equal to the string indicated by the
+                const CHAR_TYPE                      *rhs);
+    // Return 'true' if the string refered to by the specified 'lhs' is
+    // lexicographically less than or equal to the string refered to by the
     // specified 'rhs', and 'false' otherwise.  Null strings are treated *as*
     // *if* they were the empty string.
 
@@ -596,30 +599,30 @@ bool operator>=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
-bool operator>=(const bsl::basic_string<CHAR_TYPE>& lhs,
+bool operator>=(const bsl::basic_string<CHAR_TYPE>&   lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator>=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-                const bsl::basic_string<CHAR_TYPE>& rhs);
+                const bsl::basic_string<CHAR_TYPE>&   rhs);
 
 template <typename CHAR_TYPE>
-bool operator>=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
+bool operator>=(const bslstl_StringRefImp<CHAR_TYPE>&      lhs,
                 const native_std::basic_string<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator>=(const native_std::basic_string<CHAR_TYPE>& lhs,
-                const bslstl_StringRefImp<CHAR_TYPE>& rhs);
+                const bslstl_StringRefImp<CHAR_TYPE>&      rhs);
 
 template <typename CHAR_TYPE>
-bool operator>=(const CHAR_TYPE *lhs,
+bool operator>=(const CHAR_TYPE                      *lhs,
                 const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bool operator>=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-                const CHAR_TYPE *rhs);
-    // Return 'true' if the string indicated by the specified 'lhs' is
-    // lexicographically greater than or equal to the string indicated by the
+                const CHAR_TYPE                      *rhs);
+    // Return 'true' if the string refered to by the specified 'lhs' is
+    // lexicographically greater than or equal to the string refered to by the
     // specified 'rhs', and 'false' otherwise.  Null strings are treated *as*
     // *if* they were the empty string.
 
@@ -630,35 +633,35 @@ bsl::basic_string<CHAR_TYPE>
 
 template <typename CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-    operator+(const bsl::basic_string<CHAR_TYPE>& lhs,
+    operator+(const bsl::basic_string<CHAR_TYPE>&   lhs,
               const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
     operator+(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-              const bsl::basic_string<CHAR_TYPE>& rhs);
+              const bsl::basic_string<CHAR_TYPE>&   rhs);
 
 template <typename CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-    operator+(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
+    operator+(const bslstl_StringRefImp<CHAR_TYPE>&      lhs,
               const native_std::basic_string<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
     operator+(const native_std::basic_string<CHAR_TYPE>& lhs,
-              const bslstl_StringRefImp<CHAR_TYPE>& rhs);
+              const bslstl_StringRefImp<CHAR_TYPE>&      rhs);
 
 template <typename CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-    operator+(const CHAR_TYPE *lhs,
+    operator+(const CHAR_TYPE                      *lhs,
               const bslstl_StringRefImp<CHAR_TYPE>& rhs);
 
 template <typename CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
     operator+(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
-              const CHAR_TYPE *rhs);
+              const CHAR_TYPE                      *rhs);
     // Return an 'bsl::string' having the value of the concatenation of the
-    // strings indicated by the specified 'lhs' and rhs'.  Null strings are
+    // strings refered to by the specified 'lhs' and rhs'.  Null strings are
     // treated *as* *if* they were the empty string.
 
 template <typename CHAR_TYPE>
@@ -672,8 +675,8 @@ std::basic_ostream<CHAR_TYPE>&
 //                                  TYPEDEFS
 // ===========================================================================
 
-typedef bslstl_StringRefImp<char> bslstl_StringRef;
-typedef bslstl_StringRefImp<wchar_t> bslstl_WideStringRef;
+typedef bslstl_StringRefImp<char>       bslstl_StringRef;
+typedef bslstl_StringRefImp<wchar_t>    bslstl_StringRefWide;
 
 // ===========================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -794,7 +797,7 @@ void bslstl_StringRefImp<CHAR_TYPE>::assign(
 
 template <typename CHAR_TYPE>
 inline
-void bslstl_StringRefImp<CHAR_TYPE>::clear()
+void bslstl_StringRefImp<CHAR_TYPE>::reset()
 {
     *this = bslstl_StringRef(0, 0);
 }
