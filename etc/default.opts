@@ -160,7 +160,7 @@ unix-                   _       RETRY_ON_SIGNAL = $(RETRY) -a 3 -t $(RETRY_TIMEO
 
 *                       cpp11   CPP11_FLAGS     =   --this-compiler-does-not-have-cpp11-support-configured
 !! unix-HP_UX-*-*-acc   cpp11   CPP11_FLAGS     =   -Ax
-!! *-gcc-4.6            cpp11   CPP11_FLAGS     =   -std=c++0x
+!! unix-*-*-*-gcc-4.6.1 cpp11   CPP11_FLAGS     =   -std=c++0x
 
 *                       cpp11   BDE_CXXFLAGS    = $(CPP11_FLAGS)
 #==============================================================================
