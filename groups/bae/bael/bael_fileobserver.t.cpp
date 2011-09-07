@@ -391,6 +391,94 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING TIME-BASED ROTATION
+        //
+        // Concern:
+        //: 1 'rotateOnTimeInterval' correctly forward call to
+        //:   'bael_FileObserver2'.
+        //
+        // Plan:
+        //: 1 Setup test infrastructure.
+        //:
+        //: 2 Call 'rotateOnTimeInterval' with a large interval and a reference
+        //:   time such that the next rotation will occur soon.  Verify that
+        //:   rotation occurs on the scheduled time.
+        //:
+        //: 3 Call 'disableLifetimeRotation' and verify that no rotation occurs
+        //:   afterwards.
+        //
+        // Testing:
+        //  void rotateOnTimeInterval(const DtInterval& i, const Datetime& r);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTesting Time-Based Rotation"
+                          << "\n===========================" << endl;
+
+        bael_LoggerManagerConfiguration configuration;
+
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_TRACE,
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_OFF));
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+
+        // Set callback to monitor rotation.
+
+        RotCb cb(Z);
+        mX.setOnFileRotationCallback(cb);
+
+        bael_LoggerManager::initSingleton(&mX, configuration);
+
+        const bsl::string BASENAME = tempFileName(veryVerbose);
+
+        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
+        ASSERT(X.isFileLoggingEnabled());
+        ASSERT(0 == cb.numInvocations());
+
+        BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+
+        if (veryVerbose) cout << "Testing absolute time reference" << endl;
+        {
+            // Reset reference start time.
+
+            mX.disableFileLogging();
+
+            // Ensure log file did not exist
+
+            bdesu_FileUtil::remove(BASENAME.c_str());
+
+            bdet_Datetime refTime = bdetu_SystemTime::nowAsDatetimeLocal();
+            refTime += bdet_DatetimeInterval(-1, 0, 0, 3);
+            mX.rotateOnTimeInterval(bdet_DatetimeInterval(1), refTime);
+            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
+
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+            LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
+
+            bcemt_ThreadUtil::microSleep(0, 3);
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+
+
+            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
+            ASSERT(1 ==
+                   bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
+        }
+
+        if (veryVerbose) cout << "Testing 'disableLifetimeRotation'" << endl;
+        {
+            cb.reset();
+
+            mX.disableLifetimeRotation();
+            bcemt_ThreadUtil::microSleep(0, 3);
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+            LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
+        }
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING 'setOnFileRotationCallback'
@@ -407,7 +495,8 @@ int main(int argc, char *argv[])
         //  void setOnFileRotationCallback(const OnFileRotationCallback&);
         // --------------------------------------------------------------------
 
-        Obj mX;
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+        Obj mX(bael_Severity::BAEL_WARN, &ta);
         bsl::string filename = tempFileName(veryVerbose);
 
         RotCb cb(Z);
@@ -443,8 +532,7 @@ int main(int argc, char *argv[])
                                                   bael_Severity::BAEL_OFF,
                                                   bael_Severity::BAEL_OFF));
         bael_MultiplexObserver multiplexObserver;
-        bael_LoggerManager::initSingleton(&multiplexObserver,
-                                          configuration);
+        bael_LoggerManager::initSingleton(&multiplexObserver, configuration);
 
         {
             bsl::string fn = tempFileName(veryVerbose);
@@ -724,8 +812,7 @@ int main(int argc, char *argv[])
                                                   bael_Severity::BAEL_OFF));
 
         bael_MultiplexObserver multiplexObserver;
-        bael_LoggerManager::initSingleton(&multiplexObserver,
-                                          configuration);
+        bael_LoggerManager::initSingleton(&multiplexObserver, configuration);
 
 #ifdef BSLS_PLATFORM__OS_UNIX
         bcema_TestAllocator ta(veryVeryVeryVerbose);
@@ -1091,8 +1178,7 @@ int main(int argc, char *argv[])
                                               bael_Severity::BAEL_OFF,
                                               bael_Severity::BAEL_OFF));
         bael_MultiplexObserver multiplexObserver;
-        bael_LoggerManager::initSingleton(&multiplexObserver,
-                                          configuration);
+        bael_LoggerManager::initSingleton(&multiplexObserver, configuration);
 
         if (verbose) cerr << "Testing threshold and output format."
                           << endl;
