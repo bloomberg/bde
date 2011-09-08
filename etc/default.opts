@@ -241,7 +241,6 @@ unix-               _   MKDIR   = $(RETRY_ON_EXIT) perl -MFile::Path -e 'mkpath(
 windows-            _   MKDIR   = perl -MFile::Path -e "mkpath(\@ARGV)" --
 
 unix-           _   TMPDIR      = /bb/data/tmp
-!! unix-Linux       _   TMPDIR      = /tmp
 !! unix-FreeBSD     _   TMPDIR      = /tmp
 !! unix-Cygwin      _   TMPDIR      = /tmp
 !! unix-Darwin      _   TMPDIR      = /tmp
