@@ -168,7 +168,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // made once the thread terminates to reclaim any system resources
         // associated with the newly created identifier.
 
-    static int getMinSchedPriority(
+    static int getMinSchedulingPriority(
                               bcemt_ThreadAttributes::SchedulingPolicy policy);
         // Return the non-negative minimum available priority for the
         // optionally-specified 'policy' on success, where 'policy' is of type
@@ -176,7 +176,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // error.  Note that for some platform / policy cominations,
         // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
 
-    static int getMaxSchedPriority(
+    static int getMaxSchedulingPriority(
                               bcemt_ThreadAttributes::SchedulingPolicy policy);
         // Return the non-negative maximum available priority for the
         // optionally-specified 'policy' on success, where 'policy' is of type
@@ -344,7 +344,7 @@ bool operator!=(
 // CLASS METHODS
 inline
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
-                         getMinSchedPriority(
+                         getMinSchedulingPriority(
                                bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
     return -1;    // priorities not supported on Windows
@@ -352,7 +352,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
 
 inline
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
-                         getMaxSchedPriority(
+                         getMaxSchedulingPriority(
                                bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
     return -1;    // priorities not supported on Windows
