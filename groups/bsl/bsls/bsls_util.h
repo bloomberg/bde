@@ -1,31 +1,32 @@
-// bsls_addressof.h                                                   -*-C++-*-
-#ifndef INCLUDED_BSLS_ADDRESSOF
-#define INCLUDED_BSLS_ADDRESSOF
+// bsls_util.h                                                        -*-C++-*-
+#ifndef INCLUDED_BSLS_UTIL
+#define INCLUDED_BSLS_UTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Return the address of an object, even if 'operator&' is overloaded
+//@PURPOSE: Provide essential utilities supporting portable generic code.
+//
+//@CLASSES:
+//  bsls_Util : utility class supplying essential, portable functionality
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component should *not* be used outside of the 'bsl'
-// package at this time.
-//
-// The 'bsls_addressOf' function defined in this component provides the
-// ability to determine the address of an object, even if 'operator&' is
-// overloaded.  It conforms to the C++0x definition for 'addressof' as
-// specified in the section [specialized.addressof] (20.6.12.1) of the FDIS,
-// except that it will not return the address of a function reference.
+//@DESCRIPTION: This component supplies essential low-level utilities for
+// implementing generic facilities like the C++ standard library.  The
+// 'addressOf' function defined in this component provides the ability to
+// determine the address of an object, even if 'operator&' is overloaded.  It
+// conforms to the C++0x definition for 'addressof' as specified in the section
+// [specialized.addressof] (20.6.12.1) of the C++11 standard, except that it
+// will not return the address of a function reference.
 //
 ///Usage
 ///-----
 // This section illustrates intended usage of this component.
 //
 ///Example 1: Obtain the address of a 'class' that defines 'operator&'.
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // There are times, especially within low-level library functions, where it is
 // necessary to obtain the address of an object even if that object's class
 // overloads 'operator&' to return something other than the object's address.
@@ -36,7 +37,7 @@ BSLS_IDENT("$Id: $")
 //      char *d_byteptr;
 //      int   d_bitpos;
 //
-//  public:
+//    public:
 //      BitReference(char *byteptr = 0, int bitpos = 0)
 //          : d_byteptr(byteptr), d_bitpos(bitpos) { }
 //
@@ -52,7 +53,7 @@ BSLS_IDENT("$Id: $")
 //      char *d_byteptr;
 //      int   d_bitpos;
 //
-//  public:
+//    public:
 //      BitPointer(char *byteptr = 0, int bitpos = 0)
 //          : d_byteptr(byteptr), d_bitpos(bitpos) { }
 //
@@ -71,18 +72,19 @@ BSLS_IDENT("$Id: $")
 //..
 // However, there are times when it might be desirable to get the true
 // address of a 'BitReference'.  Since the above overload prevents
-// the obvious syntax from working, we use 'bsls_addressof' to accomplish this
-// task.
+// the obvious syntax from working, we use 'bsls_Util::addressOf' to accomplish
+// this task.
 //
 // First, we create a 'BitReference' object:
 //..
 //  char c[4];
 //  BitReference br(c, 3);
 //..
-// Now, we invoke 'bsls_addressOf' to obtain and save the address of 'br:
+// Now, we invoke 'bsls_Util::addressOf' to obtain and save the address of
+// 'br':
 //..
-//  BitReference *p = bsls_addressOf(br);  // OK
-//  // BitReference *p = &br;              // Won't compile
+//  BitReference *p = bsls_Util::addressOf(br);  // OK
+//  // BitReference *p = &br;                    // Won't compile
 //..
 // Notice that the commented line illustrates canonical use of 'operator&' that
 // would not compile in this example.
@@ -100,24 +102,27 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-template <class TYPE>
-inline
-TYPE *bsls_addressOf(TYPE& obj);
-    // Return the address of the specified 'obj', even in the presence of an
-    // overloaded 'operator&' for 'TYPE'.
+struct bsls_Util {
+
+    template <class BSLS_TYPE>
+    static BSLS_TYPE *addressOf(BSLS_TYPE& obj);
+        // Return the address of the specified 'obj', even in the presence of
+        // an overloaded 'operator&' for 'BSLS_TYPE'.  Behavior is undefined
+        // unless 'BSLS_TYPE' is an object type.
+};
 
                                    // ======
                                    // MACROS
                                    // ======
 
 #ifdef BSLS_PLATFORM__CMP_MSVC
-#   define BSLS_ADDRESSOF(OBJ)     ::BloombergLP::bsls_addressOf(OBJ)
+#   define BSLS_UTIL_ADDRESSOF(OBJ)    ::BloombergLP::bsls_util::addressOf(OBJ)
 
 #   if !defined(BDE_USE_ADDRESSOF)
 #       define BDE_USE_ADDRESSOF
 #   endif
 #else
-#   define BSLS_ADDRESSOF(OBJ)     (&(OBJ))
+#   define BSLS_UTIL_ADDRESSOF(OBJ)    (&(OBJ))
 #endif
 
 // ===========================================================================
@@ -125,11 +130,11 @@ TYPE *bsls_addressOf(TYPE& obj);
 // ===========================================================================
 
 // FREE FUNCTIONS
-template <class TYPE>
+template <class BSLS_TYPE>
 inline
-TYPE *bsls_addressOf(TYPE& obj)
+BSLS_TYPE *bsls_Util::addressOf(BSLS_TYPE& obj)
 {
-    return static_cast<TYPE *>(
+    return static_cast<BSLS_TYPE *>(
         static_cast<void *>(
             const_cast<char *>(&reinterpret_cast<const volatile char&>(obj))));
 }

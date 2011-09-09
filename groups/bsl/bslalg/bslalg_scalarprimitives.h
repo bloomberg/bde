@@ -104,12 +104,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecvq.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ADDRESSOF
-#include <bsls_addressof.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_NEW
@@ -2076,14 +2076,14 @@ bslalg_ScalarPrimitives_Imp::defaultConstruct(
                                          bslmf_MetaInt<PAIR_TRAITS> *)
 {
     bslalg_ScalarPrimitives::defaultConstruct(
-                                       unconst(BSLS_ADDRESSOF(address->first)),
-                                       allocator);
+                                  unconst(BSLS_UTIL_ADDRESSOF(address->first)),
+                                  allocator);
     bslalg_AutoScalarDestructor<typename bslmf_RemoveCvq<
                                 typename TARGET_TYPE::first_type>::Type>
-                                guard(unconst(BSLS_ADDRESSOF(address->first)));
+                           guard(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
     bslalg_ScalarPrimitives::defaultConstruct(
-                                      unconst(BSLS_ADDRESSOF(address->second)),
-                                      allocator);
+                                 unconst(BSLS_UTIL_ADDRESSOF(address->second)),
+                                 allocator);
     guard.release();
 }
 
@@ -2151,16 +2151,16 @@ bslalg_ScalarPrimitives_Imp::copyConstruct(
                                          bslmf_MetaInt<PAIR_TRAITS> *)
 {
     bslalg_ScalarPrimitives::copyConstruct(
-                                       unconst(BSLS_ADDRESSOF(address->first)),
-                                       original.first,
-                                       allocator);
+                                  unconst(BSLS_UTIL_ADDRESSOF(address->first)),
+                                  original.first,
+                                  allocator);
     bslalg_AutoScalarDestructor<typename bslmf_RemoveCvq<
                                 typename TARGET_TYPE::first_type>::Type>
-                                guard(unconst(BSLS_ADDRESSOF(address->first)));
+                           guard(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
     bslalg_ScalarPrimitives::copyConstruct(
-                                      unconst(BSLS_ADDRESSOF(address->second)),
-                                      original.second,
-                                      allocator);
+                                 unconst(BSLS_UTIL_ADDRESSOF(address->second)),
+                                 original.second,
+                                 allocator);
     guard.release();
 }
 
@@ -2183,7 +2183,7 @@ bslalg_ScalarPrimitives_Imp::copyConstruct(
 
         new (address) TARGET_TYPE(original);
     } else {
-        std::memcpy(address, BSLS_ADDRESSOF(original), sizeof original);
+        std::memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
     }
 }
 
@@ -2216,7 +2216,7 @@ bslalg_ScalarPrimitives_Imp::copyConstruct(
 
         new (address) TARGET_TYPE(original);
     } else {
-        std::memcpy(address, BSLS_ADDRESSOF(original), sizeof original);
+        std::memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
     }
 }
 
@@ -2289,7 +2289,7 @@ bslalg_ScalarPrimitives_Imp::construct(
 
         new (address) TARGET_TYPE(a1);
     } else {
-        std::memcpy(address, BSLS_ADDRESSOF(a1), sizeof a1);   // no overlap
+        std::memcpy(address, BSLS_UTIL_ADDRESSOF(a1), sizeof a1); // no overlap
     }
 }
 
@@ -2301,16 +2301,17 @@ bslalg_ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                        bslma_Allocator            *allocator,
                                        bslmf_MetaInt<PAIR_TRAITS> *)
 {
-    bslalg_ScalarPrimitives::construct(unconst(BSLS_ADDRESSOF(address->first)),
-                                       a1.first,
-                                       allocator);
+    bslalg_ScalarPrimitives::construct(
+                                  unconst(BSLS_UTIL_ADDRESSOF(address->first)),
+                                  a1.first,
+                                  allocator);
     bslalg_AutoScalarDestructor<typename bslmf_RemoveCvq<
                                 typename TARGET_TYPE::first_type>::Type>
-                                guard(unconst(BSLS_ADDRESSOF(address->first)));
+                           guard(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
     bslalg_ScalarPrimitives::construct(
-                                      unconst(BSLS_ADDRESSOF(address->second)),
-                                      a1.second,
-                                      allocator);
+                                 unconst(BSLS_UTIL_ADDRESSOF(address->second)),
+                                 a1.second,
+                                 allocator);
     guard.release();
 }
 
@@ -2323,16 +2324,17 @@ bslalg_ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
                                        bslma_Allocator            *allocator,
                                        bslmf_MetaInt<PAIR_TRAITS> *)
 {
-    bslalg_ScalarPrimitives::construct(unconst(BSLS_ADDRESSOF(address->first)),
-                                       a1,
-                                       allocator);
+    bslalg_ScalarPrimitives::construct(
+                                  unconst(BSLS_UTIL_ADDRESSOF(address->first)),
+                                  a1,
+                                  allocator);
     bslalg_AutoScalarDestructor<typename bslmf_RemoveCvq<
                                 typename TARGET_TYPE::first_type>::Type>
-                                guard(unconst(BSLS_ADDRESSOF(address->first)));
+                           guard(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
     bslalg_ScalarPrimitives::construct(
-                                      unconst(BSLS_ADDRESSOF(address->second)),
-                                      a2,
-                                      allocator);
+                                 unconst(BSLS_UTIL_ADDRESSOF(address->second)),
+                                 a2,
+                                 allocator);
     guard.release();
 }
 
@@ -2912,10 +2914,12 @@ void bslalg_ScalarPrimitives_Imp::swap(
         // can throw only for types that use allocators.
 
         char arena[sizeof lhs];
-        std::memcpy(arena, BSLS_ADDRESSOF(lhs),  sizeof lhs);
-        std::memcpy(BSLS_ADDRESSOF(lhs),  BSLS_ADDRESSOF(rhs), sizeof lhs);
+        std::memcpy(arena, BSLS_UTIL_ADDRESSOF(lhs),  sizeof lhs);
+        std::memcpy(BSLS_UTIL_ADDRESSOF(lhs),
+                    BSLS_UTIL_ADDRESSOF(rhs),
+                    sizeof lhs);
                                                     // no overlap, or identical
-        std::memcpy(BSLS_ADDRESSOF(rhs),  arena, sizeof lhs);
+        std::memcpy(BSLS_UTIL_ADDRESSOF(rhs),  arena, sizeof lhs);
     } else {
         LHS_TYPE temp(lhs);
         lhs = rhs;
