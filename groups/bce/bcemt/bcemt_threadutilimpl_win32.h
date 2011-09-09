@@ -220,7 +220,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
     static Handle self();
         // Return a thread 'Handle' that can be used to refer to the current
         // thread.  The handle can be specified to any function that supports
-        // operations on itself (e.g., 'detach', 'isEqual').  Note that the
+        // operations on itself (e.g., 'detach', 'areEqual').  Note that the
         // returned handle is only valid in the context of the calling thread.
 
     static int detach(Handle& threadHandle);
@@ -234,8 +234,8 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // Return the platform specific identifier associated with the thread
         // specified by 'threadHandle'.
 
-    static bool isEqual(const Handle& lhs, const Handle& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' thread handles
+    static bool areEqual(const Handle& a, const Handle& b);
+        // Return 'true' if the specified 'a' and 'b' thread handles
         // identify the same thread and a 'false' value otherwise.
 
     static Id selfId();
@@ -271,9 +271,9 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // Note that this value is only valid until the thread terminates and
         // may be reused thereafter.
 
-    static bool isEqualId(const Id& lhs, const Id& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' thread id identify
-        // the same thread and 'false' otherwise.
+    static bool areEqualId(const Id& a, const Id& b);
+        // Return 'true' if the specified 'a' and 'b' thread id identify the
+        // same thread and 'false' otherwise.
 
     static int createKey(Key *key, bcemt_KeyDestructorFunction destructor);
         // Store into the specified 'key', an identifier that can be used to
@@ -325,8 +325,8 @@ bool operator==(
           const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& lhs,
           const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& rhs)
 {
-    return bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::isEqual(lhs,
-                                                                      rhs);
+    return bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqual(lhs,
+                                                                       rhs);
 }
 
 inline
@@ -436,11 +436,11 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::idAsInt(
 }
 
 inline
-bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::isEqualId(
-              const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Id& lhs,
-              const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Id& rhs)
+bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqualId(
+                const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Id& a,
+                const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Id& b)
 {
-    return lhs == rhs;
+    return a == b;
 }
 
 inline

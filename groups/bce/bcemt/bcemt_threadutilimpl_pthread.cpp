@@ -195,10 +195,10 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
     int priority = sched_get_priority_min(pPolicy);
 
 # if defined(BSLS_PLATFORM__OS_AIX)
-    // Note on AIX all priorities below 40 are equivalent to a priority of 40.
-    // See AIX doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/
+    // Note that on AIX all priorities below 40 are equivalent to a priority of
+    // 40.  See AIX doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/
     // index.jsp?topic=%2Fcom.ibm.aix.basetechref%2Fdoc%2Fbasetrf1%2F
-    // pthread_setschedparam.htm"
+    // pthread_setschedparam.htm" (shortens to "http://bit.ly/pcOgwl").
 
     enum { MIN_AIX_PRIORITY = 40 };
 
@@ -244,11 +244,12 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
     int priority = sched_get_priority_max(pPolicy);
 
 # if defined(BSLS_PLATFORM__OS_AIX)
-    // Note max prirority returned above is 127 regardless of policy on AIX,
-    // yet for non-superusers, thread creation fails if 'priority > 60'.  See
-    // AIX doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/index.jsp?
-    // topic=%2Fcom.ibm.aix.basetechref%2Fdoc%2Fbasetrf1%2F
-    // pthread_setschedparam.htm"
+    // Note that the max prirority returned above is 127 regardless of policy
+    // on AIX, yet for non-superusers, thread creation fails if
+    // 'priority > 60'.  See AIX doc "http://publib.boulder.ibm.com/
+    // infocenter/aix/v6r1/index.jsp?topic=%2Fcom.ibm.aix.basetechref%2F
+    // doc%2Fbasetrf1%2Fpthread_setschedparam.htm" (shortens to
+    // "http://bit.ly/pcOgwl").
 
     enum { MAX_AIX_NON_ROOT_PRIORITY = 60,
            MAX_AIX_PRIORITY          = 80 };

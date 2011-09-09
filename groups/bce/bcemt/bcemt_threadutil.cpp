@@ -57,7 +57,7 @@ int bcemt_ThreadUtil::convertToSchedulingPriority(
 
     double ret = (maxPri - minPri) * normalizedSchedulingPriority +
                                                                   minPri + 0.5;
-    return (int) bsl::floor(ret);
+    return static_cast<int>(bsl::floor(ret));
 }
 
 int bcemt_ThreadUtil::create(bcemt_ThreadUtil::Handle           *handle,

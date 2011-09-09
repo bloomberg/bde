@@ -481,14 +481,11 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::deleteKey(Key& key)
     return 0;
 }
 
-bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::isEqual(
-          const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& lhs,
-          const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& rhs)
+bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqual(
+            const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& a,
+            const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& b)
 {
-    if (lhs.d_id == rhs.d_id) {
-        return true;                                                  // RETURN
-    }
-    return false;
+    return a.d_id == b.d_id;
 }
 
 }  // close namespace BloombergLP
