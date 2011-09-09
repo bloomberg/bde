@@ -545,20 +545,20 @@ struct bcemt_ThreadUtil {
         // Return the thread-local value associated with the specified 'key'.
         // A 'key' is shared among all threads and the value associated with
         // 'key' for each thread is 0 until it is set by that thread using
-        // 'setSpecific'.  The behavior is undefined if 'key' was not obtained
-        // from a successful call to 'createKey', if 'key' has been deleted, or
-        // if this method is called inside a thread key cleanup function
-        // associated with any key by 'createKey'.
+        // 'setSpecific'.  The behavior is undefined unless this method is
+        // called outside any thread key cleanup function associated with any
+        // key by 'createKey', 'key' was obtained from a successful call to
+        // 'createKey', and 'key' has not been deleted.
 
     static int setSpecific(const Key& key, const void *value);
         // Associate the specified thread-local 'value' with the specified
         // process-wide 'key'.  Return 0 on success, and a non-zero value
         // otherwise.  The value associated with a thread for a given key is 0
         // until it has been set by that thread using 'setSpecific'.  The
-        // behavior is undefined if 'key' was not obtained from a successful
-        // call to 'createKey', if 'key' has been deleted, or if this method is
-        // called inside a thread key cleanup function associated with any key
-        // by 'createKey'.
+        // behavior is undefined unless this method is called outside any
+        // thread key cleanup function associated with any key by 'createKey',
+        // 'key' was obtained from a successful call to 'createKey', and 'key'
+        // has not been deleted.
 };
 
 // ===========================================================================
