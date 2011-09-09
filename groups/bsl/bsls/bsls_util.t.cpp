@@ -90,8 +90,8 @@ void aSsErT(int c, const char *s, int i)
 #define Q(X) printf("<| " #X " |>\n");     // Quote identifier literally.
 #define P(X) dbg_print(#X " = ", X, "\n")  // Print identifier and value.
 #define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
-#define L_ __LINE__                        // current Line number
 #define T_ putchar('\t');                  // Print a tab (w/o newline)
+#define L_ __LINE__                        // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -168,7 +168,7 @@ CvQualification cvqOfPtr(const volatile T *p) { return CVQ_CONST_VOLATILE; }
 // Assume we have a special reference-like type that can refer to a single bit:
 //..
     class BitReference {
-        char *d_byteptr;
+        char *d_byteptr_p;
         int   d_bitpos;
 
       public:
@@ -184,7 +184,7 @@ CvQualification cvqOfPtr(const volatile T *p) { return CVQ_CONST_VOLATILE; }
 // and a pointer-like type that can point to a single bit:
 //..
     class BitPointer {
-        char *d_byteptr;
+        char *d_byteptr_p;
         int   d_bitpos;
 
       public:
@@ -262,8 +262,8 @@ int main(int argc, char *argv[])
 // sanity checks:
 //..
     ASSERT(0 != p);
-    ASSERT(p->byteptr() == c);
-    ASSERT(p->bitpos()  == 3);
+    ASSERT(c == p->byteptr());
+    ASSERT(3 == p->bitpos());
 //..
       } break;
       case 4: {

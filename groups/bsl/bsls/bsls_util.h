@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // implementing generic facilities like the C++ standard library.  The
 // 'addressOf' function defined in this component provides the ability to
 // determine the address of an object, even if 'operator&' is overloaded.  It
-// conforms to the C++0x definition for 'addressof' as specified in the section
+// conforms to the C++11 definition for 'addressof' as specified in the section
 // [specialized.addressof] (20.6.12.1) of the C++11 standard, except that it
 // will not return the address of a function reference.
 //
@@ -93,8 +93,8 @@ BSLS_IDENT("$Id: $")
 // sanity checks:
 //..
 //  assert(0 != p);
-//  assert(p->byteptr() == c);
-//  assert(p->bitpos()  == 3);
+//  assert(c == p->byteptr());
+//  assert(3 == p->bitpos());
 //..
                                // ==============
                                // Free Functions
@@ -116,13 +116,13 @@ struct bsls_Util {
                                    // ======
 
 #ifdef BSLS_PLATFORM__CMP_MSVC
-#   define BSLS_UTIL_ADDRESSOF(OBJ)    ::BloombergLP::bsls_util::addressOf(OBJ)
+#   define BSLS_UTIL_ADDRESSOF(OBJ) ::BloombergLP::bsls_Util::addressOf(OBJ)
 
 #   if !defined(BDE_USE_ADDRESSOF)
 #       define BDE_USE_ADDRESSOF
 #   endif
 #else
-#   define BSLS_UTIL_ADDRESSOF(OBJ)    (&(OBJ))
+#   define BSLS_UTIL_ADDRESSOF(OBJ) (&(OBJ))
 #endif
 
 // ===========================================================================
