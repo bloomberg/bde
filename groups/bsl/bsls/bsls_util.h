@@ -7,15 +7,17 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide essential utilities supporting portable generic code.
+//@PURPOSE: Provide essential. low-level support for portable generic code.
 //
 //@CLASSES:
-//  bsls_Util : utility class supplying essential, portable functionality
+//  bsls_Util: utility class supplying essential, low-level functionality
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component supplies essential low-level utilities for
-// implementing generic facilities like the C++ standard library.
+//@DESCRIPTION: This component defines a utility 'struct', 'bsls_Util', that
+// serves as a namespace for a suite of pure functions that supply essential
+// low-level support for implementing portable generic facilities such as might
+// be found in the C++ standard library.
 //
 ///Usage
 ///-----
@@ -27,8 +29,9 @@ BSLS_IDENT("$Id: $")
 // necessary to obtain the address of an object even if that object's class
 // overloads 'operator&' to return something other than the object's address.
 //
-// First we create a special reference-like type that can refer to a single
-// bit within a byte:
+// First, we create a special reference-like type that can refer to a single
+// bit within a byte (inline implementations are provided in class scope for
+// ease of exposition):
 //..
 //  class BitReference {
 //      // DATA
@@ -67,29 +70,31 @@ BSLS_IDENT("$Id: $")
 //
 //      // ACCESSORS
 //      BitReference operator*() const
-//          { return BitReference(d_byteptr_p, d_bitpos); }
+//      {
+//          return BitReference(d_byteptr_p, d_bitpos); 
+//      }
 //
 //      // etc.
 //  };
 //..
 // Next, we overload 'operator&' for 'BitReference' to return a 'BitPointer'
-// instead of a raw pointer, completing the picture:
+// instead of a raw pointer, completing the setup:
 //..
 //  inline BitPointer operator&(const BitReference& ref) {
 //      return BitPointer(ref.byteptr(), ref.bitpos());
 //  }
 //..
-// Finally, we note that there are times when it might be desirable to get the
+// Then, we note that there are times when it might be desirable to get the
 // true address of a 'BitReference'.  Since the above overload prevents the
 // obvious syntax from working, we use 'bsls_Util::addressOf' to accomplish
 // this task.
 //
-// First, we create a 'BitReference' object:
+// Next, we create a 'BitReference' object:
 //..
 //  char c[4];
 //  BitReference br(c, 3);
 //..
-// Then, we invoke 'bsls_Util::addressOf' to obtain and save the address of
+// Now, we invoke 'bsls_Util::addressOf' to obtain and save the address of
 // 'br':
 //..
 //  BitReference *p = bsls_Util::addressOf(br);  // OK
@@ -112,8 +117,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 struct bsls_Util {
-    // This utility class supplies essential low-level utilities for
-    // implementing generic facilities like the C++ standard library.
+    // This utility class provides a namespace for essential low-level
+    // functions for implementing portable generic facilities such as the C++
+    // standard library.
 
     template <class BSLS_TYPE>
     static BSLS_TYPE *addressOf(BSLS_TYPE& obj);
@@ -121,13 +127,22 @@ struct bsls_Util {
         // overloaded for objects of type 'BSLS_TYPE'.  This function conforms
         // to the C++11 definition for 'addressof' as specified in the section
         // [specialized.addressof] (20.6.12.1) of the C++11 standard, except
-        // that behaviour is undefined if 'BSLS_TYPE' is not an object type.
+        // that behaviour is undefined unless 'BSLS_TYPE' is an object type.
+        // Note that function types are not object types, but are supported by
+        // 'std::addressof' in C++11.
 };
 
                                    // ======
                                    // MACROS
                                    // ======
-
+// The following macros are private to the BDE implementation and not intended
+// for widespread use.  They support the BDE STL decision for the standard
+// containers to support types that overload 'operator&' only on the Microsoft
+// platform.  The reasons are two-fold.  (1) Do not introduce any further
+// template bloat into the 'big's to support a class design that is almost
+// certainly an error.  (2) support containers holding the important 'CComPtr'
+// type in the Microsoft Foundation Classes library.  This Microsoft-supplied
+// class template is known to overload 'operator&'.
 #ifdef BSLS_PLATFORM__CMP_MSVC
 #   define BSLS_UTIL_ADDRESSOF(OBJ) ::BloombergLP::bsls_Util::addressOf(OBJ)
 
@@ -137,6 +152,9 @@ struct bsls_Util {
 #else
 #   define BSLS_UTIL_ADDRESSOF(OBJ) (&(OBJ))
 #endif
+// This macro takes the address of an object by calling 'bsls_Util::addressOf'
+// on Windows, and simple taking the address with the '&' operator on all other
+// platforms.
 
 // ===========================================================================
 //                        INLINE FUNCTION DEFINITIONS

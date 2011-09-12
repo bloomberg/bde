@@ -93,10 +93,10 @@ void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-class BadType {
+class EvilType {
     // This class supplies an overload for the unary 'operator&' in order to
     // test the correct behavior of the 'bsls_Util::addressOf' function.  Each
-    // 'BadType' object will reports its address as that returned by the
+    // 'EvilType' object will reports its address as that returned by the
     // 'bogusPtr' method, which points to some statically allocated memory
     // outside the object itself.  The true address of such an object can be
     // discovered by calling the 'realAddress' method.
@@ -107,32 +107,32 @@ class BadType {
 
   public:
     // CLASS METHODS
-    static BadType *bogusPtr() {
+    static EvilType *bogusPtr() {
         // Return the address of some valid memory that is not within the
-        // footprint of any 'BadType' object.
-        return reinterpret_cast<BadType*>(&d_bogus);
+        // footprint of any 'EvilType' object.
+        return reinterpret_cast<EvilType*>(&d_bogus);
     }
 
     // CREATORS
-    explicit BadType(int val = 0) : d_dummy(val) { }
-        // Create a 'BadType' object.
+    explicit EvilType(int val = 0) : d_dummy(val) { }
+        // Create a 'EvilType' object.
 
     // ACCESSORS
-    BadType                *operator&()                { return bogusPtr(); }
-    BadType const          *operator&() const          { return bogusPtr(); }
-    BadType volatile       *operator&() volatile       { return bogusPtr(); }
-    BadType const volatile *operator&() const volatile { return bogusPtr(); }
+    EvilType                *operator&()                { return bogusPtr(); }
+    EvilType const          *operator&() const          { return bogusPtr(); }
+    EvilType volatile       *operator&() volatile       { return bogusPtr(); }
+    EvilType const volatile *operator&() const volatile { return bogusPtr(); }
         // Overload operator& to return something other than the address of
         // this object.
 
-    BadType                *realAddress()                { return this; }
-    BadType const          *realAddress() const          { return this; }
-    BadType volatile       *realAddress() volatile       { return this; }
-    BadType const volatile *realAddress() const volatile { return this; }
+    EvilType                *realAddress()                { return this; }
+    EvilType const          *realAddress() const          { return this; }
+    EvilType volatile       *realAddress() volatile       { return this; }
+    EvilType const volatile *realAddress() const volatile { return this; }
         // Return the actual address of this object.
 };
 
-int BadType::d_bogus = 0;
+int EvilType::d_bogus = 0;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -174,8 +174,9 @@ CvQualification cvqOfPtr(const volatile T *p) { return CVQ_CONST_VOLATILE; }
 // necessary to obtain the address of an object even if that object's class
 // overloads 'operator&' to return something other than the object's address.
 //
-// First we create a special reference-like type that can refer to a single
-// bit within a byte:
+// First, we create a special reference-like type that can refer to a single
+// bit within a byte (inline implementations are provided in class scope for
+// ease of exposition):
 //..
     class BitReference {
         // DATA
@@ -214,13 +215,15 @@ CvQualification cvqOfPtr(const volatile T *p) { return CVQ_CONST_VOLATILE; }
 
         // ACCESSORS
         BitReference operator*() const
-            { return BitReference(d_byteptr_p, d_bitpos); }
+        {
+            return BitReference(d_byteptr_p, d_bitpos); 
+        }
 
         // etc.
     };
 //..
 // Next, we overload 'operator&' for 'BitReference' to return a 'BitPointer'
-// instead of a raw pointer, completing the picture:
+// instead of a raw pointer, completing the setup:
 //..
     inline BitPointer operator&(const BitReference& ref) {
         return BitPointer(ref.byteptr(), ref.bitpos());
@@ -261,17 +264,17 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting USAGE EXAMPLE"
                             "\n=====================\n");
 
-// Finally, we note that there are times when it might be desirable to get the
+// Then, we note that there are times when it might be desirable to get the
 // true address of a 'BitReference'.  Since the above overload prevents the
 // obvious syntax from working, we use 'bsls_Util::addressOf' to accomplish
 // this task.
 //
-// First, we create a 'BitReference' object:
+// Next, we create a 'BitReference' object:
 //..
     char c[4];
     BitReference br(c, 3);
 //..
-// Then, we invoke 'bsls_Util::addressOf' to obtain and save the address of
+// Now, we invoke 'bsls_Util::addressOf' to obtain and save the address of
 // 'br':
 //..
     BitReference *p = bsls_Util::addressOf(br);  // OK
@@ -297,7 +300,7 @@ int main(int argc, char *argv[])
         //:   'operator&' on every other platform.
         //
         // Plan:
-        //: 1 Create an object of type 'BadType' (see GLOBAL
+        //: 1 Create an object of type 'EvilType' (see GLOBAL
         //:   TYPEDEFS/CONSTANTS FOR TESTING AND VARIABLES) with an overloaded
         //:   'operator&' and verify that 'bsls_Util::addressOf' invokes
         //:   'operator&' on UNIX, and that on Windows it returns the address
@@ -310,7 +313,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING MACRO BSLS_UTIL_ADDRESSOF"
                             "\n=================================\n");
 
-        BadType mX; const BadType& X = mX;
+        EvilType mX; const EvilType& X = mX;
 
 #ifndef BDE_USE_ADDRESSOF
         if (verbose)
@@ -339,15 +342,16 @@ int main(int argc, char *argv[])
         //:   effect as on an (lvalue) object.
         //
         // Plan:
-        //: 1 Create a number of objects of types 'int' and 'BadType', where
-        //:   'BadType' has an overloaded 'operator&'.  Test that the pointer
-        //:   returned from calling 'addressOf' on each points to that object.
-        //:   (In the case of 'BadType', the 'realAddress' method returns the
-        //:   true address of the object. (C-1, 3)
+        //: 1 Create a number of objects of types 'int' and 'EvilType', where
+        //:   'EvilType' has an overloaded 'operator&'.  Test that the pointer
+        //:   returned from calling 'addressOf' on each object points to that
+        //:   object.  (In the case of 'EvilType', the 'realAddress' method
+        //:   returns the true address of the object. (C-1, 3)
         //:
-        //: 2 Using objects and references with different cv qualifications,
-        //:   verify that the pointer returned by 'addressOf' has the correct
-        //:   qualification (using the 'cvqOfPtr' function). (C-2)
+        //: 2 Using objects and references with all four different
+        //:   cv-qualifications, verify that the pointer returned by
+        //:   'addressOf' has the correct qualification (using the 'cvqOfPtr'
+        //:   function). (C-2)
         //
         // Testing:
         //   TYPE *bsls_Util::addressOf(TYPE&);
@@ -356,7 +360,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING bsls_Util::addressOf"
                             "\n============================\n");
 
-        if (verbose) printf("\nTesting addressOf(int)\n");
+        if (verbose) printf("\nTESTING addressof objects\n");
+
+        if (veryVerbose) printf("\nTesting addressOf(int)\n");
 
         int                  i = 0;
         int const           ci = 0;
@@ -373,12 +379,12 @@ int main(int argc, char *argv[])
         ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls_Util::addressOf( vi)));
         ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(bsls_Util::addressOf(cvi)));
 
-        if (verbose) printf("\nTesting addressOf(BadType)\n");
+        if (veryVerbose) printf("\nTesting addressOf(EvilType)\n");
 
-        BadType                  x(0);
-        BadType const           cx(0);
-        BadType       volatile  vx(0);
-        BadType const volatile cvx(0);
+        EvilType                  x(0);
+        EvilType const           cx(0);
+        EvilType       volatile  vx(0);
+        EvilType const volatile cvx(0);
 
         ASSERT(  x.realAddress() == bsls_Util::addressOf(  x));
         ASSERT( cx.realAddress() == bsls_Util::addressOf( cx));
@@ -390,7 +396,9 @@ int main(int argc, char *argv[])
         ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls_Util::addressOf( vx)));
         ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(bsls_Util::addressOf(cvx)));
 
-        if (verbose) printf("\nTesting addressOf(reference to int)\n");
+        if (verbose) printf("\nTESTING addressof references\n");
+
+        if (veryVerbose) printf("\nTesting addressOf(reference to int)\n");
 
         int               &   ri = i;
         int const         &  cri = i;
@@ -407,12 +415,13 @@ int main(int argc, char *argv[])
         ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls_Util::addressOf( vri)));
         ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(bsls_Util::addressOf(cvri)));
 
-        if (verbose) printf("\nTesting addressOf(reference to BadType)\n");
+        if (veryVerbose)
+                        printf("\nTesting addressOf(reference to EvilType)\n");
 
-        BadType               &   rx = x;
-        BadType const         &  crx = x;
-        BadType       volatile&  vrx = x;
-        BadType const volatile& cvrx = x;
+        EvilType               &   rx = x;
+        EvilType const         &  crx = x;
+        EvilType       volatile&  vrx = x;
+        EvilType const volatile& cvrx = x;
 
         ASSERT(x.realAddress() == bsls_Util::addressOf(  rx));
         ASSERT(x.realAddress() == bsls_Util::addressOf( crx));
@@ -432,17 +441,17 @@ int main(int argc, char *argv[])
         //: 1 That 'cvqOfPtr' returns the correct result for each
         //:   pointer-to-cv-qualified type.
         //:
-        //: 2 That 'realAddress' returns the true address of a 'BadType'
+        //: 2 That 'realAddress' returns the true address of a 'EvilType'
         //:   object.
         //:
-        //: 3 That 'BadType' overloads 'operator&' such that it returns
+        //: 3 That 'EvilType' overloads 'operator&' such that it returns
         //:   something other than the address of the object.
         //
         // Test Plan:
-        //: 1 Call 'cvqOfPtr' with pointers of different cv-qualification and
-        //:   verify the return value. (C-1)
+        //: 1 Call 'cvqOfPtr' with pointers of each of the four different
+        //:   cv-qualifications and verify the returned value. (C-1)
         //:
-        //: 2 Construct a 'BadType' object at a known address, by using an
+        //: 2 Construct a 'EvilType' object at a known address, by using an
         //:   array of sufficient 'char's.  Initialize a reference of each
         //:   cv-qualification type referring to this object, and verify that
         //:   calling 'realAddress' returns the same address as the backing
@@ -453,8 +462,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   CvQualification cvqOfPtr(T *p);
-        //   BadType *BadType::operator&();
-        //   BadType *BadType::realAddress();
+        //   EvilType *EvilType::operator&();
+        //   EvilType *EvilType::realAddress();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TEST APPARATUS"
@@ -474,24 +483,24 @@ int main(int argc, char *argv[])
         ASSERT(CVQ_VOLATILE       == cvqOfPtr( vp));
         ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(cvp));
 
-        if (verbose) printf("\nTesting BadType::realAddress()\n");
+        if (verbose) printf("\nTesting EvilType::realAddress()\n");
 
-        char buffer[sizeof(BadType)];
+        char buffer[sizeof(EvilType)];
         void * const trueAddress = buffer;
 
-        BadType *pX = new(trueAddress)BadType(0);
+        EvilType *pX = new(trueAddress)EvilType(0);
 
-        BadType               &   x  = *pX;
-        BadType const         &  cx  = *pX;
-        BadType       volatile&  vx  = *pX;
-        BadType const volatile& cvx  = *pX;
+        EvilType               &   x  = *pX;
+        EvilType const         &  cx  = *pX;
+        EvilType       volatile&  vx  = *pX;
+        EvilType const volatile& cvx  = *pX;
 
         ASSERT(trueAddress ==   x.realAddress());
         ASSERT(trueAddress ==  cx.realAddress());
         ASSERT(trueAddress ==  vx.realAddress());
         ASSERT(trueAddress == cvx.realAddress());
 
-        if (verbose) printf("\nTesting operator&(BadType)\n");
+        if (verbose) printf("\nTesting operator&(EvilType)\n");
 
         ASSERT(&  x !=   x.realAddress());
         ASSERT(& cx !=  cx.realAddress());
