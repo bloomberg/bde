@@ -180,27 +180,28 @@ typedef bslma_TestAllocatorMonitor Obj;
 // ----------------------------------------------------------------------------
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended usage of this component.
 //
 ///Example 1: Standard Usage
 ///- - - - - - - - - - - - -
 // Classes taking 'bslma_allocator' objects have many requirements (and thus,
-// many testing concerns) that other classes do not.  We here illustrate how
+// many testing concerns) that other classes do not.  Here we illustrate how
 // 'bslma_TestAllocatorMonitor' objects (in conjunction with
 // 'bslma_TestAllocator' objects) can be used in a test driver to succinctly
 // address many concerns of an object's use of allocators.
 //
 // First, for a test subject, we introduce 'MyClass', an unconstrained
-// attribute class with a single attribute, 'description', an ascii string.
-// For the sake of brevity, 'MyClass' defines only a default constructor, a
-// primary manipulator (the 'setDescription' method), and a basic accessor (the
-// 'description' method).  These suffice for the purposes of these example.
-// Note that proper attribute class would also implement value and copy
-// constructors, 'operator==', and other methods.
+// attribute class having a single, null-terminated ascii string attribute,
+// 'description'.  For the sake of brevity, 'MyClass' defines only a default
+// constructor, a primary manipulator (the 'setDescription' method), and a
+// basic accessor (the 'description' method).  These suffice for the purposes
+// of these example.  Note that proper attribute class would also implement
+// value and copy constructors, 'operator==', an accessor for the allocator,
+// various and other methods.
 //..
     class MyClass {
-        // This unconstrained (value-semantic) attribute class has a single
-        // attribute, 'description', an ascii string.
+        // This unconstrained (value-semantic) attribute class has a single,
+        // null-terminated ascii string attribute, 'description'.
 
         // DATA
         int              d_capacity;      // available memory
@@ -223,13 +224,14 @@ typedef bslma_TestAllocatorMonitor Obj;
 
         // MANIPULATORS
         void setDescription(const char *value);
-            // Set the 'description' attribute of this object the specified
-            // 'value'.  On completion, the 'description' method returns the
-            // address of a copy of the ascii string at 'value'.
+            // Set the null-terminated ascii string 'description' attribute of
+            // this object to the specified 'value'.  On completion, the
+            // 'description' method returns the address of a copy of the ascii
+            // string at 'value'.
 
         // ACCESSORS
         const char *description() const;
-            // Return an address providing non-modifiable access to the
+            // Return the value of the null-terminated ascii string
             // 'description' attribute of this object.
     };
 
@@ -264,17 +266,15 @@ typedef bslma_TestAllocatorMonitor Obj;
     {
         BSLS_ASSERT_SAFE(value);
 
-        int length = std::strlen(value);
-        int size   = length + 1;
+        int size = std::strlen(value) + 1;
         if (size > d_capacity) {
-            d_allocator_p->deallocate(d_description_p);
-            d_description_p = 0; // lest 'allocate' throws
-            d_capacity      = 0; // lest 'allocate' throws
+            char *oldMemory = d_description_p;
             d_description_p = (char *) d_allocator_p->allocate(size);
             d_capacity      = size;
+            d_allocator_p->deallocate(oldMemory);
+
         }
-        std::memcpy(d_description_p, value, length);
-        d_description_p[length] = '\0';
+        std::memcpy(d_description_p, value, size);
     }
 
     // ACCESSORS
@@ -284,7 +284,6 @@ typedef bslma_TestAllocatorMonitor Obj;
         return d_description_p ? d_description_p : "";
     }
 //..
-//
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -392,7 +391,7 @@ int main(int argc, char *argv[])
         bslma_TestAllocator da("default", veryVeryVeryVerbose);
         bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
 
-        bslma_TestAllocatorMonitor gam(ga), dam(da), oam(oa);
+        bslma_TestAllocatorMonitor gam(&ga), dam(&da), oam(&oa);
 
         bslma_Default::setGlobalAllocator(&ga);
         bslma_Default::setDefaultAllocatorRaw(&da);
@@ -417,7 +416,7 @@ int main(int argc, char *argv[])
 
             const char DESCRIPTION1[]="abcdefghijklmnopqrstuvwyz"
                                       "abcdefghijklmnopqrstuvwyz";
-            BSLMF_ASSERT(sizeof(obj) < sizeof(DESCRIPTION1));
+            ASSERT(sizeof(obj) < sizeof(DESCRIPTION1));
 
             obj.setDescription(DESCRIPTION1);
             ASSERT(0 == std::strcmp(DESCRIPTION1, obj.description()));
@@ -432,7 +431,7 @@ int main(int argc, char *argv[])
 // allocator, and reset the attribute of that same object, this time to a short
 // string.
 //..
-            bslma_TestAllocatorMonitor oam2(oa);
+            bslma_TestAllocatorMonitor oam2(&oa);
 
             obj.setDescription("a");
             ASSERT(0 == std::strcmp("a", obj.description()));
@@ -446,29 +445,71 @@ int main(int argc, char *argv[])
 // attribute: one that exceeds the capacity allocated for 'DESCRIPTION1'.  Use
 // the second monitor to confirm that an allocation was performed.
 //..
-            const char DESCRIPTION2[]="abcdefghijklmnopqrstuvwyz"
-                                      "abcdefghijklmnopqrstuvwyz"
-                                      "abcdefghijklmnopqrstuvwyz"
-                                      "abcdefghijklmnopqrstuvwyz";
+            bsls_Types::Int64 maxBeforeSet   = oa.numBlocksMax();
+            const char        DESCRIPTION2[] = "abcdefghijklmnopqrstuvwyz"
+                                               "abcdefghijklmnopqrstuvwyz"
+                                               "abcdefghijklmnopqrstuvwyz"
+                                               "abcdefghijklmnopqrstuvwyz"
+                                               "abcdefghijklmnopqrstuvwyz";
             obj.setDescription(DESCRIPTION2);
             ASSERT(0 == std::strcmp(DESCRIPTION2, obj.description()));
 
-            ASSERT(oam2.isTotalUp());    // object allocator used
-            ASSERT(oam2.isInUseSame());  // outstanding block (allocation)
+            ASSERT(oam2.isTotalUp());    // The object allocator used.
+
+            ASSERT(oam2.isInUseSame());  // The outstanding block (allocation)
                                          // count unchanged (even though byte
-                                         // outstanding byte count increased)
-            ASSERT(oam2.isMaxSame());    // no extra (temporary) allocations
-        }
+                                         // outstanding byte count increased).
+
+            ASSERT(oam2.isMaxUp());      // Max increased as expected, but was
+                                         // did it change only by one?  The
+                                         // monitor cannot answer that
+                                         // question.
+
+            bsls_Types::Int64 maxAfterSet = oa.numBlocksMax();
+
+            ASSERT(1 == maxAfterSet - maxBeforeSet);
 //..
-// Notice that the number of outstanding allocations remained unchanged: one
-// block was deallocated, one block (a larger block) was allocated.  Moreover,
-// the lack of change in the maximum of outstanding blocks ('isMaxSame') shows
-// there were no extra (temporary) allocations.
+// Notice that our test allocator monitor cannot confirm that the allocator's
+// maximum increased by exactly one (since, for exception safely, we allocate
+// before deallocate).  In this case, we must directly extract statistics
+// from the test allocator.
 //
-// Finally, check that none of these operations used the default or global
+// Note that repeating the the allocate/deallocate scenario in 'setDescription'
+// does *not* further increase the maxium. 
+//..
+            bslma_TestAllocatorMonitor oam3(&oa);
+
+            const char DESCRIPTION3[] = "abcdefghijklmnopqrstuvwyz"
+                                        "abcdefghijklmnopqrstuvwyz"
+                                        "abcdefghijklmnopqrstuvwyz"
+                                        "abcdefghijklmnopqrstuvwyz"
+                                        "abcdefghijklmnopqrstuvwyz"
+                                        "abcdefghijklmnopqrstuvwyz"
+                                        "abcdefghijklmnopqrstuvwyz"
+                                        "abcdefghijklmnopqrstuvwyz"
+                                        "abcdefghijklmnopqrstuvwyz";
+
+            obj.setDescription(DESCRIPTION3);
+            ASSERT(0 == std::strcmp(DESCRIPTION3, obj.description()));
+
+            ASSERT(oam3.isTotalUp());    // The object allocator used.
+
+            ASSERT(oam3.isInUseSame());  // The outstanding block (allocation)
+                                         // count unchanged (even though byte
+                                         // outstanding byte count increased).
+
+            ASSERT(oam3.isMaxSame());    // A repeat of the scenario for
+                                         // 'DESCRIPTION2', so no change in the
+                                         // allocator's maximum.
+//..
+// Now, we close scope and check that all object memory was deallocated
+//..
+        }
+        ASSERT(oam.isInUseSame()); // All object allocator memory deallocated.
+//..
+// Finally, we check that none of these operations used the default or global
 // allocators.
 //..
-        ASSERT(oam.isInUseSame()); // All object allocator memory deallocated.
         ASSERT(gam.isTotalSame()); // Global  allocator was never used.
         ASSERT(dam.isTotalSame()); // Default allocator was never used.
     }
@@ -610,7 +651,7 @@ int main(int argc, char *argv[])
                   TestObj  mta("test allocator", veryVeryVeryVerbose);
             const TestObj&  ta   = mta;
 
-                      Obj  mtam1(ta);
+                      Obj  mtam1(&ta);
             const     Obj&  tam1 = mtam1;
 
             ALLOC_INUSE(LINE, tam1, "SAME");
@@ -629,7 +670,7 @@ int main(int argc, char *argv[])
             ALLOC_MAX  (LINE, tam1, "UP");
             ALLOC_TOTAL(LINE, tam1, "UP");
 
-                      Obj  mtam2(ta);
+                      Obj  mtam2(&ta);
             const     Obj&  tam2 = mtam2;
 
                                              ALLOC_INUSE(LINE, tam2, "SAME");
@@ -713,7 +754,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         bslma_TestAllocator        ta("test allocator", veryVeryVeryVerbose);
-        bslma_TestAllocatorMonitor tam(ta);
+        bslma_TestAllocatorMonitor tam(&ta);
 
         ASSERT(tam.isTotalSame());
         ASSERT(tam.isInUseSame());
