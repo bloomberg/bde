@@ -2685,6 +2685,7 @@ int main(int argc, char *argv[])
         seedRandChar(0x12345678);
 
         char bufToWrite[1 << 16];
+        Int64 *first8Bytes = (Int64 *) &bufToWrite;
         const int sz = sizeof(bufToWrite);
         for (char *pc = bufToWrite; pc < bufToWrite + sz; ++pc) {
             *pc = randChar();
@@ -2693,6 +2694,7 @@ int main(int argc, char *argv[])
         for (Int64 j = 0; j < fileSize; ) {
             Int64 nextGoal = j + halfGig;
             for (; j < nextGoal; j += sz) {
+                *first8Bytes = j;
                 int sts = sb.sputn(bufToWrite, sz);
                 LOOP_ASSERT(sts, sz == sts);
             }
@@ -2708,6 +2710,7 @@ int main(int argc, char *argv[])
         for (Int64 j = 0; j < fileSize; ) {
             Int64 nextGoal = j + halfGig;
             for (; j < nextGoal; j += sz) {
+                *first8Bytes = j;
                 bsl::memset(readBuf, 0, sz);
                 ASSERT(sz == sb.sgetn(readBuf, sz));
 
@@ -2726,6 +2729,7 @@ int main(int argc, char *argv[])
         for (Int64 j = 0; j < fileSize; ) {
             Int64 nextGoal = j + halfGig;
             for (; j < nextGoal; j += sz) {
+                *first8Bytes = j;
                 bsl::memset(readBuf, 0, sz);
                 ASSERT(sz == sb.sgetn(readBuf, sz));
 
@@ -2741,6 +2745,7 @@ int main(int argc, char *argv[])
         for (Int64 j = 0; j < fileSize; ) {
             Int64 nextGoal = j + halfGig;
             for (; j < nextGoal; j += sz) {
+                *first8Bytes = j;
                 bsl::memset(readBuf, 0, sz);
                 ASSERT(sz == FileUtil::read(fd, readBuf, sz));
 
