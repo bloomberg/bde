@@ -1,5 +1,4 @@
 // bsls_util.t.cpp                                                    -*-C++-*-
-
 #include <bsls_util.h>
 
 #include <stdio.h>
@@ -12,18 +11,15 @@ using namespace BloombergLP;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// 'bsls_Util' is a very simple class consisting of only one utility function.
-// The main concerns are that the function compiles and returns a pointer to an
-// object even if that object's class has an overloaded 'operator&' and that
-// the resulting pointer has the correct 'const' and/or 'volatile'
-// qualifications.
+// 'bsls_Util' is a utility class, where each function will be tested in a
+// separate test case.  Any significant test machinery will be tested before
+// any function whose test case relies upon it.
 //-----------------------------------------------------------------------------
-// [3] TYPE *bsls_Util::addressOf(TYPE&);
-// [4] BSLS_UTIL_ADDRESSOF macro
+// [2] TYPE *bsls_Util::addressOf(TYPE&);
+// [3] BSLS_UTIL_ADDRESSOF macro
 //-----------------------------------------------------------------------------
-// [1] BREATHING TEST
-// [2] TEST APPARATUS
-// [5] USAGE EXAMPLE
+// [1] TEST APPARATUS
+// [4] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //==========================================================================
@@ -54,29 +50,29 @@ void aSsErT(int c, const char *s, int i)
 // NOTE: This implementation of LOOP_ASSERT macros must use printf since
 //       cout uses new and must not be called during exception testing.
 
-#define LOOP_ASSERT(I,X) { \
+#define LOOP_ASSERT(I,X) {                                         \
     if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\n"); \
                 fflush(stdout); aSsErT(1, #X, __LINE__); } }
 
-#define LOOP2_ASSERT(I,J,X) { \
+#define LOOP2_ASSERT(I,J,X) {                                      \
     if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
                 printf("%s", #J ": "); dbg_print(J); printf("\n"); \
                 fflush(stdout); aSsErT(1, #X, __LINE__); } }
 
-#define LOOP3_ASSERT(I,J,K,X) {                    \
+#define LOOP3_ASSERT(I,J,K,X) {                                    \
     if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
                 printf("%s", #J ": "); dbg_print(J); printf("\t"); \
                 printf("%s", #K ": "); dbg_print(K); printf("\n"); \
                 fflush(stdout); aSsErT(1, #X, __LINE__); } }
 
-#define LOOP4_ASSERT(I,J,K,L,X) {                  \
+#define LOOP4_ASSERT(I,J,K,L,X) {                                  \
     if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
                 printf("%s", #J ": "); dbg_print(J); printf("\t"); \
                 printf("%s", #K ": "); dbg_print(K); printf("\t"); \
                 printf("%s", #L ": "); dbg_print(L); printf("\n"); \
                 fflush(stdout); aSsErT(1, #X, __LINE__); } }
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                \
+#define LOOP5_ASSERT(I,J,K,L,M,X) {                                \
     if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
                 printf("%s", #J ": "); dbg_print(J); printf("\t"); \
                 printf("%s", #K ": "); dbg_print(K); printf("\t"); \
@@ -97,34 +93,46 @@ void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
+class BadType {
+    // This class supplies an overload for the unary 'operator&' in order to
+    // test the correct behavior of the 'bsls_Util::addressOf' function.  Each
+    // 'BadType' object will reports its address as that returned by the
+    // 'bogusPtr' method, which points to some statically allocated memory
+    // outside the object itself.  The true address of such an object can be
+    // discovered by calling the 'realAddress' method.
 
-class TestType
-{
-    int        d_dummy;
-    static int d_bogus;
+    // DATA
+    int        d_dummy; // Some data to avoid empty-class optimizations
+    static int d_bogus; // statically allocated object representing bad address
 
   public:
-    explicit TestType(int = 0) { }
+    // CLASS METHODS
+    static BadType *bogusPtr() {
+        // Return the address of some valid memory that is not within the
+        // footprint of any 'BadType' object.
+        return reinterpret_cast<BadType*>(&d_bogus); 
+    }
 
-    static TestType *bogusPtr()
-        { return reinterpret_cast<TestType*>(&d_bogus); }
+    // CREATORS
+    explicit BadType(int val = 0) : d_dummy(val) { }
+        // Create a 'BadType' object.
 
-    TestType                *operator&()                { return bogusPtr(); }
-    TestType const          *operator&() const          { return bogusPtr(); }
-    TestType volatile       *operator&() volatile       { return bogusPtr(); }
-    TestType const volatile *operator&() const volatile { return bogusPtr(); }
+    // ACCESSORS
+    BadType                *operator&()                { return bogusPtr(); }
+    BadType const          *operator&() const          { return bogusPtr(); }
+    BadType volatile       *operator&() volatile       { return bogusPtr(); }
+    BadType const volatile *operator&() const volatile { return bogusPtr(); }
         // Overload operator& to return something other than the address of
         // this object.
 
-    TestType                *realAddress()                { return this; }
-    TestType const          *realAddress() const          { return this; }
-    TestType volatile       *realAddress() volatile       { return this; }
-    TestType const volatile *realAddress() const volatile { return this; }
+    BadType                *realAddress()                { return this; }
+    BadType const          *realAddress() const          { return this; }
+    BadType volatile       *realAddress() volatile       { return this; }
+    BadType const volatile *realAddress() const volatile { return this; }
         // Return the actual address of this object.
 };
 
-int TestType::d_bogus = 0;
+int BadType::d_bogus = 0;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -161,44 +169,58 @@ CvQualification cvqOfPtr(const volatile T *p) { return CVQ_CONST_VOLATILE; }
 // This section illustrates intended usage of this component.
 //
 ///Example 1: Obtain the address of a 'class' that defines 'operator&'.
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // There are times, especially within low-level library functions, where it is
 // necessary to obtain the address of an object even if that object's class
 // overloads 'operator&' to return something other than the object's address.
 //
-// Assume we have a special reference-like type that can refer to a single bit:
+// First we create a special reference-like type that can refer to a single
+// bit within a byte:
 //..
     class BitReference {
+        // DATA
         char *d_byteptr_p;
         int   d_bitpos;
 
       public:
+        // CREATORS
         BitReference(char *byteptr = 0, int bitpos = 0)
-            : d_byteptr(byteptr), d_bitpos(bitpos) { }
+        : d_byteptr_p(byteptr)
+        , d_bitpos(bitpos)
+        {
+        }
 
-        operator bool() const { return (*d_byteptr >> d_bitpos) & 1; }
+        // ACCESSORS
+        operator bool() const { return (*d_byteptr_p >> d_bitpos) & 1; }
 
-        char *byteptr() const { return d_byteptr; }
+        char *byteptr() const { return d_byteptr_p; }
         int bitpos() const { return d_bitpos; }
     };
 //..
-// and a pointer-like type that can point to a single bit:
+// Then, we create a pointer-like type that can point to a single bit:
 //..
     class BitPointer {
+        // DATA
         char *d_byteptr_p;
         int   d_bitpos;
 
       public:
+        // CREATORS
         BitPointer(char *byteptr = 0, int bitpos = 0)
-            : d_byteptr(byteptr), d_bitpos(bitpos) { }
+        : d_byteptr_p(byteptr)
+        , d_bitpos(bitpos)
+        { 
+        }
 
+        // ACCESSORS
         BitReference operator*() const
-            { return BitReference(d_byteptr, d_bitpos); }
+            { return BitReference(d_byteptr_p, d_bitpos); }
 
         // etc.
     };
 //..
-// To complete the picture, we overload 'operator&' for 'BitReference' to
-// return a 'BitPointer' instead of a raw pointer:
+// Next, we overload 'operator&' for 'BitReference' to return a 'BitPointer'
+// instead of a raw pointer, completing the picture:
 //..
     inline BitPointer operator&(const BitReference& ref) {
         return BitPointer(ref.byteptr(), ref.bitpos());
@@ -219,7 +241,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -239,9 +261,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting USAGE EXAMPLE"
                             "\n=====================\n");
 
-// However, there are times when it might be desirable to get the true
-// address of a 'BitReference'.  Since the above overload prevents
-// the obvious syntax from working, we use 'bsls_Util::addressOf' to accomplish
+// Finally, we note that there are times when it might be desirable to get the
+// true address of a 'BitReference'.  Since the above overload prevents the
+// obvious syntax from working, we use 'bsls_Util::addressOf' to accomplish
 // this task.
 //
 // First, we create a 'BitReference' object:
@@ -249,7 +271,7 @@ int main(int argc, char *argv[])
     char c[4];
     BitReference br(c, 3);
 //..
-// Now, we invoke 'bsls_Util::addressOf' to obtain and save the address of
+// Then, we invoke 'bsls_Util::addressOf' to obtain and save the address of
 // 'br':
 //..
     BitReference *p = bsls_Util::addressOf(br);  // OK
@@ -266,44 +288,44 @@ int main(int argc, char *argv[])
     ASSERT(3 == p->bitpos());
 //..
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
-        // TEST: bsls_Util::addressOf
+        // TESTING MACRO BSLS_UTIL_ADDRESSOF
         //
         // Concerns:
         //: 1 The macro applies 'bsls_Util::addressOf' on Windows and
         //:   'operator&' on every other platform.
         //
         // Plan:
-        //: 1 Create an object of type 'TestType' (see GLOBAL
+        //: 1 Create an object of type 'BadType' (see GLOBAL
         //:   TYPEDEFS/CONSTANTS FOR TESTING AND VARIABLES) with an overloaded
         //:   'operator&' and verify that 'bsls_Util::addressOf' invokes
         //:   'operator&' on UNIX, and that on Windows it returns the address
-        //:    of the created object instead.
+        //:    of the created object instead. (C-1)
         //
         // Testing:
-        //   bsls_Util::addressOf(X)
+        //   BSLS_UTIL_ADDRESSOF
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TEST: bsls_Util::addressOf\n"
-                            "==========================");
+        if (verbose) printf("\nTESTING MACRO BSLS_UTIL_ADDRESSOF"
+                            "\n=================================\n");
 
-        TestType mX; const TestType& X = mX;
+        BadType mX; const BadType& X = mX;
 
 #ifndef BDE_USE_ADDRESSOF
         if (verbose)
-              printf("\nTest that 'bsls_Util::addressOf' return 'bogusPtr'\n");
+             printf("\nTest that 'bsls_Util::addressOf' returns 'bogusPtr'\n");
         ASSERT(X.bogusPtr() == BSLS_UTIL_ADDRESSOF(X));
 #else
         if (verbose)
-              printf("\nTest that 'bsls_Util::addressOf' return '&X'\n");
+             printf("\nTest that 'bsls_Util::addressOf' returns '&X'\n");
         ASSERT(X.realAddress() == BSLS_UTIL_ADDRESSOF(X));
 #endif
 
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
-        // FULL TEST
+        // TESTING bsls_Util::addressOf
         //
         // Concerns:
         //: 1 Calling 'bsls_Util::addressOf' on an object will return the
@@ -317,10 +339,10 @@ int main(int argc, char *argv[])
         //:   effect as on an (lvalue) object.
         //
         // Plan:
-        //: 1 Create a number of objects of types 'int' and 'TestType', where
-        //:   'TestType' has an overloaded 'operator&'.  Test that the pointer
+        //: 1 Create a number of objects of types 'int' and 'BadType', where
+        //:   'BadType' has an overloaded 'operator&'.  Test that the pointer
         //:   returned from calling 'addressOf' on each points to that object.
-        //:   (In the case of 'TestType', the 'realAddress' method returns the
+        //:   (In the case of 'BadType', the 'realAddress' method returns the
         //:   true address of the object. (C-1, 3)
         //:
         //: 2 Using objects and references with different cv qualifications,
@@ -331,61 +353,78 @@ int main(int argc, char *argv[])
         //   TYPE *bsls_Util::addressOf(TYPE&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nFULL TEST"
-                            "\n=========\n");
+        if (verbose) printf("\nTESTING bsls_Util::addressOf"
+                            "\n============================\n");
 
-        int                i   = 0;
-        int const          ci  = 0;
-        int       volatile vi  = 0;
+        if (verbose) printf("\nTesting addressOf(int)\n");
+
+        int                  i = 0;
+        int const           ci = 0;
+        int       volatile  vi = 0;
         int const volatile cvi = 0;
 
-        ASSERT(&i   == bsls_Util::addressOf(i));
-        ASSERT(&ci  == bsls_Util::addressOf(ci));
-        ASSERT(&vi  == bsls_Util::addressOf(vi));
+        ASSERT(&  i == bsls_Util::addressOf(  i));
+        ASSERT(& ci == bsls_Util::addressOf( ci));
+        ASSERT(& vi == bsls_Util::addressOf( vi));
         ASSERT(&cvi == bsls_Util::addressOf(cvi));
 
-        TestType                x(0);
-        TestType const          cx(0);
-        TestType       volatile vx(0);
-        TestType const volatile cvx(0);
+        ASSERT(CVQ_UNQUALIFIED    == cvqOfPtr(bsls_Util::addressOf(  i)));
+        ASSERT(CVQ_CONST          == cvqOfPtr(bsls_Util::addressOf( ci)));
+        ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls_Util::addressOf( vi)));
+        ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(bsls_Util::addressOf(cvi)));
 
-        ASSERT(x.realAddress()   == bsls_Util::addressOf(x));
-        ASSERT(cx.realAddress()  == bsls_Util::addressOf(cx));
-        ASSERT(vx.realAddress()  == bsls_Util::addressOf(vx));
+        if (verbose) printf("\nTesting addressOf(BadType)\n");
+
+        BadType                  x(0);
+        BadType const           cx(0);
+        BadType       volatile  vx(0);
+        BadType const volatile cvx(0);
+
+        ASSERT(  x.realAddress() == bsls_Util::addressOf(  x));
+        ASSERT( cx.realAddress() == bsls_Util::addressOf( cx));
+        ASSERT( vx.realAddress() == bsls_Util::addressOf( vx));
         ASSERT(cvx.realAddress() == bsls_Util::addressOf(cvx));
 
-        ASSERT(CVQ_UNQUALIFIED    == cvqOfPtr(bsls_Util::addressOf(x)));
-        ASSERT(CVQ_CONST          == cvqOfPtr(bsls_Util::addressOf(cx)));
-        ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls_Util::addressOf(vx)));
+        ASSERT(CVQ_UNQUALIFIED    == cvqOfPtr(bsls_Util::addressOf(  x)));
+        ASSERT(CVQ_CONST          == cvqOfPtr(bsls_Util::addressOf( cx)));
+        ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls_Util::addressOf( vx)));
         ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(bsls_Util::addressOf(cvx)));
 
+        if (verbose) printf("\nTesting addressOf(reference to int)\n");
 
-        int               & ri   = i;
-        int const         & cri  = i;
-        int       volatile& vri  = i;
+        int               &   ri = i;
+        int const         &  cri = i;
+        int       volatile&  vri = i;
         int const volatile& cvri = i;
 
-        ASSERT(&i == bsls_Util::addressOf(ri));
-        ASSERT(&i == bsls_Util::addressOf(cri));
-        ASSERT(&i == bsls_Util::addressOf(vri));
+        ASSERT(&i == bsls_Util::addressOf(  ri));
+        ASSERT(&i == bsls_Util::addressOf( cri));
+        ASSERT(&i == bsls_Util::addressOf( vri));
         ASSERT(&i == bsls_Util::addressOf(cvri));
 
-        TestType               & rx   = x;
-        TestType const         & crx  = x;
-        TestType       volatile& vrx  = x;
-        TestType const volatile& cvrx = x;
+        ASSERT(CVQ_UNQUALIFIED    == cvqOfPtr(bsls_Util::addressOf(  ri)));
+        ASSERT(CVQ_CONST          == cvqOfPtr(bsls_Util::addressOf( cri)));
+        ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls_Util::addressOf( vri)));
+        ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(bsls_Util::addressOf(cvri)));
 
-        ASSERT(x.realAddress() == bsls_Util::addressOf(rx));
-        ASSERT(x.realAddress() == bsls_Util::addressOf(crx));
-        ASSERT(x.realAddress() == bsls_Util::addressOf(vrx));
+        if (verbose) printf("\nTesting addressOf(reference to BadType)\n");
+
+        BadType               &   rx = x;
+        BadType const         &  crx = x;
+        BadType       volatile&  vrx = x;
+        BadType const volatile& cvrx = x;
+
+        ASSERT(x.realAddress() == bsls_Util::addressOf(  rx));
+        ASSERT(x.realAddress() == bsls_Util::addressOf( crx));
+        ASSERT(x.realAddress() == bsls_Util::addressOf( vrx));
         ASSERT(x.realAddress() == bsls_Util::addressOf(cvrx));
 
-        ASSERT(CVQ_UNQUALIFIED    == cvqOfPtr(bsls_Util::addressOf(rx)));
-        ASSERT(CVQ_CONST          == cvqOfPtr(bsls_Util::addressOf(crx)));
-        ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls_Util::addressOf(vrx)));
+        ASSERT(CVQ_UNQUALIFIED    == cvqOfPtr(bsls_Util::addressOf(  rx)));
+        ASSERT(CVQ_CONST          == cvqOfPtr(bsls_Util::addressOf( crx)));
+        ASSERT(CVQ_VOLATILE       == cvqOfPtr(bsls_Util::addressOf( vrx)));
         ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(bsls_Util::addressOf(cvrx)));
       } break;
-      case 2: {
+      case 1: {
         // --------------------------------------------------------------------
         // TESTING TEST APPARATUS
         //
@@ -393,17 +432,17 @@ int main(int argc, char *argv[])
         //: 1 That 'cvqOfPtr' returns the correct result for each
         //:   pointer-to-cv-qualified type.
         //:
-        //: 2 That 'realAddress' returns the true address of a 'TestType'
+        //: 2 That 'realAddress' returns the true address of a 'BadType'
         //:   object.
         //:
-        //: 3 That 'TestType' overloads 'operator&' such that it returns
+        //: 3 That 'BadType' overloads 'operator&' such that it returns
         //:   something other than the address of the object.
         //
         // Test Plan:
         //: 1 Call 'cvqOfPtr' with pointers of different cv-qualification and
         //:   verify the return value. (C-1)
         //:
-        //: 2 Construct a 'TestType' object at a known address, by using an
+        //: 2 Construct a 'BadType' object at a known address, by using an
         //:   array of sufficient 'char's.  Initialize a reference of each
         //:   cv-qualification type referring to this object, and verify that
         //:   calling 'realAddress' returns the same address as the backing
@@ -414,8 +453,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   CvQualification cvqOfPtr(T *p);
-        //   TestType *TestType::operator&();
-        //   TestType *TestType::realAddress();
+        //   BadType *BadType::operator&();
+        //   BadType *BadType::realAddress();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TEST APPARATUS"
@@ -425,65 +464,39 @@ int main(int argc, char *argv[])
 
         int dummy = 7;
 
-        void                *p   = &dummy;
-        void const          *cp  = &dummy;
-        int        volatile *vp  = &dummy;
+        void                *  p = &dummy;
+        void const          * cp = &dummy;
+        int        volatile * vp = &dummy;
         int  const volatile *cvp = &dummy;
 
-        ASSERT(CVQ_UNQUALIFIED    == cvqOfPtr(p));
-        ASSERT(CVQ_CONST          == cvqOfPtr(cp));
-        ASSERT(CVQ_VOLATILE       == cvqOfPtr(vp));
+        ASSERT(CVQ_UNQUALIFIED    == cvqOfPtr(  p));
+        ASSERT(CVQ_CONST          == cvqOfPtr( cp));
+        ASSERT(CVQ_VOLATILE       == cvqOfPtr( vp));
         ASSERT(CVQ_CONST_VOLATILE == cvqOfPtr(cvp));
 
-        if (verbose) printf("\nTesting TestType::realAddress()\n");
+        if (verbose) printf("\nTesting BadType::realAddress()\n");
 
-        char buffer[sizeof(TestType)];
+        char buffer[sizeof(BadType)];
         void * const trueAddress = buffer;
 
-        TestType *pX = new(trueAddress)TestType(0);
+        BadType *pX = new(trueAddress)BadType(0);
 
-        TestType&                x    = *pX;
-        const TestType&          cx   = *pX;
-        volatile TestType&       vx   = *pX;
-        const volatile TestType& cvx  = *pX;
+        BadType               &   x  = *pX;
+        BadType const         &  cx  = *pX;
+        BadType       volatile&  vx  = *pX;
+        BadType const volatile& cvx  = *pX;
 
-        ASSERT(trueAddress == x.realAddress());
-        ASSERT(trueAddress == cx.realAddress());
-        ASSERT(trueAddress == vx.realAddress());
+        ASSERT(trueAddress ==   x.realAddress());
+        ASSERT(trueAddress ==  cx.realAddress());
+        ASSERT(trueAddress ==  vx.realAddress());
         ASSERT(trueAddress == cvx.realAddress());
 
-        if (verbose) printf("\nTesting operator&(TestType)\n");
+        if (verbose) printf("\nTesting operator&(BadType)\n");
 
-        ASSERT(&x   != x.realAddress());
-        ASSERT(&cx  != cx.realAddress());
-        ASSERT(&vx  != vx.realAddress());
+        ASSERT(&  x !=   x.realAddress());
+        ASSERT(& cx !=  cx.realAddress());
+        ASSERT(& vx !=  vx.realAddress());
         ASSERT(&cvx != cvx.realAddress());
-      } break;
-      case 1: {
-        // --------------------------------------------------------------------
-        // BREATHING TEST
-        //
-        // Plan:
-        //   We want to exercise basic functionality by using 'addressOf' on
-        //   both a "normal" type ('int') and a type for which 'operator&' is
-        //   overloaded ('TestType').  In both cases, we verify that the
-        //   return value of 'addressOf' is the true address of the object.
-        //
-        // Testing:
-        //   This "test" *exercises* basic functionality.
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nTESTING TEST APPARATUS"
-                            "\n======================\n");
-
-        double d;
-        double *dp = bsls_Util::addressOf(d);
-        ASSERT(&d == dp);
-
-        const TestType x(0);
-        const TestType *xp = bsls_Util::addressOf(x);
-        ASSERT(x.realAddress() == xp);
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

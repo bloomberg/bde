@@ -15,64 +15,73 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component supplies essential low-level utilities for
-// implementing generic facilities like the C++ standard library.  The
-// 'addressOf' function defined in this component provides the ability to
-// determine the address of an object, even if 'operator&' is overloaded.  It
-// conforms to the C++11 definition for 'addressof' as specified in the section
-// [specialized.addressof] (20.6.12.1) of the C++11 standard, except that it
-// will not return the address of a function reference.
+// implementing generic facilities like the C++ standard library.
 //
 ///Usage
 ///-----
 // This section illustrates intended usage of this component.
 //
 ///Example 1: Obtain the address of a 'class' that defines 'operator&'.
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // There are times, especially within low-level library functions, where it is
 // necessary to obtain the address of an object even if that object's class
 // overloads 'operator&' to return something other than the object's address.
 //
-// Assume we have a special reference-like type that can refer to a single bit:
+// First we create a special reference-like type that can refer to a single
+// bit within a byte:
 //..
 //  class BitReference {
-//      char *d_byteptr;
+//      // DATA
+//      char *d_byteptr_p;
 //      int   d_bitpos;
 //
 //    public:
+//      // CREATORS
 //      BitReference(char *byteptr = 0, int bitpos = 0)
-//          : d_byteptr(byteptr), d_bitpos(bitpos) { }
+//      : d_byteptr_p(byteptr)
+//      , d_bitpos(bitpos)
+//      {
+//      }
 //
-//      operator bool() const { return (*d_byteptr >> d_bitpos) & 1; }
+//      // ACCESSORS
+//      operator bool() const { return (*d_byteptr_p >> d_bitpos) & 1; }
 //
-//      char *byteptr() const { return d_byteptr; }
+//      char *byteptr() const { return d_byteptr_p; }
 //      int bitpos() const { return d_bitpos; }
 //  };
 //..
-// and a pointer-like type that can point to a single bit:
+// Then, we create a pointer-like type that can point to a single bit:
 //..
 //  class BitPointer {
-//      char *d_byteptr;
+//      // DATA
+//      char *d_byteptr_p;
 //      int   d_bitpos;
 //
 //    public:
+//      // CREATORS
 //      BitPointer(char *byteptr = 0, int bitpos = 0)
-//          : d_byteptr(byteptr), d_bitpos(bitpos) { }
+//      : d_byteptr_p(byteptr)
+//      , d_bitpos(bitpos)
+//      { 
+//      }
 //
+//      // ACCESSORS
 //      BitReference operator*() const
-//          { return BitReference(d_byteptr, d_bitpos); }
+//          { return BitReference(d_byteptr_p, d_bitpos); }
 //
 //      // etc.
 //  };
 //..
-// To complete the picture, we overload 'operator&' for 'BitReference' to
-// return a 'BitPointer' instead of a raw pointer:
+// Next, we overload 'operator&' for 'BitReference' to return a 'BitPointer'
+// instead of a raw pointer, completing the picture:
 //..
 //  inline BitPointer operator&(const BitReference& ref) {
 //      return BitPointer(ref.byteptr(), ref.bitpos());
 //  }
 //..
-// However, there are times when it might be desirable to get the true
-// address of a 'BitReference'.  Since the above overload prevents
-// the obvious syntax from working, we use 'bsls_Util::addressOf' to accomplish
+// Finally, we note that there are times when it might be desirable to get the
+// true address of a 'BitReference'.  Since the above overload prevents the
+// obvious syntax from working, we use 'bsls_Util::addressOf' to accomplish
 // this task.
 //
 // First, we create a 'BitReference' object:
@@ -80,7 +89,7 @@ BSLS_IDENT("$Id: $")
 //  char c[4];
 //  BitReference br(c, 3);
 //..
-// Now, we invoke 'bsls_Util::addressOf' to obtain and save the address of
+// Then, we invoke 'bsls_Util::addressOf' to obtain and save the address of
 // 'br':
 //..
 //  BitReference *p = bsls_Util::addressOf(br);  // OK
@@ -103,12 +112,16 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 struct bsls_Util {
+    // This utility class supplies essential low-level utilities for
+    // implementing generic facilities like the C++ standard library.
 
     template <class BSLS_TYPE>
     static BSLS_TYPE *addressOf(BSLS_TYPE& obj);
-        // Return the address of the specified 'obj', even in the presence of
-        // an overloaded 'operator&' for 'BSLS_TYPE'.  Behavior is undefined
-        // unless 'BSLS_TYPE' is an object type.
+        // Return the address of the specified 'obj', even if 'operator&' is
+        // overloaded for objects of type 'BSLS_TYPE'.  This function conforms
+        // to the C++11 definition for 'addressof' as specified in the section
+        // [specialized.addressof] (20.6.12.1) of the C++11 standard, except
+        // that behaviour is undefined if 'BSLS_TYPE' is not an object type.
 };
 
                                    // ======
