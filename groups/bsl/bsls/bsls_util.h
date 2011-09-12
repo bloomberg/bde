@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide essential. low-level support for portable generic code.
+//@PURPOSE: Provide essential, low-level support for portable generic code.
 //
 //@CLASSES:
 //  bsls_Util: utility class supplying essential, low-level functionality
@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Obtain the address of a 'class' that defines 'operator&'.
+///Example 1: Obtain the Address of a 'class' That Defines 'operator&'.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // There are times, especially within low-level library functions, where it is
 // necessary to obtain the address of an object even if that object's class
@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 //      // ACCESSORS
 //      BitReference operator*() const
 //      {
-//          return BitReference(d_byteptr_p, d_bitpos); 
+//          return BitReference(d_byteptr_p, d_bitpos);
 //      }
 //
 //      // etc.

@@ -216,7 +216,7 @@ CvQualification cvqOfPtr(const volatile T *p) { return CVQ_CONST_VOLATILE; }
         // ACCESSORS
         BitReference operator*() const
         {
-            return BitReference(d_byteptr_p, d_bitpos); 
+            return BitReference(d_byteptr_p, d_bitpos);
         }
 
         // etc.
