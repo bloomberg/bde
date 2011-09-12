@@ -2811,8 +2811,10 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM__OS_UNIX
         const char slash = '/';
+        const char *nl = " \n";
 #else
         const char slash = '\\';
+        const char *nl = "\n";
 #endif
 
         cout << "Enter dirname (starts with '" << slash << "')\n" <<
@@ -2830,7 +2832,7 @@ int main(int argc, char *argv[])
 
         ASSERT(FileUtil::isDirectory(fn));
 
-        fn += "bdesu_FdStreamBuf.-1.";
+        fn += "bdesu_FdStreamBuf.-3.";
         {
             bsl::stringstream s;
             s << getProcessId();
@@ -2869,15 +2871,19 @@ int main(int argc, char *argv[])
         bsl::ostream os(&sb);
 
         while (bytesWritten < fileSize) {
-            os << ' ' << ++numToWrite;
-            bytesWritten += digits(numToWrite) + 1;
+            os << ++numToWrite << nl;
+            bytesWritten += digits(numToWrite) + 2;
             if (bytesWritten >= mileStone) {
                 cout << bytesWritten << " bytes written\n";
                 mileStone += deltaMileStone;
             }
         }
         
-        ASSERT(0 == FileUtil::close(fd));
+        ASSERT(!sb.clear());
+
+        LOOP2_ASSERT(bytesWritten, FileUtil::getFileSize(fn),
+                                    bytesWritten == FileUtil::getFileSize(fn));
+
         fd = FileUtil::open(fn, false, true);
         ASSERT(!sb.reset(fd, true, true, true));
 
@@ -2894,7 +2900,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(x, expected, x == expected);
                 break;
             }
-            bytesRead += digits(x) + 1;
+            bytesRead += digits(x) + 2;
             if (bytesRead >= mileStone) {
                 cout << bytesRead << " bytes read\n";
                 mileStone += deltaMileStone;
