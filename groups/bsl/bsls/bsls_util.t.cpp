@@ -110,7 +110,7 @@ class BadType {
     static BadType *bogusPtr() {
         // Return the address of some valid memory that is not within the
         // footprint of any 'BadType' object.
-        return reinterpret_cast<BadType*>(&d_bogus); 
+        return reinterpret_cast<BadType*>(&d_bogus);
     }
 
     // CREATORS
@@ -209,7 +209,7 @@ CvQualification cvqOfPtr(const volatile T *p) { return CVQ_CONST_VOLATILE; }
         BitPointer(char *byteptr = 0, int bitpos = 0)
         : d_byteptr_p(byteptr)
         , d_bitpos(bitpos)
-        { 
+        {
         }
 
         // ACCESSORS

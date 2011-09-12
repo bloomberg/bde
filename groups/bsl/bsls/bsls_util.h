@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
 //      BitPointer(char *byteptr = 0, int bitpos = 0)
 //      : d_byteptr_p(byteptr)
 //      , d_bitpos(bitpos)
-//      { 
+//      {
 //      }
 //
 //      // ACCESSORS
