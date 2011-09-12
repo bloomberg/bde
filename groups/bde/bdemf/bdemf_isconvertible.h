@@ -16,7 +16,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Paul Staniforth (pstaniforth)
 //
-//@SEE_ALSO: 'bdemf_metavalue.h'
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a meta-function (i.e., a compile-time
 // function using the C++ type system) for checking whether a conversion exists
@@ -59,16 +59,16 @@ BDES_IDENT("$Id: $")
 // constructor that takes a pointer to an allocator as its sole argument, and
 // another version if the type provides only a default constructor.
 //
-// The first 'createObj' function takes a 'bdemf_MetaInt<0>' as its last
+// The first 'createObj' function takes a 'bslmf_MetaInt<0>' as its last
 // argument, whereas the second 'createObj' function takes a
-// 'bdemf_MetaInt<1>' object.  The result of the 'isConvertible'
+// 'bslmf_MetaInt<1>' object.  The result of the 'isConvertible'
 // meta-function (i.e., its 'Type' member) is used to create the last argument
 // to 'createObj'.  Neither version of 'createObj' makes use of this argument
 // -- it is used only to differentiate the argument list so we can overload
 // the function.
 //..
 //     template<class T>
-//     void createObj(T *space, MyAllocator *, bdemf_MetaInt<1>)
+//     void createObj(T *space, MyAllocator *, bslmf_MetaInt<1>)
 //     {
 //        // Use the type's default constructor if
 //        // bdemf_IsConvertible<MyAllocator*, T>::VALUE == 0 -- i.e., there is
@@ -78,7 +78,7 @@ BDES_IDENT("$Id: $")
 //     }
 //
 //     template<class T>
-//     void createObj(T *space, MyAllocator *alloc, bdemf_MetaInt<0>)
+//     void createObj(T *space, MyAllocator *alloc, bslmf_MetaInt<0>)
 //     {
 //        // Use the type's constructor that takes a pointer to an allocator if
 //        // bdemf_IsConvertible<MyAllocator*, T>::VALUE == 1, i.e., there is
