@@ -168,6 +168,37 @@ int getProcessId()
 #endif
 }
 
+const struct {
+    int               d_digits;
+    bsls_Types::Int64 d_cutOff;
+} TENS[] = {
+    { 1, 0 },
+    { 2, 10 },
+    { 3, 100 },
+    { 4, 1000 },
+    { 5, 10 * 1000 },
+    { 6, 100 * 1000 },
+    { 7, 1000 * 1000 },
+    { 8, 10 * 1000 * 1000 },
+    { 9, 100 * 1000 * 1000 },
+    { 10, 1000 * 1000 * 1000 },
+    { 11, 10LL * 1000LL * 1000LL * 1000LL } };
+
+int digits(bsls_Types::Int64 n)
+{
+    ASSERT(n < TENS[10].d_cutOff);
+    ASSERT(n >= 0);
+
+    for (int i = 9; i >= 0; --i) {
+        if (n >= TENS[i].d_cutOff) {
+            return TENS[i].d_digits;
+        }
+    }
+
+    ASSERT(0);
+    return 0;
+}
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -2770,6 +2801,109 @@ int main(int argc, char *argv[])
         for (int j = 0; j < 100; ++j) {
             cout << (int) randChar() << endl;
         }
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "5G file with stream I/O test\n"
+                             "============================\n";
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+        const char slash = '/';
+#else
+        const char slash = '\\';
+#endif
+
+        cout << "Enter dirname (starts with '" << slash << "')\n" <<
+                "where 5 gigabyte file should be put: "
+             << bsl::flush;
+
+        bsl::string fn;
+
+        cin >> fn;
+
+        ASSERT(slash == fn.c_str()[0]);
+        if (slash != fn.c_str()[fn.length() - 1]) {
+            fn += slash;
+        }
+
+        ASSERT(FileUtil::isDirectory(fn));
+
+        fn += "bdesu_FdStreamBuf.-1.";
+        {
+            bsl::stringstream s;
+            s << getProcessId();
+
+            fn += s.str();
+        }
+
+        cout << "Temp file is " << fn << " -- continue(y or n)? " <<
+                bsl::flush;
+        bsl::string response;
+
+        cin >> response;
+
+        if ("y" != response) {
+            cout << "aborted\n";
+            break;
+        }
+
+        typedef bsls_Types::Int64 Int64;
+        const Int64 fileSize = ((Int64) 1 << 30) * 5;    // 5 Gig
+        const Int64 halfGig  =  (Int64) 1 << 29;
+
+        FileUtil::remove(fn);
+
+        FdType fd = FileUtil::open(fn.c_str(), true, false);
+        ASSERT(-1 != (int) fd);
+
+        Obj sb(fd, true, true, true);
+
+        Int64 bytesWritten   = 0;
+        Int64 mileStone      = 1 << 29;
+        Int64 deltaMileStone = 1 << 29;
+
+        Int64 numToWrite = 100000;
+
+        bsl::ostream os(&sb);
+
+        while (bytesWritten < fileSize) {
+            os << ' ' << ++numToWrite;
+            bytesWritten += digits(numToWrite) + 1;
+            if (bytesWritten >= mileStone) {
+                cout << bytesWritten << " bytes written\n";
+                mileStone += deltaMileStone;
+            }
+        }
+        
+        ASSERT(0 == FileUtil::close(fd));
+        fd = FileUtil::open(fn, false, true);
+        ASSERT(!sb.reset(fd, true, true, true));
+
+        bsl::istream is(&sb);
+        Int64 expected = 100000;
+
+        Int64 bytesRead = 0;
+        mileStone = deltaMileStone;
+
+        while (bytesRead < fileSize) {
+            Int64 x;
+            is >> x;
+            if (x != ++expected) {
+                LOOP2_ASSERT(x, expected, x == expected);
+                break;
+            }
+            bytesRead += digits(x) + 1;
+            if (bytesRead >= mileStone) {
+                cout << bytesRead << " bytes read\n";
+                mileStone += deltaMileStone;
+            }
+        }
+
+        ASSERT(0 == FileUtil::close(fd));
+        
+        FileUtil::remove(fn);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
