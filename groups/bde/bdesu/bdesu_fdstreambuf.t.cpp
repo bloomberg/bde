@@ -31,6 +31,7 @@ using bsl::cin;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
+using bsl::flush;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -2624,6 +2625,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "bdesu_FdStreamBuf 5 Gigabyte file\n"
                              "=================================\n";
+
+        if (verbose) {
+            P_(sizeof(bsl::streamoff));  P_(sizeof(bsl::streampos));
+            P(sizeof(bsl::streamsize));
+        }
 
 #ifdef BSLS_PLATFORM__OS_UNIX
         const char slash = '/';
