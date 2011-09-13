@@ -718,15 +718,15 @@ struct bsls_AssertTest {
         // registered assertion-failure handler function in 'bsls_assert'.
 };
 
-}  // close namespace BloombergLP
-
-#endif // test driver include guard
-
-#undef BSLS_ASSERTTEST_NORETURN
-
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
+
+}  // close namespace BloombergLP
+
+#endif // test driver internal include guard
+
+#undef BSLS_ASSERTTEST_NORETURN
 
 #endif
 

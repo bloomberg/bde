@@ -2036,6 +2036,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //===================== SAFE_2 LEVEL_ASSERT ===============================//
 
     // Reset all configuration macros
+
 #undef BDE_BUILD_TARGET_DBG
 #undef BDE_BUILD_TARGET_OPT
 #undef BDE_BUILD_TARGET_SAFE
