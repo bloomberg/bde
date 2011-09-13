@@ -2871,7 +2871,7 @@ int main(int argc, char *argv[])
         FdType fd = FileUtil::open(fn.c_str(), true, false);
         ASSERT(-1 != (int) fd);
 
-        Obj sb(fd, true, true, true);
+        Obj sb(fd, true, true, false);
 
         Int64 bytesWritten   = 0;
         Int64 mileStone      = 1 << 29;
@@ -2896,7 +2896,7 @@ int main(int argc, char *argv[])
                                     bytesWritten == FileUtil::getFileSize(fn));
 
         fd = FileUtil::open(fn, false, true);
-        ASSERT(!sb.reset(fd, true, true, true));
+        ASSERT(!sb.reset(fd, true, true, false));
 
         bsl::istream is(&sb);
         Int64 expected = 100000;
