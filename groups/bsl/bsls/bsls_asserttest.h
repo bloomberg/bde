@@ -527,20 +527,31 @@ BSLS_IDENT("$Id: $")
     }                                                                    \
 }
 
-#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
+#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
 
-#define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST) \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
+# define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
 
-#define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST) \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+#else
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
+         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
+
+# define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST) \
+         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST) \
+         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
+#endif
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-    #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST) \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
+#   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST) \
+       BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
-    #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)
+#   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)
 #endif
 
 #ifdef BSLS_ASSERT_IS_ACTIVE
@@ -563,7 +574,7 @@ BSLS_IDENT("$Id: $")
                                                                              \
         ASSERT(bsls_AssertTest::tryProbe(RESULT));                           \
     }                                                                        \
-    catch (const bsls_AssertTestException& e) {                              \
+    catch (const bsls_AssertTestException&) {                                \
         ASSERT(bsls_AssertTest::catchProbeRaw(RESULT));                      \
     }                                                                        \
 }
