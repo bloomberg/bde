@@ -23,6 +23,10 @@ using namespace bsl;  // automatically added by script
 // component.  Forwarding is implemented using 'typedef' for classes, and by
 // '#define' for macros.
 //
+// When 'BSL_LEGACY' is defined as 0, then 'BDE_ASSERT_H' and 'BDE_ASSERT_CPP',
+// the macros defined in this component, are not defined.  Consequently, there
+// is nothing to test.
+//
 // ----------------------------------------------------------------------------
 // [ 2] bdes_Assert
 // [ 2] bdes_AssertFailureHandlerGuard
@@ -95,6 +99,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
       case 2: {
         // --------------------------------------------------------------------
         // CORRECTNESS OF TYPEDEFS
@@ -173,7 +178,6 @@ int main(int argc, char *argv[])
                           << "REDEFINITION OF MACROS" << endl
                           << "----------------------" << endl;
 
-#if BSL_LEGACY == 0
 #if !defined(BDE_BUILD_TARGET_SAFE)
 
         if (veryVerbose) cout << "Confirm 'BDE_ASSERT_H' disabled" << endl;
@@ -188,7 +192,6 @@ int main(int argc, char *argv[])
 
 #endif // !defined(BDE_BUILD_TARGET_DBG)
 #endif // !defined(BDE_BUILD_TARGET_SAFE)
-#endif // BSL_LEGACY == 0
 
 #if defined(BDE_BUILD_TARGET_EXC)
         bsls_Assert::setFailureHandler(bsls_Assert::failThrow);
@@ -247,7 +250,7 @@ int main(int argc, char *argv[])
         {
             bool handlerCalledViaCppWithTrue;
             try {
-                BDE_ASSERT_H(true);
+                BDE_ASSERT_CPP(true);
                 handlerCalledViaCppWithTrue = false;
             } catch (bsls_AssertTestException) {
                 handlerCalledViaCppWithTrue = true;
@@ -256,7 +259,7 @@ int main(int argc, char *argv[])
 
             bool handlerCalledViaCppWithFalse;
             try {
-                BDE_ASSERT_H(false);
+                BDE_ASSERT_CPP(false);
                 handlerCalledViaCppWithFalse = false;
             } catch (bsls_AssertTestException) {
                 handlerCalledViaCppWithFalse = true;
@@ -294,6 +297,34 @@ int main(int argc, char *argv[])
 #endif // if defined(BDE_BUILD_TARGET_EXC)
 
       } break;
+#else
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //
+        // Concerns:
+        //: 1 The test driver behaves as expected by the test frame, even
+        //:   when 'BDE_ASSERT_H' and 'BDE_ASSERT_CPP' are not defined.
+        //
+        // Plan:
+        //: 1 Print out messages appropriate to verbosity level and exit
+        //:   indicating success.
+        //
+        // Testing:
+        //   Nothing
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "--------------" << endl;
+
+        if (veryVerbose) cout
+           << "\t'BSL_LEGACY' is defined as " << BSL_LEGACY << "."     << endl
+           << "\t'BDE_ASSERT_H' and 'BDE_ASSERT_CPP' are not defined." << endl
+           << "\t Nothing to test."                                    << endl;
+
+      } break;
+#endif // !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
