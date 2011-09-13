@@ -1329,6 +1329,41 @@ class my_UnsetVariantVisitor {
 
 //-----------------------------------------------------------------------------
 
+                        // =========================
+                        // class my_NilAssertVisitor
+                        // =========================
+
+class my_NilAssertVisitor {
+    //  This class is crafted to reproduce 'The variable nil has not yet been
+    //  assigned a value' warning on Sun, where 'nil' refers to an object in
+    //  'bdeut_Variant::apply' method.
+
+    void *d_result_p;
+
+  public:
+    my_NilAssertVisitor(void *result)
+    : d_result_p(result)
+    {
+    }
+
+    void operator()(int x) const
+    {
+    }
+
+    void operator()(const bslmf_Nil x) const
+    {
+        BSLS_ASSERT(false);
+    }
+};
+
+void dummyConvert(void *result, const bdeut_Variant<int>& value)
+{
+    my_NilAssertVisitor visitor(result);
+    value.apply(visitor);
+}
+
+//-----------------------------------------------------------------------------
+
                           // =======================
                           // class my_VariantWrapper
                           // =======================
@@ -7694,8 +7729,7 @@ int main(int argc, char *argv[])
         {
             typedef bdeut_VariantImp<bslmf_TypeList<bslmf_Nil, int> > Obj;
 
-            bslmf_Nil nil;
-            Obj variant(nil);
+            Obj variant = Obj(bslmf_Nil());
 
             ASSERT(false == variant.isUnset());
         }
@@ -7791,6 +7825,12 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(visitor.d_lastType,
                        my_UnsetVariantVisitor::TEST_ARG == visitor.d_lastType);
+        }
+
+        if (verbose) cout << "\nTesting a subtle warning case." << endl;
+        {
+            bdeut_Variant<int> v(1);
+            dummyConvert(0, v);
         }
 
 // No asserts if we're in optimized mode.
