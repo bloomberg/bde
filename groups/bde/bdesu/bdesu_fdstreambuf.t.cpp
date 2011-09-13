@@ -6,6 +6,7 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -2652,6 +2653,11 @@ int main(int argc, char *argv[])
         // Concerns:
         //
         // Plan:
+	//   Write a 5G file using an FdStreamBuf::sputn, read it back using
+	//   FdStreamBuf::sgetn, verifying the results are accurate.
+	//
+	// Results:
+	//   Succeeds on all Unix 32 bit, fails on Windows 32 bit.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "bdesu_FdStreamBuf 5 Gigabyte file\n"
@@ -2804,6 +2810,11 @@ int main(int argc, char *argv[])
       } break;
       case -3: {
         // --------------------------------------------------------------------
+	// 5G FILE WITH OSTREAM / ISTREAM BASED ON FDSTREAMBUF
+	//
+	//
+	// Results:
+        //   This test worked on all Unix platforms, 32 bit.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "5G file with stream I/O test\n"
@@ -2909,6 +2920,113 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == FileUtil::close(fd));
         
+        FileUtil::remove(fn);
+      } break;
+      case -4: {
+        // --------------------------------------------------------------------
+	// WRITE, READ 5G FILE WITH PLAIN FSTREAM
+	//
+	// Results:
+	//   This test succeeds on Linux, Solaris 32 bit, fails on HPUX, AIX
+	//   32 bit.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "5G file with fstream I/O test, no FdStreamBuf\n"
+                             "=============================================\n";
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+        const char slash = '/';
+        const char *nl = " \n";
+#else
+        const char slash = '\\';
+        const char *nl = "\n";
+#endif
+
+        cout << "Enter dirname (starts with '" << slash << "')\n" <<
+                "where 5 gigabyte file should be put: "
+             << bsl::flush;
+
+        bsl::string fn;
+
+        cin >> fn;
+
+        ASSERT(slash == fn.c_str()[0]);
+        if (slash != fn.c_str()[fn.length() - 1]) {
+            fn += slash;
+        }
+
+        ASSERT(FileUtil::isDirectory(fn));
+
+        fn += "bdesu_FdStreamBuf.-4.";
+        {
+            bsl::stringstream s;
+            s << getProcessId();
+
+            fn += s.str();
+        }
+
+        cout << "Temp file is " << fn << " -- continue(y or n)? " <<
+                bsl::flush;
+        bsl::string response;
+
+        cin >> response;
+
+        if ("y" != response) {
+            cout << "aborted\n";
+            break;
+        }
+
+        typedef bsls_Types::Int64 Int64;
+        const Int64 fileSize = ((Int64) 1 << 30) * 5;    // 5 Gig
+        const Int64 halfGig  =  (Int64) 1 << 29;
+
+        FileUtil::remove(fn);
+
+        bsl::fstream fs(fn.c_str(), bsl::ios_base::out);
+
+        Int64 bytesWritten   = 0;
+        Int64 mileStone      = 1 << 29;
+        Int64 deltaMileStone = 1 << 29;
+
+        Int64 numToWrite = 100000;
+
+        while (bytesWritten < fileSize) {
+            fs << ++numToWrite << nl;
+            bytesWritten += digits(numToWrite) + 2;
+            if (bytesWritten >= mileStone) {
+                cout << bytesWritten << " bytes written\n";
+                mileStone += deltaMileStone;
+            }
+        }
+
+        fs.close();
+
+        fs.open(fn.c_str(), bsl::ios_base::in);
+
+        LOOP2_ASSERT(bytesWritten, FileUtil::getFileSize(fn),
+                                    bytesWritten == FileUtil::getFileSize(fn));
+
+        Int64 expected = 100000;
+
+        Int64 bytesRead = 0;
+        mileStone = deltaMileStone;
+
+        while (bytesRead < fileSize) {
+            Int64 x;
+            fs >> x;
+            if (x != ++expected) {
+                LOOP2_ASSERT(x, expected, x == expected);
+                break;
+            }
+            bytesRead += digits(x) + 2;
+            if (bytesRead >= mileStone) {
+                cout << bytesRead << " bytes read\n";
+                mileStone += deltaMileStone;
+            }
+        }
+
+        fs.close();
+
         FileUtil::remove(fn);
       } break;
       default: {
