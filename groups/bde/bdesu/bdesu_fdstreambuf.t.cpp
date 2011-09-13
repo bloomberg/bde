@@ -2653,11 +2653,11 @@ int main(int argc, char *argv[])
         // Concerns:
         //
         // Plan:
-	//   Write a 5G file using an FdStreamBuf::sputn, read it back using
-	//   FdStreamBuf::sgetn, verifying the results are accurate.
-	//
-	// Results:
-	//   Succeeds on all Unix 32 bit, fails on Windows 32 bit.
+        //   Write a 5G file using an FdStreamBuf::sputn, read it back using
+        //   FdStreamBuf::sgetn, verifying the results are accurate.
+        //
+        // Results:
+        //   Succeeds on all Unix 32 bit, fails on Windows 32 bit.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "bdesu_FdStreamBuf 5 Gigabyte file\n"
@@ -2810,11 +2810,13 @@ int main(int argc, char *argv[])
       } break;
       case -3: {
         // --------------------------------------------------------------------
-	// 5G FILE WITH OSTREAM / ISTREAM BASED ON FDSTREAMBUF
-	//
-	//
-	// Results:
-        //   This test worked on all Unix platforms, 32 bit.
+        // 5G FILE WITH OSTREAM / ISTREAM BASED ON FDSTREAMBUF
+        //
+        //
+        // Results:
+        //   This test worked on all Unix platforms, 32 bit, and on Windows 32
+        //   bit.  The fact that this test succeeds on Windows 32 bit is
+        //   surprising given that test case -1 failed there.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "5G file with stream I/O test\n"
@@ -2864,7 +2866,6 @@ int main(int argc, char *argv[])
 
         typedef bsls_Types::Int64 Int64;
         const Int64 fileSize = ((Int64) 1 << 30) * 5;    // 5 Gig
-        const Int64 halfGig  =  (Int64) 1 << 29;
 
         FileUtil::remove(fn);
 
@@ -2924,11 +2925,11 @@ int main(int argc, char *argv[])
       } break;
       case -4: {
         // --------------------------------------------------------------------
-	// WRITE, READ 5G FILE WITH PLAIN FSTREAM
-	//
-	// Results:
-	//   This test succeeds on Linux, Solaris 32 bit, fails on HPUX, AIX
-	//   32 bit.
+        // WRITE, READ 5G FILE WITH PLAIN FSTREAM
+        //
+        // Results:
+        //   32 bit: This test succeeds on Linux, Solaris, and Windows, fails
+        //   on HPUX and AIX.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "5G file with fstream I/O test, no FdStreamBuf\n"
@@ -2978,7 +2979,6 @@ int main(int argc, char *argv[])
 
         typedef bsls_Types::Int64 Int64;
         const Int64 fileSize = ((Int64) 1 << 30) * 5;    // 5 Gig
-        const Int64 halfGig  =  (Int64) 1 << 29;
 
         FileUtil::remove(fn);
 
