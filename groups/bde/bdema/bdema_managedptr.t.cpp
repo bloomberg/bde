@@ -849,16 +849,38 @@ struct DObjVoid {
     }
 };
 
+template <class TYPE>
+struct ToVoid {
+    typedef void type;
+};
+
+template <class TYPE>
+struct ToVoid<const TYPE> {
+    typedef const void type;
+};
+
+template <class TYPE>
+struct ToVoid<volatile TYPE> {
+    typedef volatile void type;
+};
+
+template <class TYPE>
+struct ToVoid<const volatile TYPE> {
+    typedef const volatile void type;
+};
+
 template<class ObjectPolicy, class FactoryPolicy>
 struct DVoidFac {
     typedef typename  ObjectPolicy::ObjectType  ObjectType;
     typedef typename FactoryPolicy::FactoryType FactoryType;
 
-    typedef void DeleterType(void *, FactoryType *);
+    typedef typename ToVoid<ObjectType>::type VoidType;
+
+    typedef void DeleterType(VoidType *, FactoryType *);
 
     enum {DELETER_USES_FACTORY = FactoryPolicy::DELETER_USES_FACTORY};
 
-    static void doDelete(void * object, FactoryType * factory) {
+    static void doDelete(VoidType * object, FactoryType * factory) {
         ObjectType *obj = reinterpret_cast<ObjectType *>(object);
         if (DELETER_USES_FACTORY) {
             factory->deleteObject(obj);
@@ -937,6 +959,46 @@ void doLoadOnull(int callLine, int testLine, int index,
     const int expectedCount = *args.d_deleteDelta;
 
     args.d_p->load(0);
+    *args.d_deleteDelta = 0;
+
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                 expectedCount == *args.d_deleteCount);
+
+    POINTER_TYPE *ptr = args.d_p->ptr();
+    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+
+    // As 'p' is empty, none of its other properties have a defined state.
+}
+
+template<typename POINTER_TYPE>
+void doLoadOnullFnull(int callLine, int testLine, int index,
+                      const TestLoadArgs<POINTER_TYPE>& args)
+{
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    const int expectedCount = *args.d_deleteDelta;
+
+    args.d_p->load(0, 0);
+    *args.d_deleteDelta = 0;
+
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
+                 expectedCount == *args.d_deleteCount);
+
+    POINTER_TYPE *ptr = args.d_p->ptr();
+    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+
+    // As 'p' is empty, none of its other properties have a defined state.
+}
+
+template<typename POINTER_TYPE>
+void doLoadOnullFnullDnull(int callLine, int testLine, int index,
+                           const TestLoadArgs<POINTER_TYPE>& args)
+{
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    const int expectedCount = *args.d_deleteDelta;
+
+    args.d_p->load(0, 0, 0);
     *args.d_deleteDelta = 0;
 
     LOOP5_ASSERT(callLine, testLine, index, expectedCount, *args.d_deleteCount,
@@ -1238,7 +1300,6 @@ void doLoadObjectFnullDeleter(int callLine, int testLine, int index,
     const int expectedCount = *args.d_deleteDelta;
 
     typedef typename  ObjectPolicy::ObjectType  ObjectType;
-    //typedef DeleterHost::template Policy<ObjectPolicy> DeleterPolicy;
     typedef typename DeleterPolicy::DeleterType DeleterType;
 
     ObjectType *pO = 0;
@@ -1259,28 +1320,6 @@ void doLoadObjectFnullDeleter(int callLine, int testLine, int index,
     LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-template<typename T>
-struct Blah {
-    void deleteObject(T *p) { p->~T(); }
-};
-
-template<typename T>
-void junk(void *object, Blah<T> *factory) {
-    factory->deleteObject(reinterpret_cast<T *>(object));
-}
-
-template<typename T>
-void nastyTestCase() {
-    Blah<T> factory;
-
-    bdema_ManagedPtr<T> ptr;
-    T t = T();
-    ptr.load(&t, &factory, &junk<T>);
-}
-// untested concerns
-//   base and derived object types that are not polymorphic
-//   more varieties of base/derive conversion on deleter types
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 template<typename TEST_TARGET, typename TEST_FUNCTION_TYPE>
 void testLoadOps(int callLine,
@@ -2940,6 +2979,8 @@ int main(int argc, char *argv[])
         //   contract).
         //
         // Tested:
+        //   template<TARGET_TYPE> bdema_ManagedPtr(TARGET_TYPE *ptr);
+        //   template<TARGET_TYPE> bdema_ManagedPtr<void>(TARGET_TYPE *ptr);
         //   bdema_ManagedPtr(BDEMA_TYPE *ptr, FACTORY *factory)
         //   bdema_ManagedPtr(BDEMA_TYPE *, void *, DeleterFunc);
         //   bdema_ManagedPtr(BDEMA_TYPE *ptr,
@@ -2959,10 +3000,112 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+        if (verbose) cout << "\tTest the single owned-pointer constructor\n";
+
+        int numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tBasic test object\n";
+
+            bslma_TestAllocatorMonitor dam(da);
+            {
+                TObj *p = new (da) MyTestObject(&numDeletes);
+
+                bslma_TestAllocatorMonitor dam2(da);
+                Obj o(p);
+
+                ASSERT(o.ptr() == p);
+                ASSERT(dam2.isInUseSame());
+            }
+            ASSERT(dam.isTotalUp());
+            ASSERT(dam.isInUseSame());
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+
+        if (verbose) cout << "\tTest derived-to-base pointer in constructor\n";
+
+        numDeletes = 0;
+        {
+            bslma_TestAllocatorMonitor dam(da);
+            {
+                TObj *p = new (da) MyDerivedObject(&numDeletes);
+
+                bslma_TestAllocatorMonitor dam2(da);
+                Obj o(p);
+
+                ASSERT(o.ptr() == p);
+                ASSERT(dynamic_cast<MyDerivedObject *>(o.ptr()) == p);
+                ASSERT(dam2.isInUseSame());
+            }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERT(dam.isTotalUp());
+            ASSERT(dam.isInUseSame());
+        }
+
+
+        if (verbose) cout << "\tTest valid pointer passed to void*\n";
+
+        numDeletes = 0;
+        {
+            bslma_TestAllocatorMonitor dam(da);
+            {
+                TObj *p = new (da) MyDerivedObject(&numDeletes);
+
+                bslma_TestAllocatorMonitor dam2(da);
+                VObj o(p);
+
+                ASSERT(o.ptr() == p);
+                ASSERT(dam2.isInUseSame());
+            }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERT(dam.isTotalUp());
+            ASSERT(dam.isInUseSame());
+        }
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tconst-qualified int\n";
+
+            bslma_TestAllocatorMonitor dam(da);
+            {
+                const int *p = new (da) const int(0);
+
+                bslma_TestAllocatorMonitor dam2(da);
+                bdema_ManagedPtr<const int> o(p);
+
+                ASSERT(o.ptr() == p);
+                ASSERT(dam2.isInUseSame());
+            }
+            ASSERT(dam.isTotalUp());
+            ASSERT(dam.isInUseSame());
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) cout << "\t\tint -> const int conversion\n";
+
+            bslma_TestAllocatorMonitor dam(da);
+            {
+                int *p = new (da) int;
+
+                bslma_TestAllocatorMonitor dam2(da);
+                bdema_ManagedPtr<const int> o(p);
+
+                ASSERT(o.ptr() == p);
+                ASSERT(dam2.isInUseSame());
+            }
+            ASSERT(dam.isTotalUp());
+            ASSERT(dam.isInUseSame());
+        }
+        ASSERT(0 == numDeletes);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
         if (verbose) cout << "\tTest "
                              "bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)\n";
 
-        int numDeletes = 0;
+        numDeletes = 0;
         {
             if (veryVerbose) cout << "Store a basic pointer\n";
 
@@ -3046,18 +3189,6 @@ int main(int argc, char *argv[])
 #else
         if (verbose) cout << "\tNegative testing disabled due to lack of "
                              "exception support\n";
-#endif
-
-//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY
-#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY)
-        {
-            int i = 0;
-            bdema_ManagedPtr<int> x(&i, 0);
-            bdema_ManagedPtr<int> y( 0, 0);
-
-            bslma_Allocator * pNullAlloc = 0;
-            bdema_ManagedPtr<int> z(0, pNullAlloc);
-        }
 #endif
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -3227,6 +3358,56 @@ int main(int argc, char *argv[])
                              "exception support\n";
 #endif
 
+//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_CONSTRUCT_FROM_INCOMPATIBLE_POINTER
+#if defined BDEMA_MANAGEDPTR_COMPILE_FAIL_CONSTRUCT_FROM_INCOMPATIBLE_POINTER
+        // This segment of the test case examines the quality of compiler
+        // diagnostics when trying to create a 'bdema_ManagedPtr' object with a
+        // pointer that it not convertible to a pointer of the type that the
+        // smart pointer is managing.
+        if (verbose) cout << "\tTesting compiler diagnostics*\n";
+
+        // distint, unrelated types
+        numDeletes = 0;
+        {
+            double *p = new (da) double;
+            Obj o(p);
+
+//            ASSERT(o.ptr() == p);
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+        // const-conversion
+        numDeletes = 0;
+        {
+            const MyTestObject *p = new (da) MyTestObject(&numDeletes);
+            Obj o(p);
+
+//            ASSERT(o.ptr() == p);
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            const MyTestObject *p = new (da) MyTestObject(&numDeletes);
+            VObj o(p);
+
+            ASSERT(o.ptr() == p);
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+#endif
+
+//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY
+#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY)
+        {
+            int i = 0;
+            bdema_ManagedPtr<int> x(&i, 0);
+            bdema_ManagedPtr<int> y( 0, 0);
+
+            bslma_Allocator * pNullAlloc = 0;
+            bdema_ManagedPtr<int> z(0, pNullAlloc);
+        }
+#endif
+
 //#define BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY
 #if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY)
         {
@@ -3391,7 +3572,9 @@ int main(int argc, char *argv[])
         //   do not currently test that.
         //
         // Tested:
-        //   void load(bdema_ManagedPtr_Nullptr::Type =0)
+        //   void load(bdema_ManagedPtr_Nullptr::Type = 0,
+        //             bdema_ManagedPtr_Nullptr::Type = 0,
+        //             bdema_ManagedPtr_Nullptr::Type = 0)
         //   void load(BDEMA_TARGET_TYPE *ptr)
         //   void load(BDEMA_TARGET_TYPE *ptr, FACTORY *factory)
         //   void load(BDEMA_TYPE *ptr, void *factory, DeleterFunc deleter)
@@ -3404,13 +3587,13 @@ int main(int argc, char *argv[])
         //   ~bdema_ManagedPtr()
         // --------------------------------------------------------------------
 
-nastyTestCase<int>();
-//nastyTestCase<const int>();
-
         if (verbose) cout << "\nTesting 'load' overloads"
                           << "\n------------------------" << endl;
 
         {
+            if (veryVerbose)
+                      cout << "Testing bdema_ManagedPtr<MyTestObject>::load\n";
+
             typedef MyTestObject TestTarget;
             typedef void (*TestFn)(int, int, int,
                                    const TestLoadArgs<TestTarget> &);
@@ -3428,6 +3611,8 @@ nastyTestCase<int>();
                 //&doLoadObject<TestTarget, OCderiv>,
 
                 // factory tests
+                &doLoadOnullFnull <TestTarget>,
+
                 &doLoadObjectFactory<TestTarget, Obase,   Ftst>,
                 &doLoadObjectFactory<TestTarget, Obase,   Fbsl>,
                 &doLoadObjectFactory<TestTarget, Oderiv,  Ftst>,
@@ -3438,6 +3623,8 @@ nastyTestCase<int>();
                 //&doLoadObjectFactory<TestTarget, OCderiv, Fbsl>,
 
                 // deleter tests
+                &doLoadOnullFnullDnull <TestTarget>,
+
                 // First test the non-deprecated interface, using the policy
                 // 'DVoidVoid'.
 
@@ -3994,6 +4181,9 @@ cout << "MyTestObject array:\t" << TEST_ARRAY_SIZE << "\n";
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         {
+            if (veryVerbose)
+                cout << "Testing bdema_ManagedPtr<const MyTestObject>::load\n";
+
             typedef const MyTestObject TestTarget;
             typedef void (*TestFn)(int, int, int,
                                    const TestLoadArgs<TestTarget> &);
@@ -4011,6 +4201,8 @@ cout << "MyTestObject array:\t" << TEST_ARRAY_SIZE << "\n";
                 &doLoadObject<TestTarget, OCderiv>,
 
                 // factory tests
+                &doLoadOnullFnull <TestTarget>,
+
                 &doLoadObjectFactory<TestTarget, Obase,   Ftst>,
                 &doLoadObjectFactory<TestTarget, Obase,   Fbsl>,
                 &doLoadObjectFactory<TestTarget, Oderiv,  Ftst>,
@@ -4021,6 +4213,8 @@ cout << "MyTestObject array:\t" << TEST_ARRAY_SIZE << "\n";
                 &doLoadObjectFactory<TestTarget, OCderiv, Fbsl>,
 
                 // deleter tests
+                &doLoadOnullFnullDnull <TestTarget>,
+
                 // First test the non-deprecated interface, using the policy
                 // 'DVoidVoid'.
 
@@ -4177,13 +4371,13 @@ cout << "MyTestObject array:\t" << TEST_ARRAY_SIZE << "\n";
                                               DVoidFac< OCbase,  Fbsl > >,
 
                 // const MyTestObject
-                //&doLoadObjectFactoryDeleter<TestTarget, OCbase,  Ftst,
-                //                              DVoidFac< OCbase,  Ftst > >,
-                //&doLoadObjectFactoryDeleter<TestTarget, OCbase,  Fbsl,
-                //                              DVoidFac< OCbase,  Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCbase,  Ftst,
+                                              DVoidFac< OCbase,  Ftst > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCbase,  Fbsl,
+                                              DVoidFac< OCbase,  Fbsl > >,
 
-                //&doLoadObjectFactoryDeleter<TestTarget, OCbase,  Ftst,
-                //                              DVoidFac< OCbase,  Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCbase,  Ftst,
+                                              DVoidFac< OCbase,  Fbsl > >,
 
                 // MyDerivedObject
                 &doLoadObjectFactoryDeleter<TestTarget, Oderiv,  Ftst,
@@ -4218,20 +4412,20 @@ cout << "MyTestObject array:\t" << TEST_ARRAY_SIZE << "\n";
                                               DVoidFac< OCbase,  Fbsl > >,
 
                 // const MyDerivedObject
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
-                //                              DVoidFac< OCderiv, Ftst > >,
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
-                //                              DVoidFac< OCbase,  Ftst > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
+                                              DVoidFac< OCderiv, Ftst > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
+                                              DVoidFac< OCbase,  Ftst > >,
 
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fbsl,
-                //                              DVoidFac< OCderiv, Fbsl > >,
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fbsl,
-                //                              DVoidFac< OCbase,  Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fbsl,
+                                              DVoidFac< OCderiv, Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fbsl,
+                                              DVoidFac< OCbase,  Fbsl > >,
 
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
-                //                              DVoidFac< OCderiv, Fbsl > >,
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
-                //                              DVoidFac< OCbase,  Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
+                                              DVoidFac< OCderiv, Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
+                                              DVoidFac< OCbase,  Fbsl > >,
 
 
                 // Also test a deleter that does not use the 'factory'
@@ -4242,8 +4436,8 @@ cout << "MyTestObject array:\t" << TEST_ARRAY_SIZE << "\n";
                 &doLoadObjectFactoryDeleter<TestTarget, Obase,   Fdflt,
                                                DVoidFac<OCbase,  Fdflt> >,
 
-                //&doLoadObjectFactoryDeleter<TestTarget, OCbase,  Fdflt,
-                //                               DVoidFac<OCbase,  Fdflt> >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                                               DVoidFac<OCbase,  Fdflt> >,
 
                 &doLoadObjectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
                                                DVoidFac<Oderiv,  Fdflt> >,
@@ -4255,10 +4449,10 @@ cout << "MyTestObject array:\t" << TEST_ARRAY_SIZE << "\n";
                 &doLoadObjectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
                                                DVoidFac<OCbase,  Fdflt> >,
 
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fdflt,
-                //                               DVoidFac<OCderiv, Fdflt> >,
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fdflt,
-                //                               DVoidFac<OCbase,  Fdflt> >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                               DVoidFac<OCderiv, Fdflt> >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                               DVoidFac<OCbase,  Fdflt> >,
 
                 // Also, verify null pointer literal can be used for the
                 // factory argument in each case.
@@ -4279,8 +4473,6 @@ cout << "MyTestObject array:\t" << TEST_ARRAY_SIZE << "\n";
                 //&doLoadObjectFnullDeleter<TestTarget, Oderiv,
                 //                             DVoidFac<OCbase,  Fdflt> >,
 
-                // HERE WE ARE DOULBY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
-                // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
                 //&doLoadObjectFnullDeleter<TestTarget, OCbase,
                 //                            DVoidFac<OCbase,  Fdflt> >,
 
@@ -4577,6 +4769,9 @@ cout << "const MyTestObject array:\t" << TEST_ARRAY_SIZE << "\n";
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         {
+            if (veryVerbose)
+                   cout << "Testing bdema_ManagedPtr<MyDerivedObject>::load\n";
+
             typedef MyDerivedObject TestTarget;
             typedef void (*TestFn)(int, int, int,
                                    const TestLoadArgs<TestTarget> &);
@@ -4594,6 +4789,8 @@ cout << "const MyTestObject array:\t" << TEST_ARRAY_SIZE << "\n";
                 //&doLoadObject<TestTarget, OCderiv>,
 
                 // factory tests
+                &doLoadOnullFnull <TestTarget>,
+
                 //&doLoadObjectFactory<TestTarget, Obase,   Ftst>,
                 //&doLoadObjectFactory<TestTarget, Obase,   Fbsl>,
                 &doLoadObjectFactory<TestTarget, Oderiv,  Ftst>,
@@ -4604,6 +4801,8 @@ cout << "const MyTestObject array:\t" << TEST_ARRAY_SIZE << "\n";
                 //&doLoadObjectFactory<TestTarget, OCderiv, Fbsl>,
 
                 // deleter tests
+                &doLoadOnullFnullDnull <TestTarget>,
+
                 // First test the non-deprecated interface, using the policy
                 // 'DVoidVoid'.
 
@@ -5160,6 +5359,8 @@ cout << "MyDerivedObject array:\t" << TEST_ARRAY_SIZE << "\n";
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         {
+            if (veryVerbose) cout << "Testing bdema_ManagedPtr<void>::load\n";
+
             typedef void TestTarget;
             typedef void (*TestFn)(int, int, int,
                                    const TestLoadArgs<TestTarget> &);
@@ -5177,6 +5378,8 @@ cout << "MyDerivedObject array:\t" << TEST_ARRAY_SIZE << "\n";
                 //&doLoadObject<TestTarget, OCderiv>,
 
                 // factory tests
+                &doLoadOnullFnull <TestTarget>,
+
                 &doLoadObjectFactory<TestTarget, Obase,   Ftst>,
                 &doLoadObjectFactory<TestTarget, Obase,   Fbsl>,
                 &doLoadObjectFactory<TestTarget, Oderiv,  Ftst>,
@@ -5187,6 +5390,8 @@ cout << "MyDerivedObject array:\t" << TEST_ARRAY_SIZE << "\n";
                 //&doLoadObjectFactory<TestTarget, OCderiv, Fbsl>,
 
                 // deleter tests
+                &doLoadOnullFnullDnull <TestTarget>,
+
                 // First test the non-deprecated interface, using the policy
                 // 'DVoidVoid'.
 
@@ -5743,6 +5948,9 @@ cout << "void array:\t" << TEST_ARRAY_SIZE << "\n";
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         {
+            if (veryVerbose)
+                        cout << "Testing bdema_ManagedPtr<const void>::load\n";
+
             typedef const void TestTarget;
             typedef void (*TestFn)(int, int, int,
                                    const TestLoadArgs<TestTarget> &);
@@ -5760,6 +5968,8 @@ cout << "void array:\t" << TEST_ARRAY_SIZE << "\n";
                 &doLoadObject<TestTarget, OCderiv>,
 
                 // factory tests
+                &doLoadOnullFnull <TestTarget>,
+
                 &doLoadObjectFactory<TestTarget, Obase,   Ftst>,
                 &doLoadObjectFactory<TestTarget, Obase,   Fbsl>,
                 &doLoadObjectFactory<TestTarget, Oderiv,  Ftst>,
@@ -5770,6 +5980,8 @@ cout << "void array:\t" << TEST_ARRAY_SIZE << "\n";
                 &doLoadObjectFactory<TestTarget, OCderiv, Fbsl>,
 
                 // deleter tests
+                &doLoadOnullFnullDnull <TestTarget>,
+
                 // First test the non-deprecated interface, using the policy
                 // 'DVoidVoid'.
 
@@ -5926,13 +6138,13 @@ cout << "void array:\t" << TEST_ARRAY_SIZE << "\n";
                                               DVoidFac< OCbase,  Fbsl > >,
 
                 // const MyTestObject
-                //&doLoadObjectFactoryDeleter<TestTarget, OCbase,  Ftst,
-                //                              DVoidFac< OCbase,  Ftst > >,
-                //&doLoadObjectFactoryDeleter<TestTarget, OCbase,  Fbsl,
-                //                              DVoidFac< OCbase,  Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCbase,  Ftst,
+                                              DVoidFac< OCbase,  Ftst > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCbase,  Fbsl,
+                                              DVoidFac< OCbase,  Fbsl > >,
 
-                //&doLoadObjectFactoryDeleter<TestTarget, OCbase,  Ftst,
-                //                              DVoidFac< OCbase,  Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCbase,  Ftst,
+                                              DVoidFac< OCbase,  Fbsl > >,
 
                 // MyDerivedObject
                 &doLoadObjectFactoryDeleter<TestTarget, Oderiv,  Ftst,
@@ -5967,20 +6179,20 @@ cout << "void array:\t" << TEST_ARRAY_SIZE << "\n";
                                               DVoidFac< OCbase,  Fbsl > >,
 
                 // const MyDerivedObject
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
-                //                              DVoidFac< OCderiv, Ftst > >,
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
-                //                              DVoidFac< OCbase,  Ftst > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
+                                              DVoidFac< OCderiv, Ftst > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
+                                              DVoidFac< OCbase,  Ftst > >,
 
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fbsl,
-                //                              DVoidFac< OCderiv, Fbsl > >,
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fbsl,
-                //                              DVoidFac< OCbase,  Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fbsl,
+                                              DVoidFac< OCderiv, Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fbsl,
+                                              DVoidFac< OCbase,  Fbsl > >,
 
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
-                //                              DVoidFac< OCderiv, Fbsl > >,
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
-                //                              DVoidFac< OCbase,  Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
+                                              DVoidFac< OCderiv, Fbsl > >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Ftst,
+                                              DVoidFac< OCbase,  Fbsl > >,
 
 
                 // Also test a deleter that does not use the 'factory'
@@ -5991,8 +6203,8 @@ cout << "void array:\t" << TEST_ARRAY_SIZE << "\n";
                 &doLoadObjectFactoryDeleter<TestTarget, Obase,   Fdflt,
                                                DVoidFac<OCbase,  Fdflt> >,
 
-                //&doLoadObjectFactoryDeleter<TestTarget, OCbase,  Fdflt,
-                //                               DVoidFac<OCbase,  Fdflt> >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCbase,  Fdflt,
+                                               DVoidFac<OCbase,  Fdflt> >,
 
                 &doLoadObjectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
                                                DVoidFac<Oderiv,  Fdflt> >,
@@ -6004,10 +6216,10 @@ cout << "void array:\t" << TEST_ARRAY_SIZE << "\n";
                 &doLoadObjectFactoryDeleter<TestTarget, Oderiv,  Fdflt,
                                                DVoidFac<OCbase,  Fdflt> >,
 
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fdflt,
-                //                               DVoidFac<OCderiv, Fdflt> >,
-                //&doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fdflt,
-                //                               DVoidFac<OCbase,  Fdflt> >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                               DVoidFac<OCderiv, Fdflt> >,
+                &doLoadObjectFactoryDeleter<TestTarget, OCderiv, Fdflt,
+                                               DVoidFac<OCbase,  Fdflt> >,
 
                 // Also, verify null pointer literal can be used for the
                 // factory argument in each case.
@@ -6028,8 +6240,6 @@ cout << "void array:\t" << TEST_ARRAY_SIZE << "\n";
                 //&doLoadObjectFnullDeleter<TestTarget, Oderiv,
                 //                             DVoidFac<OCbase,  Fdflt> >,
 
-                // HERE WE ARE DOULBY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
-                // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
                 //&doLoadObjectFnullDeleter<TestTarget, OCbase,
                 //                            DVoidFac<OCbase,  Fdflt> >,
 
@@ -6325,217 +6535,7 @@ cout << "const void array:\t" << TEST_ARRAY_SIZE << "\n";
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        using namespace CREATORS_TEST_NAMESPACE;
-
-        if (verbose) cout << "\tTest load(T*, factory)\n";
-
-        int numDeletes = 0;
-        {
-            typedef bdema_ManagedPtr<int> MyObj;
-
-            int a = 0;
-            IncrementIntFactory incrementer;
-
-            {
-                MyObj o;
-                ASSERT(!o.ptr());
-                ASSERT(0 == numDeletes);
-                ASSERT(0 == a);
-
-                o.load(&a, &incrementer);
-
-                ASSERT(o.ptr() == &a);
-                ASSERT(0 == numDeletes);
-                ASSERT(0 == a);
-            }
-
-            ASSERT(1 == a);
-        }
-        ASSERT(0 == numDeletes);
-
-        numDeletes = 0;
-        {
-            typedef bdema_ManagedPtr<int> MyObj;
-
-            int a = 0;
-            IncrementIntFactory incrementer;
-
-            {
-                MyObj o;
-                ASSERT(!o.ptr());
-                ASSERT(0 == numDeletes);
-                ASSERT(0 == a);
-
-                o.load(&a, &incrementer);
-
-                ASSERT(o.ptr() == &a);
-                ASSERT(0 == numDeletes);
-                ASSERT(0 == a);
-
-                // should reloading the same pointer assert?
-                o.load(&a, &incrementer);
-
-                ASSERT(o.ptr() == &a);
-                ASSERT(0 == numDeletes);
-                ASSERT(1 == a);
-            }
-
-            ASSERT(2 == a);
-        }
-        ASSERT(0 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout << "Store a derived pointer\n";
-
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
- 
-            bslma_TestAllocator ta("object", veryVeryVeryVerbose);
-            bslma_TestAllocatorMonitor tam(ta);
-
-            {
-                Obj o;
-                
-                TDObj *p = new (ta) MyDerivedObject(&numDeletes);
-                o.load(p, &ta);
-
-                TObj *q = o.ptr();
-                LOOP2_ASSERT(p, q, p == q);
-            }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
-            ASSERT(tam.isInUseSame());
-            ASSERT(dam.isInUseSame());
-            ASSERT(dam.isMaxSame());
-            ASSERT(gam.isInUseSame());
-            ASSERT(gam.isMaxSame());
-        }
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout << "Store in a bdema_ManagedPtr<void>\n";
-
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
- 
-            bslma_TestAllocator ta("object", veryVeryVeryVerbose);
-            bslma_TestAllocatorMonitor tam(ta);
-
-            {
-                VObj o;
-
-                TObj *p = new (ta) MyDerivedObject(&numDeletes);
-                o.load(p, &ta);
-
-                void *q = o.ptr();
-                LOOP2_ASSERT(p, q, p == q);
-            }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
-            ASSERT(tam.isInUseSame());
-            ASSERT(dam.isInUseSame());
-            ASSERT(dam.isMaxSame());
-            ASSERT(gam.isInUseSame());
-            ASSERT(gam.isMaxSame());
-        }
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\tTest load(T*, factory, DeleterFunc)\n";
-
-        g_deleteCount = 0;
-        numDeletes    = 0;
-        {
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-            MyTestObject b(&numDeletes);
-            Obj o(p);
-
-            ASSERT(o.ptr() == p);
-            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
-
-            o.load(&b, 0, &countedNilDelete);
-
-            ASSERT(o.ptr() == &b);
-            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        }
-        LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
-        LOOP_ASSERT(numDeletes, 2 == numDeletes);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout <<
-                           "\tTest load(T*, factory, deleter(T *, factory))\n";
-
-        numDeletes = 0;
-        {
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-            TObj *p2 = new (da) MyTestObject(&numDeletes);
-            Obj o(p);
-
-            o.load(p2, &da, &myTestDeleter);
-
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        }
-        ASSERT(2 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout <<
-                       "\t\tload derived type into a simple managed pointer\n";
-
-            typedef void (*DeleterFunc)(MyTestObject *, void *);
-            DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
-
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-            TObj *p2 = new (da) MyTestObject(&numDeletes);
-            Obj o(p);
-
-            // Test must pass without this workaround, for compatibility
-            // We might want to test the workaround separately, but believe
-            // that is not necessary.
-//          o.load(p2, (void *) &da, deleterFunc);
-            o.load(p2, &da, deleterFunc);
-
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        }
-        ASSERT(2 == numDeletes);
-
-        numDeletes = 0;
-        {
-            if (veryVerbose) cout <<
-                       "\t\tload derived type into a simple managed pointer\n";
-
-            typedef void (*DeleterFunc)(MyTestObject *, void *);
-            DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
-
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-            TDObj *p2 = new (da) MyDerivedObject(&numDeletes);
-            Obj o(p);
-
-            // Test must pass without this workaround, for compatibility
-            // We might want to test the workaround separately, but believe
-            // that is not necessary.
-            o.load(p2, &da, deleterFunc);
-
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        }
-        ASSERT(101 == numDeletes);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\tTest load(T*, nullptr, deleter(T *, void *)\n";
-
-        numDeletes = 0;
-        {
-            typedef bdema_ManagedPtr<int> MyObj;
-
-            int a = 0;
-
-            MyObj o;
-            o.load(&a, 0, &doNothingDeleter);
-        }
-        ASSERT(0 == numDeletes);
+        // Compile-fail tests
 
 //#define BDEMA_MANAGEDPTR_COMPILE_FAIL_LOAD_INCOMPATIBLE_TYPE
 #if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_LOAD_INCOMPATIBLE_TYPE)
@@ -6620,8 +6620,6 @@ cout << "const void array:\t" << TEST_ARRAY_SIZE << "\n";
         // Tested:
         //   bdema_ManagedPtr();
         //   bdema_ManagedPtr(nullptr_t);
-        //   template<TARGET_TYPE> bdema_ManagedPtr(TARGET_TYPE *ptr);
-        //   template<TARGET_TYPE> bdema_ManagedPtr<void>(TARGET_TYPE *ptr);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING PRIMARY CREATORS"
@@ -6709,145 +6707,84 @@ cout << "const void array:\t" << TEST_ARRAY_SIZE << "\n";
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\tTest the single owned-pointer constructor\n";
+        if (verbose) cout << "\tTest constructing with two null pointers\n";
 
         numDeletes = 0;
         {
             if (veryVerbose) cout << "\t\tBasic test object\n";
 
             bslma_TestAllocatorMonitor dam(da);
-            {
-                TObj *p = new (da) MyTestObject(&numDeletes);
+            Obj o(0, 0);
 
-                bslma_TestAllocatorMonitor dam2(da);
-                Obj o(p);
-
-                ASSERT(o.ptr() == p);
-                ASSERT(dam2.isInUseSame());
-            }
-            ASSERT(dam.isTotalUp());
-            ASSERT(dam.isInUseSame());
+            ASSERT(0 == o.ptr());
+            ASSERT(dam.isTotalSame());
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
-
-
-        if (verbose) cout << "\tTest derived-to-base pointer in constructor\n";
+        ASSERT(0 == numDeletes);
 
         numDeletes = 0;
         {
+            if (veryVerbose) cout << "\t\tvoid type\n";
+
             bslma_TestAllocatorMonitor dam(da);
-            {
-                TObj *p = new (da) MyDerivedObject(&numDeletes);
+            VObj o(0, 0);
 
-                bslma_TestAllocatorMonitor dam2(da);
-                Obj o(p);
-
-                ASSERT(o.ptr() == p);
-                ASSERT(dynamic_cast<MyDerivedObject *>(o.ptr()) == p);
-                ASSERT(dam2.isInUseSame());
-            }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
-            ASSERT(dam.isTotalUp());
-            ASSERT(dam.isInUseSame());
+            ASSERT(0 == o.ptr());
+            ASSERT(dam.isTotalSame());
         }
-
-
-        if (verbose) cout << "\tTest valid pointer passed to void*\n";
-
-        numDeletes = 0;
-        {
-            bslma_TestAllocatorMonitor dam(da);
-            {
-                TObj *p = new (da) MyDerivedObject(&numDeletes);
-
-                bslma_TestAllocatorMonitor dam2(da);
-                VObj o(p);
-
-                ASSERT(o.ptr() == p);
-                ASSERT(dam2.isInUseSame());
-            }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
-            ASSERT(dam.isTotalUp());
-            ASSERT(dam.isInUseSame());
-        }
+        ASSERT(0 == numDeletes);
 
         numDeletes = 0;
         {
             if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
             bslma_TestAllocatorMonitor dam(da);
-            {
-                const int *p = new (da) const int(0);
+            bdema_ManagedPtr<const int> o(0, 0);
 
-                bslma_TestAllocatorMonitor dam2(da);
-                bdema_ManagedPtr<const int> o(p);
-
-                ASSERT(o.ptr() == p);
-                ASSERT(dam2.isInUseSame());
-            }
-            ASSERT(dam.isTotalUp());
-            ASSERT(dam.isInUseSame());
+            ASSERT(0 == o.ptr());
+            ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
 
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTest constructing with three null pointers\n";
+
         numDeletes = 0;
         {
-            if (veryVerbose) cout << "\t\tint -> const int conversion\n";
+            if (veryVerbose) cout << "\t\tBasic test object\n";
 
             bslma_TestAllocatorMonitor dam(da);
-            {
-                int *p = new (da) int;
+            Obj o(0, 0, 0);
 
-                bslma_TestAllocatorMonitor dam2(da);
-                bdema_ManagedPtr<const int> o(p);
-
-                ASSERT(o.ptr() == p);
-                ASSERT(dam2.isInUseSame());
-            }
-            ASSERT(dam.isTotalUp());
-            ASSERT(dam.isInUseSame());
+            ASSERT(0 == o.ptr());
+            ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
 
-//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_CONSTRUCT_FROM_INCOMPATIBLE_POINTER
-#if defined BDEMA_MANAGEDPTR_COMPILE_FAIL_CONSTRUCT_FROM_INCOMPATIBLE_POINTER
-        // This segment of the test case examines the quality of compiler
-        // diagnostics when trying to create a 'bdema_ManagedPtr' object with a
-        // pointer that it not convertible to a pointer of the type that the
-        // smart pointer is managing.
-        if (verbose) cout << "\tTesting compiler diagnostics*\n";
-
-        // distint, unrelated types
         numDeletes = 0;
         {
-            double *p = new (da) double;
-            Obj o(p);
+            if (veryVerbose) cout << "\t\tvoid type\n";
 
-//            ASSERT(o.ptr() == p);
+            bslma_TestAllocatorMonitor dam(da);
+            VObj o(0, 0, 0);
+
+            ASSERT(0 == o.ptr());
+            ASSERT(dam.isTotalSame());
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
-
-        // const-conversion
-        numDeletes = 0;
-        {
-            const MyTestObject *p = new (da) MyTestObject(&numDeletes);
-            Obj o(p);
-
-//            ASSERT(o.ptr() == p);
-        }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERT(0 == numDeletes);
 
         numDeletes = 0;
         {
-            const MyTestObject *p = new (da) MyTestObject(&numDeletes);
-            VObj o(p);
+            if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
-            ASSERT(o.ptr() == p);
+            bslma_TestAllocatorMonitor dam(da);
+            bdema_ManagedPtr<const int> o(0, 0, 0);
+
+            ASSERT(0 == o.ptr());
+            ASSERT(dam.isTotalSame());
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERT(0 == numDeletes);
 
-
-#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------
