@@ -1,6 +1,7 @@
 // bdemf_assert.t.cpp              -*-C++-*-
 
 #include <bdemf_assert.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_platformutil.h>
 
@@ -127,12 +128,13 @@ int main(int argc, char *argv[])
 
         BDEMF_ASSERT(sizeof(int) >= sizeof(char));
         BDEMF_ASSERT(sizeof(int) >= sizeof(char));
-        BDEMF_ASSERT(1);  ASSERT(130 == __LINE__);
         BDEMF_ASSERT(1);  ASSERT(131 == __LINE__);
+        BDEMF_ASSERT(1);  ASSERT(132 == __LINE__);
         BDEMF_ASSERT(1 > 0 && 1);
 
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM__CMP_MSVC) &&                \
+    !defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
         bslmf_Assert_130 t1; // test typedef name creation; matches above line
         bslmf_Assert_131 t2; // test typedef name creation; matches above line
         ASSERT(sizeof t1 == sizeof t2);  // use t1 and t2
