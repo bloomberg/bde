@@ -362,29 +362,6 @@ struct bdema_ManagedPtr_Nullptr {
                      // private class bdema_ManagedPtrMembers
                      // =====================================
 
-template <class T>
-struct bdema_ManagedPtr_IsVoid {
-    // This metafunction struct contains a nested 'VALUE' which converts to
-    // 'true' if 'T' is type 'void' and to 'false' otherwise.
-
-    enum { VALUE = false };
-};
-
-
-template <>
-struct bdema_ManagedPtr_IsVoid<void> {
-    // This metafunction struct contains a nested 'VALUE' which converts to
-    // 'true' if 'T' is type 'void' and to 'false' otherwise.
-
-    enum { VALUE = true };
-};
-
-
-
-                     // =====================================
-                     // private class bdema_ManagedPtrMembers
-                     // =====================================
-
 class bdema_ManagedPtr_Members {
     // Non-type-specific managed pointer member variables.  This type exists
     // so that a 'bdema_ManagedPtr_Ref' can point to the representation of a
@@ -483,6 +460,27 @@ class bdema_ManagedPtr_Members {
         // Return the 'bdema_ManagedPtrDeleter' object that should be used to
         // destroy the currently managed object, if any.  Behavior is
         // undefined unless 'pointer()' is not null.
+};
+
+                     // =====================================
+                     // private class bdema_ManagedPtrMembers
+                     // =====================================
+
+template <class T>
+struct bdema_ManagedPtr_IsVoid {
+    // This metafunction struct contains a nested 'VALUE' which converts to
+    // 'true' if 'T' is type 'void' and to 'false' otherwise.
+
+    enum { VALUE = false };
+};
+
+
+template <>
+struct bdema_ManagedPtr_IsVoid<void> {
+    // This metafunction struct contains a nested 'VALUE' which converts to
+    // 'true' if 'T' is type 'void' and to 'false' otherwise.
+
+    enum { VALUE = true };
 };
 
                            // ======================
@@ -767,24 +765,6 @@ class bdema_ManagedPtr {
         // '0 == ptr', then this object will be initialized to an unset state.
         // The behavior is undefined if 'ptr' is already managed by another
         // managed pointer.
-
-#if 0    
-    template <class BDEMA_TARGET_TYPE>
-    bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-                     void *factory,
-                     DeleterFunc deleter
-#if !defined(BSLS_PLATFORM__CMP_SUN) // compiler 5.10 crashes with this idiom
-    , typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type
-                                                                = Unspecified()
-#endif
-                                                                             );
-        // Construct a managed pointer to manage the specified 'ptr' using the
-        // specified 'deleter' and associated 'factory' to destroy 'ptr' when
-        // this managed pointer is destroyed or re-assigned (unless it is
-        // released before then).  If 0 == 'ptr', then this object
-        // will be initialized to an unset state.  The behavior is undefined
-        // if 'ptr' is already managed by another managed pointer.
-#endif
 
     template <class BDEMA_TARGET_TYPE,
               class BDEMA_TARGET_BASE>
@@ -1289,31 +1269,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
 
     BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
 }
-
-#if 0
-template <class BDEMA_TYPE>
-template <class BDEMA_TARGET_TYPE>
-inline
-bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
-                  BDEMA_TARGET_TYPE *ptr,
-                  void *factory,
-                  DeleterFunc deleter,
-#if !defined(BSLS_PLATFORM__CMP_SUN) // compiler 5.10 crashes with this idiom
-         typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type
-#endif
-                  )
-: d_members(stripPointerType(ptr),
-            factory,
-            deleter)
-{
-#if defined(BSLS_PLATFORM__CMP_SUN) // only while 'enable_if' not supported
-    BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>::
-                                                                       VALUE));
-#endif
-
-    BSLS_ASSERT_SAFE(!ptr || 0 != deleter);
-}
-#endif
 
 template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>

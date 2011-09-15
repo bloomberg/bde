@@ -697,9 +697,9 @@ static void doNothingDeleter(void *object, void *)
 
 template<typename POINTER_TYPE>
 struct TestLoadArgs {
-    int  *d_deleteCount; 
-    int  *d_deleteDelta;
-    bool *d_useDefault;
+    int  *const d_deleteCount; 
+    int  *const d_deleteDelta;
+    bool *const d_useDefault;
     bslma_TestAllocator *d_ta;
     unsigned int d_config;
     bdema_ManagedPtr<POINTER_TYPE> *d_p;
@@ -1338,12 +1338,17 @@ void testLoadOps(int callLine,
     int deleteDelta = 0;
     bool useDefault = false;
 
-    TestLoadArgs<TEST_TARGET> args;
+    TestLoadArgs<TEST_TARGET> args = {
+        &deleteCount,
+        &deleteDelta,
+        &useDefault
+    };
+
     // These 3 pointers never change.
     // The remaining members of the 'args' struct are set up for each call.
-    args.d_deleteCount = &deleteCount;
-    args.d_deleteDelta = &deleteDelta;
-    args.d_useDefault  = &useDefault;
+    //args.d_deleteCount = &deleteCount;
+    //args.d_deleteDelta = &deleteDelta;
+    //args.d_useDefault  = &useDefault;
 
 
     for(unsigned configI = 0; configI != 4; ++configI) {
@@ -2645,6 +2650,29 @@ int main(int argc, char *argv[])
         // Tested:
         //   bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
         //   void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
+
+        // TEST SCENARIOS for 'loadAlias'
+        //   Alias an existing state:
+        //     Run through the function table for test case 'load'
+        //     Test 0: negative testing
+        //       Create an alias to a null pointer value
+        //         ASSERT_FAIL, unless original is also empty
+        //       Run destructor and validate
+        //     Test 1:
+        //       Create an alias, testing base, const-base, derived aliased pointers
+        //       Check aliased state, and original managed pointer
+        //         alias an empty managed pointer : not allowed, negative testing
+        //       Run destructor and validate
+        //     Test 2:
+        //       Create an alias, testing base, const-base, derived aliased pointers
+        //       Check aliased state, and original managed pointer
+        //       run another 'load' function, and check alias destroys correctly
+        //       destroy 'load'ed managed pointer, validating results
+        //     Test 3:
+        //       Create an alias, testing base, const-base, derived aliased pointers
+        //       Check aliased state, and original managed pointer
+        //       Alias this aliased-pointer
+        //       Check new aliased state, and first aliased managed pointer
         // --------------------------------------------------------------------
 
         using namespace CREATORS_TEST_NAMESPACE;
