@@ -1348,7 +1348,8 @@ bdema_ManagedPtr<BDEMA_TYPE>::loadAlias(
                                      bdema_ManagedPtr<BDEMA_OTHER_TYPE>& alias,
                                      BDEMA_TYPE                         *ptr)
 {
-    BSLS_ASSERT_SAFE(0 != ptr || 0 == alias.ptr());
+    BSLS_ASSERT_SAFE(  (0 == ptr && 0 == alias.ptr()) 
+                    || (0 != ptr && 0 != alias.ptr()) );
 
     if (ptr && alias.d_members.pointer()) {
         if (&d_members != &alias.d_members) {
