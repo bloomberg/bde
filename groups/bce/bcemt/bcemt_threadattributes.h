@@ -579,7 +579,7 @@ void bcemt_ThreadAttributes::setStackSize(int value)
 {
     BSLMF_ASSERT(-1 == BCEMT_UNSET_STACK_SIZE);
 
-    BSLS_ASSERT_SAFE(value >= 1);
+    BSLS_ASSERT_SAFE(value >= -1);
 
     d_stackSize = value;
 }
