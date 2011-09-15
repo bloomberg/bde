@@ -705,8 +705,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_CLIMITS
@@ -1268,6 +1268,19 @@ class bcem_Aggregate {
         // error aggregate, then this aggregate will be assigned the same
         // error state.
 
+    const bcem_Aggregate reserveRaw(bsl::size_t numItems);
+        // Reserve sufficient memory for at least the specified 'numItems' if
+        // this aggregate references a scalar or choice array, or reserve
+        // sufficient memory for at least the footprint of 'numItems' rows, if
+        // this aggregate references a table.  In the latter case, additional
+        // memory needed to initialize a new row upon insertion, *may* or may
+        // *not* be reserved depending on the allocation mode.  In the future,
+        // this method may strengthen its guarantee such that no additional
+        // allocation will occur upon row insertion (regardless of allocation
+        // mode) unless a data element itself allocates memory.  Return the
+        // value of this aggregate on success or an error aggregate if this
+        // aggregate does not reference an array type.
+
     const bcem_Aggregate& reset();
         // Reset this object to the void aggregate ('BDEM_VOID' data type, no
         // schema).  Decrement the reference counts of the previous schema and
@@ -1822,6 +1835,19 @@ class bcem_Aggregate {
         // containers.
 
     // ACCESSORS
+    const bcem_Aggregate capacityRaw(bsl::size_t *capacity) const;
+        // Load, in the specified 'capacity', the total number of items for
+        // which sufficient memory is currently allocated if this aggregate
+        // references a scalar or choice array, or load the total number of row
+        // footprints for which sufficient memory is currently allocated, if
+        // this aggregate references a table.  In the latter case, inserting
+        // rows that do not exceed this capacity *may* or may *not* result in
+        // additional allocations depending on the allocation mode, and whether
+        // any row data element itself allocates memory (see the 'reserveRaw'
+        // method).  Return the value of this aggregate on success or an error
+        // aggregate if this aggregate does not reference an array type.  Note
+        // that 'length() <= capacityRaw()' is an invariant of this class.
+
     bool isError() const;
         // Return 'true' if this object was returned from a function that
         // detected an error.  If this function returns 'true', then
@@ -1898,7 +1924,7 @@ class bcem_Aggregate {
     char asChar() const;
     short asShort() const;
     int asInt() const;
-    bsls_PlatformUtil::Int64 asInt64() const;
+    bsls_Types::Int64 asInt64() const;
     float asFloat() const;
     double asDouble() const;
     bdet_Datetime asDatetime() const;
@@ -2401,9 +2427,48 @@ class bcem_Aggregate_ArrayInserter {
         // has not yet been called.
 };
 
-                           // =====================================
-                           // local class bcem_Aggregate_ArraySizer
-                           // =====================================
+                        // =========================================
+                        // local class bcem_Aggregate_ArrayCapacitor
+                        // =========================================
+
+class  bcem_Aggregate_ArrayCapacitor {
+    // Functor that loads the capacity of a sequence container into a parameter
+    // passed in the constructor.  The capacity of a sequence container is the
+    // number of elements for which memory is already allocated.
+
+    //DATA
+    bsl::size_t *d_capacity_p;  // pointer to memory where to load the capacity
+
+  private:
+    // NOT IMPLEMENTED
+    bcem_Aggregate_ArrayCapacitor(const bcem_Aggregate_ArrayCapacitor&);
+    bcem_Aggregate_ArrayCapacitor& operator=(
+                                          const bcem_Aggregate_ArrayCapacitor&);
+  public:
+    // CREATOR
+    bcem_Aggregate_ArrayCapacitor(bsl::size_t *capacity)
+    : d_capacity_p(capacity)
+    {
+    }
+
+    // MANIPULATORS
+    template <typename ARRAYTYPE>
+    int operator()(ARRAYTYPE *array)
+    {
+        *d_capacity_p = array->capacity();
+
+        // Return 0 because of the constraint on the signature of this functor
+        // by the method 'bcem_Aggregate_Util::visitArray'. The return value
+        // should not be used.
+
+        return 0;
+    }
+
+};
+
+                        // =====================================
+                        // local class bcem_Aggregate_ArraySizer
+                        // =====================================
 
 struct bcem_Aggregate_ArraySizer {
     // Function object to return the size of a sequence container.  The size of
@@ -2414,6 +2479,38 @@ struct bcem_Aggregate_ArraySizer {
     int operator()(ARRAYTYPE *array) const
     {
         return (int)array->size();
+    }
+};
+
+                        // ========================================
+                        // local class bcem_Aggregate_ArrayReserver
+                        // ========================================
+
+class bcem_Aggregate_ArrayReserver {
+    // Function object to reserve memory in a sequence container for the
+    // number of objects indicated at construction.
+
+    // DATA
+    bsl::size_t d_numItems;
+
+    // NOT IMPLEMENTED
+    bcem_Aggregate_ArrayReserver(const bcem_Aggregate_ArrayReserver&);
+    bcem_Aggregate_ArrayReserver& operator=(
+                                          const bcem_Aggregate_ArrayReserver&);
+
+  public:
+    // CREATORS
+    bcem_Aggregate_ArrayReserver(bsl::size_t numItems)
+    : d_numItems(numItems)
+    {
+    }
+
+    // ACCESSORS
+    template <typename ARRAYTYPE>
+    int operator()(ARRAYTYPE *array) const
+    {
+        array->reserve(d_numItems);
+        return 0;
     }
 };
 
@@ -2783,7 +2880,7 @@ int bcem_Aggregate_Util::visitArray(void                *array,
 // PRIVATE CLASS METHODS
 template <typename TYPE>
 inline
-bdem_ElemType::Type bcem_Aggregate::getBdemType(const TYPE& value)
+bdem_ElemType::Type bcem_Aggregate::getBdemType(const TYPE&)
 {
     return (bdem_ElemType::Type) bdem_SelectBdemType<TYPE>::VALUE;
 }

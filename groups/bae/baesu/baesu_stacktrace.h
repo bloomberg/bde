@@ -422,7 +422,7 @@ const baesu_StackTraceFrame& baesu_StackTrace::operator[](int index) const
 inline
 int baesu_StackTrace::length() const
 {
-    return d_frames.size();
+    return (int) d_frames.size();
 }
 
 // FREE OPERATORS

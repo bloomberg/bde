@@ -576,7 +576,7 @@ void case_5_top(bool demangle)
 
             const char *match = ".case_5_top";
             match += !dot;
-            int len = bsl::strlen(match);
+            int len = (int) bsl::strlen(match);
             const char *sn = st[0].symbolName().c_str();
             LOOP3_ASSERT(sn, match, len,
                                    !demangle || !bsl::strncmp(sn, match, len));
@@ -590,8 +590,8 @@ void case_5_top(bool demangle)
                 const char *sfn = st[0].sourceFileName().c_str();
                 sfn = nullGuard(sfn);
 
-                int sfnMatchLen = bsl::strlen(sfnMatch);
-                int sfnLen = bsl::strlen(sfn);
+                int sfnMatchLen = (int) bsl::strlen(sfnMatch);
+                int sfnLen = (int) bsl::strlen(sfn);
                 sfn += bsl::max(0, sfnLen - sfnMatchLen);
 
                 LOOP2_ASSERT(sfn, sfnMatch, !bsl::strcmp(sfn, sfnMatch));
@@ -599,7 +599,7 @@ void case_5_top(bool demangle)
 
             match = ".case_5_bottom";
             match += !dot;
-            len = bsl::strlen(match);
+            len = (int) bsl::strlen(match);
 
             bool finished = false;
             int recursersFound = 0;
@@ -635,8 +635,8 @@ void case_5_top(bool demangle)
                     const char *sfnMatch = "baesu_stacktraceutil.t.cpp";
                     const char *sfn = st[i].sourceFileName().c_str();
 
-                    int sfnMatchLen = bsl::strlen(sfnMatch);
-                    int sfnLen = bsl::strlen(sfn);
+                    int sfnMatchLen = (int) bsl::strlen(sfnMatch);
+                    int sfnLen = (int) bsl::strlen(sfn);
                     sfn += bsl::max(0, sfnLen - sfnMatchLen);
 
                     LOOP2_ASSERT(sfn, sfnMatch, !bsl::strcmp(sfn, sfnMatch));

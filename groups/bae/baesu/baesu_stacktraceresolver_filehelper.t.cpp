@@ -99,6 +99,7 @@ typedef bdesu_FileUtil                      FileUtil;
 typedef FileUtil::FileDescriptor            FdType;    // shorthand for file
                                                        // descriptor
 typedef baesu_StackTraceResolver_FileHelper Obj;
+typedef bsls_Types::Int64                   Int64;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -545,7 +546,7 @@ int main(int argc, char *argv[])
             const int                 LINE      = DATA[ti].d_line;
             const bsls_Types::UintPtr SIZE      = DATA[ti].d_numBytes;
             const FileUtil::Offset    OFFSET    = DATA[ti].d_offset;
-            const char                EOF_FLAG  = DATA[ti].d_eofFlag;
+            const char                EOF_FLAG  = (char) DATA[ti].d_eofFlag;
             const char *const         EXP_RES   = DATA[ti].d_result;
             const bsls_Types::UintPtr EXP_RC    = strlen(EXP_RES);
 
@@ -676,8 +677,8 @@ int main(int argc, char *argv[])
             const int                 LINE     = DATA[ti].d_line;
             const bsls_Types::UintPtr SIZE     = DATA[ti].d_numBytes;
             const FileUtil::Offset    OFFSET   = DATA[ti].d_offset;
-            const char                EOF_FLAG = DATA[ti].d_eofFlag;
-            const char *const         EXP_RES   = DATA[ti].d_result;
+            const char                EOF_FLAG = (char) DATA[ti].d_eofFlag;
+            const char *const         EXP_RES  = DATA[ti].d_result;
 
             const char FILL_CHAR = '@';
             char       buf[100];
@@ -702,7 +703,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\treadExact" << endl;
             {
-                char buf[100];
+                char buf[100] = { "" };
+                ++buf[0];                  // suppress unused variable warning
                 const Obj X(fileNameBuffer);
                 ASSERT_SAFE_PASS(X.readExact(buf, 0, 0));
                 ASSERT_SAFE_FAIL(X.readExact(0,   0, 0));
@@ -820,7 +822,7 @@ int main(int argc, char *argv[])
             FileUtil::write(fd, testString64, 64);
         }
 
-        int rc = FileUtil::close(fd);
+        Int64 rc = FileUtil::close(fd);
         ASSERT(0 == rc);
 
         {

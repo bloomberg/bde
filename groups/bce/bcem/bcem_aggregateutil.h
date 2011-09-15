@@ -2254,7 +2254,6 @@ int bcem_AggregateUtil::fromAggregateImp(
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
-    int            rc    = 0;
 
     if (field.isError()) {
         return field.errorCode();
@@ -2335,7 +2334,6 @@ int bcem_AggregateUtil::fromAggregateImp(
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
-    int            rc    = 0;
 
     if (field.isError()) {
         return field.errorCode();
@@ -2419,7 +2417,6 @@ int bcem_AggregateUtil::fromAggregateImp(
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
     bcem_Aggregate field = source.fieldById(fieldId);
-    int            rc    = 0;
 
     if (field.isError()) {
         return field.errorCode();

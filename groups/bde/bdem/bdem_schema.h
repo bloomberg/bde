@@ -346,8 +346,8 @@ BDES_IDENT("$Id: $")
 // Notice that the second record does not specify 'quantity', so it is
 // interpreted as having the schema's default 'quantity' value of 1.
 //
-//Creating a Schema:
-//- - - - - - - - -
+///Creating a Schema
+///- - - - - - - - -
 // We now examine how to create a 'bdem_Schema' for the schema described in
 // the previous section.  We start by creating a 'bdem_Schema' object, and
 // adding an enumeration named "CREDIT_CARD_TYPE":
