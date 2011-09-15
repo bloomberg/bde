@@ -178,21 +178,6 @@ int main(int argc, char *argv[])
                           << "REDEFINITION OF MACROS" << endl
                           << "----------------------" << endl;
 
-#if !defined(BDE_BUILD_TARGET_SAFE)
-
-        if (veryVerbose) cout << "Confirm 'BDE_ASSERT_H' disabled" << endl;
-
-        ASSERT(strcmp("hello", "hello" BDE_ASSERT_H(X)));
-
-#if !defined(BDE_BUILD_TARGET_DBG)
-
-        if (veryVerbose) cout << "Confirm 'BDE_ASSERT_CPP' disabled" << endl;
-
-        ASSERT(strcmp("hello", "hello" BDE_ASSERT_CPP(X)));
-
-#endif // !defined(BDE_BUILD_TARGET_DBG)
-#endif // !defined(BDE_BUILD_TARGET_SAFE)
-
 #if defined(BDE_BUILD_TARGET_EXC)
         bsls_Assert::setFailureHandler(bsls_Assert::failThrow);
 
