@@ -50,7 +50,7 @@ using namespace BloombergLP;
 // This test driver ensures that this component generates valid HTTP headers
 // as defined in RFC 2616.  It also ensure that this component generates
 // properly "chunked" content when the "chunked" transfer encoding is
-// specified.  To excercise the utilites four data sets are used.
+// specified.  To exercise the utilities four data sets are used.
 //
 // Data Set     Description
 // --------     -----------

@@ -107,8 +107,8 @@ BDES_IDENT("$Id: $")
 // explicitly by incorporating into the optional (trailing) integer 'flags'
 // argument to a method call the 'btesc_Flag::BTESC_ASYNC_INTERRUPT' value.
 //
-///USAGE EXAMPLE
-///-------------
+///Usage
+///-----
 // TBD Usage is from timed cb allocator and needs to be redone.
 //
 // The purpose of the 'btesc_CbChannelAllocator' protocol is to isolate the act

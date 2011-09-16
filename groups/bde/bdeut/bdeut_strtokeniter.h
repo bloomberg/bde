@@ -343,6 +343,9 @@ class bdeut_StrTokenIter {
     bdeut_StrTokenIter(const bdeut_StrTokenIter&);
     bdeut_StrTokenIter& operator=(const bdeut_StrTokenIter&);
 
+    bool operator==(const bdeut_StrTokenIter&) const;
+    bool operator!=(const bdeut_StrTokenIter&) const;
+
   public:
     // CREATORS
     bdeut_StrTokenIter(const char      *input,

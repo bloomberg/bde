@@ -22,6 +22,7 @@ BDES_IDENT_RCSID(baetzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
+#include <bsl_cstring.h>
 
 #include <bsls_byteorder.h>
 
@@ -128,7 +129,7 @@ int decode32(const char *address)
     BSLS_ASSERT_SAFE(address);
 
     int temp;
-    memcpy(&temp, address, sizeof(temp));
+    bsl::memcpy(&temp, address, sizeof(temp));
     return BSLS_BYTEORDER_BE_U32_TO_HOST(temp);
 }
 
@@ -143,7 +144,7 @@ bsls_Types::Int64 decode64(const char *address)
     BSLS_ASSERT_SAFE(address);
 
     bsls_Types::Int64 temp;
-    memcpy(&temp, address, sizeof(temp));
+    bsl::memcpy(&temp, address, sizeof(temp));
     return BSLS_BYTEORDER_BE_U64_TO_HOST(temp);
 }
 

@@ -70,7 +70,7 @@ void bdema_HeapBypassAllocator::unmap(void *address, size_type size) {
 #elif defined(BSLS_PLATFORM__OS_WINDOWS)
 char *bdema_HeapBypassAllocator::map(size_type size)
 {
-    char *address = 
+    char *address =
            (char *)VirtualAlloc(0,  // 'VirtualAlloc' chooses what address to
                                     // which to map the memory
                                 size,

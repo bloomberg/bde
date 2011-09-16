@@ -287,7 +287,8 @@ int btesos_TcpCbConnector::initiateConnection(
                                                        d_manager_p,
                                                        d_allocator_p);
         bsl::vector<btesc_CbChannel*>::iterator idx =
-            bsl::lower_bound(d_channels.begin(), d_channels.end(), channel);
+            bsl::lower_bound(d_channels.begin(), d_channels.end(),
+                             static_cast<btesc_CbChannel*>(channel));
         d_channels.insert(idx, channel);
         d_connectingSocket_p = NULL;
         callback(channel, 0);
@@ -332,7 +333,8 @@ void btesos_TcpCbConnector::connectCb()
                                                      d_manager_p,
                                                      d_allocator_p);
             bsl::vector<btesc_CbChannel*>::iterator idx =
-               bsl::lower_bound(d_channels.begin(), d_channels.end(), channel);
+               bsl::lower_bound(d_channels.begin(), d_channels.end(),
+                                static_cast<btesc_CbChannel*>(channel));
             d_channels.insert(idx, channel);
             d_connectingSocket_p = NULL;
             d_currentRequest_p->invokeTimed(channel, 0);
@@ -343,7 +345,8 @@ void btesos_TcpCbConnector::connectCb()
                                                 d_manager_p,
                                                 d_allocator_p);
             bsl::vector<btesc_CbChannel*>::iterator idx =
-               bsl::lower_bound(d_channels.begin(), d_channels.end(), channel);
+               bsl::lower_bound(d_channels.begin(), d_channels.end(),
+                                static_cast<btesc_CbChannel*>(channel));
             d_channels.insert(idx, channel);
             d_connectingSocket_p = NULL;
             d_currentRequest_p->invoke(channel, 0);

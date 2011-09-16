@@ -11,8 +11,9 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
-//@CLASSES: btemt_QueryProcessorEvent: a container for various events
-//@CLASSES: btemt_QueryProcessor: generic query processor
+//@CLASSES:
+//   btemt_QueryProcessorEvent: a container for various events
+//        btemt_QueryProcessor: generic query processor
 //
 //@SEE_ALSO: btemt_QueryDispatcher btemt_QueryRequest btemt_QueryResult
 //
