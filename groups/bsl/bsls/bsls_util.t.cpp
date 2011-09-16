@@ -147,19 +147,19 @@ enum CvQualification {
 
 template <typename T>
 inline
-CvQualification cvqOfPtr(T *p) { return CVQ_UNQUALIFIED; }
+CvQualification cvqOfPtr(T *) { return CVQ_UNQUALIFIED; }
 
 template <typename T>
 inline
-CvQualification cvqOfPtr(const T *p) { return CVQ_CONST; }
+CvQualification cvqOfPtr(const T *) { return CVQ_CONST; }
 
 template <typename T>
 inline
-CvQualification cvqOfPtr(volatile T *p) { return CVQ_VOLATILE; }
+CvQualification cvqOfPtr(volatile T *) { return CVQ_VOLATILE; }
 
 template <typename T>
 inline
-CvQualification cvqOfPtr(const volatile T *p) { return CVQ_CONST_VOLATILE; }
+CvQualification cvqOfPtr(const volatile T *) { return CVQ_CONST_VOLATILE; }
 
 //=============================================================================
 //                              USAGE EXAMPLE
@@ -179,36 +179,38 @@ CvQualification cvqOfPtr(const volatile T *p) { return CVQ_CONST_VOLATILE; }
 // ease of exposition):
 //..
     class BitReference {
+
         // DATA
-        char *d_byteptr_p;
+        char *d_byte_p;
         int   d_bitpos;
 
       public:
         // CREATORS
         BitReference(char *byteptr = 0, int bitpos = 0)
-        : d_byteptr_p(byteptr)
+        : d_byte_p(byteptr)
         , d_bitpos(bitpos)
         {
         }
 
         // ACCESSORS
-        operator bool() const { return (*d_byteptr_p >> d_bitpos) & 1; }
+        operator bool() const { return (*d_byte_p >> d_bitpos) & 1; }
 
-        char *byteptr() const { return d_byteptr_p; }
+        char *byteptr() const { return d_byte_p; }
         int bitpos() const { return d_bitpos; }
     };
 //..
 // Then, we create a pointer-like type that can point to a single bit:
 //..
     class BitPointer {
+
         // DATA
-        char *d_byteptr_p;
+        char *d_byte_p;
         int   d_bitpos;
 
       public:
         // CREATORS
         BitPointer(char *byteptr = 0, int bitpos = 0)
-        : d_byteptr_p(byteptr)
+        : d_byte_p(byteptr)
         , d_bitpos(bitpos)
         {
         }
@@ -216,7 +218,7 @@ CvQualification cvqOfPtr(const volatile T *p) { return CVQ_CONST_VOLATILE; }
         // ACCESSORS
         BitReference operator*() const
         {
-            return BitReference(d_byteptr_p, d_bitpos);
+            return BitReference(d_byte_p, d_bitpos);
         }
 
         // etc.
@@ -225,7 +227,8 @@ CvQualification cvqOfPtr(const volatile T *p) { return CVQ_CONST_VOLATILE; }
 // Next, we overload 'operator&' for 'BitReference' to return a 'BitPointer'
 // instead of a raw pointer, completing the setup:
 //..
-    inline BitPointer operator&(const BitReference& ref) {
+    inline BitPointer operator&(const BitReference& ref)
+    {
         return BitPointer(ref.byteptr(), ref.bitpos());
     }
 //..
