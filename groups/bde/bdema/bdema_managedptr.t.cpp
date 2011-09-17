@@ -8206,6 +8206,28 @@ int main(int argc, char *argv[])
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
+        if (verbose) cout << "\tTest unambiguous overloads.\n";
+
+        struct local_test {
+            static int invoke(bdema_ManagedPtr<void>)     { return 0; }
+            static int invoke(bdema_ManagedPtr<int>)      { return 1; }
+            static int invoke(bdema_ManagedPtr<const int>){ return 2; }
+        };
+
+        {
+            bdema_ManagedPtr<void>      pV;
+            bdema_ManagedPtr<int>       pI;
+            bdema_ManagedPtr<const int> pCi;
+
+            ASSERT(0 == local_test::invoke(pV));
+            ASSERT(1 == local_test::invoke(pI));
+            ASSERT(2 == local_test::invoke(pCi));
+
+#if 0  // compile fail test, think about giving a named macro to test
+            bdema_ManagedPtr<double>    pD;
+            ASSERT(0 == local_test::invoke(pD));
+#endif
+        }
      } break;
       case -1: {
         // --------------------------------------------------------------------
