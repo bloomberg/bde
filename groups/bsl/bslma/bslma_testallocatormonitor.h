@@ -399,6 +399,8 @@ inline
 bslma_TestAllocatorMonitor::~bslma_TestAllocatorMonitor()
 {
     BSLS_ASSERT_SAFE(d_testAllocator_p);
+    BSLS_ASSERT_SAFE(0 <= d_initialMax);
+    BSLS_ASSERT_SAFE(0 <= d_initialTotal);
 }
 #endif
 
