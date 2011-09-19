@@ -11712,7 +11712,7 @@ int main(int argc, char *argv[])
                                 "<MySequenceWithNillables>\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
-                                "    <Attribute3/>\n"
+                                "    <Attribute3 xsi:nil='true'/>\n"
                                 "</MySequenceWithNillables>\n",
                               };
             const int NUM_INPUT = sizeof INPUT / sizeof *INPUT;
