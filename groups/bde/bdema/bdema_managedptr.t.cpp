@@ -410,6 +410,17 @@ class AllocatorDeleter
       }
 };
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+struct OverloadTest {
+    // This struct provides a small overload set taking managed pointer values
+    // with similar looking (potentially related) types, to be sure there are
+    // no unexpected ambiguities or conversions.
+    static int invoke(bdema_ManagedPtr<void>)     { return 0; }
+    static int invoke(bdema_ManagedPtr<int>)      { return 1; }
+    static int invoke(bdema_ManagedPtr<const int>){ return 2; }
+};
+
 //=============================================================================
 //                              CREATORS TEST
 //=============================================================================
@@ -8208,24 +8219,18 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest unambiguous overloads.\n";
 
-        struct local_test {
-            static int invoke(bdema_ManagedPtr<void>)     { return 0; }
-            static int invoke(bdema_ManagedPtr<int>)      { return 1; }
-            static int invoke(bdema_ManagedPtr<const int>){ return 2; }
-        };
-
         {
             bdema_ManagedPtr<void>      pV;
             bdema_ManagedPtr<int>       pI;
             bdema_ManagedPtr<const int> pCi;
 
-            ASSERT(0 == local_test::invoke(pV));
-            ASSERT(1 == local_test::invoke(pI));
-            ASSERT(2 == local_test::invoke(pCi));
+            ASSERT(0 == OverloadTest::invoke(pV));
+            ASSERT(1 == OverloadTest::invoke(pI));
+            ASSERT(2 == OverloadTest::invoke(pCi));
 
 #if 0  // compile fail test, think about giving a named macro to test
             bdema_ManagedPtr<double>    pD;
-            ASSERT(0 == local_test::invoke(pD));
+            ASSERT(0 == OverloadTest::invoke(pD));
 #endif
         }
      } break;
