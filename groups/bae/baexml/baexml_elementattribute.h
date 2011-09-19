@@ -273,7 +273,7 @@ class baexml_ElementAttribute {
             // Set this bit if this attribute represents a namespace
             // declaration.
 
-        BAEXML_ATTR_IS_XSIDECL = 0x0003
+        BAEXML_ATTR_IS_XSIDECL = 0x0004
             // Set this bit if this attribute represents a XML schema instance
             // declaration.
 
