@@ -76,7 +76,9 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-typedef baexml_MiniReader Obj;
+typedef baexml_MiniReader        Obj;
+typedef baexml_ElementAttribute  ElementAttribute;
+typedef baexml_NamespaceRegistry Registry;
 
 const bsl::string::size_type npos = bsl::string::npos;
 
@@ -730,7 +732,7 @@ int main(int argc, char *argv[])
     switch (test)
     {
       case 0:  // Zero is always the leading case.
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -771,6 +773,88 @@ int main(int argc, char *argv[])
 
       } break;
 
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'xsi:nil' attribute
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << bsl::endl
+                               << "Testing 'xsi:nil' attribute"   << bsl::endl
+                               << "===========================\n" << bsl::endl;
+
+        {
+            static const string xmlStr =
+                "<?xml version='1.0' encoding='UTF-8'?>\n"
+                "<!-- RCSId_bascfg_xsd = \"$Id: $\" -->\n"
+                "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+                "    elementFormDefault='qualified'\n"
+                "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+                "    bdem:package='bascfg'>\n"
+                "<Node1 xsi:nil='true'/>\n"
+                "<Node2 xsi:nil='false'/>\n"
+                "<Node3/>\n"
+                "</xs:schema>";
+
+          if (veryVerbose) { P(xmlStr); }
+
+          baexml_NamespaceRegistry namespaces;
+          baexml_PrefixStack prefixStack(&namespaces);
+          Obj miniReader; Obj& reader = miniReader;
+
+          reader.setPrefixStack(&prefixStack);
+
+          int rc = reader.open(&xmlStr[0], xmlStr.size());
+          ASSERT(-1 < rc);
+
+          ASSERT( reader.isOpen());
+          ASSERT( reader.nodeType() == baexml_Reader::BAEXML_NODE_TYPE_NONE);
+
+          readHeader(reader);
+
+          rc = advancePastWhiteSpace(reader);
+          ASSERT(reader.nodeType() == baexml_Reader::BAEXML_NODE_TYPE_ELEMENT);
+          ASSERT(!bsl::strcmp(reader.nodeName(), "Node1"));
+          ASSERT(1 == reader.numAttributes());
+
+          baexml_ElementAttribute attr;
+          ASSERT(0 == reader.lookupAttribute(&attr, 0));
+          ASSERT(ElementAttribute::BAEXML_ATTR_IS_XSIDECL == attr.flags());
+          ASSERT(0 == strcmp("xsi:nil", attr.qualifiedName()));
+          ASSERT(0 == strcmp("xsi", attr.prefix()));
+          ASSERT(0 == strcmp("nil", attr.localName()));
+          ASSERT(0 == strcmp("true", attr.value()));
+          ASSERT(0 == strcmp("http://www.w3.org/2001/XMLSchema-instance",
+                             attr.namespaceUri()));
+          ASSERT(Registry::BAEXML_XMLSCHEMA_INSTANCE == attr.namespaceId());
+
+          rc = advancePastWhiteSpace(reader);
+          ASSERT(reader.nodeType() == baexml_Reader::BAEXML_NODE_TYPE_ELEMENT);
+          ASSERT(!bsl::strcmp(reader.nodeName(), "Node2"));
+          ASSERT(1 == reader.numAttributes());
+          attr.reset();
+          ASSERT(0 == reader.lookupAttribute(&attr, 0));
+          ASSERT(ElementAttribute::BAEXML_ATTR_IS_XSIDECL == attr.flags());
+          ASSERT(0 == strcmp("xsi:nil", attr.qualifiedName()));
+          ASSERT(0 == strcmp("xsi", attr.prefix()));
+          ASSERT(0 == strcmp("nil", attr.localName()));
+          ASSERT(0 == strcmp("false", attr.value()));
+          ASSERT(0 == strcmp("http://www.w3.org/2001/XMLSchema-instance",
+                             attr.namespaceUri()));
+          ASSERT(Registry::BAEXML_XMLSCHEMA_INSTANCE == attr.namespaceId());
+
+          rc = advancePastWhiteSpace(reader);
+          ASSERT(reader.nodeType() == baexml_Reader::BAEXML_NODE_TYPE_ELEMENT);
+          ASSERT(!bsl::strcmp(reader.nodeName(), "Node3"));
+          ASSERT(0 == reader.numAttributes());
+          ASSERT(reader.isEmptyElement());
+
+          reader.close();
+        }
+      } break;
       case 10: {
         // --------------------------------------------------------------------
         // TESTING decoding 'CDATA'

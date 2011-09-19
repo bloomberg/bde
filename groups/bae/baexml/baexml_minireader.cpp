@@ -1616,7 +1616,8 @@ baexml_MiniReader::updateAttributes()
         Attribute& attr =*it1;
         int flags = attr.flags();
 
-        if (0 != (flags & Attribute::BAEXML_ATTR_IS_NSDECL)){
+        if (flags & Attribute::BAEXML_ATTR_IS_NSDECL
+         || flags & Attribute::BAEXML_ATTR_IS_XSIDECL){
             continue;
         }
 
