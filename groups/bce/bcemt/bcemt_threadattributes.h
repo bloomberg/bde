@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a description of the attributes of a thread
+//@PURPOSE: Provide a description of the attributes of a thread.
 //
 //@CLASSES:
 //  bcemt_ThreadAttributes: a description of the attributes of a thread
