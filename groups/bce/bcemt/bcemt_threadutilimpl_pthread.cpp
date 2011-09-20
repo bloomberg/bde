@@ -65,6 +65,12 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
     if (0 != rc) {
         return rc;                                                    // RETURN
     }
+
+    // From now on, instead of doing 'if (0 != rc) return rc;' after each call
+    // we just bitwise-or the return values, all of which we expect to be 0,
+    // together, and then return that value at the end, to achieve higher speed
+    // by avoiding confusing the pipeline with branches.
+
     rc |= pthread_attr_setdetachstate(
                              dest,
                              Attr::BCEMT_CREATE_DETACHED == src.detachedState()
