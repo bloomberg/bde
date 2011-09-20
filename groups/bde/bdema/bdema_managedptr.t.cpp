@@ -64,8 +64,8 @@ using bsl::endl;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// We are testing a proctor class that makes sure that only one instance holds
-// a copy of an allocated pointer, along with the necessary information to
+// We are testing a proctor class that makes sure that only one object holds a
+// copy of an allocated pointer, along with the necessary information to
 // deallocate it properly (the deleter).  The primary goal of this test program
 // is to ascertain that no resource ever gets leaked, i.e., that when the
 // proctor is re-assigned or destroyed, the managed pointer gets deleted
@@ -198,7 +198,7 @@ class bsls_AssertTestHandlerGuard {
   public:
     bsls_AssertTestHandlerGuard();
         // Create a 'bsls_AssertTestHandlerGuard' object, installing the
-        // 'sls_AssertTest::failTestDriver' assertion handler.
+        // 'bsls_AssertTest::failTestDriver' assertion handler.
 
     //! ~bsls_AssertTestHandlerGuard() = default;
         // Destroy this object and uninstall 'bsls_AssertTest::failTestDriver'
@@ -571,12 +571,12 @@ static void doNothingDeleter(void *object, void *)
 //
 // The 'line' and 'index' parameters describe the source line number at the
 // call site, and any index into a function table to identify the specific
-// invokation of this test function.  The 'useDefault' argument must be set to
+// invocation of this test function.  The 'useDefault' argument must be set to
 // 'true' if the function allocates memory from the default allocator.  This is
 // then used by the calling harness to know if it can check the default
 // allocator's memory usage.
 //
-// The following chart describes the complete set of test scenarios, labelled
+// The following chart describes the complete set of test scenarios, labeled
 // with their corresponding function:
 //:        Object  Code     Value
 //:        ------  ----     -----
@@ -616,7 +616,7 @@ static void doNothingDeleter(void *object, void *)
 //: The "V(V*,B*)" and "V(V*,D*)" cases could be tricky if the first "V*"
 //: parameter is thought to be a type-erased factory that is cast back
 //: internally.  We believe there are such cases in existing code, so must be
-//: supported - we cannot assume the intial "V*" factory argument is ignored
+//: supported - we cannot assume the initial "V*" factory argument is ignored
 //: by the deleter.  Here we will test just two forms, 'D' ignoring the factory
 //: argument and using the default allocator to destroy the 'object', and 'B'
 //: which destroys the 'object' by casting the 'factory' to 'bslma_Allocator*'.
@@ -626,19 +626,19 @@ static void doNothingDeleter(void *object, void *)
 //:            -  (none) use default (if any)
 //:            0  Dnull  [ALL SUCH OVERLOADS ARE COMPILE-FAIL TEST CASES]
 //:    V(V*, V*)  Dzero  a pointer variable with value '0'.
-//:    V(V*, V*)  DvvF    
-//:    V(V*, V*)  DvvT   
-//:    V(V*, V*)  DvvD   
-//:    V(V*, B*)  DvbD    
-//:    V(V*, B*)  DvbB   
-//:    V(V*, D*)  DvdD   
-//:    V(V*, D*)  DvdB   
-//:    V(B*, V*)  Dbv    
-//:    V(B*, B*)  Dbb    
-//:    V(B*, D*)  Dbd    
-//:    V(T*, V*)  Dtv    
-//:    V(T*, B*)  Dtb    
-//:    V(T*, D*)  Dtd    
+//:    V(V*, V*)  DvvF
+//:    V(V*, V*)  DvvT
+//:    V(V*, V*)  DvvD
+//:    V(V*, B*)  DvbD
+//:    V(V*, B*)  DvbB
+//:    V(V*, D*)  DvdD
+//:    V(V*, D*)  DvdB
+//:    V(B*, V*)  Dbv
+//:    V(B*, B*)  Dbb
+//:    V(B*, D*)  Dbd
+//:    V(T*, V*)  Dtv
+//:    V(T*, B*)  Dtb
+//:    V(T*, D*)  Dtd
 //:
 //: Deleter codes used above:
 //:     V(X* Y*) is a function type, returning 'void' taking arguments of type
@@ -678,8 +678,8 @@ static void doNothingDeleter(void *object, void *)
 //X doLoadOderivFbslDzero
 //X doLoadOderivFtstDzero
 
-// TBD Can we store a 'void *' object with a knowledgable factory?
-//     (I think we require a knowledgable deleter to handle such type erasure)
+// TBD Can we store a 'void *' object with a knowledgeable factory?
+//     (I think we require a knowledgeable deleter to handle such type erasure)
 
 // WOULD THESE SERVE ANY PURPOSE, OR PURELY DELETER TESTS?
 // Patterns that would form compile-fails
@@ -724,10 +724,10 @@ struct TestLoadArgs {
     // policy based test function.  It collects all information for the range
     // of tests and expectations to be set up on entry, and reported on exit.
     int  d_deleteCount; // An integer to be passed to 'MyTestObject's
-    int  d_deleteDelta; // 
+    int  d_deleteDelta; //
     bool d_useDefault;  // Set to true if the test uses the default allocator
     bslma_TestAllocator *d_ta; // pointer to a test allocator whose lifetime will outlast the function call
-    unsigned int d_config; // Valid values are 0-3.  The low-bit represents  whether to pass a null for 'object', the second bit whether to pass a null for 'factory'
+    unsigned int d_config; // Valid values are 0-3.  The low-bit represents whether to pass a null for 'object', the second bit whether to pass a null for 'factory'
     bdema_ManagedPtr<POINTER_TYPE> *d_p; // pointer to the long-lived managed pointer on which to execute tests
 };
 
@@ -746,7 +746,7 @@ void validateTestLoadArgs(int callLine,
 
 //=============================================================================
 //                          Target Object policies
-// A Target Object policy consist of two memebers:
+// A Target Object policy consist of two members:
 //: 1 A typedef, 'ObjectType', that reports the type of object to create
 //: 2 An enum value 'DELETE_DELTA' reporting the expected change in
 //:   'deleteCount' when the created object is destroyed.
@@ -755,7 +755,7 @@ void validateTestLoadArgs(int callLine,
 // different to the static type of the created object described by this policy,
 // notably for tests of 'bdema_ManagedPtr<void>'.
 //
-// List of avaiable policies:
+// List of available policies:
 struct Obase;
 struct OCbase;
 struct Oderiv;
@@ -788,7 +788,7 @@ struct OCderiv {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                             Factory Policies
-// List of avaiable policies:
+// List of available policies:
 struct Fbsl;
 struct Ftst;
 struct Fdflt;
@@ -829,7 +829,7 @@ struct Fdflt {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                             Deleter Policies
-// List of avaiable policies:
+// List of available policies:
 template<class ObjectPolicy, class FactoryPolicy> struct DObjFac;
 template<class ObjectPolicy, class FactoryPolicy> struct DObjVoid;
 template<class ObjectPolicy, class FactoryPolicy> struct DVoidFac;
@@ -977,8 +977,8 @@ struct DVoidVoid {
 // potential type-space of valid combinations of type for each set of arguments
 // to 'bdema_ManagedPtr::load'.  Each is a function template, taking at least
 // a single type parameter describing the type 'bdema_ManagedPtr' should be
-// instatiated for.  Most function templates will take additional type
-// arguements describing different policies that are used to define the
+// instantiated for.  Most function templates will take additional type
+// arguments describing different policies that are used to define the
 // functionality of that test.
 // This decomposition into 11 test policies and 10 test functions allows us to
 // generate over 200 distint test functions, that in turn may be specified for
@@ -1108,8 +1108,8 @@ void doLoadObject(int callLine, int testLine, int index,
     POINTER_TYPE *ptr = args->d_p->ptr();
     LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
 
-    // If we are feeling brave, verify that 'd_p.deleter()' has the expected
-    // 'object()', 'factory()' and 'deleter()'
+    // If we are feeling brave, verify that 'd_p.deleter' has the expected
+    // 'object', 'factory' and 'deleter'
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1135,12 +1135,12 @@ void doLoadObjectFactory(int callLine, int testLine, int index,
     // goal.
     bool negativeTesting = !nullObject && nullFactory;
 
-    // If we are negative-testing, we will create and destroy any targtet
+    // If we are negative-testing, we will create and destroy any target
     // object entirely within this function, so must track with a local counter
     // instead of the 'args' counter.
     int localDeleteCount = 0;
 
-    int * counter = negativeTesting 
+    int * counter = negativeTesting
                   ? &localDeleteCount
                   : &args->d_deleteCount;
 
@@ -1187,7 +1187,7 @@ void doLoadObjectFactory(int callLine, int testLine, int index,
 
             pAlloc->deleteObject(pO);
 
-            LOOP_ASSERT(localDeleteCount, 
+            LOOP_ASSERT(localDeleteCount,
                         ObjectPolicy::DELETE_DELTA == localDeleteCount);
         }
 #else
@@ -1196,8 +1196,8 @@ void doLoadObjectFactory(int callLine, int testLine, int index,
 #endif
     }
 
-    // If we are feeling brave, verify that 'p.deleter()' has the expected
-    // 'object()', 'factory()' and 'deleter()'
+    // If we are feeling brave, verify that 'p.deleter' has the expected
+    // 'object', 'factory' and 'deleter'
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1227,7 +1227,7 @@ void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
     // goal.
     bool negativeTesting = !nullObject;
 
-    // If we are negative-testing, we will create and destroy any targtet
+    // If we are negative-testing, we will create and destroy any target
     // object entirely within this function, so must track with a local counter
     // instead of the 'args' counter.
     int localDeleteCount = 0;
@@ -1274,7 +1274,7 @@ void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
             ASSERT_SAFE_FAIL(args->d_p->load(pO,  0, nullFn));
 
             pAlloc->deleteObject(pO);
-            LOOP_ASSERT(localDeleteCount, 
+            LOOP_ASSERT(localDeleteCount,
                         ObjectPolicy::DELETE_DELTA == localDeleteCount);
         }
 #else
@@ -1431,7 +1431,7 @@ void testLoadOps(int callLine,
                 LOOP_ASSERT(i, dam.isMaxSame());
             }
 
-            for(unsigned configJ = 0; configJ != 4; ++configJ) {            
+            for(unsigned configJ = 0; configJ != 4; ++configJ) {
                 for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
                     bslma_TestAllocatorMonitor dam2(da);
 
@@ -1834,7 +1834,7 @@ static const TestBaseFn TEST_BASE_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
                                     DVoidVoid<Obase,   Fdflt> >,
@@ -1968,7 +1968,7 @@ static const TestBaseFn TEST_BASE_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
                                      DVoidFac<Obase,   Fdflt> >,
@@ -2012,7 +2012,7 @@ static const TestBaseFn TEST_BASE_ARRAY[] = {
     //&doLoadObjectFnullDeleter<MyTestObject, Oderiv,
     //                               DVoidFac<OCbase,  Fdflt> >,
 
-    // HERE WE ARE DOULBY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
+    // HERE WE ARE DOUBLY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
     // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
     //&doLoadObjectFnullDeleter<MyTestObject, OCbase,
     //                               DVoidFac<OCbase,  Fdflt> >,
@@ -2103,7 +2103,7 @@ static const TestBaseFn TEST_BASE_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
                                      DObjVoid<Obase,   Fdflt> >,
@@ -2236,7 +2236,7 @@ static const TestBaseFn TEST_BASE_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
                                       DObjFac<Obase,   Fdflt> >,
@@ -2300,7 +2300,7 @@ static const TestBaseFn TEST_BASE_ARRAY[] = {
     //&doLoadObjectFactoryDzero<MyTestObject, OCderiv, Ftst>,
     //&doLoadObjectFactoryDzero<MyTestObject, OCderiv, Fbsl>
 };
-static const int TEST_BASE_ARRAY_SIZE = 
+static const int TEST_BASE_ARRAY_SIZE =
                           sizeof(TEST_BASE_ARRAY)/sizeof(TEST_BASE_ARRAY[0]);
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2415,7 +2415,7 @@ static const TestConstBaseFn TEST_CONST_BASE_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
                                           DVoidVoid<Obase,   Fdflt> >,
@@ -2549,7 +2549,7 @@ static const TestConstBaseFn TEST_CONST_BASE_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
                                            DVoidFac<Obase,   Fdflt> >,
@@ -2682,7 +2682,7 @@ static const TestConstBaseFn TEST_CONST_BASE_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
                                            DObjVoid<Obase,   Fdflt> >,
@@ -2815,7 +2815,7 @@ static const TestConstBaseFn TEST_CONST_BASE_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
                                             DObjFac<Obase,   Fdflt> >,
@@ -2879,7 +2879,7 @@ static const TestConstBaseFn TEST_CONST_BASE_ARRAY[] = {
     &doLoadObjectFactoryDzero<const MyTestObject, OCderiv, Ftst>,
     &doLoadObjectFactoryDzero<const MyTestObject, OCderiv, Fbsl>
 };
-static const int TEST_CONST_BASE_ARRAY_SIZE = 
+static const int TEST_CONST_BASE_ARRAY_SIZE =
     sizeof(TEST_CONST_BASE_ARRAY)/sizeof(TEST_CONST_BASE_ARRAY[0]);
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2993,7 +2993,7 @@ static const TestDerivedFn TEST_DERIVED_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
     //                                   DVoidVoid<Obase,   Fdflt> >,
@@ -3127,7 +3127,7 @@ static const TestDerivedFn TEST_DERIVED_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
     //                                    DVoidFac<Obase,   Fdflt> >,
@@ -3171,7 +3171,7 @@ static const TestDerivedFn TEST_DERIVED_ARRAY[] = {
     //&doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
     //                                  DVoidFac<OCbase,  Fdflt> >,
 
-    // HERE WE ARE DOULBY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
+    // HERE WE ARE DOUBLY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
     // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
     //&doLoadObjectFnullDeleter<MyDerivedObject, OCbase,
     //                                  DVoidFac<OCbase,  Fdflt> >,
@@ -3262,7 +3262,7 @@ static const TestDerivedFn TEST_DERIVED_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
     //                                    DObjVoid<Obase,   Fdflt> >,
@@ -3395,7 +3395,7 @@ static const TestDerivedFn TEST_DERIVED_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
     //                                     DObjFac<Obase,   Fdflt> >,
@@ -3459,7 +3459,7 @@ static const TestDerivedFn TEST_DERIVED_ARRAY[] = {
     //&doLoadObjectFactoryDzero<MyDerivedObject, OCderiv, Ftst>,
     //&doLoadObjectFactoryDzero<MyDerivedObject, OCderiv, Fbsl>
 };
-static const int TEST_DERIVED_ARRAY_SIZE = 
+static const int TEST_DERIVED_ARRAY_SIZE =
           sizeof(TEST_DERIVED_ARRAY)/sizeof(TEST_DERIVED_ARRAY[0]);
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3573,7 +3573,7 @@ static const TestVoidFn TEST_VOID_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
                             DVoidVoid<Obase,   Fdflt> >,
@@ -3707,7 +3707,7 @@ static const TestVoidFn TEST_VOID_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
                              DVoidFac<Obase,   Fdflt> >,
@@ -3751,7 +3751,7 @@ static const TestVoidFn TEST_VOID_ARRAY[] = {
     //&doLoadObjectFnullDeleter<void, Oderiv,
     //                       DVoidFac<OCbase,  Fdflt> >,
 
-    // HERE WE ARE DOULBY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
+    // HERE WE ARE DOUBLY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
     // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
     //&doLoadObjectFnullDeleter<void, OCbase,
     //                       DVoidFac<OCbase,  Fdflt> >,
@@ -3842,7 +3842,7 @@ static const TestVoidFn TEST_VOID_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
                              DObjVoid<Obase,   Fdflt> >,
@@ -3975,7 +3975,7 @@ static const TestVoidFn TEST_VOID_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
                               DObjFac<Obase,   Fdflt> >,
@@ -4039,7 +4039,7 @@ static const TestVoidFn TEST_VOID_ARRAY[] = {
     //&doLoadObjectFactoryDzero<void, OCderiv, Ftst>,
     //&doLoadObjectFactoryDzero<void, OCderiv, Fbsl>
 };
-static const int TEST_VOID_ARRAY_SIZE = 
+static const int TEST_VOID_ARRAY_SIZE =
                 sizeof(TEST_VOID_ARRAY)/sizeof(TEST_VOID_ARRAY[0]);
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -4153,7 +4153,7 @@ static const TestConstVoidFn TEST_CONST_VOID_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
                                   DVoidVoid<Obase,   Fdflt> >,
@@ -4287,7 +4287,7 @@ static const TestConstVoidFn TEST_CONST_VOID_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
                                    DVoidFac<Obase,   Fdflt> >,
@@ -4420,7 +4420,7 @@ static const TestConstVoidFn TEST_CONST_VOID_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
                                    DObjVoid<Obase,   Fdflt> >,
@@ -4553,7 +4553,7 @@ static const TestConstVoidFn TEST_CONST_VOID_ARRAY[] = {
 
 
     // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a nulll
+    // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
     &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
                                     DObjFac<Obase,   Fdflt> >,
@@ -4617,7 +4617,7 @@ static const TestConstVoidFn TEST_CONST_VOID_ARRAY[] = {
     &doLoadObjectFactoryDzero<const void, OCderiv, Ftst>,
     &doLoadObjectFactoryDzero<const void, OCderiv, Fbsl>
 };
-static const int TEST_CONST_VOID_ARRAY_SIZE = 
+static const int TEST_CONST_VOID_ARRAY_SIZE =
     sizeof(TEST_CONST_VOID_ARRAY)/sizeof(TEST_CONST_VOID_ARRAY[0]);
 
 } // close anonymous namespace
@@ -4655,9 +4655,9 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
         {
             B *b_p = 0;
             A *a_p = b_p;
-    //..
-    // are legal expressions, then the statements
-    //..
+//..
+// are legal expressions, then the statements
+//..
             bdema_ManagedPtr<A> a_mp1;
             bdema_ManagedPtr<B> b_mp1;
 
@@ -4762,7 +4762,7 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 //..
 // If the value of 'aPtr' can be dynamically cast to 'B*' then ownership is
 // transferred to 'bPtr', otherwise 'aPtr' is to be modified.  As previously
-// stated, the managed instance will be destroyed correctly regardless of how
+// stated, the managed object will be destroyed correctly regardless of how
 // it is cast.
 
 }  // close namespace TYPE_CASTING_TEST_NAMESPACE
@@ -4774,7 +4774,7 @@ namespace USAGE_EXAMPLE {
 
 // What follows is a concrete example illustrating the alias concept.
 // Let's say our array stores data acquired from a ticker
-// plant accessible by a global 'getQuote()' function:
+// plant accessible by a global 'getQuote' function:
 //..
     double getQuote() // From ticker plant. Simulated here
     {
@@ -4856,7 +4856,7 @@ namespace USAGE_EXAMPLE {
             if (g_verbose) bsl::cout << ' ' << quote;
         }
         if (g_verbose) bsl::cout << bsl::endl;
-// To move the finger, e.g. to the last position printed, one must be careful
+// To move the finger, e.g., to the last position printed, one must be careful
 // to retain the ownership of the entire array.  Using the statement
 // 'result.load(result.ptr()-i)' would be an error, because it would first
 // compute the pointer value 'result.ptr()-i' of the argument, then release the
@@ -5158,7 +5158,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
 #if 0
-        // testing 'deleter()' accessor and 'release().second'
+        // testing 'deleter' accessor and 'release().second'
         numDeletes = 0;
         {
             TObj *p;
@@ -5215,7 +5215,7 @@ int main(int argc, char *argv[])
         //   assign from pointer with factory/deleter
         //   assign to pointer with factory/deleter/aliased-pointer
         //   assign from a compatible managed pointer type
-        //      (e.g. ptr-to-derived, to ptr-to-base, ptr to ptr-to-const)
+        //      (e.g., ptr-to-derived, to ptr-to-base, ptr to ptr-to-const)
         //   any managed pointer can be assigned to 'bdema_ManagedPtr<void>'
         //   assign to/from an empty managed pointer, each of the cases above
         //   assigning incompatible pointers should fail to compile (hand test)
@@ -5244,7 +5244,7 @@ int main(int argc, char *argv[])
         //  In addition, assignment supports the following that 'swap' does not
         //  assignment from temporary/rvalue must be supported
         //  assignment from 'compatible' managed pointer must be supported
-        //    i.e. where raw pointers would be convertible under assignment
+        //    i.e., where raw pointers would be convertible under assignment
         //
         //: X No 'bdema_ManagedPtr' method should allocate any memory.
         // Plan:
@@ -5483,7 +5483,7 @@ int main(int argc, char *argv[])
         // TESTING ACCESSORS
         //
         // Concerns:
-        //   That all accessors work properly.  The 'ptr()' accessor has
+        //   That all accessors work properly.  The 'ptr' accessor has
         //   already been substantially tested in previous tests.
         //   The unspecified bool conversion evaluates as expected in all
         //     circumstances: if/while/for, (implied) operator!
@@ -5492,7 +5492,7 @@ int main(int argc, char *argv[])
         //   All accessors return expected values when a 'bdema_ManagedPtr' has
         //     been aliased
         //   'operator*' should assert in SAFE builds for empty pointers
-        //   'deleter()' should assert in SAFE builds for empty pointers
+        //   'deleter' should assert in SAFE builds for empty pointers
         //   'operator*' should be well-formed, but not callable for
         //     'bdema_ManagedPtr<void>'.
         //
@@ -5828,7 +5828,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   managed pointer can hold an alias
-        //   'ptr()' returns the alias pointer, and not the managed pointer
+        //   'ptr' returns the alias pointer, and not the managed pointer
         //   correct deleter is run when an aliased pointer is destroyed
         //   appropriate object is cleared/deleters run when assigning to/from an aliased managed pointer
         //   a managed pointer can alias itself
@@ -5988,7 +5988,7 @@ int main(int argc, char *argv[])
         //:
         //: 6 Both lvalue and rvalue objects of 'bdema_ManagedPtr' types can
         //:   implicitly convert to a 'bdema_ManagedPtr_Ref' of any compatible
-        //:   type, i.e. where a pointer to the specified '_Ref' type may be
+        //:   type, i.e., where a pointer to the specified '_Ref' type may be
         //:   converted from a pointer to the specified 'Managed' type.
         //
         // Plan:
@@ -6771,7 +6771,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   take an empty pointer, and call each overload of load.
         //      confirm pointer is initially null
-        //      confirm new pointer value is stored by 'ptr()'
+        //      confirm new pointer value is stored by 'ptr'
         //      confirm destructor destroys target object
         //      be sure to pass both '0' and valid pointer values to each potential overload
         //   Write a pair of nested loops
@@ -6804,7 +6804,7 @@ int main(int argc, char *argv[])
         //
         //   Codes for specific factories are:
         //      Fbsl   factory is cast to base 'bslma_Allocator'
-        //      Ftst   factory is cast to specifc 'bslma_TestAllocator' type
+        //      Ftst   factory is cast to specific 'bslma_TestAllocator' type
         //      Fdflt  factory argument is ignored and default allocator used
         //
         //   Each test-function taking an 'Object' parameter will call 'load'
@@ -6822,7 +6822,7 @@ int main(int argc, char *argv[])
         //
         //   These functions are assembled using further policy-functions that
         //   will create and supply objects, deleters and factories of types
-        //   that are specified as template type paramters.  This allows us to
+        //   that are specified as template type parameters.  This allows us to
         //   compose test cases with the full set of conversion scenarios that
         //   may be needed.
         //
@@ -8405,7 +8405,7 @@ int main(int argc, char *argv[])
                 0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
-        bsl::cerr << "Error, non-zero test status = " << testStatus << "." 
+        bsl::cerr << "Error, non-zero test status = " << testStatus << "."
                                                                     << endl;
     }
     return testStatus;

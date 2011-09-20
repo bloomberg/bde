@@ -459,7 +459,7 @@ class bdema_ManagedPtr_Members {
     const bdema_ManagedPtrDeleter& deleter() const;
         // Return the 'bdema_ManagedPtrDeleter' object that should be used to
         // destroy the currently managed object, if any.  Behavior is
-        // undefined unless 'pointer()' is not null.
+        // undefined unless 'pointer' is not null.
 };
 
                      // =====================================
@@ -704,7 +704,7 @@ class bdema_ManagedPtr {
     , typename EnableConstructorIfCompatiblePointer<BDEMA_TARGET_TYPE>::type
                                                                 = Unspecified()
 #endif
-                                                                              );
+                                                                             );
         // Construct a managed pointer that manages the specified 'ptr' using
         // the current default allocator to destroy 'ptr' when this managed
         // pointer is destroyed or re-assigned, unless it is released before
@@ -771,9 +771,9 @@ class bdema_ManagedPtr {
     bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
                      bdema_ManagedPtr_Nullptr::Type,
                      void (*deleter)(BDEMA_TARGET_BASE*, void*),
-                     typename EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE, 
-                                                        BDEMA_TARGET_BASE, 
-                                                        void, 
+                     typename EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE,
+                                                        BDEMA_TARGET_BASE,
+                                                        void,
                                                         void>::type* = 0);
         // [!DEPRECATED!] Construct a managed pointer to manage the specified
         // 'ptr' using the specified 'deleter' to destroy 'ptr' when this
@@ -799,9 +799,9 @@ class bdema_ManagedPtr {
                      BDEMA_FACTORY     *factory,
                      void (*deleter)(BDEMA_TARGET_BASE*, BDEMA_BASE_FACTORY*),
                      typename
-                     EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE, 
-                                               BDEMA_TARGET_BASE, 
-                                               BDEMA_FACTORY, 
+                     EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE,
+                                               BDEMA_TARGET_BASE,
+                                               BDEMA_FACTORY,
                                                BDEMA_BASE_FACTORY>::type* = 0);
         // [!DEPRECATED!] Construct a managed pointer to manage the specified
         // 'ptr' using the specified 'deleter' and associated 'factory' to
@@ -872,7 +872,7 @@ class bdema_ManagedPtr {
         // managed pointer.
     {
         // Note that this function is defined inline in the class definition in
-        // order to work around bugs in compilers that fail to recognise an
+        // order to work around bugs in compilers that fail to recognize an
         // out-of-line definition as matching this same declaration.
 
         BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
@@ -895,10 +895,10 @@ class bdema_ManagedPtr {
         // managed pointer.
     {
         // Note that this function is defined inline in the class definition in
-        // order to work around bugs in compilers that fail to recognise an
+        // order to work around bugs in compilers that fail to recognize an
         // out-of-line definition as matching this same declaration.
 
-        typedef 
+        typedef
         bdema_ManagedPtr_FactoryDeleter<BDEMA_TARGET_TYPE,bslma_Allocator>
                                                                 DeleterFactory;
 
@@ -921,12 +921,12 @@ class bdema_ManagedPtr {
         // by another managed pointer.
     {
         // Note that this function is defined inline in the class definition in
-        // order to work around bugs in compilers that fail to recognise an
+        // order to work around bugs in compilers that fail to recognize an
         // out-of-line definition as matching this same declaration.
 
         BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
 
-        typedef 
+        typedef
         typename bdema_ManagedPtr_FactoryDeleterType<BDEMA_TARGET_TYPE,
                                                      BDEMA_FACTORY>::Type
                                                                 DeleterFactory;
@@ -960,7 +960,7 @@ class bdema_ManagedPtr {
         // new code.
     {
         // Note that this function is defined inline in the class definition in
-        // order to work around bugs in compilers that fail to recognise an
+        // order to work around bugs in compilers that fail to recognize an
         // out-of-line definition as matching this same declaration.
 
         BSLS_ASSERT_SAFE(ptr || 0 != deleter);
@@ -976,7 +976,7 @@ class bdema_ManagedPtr {
               class BDEMA_BASE_FACTORY>
     typename EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE,
                                        BDEMA_TARGET_BASE,
-                                       BDEMA_FACTORY, 
+                                       BDEMA_FACTORY,
                                        BDEMA_BASE_FACTORY>::type
     load(BDEMA_TARGET_TYPE *ptr,
          BDEMA_FACTORY     *factory,
@@ -995,7 +995,7 @@ class bdema_ManagedPtr {
         // be preferred for new code.
     {
         // Note that this function is defined inline in the class definition in
-        // order to work around bugs in compilers that fail to recognise an
+        // order to work around bugs in compilers that fail to recognize an
         // out-of-line definition as matching this same declaration.
 
         BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
@@ -1192,6 +1192,7 @@ struct bdema_ManagedPtr_FactoryDeleterType {
                            // ----------------------
                            // class bdema_ManagedPtr
                            // ----------------------
+
 // CREATORS
 template <class BDEMA_TYPE>
 inline
@@ -1277,9 +1278,9 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
                                    bdema_ManagedPtr_Nullptr::Type,
                                    void (*deleter)(BDEMA_TARGET_BASE*, void*),
                                    typename
-                                   EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE, 
-                                                             BDEMA_TARGET_BASE, 
-                                                             void, 
+                                   EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE,
+                                                             BDEMA_TARGET_BASE,
+                                                             void,
                                                              void>::type*)
 : d_members(stripPointerType(ptr),
             0,
@@ -1300,15 +1301,15 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
                       BDEMA_FACTORY     *factory,
                       void (*deleter)(BDEMA_TARGET_BASE*, BDEMA_BASE_FACTORY*),
                       typename
-                      EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE, 
-                                                BDEMA_TARGET_BASE, 
-                                                BDEMA_FACTORY, 
+                      EnableIfCompatibleDeleter<BDEMA_TARGET_TYPE,
+                                                BDEMA_TARGET_BASE,
+                                                BDEMA_FACTORY,
                                                 BDEMA_BASE_FACTORY>::type*)
 : d_members(stripPointerType(ptr),
             factory,
             reinterpret_cast<DeleterFunc>(deleter))
 {
-    // Note that the undefined behavior engendered in the 'reinterpret_cast'
+    // Note that the undefined behavior embodied in the 'reinterpret_cast'
     // above could be removed by inserting an additional forwarding function
     // truly of type 'DeleterFunc' which 'reinterpret_cast's each pointer
     // argument as part of its forwarding behavior.  We choose not to do this
@@ -1348,7 +1349,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::loadAlias(
                                      bdema_ManagedPtr<BDEMA_OTHER_TYPE>& alias,
                                      BDEMA_TYPE                         *ptr)
 {
-    BSLS_ASSERT_SAFE(  (0 == ptr && 0 == alias.ptr()) 
+    BSLS_ASSERT_SAFE(  (0 == ptr && 0 == alias.ptr())
                     || (0 != ptr && 0 != alias.ptr()) );
 
     if (ptr && alias.d_members.pointer()) {
