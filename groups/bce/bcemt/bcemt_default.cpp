@@ -1,7 +1,6 @@
 // bcemt_default.cpp                                                  -*-C++-*-
 #include <bcemt_default.h>
 
-#include <bces_atomictypes.h>
 #include <bces_platform.h>
 
 #include <bslmf_assert.h>
@@ -22,7 +21,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_default_cpp,"$Id$ $CSID$")
 
-static BloombergLP::bces_AtomicInt defaultThreadStackSizeValue = -1;
+static volatile int defaultThreadStackSizeValue = -1;
 
 #if defined(BCES_PLATFORM__POSIX_THREADS)
 
@@ -106,10 +105,10 @@ namespace BloombergLP {
 int bcemt_Default::defaultThreadStackSize()
 {
     if (defaultThreadStackSizeValue < 0) {
-        defaultThreadStackSizeValue = nativeDefaultThreadStackSize();
+        return nativeDefaultThreadStackSize();                        // RETURN
     }
 
-    return defaultThreadStackSizeValue.relaxedLoad();
+    return defaultThreadStackSizeValue;
 }
 
 int bcemt_Default::nativeDefaultThreadStackSize()
