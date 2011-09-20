@@ -80,16 +80,15 @@ BDES_IDENT("$Id: $")
 // 'bdeat_TypeCategoryFunctions::select' function to provide the necessary
 // runtime logic that determines its runtime category.
 //
-///Usage
-///-----
-// In this section we show intended usage of this component.
-//
-///Example 1: Function Compile-Time Parameterized by 'TYPE'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Usage Example 1
+///---------------
 // The following snippets of code illustrate the usage of this component.  We
 // will create a 'printCategoryAndValue' function that is parameterized by
 // 'TYPE':
 //..
+//  #include <bdeat_typecategory.h>
+//  #include <bdeu_printmethods.h>
+//
 //  template <typename TYPE>
 //  void printCategoryAndValue(bsl::ostream& stream, const TYPE& object);
 //      // Print the category of the specified 'object' followed by the value
@@ -145,7 +144,8 @@ BDES_IDENT("$Id: $")
 //  template <typename TYPE>
 //  void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
 //  {
-//      typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+//      typedef typename
+//      bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 //
 //      printCategory(stream, TypeCategory());
 //
@@ -156,9 +156,15 @@ BDES_IDENT("$Id: $")
 //..
 // The following function demonstrates the output from this function:
 //..
+//  #include <bdeut_nullablevalue.h>
+//  #include <sstream>
+//  #include <string>
+//  #include <vector>
+//
 //  void runUsageExample1()
 //  {
 //      bsl::ostringstream oss;
+//
 //
 //      int intVal = 123;
 //
@@ -175,7 +181,7 @@ BDES_IDENT("$Id: $")
 //      nullableInt = 321;
 //
 //      printCategoryAndValue(oss, nullableInt);
-//      assert("NullableValue: 321" == oss.str());
+//      assert("NullableValue: 321" << oss.str());
 //      oss.str("");
 //
 //      bsl::vector<int> vec;
@@ -185,12 +191,12 @@ BDES_IDENT("$Id: $")
 //      vec.push_back(987);
 //
 //      printCategoryAndValue(oss, vec);
-//      assert("Array: [ 123 345 987 ]" == oss.str());
+//      assert("Array: [ 123 345 987 ]", oss);
 //  }
 //..
 //
-///Example 2: Dynamic (Run-Time) Typing
-/// - - - - - - - - - - - - - - - - - -
+///Usage Example 2
+///---------------
 // The following snippets of code illustrate the usage of dynamic types.
 // Suppose we have a type that can, at runtime, be either a 'bsl::vector<char>'
 // or a 'bsl::string':
@@ -233,77 +239,76 @@ BDES_IDENT("$Id: $")
 //      struct bdeat_TypeCategoryDeclareDynamic<VectorCharOrString> {
 //          enum { VALUE = 1 };
 //      };
-//
 //..
 // Still in the 'BloombergLP' namespace, we will open the
 // 'bdeat_TypeCategoryFunctions' namespace and implement the relevant
 // functions:
 //..
-//  namespace bdeat_TypeCategoryFunctions {
+//      namespace bdeat_TypeCategoryFunctions {
 //
-//  bdeat_TypeCategory::Value bdeat_typeCategorySelect(
-//                                            const VectorCharOrString& object)
-//  {
-//      if (object.isVectorChar()) {
-//          return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
-//      }
-//      else if (object.isString()) {
-//          return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-//      }
+//          template <>
+//          bdeat_TypeCategory::Value
+//          select<VectorCharOrString>(const VectorCharOrString& object)
+//          {
+//              if (object.isVectorChar()) {
+//                  return bdeat_TypeCategory::ARRAY_CATEGORY;
+//              }
+//              else if (object.isString()) {
+//                  return bdeat_TypeCategory::SIMPLE_CATEGORY;
+//              }
 //
-//      assert(0);
-//      return static_cast<bdeat_TypeCategory::Value>(-1);
-//  }
+//              assert(0);
+//          }
 //
-//  template <typename MANIPULATOR>
-//  int bdeat_typeCategoryManipulateArray(VectorCharOrString *object,
-//                                        MANIPULATOR&        manipulator)
-//  {
-//      if (object->isVectorChar()) {
-//          return manipulator(&object->theVectorChar(),
-//                             bdeat_TypeCategory::Array());
-//      }
+//          template <typename MANIPULATOR>
+//          int manipulateArray(VectorCharOrString *object,
+//                              MANIPULATOR&        manipulator)
+//          {
+//              if (object->isVectorChar()) {
+//                  return manipulator(&object->theVectorChar(),
+//                                     bdeat_TypeCategory::Array());
+//              }
 //
-//      return manipulator(object, bslmf_Nil());
-//  }
+//              return manipulator(object, bslmf_Nil());
+//          }
 //
-//  template <typename MANIPULATOR>
-//  int bdeat_typeCategoryManipulateSimple(VectorCharOrString *object,
-//                                         MANIPULATOR&        manipulator)
-//  {
-//      if (object->isString()) {
-//          return manipulator(&object->theString(),
-//                             bdeat_TypeCategory::Simple());
-//      }
+//          template <typename MANIPULATOR>
+//          int manipulateSimple(VectorCharOrString *object,
+//                               MANIPULATOR&        manipulator)
+//          {
+//              if (object->isString()) {
+//                  return manipulator(&object->theString(),
+//                                     bdeat_TypeCategory::Simple());
+//              }
 //
-//      return manipulator(object, bslmf_Nil());
-//  }
+//              return manipulator(object, bslmf_Nil());
+//          }
 //
-//  template <typename ACCESSOR>
-//  int bdeat_typeCategoryAccessArray(const VectorCharOrString& object,
-//                                    ACCESSOR&                 accessor)
-//  {
-//      if (object.isVectorChar()) {
-//          return accessor(object.theVectorChar(),
-//                          bdeat_TypeCategory::Array());
-//      }
+//          template <typename ACCESSORS>
+//          int accessArray(VectorCharOrString *object,
+//                          ACCESSORS&          accessor)
+//          {
+//              if (object.isVectorChar()) {
+//                  return accessor(object.theVectorChar(),
+//                                  bdeat_TypeCategory::Array());
+//              }
 //
-//      return accessor(object, bslmf_Nil());
-//  }
+//              return accessor(object, bslmf_Nil());
+//          }
 //
-//  template <typename ACCESSOR>
-//  int bdeat_typeCategoryAccessSimple(const VectorCharOrString& object,
-//                                     ACCESSOR&                 accessor)
-//  {
-//      if (object.isString()) {
-//          return accessor(object.theString(),
-//                          bdeat_TypeCategory::Simple());
-//      }
+//          template <typename ACCESSOR>
+//          int accessSimple(VectorCharOrString *object,
+//                           ACCESSOR&           accessor)
+//          {
+//              if (object.isString()) {
+//                  return accessor(object.theString(),
+//                                  bdeat_TypeCategory::Simple());
+//              }
 //
-//      return accessor(object, bslmf_Nil());
-//  }
+//              return accessor(object, bslmf_Nil());
+//          }
 //
-//  }  // close namespace bdeat_TypeCategoryFunctions
+//      }  // close namespace bdeat_TypeCategoryFunctions
 //  }  // close namespace BloombergLP
 //..
 // Now we will create an accessor that dumps the contents of the visited object
@@ -356,14 +361,14 @@ BDES_IDENT("$Id: $")
 //      object.theVectorChar().push_back('o');
 //
 //      ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
-//      LOOP_ASSERT(oss.str(), "Array = \"Hello\"" == oss.str());
+//      assert("Array = \"Hello\"" == oss.str());
 //      oss.str("");
 //
 //      object.makeString();
 //      object.theString() = "World";
 //
 //      ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
-//      LOOP_ASSERT(oss.str(), "Simple = World" == oss.str());
+//      assert("Simple = World" == oss.str());
 //  }
 //..
 
@@ -1193,8 +1198,8 @@ bdeat_TypeCategoryFunctions::bdeat_typeCategorySelect(const TYPE& object)
     // 'select' function to implement the logic that determines the *runtime*
     // type category.
 
-    BSLMF_ASSERT(0 != BDEAT_SELECTION);
-
+    BSLMF_ASSERT(bdeat_TypeCategory::BDEAT_DYNAMIC_CATEGORY !=
+                                                              BDEAT_SELECTION);
     (void)object;
     return (bdeat_TypeCategory::Value)BDEAT_SELECTION;
 }

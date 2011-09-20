@@ -1,4 +1,5 @@
 // bdeat_typecategory.t.cpp                  -*-C++-*-
+
 #include <bdeat_typecategory.h>
 
 #include <bslmf_issame.h>
@@ -395,291 +396,297 @@ struct MyAccessor {
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-///Usage
-///-----
-// In this section we show intended usage of this component.
-//
-///Example 1: Function Compile-Time Parameterized by 'TYPE'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+///Usage Example 1
+///---------------
 // The following snippets of code illustrate the usage of this component.  We
 // will create a 'printCategoryAndValue' function that is parameterized by
 // 'TYPE':
 //..
-    template <typename TYPE>
-    void printCategoryAndValue(bsl::ostream& stream, const TYPE& object);
-        // Print the category of the specified 'object' followed by the value
-        // of 'object' to the specified output 'stream'.
+//  #include <bdeat_typecategory.h>
+//  #include <bdeu_printmethods.h>
+//
+template <typename TYPE>
+void printCategoryAndValue(bsl::ostream& stream, const TYPE& object);
+    // Print the category of the specified 'object' followed by the value
+    // of 'object' to the specified output 'stream'.
 //..
 // In order to implement this function, we will use a set of helper functions
 // that are overloaded based on the category tag:
 //..
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Array)
-    {
-        stream << "Array";
-    }
+void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Array)
+{
+    stream << "Array";
+}
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Choice)
-    {
-        stream << "Choice";
-    }
+void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Choice)
+{
+    stream << "Choice";
+}
 
-    void printCategory(bsl::ostream& stream,
-                       bdeat_TypeCategory::CustomizedType)
-    {
-        stream << "CustomizedType";
-    }
+void printCategory(bsl::ostream& stream,
+                   bdeat_TypeCategory::CustomizedType)
+{
+    stream << "CustomizedType";
+}
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::DynamicType)
-    {
-        stream << "DynamicType";
-    }
+void printCategory(bsl::ostream& stream, bdeat_TypeCategory::DynamicType)
+{
+    stream << "DynamicType";
+}
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Enumeration)
-    {
-        stream << "Enumeration";
-    }
+void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Enumeration)
+{
+    stream << "Enumeration";
+}
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::NullableValue)
-    {
-        stream << "NullableValue";
-    }
+void printCategory(bsl::ostream& stream, bdeat_TypeCategory::NullableValue)
+{
+    stream << "NullableValue";
+}
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Sequence)
-    {
-        stream << "Sequence";
-    }
+void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Sequence)
+{
+    stream << "Sequence";
+}
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Simple)
-    {
-        stream << "Simple";
-    }
+void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Simple)
+{
+    stream << "Simple";
+}
 //..
 // Now we can implement the 'printCategoryAndValue' function in terms of the
 // 'printCategory' helper functions:
 //..
-    template <typename TYPE>
-    void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
-    {
-        typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+template <typename TYPE>
+void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
+{
+    typedef typename
+    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-        printCategory(stream, TypeCategory());
+    printCategory(stream, TypeCategory());
 
-        stream << ": ";
+    stream << ": ";
 
-        bdeu_PrintMethods::print(stream, object, 0, -1);
-    }
+    bdeu_PrintMethods::print(stream, object, 0, -1);
+}
 //..
 // The following function demonstrates the output from this function:
 //..
-    void runUsageExample1()
-    {
-        bsl::ostringstream oss;
+//  #include <bdeut_nullablevalue.h>
+//  #include <sstream>
+//  #include <string>
+//  #include <vector>
+//
+void runUsageExample1()
+{
+    bsl::ostringstream oss;
 
-        int intVal = 123;
 
-        printCategoryAndValue(oss, intVal);
-        ASSERT("Simple: 123" == oss.str());
-        oss.str("");
+    int intVal = 123;
 
-        bdeut_NullableValue<int> nullableInt;
+    printCategoryAndValue(oss, intVal);
+    ASSERT("Simple: 123" == oss.str());
+    oss.str("");
 
-        printCategoryAndValue(oss, nullableInt);
-        ASSERT("NullableValue: NULL" == oss.str());
-        oss.str("");
+    bdeut_NullableValue<int> nullableInt;
 
-        nullableInt = 321;
+    printCategoryAndValue(oss, nullableInt);
+    ASSERT("NullableValue: NULL" == oss.str());
+    oss.str("");
 
-        printCategoryAndValue(oss, nullableInt);
-        ASSERT("NullableValue: 321" == oss.str());
-        oss.str("");
+    nullableInt = 321;
 
-        bsl::vector<int> vec;
+    printCategoryAndValue(oss, nullableInt);
+    ASSERT("NullableValue: 321" == oss.str());
+    oss.str("");
 
-        vec.push_back(123);
-        vec.push_back(345);
-        vec.push_back(987);
+    bsl::vector<int> vec;
 
-        printCategoryAndValue(oss, vec);
-        ASSERT("Array: [ 123 345 987 ]" == oss.str());
-    }
+    vec.push_back(123);
+    vec.push_back(345);
+    vec.push_back(987);
+
+    printCategoryAndValue(oss, vec);
+    ASSERT("Array: [ 123 345 987 ]" == oss.str());
+}
 //..
 //
-///Example 2: Dynamic (Run-Time) Typing
-/// - - - - - - - - - - - - - - - - - -
+///Usage Example 2
+///---------------
+// TBD: update the header file with this new usage example
 // The following snippets of code illustrate the usage of dynamic types.
 // Suppose we have a type that can, at runtime, be either a 'bsl::vector<char>'
 // or a 'bsl::string':
 //..
-    class VectorCharOrString {
+class VectorCharOrString {
 
-        // PRIVATE DATA MEMBERS
-        bsl::vector<char> d_vectorChar;  // Note: Production code should use a
-        bsl::string       d_string;      //       union of object buffers.
-        int               d_selector;    // 0 = vectorChar, 1 = string
+    // PRIVATE DATA MEMBERS
+    bsl::vector<char> d_vectorChar;  // Note: Production code should use a
+    bsl::string       d_string;      //       union of object buffers.
+    int               d_selector;    // 0 = vectorChar, 1 = string
 
-      public:
-        // MANIPULATORS
-        void makeVectorChar() { d_selector = 0; }
-        void makeString()     { d_selector = 1; }
+  public:
+    // MANIPULATORS
+    void makeVectorChar() { d_selector = 0; }
+    void makeString()     { d_selector = 1; }
 
-        bsl::vector<char>& theVectorChar()
-                               { ASSERT(isVectorChar()); return d_vectorChar; }
-        bsl::string& theString()
-                               { ASSERT(isString()); return d_string; }
+    bsl::vector<char>& theVectorChar()
+                           { ASSERT(isVectorChar()); return d_vectorChar; }
+    bsl::string& theString()
+                           { ASSERT(isString()); return d_string; }
 
-        // ACCESSORS
-        bool isVectorChar() const { return 0 == d_selector; }
-        bool isString() const     { return 1 == d_selector; }
+    // ACCESSORS
+    bool isVectorChar() const { return 0 == d_selector; }
+    bool isString() const     { return 1 == d_selector; }
 
-        const bsl::vector<char>& theVectorChar() const
-                               { ASSERT(isVectorChar()); return d_vectorChar; }
-        const bsl::string& theString() const
-                               { ASSERT(isString()); return d_string; }
+    const bsl::vector<char>& theVectorChar() const
+                           { ASSERT(isVectorChar()); return d_vectorChar; }
+    const bsl::string& theString() const
+                           { ASSERT(isString()); return d_string; }
 
-    };
+};
 //..
 // To make this type dynamic, we will specialize the
 // 'bdeat_TypeCategoryDeclareDynamic' meta-function in the 'BloombergLP'
 // namespace:
 //..
-    namespace BloombergLP {
+namespace BloombergLP {
 
-        template <>
-        struct bdeat_TypeCategoryDeclareDynamic<VectorCharOrString> {
-            enum { VALUE = 1 };
-        };
+    template <>
+    struct bdeat_TypeCategoryDeclareDynamic<VectorCharOrString> {
+        enum { VALUE = 1 };
+    };
+
+}  // close namespace BloombergLP
 
 //..
-// Still in the 'BloombergLP' namespace, we will open the
-// 'bdeat_TypeCategoryFunctions' namespace and implement the relevant
-// functions:
+// Next, we define bdeat_typeCategorySelect', and a suite of four function,
+// 'bdeat_typeCategory(Manipulate|Access)(Array|Simple)', each overloaded for
+// our type, 'VectorCharOrString'.
 //..
-    namespace bdeat_TypeCategoryFunctions {
-
-    bdeat_TypeCategory::Value bdeat_typeCategorySelect(
-                                              const VectorCharOrString& object)
-    {
-        if (object.isVectorChar()) {
-            return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
-        }
-        else if (object.isString()) {
-            return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-        }
-
-        ASSERT(0);
-        return static_cast<bdeat_TypeCategory::Value>(-1);
+bdeat_TypeCategory::Value
+bdeat_typeCategorySelect(const VectorCharOrString& object)
+{
+    if (object.isVectorChar()) {
+        return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
+    }
+    else if (object.isString()) {
+        return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     }
 
-    template <typename MANIPULATOR>
-    int bdeat_typeCategoryManipulateArray(VectorCharOrString *object,
-                                          MANIPULATOR&        manipulator)
-    {
-        if (object->isVectorChar()) {
-            return manipulator(&object->theVectorChar(),
-                               bdeat_TypeCategory::Array());
-        }
+    ASSERT(0);
+    return static_cast<bdeat_TypeCategory::Value>(-1);
+}
 
-        return manipulator(object, bslmf_Nil());
+template <typename MANIPULATOR>
+int bdeat_typeCategoryManipulateArray(VectorCharOrString *object,
+                                      MANIPULATOR&        manipulator)
+{
+    if (object->isVectorChar()) {
+        return manipulator(&object->theVectorChar(),
+                           bdeat_TypeCategory::Array());
     }
 
-    template <typename MANIPULATOR>
-    int bdeat_typeCategoryManipulateSimple(VectorCharOrString *object,
-                                           MANIPULATOR&        manipulator)
-    {
-        if (object->isString()) {
-            return manipulator(&object->theString(),
-                               bdeat_TypeCategory::Simple());
-        }
+    return manipulator(object, bslmf_Nil());
+}
 
-        return manipulator(object, bslmf_Nil());
+template <typename MANIPULATOR>
+int bdeat_typeCategoryManipulateSimple(VectorCharOrString *object,
+                                       MANIPULATOR&        manipulator)
+{
+    if (object->isString()) {
+        return manipulator(&object->theString(),
+                           bdeat_TypeCategory::Simple());
     }
 
-    template <typename ACCESSOR>
-    int bdeat_typeCategoryAccessArray(const VectorCharOrString& object,
-                                      ACCESSOR&                 accessor)
-    {
-        if (object.isVectorChar()) {
-            return accessor(object.theVectorChar(),
-                            bdeat_TypeCategory::Array());
-        }
+    return manipulator(object, bslmf_Nil());
+}
 
-        return accessor(object, bslmf_Nil());
+template <typename ACCESSOR>
+int bdeat_typeCategoryAccessArray(const VectorCharOrString& object,
+                                  ACCESSOR&                 accessor)
+{
+    if (object.isVectorChar()) {
+        return accessor(object.theVectorChar(),
+                        bdeat_TypeCategory::Array());
     }
 
-    template <typename ACCESSOR>
-    int bdeat_typeCategoryAccessSimple(const VectorCharOrString& object,
-                                       ACCESSOR&                 accessor)
-    {
-        if (object.isString()) {
-            return accessor(object.theString(),
-                            bdeat_TypeCategory::Simple());
-        }
+    return accessor(object, bslmf_Nil());
+}
 
-        return accessor(object, bslmf_Nil());
+template <typename ACCESSOR>
+int bdeat_typeCategoryAccessSimple(const VectorCharOrString& object,
+                                   ACCESSOR&                 accessor)
+{
+    if (object.isString()) {
+        return accessor(object.theString(),
+                        bdeat_TypeCategory::Simple());
     }
 
-    }  // close namespace bdeat_TypeCategoryFunctions
-    }  // close namespace BloombergLP
+    return accessor(object, bslmf_Nil());
+}
+
 //..
 // Now we will create an accessor that dumps the contents of the visited object
 // into an associated stream:
 //..
-    struct DumpObject {
-        bsl::ostream *d_stream_p;
+struct DumpObject {
+    bsl::ostream *d_stream_p;
 
-        template <typename TYPE>
-        int operator()(const TYPE& object, bslmf_Nil)
-        {
-            ASSERT(0);  // received invalid object
-            return -1;
-        }
+    template <typename TYPE>
+    int operator()(const TYPE& object, bslmf_Nil)
+    {
+        ASSERT(0);  // received invalid object
+        return -1;
+    }
 
-        template <typename TYPE>
-        int operator()(const TYPE& object, bdeat_TypeCategory::Array)
-        {
-            (*d_stream_p) << "Array = ";
-            bdeu_PrintMethods::print(*d_stream_p, object, 0, -1);
-            return 0;
-        }
+    template <typename TYPE>
+    int operator()(const TYPE& object, bdeat_TypeCategory::Array)
+    {
+        (*d_stream_p) << "Array = ";
+        bdeu_PrintMethods::print(*d_stream_p, object, 0, -1);
+        return 0;
+    }
 
-        template <typename TYPE>
-        int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
-        {
-            (*d_stream_p) << "Simple = ";
-            bdeu_PrintMethods::print(*d_stream_p, object, 0, -1);
-            return 0;
-        }
-    };
+    template <typename TYPE>
+    int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
+    {
+        (*d_stream_p) << "Simple = ";
+        bdeu_PrintMethods::print(*d_stream_p, object, 0, -1);
+        return 0;
+    }
+};
 //..
 // Now we will use the 'accessByCategory' utility function to invoke the
 // accessor and pick the correct method to invoke based on the runtime state of
 // the 'VectorCharOrString' object:
 //..
-    void runUsageExample2()
-    {
-        bsl::ostringstream oss;
-        DumpObject         accessor = { &oss };
+void runUsageExample2()
+{
+    bsl::ostringstream oss;
+    DumpObject         accessor = { &oss };
 
-        VectorCharOrString object;
-        int                ret;
+    VectorCharOrString object;
+    int                ret;
 
-        object.makeVectorChar();
-        object.theVectorChar().push_back('H');
-        object.theVectorChar().push_back('e');
-        object.theVectorChar().push_back('l');
-        object.theVectorChar().push_back('l');
-        object.theVectorChar().push_back('o');
+    object.makeVectorChar();
+    object.theVectorChar().push_back('H');
+    object.theVectorChar().push_back('e');
+    object.theVectorChar().push_back('l');
+    object.theVectorChar().push_back('l');
+    object.theVectorChar().push_back('o');
 
-        ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
-        LOOP_ASSERT(oss.str(), "Array = \"Hello\"" == oss.str());
-        oss.str("");
+    ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
+    LOOP_ASSERT(oss.str(), "Array = \"Hello\"" == oss.str());
+    oss.str("");
 
-        object.makeString();
-        object.theString() = "World";
+    object.makeString();
+    object.theString() = "World";
 
-        ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
-        LOOP_ASSERT(oss.str(), "Simple = World" == oss.str());
-    }
+    ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
+    LOOP_ASSERT(oss.str(), "Simple = World" == oss.str());
+}
 //..
 
 //=============================================================================
@@ -688,40 +695,49 @@ struct MyAccessor {
 
 int main(int argc, char *argv[])
 {
-    int        test = argc > 1 ? atoi(argv[1]) : 0;
-    int     verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int test = argc > 1 ? atoi(argv[1]) : 0;
+    int verbose = argc > 2;
+    // int veryVerbose = argc > 3;
+    // int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLES
+        // TESTING USAGE EXAMPLE 2
         //
         // Concerns:
-        //: 1 The usage examples provided in the component header file
-        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 For each usage example, incorporate from header into test driver,
-        //:   remove leading comment characters, and replace 'assert' with
-        //:  'ASSERT'.  (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLES" << endl
-                          << "==============" << endl;
+        if (verbose) cout << "\nTESTING USAGE EXAMPLE 2"
+                          << "\n============= " << endl;
 
-        if (veryVerbose) cout << "\tUSAGE EXAMPLE 1" << endl;
-        runUsageExample1();
-
-        if (veryVerbose) cout << "\tUSAGE EXAMPLE 2" << endl;
         runUsageExample2();
 
+        if (verbose) cout << "\nEnd of test." << endl;
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 1
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING USAGE EXAMPLE 1"
+                          << "\n============= " << endl;
+
+        runUsageExample1();
+
+        if (verbose) cout << "\nEnd of test." << endl;
       } break;
       case 6: {
         // --------------------------------------------------------------------
