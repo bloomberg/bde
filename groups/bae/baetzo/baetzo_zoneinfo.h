@@ -33,9 +33,9 @@ BDES_IDENT("$Id: $")
 //  utcTime     bdetu_Epoch::TimeT64
 //  descriptor  baetzo_LocalTimeDescriptor
 //..
-//: o utcTime: UTC time when a transition occurs
+//: o 'utcTime': UTC time when a transition occurs
 //:
-//: o descriptor: local time value corresponding to the time transition
+//: o 'descriptor': local time value corresponding to the time transition
 //
 // For example, in New York on March 14, 2011, at the instant 1 a.m., clocks
 // are set forward by an hour to mark the transition from Eastern Standard Time
@@ -185,7 +185,7 @@ BDES_IDENT("$Id: $")
 //..
 // Then, we access the descriptor associated with the transition to which 'it'
 // refers, and calculate the offset from UTC rounded to the minute:
-// ..
+//..
 //      const baetzo_ZoneinfoTransition& transition = *it;
 //      const int offsetInMinutes =
 //                           transition.descriptor().utcOffsetInSeconds() / 60;
@@ -202,7 +202,6 @@ BDES_IDENT("$Id: $")
 //      return bdet_DatetimeTz(temp, offsetInMinutes);
 //  }
 //..
-//
 // Suppose, now, we want to convert UTC time to the corresponding local time in
 // New York.  We can do so using the previously defined function
 // 'utcToLocalTime' and reusing the 'baetzo_Zoneinfo' object, 'newYorkTimeZone'
@@ -328,7 +327,7 @@ class baetzo_ZoneinfoTransition {
         // undefined unless 'descriptor' remains valid for the lifetime of
         // this object.
 
-    public:
+  public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baetzo_ZoneinfoTransition,
                                  bslalg_TypeTraitBitwiseMoveable);
@@ -478,8 +477,10 @@ class baetzo_Zoneinfo {
     // CREATORS
     explicit baetzo_Zoneinfo(bslma_Allocator *basicAllocator = 0);
         // Create a 'baetzo_Zoneinfo' object having the values:
-        //: o 'numTransitions() == 0'
-        //: o 'identifier()     == ""'
+        //..
+        //  numTransitions() == 0
+        //  identifier()     == ""
+        //..
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
@@ -538,20 +539,20 @@ class baetzo_Zoneinfo {
         // 'identifier' attribute of this object.
 
     bsl::size_t numTransitions() const;
-       // Return the number of transitions maintained by this zone info.
+        // Return the number of transitions maintained by this zone info.
 
     TransitionConstIterator beginTransitions() const;
-       // Return an iterator providing non-modifiable access to the first
-       // transition in the ordered sequence of transitions maintained by this
-       // object.  Note that if 'beginTransitions() == endTransitions()' then
-       // there are no transitions stored by this object.
+        // Return an iterator providing non-modifiable access to the first
+        // transition in the ordered sequence of transitions maintained by this
+        // object.  Note that if 'beginTransitions() == endTransitions()' then
+        // there are no transitions stored by this object.
 
     TransitionConstIterator endTransitions() const;
-       // Return an iterator providing non-modifiable access to the one-past
-       // the last transition in the ordered sequence of transitions that is
-       // associated with this object.  Note that if
-       // 'beginTransitions() == endTransitions()' then there are no
-       // transitions stored by this object.
+        // Return an iterator providing non-modifiable access to the one-past
+        // the last transition in the ordered sequence of transitions that is
+        // associated with this object.  Note that if
+        // 'beginTransitions() == endTransitions()' then there are no
+        // transitions stored by this object.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -610,6 +611,7 @@ void swap(baetzo_Zoneinfo& a, baetzo_Zoneinfo& b);
                         // -------------------------------
                         // class baetzo_ZoneinfoTransition
                         // -------------------------------
+
 // PRIVATE CREATORS
 inline
 baetzo_ZoneinfoTransition::baetzo_ZoneinfoTransition(
@@ -685,16 +687,16 @@ baetzo_Zoneinfo::baetzo_Zoneinfo(bslma_Allocator *basicAllocator)
 inline
 baetzo_Zoneinfo& baetzo_Zoneinfo::operator=(const baetzo_Zoneinfo& rhs)
 {
-     baetzo_Zoneinfo(rhs, d_allocator_p).swap(*this);
-     return *this;
+    baetzo_Zoneinfo(rhs, d_allocator_p).swap(*this);
+    return *this;
 }
 
 inline
-void baetzo_Zoneinfo::setIdentifier(const bdeut_StringRef& identifier)
+void baetzo_Zoneinfo::setIdentifier(const bdeut_StringRef& value)
 {
-    BSLS_ASSERT_SAFE(identifier.isBound());
+    BSLS_ASSERT_SAFE(value.isBound());
 
-    d_identifier.assign(identifier.begin(), identifier.end());
+    d_identifier.assign(value.begin(), value.end());
 }
 
 inline

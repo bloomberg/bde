@@ -1,4 +1,4 @@
-// baexml_typesprintutil.h                  -*-C++-*-
+// baexml_typesprintutil.h                                            -*-C++-*-
 #ifndef INCLUDED_BAEXML_TYPESPRINTUTIL
 #define INCLUDED_BAEXML_TYPESPRINTUTIL
 
@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a utility for printing types using XML formatting.
 //
 //@CLASSES:
-//  baexml::baexml_TypesPrintUtil: Utility for printing using XML formatting.
+//   baexml_TypesPrintUtil: utility for printing using XML formatting
 //
 //@SEE_ALSO: http://www.w3.org/TR/xmlschema-2/
 //
@@ -18,7 +18,7 @@ BDES_IDENT("$Id: $")
 //
 //@CONTACT: Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: The 'baexml::baexml_TypesPrintUtil' 'struct' provided by this
+//@DESCRIPTION: The 'baexml_TypesPrintUtil' 'struct' provided by this
 // component contains the following functions:
 //..
 //  o 'print':        Print an object using the supplied formatting mode.
@@ -124,7 +124,7 @@ BDES_IDENT("$Id: $")
 //
 //      const char EXPECTED_RESULT[] = "YWJjZA==";
 //
-//      baexml::baexml_TypesPrintUtil::printBase64(ss, vec);
+//      baexml_TypesPrintUtil::printBase64(ss, vec);
 //      assert(EXPECTED_RESULT == ss.str());
 //  }
 //..
@@ -149,7 +149,7 @@ BDES_IDENT("$Id: $")
 //..
 // We can test that 'printText' will successfully print the string:
 //..
-//      baexml::baexml_TypesPrintUtil::printText(ss, VALID_STR);
+//      baexml_TypesPrintUtil::printText(ss, VALID_STR);
 //      assert(ss.good());
 //      assert(EXPECTED_RESULT == ss.str());
 //..
@@ -159,7 +159,7 @@ BDES_IDENT("$Id: $")
 //..
 //      ss.str("");
 //      const char INVALID_STR[]  = "Hello \300\t 'World'";
-//      baexml::baexml_TypesPrintUtil::printText(ss, INVALID_STR);
+//      baexml_TypesPrintUtil::printText(ss, INVALID_STR);
 //      assert(ss.fail());
 //      assert("Hello " == ss.str());
 //  }

@@ -1776,6 +1776,9 @@ class bael_LoggerCategoryIter {
     bael_LoggerCategoryIter(const bael_LoggerCategoryIter& original);
     bael_LoggerCategoryIter& operator=(const bael_LoggerCategoryIter& rhs);
 
+    bool operator==(const bael_LoggerCategoryIter&) const;
+    bool operator!=(const bael_LoggerCategoryIter&) const;
+
   public:
     // CREATORS
     explicit bael_LoggerCategoryIter(const bael_LoggerManager& loggerManager);
@@ -1822,6 +1825,9 @@ class bael_LoggerCategoryManip {
     // NOT IMPLEMENTED
     bael_LoggerCategoryManip(const bael_LoggerCategoryManip& original);
     bael_LoggerCategoryManip& operator=(const bael_LoggerCategoryManip& rhs);
+
+    bool operator==(const bael_LoggerCategoryManip&) const;
+    bool operator!=(const bael_LoggerCategoryManip&) const;
 
   public:
     // CREATORS

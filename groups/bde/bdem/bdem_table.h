@@ -1038,10 +1038,18 @@ class bdem_Table {
         // least the specified 'numBytes' without replenishment (i.e., without
         // internal allocation).  The behavior is undefined unless
         // '0 <= numBytes'.  Note that this method has no effect unless the
-        // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
+        //  internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
 
-    void reset(const bdem_ElemType::Type columnTypes[],
-               int                       numColumns);
+    void reserveRaw(bsl::size_t numRows);
+        // Reserve sufficient memory to hold at least the footprints for the
+        // specified 'numRows'.  Other memory needed to initialize a row upon
+        // insertion *may* or may *not* be reserved, depending on the
+        // allocation mode.  In the future, this method may strengthen its
+        // guarantee such that no additional allocation will occur upon row
+        // insertion (regardless of allocation mode) unless a row data element
+        // itself allocates memory.
+
+    void reset(const bdem_ElemType::Type columnTypes[], int numColumns);
         // Remove all of the rows from this table and set the sequence of
         // column types in this table to be the same as the specified leading
         // 'numColumns' in the specified 'columnTypes' array.  The behavior
@@ -1178,6 +1186,14 @@ class bdem_Table {
     void columnTypes(bsl::vector<bdem_ElemType::Type> *result) const;
         // Load into the specified 'result', the sequence of column types in
         // this table.
+
+    bsl::size_t capacityRaw() const;
+        // Return the total number of row footprints for which sufficient
+        // memory is currently allocated.  Inserting rows that do not exceed
+        // this capacity *may* or may *not* result in additional allocations
+        // depending on the allocation mode, and whether any row data element
+        // itself allocates memory (see the 'reserveRaw' method).  Note that
+        // 'numRows() <= capacityRaw()' is an invariant of this class.
 
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified
@@ -1630,6 +1646,12 @@ void bdem_Table::reserveMemory(int numBytes)
 }
 
 inline
+void bdem_Table::reserveRaw(bsl::size_t numRows)
+{
+    d_tableImp.reserveRaw(numRows);
+}
+
+inline
 void bdem_Table::reset(const bdem_ElemType::Type columnTypes[],
                        int                       numColumns)
 {
@@ -2051,6 +2073,12 @@ bdem_ElemType::Type bdem_Table::columnType(int columnIndex) const
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
 
     return d_tableImp.columnType(columnIndex);
+}
+
+inline
+bsl::size_t bdem_Table::capacityRaw() const
+{
+    return d_tableImp.capacityRaw();
 }
 
 inline

@@ -279,6 +279,15 @@ class bdef_Vfunc1 {
 
     bdefr_Vfunc1<A1> *d_rep_p;  // polymorphic functor representation
 
+    // NOT IMPLEMENTED
+    bool operator==(const bdef_Vfunc1&) const;
+    bool operator!=(const bdef_Vfunc1&) const;
+
+    template<class B1>
+    bool operator==(const bdef_Vfunc1<B1>&) const;
+    template<class B1>
+    bool operator!=(const bdef_Vfunc1<B1>&) const;
+
   public:
     // CREATORS
     bdef_Vfunc1();

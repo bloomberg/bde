@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
 //
-//@SEE_ALSO: baetzo_timetypetransition, baetzo_zoneinfo
+//@SEE_ALSO: baetzo_zoneinfo
 //
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, 'baetzo_LocalTimeDescriptor', that is used
@@ -31,12 +31,13 @@ BDES_IDENT("$Id: $")
 //  dstInEffectFlag     bool         false    none
 //  utcOffsetInSeconds  int          0        [-86399 .. 86399]
 //..
-//: o description: non-canonical, non-localized name (intended for debugging).
+//: o 'description': non-canonical, non-localized name (intended for
+//:   debugging).
 //:
-//: o dstInEffectFlag: 'true' if the described local times are
+//: o 'dstInEffectFlag': 'true' if the described local times are
 //:   Daylight-Saving-Time (DST) values.
 //:
-//: o utcOffsetInSeconds: offset from UTC of the described local times.
+//: o 'utcOffsetInSeconds': offset from UTC of the described local times.
 //
 // For example, in New York on January 1, 2011, the local time is Eastern
 // Standard Time, Daylight-Saving Time (DST) is not in effect, and the offset
@@ -121,6 +122,10 @@ BDES_IDENT("$Id: $")
 #include <bdeut_stringref.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -152,8 +157,9 @@ class bslma_Allocator;
 class baetzo_LocalTimeDescriptor {
     // This simply constrained (value-semantic) attribute class characterizes a
     // subset of local time values.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation.  Note that the class
-    // invariants are identically the constraints on the individual attributes.
+    // @DESCRIPTION in the component-level documentation for information on the
+    // class attributes.  Note that the class invariants are identically the
+    // constraints on the individual attributes.
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
@@ -422,9 +428,9 @@ void baetzo_LocalTimeDescriptor::swap(baetzo_LocalTimeDescriptor& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    bsl::swap(d_description,        other.d_description);
-    bsl::swap(d_dstInEffectFlag,    other.d_dstInEffectFlag);
-    bsl::swap(d_utcOffsetInSeconds, other.d_utcOffsetInSeconds);
+    bslalg_SwapUtil::swap(&d_description,        &other.d_description);
+    bslalg_SwapUtil::swap(&d_dstInEffectFlag,    &other.d_dstInEffectFlag);
+    bslalg_SwapUtil::swap(&d_utcOffsetInSeconds, &other.d_utcOffsetInSeconds);
 }
 
 // ACCESSORS

@@ -123,9 +123,10 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended usage of this component.
 //
-///Using 'bcemt_QLock' to Implement a Thread-Safe Singleton
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Using 'bcemt_QLock' to Implement a Thread-Safe Singleton
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For this example, assume that we have the need to use the string "Hello"
 // repeatedly in the form of an 'bsl::string' object.  Rather than construct
 // the string each time we use it, it would be nice to have only one copy so

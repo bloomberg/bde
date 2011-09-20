@@ -343,6 +343,9 @@ class bdeut_StrTokenIter {
     bdeut_StrTokenIter(const bdeut_StrTokenIter&);
     bdeut_StrTokenIter& operator=(const bdeut_StrTokenIter&);
 
+    bool operator==(const bdeut_StrTokenIter&) const;
+    bool operator!=(const bdeut_StrTokenIter&) const;
+
   public:
     // CREATORS
     bdeut_StrTokenIter(const char      *input,
@@ -410,8 +413,9 @@ class bdeut_StrTokenIter {
     const char *operator()() const;
         // Return the current token of this token iterator.  The value returned
         // remains valid until the state of the iteration of this iterator is
-        // advanced (via 'operator++'), or 'reset' is called.  (See also the
-        // 'tokenRef' method.)
+        // advanced (via 'operator++'), or 'reset' is called.  The behavior is
+        // undefined unless this token iterator is in a valid state.  (See also
+        // the 'tokenRef' method.)
 
     bdeut_StringRef tokenRef() const;
         // Return a string reference that refers to the current token in the
@@ -471,6 +475,8 @@ bdeut_StrTokenIter::operator const void *() const
 inline
 const char *bdeut_StrTokenIter::operator()() const
 {
+    BSLS_ASSERT_SAFE(d_string_p);
+
     return d_tokenBuf.c_str();
 }
 

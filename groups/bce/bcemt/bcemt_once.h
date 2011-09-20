@@ -102,8 +102,8 @@ BDES_IDENT("$Id: $")
 // the first call to each singleton function affect the contents of the
 // singleton string.  (The argument is ignored on subsequent calls.)
 //
-//First Implementation
-//- - - - - - - - - -
+///First Implementation
+/// - - - - - - - - - -
 // Our first implementation uses the 'BCEMT_ONCE_DO' construct, the
 // recommended way to use this component.  The function is a variation of the
 // singleton pattern described by Scott Meyers, except that the 'BCEMT_ONCE_DO'
@@ -129,8 +129,8 @@ BDES_IDENT("$Id: $")
 // higher-level facilities to produce simpler singleton implementations (though
 // none as simple as the 'BCEMT_ONCE_DO' example above).
 //
-//Second Implementation
-//- - - - - - - - - - -
+///Second Implementation
+///- - - - - - - - - - -
 // The next singleton function implementation directly uses the 'doOnce' method
 // of 'bcemt_Once'.  We begin by declaring a simple function that does most of
 // the work of the singleton, i.e., constructing the string and setting a
@@ -189,9 +189,9 @@ BDES_IDENT("$Id: $")
 // exception thrown from within 'singletonImp' will cause the 'bcemt_Once'
 // object to be restored to its original state, so that the next entry into
 // the singleton will retry the operation.
-
-//Third Implementation
-//- - - - - - - - - -
+//
+///Third Implementation
+/// - - - - - - - - - -
 // Our next implementation, 'singleton2', eliminates the need for the
 // 'singletonImp' function and thereby does away with the use of the
 // 'bdef_BindUtil' method; however, it does require use of
@@ -229,8 +229,8 @@ BDES_IDENT("$Id: $")
 //  }
 //..
 //
-//Third Implementation
-//- - - - - - - - - -
+///Third Implementation
+/// - - - - - - - - - -
 // Our final implementation, 'singleton3', uses 'bcemt_OnceGuard' to simplify
 // the previous implementation by using 'bcemt_OnceGuard' to hide (automate)
 // the use of 'bcemt_Once::OnceLock'.  We begin as before, defining a static
@@ -263,8 +263,8 @@ BDES_IDENT("$Id: $")
 // threads waiting on the initialization to continue.  Alternatively, one can
 // call 'onceGuard.leave()' explicitly at the end of the initialization.
 //
-//Using the Semaphore Implementations
-//- - - - - - - - - - - - - - - - - -
+///Using the Semaphore Implementations
+///- - - - - - - - - - - - - - - - - -
 // The following pair of functions, 'thread1func' and 'thread2func  which will
 // be run by different threads:
 //..

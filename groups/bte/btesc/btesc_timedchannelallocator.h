@@ -108,8 +108,8 @@ BDES_IDENT("$Id: $")
 // If a timeout is specified with a time that has already passed, the
 // allocation will be attempted, but will not block.
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
 // The purpose of the 'btesc_TimedChannelAllocator' protocol is to isolate the
 // act of requesting a connection from details such as who it will be to and
 // which side initiated it.  In this example we will consider both the Server

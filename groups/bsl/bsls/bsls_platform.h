@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide compile-time support for platform/attribute identification.
 //
 //@CLASSES:
-//  bsls_Platform: namespace for platform traits
+//   bsls_Platform: namespace for platform traits
 //
 //@AUTHOR: John Lakos (jlakos)
 //
