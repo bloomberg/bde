@@ -944,13 +944,13 @@ class bdema_ManagedPtr {
          void             (*deleter)(BDEMA_TARGET_BASE *, void*))
         // [!DEPRECATED!] Destroy the current managed object (if any) and
         // re-initialize this managed pointer to manage the specified 'ptr'
-        // using the specified// 'deleter' with argument 'ptr' and '0' when
-        // this managed pointer is destroyed or re-assigned, unless it is
-        // released before then.  Note that if '0 == ptr', then this object
-        // will be initialized to an unset state.  The behavior is undefined if
-        // 'ptr' is already managed by another managed pointer, or if 'deleter'
-        // does not support null pointer values in its second argument.  Note
-        // that this overload is needed only to support passing a null pointer
+        // using the specified 'deleter' with argument 'ptr' and '0' when this
+        // managed pointer is destroyed or re-assigned, unless it is released
+        // before then.  Note that if '0 == ptr', then this object will be
+        // initialized to an unset state.  The behavior is undefined if 'ptr'
+        // is already managed by another managed pointer, or if 'deleter' does
+        // not support null pointer values in its second argument.  Note that
+        // this overload is needed only to support passing a null pointer
         // literal as the factory object when the user passes a deleter taking
         // 'BDEMA_TYPE' rather than 'void *', and the factory type is not used.
         // Note that this function is *deprecated* as it relies on undefined

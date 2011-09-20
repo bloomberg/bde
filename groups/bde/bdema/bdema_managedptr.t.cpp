@@ -15,7 +15,8 @@
 #include <bsl_typeinfo.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using bsl::cout;
+using bsl::endl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -187,15 +188,21 @@ void aSsErT(int c, const char *s, int i)
 // ----------------------------------------------------------------------------
 // AJM: MIGRATE THIS to the 'bsls_asserttest' component after BDE 2.9 branches.
 class bsls_AssertTestHandlerGuard {
-    // Purpose
+    // This class provides a guard that will install and uninstall the negative
+    // testing assertion handler, 'bsls_AssertTest::failTestDriver', within the
+    // protected scope.
 
     // DATA
     bsls_AssertFailureHandlerGuard d_guard;
 
   public:
     bsls_AssertTestHandlerGuard();
+        // Create a 'bsls_AssertTestHandlerGuard' object, installing the
+        // 'sls_AssertTest::failTestDriver' assertion handler.
 
     //! ~bsls_AssertTestHandlerGuard() = default;
+        // Destroy this object and uninstall 'bsls_AssertTest::failTestDriver'
+        // as the current assertion handler.
 };
 
 inline
@@ -208,25 +215,19 @@ bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-bool verbose;
+bool g_verbose;
 bool g_veryVeryVeryVerbose;
 
 class MyTestObject;
 class MyDerivedObject;
-class MySecondDerivedObject;
 
 typedef MyTestObject TObj;
 typedef bdema_ManagedPtr<MyTestObject> Obj;
 typedef bdema_ManagedPtr<const MyTestObject> CObj;
 typedef MyDerivedObject TDObj;
 typedef bdema_ManagedPtr<MyDerivedObject> DObj;
-typedef bdema_ManagedPtr<const MyDerivedObject> CDObj;
-//typedef MySecondDerivedObject TSObj;
-//typedef bdema_ManagedPtr<MySecondDerivedObject> SObj;
-//typedef bdema_ManagedPtr<const MySecondDerivedObject> CSObj;
 typedef bdema_ManagedPtr<void> VObj;
 
-bslma_TestAllocator *g_ta;  // pointer to a test allocator created in 'main'.
 //=============================================================================
 //                         HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -238,11 +239,13 @@ class MyTestObject {
     // incrementing an externally managed counter, supplied when each object
     // is created.  Finally, it exposes an internal data structure that can be
     // use to demonstrate the 'bdema_ManagedPtr' aliasing facility.
-  protected:
+
+    // DATA
     volatile int *d_deleteCounter_p;
     mutable int   d_value[2];
 
   public:
+    // CREATORS
     explicit MyTestObject(int *counter);
 
     // Use compiler-generated copy constructor and assignment operator
@@ -291,6 +294,7 @@ class MyDerivedObject : public MyTestObject
     // behavior when handling derived->base conversions.
 
   public:
+    // CREATORS
     explicit MyDerivedObject(int *counter);
     // Use compiler-generated copy
 
@@ -308,7 +312,7 @@ MyDerivedObject::MyDerivedObject(int *counter)
 inline
 MyDerivedObject::~MyDerivedObject()
 {
-    (*d_deleteCounter_p) += 99; // +1 from base -> 100
+    (*deleteCounter()) += 99; // +1 from base -> 100
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -320,6 +324,7 @@ class MySecondDerivedObject : public MyTestObject
     // test correct behavior when handling derived->base conversions.
 
   public:
+    // CREATORS
     explicit MySecondDerivedObject(int *counter);
     // Use compiler-generated copy
 
@@ -337,13 +342,14 @@ MySecondDerivedObject::MySecondDerivedObject(int *counter)
 inline
 MySecondDerivedObject::~MySecondDerivedObject()
 {
-    (*d_deleteCounter_p) += 9999;  // +1 from base -> 10000
+    (*deleteCounter()) += 9999;  // +1 from base -> 10000
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class CountedStackDeleter
 {
+    // DATA
     volatile int *d_deleteCounter_p;
 
   private:
@@ -352,6 +358,7 @@ class CountedStackDeleter
     CountedStackDeleter& operator=(const CountedStackDeleter&); //=delete;
 
   public:
+    // CREATORS
     explicit CountedStackDeleter(int *counter) : d_deleteCounter_p(counter) {}
 
     //! ~CountedStackDeleter();
@@ -419,6 +426,7 @@ struct OverloadTest {
     static int invoke(bdema_ManagedPtr<void>)     { return 0; }
     static int invoke(bdema_ManagedPtr<int>)      { return 1; }
     static int invoke(bdema_ManagedPtr<const int>){ return 2; }
+        // Return an integer code reporting which specific overload was called.
 };
 
 //=============================================================================
@@ -428,9 +436,11 @@ struct OverloadTest {
 namespace CREATORS_TEST_NAMESPACE {
 
 struct SS {
+    // DATA
     char  d_buf[100];
     int  *d_numDeletes_p;
 
+    // CREATORS
     explicit SS(int *numDeletes)
     {
         d_numDeletes_p = numDeletes;
@@ -447,6 +457,8 @@ typedef bdema_ManagedPtr<char> ChObj;
 
 }  // close namespace CREATORS_TEST_NAMESPACE
 
+}  // close unnamed namespace
+
 //=============================================================================
 //                    FILE-STATIC FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -454,7 +466,7 @@ typedef bdema_ManagedPtr<char> ChObj;
 static void myTestDeleter(TObj *object, bslma_TestAllocator *allocator)
 {
     allocator->deleteObject(object);
-    if (verbose) {
+    if (g_verbose) {
         bsl::cout << "myTestDeleter called" << endl;
     }
 }
@@ -487,8 +499,6 @@ static void doNothingDeleter(void *object, void *)
 {
     ASSERT(object);
 }
-
-}  // close unnamed namespace
 
 //=============================================================================
 //                              LOAD TESTING SUPPORT
@@ -706,14 +716,19 @@ static void doNothingDeleter(void *object, void *)
 //: doLoadOderivFVdflt
 //: doLoadOCderivFVdflt
 
+namespace {
+
 template<typename POINTER_TYPE>
 struct TestLoadArgs {
-    int  d_deleteCount; 
-    int  d_deleteDelta;
-    bool d_useDefault;
-    bslma_TestAllocator *d_ta;
-    unsigned int d_config;
-    bdema_ManagedPtr<POINTER_TYPE> *d_p;
+    // This struct holds the set of arguments that will be passed into a
+    // policy based test function.  It collects all information for the range
+    // of tests and expectations to be set up on entry, and reported on exit.
+    int  d_deleteCount; // An integer to be passed to 'MyTestObject's
+    int  d_deleteDelta; // 
+    bool d_useDefault;  // Set to true if the test uses the default allocator
+    bslma_TestAllocator *d_ta; // pointer to a test allocator whose lifetime will outlast the function call
+    unsigned int d_config; // Valid values are 0-3.  The low-bit represents  whether to pass a null for 'object', the second bit whether to pass a null for 'factory'
+    bdema_ManagedPtr<POINTER_TYPE> *d_p; // pointer to the long-lived managed pointer on which to execute tests
 };
 
 template<typename POINTER_TYPE>
@@ -731,6 +746,22 @@ void validateTestLoadArgs(int callLine,
 
 //=============================================================================
 //                          Target Object policies
+// A Target Object policy consist of two memebers:
+//: 1 A typedef, 'ObjectType', that reports the type of object to create
+//: 2 An enum value 'DELETE_DELTA' reporting the expected change in
+//:   'deleteCount' when the created object is destroyed.
+//
+// Note that the dynamic type of the object used in the test might be quite
+// different to the static type of the created object described by this policy,
+// notably for tests of 'bdema_ManagedPtr<void>'.
+//
+// List of avaiable policies:
+struct Obase;
+struct OCbase;
+struct Oderiv;
+struct OCderiv;
+
+// Policy implementations
 struct Obase {
     typedef MyTestObject ObjectType;
 
@@ -757,7 +788,12 @@ struct OCderiv {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                             Factory Policies
+// List of avaiable policies:
+struct Fbsl;
+struct Ftst;
+struct Fdflt;
 
+// Policy implementations
 struct Fbsl {
     typedef bslma_Allocator FactoryType;
 
@@ -793,7 +829,13 @@ struct Fdflt {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                             Deleter Policies
+// List of avaiable policies:
+template<class ObjectPolicy, class FactoryPolicy> struct DObjFac;
+template<class ObjectPolicy, class FactoryPolicy> struct DObjVoid;
+template<class ObjectPolicy, class FactoryPolicy> struct DVoidFac;
+template<class ObjectPolicy, class FactoryPolicy> struct DVoidVoid;
 
+// Policy implementations
 template<class ObjectPolicy, class FactoryPolicy>
 struct DObjFac {
     typedef typename  ObjectPolicy::ObjectType  ObjectType;
@@ -847,6 +889,9 @@ struct DObjVoid {
     }
 };
 
+// The 'ToVoid' metafunction supports tests that need to use a 'void' pointer
+// representing a pointer to the test object, while also retaining the correct
+// cv-qualification.
 template <class TYPE>
 struct ToVoid {
     typedef void type;
@@ -924,8 +969,28 @@ struct DVoidVoid {
     }
 };
 
-
 //=============================================================================
+//                       POLICY BASED TEST FUNCTIONS
+//=============================================================================
+// The following set of functions use the policies defined in the previous
+// section to construct a set of tests that will exhaustively cover the
+// potential type-space of valid combinations of type for each set of arguments
+// to 'bdema_ManagedPtr::load'.  Each is a function template, taking at least
+// a single type parameter describing the type 'bdema_ManagedPtr' should be
+// instatiated for.  Most function templates will take additional type
+// arguements describing different policies that are used to define the
+// functionality of that test.
+// This decomposition into 11 test policies and 10 test functions allows us to
+// generate over 200 distint test functions, that in turn may be specified for
+// each of the 5 types we instantiate 'bdema_ManagedPtr' with for testings.
+// Note that not all 200 tests are valid for each of the 5 types, and indeed
+// many will not compile if instantiated.
+// In order to sequentially test each state and permutation of state changes we
+// generate large test tables for each of our 5 test types taking the address
+// of each valid test function that can be instantiated.  For completeness and
+// ease of auditing, we list all combinations of function and policy for each
+// of the 5 test types, and comment out only those we believe must be disabled.
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // No policies needed for 'load' of empty managed pointers
 
 template<typename POINTER_TYPE>
@@ -1113,7 +1178,7 @@ void doLoadObjectFactory(int callLine, int testLine, int index,
     }
     else {
 #ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) cout << "\tNegative testing null factory pointer\n";
+        if (g_verbose) cout << "\tNegative testing null factory pointer\n";
 
         {
             bsls_AssertTestHandlerGuard guard;
@@ -1200,7 +1265,7 @@ void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
     }
     else {
 #ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) cout << "\tNegative testing null factory pointer\n";
+        if (g_verbose) cout << "\tNegative testing null factory pointer\n";
 
         {
             bsls_AssertTestHandlerGuard guard;
@@ -1478,7 +1543,7 @@ void testLoadAliasOps1(int callLine,
                 bslma_TestAllocatorMonitor tam2(ta);
 
 #ifdef BDE_BUILD_TARGET_EXC
-                if (verbose) cout << "\tNegative testing null pointers\n";
+                if (g_verbose) cout << "\tNegative testing null pointers\n";
 
                 TestPointer pAlias;
                 if (0 == p.ptr()) {
@@ -1586,7 +1651,7 @@ void testLoadAliasOps2(int callLine,
                 bslma_TestAllocatorMonitor tam2(ta);
 
 #ifdef BDE_BUILD_TARGET_EXC
-                if (verbose) cout << "\tNegative testing null pointers\n";
+                if (g_verbose) cout << "\tNegative testing null pointers\n";
 
                 // Declare variables so that the lifetime extends to the end
                 // of the loop.  Otherwise, the 'ta' monitor tests will flag
@@ -4555,6 +4620,7 @@ static const TestConstVoidFn TEST_CONST_VOID_ARRAY[] = {
 static const int TEST_CONST_VOID_ARRAY_SIZE = 
     sizeof(TEST_CONST_VOID_ARRAY)/sizeof(TEST_CONST_VOID_ARRAY[0]);
 
+} // close anonymous namespace
 //=============================================================================
 //                                CASTING EXAMPLE
 //-----------------------------------------------------------------------------
@@ -4775,21 +4841,21 @@ namespace USAGE_EXAMPLE {
         bdema_ManagedPtr<double> result = getFirstQuoteLargerThan(16.00, &ta);
         ASSERT(*result > 16.00);
         ASSERT(1 == ta.numBlocksInUse());
-        if (verbose) bsl::cout << "Found quote: " << *result << bsl::endl;
+        if (g_verbose) bsl::cout << "Found quote: " << *result << bsl::endl;
 //..
 // We also print the preceding 5 quotes in last-to-first order:
 //..
         int i;
-        if (verbose) bsl::cout << "Preceded by:";
+        if (g_verbose) bsl::cout << "Preceded by:";
         for (i = -1; i >= -5; --i) {
             double quote = result.ptr()[i];
             if (END_QUOTE == quote) {
                 break;
             }
             ASSERT(quote < *result);
-            if (verbose) bsl::cout << ' ' << quote;
+            if (g_verbose) bsl::cout << ' ' << quote;
         }
-        if (verbose) bsl::cout << bsl::endl;
+        if (g_verbose) bsl::cout << bsl::endl;
 // To move the finger, e.g. to the last position printed, one must be careful
 // to retain the ownership of the entire array.  Using the statement
 // 'result.load(result.ptr()-i)' would be an error, because it would first
@@ -4818,11 +4884,12 @@ namespace USAGE_EXAMPLE {
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-                     verbose = argc > 2;
+    bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
-    g_veryVeryVeryVerbose = veryVeryVeryVerbose;
+                   g_verbose = verbose;
+       g_veryVeryVeryVerbose = veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -8327,7 +8394,7 @@ int main(int argc, char *argv[])
 #endif
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
     }
@@ -8338,7 +8405,8 @@ int main(int argc, char *argv[])
                 0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        bsl::cerr << "Error, non-zero test status = " << testStatus << "." 
+                                                                    << endl;
     }
     return testStatus;
 }
