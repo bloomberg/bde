@@ -463,13 +463,14 @@ void timerCallback(int               *isInvokedFlag,
                    bdet_TimeInterval *registrationTime,
                    bdet_TimeInterval  expDelta,
                    int                sequenceNumber,
-                   bool               checkDeltaFlag)
+                   bool               checkDeltaFlag,
+                   bdet_TimeInterval  tolerance)
 {
     ASSERT(isInvokedFlag); ASSERT(registrationTime);
     ASSERT(0 == *isInvokedFlag);
     *isInvokedFlag = 1;
-    bdet_TimeInterval now = bdetu_SystemTime::now();
-    ASSERT(now >= *registrationTime);
+    bdet_TimeInterval now = bdetu_SystemTime::now() + tolerance;
+    LOOP2_ASSERT(now, *registrationTime, now >= *registrationTime);
     if (checkDeltaFlag) {
         bdet_TimeInterval delta = now - *registrationTime;
         const double TOLERANCE = 0.15;  // allow 15% inaccuracy
@@ -503,9 +504,15 @@ extern "C" void *testTimersThread(void *arg) {
         flags[i] = 0;
         bdet_TimeInterval expDelta = i % 2 ? delta : bdet_TimeInterval(0);
         expDelta += bdet_TimeInterval(0.25);
+        bdet_TimeInterval tolerance;
         bdef_Function<void (*)()> functor(
-                bdef_BindUtil::bind(&timerCallback, &flags[i],
-                                    &timeValues[i], expDelta, -i, true));
+                bdef_BindUtil::bind(&timerCallback,
+                                    &flags[i],
+                                    &timeValues[i],
+                                    expDelta,
+                                    -i,
+                                    true,
+                                    tolerance));
 
         timerIds[i] = mX->registerTimer(timeValues[i], functor);
     }
@@ -634,7 +641,9 @@ int main(int argc, char *argv[])
 
     enum { MIN_REQUIRED_OPEN_FILES = 200 };
     int maxNumOpenFiles = maxOpenFiles();
-    ASSERT(MIN_REQUIRED_OPEN_FILES <= maxNumOpenFiles);
+    LOOP2_ASSERT(MIN_REQUIRED_OPEN_FILES,
+                 maxNumOpenFiles,
+                 MIN_REQUIRED_OPEN_FILES <= maxNumOpenFiles);
     if (MIN_REQUIRED_OPEN_FILES > maxNumOpenFiles) {
         LOOP2_ASSERT(maxNumOpenFiles, MIN_REQUIRED_OPEN_FILES,
                      "Not enough system resources.");
@@ -718,6 +727,7 @@ int main(int argc, char *argv[])
             enum { NUM_TIMERS  = 10000 };
             bdet_TimeInterval  timeValues[NUM_TIMERS];
             bdet_TimeInterval  delta(0.5);
+            bdet_TimeInterval  tolerance;
             int                flags[NUM_TIMERS];
             void              *ids[NUM_TIMERS];
 
@@ -730,7 +740,8 @@ int main(int argc, char *argv[])
                                             &timeValues[i],
                                             delta,
                                             i,
-                                            false));
+                                            false,
+                                            tolerance));
                 ids[i] = mX.registerTimer(timeValues[i],
                                           functor);
                 LOOP_ASSERT(i, ids[i]);
@@ -1356,7 +1367,12 @@ int main(int argc, char *argv[])
                 enum { NUM_TIMERS  = 100000, NUM_ATTEMPTS = 10 };
                 bsl::vector<bdet_TimeInterval> timeValues(NUM_TIMERS);
                 bdet_TimeInterval offset(3.0);
-                bdet_TimeInterval delta(0.5); // 1/2 seconds
+                bdet_TimeInterval delta(0.5);          // 1/2 seconds
+#if defined(BSLS_PLATFORM__OS_LINUX)
+                bdet_TimeInterval tolerance(0, 200000);  // 200 millisecs
+#else
+                bdet_TimeInterval tolerance;
+#endif
                 int flags[NUM_TIMERS];
 
                 for (int i = 0; i < NUM_TIMERS; ++i) {
@@ -1366,17 +1382,22 @@ int main(int argc, char *argv[])
 
                     bdef_Function<void (*)()> functor(
                         bdef_BindUtil::bind(&timerCallback,
-                                            &flags[i], &timeValues[i],
-                                            delta, i, false));
+                                            &flags[i],
+                                            &timeValues[i],
+                                            delta,
+                                            i,
+                                            false,
+                                            tolerance));
                     mX.registerTimer(timeValues[i], functor);
                 }
                 if (veryVerbose) {
                     cout << "\t\tRegistered " << NUM_TIMERS
                          << " timers." << endl;
                 }
+
+                bslma_TestAllocator da;
+                bslma_DefaultAllocatorGuard dag(&da);
                 for (int i = 0; i < NUM_ATTEMPTS; ++i) {
-                    bslma_TestAllocator da;
-                    bslma_DefaultAllocatorGuard dag(&da);
 
                     LOOP_ASSERT(i, 0 == mX.disable());
                     LOOP_ASSERT(i, 0 == X.isEnabled());
@@ -1420,7 +1441,8 @@ int main(int argc, char *argv[])
 
                 enum { NUM_TIMERS  = 10000 };
                 bdet_TimeInterval timeValues[NUM_TIMERS];
-                bdet_TimeInterval delta(0.5); // 1/2 seconds
+                bdet_TimeInterval delta(0.5);           // 1/2 seconds
+                bdet_TimeInterval tolerance;
                 int flags[NUM_TIMERS];
 
                 for (int i = 0; i < NUM_TIMERS; ++i) {
@@ -1429,11 +1451,14 @@ int main(int argc, char *argv[])
                                                           bdet_TimeInterval(2);
                     bdef_Function<void (*)()> functor(
                         bdef_BindUtil::bind(&timerCallback,
-                                            &flags[i], &timeValues[i],
-                                            delta, i, true));
+                                            &flags[i],
+                                            &timeValues[i],
+                                            delta,
+                                            i,
+                                            true,
+                                            tolerance));
 
-                    void *id = mX.registerTimer(timeValues[i],
-                                                functor);
+                    void *id = mX.registerTimer(timeValues[i], functor);
                     LOOP_ASSERT(i, id);
 
                     LOOP2_ASSERT(i + 1, X.numTimers(),
