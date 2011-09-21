@@ -150,7 +150,7 @@ static int maxOpenFiles()
     // by this process on success and a negative value on failure.
 {
 #if defined(BSLS_PLATFORM__OS_WINDOWS)
-    return (1 << sizeof(int)) * 8 - 1;
+    return (1 << sizeof(int)) * 16 - 1;
 #endif
 #if defined(BSLS_PLATFORM__OS_UNIX)
     struct ::rlimit result;
