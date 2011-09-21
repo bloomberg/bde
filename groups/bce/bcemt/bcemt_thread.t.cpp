@@ -733,35 +733,13 @@ int main(int argc, char *argv[])
         //    bcemt_Attribute::BCEMT_SCHED_RR
         // --------------------------------------------------------------------
 
-#if 0 // bcemt_ThreadAttributesImpl has been phased out
-        typedef bcemt_ThreadAttributesImpl<bces_Platform::ThreadPolicy> Imp;
-
-        ASSERT(bcemt_Attribute::BCEMT_CREATE_JOINABLE ==
-                                                   Imp::BCEMT_CREATE_JOINABLE);
-        ASSERT(bcemt_Attribute::BCEMT_CREATE_DETACHED ==
-                                                   Imp::BCEMT_CREATE_DETACHED);
-
-        ASSERT(bcemt_Attribute::BCEMT_SCHED_OTHER == Imp::BCEMT_SCHED_OTHER);
-        ASSERT(bcemt_Attribute::BCEMT_SCHED_FIFO  == Imp::BCEMT_SCHED_FIFO);
-        ASSERT(bcemt_Attribute::BCEMT_SCHED_RR    == Imp::BCEMT_SCHED_RR);
-#endif
-
         if (verbose) {
             P((int)bcemt_Attribute::BCEMT_CREATE_JOINABLE);
             P((int)bcemt_Attribute::BCEMT_CREATE_DETACHED);
             P((int)bcemt_Attribute::BCEMT_SCHED_OTHER);
             P((int)bcemt_Attribute::BCEMT_SCHED_FIFO);
             P((int)bcemt_Attribute::BCEMT_SCHED_RR);
-
-#if 0
-            P((int)Imp::BCEMT_CREATE_JOINABLE);
-            P((int)Imp::BCEMT_CREATE_DETACHED);
-            P((int)Imp::BCEMT_SCHED_OTHER);
-            P((int)Imp::BCEMT_SCHED_FIFO);
-            P((int)Imp::BCEMT_SCHED_RR);
-#endif
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
