@@ -80,6 +80,7 @@
 *           safe    BUILD_TYPE  = -DBDE_BUILD_TARGET_SAFE
 *           safe2   BUILD_TYPE  = -DBDE_BUILD_TARGET_SAFE_2
 *           stlport BUILD_TYPE  = -DBDE_BUILD_TARGET_STLPORT
+*           cpp11   BUILD_TYPE  = -DBDE_BUILD_TARGET_CPP11
 
 *           _   BDE_CFLAGS  = $(BUILD_TYPE)
 *           _   BDE_CXXFLAGS    = $(BUILD_TYPE)
@@ -155,6 +156,14 @@ unix-                   _       RETRY_ON_SIGNAL = $(RETRY) -a 3 -t $(RETRY_TIMEO
 !! windows-             _       RETRY_ON_SIGNAL =
 
 #==============================================================================
+# C++11 (a.k.a. C++0x) support
+
+*                       cpp11   CPP11_FLAGS     =   --this-compiler-does-not-have-cpp11-support-configured
+!! unix-HP_UX-*-*-acc   cpp11   CPP11_FLAGS     =   -Ax
+!! unix-*-*-*-gcc-4.6.1 cpp11   CPP11_FLAGS     =   -std=c++0x
+
+*                       cpp11   BDE_CXXFLAGS    = $(CPP11_FLAGS)
+#==============================================================================
 # Test driver execution
 
 *                       _       TEST_TIMEOUT    = 600
@@ -168,8 +177,8 @@ unix-                   _       RETRY_ALLTEST   = $(RETRY) -t 0 -a 3 -s!ILL,TRAP
 
 *                       _       ALLTEST = $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
 !! unix-AIX-*           _       ALLTEST = $(XLC_LIBPATH) $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
-!! unix-SunOS-*-*-gcc-4.3.2 _   ALLTEST     = LD_LIBRARY_PATH=/opt/swt/install/gcc-4.3.2/lib:$(LD_LIBRARY_PATH) $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
-!! unix-SunOS-*-*-gcc-4.3.2 64   ALLTEST     = LD_LIBRARY_PATH=/opt/swt/install/gcc-4.3.2/lib/sparcv9:$(LD_LIBRARY_PATH) $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
+!! unix-SunOS-*-*-gcc-4     _   ALLTEST     = LD_LIBRARY_PATH=/opt/swt/install/gcc-$(GCC_VER)/lib:$(LD_LIBRARY_PATH) $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
+!! unix-SunOS-*-*-gcc-4     64   ALLTEST     = LD_LIBRARY_PATH=/opt/swt/install/gcc-$(GCC_VER)/lib/sparcv9:$(LD_LIBRARY_PATH) $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
 !! windows      _       ALLTEST = D:/bin/wrun.exe -A -a$@ -v -t 5 -m100 -M1024 -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
 # maximize test iterations to 100
 *           _      ALLTEST_OPT = -m100
@@ -241,7 +250,6 @@ unix-               _   MKDIR   = $(RETRY_ON_EXIT) perl -MFile::Path -e 'mkpath(
 windows-            _   MKDIR   = perl -MFile::Path -e "mkpath(\@ARGV)" --
 
 unix-           _   TMPDIR      = /bb/data/tmp
-!! unix-Linux       _   TMPDIR      = /tmp
 !! unix-FreeBSD     _   TMPDIR      = /tmp
 !! unix-Cygwin      _   TMPDIR      = /tmp
 !! unix-Darwin      _   TMPDIR      = /tmp
@@ -358,12 +366,22 @@ unix-AIX-*-*-*-*           _   XLC_SPECIAL_BBINDER_FLAGS   = -bweaklocal -bbigto
 !! unix-AIX-*-*-*           shr AR      = $(CXX) -G $(XLC_SPECIAL_BBINDER_FLAGS) -o
 !! unix-*-*-*-gcc           shr AR      = $(CXX) -shared -o
 !! unix-HP_UX-*-*-*         shr AR      = $(CXX) -b +nostl -o
+
+!! unix-*-*-*-gcc-3.4.6     _   GCC_VER = 3.4.6
+!! unix-*-*-*-gcc-4.1.2     _   GCC_VER = 4.1.2
+!! unix-*-*-*-gcc-4.2.1     _   GCC_VER = 4.2.1
+!! unix-*-*-*-gcc-4.3.0     _   GCC_VER = 4.3.0
+!! unix-*-*-*-gcc-4.3.1     _   GCC_VER = 4.3.1
+!! unix-*-*-*-gcc-4.3.2     _   GCC_VER = 4.3.2
+!! unix-*-*-*-gcc-4.3.4     _   GCC_VER = 4.3.4
+!! unix-*-*-*-gcc-4.3.5     _   GCC_VER = 4.3.5
+!! unix-*-*-*-gcc-4.5.2     _   GCC_VER = 4.5.2
+!! unix-*-*-*-gcc-4.6.1     _   GCC_VER = 4.6.1
+
 !! unix-SunOS-*-*-gcc       shr AR      = $(RETRY_ON_EXIT) /bbs/opt/bin/gcc -shared -o
-!! unix-SunOS-*-*-gcc-4.1.1 shr AR      = $(RETRY_ON_EXIT) /bbs/swtlib/gcc-4.1.1/bin/g++ -shared -o
-!! unix-SunOS-*-*-gcc-4.2.0 shr AR      = $(RETRY_ON_EXIT) /bbcm/infrastructure/etc/g++-4.2.0 -shared -o
-!! unix-SunOS-*-*-gcc-4.3.0 shr AR      = $(RETRY_ON_EXIT) /opt/swt/install/gcc-4.3.0/bin/g++ -shared -o
-!! unix-SunOS-*-*-gcc-4.3.2 shr AR      = $(RETRY_ON_EXIT) /opt/swt/install/gcc-4.3.2/bin/g++ -shared -o
+!! unix-SunOS-*-*-gcc-4.*   shr AR      = $(RETRY_ON_EXIT) /opt/swt/install/gcc-$(GCC_VER)/bin/g++ -shared -o
 !! unix-AIX-*-*-gcc         shr AR      = $(RETRY_ON_EXIT) /bbs/opt/bin/gcc -shared -o
+!! unix-AIX-*-*-gcc-4.*     shr AR      = $(RETRY_ON_EXIT) /opt/swt/install/gcc-$(GCC_VER)/bin/g++ -shared -o
 
 windows-                    _   AR      = $(RETRY_ON_EXIT) lib /nologo
 
@@ -535,7 +553,7 @@ unix-Linux-*-*-*       _   DEF_ENDLDFLAGS = -lrt
 unix-Linux-*-*-gcc-4.3.5      _  RPATH_LIBDIR = lib
 !! unix-Linux-*-*-gcc-4.3.5    64 RPATH_LIBDIR = lib64
 
-unix-Linux-*-*-gcc-4.3.5      _  DEF_ENDLDFLAGS = -Wl,-rpath -Wl,/opt/swt/install/gcc-4.3.5/$(RPATH_LIBDIR)
+unix-Linux-*-*-gcc-4      _  DEF_ENDLDFLAGS = -Wl,-rpath -Wl,/opt/swt/install/gcc-$(GCC_VER)/$(RPATH_LIBDIR)
 
 # Flags for shared memory access compatibility on HP
 unix-HP_UX-*-*-*       _   DEF_LDFLAGS    = $(LINKARGSCOMMON) -AA -ext
@@ -604,13 +622,10 @@ unix-          _   BDE_LDFLAGS =  $(LIBPATH_FLAG)/bbsrc/bde/registry/lroot/lib/$
 !! unix-AIX-*-*-*   _   SHR_ENDLDFLAGS  = -bdynamic
 !! unix-AIX-*-*-gcc _   SHR_ENDLDFLAGS  = -Bdynamic
 !! unix-SunOS-*-*-gcc-4.1.1 _   SHR_ENDLDFLAGS  = -Bdynamic -Wl,-R/bbs/swtlib/gcc-4.1.1/lib
-!! unix-SunOS-*-*-gcc-4.2.0 _   SHR_ENDLDFLAGS  = -Bdynamic -Wl,-R/opt/swt/install/gcc-4.2.0/lib
-!! unix-SunOS-*-*-gcc-4.3.0 _   SHR_ENDLDFLAGS  = -Bdynamic -Wl,-R/opt/swt/install/gcc-4.3.0/lib
-!! unix-SunOS-*-*-gcc-4.3.2 _   SHR_ENDLDFLAGS  = -Bdynamic -Wl,-R/opt/swt/install/gcc-4.3.2/lib
+!! unix-SunOS-*-*-gcc-4.1.2 _   SHR_ENDLDFLAGS  = -Bdynamic -Wl,-R/opt/swt/install/gcc-$(GCC_VER)/lib
+!! unix-SunOS-*-*-gcc-4.2   _   SHR_ENDLDFLAGS  = -Bdynamic -Wl,-R/opt/swt/install/gcc-$(GCC_VER)/lib
 
-!! unix-SunOS-*-*-gcc-4.2.0 64   SHR_ENDLDFLAGS  = -Bdynamic -Wl,-R/opt/swt/install/gcc-4.2.0/lib/sparcv9
-!! unix-SunOS-*-*-gcc-4.3.0 64   SHR_ENDLDFLAGS  = -Bdynamic -Wl,-R/opt/swt/install/gcc-4.3.0/lib/sparcv9
-!! unix-SunOS-*-*-gcc-4.3.2 64   SHR_ENDLDFLAGS  = -Bdynamic -Wl,-R/opt/swt/install/gcc-4.3.2/lib/sparcv9
+!! unix-SunOS-*-*-gcc-4.2 64   SHR_ENDLDFLAGS  = -Bdynamic -Wl,-R/opt/swt/install/gcc-$(GCC_VER)/lib/sparcv9
 !! unix-        shr SHR_ENDLDFLAGS  =
 
 #===
@@ -943,11 +958,9 @@ unix-                   _   CC      = $(RETRY_ON_SIGNAL) cc -DUSE_REAL_MALLOC $(
 
 !! unix-SunOS-*-*-gcc   _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/opt/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 !! unix-SunOS-*-*-gcc-4.1.1 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/swtlib/gcc-4.1.1/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-SunOS-*-*-gcc-4.2.0 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbcm/infrastructure/etc/g++-4.2.0 -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-SunOS-*-*-gcc-4.3.0 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.0/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-SunOS-*-*-gcc-4.3.2 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.2/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-AIX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /bbs/opt/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-!! unix-HP_UX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /opt/swt/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-SunOS-*-*-gcc-4.1.2 _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-$(GCC_VER)/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-AIX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-$(GCC_VER)/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
+!! unix-HP_UX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-$(GCC_VER)/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 !! unix-Linux-*-*-gcc   _   CC      = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 !! unix-FreeBSD-*-*-gcc   _   CC      = $(RETRY_ON_SIGNAL) /usr/bin/gcc $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 windows-        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /nologo /W3 /D"WIN32" /D"_WINDOWS" /D"_MBCS" /D"NOMINMAX" /DNOGDI $(CC64FLAGS)
@@ -974,8 +987,8 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 !! unix-SunOS-*-*-CC64     _    CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bb/util/common/studio8-v10/SUNWspro/bin/CC $(CXX64FLAGS)
 
 !! unix-Linux-*-*-gcc-3.4.6            _  COMPILERPATH = /usr/bin
-!! unix-Linux-*-*-gcc-4.3.5            _  COMPILERPATH = /opt/swt/install/gcc-4.3.5/bin
-!! unix-Linux-i686-2.6.32-gcc-4.3.5    _  COMPILERPATH = /usr/bin
+!! unix-Linux-*-*-gcc-4                _  COMPILERPATH = /opt/swt/install/gcc-$(GCC_VER)/bin
+#!! unix-Linux-i686-2.6.32-gcc-4.3.5    _  COMPILERPATH = /usr/bin
 
 !! unix-Linux-*-*-gcc                  _  CXX          = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
@@ -999,9 +1012,7 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 
 !! unix-SunOS-*-*-gcc   _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/opt/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 !! unix-SunOS-*-*-gcc-4.1.1 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbs/swtlib/gcc-4.1.1/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-SunOS-*-*-gcc-4.2.0 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bbcm/infrastructure/etc/g++-4.2.0 $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-SunOS-*-*-gcc-4.3.0 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.0/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
-!! unix-SunOS-*-*-gcc-4.3.2 _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-4.3.2/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+!! unix-SunOS-*-*-gcc-4.2   _   CXX         = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-$(GCC_VER)/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
 !! unix-AIX-*-*-gcc _   CXX         = $(RETRY_ON_SIGNAL) /bbs/opt/bin/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
