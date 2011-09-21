@@ -1169,9 +1169,11 @@ int main(int argc, char *argv[]) {
                     // like 'dormant < -0.020'.
 
                     ++nowFailures;
-                    cout << "*WARNING*  1 socket: Time going backwards " <<
+                    if (nowFailures < 20) {
+                        cout << "*WARNING*  1 socket: Time going backwards " <<
                                          nowFailures << " times. dormant = " <<
                                                                dormant << endl;
+                    }
 #if defined(BSLS_PLATFORM__OS_LINUX)
                     // Linux isn't really very important here because polling
                     // is not the default event mananger for Linux.
@@ -1189,9 +1191,11 @@ int main(int argc, char *argv[]) {
                     // failures.
 
                     ++intFailures;
-                    cout << "*WARNING*  1 socket: Unexpected interrupt " <<
+                    if (intFailures < 20) {
+                        cout << "*WARNING*  1 socket: Unexpected interrupt " <<
                                                     intFailures << " times.\n";
-                    P_(delay);    P_(dub(deadline - finish));    P(dormant);
+                        P_(delay);    P_(dub(deadline - finish));  P(dormant);
+                    }
 
 #ifdef BSLS_PLATFORM__OS_LINUX
                     // Linux isn't really very important here because polling
@@ -1212,6 +1216,11 @@ int main(int argc, char *argv[]) {
                     P_(delay); P_(dub(deadline - finish));  P(dormant);
                 }
             }
+
+#ifdef BSLS_PLATFORM__OS_LINUX
+            if (nowFailures) P(nowFailures);
+            if (intFailures) P(intFailures);
+#endif
         }
 // #endif
       } break;
