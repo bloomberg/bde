@@ -279,7 +279,9 @@ typedef bslma_TestAllocatorMonitor Obj;
 //..
 // Notice that the implementation of the manipulator allocates/deallocates
 // memory *before* updating the object.  This ordering leaves the object
-// unchanged in case the allocator throws an exception.
+// unchanged in case the allocator throws an exception (part of the strong
+// exception guarantee).  This is an implementation detail, not a part
+// of the contract (in this example).
 //..
 
     // ACCESSORS
@@ -343,64 +345,66 @@ int main(int argc, char *argv[])
 //: 2 Every object releases any allocated memory at destruction.
 //:
 //: 3 No accessor allocates any memory.
-//: 
+//:
 //: 4 All memory allocation is exception neutral.
 //:
 //: 5 QoI: The default constructor allocates no memory.
 //:
 //: 6 QoI: When possible, memory is cached for reuse.
-//:
-//: 7 QoI: Asserted precondition violations are detected when enabled.
 //..
-// Notice that some of these concerns (e.g., C-5..7) are not part of the
-// class's documented, contractual behavior.  These are classifed as Quality
+// Notice that some of these concerns (e.g., C-5..6) are not part of the
+// class's documented, contractual behavior.  These are classified as Quality
 // of Implementation (QoI) concerns.
 //
-// Next, we define a test plan.  For example, a plan addressing these concerns
-// is:
+// Next, we define a test plan.  For example, a plan to test these concerns is:
 //..
 // Plan:
 //: 1 Setup global and default allocators:
-//:   1 Create two 'bslma_TestAllocator' objects and, for each of these,
-//:     create an associated 'bslma_TestAllocatorMonitor' object.
+//:
+//:   1 Create two 'bslma_TestAllocator' objects and, for each of these, create
+//:     an associated 'bslma_TestAllocatorMonitor' object.
+//:
 //:   2 Install the two allocators as the global and default allocators.
 //:
-//: 2 Confirm that default construction allocates no memory: (C-4)
+//: 2 Confirm that default construction allocates no memory: (C-5)
+//:
 //:   1 Construct a 'bslma_TestAllocatorMonitor' object to be used passed to
 //:     test objects on their construction, and an associated
+//:
 //:   2 In an inner block, default construct an object of 'MyClass' using the
 //:     designated "object" test allocator.
+//:
 //:   3 Allow the object to go out of scope (destroyed).  Confirm that no
 //:     memory has been allocated from any of the allocators.
 //:
-//: 3 Exercise an object of 'MyClass'
-//:   such that memory should be allocated, and
-//:   then confirm that the object allocator (only) is used: (C-X..Y)
+//: 3 Exercise an object of 'MyClass' such that memory should be allocated, and
+//:   then confirm that the object allocator (only) is used: (C-2..4,6)
 //:
 //:   1 In another inner block, default construct a new test object using the
 //:     (as yet unused) object allocator.
-//:  
+//:
 //:   2 Force the test object to allocate memory by setting its 'descriptor'
-//:     attribute to a value whose size
-//:     exceeds the size of the object itself.  Confirm that the attribute was
-//:     set and that memory was allocated.
-//:   
-//:   x Confirm the the primary manipulator (the 'setDescription' method) is
-//:     exception neutral (i.e., exceptions from the allocator are propigated
-//:     and //:     no memory is leaked) by using the
-//:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' and the test allocator monitors.
+//:     attribute to a value whose size exceeds the size of the object itself.
+//:     Confirm that the attribute was set and that memory was allocated.
 //:
-//:   3 Change the attribute to a smaller value and confirm that the current
-//:     memory was reused. (C-5)
+//:   3 Confirm the the primary manipulator (the 'setDescription' method) is
+//:     exception neutral (i.e., exceptions from the allocator are propagated
+//:     and no memory is leaked).  Use the
+//:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros to manage the test,
+//:     and use the test allocator monitor to confirm that memory is allocated
+//:     on the no-exception code path.  (C-4)
 //:
-//:   4 Force the test object to deallocate/allocate by setting a string
-//:     that exceeds the capacity acquired earlier.  Confirm that the
-//:     that the number of outstanding allocations is unchanged (one returned,
-//:     one given) but the maximum number of allocations is unchanged so there
-//:     were not extra (temporary) allocations. (C-2)
+//:   4 When the object is holding memory, create an additional test allocator
+//:     monitor allocator for the object allocator.  Use the basic accessor
+//;     (i.e., the 'description' method) to confirm that the object has the
+//:     expected value.  Check this test allocator monitor to confirm that
+//:     accessor allocated no memory.  (C-3)
 //:
-//: 4 Destroy the test object by allowing it to go out of scope, and confirm
-//:   that all allocations are returned.  (C-3)
+//:   4 Change the attribute to a smaller value and confirm that the current
+//:     memory was reused (i.e., no memory is allocated). (C-6)
+//:
+//:   5 Destroy the test object by allowing it to go out of scope, and confirm
+//:     that all allocations are returned.  (C-2)
 //:
 //: 5 Confirm that at no time were the global allocator or the default
 //:   allocator were used.  (C-1)
@@ -428,21 +432,22 @@ int main(int argc, char *argv[])
 //..
         if (verbose) cout << "No allocation by Default Constructor " << endl;
 
+        bslma_TestAllocator        oa("object", veryVeryVeryVerbose);
+        bslma_TestAllocatorMonitor oam(&oa);
+
         {
-            bslma_TestAllocator        oa("object", veryVeryVeryVerbose);
-            bslma_TestAllocatorMonitor oam(&oa);
-            {
-                MyClass obj(&oa);
-            }
-            ASSERT(oam.isTotalSame()); // object  allocator unused
+            MyClass obj(&oa);
+            ASSERT(oam.isTotalSame()); // object allocator unused
         }
 //..
 // Next, we pass the (still unused) object allocator to another test object.
 // This time, we coerce the object into allocating memory by setting an
-// attribute.  (Setting an attribute larger than the receiving object usually
+// attribute.  (Setting an attribute larger than the receiving object
 // means that the object cannot store the data within its own footprint and
 // must allocate memory.)
 //..
+        if (verbose) cout << "Exercise object" << endl;
+
         {
             MyClass obj(&oa);
 
@@ -450,20 +455,36 @@ int main(int argc, char *argv[])
                                       "abcdefghijklmnopqrstuvwyz";
             ASSERT(sizeof(obj) < sizeof(DESCRIPTION1));
 
-            obj.setDescription(DESCRIPTION1);
-            ASSERT(0 == std::strcmp(DESCRIPTION1, obj.description()));
+            if (veryVerbose) cout << "\tPrimary Manipulator Allocates" << endl;
 
-            ASSERT(oam.isTotalUp());  // object allocator was used
-            ASSERT(oam.isInUseUp());  // some outstanding allocation(s)
-            ASSERT(oam.isMaxUp());    // a maximum was set
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                obj.setDescription(DESCRIPTION1);
+                ASSERT(oam.isTotalUp());  // object allocator was used
+                ASSERT(oam.isInUseUp());  // some outstanding allocation(s)
+                ASSERT(oam.isMaxUp());    // a maximum was set
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 //..
 // Notice, as expected, memory was allocated from object allocator.
 //
-// Then, we create a second monitor to capture the current state of the test
-// allocator, and reset the attribute of that same object, this time to a short
-// string.
+// Now that the allocator has been used, we create a second monitor to capture
+// the that state.  Confirm that the basic accessor (the 'description' method)
+// does not use the allocator.
 //..
-            bslma_TestAllocatorMonitor oam2(&oa);
+            if (veryVerbose) cout << "\tBasic Accessor does not allocate"
+                                  << endl;
+
+            bslma_TestAllocatorMonitor oam2(&oa); // Captures state of 'oa'
+                                                  // with outstanding
+                                                  // allocations.
+
+            ASSERT(0 == strcmp(DESCRIPTION1, obj.description()));
+            ASSERT(oam2.isTotalSame());  // object allocator was not used
+//..
+// Next, confirm that when a shorter value is assigned, the existing memory
+// is reused.
+//..
 
             obj.setDescription("a");
             ASSERT(0 == std::strcmp("a", obj.description()));
@@ -473,9 +494,21 @@ int main(int argc, char *argv[])
 // Notice that there are no allocations because the object had sufficient
 // capacity in previously allocated memory to store the short string.
 //
-// Next, we make the object allocate additional memory by setting a longer
-// attribute: one that exceeds the capacity allocated for 'DESCRIPTION1'.  Use
-// the second monitor to confirm that an allocation was performed.
+// Next, as an additional test, we make the object allocate additional memory
+// by setting a longer attribute: one that exceeds the capacity allocated for
+// 'DESCRIPTION1'.  Use the second monitor to confirm that an allocation was
+// performed.
+//
+// There are tests where using a test allocator monitor does not suffice.
+// Our test object is currently holding memory, if we assign a value that
+// exceeds its current capacity there will be two operations on the object
+// allocator: the allocation of larger memory, and the deallocation of its
+// current memory: in that order, as part of the strong exception guarantee.
+// Thus, the maximum number of allocations should go up by one, and no more.
+//
+// Note that absence of memory leaks due to exceptions (the other part of the
+// strong exception guarantee is confirmed during the destruction of the object
+// test allocator at the end of this test, which featured exceptions.
 //..
             bsls_Types::Int64 maxBeforeSet   = oa.numBlocksMax();
             const char        DESCRIPTION2[] = "abcdefghijklmnopqrstuvwyz"
@@ -483,6 +516,8 @@ int main(int argc, char *argv[])
                                                "abcdefghijklmnopqrstuvwyz"
                                                "abcdefghijklmnopqrstuvwyz"
                                                "abcdefghijklmnopqrstuvwyz";
+            ASSERT(sizeof(DESCRIPTION1) < sizeof(DESCRIPTION2));
+
             obj.setDescription(DESCRIPTION2);
             ASSERT(0 == std::strcmp(DESCRIPTION2, obj.description()));
 
@@ -502,12 +537,11 @@ int main(int argc, char *argv[])
             ASSERT(1 == maxAfterSet - maxBeforeSet);
 //..
 // Notice that our test allocator monitor cannot confirm that the allocator's
-// maximum increased by exactly one (since, for exception safely, we allocate
-// before deallocate).  In this case, we must directly extract statistics
-// from the test allocator.
+// maximum increased by exactly one.  In this case, we must extract our
+// statistics directly from the test allocator.
 //
-// Note that repeating the the allocate/deallocate scenario in 'setDescription'
-// does *not* further increase the maxium. 
+// Note that increment in "max" occurs only the first time through the the
+// allocate/deallocate scenario in 'setDescription'.
 //..
             bslma_TestAllocatorMonitor oam3(&oa);
 
@@ -520,6 +554,7 @@ int main(int argc, char *argv[])
                                         "abcdefghijklmnopqrstuvwyz"
                                         "abcdefghijklmnopqrstuvwyz"
                                         "abcdefghijklmnopqrstuvwyz";
+            ASSERT(sizeof(DESCRIPTION2) < sizeof(DESCRIPTION3));
 
             obj.setDescription(DESCRIPTION3);
             ASSERT(0 == std::strcmp(DESCRIPTION3, obj.description()));
@@ -537,16 +572,22 @@ int main(int argc, char *argv[])
 // Now, we close scope and check that all object memory was deallocated
 //..
         }
-        ASSERT(oam.isInUseSame()); // All object allocator memory deallocated.
+
+        if (veryVerbose) cout << "\tAll memory returned object allocator"
+                              << endl;
+
+        ASSERT(oam.isInUseSame());
 //..
 // Finally, we check that none of these operations used the default or global
 // allocators.
 //..
-        ASSERT(gam.isTotalSame()); // Global  allocator was never used.
-        ASSERT(dam.isTotalSame()); // Default allocator was never used.
+        if (verbose) cout << "Global and Default allocators never used"
+                          << endl;
+
+        ASSERT(gam.isTotalSame());
+        ASSERT(dam.isTotalSame());
     }
 //..
-
 
       } break;
       case 2: {

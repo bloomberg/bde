@@ -44,9 +44,9 @@ BSLS_IDENT("$Id: $")
 //..
 // The 'numBlocksMax' and 'numBlocksTotal' statistics have values that are
 // monotonically non-decreasing; hence, they need no "Is-Down" methods.  Note
-// that if a monitor is created for an allocator with outstanding blocks ("in use"), then
-// it is possible for the allocator's count of outstanding blocks to drop below
-// the value seen by the monitor at construction.
+// that if a monitor is created for an allocator with outstanding blocks ("in
+// use"), then it is possible for the allocator's count of outstanding blocks
+// to drop below the value seen by the monitor at construction.
 //
 ///Usage
 ///-----
