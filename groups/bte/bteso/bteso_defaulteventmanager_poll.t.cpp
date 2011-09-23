@@ -284,6 +284,19 @@ struct ShouldntBeCalled {
     }
 };
 
+#ifdef BSLS_PLATFORM__OS_HPUX
+// HPUX sometimes seems to need a lag between when events are set up and
+// when the dispatcher is called.  In production this shouldn't be a
+// problem since this is a polling interface -- the events would just
+// occur on the next polling event.  Insert this command where it's needed
+// in the gg string, but it's conditionally compiled to avoid watering down
+// tests on other platforms.
+
+# define PRE_DISPATCH_SLEEP " S40; "
+#else
+# define PRE_DISPATCH_SLEEP
+#endif
+
 //==========================================================================
 //                      MAIN PROGRAM
 //--------------------------------------------------------------------------
@@ -314,7 +327,7 @@ int main(int argc, char *argv[]) {
                                  bteso_TimeMetrics::BTESO_CPU_BOUND);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 12: {
         // -----------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -432,8 +445,7 @@ int main(int argc, char *argv[]) {
                                         bteso_EventType::BTESO_WRITE));
         }
       } break;
-
-      case 12: {
+      case 11: {
         // -----------------------------------------------------------------
         // TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity'
         //
@@ -472,207 +484,6 @@ int main(int argc, char *argv[]) {
             LOOP_ASSERT(crs, true == crs);
         }
       } break;
-      case 11: {
-        // -----------------------------------------------------------------
-        // REPRODUCE SCRIPT TESTS
-        // -----------------------------------------------------------------
-
-#ifdef BSLS_PLATFORM__OS_HPUX
-        const bool HPUX = true;
-#else
-        const bool HPUX = false;
-#endif
-
-#if 1 // Failure A: "-a; +0w64; +0r24; W0,64; Dn,2; -0w; Di,1; -0r; T0"
-        {
-            int numBytes, rc, dispatched;
-
-            char ioBuf[10 * 1024];
-
-            bdet_TimeInterval timeout(0.1);
-
-            bteso_TimeMetrics timeMetric(
-                                   bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-                                   bteso_TimeMetrics::BTESO_CPU_BOUND);
-            bteso_DefaultEventManager<bteso_Platform::POLL> mX(&timeMetric);
-
-            bteso_SocketHandle::Handle socket[4];
-
-            rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
-                           socket,   bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-            ASSERT(0 == rc);
-            rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
-                           socket+2, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-            ASSERT(0 == rc);
-
-            numBytes = 24;
-            bteso_EventManager::Callback readCb(
-                        bdef_BindUtil::bind( &genericCb
-                                           , bteso_EventType::BTESO_READ
-                                           , socket[0]
-                                           , numBytes
-                                           , &mX
-                                           , false));
-            mX.registerSocketEvent(socket[0],
-                                   bteso_EventType::BTESO_READ,
-                                   readCb);
-
-            numBytes = 64;
-            bteso_EventManager::Callback writeCb1(
-                        bdef_BindUtil::bind( &genericCb
-                                           , bteso_EventType::BTESO_WRITE
-                                           , socket[0]
-                                           , numBytes
-                                           , &mX
-                                           , false));
-            mX.registerSocketEvent(socket[0], bteso_EventType::BTESO_WRITE,
-                                       writeCb1);
-
-            bsl::memset(ioBuf, 0xab, sizeof ioBuf);
-            rc = bteso_SocketImpUtil::write(socket[1], ioBuf, 64);
-            LOOP_ASSERT(rc, 64 == rc);
-
-    //      dispatched = mX.dispatch(timeout, 0);
-
-            if (HPUX) bcemt_ThreadUtil::microSleep(40 * 1000);
-
-            dispatched = mX.dispatch(0);
-            LOOP_ASSERT(dispatched, 2 == dispatched);
-
-            P(mX.numEvents());
-            mX.deregisterSocketEvent(socket[0], bteso_EventType::BTESO_WRITE);
-            P(mX.numEvents());
-
-            dispatched = mX.dispatch(bteso_Flag::BTESO_ASYNC_INTERRUPT);
-            LOOP_ASSERT(dispatched, 1 == dispatched);
-
-            mX.deregisterSocketEvent(socket[0], bteso_EventType::BTESO_READ);
-
-            LOOP_ASSERT(mX.numEvents(), 0 == mX.numEvents());
-        }
-#endif
-
-#if 1 // Failure B: "-a; +0r64; +1w24; W0,64; Dn,2; -1w; Di500,0; T1" FAILED.
-        {
-            int numBytes, rc, dispatched;
-
-            char ioBuf[10 * 1024];
-
-            bteso_TimeMetrics timeMetric(
-                                   bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-                                       bteso_TimeMetrics::BTESO_CPU_BOUND);
-            bteso_DefaultEventManager<bteso_Platform::POLL> mX(&timeMetric);
-
-            bteso_SocketHandle::Handle socket[4];
-
-            rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
-                           socket,   bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-            ASSERT(0 == rc);
-            rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
-                           socket+2, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-            ASSERT(0 == rc);
-
-            numBytes = 64;
-            bteso_EventManager::Callback readCb(
-                        bdef_BindUtil::bind( &genericCb
-                                           , bteso_EventType::BTESO_READ
-                                           , socket[0]
-                                           , numBytes
-                                           , &mX
-                                           , false));
-            mX.registerSocketEvent(socket[0],
-                                   bteso_EventType::BTESO_READ,
-                                   readCb);
-
-            numBytes = 24;
-            bteso_EventManager::Callback writeCb1(
-                        bdef_BindUtil::bind( &genericCb
-                                           , bteso_EventType::BTESO_WRITE
-                                           , socket[0]
-                                           , numBytes
-                                           , &mX
-                                           , false));
-            mX.registerSocketEvent(socket[0], bteso_EventType::BTESO_WRITE,
-                                       writeCb1);
-
-            bsl::memset(ioBuf, 0xab, sizeof ioBuf);
-            rc = bteso_SocketImpUtil::write(socket[1], ioBuf, 64);
-            LOOP_ASSERT(rc, 64 == rc);
-
-            if (HPUX) bcemt_ThreadUtil::microSleep(40 * 1000);
-
-            dispatched = mX.dispatch(0);
-            LOOP_ASSERT(dispatched, 2 == dispatched);
-
-            // P(mX.numEvents());
-            mX.deregisterSocketEvent(socket[0], bteso_EventType::BTESO_WRITE);
-            // P(mX.numEvents());
-
-            bdet_TimeInterval timeout(0.5);
-            dispatched = mX.dispatch(timeout,
-                                     bteso_Flag::BTESO_ASYNC_INTERRUPT);
-            LOOP_ASSERT(dispatched, 0 == dispatched);
-
-            LOOP_ASSERT(mX.numEvents(), 1 == mX.numEvents());
-        }
-#endif
-
-#if 1 // Failure C: "-a; +0r24,{-a}; +0w64; W0,64; T2; Dn,1; E0; T0" FAILED.
-        {
-            int numBytes, rc, dispatched;
-
-            char ioBuf[10 * 1024];
-
-            bteso_TimeMetrics timeMetric(
-                                   bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-                                   bteso_TimeMetrics::BTESO_CPU_BOUND);
-            bteso_DefaultEventManager<bteso_Platform::POLL> mX(&timeMetric);
-
-            bteso_SocketHandle::Handle socket[4];
-
-            rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
-                           socket,   bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-            ASSERT(0 == rc);
-            rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
-                           socket+2, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-            ASSERT(0 == rc);
-
-            numBytes = 24;
-            bteso_EventManager::Callback readCb(
-                        bdef_BindUtil::bind( &genericCb
-                                           , bteso_EventType::BTESO_READ
-                                           , socket[0]
-                                           , numBytes
-                                           , &mX
-                                           , true));
-            mX.registerSocketEvent(socket[0],
-                                   bteso_EventType::BTESO_READ,
-                                   readCb);
-
-            numBytes = 64;
-            bteso_EventManager::Callback writeCb1(
-                        bdef_BindUtil::bind( &genericCb
-                                           , bteso_EventType::BTESO_WRITE
-                                           , socket[0]
-                                           , numBytes
-                                           , &mX
-                                           , false));
-            mX.registerSocketEvent(socket[0], bteso_EventType::BTESO_WRITE,
-                                       writeCb1);
-
-            bsl::memset(ioBuf, 0xab, sizeof ioBuf);
-            rc = bteso_SocketImpUtil::write(socket[1], ioBuf, 64);
-            LOOP_ASSERT(rc, 64 == rc);
-
-            if (HPUX) bcemt_ThreadUtil::microSleep(40 * 1000);
-
-            dispatched = mX.dispatch(0);
-            LOOP_ASSERT(dispatched, 1 == dispatched);
-
-            LOOP_ASSERT(mX.numEvents(), 0 == mX.numEvents());
-        }
-#endif
-      }  break;
       case 10: {
         // --------------------------------------------------------------------
         // TESTING FOR DRQS 10105162
@@ -998,17 +809,18 @@ int main(int argc, char *argv[]) {
                {L_, 0, "-a; +0w64; +0r24; Dn,1; -0w; Di500,0; -0r; T0"  },
                {L_, 0, "-a; +0r24; +0w64; Dn,1; -0w; Di500,0; -0r; T0"  },
 
- #ifndef BSLS_PLATFORM__OS_HPUX
-               // fail due to lag on hpux:
+                // fail due to lag on hpux:
                 // These cases are repeated with a sleep before the first
                 // dispatch in test case 12.  The fact that there is a lag
                 // is probably due to the underlying implementation and not
                 // bde, and is not serious for a polling interface because
                 // subsequent polls would pick up the lagging events.
-               {L_, 0, "-a; +0w64; +0r24; W0,64; Dn,2; -0w; Di,1; -0r; T0"  },
-               {L_, 0, "-a; +0r64; +1w24; W0,64; Dn,2; -1w; Di500,0; T1"    },
-               {L_, 0, "-a; +0r24,{-a}; +0w64; W0,64; T2; Dn,1; E0; T0"     },
-#endif
+               {L_, 0, "-a; +0w64; +0r24; W0,64;" PRE_DISPATCH_SLEEP
+                                            "Dn,2; -0w; Di,1; -0r; T0"  },
+               {L_, 0, "-a; +0r24,{-a}; +0w64; W0,64; T2;" PRE_DISPATCH_SLEEP
+                                                     "Dn,1; E0; T0"     },
+               {L_, 0, "-a; +0r64; +1w24; W0,64;" PRE_DISPATCH_SLEEP
+                                            "Dn,2; -1w; Di500,0; T1"    },
 
                  // The two socket events are for different socket handles.
                {L_, 0, "-a; +0w64; +1w24; W0,64; Dn,2; -0w; Di500,1; T1"    },
@@ -1698,6 +1510,44 @@ int main(int argc, char *argv[]) {
             bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
                                      numPairs, numMeasurements, controlFlag);
             outFile.close();
+        }
+      } break;
+      case -3: {
+        // -----------------------------------------------------------------
+        // Interactive gg test shell
+        // -----------------------------------------------------------------
+
+        while (1) {
+            char script[1000];
+            cout << "Enter script: " << flush;
+            cin.getline(script, 1000);
+
+            if (0 == bsl::strncmp(script, "quit", 4)) {
+                break;
+            }
+
+            int i = 0;
+            for (; i < 4; ++i) {
+                Obj mX(&timeMetric, &testAllocator);
+
+                const int NUM_PAIR = 4;
+                bteso_EventManagerTestPair socketPairs[NUM_PAIR];
+
+                for (int j = 0; j < NUM_PAIR; j++) {
+                    socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
+                    socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
+                }
+
+                int fails = bteso_EventManagerTester::gg(&mX, socketPairs,
+                                                         script,
+                                                         controlFlag);
+                if (fails) {
+                    break;
+                }
+            }
+            if (4 == i) {
+                cout << "Success!  " << script << endl;
+            }
         }
       } break;
       default: {
