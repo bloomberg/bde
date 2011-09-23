@@ -667,7 +667,7 @@ int main(int argc, char *argv[])
                           << "CTOR AND ACCESSORS" << endl
                           << "==================" << endl;
 
-        const bsls_Types::size_type ZERO = 0;
+        //const bsls_Types::size_type ZERO = 0;
         const bsls_Types::size_type TEN0 = 1;
         const bsls_Types::size_type TEN1 = 10;
         const bsls_Types::size_type TEN2 = 100;
@@ -810,14 +810,16 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a 'bslma_TestAllocator' object.
-        //: 2 Create a 'bslma_TestAllocatorMonitor' object to track the
-        //:   object created in P-1.
-        //: 3 Perform several allocations from and deallocations to the
-        //:   the test allocator created in P-1.  At each point, confirm that
-        //:   the test allocator monitor object created in P-2 returns 'true'
-        //:   from the appropriate methods.
-        //: 4 Destroy the test allocator monitor.
+        //: 1 Create a 'bslma_TestAllocator' object and a
+        //:   'bslma_TestAllocatorMonitor' object to track the
+        //:   'bslma_TestAllocator' object and a
+        //: 2 Perform several allocations from and deallocations to the the
+        //:   test allocator created in P-1.  Once the test allocator has been
+        //:   used, create a second test allocatore monitor to trace changes
+        //:   from that non-initial state.  At each point, confirm that the
+        //:   test allocator monitor object created in P-2 returns 'true' from
+        //:   the appropriate methods.
+        //: 3 Destroy the test allocator monitors.
         //
         // Testing:
         //   BREATHING TEST
@@ -828,23 +830,37 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         bslma_TestAllocator        ta("test allocator", veryVeryVeryVerbose);
-        bslma_TestAllocatorMonitor tam(&ta);
+        bslma_TestAllocatorMonitor tamA(&ta);
 
-        ASSERT(tam.isTotalSame());
-        ASSERT(tam.isInUseSame());
-        ASSERT(tam.isMaxSame());
+        ASSERT(tamA.isTotalSame());
+        ASSERT(tamA.isInUseSame());
+        ASSERT(tamA.isMaxSame());
 
-        void *allocation = ta.allocate(1);
+        void *allocation1 = ta.allocate(1);
 
-        ASSERT(tam.isTotalUp());
-        ASSERT(tam.isInUseUp());
-        ASSERT(tam.isMaxUp());
+        bslma_TestAllocatorMonitor tamB(&ta);
 
-        ta.deallocate(allocation);
+        ASSERT(tamA.isTotalUp());   ASSERT(tamB.isTotalSame());
+        ASSERT(tamA.isInUseUp());   ASSERT(tamB.isInUseSame());
+        ASSERT(tamA.isMaxUp());     ASSERT(tamB.isMaxSame());
 
-        ASSERT(tam.isTotalUp());
-        ASSERT(tam.isInUseSame());
-        ASSERT(tam.isMaxUp());
+        void *allocation2 = ta.allocate(2);
+
+        ASSERT(tamA.isTotalUp());   ASSERT(tamB.isTotalUp());
+        ASSERT(tamA.isInUseUp());   ASSERT(tamB.isInUseUp());
+        ASSERT(tamA.isMaxUp());     ASSERT(tamB.isMaxUp());
+
+        ta.deallocate(allocation2);
+
+        ASSERT(tamA.isTotalUp());   ASSERT(tamB.isTotalUp());
+        ASSERT(tamA.isInUseUp());   ASSERT(tamB.isInUseSame());
+        ASSERT(tamA.isMaxUp());     ASSERT(tamB.isMaxUp());
+
+        ta.deallocate(allocation1);
+
+        ASSERT(tamA.isTotalUp());   ASSERT(tamB.isTotalUp());
+        ASSERT(tamA.isInUseSame()); ASSERT(tamB.isInUseDown());
+        ASSERT(tamA.isMaxUp());     ASSERT(tamB.isMaxUp());
 
       } break;
       default: {
