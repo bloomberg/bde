@@ -650,7 +650,7 @@ int main(int argc, char *argv[])
     testAllocator.setNoAbort(1);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
+      case 11: {
         // ------------------------------------------------------------------
         // TESTING bteso_EventManagerTestPair
         // Concerns:
@@ -674,7 +674,7 @@ int main(int argc, char *argv[])
         ASSERT(NULL != X.observedFd());     ASSERT(NULL != X.controlFd());
 #endif
       } break;
-      case 9: {
+      case 10: {
         // ------------------------------------------------------------------
         // USAGE EXAMPLE:
         //   Test building the operation details which will be used to verify
@@ -735,7 +735,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 8: {
+      case 9: {
         // ------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -815,6 +815,25 @@ int main(int argc, char *argv[])
                                                  script, ctrlFlag);
         LOOP_ASSERT(LINE, 0 == fails);
 
+      } break;
+      case 8: {
+        // ------------------------------------------------------------------
+        // TESTING 'sleep'
+        //
+        // Plan:
+        //   Issue a 'sleep' command and verify that an appropriate amount of
+        //   time passed.
+        // ------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "Testing 'gg' for sleep\n"
+                                  "======================\n";
+
+        double start   = bdetu_SystemTime::now().totalSecondsAsDouble();
+        int fails = bteso_EventManagerTester::gg(0, 0, "S100; S150", 0);
+        double elapsed = bdetu_SystemTime::now().totalSecondsAsDouble() -
+                                                                         start;
+        ASSERT(0 == fails);
+        ASSERT(elapsed >= 0.25);
       } break;
       case 7: {
         // ------------------------------------------------------------------

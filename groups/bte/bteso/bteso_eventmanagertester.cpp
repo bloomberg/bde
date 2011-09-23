@@ -660,11 +660,19 @@ static int ggHelper(bteso_EventManager         *mX,
               return FAIL;
           }
           bsl::memset(wBuffer, 0xAB, sizeof wBuffer); // to keep purify happy
-          int rc = bteso_SocketImpUtil::write(fds[fd].controlFd(), &wBuffer,
-                                              bytes);
+          rc = bteso_SocketImpUtil::write(fds[fd].controlFd(), &wBuffer,
+                                          bytes);
           if (0 >= rc) {
               return FAIL;
           }
+      } break;
+      case 'S': {
+          int milliSeconds = 0;
+          rc = bsl::sscanf(test, "S%d", &milliSeconds);
+          if (1 != rc) {
+              return FAIL;
+          }
+          bcemt_ThreadUtil::microSleep(milliSeconds * 1000);
       } break;
       default:
           return FAIL;
