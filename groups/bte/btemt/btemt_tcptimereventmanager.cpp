@@ -444,7 +444,9 @@ btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
 , d_callback(basicAllocator)
 , d_result(-1)
 {
-    BSLS_ASSERT(NO_OP == code || TERMINATE == code);
+    BSLS_ASSERT(NO_OP == code
+             || CAN_REGISTER_SOCKETS == code
+             || TERMINATE == code);
 }
 
 inline
