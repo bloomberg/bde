@@ -527,6 +527,12 @@ BSLS_IDENT("$Id: $")
     }                                                                    \
 }
 
+// The following macros are not expanded on the Microsoft compiler to avoid
+// internal compiler errors in optimized builds, which are the result of
+// attempts to optimize many try/catch blocks in large switch statements.
+// Note that the resulting test driver is just as thorough, but will crash on
+// failure rather than capturing and reporting the error.
+
 #if defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
 # define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
          { EXPRESSION_UNDER_TEST; }
