@@ -109,9 +109,6 @@ namespace bsl {
     using native_std::swap;
     using native_std::swap_ranges;
     using native_std::transform;
-    using native_std::uninitialized_copy;
-    using native_std::uninitialized_fill;
-    using native_std::uninitialized_fill_n;
     using native_std::unique;
     using native_std::unique_copy;
     using native_std::upper_bound;

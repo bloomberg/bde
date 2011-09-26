@@ -520,6 +520,59 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'rotateOnTimeInterval' after 'enableFileLogging'
+        //
+        // Concern:
+        //: 1 'rotateOnTimeInterval' does not cause rotation immediately if
+        //:   invoked after 'enableFileLogging'.
+        //
+        // Plan:
+        //: 1 Invoke 'enableFileLogging' before 'rotateOnTimeInterval' and
+        //:   verify rotation does not occur.
+        // --------------------------------------------------------------------
+        if (verbose) cout
+                << "\nTESTING 'rotateOnTimeInterval' after 'enableFileLogging'"
+                << "\n========================================================"
+                << endl;
+
+        bael_LoggerManagerConfiguration configuration;
+
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_TRACE,
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_OFF));
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        Obj mX(&ta);  const Obj& X = mX;
+
+        // Set callback to monitor rotation.
+
+        RotCb cb(Z);
+        mX.setOnFileRotationCallback(cb);
+
+        bael_LoggerManager::initSingleton(&mX, configuration);
+
+        const bsl::string BASENAME = tempFileName(veryVerbose);
+
+        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
+        ASSERT(X.isFileLoggingEnabled());
+        ASSERT(0 == cb.numInvocations());
+
+        BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+
+        mX.rotateOnTimeInterval(bdet_DatetimeInterval(1));
+
+        BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+
+        ASSERT(0 == cb.numInvocations());
+
+        mX.disableFileLogging();
+        bdesu_FileUtil::remove(BASENAME.c_str());
+      } break;
       case 10: {
         // --------------------------------------------------------------------
         // TESTING TIME-BASED ROTATION
