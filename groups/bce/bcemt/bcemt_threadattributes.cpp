@@ -143,7 +143,7 @@ int bcemt_ThreadAttributes::getMinSchedPriority(
 bcemt_ThreadAttributes::bcemt_ThreadAttributes()
 : d_detachedState(BCEMT_CREATE_JOINABLE)
 , d_guardSize(BCEMT_UNSET_GUARD_SIZE)
-, d_inheritSchedule(true)
+, d_inheritScheduleFlag(true)
 , d_schedulingPolicy(BCEMT_SCHED_DEFAULT)
 , d_schedulingPriority(BCEMT_UNSET_PRIORITY)
 , d_stackSize(BCEMT_UNSET_STACK_SIZE)
@@ -153,12 +153,23 @@ bcemt_ThreadAttributes::bcemt_ThreadAttributes()
 bool operator==(const bcemt_ThreadAttributes& lhs,
                 const bcemt_ThreadAttributes& rhs)
 {
-    return lhs.d_detachedState      == rhs.d_detachedState      &&
-           lhs.d_guardSize          == rhs.d_guardSize          &&
-           lhs.d_inheritSchedule    == rhs.d_inheritSchedule    &&
-           lhs.d_schedulingPolicy   == rhs.d_schedulingPolicy   &&
-           lhs.d_schedulingPriority == rhs.d_schedulingPriority &&
-           lhs.d_stackSize          == rhs.d_stackSize;
+    return lhs.detachedState()      == rhs.detachedState()      &&
+           lhs.guardSize()          == rhs.guardSize()          &&
+           lhs.inheritSchedule()    == rhs.inheritSchedule()    &&
+           lhs.schedulingPolicy()   == rhs.schedulingPolicy()   &&
+           lhs.schedulingPriority() == rhs.schedulingPriority() &&
+           lhs.stackSize()          == rhs.stackSize();
+}
+
+bool operator!=(const bcemt_ThreadAttributes& lhs,
+                const bcemt_ThreadAttributes& rhs)
+{
+    return lhs.detachedState()      != rhs.detachedState()      ||
+           lhs.guardSize()          != rhs.guardSize()          ||
+           lhs.inheritSchedule()    != rhs.inheritSchedule()    ||
+           lhs.schedulingPolicy()   != rhs.schedulingPolicy()   ||
+           lhs.schedulingPriority() != rhs.schedulingPriority() ||
+           lhs.stackSize()          != rhs.stackSize();
 }
 
 }  // close enterprise namespace

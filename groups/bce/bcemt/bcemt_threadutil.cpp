@@ -40,8 +40,8 @@ int bcemt_ThreadUtil::convertToSchedulingPriority(
          bcemt_ThreadAttributes::SchedulingPolicy policy,
          double                                   normalizedSchedulingPriority)
 {
-    BSLS_ASSERT_OPT(policy >= bcemt_ThreadAttributes::BCEMT_SCHED_MIN);
-    BSLS_ASSERT_OPT(policy <= bcemt_ThreadAttributes::BCEMT_SCHED_MAX);
+    BSLS_ASSERT_OPT((int) policy >= bcemt_ThreadAttributes::BCEMT_SCHED_MIN);
+    BSLS_ASSERT_OPT((int) policy <= bcemt_ThreadAttributes::BCEMT_SCHED_MAX);
 
     BSLS_ASSERT_OPT(normalizedSchedulingPriority >= 0.0);
     BSLS_ASSERT_OPT(normalizedSchedulingPriority <= 1.0);
