@@ -450,8 +450,6 @@ class bcep_MultipriorityThreadPool {
     const int        d_numThreads;        // user-supplied number of threads
                                           // to be used to process jobs
 
-    volatile bool    d_enabledFlag;       // 'true' if queuing is enabled
-
     bces_AtomicInt   d_threadStartState;  // enum of type 'StartState' (local
                                           // to .cpp) regarding whether threads
                                           // are started
