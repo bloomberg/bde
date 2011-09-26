@@ -167,54 +167,83 @@ inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-namespace {
-
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended usage of this component.
 //
-///Example 1: Finding the Position of One String Inside Another
-///- - - - - - - - - - - - - - - - - - - -
-// In this example we demonstrate how to search for the first occurrence of one
-// string in another using 'bslstl_StringRefData' objects to represent the
-// strings.
+///Example 1: Breaking circular dependency between string and StringRef classes
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we demonstrace how 'bslstl_StringRefData' allows to break
+// the circular dependency between a hypothetical 'string' and 'StringRef'
+// classes.
 //
-// First, we define a function, 'findSubstring', that takes a string to be
-// searched, a string to search for, and returns the position of the second
-// string inside the first string:
+// Objects of our hypothetical 'string' and 'StringRef' classes need to be
+// convertable to each other.  However only one of these classes can depend on
+// the definition of another class, otherwise they will be circularly
+// dependent.
+//
+// First, we define a hypothetical 'string' class.  Its implementation is
+// intentionally simple and constains only the essential constructors and
+// accessor methods.  The impotant thing to notice is that 'string' doesn't
+// depend on 'StringRef', which hasn't been defined yet.
 //..
-const char *findSubstring(const bslstl_StringRefData<char>& string,
-                          const bslstl_StringRefData<char>& substr)
-{
-    ptrdiff_t count1 = string.end() - string.begin();
-    ptrdiff_t count2 = substr.end() - substr.begin();
+namespace Usage {
 
-    for (const char *p1 = string.begin();
-         count1 >= count2;
-         ++p1, --count1)
+class string {
+  private:
+    const char *d_begin;
+    const char *d_end;
+
+    void construct(const char *begin, const char *end)
     {
-        const char *q1 = p1;
-
-        for (const char *q2 = substr.begin(); ; ++q1, ++q2)
-        {
-            if (q2 == substr.end()) {
-                return p1;
-            }
-            else {
-                if (*q1 != *q2) {
-                    break;
-                }
-            }
-        }
+        d_begin = begin;
+        d_end = end;
     }
 
-    return string.end();
-}
-//..
-// Notice that we're using 'begin' and 'end' attributes of the
-// 'bslstl_StringRefData' object to access the string characters.
+  public:
+    typedef const char * const_iterator;
 
-}
+    string(bslstl_StringRefData<char> const& stringRef)
+    {
+        construct(stringRef.begin(), stringRef.end());
+    }
+
+    const_iterator begin() const
+    {
+        return d_begin;
+    }
+
+    const_iterator end() const
+    {
+        return d_end;
+    }
+};
+//..
+// Notice that the constructor of 'string' takes a 'bslstl_StringRefData'
+// argument and then uses its members 'begin' and 'end' to initialize the
+// string object.
+//
+// Then, we define a hypothetical 'StringRef' class.  It can be initialized
+// with two 'const char *' pointers or with a 'string' object to enable the
+// conversion from 'string' to 'StringRef'.  It also derives from
+// 'bslstl_StringRefData' so that an object of 'StringRef' can be passed to the
+// constructor of 'string' as reference to 'bslstl_StringRefData', which
+// enables the conversion from 'StringRef' to 'string'.
+//..
+class StringRef : public bslstl_StringRefData<char>
+{
+  public:
+    StringRef(const char *begin, const char *end)
+        : bslstl_StringRefData<char>(begin, end)
+    {}
+
+    StringRef(const string& str)
+        : bslstl_StringRefData<char>(&*str.begin(), &*str.end())
+    {}
+};
+
+}  // close namespace Usage
+//..
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -251,18 +280,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Usage Example"
                             "\n=====================\n");
 
-// Now, we call the function we just defined with two string literal arguments:
+// Finally, we verify that the conversions between 'string' and "StringRef'
+// work:
 //..
-const char string[] = "find substring";
-const char substr[] = "ring";
-const char * pos    =
-    findSubstring(
-        bslstl_StringRefData<char>(string, string + sizeof(string)),
-        bslstl_StringRefData<char>(substr, substr + sizeof(substr)));
-//..
-// Finally, we check that the function produced the correct result:
-//..
-ASSERT(pos == string + 10);
+using Usage::string;
+using Usage::StringRef;
+
+const char str[] = "test string";
+StringRef  strRef(str, str + sizeof(str));
+
+string     strObj = strRef;     // convert 'StringRef' to 'string'
+StringRef  strRf2 = strObj;     // convert 'string' to 'StringRef'
+
+ASSERT(&*strObj.begin() == strRef.begin());
+ASSERT(&*strObj.end()   == strRef.end());
+ASSERT(&*strObj.begin() == strRf2.begin());
+ASSERT(&*strObj.end()   == strRf2.end());
 //..
       } break;
       case 10: {
