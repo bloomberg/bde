@@ -3,6 +3,9 @@
 #include <btemt_tcptimereventmanager.h>
 #include <bteso_socketimputil.h>
 #include <bteso_eventmanagertester.h>
+#include <bteso_inetstreamsocketfactory.h>
+#include <bteso_ipv4address.h>
+#include <bteso_streamsocket.h>
 
 #include <bteso_defaulteventmanager.h>
 
@@ -14,6 +17,8 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bsls_stopwatch.h>
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bdetu_systemtime.h>
 #include <bdet_time.h>
@@ -97,6 +102,13 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
+//-----------------------------------------------------------------------------
+//            SEMI-STANDARD NEGATIVE TESTING CONVENIENCE MACROS
+//-----------------------------------------------------------------------------
+
+#define ASSERT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -110,6 +122,10 @@ typedef btemt_TcpTimerEventManager Obj;
 //=============================================================================
 //           TEST: 'collectTimeMetrics' configuration flag
 //-----------------------------------------------------------------------------
+
+void noopFunction()
+{
+}
 
 namespace TEST_CASE_COLLECT_TIME_METRICS {
 
@@ -150,7 +166,7 @@ static int maxOpenFiles()
     // by this process on success and a negative value on failure.
 {
 #if defined(BSLS_PLATFORM__OS_WINDOWS)
-    return (1 << sizeof(int)) * 16 - 1;
+    return (1 << sizeof(int)) * 8 - 1;
 #endif
 #if defined(BSLS_PLATFORM__OS_UNIX)
     struct ::rlimit result;
@@ -463,14 +479,13 @@ void timerCallback(int               *isInvokedFlag,
                    bdet_TimeInterval *registrationTime,
                    bdet_TimeInterval  expDelta,
                    int                sequenceNumber,
-                   bool               checkDeltaFlag,
-                   bdet_TimeInterval  tolerance)
+                   bool               checkDeltaFlag)
 {
     ASSERT(isInvokedFlag); ASSERT(registrationTime);
     ASSERT(0 == *isInvokedFlag);
     *isInvokedFlag = 1;
-    bdet_TimeInterval now = bdetu_SystemTime::now() + tolerance;
-    LOOP2_ASSERT(now, *registrationTime, now >= *registrationTime);
+    bdet_TimeInterval now = bdetu_SystemTime::now();
+    ASSERT(now >= *registrationTime);
     if (checkDeltaFlag) {
         bdet_TimeInterval delta = now - *registrationTime;
         const double TOLERANCE = 0.15;  // allow 15% inaccuracy
@@ -504,21 +519,15 @@ extern "C" void *testTimersThread(void *arg) {
         flags[i] = 0;
         bdet_TimeInterval expDelta = i % 2 ? delta : bdet_TimeInterval(0);
         expDelta += bdet_TimeInterval(0.25);
-        bdet_TimeInterval tolerance;
         bdef_Function<void (*)()> functor(
-                bdef_BindUtil::bind(&timerCallback,
-                                    &flags[i],
-                                    &timeValues[i],
-                                    expDelta,
-                                    -i,
-                                    true,
-                                    tolerance));
+                bdef_BindUtil::bind(&timerCallback, &flags[i],
+                                    &timeValues[i], expDelta, -i, true));
 
         timerIds[i] = mX->registerTimer(timeValues[i], functor);
     }
 
     globalBarrier->wait();
-// TBD: UNCOMMENT
+// TBD: Uncomment
 //     ASSERT(0 == defaultAllocator.numBytesInUse());
 
     if (X.isEnabled()) {
@@ -641,9 +650,7 @@ int main(int argc, char *argv[])
 
     enum { MIN_REQUIRED_OPEN_FILES = 200 };
     int maxNumOpenFiles = maxOpenFiles();
-    LOOP2_ASSERT(MIN_REQUIRED_OPEN_FILES,
-                 maxNumOpenFiles,
-                 MIN_REQUIRED_OPEN_FILES <= maxNumOpenFiles);
+    ASSERT(MIN_REQUIRED_OPEN_FILES <= maxNumOpenFiles);
     if (MIN_REQUIRED_OPEN_FILES > maxNumOpenFiles) {
         LOOP2_ASSERT(maxNumOpenFiles, MIN_REQUIRED_OPEN_FILES,
                      "Not enough system resources.");
@@ -655,7 +662,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
           // ----------------------------------------------------------------
           // TESTING USAGE EXAMPLE
           //   The usage example provided in the component header file must
@@ -706,6 +713,156 @@ int main(int argc, char *argv[])
               }
           }
       } break;
+
+      case 14: {
+        // -----------------------------------------------------------------
+        // TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity'
+        //
+        // Concern:
+        //: 1 'hasLimitiedSocketCapacity' returns 'true' if the underlying 
+        //:   event manager returns 'true' and 'false' otherwise.
+        //:
+        //: 2 'canRegisterSockets' always returns 'true' if
+        //:   'hasLimitedSocketCapacity' is 'false'.
+        //:
+        //: 3 If 'hasLimitedSocketCapacity' is 'true' then
+        //:   'canRegisterSockets' returns 'true' upto 'BTESO_MAX_NUM_HANDLES'
+        //:   handles are registered and 'false' after that.
+        //
+        // Plan:
+        //: 1 Assert that 'hasLimitiedSocketCapacity' returns 'true' if the
+        //:   underlying event manager returns 'true' and 'false' otherwise.
+        //:
+        //: 2 Register socket events upto 'BTESO_MAX_NUM_HANDLES'.  Verify
+        //:   that 'canRegisterSockets' always returns 'true'.  After that
+        //:   limit confirm that 'canRegisterSockets' returns 'false'.
+        //
+        // Testing:
+        //   bool canRegisterSockets() const;
+        //   bool hasLimitedSocketCapacity() const;
+        // -----------------------------------------------------------------
+
+        if (verbose) cout << endl
+                << "TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity"
+                << endl
+                << "=========================================================="
+                << endl;
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+        const bool HLSC = true;
+#else
+        const bool HLSC = false;
+#endif
+
+        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            bool hlsc = X.hasLimitedSocketCapacity();
+            LOOP2_ASSERT(HLSC, hlsc, HLSC == hlsc);
+        }
+
+        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
+        {
+            for (int i = 0; i < 2; ++i) {
+                Obj mX;  const Obj& X = mX;
+
+                if (i) {
+                    mX.enable();
+                }
+
+                const int MAX_NUM_HANDLES = FD_SETSIZE;
+
+                if (veryVerbose) { P(MAX_NUM_HANDLES) }
+
+                bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+                vector<bteso_StreamSocket<bteso_IPv4Address> *>  sockets;
+                sockets.reserve(MAX_NUM_HANDLES);
+
+                bteso_StreamSocket<bteso_IPv4Address> *socket;
+                bdef_Function<void (*)()> cb1(&noopFunction),
+                                          cb2(&noopFunction);
+
+                int  numRead           = 0;
+                bool socketAllocFailed = false;
+                for (; numRead < MAX_NUM_HANDLES; ++numRead) {
+                    socket = factory.allocate();
+                    if (!socket) {
+                        socketAllocFailed = true;
+                        break;
+                    }
+                    sockets.push_back(socket);
+                    
+                    if (veryVerbose) { P_(numRead) P(socket->handle()) }
+
+                    int rc = mX.registerSocketEvent(
+                                                   socket->handle(),
+                                                   bteso_EventType::BTESO_READ,
+                                                   cb1);
+                    ASSERT(!rc);
+
+                    rc = mX.canRegisterSockets();
+                    ASSERT(rc);
+
+                    rc = mX.registerSocketEvent(socket->handle(),
+                                                bteso_EventType::BTESO_WRITE,
+                                                cb2);
+                    ASSERT(!rc);
+
+                    rc = mX.canRegisterSockets();
+                    ASSERT(rc);
+                }
+
+                if (!socketAllocFailed) {
+                    ASSERT(numRead == MAX_NUM_HANDLES);
+
+                    int rc = mX.canRegisterSockets();
+                    ASSERT(rc);
+
+                    socket = factory.allocate();
+                    sockets.push_back(socket);
+
+                    rc = mX.registerSocketEvent(socket->handle(),
+                                                bteso_EventType::BTESO_READ,
+                                                cb1);
+                    ASSERT(!rc);
+
+                    rc = mX.canRegisterSockets();
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                    ASSERT(!rc);
+#else
+                    ASSERT(rc);
+#endif
+
+                    mX.deregisterSocketEvent(socket->handle(),
+                                             bteso_EventType::BTESO_READ);
+
+                    rc = mX.canRegisterSockets();
+                    ASSERT(rc);
+
+                    rc = mX.registerSocketEvent(socket->handle(),
+                                                bteso_EventType::BTESO_READ,
+                                                cb1);
+                    ASSERT(!rc);
+
+                    rc = mX.canRegisterSockets();
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                    ASSERT(!rc);
+#else
+                    ASSERT(rc);
+#endif
+                }
+
+                mX.disable();
+
+                const int NUM_SOCKETS = sockets.size();
+                for (int i = 0; i < NUM_SOCKETS; ++i) {
+                    factory.deallocate(sockets[i]);
+                }
+            }
+        }
+      } break;
+
       case 13: {
         // --------------------------------------------------------------------
         // TESTING 'rescheduleTimer' METHODS
@@ -727,7 +884,6 @@ int main(int argc, char *argv[])
             enum { NUM_TIMERS  = 10000 };
             bdet_TimeInterval  timeValues[NUM_TIMERS];
             bdet_TimeInterval  delta(0.5);
-            bdet_TimeInterval  tolerance;
             int                flags[NUM_TIMERS];
             void              *ids[NUM_TIMERS];
 
@@ -740,8 +896,7 @@ int main(int argc, char *argv[])
                                             &timeValues[i],
                                             delta,
                                             i,
-                                            false,
-                                            tolerance));
+                                            false));
                 ids[i] = mX.registerTimer(timeValues[i],
                                           functor);
                 LOOP_ASSERT(i, ids[i]);
@@ -1367,12 +1522,7 @@ int main(int argc, char *argv[])
                 enum { NUM_TIMERS  = 100000, NUM_ATTEMPTS = 10 };
                 bsl::vector<bdet_TimeInterval> timeValues(NUM_TIMERS);
                 bdet_TimeInterval offset(3.0);
-                bdet_TimeInterval delta(0.5);          // 1/2 seconds
-#if defined(BSLS_PLATFORM__OS_LINUX)
-                bdet_TimeInterval tolerance(0, 200000);  // 200 millisecs
-#else
-                bdet_TimeInterval tolerance;
-#endif
+                bdet_TimeInterval delta(0.5); // 1/2 seconds
                 int flags[NUM_TIMERS];
 
                 for (int i = 0; i < NUM_TIMERS; ++i) {
@@ -1382,12 +1532,8 @@ int main(int argc, char *argv[])
 
                     bdef_Function<void (*)()> functor(
                         bdef_BindUtil::bind(&timerCallback,
-                                            &flags[i],
-                                            &timeValues[i],
-                                            delta,
-                                            i,
-                                            false,
-                                            tolerance));
+                                            &flags[i], &timeValues[i],
+                                            delta, i, false));
                     mX.registerTimer(timeValues[i], functor);
                 }
                 if (veryVerbose) {
@@ -1397,8 +1543,8 @@ int main(int argc, char *argv[])
 
                 bslma_TestAllocator da;
                 bslma_DefaultAllocatorGuard dag(&da);
-                for (int i = 0; i < NUM_ATTEMPTS; ++i) {
 
+                for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                     LOOP_ASSERT(i, 0 == mX.disable());
                     LOOP_ASSERT(i, 0 == X.isEnabled());
                     LOOP_ASSERT(i, 0 == mX.enable());
@@ -1441,44 +1587,35 @@ int main(int argc, char *argv[])
 
                 enum { NUM_TIMERS  = 10000 };
                 bdet_TimeInterval timeValues[NUM_TIMERS];
-                bdet_TimeInterval delta(0.5);           // 1/2 seconds
-                bdet_TimeInterval tolerance;
+                bdet_TimeInterval delta(0.5); // 1/2 seconds
                 int flags[NUM_TIMERS];
 
                 for (int i = 0; i < NUM_TIMERS; ++i) {
                     flags[i] = 0;
-                    timeValues[i] = bdetu_SystemTime::now() +
-                                                          bdet_TimeInterval(2);
+                    timeValues[i] = bdetu_SystemTime::now();
                     bdef_Function<void (*)()> functor(
                         bdef_BindUtil::bind(&timerCallback,
-                                            &flags[i],
-                                            &timeValues[i],
-                                            delta,
-                                            i,
-                                            true,
-                                            tolerance));
+                                            &flags[i], &timeValues[i],
+                                            delta, i, true));
 
-                    void *id = mX.registerTimer(timeValues[i], functor);
+                    void *id = mX.registerTimer(timeValues[i],
+                                                functor);
                     LOOP_ASSERT(i, id);
-
-                    LOOP2_ASSERT(i + 1, X.numTimers(),
-                                 i + 1 == X.numTimers());
-                    LOOP2_ASSERT(i + 1, X.numEvents(),
-                                 i + 1 == X.numEvents());
-               }
-
+                }
                 if (veryVerbose) {
                     cout << "\t\tRegistered " << NUM_TIMERS
                          << " timers." << endl;
                 }
-                bcemt_ThreadUtil::microSleep(0, 5);
+                bcemt_ThreadUtil::sleep(delta);
 
                 ASSERT(0 == mX.disable());
                 for (int i = 0; i < NUM_TIMERS; ++i) {
                     LOOP_ASSERT(i, 1 == flags[i]);
                 }
-                LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
-                LOOP_ASSERT(X.numEvents(), 0 == X.numEvents());
+
+                bcemt_ThreadUtil::sleep(bdet_TimeInterval(2));
+                ASSERT(0 == X.numTimers());
+                ASSERT(0 == X.numEvents());
             }
         }
       } break;
