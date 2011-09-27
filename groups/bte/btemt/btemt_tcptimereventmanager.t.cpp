@@ -1613,7 +1613,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i, 1 == flags[i]);
                 }
 
-                bcemt_ThreadUtil::sleep(bdet_TimeInterval(2));
+                bcemt_ThreadUtil::sleep(bdet_TimeInterval(5));
                 ASSERT(0 == X.numTimers());
                 ASSERT(0 == X.numEvents());
             }
