@@ -845,78 +845,50 @@ int main(int argc, char *argv[])
                                                                        << endl;
         bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
+        // Attribute 1 Values: 'descriptor'
+
+        const T1 Adefault(&scratch);
+        const T1 Asmall(UTC_MIN, false, "",             &scratch);
+        const T1 Alarge(UTC_MAX, true,  LONGEST_STRING, &scratch);
+
+        // Attribute 2 Values: 'utcStartTime'
+
+        const T2 Bdefault;
+        const T2 Bsmall(   1,  1,  1,  1,  0,  0, 001);
+        const T2 Blarge(9999, 12, 31, 23, 59, 59, 999);
+
+        // Attribute 3 Values: 'utcEndTime'
+
+        const T3 Cdefault;
+        const T3 Csmall(   1,  1,  1,  1,  0,  0, 001);
+        const T3 Clarge(9999, 12, 31, 23, 59, 59, 999);
+
         const struct {
-            int  d_line;  // source line number
-            char d_mem;   // expected allocation: 'Y', 'N', '?'
-            T1   d_descriptor;
-            T2   d_utcStartTime;
-            T3   d_utcEndTime;
+            int       d_line;  // source line number
+            char      d_mem;   // expected allocation: 'Y', 'N', '?'
+            const T1 *d_descriptor;
+            const T2 *d_utcStartTime;
+            const T3 *d_utcEndTime;
         } DATA[] = {
-            //LINE  MEM    DESCR\
-            //----  ---    -----\
-            //             START\
-            //             -----\
-            //             END
-            //             ---
+            //LINE  MEM    DESCR      START      END
+            //----  ---    -----      -----      ---
 
             // default (must be first)
-            { L_,   'N',   baetzo_LocalTimeDescriptor(&scratch),
-                           bdet_Datetime(),
-                           bdet_Datetime()
-            },
+            { L_,   'N',   &Adefault, &Bdefault, &Cdefault },
 
             // 'descriptor'
-            { L_,   'N',   baetzo_LocalTimeDescriptor(UTC_MIN,
-                                                      false,
-                                                      "",
-                                                      &scratch),
-                           bdet_Datetime(),
-                           bdet_Datetime()
-            },
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING,
-                                                      &scratch),
-                           bdet_Datetime(),
-                           bdet_Datetime()
-            },
+            { L_,   'N',   &Asmall,   &Bdefault, &Cdefault },
+            { L_,   'Y',   &Alarge,   &Bdefault, &Cdefault },
 
             // 'utcStartTime' and 'utcEndTime'
-            { L_,   'N',   baetzo_LocalTimeDescriptor(&scratch),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001)
-            },
-            { L_,   'N',   baetzo_LocalTimeDescriptor(&scratch),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
-            { L_,   'N',   baetzo_LocalTimeDescriptor(&scratch),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
+            { L_,   'N',   &Adefault, &Bsmall,   &Csmall   },
+            { L_,   'N',   &Adefault, &Bsmall,   &Clarge   },
+            { L_,   'N',   &Adefault, &Blarge,   &Clarge   },
 
             // other
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING,
-                                                      &scratch),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001)
-            },
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING,
-                                                      &scratch),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING,
-                                                      &scratch),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
+            { L_,   'Y',   &Alarge,   &Bsmall,   &Csmall   },
+            { L_,   'Y',   &Alarge,   &Bsmall,   &Clarge   },
+            { L_,   'Y',   &Alarge,   &Blarge,   &Clarge   },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -924,11 +896,11 @@ int main(int argc, char *argv[])
                                                     // this test allocates
                                                     // some object memory.
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE1   = DATA[ti].d_line;
-            const char MEMSRC1 = DATA[ti].d_mem;
-            const T1&  DESCR1  = DATA[ti].d_descriptor;
-            const T2&  START1  = DATA[ti].d_utcStartTime;
-            const T3&  END1    = DATA[ti].d_utcEndTime;
+            const int  LINE1   =  DATA[ti].d_line;
+            const char MEMSRC1 =  DATA[ti].d_mem;
+            const T1&  DESCR1  = *DATA[ti].d_descriptor;
+            const T2&  START1  = *DATA[ti].d_utcStartTime;
+            const T3&  END1    = *DATA[ti].d_utcEndTime;
 
             bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -947,11 +919,11 @@ int main(int argc, char *argv[])
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int  LINE2   = DATA[tj].d_line;
-                const char MEMSRC2 = DATA[tj].d_mem;
-                const T1&  DESCR2  = DATA[tj].d_descriptor;
-                const T2&  START2  = DATA[tj].d_utcStartTime;
-                const T3&  END2    = DATA[tj].d_utcEndTime;
+                const int  LINE2   =  DATA[tj].d_line;
+                const char MEMSRC2 =  DATA[tj].d_mem;
+                const T1&  DESCR2  = *DATA[tj].d_descriptor;
+                const T2&  START2  = *DATA[tj].d_utcStartTime;
+                const T3&  END2    = *DATA[tj].d_utcEndTime;
 
                 bslma_TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -1203,78 +1175,50 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
                                                                        << endl;
+        // Attribute 1 Values: 'descriptor'
+
+        const T1 Adefault(&scratch);
+        const T1 Asmall(UTC_MIN, false, "",             &scratch);
+        const T1 Alarge(UTC_MAX, true,  LONGEST_STRING, &scratch);
+
+        // Attribute 2 Values: 'utcStartTime'
+
+        const T2 Bdefault;
+        const T2 Bsmall(   1,  1,  1,  1,  0,  0, 001);
+        const T2 Blarge(9999, 12, 31, 23, 59, 59, 999);
+
+        // Attribute 3 Values: 'utcEndTime'
+
+        const T3 Cdefault;
+        const T3 Csmall(   1,  1,  1,  1,  0,  0, 001);
+        const T3 Clarge(9999, 12, 31, 23, 59, 59, 999);
+
         const struct {
-            int  d_line;  // source line number
-            char d_mem;   // expected allocation: 'Y', 'N', '?'
-            T1   d_descriptor;
-            T2   d_utcStartTime;
-            T3   d_utcEndTime;
+            int       d_line;  // source line number
+            char      d_mem;   // expected allocation: 'Y', 'N', '?'
+            const T1 *d_descriptor;
+            const T2 *d_utcStartTime;
+            const T3 *d_utcEndTime;
         } DATA[] = {
-            //LINE  MEM    DESCR\
-            //----  ---    -----\
-            //             START\
-            //             -----\
-            //             END
-            //             ---
+            //LINE  MEM    DESCR      START      END
+            //----  ---    -----      -----      ---
 
             // default (must be first)
-            { L_,   'N',   baetzo_LocalTimeDescriptor(&scratch),
-                           bdet_Datetime(),
-                           bdet_Datetime()
-            },
+            { L_,   'N',   &Adefault, &Bdefault, &Cdefault },
 
             // 'descriptor'
-            { L_,   'N',   baetzo_LocalTimeDescriptor(UTC_MIN,
-                                                      false,
-                                                      "",
-                                                      &scratch),
-                           bdet_Datetime(),
-                           bdet_Datetime()
-            },
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING,
-                                                      &scratch),
-                           bdet_Datetime(),
-                           bdet_Datetime()
-            },
+            { L_,   'N',   &Asmall,   &Bdefault, &Cdefault },
+            { L_,   'Y',   &Alarge,   &Bdefault, &Cdefault },
 
             // 'utcStartTime' and 'utcEndTime'
-            { L_,   'N',   baetzo_LocalTimeDescriptor(&scratch),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001)
-            },
-            { L_,   'N',   baetzo_LocalTimeDescriptor(&scratch),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
-            { L_,   'N',   baetzo_LocalTimeDescriptor(&scratch),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
+            { L_,   'N',   &Adefault, &Bsmall,   &Csmall   },
+            { L_,   'N',   &Adefault, &Bsmall,   &Clarge   },
+            { L_,   'N',   &Adefault, &Blarge,   &Clarge   },
 
             // other
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING,
-                                                      &scratch),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001)
-            },
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING,
-                                                      &scratch),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING,
-                                                      &scratch),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
+            { L_,   'Y',   &Alarge,   &Bsmall,   &Csmall   },
+            { L_,   'Y',   &Alarge,   &Bsmall,   &Clarge   },
+            { L_,   'Y',   &Alarge,   &Blarge,   &Clarge   },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1282,11 +1226,11 @@ int main(int argc, char *argv[])
                                                     // this test allocates
                                                     // some object memory.
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE1  = DATA[ti].d_line;
-            const char MEM1   = DATA[ti].d_mem;
-            const T1&  DESCR1 = DATA[ti].d_descriptor;
-            const T2&  START1 = DATA[ti].d_utcStartTime;
-            const T3&  END1   = DATA[ti].d_utcEndTime;
+            const int  LINE1  =  DATA[ti].d_line;
+            const char MEM1   =  DATA[ti].d_mem;
+            const T1&  DESCR1 = *DATA[ti].d_descriptor;
+            const T2&  START1 = *DATA[ti].d_utcStartTime;
+            const T3&  END1   = *DATA[ti].d_utcEndTime;
 
             bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -1335,11 +1279,11 @@ int main(int argc, char *argv[])
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int  LINE2  = DATA[tj].d_line;
-                const char MEM2   = DATA[tj].d_mem;
-                const T1&  DESCR2 = DATA[tj].d_descriptor;
-                const T2&  START2 = DATA[tj].d_utcStartTime;
-                const T3&  END2   = DATA[tj].d_utcEndTime;
+                const int  LINE2  =  DATA[tj].d_line;
+                const char MEM2   =  DATA[tj].d_mem;
+                const T1&  DESCR2 = *DATA[tj].d_descriptor;
+                const T2&  START2 = *DATA[tj].d_utcStartTime;
+                const T3&  END2   = *DATA[tj].d_utcEndTime;
 
                       Obj mX(XX, &oa);  const Obj& X = mX;
 
@@ -1393,10 +1337,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            const T1 A1 = baetzo_LocalTimeDescriptor(-4 * 60 * 60,
-                                                     true,
-                                                     LONG_STRING,
-                                                     &scratch);
+            const T1 A1(-4 * 60 * 60, true, LONG_STRING, &scratch);
             const T2 A2 = bdet_Datetime(2010,  3, 14, 7);
             const T3 A3 = bdet_Datetime(2010, 11,  7, 6);
 
@@ -1589,71 +1530,52 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
                                                                        << endl;
+
+        bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        // Attribute 1 Values: 'descriptor'
+
+        const T1 Adefault(&scratch);
+        const T1 Asmall(UTC_MIN, false, "",             &scratch);
+        const T1 Alarge(UTC_MAX, true,  LONGEST_STRING, &scratch);
+
+        // Attribute 2 Values: 'utcStartTime'
+
+        const T2 Bdefault;
+        const T2 Bsmall(   1,  1,  1,  1,  0,  0, 001);
+        const T2 Blarge(9999, 12, 31, 23, 59, 59, 999);
+
+        // Attribute 3 Values: 'utcEndTime'
+
+        const T3 Cdefault;
+        const T3 Csmall(   1,  1,  1,  1,  0,  0, 001);
+        const T3 Clarge(9999, 12, 31, 23, 59, 59, 999);
         const struct {
-            int  d_line;  // source line number
-            char d_mem;   // expected allocation: 'Y', 'N', '?'
-            T1   d_descriptor;
-            T2   d_utcStartTime;
-            T3   d_utcEndTime;
+            int       d_line;  // source line number
+            char      d_mem;   // expected allocation: 'Y', 'N', '?'
+            const T1 *d_descriptor;
+            const T2 *d_utcStartTime;
+            const T3 *d_utcEndTime;
         } DATA[] = {
-            //LINE  MEM    DESCR\
-            //----  ---    -----\
-            //             START\
-            //             -----\
-            //             END
-            //             ---
+            //LINE  MEM    DESCR      START      END
+            //----  ---    -----      -----      ---
 
             // default (must be first)
-            { L_,   'N',   baetzo_LocalTimeDescriptor(),
-                           bdet_Datetime(),
-                           bdet_Datetime()
-            },
+            { L_,   'N',   &Adefault, &Bdefault, &Cdefault },
 
             // 'descriptor'
-            { L_,   'N',   baetzo_LocalTimeDescriptor(UTC_MIN, false, ""),
-                           bdet_Datetime(),
-                           bdet_Datetime()
-            },
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING),
-                           bdet_Datetime(),
-                           bdet_Datetime()
-            },
+            { L_,   'N',   &Asmall,   &Bdefault, &Cdefault },
+            { L_,   'Y',   &Alarge,   &Bdefault, &Cdefault },
 
             // 'utcStartTime' and 'utcEndTime'
-            { L_,   'N',   baetzo_LocalTimeDescriptor(),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001)
-            },
-            { L_,   'N',   baetzo_LocalTimeDescriptor(),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
-            { L_,   'N',   baetzo_LocalTimeDescriptor(),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
+            { L_,   'N',   &Adefault, &Bsmall,   &Csmall   },
+            { L_,   'N',   &Adefault, &Bsmall,   &Clarge   },
+            { L_,   'N',   &Adefault, &Blarge,   &Clarge   },
 
             // other
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001)
-            },
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING),
-                           bdet_Datetime(   1,  1,  1,  1,  0,  0, 001),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
-            { L_,   'Y',   baetzo_LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999),
-                           bdet_Datetime(9999, 12, 31, 23, 59, 59, 999)
-            },
+            { L_,   'Y',   &Alarge,   &Bsmall,   &Csmall   },
+            { L_,   'Y',   &Alarge,   &Bsmall,   &Clarge   },
+            { L_,   'Y',   &Alarge,   &Blarge,   &Clarge   },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1664,11 +1586,11 @@ int main(int argc, char *argv[])
                                                         // this test allocates
                                                         // some object memory.
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE  = DATA[ti].d_line;
-                const char MEM   = DATA[ti].d_mem;
-                const T1&  DESCR = DATA[ti].d_descriptor;
-                const T2&  START = DATA[ti].d_utcStartTime;
-                const T3&  END   = DATA[ti].d_utcEndTime;
+                const int  LINE  =  DATA[ti].d_line;
+                const char MEM   =  DATA[ti].d_mem;
+                const T1&  DESCR = *DATA[ti].d_descriptor;
+                const T2&  START = *DATA[ti].d_utcStartTime;
+                const T3&  END   = *DATA[ti].d_utcEndTime;
 
                 bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
                 const Obj  Z(DESCR, START, END, &scratch);
@@ -1800,11 +1722,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with injected exceptions." << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE  = DATA[ti].d_line;
-                const char MEM   = DATA[ti].d_mem;
-                const T1&  DESCR = DATA[ti].d_descriptor;
-                const T2&  START = DATA[ti].d_utcStartTime;
-                const T3&  END   = DATA[ti].d_utcEndTime;
+                const int  LINE  =  DATA[ti].d_line;
+                const char MEM   =  DATA[ti].d_mem;
+                const T1&  DESCR = *DATA[ti].d_descriptor;
+                const T2&  START = *DATA[ti].d_utcStartTime;
+                const T3&  END   = *DATA[ti].d_utcEndTime;
 
                 if (veryVerbose) { T_ P_(MEM) P_(DESCR) P_(START) P(END) }
 
@@ -1957,14 +1879,8 @@ int main(int argc, char *argv[])
 
         // Attribute 1 Values: 'descriptor'
 
-        const T1 A1 = baetzo_LocalTimeDescriptor(-4 * 60 * 60,
-                                                 true,
-                                                 LONG_STRING,
-                                                 &scratch);
-        const T1 B1 = baetzo_LocalTimeDescriptor( 5 * 60 * 60,
-                                                  false,
-                                                  LONGER_STRING,
-                                                  &scratch);
+        const T1 A1(-4 * 60 * 60, true,  LONG_STRING,   &scratch);
+        const T1 B1( 5 * 60 * 60, false, LONGER_STRING, &scratch);
 
         // Attribute 2 Values: 'utcStartTime'
 

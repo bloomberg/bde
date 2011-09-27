@@ -8,6 +8,7 @@
 #include <bslma_testallocator.h>    // for testing only
 
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 
 #include <bsl_cstdlib.h>                  // atoi()
 #include <bsl_cstring.h>                  // strcmp
@@ -41,7 +42,8 @@ using namespace bsl;  // automatically added by script
 // [ 1] bool hasPreviousSoft() const;
 // ----------------------------------------------------------------------------
 // [ 2] char *stringRepeat(int reps, const char *string)
-// [ 7] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
+// [ 7] CONCERN: Precondition violations are detected when enabled.
 
 //==========================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -72,6 +74,13 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define PS(X) cout << #X " = \n" << (X) << endl; // Print identifier and value.
 #define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -204,7 +213,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -301,7 +310,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(it.previousDelimiter(), "!"));
             ASSERT(0 == it.hasPreviousSoft());
             ASSERT(1 == it.isPreviousHard());
-            ASSERT(0 == strcmp(it(), ""));
             ASSERT(0 == strcmp(it.delimiter(), "! \n"));
             ASSERT(1 == it.hasSoft());
             ASSERT(1 == it.isHard());
@@ -364,6 +372,28 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Done. (usage Examples)" << endl;
 
       } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // NEGATIVE TESTING
+        // Testing:
+        //   CONCERN: Precondition violations are detected when enabled.
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nNegative Testing."
+                          << "\n=================" << endl;
+
+        if (verbose) cout << "\nTesting 'operator()' and 'tokenRef'." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+
+            Obj X(" ", 0, ":");
+
+            ASSERT_SAFE_PASS(X());
+            ASSERT_SAFE_PASS(X.tokenRef());
+            ++X;
+            ASSERT_SAFE_FAIL(X());
+            ASSERT_SAFE_FAIL(X.tokenRef());
+        }
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // Testing:
@@ -383,7 +413,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == strcmp(I.previousDelimiter(), ""));
         ASSERT(0 == I.hasPreviousSoft());
         ASSERT(0 == I.isPreviousHard());
-        ASSERT(0 == strcmp(I(), ""));
         ASSERT(0 == strcmp(I.delimiter(), ""));
         ASSERT(0 == I.hasSoft());
         ASSERT(0 == I.isHard());
@@ -396,7 +425,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == strcmp(I.previousDelimiter(), "  "));
         ASSERT(1 == I.hasPreviousSoft());
         ASSERT(0 == I.isPreviousHard());
-        ASSERT(0 == strcmp(I(), ""));
         ASSERT(0 == strcmp(I.delimiter(), ""));
         ASSERT(0 == I.hasSoft());
         ASSERT(0 == I.isHard());
@@ -752,7 +780,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -810,7 +837,6 @@ int main(int argc, char *argv[])
                 ASSERT(0 == strcmp(I.previousDelimiter(), ""));
                 ASSERT(0 == I.hasPreviousSoft());
                 ASSERT(0 == I.isPreviousHard());
-                ASSERT(0 == strcmp(I(), ""));
                 ASSERT(0 == strcmp(I.delimiter(), ""));
                 ASSERT(0 == I.hasSoft());
                 ASSERT(0 == I.isHard());
@@ -837,7 +863,6 @@ int main(int argc, char *argv[])
                 ASSERT(0 == strcmp(I.previousDelimiter(), ""));
                 ASSERT(0 == I.hasPreviousSoft());
                 ASSERT(0 == I.isPreviousHard());
-                ASSERT(0 == strcmp(I(), ""));
                 ASSERT(0 == strcmp(I.delimiter(), ""));
                 ASSERT(0 == I.hasSoft());
                 ASSERT(0 == I.isHard());
@@ -913,7 +938,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), all));
             ASSERT(1 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -942,7 +966,6 @@ int main(int argc, char *argv[])
             ASSERT(all[253] == *(I.previousDelimiter()));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(1 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(all[254] == *(I.delimiter()));
             ASSERT(0 == I.hasSoft());
             ASSERT(1 == I.isHard());
@@ -968,7 +991,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), all));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1146,7 +1168,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1159,7 +1180,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1172,7 +1192,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1185,7 +1204,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1198,7 +1216,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1211,7 +1228,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1224,7 +1240,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1237,7 +1252,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1250,7 +1264,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1263,7 +1276,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1276,7 +1288,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1289,7 +1300,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1302,7 +1312,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1315,7 +1324,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1328,7 +1336,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1341,7 +1348,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1355,7 +1361,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1369,7 +1374,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1394,7 +1398,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), str));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1419,7 +1422,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), str));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1471,7 +1473,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), str));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1496,7 +1497,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), str));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1663,7 +1663,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1676,7 +1675,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1689,7 +1687,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1702,7 +1699,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1715,7 +1711,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1728,7 +1723,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1753,7 +1747,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), str));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1778,7 +1771,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ""));
             ASSERT(0 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), str));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -1825,7 +1817,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), all));
             ASSERT(1 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), ""));
             ASSERT(0 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -2151,7 +2142,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ","));
             ASSERT(1 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), "country"));
             ASSERT(0 == strcmp(I.delimiter(), ".\n"));
             ASSERT(1 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -2234,7 +2224,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), "?    "));
             ASSERT(1 == I.hasPreviousSoft());
             ASSERT(1 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), "? "));
             ASSERT(1 == I.hasSoft());
             ASSERT(1 == I.isHard());
@@ -2473,7 +2462,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), ","));
             ASSERT(1 == I.hasPreviousSoft());
             ASSERT(0 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), "country"));
             ASSERT(0 == strcmp(I.delimiter(), ".\n"));
             ASSERT(1 == I.hasSoft());
             ASSERT(0 == I.isHard());
@@ -2556,7 +2544,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp(I.previousDelimiter(), "?    "));
             ASSERT(1 == I.hasPreviousSoft());
             ASSERT(1 == I.isPreviousHard());
-            ASSERT(0 == strcmp(I(), ""));
             ASSERT(0 == strcmp(I.delimiter(), "? "));
             ASSERT(1 == I.hasSoft());
             ASSERT(1 == I.isHard());
