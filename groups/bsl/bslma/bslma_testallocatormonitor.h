@@ -221,17 +221,17 @@ BSLS_IDENT("$Id: $")
 //:
 //:   4 When the object is holding memory, create an additional test allocator
 //:     monitor allocator for the object allocator.  Use the basic accessor
-//;     (i.e., the 'description' method) to confirm that the object has the
+//:     (i.e., the 'description' method) to confirm that the object has the
 //:     expected value.  Check this test allocator monitor to confirm that
 //:     accessor allocated no memory.  (C-3)
 //:
-//:   4 Change the attribute to a smaller value and confirm that the current
+//:   5 Change the attribute to a smaller value and confirm that the current
 //:     memory was reused (i.e., no memory is allocated). (C-6)
 //:
-//:   5 Destroy the test object by allowing it to go out of scope, and confirm
+//:   6 Destroy the test object by allowing it to go out of scope, and confirm
 //:     that all allocations are returned.  (C-2)
 //:
-//: 5 Confirm that at no time were the global allocator or the default
+//: 4 Confirm that at no time were the global allocator or the default
 //:   allocator were used.  (C-1)
 //..
 // The implementation of the plan is shown below:
@@ -436,8 +436,10 @@ class bslma_TestAllocatorMonitor {
     const bsls_Types::Int64          d_initialTotal;    // 'numBlocksTotal'
     const bslma_TestAllocator *const d_testAllocator_p; // held, not owned
 
-    static const bslma_TestAllocator *
-                           isNotNull(const bslma_TestAllocator *testAllocator);
+    static const bslma_TestAllocator *validatedArgument(
+                                     const bslma_TestAllocator *testAllocator);
+        // Return the specified 'testAllocator'.  In "SAFE" build modes,
+        // assert that 'testAllocator' is not 0.
 
   public:
     // CREATORS
@@ -502,9 +504,11 @@ class bslma_TestAllocatorMonitor {
 // CLASS METHODS
 inline
 const bslma_TestAllocator *
-bslma_TestAllocatorMonitor::isNotNull(const bslma_TestAllocator *testAllocator)
+bslma_TestAllocatorMonitor::validatedArgument(
+                                      const bslma_TestAllocator *testAllocator)
 {
     BSLS_ASSERT_SAFE(testAllocator);
+
     return testAllocator;
 }
 
@@ -512,7 +516,7 @@ bslma_TestAllocatorMonitor::isNotNull(const bslma_TestAllocator *testAllocator)
 inline
 bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
                                       const bslma_TestAllocator *testAllocator)
-: d_initialInUse((isNotNull(testAllocator))->numBlocksInUse())
+: d_initialInUse((validatedArgument(testAllocator))->numBlocksInUse())
 , d_initialMax(testAllocator->numBlocksMax())
 , d_initialTotal(testAllocator->numBlocksTotal())
 , d_testAllocator_p(testAllocator)

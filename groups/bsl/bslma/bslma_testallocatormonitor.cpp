@@ -12,11 +12,12 @@ namespace BloombergLP {
 //
 ///IMPLEMENTATION NOTE
 ///-------------------
-// The static function 'isNotNull' tests (in SAFE mode) the specified
-// 'testAllocator' before it is derefenced for any member of the initialization
-// list.  Should this implementation change (e.g., the insertion of other test
-// allocator statistics before 'd_initialInUse'), the 'isNotNull' test must be
-// migrated to the first dereference of 'testAllocator'.
+// The static function 'validateArgument' tests (in SAFE mode) the specified
+// 'testAllocator' before it is dereferenced for any member of the
+// initialization list.  Should this implementation change (e.g., the insertion
+// of other test allocator statistics before 'd_initialInUse'), the
+// 'validateArgument' test must be migrated to the first dereference of
+// 'testAllocator'.
 
 }  // close namespace BloombergLP
 
