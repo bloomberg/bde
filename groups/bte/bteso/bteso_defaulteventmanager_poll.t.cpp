@@ -1546,7 +1546,7 @@ int main(int argc, char *argv[]) {
                 }
             }
             if (4 == i) {
-                cout << "Success!  " << script << endl;
+                cout << "Success!\n";
             }
         }
       } break;
