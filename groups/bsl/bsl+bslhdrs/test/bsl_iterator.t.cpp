@@ -3,5 +3,23 @@
 #ifdef std
 #   error std was not expected to be a macro
 #endif
+
+// Verify that iterator adapters get included by bsl_iterator.h
+
+template <typename T, typename ITER_IMP>
+class CheckForwardIteratorAdapter
+    : BloombergLP::bslstl_ForwardIterator<T, ITER_IMP>
+{};
+
+template <typename T, typename ITER_IMP>
+class CheckBidirectionalIteratorAdapter
+    : BloombergLP::bslstl_BidirectionalIterator<T, ITER_IMP>
+{};
+
+template <typename T, typename ITER_IMP>
+class CheckRandomAccessIteratorAdapter
+    : BloombergLP::bslstl_RandomAccessIterator<T, ITER_IMP>
+{};
+
 namespace std { }
 int main() { return 0; }

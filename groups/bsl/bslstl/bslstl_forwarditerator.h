@@ -24,7 +24,8 @@ BSLS_IDENT("$Id: $")
 // requirements for a forward iterator is found in "Table 106: Forward iterator
 // requirements", under the tag "[forward.iterators]".  (Note that this
 // reference is sourced in N3092, a C++0x working paper; the actual table
-// number may vary in the actual standard.)
+// number may vary in the actual standard.)  Include bsl_iterator.h to use this
+// component.
 //
 ///Usage
 ///-----

@@ -24,7 +24,8 @@ BSLS_IDENT("$Id: $")
 // requirements for a random access iterator is found in "Table 108: Random
 // access iterator requirements", under the tag "[random.access.iterators]".
 // (Note that this reference is sourced in N3092, a C++0x working paper; the
-// actual table number may be different in the actual standard.)
+// actual table number may be different in the actual standard.)  Include
+// bsl_iterator.h to use this component.
 //
 ///Usage
 ///-----
