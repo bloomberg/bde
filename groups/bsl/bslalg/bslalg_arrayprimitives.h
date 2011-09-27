@@ -189,10 +189,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_ispointer.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ADDRESSOF
-#include <bsls_addressof.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
 #endif
@@ -207,6 +203,10 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -1688,7 +1688,7 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
     // 'sizeof value' times, we can use 'memset.
 
     size_type index = 0;
-    const char *valueBuffer = (const char *) BSLS_ADDRESSOF(value);
+    const char *valueBuffer = (const char *) BSLS_UTIL_ADDRESSOF(value);
     while (++index < sizeof(TARGET_TYPE)) {
         if (valueBuffer[index] != valueBuffer[0]) {
             break;
@@ -1842,7 +1842,7 @@ void bslalg_ArrayPrimitives_Imp::insert(
     // array, so the test below is sufficient to discover all the possible
     // aliasing.  Note that we never make a copy.
 
-    const TARGET_TYPE *tempValuePtr = BSLS_ADDRESSOF(value);
+    const TARGET_TYPE *tempValuePtr = BSLS_UTIL_ADDRESSOF(value);
     if (toBegin <= tempValuePtr && tempValuePtr < toEnd ) {
         // Adjust pointer for shifting after the move.
 
@@ -1898,7 +1898,7 @@ void bslalg_ArrayPrimitives_Imp::insert(
     //          (middle indicated by ',' and dest by '|')
     //..
 
-    const TARGET_TYPE *tempValuePtr = BSLS_ADDRESSOF(value);
+    const TARGET_TYPE *tempValuePtr = BSLS_UTIL_ADDRESSOF(value);
     if (toBegin <= tempValuePtr && tempValuePtr < toEnd + numElements) {
         // Adjust pointer for shifting after the move.
 

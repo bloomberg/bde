@@ -1,5 +1,7 @@
 // bdema_managedptr.cpp                                               -*-C++-*-
 #include <bdema_managedptr.h>
+#include <bdema_allocator.h>       // for testing only
+#include <bdema_testallocator.h>   // for testing only
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdema_managedptr_cpp,"$Id$ $CSID$")
@@ -108,6 +110,7 @@ void bdema_ManagedPtrNoOpDeleter::deleter(void *, void*)
 }
 
 }  // close namespace BloombergLP
+
 // ---------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
