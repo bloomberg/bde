@@ -4,11 +4,11 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
-#include <bslmf_assert.h>
 
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 
-#include <cstring>     // memset()
+#include <cstring>     // strcmp() XXX: still needed?
 #include <cstdlib>     // atoi()
 #include <iostream>
 
@@ -20,46 +20,45 @@ using namespace std;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test implements a mechanism which summarize changes in
+// The component under test implements a mechanism that summarize changes in
 // certain statistics of the test allocator object supplied at construction.
-// The main testing concern is that the monitor captures the correct data when
-// it is constructed and later compares those values to the correct current
-// statistics from the test allocator.  There are many places in the
+// The main testing concerns are that the monitor captures the correct data
+// when it is constructed and later compares those values to the correct
+// current statistics from the test allocator.  There are many places in the
 // implementation for mismatches between different statistics.  The overall
 // test strategy is to create a test allocator and tracking monitors, then
 // drive the allocator through scenarios that put the monitors through all
-// possible states, and compared the monitor state actual with the its expected
-// state.
+// possible states, and compared the monitor's actual actual state with its
+// expected state.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
 //: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
+//: o CREATOR pointer parameter is declared 'const'.
+//: o No memory is ever allocated by this object.
 //: o Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o All explicit memory allocations are presumed to use the global, default,
-//:   or object allocator.
+//: o Any explicit memory allocations would use the global or default
+//:   allocator.
 //: o ACCESSOR methods are 'const' thread-safe.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bslma_TestAllocatorMonitor(const bslma_TestAllocator& tA);
+// [ 2] bslma_TestAllocatorMonitor(const bslma_TestAllocator *tA);
+// [ 2] ~bslma_TestAllocatorMonitor();
 //
 // ACCESSORS
-// [ 2] bool isInUseDown() const;
-// [ 2] bool isInUseSame() const;
-// [ 2] bool isInUseUp() const;
-// [ 2] bool isMaxSame() const;
-// [ 2] bool isMaxUp() const;
-// [ 2] bool isTotalSame() const;
-// [ 2] bool isTotalUp() const;
+// [ 3] bool isInUseDown() const;
+// [ 3] bool isInUseSame() const;
+// [ 3] bool isInUseUp() const;
+// [ 3] bool isMaxSame() const;
+// [ 3] bool isMaxUp() const;
+// [ 3] bool isTotalSame() const;
+// [ 3] bool isTotalUp() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] USAGE EXAMPLE
-// [ *] CONCERN: In no case does memory come from the global allocator.
-// [ 2] CONCERN: All accessor methods are declared 'const'.
-// [ *] CONCERN: There is no temporary allocation from any allocator.
+// [ 4] USAGE EXAMPLE
+// [ 3] CONCERN: All accessor methods are declared 'const'.
+// [ *] CONCERN: There is no memory allocation from any allocator.
 
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -113,11 +112,18 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+
+// ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bslma_TestAllocator        TestObj;
-typedef bslma_TestAllocatorMonitor Obj;
+typedef bslma_TestAllocator        Ta;
+typedef bslma_TestAllocatorMonitor Tam;
 
 // ============================================================================
 //                  NON-STANDARD TEST MACROS
@@ -316,7 +322,7 @@ int main(int argc, char *argv[])
     bslma_Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -590,7 +596,7 @@ int main(int argc, char *argv[])
 //..
 
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // CTOR AND ACCESSORS
         //   This case tests that the monitor captures the correct allocator
@@ -722,11 +728,11 @@ int main(int argc, char *argv[])
                                   P(SIZE5)
                              }
 
-                  TestObj  mta("test allocator", veryVeryVeryVerbose);
-            const TestObj&  ta   = mta;
+            Ta        mta("test allocator", veryVeryVeryVerbose);
+            const Ta& ta = mta;
 
-                      Obj  mtam1(&ta);
-            const     Obj&  tam1 = mtam1;
+            Tam        mtam1(&ta);
+            const Tam& tam1 = mtam1;
 
             ALLOC_INUSE(LINE, tam1, "SAME");
             ALLOC_MAX  (LINE, tam1, "SAME");
@@ -744,8 +750,8 @@ int main(int argc, char *argv[])
             ALLOC_MAX  (LINE, tam1, "UP");
             ALLOC_TOTAL(LINE, tam1, "UP");
 
-                      Obj  mtam2(&ta);
-            const     Obj&  tam2 = mtam2;
+            Tam        mtam2(&ta);
+            const Tam& tam2 = mtam2;
 
                                              ALLOC_INUSE(LINE, tam2, "SAME");
                                              ALLOC_MAX  (LINE, tam2, "SAME");
@@ -798,6 +804,77 @@ int main(int argc, char *argv[])
             ALLOC_INUSE(LINE, tam1, "SAME"); ALLOC_INUSE(LINE, tam2, "DOWN");
             ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "UP");
             ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // CTOR and DTOR
+        //   Ensure that we can use the constructor to create a object that
+        //   monitors the intended test allocator, and use the destructor to
+        //   destroy it safely.
+        //
+        // Concerns:
+        //: 1 A montior object is associated with the specified test allocator.
+        //:
+        //: 2 Object can be safely destroyed.
+        //:
+        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a test allocator object and, before it handles any
+        //:   allocation request, create an associated test allocator monitor
+        //:   object.  Use the (as yet unproven) "same" accessors to confirm
+        //:   that the monitor is the expected initial state.  Exercise the
+        //:   allocator and check for the expected change of state in the the
+        //:   associated monitor.  (C-1) Finally, destroy the monitor by
+        //:   allowing it to go out of scope.  (C-2)
+        //:
+        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-3)
+        //
+        // Testing:
+        //   bslma_TestAllocatorMonitor(const bslma_TestAllocator *tA);
+        //   ~bslma_TestAllocatorMonitor();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "CTOR & DTOR" << endl
+                          << "===========" << endl;
+
+        if (verbose) cout << "\nCtor, Associated Ta, & Dtor." << endl;
+        {
+            Ta  ta("testAllocator", veryVeryVeryVerbose);
+            Tam tam(&ta);
+
+            ASSERT(tam.isTotalSame());
+            ASSERT(tam.isInUseSame());
+            ASSERT(tam.isMaxSame());
+
+            void *allocation1 = ta.allocate(1);
+
+            ASSERT(tam.isTotalUp());
+            ASSERT(tam.isInUseUp());
+            ASSERT(tam.isMaxUp());
+
+            ta.deallocate(allocation1);
+
+            ASSERT(tam.isTotalUp());
+            ASSERT(tam.isInUseSame());
+            ASSERT(tam.isMaxUp());
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\t'constructor'" << endl;
+            {
+                Ta  ta("testAllocator", veryVeryVeryVerbose);
+                ASSERT_SAFE_PASS((Tam)(&ta));
+                ASSERT_SAFE_FAIL(Tam((const bslma_TestAllocator *)0));
+            }
         }
       } break;
       case 1: {
