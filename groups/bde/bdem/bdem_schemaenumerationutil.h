@@ -31,8 +31,8 @@ BDES_IDENT("$Id: $")
 // either be unset or have one of the string values among the values in the
 // enumeration's int-string pairs.
 //
-//Usage
-//-----
+///Usage
+///-----
 // Here we demonstrate the circumstances in which ints, strings, int arrays
 // and string arrays are conformant to an enumeration and those circumstances
 // in which they are not:

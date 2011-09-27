@@ -128,8 +128,8 @@ BDES_IDENT("$Id: $")
 // allocation will be attempted, but will not block.  Note that a long-running
 // operation may affect subsequent allocation requests.
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
 // The purpose of the 'btesc_TimedCbChannelAllocator' protocol is to isolate
 // the act of requesting a connection from details such as who it will be
 // connected to and which side initiated the connection.  In this example we

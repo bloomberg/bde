@@ -424,6 +424,14 @@ class bcec_ObjectCatalogIter {
     bcec_ObjectCatalogIter(const bcec_ObjectCatalogIter& original);
     bcec_ObjectCatalogIter& operator=(const bcec_ObjectCatalogIter& rhs);
 
+    bool operator==(const bcec_ObjectCatalogIter&) const;
+    bool operator!=(const bcec_ObjectCatalogIter&) const;
+
+    template<typename OTHER>
+    bool operator==(const bcec_ObjectCatalogIter<OTHER>&) const;
+    template<typename OTHER>
+    bool operator!=(const bcec_ObjectCatalogIter<OTHER>&) const;
+
   public:
     // CREATORS
     explicit bcec_ObjectCatalogIter(const bcec_ObjectCatalog<TYPE>& catalog);

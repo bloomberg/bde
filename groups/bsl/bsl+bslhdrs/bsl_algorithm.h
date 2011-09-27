@@ -37,7 +37,6 @@ namespace bsl {
     using native_std::bad_alloc;
     using native_std::bidirectional_iterator_tag;
     using native_std::binary_search;
-    using native_std::char_traits;
     using native_std::copy;
     using native_std::copy_backward;
     // 'count' and 'count_if' are provided by 'bslstl_exalgorithm.h'
@@ -110,9 +109,6 @@ namespace bsl {
     using native_std::swap;
     using native_std::swap_ranges;
     using native_std::transform;
-    using native_std::uninitialized_copy;
-    using native_std::uninitialized_fill;
-    using native_std::uninitialized_fill_n;
     using native_std::unique;
     using native_std::unique_copy;
     using native_std::upper_bound;

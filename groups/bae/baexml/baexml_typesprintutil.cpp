@@ -59,7 +59,7 @@ const char *printTextReplacingXMLEscapes(
                                       const baexml_EncoderOptions *options = 0)
     // Format the specified 'data' buffer of the specified 'dataLength' to the
     // specified output 'stream' using the 'bdeat_FormattingMode::BDEAT_TEXT'
-    // formatting mode. and using the specified encoder 'options'.  Return 0 on
+    // formatting mode, and using the specified encoder 'options'.  Return 0 on
     // success, and a non-negative value otherwise.  If 'dataLength' is -1,
     // then detect automatically the null character as the end of the string.
     // If 'data' is invalid UTF-8 or contains a null character and

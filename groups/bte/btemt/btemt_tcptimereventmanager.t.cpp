@@ -645,7 +645,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
           // ----------------------------------------------------------------
           // TESTING USAGE EXAMPLE
           //   The usage example provided in the component header file must
@@ -685,7 +685,8 @@ int main(int argc, char *argv[])
 
           // TBD
           ASSERT(timerId);
-          ASSERT(0 == manager.enable());
+          int rc = manager.enable();
+          ASSERT(0 == rc);
 
           for (int i = 0; i < 10; ++i) {
               int item = workQueue.popFront();
@@ -695,6 +696,151 @@ int main(int argc, char *argv[])
               }
           }
       } break;
+
+      case 14: {
+        // -----------------------------------------------------------------
+        // TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity'
+        //
+        // Concern:
+        //: 1 'hasLimitiedSocketCapacity' returns 'true' if the underlying 
+        //:   event manager returns 'true' and 'false' otherwise.
+        //:
+        //: 2 'canRegisterSockets' always returns 'true' if
+        //:   'hasLimitedSocketCapacity' is 'false'.
+        //:
+        //: 3 If 'hasLimitedSocketCapacity' is 'true' then
+        //:   'canRegisterSockets' returns 'true' upto 'BTESO_MAX_NUM_HANDLES'
+        //:   handles are registered and 'false' after that.
+        //
+        // Plan:
+        //: 1 Assert that 'hasLimitiedSocketCapacity' returns 'true' if the
+        //:   underlying event manager returns 'true' and 'false' otherwise.
+        //:
+        //: 2 Register socket events upto 'BTESO_MAX_NUM_HANDLES'.  Verify
+        //:   that 'canRegisterSockets' always returns 'true'.  After that
+        //:   limit confirm that 'canRegisterSockets' returns 'false'.
+        //
+        // Testing:
+        //   bool canRegisterSockets() const;
+        //   bool hasLimitedSocketCapacity() const;
+        // -----------------------------------------------------------------
+
+        if (verbose) cout << endl
+                << "TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity"
+                << endl
+                << "=========================================================="
+                << endl;
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            bool hlsc = X.hasLimitedSocketCapacity();
+            LOOP_ASSERT(hlsc, true == hlsc);
+        }
+
+        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
+        {
+            for (int i = 0; i < 2; ++i) {
+                Obj mX;  const Obj& X = mX;
+
+                if (i) {
+                    mX.enable();
+                }
+
+                const int MAX_NUM_HANDLES = FD_SETSIZE;
+
+                bteso_SocketHandle::Handle handle = 0;
+                for (; handle < Obj::BTESO_MAX_NUM_HANDLES; ++handle) {
+
+                    if (veryVerbose) { P(handle) }
+
+                    ASSERT(mX.canRegisterSockets());
+
+                    bdef_Function<void (*)()> cb1, cb2;
+                    int rc = mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_READ,
+                                           cb1);
+                    ASSERT(!rc);
+
+                    rc = mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_WRITE,
+                                           cb2);
+                    ASSERT(!rc);
+                }
+
+                ASSERT(handle == Obj::BTESO_MAX_NUM_HANDLES);
+
+                if (verbose) cout << "Negative Testing." << endl;
+                {
+                    bsls_AssertFailureHandlerGuard hG(
+                                              bsls_AssertTest::failTestDriver);
+
+                    if (veryVerbose) { P(handle) }
+
+                    ASSERT(!mX.canRegisterSockets());
+
+                    bdef_Function<void (*)()> cb1, cb2;
+                    ASSERT_FAIL(mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_READ,
+                                           cb1));
+
+                    ASSERT_FAIL(mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_WRITE,
+                                           cb2));
+
+                    ASSERT(!mX.canRegisterSockets());
+                }
+            }
+        }
+#else
+        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            bool hlsc = X.hasLimitedSocketCapacity();
+            LOOP_ASSERT(hlsc, false == hlsc);
+        }
+
+        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+
+#ifdef BSLS_PLATFORM__OS_LINUX
+            ASSERT(mX.canRegisterSockets());
+#else
+            const int MAX_NUM_HANDLES = 66000;
+
+            bteso_SocketHandle::Handle handle = 0;
+            for (; handle < MAX_NUM_HANDLES; ++handle) {
+
+                if (veryVerbose) { P(handle) }
+
+                ASSERT(mX.canRegisterSockets());
+
+                bdef_Function<void (*)()> cb1, cb2;
+                int rc = mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_READ,
+                                           cb1);
+                ASSERT(!rc);
+
+                rc = mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_WRITE,
+                                           cb2);
+                ASSERT(!rc);
+            }
+
+            ASSERT(mX.canRegisterSockets());
+#endif
+        }
+#endif
+      } break;
+
       case 13: {
         // --------------------------------------------------------------------
         // TESTING 'rescheduleTimer' METHODS
