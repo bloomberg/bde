@@ -235,6 +235,66 @@ typedef bdema_ManagedPtr<void> VObj;
 //                         HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+struct Base {
+    explicit Base(int *deleteCount)
+    : d_count_p(deleteCount)
+    {
+    }
+
+    ~Base() { ++*d_count_p; }
+
+    int *d_count_p;
+};
+
+struct Base1 : virtual Base {
+    explicit Base1(int *deleteCount = 0)
+    : Base(deleteCount)
+    , d_padding()
+    {
+    }
+
+    ~Base1() { *d_count_p += 10; }
+
+    char d_padding;
+};
+
+struct Base2 : virtual Base {
+    explicit Base2(int *deleteCount = 0)
+    : Base(deleteCount)
+    , d_padding()
+    {
+    }
+
+    ~Base2() { *d_count_p += 100; }
+
+    char d_padding;
+};
+
+struct Composite : Base1, Base2 {
+    explicit Composite(int *deleteCount)
+    : Base(deleteCount)
+    , d_padding()
+    {
+    }
+
+    ~Composite() { *d_count_p += 1000; }
+
+    char d_padding;
+};
+
+void testCompsite() {
+    int deleteCount;
+    Composite x(&deleteCount);
+    Base1 *p1 = &x;
+    Base2 *p2 = &x;
+    void *v1 = p1;
+    void *v2 = p2;
+    ASSERT(v1 != v2);
+    Base *b1 = p1;
+    Base *b2 = p2;
+    ASSERT(b1 == b2);
+}
+
 class MyTestObject {
     // This test-class serves three purposes.  It provides a base class for the
     // test classes in this test driver, so that derived -> base conversions
@@ -504,7 +564,7 @@ static void doNothingDeleter(void *object, void *)
 }
 
 //=============================================================================
-//                              LOAD TESTING SUPPORT
+//                             'LOAD' TESTING SUPPORT
 //-----------------------------------------------------------------------------
 // The following functions load a 'bdema_ManagedPtr' into a defined final state
 // assuming that it is passed in with an initial state known to the calling
@@ -2304,7 +2364,7 @@ static const TestBaseFn TEST_BASE_ARRAY[] = {
     //&doLoadObjectFactoryDzero<MyTestObject, OCderiv, Fbsl>
 };
 static const int TEST_BASE_ARRAY_SIZE =
-                          sizeof(TEST_BASE_ARRAY)/sizeof(TEST_BASE_ARRAY[0]);
+                            sizeof(TEST_BASE_ARRAY)/sizeof(TEST_BASE_ARRAY[0]);
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2883,7 +2943,7 @@ static const TestConstBaseFn TEST_CONST_BASE_ARRAY[] = {
     &doLoadObjectFactoryDzero<const MyTestObject, OCderiv, Fbsl>
 };
 static const int TEST_CONST_BASE_ARRAY_SIZE =
-    sizeof(TEST_CONST_BASE_ARRAY)/sizeof(TEST_CONST_BASE_ARRAY[0]);
+                sizeof(TEST_CONST_BASE_ARRAY)/sizeof(TEST_CONST_BASE_ARRAY[0]);
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -3463,7 +3523,7 @@ static const TestDerivedFn TEST_DERIVED_ARRAY[] = {
     //&doLoadObjectFactoryDzero<MyDerivedObject, OCderiv, Fbsl>
 };
 static const int TEST_DERIVED_ARRAY_SIZE =
-          sizeof(TEST_DERIVED_ARRAY)/sizeof(TEST_DERIVED_ARRAY[0]);
+                      sizeof(TEST_DERIVED_ARRAY)/sizeof(TEST_DERIVED_ARRAY[0]);
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -4043,7 +4103,7 @@ static const TestVoidFn TEST_VOID_ARRAY[] = {
     //&doLoadObjectFactoryDzero<void, OCderiv, Fbsl>
 };
 static const int TEST_VOID_ARRAY_SIZE =
-                sizeof(TEST_VOID_ARRAY)/sizeof(TEST_VOID_ARRAY[0]);
+                            sizeof(TEST_VOID_ARRAY)/sizeof(TEST_VOID_ARRAY[0]);
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -4621,7 +4681,7 @@ static const TestConstVoidFn TEST_CONST_VOID_ARRAY[] = {
     &doLoadObjectFactoryDzero<const void, OCderiv, Fbsl>
 };
 static const int TEST_CONST_VOID_ARRAY_SIZE =
-    sizeof(TEST_CONST_VOID_ARRAY)/sizeof(TEST_CONST_VOID_ARRAY[0]);
+                sizeof(TEST_CONST_VOID_ARRAY)/sizeof(TEST_CONST_VOID_ARRAY[0]);
 
 } // close anonymous namespace
 //=============================================================================
@@ -4886,6 +4946,8 @@ namespace USAGE_EXAMPLE {
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+testCompsite();
+
     int test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
