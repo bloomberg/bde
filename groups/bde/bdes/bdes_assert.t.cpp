@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
 
             bool handlerCalledVia_WithTrue;
             try {
-                BSLS_ASSERT_SAFE(true);
+                BSLS_ASSERT(true);
                 handlerCalledVia_WithTrue = false;
             } catch (bsls_AssertTestException) {
                 handlerCalledVia_WithTrue = true;
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 
             bool handlerCalledVia_WithFalse;
             try {
-                BSLS_ASSERT_SAFE(false);
+                BSLS_ASSERT(false);
                 handlerCalledVia_WithFalse = false;
             } catch (bsls_AssertTestException) {
                 handlerCalledVia_WithFalse = true;
