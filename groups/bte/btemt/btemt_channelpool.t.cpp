@@ -902,6 +902,10 @@ static int numChannels = 0;
 
 static const int MAX_NUM_HANDLES = FD_SETSIZE;
 
+#elif BSLS_PLATFORM__OS_SOLARIS
+
+static const int MAX_NUM_HANDLES = 32;
+
 #else
 
 static const int MAX_NUM_HANDLES = 64;

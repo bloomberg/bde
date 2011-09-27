@@ -456,9 +456,6 @@ void TesterFactory::allocate(btemt_AsyncChannel                    *channel,
     }
 
     d_barrier_p->wait();
-
-    MTCOUT << channel->peerAddress() << MTENDL;
-    MTCOUT << channel->localAddress() << MTENDL;
 }
 
 void TesterFactory::deallocate(btemt_Session *session)
@@ -2048,8 +2045,6 @@ int main(int argc, char *argv[])
 
         socketFactory.deallocate(socket);
 
-        MTCOUT << "Disconnecting" << MTENDL;
-
         barrier.wait();
       } break;
       case 7: {
@@ -2267,7 +2262,8 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
         ASSERT(0 != ta.numBytesInUse());
-        LOOP_ASSERT(da.numBytesInUse(), 0 == da.numBytesInUse());
+        const int NUM_BYTES = da.numBytesInUse();
+        LOOP_ASSERT(NUM_BYTES, 0 == NUM_BYTES);
       } break;
 
       case 2: {
