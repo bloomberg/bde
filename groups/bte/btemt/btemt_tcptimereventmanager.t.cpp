@@ -166,7 +166,7 @@ static int maxOpenFiles()
     // by this process on success and a negative value on failure.
 {
 #if defined(BSLS_PLATFORM__OS_WINDOWS)
-    return (1 << sizeof(int)) * 8 - 1;
+    return (1 << sizeof(int)) * 16 - 1;
 #endif
 #if defined(BSLS_PLATFORM__OS_UNIX)
     struct ::rlimit result;
@@ -770,7 +770,10 @@ int main(int argc, char *argv[])
                     mX.enable();
                 }
 
-                const int MAX_NUM_HANDLES = FD_SETSIZE;
+                // As the internal event manager listens on a socket that
+                // reduces the number of available sockets.
+
+                const int MAX_NUM_HANDLES = FD_SETSIZE - 1;
 
                 if (veryVerbose) { P(MAX_NUM_HANDLES) }
 
@@ -782,7 +785,7 @@ int main(int argc, char *argv[])
                 bdef_Function<void (*)()> cb1(&noopFunction),
                                           cb2(&noopFunction);
 
-                int  numRead           = 0;
+                int  numRead           = 1;
                 bool socketAllocFailed = false;
                 for (; numRead < MAX_NUM_HANDLES; ++numRead) {
                     socket = factory.allocate();
