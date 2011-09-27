@@ -7,8 +7,8 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
-#include <cstring>     // strcmp() XXX: still needed?
 #include <cstdlib>     // atoi()
 #include <iostream>
 
@@ -129,57 +129,7 @@ typedef bslma_TestAllocatorMonitor Tam;
 //                  NON-STANDARD TEST MACROS
 // ----------------------------------------------------------------------------
 
-#define ALLOC_INUSE(LINE, MONITOR, STATE)                           \
-    do {                                                            \
-               if (0 == std::strcmp("UP",   (STATE))) {             \
-                    LOOP_ASSERT((LINE),  (MONITOR).isInUseUp());    \
-                    LOOP_ASSERT((LINE), !(MONITOR).isInUseSame());  \
-                    LOOP_ASSERT((LINE), !(MONITOR).isInUseDown());  \
-                                                                    \
-        } else if (0 == std::strcmp("SAME", (STATE))) {             \
-                    LOOP_ASSERT((LINE), !(MONITOR).isInUseUp());    \
-                    LOOP_ASSERT((LINE),  (MONITOR).isInUseSame());  \
-                    LOOP_ASSERT((LINE), !(MONITOR).isInUseDown());  \
-                                                                    \
-        } else if (0 == std::strcmp("DOWN", (STATE))) {             \
-                    LOOP_ASSERT((LINE), !(MONITOR).isInUseUp());    \
-                    LOOP_ASSERT((LINE), !(MONITOR).isInUseSame());  \
-                    LOOP_ASSERT((LINE),  (MONITOR).isInUseDown());  \
-                                                                    \
-        } else {                                                    \
-             BSLS_ASSERT(!"MATCH: "#STATE);                         \
-        }                                                           \
-    } while (0);
-
-#define ALLOC_MAX(LINE, MONITOR, STATE)                             \
-    do {                                                            \
-               if (0 == std::strcmp("UP",   (STATE))) {             \
-                    LOOP_ASSERT((LINE),  (MONITOR).isMaxUp());      \
-                    LOOP_ASSERT((LINE), !(MONITOR).isMaxSame());    \
-                                                                    \
-        } else if (0 == std::strcmp("SAME", (STATE))) {             \
-                    LOOP_ASSERT((LINE), !(MONITOR).isMaxUp());      \
-                    LOOP_ASSERT((LINE),  (MONITOR).isMaxSame());    \
-                                                                    \
-        } else {                                                    \
-             BSLS_ASSERT(!"MATCH: "#STATE);                         \
-        }                                                           \
-    } while (0);
-
-#define ALLOC_TOTAL(LINE, MONITOR, STATE)                           \
-    do {                                                            \
-               if (0 == std::strcmp("UP",   (STATE))) {             \
-                    LOOP_ASSERT((LINE),  (MONITOR).isTotalUp());    \
-                    LOOP_ASSERT((LINE), !(MONITOR).isTotalSame());  \
-                                                                    \
-        } else if (0 == std::strcmp("SAME", (STATE))) {             \
-                    LOOP_ASSERT((LINE), !(MONITOR).isTotalUp());    \
-                    LOOP_ASSERT((LINE),  (MONITOR).isTotalSame());  \
-                                                                    \
-        } else {                                                    \
-             BSLS_ASSERT(!"MATCH: "#STATE);                         \
-        }                                                           \
-    } while (0);
+#define A(X) ASSERT(X)
 
 // ============================================================================
 //                                USAGE EXAMPLE
@@ -402,17 +352,17 @@ int main(int argc, char *argv[])
 //:
 //:   4 When the object is holding memory, create an additional test allocator
 //:     monitor allocator for the object allocator.  Use the basic accessor
-//;     (i.e., the 'description' method) to confirm that the object has the
+//:     (i.e., the 'description' method) to confirm that the object has the
 //:     expected value.  Check this test allocator monitor to confirm that
 //:     accessor allocated no memory.  (C-3)
 //:
-//:   4 Change the attribute to a smaller value and confirm that the current
+//:   5 Change the attribute to a smaller value and confirm that the current
 //:     memory was reused (i.e., no memory is allocated). (C-6)
 //:
-//:   5 Destroy the test object by allowing it to go out of scope, and confirm
+//:   6 Destroy the test object by allowing it to go out of scope, and confirm
 //:     that all allocations are returned.  (C-2)
 //:
-//: 5 Confirm that at no time were the global allocator or the default
+//: 4 Confirm that at no time were the global allocator or the default
 //:   allocator were used.  (C-1)
 //..
 // The implementation of the plan is shown below:
@@ -598,7 +548,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // CTOR AND ACCESSORS
+        // ACCESSORS
         //   This case tests that the monitor captures the correct allocator
         //   statistics on construction and compares those to the correct
         //   allocator statistics over its lifetime.
@@ -609,57 +559,40 @@ int main(int argc, char *argv[])
         //:   method returns 'true', then the 'inUseUp' and 'inUseDown' methods
         //:   return 'false'.
         //:
-        //: 2 All of a monitor's "Same" methods return 'true' until it's
-        //:   tracked allocator is used.
-        //:
-        //: 3 Any allocation(s) from the tracked allocator idempotently flip
+        //: 2 Any allocation(s) from the tracked allocator idempotently flip
         //:   the monitor's 'isMaxUp' and 'isTotalUp' methods return values to
         //:   'true'.
         //:
-        //: 4 The return values of the "inUse" methods track the net number of
-        //:   allocations and deallocations since the creation of the monitor.
-        //:     o Note that the monitors can be created for allocators with
-        //:       outstanding allocations.  If so, there are scenarios where
-        //:       the number of allocations "inUse" can decrease from that when
-        //:       the monitor was created.
+        //: 3 The "inUse" statistic tracks changes both above and below the
+        //:   number of allocations recorded when the monitor was created.
         //:
-        //: 5 The behavior is depends on the number of allocations and
-        //:   deallocations, never on the size (in bytes) of the allocations.
+        //: 4 The return values depend for each statistic depend on the number
+        //:   of allocations and deallocations, never on the size (in bytes) of
+        //:   the allocations.
         //:
         // Plan:
-        //: 1 Always test the return values as a "suite" (i.e., "InUse", "Max",
-        //:   and "Total") and confirm that only one is 'true'.  Devise a set
-        //:   of macros to do so concisely.  (C-1)
+        //: 1 Always test related test values in concert.
+        //:   1 For the "Max" and "Total" statistics, check both "Same" and
+        //:     "Up" accessors.  Only one should be 'true'.  To express this
+        //:     concisely, the standard 'ASSERT' test macro is used via the
+        //:     'A', macro.
+        //:   2 For the "InUse" statistics, check "Same", "Up" and "Down". one
+        //:     should be 'true'.  (C-1)
         //:
-        //: 2 Create a test allocator, a tracking test allocator monitor, and
-        //:   an confirm the return values of the monitor before the allocator
-        //:   is used.  (C-2)
-        //:
-        //: 3 Put perform the following operations on the test allocator.
-        //:   After each operation, check the return values of each monitor
-        //:   method for expected results.
-        //:   1 Allocate memory.  (C-3)
-        //:   2 Allocate additional memory.  (C-3)
-        //:   3 Deallocate allocations in order of allocation (C-4)
-        //:   5 Allocate memory.
-        //:   6 Allocate memory.
-        //:   7 Allocate memory.
-        //:   8 Deallocate outstanding allocations in reserve order. (C-4)
-        //:
-        //: 4 After step P-2.2, create a second monitor for the same test
-        //:   allocator.  After operations, P-2.3 and P-2.4, check the return
-        //:   values of the second monitor for the expected results.  This
-        //:   monitor object allows us to observe the 'isInUseDown' return
-        //:   return 'true'.  (C-4)
-        //:
-        //: 5 Use a table driven test to repeat the P-1 to P-4 for different
-        //:   allocation sizes: increasing, decreasing, large, small, etc.
-        //:   Since zero-sized allocations are no-ops to the allocator, the
-        //:   table has no zero-sized allocations.  Doing so would interfere
-        //:   certain expected state changes.
+        //: 2 Create a test allocator, perform several allocations (retaining
+        //:   the returned memory addresses), and then create a test allocator
+        //:   monitor.  Exercise the test allocator and check the return values
+        //:   from the accessors.  The scenarios should include:
+        //:   1 Multiple allocations and deallocations, to confirm that once
+        //:     "isMaxUp' and 'isTotal' up return 'true', they remain 'true'.
+        //:     (C-2)
+        //:   2 Multiple of deallocations and reallocations so that the "InUse"
+        //:     statistic can be observed to go from "Same" to "Down" and back.
+        //:     (C-3)
+        //:   3 The return of an allocation followed by another allocation of
+        //:     greater size.  (C-4)
         //
         // Testing:
-        //   bslma_TestAllocatorMonitor(const bslma_TestAllocator& tA);
         //   bool isInUseDown() const;
         //   bool isInUseSame() const;
         //   bool isInUseUp() const;
@@ -670,141 +603,186 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CTOR AND ACCESSORS" << endl
-                          << "==================" << endl;
+                          << "ACCESSORS" << endl
+                          << "=========" << endl;
 
-        //const bsls_Types::size_type ZERO = 0;
-        const bsls_Types::size_type TEN0 = 1;
-        const bsls_Types::size_type TEN1 = 10;
-        const bsls_Types::size_type TEN2 = 100;
-        const bsls_Types::size_type TEN3 = 1000;
-        const bsls_Types::size_type TEN4 = 10000;
-        const bsls_Types::size_type TEN5 = 100000;
-        const bsls_Types::size_type TEN6 = 1000000;
-        const bsls_Types::size_type TEN7 = 10000000;
-        const bsls_Types::size_type TEN8 = 100000000;
+        if (veryVerbose) cout << "\tSetup Test Allocator and Monitor."
+                              << endl;
 
-        static const struct {
-            int                   d_line;   // source line number
-            bsls_Types::size_type d_size1;
-            bsls_Types::size_type d_size2;
-            bsls_Types::size_type d_size3;
-            bsls_Types::size_type d_size4;
-            bsls_Types::size_type d_size5;
-        } DATA[] = {
+        Ta ta("testAllocator", veryVeryVeryVerbose);
 
-            //LINE  SIZE1  SIZE2  SIZE3  SIZE4  SIZE5
-            //----  -----  -----  -----  -----  -----
-            { L_,   TEN0,  TEN0,  TEN0,  TEN0,  TEN0 },
-            { L_,   TEN1,  TEN1,  TEN1,  TEN1,  TEN1 },
-            { L_,   TEN2,  TEN2,  TEN2,  TEN2,  TEN2 },
-            { L_,   TEN3,  TEN3,  TEN3,  TEN3,  TEN3 },
-            { L_,   TEN4,  TEN4,  TEN4,  TEN4,  TEN4 },
-            { L_,   TEN5,  TEN5,  TEN5,  TEN5,  TEN5 },
-            { L_,   TEN6,  TEN6,  TEN6,  TEN6,  TEN6 },
-            { L_,   TEN7,  TEN7,  TEN7,  TEN7,  TEN7 },
-            { L_,   TEN8,  TEN8,  TEN8,  TEN8,  TEN8 },
+        bsls_Types::size_type sizeSmall  =    1;
+        bsls_Types::size_type sizeMedium =   10;
+        bsls_Types::size_type sizeLarge  =  100;
+        bsls_Types::size_type sizeLarger = 1000;
 
-            { L_,   TEN0,  TEN1,  TEN2,  TEN3,  TEN4 },
-            { L_,   TEN5,  TEN6,  TEN7,  TEN8,  TEN0 },
+        ASSERT(sizeSmall  < sizeMedium);
+        ASSERT(sizeMedium < sizeLarge);
+        ASSERT(sizeLarge  < sizeLarger);
 
-            { L_,   TEN8,  TEN7,  TEN6,  TEN5,  TEN4 },
-            { L_,   TEN3,  TEN2,  TEN1,  TEN0,  TEN8 },
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        void *prior1 = ta.allocate(sizeSmall);
+        void *prior2 = ta.allocate(sizeMedium);
+        void *prior3 = ta.allocate(sizeLarge);
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int                   LINE  = DATA[ti].d_line;
-            const bsls_Types::size_type SIZE1 = DATA[ti].d_size1;
-            const bsls_Types::size_type SIZE2 = DATA[ti].d_size2;
-            const bsls_Types::size_type SIZE3 = DATA[ti].d_size3;
-            const bsls_Types::size_type SIZE4 = DATA[ti].d_size4;
-            const bsls_Types::size_type SIZE5 = DATA[ti].d_size5;
+        Tam tam(&ta);
 
-            if (veryVerbose) { T_ P_(SIZE1)
-                                  P_(SIZE2)
-                                  P_(SIZE3)
-                                  P_(SIZE4)
-                                  P(SIZE5)
-                             }
+        if (veryVerbose) cout << "\tCheck Initial State." << endl;
 
-            Ta        mta("test allocator", veryVeryVeryVerbose);
-            const Ta& ta = mta;
+        ASSERT( tam.isTotalSame());  // Same Total
+        ASSERT(!tam.isTotalUp());
 
-            Tam        mtam1(&ta);
-            const Tam& tam1 = mtam1;
+        ASSERT( tam.isInUseSame());  // Same InUse
+        ASSERT(!tam.isInUseUp());
+        ASSERT(!tam.isInUseDown());
 
-            ALLOC_INUSE(LINE, tam1, "SAME");
-            ALLOC_MAX  (LINE, tam1, "SAME");
-            ALLOC_TOTAL(LINE, tam1, "SAME");
+        ASSERT( tam.isMaxSame());    // Same Max
+        ASSERT(!tam.isMaxUp());
 
-            void *allocation1 = mta.allocate(SIZE1);
+        if (veryVerbose) cout << "\tStatics track blocks not bytes." << endl;
 
-            ALLOC_INUSE(LINE, tam1, "UP");
-            ALLOC_MAX  (LINE, tam1, "UP");
-            ALLOC_TOTAL(LINE, tam1, "UP");
+        ta.deallocate(prior3); prior3 = 0;
 
-            void *allocation2 = mta.allocate(SIZE2);
+        ASSERT( tam.isTotalSame());  // Same Total
+        ASSERT(!tam.isTotalUp());    // deallocs not counted
 
-            ALLOC_INUSE(LINE, tam1, "UP");
-            ALLOC_MAX  (LINE, tam1, "UP");
-            ALLOC_TOTAL(LINE, tam1, "UP");
+        ASSERT(!tam.isInUseSame());
+        ASSERT(!tam.isInUseUp());
+        ASSERT( tam.isInUseDown());  // Down InUse (changed)
 
-            Tam        mtam2(&ta);
-            const Tam& tam2 = mtam2;
+        ASSERT( tam.isMaxSame());    // Same Max
+        ASSERT(!tam.isMaxUp());
 
-                                             ALLOC_INUSE(LINE, tam2, "SAME");
-                                             ALLOC_MAX  (LINE, tam2, "SAME");
-                                             ALLOC_TOTAL(LINE, tam2, "SAME");
+        void *post1 = ta.allocate(sizeLarger);  // "Balances" 'prior3'.
+                                                // First alloc w.r.t. monitor.
 
-            mta.deallocate(allocation1);
+        ASSERT(!tam.isTotalSame());
+        ASSERT( tam.isTotalUp());    // Up Total (changed)
 
-            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "DOWN");
-            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "SAME");
-            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "SAME");
+        ASSERT( tam.isInUseSame());  // Same InUse (changed)
+        ASSERT(!tam.isInUseUp());
+        ASSERT(!tam.isInUseDown());
 
-            mta.deallocate(allocation2);
+        ASSERT( tam.isMaxSame());    // Same Max
+        ASSERT(!tam.isMaxUp());
 
-            ALLOC_INUSE(LINE, tam1, "SAME"); ALLOC_INUSE(LINE, tam2, "DOWN");
-            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "SAME");
-            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "SAME");
+        if (veryVerbose) cout << "\t\"TotalUp\" and \"MaxUp\" remain 'true'."
+                              << endl;
 
-            void *allocation3 = mta.allocate(SIZE3);
+        void *post2 = ta.allocate(sizeMedium);
 
-            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "DOWN");
-            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "SAME");
-            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
+        ASSERT(!tam.isTotalSame());
+        ASSERT( tam.isTotalUp());    // Up Total (changed)
 
-            void *allocation4 = mta.allocate(SIZE4);
+        ASSERT(!tam.isInUseSame());
+        ASSERT( tam.isInUseUp());    // Up InUse (changed)
+        ASSERT(!tam.isInUseDown());
 
-            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "SAME");
-            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "SAME");
-            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
+        ASSERT(!tam.isMaxSame());
+        ASSERT( tam.isMaxUp());      // Up Max (changed)
 
-            void *allocation5 = mta.allocate(SIZE5);
+        void *post3 = ta.allocate(sizeSmall);
 
-            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "UP");
-            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "UP");
-            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
+        ASSERT(!tam.isTotalSame());
+        ASSERT( tam.isTotalUp());    // Up Total
 
-            mta.deallocate(allocation5);
+        ASSERT(!tam.isInUseSame());
+        ASSERT( tam.isInUseUp());    // Up InUse
+        ASSERT(!tam.isInUseDown());
 
-            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "SAME");
-            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "UP");
-            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
+        ASSERT(!tam.isMaxSame());
+        ASSERT( tam.isMaxUp());      // Up Max
 
-            mta.deallocate(allocation4);
+        if (veryVerbose) cout
+                          << "\t\"inUse\" reported w.r.t. initial block count"
+                          << endl;
 
-            ALLOC_INUSE(LINE, tam1, "UP");   ALLOC_INUSE(LINE, tam2, "DOWN");
-            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "UP");
-            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
+        ta.deallocate(post2); post2 = 0;
+        ta.deallocate(post3); post3 = 0;
 
-            mta.deallocate(allocation3);
+        ASSERT(!tam.isTotalSame());
+        ASSERT( tam.isTotalUp());    // Up Total
 
-            ALLOC_INUSE(LINE, tam1, "SAME"); ALLOC_INUSE(LINE, tam2, "DOWN");
-            ALLOC_MAX  (LINE, tam1, "UP");   ALLOC_MAX  (LINE, tam2, "UP");
-            ALLOC_TOTAL(LINE, tam1, "UP");   ALLOC_TOTAL(LINE, tam2, "UP");
-        }
+        ASSERT( tam.isInUseSame());  // Same InUse (changed)
+        ASSERT(!tam.isInUseUp());
+        ASSERT(!tam.isInUseDown());
+
+        ASSERT(!tam.isMaxSame());
+        ASSERT( tam.isMaxUp());      // Up Max
+
+        // Now deallocate 'post1', which had balanced the deallocated 'prior3'.
+        ta.deallocate(post1); post1 = 0;
+
+        ASSERT(!tam.isTotalSame());
+        ASSERT( tam.isTotalUp());    // Up Total
+
+        ASSERT(!tam.isInUseSame());
+        ASSERT(!tam.isInUseUp());
+        ASSERT( tam.isInUseDown());  // Down InUse
+
+        ASSERT(!tam.isMaxSame());
+        ASSERT( tam.isMaxUp());      // Up Max
+
+        // Drive "inUse" count further below initial value.
+        ta.deallocate(prior1); prior1 = 0;
+
+        ASSERT(!tam.isTotalSame());
+        ASSERT( tam.isTotalUp());    // Up Total
+
+        ASSERT(!tam.isInUseSame());
+        ASSERT(!tam.isInUseUp());
+        ASSERT( tam.isInUseDown());  // Down InUse
+
+        ASSERT(!tam.isMaxSame());
+        ASSERT( tam.isMaxUp());      // Up Max
+
+        // Drive "inUse" count even further below initial value.
+        ta.deallocate(prior2); prior2 = 0;
+
+        ASSERT(!tam.isTotalSame());
+        ASSERT( tam.isTotalUp());    // Up Total
+
+        ASSERT(!tam.isInUseSame());
+        ASSERT(!tam.isInUseUp());
+        ASSERT( tam.isInUseDown());  // Down InUse
+
+        ASSERT(!tam.isMaxSame());
+        ASSERT( tam.isMaxUp());      // Up Max
+
+        // Three allocations drive the "InUse" count to initial value;
+        void *final1 = ta.allocate(sizeSmall);
+        void *final2 = ta.allocate(sizeSmall);
+        void *final3 = ta.allocate(sizeSmall);
+
+        ASSERT(!tam.isTotalSame());
+        ASSERT( tam.isTotalUp());    // Up Total
+
+        ASSERT( tam.isInUseSame());  // Same InUse (changed)
+        ASSERT(!tam.isInUseUp());
+        ASSERT(!tam.isInUseDown());
+
+        ASSERT(!tam.isMaxSame());
+        ASSERT( tam.isMaxUp());      // Up Max
+
+        // As a final test, one more allocation drives it "Up" yet again.
+        void *final4 = ta.allocate(sizeSmall);
+
+        ASSERT(!tam.isTotalSame());
+        ASSERT( tam.isTotalUp());    // Up Total
+
+        ASSERT(!tam.isInUseSame());
+        ASSERT( tam.isInUseUp());    // Up InUse (changed)
+        ASSERT(!tam.isInUseDown());
+
+        ASSERT(!tam.isMaxSame());
+        ASSERT( tam.isMaxUp());      // Up Max
+
+        if (veryVerbose) cout << "Clean up." << endl;
+
+        ta.deallocate(final1); final1 = 0;
+        ta.deallocate(final2); final2 = 0;
+        ta.deallocate(final3); final3 = 0;
+        ta.deallocate(final4); final4 = 0;
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -814,11 +792,15 @@ int main(int argc, char *argv[])
         //   destroy it safely.
         //
         // Concerns:
-        //: 1 A montior object is associated with the specified test allocator.
+        //: 1 A monitor object is associated with the specified test allocator.
         //:
         //: 2 Object can be safely destroyed.
         //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        //: 3 The constructor accurately captures the current state of the
+        //:   tracked allocator, be it a newly created allocator or one that
+        //:   has experienced arbitrary use.
+        //:
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create a test allocator object and, before it handles any
@@ -829,10 +811,28 @@ int main(int argc, char *argv[])
         //:   associated monitor.  (C-1) Finally, destroy the monitor by
         //:   allowing it to go out of scope.  (C-2)
         //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //: 2 For each in a set of two test allocators, one newly created and
+        //:   the other having experienced arbitrary use, create a tracking
+        //:   test allocator monitor, exercise the test allocator and check for
+        //:   the expected change in return value from the (as yet unproved)
+        //:   accessors.  Note that the pointer returned in prior use, if any,
+        //:   must be retained for later deallocation.
+        //:    1 Confirm that the newly created monitor's "Same" allocators
+        //:      all return 'true'.
+        //:    2 Confirm that after an arbitrary allocation
+        //:      the all the "Up" accessors return 'true'.
+        //:    3 Confirm that after this recent allocation is deallocated,
+        //:      the "InUseSame" accessor returns 'true' and the "Up"
+        //:      accessors for "Max" and "Total" return 'true'.
+        //:    4 Confirm that after deallocation of the memory allocated before
+        //:      creation of the monitor, the "InUseDown" accessor returns
+        //:     'true'  and the "Up" accessors for "Max" and "Total" return
+        //:     'true'.
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid attribute values, but not triggered for
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-3)
+        //:   (C-4)
         //
         // Testing:
         //   bslma_TestAllocatorMonitor(const bslma_TestAllocator *tA);
@@ -865,13 +865,66 @@ int main(int argc, char *argv[])
             ASSERT(tam.isMaxUp());
         }
 
+        if (verbose) cout << "\nProper State Saved on Construction." << endl;
+        {
+            Ta    ta1("ta1", veryVeryVeryVerbose);  // Do not use yet.
+            Ta    ta2("ta2", veryVeryVeryVerbose);
+            void *p2  = ta2.allocate((bsls_Types::size_type) &ta2 & 0xFFFF);
+
+            const struct {
+                int   d_line;
+                Ta*   d_ta_p;
+                void* d_mem_p;
+            } DATA[] = {
+
+              //LINE  ALLOCP  PRIOR
+              //----  ------  -----
+              { L_,   &ta1,   0    },
+              { L_,   &ta2,   p2   }
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE  =  DATA[ti].d_line;
+                Ta&       TA    = *DATA[ti].d_ta_p;
+                void     *PRIOR =  DATA[ti].d_mem_p;
+
+                Tam tam(&TA);
+
+                ASSERT(tam.isTotalSame());
+                ASSERT(tam.isInUseSame());
+                ASSERT(tam.isMaxSame());
+
+                void *p = TA.allocate((bsls_Types::size_type) &TA & 0xFFFF);
+
+                ASSERT(tam.isTotalUp());
+                ASSERT(tam.isInUseUp());
+                ASSERT(tam.isMaxUp());
+
+                TA.deallocate(p);
+
+                ASSERT(tam.isTotalUp());
+                ASSERT(tam.isInUseSame());
+                ASSERT(tam.isMaxUp());
+
+                if (PRIOR) {
+                    TA.deallocate(PRIOR);
+
+                    ASSERT(tam.isTotalUp());
+                    ASSERT(tam.isInUseDown());
+                    ASSERT(tam.isMaxUp());
+                }
+            }
+        }
+
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\t'constructor'" << endl;
             {
-                Ta  ta("testAllocator", veryVeryVeryVerbose);
+                Ta ta("testAllocator", veryVeryVeryVerbose);
                 ASSERT_SAFE_PASS((Tam)(&ta));
                 ASSERT_SAFE_FAIL(Tam((const bslma_TestAllocator *)0));
             }
@@ -892,7 +945,7 @@ int main(int argc, char *argv[])
         //:   'bslma_TestAllocator' object and a
         //: 2 Perform several allocations from and deallocations to the the
         //:   test allocator created in P-1.  Once the test allocator has been
-        //:   used, create a second test allocatore monitor to trace changes
+        //:   used, create a second test allocator monitor to trace changes
         //:   from that non-initial state.  At each point, confirm that the
         //:   test allocator monitor object created in P-2 returns 'true' from
         //:   the appropriate methods.
