@@ -1550,8 +1550,6 @@ void testLoadAliasOps1(int callLine,
     bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
                                           (*bslma_Default::defaultAllocator());
 
-    TestLoadArgs<TEST_TARGET> args = {};
-
     int aliasDeleterCount = 0;
     typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
 
@@ -1560,6 +1558,7 @@ void testLoadAliasOps1(int callLine,
             bslma_TestAllocatorMonitor gam(&ga);
             bslma_TestAllocatorMonitor dam(&da);
 
+            TestLoadArgs<TEST_TARGET> args = {};
             args.d_useDefault = false;
             args.d_config = configI;
 
@@ -1760,6 +1759,107 @@ void testLoadAliasOps2(int callLine,
     }
 }
 
+
+template<class TEST_TARGET,
+         class TEST_FUNCTION_TYPE,
+         std::size_t TEST_ARRAY_SIZE>
+void testLoadAliasOps3(int callLine,
+                       const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
+{
+    typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
+
+    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
+                                           (*bslma_Default::globalAllocator());
+
+    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
+                                          (*bslma_Default::defaultAllocator());
+
+    int aliasDeleterCount = 0;
+    typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
+
+    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
+            bslma_TestAllocatorMonitor gam(&ga);
+            bslma_TestAllocatorMonitor dam(&da);
+
+            TestLoadArgs<TEST_TARGET> args = {};
+            args.d_useDefault = false;
+            args.d_config = 0;  // We need only test a fully defined pointer,
+                                // there are no concerns about null arguments.
+            {
+                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                TestPointer p;
+                ASSERT(0 == p.ptr());
+
+                args.d_p  = &p;
+                args.d_ta = &ta;
+
+                args.d_deleteCount = 0;
+                args.d_deleteDelta = 0;
+                TEST_ARRAY[i](callLine, L_, i, &args);
+                if (0 == p.ptr()) {
+                    // We have no interest in tests that create a null pointer,
+                    // this scenario is negative tested in testLoadAliasOps1.
+                    continue;
+                }
+
+                // Check that no more memory is allocated or freed.
+                // All operations from here are effectively 'move' operations.
+                bslma_TestAllocatorMonitor gam2(&ga);
+                bslma_TestAllocatorMonitor dam2(&da);
+                bslma_TestAllocatorMonitor tam2(&ta);
+
+                TestPointer pAlias;
+                pAlias.loadAlias(p, &aliasTarget);
+
+                LOOP_ASSERT(p.ptr(),      0 == p.ptr());
+                LOOP_ASSERT(pAlias.ptr(), &aliasTarget == pAlias.ptr());
+
+                // Assert that no memory was allocated or freed
+                LOOP_ASSERT(i, tam2.isInUseSame());
+                LOOP_ASSERT(i, tam2.isMaxSame());
+                LOOP_ASSERT(i, dam2.isInUseSame());
+                LOOP_ASSERT(i, dam2.isMaxSame());
+                LOOP_ASSERT(i, gam2.isInUseSame());
+                LOOP_ASSERT(i, gam2.isMaxSame());
+
+                // Next we load a fresh state into the pointer to verify the
+                // final concern for 'load'; that it correctly destroys an
+                // aliased state while acquire the new value.
+                args.d_p  = &pAlias;
+
+                // The test function itself asserts correct destructor count
+                // for this transition, and that the 'pAlias' has the correct
+                // final state.
+                TEST_ARRAY[j](callLine, L_, j, &args);
+
+                LOOP_ASSERT(i, gam.isInUseSame());
+                LOOP_ASSERT(i, gam.isMaxSame());
+
+                if(!args.d_useDefault) {
+                    LOOP_ASSERT(i, dam.isInUseSame());
+                    LOOP_ASSERT(i, dam.isMaxSame());
+                }
+
+                // Nothing further to assert, but reset 'deleteCount' to
+                // verify destroying final objects outside the loop.
+                args.d_deleteCount = 0;
+            }
+
+            // Validate the final deleter run when 'p' is destroyed.
+            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
+                         args.d_deleteCount == args.d_deleteDelta);
+
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            if(!args.d_useDefault) {
+                LOOP_ASSERT(i, dam.isMaxSame());
+            }
+        }
+    }
+}
 
 
 //=============================================================================
@@ -5578,6 +5678,7 @@ testCompsite();
 
             testLoadAliasOps1<MyTestObject>(L_, TEST_BASE_ARRAY);
             testLoadAliasOps2<MyTestObject>(L_, TEST_BASE_ARRAY);
+            testLoadAliasOps3<MyTestObject>(L_, TEST_BASE_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -5588,6 +5689,7 @@ testCompsite();
 
             testLoadAliasOps1<const MyTestObject>(L_, TEST_CONST_BASE_ARRAY);
             testLoadAliasOps2<const MyTestObject>(L_, TEST_CONST_BASE_ARRAY);
+            testLoadAliasOps3<const MyTestObject>(L_, TEST_CONST_BASE_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -5608,6 +5710,7 @@ testCompsite();
 
             testLoadAliasOps1<void>(L_, TEST_VOID_ARRAY);
             testLoadAliasOps2<void>(L_, TEST_VOID_ARRAY);
+            testLoadAliasOps3<void>(L_, TEST_VOID_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -5618,6 +5721,7 @@ testCompsite();
 
             testLoadAliasOps1<const void>(L_, TEST_CONST_VOID_ARRAY);
             testLoadAliasOps2<const void>(L_, TEST_CONST_VOID_ARRAY);
+            testLoadAliasOps3<const void>(L_, TEST_CONST_VOID_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
