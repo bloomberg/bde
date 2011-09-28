@@ -189,30 +189,6 @@ void aSsErT(int c, const char *s, int i)
 // ============================================================================
 //                               TEST APPARATUS
 // ----------------------------------------------------------------------------
-// AJM: MIGRATE THIS to the 'bsls_asserttest' component after BDE 2.9 branches.
-class bsls_AssertTestHandlerGuard {
-    // This class provides a guard that will install and uninstall the negative
-    // testing assertion handler, 'bsls_AssertTest::failTestDriver', within the
-    // protected scope.
-
-    // DATA
-    bsls_AssertFailureHandlerGuard d_guard;
-
-  public:
-    bsls_AssertTestHandlerGuard();
-        // Create a 'bsls_AssertTestHandlerGuard' object, installing the
-        // 'bsls_AssertTest::failTestDriver' assertion handler.
-
-    //! ~bsls_AssertTestHandlerGuard() = default;
-        // Destroy this object and uninstall 'bsls_AssertTest::failTestDriver'
-        // as the current assertion handler.
-};
-
-inline
-bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
-: d_guard(&bsls_AssertTest::failTestDriver)
-{
-}
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
