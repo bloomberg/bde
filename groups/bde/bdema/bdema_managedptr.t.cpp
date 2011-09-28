@@ -1441,8 +1441,8 @@ void testLoadOps(int callLine,
 
     for(unsigned configI = 0; configI != 4; ++configI) {
         for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-            bslma_TestAllocatorMonitor gam(ga);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&ga);
+            bslma_TestAllocatorMonitor dam(&da);
 
             args.d_useDefault = false;
             args.d_config = configI;
@@ -1472,7 +1472,7 @@ void testLoadOps(int callLine,
 
             for(unsigned configJ = 0; configJ != 4; ++configJ) {
                 for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
-                    bslma_TestAllocatorMonitor dam2(da);
+                    bslma_TestAllocatorMonitor dam2(&da);
 
                     bslma_TestAllocator ta("TestLoad 2",
                                            g_veryVeryVeryVerbose);
@@ -1557,8 +1557,8 @@ void testLoadAliasOps1(int callLine,
 
     for(unsigned configI = 0; configI != 4; ++configI) {
         for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-            bslma_TestAllocatorMonitor gam(ga);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&ga);
+            bslma_TestAllocatorMonitor dam(&da);
 
             args.d_useDefault = false;
             args.d_config = configI;
@@ -1577,9 +1577,9 @@ void testLoadAliasOps1(int callLine,
 
                 // Check that no more memory is allocated or freed.
                 // All operations from here are effectively 'mode' operations.
-                bslma_TestAllocatorMonitor gam2(ga);
-                bslma_TestAllocatorMonitor dam2(da);
-                bslma_TestAllocatorMonitor tam2(ta);
+                bslma_TestAllocatorMonitor gam2(&ga);
+                bslma_TestAllocatorMonitor dam2(&da);
+                bslma_TestAllocatorMonitor tam2(&ta);
 
 #ifdef BDE_BUILD_TARGET_EXC
                 if (g_verbose) cout << "\tNegative testing null pointers\n";
@@ -1665,8 +1665,8 @@ void testLoadAliasOps2(int callLine,
 
     for(unsigned configI = 0; configI != 4; ++configI) {
         for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-            bslma_TestAllocatorMonitor gam(ga);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&ga);
+            bslma_TestAllocatorMonitor dam(&da);
 
             args.d_useDefault = false;
             args.d_config = configI;
@@ -1685,9 +1685,9 @@ void testLoadAliasOps2(int callLine,
 
                 // Check that no more memory is allocated or freed.
                 // All operations from here are effectively 'mode' operations.
-                bslma_TestAllocatorMonitor gam2(ga);
-                bslma_TestAllocatorMonitor dam2(da);
-                bslma_TestAllocatorMonitor tam2(ta);
+                bslma_TestAllocatorMonitor gam2(&ga);
+                bslma_TestAllocatorMonitor dam2(&da);
+                bslma_TestAllocatorMonitor tam2(&ta);
 
 #ifdef BDE_BUILD_TARGET_EXC
                 if (g_verbose) cout << "\tNegative testing null pointers\n";
@@ -4995,7 +4995,7 @@ testCompsite();
             bool castSucceeded;
 
             bslma_TestAllocator ta("object", veryVeryVeryVerbose);
-            bslma_TestAllocatorMonitor tam(ta);
+            bslma_TestAllocatorMonitor tam(&ta);
 
             processPolymorphicObject(returnManagedPtr(&numdels, &ta),
                                                                &castSucceeded);
@@ -5050,8 +5050,8 @@ testCompsite();
         if (verbose) cout << "\tConfirm the deleter can be registered with "
                              "a managed pointer\n";
 
-        bslma_TestAllocatorMonitor gam(globalAllocator);
-        bslma_TestAllocatorMonitor dam(da);
+        bslma_TestAllocatorMonitor gam(&globalAllocator);
+        bslma_TestAllocatorMonitor dam(&da);
 
         int x;
         int y;
@@ -5097,8 +5097,8 @@ testCompsite();
         if (verbose) cout << "\tConfirm the deleter can be registered with "
                              "a managed pointer\n";
 
-        bslma_TestAllocatorMonitor gam(globalAllocator);
-        bslma_TestAllocatorMonitor dam(da);
+        bslma_TestAllocatorMonitor gam(&globalAllocator);
+        bslma_TestAllocatorMonitor dam(&da);
 
         int x;
         int y;
@@ -5707,8 +5707,8 @@ testCompsite();
 
         LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
 
             int numDeletes = 0;
 
@@ -5783,8 +5783,8 @@ testCompsite();
         if (verbose) cout << "\tbdema_ManagedPtr(bdema_ManagedPtr &donor)\n";
 
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
 
             g_deleteCount = 0;
             int numDeletes = 0;
@@ -5981,11 +5981,11 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tBasic test object\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             {
                 TObj *p = new (da) MyTestObject(&numDeletes);
 
-                bslma_TestAllocatorMonitor dam2(da);
+                bslma_TestAllocatorMonitor dam2(&da);
                 Obj o(p);
 
                 ASSERT(o.ptr() == p);
@@ -6001,11 +6001,11 @@ testCompsite();
 
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             {
                 TObj *p = new (da) MyDerivedObject(&numDeletes);
 
-                bslma_TestAllocatorMonitor dam2(da);
+                bslma_TestAllocatorMonitor dam2(&da);
                 Obj o(p);
 
                 ASSERT(o.ptr() == p);
@@ -6022,11 +6022,11 @@ testCompsite();
 
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             {
                 TObj *p = new (da) MyDerivedObject(&numDeletes);
 
-                bslma_TestAllocatorMonitor dam2(da);
+                bslma_TestAllocatorMonitor dam2(&da);
                 VObj o(p);
 
                 ASSERT(o.ptr() == p);
@@ -6041,11 +6041,11 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             {
                 const int *p = new (da) const int(0);
 
-                bslma_TestAllocatorMonitor dam2(da);
+                bslma_TestAllocatorMonitor dam2(&da);
                 bdema_ManagedPtr<const int> o(p);
 
                 ASSERT(o.ptr() == p);
@@ -6060,11 +6060,11 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tint -> const int conversion\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             {
                 int *p = new (da) int;
 
-                bslma_TestAllocatorMonitor dam2(da);
+                bslma_TestAllocatorMonitor dam2(&da);
                 bdema_ManagedPtr<const int> o(p);
 
                 ASSERT(o.ptr() == p);
@@ -6084,11 +6084,11 @@ testCompsite();
         {
             if (veryVerbose) cout << "Store a basic pointer\n";
 
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
 
             {
-                bslma_TestAllocatorMonitor tam(ta);
+                bslma_TestAllocatorMonitor tam(&ta);
 
                 TObj *p = new (ta) MyTestObject(&numDeletes);
                 Obj o(p, &ta);
@@ -6107,9 +6107,9 @@ testCompsite();
         {
             if (veryVerbose) cout << "Store a derived pointer\n";
 
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
-            bslma_TestAllocatorMonitor tam(ta);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
+            bslma_TestAllocatorMonitor tam(&ta);
 
             {
 
@@ -6131,9 +6131,9 @@ testCompsite();
         {
             if (veryVerbose) cout << "Store in a bdema_ManagedPtr<void>\n";
 
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
-            bslma_TestAllocatorMonitor tam(ta);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
+            bslma_TestAllocatorMonitor tam(&ta);
 
             {
                 TObj *p = new (ta) MyDerivedObject(&numDeletes);
@@ -6172,14 +6172,14 @@ testCompsite();
 
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
 
             {
                 Obj::DeleterFunc deleter = &bdema_ManagedPtr_FactoryDeleter<
                                    MyTestObject, bslma_TestAllocator>::deleter;
 
-                bslma_TestAllocatorMonitor tam(ta);
+                bslma_TestAllocatorMonitor tam(&ta);
 
                 TObj *p = new (ta) MyTestObject(&numDeletes);
                 Obj o(p, &ta, deleter);
@@ -6195,7 +6195,7 @@ testCompsite();
             if (verbose) cout << "\t\tNegative testing\n";
 
             {
-                bslma_TestAllocatorMonitor tam(ta);
+                bslma_TestAllocatorMonitor tam(&ta);
 
                 bsls_AssertTestHandlerGuard guard;
 
@@ -6226,10 +6226,10 @@ testCompsite();
 
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
 
-            bslma_TestAllocatorMonitor tam(ta);
+            bslma_TestAllocatorMonitor tam(&ta);
             {
                 TObj *p = new (ta) MyTestObject(&numDeletes);
                 Obj o(p, &ta, &myTestDeleter);
@@ -6251,7 +6251,7 @@ testCompsite();
         numDeletes = 0;
         LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
         {
-            bslma_TestAllocatorMonitor tam(ta);
+            bslma_TestAllocatorMonitor tam(&ta);
 
             MyTestObject obj(&numDeletes);
             Obj o(&obj, 0, &templateNilDelete<MyTestObject>);
@@ -6266,9 +6266,9 @@ testCompsite();
 
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
-            bslma_TestAllocatorMonitor tam(ta);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
+            bslma_TestAllocatorMonitor tam(&ta);
 
             {
 
@@ -6294,9 +6294,9 @@ testCompsite();
             typedef void (*DeleterFunc)(MyTestObject *, void *);
             DeleterFunc deleterFunc = (DeleterFunc) &myTestDeleter;
 
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
-            bslma_TestAllocatorMonitor tam(ta);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
+            bslma_TestAllocatorMonitor tam(&ta);
 
             {
 
@@ -6470,8 +6470,8 @@ testCompsite();
 
         int numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
 
             {
                 const Obj o;
@@ -6502,8 +6502,8 @@ testCompsite();
         }
 
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
 
             {
                 const Obj o(0);
@@ -6529,8 +6529,8 @@ testCompsite();
         }
 
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
 
             {
                 const VObj o(0);
@@ -6556,8 +6556,8 @@ testCompsite();
         }
 
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
 
             {
                 const bdema_ManagedPtr<const void> o(0);
@@ -6590,8 +6590,8 @@ testCompsite();
 
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
 
             {
                 TObj *p = new (da) MyTestObject(&numDeletes);
@@ -6658,9 +6658,9 @@ testCompsite();
 
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
-            bslma_TestAllocatorMonitor tam(ta);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
+            bslma_TestAllocatorMonitor tam(&ta);
 
             {
                 TObj *p = new (ta) MyTestObject(&numDeletes);
@@ -7175,7 +7175,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tBasic test object\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             Obj o;
 
             ASSERT(0 == o.ptr());
@@ -7187,7 +7187,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tvoid type\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             bdema_ManagedPtr<void> o;
 
             ASSERT(0 == o.ptr());
@@ -7199,7 +7199,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             bdema_ManagedPtr<const int> o;
 
             ASSERT(0 == o.ptr());
@@ -7215,7 +7215,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tBasic test object\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             Obj o(0);
 
             ASSERT(0 == o.ptr());
@@ -7227,7 +7227,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tvoid type\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             VObj o(0);
 
             ASSERT(0 == o.ptr());
@@ -7239,7 +7239,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             bdema_ManagedPtr<const int> o(0);
 
             ASSERT(0 == o.ptr());
@@ -7255,7 +7255,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tBasic test object\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             Obj o(0, 0);
 
             ASSERT(0 == o.ptr());
@@ -7267,7 +7267,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tvoid type\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             VObj o(0, 0);
 
             ASSERT(0 == o.ptr());
@@ -7279,7 +7279,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             bdema_ManagedPtr<const int> o(0, 0);
 
             ASSERT(0 == o.ptr());
@@ -7295,7 +7295,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tBasic test object\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             Obj o(0, 0, 0);
 
             ASSERT(0 == o.ptr());
@@ -7307,7 +7307,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tvoid type\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             VObj o(0, 0, 0);
 
             ASSERT(0 == o.ptr());
@@ -7319,7 +7319,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "\t\tconst-qualified int\n";
 
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor dam(&da);
             bdema_ManagedPtr<const int> o(0, 0, 0);
 
             ASSERT(0 == o.ptr());
@@ -7355,8 +7355,8 @@ testCompsite();
         if (verbose) cout << "\nTESTING bdema_ManagedPtr_Ref"
                           << "\n----------------------------" << endl;
 
-        bslma_TestAllocatorMonitor gam(globalAllocator);
-        bslma_TestAllocatorMonitor dam(da);
+        bslma_TestAllocatorMonitor gam(&globalAllocator);
+        bslma_TestAllocatorMonitor dam(&da);
 
         {
             int deleteCount = 0;
@@ -7457,8 +7457,8 @@ testCompsite();
         typedef bdema_ManagedPtr_FactoryDeleter<MyTestObject,
                                              CountedStackDeleter > TestFactory;
 
-        bslma_TestAllocatorMonitor gam(globalAllocator);
-        bslma_TestAllocatorMonitor dam(da);
+        bslma_TestAllocatorMonitor gam(&globalAllocator);
+        bslma_TestAllocatorMonitor dam(&da);
 
         if (verbose) cout << "\tTest default constructor\n";
 
@@ -7872,8 +7872,8 @@ testCompsite();
                              "a managed pointer\n";
 
         {
-            bslma_TestAllocatorMonitor gam(globalAllocator);
-            bslma_TestAllocatorMonitor dam(da);
+            bslma_TestAllocatorMonitor gam(&globalAllocator);
+            bslma_TestAllocatorMonitor dam(&da);
 
             int deleteCount = 0;
             CountedStackDeleter factory(&deleteCount);
@@ -7988,8 +7988,8 @@ testCompsite();
 
         if (verbose) cout << "\tTest class MyTestObject\n";
 
-        bslma_TestAllocatorMonitor gam(globalAllocator);
-        bslma_TestAllocatorMonitor dam(da);
+        bslma_TestAllocatorMonitor gam(&globalAllocator);
+        bslma_TestAllocatorMonitor dam(&da);
 
         int destructorCount = 0;
         {
@@ -8165,7 +8165,7 @@ testCompsite();
 
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor tam(ta);
+            bslma_TestAllocatorMonitor tam(&ta);
 
             Obj x(returnManagedPtr(&numDeletes, &ta)); Obj const &X = x;
 
