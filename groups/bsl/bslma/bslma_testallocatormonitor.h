@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a mechanism to summarize 'bslma_TestAllocator' object use.
 //
 //@CLASSES:
-//  bslma_TestAllocatorMonitor: summarizes 'bslma_TestAllocator' use
+//  bslma_TestAllocatorMonitor: 'bslma_TestAllocator' summary mechanism
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwale), Steven Breitstein (sbreitstein)
 //
@@ -22,9 +22,9 @@ BSLS_IDENT("$Id: $")
 // 'bslma_TestAllocatorMonitor' class provides boolean accessors indicating
 // whether associated test allocator state has changed (or not) since
 // construction of the monitor.  Using 'bslma_TestAllocatorMonitor' objects
-// results in test cases that are more concise, easier to read, and less error
-// prone than test cases that directly access the test allocator for state
-// information.
+// often result in test cases that are more concise, easier to read, and less
+// error prone than test cases that directly access the test allocator for
+// state information.
 //
 ///Statistics
 ///----------
@@ -44,33 +44,34 @@ BSLS_IDENT("$Id: $")
 //..
 // The 'numBlocksMax' and 'numBlocksTotal' statistics have values that are
 // monotonically non-decreasing; hence, they need no "Is-Down" methods.  Note
-// that if a monitor is created for an allocator with outstanding blocks, then
-// it is possible for the allocator's count of outstanding blocks to drop below
-// the value seen by the monitor at construction.
+// that if a monitor is created for an allocator with outstanding blocks ("in
+// use"), then it is possible for the allocator's count of outstanding blocks
+// to drop below the value seen by the monitor at construction.
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended usage of this component.
 //
 ///Example 1: Standard Usage
 ///- - - - - - - - - - - - -
 // Classes taking 'bslma_allocator' objects have many requirements (and thus,
-// many testing concerns) that other classes do not.  We here illustrate how
+// many testing concerns) that other classes do not.  Here we illustrate how
 // 'bslma_TestAllocatorMonitor' objects (in conjunction with
 // 'bslma_TestAllocator' objects) can be used in a test driver to succinctly
 // address many concerns of an object's use of allocators.
 //
 // First, for a test subject, we introduce 'MyClass', an unconstrained
-// attribute class with a single attribute, 'description', an ascii string.
-// For the sake of brevity, 'MyClass' defines only a default constructor, a
-// primary manipulator (the 'setDescription' method), and a basic accessor (the
-// 'description' method).  These suffice for the purposes of these example.
-// Note that proper attribute class would also implement value and copy
-// constructors, 'operator==', and other methods.
+// attribute class having a single, null-terminated ascii string attribute,
+// 'description'.  For the sake of brevity, 'MyClass' defines only a default
+// constructor, a primary manipulator (the 'setDescription' method), and a
+// basic accessor (the 'description' method).  These suffice for the purposes
+// of these example.  Note that a proper attribute class would also implement
+// value and copy constructors, 'operator==', an accessor for the allocator,
+// and other methods.
 //..
 //  class MyClass {
-//      // This unconstrained (value-semantic) attribute class has a single
-//      // attribute, 'description', an ascii string.
+//      // This unconstrained (value-semantic) attribute class has a single,
+//      // null-terminated ascii string attribute, 'description'.
 //
 //      // DATA
 //      int              d_capacity;      // available memory
@@ -82,7 +83,7 @@ BSLS_IDENT("$Id: $")
 //      explicit MyClass(bslma_Allocator *basicAllocator = 0);
 //          // Create a 'MyClass' object having the (default) attribute values:
 //          //..
-//          // description() == ""
+//          //  description() == ""
 //          //..
 //          // Optionally specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed default allocator
@@ -93,13 +94,14 @@ BSLS_IDENT("$Id: $")
 //
 //      // MANIPULATORS
 //      void setDescription(const char *value);
-//          // Set the 'description' attribute of this object the specified
-//          // 'value'.  On completion, the 'description' method returns the
-//          // address of a copy of the ascii string at 'value'.
+//          // Set the null-terminated ascii string 'description' attribute of
+//          // this object to the specified 'value'.  On completion, the
+//          // 'description' method returns the address of a copy of the ascii
+//          // string at 'value'.
 //
 //      // ACCESSORS
 //      const char *description() const;
-//          // Return an address providing non-modifiable access to the
+//          // Return the value of the null-terminated ascii string
 //          // 'description' attribute of this object.
 //  };
 //
@@ -134,18 +136,23 @@ BSLS_IDENT("$Id: $")
 //  {
 //      BSLS_ASSERT_SAFE(value);
 //
-//      int length = std::strlen(value);
-//      int size   = length + 1;
+//      int size = std::strlen(value) + 1;
 //      if (size > d_capacity) {
+//          char *newMemory = (char *) d_allocator_p->allocate(size);
 //          d_allocator_p->deallocate(d_description_p);
-//          d_description_p = 0; // lest 'allocate' throws
-//          d_capacity      = 0; // lest 'allocate' throws
-//          d_description_p = (char *) d_allocator_p->allocate(size);
+//          d_description_p = newMemory;
 //          d_capacity      = size;
+//
 //      }
-//      std::memcpy(d_description_p, value, length);
-//      d_description_p[length] = '\0';
+//      std::memcpy(d_description_p, value, size);
 //  }
+//..
+// Notice that the implementation of the manipulator allocates/deallocates
+// memory *before* updating the object.  This ordering leaves the object
+// unchanged in case the allocator throws an exception (part of the strong
+// exception guarantee).  This is an implementation detail, not a part
+// of the contract (in this example).
+//..
 //
 //  // ACCESSORS
 //  inline
@@ -154,57 +161,78 @@ BSLS_IDENT("$Id: $")
 //      return d_description_p ? d_description_p : "";
 //  }
 //..
-//
-// Then, we consider the test-driver for 'MyClass'.  Our allocator-related
-// concerns for 'MyClass' include:
+// Then, we design a test-driver for 'MyClass'.  Our allocator-related concerns
+// for 'MyClass' include:
 //..
 // Concerns:
 //: 1 Any memory allocation is from the object allocator.
 //:
-//: 2 There is no temporary allocation from any allocator.
+//: 2 Every object releases any allocated memory at destruction.
 //:
-//: 3 Every object releases any allocated memory at destruction.
+//: 3 No accessor allocates any memory.
 //:
-//: 4 QoI: The default constructor allocates no memory.
+//: 4 All memory allocation is exception neutral.
 //:
-//: 5 QoI: When possible, memory is cached for reuse.
+//: 5 QoI: The default constructor allocates no memory.
+//:
+//: 6 QoI: When possible, memory is cached for reuse.
 //..
-// Notice that some of these concerns (e.g., C-4, C-5) are not part of the
-// class's documented, contractual behavior.  Hence, they are tagged a Quality
+// Notice that some of these concerns (e.g., C-5..6) are not part of the
+// class's documented, contractual behavior.  These are classified as Quality
 // of Implementation (QoI) concerns.
 //
-// Next, we define a test plan.  For example, a plan addressing these concerns
-// is:
+// Next, we define a test plan.  For example, a plan to test these concerns is:
 //..
 // Plan:
-//: 1 Create three 'bslma_TestAllocator' objects and for each of these a
-//:   'bslma_TestAllocatorMonitor' object.  Install two allocators as the
-//:   global and default allocators.  The remaining allocator will be
-//:   passed to our test objects on construction.
+//: 1 Setup global and default allocators:
 //:
-//: 2 In an inner block, default create a test object using the designated
-//:   "object" allocator.  Then allow the object to go out of scope
-//:   (destroyed).  Confirm that no memory has been allocated from any of the
-//:   allocators.  (C-4).
+//:   1 Create two 'bslma_TestAllocator' objects and, for each of these, create
+//:     an associated 'bslma_TestAllocatorMonitor' object.
 //:
-//: 3 Exercise a test object so that memory is allocated allocation, and and
-//:   confirm that the object allocator (only) is used as expected:
-//:   1 Create a new test object using the (as yet unused) object allocator.
-//:   2 Force the test object to allocate memory by setting an attribute that
-//:     exceeds the size of the object itself.  Confirm that the attribute was
-//:     set and that memory was allocated.
-//:   3 Change the attribute to a smaller value and confirm that the current
-//:     memory was reused. (C-5)
-//:   4 Force the test object to deallocate/allocate by setting a string
-//:     that exceeds the capacity acquired earlier.  Confirm that the
-//:     that the number of outstanding allocations is unchanged (one returned,
-//:     one given) but the maximum number of allocations is unchanged so there
-//:     were not extra (temporary) allocations. (C-2)
+//:   2 Install the two allocators as the global and default allocators.
 //:
-//: 4 Destroy the test object and confirm that all allocations are returned.
-//:   (C-3)
-//: 5 Confirm that at no time were the global allocator or the default
-//:   allocator were used. (C-1)
+//: 2 Confirm that default construction allocates no memory: (C-5)
+//:
+//:   1 Construct a 'bslma_TestAllocatorMonitor' object to be used passed to
+//:     test objects on their construction, and an associated
+//:
+//:   2 In an inner block, default construct an object of 'MyClass' using the
+//:     designated "object" test allocator.
+//:
+//:   3 Allow the object to go out of scope (destroyed).  Confirm that no
+//:     memory has been allocated from any of the allocators.
+//:
+//: 3 Exercise an object of 'MyClass' such that memory should be allocated, and
+//:   then confirm that the object allocator (only) is used: (C-2..4,6)
+//:
+//:   1 In another inner block, default construct a new test object using the
+//:     (as yet unused) object allocator.
+//:
+//:   2 Force the test object to allocate memory by setting its 'descriptor'
+//:     attribute to a value whose size exceeds the size of the object itself.
+//:     Confirm that the attribute was set and that memory was allocated.
+//:
+//:   3 Confirm the the primary manipulator (the 'setDescription' method) is
+//:     exception neutral (i.e., exceptions from the allocator are propagated
+//:     and no memory is leaked).  Use the
+//:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros to manage the test,
+//:     and use the test allocator monitor to confirm that memory is allocated
+//:     on the no-exception code path.  (C-4)
+//:
+//:   4 When the object is holding memory, create an additional test allocator
+//:     monitor allocator for the object allocator.  Use the basic accessor
+//:     (i.e., the 'description' method) to confirm that the object has the
+//:     expected value.  Check this test allocator monitor to confirm that
+//:     accessor allocated no memory.  (C-3)
+//:
+//:   5 Change the attribute to a smaller value and confirm that the current
+//:     memory was reused (i.e., no memory is allocated). (C-6)
+//:
+//:   6 Destroy the test object by allowing it to go out of scope, and confirm
+//:     that all allocations are returned.  (C-2)
+//:
+//: 4 Confirm that at no time were the global allocator or the default
+//:   allocator were used.  (C-1)
 //..
 // The implementation of the plan is shown below:
 //
@@ -213,11 +241,12 @@ BSLS_IDENT("$Id: $")
 // of the allocators as the global and default allocators:
 //..
 //  {
-//      bslma_TestAllocator ga("global",  veryVeryVeryVerbose);
-//      bslma_TestAllocator da("default", veryVeryVeryVerbose);
-//      bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
+//      if (verbose) cout << "Setup global and default allocators" << endl;
 //
-//      bslma_TestAllocatorMonitor gam(ga), dam(da), oam(oa);
+//      bslma_TestAllocator        ga("global",  veryVeryVeryVerbose);
+//      bslma_TestAllocator        da("default", veryVeryVeryVerbose);
+//      bslma_TestAllocatorMonitor gam(&ga);
+//      bslma_TestAllocatorMonitor dam(&da);
 //
 //      bslma_Default::setGlobalAllocator(&ga);
 //      bslma_Default::setDefaultAllocatorRaw(&da);
@@ -226,38 +255,61 @@ BSLS_IDENT("$Id: $")
 // then, immediately destroy it.  The object allocator monitor, 'oam', shows
 // that the allocator was not used.
 //..
+//      if (verbose) cout << "No allocation by Default Constructor " << endl;
+//
+//      bslma_TestAllocator        oa("object", veryVeryVeryVerbose);
+//      bslma_TestAllocatorMonitor oam(&oa);
+//
 //      {
 //          MyClass obj(&oa);
+//          assert(oam.isTotalSame()); // object allocator unused
 //      }
-//      assert(oam.isTotalSame()); // object  allocator unused
 //..
 // Next, we pass the (still unused) object allocator to another test object.
 // This time, we coerce the object into allocating memory by setting an
-// attribute.  (Setting an attribute larger than the receiving object usually
+// attribute.  (Setting an attribute larger than the receiving object
 // means that the object cannot store the data within its own footprint and
 // must allocate memory.)
 //..
+//      if (verbose) cout << "Exercise object" << endl;
+//
 //      {
 //          MyClass obj(&oa);
 //
 //          const char DESCRIPTION1[]="abcdefghijklmnopqrstuvwyz"
 //                                    "abcdefghijklmnopqrstuvwyz";
-//          BSLMF_ASSERT(sizeof(obj) < sizeof(DESCRIPTION1));
+//          assert(sizeof(obj) < sizeof(DESCRIPTION1));
 //
-//          obj.setDescription(DESCRIPTION1);
-//          assert(0 == std::strcmp(DESCRIPTION1, obj.description()));
+//          if (veryVerbose) cout << "\tPrimary Manipulator Allocates" << endl;
 //
-//          assert(oam.isTotalUp());  // object allocator was used
-//          assert(oam.isInUseUp());  // some outstanding allocation(s)
-//          assert(oam.isMaxUp());    // a maximum was set
+//          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+//              if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+//
+//              obj.setDescription(DESCRIPTION1);
+//              assert(oam.isTotalUp());  // object allocator was used
+//              assert(oam.isInUseUp());  // some outstanding allocation(s)
+//              assert(oam.isMaxUp());    // a maximum was set
+//          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 //..
 // Notice, as expected, memory was allocated from object allocator.
 //
-// Then, we create a second monitor to capture the current state of the test
-// allocator, and reset the attribute of that same object, this time to a short
-// string.
+// Now that the allocator has been used, we create a second monitor to capture
+// the that state.  Confirm that the basic accessor (the 'description' method)
+// does not use the allocator.
 //..
-//          bslma_TestAllocatorMonitor oam2(oa);
+//          if (veryVerbose) cout << "\tBasic Accessor does not allocate"
+//                                << endl;
+//
+//          bslma_TestAllocatorMonitor oam2(&oa); // Captures state of 'oa'
+//                                                // with outstanding
+//                                                // allocations.
+//
+//          assert(0 == strcmp(DESCRIPTION1, obj.description()));
+//          assert(oam2.isTotalSame());  // object allocator was not used
+//..
+// Next, confirm that when a shorter value is assigned, the existing memory
+// is reused.
+//..
 //
 //          obj.setDescription("a");
 //          assert(0 == std::strcmp("a", obj.description()));
@@ -267,35 +319,98 @@ BSLS_IDENT("$Id: $")
 // Notice that there are no allocations because the object had sufficient
 // capacity in previously allocated memory to store the short string.
 //
-// Next, we make the object allocate additional memory by setting a longer
-// attribute: one that exceeds the capacity allocated for 'DESCRIPTION1'.  Use
-// the second monitor to confirm that an allocation was performed.
+// Next, as an additional test, we make the object allocate additional memory
+// by setting a longer attribute: one that exceeds the capacity allocated for
+// 'DESCRIPTION1'.  Use the second monitor to confirm that an allocation was
+// performed.
+//
+// There are tests where using a test allocator monitor does not suffice.
+// Our test object is currently holding memory, if we assign a value that
+// exceeds its current capacity there will be two operations on the object
+// allocator: the allocation of larger memory, and the deallocation of its
+// current memory: in that order, as part of the strong exception guarantee.
+// Thus, the maximum number of allocations should go up by one, and no more.
+//
+// Note that absence of memory leaks due to exceptions (the other part of the
+// strong exception guarantee is confirmed during the destruction of the object
+// test allocator at the end of this test, which featured exceptions.
 //..
-//          const char DESCRIPTION2[]="abcdefghijklmnopqrstuvwyz"
-//                                    "abcdefghijklmnopqrstuvwyz"
-//                                    "abcdefghijklmnopqrstuvwyz"
-//                                    "abcdefghijklmnopqrstuvwyz";
+//          bsls_Types::Int64 maxBeforeSet   = oa.numBlocksMax();
+//          const char        DESCRIPTION2[] = "abcdefghijklmnopqrstuvwyz"
+//                                             "abcdefghijklmnopqrstuvwyz"
+//                                             "abcdefghijklmnopqrstuvwyz"
+//                                             "abcdefghijklmnopqrstuvwyz"
+//                                             "abcdefghijklmnopqrstuvwyz";
+//          assert(sizeof(DESCRIPTION1) < sizeof(DESCRIPTION2));
+//
 //          obj.setDescription(DESCRIPTION2);
 //          assert(0 == std::strcmp(DESCRIPTION2, obj.description()));
 //
-//          assert(oam2.isTotalUp());    // object allocator used
-//          assert(oam2.isInUseSame());  // outstanding block (allocation)
-//                                       // count unchanged (even though byte
-//                                       // outstanding byte count increased)
-//          assert(oam2.isMaxSame());    // no extra (temporary) allocations
-//      }
-//..
-// Notice that the number of outstanding allocations remained unchanged: one
-// block was deallocated, one block (a larger block) was allocated.  Moreover,
-// the lack of change in the maximum of outstanding blocks ('isMaxSame') shows
-// there were no extra (temporary) allocations.
+//          assert(oam2.isTotalUp());    // The object allocator used.
 //
-// Finally, check that none of these operations used the default or global
+//          assert(oam2.isInUseSame());  // The outstanding block (allocation)
+//                                       // count unchanged (even though byte
+//                                       // outstanding byte count increased).
+//
+//          assert(oam2.isMaxUp());      // Max increased as expected, but was
+//                                       // did it change only by one?  The
+//                                       // monitor cannot answer that
+//                                       // question.
+//
+//          bsls_Types::Int64 maxAfterSet = oa.numBlocksMax();
+//
+//          assert(1 == maxAfterSet - maxBeforeSet);
+//..
+// Notice that our test allocator monitor cannot confirm that the allocator's
+// maximum increased by exactly one.  In this case, we must extract our
+// statistics directly from the test allocator.
+//
+// Note that increment in "max" occurs only the first time through the the
+// allocate/deallocate scenario in 'setDescription'.
+//..
+//          bslma_TestAllocatorMonitor oam3(&oa);
+//
+//          const char DESCRIPTION3[] = "abcdefghijklmnopqrstuvwyz"
+//                                      "abcdefghijklmnopqrstuvwyz"
+//                                      "abcdefghijklmnopqrstuvwyz"
+//                                      "abcdefghijklmnopqrstuvwyz"
+//                                      "abcdefghijklmnopqrstuvwyz"
+//                                      "abcdefghijklmnopqrstuvwyz"
+//                                      "abcdefghijklmnopqrstuvwyz"
+//                                      "abcdefghijklmnopqrstuvwyz"
+//                                      "abcdefghijklmnopqrstuvwyz";
+//          assert(sizeof(DESCRIPTION2) < sizeof(DESCRIPTION3));
+//
+//          obj.setDescription(DESCRIPTION3);
+//          assert(0 == std::strcmp(DESCRIPTION3, obj.description()));
+//
+//          assert(oam3.isTotalUp());    // The object allocator used.
+//
+//          assert(oam3.isInUseSame());  // The outstanding block (allocation)
+//                                       // count unchanged (even though byte
+//                                       // outstanding byte count increased).
+//
+//          assert(oam3.isMaxSame());    // A repeat of the scenario for
+//                                       // 'DESCRIPTION2', so no change in the
+//                                       // allocator's maximum.
+//..
+// Now, we close scope and check that all object memory was deallocated
+//..
+//      }
+//
+//      if (veryVerbose) cout << "\tAll memory returned object allocator"
+//                            << endl;
+//
+//      assert(oam.isInUseSame());
+//..
+// Finally, we check that none of these operations used the default or global
 // allocators.
 //..
-//      assert(oam.isInUseSame()); // All object allocator memory deallocated.
-//      assert(gam.isTotalSame()); // Global  allocator was never used.
-//      assert(dam.isTotalSame()); // Default allocator was never used.
+//      if (verbose) cout << "Global and Default allocators never used"
+//                        << endl;
+//
+//      assert(gam.isTotalSame());
+//      assert(dam.isTotalSame());
 //  }
 //..
 
@@ -311,8 +426,8 @@ namespace BloombergLP {
 
 class bslma_TestAllocatorMonitor {
     // This mechanism provides a set of boolean accessor methods indicating
-    // whether a change has occurred since the construction of the monitor in
-    // the state of the 'bslma_TestAllocator' object supplied at construction.
+    // whether a change has occurred in the state of the 'bslma_TestAllocator'
+    // object (supplied at construction) since the construction of the monitor.
     // See the Statistics section of @DESCRIPTION for the statics tracked.
 
     // DATA
@@ -321,15 +436,25 @@ class bslma_TestAllocatorMonitor {
     const bsls_Types::Int64          d_initialTotal;    // 'numBlocksTotal'
     const bslma_TestAllocator *const d_testAllocator_p; // held, not owned
 
+    static const bslma_TestAllocator *validatedArgument(
+                                     const bslma_TestAllocator *testAllocator);
+        // Return the specified 'testAllocator'.  In "SAFE" build modes,
+        // assert that 'testAllocator' is not 0.
+
   public:
     // CREATORS
     explicit bslma_TestAllocatorMonitor(
-                                     const bslma_TestAllocator& testAllocator);
+                                     const bslma_TestAllocator *testAllocator);
         // Create a 'bslma_TestAllocatorMonitor' object to track changes in
         // statistics of the specified 'testAllocator'.
 
-    //! ~bslma_TestAllocatorMonitor() = default;
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    // The following destructor is generated by the compiler, except in "SAFE"
+    // build modes (e.g., to enable the checking of class invariants).
+
+    ~bslma_TestAllocatorMonitor();
         // Destroy this object.
+#endif
 
     // ACCESSORS
     bool isInUseDown() const;
@@ -376,34 +501,55 @@ class bslma_TestAllocatorMonitor {
                         // class bslma_TestAllocatorMonitor
                         // --------------------------------
 
+// CLASS METHODS
+inline
+const bslma_TestAllocator *
+bslma_TestAllocatorMonitor::validatedArgument(
+                                      const bslma_TestAllocator *testAllocator)
+{
+    BSLS_ASSERT_SAFE(testAllocator);
+
+    return testAllocator;
+}
+
 // CREATORS
 inline
 bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
-                                      const bslma_TestAllocator& testAllocator)
-: d_initialInUse(testAllocator.numBlocksInUse())
-, d_initialMax(testAllocator.numBlocksMax())
-, d_initialTotal(testAllocator.numBlocksTotal())
-, d_testAllocator_p(&testAllocator)
+                                      const bslma_TestAllocator *testAllocator)
+: d_initialInUse((validatedArgument(testAllocator))->numBlocksInUse())
+, d_initialMax(testAllocator->numBlocksMax())
+, d_initialTotal(testAllocator->numBlocksTotal())
+, d_testAllocator_p(testAllocator)
 {
 }
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+inline
+bslma_TestAllocatorMonitor::~bslma_TestAllocatorMonitor()
+{
+    BSLS_ASSERT_SAFE(d_testAllocator_p);
+    BSLS_ASSERT_SAFE(0 <= d_initialMax);
+    BSLS_ASSERT_SAFE(0 <= d_initialTotal);
+}
+#endif
 
 // ACCESSORS
 inline
 bool bslma_TestAllocatorMonitor::isInUseDown() const
 {
-    return d_initialInUse > d_testAllocator_p->numBlocksInUse();
+    return d_testAllocator_p->numBlocksInUse() < d_initialInUse;
 }
 
 inline
 bool bslma_TestAllocatorMonitor::isInUseSame() const
 {
-    return d_initialInUse == d_testAllocator_p->numBlocksInUse();
+    return d_testAllocator_p->numBlocksInUse() == d_initialInUse;
 }
 
 inline
 bool bslma_TestAllocatorMonitor::isInUseUp() const
 {
-    return d_initialInUse < d_testAllocator_p->numBlocksInUse();
+    return d_testAllocator_p->numBlocksInUse() > d_initialInUse;
 }
 
 inline
@@ -415,19 +561,19 @@ bool bslma_TestAllocatorMonitor::isMaxSame() const
 inline
 bool bslma_TestAllocatorMonitor::isMaxUp() const
 {
-    return d_initialMax != d_testAllocator_p->numBlocksMax();
+    return d_testAllocator_p->numBlocksMax() != d_initialMax;
 }
 
 inline
 bool bslma_TestAllocatorMonitor::isTotalSame() const
 {
-    return d_initialTotal == d_testAllocator_p->numBlocksTotal();
+    return d_testAllocator_p->numBlocksTotal() == d_initialTotal;
 }
 
 inline
 bool bslma_TestAllocatorMonitor::isTotalUp() const
 {
-    return d_initialTotal != d_testAllocator_p->numBlocksTotal();
+    return d_testAllocator_p->numBlocksTotal() != d_initialTotal;
 }
 
 }  // close enterprise namespace
