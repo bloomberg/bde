@@ -611,8 +611,13 @@ int main(int argc, char *argv[]) {
             ASSERT(!mX.registerSocketEvent(handle,
                                            bteso_EventType::BTESO_CONNECT,
                                            connectCb));
+#ifdef BSLS_PLATFORM__OS_SOLARIS
+            const double MAX_DELAY = 20.0;    // 20 sec
+#else
+            const double MAX_DELAY =  5.0;    //  5 sec
+#endif
             ASSERT(!isInvoked);
-            int rc = mX.dispatch(bdetu_SystemTime::now() + 5.0, 0); // 5 sec
+            int rc = mX.dispatch(bdetu_SystemTime::now() + MAX_DELAY, 0);
             ASSERT(isInvoked);
             // Deregistration is done in the callback
 
@@ -1522,6 +1527,10 @@ int main(int argc, char *argv[]) {
             cout << "Enter script: " << flush;
             cin.getline(script, 1000);
 
+            if (cin.eof() && '\0' == script[0]) {
+                cout << endl;
+                break;
+            }
             if (0 == bsl::strncmp(script, "quit", 4)) {
                 break;
             }
