@@ -436,10 +436,13 @@ class bslma_TestAllocatorMonitor {
     const bsls_Types::Int64          d_initialTotal;    // 'numBlocksTotal'
     const bslma_TestAllocator *const d_testAllocator_p; // held, not owned
 
-    static const bslma_TestAllocator *validatedArgument(
-                                     const bslma_TestAllocator *testAllocator);
-        // Return the specified 'testAllocator'.  In "SAFE" build modes,
-        // assert that 'testAllocator' is not 0.
+    static const bslma_TestAllocator *validateArgument(
+                                         const bslma_TestAllocator *allocator);
+        // Return the specified 'allocator', and, if compiled in "SAFE" mode,
+        // assert that 'allocator' is not 0.  Note that this static function is
+        // needed to perform validation on the allocator address supplied at
+        // construction, prior to that address being dereferenced to
+        // initialize the 'const' data members of this type.
 
   public:
     // CREATORS
@@ -504,19 +507,19 @@ class bslma_TestAllocatorMonitor {
 // CLASS METHODS
 inline
 const bslma_TestAllocator *
-bslma_TestAllocatorMonitor::validatedArgument(
-                                      const bslma_TestAllocator *testAllocator)
+bslma_TestAllocatorMonitor::validateArgument(
+                                          const bslma_TestAllocator *allocator)
 {
-    BSLS_ASSERT_SAFE(testAllocator);
+    BSLS_ASSERT_SAFE(allocator);
 
-    return testAllocator;
+    return allocator;
 }
 
 // CREATORS
 inline
 bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
                                       const bslma_TestAllocator *testAllocator)
-: d_initialInUse((validatedArgument(testAllocator))->numBlocksInUse())
+: d_initialInUse((validateArgument(testAllocator))->numBlocksInUse())
 , d_initialMax(testAllocator->numBlocksMax())
 , d_initialTotal(testAllocator->numBlocksTotal())
 , d_testAllocator_p(testAllocator)
