@@ -158,7 +158,8 @@ BSLS_IDENT("$Id: $")
 // flags.  (Note that, by default, the 'BSLS_ASSERT_SAFE' macro is disabled,
 // and the 'BSLS_ASSERT' and 'BSLS_ASSERT_OPT' macros are enabled; the
 // 'BSLS_ASSERT' macro is disabled when the 'BDE_BUILD_TARGET_OPT' flag is
-// defined and not overruled by also defining the 'BDE_BUILD_TARGET_SAFE' macro.)
+// defined and not overruled by also defining the 'BDE_BUILD_TARGET_SAFE'
+// macro.)
 //..
 //                        (BSLS) Assertion-Level Flags
 //                       ------------------------------
@@ -268,12 +269,12 @@ BSLS_IDENT("$Id: $")
 ///Exception-Throwing Failure Handlers and 'bsls_AssertFailureHandlerGuard'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Among the failure handlers provided is 'bsls_Assert::failThrow', which
-// throws an 'std::logic_error'.  Throwing an exception, however, is not safe
-// in all environments and deliberately aborting is more useful in a debugging
-// context than throwing an unhandled exception.  Hence, in order for an
-// 'std::logic_error' to be thrown on an assertion failure, the user must first
-// install the 'bsls_Assert::failThrow' handler (or another 'std::logic_error'
-// exception-throwing handler) explicitly.
+// throws an 'bsls_AssertTestException' object.  Throwing an exception,
+// however, is not safe in all environments and deliberately aborting is more
+// useful in a debugging context than throwing an unhandled exception.  Hence,
+// in order for an 'bsls_AssertTestException' object to be thrown on an
+// assertion failure, the user must first install the 'bsls_Assert::failThrow'
+// handler (or another exception-throwing handler) explicitly.
 //
 // Note that an object of type 'bsls_AssertFailureHandlerGuard' can be used to
 // temporarily set an exception-throwing handler within a 'try' block,
@@ -754,10 +755,10 @@ BSLS_IDENT("$Id: $")
 // then caught by the wrapper and reported to the caller as a "bad" status.
 // Hence, when within the runtime scope of this function, we want to install,
 // temporarily, the assertion-failure handler 'bsls_Assert::failThrow', which,
-// when invoked, causes an 'std::logic_error' to be thrown.  (Note that we are
-// not advocating this approach for "recovery", but rather for an orderly
-// shut-down, or perhaps during testing.)  The 'bsls_AssertFailureHandlerGuard'
-// class is provided for just this purpose:
+// when invoked, causes an 'bsls_AssertTestException' object to be thrown.
+// (Note that we are not advocating this approach for "recovery", but rather
+// for an orderly shut-down, or perhaps during testing.)  The
+// 'bsls_AssertFailureHandlerGuard' class is provided for just this purpose:
 //..
 //  assert(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
 //
@@ -780,7 +781,7 @@ BSLS_IDENT("$Id: $")
 //          // ...
 //      }
 //  #ifdef BDE_BUILD_TARGET_EXC
-//      catch (const std::logic_error& e) {
+//      catch (const bsls_AssertTestException& e) {
 //          result = BAD;
 //          if (verboseFlag) {
 //              std::cout << "Internal Error: " << e.what() << std::endl;
@@ -791,7 +792,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Assuming exceptions are enabled (i.e., 'BDE_BUILD_TARGET_EXC' is defined),
-// if an 'std::logic_error' exception occurs below this wrapper function, the
+// if an 'bsls_AssertTestException' occurs below this wrapper function, the
 // exception will be caught, a message will be printed to 'stdout', e.g.,
 //..
 //  Internal Error: bsls_assert.t.cpp:500: 0 <= n
@@ -1200,7 +1201,7 @@ BSLS_IDENT("$Id: $")
 #if !(defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) ||                              \
       defined(BSLS_ASSERT_LEVEL_ASSERT) ||                                   \
       defined(BSLS_ASSERT_LEVEL_ASSERT_OPT) ||                               \
-      defined(BSLS_ASSERT_LEVEL_NONE))                               
+      defined(BSLS_ASSERT_LEVEL_NONE))
     #define BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED 1
 #else
     #define BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED 0
@@ -1399,11 +1400,10 @@ class bsls_Assert {
 
     BSLS_ASSERT_NORETURN
     static void failThrow(const char *text, const char *file, int line);
-        // Throw an 'std::logic_error' (whose descriptive string aggregates
-        // the specified expression 'text', 'file' name, and 'line' number)
-        // provided that 'BDE_BUILD_TARGET_EXC' is defined; otherwise, write
-        // an appropriate message to 'stderr' and abort the program (similar
-        // to 'failAbort').
+        // Throw a 'bsls_AssertTestException' (whose attributes are
+        // 'expression', 'filename', and 'lineNumber'), provided that
+        // 'BDE_BUILD_TARGET_EXC' is defined; otherwise, write an appropriate
+        // message to 'stderr' and abort the program (similar to 'failAbort').
 };
 
                     // ====================================
