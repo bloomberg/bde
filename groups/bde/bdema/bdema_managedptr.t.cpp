@@ -1423,12 +1423,35 @@ void doLoadObjectFnullDeleter(int callLine, int testLine, int index,
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// One all the testing policies are composed into arrays of test functions, we
+// need some driver functions to iterate over each valid combination (stored
+// in separate test tables) and check that the behavior transitions correctly
+// in each case.
+
 template<class TEST_TARGET,
          class TEST_FUNCTION_TYPE,
          std::size_t TEST_ARRAY_SIZE>
 void testLoadOps(int callLine,
                  const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
+    // This function iterates all viable variations of test functions composed
+    // of the policies above, to verify that all 'bcema_ManagedPtr::load'
+    // behave according to contract.  First, we call 'load' on an empty managed
+    // pointer using a test function from the passed array, confirming that
+    // the managed pointer takes up the correct state.  Then we allow that
+    // pointer to go out of scope, and confirm that any managed object is
+    // destroyed using the correct deleter.  Next we repeat the test, setting
+    // up the same, now well-known, state of the managed pointer, and replace
+    // it with a second call to load (by a second iterator over the array of
+    // test functions).  We confirm that the original state and managed object
+    // (if any) are destroyed correctly, and that the expected new state has
+    // been established correctly.  Finally, we allow this pointer to leave
+    // scope and confirm that all managed objects are destroyed correctly and
+    // all allocated memory has been reclaimed.  At each stage, we perform
+    // negative testing where appropriate, and check that no memory is being
+    // allocated other than by the object allocator, or the default allocator
+    // only for those test functions that return a state indicating that they
+    // used the default allocator.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
     bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
@@ -1542,6 +1565,10 @@ template<class TEST_TARGET,
 void testLoadAliasOps1(int callLine,
                        const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
+    // This function validates the simple scenario of calling 'loadAlias' to
+    // create a simple aliased managed pointer, and confirming that pointer
+    // destroyed its managed object with the correct deleter and reclaims all
+    // memory when destroyed by leaving scope.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
     bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
@@ -1646,7 +1673,23 @@ void testLoadAliasOps2(int callLine,
 {
     // This scenario tests the correct state change for following a 'loadAlias'
     // call with another 'loadAlias' call.  It will also test derived* -> base*
-    // conversions for the aliased pointer, and non-const* -> const*
+    // conversions for the aliased pointer, and non-const* -> const*.
+    // The test process is to take an empty 'bdema_ManagedPtr' object and
+    // 'load' a known state into it using a well-known test function.  Then we
+    // "alias" this pointer by calling 'loadAlias' on another (empty) managed
+    // pointer object, and check that the new aliased state has been created
+    // correctly, without allocating any memory, and that the original managed
+    // pointer object is now empty.  Next we establish another well-known
+    // managed pointer value, and call 'loadAlias' again on the pointer in the
+    // existing aliased state.  We again confirm that the aliased state is
+    // transferred without allocating any memory, but also that the object
+    // managed by the original 'bcema_ManagedPtr' object has now been destroyed
+    // as expected.  Finally we let this final managed pointer object leave
+    // scope and confirm that all managed objects have been destroyed, as
+    // expected, and that all memory has been reclaimed.  At each step, we
+    // further implement negative testing if a null pointer may be passed, and
+    // that passing a null pointer would yield (negatively testable) undefined
+    // behavior.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
     bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
@@ -1766,6 +1809,16 @@ template<class TEST_TARGET,
 void testLoadAliasOps3(int callLine,
                        const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
+    // This function tests the correct interaction of 'load' and 'loadAlias'.
+    // Initially, an empty 'bdema_ManagedPtr' object is loaded into a well
+    // defined non-empty state using a well-known test loader.  This state is
+    // then transferred to a second empty pointer through a 'loadAlias' call,
+    // and we validate that no memory is allocated for this operation, and the
+    // state is correctly transferred.  Next we replace this aliased state with
+    // another well-known state using 'load' again.  We test that the initial
+    // state is correctly destroyed, and the new state is in place without any
+    // aliasing.  Then we allow this final state to be destroyed, and confirm
+    // that all managed objects have been correctly disposed of.
     typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
     bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
