@@ -1349,6 +1349,8 @@ template <class BDEMA_TYPE>
 inline
 const bdema_ManagedPtrDeleter& bdema_ManagedPtr<BDEMA_TYPE>::deleter() const
 {
+    BSLS_ASSERT_SAFE(d_members.pointer());
+
     return d_members.deleter();
 }
 

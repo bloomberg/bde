@@ -4,10 +4,9 @@
 #include <bdema_managedptr_factorydeleter.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-//#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
-#include <bslmf_assert.h>
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -21,15 +20,10 @@ using bsl::endl;
 //=============================================================================
 //                             TEST PLAN
 //                             ---------
-// [ 2] Test machinery
 // [ 4] imp. class bdema_ManagedPtr_Members
-// [ 3] imp. class bdema_ManagedPtr_FactoryDeleter
-//-----------------------------------------------------------------------------
-// [ 4] imp. class bdema_ManagedPtr_Members
-// [ 3] imp. class bdema_ManagedPtr_FactoryDeleter
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] TESTING TEST MACHINERY
+// [ 2] Test machinery
 
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -108,9 +102,6 @@ void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-
-bool g_verbose;
-bool g_veryVeryVeryVerbose;
 
 class MyTestObject;
 class MyDerivedObject;
@@ -261,17 +252,6 @@ class CountedStackDeleter
 };
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-struct IncrementIntFactory
-{
-    void deleteObject(int *object)
-    {
-        ASSERT(object);
-        ++*object;
-    }
-};
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The two deleters defined below do not use the factory (or even object)
 // argument to perform their bookkeeping.  They are typically used to test
 // overloads taking 'NULL' factories.
@@ -283,38 +263,9 @@ static void countedNilDelete(void *, void*)
     ++g_deleteCount;
 }
 
-template<class TARGET_TYPE>
-static void templateNilDelete(TARGET_TYPE *, void*)
-{
-    static int& deleteCount = g_deleteCount;
-    ++g_deleteCount;
-}
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-template<class BDEMA_TYPE>
-class AllocatorDeleter
-{
-  public:
-      static void deleter(BDEMA_TYPE *ptr, bslma_Allocator *alloc) {
-          BSLS_ASSERT_SAFE(0 != ptr);
-          BSLS_ASSERT_SAFE(0 != alloc);
-
-          alloc->deleteObject(ptr);
-      }
-};
-
 //=============================================================================
 //                    FILE-STATIC FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-static void myTestDeleter(MyTestObject *object, bslma_TestAllocator *allocator)
-{
-    allocator->deleteObject(object);
-    if (g_verbose) {
-        bsl::cout << "myTestDeleter called" << endl;
-    }
-}
 
 static void doNothingDeleter(void *object, void *)
 {
@@ -331,8 +282,6 @@ int main(int argc, char *argv[])
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
-                   g_verbose = verbose;
-       g_veryVeryVeryVerbose = veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -355,6 +304,10 @@ int main(int argc, char *argv[])
         //    setAlias
         //    move operations
         //    runDeleter
+        //
+        //  Note that this poor organization arose when this class was an imp.
+        //  detail of a larger component, and there is no excuse not to split
+        //  test tests out now
         //
         // Concerns:
         //: 1 TBD Enumerate concerns
@@ -748,7 +701,51 @@ int main(int argc, char *argv[])
         ASSERT(gam.isInUseSame());
       } break;
       case 3: {
-          // factored into another component
+        // --------------------------------------------------------------------
+        // Testing default constructor and primary manipulators
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   bdema_ManagedPtr_Members()
+        //   ~bdema_ManagedPtr_Members()
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+               cout << "\nTesting default constructor and primary manipulators"
+                    << "\n----------------------------------------------------"
+                    << endl;
+        }
+
+        if (verbose) cout << "\tTest class MyTestObject\n";
+
+        bslma_TestAllocatorMonitor gam(&globalAllocator);
+        bslma_TestAllocatorMonitor dam(&da);
+
+        if (verbose) cout << "\tTest default constructor\n";
+
+        {
+            const bdema_ManagedPtr_Members empty;
+            ASSERT(0 == empty.pointer());
+
+#ifdef BDE_BUILD_TARGET_EXC
+            if (verbose) cout << "\t\tNegative testing\n";
+
+            {
+                bsls_AssertTestHandlerGuard guard;
+
+                ASSERT_SAFE_FAIL(empty.deleter());
+            }
+#else
+            if (verbose) cout << "\tNegative testing disabled due to lack of"
+                                 " exception support\n";
+#endif
+        }
+
+        ASSERT(dam.isInUseSame());
+        ASSERT(gam.isInUseSame());
       } break;
       case 2: {
         // --------------------------------------------------------------------
