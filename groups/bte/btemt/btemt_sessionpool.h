@@ -571,6 +571,9 @@ class btemt_SessionPoolSessionIterator {
     btemt_SessionPoolSessionIterator& operator=(
                                       const btemt_SessionPoolSessionIterator&);
 
+    bool operator==(const btemt_SessionPoolSessionIterator&) const;
+    bool operator!=(const btemt_SessionPoolSessionIterator&) const;
+
   public:
     explicit btemt_SessionPoolSessionIterator(btemt_SessionPool *sessionPool);
         // Create an iterator for the specified 'sessionPool' and associate it

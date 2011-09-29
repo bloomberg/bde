@@ -287,6 +287,15 @@ class bcef_Vfunc2 {
 
     bcefr_Vfunc2<A1, A2> *d_rep_p;  // polymorphic functor representation
 
+    // NOT IMPLEMENTED
+    bool operator==(const bcef_Vfunc2&) const;
+    bool operator!=(const bcef_Vfunc2&) const;
+
+    template<class B1, class B2>
+    bool operator==(const bcef_Vfunc2<B1, B2>&) const;
+    template<class B1, class B2>
+    bool operator!=(const bcef_Vfunc2<B1, B2>&) const;
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcef_Vfunc2,

@@ -11,8 +11,8 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //   bsl::basic_string: C++ standard compliant 'basic_string' implementation
-//         bsl::string: typedef for bsl::basic_string<char>
-//        bsl::wstring: typedef for bsl::basic_string<wchar>
+//         bsl::string: 'typedef' for 'bsl::basic_string<char>'
+//        bsl::wstring: 'typedef' for 'bsl::basic_string<wchar>'
 //
 //@SEE_ALSO: ISO C++ Standard, Section 21 [strings]
 //
@@ -176,6 +176,14 @@ BSL_OVERRIDES_STD mode"
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>
 #define INCLUDED_ALGORITHM
+#endif
+
+#if defined(BDE_BUILD_TARGET_STLPORT)
+// Code in Robo depends on these headers included transitively with <string>
+// and it fails to build otherwise in the stlport4 mode on Sun.
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #endif
 
 #endif

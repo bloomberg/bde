@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an STL-compatible proxy for 'bslma_Allocator' objects.
 //
 //@CLASSES:
-//  bsl::allocator: STL-compatible allocator template
+//                   bsl::allocator: STL-compatible allocator template
 //  bsl::Allocator_BslalgTypeTraits: type traits for 'bsl::allocator'
 //
 //@SEE_ALSO:
@@ -369,6 +369,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_NEW
@@ -742,7 +746,7 @@ template <class T>
 inline
 typename allocator<T>::pointer allocator<T>::address(reference x) const
 {
-    return &x;
+    return BSLS_UTIL_ADDRESSOF(x);
 }
 
 template <class T>
@@ -750,7 +754,7 @@ inline
 typename allocator<T>::const_pointer allocator<T>::address(const_reference x)
                                                                           const
 {
-    return &x;
+    return BSLS_UTIL_ADDRESSOF(x);
 }
 
                           // ---------------------

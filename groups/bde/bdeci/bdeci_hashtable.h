@@ -600,6 +600,15 @@ class bdeci_HashtableSlotIter {
     bdeci_Hashtable_Link<T> **d_hashtable_p;  // hashtable
     bdeci_Hashtable_Link<T>  *d_link_p;       // current link
 
+    // NOT IMPLEMENTED
+    //bool operator==(const bdeci_HashtableSlotIter&) const;
+    //bool operator!=(const bdeci_HashtableSlotIter&) const;
+
+    //template<class OTHER, class HASH2>
+    //bool operator==(const bdeci_HashtableSlotIter<OTHER, HASH2>&) const;
+    //template<class OTHER, class HASH2>
+    //bool operator!=(const bdeci_HashtableSlotIter<OTHER, HASH2>&) const;
+
   public:
     // CREATORS
     bdeci_HashtableSlotIter(const bdeci_Hashtable<T, HASH>& hashtable,
@@ -662,6 +671,14 @@ class bdeci_HashtableSlotManip {
   private:  // not implemented
     bdeci_HashtableSlotManip(const bdeci_HashtableSlotManip&);
     bdeci_HashtableSlotManip& operator=(const bdeci_HashtableSlotManip&);
+
+    bool operator==(const bdeci_HashtableSlotManip&) const;
+    bool operator!=(const bdeci_HashtableSlotManip&) const;
+
+    template<class OTHER, class HASH2>
+    bool operator==(const bdeci_HashtableSlotManip<OTHER, HASH2>&) const;
+    template<class OTHER, class HASH2>
+    bool operator!=(const bdeci_HashtableSlotManip<OTHER, HASH2>&) const;
 
   public:
     // CREATORS

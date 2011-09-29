@@ -645,7 +645,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
           // ----------------------------------------------------------------
           // TESTING USAGE EXAMPLE
           //   The usage example provided in the component header file must
@@ -685,7 +685,8 @@ int main(int argc, char *argv[])
 
           // TBD
           ASSERT(timerId);
-          ASSERT(0 == manager.enable());
+          int rc = manager.enable();
+          ASSERT(0 == rc);
 
           for (int i = 0; i < 10; ++i) {
               int item = workQueue.popFront();
@@ -695,6 +696,151 @@ int main(int argc, char *argv[])
               }
           }
       } break;
+
+      case 14: {
+        // -----------------------------------------------------------------
+        // TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity'
+        //
+        // Concern:
+        //: 1 'hasLimitiedSocketCapacity' returns 'true' if the underlying 
+        //:   event manager returns 'true' and 'false' otherwise.
+        //:
+        //: 2 'canRegisterSockets' always returns 'true' if
+        //:   'hasLimitedSocketCapacity' is 'false'.
+        //:
+        //: 3 If 'hasLimitedSocketCapacity' is 'true' then
+        //:   'canRegisterSockets' returns 'true' upto 'BTESO_MAX_NUM_HANDLES'
+        //:   handles are registered and 'false' after that.
+        //
+        // Plan:
+        //: 1 Assert that 'hasLimitiedSocketCapacity' returns 'true' if the
+        //:   underlying event manager returns 'true' and 'false' otherwise.
+        //:
+        //: 2 Register socket events upto 'BTESO_MAX_NUM_HANDLES'.  Verify
+        //:   that 'canRegisterSockets' always returns 'true'.  After that
+        //:   limit confirm that 'canRegisterSockets' returns 'false'.
+        //
+        // Testing:
+        //   bool canRegisterSockets() const;
+        //   bool hasLimitedSocketCapacity() const;
+        // -----------------------------------------------------------------
+
+        if (verbose) cout << endl
+                << "TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity"
+                << endl
+                << "=========================================================="
+                << endl;
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            bool hlsc = X.hasLimitedSocketCapacity();
+            LOOP_ASSERT(hlsc, true == hlsc);
+        }
+
+        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
+        {
+            for (int i = 0; i < 2; ++i) {
+                Obj mX;  const Obj& X = mX;
+
+                if (i) {
+                    mX.enable();
+                }
+
+                const int MAX_NUM_HANDLES = FD_SETSIZE;
+
+                bteso_SocketHandle::Handle handle = 0;
+                for (; handle < Obj::BTESO_MAX_NUM_HANDLES; ++handle) {
+
+                    if (veryVerbose) { P(handle) }
+
+                    ASSERT(mX.canRegisterSockets());
+
+                    bdef_Function<void (*)()> cb1, cb2;
+                    int rc = mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_READ,
+                                           cb1);
+                    ASSERT(!rc);
+
+                    rc = mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_WRITE,
+                                           cb2);
+                    ASSERT(!rc);
+                }
+
+                ASSERT(handle == Obj::BTESO_MAX_NUM_HANDLES);
+
+                if (verbose) cout << "Negative Testing." << endl;
+                {
+                    bsls_AssertFailureHandlerGuard hG(
+                                              bsls_AssertTest::failTestDriver);
+
+                    if (veryVerbose) { P(handle) }
+
+                    ASSERT(!mX.canRegisterSockets());
+
+                    bdef_Function<void (*)()> cb1, cb2;
+                    ASSERT_FAIL(mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_READ,
+                                           cb1));
+
+                    ASSERT_FAIL(mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_WRITE,
+                                           cb2));
+
+                    ASSERT(!mX.canRegisterSockets());
+                }
+            }
+        }
+#else
+        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            bool hlsc = X.hasLimitedSocketCapacity();
+            LOOP_ASSERT(hlsc, false == hlsc);
+        }
+
+        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+
+#ifdef BSLS_PLATFORM__OS_LINUX
+            ASSERT(mX.canRegisterSockets());
+#else
+            const int MAX_NUM_HANDLES = 66000;
+
+            bteso_SocketHandle::Handle handle = 0;
+            for (; handle < MAX_NUM_HANDLES; ++handle) {
+
+                if (veryVerbose) { P(handle) }
+
+                ASSERT(mX.canRegisterSockets());
+
+                bdef_Function<void (*)()> cb1, cb2;
+                int rc = mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_READ,
+                                           cb1);
+                ASSERT(!rc);
+
+                rc = mX.registerSocketEvent(
+                                           (bteso_SocketHandle::Handle) handle,
+                                           bteso_EventType::BTESO_WRITE,
+                                           cb2);
+                ASSERT(!rc);
+            }
+
+            ASSERT(mX.canRegisterSockets());
+#endif
+        }
+#endif
+      } break;
+
       case 13: {
         // --------------------------------------------------------------------
         // TESTING 'rescheduleTimer' METHODS
@@ -818,18 +964,24 @@ int main(int argc, char *argv[])
               Obj mB(Obj::BTEMT_NO_HINT, &testAllocator);
               Obj mC(Obj::BTEMT_NO_HINT, true, &testAllocator);
               Obj mD(Obj::BTEMT_NO_HINT, false, &testAllocator);
-              Obj mE(&dummyEventManager, &testAllocator);
+              Obj mE(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
+              Obj mF(Obj::BTEMT_NO_HINT, false, false, &testAllocator);
+              Obj mG(&dummyEventManager, &testAllocator);
 
               const Obj& A = mA;
               const Obj& B = mB;
               const Obj& C = mC;
               const Obj& D = mD;
               const Obj& E = mE;
+              const Obj& F = mF;
+              const Obj& G = mG;
               ASSERT(true  == A.hasTimeMetrics());
               ASSERT(true  == B.hasTimeMetrics());
               ASSERT(true  == C.hasTimeMetrics());
               ASSERT(false == D.hasTimeMetrics());
               ASSERT(false == E.hasTimeMetrics());
+              ASSERT(false == F.hasTimeMetrics());
+              ASSERT(false == G.hasTimeMetrics());
           }
           {
               if (veryVerbose) {
@@ -970,7 +1122,7 @@ int main(int argc, char *argv[])
           //
           // Plan:
           //   Execute a recording functor from multiple threads, both when
-          //   channel pool is running and when it is not.
+         //   channel pool is running and when it is not.
           //
           // Testing:
           //   void execute(const bdef_Function<void (*)()>& functor);
@@ -1339,53 +1491,54 @@ int main(int argc, char *argv[])
             cout << "TESING 'enable', 'disable' AND 'registerTimer'" << endl
                  << "==============================================" << endl;
         {
-            Obj mX(&testAllocator);   const Obj& X = mX;
-            ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
+            for (int k = 0; k < 2; ++k) {
+                Obj mX(Obj::BTEMT_NO_HINT, false, (bool) k, &testAllocator);
+                const Obj& X = mX;
 
-            enum { NUM_TIMERS  = 100000, NUM_ATTEMPTS = 10 };
-            bsl::vector<bdet_TimeInterval> timeValues(NUM_TIMERS);
-            bdet_TimeInterval offset(3.0);
-            bdet_TimeInterval delta(0.5); // 1/2 seconds
-            int flags[NUM_TIMERS];
+                ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
 
-            for (int i = 0; i < NUM_TIMERS; ++i) {
-                flags[i] = 0;
-                timeValues[i] = bdetu_SystemTime::now();
-                timeValues[i] += offset;
+                enum { NUM_TIMERS  = 100000, NUM_ATTEMPTS = 10 };
+                bsl::vector<bdet_TimeInterval> timeValues(NUM_TIMERS);
+                bdet_TimeInterval offset(3.0);
+                bdet_TimeInterval delta(0.5); // 1/2 seconds
+                int flags[NUM_TIMERS];
 
-                bdef_Function<void (*)()> functor(
+                for (int i = 0; i < NUM_TIMERS; ++i) {
+                    flags[i] = 0;
+                    timeValues[i] = bdetu_SystemTime::now();
+                    timeValues[i] += offset;
+
+                    bdef_Function<void (*)()> functor(
                         bdef_BindUtil::bind(&timerCallback,
                                             &flags[i], &timeValues[i],
                                             delta, i, false));
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
-                mX.registerTimer(timeValues[i], functor);
-                LOOP_ASSERT(i, 0 == da.numBytesInUse());
-            }
-            if (veryVerbose) {
-                cout << "\t\tRegistered " << NUM_TIMERS << " timers." << endl;
-            }
-            for (int i = 0; i < NUM_ATTEMPTS; ++i) {
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                    mX.registerTimer(timeValues[i], functor);
+                }
+                if (veryVerbose) {
+                    cout << "\t\tRegistered " << NUM_TIMERS
+                         << " timers." << endl;
+                }
+                for (int i = 0; i < NUM_ATTEMPTS; ++i) {
+                    bslma_TestAllocator da;
+                    bslma_DefaultAllocatorGuard dag(&da);
 
-                LOOP_ASSERT(i, 0 == mX.disable());
-                LOOP_ASSERT(i, 0 == X.isEnabled());
-                LOOP_ASSERT(i, 0 == mX.enable());
-                LOOP_ASSERT(i, 1 == X.isEnabled());
+                    LOOP_ASSERT(i, 0 == mX.disable());
+                    LOOP_ASSERT(i, 0 == X.isEnabled());
+                    LOOP_ASSERT(i, 0 == mX.enable());
+                    LOOP_ASSERT(i, 1 == X.isEnabled());
 
-                LOOP_ASSERT(i, 0 == da.numBytesInUse());
-            }
-            bcemt_ThreadUtil::sleep(
+                    LOOP_ASSERT(i, 0 == da.numBytesInUse());
+                }
+                bcemt_ThreadUtil::sleep(
                 timeValues[NUM_TIMERS - 1] - bdetu_SystemTime::now() + delta);
 
-            ASSERT(0 == mX.disable());
-            for (int i = 0; i < NUM_TIMERS; ++i) {
-                LOOP_ASSERT(i, 1 == flags[i]);
-
+                ASSERT(0 == mX.disable());
+                for (int i = 0; i < NUM_TIMERS; ++i) {
+                    LOOP_ASSERT(i, 1 == flags[i]);
+                }
+                ASSERT(0 == X.numTimers());
+                ASSERT(0 == X.numEvents());
             }
-            ASSERT(0 == X.numTimers());
-            ASSERT(0 == X.numEvents());
         }
       } break;
       case 4: {
@@ -1403,40 +1556,42 @@ int main(int argc, char *argv[])
             cout << "TESING 'registerTimer'" << endl
                  << "======================" << endl;
         {
-            Obj mX(&testAllocator);   const Obj& X = mX;
-            ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
+            for (int k = 0; k < 2; ++k) {
+                Obj mX(Obj::BTEMT_NO_HINT, false, (bool) k, &testAllocator);
+                const Obj& X = mX;
 
-            enum { NUM_TIMERS  = 10000 };
-            bdet_TimeInterval timeValues[NUM_TIMERS];
-            bdet_TimeInterval delta(0.5); // 1/2 seconds
-            int flags[NUM_TIMERS];
+                ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
 
-            for (int i = 0; i < NUM_TIMERS; ++i) {
-                flags[i] = 0;
-                timeValues[i] = bdetu_SystemTime::now();
-                bdef_Function<void (*)()> functor(
+                enum { NUM_TIMERS  = 10000 };
+                bdet_TimeInterval timeValues[NUM_TIMERS];
+                bdet_TimeInterval delta(0.5); // 1/2 seconds
+                int flags[NUM_TIMERS];
+
+                for (int i = 0; i < NUM_TIMERS; ++i) {
+                    flags[i] = 0;
+                    timeValues[i] = bdetu_SystemTime::now();
+                    bdef_Function<void (*)()> functor(
                         bdef_BindUtil::bind(&timerCallback,
                                             &flags[i], &timeValues[i],
                                             delta, i, true));
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
-                void *id = mX.registerTimer(timeValues[i],
-                                            functor);
-                LOOP_ASSERT(i, id);
-                LOOP_ASSERT(i, 0 == da.numBytesInUse());
-            }
-            if (veryVerbose) {
-                cout << "\t\tRegistered " << NUM_TIMERS << " timers." << endl;
-            }
-            bcemt_ThreadUtil::sleep(delta);
 
-            ASSERT(0 == mX.disable());
-            for (int i = 0; i < NUM_TIMERS; ++i) {
-                LOOP_ASSERT(i, 1 == flags[i]);
+                    void *id = mX.registerTimer(timeValues[i],
+                                                functor);
+                    LOOP_ASSERT(i, id);
+                }
+                if (veryVerbose) {
+                    cout << "\t\tRegistered " << NUM_TIMERS
+                         << " timers." << endl;
+                }
+                bcemt_ThreadUtil::sleep(delta);
 
+                ASSERT(0 == mX.disable());
+                for (int i = 0; i < NUM_TIMERS; ++i) {
+                    LOOP_ASSERT(i, 1 == flags[i]);
+                }
+                ASSERT(0 == X.numTimers());
+                ASSERT(0 == X.numEvents());
             }
-            ASSERT(0 == X.numTimers());
-            ASSERT(0 == X.numEvents());
         }
       } break;
       case 3: {
@@ -1462,7 +1617,9 @@ int main(int argc, char *argv[])
                  << endl;
         {
             enum { NUM_THREADS = 10 };
-            Obj mX(&testAllocator);   const Obj& X = mX;
+            Obj mX(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
+            const Obj& X = mX;
+
             ASSERT(0 == mX.isEnabled());
             bcemt_ThreadUtil::Handle workers[NUM_THREADS];
 
@@ -1501,7 +1658,8 @@ int main(int argc, char *argv[])
                  << endl;
         {
             enum { NUM_THREADS = 10 };
-            Obj mX(&testAllocator);   const Obj& X = mX;
+            Obj mX(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
+            const Obj& X = mX;
             ASSERT(0 == mX.enable()); ASSERT(X.isEnabled());
             bcemt_ThreadUtil::Handle workers[NUM_THREADS];
 
