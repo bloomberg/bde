@@ -5,6 +5,8 @@ BDES_IDENT_RCSID(bteso_lingeroptions_t_cpp,"$Id$ $CSID$")
 
 #include <bdema_managedptrdeleter.h>
 
+#include <bsls_types.h>
+
 #include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -1001,15 +1003,15 @@ int main(int argc, char *argv[])
              "\nCreate a table of distinct value/format combinations." << endl;
 
         static const struct {
-            int           d_line;           // source line number
-            int           d_level;
-            int           d_spacesPerLevel;
+            int                 d_line;           // source line number
+            int                 d_level;
+            int                 d_spacesPerLevel;
 
-            uintptr_t     d_object;        // enter unsigned numbers into the
-            uintptr_t     d_factory;       // table, as we cannot enter pointer
-            uintptr_t     d_deleter;       // constants.  Convert later.
+            bsls_Types::UintPtr d_object;  // enter unsigned numbers into the
+            bsls_Types::UintPtr d_factory; // table, as we cannot enter pointer
+            bsls_Types::UintPtr d_deleter; // constants.  Convert later.
 
-            const char   *d_expected_p;
+            const char         *d_expected_p;
         } DATA[] = {
 
 #define NL "\n"

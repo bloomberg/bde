@@ -26,6 +26,10 @@ BDES_IDENT("$Id: $")
 #include <bdema_managedptrdeleter.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
