@@ -21,6 +21,7 @@
 
 #include <bslmf_isconvertible.h>
 
+#include <bsls_alignmentutil.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
@@ -728,7 +729,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void reserveRaw(bsl::size_t numRows);
         // --------------------------------------------------------------------
-        
+
         if (verbose) cout << "TESTING: 'reserveRaw'" << endl
                           << "=====================" << endl;
 
@@ -744,7 +745,7 @@ int main(int argc, char *argv[])
         enum { STRATEGY_LEN = sizeof(STRATEGY_DATA) / sizeof(*STRATEGY_DATA) };
 
         const int MAX_NUM_ROWS = 4096;  // power of 2
-        
+
         if (verbose) cout << "\nTesting without geometric memory growth\n";
         {
             if (veryVerbose) cout << "\tTesting Strategies\n" << endl;
@@ -785,7 +786,8 @@ int main(int argc, char *argv[])
                          // Add extra memory for Pass Through - 'bdem_RowData'
                          // allocate extra pointers when inserting null rows.
 
-                         NUM_BYTES += 8 * 2 * MAX_NUM_ROWS;
+                         NUM_BYTES += bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
+                                      * 2 * MAX_NUM_ROWS;
                      }
 
                      for (int k = 0;

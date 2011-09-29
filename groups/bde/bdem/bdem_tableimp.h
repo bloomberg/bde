@@ -471,19 +471,17 @@ class bdem_TableImp {
         // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
 
     void reserveRaw(bsl::size_t numRows);
-        // Reserve sufficient memory to satisfy allocations required to insert
-        // at least the specified 'numRows' if the allocation strategy
-        // specified for this table is 'BDEM_WRITE_MANY' or 'BDEM_WRITE_ONCE'.
-        // Memory, in addition to the footprint of a row, used to initialize a
-        // row upon insertion is *not*  reserved if the allocation strategy
-        // specified for this table is 'BDEM_PASSTHROUGH' or
-        // 'BDEM_SUBORDINATE'.  Note that in the future this method may
-        // guarantee that no extra allocation will take place unless the data
-        // held by the row allocate memory itself.
+        // Reserve sufficient memory to hold at least the footprints for the
+        // specified 'numRows'.  Other memory needed to initialize
+        // a row upon insertion *may* or may *not* be reserved, depending on
+        // the allocation mode.  In the future, this method may strengthen its
+        // guarantee such that no additional allocation will occur upon row
+        // insertion (regardless of allocation mode) unless a row data element
+        // itself allocates memory.
 
-    void reset(const bdem_ElemType::Type     columnTypes[],
-               int                           numColumns,
-               const bdem_Descriptor *const *attrLookupTbl);
+      void reset(const bdem_ElemType::Type     columnTypes[],
+                 int                           numColumns,
+                 const bdem_Descriptor *const *attrLookupTbl);
         // Remove all the rows from this table and set the sequence of column
         // types in this table to be the same as the specified leading
         // 'numColumns' in the specified 'columnTypes' array, with an
@@ -557,9 +555,12 @@ class bdem_TableImp {
         // '0 <= columnIndex < numColumns()'.
 
     bsl::size_t capacityRaw() const;
-        // Return the number of rows for which memory was previously allocated
-        // upon insertion or via a call to 'reserveRaw'.
-        // Note that it is always true: 'size() <= capacityRaw()'.
+        // Return the total number of row footprints for which sufficient
+        // memory is currently allocated.  Inserting rows that do not exceed
+        // this capacity *may* or may *not* result in additional allocations
+        // depending on the allocation mode, and whether any row data element
+        // itself allocates memory (see the 'reserveRaw' method).  Note that
+        // 'numRows() <= capacityRaw()' is an invariant of this class.
 
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified
