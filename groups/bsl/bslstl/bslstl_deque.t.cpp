@@ -13,11 +13,11 @@
 #include <bslma_testallocator.h>           // for testing only
 #include <bslma_testallocatorexception.h>  // for testing only
 #include <bslmf_issame.h>                  // for testing only
-#include <bsls_addressof.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>                    // for testing only
 #include <bsls_stopwatch.h>                // for testing only
+#include <bsls_util.h>
 
 #include <iterator>
 
@@ -460,7 +460,7 @@ class TestType {
     TestType& operator=(const TestType& rhs)
     {
         ++numAssignmentCalls;
-        if (BSLS_ADDRESSOF(rhs) != this) {
+        if (BSLS_UTIL_ADDRESSOF(rhs) != this) {
             char *newData = (char *)d_allocator_p->allocate(sizeof(char));
             *d_data_p = UNINITIALIZED_VALUE;
             d_allocator_p->deallocate(d_data_p);
