@@ -3702,7 +3702,7 @@ static void testCase33(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 }
 #endif
 
-static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose) 
+static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 {
     // --------------------------------------------------------------------
     // TESTING 'makeError' error message:
@@ -4188,6 +4188,11 @@ static void testCase30(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         LOOP2_ASSERT(i,
                      scalarArrayCapacity,
                      i == scalarArrayCapacity);
+
+        LOOP2_ASSERT(i,
+                     aggregateCapacity,
+                     1492 != aggregateCapacity);
+
         LOOP2_ASSERT(i,
                      aggregateCapacity,
                      i == aggregateCapacity);

@@ -784,7 +784,7 @@ int main(int argc, char *argv[])
                                << "===============\n" << bsl::endl;
 
         {
-            const string CDATA_VALUE = "&<123&#240>'\"";
+            const char *CDATA_STR = "<![CDATA[S & P]]>";
 
             static const string xmlStr =
                 "<?xml version='1.0' encoding='UTF-8'?>\n"
@@ -794,7 +794,7 @@ int main(int argc, char *argv[])
                 "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
                 "    bdem:package='bascfg'>\n"
                 "<Node>\n"
-                "    <Element><![CDATA[" + CDATA_VALUE + "]]></Element>\n"
+                "    <Element>&lt;![CDATA[S &amp; P]]></Element>\n"
                 "    \n"
                 "</Node>\n"
                 "</xs:schema>";
@@ -824,8 +824,9 @@ int main(int argc, char *argv[])
           ASSERT(!bsl::strcmp(reader.nodeName(), "Element"));
 
           rc = advancePastWhiteSpace(reader);
-          ASSERT( reader.nodeType() == baexml_Reader::BAEXML_NODE_TYPE_CDATA);
-          ASSERT(!bsl::strcmp(reader.nodeValue(), CDATA_VALUE.c_str()));
+          ASSERT( reader.nodeType() == baexml_Reader::BAEXML_NODE_TYPE_TEXT);
+          LOOP_ASSERT(reader.nodeValue(),
+                      !bsl::strcmp(reader.nodeValue(), CDATA_STR));
 
           rc = advancePastWhiteSpace(reader);
           ASSERT(reader.nodeType()

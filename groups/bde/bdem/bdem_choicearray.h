@@ -555,9 +555,9 @@ class bdem_ChoiceArray {
         // 'typesCatalog' has at least 'typesCatalogLen' values.
 
     void reserveRaw(bsl::size_t numItems);
-        // Reserve sufficient memory to satisfy allocation requests for at
-        // least the specified 'numItems' without replenishment (i.e., without
-        // internal allocation).
+        // Reserve sufficient memory to satisfy allocation requests for the
+        // insertion of at least the specified 'numItems' without replenishment
+        // (i.e., without internal allocation).
 
     void reset(const bsl::vector<bdem_ElemType::Type>& typesCatalog);
         // Destroy all choice array items in this choice array, remove them
@@ -610,8 +610,8 @@ class bdem_ChoiceArray {
 
     bsl::size_t capacityRaw() const;
         // Return the number of items for which memory was previously allocated
-        // upon insertion or via a call to 'reserveRaw'.
-        // Note that it is always true: 'lenght() <= capacityRaw()'.
+        // upon insertion or via a call to 'reserveRaw'.  Note that
+        // 'length() <= capacityRaw()' is an invariant of this class.
 
     int length() const;
         // Return the number of choice array items in this choice array.

@@ -81,12 +81,12 @@
 #include <bslalg_scalardestructionprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ADDRESSOF
-#include <bsls_addressof.h>
-#endif
-
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_ALGORITHM
@@ -199,7 +199,7 @@ protected:
     _Slist_node_base* __next_next = __next->_M_next;
     __pos->_M_next = __next_next;
     BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
-                                              BSLS_ADDRESSOF(__next->_M_data));
+                                         BSLS_UTIL_ADDRESSOF(__next->_M_data));
     _M_head.deallocate(__next,1);
     return __next_next;
   }
@@ -262,7 +262,7 @@ private:
     _Node* __node = this->_M_head.allocate(1);
     BSLS_TRY {
       typedef BloombergLP::bslalg_ScalarPrimitives primitive;
-      primitive::copyConstruct(BSLS_ADDRESSOF(__node->_M_data),
+      primitive::copyConstruct(BSLS_UTIL_ADDRESSOF(__node->_M_data),
                                __x,
                                this->get_allocator().mechanism());
       __node->_M_next = 0;
@@ -401,7 +401,7 @@ public:
     _Node* __node = (_Node*) this->_M_head._M_data._M_next;
     this->_M_head._M_data._M_next = __node->_M_next;
     BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
-                                              BSLS_ADDRESSOF(__node->_M_data));
+                                         BSLS_UTIL_ADDRESSOF(__node->_M_data));
     this->_M_head.deallocate(__node, 1);
   }
 
@@ -758,7 +758,7 @@ _Slist_base<_Tp,_Alloc>::_M_erase_after(_Slist_node_base* __before_first,
     _Slist_node<_Tp>* __tmp = __cur;
     __cur = (_Slist_node<_Tp>*) __cur->_M_next;
     BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
-                                               BSLS_ADDRESSOF(__tmp->_M_data));
+                                          BSLS_UTIL_ADDRESSOF(__tmp->_M_data));
     _M_head.deallocate(__tmp,1);
   }
   __before_first->_M_next = __last_node;
