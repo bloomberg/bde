@@ -154,7 +154,8 @@ BDES_IDENT("$Id: $")
 //
 //      void *timerId = manager.registerTimer(now, callback);
 //      assert(timerId);
-//      manager.enableDisableDispatch(1);
+//      int rc = manager.enable();
+//      assert(0 == rc);
 //      while(1) {
 //          // Monitor 'workQueue' here
 //          // ...
@@ -428,6 +429,10 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     btemt_TcpTimerEventManager(Hint             registrationHint,
                                bool             collectTimeMetrics,
                                bslma_Allocator *basicAllocator = 0);
+    btemt_TcpTimerEventManager(Hint             registrationHint,
+                               bool             collectTimeMetrics,
+                               bool             poolTimerMemory,
+                               bslma_Allocator *basicAllocator = 0);
         // Create an event manager.  Optionally specify a 'registrationHint'
         // indicating whether the event manager should expect frequent
         // registrations (and deregistrations).  If 'registrationHint' is not
@@ -438,12 +443,15 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
         // 'true' then the event manager will provide a categorization of the
         // time it spends processing data via 'timeMetrics()', and if
         // 'collectTimeMetrics' is 'false' the value of 'timeMetrics()' is
-        // unspecified.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The behavior is undefined unless
-        // 'basicAllocator' refers to a *thread* *safe* allocator.  Note that
-        // the dispatcher thread is NOT started by this method (i.e., it must
-        // be started explicitly).
+        // unspecified.  Optionally specify 'poolTimerMemory' indicating
+        // whether the memory used for internal timers should be pooled.  If
+        // 'poolTimerMemory' is unspecified then the memory used for allocating
+        // timers will not be pooled.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  The behavior is undefined
+        // unless 'basicAllocator' refers to a *thread* *safe* allocator.
+        // Note that the dispatcher thread is NOT started by this method
+        // (i.e., it must be started explicitly).
 
     btemt_TcpTimerEventManager(bteso_EventManager  *rawEventManager,
                                bslma_Allocator     *basicAllocator = 0);
@@ -497,9 +505,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     virtual void deregisterTimer(const void *timerId);
         // Deregister the callback associated with the specified 'timerId'
         // (returned when the timer callback was registered) so that the
-        // callback will not be invoked at the appointed time.  Return 0 on
-        // successful removal and a negative value on error.  If the specified
-        // 'timerId' is not registered, return -1.
+        // callback will not be invoked at the appointed time.
 
     int disable();
         // Destroy the internal thread responsible for monitoring sockets and
@@ -567,6 +573,21 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
         // callbacks are dispatched.
 
     // ACCESSORS
+    virtual bool canRegisterSockets() const;
+        // Return 'true' if this event manager can register additional sockets,
+        // and 'false' otherwise.  Note that if 'canRegisterSockets' is
+        // 'false' then a subsequent call to register an event (without an
+        // intervening call to deregister an event) will result in undefined
+        // behavior.
+
+    virtual bool hasLimitedSocketCapacity() const;
+        // Return 'true' if this event manager has a limited socket capacity,
+        // and 'false' otherwise.  Note that if 'hasLimitedSocketCapacity' is
+        // 'true' then 'canRegisterSockets' may either return 'true' or
+        // 'false' depending on whether the socket capacity of this event
+        // manager has been reached, but if 'hasLimitedSocketCapacity' is
+        // 'false' then 'canRegisterSockets' is (always) 'true'.
+
     virtual int isRegistered(const bteso_SocketHandle::Handle& handle,
                              bteso_EventType::Type             event) const;
         // Return 1 if a callback is registered to be invoked when a socket
@@ -656,6 +677,12 @@ int btemt_TcpTimerEventManager::enable()
 }
 
 // ACCESSORS
+inline
+bool btemt_TcpTimerEventManager::hasLimitedSocketCapacity() const
+{
+    return d_manager_p->hasLimitedSocketCapacity();
+}
+
 inline
 bteso_TimeMetrics *btemt_TcpTimerEventManager::timeMetrics() const
 {

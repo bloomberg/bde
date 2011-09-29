@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Simplify exception constructs for non-exception builds
 //
 //@CLASSES:
-// bsls_ExceptionUtil: namespace for exception utility functions
+//   bsls_ExceptionUtil: namespace for exception utility functions
 //
 //@SEE_ALSO:
 //

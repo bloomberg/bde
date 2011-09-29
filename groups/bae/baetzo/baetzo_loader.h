@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a protocol for obtaining information about a time zone.
 //
 //@CLASSES:
-//  baetzo_Loader: protocol for obtaining time zone information
+//  baetzo_Loader: protocol for obtaining time-zone information
 //
 //@SEE_ALSO: baetzo_zoneinfo, baetzo_datafileloader, baetzo_testloader
 //
@@ -24,19 +24,20 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In the following examples we demonstrate how to use a 'baetzo_Loader' to
-// load data for a time zone.
+// This section illustrates intended usage of this component.
 //
 ///Example 1: Implementing 'baetzo_Loader'
 ///- - - - - - - - - - - - - - - - - - - -
 // This example demonstrates an implementation of 'baetzo_Loader' that can only
-// return data for "America/New_York".  Note that in general, an implementation
-// of 'baetzo_Loader' should obtain time-zone information from an external data
-// store (see 'baetzo_datafileloader').
+// return data for "America/New_York".
+//
+// Note that in general, an implementation of 'baetzo_Loader' should obtain
+// time-zone information from an external data source (see
+// 'baetzo_datafileloader').
 //
 // First, we define the interface of our implementation:
 //..
-//  class MyLoaderImpl : public baetzo_Loader {
+//  class MyLoaderImp : public baetzo_Loader {
 //      // This class provides a concrete implementation of the 'baetzo_Loader'
 //      // protocol (an abstract interface) for obtaining a time zone.  This
 //      // test implementation contains only partial data of the
@@ -45,10 +46,10 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      MyLoaderImpl();
-//          // Create a 'MyLoaderImpl' object.
+//      MyLoaderImp();
+//          // Create a 'MyLoaderImp' object.
 //
-//      ~MyLoaderImpl();
+//      ~MyLoaderImp();
 //          // Destroy this object.
 //
 //      // MANIPULATORS
@@ -59,19 +60,20 @@ BDES_IDENT("$Id: $")
 //          // 'timeZoneId'.  Return 0 on success, and non-zero otherwise.
 //  };
 //..
-// Then, we implement the constructor and the destructor:
+// Then, we implement the creators, trivially, as this class contains no
+// instance data members.
 //..
-//  MyLoaderImpl::MyLoaderImpl()
+//  MyLoaderImp::MyLoaderImp()
 //  {
 //  }
 //
-//  MyLoaderImpl::~MyLoaderImpl()
+//  MyLoaderImp::~MyLoaderImp()
 //  {
 //  }
 //..
 // Next, we implement the 'loadTimeZone' function:
 //..
-//  int MyLoaderImpl::loadTimeZone(baetzo_Zoneinfo *result,
+//  int MyLoaderImp::loadTimeZone(baetzo_Zoneinfo *result,
 //                                 const char      *timeZoneId)
 //  {
 //..
@@ -119,20 +121,22 @@ BDES_IDENT("$Id: $")
 //
 //      for (int i = 0; i < NUM_TRANSITION_TIMES; i += 2) {
 //          result->addTransition(
-//                          bdetu_Epoch::convertToTimeT64(TRANSITION_TIMES[i]),
-//                          edt);
+//               bdetu_Epoch::convertToTimeT64(TRANSITION_TIMES[i]),
+//               edt);
 //          result->addTransition(
-//                      bdetu_Epoch::convertToTimeT64(TRANSITION_TIMES[i + 1]),
-//                      est);
+//           bdetu_Epoch::convertToTimeT64(TRANSITION_TIMES[i + 1]),
+//           est);
 //      }
 //      return 0;
 //  }
 //..
-// Finally, we create a 'MyLoaderImpl' object.
+// Finally, we define a function 'f' that instantiates an object of type
+// 'MyLoaderImp':
 //..
-//  MyLoaderImpl myLoader;
+//  void f() {
+//      MyLoaderImp a;
+//  }
 //..
-//
 ///Example 2: Using a 'baetzo_Loader'
 /// - - - - - - - - - - - - - - - - -
 // In this example we use a 'MyLoaderImpl' to load the data for one time zone,
@@ -147,7 +151,7 @@ BDES_IDENT("$Id: $")
 //..
 //  baetzo_Loader& loader = myLoader;
 //..
-// Next, we load the time zone data for New York:
+// Now, we load the time zone data for New York:
 //..
 //  baetzo_Zoneinfo nyTimeZone;
 //  if (0 != loader.loadTimeZone(&nyTimeZone, "America/New_York")) {
@@ -155,7 +159,7 @@ BDES_IDENT("$Id: $")
 //     return -1;
 //  }
 //..
-// Now, we verify some basic properties of the time zone:
+// Then, we verify some basic properties of the time zone:
 //..
 //  assert("America/New_York" == nyTimeZone.identifier());
 //..
@@ -167,7 +171,7 @@ BDES_IDENT("$Id: $")
 //                                               nyTimeZone.beginTransitions();
 //  for (; tIt != nyTimeZone.endTransitions(); ++tIt) {
 //     bdet_Datetime transition =
-//        bdetu_Epoch::convertFromTimeT64(tIt->utcTransitionTime());
+//                   bdetu_Epoch::convertFromTimeT64(tIt->utcTransitionTime());
 //     const baetzo_LocalTimeDescriptor& descriptor = tIt->descriptor();
 //
 //     bsl::cout << "transition to "
@@ -205,13 +209,13 @@ class baetzo_Zoneinfo;
                         // ===================
 
 class baetzo_Loader {
-    // This class provides a protocol (an abstract interface) for loading a
+    // This class provides a protocol (a pure abstract interface) for loading a
     // time zone object.
 
   public:
     // CREATORS
     virtual ~baetzo_Loader();
-        // Destroy this time zone loader.
+        // Destroy this object.
 
     // MANIPULATORS
     virtual int loadTimeZone(baetzo_Zoneinfo *result,
@@ -220,8 +224,9 @@ class baetzo_Loader {
         // time zone identified by the specified 'timeZoneId'.  Return 0 on
         // success, and a non-zero value otherwise.  A return status of
         // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
-        // 'timeZoneId' is not recognized.  If an error occurs during the
-        // operation, 'result' will be left in a valid but unspecified state.
+        // 'timeZoneId' is not recognized.  If an error occurs during this
+        // operation, 'result' will be left in a valid, but otherwise
+        // unspecified state.
 };
 
 // ============================================================================

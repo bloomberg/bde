@@ -182,6 +182,13 @@ class bdex_TestOutStreamFormatter {
                                         // operation
     int             d_validFlag;        // indicate this stream's validity
 
+    // NOT DEFINED
+    bdex_TestOutStreamFormatter(const bdex_TestOutStreamFormatter&);
+    bdex_TestOutStreamFormatter& operator=(const bdex_TestOutStreamFormatter&);
+
+    bool operator==(const bdex_TestOutStreamFormatter&) const;
+    bool operator!=(const bdex_TestOutStreamFormatter&) const;
+
   public:
     // CREATORS
     bdex_TestOutStreamFormatter(bsl::streambuf *streamBuf);

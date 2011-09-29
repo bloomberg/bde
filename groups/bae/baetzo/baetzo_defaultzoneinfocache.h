@@ -91,7 +91,7 @@ BDES_IDENT("$Id: $")
 // Note that this usage pattern is also seen for the default allocator (see
 // 'bslma_default').
 //
-// First, we declare a function,  'getLocalTimeDescriptor',  that returns the
+// First, we declare a function, 'getLocalTimeDescriptor', that returns the
 // local-time descriptor for a given time in a particular time zone.  This
 // method takes an optional 'baetzo_ZoneinfoCache' address argument,
 // via the default 'zoneinfoCache' parameter.  If 'zoneinfoCache' is
@@ -132,21 +132,22 @@ BDES_IDENT("$Id: $")
 // Now we invoke the 'findTransitionForUtcTime' method on 'zoneInfo' to obtain
 // the transition holding the local time descriptor for the specified
 // 'utcTime':
+//..
 //      baetzo_Zoneinfo::TransitionConstIterator it =
 //                                 zoneinfo->findTransitionForUtcTime(utcTime);
 //      *result = it->descriptor();
 //      return 0;
 //  }
 //..
-// Note that 'findTransitionForUtcTime' has undefined behavior if
-// the supplied search time is earlier than that of the first transition in the
-// Zoneinfo object.  However a 'baetzo_ZoneinfoCache' (from which we obtained
+// Note that 'findTransitionForUtcTime' has undefined behavior if the supplied
+// search time is earlier than that of the first transition in the Zoneinfo
+// object.  However a 'baetzo_ZoneinfoCache' (from which we obtained
 // 'zoneinfo') is guaranteed to return a well-formed 'baetzo_Zoneinfo' (see
 // 'baetzo_ZoneinfoUtil::isWellFormed'), meaning that it contains a transition
 // at the first representable 'bdet_Datetime' value, so the following call to
 // 'findTransitionForUtcTime' is guaranteed to have defined behavior.
 //
-//  Finally, we call our 'getLocalDescriptor' defined above:
+// Finally, we call our 'getLocalDescriptor' defined above:
 //..
 //  baetzo_LocalTimeDescriptor result;
 //  int rc = getLocalTimeDescriptor(&result,
@@ -158,9 +159,9 @@ BDES_IDENT("$Id: $")
 //  assert(true   == result.dstInEffectFlag());
 //  assert(-14400 == result.utcOffsetInSeconds());
 //..
-//  Notice that since we did not specify the optional 'baetzo_ZoneinfoCache'
-//  object, data will automatically come from the configured default
-//  'baetzo_ZoneinfoCache' object.
+// Notice that since we did not specify the optional 'baetzo_ZoneinfoCache'
+// object, data will automatically come from the configured default
+// 'baetzo_ZoneinfoCache' object.
 //
 ///Example 2: Installing a Default Zoneinfo Cache Object
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -225,6 +226,8 @@ struct baetzo_DefaultZoneinfoCache {
     // This struct provides a namespace for functions that manage and access
     // the default time-zone data cache.
 
+  private:
+
     // PRIVATE CLASS METHODS
     static baetzo_ZoneinfoCache *instance();
         // Return the address of the currently configured modifiable default
@@ -256,23 +259,24 @@ struct baetzo_DefaultZoneinfoCache {
 
     static void loadDefaultZoneinfoDataLocations(
                                          bsl::vector<const char *> *locations);
-        // Load into the specified 'locations',  the sequence of null
+        // Load into the specified 'locations', the sequence of null
         // terminated C-style strings that characterizes the default paths for
         // Zoneinfo data, accessed by this class, on this platform.
 
     static baetzo_ZoneinfoCache *setDefaultCache(baetzo_ZoneinfoCache *cache);
         // Set the address of the default 'baetzo_ZoneinfoCache' object to the
         // specified 'cache'.  Return the address of the default cache object
-        // that was in effect before calling this method.  The behavior is
-        // undefined unless (1) 'cache' remains valid until no more operations
-        // are performed in the process on the default cache or a subsequent
-        // call to 'setDefaultCache', and (2) this method is *not* called from
-        // one thread while another thread is attempting to access the default
-        // time zone cache instance (i.e., this method is *not* thread-safe).
-        // Note that this method is intended for use *only* by the *owner* of
-        // 'main' (and for testing purposes) where the caller affirmatively
-        // takes responsibility for the behavior of all clients of the default
-        // time zone cache.
+        // that was set by a previous call to this method, or 0 if no call to
+        // this method was previously executed.  The behavior is undefined
+        // unless (1) 'cache' remains valid until the last operation is
+        // performed on this process's default cache, or a subsequent call
+        // to 'setDefaultCache', and (2) this method is *not* called from one
+        // thread while another thread is attempting to access the default time
+        // zone cache instance (i.e., this method is *not* thread-safe).  Note
+        // that this method is intended for use *only* by the *owner* of 'main'
+        // (and for testing purposes) where the caller affirmatively takes
+        // responsibility for the behavior of all clients of the default time
+        // zone cache.
 };
 
                  // ============================================

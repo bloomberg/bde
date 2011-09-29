@@ -398,6 +398,13 @@ class bdex_ByteInStreamRaw {
     friend bsl::ostream& operator<<(bsl::ostream&               stream,
                                     const bdex_ByteInStreamRaw& object);
 
+    // NOT DEFINED
+    bdex_ByteInStreamRaw(const bdex_ByteInStreamRaw&);
+    bdex_ByteInStreamRaw& operator=(const bdex_ByteInStreamRaw&);
+
+    bool operator==(const bdex_ByteInStreamRaw&) const;
+    bool operator!=(const bdex_ByteInStreamRaw&) const;
+
   public:
     // CREATORS
     bdex_ByteInStreamRaw(const char *buffer, int numBytes);

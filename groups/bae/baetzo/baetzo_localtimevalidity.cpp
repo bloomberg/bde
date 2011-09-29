@@ -21,10 +21,6 @@ bsl::ostream& baetzo_LocalTimeValidity::print(
                                  int                            level,
                                  int                            spacesPerLevel)
 {
-    if (stream.bad()) {
-        return stream;                                                // RETURN
-    }
-
     bdeu_Print::indent(stream, level, spacesPerLevel);
 
     stream << baetzo_LocalTimeValidity::toAscii(value);
@@ -53,11 +49,11 @@ const char *baetzo_LocalTimeValidity::toAscii(
 
 }  // close namespace BloombergLP
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

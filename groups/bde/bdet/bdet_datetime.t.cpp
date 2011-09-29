@@ -12,6 +12,7 @@
 #include <bdex_testoutstream.h>          // for testing only
 #include <bdex_testinstreamexception.h>  // for testing only
 
+#include <bsls_asserttest.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -19,6 +20,7 @@
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
+#include <bsl_algorithm.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -42,34 +44,34 @@ using namespace bsl;  // automatically added by script
 // altered.
 //
 // ----------------------------------------------------------------------------
-// [17] bool isValid(int, int, int, int, int, int, int);
+// [18] bool isValid(int, int, int, int, int, int, int);
 // [ 2] bdet_Datetime();
-// [11] bdet_Datetime(const bdet_Date& date);
-// [11] bdet_Datetime(const bdet_Date& date, const bdet_Time& time);
-// [11] bdet_Datetime(int y, int m, int d, int h , int m , int s, int ms);
+// [12] bdet_Datetime(const bdet_Date& date);
+// [12] bdet_Datetime(const bdet_Date& date, const bdet_Time& time);
+// [12] bdet_Datetime(int y, int m, int d, int h , int m , int s, int ms);
 // [ 7] bdet_Datetime(const bdet_Datetime& original);
 // [ 2] ~bdet_Datetime();   (via purify)
-// [ 9] bdet_Datetime& operator=(const bdet_Datetime& rhs);
-// [15] bdet_Datetime& operator+=(const bdet_Datetime& rhs);
-// [15] bdet_Datetime& operator-=(const bdet_Datetime& rhs);
+// [10] bdet_Datetime& operator=(const bdet_Datetime& rhs);
+// [16] bdet_Datetime& operator+=(const bdet_Datetime& rhs);
+// [16] bdet_Datetime& operator-=(const bdet_Datetime& rhs);
 // [ 2] bdet_Date& date();
-// [12] void setDatetime(int y, int m, int d, int h , int m , int s, int ms);
-// [18] int setDatetimeIfValid(int, int, int, int, int, int, int);
-// [20] void setDate(const bdet_Date& date);
+// [13] void setDatetime(int y, int m, int d, int h , int m , int s, int ms);
+// [19] int setDatetimeIfValid(int, int, int, int, int, int, int);
+// [21] void setDate(const bdet_Date& date);
 // [ 2] setTime(int hour =0, int minute =0, int second =0, int millisecond=0);
-// [22] void setTime(const bdet_Time& time);
-// [12] void setHour(int hour);
-// [12] void setMinute(int minute);
-// [12] void setSecond(int second);
-// [12] void setMillisecond(int millisecond);
-// [23] void setYearMonthDay(int year, int month, int day);
-// [19] void setYearDay(int year, int dayOfYear);
-// [14] addTime(int hours, int minutes=0, int seconds=0, int milliseconds=0);
-// [21] void addDays(int days);
-// [14] void addHours(int hours);
-// [14] void addMinutes(int minutes);
-// [14] void addSeconds(int seconds);
-// [14] void addMilliseconds(int milliseconds);
+// [23] void setTime(const bdet_Time& time);
+// [13] void setHour(int hour);
+// [13] void setMinute(int minute);
+// [13] void setSecond(int second);
+// [13] void setMillisecond(int millisecond);
+// [24] void setYearMonthDay(int year, int month, int day);
+// [20] void setYearDay(int year, int dayOfYear);
+// [15] addTime(int hours, int minutes=0, int seconds=0, int milliseconds=0);
+// [22] void addDays(int days);
+// [15] void addHours(int hours);
+// [15] void addMinutes(int minutes);
+// [15] void addSeconds(int seconds);
+// [15] void addMilliseconds(int milliseconds);
 // [ 4] const bdet_Date& date() const;
 // [ 4] const bdet_Time& time() const;
 // [ 4] int year() const;
@@ -81,15 +83,16 @@ using namespace bsl;  // automatically added by script
 // [ 4] int minute() const;
 // [ 4] int second() const;
 // [ 4] int millisecond() const;
-// [ 8] ostream& print(ostream& os, int level = 0, int spl = 4) const;
-// [10] int maxSupportedBdexVersion() const;
+// [ 9] ostream& print(ostream& os, int level = 0, int spl = 4) const;
+// [ 8] int printToBuffer(char *result, int size) const;
+// [11] int maxSupportedBdexVersion() const;
 // [ 6] bool operator==(const bdet_Datetime& lhs, const bdet_Datetime& rhs);
 // [ 6] bool operator!=(const bdet_Datetime& lhs, const bdet_Datetime& rhs);
-// [13] bool operator< (const bdet_Datetime& lhs, const bdet_Datetime& rhs);
-// [13] bool operator<=(const bdet_Datetime& lhs, const bdet_Datetime& rhs);
-// [13] bool operator> (const bdet_Datetime& lhs, const bdet_Datetime& rhs);
-// [13] bool operator>=(const bdet_Datetime& lhs, const bdet_Datetime& rhs);
-// [15] bdet_DTInterval operator-(const bdet_Datetime&, const bdet_Datetime&);
+// [14] bool operator< (const bdet_Datetime& lhs, const bdet_Datetime& rhs);
+// [14] bool operator<=(const bdet_Datetime& lhs, const bdet_Datetime& rhs);
+// [14] bool operator> (const bdet_Datetime& lhs, const bdet_Datetime& rhs);
+// [14] bool operator>=(const bdet_Datetime& lhs, const bdet_Datetime& rhs);
+// [16] bdet_DTInterval operator-(const bdet_Datetime&, const bdet_Datetime&);
 // [ 5] ostream& operator<<(ostream &output, const bdet_Datetime &date);
 // ----------------------------------------------------------------------------
 // [ 1] breathing test
@@ -135,6 +138,15 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -157,7 +169,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -254,7 +266,7 @@ if (verbose)
 //..
 
       } break;
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING SETYEARMONTHDAY:
         //
@@ -347,7 +359,7 @@ if (verbose)
             }
         }
       } break;
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING SETTIME:
         //
@@ -440,7 +452,7 @@ if (verbose)
             }
         }
       } break;
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING ADDDAYS:
         //
@@ -504,7 +516,7 @@ if (verbose)
         }
 
       } break;
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING SETDATE:
         //
@@ -597,7 +609,7 @@ if (verbose)
             }
         }
       } break;
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING  setYearDay  FUNCTION:
         //
@@ -671,7 +683,7 @@ if (verbose)
         }
 
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING setDatetimeIfValid :
         //
@@ -810,7 +822,7 @@ if (verbose)
         }
 
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING isValid
         //
@@ -911,7 +923,7 @@ if (verbose)
         }
 
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING ADDITION AND SUBTRACTION OPERATORS :
         //
@@ -1091,7 +1103,7 @@ if (verbose)
         }
 
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING ADDITION AND SUBTRACTION ASSIGNMENT OPERATORS :
         //
@@ -1211,7 +1223,7 @@ if (verbose)
         }
 
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING 'add' METHODS:
         //
@@ -1429,7 +1441,7 @@ if (verbose)
 
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING RELATIONAL OPERATORS (<, <=, >=, >):
         //
@@ -1503,7 +1515,7 @@ if (verbose)
         }
 
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING ADDITIONAL SETTING MANIPULATORS:
         //
@@ -1681,7 +1693,7 @@ if (verbose)
         }
 
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING INITIALIZATION CONSTRUCTORS:
         //
@@ -1847,7 +1859,7 @@ if (verbose)
         }
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING 'bdex' STREAMING FUNCTIONALITY:
         //
@@ -2287,7 +2299,7 @@ if (verbose)
             }
         }
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR:
         //
@@ -2372,7 +2384,7 @@ if (verbose)
         }
 
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING PRINT
         //
@@ -2687,6 +2699,138 @@ if (verbose)
                 LOOP_ASSERT(LINE,  0 == memcmp(buf, FMT, SZ));
                 LOOP_ASSERT(LINE,
                             0 == memcmp(buf + SZ, CTRL_BUF + SZ, SIZE-SZ));
+            }
+        }
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING 'printToBuffer'
+        //
+        // Concerns:
+        //   This result is always null-terminated and will never overwrite the
+        //   specified size of the buffer.
+        //
+        // Plan:
+        //   Test that the 'printToBuffer' method produces the expected results
+        //   for various values of 'size'.
+        //
+        // Testing:
+        //   int printToBuffer(char *result, int size) const;
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTesting 'print' with "
+                             "manipulators and left alignment." << endl;
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                int         d_year;     // year field value
+                int         d_month;    // month field value
+                int         d_day;      // day field value
+                int         d_hour;     // hour field value
+                int         d_minute;   // minute field value
+                int         d_second;   // second field value
+                int         d_msec;     // millisecond field value
+                int         d_size;     // size of buffer
+                const char *d_fmt_p;    // expected output format
+            } DATA[] = {
+            //--^
+            //line year mon day  hr min sec msec  size   output format
+            //---- ---- --- ---  -- --- --- ----  ----  -----------------------
+            { L_,    1,  1,  1,   0,  0,  0,   0,  100,
+                                                    "01JAN0001_00:00:00.000" },
+            { L_, 1999,  1,  1,  23, 22, 21, 209,  100,
+                                                    "01JAN1999_23:22:21.209" },
+            { L_, 2000,  2,  1,  23, 22, 21, 210,  100,
+                                                    "01FEB2000_23:22:21.210" },
+            { L_, 2001,  3,  1,  23, 22, 21, 211,  100,
+                                                    "01MAR2001_23:22:21.211" },
+            { L_, 9999, 12, 31,  23, 59, 59, 999,  100,
+                                                    "31DEC9999_23:59:59.999" },
+            { L_, 9999, 12, 31,  23, 59, 59, 999,    0, "" },
+            { L_, 9999, 12, 31,  23, 59, 59, 999,    1, "" },
+            { L_, 9999, 12, 31,  23, 59, 59, 999,    2, "3" },
+            { L_, 9999, 12, 31,  23, 59, 59, 999,   10, "31DEC9999" },
+            { L_, 9999, 12, 31,  23, 59, 59, 999,   22,
+                                                    "31DEC9999_23:59:59.99" },
+            { L_, 9999, 12, 31,  23, 59, 59, 999,   23,
+                                                    "31DEC9999_23:59:59.999" },
+            { L_, 9999, 12, 31,  23, 59, 59, 999,   24,
+                                                    "31DEC9999_23:59:59.999" },
+            //--v
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            const int BUF_SIZE = 1000;    // Must be big enough to hold output
+                                          // string.
+            const char XX = (char) 0xFF;  // Value used for an unset char.
+            char       mCtrlBuf[BUF_SIZE];
+            memset(mCtrlBuf, XX, BUF_SIZE);
+            const char *const CTRL_BUF = mCtrlBuf;  // Used for extra character
+                                                    // check.
+
+            for (int di = 0; di < NUM_DATA;  ++di) {
+                const int         LINE   = DATA[di].d_lineNum;
+                const int         YEAR   = DATA[di].d_year;
+                const int         MONTH  = DATA[di].d_month;
+                const int         DAY    = DATA[di].d_day;
+                const int         HOUR   = DATA[di].d_hour;
+                const int         MINUTE = DATA[di].d_minute;
+                const int         SECOND = DATA[di].d_second;
+                const int         MSEC   = DATA[di].d_msec;
+                const int         SIZE   = DATA[di].d_size;
+                const char *const FMT    = DATA[di].d_fmt_p;
+
+                char buf[BUF_SIZE];
+
+                // Preset buf to 'unset' values.
+
+                memcpy(buf, CTRL_BUF, BUF_SIZE);
+
+                Obj x;  const Obj& X = x;
+                x.setYearMonthDay(YEAR, MONTH, DAY);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+
+                if (veryVerbose) cout << "\tEXPECTED FORMAT: " << FMT << endl;
+
+                const int RC = X.printToBuffer(buf, SIZE);
+
+                if (veryVerbose) cout << "\tACTUAL FORMAT:   " << buf << endl;
+
+                const int LEN = (0 == SIZE) ? 0 : strlen(buf) + 1;
+                LOOP2_ASSERT(LINE, RC, 22 == RC);  // Should always return 22
+                                                   // because size of datetime
+                                                   // format is fixed.
+                if (0 == SIZE) {
+                    LOOP3_ASSERT(LINE, XX, buf[0], XX == buf[0]);
+                }
+                else {
+                    LOOP3_ASSERT(LINE, bsl::min(23, SIZE), LEN,
+                                 bsl::min(23, SIZE) == LEN);
+                    LOOP_ASSERT(LINE, '\0' == buf[LEN - 1]);
+                }
+                LOOP3_ASSERT(LINE, XX, buf[BUF_SIZE - 1],
+                             XX == buf[BUF_SIZE - 1]);  // Check overrun.
+                LOOP3_ASSERT(LINE, buf, FMT, 0 == memcmp(buf, FMT, LEN));
+                LOOP_ASSERT(LINE,
+                            0 == memcmp(buf + LEN,
+                                        CTRL_BUF + LEN,
+                                        SIZE - LEN));
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\t'printToBuffer' method" << endl;
+            {
+                const int SIZE = 128;
+                char      buf[SIZE];
+
+                const Obj X;
+
+                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE));
+                ASSERT_SAFE_FAIL(X.printToBuffer(0, SIZE));
+                ASSERT_SAFE_FAIL(X.printToBuffer(0, -1));
             }
         }
       } break;
