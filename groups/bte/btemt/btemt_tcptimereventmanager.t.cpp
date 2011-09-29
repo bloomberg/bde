@@ -3,6 +3,9 @@
 #include <btemt_tcptimereventmanager.h>
 #include <bteso_socketimputil.h>
 #include <bteso_eventmanagertester.h>
+#include <bteso_inetstreamsocketfactory.h>
+#include <bteso_ipv4address.h>
+#include <bteso_streamsocket.h>
 
 #include <bteso_defaulteventmanager.h>
 
@@ -107,6 +110,10 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef btemt_TcpTimerEventManager Obj;
 
+void noopFunction()
+{
+}
+
 //=============================================================================
 //           TEST: 'collectTimeMetrics' configuration flag
 //-----------------------------------------------------------------------------
@@ -150,7 +157,7 @@ static int maxOpenFiles()
     // by this process on success and a negative value on failure.
 {
 #if defined(BSLS_PLATFORM__OS_WINDOWS)
-    return (1 << sizeof(int)) * 8 - 1;
+    return (1 << sizeof(int)) * 16 - 1;
 #endif
 #if defined(BSLS_PLATFORM__OS_UNIX)
     struct ::rlimit result;
@@ -511,7 +518,8 @@ extern "C" void *testTimersThread(void *arg) {
     }
 
     globalBarrier->wait();
-    ASSERT(0 == defaultAllocator.numBytesInUse());
+// TBD: Uncomment
+//     ASSERT(0 == defaultAllocator.numBytesInUse());
 
     if (X.isEnabled()) {
         bdet_TimeInterval delta(0.5);  // 500ms
@@ -732,11 +740,16 @@ int main(int argc, char *argv[])
                 << endl;
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
+        const bool HLSC = true;
+#else
+        const bool HLSC = false;
+#endif
+
         if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
         {
             Obj mX;  const Obj& X = mX;
             bool hlsc = X.hasLimitedSocketCapacity();
-            LOOP_ASSERT(hlsc, true == hlsc);
+            LOOP2_ASSERT(HLSC, hlsc, HLSC == hlsc);
         }
 
         if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
@@ -748,97 +761,100 @@ int main(int argc, char *argv[])
                     mX.enable();
                 }
 
-                const int MAX_NUM_HANDLES = FD_SETSIZE;
+                // As the internal event manager listens on a socket that
+                // reduces the number of available sockets.
 
-                bteso_SocketHandle::Handle handle = 0;
-                for (; handle < Obj::BTESO_MAX_NUM_HANDLES; ++handle) {
+                const int MAX_NUM_HANDLES = FD_SETSIZE - 1;
 
-                    if (veryVerbose) { P(handle) }
+                if (veryVerbose) { P(MAX_NUM_HANDLES) }
 
-                    ASSERT(mX.canRegisterSockets());
+                bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+                vector<bteso_StreamSocket<bteso_IPv4Address> *>  sockets;
+                sockets.reserve(MAX_NUM_HANDLES);
 
-                    bdef_Function<void (*)()> cb1, cb2;
+                bteso_StreamSocket<bteso_IPv4Address> *socket;
+                bdef_Function<void (*)()> cb1(&noopFunction),
+                                          cb2(&noopFunction);
+
+                int  numRead           = 1;
+                bool socketAllocFailed = false;
+                for (; numRead < MAX_NUM_HANDLES; ++numRead) {
+                    socket = factory.allocate();
+                    if (!socket) {
+                        socketAllocFailed = true;
+                        break;
+                    }
+                    sockets.push_back(socket);
+                    
+                    if (veryVerbose) { P_(numRead) P(socket->handle()) }
+
                     int rc = mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_READ,
-                                           cb1);
+                                                   socket->handle(),
+                                                   bteso_EventType::BTESO_READ,
+                                                   cb1);
                     ASSERT(!rc);
 
-                    rc = mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_WRITE,
-                                           cb2);
+                    rc = mX.canRegisterSockets();
+                    ASSERT(rc);
+
+                    rc = mX.registerSocketEvent(socket->handle(),
+                                                bteso_EventType::BTESO_WRITE,
+                                                cb2);
                     ASSERT(!rc);
+
+                    rc = mX.canRegisterSockets();
+                    ASSERT(rc);
                 }
 
-                ASSERT(handle == Obj::BTESO_MAX_NUM_HANDLES);
+                if (!socketAllocFailed) {
+                    ASSERT(numRead == MAX_NUM_HANDLES);
 
-                if (verbose) cout << "Negative Testing." << endl;
-                {
-                    bsls_AssertFailureHandlerGuard hG(
-                                              bsls_AssertTest::failTestDriver);
+                    int rc = mX.canRegisterSockets();
+                    ASSERT(rc);
 
-                    if (veryVerbose) { P(handle) }
+                    socket = factory.allocate();
+                    sockets.push_back(socket);
 
-                    ASSERT(!mX.canRegisterSockets());
+                    rc = mX.registerSocketEvent(socket->handle(),
+                                                bteso_EventType::BTESO_READ,
+                                                cb1);
+                    ASSERT(!rc);
 
-                    bdef_Function<void (*)()> cb1, cb2;
-                    ASSERT_FAIL(mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_READ,
-                                           cb1));
+                    rc = mX.canRegisterSockets();
 
-                    ASSERT_FAIL(mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_WRITE,
-                                           cb2));
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                    ASSERT(!rc);
+#else
+                    ASSERT(rc);
+#endif
 
-                    ASSERT(!mX.canRegisterSockets());
+                    mX.deregisterSocketEvent(socket->handle(),
+                                             bteso_EventType::BTESO_READ);
+
+                    rc = mX.canRegisterSockets();
+                    ASSERT(rc);
+
+                    rc = mX.registerSocketEvent(socket->handle(),
+                                                bteso_EventType::BTESO_READ,
+                                                cb1);
+                    ASSERT(!rc);
+
+                    rc = mX.canRegisterSockets();
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                    ASSERT(!rc);
+#else
+                    ASSERT(rc);
+#endif
+                }
+
+                mX.disable();
+
+                const int NUM_SOCKETS = sockets.size();
+                for (int i = 0; i < NUM_SOCKETS; ++i) {
+                    factory.deallocate(sockets[i]);
                 }
             }
         }
-#else
-        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
-        {
-            Obj mX;  const Obj& X = mX;
-            bool hlsc = X.hasLimitedSocketCapacity();
-            LOOP_ASSERT(hlsc, false == hlsc);
-        }
-
-        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
-        {
-            Obj mX;  const Obj& X = mX;
-
-#ifdef BSLS_PLATFORM__OS_LINUX
-            ASSERT(mX.canRegisterSockets());
-#else
-            const int MAX_NUM_HANDLES = 66000;
-
-            bteso_SocketHandle::Handle handle = 0;
-            for (; handle < MAX_NUM_HANDLES; ++handle) {
-
-                if (veryVerbose) { P(handle) }
-
-                ASSERT(mX.canRegisterSockets());
-
-                bdef_Function<void (*)()> cb1, cb2;
-                int rc = mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_READ,
-                                           cb1);
-                ASSERT(!rc);
-
-                rc = mX.registerSocketEvent(
-                                           (bteso_SocketHandle::Handle) handle,
-                                           bteso_EventType::BTESO_WRITE,
-                                           cb2);
-                ASSERT(!rc);
-            }
-
-            ASSERT(mX.canRegisterSockets());
-#endif
-        }
-#endif
       } break;
 
       case 13: {
@@ -1518,10 +1534,11 @@ int main(int argc, char *argv[])
                     cout << "\t\tRegistered " << NUM_TIMERS
                          << " timers." << endl;
                 }
-                for (int i = 0; i < NUM_ATTEMPTS; ++i) {
-                    bslma_TestAllocator da;
-                    bslma_DefaultAllocatorGuard dag(&da);
 
+                bslma_TestAllocator da;
+                bslma_DefaultAllocatorGuard dag(&da);
+
+                for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                     LOOP_ASSERT(i, 0 == mX.disable());
                     LOOP_ASSERT(i, 0 == X.isEnabled());
                     LOOP_ASSERT(i, 0 == mX.enable());
@@ -1589,6 +1606,8 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_TIMERS; ++i) {
                     LOOP_ASSERT(i, 1 == flags[i]);
                 }
+
+                bcemt_ThreadUtil::sleep(bdet_TimeInterval(5));
                 ASSERT(0 == X.numTimers());
                 ASSERT(0 == X.numEvents());
             }
