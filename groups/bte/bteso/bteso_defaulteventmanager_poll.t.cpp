@@ -267,8 +267,6 @@ testInvocationCb(bool *isInvoked,                   bteso_EventManager *mX,
     mX->deregisterSocketEvent(handle, event);
 }
 
-#endif // BTESO_EVENTMANAGER_ENABLETEST
-
 static double dub(const bdet_TimeInterval& ti)
 {
     return ti.totalSecondsAsDouble();
@@ -297,11 +295,11 @@ struct ShouldntBeCalled {
 # define PRE_DISPATCH_SLEEP
 #endif
 
+
 //==========================================================================
 //                      MAIN PROGRAM
 //--------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
-#ifdef BTESO_EVENTMANAGER_ENABLETEST
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
@@ -1571,10 +1569,14 @@ int main(int argc, char *argv[]) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
     return testStatus;
-#else
-    return -1;
-#endif // BTESO_EVENTMANAGERIMP_ENABLETEST
 }
+#else
+// !defined(BTESO_EVENTMANAGERIMP_ENABLETEST)
+int main()
+{
+    return -1;
+}
+#endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:
