@@ -161,14 +161,14 @@ static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
 
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended usage of this component.
 //
 ///Example 1: Basic Operations
 ///- - - - - - - - - - - - - -
 // The following snippets of code illustrate basic and varied use of the
 // 'bslstl_StringRef' class.
 //
-// First, we define a function, 'getNumBlanks', which returns the number of
+// First, we define a function, 'getNumBlanks', that returns the number of
 // blank (' ') characters contained in the string referenced by a specified
 // 'bslstl_StringRef':
 //..
@@ -223,62 +223,60 @@ int main(int argc, char *argv[])
         if (verbose) std::cout << "\nTesting Usage Example"
                                << "\n=====================" << std::endl;
 
-// We make several calls to 'getNumBlanks' with strings of various forms to
-// illustrate the benefit of having 'getNumBlanks' take a 'bslstl_StringRef'
-// argument.
-//
-// Next, we verify tolerance of 'bslstl_StringRef' objects that are empty:
+// Then, call 'getNumBlanks' on a default constructed 'bslstl_StringRef':
 //..
     bslstl_StringRef emptyRef;
     int numBlanks = getNumBlanks(emptyRef);
     ASSERT(0 == numBlanks);
+
+    ASSERT(""         == emptyRef);
+    ASSERT("anything" >= emptyRef);
 //..
-// Empty 'bslstl_StringRef' objects are treated as if they reference an empty
-// string:
-//..
-    ASSERT(true  == (emptyRef   == ""));
-    ASSERT(false == ("anything" <  emptyRef));
-//..
-// Then, we (implicitly) construct a 'bsl::string' object from
+// Notice that the behavior a default constructed 'bslstl_StringRef' object
+// behaves the same as if it referenced an empty string.
+//
+// Next, we (implicitly) construct a 'bsl::string' object from
 // 'bslstl_StringRef':
 //..
     bsl::string empty(emptyRef);
     ASSERT(0 == empty.size());
 //..
-// Next, we call 'getNumBlanks' on a string literal and assert that the number
+// Then, we call 'getNumBlanks' on a string literal and assert that the number
 // of blanks returned is as expected:
 //..
     numBlanks = getNumBlanks("Good things come to those who wait.");
     ASSERT(6 == numBlanks);
 //..
-// The following 'poem' is a longer string that we make use of in the rest of
-// this usage example:
+// Next, we define a longer string literal, 'poem', that we will use in the
+// rest of this usage example:
 //..
     const char poem[] =                  // by William Butler Yeats (1865-1939)
-        "O love is the crooked thing,\n"          //  5 blanks
-        "There is nobody wise enough\n"           //  4   "
-        "To find out all that is in it,\n"        //  7   "
-        "For he would be thinking of love\n"      //  6   "
-        "Till the stars had run away\n"           //  5   "
-        "And the shadows eaten the moon.\n"       //  5   "
-        "Ah, penny, brown penny, brown penny,\n"  //  5   "
-        "One cannot begin it too soon.";          //  5   "
-                                                  // ---------
-                                                  // 42 blanks
+                                                    //  length  blanks
+        "O love is the crooked thing,\n"            //    29      5
+        "There is nobody wise enough\n"             //    27      4
+        "To find out all that is in it,\n"          //    31      7
+        "For he would be thinking of love\n"        //    33      6
+        "Till the stars had run away\n"             //    26      5
+        "And the shadows eaten the moon.\n"         //    32      5
+        "Ah, penny, brown penny, brown penny,\n"    //    37      5
+        "One cannot begin it too soon.";            //    29      5
+                                                    //          ----
+                                                    //           42
 
     numBlanks = getNumBlanks(poem);
     ASSERT(42 == numBlanks);
 //..
-// Then, we construct a 'bslstl_StringRef' object, 'line', that references only
+// Then, we construct a 'bslstl_StringRef' object, 'line', that refers to only
 // the first line of the 'poem':
 //..
     bslstl_StringRef line(poem, 29);
     numBlanks = getNumBlanks(line);
+
     ASSERT( 5 == numBlanks);
     ASSERT(29 == line.length());
     ASSERT( 0 == std::strncmp(poem, line.data(), line.length()));
 //..
-// Next, we use the 'assign' method to make 'line' reference the second line of
+// Next, we use the 'assign' method to make 'line' refer to the second line of
 // the 'poem':
 //..
     line.assign(poem + 29, poem + 57);
@@ -287,8 +285,8 @@ int main(int argc, char *argv[])
     ASSERT((57 - 29) == line.length());
     ASSERT("There is nobody wise enough\n" == line);
 //..
-// Then, we call 'getNumBlanks' with a 'bsl::string' initialized to the contents
-// of the 'poem':
+// Then, we call 'getNumBlanks' with a 'bsl::string' initialized to the
+// contents of the 'poem':
 //..
     const bsl::string poemString(poem);
     numBlanks = getNumBlanks(poemString);
@@ -296,16 +294,18 @@ int main(int argc, char *argv[])
     ASSERT(bslstl_StringRef(poemString) == poemString);
     ASSERT(bslstl_StringRef(poemString) == poemString.c_str());
 //..
-// Now, we make a 'bslstl_StringRef' object that references a string with
-// embedded null ('\0') characters.  We populate the 'poemWithNulls' array with
-// the contents of 'poem':
+// Next, we make a 'bslstl_StringRef' object that refers to a string that will
+// be able to hold embedded null characters:
 //..
     char poemWithNulls[512];
     const int poemLength = std::strlen(poem);
+    ASSERT(poemLength < 512);
+
     std::memcpy(poemWithNulls, poem, poemLength + 1);
     ASSERT(0 == std::strcmp(poem, poemWithNulls));
 //..
-// And we replace each occurrence of '\n' in 'poemWithNulls' with '\0':
+// Now, we replace each occurrence of a '\n' in 'poemWithNulls' with a yielding
+// '\0':
 //..
     std::replace(poemWithNulls, poemWithNulls + poemLength, '\n', '\0');
     ASSERT(0 != std::strcmp(poem, poemWithNulls));
