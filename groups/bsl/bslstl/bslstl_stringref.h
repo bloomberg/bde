@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 //      d_label.assign(label.begin(), label.end());
 //  }
 //..
-// Now,:
+// Now:
 //..
 //  myClassObj.setLabel("hello");
 //..
