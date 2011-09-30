@@ -102,6 +102,11 @@ static void aSsErT(int c, const char *s, int i)
    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
               << J << "\n"; aSsErT(1, #X, __LINE__); } }
 
+#define LOOP3_ASSERT(I,J,K,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
+                  << J << "\t" << #K << ": " << K << "\n"; \
+                  aSsErT(1, #X, __LINE__); } }
+
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -1679,11 +1684,15 @@ int main(int argc, char *argv[]) {
                bcemt_ThreadUtil::microSleep(DATA[ti].d_delay * 1000);
            }
 
-#if defined(BSLS_PLATFORM__OS_HPUX)  // TBD
-// Some TCP driver implementations require some delay between write and
-// read (on the loopback service) in order to recognize I/O events correctly.
-           bcemt_ThreadUtil::microSleep(20 * 1000);
+           // some platforms require latency between writes and reads
+#if   defined(BSLS_PLATFORM__OS_HPUX)
+           const int sleepTime = 20 * 1000;
+#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+           const int sleepTime = 1000;
+#else
+           const int sleepTime = 0;
 #endif
+           if (sleepTime) bcemt_ThreadUtil::microSleep(sleepTime);
 
            bdet_TimeInterval timeBefore = bdetu_SystemTime::now();
 
@@ -1714,7 +1723,8 @@ int main(int argc, char *argv[]) {
                P_(timeBefore); P_(timeAfter); P(timeout);
            }
 
-           LOOP2_ASSERT(ti, DATA[ti].d_lineNum, resp == DATA[ti].d_expected);
+           LOOP3_ASSERT(ti, resp, DATA[ti].d_lineNum,
+                                                   resp == DATA[ti].d_expected);
 
 #ifndef BSLS_PLATFORM__OS_CYGWIN
            testFactory.deallocate(streamSocketA);
