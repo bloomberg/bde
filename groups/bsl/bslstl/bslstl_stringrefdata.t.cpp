@@ -171,64 +171,55 @@ inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Breaking circular dependency between string and StringRef classes
+///Example 1: Breaking cyclic dependency between string and StringRef classes
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we demonstrace how 'bslstl_StringRefData' allows to break
-// the circular dependency between a hypothetical 'string' and 'StringRef'
-// classes.
+// In this example we demonstrace how 'bslstl_StringRefData' allows us to break
+// the cyclic dependency between hypothetical 'String' and 'StringRef' classes.
 //
-// Objects of our hypothetical 'string' and 'StringRef' classes need to be
+// Objects of our 'String' and 'StringRef' classes need to be
 // convertable to each other.  However only one of these classes can depend on
-// the definition of another class, otherwise they will be circularly
+// the definition of the other one, otherwise they will be cyclically
 // dependent.
 //
-// First, we define a hypothetical 'string' class.  Its implementation is
+// First, we define a hypothetical 'String' class, whose implementation is
 // intentionally simple and constains only the essential constructors and
-// accessor methods.  The impotant thing to notice is that 'string' doesn't
-// depend on 'StringRef', which hasn't been defined yet.
+// accessor methods; the impotant thing to notice is that 'String' doesn't
+// depend on 'StringRef', which hasn't been defined yet:
 //..
 namespace Usage {
 
-class string {
+class String {
   private:
-    const char *d_begin;
-    const char *d_end;
-
-    void construct(const char *begin, const char *end)
-    {
-        d_begin = begin;
-        d_end = end;
-    }
+    const char *d_begin_p;
+    const char *d_end_p;
 
   public:
-    typedef const char * const_iterator;
+    typedef const char *const_iterator;
 
-    string(bslstl_StringRefData<char> const& stringRef)
+    String(bslstl_StringRefData<char> const& stringRef)
+        : d_begin_p(stringRef.begin())
+        , d_end_p(stringRef.end())
     {
-        construct(stringRef.begin(), stringRef.end());
     }
 
     const_iterator begin() const
     {
-        return d_begin;
+        return d_begin_p;
     }
 
     const_iterator end() const
     {
-        return d_end;
+        return d_end_p;
     }
 };
 //..
-// Notice that the constructor of 'string' takes a 'bslstl_StringRefData'
+// Notice that the constructor of 'String' takes a 'bslstl_StringRefData'
 // argument and then uses its members 'begin' and 'end' to initialize the
 // string object.
 //
-// Then, we define a hypothetical 'StringRef' class.  It can be initialized
-// with two 'const char *' pointers or with a 'string' object to enable the
-// conversion from 'string' to 'StringRef'.  It also derives from
-// 'bslstl_StringRefData' so that an object of 'StringRef' can be passed to the
-// constructor of 'string' as reference to 'bslstl_StringRefData', which
-// enables the conversion from 'StringRef' to 'string'.
+// Then, we define a hypothetical 'StringRef' class, whose can be initialized
+// either with a 'String' object (to enable the conversion from 'String' to
+// 'StringRef') or with two 'const char *' pointers:
 //..
 class StringRef : public bslstl_StringRefData<char>
 {
@@ -237,13 +228,44 @@ class StringRef : public bslstl_StringRefData<char>
         : bslstl_StringRefData<char>(begin, end)
     {}
 
-    StringRef(const string& str)
+    StringRef(const String& str)
         : bslstl_StringRefData<char>(&*str.begin(), &*str.end())
     {}
 };
 
 }  // close namespace Usage
 //..
+
+//=============================================================================
+//                             PRIVATE FUNCTIONS
+//-----------------------------------------------------------------------------
+
+namespace {
+
+// FREE OPERATORS
+template <typename CHAR_TYPE>
+bool operator==(const bslstl_StringRefData<CHAR_TYPE>& lhs,
+                const bslstl_StringRefData<CHAR_TYPE>& rhs)
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'bslstl_StringRefData' objects have
+    // the same value if the corresponding values of their 'begin' and 'end'
+    // attributes are the same.
+{
+    return lhs.begin() == rhs.begin() && lhs.end() == rhs.end();
+}
+
+template <typename CHAR_TYPE>
+bool operator!=(const bslstl_StringRefData<CHAR_TYPE>& lhs,
+                const bslstl_StringRefData<CHAR_TYPE>& rhs)
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'bslstl_StringRefData' objects
+    // do not have the same value if the corresponding values of their 'begin'
+    // and 'end' attributes are not the same.
+{
+    return !(lhs == rhs);
+}
+
+}
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -280,17 +302,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Usage Example"
                             "\n=====================\n");
 
-// Finally, we verify that the conversions between 'string' and "StringRef'
+// Note that 'StringRef' also derives from 'bslstl_StringRefData' so that an
+// object of 'StringRef' can be passed to the constructor of 'String' as
+// reference to 'bslstl_StringRefData', which enables the conversion from
+// 'StringRef' to 'String'.
+//
+// Finally, we verify that the conversions between 'String' and "StringRef'
 // work:
 //..
-using Usage::string;
+using Usage::String;
 using Usage::StringRef;
 
 const char str[] = "test string";
 StringRef  strRef(str, str + sizeof(str));
 
-string     strObj = strRef;     // convert 'StringRef' to 'string'
-StringRef  strRf2 = strObj;     // convert 'string' to 'StringRef'
+String     strObj = strRef;     // convert 'StringRef' to 'String'
+StringRef  strRf2 = strObj;     // convert 'String' to 'StringRef'
 
 ASSERT(&*strObj.begin() == strRef.begin());
 ASSERT(&*strObj.end()   == strRef.end());
@@ -1450,3 +1477,12 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
     return testStatus;
 }
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2011
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------
