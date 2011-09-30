@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // below), 'bslstl_StringRefData', that represents a reference to character
 // string data.  Note that 'bslstl_StringRefData' is intended for use as a base
 // class for 'bslstl_StringRef' and as an argument to 'bsl::string'
-// constructor, enabling a convertion from 'bslstl_StringRef' to 'bsl::string'
+// constructor, enabling a conversion from 'bslstl_StringRef' to 'bsl::string'
 // without a cyclic dependency between these two classes.
 //
 // The dependencies between these components are shown on the following
@@ -77,13 +77,13 @@ BSLS_IDENT("$Id: $")
 // classes.
 //
 // Objects of our hypothetical 'string' and 'StringRef' classes need to be
-// convertable to each other.  However only one of these classes can depend on
+// convertible to each other.  However only one of these classes can depend on
 // the definition of another class, otherwise they will be circularly
 // dependent.
 //
 // First, we define a hypothetical 'string' class.  Its implementation is
-// intentionally simple and constains only the essential constructors and
-// accessor methods.  The impotant thing to notice is that 'string' doesn't
+// intentionally simple and contains only the essential constructors and
+// accessor methods.  The important thing to notice is that 'string' doesn't
 // depend on 'StringRef', which hasn't been defined yet.
 //..
 //  namespace Usage {
