@@ -7,41 +7,41 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a base class for 'bslstl_StringRef'.
+//@PURPOSE: Provide an attribute-only base class for 'bslstl_StringRef'.
 //
 //@CLASSES:
-//  bslstl_StringRefData: a base class for 'bslstl_StringRef'
+//  bslstl_StringRefData: attribute class referencing a sub-string.
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
-//@DESCRIPTION: This component provides a complex-constrained in-core
+//@DESCRIPTION: This component provides a complex-constrained, in-core
 // (value-semantic) attribute class (except for the equality comparison, see
 // below), 'bslstl_StringRefData', that represents a reference to character
 // string data.  Note that 'bslstl_StringRefData' is intended for use as a base
-// class for 'bslstl_StringRef' and as an argument to 'bsl::string'
+// class for 'bslstl_StringRef' and as parameter of 'bsl::string'
 // constructor, enabling a convertion from 'bslstl_StringRef' to 'bsl::string'
-// without a cyclic dependency between these two classes.
+// without having a cyclic dependency among these three classes.
 //
 // The dependencies between these components are shown on the following
 // diagram:
 //..
-//            +----------------------+
-//            |  ,----------------. 3|
-//            | ( bslstl_StringRef ) |
-//            |  `o-------|-------'  |
-//            +--/--------|----------+
-//              /         |
-//  +----------/-+        |
-//  |  ,------. 2|        |
-//  | ( string ) |        |
-//  |  `---o--'  |        |
-//  +-------\----+        |
-//           \            |
-//       +----\-----------V---------+
-//       |  ,--------------------. 1|
-//       | ( bslstl_StringRefData ) |
-//       |  `--------------------'  |
-//       +--------------------------+
+//                           +----------------------+
+//                           |  ,----------------. 3|
+//                           | ( bslstl_StringRef ) |
+//                           |  `o-------|-------'  |
+//                           +--/--------|----------+
+//                             /         |
+//                 +----------/-+        |
+//                 |  ,------. 2|        |
+//                 | ( string ) |        |
+//                 |  `---o--'  |        |
+//                 +-------\----+        |
+//                          \            |
+//                      +----\-----------V---------+
+//                      |  ,--------------------. 1|
+//                      | ( bslstl_StringRefData ) |
+//                      |  `--------------------'  |
+//                      +--------------------------+
 //..
 //
 // 'bslstl_StringRefData' doesn't define the equality comparison because its
@@ -51,8 +51,8 @@ BSLS_IDENT("$Id: $")
 // A 'bslstl_StringRefData' object holds two pointers; 'begin' points to the
 // first character of a contiguous array of characters forming a string, and
 // 'end' points to an address one past the last character in the string.  If
-// 'begin' and 'end' are equal the string is empty.  The referenced string may
-// not be null terminated, and may contain embedded nulls.
+// 'begin' and 'end' are equal the string is empty.  Note that the referenced
+// string may not be null terminated, and may contain embedded nulls.
 //
 ///Attributes
 ///----------
@@ -70,64 +70,55 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Breaking circular dependency between string and StringRef classes
+///Example 1: Breaking cyclic dependency between string and StringRef classes
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we demonstrace how 'bslstl_StringRefData' allows to break
-// the circular dependency between a hypothetical 'string' and 'StringRef'
-// classes.
+// In this example we demonstrace how 'bslstl_StringRefData' allows us to break
+// the cyclic dependency between hypothetical 'String' and 'StringRef' classes.
 //
-// Objects of our hypothetical 'string' and 'StringRef' classes need to be
+// Objects of our 'String' and 'StringRef' classes need to be
 // convertable to each other.  However only one of these classes can depend on
-// the definition of another class, otherwise they will be circularly
+// the definition of the other one, otherwise they will be cyclically
 // dependent.
 //
-// First, we define a hypothetical 'string' class.  Its implementation is
+// First, we define a hypothetical 'String' class, whose implementation is
 // intentionally simple and constains only the essential constructors and
-// accessor methods.  The impotant thing to notice is that 'string' doesn't
-// depend on 'StringRef', which hasn't been defined yet.
+// accessor methods; the impotant thing to notice is that 'String' doesn't
+// depend on 'StringRef', which hasn't been defined yet:
 //..
 //  namespace Usage {
 //
-//  class string {
+//  class String {
 //    private:
-//      const char *d_begin;
-//      const char *d_end;
-//
-//      void construct(const char *begin, const char *end)
-//      {
-//          d_begin = begin;
-//          d_end = end;
-//      }
+//      const char *d_begin_p;
+//      const char *d_end_p;
 //
 //    public:
-//      typedef const char * const_iterator;
+//      typedef const char *const_iterator;
 //
-//      string(bslstl_StringRefData<char> const& stringRef)
+//      String(bslstl_StringRefData<char> const& stringRef)
+//          : d_begin_p(stringRef.begin())
+//          , d_end_p(stringRef.end())
 //      {
-//          construct(stringRef.begin(), stringRef.end());
 //      }
 //
 //      const_iterator begin() const
 //      {
-//          return d_begin;
+//          return d_begin_p;
 //      }
 //
 //      const_iterator end() const
 //      {
-//          return d_end;
+//          return d_end_p;
 //      }
 //  };
 //..
-// Notice that the constructor of 'string' takes a 'bslstl_StringRefData'
+// Notice that the constructor of 'String' takes a 'bslstl_StringRefData'
 // argument and then uses its members 'begin' and 'end' to initialize the
 // string object.
 //
-// Then, we define a hypothetical 'StringRef' class.  It can be initialized
-// with two 'const char *' pointers or with a 'string' object to enable the
-// conversion from 'string' to 'StringRef'.  It also derives from
-// 'bslstl_StringRefData' so that an object of 'StringRef' can be passed to the
-// constructor of 'string' as reference to 'bslstl_StringRefData', which
-// enables the conversion from 'StringRef' to 'string'.
+// Then, we define a hypothetical 'StringRef' class, whose can be initialized
+// either with a 'String' object (to enable the conversion from 'String' to
+// 'StringRef') or with two 'const char *' pointers:
 //..
 //  class StringRef : public bslstl_StringRefData<char>
 //  {
@@ -136,24 +127,29 @@ BSLS_IDENT("$Id: $")
 //          : bslstl_StringRefData<char>(begin, end)
 //      {}
 //
-//      StringRef(const string& str)
+//      StringRef(const String& str)
 //          : bslstl_StringRefData<char>(&*str.begin(), &*str.end())
 //      {}
 //  };
 //
 //  }  // close namespace Usage
 //..
-// Finally, we verify that the conversions between 'string' and "StringRef'
+// Note that 'StringRef' also derives from 'bslstl_StringRefData' so that an
+// object of 'StringRef' can be passed to the constructor of 'String' as
+// reference to 'bslstl_StringRefData', which enables the conversion from
+// 'StringRef' to 'String'.
+//
+// Finally, we verify that the conversions between 'String' and "StringRef'
 // work:
 //..
-//  using Usage::string;
+//  using Usage::String;
 //  using Usage::StringRef;
 //
 //  const char str[] = "test string";
 //  StringRef  strRef(str, str + sizeof(str));
 //
-//  string     strObj = strRef;     // convert 'StringRef' to 'string'
-//  StringRef  strRf2 = strObj;     // convert 'string' to 'StringRef'
+//  String     strObj = strRef;     // convert 'StringRef' to 'String'
+//  StringRef  strRf2 = strObj;     // convert 'String' to 'StringRef'
 //
 //  assert(&*strObj.begin() == strRef.begin());
 //  assert(&*strObj.end()   == strRef.end());
@@ -192,15 +188,16 @@ class bslstl_StringRefData {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    const CHAR_TYPE *d_begin;   // address of first character of a string or 0
+    const CHAR_TYPE *d_begin_p; // address of first character of a string or 0
 
-    const CHAR_TYPE *d_end;     // address one past last character of a string
-                                // or 0 if 'd_begin==0'
+    const CHAR_TYPE *d_end_p;   // address one past last character of a string
+                                // or 0 if 'd_begin_p==0'
 
   public:
     // CREATORS
     bslstl_StringRefData();
-        // Create a 'bslstl_StringRefData' object the default attribute values:
+        // Create a 'bslstl_StringRefData' object having default attribute
+        // values:
         //..
         //  begin() == 0
         //  end()   == 0
@@ -219,14 +216,12 @@ class bslstl_StringRefData {
 
     // ACCESSORS
     const CHAR_TYPE *begin() const;
-        // Return the address of the first character of the string or 0 if the
-        // string is null.  Note that if the return value is 0, 'end()' returns
-        // 0 as well.
+        // Return the address of the first character of the string or 0 for
+        // empty string.  Empty string value is represented as (0, 0).
 
     const CHAR_TYPE *end() const;
-        // Return the address past the end of the string or 0 if the string is
-        // null.  Note that if the return value is 0, 'begin()' returns 0 as
-        // well.
+        // Return the address past the end of the string or 0 for empty string.
+        // Empty string value is represented as (0, 0).
 };
 
 // ===========================================================================
@@ -241,8 +236,8 @@ class bslstl_StringRefData {
 template <typename CHAR_TYPE>
 inline
 bslstl_StringRefData<CHAR_TYPE>::bslstl_StringRefData()
-: d_begin(0)
-, d_end(0)
+: d_begin_p(0)
+, d_end_p(0)
 {
 }
 
@@ -251,11 +246,11 @@ inline
 bslstl_StringRefData<CHAR_TYPE>
     ::bslstl_StringRefData(const CHAR_TYPE *begin,
                                 const CHAR_TYPE *end)
-: d_begin(begin)
-, d_end(end)
+: d_begin_p(begin)
+, d_end_p(end)
 {
-    BSLS_ASSERT_SAFE(d_begin <= d_end);
-    BSLS_ASSERT_SAFE(!d_begin == !d_end);
+    BSLS_ASSERT_SAFE(d_begin_p <= d_end_p);
+    BSLS_ASSERT_SAFE(!d_begin_p == !d_end_p);
 }
 
 // ACCESSORS
@@ -263,14 +258,14 @@ template <typename CHAR_TYPE>
 inline
 const CHAR_TYPE *bslstl_StringRefData<CHAR_TYPE>::begin() const
 {
-    return d_begin;
+    return d_begin_p;
 }
 
 template <typename CHAR_TYPE>
 inline
 const CHAR_TYPE *bslstl_StringRefData<CHAR_TYPE>::end() const
 {
-    return d_end;
+    return d_end_p;
 }
 
 }  // close enterprise namespace
