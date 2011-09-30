@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a base class for 'bslstl_StringRef'
+//@PURPOSE: Provide a base class for 'bslstl_StringRef'.
 //
 //@CLASSES:
 //  bslstl_StringRefData: a base class for 'bslstl_StringRef'
@@ -186,7 +186,7 @@ class bslstl_StringRefData {
     // This class:
     //: o supports a complete set of *value-semantic* operations
     //:   o except for 'bdex' serialization
-    //: o is *exception-neutral* (agnostic) TBD
+    //: o is *exception-neutral* (agnostic)
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
     // For terminology see 'bsldoc_glossary'.
