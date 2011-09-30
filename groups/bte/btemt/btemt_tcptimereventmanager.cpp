@@ -75,7 +75,6 @@ class btemt_TcpTimerEventManager_Request {
     BSLALG_DECLARE_NESTED_TRAITS(btemt_TcpTimerEventManager_Request,
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
-    // DATA
     enum OpCode {
         NO_OP,                         // no operation
         TERMINATE,                     // exit signal
@@ -94,14 +93,14 @@ class btemt_TcpTimerEventManager_Request {
     };
 
   private:
-    // INSTANCE DATA
+    // DATA
     OpCode                        d_opCode;       // request type
     bcemt_Mutex                  *d_mutex_p;      // result notification
     bcemt_Condition              *d_condition_p;  //
 
     // The following two fields are used in socket related requests.
     bteso_SocketHandle::Handle    d_handle;       // socket handle associated
-                                                  // with this request  (in)
+                                                  // with this request (in)
     bteso_EventType::Type         d_eventType;    // event code (in)
 
     // The following two fields are used in timer related requests.
@@ -444,7 +443,9 @@ btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
 , d_callback(basicAllocator)
 , d_result(-1)
 {
-    BSLS_ASSERT(NO_OP == code || TERMINATE == code);
+    BSLS_ASSERT(NO_OP == code
+             || CAN_REGISTER_SOCKETS == code
+             || TERMINATE == code);
 }
 
 inline
