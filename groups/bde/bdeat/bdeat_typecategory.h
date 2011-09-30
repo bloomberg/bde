@@ -1195,8 +1195,9 @@ bdeat_TypeCategoryFunctions::bdeat_typeCategorySelect(const TYPE& object)
     // 'select' function to implement the logic that determines the *runtime*
     // type category.
 
-    BSLMF_ASSERT(bdeat_TypeCategory::BDEAT_DYNAMIC_CATEGORY !=
-                                                              BDEAT_SELECTION);
+    BSLMF_ASSERT(bdeat_TypeCategory::BDEAT_DYNAMIC_CATEGORY
+             != (bdeat_TypeCategory::Value)BDEAT_SELECTION);
+
     (void)object;
     return (bdeat_TypeCategory::Value)BDEAT_SELECTION;
 }
