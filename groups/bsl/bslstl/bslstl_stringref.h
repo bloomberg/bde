@@ -183,17 +183,18 @@ BSLS_IDENT("$Id: $")
 // rest of this usage example:
 //..
 //  const char poem[] =                  // by William Butler Yeats (1865-1939)
-//                                                  //  length  blanks
+//      |....5....|....5....|....5....|....5....|   //  length  blanks
+//                                                  //
 //      "O love is the crooked thing,\n"            //    29      5
-//      "There is nobody wise enough\n"             //    27      4
+//      "There is nobody wise enough\n"             //    28      4
 //      "To find out all that is in it,\n"          //    31      7
 //      "For he would be thinking of love\n"        //    33      6
-//      "Till the stars had run away\n"             //    26      5
+//      "Till the stars had run away\n"             //    28      5
 //      "And the shadows eaten the moon.\n"         //    32      5
 //      "Ah, penny, brown penny, brown penny,\n"    //    37      5
 //      "One cannot begin it too soon.";            //    29      5
 //                                                  //          ----
-//                                                  //           42
+//                                                  //    total: 42
 //
 //  numBlanks = getNumBlanks(poem);
 //  assert(42 == numBlanks);
