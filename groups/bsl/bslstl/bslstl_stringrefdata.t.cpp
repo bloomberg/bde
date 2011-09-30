@@ -246,6 +246,37 @@ class StringRef : public bslstl_StringRefData<char>
 //..
 
 //=============================================================================
+//                             PRIVATE FUNCTIONS
+//-----------------------------------------------------------------------------
+
+namespace {
+
+// FREE OPERATORS
+template <typename CHAR_TYPE>
+bool operator==(const bslstl_StringRefData<CHAR_TYPE>& lhs,
+                const bslstl_StringRefData<CHAR_TYPE>& rhs)
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'bslstl_StringRefData' objects have
+    // the same value if the corresponding values of their 'begin' and 'end'
+    // attributes are the same.
+{
+    return lhs.begin() == rhs.begin() && lhs.end() == rhs.end();
+}
+
+template <typename CHAR_TYPE>
+bool operator!=(const bslstl_StringRefData<CHAR_TYPE>& lhs,
+                const bslstl_StringRefData<CHAR_TYPE>& rhs)
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'bslstl_StringRefData' objects
+    // do not have the same value if the corresponding values of their 'begin'
+    // and 'end' attributes are not the same.
+{
+    return !(lhs == rhs);
+}
+
+}
+
+//=============================================================================
 //                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
 

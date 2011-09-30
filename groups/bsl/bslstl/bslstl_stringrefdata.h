@@ -15,11 +15,38 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
 //@DESCRIPTION: This component provides a complex-constrained in-core
-// (value-semantic) attribute class, 'bslstl_StringRefData', that represents a
-// reference to character string data.  Note that 'bslstl_StringRefData' is
-// intended for use as a base class for 'bslstl_StringRef' and as an argument
-// to 'bsl::string' constructor, enabling a convertion from 'bslstl_StringRef'
-// to 'bsl::string' without a circular dependency between these two classes.
+// (value-semantic) attribute class (except for the equality comparison, see
+// below), 'bslstl_StringRefData', that represents a reference to character
+// string data.  Note that 'bslstl_StringRefData' is intended for use as a base
+// class for 'bslstl_StringRef' and as an argument to 'bsl::string'
+// constructor, enabling a convertion from 'bslstl_StringRef' to 'bsl::string'
+// without a cyclic dependency between these two classes.
+//
+// The dependencies between these components are shown on the following
+// diagram:
+//..
+//            +----------------------+
+//            |  ,----------------. 3|
+//            | ( bslstl_StringRef ) |
+//            |  `o-------|-------'  |
+//            +--/--------|----------+
+//              /         |
+//  +----------/-+        |
+//  |  ,------. 2|        |
+//  | ( string ) |        |
+//  |  `---o--'  |        |
+//  +-------\----+        |
+//           \            |
+//       +----\-----------V---------+
+//       |  ,--------------------. 1|
+//       | ( bslstl_StringRefData ) |
+//       |  `--------------------'  |
+//       +--------------------------+
+//..
+//
+// 'bslstl_StringRefData' doesn't define the equality comparison because its
+// behavior would conflict with the behavior of the equality comparison in the
+// derived 'bslstl_StringRef' class.
 //
 // A 'bslstl_StringRefData' object holds two pointers; 'begin' points to the
 // first character of a contiguous array of characters forming a string, and
@@ -202,23 +229,6 @@ class bslstl_StringRefData {
         // well.
 };
 
-// FREE OPERATORS
-template <typename CHAR_TYPE>
-bool operator==(const bslstl_StringRefData<CHAR_TYPE>& lhs,
-                const bslstl_StringRefData<CHAR_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'bslstl_StringRefData' objects have
-    // the same value if the corresponding values of their 'begin' and 'end'
-    // attributes are the same.
-
-template <typename CHAR_TYPE>
-bool operator!=(const bslstl_StringRefData<CHAR_TYPE>& lhs,
-                const bslstl_StringRefData<CHAR_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'bslstl_StringRefData' objects
-    // do not have the same value if the corresponding values of their 'begin'
-    // and 'end' attributes are not the same.
-
 // ===========================================================================
 //                      TEMPLATE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -263,25 +273,7 @@ const CHAR_TYPE *bslstl_StringRefData<CHAR_TYPE>::end() const
     return d_end;
 }
 
-// FREE OPERATORS
-template <typename CHAR_TYPE>
-inline
-bool operator==(const bslstl_StringRefData<CHAR_TYPE>& lhs,
-                const bslstl_StringRefData<CHAR_TYPE>& rhs)
-{
-    return lhs.begin() == rhs.begin() && lhs.end() == rhs.end();
-}
-
-template <typename CHAR_TYPE>
-inline
-bool operator!=(const bslstl_StringRefData<CHAR_TYPE>& lhs,
-                const bslstl_StringRefData<CHAR_TYPE>& rhs)
-{
-    return !(lhs == rhs);
-}
-
 }  // close enterprise namespace
-
 
 #endif
 
