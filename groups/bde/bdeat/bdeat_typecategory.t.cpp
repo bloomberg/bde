@@ -203,6 +203,7 @@ namespace BloombergLP {
 bdeat_TypeCategory::Value
 bdeat_typeCategorySelect(const MyDeclaredDynamicType& object)
 {
+    (void)object;
     return object.d_currentCategory;
 }
 
@@ -210,6 +211,7 @@ template <typename MANIPULATOR>
 int bdeat_typeCategoryManipulateChoice(MyDeclaredDynamicType *object,
                                        MANIPULATOR&           manipulator)
 {
+    (void)object;
     return manipulator(object, bdeat_TypeCategory::Choice());
 }
 
@@ -217,6 +219,7 @@ template <typename MANIPULATOR>
 int bdeat_typeCategoryManipulateSequence(MyDeclaredDynamicType *object,
                                          MANIPULATOR&           manipulator)
 {
+    (void)object;
     return manipulator(object, bdeat_TypeCategory::Sequence());
 }
 
@@ -224,6 +227,7 @@ template <typename ACCESSOR>
 int bdeat_typeCategoryAccessChoice(const MyDeclaredDynamicType& object,
                                    ACCESSOR&                    accessor)
 {
+    (void)object;
     return accessor(object, bdeat_TypeCategory::Choice());
 }
 
@@ -231,6 +235,7 @@ template <typename ACCESSOR>
 int bdeat_typeCategoryAccessSequence(const MyDeclaredDynamicType& object,
                                      ACCESSOR&                    accessor)
 {
+    (void)object;
     return accessor(object, bdeat_TypeCategory::Sequence());
 }
 
@@ -271,6 +276,7 @@ namespace bdeat_NullableValueFunctions {
 bdeat_TypeCategory::Value
 bdeat_typeCategorySelect(const MyAutoDetectDynamicType& object)
 {
+    (void)object;
     return object.d_currentCategory;
 }
 
@@ -280,54 +286,63 @@ struct MyManipulator {
     template <typename TYPE>
     int operator()(TYPE *object, bslmf_Nil)
     {
+        (void)object;
         return -1;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::DynamicType)
     {
+        (void)object;
         return 0;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Array)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Choice)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::CustomizedType)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Enumeration)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::NullableValue)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Sequence)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Simple)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     }
 };
@@ -337,54 +352,63 @@ struct MyAccessor {
     template <typename TYPE>
     int operator()(const TYPE& object, bslmf_Nil)
     {
+        (void)object;
         return -1;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::DynamicType)
     {
+        (void)object;
         return 0;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Array)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Choice)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::CustomizedType)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Enumeration)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::NullableValue)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Sequence)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     }
 };
@@ -630,6 +654,7 @@ struct MyAccessor {
         int operator()(const TYPE& object, bslmf_Nil)
         {
             ASSERT(0);  // received invalid object
+            (void)object;
             return -1;
         }
 
