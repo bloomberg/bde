@@ -550,8 +550,13 @@ int main(int argc, char *argv[]) {
                ASSERT(resp == 0
                    || resp == bteso_SocketHandle::BTESO_ERROR_TIMEDOUT);
 
-               for (int x = 0; x < 100; ++x) {
+#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_SOLARIS)
+               enum { WAITS = 200 };
+#else
+               enum { WAITS = 100 };
+#endif
 
+               for (int x = 0; x < WAITS; ++x) {
                    bdet_TimeInterval twoseconds = bdetu_SystemTime::now() + 2;
 
                    if (veryVerbose) { cout << "waitForConnect "; P(resp); }
@@ -2184,24 +2189,30 @@ int main(int argc, char *argv[]) {
                    //  3) accept returns the socket but a read confirms the
                    //     socket has gone.  ERROR_EOF or ERROR_CONNDEAD
                    //
+                   typedef bteso_SocketHandle SH;
+
                    if (resp != 0) {
-                       ASSERT(bteso_SocketHandle::BTESO_ERROR_CONNDEAD == resp
-                       || bteso_SocketHandle::BTESO_ERROR_INTERRUPTED == resp);
-                       testFactory.deallocate(streamSocketB);
+#if defined(BSLS_PLATFORM__OS_HPUX)
+                       LOOP_ASSERT(resp,SH::BTESO_ERROR_UNCLASSIFIED == resp ||
+                                        SH::BTESO_ERROR_CONNDEAD     == resp ||
+                                        SH::BTESO_ERROR_INTERRUPTED  == resp);
+#else
+                       LOOP_ASSERT(resp,SH::BTESO_ERROR_CONNDEAD     == resp ||
+                                        SH::BTESO_ERROR_INTERRUPTED  == resp);
+#endif
                    }
                    else {
                        char buf[1];
                        resp = streamSocketB->read(buf,1 );
-                       ASSERT(bteso_SocketHandle::BTESO_ERROR_CONNDEAD == resp
-                           || bteso_SocketHandle::BTESO_ERROR_EOF == resp);
-                       testFactory.deallocate(streamSocketB);
+                       ASSERT(SH::BTESO_ERROR_CONNDEAD == resp ||
+                              SH::BTESO_ERROR_EOF      == resp);
                    }
+                   testFactory.deallocate(streamSocketB);
                } else {
                    testFactory.deallocate(serverSocket);
                }
           }
       } break;
-
       case 3: {
         // --------------------------------------------------------------------
         // TESTING FACTORY ALLOCATE WITH HANDLE
