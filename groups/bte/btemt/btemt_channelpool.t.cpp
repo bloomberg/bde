@@ -902,7 +902,7 @@ static int numChannels = 0;
 
 static const int MAX_NUM_HANDLES = FD_SETSIZE;
 
-#elif BSLS_PLATFORM__OS_SOLARIS
+#elif BSLS_PLATFORM__OS_SOLARIS || BSLS_PLATFORM__OS_AIX
 
 static const int MAX_NUM_HANDLES = 32;
 
@@ -8677,8 +8677,15 @@ int main(int argc, char *argv[])
             P(data);
         }
 
+        numTimesDataCbCalled = 0;
+
         rc = pool.disableRead(channelId);
         ASSERT(!rc);
+
+        // Wait for the dispatcher thread to process the deregister the READ
+        // event.
+
+        bcemt_ThreadUtil::microSleep(0, 2);
 
         rc = socket->write(TEXT, LEN);
         LOOP2_ASSERT(LEN, rc, LEN == rc);
@@ -8692,8 +8699,7 @@ int main(int argc, char *argv[])
 
         ASSERT(rc);
 
-        LOOP_ASSERT(numTimesDataCbCalled,    1   == numTimesDataCbCalled);
-        LOOP3_ASSERT(LEN, data.size(), data, LEN == data.size());
+        LOOP_ASSERT(numTimesDataCbCalled, 0 == numTimesDataCbCalled);
 
         if (veryVerbose) {
             P(data);
