@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
 // 'bslstl_StringRef' and 'std::string', and 'bslst_StringRef' and 'char *')
 // for (1) lexicographic comparison of values, and (2) concatenation of values
 // (producing an 'std::string'); also provided is an overloaded free
-// 'operator<<' for writting the value of a 'bslst_StringRef' object to a
+// 'operator<<' for writing the value of a 'bslst_StringRef' object to a
 // specified output stream.
 //
 // The 'bsl::hash' template class is specialized for 'bslstl_StringRef' to
@@ -292,13 +292,13 @@ class bslstl_StringRefImp : public bslstl_StringRefData<CHAR_TYPE> {
     // This class provides a reference-semantic-like (see below) mechanism that
     // allows 'const' 'std::string' values, which are represented externally as
     // either an 'std::string' or null-terminated c-style string (or parts
-    // thereof), to be treated both uniformally and efficiently when passed as
+    // thereof), to be treated both uniformly and efficiently when passed as
     // an argument to a function in which the string's length will be needed.
     // The interface of this class provides a subset of accessor methods found
     // on 'std::string' (but none of the manipulators) -- all of which apply to
     // the referenced string.  But, because only non-modifiable access is
     // afforded to the referenced string value, each of the manipulators on
-    // this type -- assignment in particular -- apply to this string-referrence
+    // this type -- assignment in particular -- apply to this string-reference
     // object itself (as if it had pointer semantics).  Hence, this class has a
     // hybrid of reference- and pointer-semantics.
     //
@@ -470,7 +470,7 @@ class bslstl_StringRefImp : public bslstl_StringRefData<CHAR_TYPE> {
         // 'begin() == end()'.
 
     size_type length() const;
-        // Return the length of the string refered to by this object.  Note
+        // Return the length of the string referred to by this object.  Note
         // that this call is equivalent to 'end() - begin()'.
 };
 
@@ -496,10 +496,10 @@ bool operator==(const CHAR_TYPE                      *lhs,
 template <typename CHAR_TYPE>
 bool operator==(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                 const CHAR_TYPE                      *rhs);
-    // Return 'true' if the strings refered to by the specified 'lhs' and 'rhs'
-    // have the same lexicographic value, and 'false' otherwise.  Two strings
-    // have the same lexicographic value if they have the same length, and the
-    // respective values at each character position are the same.
+    // Return 'true' if the strings referred to by the specified 'lhs' and
+    // 'rhs' have the same lexicographic value, and 'false' otherwise.  Two
+    // strings have the same lexicographic value if they have the same length,
+    // and the respective values at each character position are the same.
 
 template <typename CHAR_TYPE>
 bool operator!=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
@@ -522,11 +522,11 @@ bool operator!=(const CHAR_TYPE                      *lhs,
 template <typename CHAR_TYPE>
 bool operator!=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                 const CHAR_TYPE                      *rhs);
-    // Return 'true' if the strings refered to by the specified 'lhs' and 'rhs'
-    // do not have the same lexicographic value, and 'false' otherwise.  Two
-    // strings do not have the same lexicographic value if they do not have the
-    // same length, or respective values at any character position are not the
-    // same.
+    // Return 'true' if the strings referred to by the specified 'lhs' and
+    // 'rhs' do not have the same lexicographic value, and 'false' otherwise.
+    // Two strings do not have the same lexicographic value if they do not
+    // have the same length, or respective values at any character position
+    // are not the same.
 
 template <typename CHAR_TYPE>
 bool operator<(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
@@ -549,8 +549,8 @@ bool operator<(const CHAR_TYPE                      *lhs,
 template <typename CHAR_TYPE>
 bool operator<(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                const CHAR_TYPE                      *rhs);
-    // Return 'true' if the string refered to by the specified 'lhs' is
-    // lexicographically less than the string refered to by the specified
+    // Return 'true' if the string referred to by the specified 'lhs' is
+    // lexicographically less than the string referred to by the specified
     // 'rhs', and 'false' otherwise.
 
 template <typename CHAR_TYPE>
@@ -574,8 +574,8 @@ bool operator>(const CHAR_TYPE                      *lhs,
 template <typename CHAR_TYPE>
 bool operator>(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                const CHAR_TYPE                      *rhs);
-    // Return 'true' if the string refered to by the specified 'lhs' is
-    // lexicographically greater than the string refered to by the specified
+    // Return 'true' if the string referred to by the specified 'lhs' is
+    // lexicographically greater than the string referred to by the specified
     // 'rhs', and 'false' otherwise.
 
 template <typename CHAR_TYPE>
@@ -599,8 +599,8 @@ bool operator<=(const CHAR_TYPE                      *lhs,
 template <typename CHAR_TYPE>
 bool operator<=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                 const CHAR_TYPE                      *rhs);
-    // Return 'true' if the string refered to by the specified 'lhs' is
-    // lexicographically less than or equal to the string refered to by the
+    // Return 'true' if the string referred to by the specified 'lhs' is
+    // lexicographically less than or equal to the string referred to by the
     // specified 'rhs', and 'false' otherwise.
 
 template <typename CHAR_TYPE>
@@ -624,8 +624,8 @@ bool operator>=(const CHAR_TYPE                      *lhs,
 template <typename CHAR_TYPE>
 bool operator>=(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
                 const CHAR_TYPE                      *rhs);
-    // Return 'true' if the string refered to by the specified 'lhs' is
-    // lexicographically greater than or equal to the string refered to by the
+    // Return 'true' if the string referred to by the specified 'lhs' is
+    // lexicographically greater than or equal to the string referred to by the
     // specified 'rhs', and 'false' otherwise.
 
 template <typename CHAR_TYPE>
@@ -657,7 +657,7 @@ bsl::basic_string<CHAR_TYPE>
     operator+(const bslstl_StringRefImp<CHAR_TYPE>& lhs,
               const CHAR_TYPE                      *rhs);
     // Return a 'bsl::string' having the value of the concatenation of the
-    // strings refered to by the specified 'lhs' and rhs' values.
+    // strings referred to by the specified 'lhs' and rhs' values.
 
 template <typename CHAR_TYPE>
 std::basic_ostream<CHAR_TYPE>&
