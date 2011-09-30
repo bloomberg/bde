@@ -517,15 +517,23 @@ BSLS_IDENT("$Id: $")
     )                                                                    \
 )
 
-#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP(RESULT, EXPRESSION_UNDER_TEST) { \
-    try {                                                                \
-        EXPRESSION_UNDER_TEST;                                           \
-                                                                         \
-        ASSERT(bsls_AssertTest::tryProbe(RESULT));                       \
-    }                                                                    \
-    catch (const bsls_AssertTestException& e) {                          \
-        ASSERT(bsls_AssertTest::catchProbe(RESULT, e, __FILE__));        \
-    }                                                                    \
+#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP(RESULT, EXPRESSION_UNDER_TEST) {  \
+    try {                                                                 \
+        EXPRESSION_UNDER_TEST;                                            \
+                                                                          \
+        ASSERT(bsls_AssertTest::tryProbe(RESULT));                        \
+    }                                                                     \
+    catch (const bsls_AssertTestException& e) {                           \
+        if (!bsls_AssertTest::catchProbe(RESULT, e, __FILE__)) {          \
+            if ('P' == RESULT) {                                          \
+               ASSERT(false && "Unexpected assertion");                   \
+            }                                                             \
+            else {                                                        \
+               ASSERT(false &&                                            \
+               "(Expected) assertion raised by a lower level component"); \
+            }                                                             \
+        }                                                                 \
+    }                                                                     \
 }
 
 // The following macros are not expanded on the Microsoft compiler to avoid
