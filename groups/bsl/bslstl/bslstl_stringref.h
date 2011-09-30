@@ -772,6 +772,7 @@ inline
 void bslstl_StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data)
 {
     BSLS_ASSERT_SAFE(data);
+
     *this = bslstl_StringRef(data, data + std::strlen(data));
 }
 
