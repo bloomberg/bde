@@ -8,7 +8,6 @@
 
 #include <bsl_iostream.h>
 #include <bsl_set.h>
-#include <bsl_strstream.h>
 
 #include <bsl_cstdlib.h>                      // atoi()
 #include <bsl_cstring.h>                      // strcmp(), memcmp(), memcpy()
@@ -328,9 +327,10 @@ typedef bael_AttributeContainer Obj;
 //                         GLOBAL CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct AttributeContainerTest : bsls_ProtocolTest<bael_AttributeContainer> {
-    bool hasValue(const bael_Attribute&) const          { return exit(); }
-    bsl::ostream& print(bsl::ostream&, int, int) const  { return exitRef(); }
+struct AttributeContainerTest : bsls_ProtocolTestImp<bael_AttributeContainer> {
+    bool hasValue(const bael_Attribute&) const        { return markDone(); }
+    bsl::ostream& print(bsl::ostream&, int, int) const
+                                                      { return markDoneRef(); }
 };
 
 //=============================================================================
@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
         //   class bael_AttributeContainer
         // --------------------------------------------------------------------
 
-        bsls_ProtocolTestDriver<AttributeContainerTest> t;
+        bsls_ProtocolTest<AttributeContainerTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
@@ -423,8 +423,6 @@ int main(int argc, char *argv[])
 
         BSLS_PROTOCOLTEST_ASSERT(t, hasValue(bael_Attribute("", 0)));
         BSLS_PROTOCOLTEST_ASSERT(t, print(cout, 0, 0));
-
-        testStatus = t.failures();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

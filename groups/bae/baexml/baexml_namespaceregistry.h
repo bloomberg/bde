@@ -1,4 +1,4 @@
-// baexml_namespaceregistry.h                  -*-C++-*-
+// baexml_namespaceregistry.h                                         -*-C++-*-
 #ifndef INCLUDED_BAEXML_NAMESPACEREGISTRY
 #define INCLUDED_BAEXML_NAMESPACEREGISTRY
 
@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a unique integer ID for each XML namespace.
 //
-//@CLASSES: baexml_NamespaceRegistry: namespace-to-id mapping registry
+//@CLASSES:
+//   baexml_NamespaceRegistry: namespace-to-id mapping registry
 //
 //@SEE_ALSO: baexml_PrefixTable
 //
@@ -55,12 +56,11 @@ BDES_IDENT("$Id: $")
 ///Thread Safety
 ///-------------
 // It is safe to read or modify multiple instances of
-// 'baexml::baexml_NamespaceRegistry' simultaneously, each from a separate
-// thread.  It is safe to read a single instance of
-// 'baexml::baexml_NamespaceRegistry' from multiple threads, provided no
-// thread is modifying it at the same time.  It is not safe to read or modify
-// an instance of 'baexml::baexml_NamespaceRegistry' from one thread while any
-// other thread is modifying the same instance.
+// 'baexml_NamespaceRegistry' simultaneously, each from a separate thread.  It
+// is safe to read a single instance of 'baexml_NamespaceRegistry' from
+// multiple threads, provided no thread is modifying it at the same time.  It
+// is not safe to read or modify an instance of 'baexml_NamespaceRegistry' from
+// one thread while any other thread is modifying the same instance.
 //
 ///Usage
 ///-----
@@ -144,9 +144,9 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ================================
+                        // ==============================
                         // class baexml_NamespaceRegistry
-                        // ================================
+                        // ==============================
 
 class baexml_NamespaceRegistry {
     // Mapping that associates a unique integer with each registered namespace

@@ -74,6 +74,10 @@
 #include <bsls_exceptionutil.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>
 #define INCLUDED_ALGORITHM
@@ -567,7 +571,9 @@ private:
     __n->_M_next = 0;
     BSLS_TRY {
       BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-          &__n->_M_val, __obj, _M_num_elements.bslmaAllocator());
+                                             BSLS_UTIL_ADDRESSOF(__n->_M_val),
+                                             __obj,
+                                             _M_num_elements.bslmaAllocator());
     }
     BSLS_CATCH(...)
     {
@@ -579,9 +585,8 @@ private:
 
   void _M_delete_node(_Node* __n)
   {
-    // MODIFIED BY ARTHUR
-    // bsl::_bslstp_Destroy(&__n->_M_val);
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(&__n->_M_val);
+    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+                                             BSLS_UTIL_ADDRESSOF(__n->_M_val));
     _M_num_elements.deallocate(__n, 1);
   }
 

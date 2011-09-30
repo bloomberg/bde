@@ -23,7 +23,7 @@ BDES_IDENT("$Id: $")
 // comparison.  Clients of 'bdeimp_DuffsDevice' can apply these templatized
 // methods as needed.
 //
-///SYNOPSIS
+///Synopsis
 ///--------
 // This components methods are templatized over the type 'T':
 //..

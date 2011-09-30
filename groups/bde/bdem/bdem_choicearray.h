@@ -103,14 +103,14 @@ BDES_IDENT("$Id: $")
 // object simultaneously in separate threads.
 //
 ///Usage
-//------
+///-----
 // We provide two examples.  The first one is self-contained and shows basic
 // usage.  The second one will show how to populate the 'bdem_ChoiceArray' with
 // data, output the array to a data stream, read the value from the stream into
 // a new object, and access the values individually.
 //
 ///Example 1
-///---------
+///- - - - -
 // In the following example, we create a couple of 'bdem_ChoiceArray' objects,
 // add items in two different ways, and print the results.
 //..
@@ -554,6 +554,11 @@ class bdem_ChoiceArray {
         // array.  The behavior is undefined unless '0 <= typesCatalogLen' and
         // 'typesCatalog' has at least 'typesCatalogLen' values.
 
+    void reserveRaw(bsl::size_t numItems);
+        // Reserve sufficient memory to satisfy allocation requests for the
+        // insertion of at least the specified 'numItems' without replenishment
+        // (i.e., without internal allocation).
+
     void reset(const bsl::vector<bdem_ElemType::Type>& typesCatalog);
         // Destroy all choice array items in this choice array, remove them
         // from the array, and reset the types catalog to contain the types in
@@ -602,6 +607,11 @@ class bdem_ChoiceArray {
         // Return a reference to the non-modifiable choice array item at the
         // specified 'itemIndex' in this choice array.  The behavior is
         // undefined unless '0 <= itemIndex < length()'.
+
+    bsl::size_t capacityRaw() const;
+        // Return the number of items for which memory was previously allocated
+        // upon insertion or via a call to 'reserveRaw'.  Note that
+        // 'length() <= capacityRaw()' is an invariant of this class.
 
     int length() const;
         // Return the number of choice array items in this choice array.
@@ -709,6 +719,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bdem_ChoiceArray& rhs);
                         // -----------------
 
 // ACCESSORS
+inline
+bsl::size_t bdem_ChoiceArray::capacityRaw() const
+{
+    return d_arrayImp.capacityRaw();
+}
+
 inline
 int bdem_ChoiceArray::length() const
 {
@@ -899,6 +915,12 @@ void bdem_ChoiceArray::makeItemsNull(int index, int numItems)
     BSLS_ASSERT_SAFE(index + numItems <= length());
 
     d_arrayImp.makeItemsNull(index, numItems);
+}
+
+inline
+void bdem_ChoiceArray::reserveRaw(bsl::size_t numItems)
+{
+    d_arrayImp.reserveRaw(numItems);
 }
 
 inline

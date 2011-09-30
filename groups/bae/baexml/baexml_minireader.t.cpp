@@ -730,7 +730,7 @@ int main(int argc, char *argv[])
     switch (test)
     {
       case 0:  // Zero is always the leading case.
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -771,6 +771,76 @@ int main(int argc, char *argv[])
 
       } break;
 
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING decoding 'CDATA'
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+        if (verbose) bsl::cout << bsl::endl
+                               << "Testing 'CDATA'"   << bsl::endl
+                               << "===============\n" << bsl::endl;
+
+        {
+            const char *CDATA_STR = "<![CDATA[S & P]]>";
+
+            static const string xmlStr =
+                "<?xml version='1.0' encoding='UTF-8'?>\n"
+                "<!-- RCSId_bascfg_xsd = \"$Id: $\" -->\n"
+                "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+                "    elementFormDefault='qualified'\n"
+                "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+                "    bdem:package='bascfg'>\n"
+                "<Node>\n"
+                "    <Element>&lt;![CDATA[S &amp; P]]></Element>\n"
+                "    \n"
+                "</Node>\n"
+                "</xs:schema>";
+
+          if (veryVerbose) { P(xmlStr); }
+
+          baexml_NamespaceRegistry namespaces;
+          baexml_PrefixStack prefixStack(&namespaces);
+          Obj miniReader; Obj& reader = miniReader;
+
+          reader.setPrefixStack(&prefixStack);
+
+          int rc = reader.open(&xmlStr[0], xmlStr.size());
+          ASSERT(-1 < rc);
+
+          ASSERT( reader.isOpen());
+          ASSERT( reader.nodeType() == baexml_Reader::BAEXML_NODE_TYPE_NONE);
+
+          readHeader(reader);
+
+          rc = advancePastWhiteSpace(reader);
+          ASSERT(reader.nodeType() == baexml_Reader::BAEXML_NODE_TYPE_ELEMENT);
+          ASSERT(!bsl::strcmp(reader.nodeName(), "Node"));
+
+          rc = advancePastWhiteSpace(reader);
+          ASSERT(reader.nodeType() == baexml_Reader::BAEXML_NODE_TYPE_ELEMENT);
+          ASSERT(!bsl::strcmp(reader.nodeName(), "Element"));
+
+          rc = advancePastWhiteSpace(reader);
+          ASSERT( reader.nodeType() == baexml_Reader::BAEXML_NODE_TYPE_TEXT);
+          LOOP_ASSERT(reader.nodeValue(),
+                      !bsl::strcmp(reader.nodeValue(), CDATA_STR));
+
+          rc = advancePastWhiteSpace(reader);
+          ASSERT(reader.nodeType()
+                               == baexml_Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+          ASSERT(!bsl::strcmp(reader.nodeName(), "Element"));
+
+          rc = advancePastWhiteSpace(reader);
+          ASSERT(reader.nodeType()
+                               == baexml_Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+          ASSERT(!bsl::strcmp(reader.nodeName(), "Node"));
+
+          reader.close();
+        }
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // REFERENCE SUBSTITUTION TEST

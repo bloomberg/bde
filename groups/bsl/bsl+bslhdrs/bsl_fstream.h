@@ -74,7 +74,6 @@ namespace bsl
     using native_std::nounitbuf;
     using native_std::nouppercase;
     using native_std::num_get;
-    using native_std::num_put;
     using native_std::numpunct;
     using native_std::numpunct_byname;
     using native_std::oct;

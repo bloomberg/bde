@@ -56,7 +56,7 @@ BDES_IDENT("$Id: $")
 // explicitly.
 //
 ///EXTERNALIZATION AND VALUE SEMANTICS
-///- - - - - - - - - - - - - - - - - -
+///-----------------------------------
 // The concept of "externalization" in this component is intentionally
 // specialized to support streaming the *values* of entities atomically.  In
 // particular, streaming an array of a specific length is considered to be an

@@ -11,7 +11,11 @@ BDES_IDENT_RCSID(bdet_datetime_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
+#include <bsl_c_stdio.h>   // for 'snprintf'
+
 #include <bsls_assert.h>
+
+#include <bsl_c_stdio.h>          // 'snprintf'
 
 static const char *const MONTHS[] = {
     0,
@@ -71,9 +75,26 @@ int bdet_Datetime::printToBuffer(char *result, int numBytes) const
     time().getTime(&hour, &min, &sec, &mSec);
 
 #if defined(BSLS_PLATFORM__CMP_MSVC)
-#define snprintf _snprintf
-#endif
+    // Windows uses a different variant of snprintf that does not necessarily
+    // null-terminate and returns -1 on overflow.
 
+    const int rc = _snprintf(result,
+                             numBytes,
+                             "%02d%s%04d_%02d:%02d:%02d.%03d",
+                             d,
+                             month,
+                             y,
+                             hour,
+                             min,
+                             sec,
+                             mSec);
+
+    if ((0 > rc || rc == numBytes) && numBytes > 0) {
+        result[numBytes - 1] = '\0';  // Make sure to null-terminate
+                                      // on overflow.
+    }
+    return 22;  // Format of 'bdet_Datetime' always has 22 characters.
+#else
     return snprintf(result,
                     numBytes,
                     "%02d%s%04d_%02d:%02d:%02d.%03d",
@@ -84,11 +105,7 @@ int bdet_Datetime::printToBuffer(char *result, int numBytes) const
                     min,
                     sec,
                     mSec);
-
-#if defined(BSLS_PLATFORM__CMP_MSVC)
-#undef snprintf
 #endif
-
 }
 
 // FREE OPERATORS

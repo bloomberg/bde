@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for enumerating memory alignment strategies.
 //
 //@CLASSES:
-//  bsls_Alignment: namespace for enumerated alignment strategy values
+//   bsls_Alignment: namespace for enumerated alignment strategy values
 //
 //@SEE_ALSO: bsls_alignmentutil
 //
