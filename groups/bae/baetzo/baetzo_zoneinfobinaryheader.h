@@ -33,23 +33,24 @@ BDES_IDENT("$Id: $")
 //  numLocalTimeTypes  int    1       >= 1
 //  abbrevDataSize     int    1       >= 1
 //..
-//: o version: Zoneinfo file format version, as of 2011, either '\0' or '2'.
+//: o 'version': Zoneinfo file format version, as of 2011, either '\0' or '2'.
 //:
-//: o numIsGmt: number of encoded UTC/local indicators in the file, indicating
-//:   whether a transition time was originally specified as UTC in the rule
-//:   file.
+//: o 'numIsGmt': number of encoded UTC/local indicators in the file,
+//:   indicating whether a transition time was originally specified as UTC in
+//:   the rule file.
 //:
-//: o numIsStd: number of encoded standard/wall indicators in the file,
+//: o 'numIsStd': number of encoded standard/wall indicators in the file,
 //:   indicating whether a transition time was originally specified as standard
 //:   time in the rule file.
 //:
-//: o numLeaps: number of leap corrections stored in the file.
+//: o 'numLeaps': number of leap corrections stored in the file.
 //:
-//: o numTransitions: number of local-time type transitions stored in the file.
+//: o 'numTransitions': number of local-time type transitions stored in the
+//:   file.
 //:
-//: o numLocalTimeTypes: number of local-time types stored in the file.
+//: o 'numLocalTimeTypes': number of local-time types stored in the file.
 //:
-//: o abbrevDataSize: length of the sequence of characters containing the
+//: o 'abbrevDataSize': length of the sequence of characters containing the
 //:   ('\0'-separated) abbreviation strings in the file.
 //
 ///Usage
@@ -253,13 +254,15 @@ class baetzo_ZoneinfoBinaryHeader {
     baetzo_ZoneinfoBinaryHeader();
         // Create a 'baetzo_ZoneinfoBinaryHeader' object having the (default)
         // attribute values:
-        //: o 'version()           == 0'
-        //: o 'numIsGmt()          == 0'
-        //: o 'numIsStd()          == 0'
-        //: o 'numLeaps()          == 0'
-        //: o 'numTransitions()    == 0'
-        //: o 'numLocalTimeTypes() == 1'
-        //: o 'abbrevDataSize()    == 1'
+        //..
+        //  version()           == 0
+        //  numIsGmt()          == 0
+        //  numIsStd()          == 0
+        //  numLeaps()          == 0
+        //  numTransitions()    == 0
+        //  numLocalTimeTypes() == 1
+        //  abbrevDataSize()    == 1
+        //..
 
     baetzo_ZoneinfoBinaryHeader(char version,
                                 int  numIsGmt,

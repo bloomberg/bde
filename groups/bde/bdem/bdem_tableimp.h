@@ -470,9 +470,18 @@ class bdem_TableImp {
         // '0 <= numBytes'.  Note that this method has no effect unless the
         // internal allocation mode is 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.
 
-    void reset(const bdem_ElemType::Type     columnTypes[],
-               int                           numColumns,
-               const bdem_Descriptor *const *attrLookupTbl);
+    void reserveRaw(bsl::size_t numRows);
+        // Reserve sufficient memory to hold at least the footprints for the
+        // specified 'numRows'.  Other memory needed to initialize
+        // a row upon insertion *may* or may *not* be reserved, depending on
+        // the allocation mode.  In the future, this method may strengthen its
+        // guarantee such that no additional allocation will occur upon row
+        // insertion (regardless of allocation mode) unless a row data element
+        // itself allocates memory.
+
+      void reset(const bdem_ElemType::Type     columnTypes[],
+                 int                           numColumns,
+                 const bdem_Descriptor *const *attrLookupTbl);
         // Remove all the rows from this table and set the sequence of column
         // types in this table to be the same as the specified leading
         // 'numColumns' in the specified 'columnTypes' array, with an
@@ -544,6 +553,14 @@ class bdem_TableImp {
         // Return the type of the column at the specified 'columnIndex' in this
         // table.  The behavior is undefined unless
         // '0 <= columnIndex < numColumns()'.
+
+    bsl::size_t capacityRaw() const;
+        // Return the total number of row footprints for which sufficient
+        // memory is currently allocated.  Inserting rows that do not exceed
+        // this capacity *may* or may *not* result in additional allocations
+        // depending on the allocation mode, and whether any row data element
+        // itself allocates memory (see the 'reserveRaw' method).  Note that
+        // 'numRows() <= capacityRaw()' is an invariant of this class.
 
     bool isAnyInColumnNull(int columnIndex) const;
         // Return 'true' if the value of an element at the specified
@@ -642,6 +659,15 @@ bool operator!=(const bdem_TableImp& lhs, const bdem_TableImp& rhs);
     // value if they have differing numbers of rows or columns, the respective
     // column types differ in at least one column position, or corresponding
     // values at any (row, column) position are not the same.
+
+// PRIVATE GEOMETRIC MEMORY GROWTH (TEMPORARY)
+void bdem_TableImp_enableGeometricMemoryGrowth();
+    // Enable geometric memory growth, upon insertion, for 'bdem_TableImp'
+    // objects in the current process.  By default, memory is obtained on
+    // and "as needed" basis.  Note that this method is provided,
+    // *temporarily*, as part of an overall transition strategy to move toward
+    // geometric memory growth being the default, and eventually the only
+    // option.  Also note that this method is *not* *thread-safe*,
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS

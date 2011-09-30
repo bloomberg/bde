@@ -113,13 +113,16 @@ baenet_HttpStartLine::operator=(const baenet_HttpStartLine&)
 //               GLOBAL TYPEDEFS/CLASSES/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct HttpEntityProcessorTest : bsls_ProtocolTest<baenet_HttpEntityProcessor>
+struct HttpEntityProcessorTest
+                             : bsls_ProtocolTestImp<baenet_HttpEntityProcessor>
 {
     void onStartEntity(const baenet_HttpStartLine&,
-                       const bcema_SharedPtr<baenet_HttpHeader>&)   { exit(); }
-    void onEntityData(const bcema_Blob&)                            { exit(); }
-    void onEndEntity()                                              { exit(); }
-    bcema_SharedPtr<baenet_HttpHeader> createHeader() const  { return exit(); }
+                       const bcema_SharedPtr<baenet_HttpHeader>&)
+                                                                { markDone(); }
+    void onEntityData(const bcema_Blob&)                        { markDone(); }
+    void onEndEntity()                                          { markDone(); }
+    bcema_SharedPtr<baenet_HttpHeader> createHeader() const
+                                                         { return markDone(); }
 };
 
 //=============================================================================
@@ -141,7 +144,7 @@ int main(int argc, char *argv[])
         // PROTOCOL TEST
         // --------------------------------------------------------------------
 
-        bsls_ProtocolTestDriver<HttpEntityProcessorTest> t;
+        bsls_ProtocolTest<HttpEntityProcessorTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
@@ -153,8 +156,6 @@ int main(int argc, char *argv[])
         BSLS_PROTOCOLTEST_ASSERT(t, onEntityData(bcema_Blob()));
         BSLS_PROTOCOLTEST_ASSERT(t, onEndEntity());
         BSLS_PROTOCOLTEST_ASSERT(t, createHeader());
-
-        testStatus = t.failures();
       } break;
       case 1: {
         // --------------------------------------------------------------------

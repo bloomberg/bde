@@ -1,7 +1,5 @@
+bdema_alignedallocator
 bdema_allocator
-bdema_autodeallocator
-bdema_autodeleter
-bdema_autodestructor
 bdema_autoreleaser
 bdema_blocklist
 bdema_bufferallocator
@@ -12,6 +10,7 @@ bdema_buffermanager
 bdema_chararray
 bdema_default
 bdema_defaultallocatorguard
+bdema_heapbypassallocator
 bdema_infrequentdeleteblocklist
 bdema_managedallocator
 bdema_managedptr

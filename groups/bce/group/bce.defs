@@ -5,16 +5,17 @@
 #==============================================================================
 
 # External library dependencies for executables
-!! unix			_       BCE_LDFLAGS 	= -Bdynamic -lpthread -lrt -Bstatic
-!! unix-Linux	_       BCE_LDFLAGS 	= -lpthread -lrt
-!! unix-AIX		_       BCE_LDFLAGS 	= -bdynamic -lpthread -lrt -bstatic
-!! unix-Cygwin		_       BCE_LDFLAGS 	= -lpthread
-!! unix-dgux		_	BCE_LDFLAGS	= 
+!! unix         _       BCE_LDFLAGS     = -Bdynamic -lpthread -lrt -Bstatic
+!! unix-Linux   _       BCE_LDFLAGS     = -lpthread -lrt
+!! unix-AIX     _       BCE_LDFLAGS     = -bdynamic -lpthread -lrt -bstatic
+!! unix-Cygwin  _       BCE_LDFLAGS     = -lpthread
+!! unix-HP_UX   _       BCE_LDFLAGS     = -lpthread -lrt
+!! unix-dgux    _       BCE_LDFLAGS     =
 
--- *			_	BDE_ENDLDFLAGS	= $(BCE_LDFLAGS)
+-- *            _   BDE_ENDLDFLAGS  = $(BCE_LDFLAGS)
 
 # Force threaded /MT over non-threaded /ML
 # <<< this will be ultimately superceded by capabilities declaration
-!! windows-		_	MT_LIBTYPE	= T
+!! windows-     _   MT_LIBTYPE  = T
 
 #==============================================================================

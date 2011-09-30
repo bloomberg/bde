@@ -1,4 +1,4 @@
-// baexml_listparser.h                  -*-C++-*-
+// baexml_listparser.h                                                -*-C++-*-
 #ifndef INCLUDED_BAEXML_LISTPARSER
 #define INCLUDED_BAEXML_LISTPARSER
 
@@ -9,7 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide push parser for lists.
 //
-//@CLASSES: baexml_ListParser: push parser for lists.
+//@CLASSES:
+//   baexml_ListParser: push parser for lists
 //
 //@SEE_ALSO: bdeat_arrayfunctions
 //

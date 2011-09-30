@@ -25,8 +25,6 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_select_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsl_cstring.h>
 
-using bsl::memset;
-
 // EINTR does not have any exact equivalent on Windows, except WSAEINTR which
 // indicates the call has been interrrupted with WSACancelBlockingCall().
 // Also, Microsoft's errno.h contains an erroneous definition of EINTR which
@@ -41,53 +39,41 @@ using bsl::memset;
 
 namespace BloombergLP {
 
-typedef bsl::hash_map<bteso_Event,
-                      bteso_EventManager::Callback,
-                      bteso_EventHash>              EventMap;
-
-static inline int internalInvariant(fd_set&          readSet,
-                                    fd_set&          writeSet,
-                                    fd_set&          exceptSet,
-                                    const EventMap&  events)
-    // Verify that every socket handle that is registered in the
-    // specified 'events' is set in the appropriate set (e.g., either
-    // 'readSet' or 'writeSet' depending on whether or not this is a
-    // READ or WRITE event) and return 0 on success and a non-zero value
-    // otherwise.
+static bool compareFdSets(const fd_set& lhs, const fd_set& rhs)
+    // Return 'true' if the specified 'lhs' and 'rhs' file descriptor sets are
+    // equal, and 'false' otherwise.
 {
-    EventMap::const_iterator iter(events.begin()), end(events.end());
-    fd_set readControl, writeControl;
-    FD_ZERO(&readControl);
-    FD_ZERO(&writeControl);
-    fd_set exceptControl;
-    FD_ZERO(&exceptControl);
-
-    while(end != iter) {
-        const bteso_Event& event = iter->first;
-        if (bteso_EventType::BTESO_READ == event.type() ||
-                bteso_EventType::BTESO_ACCEPT == event.type())
-        {
-            FD_SET(event.handle(), &readControl);
-        }
-        else {
-            FD_SET(event.handle(), &writeControl);
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
-            FD_SET(event.handle(), &exceptControl);
+#ifdef BTESO_PLATFORM__BSD_SOCKETS
+    return !bsl::memcmp(&lhs, &rhs, sizeof(fd_set));                  // RETURN
 #endif
-        }
-        ++iter;
+#ifdef BTESO_PLATFORM__WIN_SOCKETS
+    if (lhs.fd_count != rhs.fd_count) {
+        return false;                                                 // RETURN
     }
-    return
-        bteso_DefaultEventManager_SelectRaw::compareFdSets(readSet,
-                                                           readControl) ||
-        bteso_DefaultEventManager_SelectRaw::compareFdSets(writeSet,
-                                                           writeControl) ||
-        bteso_DefaultEventManager_SelectRaw::compareFdSets(exceptSet,
-                                                           exceptControl);
+    int numSockets = lhs.fd_count;
+    for (int i = 0; i < numSockets; ++i) {
+        SOCKET s = lhs.fd_array[i];
+        int j;
+        for (j = 0; j < numSockets; ++j) {
+            if (rhs.fd_array[j] == s) {
+                break;
+            }
+        }
+
+        if (j == numSockets) {
+
+            // A socket handle, s, is in 'lhs' and not in 'rhs'.
+
+            return false;                                             // RETURN
+        }
+    }
+    return true;
+#endif
 }
 
-static inline
-void copySet(fd_set *dst, const fd_set& src)
+static inline void copySet(fd_set *dst, const fd_set& src)
+     // Assign to the specified 'dst' file descriptor set the value of the
+     // specified 'src' file descriptor set.
 {
 #ifdef BTESO_PLATFORM__WIN_SOCKETS
     dst->fd_count = src.fd_count;
@@ -99,12 +85,16 @@ void copySet(fd_set *dst, const fd_set& src)
 #endif
 }
 
-static inline
-void convert(struct timeval *result, const bdet_TimeInterval& value) {
+static void convert(struct timeval           *result,
+                    const bdet_TimeInterval&  value)
+    // Convert the specified 'value' of 'bdet_TimeInterval' to a 'timeval',
+    // and load into the specified 'result'.
+{
     BSLS_ASSERT(result);
 
-    result->tv_sec = value.seconds() > 0 ? (bsl::time_t)value.seconds()
-                                             : 0;
+    result->tv_sec = value.seconds() > 0
+                   ? (bsl::time_t)value.seconds()
+                   : 0;
     result->tv_usec = value.nanoseconds() / 1000; // microseconds
     result->tv_usec += value.nanoseconds() % 1000 > 0;
 
@@ -118,85 +108,151 @@ void convert(struct timeval *result, const bdet_TimeInterval& value) {
     BSLS_ASSERT(result->tv_sec >= 0);
 }
 
-                    // =========================================
-                    // class bteso_DefaultEventManager_SelectRaw
-                    // =========================================
+           // -------------------------------------------------------
+           // class bteso_DefaultEventManager<bteso_Platform::SELECT>
+           // -------------------------------------------------------
 
-int
-bteso_DefaultEventManager_SelectRaw::compareFdSets(const fd_set& lhs,
-                                                   const fd_set& rhs)
+bool bteso_DefaultEventManager<bteso_Platform::SELECT>::
+                                                checkInternalInvariants() const
 {
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
-    return !!bsl::memcmp(&lhs, &rhs, sizeof(fd_set));
-#endif
+    EventMap::const_iterator it(d_events.begin()), end(d_events.end());
+    fd_set readControl, writeControl, exceptControl;
+    FD_ZERO(&readControl);
+    FD_ZERO(&writeControl);
+    FD_ZERO(&exceptControl);
+
+    for (; it != end; ++it) {
+        const bteso_Event& event = it->first;
+        if (bteso_EventType::BTESO_READ == event.type()
+         || bteso_EventType::BTESO_ACCEPT == event.type()) {
+            FD_SET(event.handle(), &readControl);
+        }
+        else {
+            FD_SET(event.handle(), &writeControl);
 #ifdef BTESO_PLATFORM__WIN_SOCKETS
-    if (lhs.fd_count != rhs.fd_count) {
-        return 1;
+            FD_SET(event.handle(), &exceptControl);
+#endif
+        }
     }
-    int numSockets = lhs.fd_count;
-    for (int i = 0; i < numSockets; ++i) {
-        SOCKET s = lhs.fd_array[i];
-        int j;
-                for (j = 0; j < numSockets; ++j) {
-            if (rhs.fd_array[j] == s) {
-                break;
+
+    return compareFdSets(d_readSet, readControl)
+        && compareFdSets(d_writeSet, writeControl)
+        && compareFdSets(d_exceptSet, exceptControl);
+}
+
+int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatchCallbacks(
+                                                 int           numEvents,
+                                                 const fd_set& readSet,
+                                                 const fd_set& writeSet,
+                                                 const fd_set& exceptSet) const
+{
+    // Iterate through all the events to find out which file descriptors have
+    // been set and invoke their respective callbacks.
+
+    EventMap::const_iterator it(d_events.begin()), end(d_events.end());
+
+    for (; numEvents > 0 && it != end; ++it) {
+        const bteso_Event& event = it->first;
+        if (bteso_EventType::BTESO_READ == event.type()
+         || bteso_EventType::BTESO_ACCEPT == event.type()) {
+            if (FD_ISSET(event.handle(), &readSet)) {
+                d_signaledReads.push_back(event);
+                --numEvents;
             }
         }
-
-                if (j == numSockets) {
-                        // A socket handle, s, is in 'lhs' and not in 'rhs'.
-                        return 1;
-                }
-    }
-    return 0;
-#endif
-}
-
-int bteso_DefaultEventManager_SelectRaw::canBeRegistered(
-       const bteso_SocketHandle::Handle& handle)
-{
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
-    return handle < FD_SETSIZE;
-#endif
+        else {
 #ifdef BTESO_PLATFORM__WIN_SOCKETS
-    return bsl::max(d_numRead, d_numWrite) < BTESO_MAX_NUM_HANDLES;
+            if (FD_ISSET(event.handle(), &writeSet)
+             || FD_ISSET(event.handle(), &exceptSet)) {
+#else
+            if (FD_ISSET(event.handle(), &writeSet)) {
 #endif
+                d_signaledWrites.push_back(event);
+                --numEvents;
+            }
+        }
+    }
+
+    int numDispatched = 0;
+    int numReads      = d_signaledReads.size();
+
+    for (int i = 0; i < numReads; ++i) {
+        EventMap::const_iterator callbackIt =
+                                             d_events.find(d_signaledReads[i]);
+        if (d_events.end() != callbackIt) {
+            ++numDispatched;
+            (callbackIt->second)();
+        }
+    }
+
+    int numWrites = d_signaledWrites.size();
+
+    for (int i = 0; i < numWrites; ++i) {
+        EventMap::const_iterator callbackIt =
+                                            d_events.find(d_signaledWrites[i]);
+        if (d_events.end() != callbackIt) {
+            ++numDispatched;
+            (callbackIt->second)();
+        }
+    }
+
+    d_signaledReads.clear();
+    d_signaledWrites.clear();
+
+    return numDispatched;
 }
 
-bteso_DefaultEventManager_SelectRaw::bteso_DefaultEventManager_SelectRaw(
-        bteso_TimeMetrics *timeMetric,
-        bslma_Allocator   *basicAllocator)
-: d_events(basicAllocator)
+// CREATORS
+bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
+                                               bslma_Allocator *basicAllocator)
+: d_eventsAllocator(basicAllocator)
+, d_events(&d_eventsAllocator)
 , d_numRead(0)
 , d_numWrite(0)
 , d_maxFd(0)
-, d_timeMetric(timeMetric)
-, d_signaledRead(basicAllocator)
-, d_signaledWrite(basicAllocator)
+, d_timeMetric(0)
+, d_signaledReads(basicAllocator)
+, d_signaledWrites(basicAllocator)
 {
     FD_ZERO(&d_readSet);
     FD_ZERO(&d_writeSet);
     FD_ZERO(&d_exceptSet);
-    BSLS_ASSERT(0 == d_signaledRead.size());
-    BSLS_ASSERT(0 == d_signaledWrite.size());
 
-    d_signaledRead.reserve(BTESO_MAX_NUM_HANDLES);
-    d_signaledWrite.reserve(BTESO_MAX_NUM_HANDLES);
+    d_signaledReads.reserve(BTESO_MAX_NUM_HANDLES);
+    d_signaledWrites.reserve(BTESO_MAX_NUM_HANDLES);
 }
 
-bteso_DefaultEventManager_SelectRaw::~bteso_DefaultEventManager_SelectRaw()
+bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
+                                             bteso_TimeMetrics *timeMetric,
+                                             bslma_Allocator   *basicAllocator)
+: d_eventsAllocator(basicAllocator)
+, d_events(&d_eventsAllocator)
+, d_numRead(0)
+, d_numWrite(0)
+, d_maxFd(0)
+, d_timeMetric(timeMetric)
+, d_signaledReads(basicAllocator)
+, d_signaledWrites(basicAllocator)
 {
-    BSLS_ASSERT(0 == internalInvariant(d_readSet,
-                                          d_writeSet,
-                                          d_exceptSet,
-                                          d_events));
-    BSLS_ASSERT(0 == d_signaledRead.size());
-    BSLS_ASSERT(0 == d_signaledWrite.size());
+    FD_ZERO(&d_readSet);
+    FD_ZERO(&d_writeSet);
+    FD_ZERO(&d_exceptSet);
+
+    d_signaledReads.reserve(BTESO_MAX_NUM_HANDLES);
+    d_signaledWrites.reserve(BTESO_MAX_NUM_HANDLES);
+}
+
+bteso_DefaultEventManager<bteso_Platform::SELECT>::~bteso_DefaultEventManager()
+{
+    BSLS_ASSERT(checkInternalInvariants());
+    BSLS_ASSERT(0 == d_signaledReads.size());
+    BSLS_ASSERT(0 == d_signaledWrites.size());
+
     d_events.clear();
 }
 
 // MANIPULATORS
-int bteso_DefaultEventManager_SelectRaw::dispatch(int flags)
+int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatch(int flags)
 {
     if (0 == d_events.size()) {
         return 0;
@@ -222,74 +278,19 @@ int bteso_DefaultEventManager_SelectRaw::dispatch(int flags)
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, NULL);
             savedErrno = errno;
         }
-    } while (ret < 0 && savedErrno == EINTR &&
-             !(flags & bteso_Flag::BTESO_ASYNC_INTERRUPT));
+    } while (ret < 0
+          && EINTR == savedErrno
+          && !(flags & bteso_Flag::BTESO_ASYNC_INTERRUPT));
 
     if (ret < 0) {
-        return savedErrno == EINTR ? -1 : ret;
+        return EINTR == savedErrno ? -1 : ret;
     }
+
     BSLS_ASSERT(0 < ret);
-
-    // Implementation note:
-    // 'ret' contains the number of socket-events signaled.  We mark up
-    // which are signaled and invoke the associated callbacks verifying
-    // before each invocation, that a callback is still registered.
-
-    EventMap::iterator it(d_events.begin()), end(d_events.end());
-
-    while (0 < ret && end != it) {
-        const bteso_Event &sev = it->first;
-        if (bteso_EventType::BTESO_READ == sev.type() ||
-            bteso_EventType::BTESO_ACCEPT == sev.type())
-        {
-            if (FD_ISSET(sev.handle(), &readSet)) {
-                d_signaledRead.push_back(sev);
-                --ret;
-            }
-        }
-        else {
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
-            if (FD_ISSET(sev.handle(), &writeSet) ||
-                FD_ISSET(sev.handle(), &exceptSet))
-#else
-            if (FD_ISSET(sev.handle(), &writeSet))
-#endif
-            {
-                d_signaledWrite.push_back(sev);
-                --ret;
-            }
-        }
-        ++it;
-    }
-
-    int numDispatched = 0;
-    int numRead = d_signaledRead.size();
-
-    for (int i = 0; i < numRead; ++i) {
-        EventMap::iterator callbackIt = d_events.find(d_signaledRead[i]);
-        if (d_events.end() != callbackIt) {
-            ++numDispatched;
-            (callbackIt->second)();
-        }
-    }
-
-    int numWrite = d_signaledWrite.size();
-
-    for (int i = 0; i < numWrite; ++i) {
-        EventMap::iterator callbackIt = d_events.find(d_signaledWrite[i]);
-        if (d_events.end() != callbackIt) {
-            ++numDispatched;
-            (callbackIt->second)();
-        }
-    }
-
-    // maintain internal invariants
-    d_signaledRead.clear();
-    d_signaledWrite.clear();
-    return numDispatched;
+    return dispatchCallbacks(ret, readSet, writeSet, exceptSet);
 }
 
-int bteso_DefaultEventManager_SelectRaw::dispatch(
+int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatch(
                                               const bdet_TimeInterval& timeout,
                                               int                      flags)
 {
@@ -313,6 +314,7 @@ int bteso_DefaultEventManager_SelectRaw::dispatch(
 
     tv.tv_usec = (tv.tv_usec + ADJUSTMENT) / INTERVAL * INTERVAL;
     BSLS_ASSERT(0 == tv.tv_usec % INTERVAL);
+
     if (0 == d_events.size()) {
         DWORD timeoutMS = tv.tv_sec * 1000 + tv.tv_usec / 1000 + 1;
         if (d_timeMetric) {
@@ -356,8 +358,8 @@ int bteso_DefaultEventManager_SelectRaw::dispatch(
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, &tv);
             savedErrno = errno;
         }
-    } while (ret < 0 && savedErrno == EINTR &&
-             !(flags & bteso_Flag::BTESO_ASYNC_INTERRUPT)
+    } while (ret < 0 && EINTR == savedErrno
+          && !(flags & bteso_Flag::BTESO_ASYNC_INTERRUPT)
              #ifdef BSLS_PLATFORM__OS_LINUX
              // Linux select() returns at one tick *preceding* the expiration
              // of the timeout.  Since code usually expects that select() will
@@ -366,7 +368,7 @@ int bteso_DefaultEventManager_SelectRaw::dispatch(
              // to sleep a bit more.  For more information, see
              // http://www.uwsg.iu.edu/hypermail/linux/kernel/0402.2/1636.html
 
-             || (ret == 0 && (timeout - bdetu_SystemTime::now()) > 0)
+          || (ret == 0 && (timeout - bdetu_SystemTime::now()) > 0)
              #endif
              );
 
@@ -376,72 +378,25 @@ int bteso_DefaultEventManager_SelectRaw::dispatch(
 #endif
     BSLS_ASSERT(ret > 0);
 
-    EventMap::iterator it(d_events.begin()), end(d_events.end());
-
-    while (ret > 0 && end != it) {
-        const bteso_Event &sev = it->first;
-
-        if (bteso_EventType::BTESO_READ == sev.type() ||
-            bteso_EventType::BTESO_ACCEPT == sev.type())
-        {
-            if (FD_ISSET(sev.handle(), &readSet)) {
-                d_signaledRead.push_back(sev);
-                --ret;
-            }
-        }
-        else {
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
-            if (FD_ISSET(sev.handle(), &writeSet) ||
-                FD_ISSET(sev.handle(), &exceptSet))
-#else
-            if (FD_ISSET(sev.handle(), &writeSet))
-#endif
-            {
-                d_signaledWrite.push_back(sev);
-                --ret;
-            }
-        }
-        ++it;
-    }
-
-    int numDispatched = 0;
-    int numRead = d_signaledRead.size();
-    for (int i = 0; i < numRead; ++i) {
-        EventMap::iterator callbackIt = d_events.find(d_signaledRead[i]);
-        if (d_events.end() != callbackIt) {
-            ++numDispatched;
-            (callbackIt->second)();
-        }
-    }
-
-    int numWrite = d_signaledWrite.size();
-    for (int i = 0; i < numWrite; ++i) {
-        EventMap::iterator callbackIt = d_events.find(d_signaledWrite[i]);
-        if (d_events.end() != callbackIt) {
-            ++numDispatched;
-            (callbackIt->second)();
-        }
-    }
-
-    // maintain internal invariants
-    d_signaledRead.clear();
-    d_signaledWrite.clear();
-    return numDispatched;
+    return dispatchCallbacks(ret, readSet, writeSet, exceptSet);
 }
 
-int bteso_DefaultEventManager_SelectRaw::registerSocketEvent(
-        const bteso_SocketHandle::Handle&    handle,
-        const bteso_EventType::Type          eventType,
-        const bteso_EventManager::Callback&  cb)
+int bteso_DefaultEventManager<bteso_Platform::SELECT>::registerSocketEvent(
+                                 const bteso_SocketHandle::Handle&   handle,
+                                 const bteso_EventType::Type         eventType,
+                                 const bteso_EventManager::Callback& callback)
 {
-    BSLS_ASSERT(bteso_DefaultEventManager_SelectRaw::
-                                                      canBeRegistered(handle));
+#ifdef BTESO_PLATFORM__BSD_SOCKETS
+    BSLS_ASSERT(handle < BTESO_MAX_NUM_HANDLES);
+#else
+    BSLS_ASSERT(canRegisterSockets());
+#endif
 
     bteso_Event ev(handle, eventType);
-    d_events[ev] = cb;
+    d_events[ev] = callback;
 
     if (eventType == bteso_EventType::BTESO_READ
-        || eventType == bteso_EventType::BTESO_ACCEPT) {
+     || eventType == bteso_EventType::BTESO_ACCEPT) {
         if (!FD_ISSET(handle, &d_readSet)) {
             FD_SET(handle, &d_readSet);
             ++d_numRead;
@@ -464,62 +419,15 @@ int bteso_DefaultEventManager_SelectRaw::registerSocketEvent(
     return 0;
 }
 
-void bteso_DefaultEventManager_SelectRaw::moveSocket(
-                bteso_DefaultEventManager_SelectRaw *manager,
-                const bteso_SocketHandle::Handle& handle)
-{
-    BSLS_ASSERT(manager);
-    int numRegistered = manager->numSocketEvents(handle);
-    BSLS_ASSERT(0 < numRegistered);
-    if (FD_ISSET(handle, &manager->d_readSet)) {
-        FD_CLR(handle, &manager->d_readSet);
-        FD_SET(handle, &d_readSet);
-        --manager->d_numRead;
-        bteso_Event ev(handle, bteso_EventType::BTESO_READ);
-        EventMap::iterator callbackIt = manager->d_events.find(ev);
-        EventMap::iterator cbEnd = manager->d_events.end();
-        if (cbEnd == callbackIt) {
-            ev.setType(bteso_EventType::BTESO_ACCEPT);
-            callbackIt = manager->d_events.find(ev);
-            BSLS_ASSERT(cbEnd != callbackIt);
-            d_events.insert(*callbackIt);
-            manager->d_events.erase(callbackIt);
-            return; // No other events can be registered
-        }
-        d_events.insert(*callbackIt);
-        manager->d_events.erase(callbackIt);
-    }
-    if (FD_ISSET(handle, &manager->d_writeSet)) {
-        FD_CLR(handle, &manager->d_writeSet);
-        FD_SET(handle, &d_writeSet);
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
-        FD_CLR(handle, &manager->d_exceptSet);
-        FD_SET(handle, &d_exceptSet);
-#endif
-        --manager->d_numWrite;
-        bteso_Event ev(handle, bteso_EventType::BTESO_WRITE);
-        EventMap::iterator callbackIt = manager->d_events.find(ev);
-        EventMap::iterator cbEnd = manager->d_events.end();
-        if (cbEnd == callbackIt) {
-            ev.setType(bteso_EventType::BTESO_CONNECT);
-            callbackIt = manager->d_events.find(ev);
-            BSLS_ASSERT(cbEnd != callbackIt);
-        }
-        d_events.insert(*callbackIt);
-        manager->d_events.erase(callbackIt);
-    }
-}
-
-void bteso_DefaultEventManager_SelectRaw::deregisterSocketEvent(
-        const bteso_SocketHandle::Handle& handle,
-        const bteso_EventType::Type       event)
+void bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterSocketEvent(
+                                      const bteso_SocketHandle::Handle& handle,
+                                      const bteso_EventType::Type       event)
 {
     bteso_Event ev(handle, event);
 
     if (1 == d_events.erase(ev)) {
         if (event == bteso_EventType::BTESO_READ
-         || event == bteso_EventType::BTESO_ACCEPT)
-        {
+         || event == bteso_EventType::BTESO_ACCEPT) {
             FD_CLR(handle, &d_readSet);
             --d_numRead;
         }
@@ -533,14 +441,14 @@ void bteso_DefaultEventManager_SelectRaw::deregisterSocketEvent(
     }
 }
 
-int bteso_DefaultEventManager_SelectRaw::deregisterSocket(
-    const bteso_SocketHandle::Handle& handle)
+int bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterSocket(
+                                      const bteso_SocketHandle::Handle& handle)
 {
 #ifdef BTESO_PLATFORM__BSD_SOCKETS
     if (handle == d_maxFd - 1) {
         d_maxFd = 0;
         EventMap::iterator it(d_events.begin()), end(d_events.end());
-        for (; end != it; ++it) {
+        for (; it != end; ++it) {
             if (it->first.handle() > d_maxFd) {
                 d_maxFd = it->first.handle();
             }
@@ -548,7 +456,7 @@ int bteso_DefaultEventManager_SelectRaw::deregisterSocket(
         ++d_maxFd;
     }
 #endif
-    int ncbs(0);
+    int ncbs = 0;
     if (isRegistered(handle, bteso_EventType::BTESO_READ)) {
         deregisterSocketEvent(handle, bteso_EventType::BTESO_READ);
         ++ncbs;
@@ -568,7 +476,8 @@ int bteso_DefaultEventManager_SelectRaw::deregisterSocket(
     return ncbs;
 }
 
-void bteso_DefaultEventManager_SelectRaw::deregisterAll() {
+void bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterAll()
+{
     d_events.clear();
     FD_ZERO(&d_readSet);
     FD_ZERO(&d_writeSet);
@@ -579,118 +488,30 @@ void bteso_DefaultEventManager_SelectRaw::deregisterAll() {
 }
 
 // ACCESSORS
-const bteso_EventManager::Callback&
-bteso_DefaultEventManager_SelectRaw::callback(int index) const
+bool bteso_DefaultEventManager<bteso_Platform::SELECT>::canRegisterSockets()
+                                                                          const
 {
-    bsl::hash_map<bteso_Event,
-                  bteso_EventManager::Callback,
-                  bteso_EventHash>::const_iterator  callbackIt =
-                                                              d_events.begin();
-    for (int i = 0; i < index; ++i) {
-        ++callbackIt;
-    }
-    return callbackIt->second;
+#ifdef BTESO_PLATFORM__WIN_SOCKETS
+    return bsl::max(d_numRead, d_numWrite) < BTESO_MAX_NUM_HANDLES;
+#else
+    return d_maxFd < BTESO_MAX_NUM_HANDLES;
+#endif
 }
 
-int bteso_DefaultEventManager_SelectRaw::isRegistered(
-    const bteso_SocketHandle::Handle& handle,
-    const bteso_EventType::Type       event) const
+int bteso_DefaultEventManager<bteso_Platform::SELECT>::isRegistered(
+                                 const bteso_SocketHandle::Handle& handle,
+                                 const bteso_EventType::Type       event) const
 {
     return d_events.end() != d_events.find(bteso_Event(handle, event));
 }
 
-int bteso_DefaultEventManager_SelectRaw::numSocketEvents (
-        const bteso_SocketHandle::Handle& handle) const
+int bteso_DefaultEventManager<bteso_Platform::SELECT>::numSocketEvents (
+                                const bteso_SocketHandle::Handle& handle) const
 {
     return   isRegistered(handle, bteso_EventType::BTESO_READ)
            + isRegistered(handle, bteso_EventType::BTESO_WRITE)
            + isRegistered(handle, bteso_EventType::BTESO_ACCEPT)
            + isRegistered(handle, bteso_EventType::BTESO_CONNECT);
-}
-
-            // =======================================================
-            // class bteso_DefaultEventManager<bteso_Platform::SELECT>
-            // =======================================================
-
-                             // --------
-                             // CREATORS
-                             // --------
-
-bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
-                                            bslma_Allocator   *basicAllocator)
-: d_impl(0,
-         basicAllocator)
-{
-}
-
-bteso_DefaultEventManager<bteso_Platform::SELECT>::bteso_DefaultEventManager(
-                                            bteso_TimeMetrics *timeMetric,
-                                            bslma_Allocator   *basicAllocator)
-: d_impl(timeMetric,
-         basicAllocator)
-{
-}
-
-bteso_DefaultEventManager<bteso_Platform::SELECT>::~bteso_DefaultEventManager()
-{
-}
-
-// MANIPULATORS
-int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatch(int flags)
-{
-    return d_impl.dispatch(flags);
-}
-
-int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatch(
-                               const bdet_TimeInterval& timeout,
-                               int flags)
-{
-    return d_impl.dispatch(timeout, flags);
-}
-
-int bteso_DefaultEventManager<bteso_Platform::SELECT>::registerSocketEvent(
-        const bteso_SocketHandle::Handle&   handle,
-        const bteso_EventType::Type         eventType,
-        const bteso_EventManager::Callback& callback)
-{
-    return d_impl.registerSocketEvent(handle, eventType, callback);
-}
-
-void bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterSocketEvent(
-        const bteso_SocketHandle::Handle& handle,
-        const bteso_EventType::Type       event)
-{
-    d_impl.deregisterSocketEvent(handle, event);
-}
-
-int bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterSocket(
-                const bteso_SocketHandle::Handle& handle)
-{
-    return d_impl.deregisterSocket(handle);
-}
-
-void bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterAll() {
-    d_impl.deregisterAll();
-}
-
-// ACCESSORS
-int bteso_DefaultEventManager<bteso_Platform::SELECT>::isRegistered(
-    const bteso_SocketHandle::Handle& handle,
-    const bteso_EventType::Type       event) const
-{
-    return d_impl.isRegistered(handle, event);
-
-}
-
-int bteso_DefaultEventManager<bteso_Platform::SELECT>::numEvents() const
-{
-    return d_impl.numEvents();
-}
-
-int bteso_DefaultEventManager<bteso_Platform::SELECT>::numSocketEvents (
-        const bteso_SocketHandle::Handle& handle) const
-{
-    return d_impl.numSocketEvents(handle);
 }
 
 }  // close namespace BloombergLP

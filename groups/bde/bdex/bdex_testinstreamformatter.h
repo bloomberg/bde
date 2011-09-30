@@ -741,6 +741,13 @@ class bdex_TestInStreamFormatter {
     // has no effect.  Also note that error messages are not printed for
     // insufficient data in 'buffer'.
 
+    // NOT DEFINED
+    bdex_TestInStreamFormatter(const bdex_TestInStreamFormatter&);
+    bdex_TestInStreamFormatter& operator=(const bdex_TestInStreamFormatter&);
+
+    bool operator==(const bdex_TestInStreamFormatter&) const;
+    bool operator!=(const bdex_TestInStreamFormatter&) const;
+
   public:
     // CREATORS
     bdex_TestInStreamFormatter(bsl::streambuf *streamBuffer);

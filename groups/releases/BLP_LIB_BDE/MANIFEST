@@ -1,7 +1,8 @@
-BLP_LIB_BDE_1.19.0            # "Overall" label for this release, used for
-                                # /bbsrc/bde/releases location
-BLP_LIB_BDE_BSL_2.8.0
-BLP_LIB_BDE_BDE_2.8.0
-BLP_LIB_BDE_BCE_2.8.0
-BLP_LIB_BDE_BAE_2.8.0
-BLP_LIB_BDE_BTE_2.8.0
+# "Overall" label for this release, used for /bbsrc/bde/releases location.
+BLP_LIB_BDE_2.10.0
+
+BLP_LIB_BDE_BSL_2.10.0
+BLP_LIB_BDE_BDE_2.10.0
+BLP_LIB_BDE_BCE_2.10.0
+BLP_LIB_BDE_BAE_2.10.0
+BLP_LIB_BDE_BTE_2.10.0
