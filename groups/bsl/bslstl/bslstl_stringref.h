@@ -30,12 +30,12 @@ BSLS_IDENT("$Id: $")
 // compares string values, not whether 'bslstl_StringRef' objects reference the
 // same string object.
 //
-// The only operations that do not apply to the string value (i.e. that have
+// The only operations that do not apply to the string value (i.e., that have
 // pointer semantics) are copy construction and assignment.  These operations
 // produce a 'bslstl_StringRef' object with the same external representation as
 // the original 'bslstl_StringRef' object, which is a stronger post-condition
 // than having 'operator==' return 'true' for two 'bslstl_StringRef' objects
-// that  have the same value.
+// that have the same value.
 //
 // The standard notion of substitutability defined by the 'operator==' does not
 // necessarily apply to 'bslstl_StringRef' since 'bslstl_StringRef' is not a
@@ -126,7 +126,7 @@ BSLS_IDENT("$Id: $")
 // object from a function or storing a 'bslstl_StringRef' object in a
 // container.
 //
-// 3) Passing a null string to any function (e.g. 'operator==') without also
+// 3) Passing a null string to any function (e.g., 'operator==') without also
 // passing a 0 length results in undefined behavior.
 //
 ///Usage
@@ -267,14 +267,17 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_IOSFWD
 #include <iosfwd>
+#define INCLUDED_IOSFWD
 #endif
 
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>              // for 'std::size_t'
+#define INCLUDED_CSTDDEF
 #endif
 
 #ifndef INCLUDED_CSTRING
 #include <cstring>              // for 'std::strlen', 'std::memcmp'
+#define INCLUDED_CSTRING
 #endif
 
 namespace BloombergLP {
