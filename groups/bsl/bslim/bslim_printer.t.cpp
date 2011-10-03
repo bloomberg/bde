@@ -423,9 +423,9 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 1
+        // TESTING USAGE EXAMPLE
         //
         // Concerns: That it compiles
         //
@@ -437,6 +437,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "Usage Example 1" << endl
                                   << "===============" << endl;
+
+        // Tested above
 
       } break;
       case 18: {
@@ -1558,20 +1560,34 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
 
-                ostringstream out;
+
                 const char *data = "testing char *";
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
 
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(), data);
                 const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
 
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+                {
+                    ostringstream out;
+                    Obj p(&out, LEVEL, SPL); 
+                    p.print(data, 0);
+                    const bsl::string& ACTUAL = out.str();
+                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
                 }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+                {
+                    ostringstream out;
+                    Obj p(&out, LEVEL, SPL); 
+                    p.print(const_cast<char *>(data), 0);
+                    const bsl::string& ACTUAL = out.str();
+                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+                }
+                {
+                    ostringstream out;
+                    Obj p(&out, LEVEL, SPL); 
+                    p.print("testing char *", 0);
+                    const bsl::string& ACTUAL = out.str();
+                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+                }               
             }
         }
         {

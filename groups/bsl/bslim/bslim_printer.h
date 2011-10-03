@@ -433,6 +433,11 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointer.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISARRAY
+#include <bslmf_isarray.h>
+#endif
+
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -528,20 +533,20 @@ class Printer {
         //
         //: o If 'TYPE' is a fundamental type, output 'data' to the stream.
         //:
-        //: o If 'TYPE' is a pointer type (other than 'char *' or 'void *'),
-        //:   print the address value of 'data' in hexadecimal format, then
-        //:   format the object at that address if 'data' is not 0, and print
-        //:   the string "NULL" otherwise.  There will be a compile-time error
-        //:   if 'data' is a pointer to a user-defined type that does not
-        //:   provide a standard 'print' method.
-        //:
-        //: o If 'TYPE' is 'char *', print 'data' to the stream as a null-
-        //:   terminated C-style string enclosed in quotes if 'data' is not 0,
-        //:   and print the string "NULL" otherwise.
+        //: o If 'TYPE' is converible to 'const char *', print 'data' to the
+        //:   stream as a null-terminated C-style string enclosed in quotes if
+        //:   'data' is not 0, and print the string "NULL" otherwise.
         //:
         //: o If 'TYPE' is 'void *', print the address value of 'data' in
         //:   hexadecimal format if it is not 0, and print the string "NULL"
         //:   otherwise.
+        //: 
+        //: o If 'TYPE' is a pointer type (other than 'const char *' or 
+        //:   'void *'), print the address value of 'data' in hexadecimal
+        //:   format, then format the object at that address if 'data' is not
+        //:   0, and print the string "NULL" otherwise.  There will be a
+        //:   compile-time error if 'data' is a pointer to a user-defined type
+        //:   that does not provide a standard 'print' method.
         //:
         //: o If 'TYPE' is any other type, call the standard 'print' method on
         //:   'data', specifying one additional level of indentation than the
@@ -561,26 +566,26 @@ class Printer {
         //
         //: o If 'TYPE' is a fundamental type, output 'data' to the stream.
         //:
-        //: o If 'TYPE' is a pointer type (other than 'char *' or 'void *'),
-        //:   print the address value of 'data' in hexadecimal format, then
-        //:   format the object at that address if 'data' is not 0, and print
-        //:   the string "NULL" otherwise.  There will be a compile-time error
-        //:   if 'data' is a pointer to a user-defined type that does not
-        //:   provide a standard 'print' method.
-        //:
-        //: o If 'TYPE' is 'char *', print 'data' to the stream as a null-
-        //:   terminated C-style string enclosed in quotes if 'data' is not 0,
-        //:   and print the string "NULL" otherwise.
+        //: o If 'TYPE' is converible to 'const char *', print 'data' to the
+        //:   stream as a null-terminated C-style string enclosed in quotes if
+        //:   'data' is not 0, and print the string "NULL" otherwise.
         //:
         //: o If 'TYPE' is 'void *', print the address value of 'data' in
         //:   hexadecimal format if it is not 0, and print the string "NULL"
         //:   otherwise.
+        //: 
+        //: o If 'TYPE' is a pointer type (other than 'const char *' or 
+        //:   'void *'), print the address value of 'data' in hexadecimal
+        //:   format, then format the object at that address if 'data' is not
+        //:   0, and print the string "NULL" otherwise.  There will be a
+        //:   compile-time error if 'data' is a pointer to a user-defined type
+        //:   that does not provide a standard 'print' method.
         //:
         //: o If 'TYPE' is any other type, call the standard 'print' method on
         //:   'data', specifying one additional level of indentation than the
         //:   current one.  There will be a compile-time error if 'TYPE' does
         //:   not provide a standard 'print' method.
-        //
+        // 
         // If 'spacesPerLevel() < 0', format 'data' on a single line.
         // If 'spacesPerLevel() >= 0', indent 'data' by
         // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
@@ -628,20 +633,20 @@ class Printer {
         //
         //: o If 'TYPE' is a fundamental type, output 'data' to the stream.
         //:
-        //: o If 'TYPE' is a pointer type (other than 'char *' or 'void *'),
-        //:   print the address value of 'data' in hexadecimal format, then
-        //:   format the object at that address if 'data' is not 0, and print
-        //:   the string "NULL" otherwise.  There will be a compile-time error
-        //:   if 'data' is a pointer to a user-defined type that does not
-        //:   provide a standard 'print' method.
-        //:
-        //: o If 'TYPE' is 'char *', print 'data' to the stream as a null-
-        //:   terminated C-style string enclosed in quotes if 'data' is not 0,
-        //:   and print the string "NULL" otherwise.
+        //: o If 'TYPE' is converible to 'const char *', print 'data' to the
+        //:   stream as a null-terminated C-style string enclosed in quotes if
+        //:   'data' is not 0, and print the string "NULL" otherwise.
         //:
         //: o If 'TYPE' is 'void *', print the address value of 'data' in
         //:   hexadecimal format if it is not 0, and print the string "NULL"
         //:   otherwise.
+        //: 
+        //: o If 'TYPE' is a pointer type (other than 'const char *' or 
+        //:   'void *'), print the address value of 'data' in hexadecimal
+        //:   format, then format the object at that address if 'data' is not
+        //:   0, and print the string "NULL" otherwise.  There will be a
+        //:   compile-time error if 'data' is a pointer to a user-defined type
+        //:   that does not provide a standard 'print' method.
         //:
         //: o If 'TYPE' is any other type, call the standard 'print' method on
         //:   'data', specifying one additional level of indentation than the
@@ -685,7 +690,8 @@ struct Printer_Selector {
 
         BSLIM_FUNDAMENTAL  = 0,
         BSLIM_POINTER      = 1,
-        BSLIM_USER_DEFINED = 2
+        BSLIM_USER_DEFINED = 2,
+        BSLIM_STRING       = 3,
     };
 };
 
@@ -693,7 +699,7 @@ struct Printer_Selector {
                         // struct Printer_DetectType
                         // =========================
 
-template <class TYPE>
+template <class TYPE, int NUM = 1>
 struct Printer_DetectType {
     // This struct provides a meta-function to classify a data type as either
     // a fundamental, pointer, or user-defined type.
@@ -702,9 +708,14 @@ struct Printer_DetectType {
     enum {
         VALUE = bslmf_IsFundamental<TYPE>::VALUE
                 ? Printer_Selector::BSLIM_FUNDAMENTAL
-                : bslmf_IsPointer<TYPE>::VALUE
-                  ? Printer_Selector::BSLIM_POINTER
-                  : Printer_Selector::BSLIM_USER_DEFINED
+                : bslmf_IsSame<TYPE, const char *>::VALUE ||
+                  bslmf_IsSame<TYPE, char *>::VALUE       ||
+                  (bslmf_IsArray<TYPE>::VALUE && 
+                   bslmf_IsConvertible<TYPE, const char *>::VALUE)
+                  ? Printer_Selector::BSLIM_STRING         
+                  : bslmf_IsPointer<TYPE>::VALUE
+                    ? Printer_Selector::BSLIM_POINTER
+                    : Printer_Selector::BSLIM_USER_DEFINED
     };
 };
 
@@ -738,7 +749,7 @@ struct Printer_Helper {
                         // struct Printer_PrintImp
                         // =======================
 
-template <class TYPE, int SELECTOR>
+template <int SELECTOR, class TYPE>
 struct Printer_PrintImp;
     // This struct template is *not* meant to be instantiated.  It is an aid to
     // the implementation of the 'Printer_Helper::print' method.  Each of its
@@ -746,7 +757,7 @@ struct Printer_PrintImp;
     // 'print' method contract.
 
 template <class TYPE>
-struct Printer_PrintImp<TYPE, Printer_Selector::BSLIM_FUNDAMENTAL> {
+struct Printer_PrintImp<Printer_Selector::BSLIM_FUNDAMENTAL, TYPE> {
     // This struct template is a partial specialization of 'Printer_PrintImp'
     // for fundamental types.  It provides a 'print' method that streams out
     // the fundamental type passed as argument, in accordance with the BDE
@@ -769,7 +780,7 @@ struct Printer_PrintImp<TYPE, Printer_Selector::BSLIM_FUNDAMENTAL> {
 };
 
 template <>
-struct Printer_PrintImp<bool, Printer_Selector::BSLIM_FUNDAMENTAL> {
+struct Printer_PrintImp<Printer_Selector::BSLIM_FUNDAMENTAL, bool> {
     // This struct provides a specialization of 'Printer_PrintImp' for 'bool'.
     // It provides a 'print' method that writes the value of the 'bool'
     // argument passed to it as the string 'true' or 'false', in accordance
@@ -792,7 +803,7 @@ struct Printer_PrintImp<bool, Printer_Selector::BSLIM_FUNDAMENTAL> {
 };
 
 template <>
-struct Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL> {
+struct Printer_PrintImp<Printer_Selector::BSLIM_FUNDAMENTAL, char> {
     // This struct provides a specialization of 'Printer_PrintImp' for 'char'.
     // It provides a 'print' method that streams the 'char' argument passed to
     // it enclosed within quotes if it is an alpha-numeric character, or any of
@@ -817,7 +828,7 @@ struct Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL> {
 };
 
 template <class TYPE>
-struct Printer_PrintImp<TYPE, Printer_Selector::BSLIM_POINTER> {
+struct Printer_PrintImp<Printer_Selector::BSLIM_POINTER, TYPE> {
     // This struct template is a partial specialization of 'Printer_PrintImp'
     // for pointer types.  It provides a 'print' method that formats the
     // address held by the pointer type passed as argument, and then formats
@@ -842,7 +853,7 @@ struct Printer_PrintImp<TYPE, Printer_Selector::BSLIM_POINTER> {
 };
 
 template <>
-struct Printer_PrintImp<const void *, Printer_Selector::BSLIM_POINTER> {
+struct Printer_PrintImp<Printer_Selector::BSLIM_POINTER, const void *> {
     // This struct provides a specialization of 'Printer_PrintImp' for pointers
     // of type 'const void *'.  It provides a 'print' method that formats the
     // address held by the pointer passed as argument in accordance with the
@@ -867,7 +878,7 @@ struct Printer_PrintImp<const void *, Printer_Selector::BSLIM_POINTER> {
 };
 
 template <>
-struct Printer_PrintImp<void *, Printer_Selector::BSLIM_POINTER> {
+struct Printer_PrintImp<Printer_Selector::BSLIM_POINTER, void *> {
     // This struct provides a specialization of 'Printer_PrintImp' for pointers
     // of type 'void *'.  It provides a 'print' method that formats the address
     // held by the pointer passed as argument in accordance with the BDE
@@ -875,7 +886,7 @@ struct Printer_PrintImp<void *, Printer_Selector::BSLIM_POINTER> {
 
     // CLASS METHODS
     static void print(bsl::ostream&  stream,
-                      const void    *data,
+                      void          *data,
                       int            level,
                       int            spacesPerLevel);
         // Format the specified 'data' to the specified output `stream' at the
@@ -892,8 +903,8 @@ struct Printer_PrintImp<void *, Printer_Selector::BSLIM_POINTER> {
 };
 
 template <>
-struct Printer_PrintImp<const volatile void *,
-                        Printer_Selector::BSLIM_POINTER> {
+struct Printer_PrintImp<Printer_Selector::BSLIM_POINTER,
+                        const volatile void *> {
     // This struct provides a specialization of 'Printer_PrintImp' for pointers
     // of type 'const volatile void *'.  It provides a 'print' method that
     // formats the address held by the pointer passed as argument in accordance
@@ -919,7 +930,7 @@ struct Printer_PrintImp<const volatile void *,
 };
 
 template <>
-struct Printer_PrintImp<volatile void *, Printer_Selector::BSLIM_POINTER> {
+struct Printer_PrintImp<Printer_Selector::BSLIM_POINTER, volatile void *> {
     // This struct provides a specialization of 'Printer_PrintImp' for pointers
     // of type 'volatile void *'.  It provides a 'print' method that formats
     // the address held by the pointer passed as argument in accordance with
@@ -943,8 +954,27 @@ struct Printer_PrintImp<volatile void *, Printer_Selector::BSLIM_POINTER> {
         // effect.
 };
 
-template <>
-struct Printer_PrintImp<const char *, Printer_Selector::BSLIM_POINTER> {
+template <class TYPE>
+struct Printer_PrintImp<Printer_Selector::BSLIM_USER_DEFINED, TYPE> {
+    // This struct provides a specialization of 'Printer_PrintImp' for
+    // user-defined data types.  It provides a 'print' method that calls the
+    // standard 'print' method of the parameterized user-defined data 'TYPE'.
+    // Note that if the user-defined data type does not provide a standard
+    // 'print' method, then a compile time error will be generated.
+
+    // CLASS METHODS
+    static void print(bsl::ostream& stream,
+                      const TYPE&   data,
+                      int           level,
+                      int           spacesPerLevel);
+        // Call the 'print' method of the specified 'data' (of user-defined
+        // type), passing to it the values of the specified 'stream', the
+        // specified 'level' and the specified 'spacesPerLevel'.
+};
+
+
+template <class TYPE>
+struct Printer_PrintImp<Printer_Selector::BSLIM_STRING, TYPE> {
     // This struct provides a specialization of 'Printer_PrintImp' for pointers
     // of type 'const char *'.  It provides a 'print' method that formats the
     // string held by the pointer passed as argument in accordance with the BDE
@@ -964,24 +994,6 @@ struct Printer_PrintImp<const char *, Printer_Selector::BSLIM_POINTER> {
         // suppressing all but the initial indentation (as governed by
         // `level').  If `stream' is not valid on entry, this operation has no
         // effect.
-};
-
-template <class TYPE>
-struct Printer_PrintImp<TYPE, Printer_Selector::BSLIM_USER_DEFINED> {
-    // This struct provides a specialization of 'Printer_PrintImp' for
-    // user-defined data types.  It provides a 'print' method that calls the
-    // standard 'print' method of the parameterized user-defined data 'TYPE'.
-    // Note that if the user-defined data type does not provide a standard
-    // 'print' method, then a compile time error will be generated.
-
-    // CLASS METHODS
-    static void print(bsl::ostream& stream,
-                      const TYPE&   data,
-                      int           level,
-                      int           spacesPerLevel);
-        // Call the 'print' method of the specified 'data' (of user-defined
-        // type), passing to it the values of the specified 'stream', the
-        // specified 'level' and the specified 'spacesPerLevel'.
 };
 
 // ============================================================================
@@ -1128,11 +1140,11 @@ void Printer_Helper::print(bsl::ostream& stream,
                            int           level,
                            int           spacesPerLevel)
 {
-    Printer_PrintImp<TYPE, Printer_DetectType<TYPE>::VALUE>::print(
-                                                               stream,
-                                                               data,
-                                                               level,
-                                                               spacesPerLevel);
+    Printer_PrintImp<Printer_DetectType<TYPE>::VALUE, TYPE>::print(
+                                                              stream,
+                                                              data,
+                                                              level,
+                                                              spacesPerLevel);
 }
 
                         // -----------------------
@@ -1140,7 +1152,7 @@ void Printer_Helper::print(bsl::ostream& stream,
                         // -----------------------
 
 template <class TYPE>
-void Printer_PrintImp<TYPE, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
+void Printer_PrintImp<Printer_Selector::BSLIM_FUNDAMENTAL, TYPE>::print(
                                                   bsl::ostream& stream,
                                                   const TYPE&   data,
                                                   int           ,
@@ -1153,7 +1165,7 @@ void Printer_PrintImp<TYPE, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
 }
 
 inline
-void Printer_PrintImp<bool, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
+void Printer_PrintImp<Printer_Selector::BSLIM_FUNDAMENTAL, bool>::print(
                                                   bsl::ostream& stream,
                                                   bool          data,
                                                   int           ,
@@ -1170,7 +1182,7 @@ void Printer_PrintImp<bool, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
 }
 
 inline
-void Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
+void Printer_PrintImp<Printer_Selector::BSLIM_FUNDAMENTAL, char>::print(
                                                   bsl::ostream& stream,
                                                   char          data,
                                                   int           ,
@@ -1205,7 +1217,7 @@ void Printer_PrintImp<char, Printer_Selector::BSLIM_FUNDAMENTAL>::print(
 }
 
 template <class TYPE>
-void Printer_PrintImp<TYPE, Printer_Selector::BSLIM_POINTER>::print(
+void Printer_PrintImp<Printer_Selector::BSLIM_POINTER, TYPE>::print(
                                                   bsl::ostream& stream,
                                                   const TYPE&   data,
                                                   int           level,
@@ -1221,7 +1233,7 @@ void Printer_PrintImp<TYPE, Printer_Selector::BSLIM_POINTER>::print(
         bsl::ios_base::fmtflags fmtFlags = stream.flags();
         stream << bsl::hex
                << bsl::showbase
-               << data
+               << static_cast<const void *>(data)
                << ' ';
         stream.flags(fmtFlags);
         Printer_Helper::print(stream, *data, level, spacesPerLevel);
@@ -1229,7 +1241,7 @@ void Printer_PrintImp<TYPE, Printer_Selector::BSLIM_POINTER>::print(
 }
 
 inline
-void Printer_PrintImp<const void *, Printer_Selector::BSLIM_POINTER>::print(
+void Printer_PrintImp<Printer_Selector::BSLIM_POINTER, const void *>::print(
                                                  bsl::ostream&  stream,
                                                  const void    *data,
                                                  int            ,
@@ -1251,13 +1263,13 @@ void Printer_PrintImp<const void *, Printer_Selector::BSLIM_POINTER>::print(
 }
 
 inline
-void Printer_PrintImp<void *, Printer_Selector::BSLIM_POINTER>::print(
+void Printer_PrintImp<Printer_Selector::BSLIM_POINTER, void *>::print(
                                                  bsl::ostream&  stream,
-                                                 const void    *data,
+                                                 void          *data,
                                                  int            level,
                                                  int            spacesPerLevel)
 {
-    Printer_PrintImp<const void *, Printer_Selector::BSLIM_POINTER>::print(
+    Printer_PrintImp<Printer_Selector::BSLIM_POINTER, const void *>::print(
                                                                stream,
                                                                data,
                                                                level,
@@ -1265,8 +1277,8 @@ void Printer_PrintImp<void *, Printer_Selector::BSLIM_POINTER>::print(
 }
 
 inline
-void Printer_PrintImp<const volatile void *,
-                      Printer_Selector::BSLIM_POINTER>::print(
+void Printer_PrintImp<Printer_Selector::BSLIM_POINTER,
+                      const volatile void *>::print(
                                            bsl::ostream&        stream,
                                            const volatile void *data,
                                            int                  ,
@@ -1288,21 +1300,34 @@ void Printer_PrintImp<const volatile void *,
 }
 
 inline
-void Printer_PrintImp<volatile void *, Printer_Selector::BSLIM_POINTER>::print(
+void Printer_PrintImp<Printer_Selector::BSLIM_POINTER,
+                      volatile void *>::print(
                                            bsl::ostream&        stream,
                                            const volatile void *data,
                                            int                  level,
                                            int                  spacesPerLevel)
 {
-    Printer_PrintImp<const volatile void *,
-                     Printer_Selector::BSLIM_POINTER>::print(stream,
-                                                             data,
-                                                             level,
-                                                             spacesPerLevel);
+    Printer_PrintImp<Printer_Selector::BSLIM_POINTER,
+                     const volatile void *>::print(stream,
+                                                   data,
+                                                   level,
+                                                   spacesPerLevel);
 }
 
+template <class TYPE>
 inline
-void Printer_PrintImp<const char *, Printer_Selector::BSLIM_POINTER>::print(
+void Printer_PrintImp<Printer_Selector::BSLIM_USER_DEFINED, TYPE>::print(
+                                                  bsl::ostream& stream,
+                                                  const TYPE&   data,
+                                                  int           level,
+                                                  int           spacesPerLevel)
+{
+    data.print(stream, level, spacesPerLevel);
+}
+
+template <class TYPE>
+inline
+void Printer_PrintImp<Printer_Selector::BSLIM_STRING, TYPE>::print(
                                                  bsl::ostream&  stream,
                                                  const char    *data,
                                                  int            ,
@@ -1317,17 +1342,6 @@ void Printer_PrintImp<const char *, Printer_Selector::BSLIM_POINTER>::print(
     if (spacesPerLevel >= 0) {
         stream << '\n';
     }
-}
-
-template <class TYPE>
-inline
-void Printer_PrintImp<TYPE, Printer_Selector::BSLIM_USER_DEFINED>::print(
-                                                  bsl::ostream& stream,
-                                                  const TYPE&   data,
-                                                  int           level,
-                                                  int           spacesPerLevel)
-{
-    data.print(stream, level, spacesPerLevel);
 }
 
 }  // close namespace bslim
