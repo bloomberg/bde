@@ -760,7 +760,7 @@ class bdema_ManagedPtr {
 
     template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>
     void load(BDEMA_TARGET_TYPE *ptr,
-              bdema_ManagedPtr_Nullptr::Type,
+              void              *,
               void             (*deleter)(BDEMA_TARGET_BASE *, void*));
         // [!DEPRECATED!] Destroy the current managed object (if any) and
         // re-initialize this managed pointer to manage the specified 'ptr'
@@ -1215,8 +1215,8 @@ template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
-          bdema_ManagedPtr_Nullptr::Type,
-          void             (*deleter)(BDEMA_TARGET_BASE *, void*))
+                                   void  *,
+                                   void (*deleter)(BDEMA_TARGET_BASE *, void*))
 {
     BSLMF_ASSERT(( !bdema_ManagedPtr_IsVoid<BDEMA_TARGET_BASE>::VALUE ));
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
