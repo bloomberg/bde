@@ -550,10 +550,13 @@ unix-Linux-*-*-*       _   DEF_ENDLDFLAGS = -lrt
 # add "-Wl,-rpath -Wl,/opt/swt/install/gcc-4.3.5/lib" to 4.3.5 link lines to add search
 # path for .so files
 
-unix-Linux-*-*-gcc-4.3.5      _  RPATH_LIBDIR = lib
-!! unix-Linux-*-*-gcc-4.3.5    64 RPATH_LIBDIR = lib64
+unix-Linux-*-*-gcc-4.3.5        _  RPATH_LIBDIR = lib
+!! unix-Linux-*-*-gcc-4.3.5     64 RPATH_LIBDIR = lib64
 
-unix-Linux-*-*-gcc-4      _  DEF_ENDLDFLAGS = -Wl,-rpath -Wl,/opt/swt/install/gcc-$(GCC_VER)/$(RPATH_LIBDIR)
+unix-Linux-*-*-gcc-4.*          _  RPATH_FLAGS = -Wl,-rpath -Wl,/opt/swt/install/gcc-$(GCC_VER)/$(RPATH_LIBDIR)
+!! unix-Linux-*-*-gcc-def       _  RPATH_FLAGS =
+
+unix-Linux-*-*-*        _   DEF_ENDLDFLAGS = $(RPATH_FLAGS)
 
 # Flags for shared memory access compatibility on HP
 unix-HP_UX-*-*-*       _   DEF_LDFLAGS    = $(LINKARGSCOMMON) -AA -ext
@@ -991,6 +994,9 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 #!! unix-Linux-i686-2.6.32-gcc-4.3.5    _  COMPILERPATH = /usr/bin
 
 !! unix-Linux-*-*-gcc                  _  CXX          = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+
+# for development only; use GCC found in PATH; no retry
+!! unix-Linux-*-*-gcc-def              _  CXX          = g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
 !! unix-FreeBSD-*-*-def                _  CXX          = $(RETRY_ON_SIGNAL) g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
