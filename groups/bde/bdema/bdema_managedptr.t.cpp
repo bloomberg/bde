@@ -193,6 +193,7 @@ void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 bool g_verbose;
+bool g_veryVerbose;
 bool g_veryVeryVeryVerbose;
 
 class MyTestObject;
@@ -414,13 +415,20 @@ class CountedStackDeleter
 
 struct IncrementIntFactory
 {
-    void deleteObject(int *object)
+    void destroy(int *object)
     {
         ASSERT(object);
         ++*object;
     }
 };
 
+void incrementIntDeleter(int *ptr, IncrementIntFactory *factory)
+{
+    ASSERT(ptr);
+    ASSERT(factory);
+
+    factory->destroy(ptr);
+}
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The two deleters defined below do not use the factory (or even object)
 // argument to perform their bookkeeping.  They are typically used to test
@@ -539,7 +547,7 @@ static void doNothingDeleter(void *object, void *)
 
 template<typename T>
 void validateManagedState(const bdema_ManagedPtr<T>&     obj,
-                          T                             *ptr,
+                          const void                    *ptr,
                           const bdema_ManagedPtrDeleter& del)
 {
     // Testing the following properties of the specified 'obj'
@@ -548,14 +556,21 @@ void validateManagedState(const bdema_ManagedPtr<T>&     obj,
     //   TYPE *operator->() const;
     //   TYPE *ptr() const;
     //   const bdema_ManagedPtrDeleter& deleter() const;
-    if (ptr) {
+
+    bslma_TestAllocatorMonitor gam(dynamic_cast<bslma_TestAllocator*>
+                                           (bslma_Default::globalAllocator()));
+    bslma_TestAllocatorMonitor dam(dynamic_cast<bslma_TestAllocator*>
+                                          (bslma_Default::defaultAllocator()));
+
+    if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
         ASSERT(false == obj);
         ASSERT(!obj);
         ASSERT(0 == obj.operator->());
         ASSERT(0 == obj.ptr());
+
 #ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) cout << "\tNegative testing\n";
+        if (g_veryVerbose) cout << "\tNegative testing\n";
 
         {
             bsls_AssertTestHandlerGuard guard;
@@ -567,10 +582,10 @@ void validateManagedState(const bdema_ManagedPtr<T>&     obj,
     }
     else {
         // Different negative testing constraints when 'ptr' is null.
-        ASSERT(true  == obj);
+        ASSERT(true  == (bool)obj);
         ASSERT(false == !obj);
 
-        T *arrow = obj.operator->()
+        T *arrow = obj.operator->();
         LOOP2_ASSERT(ptr, arrow, ptr == arrow);
 
         T * objPtr = obj.ptr();
@@ -582,6 +597,12 @@ void validateManagedState(const bdema_ManagedPtr<T>&     obj,
         const bdema_ManagedPtrDeleter& objDel = obj.deleter();
         LOOP2_ASSERT(del, objDel, del == objDel);
     }
+
+    ASSERT(gam.isInUseSame());
+    ASSERT(gam.isMaxSame());
+
+    ASSERT(dam.isInUseSame());
+    ASSERT(dam.isMaxSame());
 }
 
 void validateManagedState(const bdema_ManagedPtr<void>&  obj,
@@ -594,14 +615,20 @@ void validateManagedState(const bdema_ManagedPtr<void>&  obj,
     //   TYPE *operator->() const;
     //   TYPE *ptr() const;
     //   const bdema_ManagedPtrDeleter& deleter() const;
-    if (ptr) {
+
+    bslma_TestAllocatorMonitor gam(dynamic_cast<bslma_TestAllocator*>
+                                           (bslma_Default::globalAllocator()));
+    bslma_TestAllocatorMonitor dam(dynamic_cast<bslma_TestAllocator*>
+                                          (bslma_Default::defaultAllocator()));
+
+    if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
         ASSERT(false == obj);
         ASSERT(!obj);
         ASSERT(0 == obj.operator->());
         ASSERT(0 == obj.ptr());
 #ifdef BDE_BUILD_TARGET_EXC
-        if (g_verbose) cout << "\tNegative testing\n";
+        if (g_veryVerbose) cout << "\tNegative testing\n";
 
         {
             bsls_AssertTestHandlerGuard guard;
@@ -628,6 +655,12 @@ void validateManagedState(const bdema_ManagedPtr<void>&  obj,
         *obj;
 #endif
     }
+
+    ASSERT(gam.isInUseSame());
+    ASSERT(gam.isMaxSame());
+
+    ASSERT(dam.isInUseSame());
+    ASSERT(dam.isMaxSame());
 }
 
 void validateManagedState(const bdema_ManagedPtr<const void>& obj,
@@ -646,14 +679,20 @@ void validateManagedState(const bdema_ManagedPtr<const void>& obj,
     //   TYPE *operator->() const;
     //   TYPE *ptr() const;
     //   const bdema_ManagedPtrDeleter& deleter() const;
-    if (ptr) {
+
+    bslma_TestAllocatorMonitor gam(dynamic_cast<bslma_TestAllocator*>
+                                           (bslma_Default::globalAllocator()));
+    bslma_TestAllocatorMonitor dam(dynamic_cast<bslma_TestAllocator*>
+                                          (bslma_Default::defaultAllocator()));
+
+    if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
         ASSERT(false == obj);
         ASSERT(!obj);
         ASSERT(0 == obj.operator->());
         ASSERT(0 == obj.ptr());
 #ifdef BDE_BUILD_TARGET_EXC
-        if (g_verbose) cout << "\tNegative testing\n";
+        if (g_veryVerbose) cout << "\tNegative testing\n";
 
         {
             bsls_AssertTestHandlerGuard guard;
@@ -681,6 +720,11 @@ void validateManagedState(const bdema_ManagedPtr<const void>& obj,
 #endif
     }
 
+    ASSERT(gam.isInUseSame());
+    ASSERT(gam.isMaxSame());
+
+    ASSERT(dam.isInUseSame());
+    ASSERT(dam.isMaxSame());
 }
 //=============================================================================
 //                             'LOAD' TESTING SUPPORT
@@ -5231,6 +5275,7 @@ testCompsite();
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
                    g_verbose = verbose;
+               g_veryVerbose = veryVerbose;
        g_veryVeryVeryVerbose = veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
@@ -6259,19 +6304,15 @@ testCompsite();
         //   contract).
         //
         // Tested:
-        //   template<TARGET_TYPE> bdema_ManagedPtr(TARGET_TYPE *ptr);
-        //   template<TARGET_TYPE> bdema_ManagedPtr<void>(TARGET_TYPE *ptr);
-        //   bdema_ManagedPtr(BDEMA_TYPE *ptr, FACTORY *factory)
-        //   bdema_ManagedPtr(BDEMA_TYPE *, void *, DeleterFunc);
-        //   bdema_ManagedPtr(BDEMA_TYPE *ptr,
-        //                    bdema_ManagedPtr_Nullptr::Type,
-        //                    void(*)(BDEMA_TYPE *, void*));
-        //   bdema_ManagedPtr(BDEMA_TYPE *,
-        //                    void *,
-        //                    void(*)(BDEMA_TYPE *, FACTORY *))
-        //   bdema_ManagedPtr(BDEMA_TARGET_TYPE *,
-        //                    BDEMA_FACTORY *,
-        //                    void(*)(BDEMA_TARGET_BASE *, FACTORY_BASE *))
+        //   bdema_ManagedPtr(TARGET_TYPE *ptr)
+        //   bdema_ManagedPtr(TARGET_TYPE *ptr, FACTORY *factory)
+        //   bdema_ManagedPtr(TARGET_TYPE *, void *, DeleterFunc)
+        //   bdema_ManagedPtr(TARGET_TYPE *,
+        //                      nullptr_t *,
+        //                           void(*)(TARGET_BASE *, void *))
+        //   bdema_ManagedPtr(TARGET_TYPE *,
+        //                        FACTORY *,
+        //                           void(*)(TARGET_BASE *, FACTORY_BASE *))
         // --------------------------------------------------------------------
 
         using namespace CREATORS_TEST_NAMESPACE;
@@ -6775,275 +6816,319 @@ testCompsite();
 
         int numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor gam(&globalAllocator);
-            bslma_TestAllocatorMonitor dam(&da);
+            const Obj o;
+            const bdema_ManagedPtrDeleter del;
 
-            {
-                const Obj o;
-
-                ASSERT(!o);
-                ASSERT(0 == o.ptr());
-                ASSERT(0 == o.operator->());
-
-#ifdef BDE_BUILD_TARGET_EXC
-                if (verbose) cout << "\t\tNegative testing operator*\n";
-
-                {
-                    bsls_AssertTestHandlerGuard guard;
-
-                    ASSERT_SAFE_FAIL(*o);
-                    ASSERT_SAFE_FAIL(o.deleter());
-                }
-#else
-                if (verbose) cout << "\tNegative testing disabled due to lack"
-                                     " of exception support\n";
-#endif
-            }
-
-            ASSERT(dam.isInUseSame());
-            ASSERT(dam.isMaxSame());
-            ASSERT(gam.isInUseSame());
-            ASSERT(gam.isMaxSame());
+            validateManagedState(o, 0, del);
         }
 
+        LOOP_ASSERT(numDeletes, 0 == numDeletes);
         {
-            bslma_TestAllocatorMonitor gam(&globalAllocator);
-            bslma_TestAllocatorMonitor dam(&da);
+            const VObj o;
+            const bdema_ManagedPtrDeleter del;
 
-            {
-                const Obj o(0);
-
-                ASSERT(!o);
-                ASSERT(0 == o.ptr());
-                ASSERT(0 == o.operator->());
-
-#ifdef BDE_BUILD_TARGET_EXC
-                {
-                    bsls_AssertTestHandlerGuard guard;
-
-                    ASSERT_SAFE_FAIL(*o);
-                    ASSERT_SAFE_FAIL(o.deleter());
-                }
-#endif
-            }
-
-            ASSERT(dam.isInUseSame());
-            ASSERT(dam.isMaxSame());
-            ASSERT(gam.isInUseSame());
-            ASSERT(gam.isMaxSame());
+            validateManagedState(o, 0, del);
+            typeid(*o); // should parse, even if it cannot be called
         }
 
+        LOOP_ASSERT(numDeletes, 0 == numDeletes);
         {
-            bslma_TestAllocatorMonitor gam(&globalAllocator);
-            bslma_TestAllocatorMonitor dam(&da);
+            const bdema_ManagedPtr<const void> o(0);
+            const bdema_ManagedPtrDeleter del;
 
-            {
-                const VObj o(0);
-
-                ASSERT(!o);
-                ASSERT(0 == o.ptr());
-                ASSERT(0 == o.operator->());
-
-#ifdef BDE_BUILD_TARGET_EXC
-                {
-                    bsls_AssertTestHandlerGuard guard;
-
-                    ASSERT_SAFE_FAIL(o.deleter());
-                }
-#endif
-                //typeid(*o); // should parse, even if it cannot be called
-            }
-
-            ASSERT(dam.isInUseSame());
-            ASSERT(dam.isMaxSame());
-            ASSERT(gam.isInUseSame());
-            ASSERT(gam.isMaxSame());
+            validateManagedState(o, 0, del);
+            typeid(*o); // should parse, even if it cannot be called
         }
-
-        {
-            bslma_TestAllocatorMonitor gam(&globalAllocator);
-            bslma_TestAllocatorMonitor dam(&da);
-
-            {
-                const bdema_ManagedPtr<const void> o(0);
-
-                ASSERT(!o);
-                ASSERT(0 == o.ptr());
-                ASSERT(0 == o.operator->());
-
-#ifdef BDE_BUILD_TARGET_EXC
-                {
-                    bsls_AssertTestHandlerGuard guard;
-
-                    ASSERT_SAFE_FAIL(o.deleter());
-                }
-#endif
-                //typeid(*o); // should parse, even if it cannot be called
-            }
-
-            ASSERT(dam.isInUseSame());
-            ASSERT(dam.isMaxSame());
-            ASSERT(gam.isInUseSame());
-            ASSERT(gam.isMaxSame());
-        }
-
-        ASSERT(0 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\tTest accessors on simple object\n";
 
+        LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        {
+            Obj o;
+            TObj *p = new (da) MyTestObject(&numDeletes);
+            o.load(p);
+            const bdema_ManagedPtrDeleter del(p, &da,
+              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
+
+            validateManagedState(o, p, del);
+
+            Obj oD;
+            {
+                MyDerivedObject d(&numDeletes);
+                oD.loadAlias(o, &d);
+                validateManagedState(oD, &d, del);
+            }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+        }
+        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor gam(&globalAllocator);
-            bslma_TestAllocatorMonitor dam(&da);
+            VObj o;
+            TObj *p = new (da) MyTestObject(&numDeletes);
+            o.load(p);
+            const bdema_ManagedPtrDeleter del(p, &da,
+              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
 
+            validateManagedState(o, p, del);
+
+            VObj oD;
             {
-                TObj *p = new (da) MyTestObject(&numDeletes);
-                Obj mO(p);  const Obj& o = mO;
-
-                ASSERT(o);
-                ASSERT(!!o);
-                ASSERT(o.ptr() == p);
-                ASSERT(o.operator->() == p);
-                ASSERT(&*o == p);
-
-                // limit scope of reference to avoid later lifetime issues
-                {
-                    const bdema_ManagedPtrDeleter& del = o.deleter();
-                    ASSERT(del.object() == p);
-                    ASSERT(del.factory() == &da);
-                    ASSERT(del.deleter() == defaultDelete);
-                }
-
-                if (verbose) cout << "\tTest accessors on aliased object\n";
-
-                // Test access to a simple aliased type
                 MyDerivedObject d(&numDeletes);
-                Obj mDo(mO, &d);  const Obj& dO = mDo;
-
-                ASSERT(!o);
-                ASSERT(o.ptr() == 0);
-                ASSERT(o.operator->() == 0);
-
-#ifdef BDE_BUILD_TARGET_EXC
-                {
-                    bsls_AssertTestHandlerGuard guard;
-                    ASSERT_SAFE_FAIL(*o);
-                    ASSERT_SAFE_FAIL(o.deleter());
-                }
-#endif
-
-                ASSERT(mDo);
-                ASSERT(!!mDo);
-                ASSERT(mDo.ptr() == &d);
-                ASSERT(mDo.operator->() == &d);
-                ASSERT(&*mDo == &d);
-
-                {
-                    const bdema_ManagedPtrDeleter& delD = dO.deleter();
-                    ASSERT(delD.object() == p);
-                    ASSERT(delD.factory() == &da);
-                    ASSERT(delD.deleter() == defaultDelete);
-                }
-
-                ASSERT(0 == numDeletes);
+                oD.loadAlias(o, &d);
+                validateManagedState(oD, &d, del);
             }
-
-            ASSERT(101 == numDeletes);
-            ASSERT(dam.isInUseSame());
-            ASSERT(gam.isInUseSame());
-            ASSERT(gam.isMaxSame());
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
         }
+        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+
+        numDeletes = 0;
+        {
+            bdema_ManagedPtr<const void> o;
+            TObj *p = new (da) MyTestObject(&numDeletes);
+            o.load(p);
+            const bdema_ManagedPtrDeleter del(p, &da,
+              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
+
+            validateManagedState(o, p, del);
+
+            bdema_ManagedPtr<const void> oD;
+            {
+                MyDerivedObject d(&numDeletes);
+                oD.loadAlias(o, &d);
+                validateManagedState(oD, &d, del);
+            }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+        }
+        LOOP_ASSERT(numDeletes, 101 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout <<
                          "\tTest accessors on simple object using a factory\n";
 
+        bslma_TestAllocatorMonitor tam(&ta);
         numDeletes = 0;
         {
-            bslma_TestAllocatorMonitor gam(&globalAllocator);
-            bslma_TestAllocatorMonitor dam(&da);
-            bslma_TestAllocatorMonitor tam(&ta);
+            Obj o;
+            TObj *p = new (ta) MyTestObject(&numDeletes);
+            o.load(p, &ta);
+            const bdema_ManagedPtrDeleter del(p, &ta,
+              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
 
+            bslma_TestAllocatorMonitor tam2(&ta);
+
+            validateManagedState(o, p, del);
+            ASSERT(tam2.isInUseSame());
+            ASSERT(tam2.isMaxSame());
+
+            Obj oD;
             {
-                TObj *p = new (ta) MyTestObject(&numDeletes);
-                Obj mO(p, &ta); const Obj& o = mO;
-
-                ASSERT(o);
-                ASSERT(!!o);
-                ASSERT(o.ptr() == p);
-                ASSERT(o.operator->() == p);
-                ASSERT(&*o == p);
-
-                // limit scope of reference to avoid later lifetime issues
-                {
-                    const bdema_ManagedPtrDeleter& del = o.deleter();
-                    ASSERT(del.object() == p);
-                    ASSERT(del.factory() == &ta);
-                    ASSERT(del.deleter() == defaultDelete);
-                }
-
-                if (verbose) cout <<
-                        "\tTest accessors on aliased object using a factory\n";
-
-
-                // Test access to a simple aliased type
                 MyDerivedObject d(&numDeletes);
-                Obj mDo(mO, &d);  const Obj& dO = mDo;
-
-                ASSERT(!o);
-                ASSERT(o.ptr() == 0);
-                ASSERT(o.operator->() == 0);
-
-#ifdef BDE_BUILD_TARGET_EXC
-                {
-                    bsls_AssertTestHandlerGuard guard;
-                    ASSERT_SAFE_FAIL(*o);
-                    ASSERT_SAFE_FAIL(o.deleter());
-                }
-#endif
-
-                ASSERT(mDo);
-                ASSERT(!!mDo);
-                ASSERT(mDo.ptr() == &d);
-                ASSERT(mDo.operator->() == &d);
-                ASSERT(&*mDo == &d);
-
-                {
-                    const bdema_ManagedPtrDeleter& delD = dO.deleter();
-                    ASSERT(delD.object() == p);
-                    ASSERT(delD.factory() == &ta);
-                    ASSERT(delD.deleter() == defaultDelete);
-                }
-
-                ASSERT(0 == numDeletes);
+                oD.loadAlias(o, &d);
+                validateManagedState(oD, &d, del);
             }
-
-            ASSERT(101 == numDeletes);
-            ASSERT(tam.isInUseSame());
-            ASSERT(dam.isInUseSame());
-            ASSERT(dam.isMaxSame());
-            ASSERT(gam.isInUseSame());
-            ASSERT(gam.isMaxSame());
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERT(tam2.isInUseSame());
+            ASSERT(tam2.isMaxSame());
         }
+        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        ASSERT(tam.isInUseSame());
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        numDeletes = 0;
+        {
+            VObj o;
+            TObj *p = new (ta) MyTestObject(&numDeletes);
+            o.load(p, &ta);
+            const bdema_ManagedPtrDeleter del(p, &ta,
+              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
 
-        if (verbose) cout <<
-        "\tTest accessors on simple object using both a factory and deleter\n";
+            bslma_TestAllocatorMonitor tam2(&ta);
 
-        if (verbose) cout << "\tTest accessors on aliased object using both"
-                             "a factory and deleter\n";
+            validateManagedState(o, p, del);
+            ASSERT(tam2.isInUseSame());
+            ASSERT(tam2.isMaxSame());
+
+            VObj oD;
+            {
+                MyDerivedObject d(&numDeletes);
+                oD.loadAlias(o, &d);
+                validateManagedState(oD, &d, del);
+            }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERT(tam2.isInUseSame());
+            ASSERT(tam2.isMaxSame());
+        }
+        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        ASSERT(tam.isInUseSame());
+
+        numDeletes = 0;
+        {
+            bdema_ManagedPtr<const void> o;
+            TObj *p = new (ta) MyTestObject(&numDeletes);
+            o.load(p, &ta);
+            const bdema_ManagedPtrDeleter del(p, &ta,
+              &bdema_ManagedPtr_FactoryDeleter<TObj,bslma_Allocator>::deleter);
+
+            bslma_TestAllocatorMonitor tam2(&ta);
+
+            validateManagedState(o, p, del);
+            ASSERT(tam2.isInUseSame());
+            ASSERT(tam2.isMaxSame());
+
+            bdema_ManagedPtr<const void> oD;
+            {
+                MyDerivedObject d(&numDeletes);
+                oD.loadAlias(o, &d);
+                validateManagedState(oD, &d, del);
+            }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERT(tam2.isInUseSame());
+            ASSERT(tam2.isMaxSame());
+        }
+        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        ASSERT(tam.isInUseSame());
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout <<
           "\tTest accessors on simple object using a deleter but no factory\n";
 
+        g_deleteCount = 0;
+        numDeletes = 0;
+        {
+            Obj o;
+            TObj obj(&numDeletes);
+            o.load(&obj, 0, &countedNilDelete);
+            const bdema_ManagedPtrDeleter del(&obj, 0, &countedNilDelete);
+
+            validateManagedState(o, &obj, del);
+
+            Obj oD;
+            {
+                MyDerivedObject d(&numDeletes);
+                oD.loadAlias(o, &d);
+                validateManagedState(oD, &d, del);
+            }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+        }
+        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+
+        g_deleteCount = 0;
+        numDeletes = 0;
+        {
+            VObj o;
+            TObj obj(&numDeletes);
+            o.load(&obj, 0, &countedNilDelete);
+            const bdema_ManagedPtrDeleter del(&obj, 0, &countedNilDelete);
+
+            validateManagedState(o, &obj, del);
+
+            VObj oD;
+            {
+                MyDerivedObject d(&numDeletes);
+                oD.loadAlias(o, &d);
+                validateManagedState(oD, &d, del);
+            }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+        }
+        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+
+        g_deleteCount = 0;
+        numDeletes = 0;
+        {
+            bdema_ManagedPtr<const void> o;
+            TObj obj(&numDeletes);
+            o.load(&obj, 0, &countedNilDelete);
+            const bdema_ManagedPtrDeleter del(&obj, 0, &countedNilDelete);
+
+            validateManagedState(o, &obj, del);
+
+            bdema_ManagedPtr<const void> oD;
+            {
+                MyDerivedObject d(&numDeletes);
+                oD.loadAlias(o, &d);
+                validateManagedState(oD, &d, del);
+            }
+            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+        }
+        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
         if (verbose) cout <<
-         "\tTest accessors on aliased object using a deleter but no factory\n";
+        "\tTest accessors on simple object using both a factory and deleter\n";
+
+        numDeletes = 0;
+        {
+            bdema_ManagedPtr<int> o;
+            IncrementIntFactory factory;
+            o.load(&numDeletes, &factory, &incrementIntDeleter);
+            const bdema_ManagedPtrDeleter del(&numDeletes,
+                                              &factory,
+            (bdema_ManagedPtrDeleter::Deleter)&incrementIntDeleter);
+
+            validateManagedState(o, &numDeletes, del);
+
+            bdema_ManagedPtr<int> o2;
+            int i2 = 0;
+            {
+                o2.loadAlias(o, &i2);
+                validateManagedState(o2, &i2, del);
+            }
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            VObj o;
+            IncrementIntFactory factory;
+            o.load(&numDeletes, &factory, &incrementIntDeleter);
+            const bdema_ManagedPtrDeleter del(&numDeletes,
+                                              &factory,
+            (bdema_ManagedPtrDeleter::Deleter)&incrementIntDeleter);
+
+            validateManagedState(o, &numDeletes, del);
+
+            bdema_ManagedPtr<int> o2;
+            int i2 = 0;
+            {
+                o2.loadAlias(o, &i2);
+                validateManagedState(o2, &i2, del);
+            }
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            bdema_ManagedPtr<const void> o;
+            IncrementIntFactory factory;
+            o.load(&numDeletes, &factory, &incrementIntDeleter);
+            const bdema_ManagedPtrDeleter del(&numDeletes,
+                                              &factory,
+            (bdema_ManagedPtrDeleter::Deleter)&incrementIntDeleter);
+
+            validateManagedState(o, &numDeletes, del);
+
+            bdema_ManagedPtr<int> o2;
+            int i2 = 0;
+            {
+                o2.loadAlias(o, &i2);
+                validateManagedState(o2, &i2, del);
+            }
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
