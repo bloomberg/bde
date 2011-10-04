@@ -425,6 +425,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISARRAY
+#include <bslmf_isarray.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
 #endif
@@ -436,11 +440,6 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
 #endif
-
-#ifndef INCLUDED_BSLMF_ISARRAY
-#include <bslmf_isarray.h>
-#endif
-
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>

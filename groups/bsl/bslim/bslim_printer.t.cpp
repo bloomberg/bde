@@ -878,8 +878,7 @@ int main(int argc, char *argv[])
         // Concerns: That 'printOrNull'
         //: 1 prints the address held by the pointer in hexadecimal format, but
         //:   does not attempt to dereference the pointer if the pointer type
-        //:   is 'void *', 'const void *', 'volatile void *' or
-        //:   'volatile const void *'.
+        //:   is 'void *', or  'const void *'.
         //: 2 dereferences the pointer and prints a character if the
         //:   pointer type is 'const char *'.
         //: 3 dereferences the pointer and prints the held value if the
@@ -894,10 +893,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create a table having fields for line number, level, spaces per
         //:   level, and expected output of 'printOrNull' when called with a
-        //:   'void *', 'const void *', 'volatile void *' or
-        //:   'volatile const void *'.  For each set of values in the table,
-        //:   ensure that the actual output of 'printOrNull' is the same as the
-        //:   expected output.
+        //:   'void *', or 'const void *'.  For each set of values in the
+        //:   table, ensure that the actual output of 'printOrNull' is the
+        //:   same as the expected output.
         //: 2 Create a table having fields for line number, level, spaces per
         //:   level, and expected output of 'printOrNull' when called with a
         //:   'const char *'.  For each set of values in the table, ensure that
@@ -1248,9 +1246,8 @@ int main(int argc, char *argv[])
         //:   level, and expected output of 'print' when called with a null
         //:   pointer.  For each set of values in the table, ensure that the
         //:   actual output of 'print' when called with a null pointer of type
-        //:   'void *', 'const void *', 'volatile void *',
-        //:   'volatile const void *', 'const char *', 'int *' and 'HasPrint *'
-        //:   is the same as the expected output.
+        //:   'void *', 'const void *', 'const char *', 'int *' and
+        //:  'HasPrint *' is the same as the expected output.
         //
         // Testing:
         //   template<class TYPE>
@@ -1337,8 +1334,7 @@ int main(int argc, char *argv[])
         // Concerns: That 'print'
         //: 1 prints the address held by the pointer in hexadecimal format, but
         //:   does not attempt to dereference the pointer if the pointer type
-        //:   is 'void *', 'const void *', 'volatile void *' or
-        //:   'volatile const void *'.
+        //:   is 'void *' or 'const void *'.
         //: 2 prints the input as a null-terminated C-style string if the
         //:   pointer is of type 'const char *'.
         //: 3 prints the address held by the pointer type, and then
@@ -1355,8 +1351,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create a table having fields for line number, level, spaces per
         //:   level, and expected output of 'print' when called with a
-        //:   'void *', 'const void *', 'volatile void *' or
-        //:   'volatile const void *'.  For each set of values in the table,
+        //:   'void *', 'const void *'.  For each set of values in the table,
         //:   ensure that the actual output of 'print' is the same as the
         //:   expected output.
         //: 2 Create a table having fields for line number, level, spaces per
@@ -1583,59 +1578,6 @@ int main(int argc, char *argv[])
                          << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
                 }
                 LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-        {
-            if (verbose) cout << "const char *" << endl
-                              << "------------" << endl;
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expected;       // expected output format
-            } DATA[] = {
-                //LINE  LEVEL SPL EXPECTED OUTPUT
-                //----  ----- --- --------------
-                { L_,    2,    2, "      \"%s\"\n" },
-                { L_,    2,   -2, " \"%s\""        },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-
-                const char *data = "testing char *";
-
-                char buf[999];
-                snprintf(buf, 999, DATA[i].d_expected.c_str(), data);
-                const bsl::string EXPECTED(buf);
-
-                {
-                    ostringstream out;
-                    Obj p(&out, LEVEL, SPL); 
-                    p.print(data, 0);
-                    const bsl::string& ACTUAL = out.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                {
-                    ostringstream out;
-                    Obj p(&out, LEVEL, SPL); 
-                    p.print(const_cast<char *>(data), 0);
-                    const bsl::string& ACTUAL = out.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                {
-                    ostringstream out;
-                    Obj p(&out, LEVEL, SPL); 
-                    p.print("testing char *", 0);
-                    const bsl::string& ACTUAL = out.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }               
             }
         }
         {
