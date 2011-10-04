@@ -114,9 +114,10 @@
 // [26] RULE BASED LOGGING: void logMessage(const bael_Category *,
 //                                          int,
 //                                          bael_Record *);
+// [27] BAEL_LOG_IS_ENABLED(SEVERITY)
 //-----------------------------------------------------------------------------
-// [27] USAGE EXAMPLE
-// [28] RULE-BASED LOGGING USAGE EXAMPLE
+// [28] USAGE EXAMPLE
+// [29] RULE-BASED LOGGING USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -174,6 +175,14 @@ typedef BloombergLP::bael_Log_Stream         LogStream;
 typedef BloombergLP::bslma_TestAllocator     TestAllocator;
 typedef BloombergLP::bael_CategoryManager    CategoryManager;
 typedef BloombergLP::bael_ThresholdAggregate Thresholds;
+
+const int TRACE = Sev::BAEL_TRACE;
+const int DEBUG = Sev::BAEL_DEBUG;
+const int INFO  = Sev::BAEL_INFO;
+const int WARN  = Sev::BAEL_WARN;
+const int ERROR = Sev::BAEL_ERROR;
+const int FATAL = Sev::BAEL_FATAL;
+const int OFF   = Sev::BAEL_OFF;
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -878,7 +887,7 @@ int main(int argc, char *argv[])
     TestAllocator ta(veryVeryVerbose); const TestAllocator& TA = ta;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 28: {
+      case 29: {
         //---------------------------------------------------------------------
         // TESTING RULE BASED LOGGING USAGE EXAMPLE
         //
@@ -951,7 +960,7 @@ int main(int argc, char *argv[])
 // ERROR example.cpp:129 EXAMPLE.CATEGORY Processing the third message.
 //..
       } break;
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -1094,6 +1103,108 @@ int main(int argc, char *argv[])
             }
         }
 
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // BAEL_LOG_IS_ENABLED(SEVERITY);
+        //
+        // Concerns:
+        //:  1. If the logger manager is not initialized,
+        //:     'BAEL_LOG_IS_ENABLED' returns 'true' for severities higher
+        //:     than 'WARN', and 'false' otherwise.
+        //:
+        //:  2. If the logger manager is initialized, 'BAEL_LOG_IS_ENABLED'
+        //:     returns 'true' if any of the thresholds configured for the
+        //:     current category are higher than the severity.
+        //:
+        //:  3. 'BAEL_LOG_IS_ENABLED' tests the thresholds configured for the
+        //:     current category by rule based logging.
+        //
+        // Plan:
+        //   1. Do not initialize a logger manager, and test calling
+        //      'BAEL_LOG_IS_ENABLED' with various severities.  (C-1).
+        //
+        //   2. Initialize a logger manager, and for a set of possible
+        //      severities, exhaustively test each combination of threshold
+        //      severity value with 'BAEL_LOG_IS_ENABLED' severity value, for
+        //      each of the 4 thresholds (record, passthrough, trigger, and
+        //      trigger-all)
+        //
+        //   3.
+
+        // Testing:
+        //   BAEL_IS_ENABLED(SEVERITY)
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout << "\nBAEL_LOG_IS_ENABLED(SEVERITY)\n"
+                      << "\n=============================\n";
+
+        if (verbose) bsl::cout << "\tTest without a logger manager.\n";
+
+        {
+            BAEL_LOG_SET_CATEGORY("TEST.CATEGORY1");
+            ASSERT(!BAEL_LOG_IS_ENABLED(TRACE));
+            ASSERT(!BAEL_LOG_IS_ENABLED(DEBUG));
+            ASSERT(!BAEL_LOG_IS_ENABLED(INFO));
+            ASSERT( BAEL_LOG_IS_ENABLED(WARN));
+            ASSERT( BAEL_LOG_IS_ENABLED(ERROR));
+            ASSERT( BAEL_LOG_IS_ENABLED(FATAL));
+        }
+
+        const int DATA[] = { OFF, TRACE, DEBUG, INFO, WARN, ERROR, FATAL };
+        const int NUM_DATA = sizeof (DATA) / sizeof (*DATA);
+
+        BloombergLP::bael_DefaultObserver observer(bsl::cout);
+        BloombergLP::bael_LoggerManagerConfiguration configuration;
+        configuration.setDefaultThresholdLevelsIfValid(OFF, OFF, OFF, OFF);
+
+        BloombergLP::bael_LoggerManagerScopedGuard guard(&observer,
+                                                         configuration,
+                                                         &ta);
+        bael_LoggerManager& manager = bael_LoggerManager::singleton();
+
+        if (verbose) bsl::cout << "\tExhaustively test w/o logging rules.\n";
+        {
+            BAEL_LOG_SET_CATEGORY("TEST.CATEGORY2");
+            for (int thresholdIdx = 0; thresholdIdx < 4; ++thresholdIdx) {
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    Thresholds threshold(OFF, OFF, OFF, OFF);
+                    switch (thresholdIdx) {
+                      case 0: threshold.setRecordLevel(DATA[i]); break;
+                      case 1: threshold.setPassLevel(DATA[i]); break;
+                      case 2: threshold.setTriggerLevel(DATA[i]); break;
+                      case 3: threshold.setTriggerAllLevel(DATA[i]); break;
+                      default: BSLS_ASSERT(false);
+                    }
+                    manager.setCategory("TEST.CATEGORY2",
+                                        threshold.recordLevel(),
+                                        threshold.passLevel(),
+                                        threshold.triggerLevel(),
+                                        threshold.triggerAllLevel());
+                    for (int j = 1; j < NUM_DATA; ++j) {
+                        bool EXP = DATA[j] <= DATA[i];
+                        LOOP3_ASSERT(EXP, DATA[i], DATA[j],
+                                     EXP == BAEL_LOG_IS_ENABLED(DATA[j]));
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\tTest w/ logging rules." << bsl::endl;
+        {
+            BAEL_LOG_SET_CATEGORY("TEST.CATEGORY3");
+            for (int i = 0; i < NUM_DATA; ++i) {
+                bael_Rule rule("TEST.CATEGORY3", OFF, DATA[i], OFF, OFF);
+                manager.addRule(rule);
+                for (int j = 1;  j < NUM_DATA; ++j) {
+                    bool EXP = DATA[j] <= DATA[i];
+                    LOOP3_ASSERT(EXP, DATA[i], DATA[j],
+                                 EXP == BAEL_LOG_IS_ENABLED(DATA[j]));
+                }
+                manager.removeAllRules();
+            }
+        }
       } break;
       case 26: {
         // --------------------------------------------------------------------
