@@ -6828,7 +6828,9 @@ testCompsite();
             const bdema_ManagedPtrDeleter del;
 
             validateManagedState(o, 0, del);
-            typeid(*o); // should parse, even if it cannot be called
+            // The following 'typeid' fails on Unix compilers, but should be
+            // an unevaluated operand, and so safely invokable.
+            //typeid(*o); // should parse, even if it cannot be called
         }
 
         LOOP_ASSERT(numDeletes, 0 == numDeletes);
@@ -6837,7 +6839,9 @@ testCompsite();
             const bdema_ManagedPtrDeleter del;
 
             validateManagedState(o, 0, del);
-            typeid(*o); // should parse, even if it cannot be called
+            // The following 'typeid' fails on Unix compilers, but should be
+            // an unevaluated operand, and so safely invokable.
+            //typeid(*o); // should parse, even if it cannot be called
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
