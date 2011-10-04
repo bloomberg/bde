@@ -725,6 +725,20 @@ class bdema_ManagedPtr {
         // The behavior is undefined if 'ptr' is already managed by another
         // managed pointer.
 
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+    void load(BDEMA_TYPE  *ptr,
+              void        *factory,
+              DeleterFunc  deleter);
+        // Destroy the current managed object (if any) and re-initialize this
+        // managed pointer to manage the specified 'ptr' using the specified
+        // 'deleter' with arguments 'ptr' and the specified 'factory' to
+        // destroy 'ptr' when this managed pointer is destroyed or
+        // re-assigned, unless it is released before then.  Note that if
+        // '0 == ptr', then this object will be initialized to an unset state.
+        // The behavior is undefined if 'ptr' is already managed by another
+        // managed pointer.
+#endif
+
     template<class BDEMA_TARGET_TYPE, typename BDEMA_FACTORY>
     void load(BDEMA_TARGET_TYPE *ptr,
               BDEMA_FACTORY     *factory,
@@ -1141,12 +1155,28 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(bdema_ManagedPtr_Nullptr::Type,
     this->clear();
 }
 
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+template <class BDEMA_TYPE>
+inline
+void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE  *ptr,
+                                        void        *factory,
+                                        DeleterFunc  deleter)
+{
+    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+
+    d_members.runDeleter();
+    d_members.set(stripPointerType(ptr),
+                  factory,
+                  deleter);
+}
+#endif
+
 template <class BDEMA_TYPE>
 template<class BDEMA_TARGET_TYPE>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
-                                        void *factory,
-                                        DeleterFunc deleter)
+                                        void              *factory,
+                                        DeleterFunc        deleter)
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>
                                                                      ::VALUE));
@@ -1162,8 +1192,8 @@ template <class BDEMA_TYPE>
 template<class BDEMA_TARGET_TYPE, typename BDEMA_FACTORY>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
-                                        BDEMA_FACTORY *factory,
-                                        DeleterFunc deleter)
+                                        BDEMA_FACTORY     *factory,
+                                        DeleterFunc        deleter)
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>
                                                                      ::VALUE));

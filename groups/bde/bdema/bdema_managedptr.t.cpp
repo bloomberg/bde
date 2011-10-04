@@ -1098,7 +1098,12 @@ void doLoadOnullFnullDnull(int callLine, int testLine, int index,
 
     const int expectedCount = args->d_deleteDelta;
 
+// A workaround for early GCC compilers
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+    args->d_p->load(0, 0);
+#else
     args->d_p->load(0, 0, 0);
+#endif
     args->d_deleteDelta = 0;
 
     LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
