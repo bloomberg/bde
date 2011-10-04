@@ -86,7 +86,7 @@ using bsl::endl;
 // [10] bdema_ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
 // [ 6] ~bdema_ManagedPtr();
 // [11] operator bdema_ManagedPtr_Ref<OTHER>();
-// [ 7] void load(nullptr_t=0);
+// [ 7] void load(nullptr_t=0,nullptr_t=0,nullptr_t=0);
 // [ 7] template<class TARGET_TYPE> void load(TARGET_TYPE *ptr);
 // [ 7] void load(TYPE *ptr, FACTORY *factory)
 // [ 7] void load(TYPE *ptr, nullptr_t, void (*deleter)(TYPE *, void*));
@@ -537,6 +537,151 @@ static void doNothingDeleter(void *object, void *)
     ASSERT(object);
 }
 
+template<typename T>
+void validateManagedState(const bdema_ManagedPtr<T>&     obj,
+                          T                             *ptr,
+                          const bdema_ManagedPtrDeleter& del)
+{
+    // Testing the following properties of the specified 'obj'
+    //   operator BoolType() const;
+    //   TYPE& operator*() const;
+    //   TYPE *operator->() const;
+    //   TYPE *ptr() const;
+    //   const bdema_ManagedPtrDeleter& deleter() const;
+    if (ptr) {
+        // Different negative testing constraints when 'ptr' is null.
+        ASSERT(false == obj);
+        ASSERT(!obj);
+        ASSERT(0 == obj.operator->());
+        ASSERT(0 == obj.ptr());
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\tNegative testing\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(*obj);
+            ASSERT_SAFE_FAIL(obj.deleter());
+        }
+#endif
+    }
+    else {
+        // Different negative testing constraints when 'ptr' is null.
+        ASSERT(true  == obj);
+        ASSERT(false == !obj);
+
+        T *arrow = obj.operator->()
+        LOOP2_ASSERT(ptr, arrow, ptr == arrow);
+
+        T * objPtr = obj.ptr();
+        LOOP2_ASSERT(ptr, objPtr, ptr == objPtr);
+
+        T &target = *obj;
+        LOOP2_ASSERT(&target, ptr, &target == ptr);
+
+        const bdema_ManagedPtrDeleter& objDel = obj.deleter();
+        LOOP2_ASSERT(del, objDel, del == objDel);
+    }
+}
+
+void validateManagedState(const bdema_ManagedPtr<void>&  obj,
+                          void                          *ptr,
+                          const bdema_ManagedPtrDeleter& del)
+{
+    // Testing the following properties of the specified 'obj'
+    //   operator BoolType() const;
+    //   TYPE& operator*() const;
+    //   TYPE *operator->() const;
+    //   TYPE *ptr() const;
+    //   const bdema_ManagedPtrDeleter& deleter() const;
+    if (ptr) {
+        // Different negative testing constraints when 'ptr' is null.
+        ASSERT(false == obj);
+        ASSERT(!obj);
+        ASSERT(0 == obj.operator->());
+        ASSERT(0 == obj.ptr());
+#ifdef BDE_BUILD_TARGET_EXC
+        if (g_verbose) cout << "\tNegative testing\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(obj.deleter());
+        }
+#endif
+    }
+    else {
+        // Different negative testing constraints when 'ptr' is null.
+        ASSERT(true  == (bool)obj);
+        ASSERT(false == !obj);
+
+        void *arrow = obj.operator->();
+        LOOP2_ASSERT(ptr, arrow, ptr == arrow);
+
+        void * objPtr = obj.ptr();
+        LOOP2_ASSERT(ptr, objPtr, ptr == objPtr);
+
+        const bdema_ManagedPtrDeleter& objDel = obj.deleter();
+        LOOP2_ASSERT(del, objDel, del == objDel);
+
+#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_DEREFERENCE_VOID_PTR)
+        *obj;
+#endif
+    }
+}
+
+void validateManagedState(const bdema_ManagedPtr<const void>& obj,
+                          const void                         *ptr,
+                          const bdema_ManagedPtrDeleter&      del)
+{
+    // Testing the following properties of the specified 'obj'
+    //   operator BoolType() const;
+    //   TYPE& operator*() const;
+    //   TYPE *operator->() const;
+    //   TYPE *ptr() const;
+    //   const bdema_ManagedPtrDeleter& deleter() const;
+    // Testing the following properties of the specified 'obj'
+    //   operator BoolType() const;
+    //   TYPE& operator*() const;
+    //   TYPE *operator->() const;
+    //   TYPE *ptr() const;
+    //   const bdema_ManagedPtrDeleter& deleter() const;
+    if (ptr) {
+        // Different negative testing constraints when 'ptr' is null.
+        ASSERT(false == obj);
+        ASSERT(!obj);
+        ASSERT(0 == obj.operator->());
+        ASSERT(0 == obj.ptr());
+#ifdef BDE_BUILD_TARGET_EXC
+        if (g_verbose) cout << "\tNegative testing\n";
+
+        {
+            bsls_AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL(obj.deleter());
+        }
+#endif
+    }
+    else {
+        // Different negative testing constraints when 'ptr' is null.
+        ASSERT(true  == (bool)obj);
+        ASSERT(false == !obj);
+
+        const void *arrow = obj.operator->();
+        LOOP2_ASSERT(ptr, arrow, ptr == arrow);
+
+        const void * objPtr = obj.ptr();
+        LOOP2_ASSERT(ptr, objPtr, ptr == objPtr);
+
+        const bdema_ManagedPtrDeleter& objDel = obj.deleter();
+        LOOP2_ASSERT(del, objDel, del == objDel);
+
+#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_DEREFERENCE_VOID_PTR)
+        *obj;
+#endif
+    }
+
+}
 //=============================================================================
 //                             'LOAD' TESTING SUPPORT
 //-----------------------------------------------------------------------------
@@ -5819,7 +5964,7 @@ testCompsite();
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // MOVE-SEMANTICS
+        // MOVE-CONSTRUCTION
         //
         // Concerns:
         //: 1 No constructor nor conversion operator allocates any memory from

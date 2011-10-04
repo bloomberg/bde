@@ -10,13 +10,12 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a managed pointer class.
 //
 //@CLASSES:
-//                bdema_ManagedPtr: proctor for automatic memory management
-//      bdema_ManagedPtrNilDeleter: used for creating managed pointers to
-//                                  stack-allocated objects (DEPRECATED)
-//     bdema_ManagedPtrNoOpDeleter: used for creating managed pointers to
-//                                  stack-allocated objects
+//            bdema_ManagedPtr: proctor for automatic memory management
+//  bdema_ManagedPtrNilDeleter: (DEPRECATED)deleter for stack-allocated objects
+// bdema_ManagedPtrNoOpDeleter: deleter for stack-allocated objects
 //
-//@AUTHOR: Ilougino Rocha (irocha), Pablo Halpern (phalpern)
+//@AUTHOR: Ilougino Rocha (irocha), Pablo Halpern (phalpern),
+//         Alisdair Meredith (ameredith1@blooomberg.net)
 //
 //@DESCRIPTION: This component provides a proctor, similar to 'bsl::auto_ptr',
 // that supports user-specified deleters.  The proctor (OED: "a person employed
@@ -344,9 +343,9 @@ class bslma_Allocator;
 template <class BDEMA_TYPE>
 class bdema_ManagedPtr_Ref;
 
-                     // =====================================
-                     // private class bdema_ManagedPtrMembers
-                     // =====================================
+                       // ==============================
+                       // class bdema_ManagedPtr_Nullptr
+                       // ==============================
 
 struct bdema_ManagedPtr_Nullptr {
     // This 'struct' provides a typedef for a type that can match a null
@@ -568,8 +567,10 @@ class bdema_ManagedPtr {
         // if 'ptr' == 0.  The behavior is undefined unless the object referred
         // to by 'ptr' can by destroyed by the current default allocator.
         // The behavior is undefined if the lifetime of the object referred to
-        // by 'ptr' is already managed by another object.
-        // The behavior is undefined if the ...
+        // by 'ptr' is already managed by another object.  The behavior is
+        // undefined unless 'BDEMA_TARGET_TYPE *' is convertible to
+        // 'BDEMA_TYPE *'.
+        // TBD We still say nothing about bad casts and deleting a 'void*'
 
     bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
         // Construct a 'bdema_ManagedPtr' and transfer the value and ownership
@@ -589,7 +590,7 @@ class bdema_ManagedPtr {
 
     template <class BDEMA_OTHER_TYPE>
     bdema_ManagedPtr(bdema_ManagedPtr<BDEMA_OTHER_TYPE>& alias,
-                     BDEMA_TYPE *ptr);
+                     BDEMA_TYPE                         *ptr);
         // Construct a managed pointer that takes over management of the value
         // of the specified 'alias' managed pointer, but which has the
         // specified 'ptr' as an externally-visible value.  The value of 'ptr'
@@ -1190,7 +1191,6 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr)
                &DeleterFactory::deleter
               );
 }
-
 
 template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE, class BDEMA_FACTORY>
