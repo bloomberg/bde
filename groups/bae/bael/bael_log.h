@@ -182,9 +182,9 @@ BDES_IDENT("$Id: $")
 //      Also note that each use of these macros must be terminated by a ';'.
 //
 //  BAEL_LOG_IS_ENABLED(BAEL_SEVERITY)
-//      Return 'true' if the specified 'severity' is more severe than any of
-//      the threshold levels of the current context's configured logging
-//      category (as established by 'BAEL_LOG_SET_CATEGORY'), and 'false'
+//      Return 'true' if the specified 'BAEL_SEVERITY' is more severe than any
+//      of the threshold levels of the current context's logging category
+//      (which must be established using 'BAEL_LOG_SET_CATEGORY'), and 'false'
 //      otherwise.
 //..
 ///Macro Usage

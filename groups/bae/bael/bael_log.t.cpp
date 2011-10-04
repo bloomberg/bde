@@ -1122,16 +1122,17 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   1. Do not initialize a logger manager, and test calling
-        //      'BAEL_LOG_IS_ENABLED' with various severities.  (C-1).
+        //      'BAEL_LOG_IS_ENABLED' with various severities.  (C-1)
         //
         //   2. Initialize a logger manager, and for a set of possible
         //      severities, exhaustively test each combination of threshold
         //      severity value with 'BAEL_LOG_IS_ENABLED' severity value, for
         //      each of the 4 thresholds (record, passthrough, trigger, and
-        //      trigger-all)
+        //      trigger-all). (C-2)
         //
-        //   3.
-
+        //   3. Exhaustively test each combination of a rule-enabled threshold
+        //      severity value with 'BAEL_LOG_IS_ENABLED' severity value. (C-3)
+        //
         // Testing:
         //   BAEL_IS_ENABLED(SEVERITY)
         // --------------------------------------------------------------------
