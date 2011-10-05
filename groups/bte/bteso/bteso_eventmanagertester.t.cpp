@@ -1419,9 +1419,17 @@ int main(int argc, char *argv[])
             } SCRIPTS[] =
             {
                {L_, 0, "T0; E0r; E0rwa; E1caw; E0rwac"},
+#if defined(BSLS_PLATFORM__OS_HPUX)
+               {L_, 0, "W0,30; S40; R0,24"},
+#else
                {L_, 0, "W0,30; S1; R0,24"},
+#endif
                {L_, 0, "Di,1; Dn,1;  Di150,1; Dn400,1"},
+#if defined(BSLS_PLATFORM__OS_HPUX)
+               {L_, 0, "T0; +0w21; W1,20; S40; +1r11"},
+#else
                {L_, 0, "T0; +0w21; W1,20; S1; +1r11"},
+#endif
             };
 
             const int NUM_SCRIPTS = sizeof SCRIPTS / sizeof *SCRIPTS;
