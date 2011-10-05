@@ -982,8 +982,12 @@ void Printer_Helper::printRaw(
                     int           spacesPerLevel,
                     bslmf_MetaInt<Printer_Selector::BSLIM_FUNCTION_POINTER> *)
 {
+    // GCC 3.4.6 does not allow a reinterpret-cast a function pointer directly
+    // to 'void *', so first cast it to an integer data type.
+
     Printer_Helper::print(stream,
-                          reinterpret_cast<const void *>(data),
+                          reinterpret_cast<const void *>(
+                              reinterpret_cast<bsls_Types::UintPtr>(data)),
                           level,
                           spacesPerLevel);
 }
