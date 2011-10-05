@@ -612,9 +612,9 @@ namespace bsctst { class Sequence2; }
 namespace bsctst { class Topchoice; }
 namespace bsctst {
 
-                              // ===============                               
-                              // class CustomInt                               
-                              // ===============                               
+                              // ===============
+                              // class CustomInt
+                              // ===============
 
 class CustomInt {
 
@@ -738,9 +738,9 @@ BDEAT_DECL_CUSTOMIZEDTYPE_WITH_BITWISEMOVEABLE_TRAITS(bsctst::CustomInt)
 
 namespace bsctst {
 
-                             // ==================                             
-                             // class CustomString                             
-                             // ==================                             
+                             // ==================
+                             // class CustomString
+                             // ==================
 
 class CustomString {
 
@@ -766,7 +766,7 @@ class CustomString {
 
     // CREATORS
     explicit CustomString(bdema_Allocator *basicAllocator = 0);
-        // Create an object of type 'CustomString' having the default value. 
+        // Create an object of type 'CustomString' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
@@ -874,9 +874,9 @@ BDEAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::CustomSt
 
 namespace bsctst {
 
-                              // ================                              
-                              // class Enumerated                              
-                              // ================                              
+                              // ================
+                              // class Enumerated
+                              // ================
 
 struct Enumerated {
 
@@ -977,9 +977,9 @@ BDEAT_DECL_ENUMERATION_TRAITS(bsctst::Enumerated)
 
 namespace bsctst {
 
-                              // ===============                               
-                              // class Sequence3                               
-                              // ===============                               
+                              // ===============
+                              // class Sequence3
+                              // ===============
 
 class Sequence3 {
 
@@ -1234,9 +1234,9 @@ BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence3)
 
 namespace bsctst {
 
-                              // ===============                               
-                              // class Sequence5                               
-                              // ===============                               
+                              // ===============
+                              // class Sequence5
+                              // ===============
 
 class Sequence5 {
 
@@ -1503,9 +1503,9 @@ BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence5)
 
 namespace bsctst {
 
-                              // ===============                               
-                              // class Sequence6                               
-                              // ===============                               
+                              // ===============
+                              // class Sequence6
+                              // ===============
 
 class Sequence6 {
 
@@ -1859,9 +1859,9 @@ BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence6)
 
 namespace bsctst {
 
-                               // =============                                
-                               // class Choice3                                
-                               // =============                                
+                               // =============
+                               // class Choice3
+                               // =============
 
 class Choice3 {
 
@@ -2127,9 +2127,9 @@ BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Choice3)
 
 namespace bsctst {
 
-                               // =============                                
-                               // class Choice1                                
-                               // =============                                
+                               // =============
+                               // class Choice1
+                               // =============
 
 class Choice1 {
 
@@ -2395,9 +2395,9 @@ BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Choice1)
 
 namespace bsctst {
 
-                               // =============                                
-                               // class Choice2                                
-                               // =============                                
+                               // =============
+                               // class Choice2
+                               // =============
 
 class Choice2 {
 
@@ -2663,9 +2663,9 @@ BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Choice2)
 
 namespace bsctst {
 
-                              // ===============                               
-                              // class Sequence4                               
-                              // ===============                               
+                              // ===============
+                              // class Sequence4
+                              // ===============
 
 class Sequence4 {
 
@@ -3063,9 +3063,9 @@ BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence4)
 
 namespace bsctst {
 
-                              // ===============                               
-                              // class Sequence1                               
-                              // ===============                               
+                              // ===============
+                              // class Sequence1
+                              // ===============
 
 class Sequence1 {
 
@@ -3310,9 +3310,9 @@ BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence1)
 
 namespace bsctst {
 
-                              // ===============                               
-                              // class Sequence2                               
-                              // ===============                               
+                              // ===============
+                              // class Sequence2
+                              // ===============
 
 class Sequence2 {
 
@@ -3578,9 +3578,9 @@ BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence2)
 
 namespace bsctst {
 
-                              // ===============                               
-                              // class Topchoice                               
-                              // ===============                               
+                              // ===============
+                              // class Topchoice
+                              // ===============
 
 class Topchoice {
 
@@ -3938,9 +3938,9 @@ BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Topchoice)
 
 namespace bsctst {
 
-                               // ==============                                
-                               // class Messages                                
-                               // ==============                                
+                               // ==============
+                               // class Messages
+                               // ==============
 
 struct Messages {
     // This class serves as a place holder to reserve a type having the same
@@ -3956,9 +3956,9 @@ struct Messages {
 
 namespace bsctst {
 
-                              // ---------------                               
-                              // class CustomInt                               
-                              // ---------------                               
+                              // ---------------
+                              // class CustomInt
+                              // ---------------
 
 // CREATORS
 inline
@@ -4057,9 +4057,9 @@ const int& CustomInt::toInt() const
 
 
 
-                             // ------------------                             
-                             // class CustomString                             
-                             // ------------------                             
+                             // ------------------
+                             // class CustomString
+                             // ------------------
 
 // CREATORS
 inline
@@ -4158,9 +4158,9 @@ const std::string& CustomString::toString() const
 
 
 
-                              // ----------------                              
-                              // class Enumerated                              
-                              // ----------------                              
+                              // ----------------
+                              // class Enumerated
+                              // ----------------
 
 // CLASS METHODS
 inline
@@ -4219,9 +4219,9 @@ STREAM& Enumerated::bdexStreamOut(STREAM&              stream,
 
 
 
-                              // ---------------                               
-                              // class Sequence3                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence3
+                              // ---------------
 
 // CLASS METHODS
 inline
@@ -4511,9 +4511,9 @@ const std::vector<bdeut_NullableValue<Enumerated::Value> >& Sequence3::element6(
 
 
 
-                              // ---------------                               
-                              // class Sequence5                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence5
+                              // ---------------
 
 // CLASS METHODS
 inline
@@ -4833,9 +4833,9 @@ const std::vector<bdeut_NullableAllocatedValue<Sequence3> >& Sequence5::element7
 
 
 
-                              // ---------------                               
-                              // class Sequence6                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence6
+                              // ---------------
 
 // CLASS METHODS
 inline
@@ -5396,9 +5396,9 @@ const std::vector<bdeut_NullableValue<unsigned int> >& Sequence6::element15() co
 
 
 
-                               // -------------                                
-                               // class Choice3                                
-                               // -------------                                
+                               // -------------
+                               // class Choice3
+                               // -------------
 
 // CLASS METHODS
 inline
@@ -5638,9 +5638,9 @@ bool Choice3::isUndefinedValue() const
 }
 
 
-                               // -------------                                
-                               // class Choice1                                
-                               // -------------                                
+                               // -------------
+                               // class Choice1
+                               // -------------
 
 // CLASS METHODS
 inline
@@ -5880,9 +5880,9 @@ bool Choice1::isUndefinedValue() const
 }
 
 
-                               // -------------                                
-                               // class Choice2                                
-                               // -------------                                
+                               // -------------
+                               // class Choice2
+                               // -------------
 
 // CLASS METHODS
 inline
@@ -6122,9 +6122,9 @@ bool Choice2::isUndefinedValue() const
 }
 
 
-                              // ---------------                               
-                              // class Sequence4                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence4
+                              // ---------------
 
 // CLASS METHODS
 inline
@@ -6805,9 +6805,9 @@ const std::vector<CustomString>& Sequence4::element19() const
 
 
 
-                              // ---------------                               
-                              // class Sequence1                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence1
+                              // ---------------
 
 // CLASS METHODS
 inline
@@ -7067,9 +7067,9 @@ const std::vector<Choice3>& Sequence1::element5() const
 
 
 
-                              // ---------------                               
-                              // class Sequence2                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence2
+                              // ---------------
 
 // CLASS METHODS
 inline
@@ -7389,9 +7389,9 @@ const std::vector<bdeut_NullableValue<CustomString> >& Sequence2::element7() con
 
 
 
-                              // ---------------                               
-                              // class Topchoice                               
-                              // ---------------                               
+                              // ---------------
+                              // class Topchoice
+                              // ---------------
 
 // CLASS METHODS
 inline
@@ -8285,9 +8285,9 @@ std::ostream& bsctst::operator<<(
 namespace BloombergLP {
 namespace bsctst {
 
-                              // ---------------                               
-                              // class CustomInt                               
-                              // ---------------                               
+                              // ---------------
+                              // class CustomInt
+                              // ---------------
 
 // PRIVATE CLASS METHODS
 
@@ -8306,9 +8306,9 @@ const char CustomInt::CLASS_NAME[] = "CustomInt";
 
 
 
-                             // ------------------                             
-                             // class CustomString                             
-                             // ------------------                             
+                             // ------------------
+                             // class CustomString
+                             // ------------------
 
 // PRIVATE CLASS METHODS
 
@@ -8327,9 +8327,9 @@ const char CustomString::CLASS_NAME[] = "CustomString";
 
 
 
-                              // ----------------                              
-                              // class Enumerated                              
-                              // ----------------                              
+                              // ----------------
+                              // class Enumerated
+                              // ----------------
 
 // CONSTANTS
 
@@ -8375,7 +8375,7 @@ int Enumerated::fromString(Enumerated::Value *result,
                             const char         *string,
                             int                 stringLength)
 {
-    
+
     switch(stringLength) {
         case 6: {
             if (string[0]=='L'
@@ -8420,7 +8420,7 @@ int Enumerated::fromString(Enumerated::Value *result,
             }
         } break;
     }
-    
+
     return -1;
 }
 
@@ -8443,9 +8443,9 @@ const char *Enumerated::toString(Enumerated::Value value)
 }
 
 
-                              // ---------------                               
-                              // class Sequence3                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence3
+                              // ---------------
 
 // CONSTANTS
 
@@ -8709,9 +8709,9 @@ std::ostream& Sequence3::print(
 
 
 
-                              // ---------------                               
-                              // class Sequence5                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence5
+                              // ---------------
 
 // CONSTANTS
 
@@ -9011,9 +9011,9 @@ std::ostream& Sequence5::print(
 
 
 
-                              // ---------------                               
-                              // class Sequence6                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence6
+                              // ---------------
 
 // CONSTANTS
 
@@ -9527,9 +9527,9 @@ std::ostream& Sequence6::print(
 
 
 
-                               // -------------                                
-                               // class Choice3                                
-                               // -------------                                
+                               // -------------
+                               // class Choice3
+                               // -------------
 
 // CONSTANTS
 
@@ -9776,7 +9776,7 @@ unsigned char& Choice3::makeSelection2()
         reset();
         new (d_selection2.buffer())
             unsigned char();
-    
+
         d_selectionId = SELECTION_ID_SELECTION2;
     }
 
@@ -9838,7 +9838,7 @@ CustomInt& Choice3::makeSelection4()
         reset();
         new (d_selection4.buffer())
             CustomInt();
-    
+
         d_selectionId = SELECTION_ID_SELECTION4;
     }
 
@@ -9963,9 +9963,9 @@ const char *Choice3::selectionName() const
     }
 }
 
-                               // -------------                                
-                               // class Choice1                                
-                               // -------------                                
+                               // -------------
+                               // class Choice1
+                               // -------------
 
 // CONSTANTS
 
@@ -10179,7 +10179,7 @@ int& Choice1::makeSelection1()
         reset();
         new (d_selection1.buffer())
             int();
-    
+
         d_selectionId = SELECTION_ID_SELECTION1;
     }
 
@@ -10210,7 +10210,7 @@ double& Choice1::makeSelection2()
         reset();
         new (d_selection2.buffer())
             double();
-    
+
         d_selectionId = SELECTION_ID_SELECTION2;
     }
 
@@ -10397,9 +10397,9 @@ const char *Choice1::selectionName() const
     }
 }
 
-                               // -------------                                
-                               // class Choice2                                
-                               // -------------                                
+                               // -------------
+                               // class Choice2
+                               // -------------
 
 // CONSTANTS
 
@@ -10615,7 +10615,7 @@ bool& Choice2::makeSelection1()
         reset();
         new (d_selection1.buffer())
             bool();
-    
+
         d_selectionId = SELECTION_ID_SELECTION1;
     }
 
@@ -10708,7 +10708,7 @@ unsigned int& Choice2::makeSelection4()
         reset();
         new (d_selection4.buffer())
             unsigned int();
-    
+
         d_selectionId = SELECTION_ID_SELECTION4;
     }
 
@@ -10833,9 +10833,9 @@ const char *Choice2::selectionName() const
     }
 }
 
-                              // ---------------                               
-                              // class Sequence4                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence4
+                              // ---------------
 
 // CONSTANTS
 
@@ -11450,9 +11450,9 @@ std::ostream& Sequence4::print(
 
 
 
-                              // ---------------                               
-                              // class Sequence1                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence1
+                              // ---------------
 
 // CONSTANTS
 
@@ -11695,9 +11695,9 @@ std::ostream& Sequence1::print(
 
 
 
-                              // ---------------                               
-                              // class Sequence2                               
-                              // ---------------                               
+                              // ---------------
+                              // class Sequence2
+                              // ---------------
 
 // CONSTANTS
 
@@ -11986,9 +11986,9 @@ std::ostream& Sequence2::print(
     return stream << std::flush;
 }
 
-                              // ---------------                               
-                              // class Topchoice                               
-                              // ---------------                               
+                              // ---------------
+                              // class Topchoice
+                              // ---------------
 
 // CONSTANTS
 
@@ -12433,7 +12433,7 @@ bdet_DatetimeTz& Topchoice::makeSelection5()
         reset();
         new (d_selection5.buffer())
             bdet_DatetimeTz();
-    
+
         d_selectionId = SELECTION_ID_SELECTION5;
     }
 
@@ -12495,7 +12495,7 @@ Enumerated::Value& Topchoice::makeSelection7()
         reset();
         new (d_selection7.buffer())
                     Enumerated::Value(static_cast<Enumerated::Value>(0));
-    
+
         d_selectionId = SELECTION_ID_SELECTION7;
     }
 
@@ -29929,7 +29929,7 @@ int main(int argc, char *argv[])
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-    const char SCHEMA[] = 
+    const char SCHEMA[] =
         "<?xml version='1.0' encoding='UTF-8'?>\n"
         "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
         "           xmlns:tns='urn:x-bloomberg-com:bsctst'\n"
@@ -30123,7 +30123,7 @@ int main(int argc, char *argv[])
         "  </xs:choice>\n"
         "</xs:complexType>\n"
         ""
-        "</xs:schema>"; 
+        "</xs:schema>";
 
         baexml_MiniReader reader;
 
